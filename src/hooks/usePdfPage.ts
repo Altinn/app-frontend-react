@@ -7,9 +7,10 @@ import { getComponentDef } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { Hidden, useNodes } from 'src/utils/layout/NodesContext';
+import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { CompInstanceInformationExternal } from 'src/layout/InstanceInformation/config.generated';
-import type { HierarchyDataSources, ILayout } from 'src/layout/layout';
+import type { ILayout } from 'src/layout/layout';
 import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -53,7 +54,7 @@ function generateAutomaticPage(
   pageOrder: string[],
   isHiddenPage: (pageId: string) => boolean,
   layoutPages: LayoutPages,
-  dataSources: HierarchyDataSources,
+  dataSources: ExpressionDataSources,
 ): LayoutPage {
   const automaticPdfLayout: ILayout = [];
 

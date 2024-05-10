@@ -1,4 +1,4 @@
-import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
+import { getExpressionDataSourcesMock } from 'src/__mocks__/getExpressionDataSourcesMock';
 import { getComponentDef } from 'src/layout';
 import { ensureAppsDirIsSet, getAllLayoutSets } from 'src/test/allApps';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
@@ -22,7 +22,7 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
       processedLayouts[page] = layouts[page].data.layout;
     }
 
-    const nodes = generateEntireHierarchy(processedLayouts, firstKey, getHierarchyDataSourcesMock(), getComponentDef);
+    const nodes = generateEntireHierarchy(processedLayouts, firstKey, getExpressionDataSourcesMock(), getComponentDef);
 
     expect(nodes).not.toBeUndefined();
   });

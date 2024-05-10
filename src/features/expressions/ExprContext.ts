@@ -3,6 +3,7 @@ import dot from 'dot-object';
 import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/prettyErrors';
 import type { IAttachments } from 'src/features/attachments';
+import type { DevToolsHiddenComponents } from 'src/features/devtools/data/types';
 import type { EvalExprOptions } from 'src/features/expressions/index';
 import type { ExprConfig, Expression, ExprPositionalArgs } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -15,7 +16,7 @@ import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { Hidden } from 'src/utils/layout/NodesContext';
 import type { NodeDataSelector } from 'src/utils/layout/useNodeItem';
 
-export interface ContextDataSources {
+export interface ExpressionDataSources {
   process?: IProcess;
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
@@ -32,6 +33,8 @@ export interface ContextDataSources {
   currentLanguage: string;
   isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
   nodeDataSelector: NodeDataSelector;
+  devToolsIsOpen: boolean;
+  devToolsHiddenComponents: DevToolsHiddenComponents;
 }
 
 export interface PrettyErrorsOptions {
@@ -49,7 +52,7 @@ export class ExprContext {
   private constructor(
     public expr: Expression,
     public node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext,
-    public dataSources: ContextDataSources,
+    public dataSources: ExpressionDataSources,
     public callbacks: Pick<EvalExprOptions, 'onBeforeFunctionCall' | 'onAfterFunctionCall'>,
     public positionalArguments?: ExprPositionalArgs,
   ) {}
@@ -60,7 +63,7 @@ export class ExprContext {
   public static withBlankPath(
     expr: Expression,
     node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext,
-    dataSources: ContextDataSources,
+    dataSources: ExpressionDataSources,
     callbacks: Pick<EvalExprOptions, 'onBeforeFunctionCall' | 'onAfterFunctionCall'>,
     positionalArguments?: ExprPositionalArgs,
   ): ExprContext {

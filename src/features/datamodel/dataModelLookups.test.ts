@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
+import { getExpressionDataSourcesMock } from 'src/__mocks__/getExpressionDataSourcesMock';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { getComponentDef } from 'src/layout';
@@ -28,7 +28,7 @@ describe('Data model lookups in real apps', () => {
       processedLayouts[page] = layouts[page].data.layout;
     }
 
-    const nodes = generateEntireHierarchy(processedLayouts, firstKey, getHierarchyDataSourcesMock(), getComponentDef);
+    const nodes = generateEntireHierarchy(processedLayouts, firstKey, getExpressionDataSourcesMock(), getComponentDef);
 
     const schema = parseJsonTolerantly(fs.readFileSync(modelPath, 'utf-8'));
     const rootPath = getRootElementPath(schema, dataTypeDef);

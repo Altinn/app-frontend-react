@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import dot from 'dot-object';
 import fs from 'node:fs';
 
-import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
+import { getExpressionDataSourcesMock } from 'src/__mocks__/getExpressionDataSourcesMock';
 import * as CustomValidationContext from 'src/features/customValidation/CustomValidationContext';
 import { resolveExpressionValidationConfig } from 'src/features/customValidation/customValidationUtils';
 import { convertLayouts } from 'src/features/expressions/shared';
@@ -13,9 +13,9 @@ import { buildAuthContext } from 'src/utils/authContext';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { _private } from 'src/utils/layout/hierarchy';
 import * as NodesContext from 'src/utils/layout/NodesContext';
+import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { Layouts } from 'src/features/expressions/shared';
 import type { IExpressionValidationConfig } from 'src/features/validation';
-import type { HierarchyDataSources } from 'src/layout/layout';
 const { resolvedNodesInLayouts } = _private;
 
 type ExpressionValidationTest = {
@@ -57,8 +57,8 @@ describe('Expression validation shared tests', () => {
   it.each(sharedTests)('$name', ({ name: _, expects, validationConfig, formData, layouts }) => {
     const langTools = staticUseLanguageForTests();
 
-    const dataSources: HierarchyDataSources = {
-      ...getHierarchyDataSourcesMock(),
+    const dataSources: ExpressionDataSources = {
+      ...getExpressionDataSourcesMock(),
       formDataSelector: (path) => dot.pick(path, formData),
       instanceDataSources: buildInstanceDataSources(),
       authContext: buildAuthContext(undefined),

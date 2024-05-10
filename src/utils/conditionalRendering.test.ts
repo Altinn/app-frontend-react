@@ -1,7 +1,7 @@
 import dot from 'dot-object';
 import { v4 as uuidv4 } from 'uuid';
 
-import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
+import { getExpressionDataSourcesMock } from 'src/__mocks__/getExpressionDataSourcesMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { _private } from 'src/utils/layout/hierarchy';
@@ -63,7 +63,7 @@ describe('conditionalRendering', () => {
 
   function makeNodes(formData: object) {
     return resolvedNodesInLayouts({ FormLayout: layout }, 'FormLayout', {
-      ...getHierarchyDataSourcesMock(),
+      ...getExpressionDataSourcesMock(),
       formDataSelector: (path: string) => dot.pick(path, formData),
     });
   }

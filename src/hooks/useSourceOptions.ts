@@ -7,9 +7,9 @@ import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { memoize } from 'src/utils/memoize';
+import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IOptionSource } from 'src/layout/common.generated';
-import type { HierarchyDataSources } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface IUseSourceOptionsArgs {
@@ -28,7 +28,7 @@ export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOpti
 };
 
 interface IGetSourceOptionsArgs extends IUseSourceOptionsArgs {
-  dataSources: HierarchyDataSources;
+  dataSources: ExpressionDataSources;
 }
 
 export function getSourceOptions({ source, node, dataSources }: IGetSourceOptionsArgs): IOptionInternal[] | undefined {

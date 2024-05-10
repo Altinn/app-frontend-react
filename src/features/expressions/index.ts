@@ -17,7 +17,7 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { DisplayData } from 'src/features/displayData';
 import type { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
-import type { ContextDataSources } from 'src/features/expressions/ExprContext';
+import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type {
   ExprConfig,
   Expression,
@@ -42,7 +42,7 @@ export interface EvalExprOptions {
 export type SimpleEval<T extends ExprVal> = (
   expr: ExprValToActualOrExpr<T> | undefined,
   defaultValue: ExprValToActual<T>,
-  dataSources?: Partial<ContextDataSources>,
+  dataSources?: Partial<ExpressionDataSources>,
 ) => ExprValToActual<T>;
 
 /**
@@ -53,7 +53,7 @@ export type SimpleEval<T extends ExprVal> = (
 export function evalExpr(
   _expr: Expression | ExprValToActual | undefined,
   node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext,
-  dataSources: ContextDataSources,
+  dataSources: ExpressionDataSources,
   options?: EvalExprOptions,
 ) {
   if (_expr === undefined || _expr === null || ['string', 'number', 'boolean'].includes(typeof _expr)) {

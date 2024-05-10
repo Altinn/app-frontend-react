@@ -1,8 +1,8 @@
 import { getApplicationSettingsMock } from 'src/__mocks__/getApplicationSettingsMock';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
-import type { HierarchyDataSources } from 'src/layout/layout';
+import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 
-export function getHierarchyDataSourcesMock(): HierarchyDataSources {
+export function getExpressionDataSourcesMock(): ExpressionDataSources {
   return {
     formDataSelector: () => null,
     attachments: {},

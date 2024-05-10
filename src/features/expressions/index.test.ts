@@ -1,7 +1,7 @@
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { evalExpr } from 'src/features/expressions/index';
 import { ExprVal } from 'src/features/expressions/types';
-import type { ContextDataSources } from 'src/features/expressions/ExprContext';
+import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprConfig } from 'src/features/expressions/types';
 
 describe('Expressions', () => {
@@ -17,7 +17,7 @@ describe('Expressions', () => {
         new NodeNotFoundWithoutContext('test'),
         {
           applicationSettings: {},
-        } as ContextDataSources,
+        } as ExpressionDataSources,
         { config },
       ),
     ).toEqual('hello world');
@@ -32,7 +32,7 @@ describe('Expressions', () => {
         instanceDataSources: {},
         langToolsRef: { current: {} },
         currentLanguage: 'nb',
-      } as unknown as ContextDataSources;
+      } as unknown as ExpressionDataSources;
       const node = new NodeNotFoundWithoutContext('test');
 
       const result = evalExpr(['formatDate', '2023-10-26T13:12:38.069Z'], node, dataSources);
@@ -47,7 +47,7 @@ describe('Expressions', () => {
         instanceDataSources: {},
         langToolsRef: { current: {} },
         currentLanguage: 'en',
-      } as unknown as ContextDataSources;
+      } as unknown as ExpressionDataSources;
       const node = new NodeNotFoundWithoutContext('test');
 
       const result = evalExpr(['formatDate', '2023-10-26T13:12:38.069Z'], node, dataSources);
@@ -61,7 +61,7 @@ describe('Expressions', () => {
         hiddenFields: new Set<string>(),
         instanceDataSources: {},
         langToolsRef: { current: {} },
-      } as unknown as ContextDataSources;
+      } as unknown as ExpressionDataSources;
       const node = new NodeNotFoundWithoutContext('test');
 
       const result = evalExpr(['formatDate', '2023-10-26T13:12:38.069Z', 'dd.MM'], node, dataSources);

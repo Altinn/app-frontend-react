@@ -1,6 +1,6 @@
 import dot from 'dot-object';
 
-import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
+import { getExpressionDataSourcesMock } from 'src/__mocks__/getExpressionDataSourcesMock';
 import { evalExpr } from 'src/features/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { convertInstanceDataToAttachments, convertLayouts, getSharedTests } from 'src/features/expressions/shared';
@@ -14,10 +14,10 @@ import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { _private } from 'src/utils/layout/hierarchy';
 import { generateEntireHierarchy, generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
+import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IApplicationSettings } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -85,8 +85,8 @@ describe('Expressions shared function tests', () => {
         }
 
         const options: { [nodeId: string]: IOptionInternal[] | undefined } = {};
-        const dataSources: HierarchyDataSources = {
-          ...getHierarchyDataSourcesMock(),
+        const dataSources: ExpressionDataSources = {
+          ...getExpressionDataSourcesMock(),
           formDataSelector: (path) => dot.pick(path, dataModel ?? {}),
           attachments: convertInstanceDataToAttachments(instanceDataElements),
           instanceDataSources: buildInstanceDataSources(instance),
@@ -171,8 +171,8 @@ describe('Expressions shared context tests', () => {
     it.each(folder.content)(
       '$name',
       ({ layouts, dataModel, instanceDataElements, instance, frontendSettings, permissions, expectedContexts }) => {
-        const dataSources: HierarchyDataSources = {
-          ...getHierarchyDataSourcesMock(),
+        const dataSources: ExpressionDataSources = {
+          ...getExpressionDataSourcesMock(),
           formDataSelector: (path) => dot.pick(path, dataModel ?? {}),
           attachments: convertInstanceDataToAttachments(instanceDataElements),
           instanceDataSources: buildInstanceDataSources(instance),

@@ -13,6 +13,7 @@ import { NodeGeneratorInternal, NodesGeneratorProvider } from 'src/utils/layout/
 import { NodeStages } from 'src/utils/layout/NodeStages';
 import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
 import type { SimpleEval } from 'src/features/expressions';
+import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { CompDef } from 'src/layout';
 import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
@@ -21,7 +22,6 @@ import type {
   CompExternalExact,
   CompInternal,
   CompTypes,
-  HierarchyDataSources,
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
@@ -153,7 +153,7 @@ export function useExpressionResolverProps<T extends CompTypes>(
       type: T,
       expr: ExprValToActualOrExpr<T> | undefined,
       defaultValue: ExprValToActual<T>,
-      dataSources?: Partial<HierarchyDataSources>,
+      dataSources?: Partial<ExpressionDataSources>,
     ) => {
       if (!node) {
         return defaultValue;

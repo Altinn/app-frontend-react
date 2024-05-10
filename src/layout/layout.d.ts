@@ -1,8 +1,6 @@
 import type { $Keys, PickByValue } from 'utility-types';
 
 import type { ComponentBehaviors, ComponentCapabilities } from 'src/codegen/ComponentConfig';
-import type { DevToolsHiddenComponents } from 'src/features/devtools/data/types';
-import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { CompCategory } from 'src/layout/common';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
@@ -103,11 +101,6 @@ export type TypeFromConfig<T extends CompInternal | CompExternal> = T extends { 
   : CompTypes;
 
 export type TypeFromNode<N extends LayoutNode> = N extends BaseLayoutNode<infer Type> ? Type : CompTypes;
-
-export interface HierarchyDataSources extends ContextDataSources {
-  devToolsIsOpen: boolean;
-  devToolsHiddenComponents: DevToolsHiddenComponents;
-}
 
 export type LayoutNodeFromObj<T> = T extends { type: infer Type }
   ? Type extends CompTypes

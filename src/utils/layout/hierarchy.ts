@@ -15,16 +15,19 @@ import { buildAuthContext } from 'src/utils/authContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
-import type { HierarchyDataSources, ILayouts } from 'src/layout/layout';
+import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
+import type { ILayouts } from 'src/layout/layout';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+
 /**
  * This will generate an entire layout hierarchy, iterate each
  * component/group in the layout and resolve all expressions for them.
+ * TODO: Remove this when no longer in use
  */
 function resolvedNodesInLayouts(
   layouts: ILayouts | null,
   currentView: string | undefined,
-  dataSources: HierarchyDataSources,
+  dataSources: ExpressionDataSources,
 ) {
   // A full copy is needed here because formLayout comes from the redux store, and in production code (not the
   // development server!) the properties are not mutable (but we have to mutate them below).
@@ -34,7 +37,7 @@ function resolvedNodesInLayouts(
 }
 
 const emptyObject = {};
-export function useExpressionDataSources(): HierarchyDataSources {
+export function useExpressionDataSources(): ExpressionDataSources {
   const instanceDataSources = useLaxInstanceDataSources();
   const formDataSelector = FD.useDebouncedSelector();
   const layoutSettings = useLayoutSettings();
