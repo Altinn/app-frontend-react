@@ -19,8 +19,22 @@ interface RepeatingGroupPaginationProps {
   inTable?: boolean;
 }
 
-export function RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationProps) {
-  const { hasPagination, rowsPerPage, currentPage, totalPages, changePage, visibleRows, node } = useRepeatingGroup();
+/**
+ * Simple wrapper to prevent running any hooks unless pagination is actually going to be used
+ * Specifically, usePagesWithErrors would be doing unecessary work
+ */
+export function RepeatingGroupPagination(props: RepeatingGroupPaginationProps) {
+  const { hasPagination, visibleRows, rowsPerPage } = useRepeatingGroup();
+
+  if (!hasPagination || visibleRows.length <= rowsPerPage) {
+    return null;
+  }
+
+  return <_RepeatingGroupPagination {...props} />;
+}
+
+function _RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationProps) {
+  const { hasPagination, rowsPerPage, currentPage, totalPages, changePage, node } = useRepeatingGroup();
   const pagesWithErrors = usePagesWithErrors(rowsPerPage, node);
   const isTablet = useIsMobileOrTablet();
   const isMobile = useIsMobile();
@@ -31,11 +45,8 @@ export function RepeatingGroupPagination({ inTable = true }: RepeatingGroupPagin
     [node.item.id],
   );
 
+  // Should never be true, but leaving it for type inference
   if (!hasPagination) {
-    return null;
-  }
-
-  if (visibleRows.length <= rowsPerPage) {
     return null;
   }
 
