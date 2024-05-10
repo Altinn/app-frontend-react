@@ -314,7 +314,7 @@ function newStore({ nodeRef }: NewStoreProps) {
       });
     },
 
-    changePage: (page) => set(() => ({ currentPage: page })),
+    changePage: (page) => set((state) => ({ currentPage: page, ...(state.editingId && { editingId: undefined }) })),
   }));
 }
 
@@ -421,8 +421,13 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
       if (await maybeValidateRow()) {
         return;
       }
+
       const page = getPageForRow(uuid, paginationStateRef.current, nodeStateRef.current.visibleRows);
-      page && stateRef.current.changePage(page);
+      if (page == null) {
+        return;
+      }
+
+      stateRef.current.changePage(page);
     },
     [maybeValidateRow, nodeStateRef, paginationStateRef, stateRef],
   );
