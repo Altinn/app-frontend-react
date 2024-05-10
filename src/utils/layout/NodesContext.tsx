@@ -27,7 +27,7 @@ interface NodesContext {
   setHiddenComponents: (mutator: (hidden: Set<string>) => Set<string>) => void;
 }
 
-function initialCreateStore() {
+export function initialCreateStore() {
   return createStore<NodesContext>((set) => ({
     nodes: undefined,
     setNodes: (nodes: LayoutPages) => set({ nodes }),

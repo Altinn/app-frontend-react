@@ -13,15 +13,6 @@ export const Config = new CG.component({
 })
   .addProperty(
     new CG.prop(
-      'pageId',
-      new CG.str()
-        .setTitle('Page ID')
-        .setDescription('String value indicating which page ID the summary is for.')
-        .optional(),
-    ),
-  )
-  .addProperty(
-    new CG.prop(
       'children',
       new CG.arr(new CG.str())
         .optional()
@@ -38,4 +29,19 @@ export const Config = new CG.component({
         .setTitle('Children')
         .setDescription('Array of component IDs that should be displayed in the summary'),
     ).onlyIn(Variant.External),
+  )
+  .addProperty(
+    new CG.prop(
+      'whatToRender',
+      new CG.obj(
+        new CG.prop(
+          'type',
+          new CG.enum('page', 'layoutSet', 'component')
+            .optional({ default: 'component' })
+            .setTitle('Mode')
+            .setDescription('The mode of the repeating group'),
+        ),
+        new CG.prop('id', new CG.str()),
+      ),
+    ),
   );
