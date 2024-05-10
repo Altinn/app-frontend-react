@@ -14,6 +14,10 @@ module.exports = defineConfig({
         if (browser.name === 'electron') {
           launchOptions.preferences.width = CYPRESS_WINDOW_WIDTH;
           launchOptions.preferences.height = CYPRESS_WINDOW_HEIGHT;
+          launchOptions.preferences.webPreferences = {
+            ...(launchOptions.preferences.webPreferences || {}),
+            webSecurity: false,
+          };
         }
         if (browser.name === 'chrome' && browser.isHeadless) {
           launchOptions.args.push(`--window-size=${CYPRESS_WINDOW_WIDTH},${CYPRESS_WINDOW_HEIGHT}`);
@@ -22,13 +26,6 @@ module.exports = defineConfig({
         // Adding chromeWebSecurity: false
         if (browser.name === 'chrome') {
           launchOptions.args.push('--disable-web-security');
-        }
-
-        if (browser.name === 'electron') {
-          launchOptions.preferences.webPreferences = {
-            ...(launchOptions.preferences.webPreferences || {}),
-            webSecurity: false,
-          };
         }
 
         return launchOptions;
