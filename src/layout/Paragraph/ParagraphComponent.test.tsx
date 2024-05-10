@@ -34,6 +34,16 @@ describe('ParagraphComponent', () => {
     ).toBeInTheDocument();
   });
 
+  it('should not render help text if help text is supplied but empty', async () => {
+    await render({
+      component: {
+        textResourceBindings: { help: '' },
+      },
+    });
+
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('should not render help text if no help text is supplied', async () => {
     await render();
 

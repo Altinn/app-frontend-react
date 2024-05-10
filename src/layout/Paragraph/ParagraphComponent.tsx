@@ -17,8 +17,8 @@ export function ParagraphComponent({ node }: IParagraphProps) {
 
   // The lang() function returns an object with a type property set to 'span'
   // if text contains inline-element(s) or just a string.
+  const helpText = lang(textResourceBindings?.help);
   const hasInlineContent = text && typeof text === 'object' && 'type' in text && text.type === 'span';
-
   return (
     <span className={classes.paragraphWrapper}>
       <Paragraph
@@ -28,7 +28,7 @@ export function ParagraphComponent({ node }: IParagraphProps) {
       >
         <Lang id={textResourceBindings?.title} />
       </Paragraph>
-      {textResourceBindings?.help && (
+      {textResourceBindings?.help && elementAsString(helpText) !== '' && (
         <HelpTextContainer
           helpText={<Lang id={textResourceBindings?.help} />}
           title={elementAsString(text)}

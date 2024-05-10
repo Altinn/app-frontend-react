@@ -12,6 +12,7 @@ export interface IHelpTextContainerProps {
 
 export function HelpTextContainer({ helpText, title }: IHelpTextContainerProps) {
   const { langAsString } = useLanguage();
+
   return (
     <div className={classes.helpTextContainer}>
       <HelpText
