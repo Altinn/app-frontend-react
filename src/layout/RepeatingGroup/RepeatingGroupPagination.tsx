@@ -14,7 +14,11 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroupPagination.module.c
 import type { CompRepeatingGroupInternal, HRepGroupRow } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function RepeatingGroupPagination() {
+interface RepeatingGroupPaginationProps {
+  inTable?: boolean;
+}
+
+export function RepeatingGroupPagination({ inTable }: RepeatingGroupPaginationProps) {
   const { hasPagination, rowsPerPage, currentPage, totalPages, changePage, visibleRows, node } = useRepeatingGroup();
   const pagesWithErrors = usePagesWithErrors(rowsPerPage, node);
   const isTablet = useIsMobileOrTablet();
@@ -64,6 +68,22 @@ export function RepeatingGroupPagination() {
     await changePage(pageNumber - 1);
     resetScrollPosition(prevScrollPosition);
   };
+
+  if (inTable === false) {
+    return (
+      <PaginationComponent
+        data-pagination-id={node.item.id}
+        className={classes.pagination}
+        currentPage={currentPage + 1}
+        totalPages={totalPages}
+        pagesWithErrors={pagesWithErrors}
+        onChange={onChange}
+        compact={isTablet}
+        hideLabels={isMobile}
+        size={isMini ? 'small' : 'medium'}
+      />
+    );
+  }
 
   return (
     <Table.Body>
