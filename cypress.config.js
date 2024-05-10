@@ -24,6 +24,13 @@ module.exports = defineConfig({
           launchOptions.args.push('--disable-web-security');
         }
 
+        if (browser.name === 'electron') {
+          launchOptions.preferences.webPreferences = {
+            ...(launchOptions.preferences.webPreferences || {}),
+            webSecurity: false,
+          };
+        }
+
         return launchOptions;
       });
 
