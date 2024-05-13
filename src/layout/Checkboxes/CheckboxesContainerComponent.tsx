@@ -9,7 +9,7 @@ import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useGetOptions } from 'src/hooks/useGetOptions';
-import { useHasChangedIgnoreUndefined } from 'src/hooks/useHasChangedIgnoreUndefined';
+import { useHasOptionsChanged } from 'src/hooks/useHasOptionsChanged';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/Checkboxes/CheckboxesContainerComponent.module.css';
 import { shouldUseRowLayout } from 'src/utils/layout';
@@ -47,7 +47,7 @@ export const CheckboxContainerComponent = ({
   const apiOptions = useGetOptions({ optionsId, mapping, queryParameters, source });
   const calculatedOptions = apiOptions || options || defaultOptions;
   const hasSelectedInitial = React.useRef(false);
-  const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
+  const optionsHasChanged = useHasOptionsChanged(apiOptions);
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
   const { lang, langAsString } = useLanguage();
