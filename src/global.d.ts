@@ -5,6 +5,8 @@ import type { IFeatureTogglesOptionalMap } from 'src/features/toggles';
 import type { IRuleObject } from 'src/types';
 import type { NodesDataStore, NodesStore } from 'src/utils/layout/NodesContext';
 
+///<reference types="cypress-iframe" />
+
 declare global {
   interface Window {
     app: string;
