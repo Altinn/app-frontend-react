@@ -399,8 +399,8 @@ export class ComponentConfig {
 
       const ChildClaimerProps = new CG.import({ import: 'ChildClaimerProps', from: 'src/layout/LayoutComponent' });
       const NodeData = new CG.import({ import: 'NodeData', from: 'src/utils/layout/types' });
-      const ChildLookupRestriction = new CG.import({
-        import: 'ChildLookupRestriction',
+      const TraversalRestriction = new CG.import({
+        import: 'TraversalRestriction',
         from: 'src/utils/layout/useNodeTraversal',
       });
       const CompTypes = new CG.import({ import: 'CompTypes', from: 'src/layout/layout' });
@@ -411,7 +411,7 @@ export class ComponentConfig {
         `claimChildren(props: ${ChildClaimerProps}<'${this.type}'>) {
           return ${pluginRef(plugin)}.claimChildren(props as any);
         }`,
-        `pickDirectChildren(state: ${NodeData}<'${this.type}'>, restriction?: ${ChildLookupRestriction}) {
+        `pickDirectChildren(state: ${NodeData}<'${this.type}'>, restriction?: ${TraversalRestriction}) {
           return ${pluginRef(plugin)}.pickDirectChildren(state as any, restriction);
         }`,
         `pickChild<C extends ${CompTypes}>(state: ${NodeData}<'${this.type}'>, childId: string, parentPath: string[]) {

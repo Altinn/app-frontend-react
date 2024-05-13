@@ -39,15 +39,23 @@ export function runConditionalRenderingRules(
 
     const connection: IConditionalRenderingRule = rules[key];
     if (connection.repeatingGroup) {
-      const node = nodes.findById(connection.repeatingGroup.groupId);
+      const groupId = connection.repeatingGroup.groupId;
+      const node = nodeTraversal((t) => t.findById(groupId), [groupId]);
       if (node?.isType('RepeatingGroup')) {
         for (const row of node.item.rows) {
           const firstChild = row.items[0];
-          const firstChildNode = nodes.findById(firstChild?.nodeRef);
+          const firstChildId = firstChild?.nodeRef;
+          const firstChildNode = nodeTraversal((t) => t.findById(firstChildId), [firstChildId]);
           runConditionalRenderingRule(connection, firstChildNode, componentsToHide, formDataSelector);
           if (connection.repeatingGroup.childGroupId) {
-            const childId = `${connection.repeatingGroup.childGroupId}-${row.index}`;
-            const childNode = node.flat({ onlyInRowUuid: row.uuid }).find((n) => n.getId() === childId);
+            const childGroupId = connection.repeatingGroup.childGroupId;
+            const childNode = nodeTraversal(
+              (t) =>
+                t.with(node).flat((i) => i.type === 'node' && i.item.baseComponentId === childGroupId, {
+                  onlyInRowUuid: row.uuid,
+                })?.[0],
+              [node, childGroupId, row.uuid],
+            );
             if (childNode && childNode.isType('RepeatingGroup')) {
               for (const childRow of childNode.item.rows) {
                 const firstNestedChild = childRow.items[0];

@@ -128,6 +128,10 @@ export class NodeTraversal<T extends Node = LayoutPages> {
     return new NodeTraversal(this.state, this.rootNode, node) as any;
   }
 
+  targetIsRoot(): this is NodeTraversalFromRoot {
+    return this.target === this.rootNode;
+  }
+
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found).
@@ -270,6 +274,10 @@ export function useNodeTraversal<N extends LayoutNode, Out>(
   selector: (traverser: NodeTraversalFromNode<N>) => Out,
   node: N,
 ): Out;
+export function useNodeTraversal<N extends LayoutNode, Out>(
+  selector: (traverser: NodeTraversalFromNode<N> | NodeTraversalFromRoot) => Out,
+  node: N | undefined,
+): Out;
 export function useNodeTraversal<Out>(selector: (traverser: never) => Out, node?: never): Out {
   return useNodeTraversalLax((traverser) => {
     if (traverser === ContextNotProvided) {
@@ -307,7 +315,10 @@ function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: St
   const selectState = NodesInternal.useNodeDataMemoSelectorRaw();
 
   return useCallback(
-    <U>(innerSelector: (traverser: Traverser<Strict>) => InnerSelectorReturns<Strict, U>, deps: any[]) =>
+    <U>(
+      innerSelector: (traverser: Traverser<Strict>) => InnerSelectorReturns<Strict, U>,
+      deps: any[],
+    ): InnerSelectorReturns<Strict, U> =>
       selectState(
         (state) => {
           const nodes = nodesRef.current;
@@ -344,3 +355,7 @@ export function useNodeTraversalSelectorSilent() {
 export type NodeTraversalSelector = ReturnType<typeof useNodeTraversalSelector>;
 export type NodeTraversalSelectorLax = ReturnType<typeof useNodeTraversalSelectorLax>;
 export type NodeTraversalSelectorSilent = ReturnType<typeof useNodeTraversalSelectorSilent>;
+
+export function nodeTraversalSelectorForTests(nodes: LayoutPages): NodeTraversalSelector {
+  return (selector: (traverser: NodeTraversalFromRoot) => any) => selector(new NodeTraversal({} as any, nodes, nodes));
+}

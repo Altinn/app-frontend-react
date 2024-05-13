@@ -5,6 +5,7 @@ import { getExpressionDataSourcesMock } from 'src/__mocks__/getExpressionDataSou
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { _private } from 'src/utils/layout/hierarchy';
+import { nodeTraversalSelectorForTests } from 'src/utils/layout/useNodeTraversal';
 import type { IConditionalRenderingRules } from 'src/features/form/dynamics';
 import type { ILayout } from 'src/layout/layout';
 
@@ -88,9 +89,10 @@ describe('conditionalRendering', () => {
 
     const formDataAsObj = { parentGroup: [{ [ALTINN_ROW_ID]: uuidv4(), mockField: '8' }] };
     const nodes = makeNodes(formDataAsObj);
+    const selector = nodeTraversalSelectorForTests(nodes);
 
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const result = runConditionalRenderingRules(showRules, nodes, (path) => dot.pick(path, formDataAsObj));
+    const result = runConditionalRenderingRules(showRules, nodes, (path) => dot.pick(path, formDataAsObj), selector);
     expect([...result.values()]).toEqual(['layoutElement_2-0', 'layoutElement_3-0']);
   });
 
@@ -134,9 +136,10 @@ describe('conditionalRendering', () => {
       ],
     };
     const nodes = makeNodes(formDataAsObj);
+    const selector = nodeTraversalSelectorForTests(nodes);
 
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const result = runConditionalRenderingRules(showRules, nodes, (path) => dot.pick(path, formDataAsObj));
+    const result = runConditionalRenderingRules(showRules, nodes, (path) => dot.pick(path, formDataAsObj), selector);
 
     expect([...result.values()]).toEqual([
       'someField-0-0',
