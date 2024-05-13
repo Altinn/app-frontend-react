@@ -16,8 +16,8 @@ import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigati
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { AllOptionsProvider, AllOptionsStoreProvider } from 'src/features/options/useAllOptions';
 import { ValidationProvider } from 'src/features/validation/validationContext';
-import { FormPrefetcher } from 'src/formPrefetch';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
+import { FormPrefetcher } from 'src/queries/formPrefetcher';
 import { NodesProvider } from 'src/utils/layout/NodesContext';
 
 const { Provider, useLaxCtx } = createContext<undefined>({
