@@ -21,7 +21,7 @@ const usePartiesQuery = () => {
   const utils = useQuery({
     enabled,
     queryKey: ['fetchUseParties'],
-    queryFn: () => fetchParties(),
+    queryFn: fetchParties,
   });
 
   useEffect(() => {
@@ -39,7 +39,7 @@ const useCurrentPartyQuery = (enabled: boolean) => {
   const utils = useQuery({
     enabled,
     queryKey: ['fetchUseCurrentParty'],
-    queryFn: () => fetchCurrentParty(),
+    queryFn: fetchCurrentParty,
   });
 
   useEffect(() => {

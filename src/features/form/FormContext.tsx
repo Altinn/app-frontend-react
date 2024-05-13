@@ -16,6 +16,7 @@ import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigati
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { AllOptionsProvider, AllOptionsStoreProvider } from 'src/features/options/useAllOptions';
 import { ValidationProvider } from 'src/features/validation/validationContext';
+import { FormPrefetcher } from 'src/formPrefetch';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { NodesProvider } from 'src/utils/layout/NodesContext';
 
@@ -36,42 +37,45 @@ export function FormProvider({ children }: React.PropsWithChildren) {
   const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
 
   return (
-    <CustomValidationConfigProvider>
-      <LayoutsProvider>
-        <LayoutSettingsProvider>
-          <PageNavigationProvider>
-            <DynamicsProvider>
-              <RulesProvider>
-                <DataModelSchemaProvider>
-                  <InitialFormDataProvider>
-                    <AttachmentsStoreProvider>
-                      <AllOptionsStoreProvider>
-                        <NodesProvider>
-                          <NavigateToNodeProvider>
-                            <ValidationProvider isCustomReceipt={isCustomReceipt}>
-                              <AttachmentsProvider>
-                                <AllOptionsProvider>
-                                  {hasProcess ? (
-                                    <ProcessNavigationProvider>
+    <>
+      <FormPrefetcher />
+      <CustomValidationConfigProvider>
+        <LayoutsProvider>
+          <LayoutSettingsProvider>
+            <PageNavigationProvider>
+              <DynamicsProvider>
+                <RulesProvider>
+                  <DataModelSchemaProvider>
+                    <InitialFormDataProvider>
+                      <AttachmentsStoreProvider>
+                        <AllOptionsStoreProvider>
+                          <NodesProvider>
+                            <NavigateToNodeProvider>
+                              <ValidationProvider isCustomReceipt={isCustomReceipt}>
+                                <AttachmentsProvider>
+                                  <AllOptionsProvider>
+                                    {hasProcess ? (
+                                      <ProcessNavigationProvider>
+                                        <Provider value={undefined}>{children}</Provider>
+                                      </ProcessNavigationProvider>
+                                    ) : (
                                       <Provider value={undefined}>{children}</Provider>
-                                    </ProcessNavigationProvider>
-                                  ) : (
-                                    <Provider value={undefined}>{children}</Provider>
-                                  )}
-                                </AllOptionsProvider>
-                              </AttachmentsProvider>
-                            </ValidationProvider>
-                          </NavigateToNodeProvider>
-                        </NodesProvider>
-                      </AllOptionsStoreProvider>
-                    </AttachmentsStoreProvider>
-                  </InitialFormDataProvider>
-                </DataModelSchemaProvider>
-              </RulesProvider>
-            </DynamicsProvider>
-          </PageNavigationProvider>
-        </LayoutSettingsProvider>
-      </LayoutsProvider>
-    </CustomValidationConfigProvider>
+                                    )}
+                                  </AllOptionsProvider>
+                                </AttachmentsProvider>
+                              </ValidationProvider>
+                            </NavigateToNodeProvider>
+                          </NodesProvider>
+                        </AllOptionsStoreProvider>
+                      </AttachmentsStoreProvider>
+                    </InitialFormDataProvider>
+                  </DataModelSchemaProvider>
+                </RulesProvider>
+              </DynamicsProvider>
+            </PageNavigationProvider>
+          </LayoutSettingsProvider>
+        </LayoutsProvider>
+      </CustomValidationConfigProvider>
+    </>
   );
 }

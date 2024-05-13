@@ -13,7 +13,8 @@ const useOrgsQuery = () => {
   const { fetchOrgs } = useAppQueries();
   const utils = useQuery({
     queryKey: ['fetchOrganizations'],
-    queryFn: () => fetchOrgs().then(extractOrgsFromServerResponse),
+    queryFn: fetchOrgs,
+    select: extractOrgsFromServerResponse,
   });
 
   useEffect(() => {

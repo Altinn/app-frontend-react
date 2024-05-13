@@ -17,7 +17,7 @@ const useProfileQuery = () => {
   const utils = useQuery({
     enabled,
     queryKey: ['fetchUserProfile'],
-    queryFn: () => fetchUserProfile(),
+    queryFn: fetchUserProfile,
   });
 
   useEffect(() => {

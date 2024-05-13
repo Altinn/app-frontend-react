@@ -18,7 +18,8 @@ function useDynamicsQuery() {
 
   const utils = useQuery({
     queryKey: ['fetchDynamics', layoutSetId],
-    queryFn: async () => (await fetchDynamics(layoutSetId))?.data || null,
+    queryFn: () => fetchDynamics(layoutSetId),
+    select: (dynamics) => dynamics?.data || null,
   });
 
   useEffect(() => {

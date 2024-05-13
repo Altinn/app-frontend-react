@@ -33,7 +33,8 @@ function useLayoutQuery() {
     // We don't want to fetch form layouts for a process step which we are currently not on
     enabled: hasInstance ? !!process : true,
     queryKey: ['formLayouts', currentLayoutSetId],
-    queryFn: async () => processLayouts(await fetchLayouts(currentLayoutSetId!)),
+    queryFn: () => fetchLayouts(currentLayoutSetId!),
+    select: processLayouts,
   });
 
   useEffect(() => {
