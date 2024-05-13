@@ -3,6 +3,7 @@ import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/Appl
 import { getLayoutSetIdForApplication } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useLaxLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
+import type { ILayoutSet } from 'src/layout/common.generated';
 
 export function useCurrentLayoutSetId() {
   const application = useLaxApplicationMetadata();
@@ -14,4 +15,13 @@ export function useCurrentLayoutSetId() {
   }
 
   return getLayoutSetIdForApplication({ application, layoutSets, taskId });
+}
+
+export function useGetLayoutSetById(layoutSetId: string): ILayoutSet | undefined {
+  const layoutSets = useLaxLayoutSets();
+  if (layoutSets === ContextNotProvided) {
+    return undefined;
+  }
+
+  return layoutSets.sets.find((layoutSet) => layoutSet.id === layoutSetId);
 }

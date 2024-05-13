@@ -90,7 +90,7 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
  */
 export const useNode = (id: string) => useSelector((s) => s.nodes?.findById(id));
 
-export const useGetPage = (pageId?: string) =>
+export const useGetPage = (pageId: string) =>
   useSelector((state) => {
     if (!pageId) {
       return null;

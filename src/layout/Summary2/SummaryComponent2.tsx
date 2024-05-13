@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { useResolvedNode } from 'src/utils/layout/NodesContext';
+import { useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { useGetLayoutSetById } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
+import { useGetPage } from 'src/utils/layout/NodesContext';
 import type { IGrid } from 'src/layout/common.generated';
-import type { GenericComponentOverrideDisplay } from 'src/layout/FormComponentContext';
-import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -17,83 +17,85 @@ export interface ISummaryComponent2 {
   };
 }
 
-export interface RenderSummary2Props<Type extends CompTypes> {
-  node: LayoutNode<Type>;
-  overrideItemProps?: Partial<Omit<CompInternal<Type>, 'id'>>;
-  overrideDisplay?: GenericComponentOverrideDisplay;
+interface LayoutSetSummaryProps {
+  layoutSetId: string;
+}
+interface PageSummaryProps {
+  pageId: string;
 }
 
-function RenderSummary2<RenderSummary2Props>({ node }) {
-  const targetNode = useResolvedNode(node);
-  if (!targetNode) {
+interface ComponentSummaryProps {
+  componentNode: LayoutNode;
+}
+
+function LayoutSetSummary({ layoutSetId }: LayoutSetSummaryProps) {
+  const layoutSet = useGetLayoutSetById(layoutSetId);
+
+  const layouts = Object.keys(useLayouts());
+  if (!layoutSet) {
+    throw new Error('LayoutSetId invalid in LayoutSetSummary.');
+  }
+  return (
+    <div style={{ border: '1px solid blue' }}>
+      <h1>LayoutSummary:</h1>
+      {layouts.map((layoutId) => (
+        <PageSummary
+          pageId={layoutId}
+          key={layoutId}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ComponentSummary({ componentNode }: ComponentSummaryProps) {
+  if (componentNode.isHidden()) {
     return null;
   }
-  return <>{node.def.renderSummary2(targetNode)}</>;
+
+  if (componentNode.def.renderSummary2) {
+    const renderedComponent = componentNode.def.renderSummary2(componentNode as LayoutNode<any>);
+
+    if (!renderedComponent) {
+      return null;
+    }
+
+    return <div style={{ border: '1px solid yellow' }}>{renderedComponent}</div>;
+  }
 }
 
-const getIdOfNodeToRender = (summaryNode) => {};
+function PageSummary({ pageId }: PageSummaryProps) {
+  const page = useGetPage(pageId);
 
-function _SummaryComponent2({ summaryNode, overrides }: ISummaryComponent2, ref: React.Ref<HTMLDivElement>) {
-  // const pageId = summaryNode?.item?.pageId;
-  // const nodesContext = useContext();
+  if (!page) {
+    throw new Error('PageId invalid in PageSummary.');
+  }
 
-  // // @ts-ignore
-  // useStore((state) => {
-  //   console.log(state);
-  //   return {} as unknown;
-  // });
-  return <div></div>;
-  // initialCreateStore((state) => ({
-  //   nodes: state.nodes,
-  // })),
+  return (
+    <div style={{ border: '1px solid  green' }}>
+      {page.children().map((child) => (
+        <ComponentSummary
+          componentNode={child}
+          key={child.item.id}
+        />
+      ))}
+    </div>
+  );
+}
 
-  // const { count, increment, decrement } = useStore((state) => ({
-  //   count: state.count,
-  //   increment: state.increment,
-  //   decrement: state.decrement,
-  // }));
+function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
+  if (summaryNode.item.whatToRender.type === 'layoutSet') {
+    return <LayoutSetSummary layoutSetId={summaryNode.item.whatToRender.id} />;
+  }
 
-  //
-  // const store = useContext(NodesContext);
-  // const thing = useSelector()
-  // let nodeToRender: LayoutNode;
-  // const page = useGetPage(summaryNode.item?.whatToRender.id);
-  // if (summaryNode.item?.whatToRender?.type === 'page') {
-  //   console.log('page!');
-  //
-  //   nodeToRender = useGetPage(summaryNode.item?.whatToRender);
-  // }
-  // const layoutSetId = summaryNode?.item?.layoutSetId;
-  // if (layoutSetId && pageId) {
-  //   throw new Error();
-  // }
-  // const page = useGetPage(pageId);
-  // if (!page) {
-  //   return null;
-  // }
-  // return (
-  //   <div>
-  //     {page.children().map((childNode: LayoutNode) => {
-  //       if (childNode.def.renderSummary2) {
-  //         return (
-  //           <RenderSummary2
-  //             node={childNode}
-  //             key={childNode.item.id}
-  //           ></RenderSummary2>
-  //         );
-  //       }
-  //     })}
-  //   </div>
-  // );
-  // return (
-  //   <div>
-  //     {summaryNode.children().map((childNode) => (
-  //       <GenericComponent
-  //         key={childNode.item.id}
-  //         node={childNode}
-  //       />
-  //     ))}
-  //   </div>
-  // );
+  if (summaryNode.item.whatToRender.type === 'page') {
+    return <PageSummary pageId={summaryNode.item.whatToRender.id} />;
+  }
+
+  if (summaryNode.item.whatToRender.type === 'component') {
+    return <ComponentSummary componentNode={summaryNode} />;
+  }
+
+  throw new Error(`Invalid summary render type: ${summaryNode.item.whatToRender.type}`);
 }
 export const SummaryComponent2 = React.forwardRef(_SummaryComponent2);

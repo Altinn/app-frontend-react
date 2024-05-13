@@ -6,12 +6,6 @@ import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Summary2 extends Summary2Def {
-  // private _hierarchyGenerator = new SummaryHierarchyGenerator();
-  //
-  // hierarchyGenerator(): ComponentHierarchyGenerator<'Summary2'> {
-  //   return this._hierarchyGenerator;
-  // }
-
   directRender(): boolean {
     return true;
   }
