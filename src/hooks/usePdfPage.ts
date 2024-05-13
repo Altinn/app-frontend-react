@@ -7,6 +7,7 @@ import { getComponentDef } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { Hidden, useNodes } from 'src/utils/layout/NodesContext';
+import { useNodeTraversal, useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { CompInstanceInformationExternal } from 'src/layout/InstanceInformation/config.generated';
@@ -14,18 +15,19 @@ import type { ILayout } from 'src/layout/layout';
 import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { NodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 
 const PDF_LAYOUT_NAME = '__pdf__';
 
-export const usePdfPage = (): LayoutPage | null => {
+export const usePdfPage = (): LayoutPage | undefined => {
   const layoutPages = useNodes();
   const pageOrder = usePageOrder();
   const dataSources = useExpressionDataSources();
   const pdfLayoutName = useLayoutSettings().pages.pdfLayoutName;
   const isHiddenPage = Hidden.useIsHiddenPageSelector();
-
-  const customPdfPage = pdfLayoutName ? layoutPages.findLayout(pdfLayoutName) : undefined;
+  const customPdfPage = useNodeTraversal((t) => t.findPage(pdfLayoutName));
   const method = customPdfPage ? 'custom' : 'auto';
+  const traversal = useNodeTraversalSelector();
 
   const { data: pdfFormat, isFetching: pdfFormatIsLoading } = usePdfFormatQuery(method === 'auto');
 
@@ -33,20 +35,20 @@ export const usePdfPage = (): LayoutPage | null => {
 
   const automaticPdfPage = useMemo(() => {
     if (readyForPrint && method === 'auto') {
-      return generateAutomaticPage(pdfFormat!, pageOrder, isHiddenPage, layoutPages!, dataSources);
+      return generateAutomaticPage(pdfFormat!, pageOrder, isHiddenPage, layoutPages!, dataSources, traversal);
     }
     return null;
-  }, [readyForPrint, method, pdfFormat, pageOrder, layoutPages, dataSources, isHiddenPage]);
+  }, [readyForPrint, method, pdfFormat, pageOrder, layoutPages, dataSources, isHiddenPage, traversal]);
 
   if (!readyForPrint) {
-    return null;
+    return undefined;
   }
 
   if (method === 'custom') {
     return customPdfPage!;
-  } else {
-    return automaticPdfPage!;
   }
+
+  return automaticPdfPage!;
 };
 
 function generateAutomaticPage(
@@ -55,6 +57,7 @@ function generateAutomaticPage(
   isHiddenPage: (pageId: string) => boolean,
   layoutPages: LayoutPages,
   dataSources: ExpressionDataSources,
+  traversal: NodeTraversalSelector,
 ): LayoutPage {
   const automaticPdfLayout: ILayout = [];
 
@@ -78,28 +81,25 @@ function generateAutomaticPage(
   const excludedComponents = new Set(pdfFormat?.excludedComponents);
 
   // Iterate over all pages, and add all components that should be included in the automatic PDF as summary components
-  Object.entries(layoutPages.all())
-    .filter(([pageName]) => !excludedPages.has(pageName) && !isHiddenPage(pageName) && pageOrder?.includes(pageName))
-    .sort(([pA], [pB]) => (pageOrder ? pageOrder.indexOf(pA) - pageOrder.indexOf(pB) : 0))
-    .flatMap(([_, layoutPage]) => layoutPage.children().filter((node) => !excludedComponents.has(node.getId())))
-    .map((node) => {
-      if (node.def.shouldRenderInAutomaticPDF(node as any)) {
-        return {
-          id: `__pdf__${node.getId()}`,
-          type: 'Summary',
-          componentRef: node.getId(),
-          excludedChildren: pdfFormat?.excludedComponents,
-          grid: node.item.grid,
-          largeGroup: node.isType('Group'),
-        } as CompSummaryExternal;
-      }
-      return null;
-    })
-    .forEach((summaryComponent) => {
-      if (summaryComponent !== null) {
-        automaticPdfLayout.push(summaryComponent);
-      }
-    });
+  const allPages = traversal((t) => t.children(), []);
+  const filteredSortedPages = allPages
+    .filter((p) => !excludedPages.has(p.pageKey) && !isHiddenPage(p.pageKey) && pageOrder?.includes(p.pageKey))
+    .sort((pA, pB) => (pageOrder ? pageOrder.indexOf(pA.pageKey) - pageOrder.indexOf(pB.pageKey) : 0));
+  const nodes = traversal((t) => filteredSortedPages.map((p) => t.with(p).children()).flat(), filteredSortedPages);
+  const nodesFiltered = nodes.filter((n) => !excludedComponents.has(n.getId()));
+
+  for (const node of nodesFiltered) {
+    if (node.def.shouldRenderInAutomaticPDF(node as any)) {
+      automaticPdfLayout.push({
+        id: `__pdf__${node.getId()}`,
+        type: 'Summary',
+        componentRef: node.getId(),
+        excludedChildren: pdfFormat?.excludedComponents,
+        grid: node.item.grid,
+        largeGroup: node.isType('Group'),
+      } as CompSummaryExternal);
+    }
+  }
 
   // Generate the hierarchy for the automatic PDF layout
   const pdfPage = generateHierarchy(automaticPdfLayout, dataSources, getComponentDef);

@@ -18,6 +18,7 @@ import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { NodeRef } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -79,6 +80,7 @@ export const PDFView = () => {
 
   const isPayment = processData?.currentTask?.altinnTaskType === 'payment';
   const enableOrgLogo = Boolean(useApplicationMetadata().logo);
+  const topLevelChildren = useNodeTraversal((t) => (!pdfPage || t.targetIsRoot() ? [] : t.children()), pdfPage);
 
   if (!pdfPage) {
     return null;
@@ -113,7 +115,7 @@ export const PDFView = () => {
         spacing={3}
         alignItems='flex-start'
       >
-        {pdfPage.children().map((node) => (
+        {topLevelChildren.map((node) => (
           <PDFComponent
             key={node.getId()}
             node={node}

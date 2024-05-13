@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import dot from 'dot-object';
@@ -28,7 +28,11 @@ import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
 import { NodeStagesProvider } from 'src/utils/layout/NodeStages';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
-import { useNodeTraversal, useNodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
+import {
+  useNodeTraversal,
+  useNodeTraversalSelector,
+  useNodeTraversalSelectorSilent,
+} from 'src/utils/layout/useNodeTraversal';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { NodeRef } from 'src/layout';
@@ -290,9 +294,13 @@ export const useNodesAsLaxRef = () => NodesStore.useLaxSelectorAsRef((s) => s.no
 
 export type NodeSelector = ReturnType<typeof useNodeSelector>;
 export function useNodeSelector() {
-  return NodesStore.useDelayedMemoSelectorFactory(
-    (nodeId: string | NodeRef) => (state: NodesContext) =>
-      state.nodes?.findById(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
+  const traversalSelector = useNodeTraversalSelector();
+  return useCallback(
+    (nodeId: string | NodeRef) => {
+      const id = isNodeRef(nodeId) ? nodeId.nodeRef : nodeId;
+      return traversalSelector((t) => t.findById(id), [id]);
+    },
+    [traversalSelector],
   );
 }
 

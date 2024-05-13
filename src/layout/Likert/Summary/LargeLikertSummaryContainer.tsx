@@ -7,6 +7,7 @@ import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Likert/Summary/LikertSummary.module.css';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -36,15 +37,17 @@ export function LargeLikertSummaryContainer({
   const container = useNodeItem(groupNode);
   const { title, summaryTitle } = container.textResourceBindings ?? {};
   const isHidden = Hidden.useIsHidden(groupNode);
+  const depth = useNodeTraversal((t) => t.parents().length, groupNode);
+  const restriction = typeof onlyInRowUuid === 'string' ? { onlyInRowUuid } : undefined;
+  const children = useNodeTraversal((t) => t.children(undefined, restriction), groupNode);
 
   if (isHidden) {
     return null;
   }
 
-  const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
+  const headingLevel = Math.min(Math.max(depth + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
   const legend = summaryTitle ?? title;
-  const restriction = typeof onlyInRowUuid === 'string' ? { onlyInRowUuid } : undefined;
 
   return (
     <Fieldset
@@ -67,7 +70,7 @@ export function LargeLikertSummaryContainer({
         data-testid='display-group-container'
         className={classes.groupContainer}
       >
-        {groupNode.children(undefined, restriction).map((n) => renderLayoutNode(n))}
+        {children.map((n) => renderLayoutNode(n))}
       </div>
     </Fieldset>
   );

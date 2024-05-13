@@ -270,6 +270,10 @@ export function useNodeTraversal<N extends LayoutPage, Out>(
   selector: (traverser: NodeTraversalFromPage) => Out,
   node: N,
 ): Out;
+export function useNodeTraversal<N extends LayoutPage, Out>(
+  selector: (traverser: NodeTraversalFromPage | NodeTraversalFromRoot) => Out,
+  node: N | undefined,
+): Out;
 export function useNodeTraversal<N extends LayoutNode, Out>(
   selector: (traverser: NodeTraversalFromNode<N>) => Out,
   node: N,

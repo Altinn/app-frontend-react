@@ -5,6 +5,7 @@ import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { PageValidation } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -19,6 +20,7 @@ export function useOnPageNavigationValidation() {
   const getNodeValidations = NodesInternal.useValidationsSelector();
   const validating = Validation.useValidating();
   const pageOrder = usePageOrder();
+  const traversalSelector = useNodeTraversalSelector();
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((currentPage: LayoutPage, config: PageValidation): boolean => {
@@ -32,18 +34,29 @@ export function useOnPageNavigationValidation() {
 
     if (pageConfig === 'current') {
       // Get nodes for current page
-      nodes = currentPage.flat();
+      nodes = traversalSelector((t) => t.with(currentPage).flat(), [currentPage]);
     } else if (pageConfig === 'currentAndPrevious') {
       // Get nodes for current and previous pages
       if (!pageOrder || currentIndex === -1) {
         return false;
       }
       const pageKeysToCheck = pageOrder.slice(0, currentIndex + 1);
-      const layoutPagesToCheck = pageKeysToCheck.map((key) => currentPage.layoutSet.all()[key]);
-      nodes = layoutPagesToCheck.flatMap((page) => page.flat());
+      nodes = traversalSelector(
+        (t) => {
+          const out: LayoutNode[] = [];
+          for (const key of pageKeysToCheck) {
+            const page = t.findPage(key);
+            if (page) {
+              out.push(...t.with(page).flat());
+            }
+          }
+          return out;
+        },
+        [...pageKeysToCheck],
+      );
     } else {
       // Get all nodes
-      nodes = currentPage.layoutSet.allNodes();
+      nodes = traversalSelector((t) => t.flat(), []);
     }
 
     // Get nodes with errors along with their errors

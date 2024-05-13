@@ -15,6 +15,7 @@ import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeFormDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { NodeRef } from 'src/layout';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -60,6 +61,7 @@ export function SummaryGroupComponent({
   const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const ariaLabel = langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb);
+  const children = useNodeTraversal((t) => t.children().filter((n) => !inExcludedChildren(n)), targetNode);
 
   if (summaryItem.largeGroup && overrides?.largeGroup !== false) {
     return (
@@ -84,29 +86,24 @@ export function SummaryGroupComponent({
     );
   }
 
-  const childSummaryComponents = targetNode
-    .children(undefined, undefined)
-    .filter((n) => !inExcludedChildren(n))
-    .map((child) => {
-      if (!child.isCategory(CompCategory.Form) || isHidden({ node: child })) {
-        return;
-      }
-      const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<
-        SummaryRendererProps<any>
-      >;
-      return (
-        <RenderCompactSummary
-          onChangeClick={onChangeClick}
-          changeText={changeText}
-          key={child.getId()}
-          targetNode={child}
-          summaryNode={summaryNode}
-          overrides={{}}
-          formDataSelector={formDataSelector}
-          nodeDataSelector={nodeDataSelector}
-        />
-      );
-    });
+  const childSummaryComponents = children.map((child) => {
+    if (!child.isCategory(CompCategory.Form) || isHidden({ node: child })) {
+      return;
+    }
+    const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<SummaryRendererProps<any>>;
+    return (
+      <RenderCompactSummary
+        onChangeClick={onChangeClick}
+        changeText={changeText}
+        key={child.getId()}
+        targetNode={child}
+        summaryNode={summaryNode}
+        overrides={{}}
+        formDataSelector={formDataSelector}
+        nodeDataSelector={nodeDataSelector}
+      />
+    );
+  });
 
   return (
     <>
