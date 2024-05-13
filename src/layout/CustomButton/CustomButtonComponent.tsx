@@ -36,6 +36,7 @@ export type ActionResult = {
   updatedDataModels?: UpdatedDataModels;
   updatedValidationIssues?: UpdatedValidationIssues;
   clientActions?: CBTypes.ClientAction[];
+  redirectUrl: string;
 };
 
 type UseHandleClientActions = {
@@ -135,7 +136,6 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
         }
       } catch (error) {
         lockTools.unlock();
-        window.logError(error.stack);
         if (error?.response?.data?.error?.message !== undefined) {
           toast(<Lang id={error?.response?.data?.error?.message} />, { type: 'error' });
         } else {
