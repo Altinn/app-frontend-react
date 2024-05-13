@@ -15,6 +15,7 @@ import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeFormDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -28,24 +29,62 @@ export interface ISummaryRepeatingGroup {
   overrides?: ISummaryComponent['overrides'];
 }
 
-export function SummaryRepeatingGroup({
-  onChangeClick,
-  changeText,
-  summaryNode,
-  targetNode,
-  overrides,
-}: ISummaryRepeatingGroup) {
-  const { excludedChildren, display: summaryDisplay, largeGroup } = useNodeItem(summaryNode);
-  const { textResourceBindings: trb, rows: _rows } = useNodeItem(targetNode);
+interface FullProps extends ISummaryRepeatingGroup {
+  rows: RepGroupRow[];
+  inExcludedChildren: (n: LayoutNode) => boolean;
+}
 
-  const display = overrides?.display || summaryDisplay;
-  const { langAsString } = useLanguage(targetNode);
-  const formDataSelector = FD.useDebouncedSelector();
-  const nodeDataSelector = useNodeFormDataSelector();
+interface FullRowProps extends Omit<FullProps, 'rows'> {
+  row: RepGroupRow;
+}
+
+export function SummaryRepeatingGroup(props: ISummaryRepeatingGroup) {
+  const { excludedChildren, largeGroup } = useNodeItem(props.summaryNode);
+  const { rows: _rows } = useNodeItem(props.targetNode);
   const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
-    excludedChildren && (excludedChildren.includes(n.getId()) || excludedChildren.includes(n.getBaseId()));
+    excludedChildren ? excludedChildren.includes(n.getId()) || excludedChildren.includes(n.getBaseId()) : false;
+
+  const rows: RepGroupRow[] = [];
+  for (const row of _rows) {
+    if (!row || row.groupExpressions?.hiddenRow || row.index === undefined) {
+      continue;
+    }
+    const allHidden = row.items.every((n) => isHidden({ node: n }));
+    if (allHidden) {
+      continue;
+    }
+    rows.push(row);
+  }
+
+  if (largeGroup && props.overrides?.largeGroup !== false && rows.length) {
+    return (
+      <LargeRepeatingGroup
+        {...props}
+        rows={rows}
+        inExcludedChildren={inExcludedChildren}
+      />
+    );
+  }
+
+  return (
+    <RegularRepeatingGroup
+      {...props}
+      rows={rows}
+      inExcludedChildren={inExcludedChildren}
+    />
+  );
+}
+
+function RegularRepeatingGroup(props: FullProps) {
+  const { onChangeClick, changeText, summaryNode, targetNode, overrides, rows } = props;
+
+  const { display: summaryDisplay } = useNodeItem(summaryNode);
+  const { textResourceBindings: trb } = useNodeItem(targetNode);
+
+  const display = overrides?.display || summaryDisplay;
+  const { langAsString } = useLanguage(targetNode);
 
   const groupValidations = useDeepValidationsForNode(targetNode);
   const groupHasErrors = hasValidationErrors(groupValidations);
@@ -54,47 +93,6 @@ export function SummaryRepeatingGroup({
   const summaryTitleTrb = trb && 'summaryTitle' in trb ? trb.summaryTitle : undefined;
   const titleTrb = trb && 'title' in trb ? trb.title : undefined;
   const ariaLabel = langAsString(summaryTitleTrb ?? summaryAccessibleTitleTrb ?? titleTrb);
-
-  const rows: RepGroupRow[] = [];
-  for (const row of _rows) {
-    if (!row || row.groupExpressions?.hiddenRow || row.index === undefined) {
-      continue;
-    }
-    rows.push(row);
-  }
-
-  if (largeGroup && overrides?.largeGroup !== false && rows.length) {
-    return (
-      <>
-        {rows.map((row) => (
-          <LargeGroupSummaryContainer
-            key={`summary-${targetNode.getId()}-${row.uuid}`}
-            id={`summary-${targetNode.getId()}-${row.index}`}
-            groupNode={targetNode}
-            onlyInRowUuid={row.uuid}
-            renderLayoutNode={(n) => {
-              if (inExcludedChildren(n) || isHidden({ node: n })) {
-                return null;
-              }
-
-              return (
-                <SummaryComponent
-                  key={n.getId()}
-                  summaryNode={summaryNode}
-                  overrides={{
-                    ...overrides,
-                    targetNode: n,
-                    grid: {},
-                    largeGroup: false,
-                  }}
-                />
-              );
-            }}
-          />
-        ))}
-      </>
-    );
-  }
 
   return (
     <>
@@ -126,45 +124,13 @@ export function SummaryRepeatingGroup({
               <Lang id={'general.empty_summary'} />
             </span>
           ) : (
-            rows
-              .filter((row) =>
-                targetNode.children(undefined, { onlyInRowUuid: row.uuid }).some((child) => !isHidden({ node: child })),
-              )
-              .map((row) => {
-                const childSummaryComponents = targetNode
-                  .children(undefined, { onlyInRowUuid: row.uuid })
-                  .filter((n) => !inExcludedChildren(n))
-                  .map((child) => {
-                    if (isHidden({ node: child }) || !child.isCategory(CompCategory.Form)) {
-                      return;
-                    }
-                    const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<
-                      SummaryRendererProps<any>
-                    >;
-                    return (
-                      <RenderCompactSummary
-                        onChangeClick={onChangeClick}
-                        changeText={changeText}
-                        key={child.getId()}
-                        targetNode={child}
-                        summaryNode={summaryNode}
-                        overrides={{}}
-                        formDataSelector={formDataSelector}
-                        nodeDataSelector={nodeDataSelector}
-                      />
-                    );
-                  });
-
-                return (
-                  <div
-                    data-testid={'summary-repeating-row'}
-                    key={`row-${row.uuid}`}
-                    className={classes.border}
-                  >
-                    {childSummaryComponents}
-                  </div>
-                );
-              })
+            rows.map((row) => (
+              <RegularRepeatingGroupRow
+                key={`row-${row.uuid}`}
+                {...props}
+                row={row}
+              />
+            ))
           )}
         </div>
       </div>
@@ -185,6 +151,88 @@ export function SummaryRepeatingGroup({
           </div>
         </div>
       )}
+    </>
+  );
+}
+
+function RegularRepeatingGroupRow({
+  targetNode,
+  inExcludedChildren,
+  row,
+  onChangeClick,
+  changeText,
+  summaryNode,
+}: FullRowProps) {
+  const isHidden = Hidden.useIsHiddenSelector();
+  const formDataSelector = FD.useDebouncedSelector();
+  const nodeDataSelector = useNodeFormDataSelector();
+  const children = useNodeTraversal((t) => t.children(undefined, { onlyInRowUuid: row.uuid }), targetNode);
+
+  const childSummaryComponents = children
+    .filter((n) => !inExcludedChildren(n))
+    .map((child) => {
+      if (isHidden({ node: child }) || !child.isCategory(CompCategory.Form)) {
+        return;
+      }
+      const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<
+        SummaryRendererProps<any>
+      >;
+      return (
+        <RenderCompactSummary
+          onChangeClick={onChangeClick}
+          changeText={changeText}
+          key={child.getId()}
+          targetNode={child}
+          summaryNode={summaryNode}
+          overrides={{}}
+          formDataSelector={formDataSelector}
+          nodeDataSelector={nodeDataSelector}
+        />
+      );
+    });
+
+  return (
+    <div
+      data-testid={'summary-repeating-row'}
+      key={`row-${row.uuid}`}
+      className={classes.border}
+    >
+      {childSummaryComponents}
+    </div>
+  );
+}
+
+function LargeRepeatingGroup({ targetNode, summaryNode, overrides, inExcludedChildren, rows }: FullProps) {
+  const isHidden = Hidden.useIsHiddenSelector();
+
+  return (
+    <>
+      {rows.map((row) => (
+        <LargeGroupSummaryContainer
+          key={`summary-${targetNode.getId()}-${row.uuid}`}
+          id={`summary-${targetNode.getId()}-${row.index}`}
+          groupNode={targetNode}
+          onlyInRowUuid={row.uuid}
+          renderLayoutNode={(n) => {
+            if (inExcludedChildren(n) || isHidden({ node: n })) {
+              return null;
+            }
+
+            return (
+              <SummaryComponent
+                key={n.getId()}
+                summaryNode={summaryNode}
+                overrides={{
+                  ...overrides,
+                  targetNode: n,
+                  grid: {},
+                  largeGroup: false,
+                }}
+              />
+            );
+          }}
+        />
+      ))}
     </>
   );
 }
