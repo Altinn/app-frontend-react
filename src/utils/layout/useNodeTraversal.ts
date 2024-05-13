@@ -155,7 +155,7 @@ export class NodeTraversal<T extends Node = LayoutPages> {
    * Looks for a matching component inside the (direct) children of this node (only makes sense for
    * a group/container node or a page). This will only return the first match.
    */
-  firstChild(matching: TraversalMatcher, restriction?: TraversalRestriction): ChildFrom<T> | undefined {
+  firstChild(matching?: TraversalMatcher, restriction?: TraversalRestriction): ChildFrom<T> | undefined {
     return this.target.firstChild(new TraversalTask(this.state, this.rootNode, matching, restriction)) as any;
   }
 

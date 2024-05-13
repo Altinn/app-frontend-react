@@ -14,13 +14,13 @@ import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { shouldUpdate } from 'src/features/form/dynamics/conditionalRendering';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
 import { UpdateExpressionValidation } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
-import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
@@ -28,7 +28,7 @@ import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
 import { NodeStagesProvider } from 'src/utils/layout/NodeStages';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
+import { useNodeTraversal, useNodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { NodeRef } from 'src/layout';
@@ -600,7 +600,8 @@ function useLegacyHiddenComponents(
   setHidden: React.Dispatch<React.SetStateAction<Set<string>>>,
 ) {
   const rules = useDynamics()?.conditionalRendering ?? null;
-  const dataSources = useExpressionDataSources();
+  const nodeTraversal = useNodeTraversalSelectorSilent();
+  const formDataSelector = FD.useDebouncedSelector();
 
   useEffect(() => {
     if (!resolvedNodes) {
@@ -609,7 +610,7 @@ function useLegacyHiddenComponents(
 
     let futureHiddenFields: Set<string>;
     try {
-      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes, dataSources.formDataSelector);
+      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes, formDataSelector, nodeTraversal);
     } catch (error) {
       window.logError('Error while evaluating conditional rendering rules:\n', error);
       futureHiddenFields = new Set();
@@ -621,7 +622,7 @@ function useLegacyHiddenComponents(
       }
       return currentlyHidden;
     });
-  }, [dataSources, resolvedNodes, rules, setHidden]);
+  }, [resolvedNodes, rules, setHidden, nodeTraversal, formDataSelector]);
 }
 
 /**

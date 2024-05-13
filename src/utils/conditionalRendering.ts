@@ -3,6 +3,7 @@ import type { IConditionalRenderingRule, IConditionalRenderingRules } from 'src/
 import type { FormDataSelector } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { NodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
 
 /**
  * Runs conditional rendering rules, returns Set of hidden component IDs
@@ -11,6 +12,7 @@ export function runConditionalRenderingRules(
   rules: IConditionalRenderingRules | null,
   nodes: LayoutPages,
   formDataSelector: FormDataSelector,
+  nodeTraversal: NodeTraversalSelectorSilent,
 ): Set<string> {
   const componentsToHide = new Set<string>();
   if (!window.conditionalRuleHandlerObject) {
@@ -22,7 +24,14 @@ export function runConditionalRenderingRules(
     return componentsToHide;
   }
 
-  const topLevelNode = nodes.allNodes()[0] as LayoutNode | undefined;
+  const topLevelNode = nodeTraversal((t) => {
+    const firstPage = t.firstChild();
+    if (!firstPage) {
+      return undefined;
+    }
+    return t.with(firstPage).firstChild();
+  }, []) as LayoutNode | undefined;
+
   for (const key of Object.keys(rules)) {
     if (!key) {
       continue;
