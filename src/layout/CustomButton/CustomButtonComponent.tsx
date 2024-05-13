@@ -35,6 +35,7 @@ export type ActionResult = {
   updatedDataModels?: UpdatedDataModels;
   updatedValidationIssues?: UpdatedValidationIssues;
   clientActions?: CBTypes.ClientAction[];
+  redirectUrl: string;
 };
 
 type UseHandleClientActions = {
