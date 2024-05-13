@@ -13,6 +13,7 @@ import { LayoutStyle } from 'src/layout/common.generated';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/LikertItem/LikertItemComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -21,8 +22,11 @@ interface LikertComponentProps {
 }
 
 export const LikertComponent = ({ node }: LikertComponentProps) => {
-  const firstLikertChild = node?.children((item) => item.type === 'LikertItem') as LayoutNode<'LikertItem'> | undefined;
-  const firstLikertChildItem = useNodeItem(firstLikertChild);
+  const children = useNodeTraversal(
+    (t) => t.children((i) => i.type === 'node' && i.item.type === 'LikertItem'),
+    node,
+  ) as LayoutNode<'LikertItem'>[];
+  const firstLikertChildItem = useNodeItem(children[0]);
   const { textResourceBindings } = useNodeItem(node);
   const mobileView = useIsMobileOrTablet();
   const { options: calculatedOptions, isFetching } = useGetOptions({
@@ -79,19 +83,12 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           aria-labelledby={(hasTitle && titleId) || undefined}
           aria-describedby={(hasDescription && descriptionId) || undefined}
         >
-          {node?.children().map((comp) => {
-            if (comp.isType('Group') || comp.isType('Summary')) {
-              window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.getId());
-              return;
-            }
-
-            return (
-              <GenericComponent
-                key={comp.getId()}
-                node={comp}
-              />
-            );
-          })}
+          {children.map((comp) => (
+            <GenericComponent
+              key={comp.getId()}
+              node={comp}
+            />
+          ))}
         </div>
       </Grid>
     );
@@ -140,12 +137,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
               </Table.Row>
             </Table.Head>
             <Table.Body id={`likert-table-body-${id}`}>
-              {node?.children().map((comp) => {
-                if (comp.isType('Group') || comp.isType('Summary')) {
-                  window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.getId());
-                  return;
-                }
-
+              {children.map((comp) => {
                 const override: IGenericComponentProps<'LikertItem'>['overrideItemProps'] = {
                   layout: LayoutStyle.Table,
                 };
@@ -153,7 +145,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
                 return (
                   <GenericComponent
                     key={comp.getId()}
-                    node={comp as LayoutNode<'LikertItem'>}
+                    node={comp}
                     overrideItemProps={override}
                   />
                 );

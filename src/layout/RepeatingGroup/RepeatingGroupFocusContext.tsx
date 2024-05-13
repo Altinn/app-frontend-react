@@ -4,7 +4,7 @@ import type { PropsWithChildren } from 'react';
 import { createContext } from 'src/core/contexts/context';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 
 type FocusableHTMLElement = HTMLElement &
   HTMLButtonElement &
@@ -35,6 +35,7 @@ export const useRepeatingGroupsFocusContext = () => useCtx();
 export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
   const elementRefs = useMemo(() => new Map<string, HTMLElement | null>(), []);
   const waitingForFocus = useRef<number | null>(null);
+  const traversal = useNodeTraversalSelector();
 
   const { node, openForEditing } = useRepeatingGroup();
   useRegisterNodeNavigationHandler((targetNode) => {
@@ -48,8 +49,8 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
     }
 
     let targetChild = targetNode;
-    for (const parent of targetNode.parents()) {
-      if (node.isSameAs(parent) && parent instanceof BaseLayoutNode) {
+    for (const parent of traversal((t) => t.with(targetNode).parents(), [targetNode])) {
+      if (node === parent) {
         targetChild = parent;
         continue;
       }
@@ -66,7 +67,7 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
       }
 
       for (const row of node.item.rows) {
-        if (row.items.find((item) => targetChild.isSameAs(item))) {
+        if (row.items.find((item) => item.nodeRef === targetChild.getId())) {
           openForEditing(row.uuid);
           return true;
         }

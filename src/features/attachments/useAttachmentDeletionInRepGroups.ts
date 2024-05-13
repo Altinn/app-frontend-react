@@ -7,6 +7,7 @@ import {
 } from 'src/features/attachments/AttachmentsContext';
 import { isAttachmentUploaded } from 'src/features/attachments/index';
 import { useAsRef } from 'src/hooks/useAsRef';
+import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type UploaderNode = LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
@@ -26,12 +27,18 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNode<'RepeatingGrou
   const awaiter = useAsRef(useAttachmentsAwaiter());
   const nodeRef = useAsRef(node);
   const attachments = useAsRef(useAttachments());
+  const traversalSelector = useNodeTraversalSelector();
 
   return useCallback(
     async (uuid: string): Promise<boolean> => {
-      const uploaders = nodeRef.current
-        .flat({ onlyInRowUuid: uuid })
-        .filter((node) => node.isType('FileUpload') || node.isType('FileUploadWithTag')) as UploaderNode[];
+      const uploaders = traversalSelector(
+        (t) =>
+          t
+            .with(nodeRef.current)
+            .flat(undefined, { onlyInRowUuid: uuid })
+            .filter((n) => n.isType('FileUpload') || n.isType('FileUploadWithTag')),
+        [nodeRef.current, uuid],
+      ) as UploaderNode[];
 
       // This code is intentionally not parallelized, as especially LocalTest can't handle parallel requests to
       // delete attachments. It might return a 500 if you try. To be safe, we do them one by one.
@@ -71,6 +78,6 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNode<'RepeatingGrou
 
       return true;
     },
-    [attachments, awaiter, remove, nodeRef],
+    [traversalSelector, nodeRef, attachments, remove, awaiter],
   );
 }

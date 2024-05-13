@@ -4,9 +4,9 @@ import type { PropsWithChildren } from 'react';
 import { createContext } from 'src/core/contexts/context';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface RepeatingGroupEditRowContext {
@@ -66,18 +66,26 @@ interface Props {
 export function RepeatingGroupEditRowProvider({ editId, children }: PropsWithChildren<Props>) {
   const { node } = useRepeatingGroup();
   const { setMultiPageIndex, ...state } = useRepeatingGroupEditRowState(node, editId);
+  const traversal = useNodeTraversalSelector();
 
   useRegisterNodeNavigationHandler((targetNode) => {
     if (!state.multiPageEnabled) {
       // Nothing to do here. Other navigation handlers will make sure this row is opened for editing.
       return false;
     }
-    const ourChildRecursively = node.flat().find(targetNode.isSame());
+    const ourChildRecursively = traversal(
+      (t) =>
+        t
+          .with(node)
+          .flat()
+          .find((n) => n === targetNode),
+      [node, targetNode],
+    );
     if (!ourChildRecursively) {
       return false;
     }
-    const ourDirectChildren = node.children();
-    const ourChildDirectly = ourDirectChildren.find(targetNode.isSame());
+    const ourDirectChildren = traversal((t) => t.with(node).children(), [node]);
+    const ourChildDirectly = ourDirectChildren.find((n) => n === targetNode);
     if (ourChildDirectly) {
       const targetMultiPageIndex = targetNode.item.multiPageIndex ?? 0;
       if (targetMultiPageIndex !== state.multiPageIndex) {
@@ -89,9 +97,11 @@ export function RepeatingGroupEditRowProvider({ editId, children }: PropsWithChi
     // It's our child, but not directly. We need to figure out which of our children contains the target node,
     // and navigate there. Then it's a problem that can be forwarded there.
     const ourChildrenIds = new Set(ourDirectChildren.map((n) => n.getId()));
-    const childWeAreLookingFor = targetNode.parents((n) =>
-      n && n instanceof BaseLayoutNode && n.getId() ? ourChildrenIds.has(n.getId()) : false,
+    const childWeAreLookingFor = traversal(
+      (t) => t.with(targetNode).parents((i) => i.type === 'node' && ourChildrenIds.has(i.item.id)),
+      [targetNode],
     )[0];
+
     if (childWeAreLookingFor && !(childWeAreLookingFor instanceof LayoutPage)) {
       const targetMultiPageIndex = childWeAreLookingFor.item.multiPageIndex ?? 0;
       if (targetMultiPageIndex !== state.multiPageIndex) {
