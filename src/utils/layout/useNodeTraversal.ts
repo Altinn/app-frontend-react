@@ -27,6 +27,8 @@ export interface TraversalRowUuidRestriction {
 export type TraversalRestriction = TraversalRowUuidRestriction | TraversalRowIndexRestriction;
 export type TraversalMatcher = (state: AnyData) => boolean;
 
+const emptyArray: never[] = [];
+
 export class TraversalTask {
   constructor(
     private state: PageHierarchy,
@@ -201,11 +203,36 @@ export class NodeTraversal<T extends Node = LayoutPages> {
   }
 
   /**
+   * Find all nodes with a specific ID
+   */
+  findAllById(idOrRef: string | NodeRef | undefined): LayoutNode[] {
+    if ((this.target as any) instanceof BaseLayoutNode) {
+      throw new Error('Cannot call findAllById() on a LayoutNode object');
+    }
+
+    const id = isNodeRef(idOrRef) ? idOrRef.nodeRef : idOrRef;
+    if (!id) {
+      return emptyArray;
+    }
+    return (this.target as LayoutPage | LayoutPages).findAllById(
+      new TraversalTask(this.state, this.rootNode, undefined, undefined),
+      id,
+    );
+  }
+
+  /**
    * Find a node (never a page) by the given ID
    */
-  findById(idOrRef: string | NodeRef | undefined, exceptInPage?: string): LayoutNode | undefined {
+  findById(idOrRef: string | NodeRef | undefined): LayoutNode | undefined {
+    if ((this.target as any) instanceof BaseLayoutNode) {
+      throw new Error('Cannot call findById() on a LayoutNode object');
+    }
+
     const id = isNodeRef(idOrRef) ? idOrRef.nodeRef : idOrRef;
-    return this.rootNode.findById(new TraversalTask(this.state, this.rootNode, undefined, undefined), id, exceptInPage);
+    return (this.target as LayoutPage | LayoutPages).findById(
+      new TraversalTask(this.state, this.rootNode, undefined, undefined),
+      id,
+    );
   }
 }
 
@@ -234,8 +261,11 @@ export type NodeTraversalFrom<N extends Node> = N extends LayoutPages
       : never;
 
 export type NodeTraversalFromRoot = Omit<NodeTraversal, 'parents'>;
-export type NodeTraversalFromPage = Omit<NodeTraversal<LayoutPage>, 'allNodes' | 'findPage' | 'findById'>;
-export type NodeTraversalFromNode<N extends LayoutNode> = Omit<NodeTraversal<N>, 'allNodes' | 'findPage' | 'findById'>;
+export type NodeTraversalFromPage = Omit<NodeTraversal<LayoutPage>, 'allNodes' | 'findPage'>;
+export type NodeTraversalFromNode<N extends LayoutNode> = Omit<
+  NodeTraversal<N>,
+  'allNodes' | 'findPage' | 'findById' | 'findAllById'
+>;
 
 /**
  * Hook used when you want to traverse the hierarchy of a node, starting from a specific node.

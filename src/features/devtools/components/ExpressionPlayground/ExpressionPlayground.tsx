@@ -14,6 +14,7 @@ import { asExpression } from 'src/features/expressions/validation';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { useNodes } from 'src/utils/layout/NodesContext';
+import { useNodeTraversal, useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -71,6 +72,12 @@ export const ExpressionPlayground = () => {
   // populating the output history with a fresh value.
   const resetOutputHistory = () => setOutputs([]);
 
+  const traversalSelector = useNodeTraversalSelector();
+
+  const componentOptions = useNodeTraversal((t) =>
+    t.allNodes().map((n) => ({ label: n.getId(), value: `${n.page.pageKey}|${n.getId()}` })),
+  );
+
   useEffect(() => {
     if (!input || input.length <= 0) {
       if (!outputs[0] || outputs[0]?.value !== '') {
@@ -101,13 +108,24 @@ export const ExpressionPlayground = () => {
         throw new Error('Ugyldig uttrykk');
       }
 
-      let evalContext: LayoutPage | LayoutNode | undefined = nodes?.findLayout(currentPageId);
+      let evalContext: LayoutPage | LayoutNode | undefined = traversalSelector(
+        (t) => t.findPage(currentPageId),
+        [currentPageId],
+      );
       if (!evalContext) {
         throw new Error('Fant ikke nåværende side/layout');
       }
 
       if (forPage && forComponentId) {
-        const foundNode = nodes?.findLayout(forPage)?.findById(forComponentId);
+        const foundNode = traversalSelector(
+          (t) => {
+            const page = t.findPage(forPage);
+            return page
+              ? t.with(page).children((i) => i.type === 'node' && i.item.id === forComponentId)[0]
+              : undefined;
+          },
+          [forPage, forComponentId],
+        );
         if (foundNode) {
           evalContext = foundNode;
         }
@@ -131,7 +149,18 @@ export const ExpressionPlayground = () => {
         setOutputs([{ value: e.message, isError: true }]);
       }
     }
-  }, [input, forPage, forComponentId, dataSources, nodes, showAllSteps, outputs, setOutputWithHistory, currentPageId]);
+  }, [
+    input,
+    forPage,
+    forComponentId,
+    dataSources,
+    nodes,
+    showAllSteps,
+    outputs,
+    setOutputWithHistory,
+    currentPageId,
+    traversalSelector,
+  ]);
 
   return (
     <div className={classes.container}>
@@ -206,10 +235,7 @@ export const ExpressionPlayground = () => {
                 const [forPage, forComponentId] = value.split('|', 2);
                 setContext(forPage, forComponentId);
               }}
-              options={Object.values(nodes?.all() || [])
-                .map((page) => page.flat())
-                .flat()
-                .map((n) => ({ label: n.getId(), value: `${n.page.pageKey}|${n.getId()}` }))}
+              options={componentOptions}
             />
             {forComponentId && forPage === currentPageId && (
               // eslint-disable-next-line jsx-a11y/anchor-is-valid

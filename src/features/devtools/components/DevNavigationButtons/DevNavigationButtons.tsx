@@ -9,7 +9,8 @@ import { useIsInFormContext } from 'src/features/form/FormContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { Hidden, useNodes } from 'src/utils/layout/NodesContext';
+import { Hidden } from 'src/utils/layout/NodesContext';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 
 export function DevNavigationButtons() {
   const isInForm = useIsInFormContext();
@@ -25,9 +26,8 @@ const InnerDevNavigationButtons = () => {
   const { navigateToPage } = useNavigatePage();
   const isHiddenPage = Hidden.useIsHiddenPageSelector();
   const orderWithHidden = useLayoutSettings().pages.order;
-  const ctx = useNodes();
   const order = orderWithHidden ?? [];
-  const allPages = ctx?.allPageKeys() || [];
+  const allPages = useNodeTraversal((t) => t.children().map((p) => p.pageKey));
 
   function handleChange(newView: string) {
     navigateToPage(newView);

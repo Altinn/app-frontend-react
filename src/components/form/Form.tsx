@@ -20,7 +20,7 @@ import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { SearchParams, useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { extractBottomButtons } from 'src/utils/formLayout';
-import { useResolvedNode } from 'src/utils/layout/NodesContext';
+import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 
 interface FormState {
@@ -237,7 +237,7 @@ function HandleNavigationFocusComponent() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const componentId = searchParams.get(SearchParams.FocusComponentId);
-  const focusNode = useResolvedNode(componentId);
+  const focusNode = useNode(componentId ?? undefined);
   const navigateTo = useNavigateToNode();
 
   React.useEffect(() => {

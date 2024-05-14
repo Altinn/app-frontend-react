@@ -4,8 +4,7 @@ import { createStore } from 'zustand';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
-import { useResolvedNode } from 'src/utils/layout/NodesContext';
-import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
+import { useNode } from 'src/utils/layout/NodesContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type PageNavigationContext = {
@@ -65,8 +64,8 @@ export const useSetReturnToView = () => {
 
 export const useSummaryNodeOfOrigin = (): LayoutNode<'Summary'> | undefined => {
   const func = useLaxSelector((ctx) => ctx.summaryNodeOfOrigin);
-  const node = useResolvedNode<CompSummaryExternal>(func === ContextNotProvided ? undefined : func);
-  return func === ContextNotProvided ? undefined : node;
+  const node = useNode(func === ContextNotProvided ? undefined : func);
+  return func === ContextNotProvided ? undefined : (node as LayoutNode<'Summary'>);
 };
 
 export const useSetSummaryNodeOfOrigin = () => {

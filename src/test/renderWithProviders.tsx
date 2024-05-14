@@ -44,6 +44,7 @@ import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import { PageNavigationRouter } from 'src/test/routerUtils';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { useNodes } from 'src/utils/layout/NodesContext';
+import { useNodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
@@ -593,6 +594,7 @@ const WaitForNodes = ({
   nodeId,
 }: PropsWithChildren<{ waitForAllNodes: boolean; nodeId?: string }>) => {
   const nodes = useNodes();
+  const selector = useNodeTraversalSelectorSilent();
 
   if (!nodes && waitForAllNodes) {
     return (
@@ -604,17 +606,22 @@ const WaitForNodes = ({
   }
 
   if (nodeId !== undefined && nodes && waitForAllNodes) {
-    const node = nodes.findById(nodeId);
+    const node = selector((t) => t.findById(nodeId), [nodeId]);
     if (!node) {
+      const allNodes = selector((t) => t.allNodes(), []);
       return (
         <>
           <div>Unable to find target node: {nodeId}</div>
-          <div>All other nodes loaded:</div>
-          <ul>
-            {nodes.allNodes().map((node) => (
-              <li key={node.getId()}>{node.getId()}</li>
-            ))}
-          </ul>
+          {allNodes && (
+            <>
+              <div>All other nodes loaded:</div>
+              <ul>
+                {allNodes.map((node) => (
+                  <li key={node.getId()}>{node.getId()}</li>
+                ))}
+              </ul>
+            </>
+          )}
         </>
       );
     }
@@ -642,12 +649,13 @@ export async function renderWithNode<InInstance extends boolean, T extends Layou
 }: RenderWithNodeTestProps<T, InInstance>): Promise<RenderWithNodeReturnType<InInstance>> {
   function Child() {
     const root = useNodes();
+    const selector = useNodeTraversalSelectorSilent();
 
     if (!root) {
       return <div>Unable to find root context</div>;
     }
 
-    const node = root.findById(props.nodeId);
+    const node = selector((t) => t.findById(props.nodeId), [props.nodeId]);
     if (!node) {
       return <div>Unable to find node: {props.nodeId}</div>;
     }

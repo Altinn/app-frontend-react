@@ -79,7 +79,11 @@ export class LayoutPage implements LayoutObject {
     return [...this.allChildren.values()].filter((n) => task.passes(n));
   }
 
-  public findById(task: TraversalTask, id: string, traversePages = true): LayoutNode | undefined {
+  public findById(task: TraversalTask, id: string | undefined, traversePages = true): LayoutNode | undefined {
+    if (!id) {
+      return undefined;
+    }
+
     if (this.allChildren.has(id)) {
       return this.allChildren.get(id);
     }
@@ -96,7 +100,11 @@ export class LayoutPage implements LayoutObject {
     return undefined;
   }
 
-  public findAllById(task: TraversalTask, id: string, traversePages = true): LayoutNode[] {
+  public findAllById(task: TraversalTask, id: string | undefined, traversePages = true): LayoutNode[] {
+    if (!id) {
+      return [];
+    }
+
     const baseId = splitDashedKey(id).baseComponentId;
     const out: LayoutNode[] = [];
     if (this.allChildren.has(id)) {

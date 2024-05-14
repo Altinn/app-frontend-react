@@ -36,7 +36,7 @@ import {
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { NodeRef } from 'src/layout';
-import type { CompTypes, LayoutNodeFromObj } from 'src/layout/layout';
+import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
@@ -265,16 +265,18 @@ function NodesLoader() {
   return <Loader reason='nodes' />;
 }
 
-type MaybeNodeRef = string | NodeRef | undefined | null;
-type RetValFromNodeRef<T extends MaybeNodeRef> = T extends undefined
-  ? undefined
-  : T extends null
-    ? null
-    : T extends NodeRef
-      ? LayoutNode
-      : T extends string
+type MaybeNodeRef = string | NodeRef | undefined | null | LayoutNode;
+type RetValFromNodeRef<T extends MaybeNodeRef> = T extends LayoutNode
+  ? T
+  : T extends undefined
+    ? undefined
+    : T extends null
+      ? null
+      : T extends NodeRef
         ? LayoutNode
-        : never;
+        : T extends string
+          ? LayoutNode
+          : never;
 
 /**
  * Use the expression context. This will return a LayoutPages object containing the full tree of resolved
@@ -283,8 +285,10 @@ type RetValFromNodeRef<T extends MaybeNodeRef> = T extends undefined
  *
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
-export function useNode<T extends string | NodeRef | undefined>(idOrRef: T): RetValFromNodeRef<T> {
-  const node = useNodeTraversal((traverser) => traverser.findById(idOrRef));
+export function useNode<T extends string | NodeRef | undefined | LayoutNode>(idOrRef: T): RetValFromNodeRef<T> {
+  const node = useNodeTraversal((traverser) =>
+    idOrRef instanceof BaseLayoutNode ? idOrRef : traverser.findById(idOrRef),
+  );
   return node as RetValFromNodeRef<T>;
 }
 
@@ -566,34 +570,6 @@ export const NodesInternal = {
     .map((plugin) => plugin.extraHooks(DataStore))
     .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraHooks),
 };
-
-/**
- * Given a selector, get a LayoutNode object
- *
- * @param selector This can be one of:
- *  - A component-like structure, such as ILayoutComponent, or ILayoutCompInput. The 'id' property is used to find the
- *    corresponding LayoutNode object for you, while also inferring a more specific type (if you have one).
- *  - A component id, like 'currentValue-0' for the 'currentValue' component in the first row of the repeating group it
- *    belongs to. If you only provide 'currentValue', and the component is still inside a repeating group, most likely
- *    you'll get the first row item as a result.
- */
-export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode): LayoutNodeFromObj<T> | undefined {
-  const nodes = useNodes();
-
-  if (typeof selector === 'object' && selector !== null && selector instanceof BaseLayoutNode) {
-    return selector as any;
-  }
-
-  if (typeof selector === 'string') {
-    return nodes?.findById(selector) as any;
-  }
-
-  if (typeof selector == 'object' && selector !== null && 'id' in selector && typeof selector.id === 'string') {
-    return nodes?.findById(selector.id) as any;
-  }
-
-  return undefined;
-}
 
 /**
  * This hook replaces checkIfConditionalRulesShouldRunSaga(), and fixes a problem that was hard to solve in sagas;

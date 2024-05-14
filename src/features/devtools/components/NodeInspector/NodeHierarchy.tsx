@@ -12,6 +12,7 @@ import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { Hidden, useNodeSelector } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { NodeRef } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -67,7 +68,8 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
   const nodeType = node.getType();
   const nodeMultiPageIndex = node.getMultiPageIndex();
   const { onMouseEnter, onMouseLeave } = useComponentHighlighter(nodeId, false);
-  const hasChildren = node.children().length > 0;
+  const children = useNodeTraversal((t) => t.children(), node);
+  const hasChildren = children.length > 0;
   const isHidden = Hidden.useIsHidden(node, { respectDevTools: false });
 
   return (
@@ -96,7 +98,7 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
       {hasChildren && !node.isType('RepeatingGroup') && (
         <li>
           <NodeHierarchy
-            nodes={node.children()}
+            nodes={children}
             selected={selected}
             onClick={onClick}
           />

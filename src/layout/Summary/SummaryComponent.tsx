@@ -15,7 +15,7 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Summary/SummaryComponent.module.css';
 import { SummaryContent } from 'src/layout/Summary/SummaryContent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
-import { Hidden, useResolvedNode } from 'src/utils/layout/NodesContext';
+import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGrid } from 'src/layout/common.generated';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/config.generated';
@@ -39,7 +39,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
   const { langAsString } = useLanguage();
   const currentPageId = useNavigationParam('pageKey');
 
-  const targetNode = useResolvedNode(overrides?.targetNode || summaryItem.componentRef || id);
+  const targetNode = useNode(overrides?.targetNode || summaryItem.componentRef || id);
   const targetItem = useNodeItem(targetNode);
   const targetView = targetNode?.pageKey();
   const targetIsHidden = Hidden.useIsHidden(targetNode);

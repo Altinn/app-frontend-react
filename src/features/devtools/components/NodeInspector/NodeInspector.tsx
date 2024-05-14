@@ -12,14 +12,16 @@ import { SplitView } from 'src/features/devtools/components/SplitView/SplitView'
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { implementsAnyValidation } from 'src/layout';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 
 export const NodeInspector = () => {
-  const pages = useNodes();
   const pageKey = useCurrentView();
-  const currentPage = pages?.findLayout(pageKey);
+  const currentPage = useNodeTraversal((t) => t.findPage(pageKey));
   const selectedId = useDevToolsStore((state) => state.nodeInspector.selectedNodeId);
-  const selectedNode = selectedId ? currentPage?.findById(selectedId) : undefined;
+  const selectedNode = useNodeTraversal((t) =>
+    currentPage && selectedId ? t.with(currentPage).findById(selectedId) : undefined,
+  );
+  const children = useNodeTraversal((t) => (currentPage ? t.with(currentPage).children() : undefined));
   const setSelected = useDevToolsStore((state) => state.actions.nodeInspectorSet);
   const focusLayoutInspector = useDevToolsStore((state) => state.actions.focusLayoutInspector);
 
@@ -30,7 +32,7 @@ export const NodeInspector = () => {
     >
       <div className={reusedClasses.container}>
         <NodeHierarchy
-          nodes={currentPage?.children()}
+          nodes={children}
           selected={selectedId}
           onClick={setSelected}
         />
