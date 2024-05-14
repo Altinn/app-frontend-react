@@ -20,7 +20,7 @@ export function AppPrefetcher() {
   usePrefetchQuery(useOrgsQueryDef());
   usePrefetchQuery(useLayoutSetsQueryDef());
   usePrefetchQuery(useFooterLayoutQueryDef());
-  usePrefetchQuery(useProfileQueryDef());
+  usePrefetchQuery(useProfileQueryDef(true));
   usePrefetchQuery(usePartiesQueryDef());
   usePrefetchQuery(useCurrentPartyQueryDef());
 

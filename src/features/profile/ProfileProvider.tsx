@@ -10,10 +10,12 @@ import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import type { IProfile } from 'src/types/shared';
 
 // Also used for prefetching @see appPrefetcher.ts
-export function useProfileQueryDef() {
+export function useProfileQueryDef(enabled: boolean) {
   const { fetchUserProfile } = useAppQueries();
   return {
-    queryKey: ['fetchUserProfile'],
+    // Having a different key when enabled allows us to optimistically prefetch the query,
+    // and discarding the result in case we should not query it after all.
+    queryKey: enabled ? ['fetchUserProfile'] : ['fetchUserProfile', 'disabled'],
     queryFn: fetchUserProfile,
   };
 }
@@ -23,7 +25,7 @@ const useProfileQuery = () => {
   const { updateProfile } = useSetCurrentLanguage();
 
   const utils = useQuery({
-    ...useProfileQueryDef(),
+    ...useProfileQueryDef(enabled),
     enabled,
   });
 
