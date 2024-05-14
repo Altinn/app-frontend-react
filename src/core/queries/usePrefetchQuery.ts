@@ -6,6 +6,7 @@ export type QueryDefinition<T> = {
   queryFn: QueryFunction<T> | SkipToken;
 };
 
+// @see https://tanstack.com/query/v5/docs/framework/react/guides/prefetching
 export function usePrefetchQuery<T>(def: QueryDefinition<T>, enabled = true) {
   useQuery({
     ...def,

@@ -9,7 +9,7 @@ import { useSetCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import type { IProfile } from 'src/types/shared';
 
-// Also used for prefetching @see globalPrefetcher.ts
+// Also used for prefetching @see appPrefetcher.ts
 export function useProfileQueryDef() {
   const { fetchUserProfile } = useAppQueries();
   return {

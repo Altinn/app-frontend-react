@@ -9,7 +9,7 @@ import type { IAltinnOrgs } from 'src/types/shared';
 
 const extractOrgsFromServerResponse = (response: { orgs: IAltinnOrgs }): IAltinnOrgs => response.orgs;
 
-// Also used for prefetching @see globalPrefetcher.ts
+// Also used for prefetching @see appPrefetcher.ts
 export function useOrgsQueryDef() {
   const { fetchOrgs } = useAppQueries();
   return {

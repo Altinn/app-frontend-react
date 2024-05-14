@@ -30,7 +30,7 @@ const { Provider, useCtx, useHasProvider } = createContext<IProcessContext | und
 
 export const useHasProcessProvider = () => useHasProvider();
 
-// Also used for prefetching @see globalPrefetcher.ts
+// Also used for prefetching @see appPrefetcher.ts
 export function useProcessQueryDef(instanceId?: string): QueryDefinition<IProcess> {
   const { fetchProcessState } = useAppQueries();
   return {

@@ -14,7 +14,7 @@ export const MINIMUM_APPLICATION_VERSION = {
   name: 'v8.0.0',
 };
 
-// Also used for prefetching @see globalPrefetcher.ts
+// Also used for prefetching @see appPrefetcher.ts
 export function useApplicationMetadataQueryDef() {
   const { fetchApplicationMetadata } = useAppQueries();
   return {

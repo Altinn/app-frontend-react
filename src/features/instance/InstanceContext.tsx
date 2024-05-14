@@ -43,7 +43,7 @@ const { Provider, useCtx, useHasProvider } = createContext<InstanceContext | und
   default: undefined,
 });
 
-// Also used for prefetching @see globalPrefetcher.ts
+// Also used for prefetching @see appPrefetcher.ts
 export function useInstanceDataQueryDef(partyId?: string, instanceGuid?: string): QueryDefinition<IInstance> {
   const { fetchInstanceData } = useAppQueries();
   return {

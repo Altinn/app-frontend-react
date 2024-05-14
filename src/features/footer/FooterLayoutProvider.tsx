@@ -8,7 +8,7 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import type { IFooterLayout } from 'src/features/footer/types';
 
-// Also used for prefetching @see globalPrefetcher.ts
+// Also used for prefetching @see appPrefetcher.ts
 export function useFooterLayoutQueryDef() {
   const { fetchFooterLayout } = useAppQueries();
   return {

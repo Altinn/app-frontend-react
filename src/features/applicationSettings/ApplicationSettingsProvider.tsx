@@ -7,7 +7,7 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { isAxiosError } from 'src/utils/isAxiosError';
 
-// Also used for prefetching @see globalPrefetcher.ts
+// Also used for prefetching @see appPrefetcher.ts
 export function useApplicationSettingsQueryDef() {
   const { fetchApplicationSettings } = useAppQueries();
   return {

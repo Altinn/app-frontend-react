@@ -7,7 +7,7 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import type { ILayoutSets } from 'src/layout/common.generated';
 
-// Also used for prefetching @see globalPrefetcher.ts
+// Also used for prefetching @see appPrefetcher.ts
 export function useLayoutSetsQueryDef() {
   const { fetchLayoutSets } = useAppQueries();
   return {
