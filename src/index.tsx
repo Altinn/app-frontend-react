@@ -33,7 +33,7 @@ import { TextResourcesProvider } from 'src/features/language/textResources/TextR
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
-import { GlobalPrefetcher } from 'src/queries/globalPrefetcher';
+import { AppPrefetcher } from 'src/queries/appPrefetcher';
 import * as queries from 'src/queries/queries';
 
 import 'react-toastify/dist/ReactToastify.css';
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
   root?.render(
     <StrictMode>
       <AppQueriesProvider {...queries}>
-        <GlobalPrefetcher />
+        <AppPrefetcher />
         <ErrorBoundary>
           <AppWrapper>
             <LanguageProvider>

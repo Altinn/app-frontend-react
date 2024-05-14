@@ -14,7 +14,7 @@ import { useProfileQueryDef } from 'src/features/profile/ProfileProvider';
 /**
  * Prefetches requests that require no processed data to determine the url
  */
-export function GlobalPrefetcher() {
+export function AppPrefetcher() {
   usePrefetchQuery(useApplicationMetadataQueryDef());
   usePrefetchQuery(useApplicationSettingsQueryDef());
   usePrefetchQuery(useOrgsQueryDef());
