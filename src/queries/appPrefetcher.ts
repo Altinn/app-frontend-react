@@ -21,14 +21,14 @@ export function AppPrefetcher() {
   usePrefetchQuery(useLayoutSetsQueryDef());
   usePrefetchQuery(useFooterLayoutQueryDef());
   usePrefetchQuery(useProfileQueryDef(true));
-  usePrefetchQuery(usePartiesQueryDef());
-  usePrefetchQuery(useCurrentPartyQueryDef());
+  usePrefetchQuery(usePartiesQueryDef(true));
+  usePrefetchQuery(useCurrentPartyQueryDef(true));
 
   const { partyId, instanceGuid } =
     matchPath({ path: '/instance/:partyId/:instanceGuid/*' }, window.location.hash.slice(1))?.params ?? {};
   const instanceId = partyId && instanceGuid ? `${partyId}/${instanceGuid}` : undefined;
 
-  usePrefetchQuery(useInstanceDataQueryDef(partyId, instanceGuid));
+  usePrefetchQuery(useInstanceDataQueryDef(true, partyId, instanceGuid));
   usePrefetchQuery(useProcessQueryDef(instanceId));
 
   return null;

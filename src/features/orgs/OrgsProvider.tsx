@@ -15,6 +15,7 @@ export function useOrgsQueryDef() {
   return {
     queryKey: ['fetchOrganizations'],
     queryFn: fetchOrgs,
+    enabled: true,
   };
 }
 

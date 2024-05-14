@@ -24,11 +24,12 @@ export interface LayoutContextValue {
 }
 
 // Also used for prefetching @see formPrefetcher.ts
-export function useLayoutQueryDef(layoutSetId?: string): QueryDefinition<ILayoutCollection> {
+export function useLayoutQueryDef(enabled: boolean, layoutSetId?: string): QueryDefinition<LayoutContextValue> {
   const { fetchLayouts } = useAppQueries();
   return {
-    queryKey: ['formLayouts', layoutSetId],
-    queryFn: layoutSetId ? () => fetchLayouts(layoutSetId) : skipToken,
+    queryKey: ['formLayouts', layoutSetId, enabled],
+    queryFn: layoutSetId ? async () => processLayouts(await fetchLayouts(layoutSetId)) : skipToken,
+    enabled: enabled && !!layoutSetId,
   };
 }
 
@@ -37,13 +38,9 @@ function useLayoutQuery() {
   const process = useLaxProcessData();
   const currentLayoutSetId = useLayoutSetId();
 
-  const utils = useQuery({
-    // Waiting to fetch layouts until we have an instance, if we're supposed to have one
-    // We don't want to fetch form layouts for a process step which we are currently not on
-    ...useLayoutQueryDef(currentLayoutSetId),
-    enabled: hasInstance ? !!process : true,
-    select: processLayouts,
-  });
+  // Waiting to fetch layouts until we have an instance, if we're supposed to have one
+  // We don't want to fetch form layouts for a process step which we are currently not on
+  const utils = useQuery(useLayoutQueryDef(hasInstance ? !!process : true, currentLayoutSetId));
 
   useEffect(() => {
     utils.error && window.logError('Fetching form layout failed:\n', utils.error);

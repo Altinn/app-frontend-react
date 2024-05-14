@@ -10,11 +10,16 @@ import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IPdfFormat } from 'src/features/pdf/types';
 
 // Also used for prefetching @see formPrefetcher.ts
-export function usePdfFormatQueryDef(instanceId?: string, dataGuid?: string): QueryDefinition<IPdfFormat> {
+export function usePdfFormatQueryDef(
+  enabled: boolean,
+  instanceId?: string,
+  dataGuid?: string,
+): QueryDefinition<IPdfFormat> {
   const { fetchPdfFormat } = useAppQueries();
   return {
-    queryKey: ['fetchPdfFormat', instanceId, dataGuid],
+    queryKey: ['fetchPdfFormat', instanceId, dataGuid, enabled],
     queryFn: instanceId && dataGuid ? () => fetchPdfFormat(instanceId, dataGuid) : skipToken,
+    enabled: enabled && !!instanceId && !!dataGuid,
   };
 }
 
@@ -24,9 +29,8 @@ export const usePdfFormatQuery = (enabled: boolean): UseQueryResult<IPdfFormat> 
 
   const ready = typeof dataGuid === 'string';
   const utils = useQuery({
-    enabled: enabled && ready,
     gcTime: 0,
-    ...usePdfFormatQueryDef(instanceId, dataGuid),
+    ...usePdfFormatQueryDef(enabled && ready, instanceId, dataGuid),
   });
 
   useEffect(() => {

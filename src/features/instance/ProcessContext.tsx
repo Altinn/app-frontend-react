@@ -36,6 +36,7 @@ export function useProcessQueryDef(instanceId?: string): QueryDefinition<IProces
   return {
     queryKey: ['fetchProcessState', instanceId],
     queryFn: instanceId ? () => fetchProcessState(instanceId) : skipToken,
+    enabled: !!instanceId,
   };
 }
 

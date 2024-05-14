@@ -14,6 +14,7 @@ export function useFooterLayoutQueryDef() {
   return {
     queryKey: ['fetchFooterLayout'],
     queryFn: fetchFooterLayout,
+    enabled: true,
   };
 }
 

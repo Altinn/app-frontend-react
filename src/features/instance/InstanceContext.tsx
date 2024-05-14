@@ -44,19 +44,21 @@ const { Provider, useCtx, useHasProvider } = createContext<InstanceContext | und
 });
 
 // Also used for prefetching @see appPrefetcher.ts
-export function useInstanceDataQueryDef(partyId?: string, instanceGuid?: string): QueryDefinition<IInstance> {
+export function useInstanceDataQueryDef(
+  enabled: boolean,
+  partyId?: string,
+  instanceGuid?: string,
+): QueryDefinition<IInstance> {
   const { fetchInstanceData } = useAppQueries();
   return {
     queryKey: ['fetchInstanceData', partyId, instanceGuid],
     queryFn: partyId && instanceGuid ? () => fetchInstanceData(partyId, instanceGuid) : skipToken,
+    enabled: enabled && !!partyId && !!instanceGuid,
   };
 }
 
 function useGetInstanceDataQuery(enabled: boolean, partyId: string, instanceGuid: string) {
-  const utils = useQuery({
-    enabled,
-    ...useInstanceDataQueryDef(partyId, instanceGuid),
-  });
+  const utils = useQuery(useInstanceDataQueryDef(enabled, partyId, instanceGuid));
 
   useEffect(() => {
     utils.error && window.logError('Fetching instance data failed:\n', utils.error);

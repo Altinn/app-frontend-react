@@ -13,10 +13,9 @@ import type { IProfile } from 'src/types/shared';
 export function useProfileQueryDef(enabled: boolean) {
   const { fetchUserProfile } = useAppQueries();
   return {
-    // Having a different key when enabled allows us to optimistically prefetch the query,
-    // and discarding the result in case we should not query it after all.
-    queryKey: enabled ? ['fetchUserProfile'] : ['fetchUserProfile', 'disabled'],
+    queryKey: ['fetchUserProfile', enabled],
     queryFn: fetchUserProfile,
+    enabled,
   };
 }
 
@@ -24,10 +23,7 @@ const useProfileQuery = () => {
   const enabled = useShouldFetchProfile();
   const { updateProfile } = useSetCurrentLanguage();
 
-  const utils = useQuery({
-    ...useProfileQueryDef(enabled),
-    enabled,
-  });
+  const utils = useQuery(useProfileQueryDef(enabled));
 
   useEffect(() => {
     utils.error && window.logError('Fetching user profile failed:\n', utils.error);

@@ -21,7 +21,8 @@ export function useFormDataQueryDef(
   const { fetchFormData } = useAppQueries();
   return {
     queryKey: ['fetchFormData', cacheKeyUrl, currentTaskId],
-    queryFn: url && options ? () => fetchFormData(url, options) : skipToken,
+    queryFn: url ? () => fetchFormData(url, options) : skipToken,
+    enabled: !!url,
   };
 }
 
@@ -56,13 +57,11 @@ export function useFormDataQuery(url: string | undefined) {
   const cacheKeyUrl = getFormDataCacheKeyUrl(url);
 
   // We dont want to refetch if only the language changes
-  const enabled = url !== undefined;
   const utils = useQuery({
     // Form data is only fetched to initially populate the context, after that we keep the state internally
     // and push it back to the server.
     gcTime: 0,
     retry: false,
-    enabled,
     ...useFormDataQueryDef(cacheKeyUrl, currentTaskId, url, options),
   });
 

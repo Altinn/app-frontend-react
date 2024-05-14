@@ -20,17 +20,17 @@ export function useDataModelSchemaQueryDef(dataTypeId?: string): QueryDefinition
   return {
     queryKey: ['fetchDataModelSchemas', dataTypeId],
     queryFn: dataTypeId ? () => fetchDataModelSchema(dataTypeId) : skipToken,
+    enabled: !!dataTypeId,
   };
 }
 
 const useDataModelSchemaQuery = () => {
   const dataModelName = useCurrentDataModelName();
   const dataType = useCurrentDataModelType();
-  const enabled = !!dataModelName;
 
+  const queryDef = useDataModelSchemaQueryDef(dataModelName);
   const utils = useQuery({
-    enabled,
-    ...useDataModelSchemaQueryDef(dataModelName),
+    ...queryDef,
     select: (schema) => {
       const rootElementPath = getRootElementPath(schema, dataType);
       const lookupTool = new SchemaLookupTool(schema, rootElementPath);
@@ -42,7 +42,7 @@ const useDataModelSchemaQuery = () => {
     utils.error && window.logError('Fetching data model schema failed:\n', utils.error);
   }, [utils.error]);
 
-  return { ...utils, enabled };
+  return { ...utils, enabled: queryDef.enabled };
 };
 
 export interface DataModelSchemaContext {

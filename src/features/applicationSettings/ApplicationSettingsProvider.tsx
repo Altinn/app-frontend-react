@@ -13,6 +13,7 @@ export function useApplicationSettingsQueryDef() {
   return {
     queryKey: ['fetchApplicationSettings'],
     queryFn: fetchApplicationSettings,
+    enabled: true,
   };
 }
 

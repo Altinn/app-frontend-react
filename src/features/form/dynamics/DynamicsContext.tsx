@@ -16,6 +16,7 @@ export function useDynamicsQueryDef(layoutSetId?: string): QueryDefinition<{ dat
   return {
     queryKey: ['fetchDynamics', layoutSetId],
     queryFn: layoutSetId ? () => fetchDynamics(layoutSetId) : skipToken,
+    enabled: !!layoutSetId,
   };
 }
 

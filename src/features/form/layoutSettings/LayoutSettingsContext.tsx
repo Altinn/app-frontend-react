@@ -17,6 +17,7 @@ export function useLayoutSettingsQueryDef(layoutSetId?: string): QueryDefinition
   return {
     queryKey: ['layoutSettings', layoutSetId],
     queryFn: layoutSetId ? () => fetchLayoutSettings(layoutSetId) : skipToken,
+    enabled: !!layoutSetId,
   };
 }
 

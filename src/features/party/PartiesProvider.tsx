@@ -15,21 +15,19 @@ import type { IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 // Also used for prefetching @see appPrefetcher.ts
-export function usePartiesQueryDef() {
+export function usePartiesQueryDef(enabled: boolean) {
   const { fetchParties } = useAppQueries();
   return {
-    queryKey: ['fetchUseParties'],
+    queryKey: ['fetchUseParties', enabled],
     queryFn: fetchParties,
+    enabled,
   };
 }
 
 const usePartiesQuery = () => {
   const enabled = useShouldFetchProfile();
 
-  const utils = useQuery({
-    ...usePartiesQueryDef(),
-    enabled,
-  });
+  const utils = useQuery(usePartiesQueryDef(enabled));
 
   useEffect(() => {
     utils.error && window.logError('Fetching parties failed:\n', utils.error);
@@ -42,19 +40,17 @@ const usePartiesQuery = () => {
 };
 
 // Also used for prefetching @see appPrefetcher.ts
-export function useCurrentPartyQueryDef() {
+export function useCurrentPartyQueryDef(enabled: boolean) {
   const { fetchCurrentParty } = useAppQueries();
   return {
-    queryKey: ['fetchUseCurrentParty'],
+    queryKey: ['fetchUseCurrentParty', enabled],
     queryFn: fetchCurrentParty,
+    enabled,
   };
 }
 
 const useCurrentPartyQuery = (enabled: boolean) => {
-  const utils = useQuery({
-    ...useCurrentPartyQueryDef(),
-    enabled,
-  });
+  const utils = useQuery(useCurrentPartyQueryDef(enabled));
 
   useEffect(() => {
     utils.error && window.logError('Fetching current party failed:\n', utils.error);

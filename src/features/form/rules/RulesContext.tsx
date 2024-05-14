@@ -16,6 +16,7 @@ export function useRulesQueryDef(layoutSetId?: string): QueryDefinition<string |
   return {
     queryKey: ['fetchRules', layoutSetId],
     queryFn: layoutSetId ? () => fetchRuleHandler(layoutSetId) : skipToken,
+    enabled: !!layoutSetId,
   };
 }
 

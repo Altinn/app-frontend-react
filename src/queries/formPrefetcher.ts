@@ -27,7 +27,7 @@ import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
  */
 export function FormPrefetcher() {
   const layoutSetId = useLayoutSetId();
-  usePrefetchQuery(useLayoutQueryDef(layoutSetId));
+  usePrefetchQuery(useLayoutQueryDef(true, layoutSetId));
   usePrefetchQuery(useLayoutSettingsQueryDef(layoutSetId));
   usePrefetchQuery(useDynamicsQueryDef(layoutSetId));
   usePrefetchQuery(useRulesQueryDef(layoutSetId));
@@ -46,7 +46,7 @@ export function FormPrefetcher() {
   const instanceId = useLaxInstance()?.instanceId;
   const dataGuid = useCurrentDataModelGuid();
   const pdfActive = useIsPdf();
-  usePrefetchQuery(usePdfFormatQueryDef(instanceId, dataGuid), pdfActive);
+  usePrefetchQuery(usePdfFormatQueryDef(true, instanceId, dataGuid), pdfActive);
 
   return null;
 }

@@ -18,17 +18,15 @@ export function useCustomValidationConfigQueryDef(
   return {
     queryKey: ['fetchCustomValidationConfig', dataTypeId],
     queryFn: dataTypeId ? () => fetchCustomValidationConfig(dataTypeId) : skipToken,
+    enabled: !!dataTypeId,
   };
 }
 
 const useCustomValidationConfigQuery = () => {
   const dataTypeId = useCurrentDataModelName();
-  const enabled = Boolean(dataTypeId?.length);
 
-  const utils = useQuery({
-    enabled,
-    ...useCustomValidationConfigQueryDef(dataTypeId),
-  });
+  const queryDef = useCustomValidationConfigQueryDef(dataTypeId);
+  const utils = useQuery(queryDef);
 
   useEffect(() => {
     utils.error && window.logError('Fetching validation configuration failed:\n', utils.error);
@@ -36,7 +34,7 @@ const useCustomValidationConfigQuery = () => {
 
   return {
     ...utils,
-    enabled,
+    enabled: queryDef.enabled,
   };
 };
 
