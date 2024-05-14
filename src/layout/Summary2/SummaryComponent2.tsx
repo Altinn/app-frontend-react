@@ -52,15 +52,25 @@ function ComponentSummary({ componentNode }: ComponentSummaryProps) {
     return null;
   }
 
-  if (componentNode.def.renderSummary2) {
-    const renderedComponent = componentNode.def.renderSummary2(componentNode as LayoutNode<any>);
+  const childComponents =
+    componentNode.item.type === 'Group' &&
+    componentNode.item.childComponents.map((child) => (
+      <ComponentSummary
+        componentNode={child}
+        key={child.item.id}
+      />
+    ));
 
-    if (!renderedComponent) {
-      return null;
-    }
+  const renderedComponent = componentNode.def.renderSummary2
+    ? componentNode.def.renderSummary2(componentNode as LayoutNode<any>)
+    : null;
 
-    return <div style={{ border: '2px solid yellow' }}>{renderedComponent}</div>;
-  }
+  return (
+    <div style={{ border: '2px solid yellow', display: 'flex', flexDirection: 'column' }}>
+      {renderedComponent && <div>{renderedComponent}</div>}
+      {childComponents}
+    </div>
+  );
 }
 
 function PageSummary({ pageId }: PageSummaryProps) {
