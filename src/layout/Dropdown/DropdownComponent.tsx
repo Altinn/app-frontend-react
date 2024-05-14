@@ -7,7 +7,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
 import { useGetOptions } from 'src/hooks/useGetOptions';
-import { useHasChangedIgnoreUndefined } from 'src/hooks/useHasChangedIgnoreUndefined';
+import { useHasOptionsChanged } from 'src/hooks/useHasOptionsChanged';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { duplicateOptionFilter, getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -33,7 +33,7 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
   const hasSelectedInitial = React.useRef(false);
-  const optionsHasChanged = useHasChangedIgnoreUndefined(options);
+  const optionsHasChanged = useHasOptionsChanged(options);
 
   const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
 

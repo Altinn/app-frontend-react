@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useGetOptions } from 'src/hooks/useGetOptions';
-import { useHasChangedIgnoreUndefined } from 'src/hooks/useHasChangedIgnoreUndefined';
+import { useHasOptionsChanged } from 'src/hooks/useHasOptionsChanged';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 
@@ -12,7 +12,7 @@ export const useRadioButtons = ({ node, handleDataChange, formData }: IRadioButt
   const apiOptions = useGetOptions({ optionsId, mapping, queryParameters, source });
   const _calculatedOptions = useMemo(() => apiOptions || options, [apiOptions, options]);
   const calculatedOptions = _calculatedOptions || [];
-  const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
+  const optionsHasChanged = useHasOptionsChanged(apiOptions);
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const _fetchingOptions =
     useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading) || undefined;
