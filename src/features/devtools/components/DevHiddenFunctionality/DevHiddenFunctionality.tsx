@@ -6,6 +6,7 @@ import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useComponentRefs } from 'src/features/devtools/hooks/useComponentRefs';
 import { useIsInFormContext } from 'src/features/form/FormContext';
 import { Hidden } from 'src/utils/layout/NodesContext';
+import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { IDevToolsState } from 'src/features/devtools/data/types';
 
 const pseudoHiddenCssFilter = 'contrast(0.75)';
@@ -44,13 +45,18 @@ function InnerDevHiddenFunctionality() {
 function MarkHiddenComponents() {
   const state = useDevToolsStore((state) => state.hiddenComponents);
   const isHiddenSelector = Hidden.useIsHiddenSelector();
+  const traversalSelector = useNodeTraversalSelector();
 
   useComponentRefs({
     callback: (id, ref) => {
       if (ref.style.filter === pseudoHiddenCssFilter && state !== 'disabled') {
         ref.style.filter = '';
-      } else if (state === 'disabled' && isHiddenSelector({ node: id, options: { respectDevTools: false } })) {
-        ref.style.filter = pseudoHiddenCssFilter;
+      } else if (state === 'disabled') {
+        const node = traversalSelector((t) => t.findById(id), [id]);
+        const isHidden = node ? isHiddenSelector({ node, options: { respectDevTools: false } }) : true;
+        if (isHidden) {
+          ref.style.filter = pseudoHiddenCssFilter;
+        }
       }
     },
     cleanupCallback: (_, ref) => {

@@ -385,7 +385,7 @@ export const Hidden = {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     return DataStore.useDelayedMemoSelectorFactory(
       // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
-      ({ node, options }: { node: string | NodeRef | LayoutNode | LayoutPage; options?: IsHiddenOptions }) =>
+      ({ node, options }: { node: NodeRef | LayoutNode | LayoutPage; options?: IsHiddenOptions }) =>
         (state) => {
           try {
             const nodeState = pickDataStorePath(state.pages, getNodePath(node, nodes));
@@ -433,21 +433,15 @@ export const Hidden = {
   },
 };
 
-function getNodePath(nodeId: string | NodeRef | LayoutNode | LayoutPage, nodes: LayoutPages) {
-  const node = isNodeRef(nodeId)
-    ? nodes.findById(nodeId.nodeRef)
-    : typeof nodeId === 'string'
-      ? nodes.findById(nodeId)
-      : nodeId;
+function getNodePath(nodeId: NodeRef | LayoutNode | LayoutPage, nodes: LayoutPages) {
+  const node = isNodeRef(nodeId) ? nodes.findById(nodeId.nodeRef) : nodeId;
 
   if (!node) {
     const asString = isNodeRef(nodeId)
       ? nodeId.nodeRef
-      : typeof nodeId === 'string'
-        ? nodeId
-        : nodeId instanceof BaseLayoutNode
-          ? nodeId.getId()
-          : nodeId.pageKey;
+      : nodeId instanceof BaseLayoutNode
+        ? nodeId.getId()
+        : nodeId.pageKey;
 
     throw new Error(`Node not found: ${asString}`);
   }
