@@ -3,6 +3,7 @@ import React from 'react';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import { renderWithNode } from 'src/test/renderWithProviders';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('SummaryGroupComponent', () => {
@@ -17,21 +18,28 @@ describe('SummaryGroupComponent', () => {
     expect(asFragment()).toMatchSnapshot();
   });
 
+  function TestComponent({ node, groupId }: { node: LayoutNode<'Summary'>; groupId: string }) {
+    const groupNode = useNodeTraversal((t) => t.findById(groupId)) as LayoutNode<'RepeatingGroup'>;
+    return (
+      <SummaryRepeatingGroup
+        changeText={'Change'}
+        onChangeClick={mockHandleDataChange}
+        summaryNode={node}
+        targetNode={groupNode}
+      />
+    );
+  }
+
   async function render() {
     return await renderWithNode<true, LayoutNode<'Summary'>>({
       nodeId: 'mySummary',
       inInstance: true,
-      renderer: ({ node, root }) => {
-        const groupNode = root.findById('groupComponent') as LayoutNode<'RepeatingGroup'>;
-        return (
-          <SummaryRepeatingGroup
-            changeText={'Change'}
-            onChangeClick={mockHandleDataChange}
-            summaryNode={node}
-            targetNode={groupNode}
-          />
-        );
-      },
+      renderer: ({ node }) => (
+        <TestComponent
+          node={node}
+          groupId='groupComponent'
+        />
+      ),
       queries: {
         fetchFormData: async () => ({
           mockGroup: [

@@ -6,6 +6,7 @@ import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraver
 import { getComponentDef } from 'src/layout';
 import { ensureAppsDirIsSet, getAllLayoutSetsWithDataModelSchema, parseJsonTolerantly } from 'src/test/allApps';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
+import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ILayouts } from 'src/layout/layout';
@@ -34,8 +35,9 @@ describe('Data model lookups in real apps', () => {
     const rootPath = getRootElementPath(schema, dataTypeDef);
     const failures: any[] = [];
 
-    for (const [pageKey, layout] of Object.entries(nodes.all())) {
-      for (const node of layout.flat()) {
+    const dummyTask = new TraversalTask(null as any, null as any, undefined, undefined);
+    for (const [pageKey, layout] of Object.entries(nodes.all(dummyTask))) {
+      for (const node of layout.flat(dummyTask)) {
         const ctx: LayoutValidationCtx<any> = {
           node,
           item: node.item,

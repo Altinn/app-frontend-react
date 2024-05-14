@@ -43,8 +43,7 @@ export function runConditionalRenderingRules(
       const node = nodeTraversal((t) => t.findById(groupId), [groupId]);
       if (node?.isType('RepeatingGroup')) {
         for (const row of node.item.rows) {
-          const firstChild = row.items[0];
-          const firstChildId = firstChild?.nodeRef;
+          const firstChildId = row.items[0]?.nodeRef;
           const firstChildNode = nodeTraversal((t) => t.findById(firstChildId), [firstChildId]);
           runConditionalRenderingRule(connection, firstChildNode, componentsToHide, formDataSelector);
           if (connection.repeatingGroup.childGroupId) {
@@ -58,8 +57,8 @@ export function runConditionalRenderingRules(
             );
             if (childNode && childNode.isType('RepeatingGroup')) {
               for (const childRow of childNode.item.rows) {
-                const firstNestedChild = childRow.items[0];
-                const firstNestedChildNode = nodes.findById(firstNestedChild?.nodeRef);
+                const firstNestedChildId = childRow.items[0]?.nodeRef;
+                const firstNestedChildNode = nodeTraversal((t) => t.findById(firstNestedChildId), [firstNestedChildId]);
                 runConditionalRenderingRule(connection, firstNestedChildNode, componentsToHide, formDataSelector);
               }
             }

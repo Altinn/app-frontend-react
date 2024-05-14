@@ -381,14 +381,14 @@ export const Hidden = {
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
   },
   useIsHiddenSelector: () => {
-    const nodes = useNodes();
+    const nodeSelector = useNodeSelector();
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     return DataStore.useDelayedMemoSelectorFactory(
       // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
       ({ node, options }: { node: NodeRef | LayoutNode | LayoutPage; options?: IsHiddenOptions }) =>
         (state) => {
           try {
-            const nodeState = pickDataStorePath(state.pages, getNodePath(node, nodes));
+            const nodeState = pickDataStorePath(state.pages, getNodePath(node, nodeSelector));
             return isHidden(nodeState.hidden, forcedVisibleByDevTools, options);
           } catch (e) {
             if (e instanceof NodePathNotFound) {
@@ -433,8 +433,8 @@ export const Hidden = {
   },
 };
 
-function getNodePath(nodeId: NodeRef | LayoutNode | LayoutPage, nodes: LayoutPages) {
-  const node = isNodeRef(nodeId) ? nodes.findById(nodeId.nodeRef) : nodeId;
+function getNodePath(nodeId: NodeRef | LayoutNode | LayoutPage, nodeSelector: NodeSelector) {
+  const node = isNodeRef(nodeId) ? nodeSelector(nodeId.nodeRef) : nodeId;
 
   if (!node) {
     const asString = isNodeRef(nodeId)

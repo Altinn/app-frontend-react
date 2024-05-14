@@ -1,19 +1,16 @@
-import { getExpressionDataSourcesMock } from 'src/__mocks__/getExpressionDataSourcesMock';
-import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
+import { getSharedTests } from 'src/features/expressions/shared';
 import { asExpression } from 'src/features/expressions/validation';
-import { getComponentDef } from 'src/layout';
-import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { Layouts } from 'src/features/expressions/shared';
 
 // TODO: Remove this function when no longer in use
-function evalAllExpressions(layouts: Layouts) {
-  const dataSources = getExpressionDataSourcesMock();
-  const nodes = generateEntireHierarchy(convertLayouts(layouts), Object.keys(layouts)[0], dataSources, getComponentDef);
-  for (const page of Object.values(nodes.all())) {
-    for (const _node of page.flat()) {
-      // ... Here we used to evaluate expressions in the node
-    }
-  }
+function evalAllExpressions(_layouts: Layouts) {
+  // const dataSources = getExpressionDataSourcesMock();
+  // const nodes = generateEntireHierarchy(convertLayouts(layouts), Object.keys(layouts)[0], dataSources, getComponentDef);
+  // for (const page of Object.values(nodes.all())) {
+  //   for (const _node of page.flat()) {
+  //     // ... Here we used to evaluate expressions in the node
+  //   }
+  // }
 }
 
 describe('Expression validation', () => {
