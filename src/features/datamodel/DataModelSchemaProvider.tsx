@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import type { JSONSchema7 } from 'json-schema';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
@@ -11,18 +11,26 @@ import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useCurrentDataModelName, useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
 import { getRootElementPath } from 'src/utils/schemaUtils';
+import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { SchemaLookupResult } from 'src/features/datamodel/SimpleSchemaTraversal';
 
-const useDataModelSchemaQuery = () => {
+// Also used for prefetching @see formPrefetcher.ts
+export function useDataModelSchemaQueryDef(dataTypeId?: string): QueryDefinition<JSONSchema7> {
   const { fetchDataModelSchema } = useAppQueries();
+  return {
+    queryKey: ['fetchDataModelSchemas', dataTypeId],
+    queryFn: dataTypeId ? () => fetchDataModelSchema(dataTypeId) : skipToken,
+  };
+}
+
+const useDataModelSchemaQuery = () => {
   const dataModelName = useCurrentDataModelName();
   const dataType = useCurrentDataModelType();
   const enabled = !!dataModelName;
 
   const utils = useQuery({
     enabled,
-    queryKey: ['fetchDataModelSchemas', dataModelName],
-    queryFn: () => fetchDataModelSchema(dataModelName!),
+    ...useDataModelSchemaQueryDef(dataModelName),
     select: (schema) => {
       const rootElementPath = getRootElementPath(schema, dataType);
       const lookupTool = new SchemaLookupTool(schema, rootElementPath);

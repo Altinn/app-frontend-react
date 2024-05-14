@@ -9,15 +9,22 @@ import { useSetCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import type { IProfile } from 'src/types/shared';
 
+// Also used for prefetching @see globalPrefetcher.ts
+export function useProfileQueryDef() {
+  const { fetchUserProfile } = useAppQueries();
+  return {
+    queryKey: ['fetchUserProfile'],
+    queryFn: fetchUserProfile,
+  };
+}
+
 const useProfileQuery = () => {
   const enabled = useShouldFetchProfile();
   const { updateProfile } = useSetCurrentLanguage();
 
-  const { fetchUserProfile } = useAppQueries();
   const utils = useQuery({
+    ...useProfileQueryDef(),
     enabled,
-    queryKey: ['fetchUserProfile'],
-    queryFn: fetchUserProfile,
   });
 
   useEffect(() => {

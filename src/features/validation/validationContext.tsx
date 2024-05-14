@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -27,6 +26,7 @@ import {
   setVisibilityForNode,
 } from 'src/features/validation/visibility/visibilityUtils';
 import { useAsRef } from 'src/hooks/useAsRef';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type {
   BackendValidationIssueGroups,
@@ -172,8 +172,7 @@ export function ValidationProvider({ children, isCustomReceipt = false }: PropsW
   const waitForStateRef = useRef<WaitForState<ValidationContext & Internals, unknown>>();
   const hasPendingAttachments = useHasPendingAttachments();
 
-  const [searchParams] = useSearchParams();
-  const isPDF = searchParams.get('pdf') === '1';
+  const isPDF = useIsPdf();
   const shouldLoadValidations = !isCustomReceipt && !isPDF;
 
   // Provide a promise that resolves when all pending validations have been completed

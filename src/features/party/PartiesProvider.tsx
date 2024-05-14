@@ -14,14 +14,21 @@ import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
 import type { IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
+// Also used for prefetching @see globalPrefetcher.ts
+export function usePartiesQueryDef() {
+  const { fetchParties } = useAppQueries();
+  return {
+    queryKey: ['fetchUseParties'],
+    queryFn: fetchParties,
+  };
+}
+
 const usePartiesQuery = () => {
   const enabled = useShouldFetchProfile();
 
-  const { fetchParties } = useAppQueries();
   const utils = useQuery({
+    ...usePartiesQueryDef(),
     enabled,
-    queryKey: ['fetchUseParties'],
-    queryFn: fetchParties,
   });
 
   useEffect(() => {
@@ -34,12 +41,19 @@ const usePartiesQuery = () => {
   };
 };
 
-const useCurrentPartyQuery = (enabled: boolean) => {
+// Also used for prefetching @see globalPrefetcher.ts
+export function useCurrentPartyQueryDef() {
   const { fetchCurrentParty } = useAppQueries();
-  const utils = useQuery({
-    enabled,
+  return {
     queryKey: ['fetchUseCurrentParty'],
     queryFn: fetchCurrentParty,
+  };
+}
+
+const useCurrentPartyQuery = (enabled: boolean) => {
+  const utils = useQuery({
+    ...useCurrentPartyQueryDef(),
+    enabled,
   });
 
   useEffect(() => {

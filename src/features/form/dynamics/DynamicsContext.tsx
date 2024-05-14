@@ -1,15 +1,25 @@
 import { useEffect } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
+import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
+import type { IFormDynamics } from 'src/features/form/dynamics';
+
+// Also used for prefetching @see formPrefetcher.ts
+export function useDynamicsQueryDef(layoutSetId?: string): QueryDefinition<{ data: IFormDynamics } | null> {
+  const { fetchDynamics } = useAppQueries();
+  return {
+    queryKey: ['fetchDynamics', layoutSetId],
+    queryFn: layoutSetId ? () => fetchDynamics(layoutSetId) : skipToken,
+  };
+}
 
 function useDynamicsQuery() {
-  const { fetchDynamics } = useAppQueries();
   const layoutSetId = useCurrentLayoutSetId();
 
   if (!layoutSetId) {
@@ -17,8 +27,7 @@ function useDynamicsQuery() {
   }
 
   const utils = useQuery({
-    queryKey: ['fetchDynamics', layoutSetId],
-    queryFn: () => fetchDynamics(layoutSetId),
+    ...useDynamicsQueryDef(layoutSetId),
     select: (dynamics) => dynamics?.data || null,
   });
 
