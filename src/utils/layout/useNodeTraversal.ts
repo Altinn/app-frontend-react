@@ -267,9 +267,47 @@ export type NodeTraversalFromNode<N extends LayoutNode> = Omit<
   'allNodes' | 'findPage' | 'findById' | 'findAllById'
 >;
 
-/**
- * Hook used when you want to traverse the hierarchy of a node, starting from a specific node.
- */
+enum Strictness {
+  // If the context or nodes are not provided, throw an error upon traversal
+  throwError,
+
+  // If the context or nodes are not provided, return ContextNotProvided upon traversal
+  returnContextNotProvided,
+
+  // If the context or nodes are not provided, return undefined upon traversal (will usually work like silently
+  // never finding what you're looking for when nodes are not present)
+  returnUndefined,
+}
+
+type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictness.returnUndefined
+  ? U | undefined
+  : Strict extends Strictness.returnContextNotProvided
+    ? U | typeof ContextNotProvided
+    : U;
+
+function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: never, strictness?: Strictness): Out {
+  const nodesRef = useNodesAsLaxRef();
+  const out = NodesInternal.useNodeDataMemoLaxRaw((state) => {
+    const nodes = nodesRef.current;
+    if (!nodes || nodes === ContextNotProvided) {
+      return ContextNotProvided;
+    }
+
+    return node === undefined
+      ? (selector as any)(new NodeTraversal(state.pages, nodes, nodes))
+      : (selector as any)(new NodeTraversal(state.pages, nodes, node));
+  });
+
+  if (out === ContextNotProvided) {
+    if (strictness === Strictness.throwError) {
+      throw new Error('useNodeTraversal() must be used inside a NodesProvider');
+    }
+    return strictness === Strictness.returnUndefined ? undefined : (selector as any)(ContextNotProvided);
+  }
+
+  return out;
+}
+
 export function useNodeTraversalLax<Out>(
   selector: (traverser: NodeTraversalFromRoot | typeof ContextNotProvided) => Out,
 ): Out;
@@ -277,22 +315,20 @@ export function useNodeTraversalLax<N extends LayoutPage, Out>(
   selector: (traverser: NodeTraversalFromPage | typeof ContextNotProvided) => Out,
   node: N,
 ): Out;
+export function useNodeTraversalLax<N extends LayoutPage, Out>(
+  selector: (traverser: NodeTraversalFromPage | NodeTraversalFromRoot | typeof ContextNotProvided) => Out,
+  node: N | undefined,
+): Out;
 export function useNodeTraversalLax<N extends LayoutNode, Out>(
   selector: (traverser: NodeTraversalFromNode<N> | typeof ContextNotProvided) => Out,
   node: N,
 ): Out;
+export function useNodeTraversalLax<N extends LayoutNode, Out>(
+  selector: (traverser: NodeTraversalFromNode<N> | NodeTraversalFromRoot | typeof ContextNotProvided) => Out,
+  node: N | undefined,
+): Out;
 export function useNodeTraversalLax<Out>(selector: (traverser: never) => Out, node?: never): Out {
-  const nodesRef = useNodesAsLaxRef();
-  return NodesInternal.useNodeDataMemoRaw((state) => {
-    const nodes = nodesRef.current;
-    if (!nodes || nodes === ContextNotProvided) {
-      return (selector as any)(ContextNotProvided);
-    }
-
-    return node === undefined
-      ? (selector as any)(new NodeTraversal(state, nodes, nodes))
-      : (selector as any)(new NodeTraversal(state, nodes, node));
-  }) as any;
+  return useNodeTraversalProto(selector, node, Strictness.returnContextNotProvided);
 }
 
 export function useNodeTraversal<Out>(selector: (traverser: NodeTraversalFromRoot) => Out): Out;
@@ -313,32 +349,29 @@ export function useNodeTraversal<N extends LayoutNode, Out>(
   node: N | undefined,
 ): Out;
 export function useNodeTraversal<Out>(selector: (traverser: never) => Out, node?: never): Out {
-  return useNodeTraversalLax((traverser) => {
-    if (traverser === ContextNotProvided) {
-      throw new Error('useNodeTraversal() must be used inside a NodesProvider');
-    }
-
-    return (selector as any)(traverser);
-  }, node as any);
+  return useNodeTraversalProto(selector, node, Strictness.throwError);
 }
 
-enum Strictness {
-  // If the context or nodes are not provided, throw an error upon traversal
-  throwError,
-
-  // If the context or nodes are not provided, return ContextNotProvided upon traversal
-  returnContextNotProvided,
-
-  // If the context or nodes are not provided, return undefined upon traversal (will usually work like silently
-  // never finding what you're looking for when nodes are not present)
-  returnUndefined,
+export function useNodeTraversalSilent<Out>(selector: (traverser: NodeTraversalFromRoot) => Out): Out | undefined;
+export function useNodeTraversalSilent<N extends LayoutPage, Out>(
+  selector: (traverser: NodeTraversalFromPage) => Out,
+  node: N,
+): Out | undefined;
+export function useNodeTraversalSilent<N extends LayoutPage, Out>(
+  selector: (traverser: NodeTraversalFromPage | NodeTraversalFromRoot) => Out,
+  node: N | undefined,
+): Out | undefined;
+export function useNodeTraversalSilent<N extends LayoutNode, Out>(
+  selector: (traverser: NodeTraversalFromNode<N>) => Out,
+  node: N,
+): Out | undefined;
+export function useNodeTraversalSilent<N extends LayoutNode, Out>(
+  selector: (traverser: NodeTraversalFromNode<N> | NodeTraversalFromRoot) => Out,
+  node: N | undefined,
+): Out | undefined;
+export function useNodeTraversalSilent<Out>(selector: (traverser: never) => Out, node?: never): Out | undefined {
+  return useNodeTraversalProto(selector, node, Strictness.returnUndefined);
 }
-
-type Traverser<Strict extends Strictness> = Strict extends Strictness.returnContextNotProvided
-  ? NodeTraversalFromRoot | typeof ContextNotProvided
-  : NodeTraversalFromRoot;
-
-type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictness.returnUndefined ? U | undefined : U;
 
 /**
  * Hook that returns a selector that lets you traverse the hierarchy at a later time. Will re-render your
@@ -346,30 +379,29 @@ type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictn
  */
 function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: Strict) {
   const nodesRef = useNodesAsLaxRef();
-  const selectState = NodesInternal.useNodeDataMemoSelectorRaw();
+  const selectState = NodesInternal.useNodeDataMemoSelectorLaxRaw();
 
   return useCallback(
     <U>(
-      innerSelector: (traverser: Traverser<Strict>) => InnerSelectorReturns<Strict, U>,
+      innerSelector: (traverser: NodeTraversalFromRoot) => InnerSelectorReturns<Strict, U>,
       deps: any[],
-    ): InnerSelectorReturns<Strict, U> =>
-      selectState(
-        (state) => {
-          const nodes = nodesRef.current;
-          if (!nodes || nodes === ContextNotProvided) {
-            if (strictness === Strictness.returnContextNotProvided) {
-              return (innerSelector as any)(ContextNotProvided);
-            }
-            if (strictness === Strictness.throwError) {
-              throw new Error('useNodeTraversalSelector() must be used inside a NodesProvider');
-            }
-            return undefined;
-          }
+    ): InnerSelectorReturns<Strict, U> => {
+      const nodes = nodesRef.current;
+      if (selectState === ContextNotProvided || !nodes || nodes === ContextNotProvided) {
+        if (strictness === Strictness.returnContextNotProvided) {
+          return ContextNotProvided as any;
+        }
+        if (strictness === Strictness.throwError) {
+          throw new Error('useNodeTraversalSelector() must be used inside a NodesProvider');
+        }
+        return undefined as any;
+      }
 
-          return innerSelector(new NodeTraversal(state.pages, nodes, nodes));
-        },
+      return selectState(
+        (state) => innerSelector(new NodeTraversal(state.pages, nodes, nodes)),
         [innerSelector.toString(), ...deps],
-      ),
+      );
+    },
     [selectState, nodesRef, strictness],
   );
 }

@@ -461,11 +461,11 @@ export type ExactNodeDataSelector = ReturnType<typeof NodesInternal.useExactNode
  * A set of tools, selectors and functions to use internally in node generator components.
  */
 export const NodesInternal = {
-  useNodeDataMemoRaw<Out>(selector: (state: PageHierarchy) => Out): Out {
-    return DataStore.useMemoSelector((state) => selector(state.pages));
+  useNodeDataMemoLaxRaw<Out>(selector: (state: NodesDataContext) => Out): Out | typeof ContextNotProvided {
+    return DataStore.useLaxMemoSelector((state) => selector(state));
   },
-  useNodeDataMemoSelectorRaw() {
-    return DataStore.useDelayedMemoSelectorFactory(
+  useNodeDataMemoSelectorLaxRaw() {
+    return DataStore.useLaxDelayedMemoSelectorFactory(
       (selector: <U>(state: NodesDataContext) => U) => (state) => selector(state),
     );
   },

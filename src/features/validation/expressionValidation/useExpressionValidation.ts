@@ -7,7 +7,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { type FieldValidations, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getKeyWithoutIndex } from 'src/utils/databindings';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
+import { useNodeTraversalSilent } from 'src/utils/layout/useNodeTraversal';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
 
 const EXPR_CONFIG: ExprConfig<ExprVal.Boolean> = {
@@ -22,13 +22,13 @@ export function useExpressionValidation(): FieldValidations {
   const formData = FD.useDebounced();
   const customValidationConfig = useCustomValidationConfig();
   const dataSources = useExpressionDataSources();
-  const allNodes = useNodeTraversal((t) => t.allNodes());
+  const allNodes = useNodeTraversalSilent((t) => t.allNodes());
 
   /**
    * Should only update when form data changes
    */
   return useMemo(() => {
-    if (!customValidationConfig || Object.keys(customValidationConfig).length === 0 || !formData) {
+    if (!customValidationConfig || Object.keys(customValidationConfig).length === 0 || !formData || !allNodes) {
       return __default__;
     }
 

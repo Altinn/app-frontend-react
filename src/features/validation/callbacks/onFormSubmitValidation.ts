@@ -36,21 +36,16 @@ export function useOnFormSubmitValidation() {
      * First: check and show any frontend errors
      */
     const nodesWithFrontendErrors = traversalSelector(
-      (t) => {
-        if (t === ContextNotProvided) {
-          return false;
-        }
-
-        return t.allNodes().filter((n) => {
+      (t) =>
+        t.allNodes().filter((n) => {
           const validations = nodeValidationsSelector(n);
           const filtered = filterValidations(selectValidations(validations, ValidationMask.All, 'error'), n);
           return filtered.length > 0;
-        });
-      },
+        }),
       [nodeValidationsSelector],
     );
 
-    if (!nodesWithFrontendErrors) {
+    if (!nodesWithFrontendErrors || nodesWithFrontendErrors === ContextNotProvided) {
       // If the nodes are not provided, we cannot validate them
       return false;
     }
@@ -65,22 +60,17 @@ export function useOnFormSubmitValidation() {
      * But if not, show them now.
      */
     const nodesWithAnyError = traversalSelector(
-      (t) => {
-        if (t === ContextNotProvided) {
-          throw new Error('Traversal context not provided');
-        }
-
-        return t.allNodes().filter((n) => {
+      (t) =>
+        t.allNodes().filter((n) => {
           const validations = nodeValidationsSelector(n);
           return (
             filterValidations(selectValidations(validations, ValidationMask.AllIncludingBackend, 'error'), n).length > 0
           );
-        });
-      },
+        }),
       [nodeValidationsSelector],
     );
 
-    if (nodesWithAnyError.length > 0) {
+    if (nodesWithAnyError !== ContextNotProvided) {
       setNodeVisibility(nodesWithAnyError, ValidationMask.All);
       return true;
     }
