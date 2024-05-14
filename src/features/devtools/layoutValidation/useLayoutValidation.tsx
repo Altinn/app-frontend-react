@@ -10,8 +10,10 @@ import { useCurrentDataModelSchema } from 'src/features/datamodel/DataModelSchem
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
+import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useLayoutSchemaValidation } from 'src/features/devtools/layoutValidation/useLayoutSchemaValidation';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
+import { useIsDev } from 'src/hooks/useIsDev';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import { getRootElementPath } from 'src/utils/schemaUtils';
@@ -186,11 +188,11 @@ export function LayoutValidationProvider({ children }: PropsWithChildren) {
 }
 
 export function Generator() {
-  // const isDev = useIsDev();
-  // const panelOpen = useDevToolsStore((s) => s.isOpen);
-  // const enabled = isDev || panelOpen;
+  const isDev = useIsDev();
+  const panelOpen = useDevToolsStore((s) => s.isOpen);
+  const enabled = isDev || panelOpen;
 
-  const layoutSchemaValidations = useLayoutSchemaValidation(false);
+  const layoutSchemaValidations = useLayoutSchemaValidation(enabled);
   const dataModelBindingsValidations = useDataModelBindingsValidation({ logErrors: true });
 
   const update = useSelector((state) => state.update);
