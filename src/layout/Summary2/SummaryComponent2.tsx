@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useGetLayoutSetById } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
-import { useGetPage } from 'src/utils/layout/NodesContext';
+import { useGetPage, useResolvedNode } from 'src/utils/layout/NodesContext';
 import type { IGrid } from 'src/layout/common.generated';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -36,8 +36,7 @@ function LayoutSetSummary({ layoutSetId }: LayoutSetSummaryProps) {
     throw new Error('LayoutSetId invalid in LayoutSetSummary.');
   }
   return (
-    <div style={{ border: '1px solid blue' }}>
-      <h1>LayoutSummary:</h1>
+    <div style={{ border: '2px solid blue' }}>
       {layouts.map((layoutId) => (
         <PageSummary
           pageId={layoutId}
@@ -60,7 +59,7 @@ function ComponentSummary({ componentNode }: ComponentSummaryProps) {
       return null;
     }
 
-    return <div style={{ border: '1px solid yellow' }}>{renderedComponent}</div>;
+    return <div style={{ border: '2px solid yellow' }}>{renderedComponent}</div>;
   }
 }
 
@@ -72,7 +71,7 @@ function PageSummary({ pageId }: PageSummaryProps) {
   }
 
   return (
-    <div style={{ border: '1px solid  green' }}>
+    <div style={{ border: '2px solid green' }}>
       {page.children().map((child) => (
         <ComponentSummary
           componentNode={child}
@@ -81,6 +80,19 @@ function PageSummary({ pageId }: PageSummaryProps) {
       ))}
     </div>
   );
+}
+
+interface ResolveComponentProps {
+  componentId: string;
+}
+
+function ResolveComponent({ componentId }: ResolveComponentProps) {
+  const resolvedComponent = useResolvedNode(componentId);
+  if (!resolvedComponent) {
+    return null;
+  }
+
+  return <ComponentSummary componentNode={resolvedComponent} />;
 }
 
 function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
@@ -93,7 +105,7 @@ function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
   }
 
   if (summaryNode.item.whatToRender.type === 'component') {
-    return <ComponentSummary componentNode={summaryNode} />;
+    return <ResolveComponent componentId={summaryNode.item.whatToRender.id} />;
   }
 
   throw new Error(`Invalid summary render type: ${summaryNode.item.whatToRender.type}`);
