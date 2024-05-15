@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { skipToken } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { type QueryDefinition, useQueryWithPrefetch } from 'src/core/queries/usePrefetchQuery';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IPdfFormat } from 'src/features/pdf/types';
 
 // Also used for prefetching @see formPrefetcher.ts
@@ -20,7 +20,6 @@ export function usePdfFormatQueryDef(
     queryKey: ['fetchPdfFormat', instanceId, dataGuid, enabled],
     queryFn: instanceId && dataGuid ? () => fetchPdfFormat(instanceId, dataGuid) : skipToken,
     enabled: enabled && !!instanceId && !!dataGuid,
-    gcTime: 0,
   };
 }
 
@@ -29,7 +28,7 @@ export const usePdfFormatQuery = (enabled: boolean): UseQueryResult<IPdfFormat> 
   const dataGuid = useCurrentDataModelGuid();
 
   const ready = typeof dataGuid === 'string';
-  const utils = useQuery(usePdfFormatQueryDef(enabled && ready, instanceId, dataGuid));
+  const utils = useQueryWithPrefetch(usePdfFormatQueryDef(enabled && ready, instanceId, dataGuid), { gcTime: 0 });
 
   useEffect(() => {
     utils.error && window.logError('Fetching PDF format failed:\n', utils.error);

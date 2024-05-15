@@ -120,6 +120,7 @@ async function render(props: TestProps) {
         language: 'nb',
       }),
       fetchFormData: async (url) => {
+        console.log('fetched', url);
         const path = new URL(url).pathname;
         const id = path.split('/').pop();
         const modelName = idToNameMap[id!];

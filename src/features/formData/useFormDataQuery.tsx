@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
 
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { skipToken } from '@tanstack/react-query';
 import type { AxiosRequestConfig } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { type QueryDefinition, useQueryWithPrefetch } from 'src/core/queries/usePrefetchQuery';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
-import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 
 // Also used for prefetching @see formPrefetcher.ts
 export function useFormDataQueryDef(
@@ -23,7 +23,6 @@ export function useFormDataQueryDef(
     queryKey: ['fetchFormData', cacheKeyUrl, currentTaskId],
     queryFn: url ? () => fetchFormData(url, options) : skipToken,
     enabled: !!url,
-    gcTime: 0,
   };
 }
 
@@ -58,11 +57,10 @@ export function useFormDataQuery(url: string | undefined) {
   const cacheKeyUrl = getFormDataCacheKeyUrl(url);
 
   // We dont want to refetch if only the language changes
-  const utils = useQuery({
-    // Form data is only fetched to initially populate the context, after that we keep the state internally
-    // and push it back to the server.
+  // const utils = useQuery({
+  const utils = useQueryWithPrefetch(useFormDataQueryDef(cacheKeyUrl, currentTaskId, url, options), {
     retry: false,
-    ...useFormDataQueryDef(cacheKeyUrl, currentTaskId, url, options),
+    gcTime: 0,
   });
 
   useEffect(() => {
