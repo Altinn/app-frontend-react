@@ -51,7 +51,7 @@ export function useInstanceDataQueryDef(
 ): QueryDefinition<IInstance> {
   const { fetchInstanceData } = useAppQueries();
   return {
-    queryKey: ['fetchInstanceData', partyId, instanceGuid],
+    queryKey: ['fetchInstanceData', partyId, instanceGuid, enabled],
     queryFn: partyId && instanceGuid ? () => fetchInstanceData(partyId, instanceGuid) : skipToken,
     enabled: enabled && !!partyId && !!instanceGuid,
   };

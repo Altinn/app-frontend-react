@@ -42,7 +42,7 @@ describe('Page load times', () => {
 
           for (let i = 0; i < n_loads; i++) {
             cy.waitUntilSaved();
-            cy.reload(true);
+            cy.reload(false);
             cy.get('#readyForPrint').should('exist');
             cy.then(() => {
               Cypress.env('_pageLoadTimes')[task].push(performance.now() - Cypress.env('_pageLoadStart'));
