@@ -16,6 +16,7 @@ import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigati
 import { AllOptionsProvider, AllOptionsStoreProvider } from 'src/features/options/useAllOptions';
 import { ValidationProvider } from 'src/features/validation/validationContext';
 import { FormPrefetcher } from 'src/queries/formPrefetcher';
+import { StaticOptionPrefetcher } from 'src/queries/staticOptionsPrefetcher';
 import { NodesProvider } from 'src/utils/layout/NodesContext';
 
 const { Provider, useLaxCtx } = createContext<undefined>({
@@ -36,8 +37,9 @@ export function FormProvider({ children }: React.PropsWithChildren) {
   return (
     <>
       <FormPrefetcher />
-      <CustomValidationConfigProvider>
-        <LayoutsProvider>
+      <LayoutsProvider>
+        <StaticOptionPrefetcher />
+        <CustomValidationConfigProvider>
           <LayoutSettingsProvider>
             <PageNavigationProvider>
               <DynamicsProvider>
@@ -47,10 +49,10 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                       <AttachmentsStoreProvider>
                         <AllOptionsStoreProvider>
                           <NodesProvider>
-                            <NavigateToNodeProvider>
-                              <ValidationProvider>
-                                <AttachmentsProvider>
-                                  <AllOptionsProvider>
+                            <AllOptionsProvider>
+                              <NavigateToNodeProvider>
+                                <ValidationProvider>
+                                  <AttachmentsProvider>
                                     {hasProcess ? (
                                       <ProcessNavigationProvider>
                                         <Provider value={undefined}>{children}</Provider>
@@ -58,10 +60,10 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                                     ) : (
                                       <Provider value={undefined}>{children}</Provider>
                                     )}
-                                  </AllOptionsProvider>
-                                </AttachmentsProvider>
-                              </ValidationProvider>
-                            </NavigateToNodeProvider>
+                                  </AttachmentsProvider>
+                                </ValidationProvider>
+                              </NavigateToNodeProvider>
+                            </AllOptionsProvider>
                           </NodesProvider>
                         </AllOptionsStoreProvider>
                       </AttachmentsStoreProvider>
@@ -71,8 +73,8 @@ export function FormProvider({ children }: React.PropsWithChildren) {
               </DynamicsProvider>
             </PageNavigationProvider>
           </LayoutSettingsProvider>
-        </LayoutsProvider>
-      </CustomValidationConfigProvider>
+        </CustomValidationConfigProvider>
+      </LayoutsProvider>
     </>
   );
 }

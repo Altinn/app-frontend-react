@@ -30,13 +30,13 @@ import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
  */
 export function FormPrefetcher() {
   const layoutSetId = useLayoutSetId();
+  const dataTypeId = useCurrentDataModelName();
+
   usePrefetchQuery(useLayoutQueryDef(true, layoutSetId));
+  usePrefetchQuery(useCustomValidationConfigQueryDef(dataTypeId));
   usePrefetchQuery(useLayoutSettingsQueryDef(layoutSetId));
   usePrefetchQuery(useDynamicsQueryDef(layoutSetId));
   usePrefetchQuery(useRulesQueryDef(layoutSetId));
-
-  const dataTypeId = useCurrentDataModelName();
-  usePrefetchQuery(useCustomValidationConfigQueryDef(dataTypeId));
   usePrefetchQuery(useDataModelSchemaQueryDef(dataTypeId));
 
   const url = getUrlWithLanguage(useCurrentDataModelUrl(true), useCurrentLanguage());
@@ -45,19 +45,20 @@ export function FormPrefetcher() {
   const options = useFormDataQueryOptions();
   usePrefetchQuery(useFormDataQueryDef(cacheKeyUrl, currentTaskId, url, options));
 
-  // Prefetch PDF format only if we are in PDF mode
+  const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
+  const isPDF = useIsPdf();
+  const currentLanguage = useCurrentLanguage();
   const instanceId = useLaxInstance()?.instanceId;
   const dataGuid = useCurrentDataModelGuid();
-  const isPDF = useIsPdf();
-  usePrefetchQuery(usePdfFormatQueryDef(true, instanceId, dataGuid), isPDF);
 
   // Prefetch validations if applicable
-  const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
-  const currentLanguage = useCurrentLanguage();
   usePrefetchQuery(
     useBackendValidationQueryDef(true, currentLanguage, instanceId, dataGuid),
     !isPDF && !isCustomReceipt,
   );
+
+  // Prefetch PDF format only if we are in PDF mode
+  usePrefetchQuery(usePdfFormatQueryDef(true, instanceId, dataGuid), isPDF);
 
   return null;
 }
