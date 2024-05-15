@@ -81,13 +81,13 @@ function Root() {
     <InstantiationProvider>
       <ApplicationMetadataProvider>
         <GlobalFormDataReadersProvider>
-          <OrgsProvider>
-            <ApplicationSettingsProvider>
-              <LayoutSetsProvider>
-                <FooterLayoutProvider>
-                  <ProfileProvider>
-                    <PartyProvider>
-                      <TextResourcesProvider>
+          <LayoutSetsProvider>
+            <ProfileProvider>
+              <TextResourcesProvider>
+                <OrgsProvider>
+                  <ApplicationSettingsProvider>
+                    <FooterLayoutProvider>
+                      <PartyProvider>
                         <KeepAliveProvider>
                           <WindowTitleProvider>
                             <App />
@@ -100,13 +100,13 @@ function Root() {
                             <ScrollRestoration />
                           </WindowTitleProvider>
                         </KeepAliveProvider>
-                      </TextResourcesProvider>
-                    </PartyProvider>
-                  </ProfileProvider>
-                </FooterLayoutProvider>
-              </LayoutSetsProvider>
-            </ApplicationSettingsProvider>
-          </OrgsProvider>
+                      </PartyProvider>
+                    </FooterLayoutProvider>
+                  </ApplicationSettingsProvider>
+                </OrgsProvider>
+              </TextResourcesProvider>
+            </ProfileProvider>
+          </LayoutSetsProvider>
         </GlobalFormDataReadersProvider>
       </ApplicationMetadataProvider>
     </InstantiationProvider>

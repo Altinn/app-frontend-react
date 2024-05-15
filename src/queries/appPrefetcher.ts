@@ -16,11 +16,11 @@ import { useProfileQueryDef } from 'src/features/profile/ProfileProvider';
  */
 export function AppPrefetcher() {
   usePrefetchQuery(useApplicationMetadataQueryDef());
-  usePrefetchQuery(useApplicationSettingsQueryDef());
-  usePrefetchQuery(useOrgsQueryDef());
   usePrefetchQuery(useLayoutSetsQueryDef());
-  usePrefetchQuery(useFooterLayoutQueryDef());
   usePrefetchQuery(useProfileQueryDef(true));
+  usePrefetchQuery(useOrgsQueryDef());
+  usePrefetchQuery(useApplicationSettingsQueryDef());
+  usePrefetchQuery(useFooterLayoutQueryDef());
   usePrefetchQuery(usePartiesQueryDef(true));
   usePrefetchQuery(useCurrentPartyQueryDef(true));
 
