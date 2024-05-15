@@ -109,11 +109,11 @@ export function RepeatingGroupTableRow({
   // If the row has errors we should highlight the row, unless the errors are for components that are shown in the table,
   // then the component getting highlighted is enough
   const tableEditingNodeIds = tableNodes
-    .filter((n) => shouldEditInTable(edit, n, columnSettings))
+    .filter((n) => shouldEditInTable(editForGroup, n, columnSettings))
     .map((n) => n.item.id);
   const rowValidations = useDeepValidationsForNode(node, true, uuid);
   const rowHasErrors = rowValidations.some(
-    (validation) => validation.severity === 'error' && !tableEditingNodeIds.includes(validation.componentId),
+    (validation) => validation.severity === 'error' && !tableEditingNodeIds.includes(validation.node.getId()),
   );
 
   const editButtonText = rowHasErrors

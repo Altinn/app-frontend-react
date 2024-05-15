@@ -1,19 +1,19 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { Pagination, Table, usePagination } from '@digdir/designsystemet-react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
-import deepEqual from 'fast-deep-equal';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { getValidationsForNode, hasValidationErrors } from 'src/features/validation/utils';
-import { Validation } from 'src/features/validation/validationContext';
-import { getVisibilityForNode } from 'src/features/validation/visibility/visibilityUtils';
+import { filterValidations, selectValidations } from 'src/features/validation/utils';
 import { useIsMini, useIsMobile, useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroupPagination.module.css';
-import type { CompRepeatingGroupInternal, HRepGroupRow } from 'src/layout/RepeatingGroup/config.generated';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
+import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface RepeatingGroupPaginationProps {
   inTable?: boolean;
@@ -221,19 +221,20 @@ function PaginationComponent({
 /**
  * Returns a list of pagination pages containing errors
  */
-function usePagesWithErrors(rowsPerPage: number | undefined, node: BaseLayoutNode<CompRepeatingGroupInternal>) {
-  const rows = useRowStructure(node);
-  const selector = Validation.useSelector();
-  const visibilitySelector = Validation.useVisibilitySelector();
+function usePagesWithErrors(rowsPerPage: number | undefined, node: LayoutNode<'RepeatingGroup'>) {
+  const rows = useNodeItem(node).rows;
+  const nodeValidationsSelector = NodesInternal.useValidationsSelector();
+  const visibilitySelector = NodesInternal.useValidationVisibilitySelector();
+  const traversalSelector = useNodeTraversalSelector();
 
   return useMemo(() => {
     if (typeof rowsPerPage !== 'number') {
       return [];
     }
 
-    const visibleRows: HRepGroupRow[] = [];
+    const visibleRows: RepGroupRow[] = [];
     for (const row of rows) {
-      if (!row.groupExpressions.hidden) {
+      if (!row.groupExpressions.hiddenRow) {
         visibleRows.push(row);
       }
     }
@@ -246,12 +247,20 @@ function usePagesWithErrors(rowsPerPage: number | undefined, node: BaseLayoutNod
         continue;
       }
 
-      const deepNodes = visibleRows[i].items.flatMap((node) => [node, ...node.flat(true)]);
+      const deepNodes = visibleRows[i].items.flatMap((nodeRef) => {
+        const node = traversalSelector((t) => t.findById(nodeRef.nodeRef), [nodeRef]);
+        if (!node) {
+          return [];
+        }
+
+        return traversalSelector((t) => t.with(node).flat(), [node]);
+      });
 
       for (const node of deepNodes) {
-        if (
-          hasValidationErrors(getValidationsForNode(node, selector, getVisibilityForNode(node, visibilitySelector)))
-        ) {
+        const validations = nodeValidationsSelector(node);
+        const mask = visibilitySelector(node);
+        const filtered = filterValidations(selectValidations(validations, mask, 'error'), node);
+        if (filtered.length > 0) {
           pagesWithErrors.push(pageNumber);
           break;
         }
@@ -259,29 +268,5 @@ function usePagesWithErrors(rowsPerPage: number | undefined, node: BaseLayoutNod
     }
 
     return pagesWithErrors;
-  }, [rows, rowsPerPage, selector, visibilitySelector]);
-}
-
-/**
- * Utility hook that only updates whenever rows or nodes are added or removed,
- * even nodes deep in nested structures.
- */
-function useRowStructure(node: BaseLayoutNode<CompRepeatingGroupInternal>) {
-  const rowChildrenRef = useRef(node.item.rows);
-  const deepRowChildrenIds = useMemo(
-    () => node.item.rows.map((r) => r.items.flatMap((n) => [n.item.id, ...n.flat(true).map((c) => c.item.id)])),
-    [node.item.rows],
-  );
-  const deepRowChildrenIdsRef = useRef(deepRowChildrenIds);
-
-  if (
-    deepRowChildrenIds === deepRowChildrenIdsRef.current ||
-    deepEqual(deepRowChildrenIds, deepRowChildrenIdsRef.current)
-  ) {
-    return rowChildrenRef.current;
-  } else {
-    rowChildrenRef.current = node.item.rows;
-    deepRowChildrenIdsRef.current = deepRowChildrenIds;
-    return node.item.rows;
-  }
+  }, [nodeValidationsSelector, rows, rowsPerPage, traversalSelector, visibilitySelector]);
 }

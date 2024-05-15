@@ -129,14 +129,14 @@ type PaginationState =
       currentPage: number;
       totalPages: number;
       rowsPerPage: number;
-      rowsToDisplay: Row[];
+      rowsToDisplay: BaseRow[];
     }
   | {
       hasPagination: false;
       currentPage: undefined;
       totalPages: undefined;
       rowsPerPage: undefined;
-      rowsToDisplay: Row[];
+      rowsToDisplay: BaseRow[];
     };
 
 /**
@@ -145,7 +145,7 @@ type PaginationState =
 function producePaginationState(
   currentPage: number | undefined,
   node: LayoutNode<'RepeatingGroup'>,
-  visibleRows: Row[],
+  visibleRows: BaseRow[],
 ): PaginationState {
   if (typeof currentPage !== 'number' || !node.item.pagination) {
     return {
@@ -178,7 +178,7 @@ function producePaginationState(
  * Gets the pagination page for a given row
  * Will return undefined if pagination is not used or the row is not visible
  */
-function getPageForRow(rowId: string, paginationState: PaginationState, visibleRows: Row[]): number | undefined {
+function getPageForRow(rowId: string, paginationState: PaginationState, visibleRows: BaseRow[]): number | undefined {
   if (!paginationState.hasPagination) {
     return undefined;
   }
@@ -198,7 +198,7 @@ function getPageForRow(rowId: string, paginationState: PaginationState, visibleR
 function gotoPageForRow(
   rowId: string,
   paginationState: PaginationState,
-  visibleRows: Row[],
+  visibleRows: BaseRow[],
 ): { currentPage: number } | undefined {
   const newPage = getPageForRow(rowId, paginationState, visibleRows);
   return newPage != null ? { currentPage: newPage } : undefined;
