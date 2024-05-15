@@ -15,7 +15,7 @@ import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { Hidden } from 'src/utils/layout/NodesContext';
 import type { NodeDataSelector } from 'src/utils/layout/useNodeItem';
-import type { NodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
+import type { NodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
 
 export interface ExpressionDataSources {
   process?: IProcess;
@@ -34,7 +34,7 @@ export interface ExpressionDataSources {
   currentLanguage: string;
   isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
   nodeDataSelector: NodeDataSelector;
-  nodeTraversal: NodeTraversalSelectorSilent;
+  nodeTraversal: NodeTraversalSelectorLax;
   devToolsIsOpen: boolean;
   devToolsHiddenComponents: DevToolsHiddenComponents;
 }

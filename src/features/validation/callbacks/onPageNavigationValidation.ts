@@ -61,12 +61,14 @@ export function useOnPageNavigationValidation() {
 
     // Get nodes with errors along with their errors
     let onCurrentOrPreviousPage = false;
-    const nodeErrors = nodes.map((n) => {
-      const validations = getNodeValidations(n);
-      const filtered = filterValidations(selectValidations(validations, mask, 'error'), n);
-      onCurrentOrPreviousPage = onCurrentOrPreviousPage || pageOrder.indexOf(n.pageKey()) <= currentIndex;
-      return [n, filtered.length > 0] as const;
-    });
+    const nodeErrors = nodes
+      .map((n) => {
+        const validations = getNodeValidations(n);
+        const filtered = filterValidations(selectValidations(validations, mask, 'error'), n);
+        onCurrentOrPreviousPage = onCurrentOrPreviousPage || pageOrder.indexOf(n.pageKey()) <= currentIndex;
+        return [n, filtered.length > 0] as const;
+      })
+      .filter(([_, e]) => e);
 
     if (nodeErrors.length > 0) {
       setNodeVisibility(

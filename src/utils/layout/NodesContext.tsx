@@ -293,8 +293,7 @@ export function useNode<T extends string | NodeRef | undefined | LayoutNode>(idO
 }
 
 export const useNodes = () => NodesStore.useSelector((s) => s.nodes!);
-export const useNodesAsRef = () => NodesStore.useSelectorAsRef((s) => s.nodes);
-export const useNodesAsLaxRef = () => NodesStore.useLaxSelectorAsRef((s) => s.nodes);
+export const useNodesLax = () => NodesStore.useLaxSelector((s) => s.nodes);
 
 export type NodeSelector = ReturnType<typeof useNodeSelector>;
 export function useNodeSelector() {

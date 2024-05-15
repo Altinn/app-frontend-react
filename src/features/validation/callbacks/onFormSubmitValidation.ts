@@ -70,7 +70,7 @@ export function useOnFormSubmitValidation() {
       [nodeValidationsSelector],
     );
 
-    if (nodesWithAnyError !== ContextNotProvided) {
+    if (nodesWithAnyError !== ContextNotProvided && nodesWithAnyError.length > 0) {
       setNodeVisibility(nodesWithAnyError, ValidationMask.All);
       return true;
     }

@@ -46,7 +46,7 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
   useAddRemoveNode(node, item);
 
   const hiddenParent = NodeGeneratorInternal.useHiddenState();
-  const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, item.hidden, false);
+  const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, layoutMap[baseId].hidden, false);
   const hiddenByRules = Hidden.useIsHiddenViaRules(node);
   const hidden: HiddenStateNode = useMemo(
     () => ({
@@ -265,6 +265,12 @@ function useItem<T extends CompTypes = CompTypes>(item: CompExternal<T>): CompEx
 
   return useMemo(() => {
     const newItem = structuredClone(item);
+
+    // The hidden property is handled elsewhere, and should never be passed to the item (and resolved as an
+    // expression) which could be read. Try useIsHidden() or useIsHiddenSelector() if you need to know if a
+    // component is hidden.
+    delete newItem['hidden'];
+
     for (const mutator of directMutators) {
       mutator(newItem);
     }

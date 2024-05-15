@@ -1,5 +1,6 @@
 import type { Mutable } from 'utility-types';
 
+import { ContextNotProvided } from 'src/core/contexts/context';
 import {
   ExprRuntimeError,
   UnexpectedType,
@@ -394,6 +395,13 @@ export const ExprFunctions = {
         (t) => t.with(node).closest((c) => c.type === 'node' && (c.item.id === id || c.item.baseComponentId === id)),
         [node, id],
       );
+
+      if (closest === ContextNotProvided) {
+        // Expressions will run before the layout is fully loaded, so we might not have all the components available
+        // yet. If that's the case, silently ignore this expression.
+        return null;
+      }
+
       const dataModelBindings =
         closest && 'dataModelBindings' in closest.item ? closest.item.dataModelBindings : undefined;
       const simpleBinding =
@@ -449,6 +457,12 @@ export const ExprFunctions = {
         (t) => t.with(node).closest((c) => c.type === 'node' && (c.item.id === id || c.item.baseComponentId === id)),
         [node, id],
       );
+
+      if (targetNode === ContextNotProvided) {
+        // Expressions will run before the layout is fully loaded, so we might not have all the components available
+        // yet. If that's the case, silently ignore this expression.
+        return null;
+      }
 
       if (!targetNode) {
         throw new ExprRuntimeError(this, `Unable to find component with identifier ${id}`);

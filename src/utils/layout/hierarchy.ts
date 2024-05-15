@@ -15,7 +15,7 @@ import { buildAuthContext } from 'src/utils/authContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
-import { useNodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
+import { useNodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { ILayouts } from 'src/layout/layout';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -53,7 +53,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
   const authContext = useMemo(() => buildAuthContext(process?.currentTask), [process?.currentTask]);
   const isHiddenSelector = Hidden.useIsHiddenSelector();
   const nodeDataSelector = useNodeFormDataSelector();
-  const nodeTraversal = useNodeTraversalSelectorSilent();
+  const nodeTraversal = useNodeTraversalSelectorLax();
 
   return useMemo(
     () => ({

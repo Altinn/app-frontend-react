@@ -6,7 +6,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { NodesInternal, pickDataStorePath, useNodesAsLaxRef } from 'src/utils/layout/NodesContext';
+import { NodesInternal, pickDataStorePath, useNodesLax } from 'src/utils/layout/NodesContext';
 import type { NodeRef } from 'src/layout';
 import type { ParentNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -286,9 +286,8 @@ type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictn
     : U;
 
 function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: never, strictness?: Strictness): Out {
-  const nodesRef = useNodesAsLaxRef();
+  const nodes = useNodesLax();
   const out = NodesInternal.useNodeDataMemoLaxRaw((state) => {
-    const nodes = nodesRef.current;
     if (!nodes || nodes === ContextNotProvided) {
       return ContextNotProvided;
     }
@@ -378,7 +377,7 @@ export function useNodeTraversalSilent<Out>(selector: (traverser: never) => Out,
  * component when any of the traversals you did would return a different result.
  */
 function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: Strict) {
-  const nodesRef = useNodesAsLaxRef();
+  const nodes = useNodesLax();
   const selectState = NodesInternal.useNodeDataMemoSelectorLaxRaw();
 
   return useCallback(
@@ -386,7 +385,6 @@ function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: St
       innerSelector: (traverser: NodeTraversalFromRoot) => InnerSelectorReturns<Strict, U>,
       deps: any[],
     ): InnerSelectorReturns<Strict, U> => {
-      const nodes = nodesRef.current;
       if (selectState === ContextNotProvided || !nodes || nodes === ContextNotProvided) {
         if (strictness === Strictness.returnContextNotProvided) {
           return ContextNotProvided as any;
@@ -402,7 +400,7 @@ function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: St
         [innerSelector.toString(), ...deps],
       );
     },
-    [selectState, nodesRef, strictness],
+    [selectState, nodes, strictness],
   );
 }
 
