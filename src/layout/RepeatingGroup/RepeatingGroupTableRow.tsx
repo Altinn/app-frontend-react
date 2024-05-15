@@ -12,7 +12,6 @@ import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
-import { hasValidationErrors } from 'src/features/validation/utils';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { implementsDisplayData } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -91,9 +90,6 @@ export function RepeatingGroupTableRow({
   const trbForRow = rowExpressions?.textResourceBindings;
   const columnSettings = group.tableColumns;
 
-  const rowValidations = useDeepValidationsForNode(node, true, uuid);
-  const rowHasErrors = hasValidationErrors(rowValidations);
-
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
   const tableNodes = useNodeTraversal((traverser) => traverser.children(undefined, { onlyInRowUuid: uuid }), node);
@@ -109,6 +105,16 @@ export function RepeatingGroupTableRow({
   const firstCellData = displayData.find((c) => !!c);
   const isEditingRow = isEditing(uuid);
   const isDeletingRow = isDeleting(uuid);
+
+  // If the row has errors we should highlight the row, unless the errors are for components that are shown in the table,
+  // then the component getting highlighted is enough
+  const tableEditingNodeIds = tableNodes
+    .filter((n) => shouldEditInTable(edit, n, columnSettings))
+    .map((n) => n.item.id);
+  const rowValidations = useDeepValidationsForNode(node, true, uuid);
+  const rowHasErrors = rowValidations.some(
+    (validation) => validation.severity === 'error' && !tableEditingNodeIds.includes(validation.componentId),
+  );
 
   const editButtonText = rowHasErrors
     ? langAsString('general.edit_alt_error')
