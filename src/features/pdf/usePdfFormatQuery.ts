@@ -20,6 +20,7 @@ export function usePdfFormatQueryDef(
     queryKey: ['fetchPdfFormat', instanceId, dataGuid, enabled],
     queryFn: instanceId && dataGuid ? () => fetchPdfFormat(instanceId, dataGuid) : skipToken,
     enabled: enabled && !!instanceId && !!dataGuid,
+    gcTime: 0,
   };
 }
 
@@ -28,10 +29,7 @@ export const usePdfFormatQuery = (enabled: boolean): UseQueryResult<IPdfFormat> 
   const dataGuid = useCurrentDataModelGuid();
 
   const ready = typeof dataGuid === 'string';
-  const utils = useQuery({
-    gcTime: 0,
-    ...usePdfFormatQueryDef(enabled && ready, instanceId, dataGuid),
-  });
+  const utils = useQuery(usePdfFormatQueryDef(enabled && ready, instanceId, dataGuid));
 
   useEffect(() => {
     utils.error && window.logError('Fetching PDF format failed:\n', utils.error);

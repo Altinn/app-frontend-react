@@ -28,7 +28,7 @@ export function useLayoutQueryDef(enabled: boolean, layoutSetId?: string): Query
   const { fetchLayouts } = useAppQueries();
   return {
     queryKey: ['formLayouts', layoutSetId, enabled],
-    queryFn: layoutSetId ? async () => processLayouts(await fetchLayouts(layoutSetId)) : skipToken,
+    queryFn: layoutSetId ? () => fetchLayouts(layoutSetId).then(processLayouts) : skipToken,
     enabled: enabled && !!layoutSetId,
   };
 }

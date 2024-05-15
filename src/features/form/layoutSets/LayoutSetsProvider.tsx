@@ -13,7 +13,6 @@ export function useLayoutSetsQueryDef() {
   return {
     queryKey: ['fetchLayoutSets'],
     queryFn: fetchLayoutSets,
-    enabled: true,
   };
 }
 

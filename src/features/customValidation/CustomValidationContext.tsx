@@ -34,7 +34,7 @@ const useCustomValidationConfigQuery = () => {
 
   return {
     ...utils,
-    enabled: queryDef.enabled,
+    enabled: !!queryDef.enabled,
   };
 };
 

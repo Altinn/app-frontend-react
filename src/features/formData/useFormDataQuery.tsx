@@ -23,6 +23,7 @@ export function useFormDataQueryDef(
     queryKey: ['fetchFormData', cacheKeyUrl, currentTaskId],
     queryFn: url ? () => fetchFormData(url, options) : skipToken,
     enabled: !!url,
+    gcTime: 0,
   };
 }
 
@@ -60,7 +61,6 @@ export function useFormDataQuery(url: string | undefined) {
   const utils = useQuery({
     // Form data is only fetched to initially populate the context, after that we keep the state internally
     // and push it back to the server.
-    gcTime: 0,
     retry: false,
     ...useFormDataQueryDef(cacheKeyUrl, currentTaskId, url, options),
   });

@@ -20,7 +20,6 @@ export function useApplicationMetadataQueryDef() {
   return {
     queryKey: ['fetchApplicationMetadata'],
     queryFn: fetchApplicationMetadata,
-    enabled: true,
   };
 }
 

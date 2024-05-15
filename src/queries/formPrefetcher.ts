@@ -17,9 +17,12 @@ import {
 } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { usePdfFormatQueryDef } from 'src/features/pdf/usePdfFormatQuery';
+import { useBackendValidationQueryDef } from 'src/features/validation/backendValidation/useBackendValidation';
 import { useIsPdf } from 'src/hooks/useIsPdf';
+import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 
 /**
@@ -45,8 +48,16 @@ export function FormPrefetcher() {
   // Prefetch PDF format only if we are in PDF mode
   const instanceId = useLaxInstance()?.instanceId;
   const dataGuid = useCurrentDataModelGuid();
-  const pdfActive = useIsPdf();
-  usePrefetchQuery(usePdfFormatQueryDef(true, instanceId, dataGuid), pdfActive);
+  const isPDF = useIsPdf();
+  usePrefetchQuery(usePdfFormatQueryDef(true, instanceId, dataGuid), isPDF);
+
+  // Prefetch validations if applicable
+  const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
+  const currentLanguage = useCurrentLanguage();
+  usePrefetchQuery(
+    useBackendValidationQueryDef(true, currentLanguage, instanceId, dataGuid),
+    !isPDF && !isCustomReceipt,
+  );
 
   return null;
 }
