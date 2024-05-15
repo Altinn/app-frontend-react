@@ -234,7 +234,7 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
                     spacing={false}
                     asChild
                   >
-                    <span>{privatePersonPayer.firstName}</span>
+                    <span>{`${privatePersonPayer.firstName} ${privatePersonPayer.lastName}`}</span>
                   </Label>
                 </td>
               </tr>
