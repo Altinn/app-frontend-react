@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import type { QueryFunction, QueryKey, SkipToken } from '@tanstack/react-query';
 
 export type QueryDefinition<T> = {
@@ -10,9 +10,8 @@ export type QueryDefinition<T> = {
 
 // @see https://tanstack.com/query/v5/docs/framework/react/guides/prefetching
 export function usePrefetchQuery<T>(def: QueryDefinition<T>, enabled = true) {
-  useQuery({
-    ...def,
-    enabled: enabled && def.enabled !== false,
-    notifyOnChangeProps: [],
-  });
+  const client = useQueryClient();
+  if (enabled && def.enabled !== false) {
+    client.ensureQueryData(def);
+  }
 }
