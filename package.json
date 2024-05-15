@@ -142,7 +142,7 @@
     "immer": "^10.0.3",
     "jsonpointer": "5.0.1",
     "lru-cache": "^10.2.0",
-    "marked": "10.0.0",
+    "marked": "12.0.2",
     "marked-mangle": "^1.0.1",
     "moment": "2.30.1",
     "node-polyfill-webpack-plugin": "^2.0.1",
