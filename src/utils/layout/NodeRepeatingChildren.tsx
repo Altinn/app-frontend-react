@@ -2,9 +2,10 @@ import React, { useMemo } from 'react';
 
 import dot from 'dot-object';
 
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDef, useExpressionResolverProps } from 'src/utils/layout/NodeGenerator';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { NodesInternal, useNodeLax } from 'src/utils/layout/NodesContext';
 import { NodeChildren } from 'src/utils/layout/NodesGenerator';
 import { NodeGeneratorInternal, NodesGeneratorRowProvider } from 'src/utils/layout/NodesGeneratorContext';
 import { NodeStages } from 'src/utils/layout/NodeStages';
@@ -86,7 +87,8 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
   const parent = NodeGeneratorInternal.useParent() as LayoutNode;
   const row = NodeGeneratorInternal.useRow() as BaseRow;
   const nodeChildren = useNodeDirectChildren(parent as LayoutNode, { onlyInRowUuid: row!.uuid });
-  const firstChild = useNode(nodeChildren?.[0]);
+  const firstChildRaw = useNodeLax(nodeChildren?.[0]);
+  const firstChild = firstChildRaw === ContextNotProvided ? undefined : firstChildRaw;
 
   const item = NodeGeneratorInternal.useExternalItem();
   const props = useExpressionResolverProps(firstChild, item as CompExternal, row);

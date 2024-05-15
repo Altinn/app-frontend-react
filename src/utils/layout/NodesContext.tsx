@@ -30,6 +30,7 @@ import { NodeStagesProvider } from 'src/utils/layout/NodeStages';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import {
   useNodeTraversal,
+  useNodeTraversalLax,
   useNodeTraversalSelector,
   useNodeTraversalSelectorSilent,
 } from 'src/utils/layout/useNodeTraversal';
@@ -290,6 +291,19 @@ export function useNode<T extends string | NodeRef | undefined | LayoutNode>(idO
     idOrRef instanceof BaseLayoutNode ? idOrRef : traverser.findById(idOrRef),
   );
   return node as RetValFromNodeRef<T>;
+}
+
+export function useNodeLax<T extends string | NodeRef | undefined | LayoutNode>(
+  idOrRef: T,
+): RetValFromNodeRef<T> | typeof ContextNotProvided {
+  const node = useNodeTraversalLax((traverser) =>
+    traverser === ContextNotProvided
+      ? ContextNotProvided
+      : idOrRef instanceof BaseLayoutNode
+        ? idOrRef
+        : traverser.findById(idOrRef),
+  );
+  return node as RetValFromNodeRef<T> | typeof ContextNotProvided;
 }
 
 export const useNodes = () => NodesStore.useSelector((s) => s.nodes!);

@@ -16,29 +16,31 @@ export function StoreValidationsInNode() {
   >;
   const setNodeProp = NodesInternal.useSetNodeProp();
   const isAllAdded = NodeStages.AddNodes.useIsDone();
+  const isSelfAdded = NodesInternal.useIsAdded(node);
   const isHidden = Hidden.useIsHiddenSelector();
 
   const shouldValidate = useMemo(
     () =>
       isAllAdded &&
+      isSelfAdded &&
       item !== undefined &&
       !isHidden({ node, options: { respectTracks: true } }) &&
       !('renderAsSummary' in item && item.renderAsSummary),
-    [isAllAdded, isHidden, item, node],
+    [isAllAdded, isSelfAdded, isHidden, item, node],
   );
 
   const validations = useNodeValidation(node, shouldValidate);
   NodeStages.EvaluateExpressions.useEffect(() => {
-    isAllAdded && setNodeProp(node, 'validations', validations);
-  }, [isAllAdded, node, setNodeProp, validations]);
+    isAllAdded && isSelfAdded && setNodeProp(node, 'validations', validations);
+  }, [isAllAdded, isSelfAdded, node, setNodeProp, validations]);
 
   const initialMask = item
     ? getInitialMaskFromNode('showValidations' in item ? item.showValidations : undefined)
     : undefined;
 
   NodeStages.EvaluateExpressions.useEffect(() => {
-    isAllAdded && initialMask !== undefined && setNodeProp(node, 'validationVisibility', initialMask);
-  }, [isAllAdded, initialMask, node, setNodeProp]);
+    isAllAdded && isSelfAdded && initialMask !== undefined && setNodeProp(node, 'validationVisibility', initialMask);
+  }, [isAllAdded, isSelfAdded, initialMask, node, setNodeProp]);
 
   return null;
 }

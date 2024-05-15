@@ -11,6 +11,7 @@ export function StoreOptionsInNode({ valueType }: { valueType: OptionsValueType 
   const node = NodeGeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const setNodeProp = NodesInternal.useSetNodeProp();
   const isAllAdded = NodeStages.AddNodes.useIsDone();
+  const isSelfAdded = NodesInternal.useIsAdded(node);
 
   const { options, isFetching } = useGetOptions({
     valueType,
@@ -24,8 +25,8 @@ export function StoreOptionsInNode({ valueType }: { valueType: OptionsValueType 
   });
 
   NodeStages.OptionsFetched.useEffect(() => {
-    isAllAdded && !isFetching && setNodeProp(node, 'options' as any, options);
-  }, [isAllAdded, node, setNodeProp, options]);
+    isAllAdded && isSelfAdded && !isFetching && setNodeProp(node, 'options' as any, options);
+  }, [isAllAdded, isSelfAdded, node, setNodeProp, options]);
 
   return null;
 }

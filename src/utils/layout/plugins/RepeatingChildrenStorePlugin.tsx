@@ -23,7 +23,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
         set((state) => {
           const nodeStore = pickDataStorePath(state.pages, node);
           const existingRow = nodeStore[internalProp][row.uuid];
-          if (deepEqual(existingRow.extras, extras)) {
+          if (existingRow && deepEqual(existingRow.extras, extras)) {
             return;
           }
 

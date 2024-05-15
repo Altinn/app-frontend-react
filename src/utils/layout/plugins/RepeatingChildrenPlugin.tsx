@@ -81,8 +81,6 @@ type ToInternal<E extends ExternalConfig> = Config<
 >;
 type InternalRowState<E extends ExternalConfig> = RowsState<FromImport<Combined<E>['extraRowState']>>;
 
-const tmpEmptyArray: never[] = [];
-
 export class RepeatingChildrenPlugin<E extends ExternalConfig>
   extends NodeDefPlugin<ToInternal<E>>
   implements NodeDefChildrenPlugin<ToInternal<E>>
@@ -226,7 +224,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     // effective.
     const rows = state[this.settings.internalProp] as InternalRowState<E>;
     for (const row of Object.values(rows)) {
-      if (row.children[baseComponentId]) {
+      if (row && row.children && row.children[baseComponentId]) {
         child = row.children[baseComponentId] as NodeData<C>;
         if (child?.item.id === childId) {
           break;
@@ -247,11 +245,9 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
       throw new Error(`Child node of repeating component missing 'row' property`);
     }
     const rows = state[this.settings.internalProp] as InternalRowState<E>;
-    if (!rows[row.uuid]) {
-      rows[row.uuid] = { ...row, children: {}, extras: undefined as any };
-    }
-
-    rows[row.uuid].children[childNode.getBaseId()] = childStore;
+    const children = rows[row.uuid]?.children ?? {};
+    children[childNode.getBaseId()] = childStore;
+    rows[row.uuid] = { ...row, children, extras: rows[row.uuid]?.extras };
   }
 
   removeChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode): void {
