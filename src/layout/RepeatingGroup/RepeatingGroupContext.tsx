@@ -88,7 +88,7 @@ interface NodeState {
   deletableRows: Row[];
 }
 
-function produceStateFromNode(node: BaseLayoutNode<CompRepeatingGroupInternal>): NodeState {
+function produceStateFromNode(node: LayoutNode<'RepeatingGroup'>): NodeState {
   const hidden: Row[] = [];
   const visible: Row[] = [];
   const editable: Row[] = [];
@@ -149,7 +149,7 @@ type PaginationState =
  */
 function producePaginationState(
   currentPage: number | undefined,
-  node: BaseLayoutNode<CompRepeatingGroupInternal>,
+  node: LayoutNode<'RepeatingGroup'>,
   visibleRows: Row[],
 ): PaginationState {
   if (typeof currentPage !== 'number' || !node.item.pagination) {

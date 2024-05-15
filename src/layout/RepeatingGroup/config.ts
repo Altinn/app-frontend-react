@@ -210,9 +210,7 @@ export const Config = new CG.component({
       new CG.obj(new CG.prop('rowsPerPage', new CG.int().setMin(1)))
         .optional()
         .setTitle('Pagination options')
-        .setDescription(
-          'Pagination options for the repeating group table. Not applicable when `edit.mode` is `showAll`',
-        ),
+        .setDescription('Pagination options for the repeating group rows.'),
     ),
   )
   .addProperty(

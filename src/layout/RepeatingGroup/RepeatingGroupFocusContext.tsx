@@ -72,7 +72,7 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
       if (tableColSetup.editInTable || tableColSetup.showInExpandedEdit === false) {
         // No need to open rows or set editIndex for components that are rendered
         // in table (outside the edit container)
-        return true;
+        return false;
       }
 
       if (row) {
