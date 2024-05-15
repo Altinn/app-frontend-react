@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import dot from 'dot-object';
 
 import { getExpressionDataSourcesMock } from 'src/__mocks__/getExpressionDataSourcesMock';
@@ -24,9 +25,12 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 const { resolvedNodesInLayouts } = _private;
 
+// TODO: Remove all ts-ignore comments in this file, and re-implement this with the new hierarchy generator
+
 function findComponent(context: FunctionTest['context'], collection: LayoutPages) {
   const { component, rowIndices } = context || { component: 'no-component' };
   const componentId = (component || 'no-component') + (rowIndices ? `-${rowIndices.join('-')}` : '');
+  // @ts-ignore
   const found = collection.findById(componentId);
   if (found) {
     return found;
@@ -34,6 +38,7 @@ function findComponent(context: FunctionTest['context'], collection: LayoutPages
 
   if (component && rowIndices && rowIndices.length) {
     const componentId2 = `${component}-${rowIndices.slice(0, rowIndices.length - 1).join('-')}`.replace(/-+$/, '');
+    // @ts-ignore
     const foundMaybeGroup = collection.findById(componentId2);
     if (foundMaybeGroup && foundMaybeGroup.isType('RepeatingGroup')) {
       // Special case for using a group component with a row index, looking up within the
@@ -41,6 +46,7 @@ function findComponent(context: FunctionTest['context'], collection: LayoutPages
       // in useExpressions() itself, but evalExpr() requires the context of an actual component
       // inside the group.
       const rowIndex = [...rowIndices].pop()!;
+      // @ts-ignore
       return foundMaybeGroup.children(undefined, { onlyInRowIndex: rowIndex })[0];
     }
   }
@@ -109,6 +115,7 @@ describe('Expressions shared function tests', () => {
           : resolvedNodesInLayouts(_layouts, currentLayout, dataSources);
         const component = findComponent(context, rootCollection);
 
+        // @ts-ignore
         for (const node of rootCollection.allNodes()) {
           if ('options' in node.item) {
             // Extremely simple mock of useGetOptions() and useAllOptions(), assuming
@@ -124,7 +131,9 @@ describe('Expressions shared function tests', () => {
           }).toThrow(expectsFailure);
         } else {
           // Simulate what happens in checkIfConditionalRulesShouldRunSaga()
+          // @ts-ignore
           for (const layoutKey of Object.keys(rootCollection.all())) {
+            // @ts-ignore
             const layout = rootCollection.findLayout(layoutKey);
             if (!layout) {
               throw new Error('No layout found - check your test data!');
@@ -156,6 +165,7 @@ describe('Expressions shared context tests', () => {
       component: splitKey.baseComponentId,
       currentLayout: key,
     };
+    // @ts-ignore
     const children = node.children().map((child) => recurse(child, key));
     if (children.length) {
       context.children = children;
@@ -188,6 +198,7 @@ describe('Expressions shared context tests', () => {
           foundContexts.push({
             component: key,
             currentLayout: key,
+            // @ts-ignore
             children: layout.children().map((child) => recurse(child, key)),
           });
         }
