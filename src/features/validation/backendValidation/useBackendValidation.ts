@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { useQuery } from '@tanstack/react-query';
 import { useImmer } from 'use-immer';
 
 import type {
@@ -10,7 +11,7 @@ import type {
 } from '..';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { type QueryDefinition, useQueryWithPrefetch } from 'src/core/queries/usePrefetchQuery';
+import { type QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
@@ -38,6 +39,7 @@ export function useBackendValidationQueryDef(
         ? () => fetchBackendValidations(instanceId, currentDataElementId, currentLanguage)
         : () => [],
     enabled,
+    gcTime: 0,
   };
 }
 
@@ -58,9 +60,8 @@ export function useBackendValidation({ enabled = true }: UseBackendValidationPro
   const currentDataElementId = useCurrentDataModelGuid();
   const currentLanguage = useCurrentLanguage();
 
-  const { data: initialValidations } = useQueryWithPrefetch(
+  const { data: initialValidations } = useQuery(
     useBackendValidationQueryDef(enabled, currentLanguage, instanceId, currentDataElementId),
-    { gcTime: 0 },
   );
 
   /**

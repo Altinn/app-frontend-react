@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 
-import { skipToken } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import type { AxiosRequestConfig } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { type QueryDefinition, useQueryWithPrefetch } from 'src/core/queries/usePrefetchQuery';
+import { type QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { isAxiosError } from 'src/utils/isAxiosError';
@@ -23,6 +23,7 @@ export function useFormDataQueryDef(
     queryKey: ['fetchFormData', cacheKeyUrl, currentTaskId],
     queryFn: url ? () => fetchFormData(url, options) : skipToken,
     enabled: !!url,
+    gcTime: 0,
   };
 }
 
@@ -58,10 +59,7 @@ export function useFormDataQuery(url: string | undefined) {
 
   // We dont want to refetch if only the language changes
   // const utils = useQuery({
-  const utils = useQueryWithPrefetch(useFormDataQueryDef(cacheKeyUrl, currentTaskId, url, options), {
-    retry: false,
-    gcTime: 0,
-  });
+  const utils = useQuery(useFormDataQueryDef(cacheKeyUrl, currentTaskId, url, options));
 
   useEffect(() => {
     if (utils.error && isAxiosError(utils.error)) {
