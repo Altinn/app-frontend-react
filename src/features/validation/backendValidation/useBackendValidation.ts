@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useImmer } from 'use-immer';
 
 import type {
@@ -37,8 +37,8 @@ export function useBackendValidationQueryDef(
     queryFn:
       instanceId && currentDataElementId
         ? () => fetchBackendValidations(instanceId, currentDataElementId, currentLanguage)
-        : skipToken,
-    enabled: enabled && !!instanceId && !!currentDataElementId,
+        : () => [],
+    enabled,
     gcTime: 0,
   };
 }
