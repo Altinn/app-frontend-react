@@ -36,12 +36,11 @@ export function FormProvider({ children }: React.PropsWithChildren) {
     <>
       <FormPrefetcher />
       <LayoutsProvider>
-        <StaticOptionPrefetcher />
-        <LayoutSettingsProvider>
-          <PageNavigationProvider>
-            <DynamicsProvider>
-              <RulesProvider>
-                <DataModelsProvider>
+        <DataModelsProvider>
+          <LayoutSettingsProvider>
+            <PageNavigationProvider>
+              <DynamicsProvider>
+                <RulesProvider>
                   <AttachmentsStoreProvider>
                     <AllOptionsStoreProvider>
                       <NodesProvider>
@@ -63,11 +62,12 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                       </NodesProvider>
                     </AllOptionsStoreProvider>
                   </AttachmentsStoreProvider>
-                </DataModelsProvider>
-              </RulesProvider>
-            </DynamicsProvider>
-          </PageNavigationProvider>
-        </LayoutSettingsProvider>
+                </RulesProvider>
+              </DynamicsProvider>
+            </PageNavigationProvider>
+          </LayoutSettingsProvider>
+        </DataModelsProvider>
+        <StaticOptionPrefetcher />
       </LayoutsProvider>
     </>
   );
