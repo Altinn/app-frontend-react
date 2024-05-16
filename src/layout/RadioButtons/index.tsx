@@ -1,7 +1,11 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { Label, Paragraph } from '@digdir/designsystemet-react';
+
+import { Lang } from 'src/features/language/Lang';
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
+import classes from 'src/layout/Input/InputComponentSummary.module.css';
 import { RadioButtonsDef } from 'src/layout/RadioButtons/config.def.generated';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
@@ -32,6 +36,18 @@ export class RadioButtons extends RadioButtonsDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
+  renderSummary2(summaryNode: LayoutNode<'RadioButtons'>): JSX.Element | null {
+    const { textResourceBindings } = summaryNode.item;
+    const displayData = this.useDisplayData(summaryNode);
+    return (
+      <>
+        <Label weight={'regular'}>
+          <Lang id={textResourceBindings?.title}></Lang>
+        </Label>
+        <Paragraph className={classes.formValue}>{displayData}</Paragraph>
+      </>
+    );
+  }
   validateDataModelBindings(ctx: LayoutValidationCtx<'RadioButtons'>): string[] {
     return this.validateDataModelBindingsSimple(ctx);
   }

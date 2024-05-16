@@ -39,7 +39,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
     | ReturnType<typeof React.forwardRef<HTMLElement, PropsFromGenericComponent<Type>>>
     | ((props: PropsFromGenericComponent<Type>) => JSX.Element | null);
 
-  renderSummary2?(summaryNode: LayoutNode<Type>): JSX.Element | null;
+  renderSummary2?(componentNode: LayoutNode<Type>): JSX.Element | null;
   /**
    * Given a node, a list of the node's data, for display in the devtools node inspector
    */
@@ -153,6 +153,9 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
 
   useDisplayData(node: LayoutNode<Type>): string {
     const displayDataProps = useDisplayDataProps();
+    console.log('displayDataProps', displayDataProps);
+    const d = this.getDisplayData(node, displayDataProps);
+    console.log(d);
     return this.getDisplayData(node, displayDataProps);
   }
 

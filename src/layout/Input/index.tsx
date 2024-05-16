@@ -47,9 +47,9 @@ export class Input extends InputDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(summaryNode: LayoutNode<'Input'>): JSX.Element | null {
-    const { textResourceBindings } = summaryNode.item;
-    const displayData = this.useDisplayData(summaryNode);
+  renderSummary2(componentNode: LayoutNode<'Input'>): JSX.Element | null {
+    const { textResourceBindings } = componentNode.item;
+    const displayData = this.useDisplayData(componentNode);
     return (
       <>
         <Label weight={'regular'}>

@@ -197,8 +197,6 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
   );
 
   useEffect(() => {
-    console.log('setting form states');
-
     setFormState((prevState) => {
       if (
         prevState.hasRequired === hasRequired &&

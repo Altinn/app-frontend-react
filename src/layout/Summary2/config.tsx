@@ -36,7 +36,7 @@ export const Config = new CG.component({
       new CG.obj(
         new CG.prop(
           'type',
-          new CG.enum('page', 'layoutSet', 'component')
+          new CG.enum('page', 'layoutSet', 'component', 'task')
             .optional({ default: 'component' })
             .setTitle('Mode')
             .setDescription('The mode of the repeating group'),
