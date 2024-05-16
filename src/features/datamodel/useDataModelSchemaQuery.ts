@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import type { JSONSchema7 } from 'json-schema';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
@@ -8,17 +8,25 @@ import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useDataModelType } from 'src/features/datamodel/useBindingSchema';
 import { getRootElementPath } from 'src/utils/schemaUtils';
+import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { SchemaLookupResult } from 'src/features/datamodel/SimpleSchemaTraversal';
 
-export const useDataModelSchemaQuery = (dataModelName: string) => {
+// Also used for prefetching @see formPrefetcher.ts
+export function useDataModelSchemaQueryDef(dataTypeId?: string): QueryDefinition<JSONSchema7> {
   const { fetchDataModelSchema } = useAppQueries();
-  const dataType = useDataModelType(dataModelName);
-  const enabled = !!dataModelName;
+  return {
+    queryKey: ['fetchDataModelSchemas', dataTypeId],
+    queryFn: dataTypeId ? () => fetchDataModelSchema(dataTypeId) : skipToken,
+    enabled: !!dataTypeId,
+  };
+}
 
+export const useDataModelSchemaQuery = (dataTypeId: string) => {
+  const dataType = useDataModelType(dataTypeId);
+
+  const queryDef = useDataModelSchemaQueryDef(dataTypeId);
   const utils = useQuery({
-    enabled,
-    queryKey: ['fetchDataModelSchemas', dataModelName],
-    queryFn: () => fetchDataModelSchema(dataModelName!),
+    ...queryDef,
     select: (schema) => {
       const rootElementPath = getRootElementPath(schema, dataType);
       const lookupTool = new SchemaLookupTool(schema, rootElementPath);
@@ -30,7 +38,7 @@ export const useDataModelSchemaQuery = (dataModelName: string) => {
     utils.error && window.logError('Fetching data model schema failed:\n', utils.error);
   }, [utils.error]);
 
-  return { ...utils, enabled };
+  return { ...utils, enabled: queryDef.enabled };
 };
 
 export interface DataModelSchemaContext {

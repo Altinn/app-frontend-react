@@ -8,6 +8,7 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
+import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { BackendValidation } from 'src/features/validation/backendValidation/BackendValidation';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
@@ -26,6 +27,8 @@ import {
   setVisibilityForNode,
 } from 'src/features/validation/visibility/visibilityUtils';
 import { useAsRef } from 'src/hooks/useAsRef';
+import { useIsPdf } from 'src/hooks/useIsPdf';
+import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type {
   BackendValidationIssueGroups,
@@ -185,6 +188,10 @@ export function ValidationProvider({ children }: PropsWithChildren) {
   const waitForStateRef = useRef<WaitForState<ValidationContext & Internals, unknown>>();
   const hasPendingAttachments = useHasPendingAttachments();
 
+  const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
+  const isPDF = useIsPdf();
+  const shouldNotValidate = isCustomReceipt || isPDF;
+
   // Provide a promise that resolves when all pending validations have been completed
   const pendingAttachmentsRef = useAsRef(hasPendingAttachments);
   const waitForAttachments = useWaitForState(pendingAttachmentsRef);
@@ -203,6 +210,11 @@ export function ValidationProvider({ children }: PropsWithChildren) {
     },
     [waitForAttachments, waitForSave],
   );
+
+  const neverValidating = useCallback(() => Promise.resolve(), []);
+  if (shouldNotValidate) {
+    return <Provider validating={neverValidating}>{children}</Provider>;
+  }
 
   return (
     <Provider validating={validating}>

@@ -1,18 +1,28 @@
 import { useEffect } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { resolveExpressionValidationConfig } from 'src/features/customValidation/customValidationUtils';
+import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
+import type { IExpressionValidationConfig } from 'src/features/validation';
+
+// TODO(Datamodels): Prefetch?
+export function useCustomValidationConfigQueryDef(
+  dataTypeId?: string,
+): QueryDefinition<IExpressionValidationConfig | null> {
+  const { fetchCustomValidationConfig } = useAppQueries();
+  return {
+    queryKey: ['fetchCustomValidationConfig', dataTypeId],
+    queryFn: dataTypeId ? () => fetchCustomValidationConfig(dataTypeId) : skipToken,
+    enabled: !!dataTypeId,
+  };
+}
 
 export const useCustomValidationConfigQuery = (dataTypeId: string) => {
-  const { fetchCustomValidationConfig } = useAppQueries();
-  const enabled = Boolean(dataTypeId?.length);
-
+  const queryDef = useCustomValidationConfigQueryDef(dataTypeId);
   const utils = useQuery({
-    enabled,
-    queryKey: ['fetchCustomValidationConfig', dataTypeId],
-    queryFn: () => fetchCustomValidationConfig(dataTypeId!),
+    ...queryDef,
     select: (config) => (config ? resolveExpressionValidationConfig(config) : null),
   });
 
@@ -22,6 +32,6 @@ export const useCustomValidationConfigQuery = (dataTypeId: string) => {
 
   return {
     ...utils,
-    enabled,
+    enabled: queryDef.enabled,
   };
 };

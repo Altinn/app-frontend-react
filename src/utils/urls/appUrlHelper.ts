@@ -145,9 +145,11 @@ export const getInstanceUiUrl = (instanceId: string) => `${appPath}#/instance/${
 export const appFrontendCDNPath = 'https://altinncdn.no/toolkits/altinn-app-frontend';
 export const frontendVersionsCDN = `${appFrontendCDNPath}/index.json`;
 
+export type ParamValue = string | number | boolean | null;
+
 export interface IGetOptionsUrlParams {
   optionsId: string;
-  queryParameters?: Record<string, string>;
+  queryParameters?: Record<string, ParamValue>;
   language?: string;
   secure?: boolean;
   instanceId?: string;
@@ -161,18 +163,21 @@ export const getOptionsUrl = ({ optionsId, queryParameters, language, secure, in
     url = new URL(`${appPath}/api/options/${optionsId}`);
   }
 
-  const params: Record<string, string> = {};
+  const params: Record<string, ParamValue> = {};
   if (language) {
     params.language = language;
   }
+
   queryParameters && Object.assign(params, queryParameters);
 
-  url.search = new URLSearchParams(params).toString();
+  const stringParams = Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]));
+  url.search = new URLSearchParams(stringParams).toString();
+
   return url.toString();
 };
 export interface IGetDataListsUrlParams {
   dataListId: string;
-  queryParameters?: Record<string, any>;
+  queryParameters?: Record<string, ParamValue>;
   language?: string;
   secure?: boolean;
   instanceId?: string;
@@ -199,7 +204,7 @@ export const getDataListsUrl = ({
   } else {
     url = new URL(`${appPath}/api/datalists/${dataListId}`);
   }
-  let params: Record<string, string> = {};
+  const params: Record<string, ParamValue> = {};
 
   if (language) {
     params.language = language;
@@ -221,13 +226,11 @@ export const getDataListsUrl = ({
     params.sortDirection = sortDirection;
   }
 
-  if (queryParameters) {
-    params = {
-      ...params,
-      ...queryParameters,
-    };
-  }
+  queryParameters && Object.assign(params, queryParameters);
 
-  url.search = new URLSearchParams(params).toString();
+  // Cast all values to string
+  const stringParams = Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]));
+  url.search = new URLSearchParams(stringParams).toString();
+
   return url.toString();
 };

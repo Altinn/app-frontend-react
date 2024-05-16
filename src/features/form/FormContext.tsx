@@ -13,6 +13,8 @@ import { useHasProcessProvider } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { AllOptionsProvider, AllOptionsStoreProvider } from 'src/features/options/useAllOptions';
 import { ValidationProvider } from 'src/features/validation/validationContext';
+import { FormPrefetcher } from 'src/queries/formPrefetcher';
+import { StaticOptionPrefetcher } from 'src/queries/staticOptionsPrefetcher';
 import { NodesProvider } from 'src/utils/layout/NodesContext';
 
 const { Provider, useLaxCtx } = createContext<undefined>({
@@ -31,38 +33,42 @@ export function FormProvider({ children }: React.PropsWithChildren) {
   const hasProcess = useHasProcessProvider();
 
   return (
-    <LayoutsProvider>
-      <LayoutSettingsProvider>
-        <PageNavigationProvider>
-          <DynamicsProvider>
-            <RulesProvider>
-              <DataModelsProvider>
-                <AttachmentsStoreProvider>
-                  <AllOptionsStoreProvider>
-                    <NodesProvider>
-                      <NavigateToNodeProvider>
-                        <ValidationProvider>
-                          <AttachmentsProvider>
-                            <AllOptionsProvider>
-                              {hasProcess ? (
-                                <ProcessNavigationProvider>
+    <>
+      <FormPrefetcher />
+      <LayoutsProvider>
+        <StaticOptionPrefetcher />
+        <LayoutSettingsProvider>
+          <PageNavigationProvider>
+            <DynamicsProvider>
+              <RulesProvider>
+                <DataModelsProvider>
+                  <AttachmentsStoreProvider>
+                    <AllOptionsStoreProvider>
+                      <NodesProvider>
+                        <AllOptionsProvider>
+                          <NavigateToNodeProvider>
+                            <ValidationProvider>
+                              <AttachmentsProvider>
+                                {hasProcess ? (
+                                  <ProcessNavigationProvider>
+                                    <Provider value={undefined}>{children}</Provider>
+                                  </ProcessNavigationProvider>
+                                ) : (
                                   <Provider value={undefined}>{children}</Provider>
-                                </ProcessNavigationProvider>
-                              ) : (
-                                <Provider value={undefined}>{children}</Provider>
-                              )}
-                            </AllOptionsProvider>
-                          </AttachmentsProvider>
-                        </ValidationProvider>
-                      </NavigateToNodeProvider>
-                    </NodesProvider>
-                  </AllOptionsStoreProvider>
-                </AttachmentsStoreProvider>
-              </DataModelsProvider>
-            </RulesProvider>
-          </DynamicsProvider>
-        </PageNavigationProvider>
-      </LayoutSettingsProvider>
-    </LayoutsProvider>
+                                )}
+                              </AttachmentsProvider>
+                            </ValidationProvider>
+                          </NavigateToNodeProvider>
+                        </AllOptionsProvider>
+                      </NodesProvider>
+                    </AllOptionsStoreProvider>
+                  </AttachmentsStoreProvider>
+                </DataModelsProvider>
+              </RulesProvider>
+            </DynamicsProvider>
+          </PageNavigationProvider>
+        </LayoutSettingsProvider>
+      </LayoutsProvider>
+    </>
   );
 }
