@@ -1,4 +1,5 @@
 import React from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
@@ -17,28 +18,26 @@ import { SummaryContent } from 'src/layout/Summary/SummaryContent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/NodesContext';
 import type { IGrid } from 'src/layout/common.generated';
-import type { SummaryDisplayProperties } from 'src/layout/Summary/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { CompSummaryInternal, SummaryDisplayProperties } from 'src/layout/Summary/config.generated';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+
+type Overrides = {
+  targetNode?: LayoutNode;
+  grid?: IGrid;
+  largeGroup?: boolean;
+  display?: SummaryDisplayProperties;
+};
 
 export interface ISummaryComponent {
   summaryNode: LayoutNode<'Summary'>;
-  overrides?: {
-    targetNode?: LayoutNode;
-    grid?: IGrid;
-    largeGroup?: boolean;
-    display?: SummaryDisplayProperties;
-  };
+  overrides?: Overrides;
 }
 
 function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: React.Ref<HTMLDivElement>) {
-  const { id, grid } = summaryNode.item;
-  const display = overrides?.display || summaryNode.item.display;
   const { langAsString } = useLanguage();
   const { currentPageId } = useNavigatePage();
-  const summaryItem = summaryNode.item;
 
-  const targetNode = useResolvedNode(overrides?.targetNode || summaryNode.item.componentRef || summaryNode.item.id);
-  const targetItem = targetNode?.item;
+  const targetNode = useResolvedNode(overrides?.targetNode ?? summaryNode.item.componentRef ?? summaryNode.item.id);
   const targetView = targetNode?.top.top.myKey;
 
   const validations = useUnifiedValidationsForNode(targetNode);
@@ -54,34 +53,108 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
 
     navigateTo(targetNode, true);
     setReturnToView?.(currentPageId);
-    setNodeOfOrigin?.(id);
+    setNodeOfOrigin?.(summaryNode.item.id);
   };
 
-  if (!targetNode || !targetItem || targetNode.isHidden() || targetItem.type === 'Summary') {
+  if (!targetNode || targetNode.isHidden() || !targetNode.item || targetNode.item.type === 'Summary') {
     // TODO: Show info to developers if target node is not found?
     return null;
   }
 
-  const displayGrid =
-    display && display.useComponentGrid ? overrides?.grid || targetItem?.grid : overrides?.grid || grid;
+  const display = overrides?.display ?? summaryNode.item.display;
 
-  const component = targetNode.def;
-  const RenderSummary = 'renderSummary' in component ? component.renderSummary.bind(component) : null;
+  const RenderSummary = 'renderSummary' in targetNode.def ? targetNode.def.renderSummary.bind(targetNode.def) : null;
+
+  return (
+    <SummaryGridWrapper
+      ref={ref}
+      display={display}
+      overrides={overrides}
+      targetNode={targetNode}
+      summaryNode={summaryNode}
+    >
+      {RenderSummary && 'renderSummaryBoilerplate' in targetNode.def ? (
+        <SummaryContent
+          onChangeClick={onChangeClick}
+          changeText={langAsString('form_filler.summary_item_change')}
+          summaryNode={summaryNode}
+          targetNode={targetNode}
+          overrides={overrides}
+          RenderSummary={RenderSummary}
+        />
+      ) : (
+        <GenericComponent node={targetNode} />
+      )}
+      {errors.length && targetNode.item.type !== 'Group' && !display?.hideValidationMessages ? (
+        <Grid
+          container={true}
+          style={{ paddingTop: '12px' }}
+          spacing={2}
+        >
+          {errors.map(({ message }) => (
+            <ErrorPaper
+              key={`key-${message.key}`}
+              message={
+                <Lang
+                  id={message.key}
+                  params={message.params}
+                  node={targetNode}
+                />
+              }
+            />
+          ))}
+          <Grid
+            item={true}
+            xs={12}
+          >
+            {!display?.hideChangeButton && (
+              <button
+                className={classes.link}
+                onClick={onChangeClick}
+                type='button'
+              >
+                <Lang id={'form_filler.summary_go_to_correct_page'} />
+              </button>
+            )}
+          </Grid>
+        </Grid>
+      ) : null}
+    </SummaryGridWrapper>
+  );
+}
+
+function SummaryGridWrapper({
+  ref,
+  display,
+  overrides,
+  targetNode,
+  summaryNode,
+  children,
+}: PropsWithChildren<{
+  ref: React.Ref<HTMLDivElement>;
+  display: SummaryDisplayProperties | undefined;
+  overrides: Overrides | undefined;
+  targetNode: LayoutNode;
+  summaryNode: BaseLayoutNode<CompSummaryInternal, 'Summary'>;
+}>) {
+  const displayGrid = overrides?.grid || (display?.useComponentGrid ? targetNode.item.grid : summaryNode.item.grid);
   const shouldShowBorder =
-    RenderSummary && 'renderSummaryBoilerplate' in component && component?.renderSummaryBoilerplate();
+    'renderSummary' in targetNode.def &&
+    'renderSummaryBoilerplate' in targetNode.def &&
+    targetNode.def?.renderSummaryBoilerplate();
 
   return (
     <Grid
       ref={ref}
       item={true}
-      xs={displayGrid?.xs || 12}
-      sm={displayGrid?.sm || false}
-      md={displayGrid?.md || false}
-      lg={displayGrid?.lg || false}
-      xl={displayGrid?.xl || false}
-      data-testid={`summary-${overrides?.targetNode?.item.id || id}`}
-      data-componentid={summaryItem.id}
-      className={cn(pageBreakStyles(summaryItem.pageBreak ?? targetItem?.pageBreak))}
+      xs={displayGrid?.xs ?? 12}
+      sm={displayGrid?.sm ?? false}
+      md={displayGrid?.md ?? false}
+      lg={displayGrid?.lg ?? false}
+      xl={displayGrid?.xl ?? false}
+      data-testid={`summary-${overrides?.targetNode?.item.id ?? summaryNode.item.id}`}
+      data-componentid={summaryNode.item.id}
+      className={cn(pageBreakStyles(summaryNode.item.pageBreak ?? targetNode?.item?.pageBreak))}
     >
       <Grid
         container={true}
@@ -89,52 +162,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
           [classes.border]: !display?.hideBottomBorder && shouldShowBorder,
         })}
       >
-        {RenderSummary && 'renderSummaryBoilerplate' in component ? (
-          <SummaryContent
-            onChangeClick={onChangeClick}
-            changeText={langAsString('form_filler.summary_item_change')}
-            summaryNode={summaryNode}
-            targetNode={targetNode}
-            overrides={overrides}
-            RenderSummary={RenderSummary}
-          />
-        ) : (
-          <GenericComponent node={targetNode} />
-        )}
-        {errors.length && targetItem.type !== 'Group' && !display?.hideValidationMessages ? (
-          <Grid
-            container={true}
-            style={{ paddingTop: '12px' }}
-            spacing={2}
-          >
-            {errors.map(({ message }) => (
-              <ErrorPaper
-                key={`key-${message.key}`}
-                message={
-                  <Lang
-                    id={message.key}
-                    params={message.params}
-                    node={targetNode}
-                  />
-                }
-              />
-            ))}
-            <Grid
-              item={true}
-              xs={12}
-            >
-              {!display?.hideChangeButton && (
-                <button
-                  className={classes.link}
-                  onClick={onChangeClick}
-                  type='button'
-                >
-                  <Lang id={'form_filler.summary_go_to_correct_page'} />
-                </button>
-              )}
-            </Grid>
-          </Grid>
-        ) : null}
+        {children}
       </Grid>
     </Grid>
   );
