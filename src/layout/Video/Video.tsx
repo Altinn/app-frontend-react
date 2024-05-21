@@ -91,23 +91,6 @@ function InnerVideo({ id, videoSrc, altText, languageKey, height, className }: I
       style={{ height }}
       className={className}
     >
-      <div className={styles.controls}>
-        <button
-          type='button'
-          className={(styles.play, styles.controlButton)}
-        >
-          <svg>
-            <path />
-          </svg>
-        </button>
-        <input
-          type='range'
-          min='0'
-          max='100'
-          className='timeline'
-          value='0'
-        />
-      </div>
       <source src={videoSrc} />
       <track
         kind='captions'
