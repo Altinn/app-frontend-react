@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
+import type { MutableRefObject } from 'react';
 
 import dot from 'dot-object';
 
@@ -26,9 +27,14 @@ interface Props {
 
 export function NodeRepeatingChildren({ childIds, binding, multiPageSupport, externalProp, internalProp }: Props) {
   const item = NodeGeneratorInternal.useExternalItem();
-  const rows = FD.useFreshRows(item?.dataModelBindings?.[binding]);
+  const freshRows = FD.useFreshRows(item?.dataModelBindings?.[binding]);
+  const prevRows = useRef<BaseRow[]>(freshRows);
+  const rows = useReusedRows(freshRows, prevRows);
   const multiPage = multiPageSupport !== false && dot.pick(multiPageSupport, item) === true;
-  const multiPageMapping = multiPage ? makeMultiPageMapping(dot.pick(externalProp, item)) : undefined;
+  const multiPageMapping = useMemo(
+    () => (multiPage ? makeMultiPageMapping(dot.pick(externalProp, item)) : undefined),
+    [item, externalProp, multiPage],
+  );
   const groupBinding = dot.pick(`dataModelBindings.${binding}`, item);
 
   return (
@@ -47,6 +53,27 @@ export function NodeRepeatingChildren({ childIds, binding, multiPageSupport, ext
   );
 }
 
+/**
+ * Re-uses the existing row objects from previous runs whenever row uuids match.
+ * This causes props to not change for the row components, which is important for performance.
+ */
+function useReusedRows(freshRows: BaseRow[], prevRows: MutableRefObject<BaseRow[]>): BaseRow[] {
+  const out: BaseRow[] = [];
+  const prevRowsMap = new Map(prevRows.current.map((r) => [r.uuid, r]));
+
+  for (const row of freshRows) {
+    const prevRow = prevRowsMap.get(row.uuid);
+    if (prevRow) {
+      out.push(prevRow);
+    } else {
+      out.push(row);
+    }
+  }
+
+  prevRows.current = out;
+  return out;
+}
+
 interface GenerateRowProps {
   row: BaseRow;
   childIds: string[];
@@ -55,7 +82,7 @@ interface GenerateRowProps {
   internalProp: string;
 }
 
-function GenerateRow({ row, childIds, groupBinding, multiPageMapping, internalProp }: GenerateRowProps) {
+function _GenerateRow({ row, childIds, groupBinding, multiPageMapping, internalProp }: GenerateRowProps) {
   const node = NodeGeneratorInternal.useParent() as LayoutNode;
   const removeRow = NodesInternal.useRemoveRow();
   const depth = NodeGeneratorInternal.useDepth();
@@ -87,6 +114,9 @@ function GenerateRow({ row, childIds, groupBinding, multiPageMapping, internalPr
     </NodesGeneratorRowProvider>
   );
 }
+
+const GenerateRow = React.memo(_GenerateRow);
+GenerateRow.displayName = 'GenerateRow';
 
 interface ResolveRowProps {
   internalProp: string;
