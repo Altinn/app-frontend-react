@@ -4,11 +4,11 @@ import { Alert, Button } from '@digdir/designsystemet-react';
 
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
+import { usePaymentInformationQuery } from 'src/features/payment/PaymentInformationProvider';
+import { PaymentStatus } from 'src/features/payment/types';
+import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
-import { PaymentStatus } from 'src/layout/Payment/queries/types';
-import { usePaymentInformationQuery } from 'src/layout/Payment/queries/usePaymentInformationQuery';
-import { usePerformPayActionMutation } from 'src/layout/Payment/queries/usePerformPaymentMutation';
 import { SkeletonLoader } from 'src/layout/Payment/SkeletonLoader/SkeletonLoader';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 

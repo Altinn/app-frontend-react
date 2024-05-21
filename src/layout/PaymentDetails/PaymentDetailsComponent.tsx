@@ -4,8 +4,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import deepEqual from 'fast-deep-equal';
 
 import { FD } from 'src/features/formData/FormDataWrite';
+import { useOrderDetailsQuery } from 'src/features/payment/OrderDetailsProvider';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
-import { useOrderDetailsQuery } from 'src/layout/Payment/queries/useOrderDetailsQuery';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 import type { PropsFromGenericComponent } from 'src/layout';
 
