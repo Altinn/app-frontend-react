@@ -148,7 +148,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     } as ToInternal<E>['extraInItem'];
   }
 
-  pickDirectChildren(state: DefPluginState<ToInternal<E>>, _restriction?: TraversalRestriction) {
+  pickDirectChildren(state: DefPluginState<ToInternal<E>>, _restriction?: TraversalRestriction): NodeRef[] {
     return state.item?.[this.settings.internalProp] || [];
   }
 

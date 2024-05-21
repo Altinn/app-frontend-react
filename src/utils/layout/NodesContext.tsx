@@ -19,6 +19,7 @@ import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
 import { UpdateExpressionValidation } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
+import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -36,6 +37,7 @@ import {
 } from 'src/utils/layout/useNodeTraversal';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
+import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -512,6 +514,45 @@ export const NodesInternal = {
         throw e;
       }
     }) as any;
+  },
+  useNodeDataRef<N extends LayoutNode | undefined, Out>(
+    node: N,
+    selector: (state: NodeDataFromNode<N>) => Out,
+  ): React.MutableRefObject<N extends undefined ? Out | undefined : Out> {
+    return DataStore.useSelectorAsRef((s) => {
+      try {
+        return node ? selector(pickDataStorePath(s.pages, node)) : undefined;
+      } catch (e) {
+        if (e instanceof NodePathNotFound) {
+          return undefined;
+        }
+        throw e;
+      }
+    }) as any;
+  },
+  useWaitForNodeData<RetVal, N extends LayoutNode | undefined, Out>(
+    node: N,
+    selector: (state: NodeDataFromNode<N>) => Out,
+  ): WaitForState<Out, RetVal> {
+    const waitForState = useWaitForState<RetVal, NodesDataContext>(DataStore.useStore());
+    return useCallback(
+      (callback) =>
+        waitForState((state, setReturnValue) => {
+          try {
+            const nodeData = node ? pickDataStorePath(state.pages, node) : undefined;
+            if (!nodeData) {
+              return false;
+            }
+            return callback(selector(nodeData), setReturnValue);
+          } catch (e) {
+            if (e instanceof NodePathNotFound) {
+              return false;
+            }
+            throw e;
+          }
+        }),
+      [waitForState, node, selector],
+    );
   },
   useNodeDataMemoSelector: () =>
     DataStore.useDelayedMemoSelectorFactory(

@@ -7,7 +7,7 @@ import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
-import type { CompDef, NodeRef, NodeRefInRow } from 'src/layout';
+import type { CompDef, NodeRefInRow } from 'src/layout';
 import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
@@ -150,7 +150,11 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
       rows.push({
         index: row.index,
         uuid: row.uuid,
-        items: Object.values(row.children).map((child) => ({ nodeRef: child.item.id })),
+        items: Object.values(row.children).map((child) => ({
+          baseId: child.item.baseComponentId,
+          multiPageIndex: child.item.multiPageIndex,
+          nodeRef: child.item.id,
+        })),
         ...(row.extras && typeof row.extras === 'object' ? row.extras : ({} as any)),
       });
     }
@@ -188,8 +192,8 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     }
   }
 
-  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: TraversalRestriction): NodeRef[] {
-    const out: NodeRef[] = [];
+  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: TraversalRestriction): NodeRefInRow[] {
+    const out: NodeRefInRow[] = [];
 
     const rows = state[this.settings.internalProp] as InternalRowState<E>;
     if (!rows) {
@@ -205,7 +209,11 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
       }
 
       for (const child of Object.values(row.children)) {
-        out.push({ nodeRef: child.item.id });
+        out.push({
+          baseId: child.item.baseComponentId,
+          multiPageIndex: child.item.multiPageIndex,
+          nodeRef: child.item.id,
+        });
       }
     }
 

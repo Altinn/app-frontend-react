@@ -15,6 +15,13 @@ import type { NodeData } from 'src/utils/layout/types';
 
 type AnyData = PageHierarchy | PageData | NodeData;
 type Node = BaseLayoutNode | LayoutPage | LayoutPages;
+type DataFrom<T extends NodeRef | Node> = T extends NodeRef
+  ? NodeData
+  : T extends LayoutPage
+    ? PageData
+    : T extends LayoutPages
+      ? PageHierarchy
+      : NodeData;
 
 export interface TraversalRowIndexRestriction {
   onlyInRowIndex: number;
@@ -33,14 +40,14 @@ export class TraversalTask {
   constructor(
     private state: PageHierarchy,
     private rootNode: LayoutPages,
-    private readonly matcher: TraversalMatcher | undefined,
-    private readonly restriction: TraversalRestriction | undefined,
+    public readonly matcher: TraversalMatcher | undefined,
+    public readonly restriction: TraversalRestriction | undefined,
   ) {}
 
   /**
    * Get the node data for a given node
    */
-  private getData(target: NodeRef | Node): AnyData {
+  public getData<T extends NodeRef | Node>(target: T): DataFrom<T> {
     if (isNodeRef(target)) {
       const node = this.rootNode.findById(this, target.nodeRef);
       if (!node) {
@@ -51,7 +58,7 @@ export class TraversalTask {
     }
 
     if (target instanceof LayoutPages) {
-      return this.state;
+      return this.state as DataFrom<T>;
     }
 
     return pickDataStorePath(this.state, target as LayoutNode | LayoutPage);
@@ -60,16 +67,20 @@ export class TraversalTask {
   /**
    * Get a node object, given some node data
    */
-  private getNode(state: AnyData): LayoutNode | LayoutPage | LayoutPages {
-    if (state.type === 'pages') {
+  public getNode(lookup: AnyData | NodeRef): LayoutNode | LayoutPage | LayoutPages {
+    if (isNodeRef(lookup)) {
+      return this.rootNode.findById(this, lookup.nodeRef)!;
+    }
+
+    if (lookup.type === 'pages') {
       return this.rootNode;
     }
 
-    if (state.type === 'page') {
-      return this.rootNode.findLayout(this, state.pageKey)!;
+    if (lookup.type === 'page') {
+      return this.rootNode.findLayout(this, lookup.pageKey)!;
     }
 
-    return this.rootNode.findById(this, state.item.id)!;
+    return this.rootNode.findById(this, lookup.item.id)!;
   }
 
   /**

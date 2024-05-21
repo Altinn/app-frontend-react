@@ -79,25 +79,6 @@ function RepeatingGroupsEditContainerInternal({
     ...textsForRow,
   };
 
-  const getGenericComponentsToRender = (): (JSX.Element | null)[] =>
-    rowItems.map((n): JSX.Element | null => {
-      const isOnOtherMultiPage = multiPageEnabled && n.multiPageIndex !== multiPageIndex;
-      if (isOnOtherMultiPage) {
-        return null;
-      }
-
-      if (group.tableColumns && group.tableColumns[n.baseId]?.showInExpandedEdit === false) {
-        return null;
-      }
-
-      return (
-        <GenericComponentByRef
-          nodeRef={n}
-          key={n.nodeRef}
-        />
-      );
-    });
-
   const isNested = typeof group.baseComponentId === 'string';
   const saveButtonVisible =
     !forceHideSaveButton &&
@@ -154,7 +135,23 @@ function RepeatingGroupsEditContainerInternal({
           spacing={3}
           ref={(n) => refSetter && editingRowIndex !== undefined && refSetter(editingRowIndex, 'editContainer', n)}
         >
-          {getGenericComponentsToRender()}
+          {rowItems.map((n) => {
+            const isOnOtherMultiPage = multiPageEnabled && n.multiPageIndex !== multiPageIndex;
+            if (isOnOtherMultiPage) {
+              return null;
+            }
+
+            if (group.tableColumns && group.tableColumns[n.baseId]?.showInExpandedEdit === false) {
+              return null;
+            }
+
+            return (
+              <GenericComponentByRef
+                nodeRef={n}
+                key={n.nodeRef}
+              />
+            );
+          })}
         </Grid>
         <Grid item={true}>
           {editForGroup?.multiPage && (

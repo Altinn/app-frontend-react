@@ -117,7 +117,7 @@ interface MultiPageMapping {
 function makeMultiPageMapping(children: string[] | undefined): MultiPageMapping {
   const mapping: MultiPageMapping = {};
   for (const child of children ?? []) {
-    const [childId, pageIndex] = child.split(':', 2);
+    const [pageIndex, childId] = child.split(':', 2);
     mapping[childId] = parseInt(pageIndex, 10);
   }
   return mapping;

@@ -2,7 +2,7 @@ import { getComponentDef } from 'src/layout';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { pickDataStorePath } from 'src/utils/layout/NodesContext';
-import type { CompClassMap, CompDef } from 'src/layout';
+import type { CompClassMap, CompDef, NodeRef } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompExternalExact, CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
@@ -124,9 +124,10 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
     return parents.filter((parent) => task.passes(parent));
   }
 
-  private childrenAsList(task: TraversalTask): LayoutNode[] {
+  private childrenAsList(task: TraversalTask) {
     const def = this.def as CompDef<any>;
-    return def.pickDirectChildren(this.store.getState(), task);
+    const refs = def.pickDirectChildren(task.getData(this), task.restriction) as NodeRef[];
+    return refs.map((ref) => task.getNode(ref)) as LayoutNode[];
   }
 
   public firstChild(task: TraversalTask): LayoutNode | undefined {

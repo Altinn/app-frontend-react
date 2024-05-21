@@ -1,7 +1,9 @@
 import { useCallback, useMemo } from 'react';
+import type { MutableRefObject } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector, NodeRef } from 'src/layout';
 import type { TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
@@ -15,8 +17,38 @@ type ItemFromNode<N extends LayoutNode | undefined> = N extends undefined
     ? I
     : never;
 
-export function useNodeItem<N extends LayoutNode | undefined>(node: N): ItemFromNode<N> {
-  return NodesInternal.useNodeData(node, (node) => node?.item) as ItemFromNode<N>;
+/**
+ * Use the item of a node. This re-renders when the item changes (or when the part of the item you select changes),
+ * which doesn't happen if you use node.item directly.
+ */
+export function useNodeItem<N extends LayoutNode | undefined, Out>(
+  node: N,
+  selector: (item: ItemFromNode<N>) => Out,
+): Out;
+export function useNodeItem<N extends LayoutNode | undefined>(node: N, selector?: undefined): ItemFromNode<N>;
+export function useNodeItem(node: never, selector: never): never {
+  return NodesInternal.useNodeData(node, (node: NodeData) => (selector ? (selector as any)(node.item) : node.item));
+}
+
+export function useNodeItemRef<N extends LayoutNode | undefined, Out>(
+  node: N,
+  selector: (item: ItemFromNode<N>) => Out,
+): MutableRefObject<Out>;
+export function useNodeItemRef<N extends LayoutNode | undefined>(
+  node: N,
+  selector?: undefined,
+): MutableRefObject<ItemFromNode<N>>;
+export function useNodeItemRef(node: never, selector: never): never {
+  return NodesInternal.useNodeDataRef(node, (node: NodeData) =>
+    selector ? (selector as any)(node.item) : node.item,
+  ) as never;
+}
+
+const selectNodeItem = (data: NodeData) => data.item;
+export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
+  node: N,
+): WaitForState<ItemFromNode<N>, RetVal> {
+  return NodesInternal.useWaitForNodeData(node, selectNodeItem);
 }
 
 export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): NodeRef[] | undefined {
