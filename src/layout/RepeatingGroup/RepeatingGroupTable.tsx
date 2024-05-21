@@ -6,7 +6,6 @@ import cn from 'classnames';
 import { Caption } from 'src/components/form/Caption';
 import { Lang } from 'src/features/language/Lang';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
-import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
 import { useNodesFromGridRows } from 'src/layout/Grid/tools';
@@ -16,52 +15,23 @@ import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/RepeatingGro
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/RepeatingGroupTableRow';
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/RepeatingGroupTableTitle';
+import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { GridCellInternal } from 'src/layout/Grid/types';
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
   const { node, isEditing, rowsToDisplay } = useRepeatingGroup();
-  const {
-    textResourceBindings,
-    labelSettings,
-    id,
-    edit,
-    minCount,
-    stickyHeader,
-    tableHeaders,
-    tableColumns,
-    rows,
-    baseComponentId,
-  } = useNodeItem(node);
+  const { textResourceBindings, labelSettings, id, edit, minCount, stickyHeader, tableColumns, rows, baseComponentId } =
+    useNodeItem(node);
   const required = !!minCount && minCount > 0;
 
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
 
-  const tableNodes = useNodeTraversal((traverser) => {
-    const nodes = traverser.children(undefined, { onlyInRowIndex: 0 }).filter((child) => {
-      if (tableHeaders) {
-        const { id, baseComponentId } = child.item;
-        return !!(tableHeaders.includes(id) || (baseComponentId && tableHeaders.includes(baseComponentId)));
-      }
-      return child.isCategory(CompCategory.Form);
-    });
-
-    // Sort using the order from tableHeaders
-    if (tableHeaders) {
-      nodes.sort((a, b) => {
-        const aIndex = tableHeaders.indexOf(a.getBaseId());
-        const bIndex = tableHeaders.indexOf(b.getBaseId());
-        return aIndex - bIndex;
-      });
-    }
-
-    return nodes;
-  }, node);
+  const tableNodes = useTableNodes(node, { onlyInRowIndex: 0 });
 
   const numRows = rowsToDisplay.length;
   const firstRowId = numRows >= 1 ? rowsToDisplay[0].uuid : undefined;

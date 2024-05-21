@@ -18,9 +18,9 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
+import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import type { DisplayData } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -92,7 +92,7 @@ export function RepeatingGroupTableRow({
 
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
-  const tableNodes = useNodeTraversal((traverser) => traverser.children(undefined, { onlyInRowUuid: uuid }), node);
+  const tableNodes = useTableNodes(node, { onlyInRowUuid: uuid });
   const displayDataProps = useDisplayDataProps();
   const displayData = tableNodes.map((node) => {
     const def = node.def;
