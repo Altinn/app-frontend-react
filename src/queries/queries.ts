@@ -223,13 +223,10 @@ export const fetchRuleHandler = (layoutSetId: string): Promise<string | null> =>
 export const fetchTextResources = (selectedLanguage: string): Promise<ITextResourceResult> =>
   httpGet(textResourcesUrl(selectedLanguage));
 
-export const fetchPaymentInformation = (
-  instanceOwnerPartyId: string,
-  instanceGuid: string,
-): Promise<PaymentResponsePayload> => httpGet(getPaymentInformationUrl(instanceOwnerPartyId, instanceGuid));
+export const fetchPaymentInformation = (instanceId: string): Promise<PaymentResponsePayload> =>
+  httpGet(getPaymentInformationUrl(instanceId));
 
-export const fetchOrderDetails = (instanceOwnerPartyId: string, instanceGuid: string): Promise<OrderDetails> =>
-  httpGet(getOrderDetailsUrl(instanceOwnerPartyId, instanceGuid));
+export const fetchOrderDetails = (instanceId: string): Promise<OrderDetails> => httpGet(getOrderDetailsUrl(instanceId));
 
 export const fetchBackendValidations = (
   instanceId: string,
