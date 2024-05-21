@@ -10,9 +10,11 @@ import type { BaseRow } from 'src/utils/layout/types';
 export interface RepeatingChildrenStorePluginConfig {
   extraFunctions: {
     setRowExtras: (node: LayoutNode, row: BaseRow, internalProp: string, extras: unknown) => void;
+    removeRow: (node: LayoutNode, row: BaseRow, internalProp: string) => void;
   };
   extraHooks: {
     useSetRowExtras: () => RepeatingChildrenStorePluginConfig['extraFunctions']['setRowExtras'];
+    useRemoveRow: () => RepeatingChildrenStorePluginConfig['extraFunctions']['removeRow'];
   };
 }
 
@@ -32,12 +34,21 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           nodeStore[internalProp] = newRows;
         });
       },
+      removeRow: (node, row, internalProp) => {
+        set((state) => {
+          const nodeStore = pickDataStorePath(state.pages, node);
+          const newRows = { ...nodeStore[internalProp] };
+          delete newRows[row.uuid];
+          nodeStore[internalProp] = newRows;
+        });
+      },
     };
   }
 
   extraHooks(store: NodesDataStoreFull): RepeatingChildrenStorePluginConfig['extraHooks'] {
     return {
       useSetRowExtras: () => store.useSelector((state) => state.setRowExtras),
+      useRemoveRow: () => store.useSelector((state) => state.removeRow),
     };
   }
 }

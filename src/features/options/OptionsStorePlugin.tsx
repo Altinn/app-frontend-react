@@ -31,7 +31,9 @@ export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig>
         store.useSelector((state) => {
           try {
             const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
-            return 'options' in nodeStore ? nodeStore.options : emptyArray;
+            return nodeStore.type === 'node' && 'options' in nodeStore
+              ? (nodeStore.options as IOptionInternal[])
+              : emptyArray;
           } catch (e) {
             if (e instanceof NodePathNotFound) {
               return emptyArray;
@@ -43,7 +45,9 @@ export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig>
         store.useDelayedMemoSelectorFactory((node: LayoutNode<CompWithBehavior<'canHaveOptions'>>) => (state) => {
           try {
             const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
-            return 'options' in nodeStore ? nodeStore.options : emptyArray;
+            return nodeStore.type === 'node' && 'options' in nodeStore
+              ? (nodeStore.options as IOptionInternal[])
+              : emptyArray;
           } catch (e) {
             if (e instanceof NodePathNotFound) {
               return emptyArray;

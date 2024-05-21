@@ -5,17 +5,11 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector, NodeRef } from 'src/layout';
-import type { TypeFromNode } from 'src/layout/layout';
+import type { CompTypes, IDataModelBindings, NodeItem, TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeData } from 'src/utils/layout/types';
+import type { NodeData, NodeItemFromNode } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
-
-type ItemFromNode<N extends LayoutNode | undefined> = N extends undefined
-  ? undefined
-  : N extends { item: infer I }
-    ? I
-    : never;
 
 /**
  * Use the item of a node. This re-renders when the item changes (or when the part of the item you select changes),
@@ -23,36 +17,36 @@ type ItemFromNode<N extends LayoutNode | undefined> = N extends undefined
  */
 export function useNodeItem<N extends LayoutNode | undefined, Out>(
   node: N,
-  selector: (item: ItemFromNode<N>) => Out,
+  selector: (item: NodeItemFromNode<N>) => Out,
 ): Out;
-export function useNodeItem<N extends LayoutNode | undefined>(node: N, selector?: undefined): ItemFromNode<N>;
+export function useNodeItem<N extends LayoutNode | undefined>(node: N, selector?: undefined): NodeItemFromNode<N>;
 export function useNodeItem(node: never, selector: never): never {
   return NodesInternal.useNodeData(node, (node: NodeData) => (selector ? (selector as any)(node.item) : node.item));
 }
 
 export function useNodeItemRef<N extends LayoutNode | undefined, Out>(
   node: N,
-  selector: (item: ItemFromNode<N>) => Out,
+  selector: (item: NodeItemFromNode<N>) => Out,
 ): MutableRefObject<Out>;
 export function useNodeItemRef<N extends LayoutNode | undefined>(
   node: N,
   selector?: undefined,
-): MutableRefObject<ItemFromNode<N>>;
+): MutableRefObject<NodeItemFromNode<N>>;
 export function useNodeItemRef(node: never, selector: never): never {
   return NodesInternal.useNodeDataRef(node, (node: NodeData) =>
     selector ? (selector as any)(node.item) : node.item,
   ) as never;
 }
 
-const selectNodeItem = (data: NodeData) => data.item;
+const selectNodeItem = <T extends CompTypes>(data: NodeData<T>): NodeItem<T> | undefined => data.item as NodeItem<T>;
 export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
   node: N,
-): WaitForState<ItemFromNode<N>, RetVal> {
+): WaitForState<NodeItemFromNode<N> | undefined, RetVal> {
   return NodesInternal.useWaitForNodeData(node, selectNodeItem);
 }
 
 export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): NodeRef[] | undefined {
-  return NodesInternal.useNodeData(parent, (store) => parent.def.pickDirectChildren(store, restriction));
+  return NodesInternal.useNodeData(parent, (store) => parent.def.pickDirectChildren(store as any, restriction));
 }
 
 type NodeFormData<N extends LayoutNode | undefined> = N extends undefined
@@ -88,7 +82,7 @@ export function useNodeFormDataSelector() {
 }
 
 function getNodeFormData<N extends LayoutNode>(
-  dataModelBindings: NodeData<TypeFromNode<N>>['dataModelBindings'],
+  dataModelBindings: IDataModelBindings<TypeFromNode<N>>,
   formDataSelector: FormDataSelector,
 ): NodeFormData<N> {
   if (!dataModelBindings) {

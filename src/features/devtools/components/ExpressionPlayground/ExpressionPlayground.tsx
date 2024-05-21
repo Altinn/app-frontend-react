@@ -121,7 +121,7 @@ export const ExpressionPlayground = () => {
           (t) => {
             const page = t.findPage(forPage);
             return page
-              ? t.with(page).children((i) => i.type === 'node' && i.item.id === forComponentId)[0]
+              ? t.with(page).children((i) => i.type === 'node' && i.item?.id === forComponentId)[0]
               : undefined;
           },
           [forPage, forComponentId],

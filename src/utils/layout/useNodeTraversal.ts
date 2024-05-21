@@ -32,7 +32,7 @@ export interface TraversalRowUuidRestriction {
 }
 
 export type TraversalRestriction = TraversalRowUuidRestriction | TraversalRowIndexRestriction;
-export type TraversalMatcher = (state: AnyData) => boolean;
+export type TraversalMatcher = (state: AnyData) => boolean | undefined;
 
 const emptyArray: never[] = [];
 
@@ -54,14 +54,14 @@ export class TraversalTask {
         throw new NodePathNotFound(`Failed to look up nodeRef '${target.nodeRef}'`);
       }
 
-      return pickDataStorePath(this.state, node);
+      return pickDataStorePath(this.state, node) satisfies PageData | NodeData as DataFrom<T>;
     }
 
     if (target instanceof LayoutPages) {
       return this.state as DataFrom<T>;
     }
 
-    return pickDataStorePath(this.state, target as LayoutNode | LayoutPage);
+    return pickDataStorePath(this.state, target as LayoutNode | LayoutPage) as DataFrom<T>;
   }
 
   /**
@@ -80,14 +80,14 @@ export class TraversalTask {
       return this.rootNode.findLayout(this, lookup.pageKey)!;
     }
 
-    return this.rootNode.findById(this, lookup.item.id)!;
+    return this.rootNode.findById(this, lookup.item?.id)!;
   }
 
   /**
    * Filter a node based on the matcher
    */
   public passesMatcher(node: Node): boolean {
-    return !this.matcher || this.matcher(this.getData(node));
+    return !this.matcher || this.matcher(this.getData(node)) === true;
   }
 
   /**

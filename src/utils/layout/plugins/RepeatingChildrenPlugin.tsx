@@ -151,9 +151,9 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
         index: row.index,
         uuid: row.uuid,
         items: Object.values(row.children).map((child) => ({
-          baseId: child.item.baseComponentId,
-          multiPageIndex: child.item.multiPageIndex,
-          nodeRef: child.item.id,
+          baseId: child.item?.baseComponentId,
+          multiPageIndex: child.item?.multiPageIndex,
+          nodeRef: child.item?.id,
         })),
         ...(row.extras && typeof row.extras === 'object' ? row.extras : ({} as any)),
       });
@@ -209,11 +209,14 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
       }
 
       for (const child of Object.values(row.children)) {
-        out.push({
-          baseId: child.item.baseComponentId,
-          multiPageIndex: child.item.multiPageIndex,
-          nodeRef: child.item.id,
-        });
+        const item = child.item;
+        if (item) {
+          out.push({
+            baseId: item.baseComponentId ?? item.id,
+            multiPageIndex: item.multiPageIndex,
+            nodeRef: item.id,
+          });
+        }
       }
     }
 
@@ -234,7 +237,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     for (const row of Object.values(rows)) {
       if (row && row.children && row.children[baseComponentId]) {
         child = row.children[baseComponentId] as NodeData<C>;
-        if (child?.item.id === childId) {
+        if (child?.item?.id === childId) {
           break;
         }
         child = undefined;

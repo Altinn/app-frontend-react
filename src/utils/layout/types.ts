@@ -31,3 +31,4 @@ export interface BaseItemState<T extends CompTypes> {
 
 export type NodeData<Type extends CompTypes = CompTypes> = ReturnType<CompDef<Type>['stateFactory']>;
 export type NodeDataFromNode<N extends LayoutNode | undefined> = NodeData<TypeFromNode<Exclude<N, undefined>>>;
+export type NodeItemFromNode<N extends LayoutNode | undefined> = Exclude<NodeDataFromNode<N>['item'], undefined>;

@@ -56,6 +56,8 @@ interface GenerateRowProps {
 }
 
 function GenerateRow({ row, childIds, groupBinding, multiPageMapping, internalProp }: GenerateRowProps) {
+  const node = NodeGeneratorInternal.useParent() as LayoutNode;
+  const removeRow = NodesInternal.useRemoveRow();
   const depth = NodeGeneratorInternal.useDepth();
   const directMutators = useMemo(
     () => [mutateComponentId(row), mutateMultiPageIndex(multiPageMapping)],
@@ -65,6 +67,13 @@ function GenerateRow({ row, childIds, groupBinding, multiPageMapping, internalPr
   const recursiveMutators = useMemo(
     () => [mutateDataModelBindings(row, groupBinding), mutateMapping(row, depth)],
     [row, depth, groupBinding],
+  );
+
+  NodeStages.AddNodes.useEffect(
+    () => () => {
+      removeRow(node, row, internalProp);
+    },
+    [node, row, internalProp, removeRow],
   );
 
   return (

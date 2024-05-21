@@ -50,7 +50,7 @@ export function runConditionalRenderingRules(
             const childGroupId = connection.repeatingGroup.childGroupId;
             const childNode = nodeTraversal(
               (t) =>
-                t.with(node).flat((i) => i.type === 'node' && i.item.baseComponentId === childGroupId, {
+                t.with(node).flat((i) => i.type === 'node' && i.item?.baseComponentId === childGroupId, {
                   onlyInRowUuid: row.uuid,
                 })?.[0],
               [node, childGroupId, row.uuid],

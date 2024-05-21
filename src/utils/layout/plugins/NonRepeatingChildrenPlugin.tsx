@@ -131,10 +131,10 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     }
   }
 
-  stateFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>) {
+  stateFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>): ToInternal<E>['extraState'] {
     return {
       [this.settings.externalProp as Combined<E>['externalProp']]: {} as { [key: string]: NodeData },
-    };
+    } as ToInternal<E>['extraState'];
   }
 
   evalDefaultExpressions(props: DefPluginExprResolver<ToInternal<E>>) {

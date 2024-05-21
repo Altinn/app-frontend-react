@@ -44,7 +44,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
-import type { NodeData, NodeDataFromNode } from 'src/utils/layout/types';
+import type { BaseRow, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
 
 export interface NodesContext {
   nodes: LayoutPages | undefined;
@@ -124,12 +124,13 @@ type ExtraHooks = AllFlat<{
 
 export type NodesDataContext = {
   pages: PageHierarchy;
-  addNode: <N extends LayoutNode>(node: N, targetState: any) => void;
-  removeNode: (node: LayoutNode) => void;
+  addNode: <N extends LayoutNode>(node: N, targetState: any, row: BaseRow | undefined) => void;
+  removeNode: (node: LayoutNode, row: BaseRow | undefined) => void;
   setNodeProp: <N extends LayoutNode, K extends keyof NodeDataFromNode<N>>(
     node: N,
     prop: K,
     value: NodeDataFromNode<N>[K],
+    whenNotFound?: 'throwError' | 'ignore',
   ) => void;
 
   addPage: (pageKey: string) => void;
@@ -145,7 +146,7 @@ export function createNodesDataStore() {
         type: 'pages' as const,
         pages: {},
       },
-      addNode: (node, targetState) =>
+      addNode: (node, targetState, row) =>
         set((s) => {
           const parentPath = node.path.slice(0, -1);
           const parent = pickDataStorePath(s.pages, parentPath);
@@ -157,10 +158,10 @@ export function createNodesDataStore() {
             parent.topLevelNodes[id] = targetState;
           } else {
             const def = getComponentDef(parent.layout.type);
-            def.addChild(parent as any, node, targetState);
+            def.addChild(parent as any, node, targetState, row);
           }
         }),
-      removeNode: (node) =>
+      removeNode: (node, row) =>
         set((s) => {
           const parentPath = node.path.slice(0, -1);
           try {
@@ -169,7 +170,7 @@ export function createNodesDataStore() {
               delete parent.topLevelNodes[node.getId()];
             } else {
               const def = getComponentDef(parent.layout.type);
-              def.removeChild(parent as any, node);
+              def.removeChild(parent as any, node, row);
             }
           } catch (e) {
             if (e instanceof NodePathNotFound) {
@@ -178,13 +179,20 @@ export function createNodesDataStore() {
             throw e;
           }
         }),
-      setNodeProp: (node, prop, value) =>
+      setNodeProp: (node, prop, value, whenNotFound = 'throwError') =>
         set((state) => {
-          const obj = pickDataStorePath(state.pages, node.path);
-          if (obj.type === 'page') {
-            throw new Error('Parent node is not a node');
+          try {
+            const obj = pickDataStorePath(state.pages, node.path);
+            if (obj.type === 'page') {
+              throw new Error('Parent node is not a node');
+            }
+            Object.assign(obj, { [prop]: value });
+          } catch (e) {
+            if (e instanceof NodePathNotFound && whenNotFound === 'ignore') {
+              return;
+            }
+            throw e;
           }
-          Object.assign(obj, { [prop]: value });
         }),
       addPage: (pageKey) =>
         set((state) => {
@@ -491,7 +499,7 @@ export const NodesInternal = {
   ): N extends undefined ? Out | undefined : Out {
     return DataStore.useMemoSelector((s) => {
       try {
-        return node ? selector(pickDataStorePath(s.pages, node)) : undefined;
+        return node ? selector(pickDataStorePath(s.pages, node) as any) : undefined;
       } catch (e) {
         if (e instanceof NodePathNotFound) {
           return undefined;
@@ -506,7 +514,7 @@ export const NodesInternal = {
   ): N extends undefined ? Out | undefined : Out {
     return DataStore.useSelector((s) => {
       try {
-        return node ? selector(pickDataStorePath(s.pages, node)) : undefined;
+        return node ? selector(pickDataStorePath(s.pages, node) as NodeDataFromNode<N>) : undefined;
       } catch (e) {
         if (e instanceof NodePathNotFound) {
           return undefined;
@@ -521,7 +529,7 @@ export const NodesInternal = {
   ): React.MutableRefObject<N extends undefined ? Out | undefined : Out> {
     return DataStore.useSelectorAsRef((s) => {
       try {
-        return node ? selector(pickDataStorePath(s.pages, node)) : undefined;
+        return node ? selector(pickDataStorePath(s.pages, node) as NodeDataFromNode<N>) : undefined;
       } catch (e) {
         if (e instanceof NodePathNotFound) {
           return undefined;
@@ -543,7 +551,7 @@ export const NodesInternal = {
             if (!nodeData) {
               return false;
             }
-            return callback(selector(nodeData), setReturnValue);
+            return callback(selector(nodeData as NodeDataFromNode<N>), setReturnValue);
           } catch (e) {
             if (e instanceof NodePathNotFound) {
               return false;

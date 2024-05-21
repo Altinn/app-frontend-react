@@ -77,6 +77,7 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
 function useAddRemoveNode(node: LayoutNode, item: CompExternal) {
   const parent = NodeGeneratorInternal.useParent();
   const row = NodeGeneratorInternal.useRow();
+  const rowRef = useAsRef(row);
   const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item, parent, row });
   const addNode = NodesInternal.useAddNode();
   const isParentAdded = NodesInternal.useIsAdded(parent);
@@ -89,16 +90,16 @@ function useAddRemoveNode(node: LayoutNode, item: CompExternal) {
   NodeStages.AddNodes.useEffect(() => {
     if (isParentAdded) {
       const defaultState = nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any);
-      addNode(nodeRef.current, defaultState);
+      addNode(nodeRef.current, defaultState, row);
     }
-  }, [addNode, isParentAdded, nodeRef, stateFactoryPropsRef]);
+  }, [addNode, isParentAdded, nodeRef, stateFactoryPropsRef, row]);
 
   NodeStages.AddNodes.useEffect(
     () => () => {
       pageRef.current._removeChild(nodeRef.current);
-      removeNode(nodeRef.current);
+      removeNode(nodeRef.current, rowRef.current);
     },
-    [nodeRef, pageRef, removeNode],
+    [nodeRef, pageRef, removeNode, rowRef],
   );
 }
 
@@ -115,6 +116,7 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
 }: NodeResolverProps<T>): CompInternal<T> | undefined {
   const resolverProps = useExpressionResolverProps(node, item);
   const allNodesAdded = NodeStages.AddNodes.useIsDone();
+  const isAdded = NodesInternal.useIsAdded(node);
 
   const def = useDef(item.type);
   const setNodeProp = NodesInternal.useSetNodeProp();
@@ -124,13 +126,13 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
   );
 
   NodeStages.MarkHidden.useEffect(() => {
-    setNodeProp(node, 'hidden', hidden);
-  }, [hidden, node, setNodeProp]);
+    isAdded && setNodeProp(node, 'hidden', hidden, 'ignore');
+  }, [hidden, node, setNodeProp, isAdded]);
 
   NodeStages.EvaluateExpressions.useEffect(() => {
-    setNodeProp(node, 'item', resolvedItem);
+    isAdded && setNodeProp(node, 'item', resolvedItem, 'ignore');
     node.updateCommonProps(resolvedItem as any);
-  }, [node, resolvedItem, setNodeProp]);
+  }, [node, resolvedItem, setNodeProp, isAdded]);
 
   return resolvedItem;
 }

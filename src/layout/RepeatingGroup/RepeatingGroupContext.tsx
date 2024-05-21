@@ -464,7 +464,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     });
     let foundRow: RepGroupRow | undefined;
     await waitForItem((item) => {
-      foundRow = item.rows.find((row) => row.uuid === uuid);
+      foundRow = item?.rows.find((row) => row.uuid === uuid);
       return !!foundRow;
     });
     endAddingRow(uuid);

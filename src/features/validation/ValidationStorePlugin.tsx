@@ -35,7 +35,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
         set((state) => {
           for (const node of nodes) {
             const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
-            nodeStore.validationVisibility = newVisibility;
+            (nodeStore as any).validationVisibility = newVisibility;
           }
         });
       },

@@ -100,7 +100,11 @@ export type TypeFromConfig<T extends CompInternal | CompExternal> = T extends { 
     : CompTypes
   : CompTypes;
 
-export type TypeFromNode<N extends LayoutNode> = N extends BaseLayoutNode<infer Type> ? Type : CompTypes;
+export type TypeFromNode<N extends LayoutNode | undefined> = N extends undefined
+  ? never
+  : N extends BaseLayoutNode<infer Type>
+    ? Type
+    : CompTypes;
 
 export type LayoutNodeFromObj<T> = T extends { type: infer Type }
   ? Type extends CompTypes

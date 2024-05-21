@@ -46,7 +46,10 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   const validations = useUnifiedValidationsForNode(node);
 
   const id = node.getId();
-  const groupContainer = useNodeTraversal((t) => t.closest((i) => i.type === 'node' && i.item.type === 'Likert'), node);
+  const groupContainer = useNodeTraversal(
+    (t) => t.closest((i) => i.type === 'node' && i.item?.type === 'Likert'),
+    node,
+  );
   const groupContainerId = groupContainer?.getId();
 
   const headerColumnId = `${groupContainerId}-likert-columnheader-left`;

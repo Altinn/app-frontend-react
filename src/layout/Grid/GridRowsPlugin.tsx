@@ -1,4 +1,4 @@
-import type { CompDef, NodeRef } from '..';
+import type { NodeRef } from '..';
 
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
@@ -133,12 +133,12 @@ export class GridRowsPlugin<Type extends CompTypes>
     state: DefPluginState<Config<Type>>,
     childId: string,
     parentPath: string[],
-  ): ReturnType<CompDef<C>['stateFactory']> {
+  ): NodeData<C> {
     const child = state.gridItems[childId];
     if (!child) {
       throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
     }
-    return child;
+    return child satisfies NodeData as NodeData<C>;
   }
 
   addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode, childStore: NodeData): void {

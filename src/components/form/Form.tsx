@@ -22,6 +22,7 @@ import { GenericComponentById } from 'src/layout/GenericComponent';
 import { extractBottomButtons } from 'src/utils/formLayout';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
+import type { NodeData } from 'src/utils/layout/types';
 
 interface FormState {
   hasRequired: boolean;
@@ -170,6 +171,11 @@ interface ErrorProcessingProps {
   setFormState: React.Dispatch<React.SetStateAction<FormState>>;
 }
 
+function nodeDataIsRequired(n: NodeData) {
+  const item = n.item;
+  return !!(item && 'required' in item && item.required === true);
+}
+
 /**
  * Instead of re-rendering the entire Form component when any of this changes, we just report the
  * state to the parent component.
@@ -191,11 +197,7 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
     if (!page) {
       return false;
     }
-    return (
-      traverser
-        .with(page)
-        .flat((item) => item.type === 'node' && 'required' in item.item && item.item.required === true).length > 0
-    );
+    return traverser.with(page).flat((n) => n.type === 'node' && nodeDataIsRequired(n)).length > 0;
   });
 
   const { formErrors, taskErrors } = useTaskErrors();

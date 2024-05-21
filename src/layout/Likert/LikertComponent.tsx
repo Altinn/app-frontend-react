@@ -23,7 +23,7 @@ interface LikertComponentProps {
 
 export const LikertComponent = ({ node }: LikertComponentProps) => {
   const children = useNodeTraversal(
-    (t) => t.children((i) => i.type === 'node' && i.item.type === 'LikertItem'),
+    (t) => t.children((i) => i.type === 'node' && i.item?.type === 'LikertItem'),
     node,
   ) as LayoutNode<'LikertItem'>[];
   const firstLikertChildItem = useNodeItem(children[0]);

@@ -15,9 +15,10 @@ import type { NodeData } from 'src/utils/layout/types';
 const emptyArray = [];
 export function useUnifiedValidationsForNode(node: LayoutNode | undefined): NodeValidation[] {
   const nodeValidations = NodesInternal.useValidations(node);
-  const visibility = NodesInternal.useNodeData(node, (state: NodeData) =>
-    'validationVisibility' in state ? state.validationVisibility : 0,
-  );
+  const visibility =
+    NodesInternal.useNodeData(node, (state: NodeData) =>
+      'validationVisibility' in state ? state.validationVisibility : 0,
+    ) ?? 0;
 
   return useMemo(() => {
     if (!node) {
