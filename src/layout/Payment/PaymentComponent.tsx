@@ -16,7 +16,7 @@ export const PaymentComponent = ({ node }) => {
   const { next } = useProcessNavigation() || {};
   const paymentInfo = usePaymentInformation();
   const { mutate: performPayment } = usePerformPayActionMutation(partyId, instanceGuid);
-  const paymentDoesNotExist = !paymentInfo?.paymentDetails;
+  const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
   const { title, description } = node.item.textResourceBindings;
   const actionCalled = useRef(false);
   const nextCalled = useRef(false);
@@ -30,7 +30,11 @@ export const PaymentComponent = ({ node }) => {
   }, [paymentDoesNotExist, performPayment]);
 
   useEffect(() => {
-    if (paymentInfo?.status === PaymentStatus.Paid && next && !nextCalled.current) {
+    if (
+      (paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped) &&
+      next &&
+      !nextCalled.current
+    ) {
       nextCalled.current = true;
       next({ action: 'confirm', nodeId: 'next-button' });
     }
