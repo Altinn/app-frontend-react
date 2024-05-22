@@ -58,16 +58,18 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
     [hiddenByExpression, hiddenByRules, hiddenParent],
   );
 
-  const resolvedItem = useResolvedItem({ node, hidden, item });
-
   return (
     <>
-      {NodeGeneratorDebug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolvedItem, null, 2)}</pre>}
       <NodesGeneratorProvider
         parent={node}
         hidden={hidden}
-        item={resolvedItem}
+        item={item}
       >
+        <ResolveExpressions
+          node={node}
+          item={item}
+          hidden={hidden}
+        />
         {children}
       </NodesGeneratorProvider>
     </>
@@ -101,6 +103,12 @@ function useAddRemoveNode(node: LayoutNode, item: CompExternal) {
     },
     [nodeRef, pageRef, removeNode, rowRef],
   );
+}
+
+function ResolveExpressions<T extends CompTypes>({ node, item, hidden }: NodeResolverProps<T>) {
+  const resolved = useResolvedItem({ node, item, hidden });
+
+  return <>{NodeGeneratorDebug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolved, null, 2)}</pre>}</>;
 }
 
 interface NodeResolverProps<T extends CompTypes> {

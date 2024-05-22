@@ -443,7 +443,7 @@ export class ComponentConfig {
       stateFactory(props: ${StateFactoryProps}<'${this.type}'>) {
         const baseState: ${BaseItemState}<'${this.type}'> = {
           type: 'node',
-          item: props.item as unknown as ${CompInternal}<'${this.type}'>,
+          item: undefined,
           layout: props.item,
           hidden: undefined,
           row: props.row,

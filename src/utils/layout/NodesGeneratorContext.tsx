@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import type { CompExternal, CompInternal, CompTypes } from 'src/layout/layout';
+import type { CompExternal, CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { HiddenState, HiddenStateNode, HiddenStatePage } from 'src/utils/layout/NodesContext';
@@ -22,7 +22,7 @@ type PageProviderProps = Pick<NodesGeneratorContext, 'layoutMap' | 'childrenMap'
 
 type NodeGeneratorProps = Pick<NodesGeneratorContext, 'directMutators' | 'recursiveMutators'> & {
   hidden: Omit<HiddenStateNode, 'parent'>;
-  item: CompInternal;
+  item: CompExternal;
   parent: LayoutNode;
 };
 
@@ -37,7 +37,7 @@ interface NodesGeneratorContext {
   childrenMap: ChildrenMap;
   hidden: HiddenState;
   parent: LayoutNode | LayoutPage;
-  item: CompInternal | undefined;
+  item: CompExternal | undefined;
   claimedChildren: Set<string>;
   row: BaseRow | undefined;
   page: LayoutPage;

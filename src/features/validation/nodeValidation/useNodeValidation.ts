@@ -5,7 +5,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { Validation } from 'src/features/validation/validationContext';
 import { implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
-import { NodeGeneratorInternal } from 'src/utils/layout/NodesGeneratorContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -16,7 +16,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): ComponentValidation[] {
   const selector = Validation.useFieldSelector();
   const validationDataSources = useValidationDataSources();
-  const item = NodeGeneratorInternal.useItem();
+  const item = useNodeItem(node);
 
   return useMemo(() => {
     const validations: ComponentValidation[] = [];
