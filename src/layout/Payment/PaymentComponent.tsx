@@ -9,11 +9,12 @@ import { PaymentStatus } from 'src/features/payment/types';
 import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
+import { SkeletonLoader } from 'src/layout/Payment/SkeletonLoader';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 
 export const PaymentComponent = ({ node }) => {
   const { partyId, instanceGuid } = useInstanceIdParams();
-  const { next } = useProcessNavigation() || {};
+  const { next, busy } = useProcessNavigation() || {};
   const paymentInfo = usePaymentInformation();
   const { mutate: performPayment } = usePerformPayActionMutation(partyId, instanceGuid);
   const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
@@ -39,6 +40,10 @@ export const PaymentComponent = ({ node }) => {
       next({ action: 'confirm', nodeId: 'next-button' });
     }
   }, [paymentInfo, next]);
+
+  if (busy || paymentDoesNotExist) {
+    return <SkeletonLoader />;
+  }
 
   return (
     <>
