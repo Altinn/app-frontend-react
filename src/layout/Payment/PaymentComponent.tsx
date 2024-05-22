@@ -19,6 +19,7 @@ export const PaymentComponent = ({ node }) => {
   const paymentDoesNotExist = !paymentInfo?.paymentDetails;
   const { title, description } = node.item.textResourceBindings;
   const actionCalled = useRef(false);
+  const nextCalled = useRef(false);
 
   useEffect(() => {
     // if no paymentDetails exists, the payment has not been initiated, initiate it by calling the pay action
@@ -29,8 +30,9 @@ export const PaymentComponent = ({ node }) => {
   }, [paymentDoesNotExist, performPayment]);
 
   useEffect(() => {
-    if (paymentInfo?.status === PaymentStatus.Paid) {
-      next && next({ action: 'confirm', nodeId: 'next-button' });
+    if (paymentInfo?.status === PaymentStatus.Paid && next && !nextCalled.current) {
+      nextCalled.current = true;
+      next({ action: 'confirm', nodeId: 'next-button' });
     }
   }, [paymentInfo, next]);
 
