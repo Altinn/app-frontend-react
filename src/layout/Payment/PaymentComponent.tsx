@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { Alert, Button } from '@digdir/designsystemet-react';
 
@@ -15,20 +15,18 @@ export const PaymentComponent = ({ node }) => {
   const { partyId, instanceGuid } = useInstanceIdParams();
   const { next } = useProcessNavigation() || {};
   const paymentInfo = usePaymentInformation();
-  const performPayActionMutation = usePerformPayActionMutation(partyId, instanceGuid);
+  const { mutate: performPayment } = usePerformPayActionMutation(partyId, instanceGuid);
   const paymentDoesNotExist = !paymentInfo?.paymentDetails;
   const { title, description } = node.item.textResourceBindings;
-
-  // performPayActionMutation changes each render, so we need to destructure it to get the mutate function
-  // which does not change and is safe to use in the useEffect dependency array
-  const { mutate: performPayment } = performPayActionMutation;
+  const actionCalled = useRef(false);
 
   useEffect(() => {
     // if no paymentDetails exists, the payment has not been initiated, initiate it by calling the pay action
-    if (paymentDoesNotExist) {
+    if (paymentDoesNotExist && !actionCalled.current) {
+      actionCalled.current = true;
       performPayment();
     }
-  }, [performPayment, paymentDoesNotExist]);
+  }, [paymentDoesNotExist, performPayment]);
 
   useEffect(() => {
     if (paymentInfo?.status === PaymentStatus.Paid) {
