@@ -137,13 +137,7 @@ const common = {
         new CG.str().setTitle('Property').setDescription('The path to the property using dot-notation'),
       ),
     ),
-  IDataModelBinding: () =>
-    new CG.union(
-      new CG.str().setDeprecated(
-        'Defining `dataModelBindings` using strings will be removed in the next major version. Consider using the object definition instead.',
-      ),
-      CG.common('IDataModelReference'),
-    ),
+  IDataModelBinding: () => new CG.union(new CG.str(), CG.common('IDataModelReference')),
 
   // Data model bindings:
   IDataModelBindingsSimple: () =>
