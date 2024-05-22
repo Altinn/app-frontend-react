@@ -1,9 +1,9 @@
 import { useTextResourceOr } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useOrgs } from 'src/features/orgs/OrgsProvider';
+import { useOrgs } from 'src/hooks/queries/useOrgs';
 
 export function useAppLogoUrl() {
-  const orgs = useOrgs();
+  const { data: orgs } = useOrgs();
   const application = useApplicationMetadata();
   const org = application?.org;
 

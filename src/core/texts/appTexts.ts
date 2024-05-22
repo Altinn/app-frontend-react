@@ -5,7 +5,7 @@ import {
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useHasTextResources } from 'src/features/language/textResources/TextResourcesProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useHasOrgs, useOrgs } from 'src/features/orgs/OrgsProvider';
+import { useOrgs } from 'src/hooks/queries/useOrgs';
 
 export function useTextResourceOr<T extends string | undefined>(resource: string, fallback: T): string | T {
   const { langAsString } = useLanguage();
@@ -20,10 +20,9 @@ export function useTextResourceOr<T extends string | undefined>(resource: string
 
 export function useHasAppTextsYet() {
   const hasAppMetadata = useHasApplicationMetadata();
-  const hasOrgs = useHasOrgs();
   const hasTexts = useHasTextResources();
 
-  return hasAppMetadata && hasOrgs && hasTexts;
+  return hasAppMetadata && hasTexts;
 }
 
 export function useAppName() {
@@ -56,10 +55,10 @@ export function useAppLogoAltText() {
 }
 
 function useOrgName(org: string | undefined) {
-  const orgs = useOrgs();
+  const { data: orgs } = useOrgs();
   const currentLanguage = useCurrentLanguage();
 
-  if (orgs && typeof org === 'string' && orgs[org]) {
+  if (orgs && org && org in orgs) {
     return orgs[org].name[currentLanguage] || orgs[org].name.nb;
   }
 

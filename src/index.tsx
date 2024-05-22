@@ -30,7 +30,6 @@ import { InstantiationProvider } from 'src/features/instantiate/InstantiationCon
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
-import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { AppPrefetcher } from 'src/queries/appPrefetcher';
@@ -40,17 +39,6 @@ import * as queries from 'src/queries/queries';
 import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
 import '@digdir/designsystemet-theme/brand/altinn/tokens.css';
-
-const router = createHashRouter([
-  {
-    path: '*',
-    element: (
-      <ErrorBoundary>
-        <Root />
-      </ErrorBoundary>
-    ),
-  },
-]);
 
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('root');
@@ -77,6 +65,17 @@ document.addEventListener('DOMContentLoaded', () => {
   );
 });
 
+const router = createHashRouter([
+  {
+    path: '*',
+    element: (
+      <ErrorBoundary>
+        <Root />
+      </ErrorBoundary>
+    ),
+  },
+]);
+
 function Root() {
   return (
     <InstantiationProvider>
@@ -85,26 +84,24 @@ function Root() {
           <LayoutSetsProvider>
             <ProfileProvider>
               <TextResourcesProvider>
-                <OrgsProvider>
-                  <ApplicationSettingsProvider>
-                    <FooterLayoutProvider>
-                      <PartyProvider>
-                        <KeepAliveProvider>
-                          <WindowTitleProvider>
-                            <App />
-                            <ToastContainer
-                              position='top-center'
-                              theme='colored'
-                              transition={Slide}
-                              draggable={false}
-                            />
-                            <ScrollRestoration />
-                          </WindowTitleProvider>
-                        </KeepAliveProvider>
-                      </PartyProvider>
-                    </FooterLayoutProvider>
-                  </ApplicationSettingsProvider>
-                </OrgsProvider>
+                <ApplicationSettingsProvider>
+                  <FooterLayoutProvider>
+                    <PartyProvider>
+                      <KeepAliveProvider>
+                        <WindowTitleProvider>
+                          <App />
+                          <ToastContainer
+                            position='top-center'
+                            theme='colored'
+                            transition={Slide}
+                            draggable={false}
+                          />
+                          <ScrollRestoration />
+                        </WindowTitleProvider>
+                      </KeepAliveProvider>
+                    </PartyProvider>
+                  </FooterLayoutProvider>
+                </ApplicationSettingsProvider>
               </TextResourcesProvider>
             </ProfileProvider>
             <PartyPrefetcher />

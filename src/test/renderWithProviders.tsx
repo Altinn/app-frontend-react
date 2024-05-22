@@ -37,7 +37,6 @@ import { InstantiationProvider } from 'src/features/instantiate/InstantiationCon
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
-import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
@@ -105,9 +104,7 @@ export function queryPromiseMock<T extends keyof AppQueriesContext>(_name: T) {
 
 export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   makeMock: T,
-): {
-  [fn in keyof AppMutations]: ReturnType<T>;
-} => ({
+): Record<keyof AppMutations, ReturnType<T>> => ({
   doAttachmentAddTag: makeMock('doAttachmentAddTag'),
   doAttachmentRemove: makeMock('doAttachmentRemove'),
   doAttachmentRemoveTag: makeMock('doAttachmentRemoveTag'),
@@ -278,21 +275,19 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
                 <Router>
                   <ApplicationMetadataProvider>
                     <GlobalFormDataReadersProvider>
-                      <OrgsProvider>
-                        <ApplicationSettingsProvider>
-                          <LayoutSetsProvider>
-                            <ProfileProvider>
-                              <PartyProvider>
-                                <TextResourcesProvider>
-                                  <FooterLayoutProvider>
-                                    <InstantiationProvider>{children}</InstantiationProvider>
-                                  </FooterLayoutProvider>
-                                </TextResourcesProvider>
-                              </PartyProvider>
-                            </ProfileProvider>
-                          </LayoutSetsProvider>
-                        </ApplicationSettingsProvider>
-                      </OrgsProvider>
+                      <ApplicationSettingsProvider>
+                        <LayoutSetsProvider>
+                          <ProfileProvider>
+                            <PartyProvider>
+                              <TextResourcesProvider>
+                                <FooterLayoutProvider>
+                                  <InstantiationProvider>{children}</InstantiationProvider>
+                                </FooterLayoutProvider>
+                              </TextResourcesProvider>
+                            </PartyProvider>
+                          </ProfileProvider>
+                        </LayoutSetsProvider>
+                      </ApplicationSettingsProvider>
                     </GlobalFormDataReadersProvider>
                   </ApplicationMetadataProvider>
                 </Router>
