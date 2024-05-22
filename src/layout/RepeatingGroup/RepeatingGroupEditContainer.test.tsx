@@ -8,6 +8,7 @@ import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import {
   RepeatingGroupProvider,
   useRepeatingGroup,
+  useRepeatingGroupRowState,
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
@@ -133,7 +134,7 @@ describe('RepeatingGroupsEditContainer', () => {
 
 function TestRenderer() {
   const editingId = useRepeatingGroupSelector((state) => state.editingId);
-  const { visibleRows } = useRepeatingGroup();
+  const { visibleRows } = useRepeatingGroupRowState();
   const editingIndex = visibleRows.find((r) => r.uuid === editingId)?.index;
   const { openForEditing } = useRepeatingGroup();
 

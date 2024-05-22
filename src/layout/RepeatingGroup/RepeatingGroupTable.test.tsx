@@ -9,7 +9,7 @@ import { getFormLayoutRepeatingGroupMock } from 'src/__mocks__/getFormLayoutGrou
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import {
   RepeatingGroupProvider,
-  useRepeatingGroup,
+  useRepeatingGroupRowState,
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
@@ -207,7 +207,7 @@ describe('RepeatingGroupTable', () => {
 
 function LeakEditIndex() {
   const editingId = useRepeatingGroupSelector((state) => state.editingId);
-  const { visibleRows } = useRepeatingGroup();
+  const { visibleRows } = useRepeatingGroupRowState();
   const editingIndex = visibleRows.find((r) => r.uuid === editingId)?.index;
   return <div data-testid='editIndex'>{editingIndex === undefined ? 'undefined' : editingIndex}</div>;
 }

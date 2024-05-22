@@ -9,7 +9,7 @@ import cn from 'classnames';
 import { Lang } from 'src/features/language/Lang';
 import { GenericComponentByRef } from 'src/layout/GenericComponent';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
-import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import { useRepeatingGroup, useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import {
   RepeatingGroupEditRowProvider,
   useRepeatingGroupEdit,
@@ -55,7 +55,8 @@ function RepeatingGroupsEditContainerInternal({
   group: CompInternal<'RepeatingGroup'>;
   row: CompInternal<'RepeatingGroup'>['rows'][number];
 }): JSX.Element | null {
-  const { node, closeForEditing, deleteRow, openNextForEditing, isDeleting, visibleRows } = useRepeatingGroup();
+  const { node, closeForEditing, deleteRow, openNextForEditing, isDeleting } = useRepeatingGroup();
+  const { visibleRows } = useRepeatingGroupRowState();
 
   const editingRowIndex = visibleRows.find((r) => r.uuid === editId)?.index;
   let moreVisibleRowsAfterEditIndex = false;

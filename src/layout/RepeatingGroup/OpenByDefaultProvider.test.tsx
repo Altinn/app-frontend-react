@@ -8,6 +8,7 @@ import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import {
   RepeatingGroupProvider,
   useRepeatingGroup,
+  useRepeatingGroupRowState,
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { renderWithNode } from 'src/test/renderWithProviders';
@@ -33,7 +34,8 @@ describe('openByDefault', () => {
       editingId: state.editingId,
       addingIds: state.addingIds,
     }));
-    const { deleteRow, visibleRows, hiddenRows } = useRepeatingGroup();
+    const { deleteRow } = useRepeatingGroup();
+    const { visibleRows, hiddenRows } = useRepeatingGroupRowState();
 
     const data = FD.useDebouncedPick('MyGroup');
     return (

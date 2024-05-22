@@ -12,7 +12,12 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroupContainer.module.css';
-import { useRepeatingGroup, useRepeatingGroupSelector } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import {
+  useRepeatingGroup,
+  useRepeatingGroupPagination,
+  useRepeatingGroupRowState,
+  useRepeatingGroupSelector,
+} from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/RepeatingGroupPagination';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
@@ -22,7 +27,8 @@ import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
 export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HTMLDivElement>): JSX.Element | null => {
-  const { node, rowsToDisplay } = useRepeatingGroup();
+  const { node } = useRepeatingGroup();
+  const { rowsToDisplay } = useRepeatingGroupPagination();
   const { editingId } = useRepeatingGroupSelector((state) => ({
     editingId: state.editingId,
   }));
@@ -107,7 +113,8 @@ RepeatingGroupContainer.displayName = 'RepeatingGroupContainer';
 function AddButton() {
   const { lang, langAsString } = useLanguage();
   const { triggerFocus } = useRepeatingGroupsFocusContext();
-  const { node, addRow, visibleRows } = useRepeatingGroup();
+  const { node, addRow } = useRepeatingGroup();
+  const { visibleRows } = useRepeatingGroupRowState();
   const { editingAll, editingNone, editingId, currentlyAddingRow } = useRepeatingGroupSelector((state) => ({
     editingAll: state.editingAll,
     editingNone: state.editingNone,

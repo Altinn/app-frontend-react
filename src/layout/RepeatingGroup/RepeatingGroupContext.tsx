@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -10,7 +10,6 @@ import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAt
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useOnGroupCloseValidation } from 'src/features/validation/callbacks/onGroupCloseValidation';
-import { useAsRef } from 'src/hooks/useAsRef';
 import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/OpenByDefaultProvider';
 import { useNodeItem, useNodeItemRef, useWaitForNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
@@ -36,11 +35,6 @@ interface ZustandHiddenMethods {
 }
 
 interface ExtendedState {
-  // If this is true, we're rendering the group for the first time in this context. This is used to
-  // determine whether we should open the first/last row for editing when first displaying the group. If, however,
-  // we run that effect every time the group is re-rendered, the user would be unable to close the row for editing.
-  isFirstRender: boolean;
-
   // Methods for getting/setting state about which rows are in edit mode
   toggleEditing: (uuid: string) => void;
   openForEditing: (uuid: string) => void;
@@ -64,7 +58,7 @@ interface ContextMethods extends ExtendedState {
 }
 
 type ZustandState = Store & ZustandHiddenMethods & Omit<ExtendedState, 'toggleEditing'>;
-type ExtendedContext = ContextMethods & Props & NodeState & PaginationState;
+type ExtendedContext = ContextMethods & Props;
 
 const ZStore = createZustandContext({
   name: 'RepeatingGroupZ',
@@ -318,12 +312,9 @@ function newStore({ editMode, pagination, rowsRef }: NewStoreProps) {
 }
 
 function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): ExtendedContext {
-  const state = ZStore.useSelector((state) => state);
-  const stateRef = useAsRef(state);
-  const pagination = useNodeItem(node, (i) => i.pagination);
+  const stateRef = ZStore.useSelectorAsRef((state) => state);
   const validateOnSaveRow = useNodeItem(node, (i) => i.validateOnSaveRow);
   const groupBinding = useNodeItem(node, (i) => i.dataModelBindings.group);
-  const rows = useNodeItem(node, (i) => i.rows);
 
   const appendToList = FD.useAppendToList();
   const removeFromList = FD.useRemoveFromListCallback();
@@ -332,31 +323,11 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
 
   const waitForItem = useWaitForNodeItem(node);
 
-  const nodeState = produceStateFromRows(rows);
-  const nodeStateRef = useAsRef(nodeState);
-  const paginationState = producePaginationState(state.currentPage, pagination, nodeState.visibleRows);
-  const paginationStateRef = useAsRef(paginationState);
-  const [isFirstRender, setIsFirstRender] = useState(true);
-
-  useLayoutEffect(() => {
-    setIsFirstRender(false);
-  }, []);
-
-  const editingId = state.editingId;
-  const editingIsHidden = editingId !== undefined && !nodeState.visibleRows.some((row) => row.uuid === editingId);
-  useEffect(() => {
-    if (editingId !== undefined && editingIsHidden) {
-      stateRef.current.closeForEditing(editingId);
-    }
-  }, [editingId, editingIsHidden, stateRef]);
-
-  // If rows are deleted so that the current pagination page no longer exists, go to the last page instead
-  const { currentPage, totalPages, hasPagination } = paginationState;
-  useEffect(() => {
-    if (hasPagination && currentPage > totalPages - 1) {
-      stateRef.current.changePage(totalPages - 1);
-    }
-  }, [currentPage, totalPages, stateRef, hasPagination]);
+  const nodeStateRef = useNodeItemRef(node, (i) => produceStateFromRows(i.rows));
+  const paginationStateRef = useNodeItemRef(node, (i) => {
+    const nodeState = produceStateFromRows(i.rows);
+    return producePaginationState(stateRef.current.currentPage, i.pagination, nodeState.visibleRows);
+  });
 
   const maybeValidateRow = useCallback(() => {
     const { editingAll, editingId, editingNone } = stateRef.current;
@@ -517,12 +488,37 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     openForEditing,
     openNextForEditing,
     toggleEditing,
-    isFirstRender,
     changePage,
     changePageToRow,
-    ...nodeState,
-    ...paginationState,
   };
+}
+
+function EffectCloseEditing() {
+  const editingId = ZStore.useSelector((state) => state.editingId);
+  const closeForEditing = ZStore.useSelector((state) => state.closeForEditing);
+  const nodeState = useRepeatingGroupRowState();
+  const editingIsHidden = editingId !== undefined && !nodeState.visibleRows.some((row) => row.uuid === editingId);
+  useEffect(() => {
+    if (editingId !== undefined && editingIsHidden) {
+      closeForEditing(editingId);
+    }
+  }, [closeForEditing, editingId, editingIsHidden]);
+
+  return null;
+}
+
+function EffectPagination() {
+  // If rows are deleted so that the current pagination page no longer exists, go to the last page instead
+  const changePage = ZStore.useSelector((state) => state.changePage);
+  const paginationState = useRepeatingGroupPagination();
+  const { currentPage, totalPages, hasPagination } = paginationState;
+  useEffect(() => {
+    if (hasPagination && currentPage > totalPages - 1) {
+      changePage(totalPages - 1);
+    }
+  }, [currentPage, totalPages, hasPagination, changePage]);
+
+  return null;
 }
 
 function ProvideTheRest({ node, children }: PropsWithChildren<Props>) {
@@ -545,6 +541,8 @@ export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Pro
       editMode={editMode}
     >
       <ProvideTheRest node={node}>
+        <EffectCloseEditing />
+        <EffectPagination />
         <OpenByDefaultProvider node={node}>{children}</OpenByDefaultProvider>
       </ProvideTheRest>
     </ZStore.Provider>
@@ -553,6 +551,21 @@ export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Pro
 
 export const useRepeatingGroup = () => ExtendedStore.useCtx();
 export const useRepeatingGroupNode = () => ExtendedStore.useCtx().node;
+
+export const useRepeatingGroupRowState = () => {
+  const node = useRepeatingGroupNode();
+  const rows = useNodeItem(node, (i) => i.rows);
+  return produceStateFromRows(rows);
+};
+
+export const useRepeatingGroupPagination = () => {
+  const node = useRepeatingGroupNode();
+  const nodeState = useRepeatingGroupRowState();
+  const pagination = useNodeItem(node, (i) => i.pagination);
+  const currentPage = ZStore.useSelector((state) => state.currentPage);
+  return producePaginationState(currentPage, pagination, nodeState.visibleRows);
+};
+
 export function useRepeatingGroupSelector<T>(selector: (state: Store) => T): T {
   return ZStore.useMemoSelector(selector);
 }

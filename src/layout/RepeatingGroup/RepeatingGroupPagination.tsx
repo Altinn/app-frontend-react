@@ -7,7 +7,11 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { filterValidations, selectValidations } from 'src/features/validation/utils';
 import { useIsMini, useIsMobile, useIsMobileOrTablet } from 'src/hooks/useIsMobile';
-import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import {
+  useRepeatingGroup,
+  useRepeatingGroupPagination,
+  useRepeatingGroupRowState,
+} from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroupPagination.module.css';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -24,7 +28,8 @@ interface RepeatingGroupPaginationProps {
  * Specifically, usePagesWithErrors and useRowStructure would be doing unecessary work
  */
 export function RepeatingGroupPagination(props: RepeatingGroupPaginationProps) {
-  const { hasPagination, visibleRows, rowsPerPage } = useRepeatingGroup();
+  const { visibleRows } = useRepeatingGroupRowState();
+  const { hasPagination, rowsPerPage } = useRepeatingGroupPagination();
 
   if (!hasPagination || visibleRows.length <= rowsPerPage) {
     return null;
@@ -34,7 +39,8 @@ export function RepeatingGroupPagination(props: RepeatingGroupPaginationProps) {
 }
 
 function _RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationProps) {
-  const { hasPagination, rowsPerPage, currentPage, totalPages, changePage, node } = useRepeatingGroup();
+  const { changePage, node } = useRepeatingGroup();
+  const { hasPagination, rowsPerPage, currentPage, totalPages } = useRepeatingGroupPagination();
   const pagesWithErrors = usePagesWithErrors(rowsPerPage, node);
   const isTablet = useIsMobileOrTablet();
   const isMobile = useIsMobile();

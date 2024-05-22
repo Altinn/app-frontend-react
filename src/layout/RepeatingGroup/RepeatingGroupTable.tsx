@@ -10,7 +10,11 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
 import { useNodesFromGridRows } from 'src/layout/Grid/tools';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
-import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import {
+  useRepeatingGroup,
+  useRepeatingGroupPagination,
+  useRepeatingGroupRowState,
+} from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/RepeatingGroupPagination';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/RepeatingGroupTableRow';
@@ -24,7 +28,8 @@ import type { GridCellInternal } from 'src/layout/Grid/types';
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
-  const { node, isEditing, rowsToDisplay } = useRepeatingGroup();
+  const { node, isEditing } = useRepeatingGroup();
+  const { rowsToDisplay } = useRepeatingGroupPagination();
   const { textResourceBindings, labelSettings, id, edit, minCount, stickyHeader, tableColumns, rows, baseComponentId } =
     useNodeItem(node);
   const required = !!minCount && minCount > 0;
@@ -191,7 +196,8 @@ interface ExtraRowsProps {
 
 function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
   const mobileView = useIsMobileOrTablet();
-  const { visibleRows, node } = useRepeatingGroup();
+  const { node } = useRepeatingGroup();
+  const { visibleRows } = useRepeatingGroupRowState();
   const isEmpty = visibleRows.length === 0;
   const item = useNodeItem(node);
   const isNested = node.parent instanceof BaseLayoutNode;

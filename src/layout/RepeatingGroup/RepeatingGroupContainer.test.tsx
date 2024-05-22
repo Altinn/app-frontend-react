@@ -10,7 +10,7 @@ import { type BackendValidationIssue, BackendValidationSeverity } from 'src/feat
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
 import {
   RepeatingGroupProvider,
-  useRepeatingGroup,
+  useRepeatingGroupRowState,
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
@@ -348,7 +348,7 @@ describe('RepeatingGroupContainer', () => {
 
 function LeakEditIndex() {
   const editingId = useRepeatingGroupSelector((state) => state.editingId);
-  const { visibleRows } = useRepeatingGroup();
+  const { visibleRows } = useRepeatingGroupRowState();
   const editingIndex = visibleRows.find((r) => r.uuid === editingId)?.index;
   return <div data-testid='editIndex'>{editingIndex === undefined ? 'undefined' : editingIndex}</div>;
 }
