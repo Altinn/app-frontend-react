@@ -347,6 +347,7 @@ export class AppFrontend {
     textField1: '#Input-bhWSyO',
     textField2: '#Input-aWlSF3',
     addressField: '#Address-xdZ7PE',
+    chooseIndusty: '#choose-industry',
   };
 }
 
