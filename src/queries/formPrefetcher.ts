@@ -18,6 +18,9 @@ import {
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useOrderDetailsQueryDef } from 'src/features/payment/OrderDetailsProvider';
+import { usePaymentInformationQueryDef } from 'src/features/payment/PaymentInformationProvider';
+import { useHasPayment, useIsPayment } from 'src/features/payment/utils';
 import { usePdfFormatQueryDef } from 'src/features/pdf/usePdfFormatQuery';
 import { useBackendValidationQueryDef } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useIsPdf } from 'src/hooks/useIsPdf';
@@ -54,6 +57,10 @@ export function FormPrefetcher() {
   usePrefetchQuery(useLayoutSettingsQueryDef(layoutSetId));
   usePrefetchQuery(useDynamicsQueryDef(layoutSetId));
   usePrefetchQuery(useRulesQueryDef(layoutSetId));
+
+  // Prefetch payment data if applicable
+  usePrefetchQuery(usePaymentInformationQueryDef(useIsPayment(), instanceId));
+  usePrefetchQuery(useOrderDetailsQueryDef(useHasPayment(), instanceId));
 
   // Prefetch PDF format only if we are in PDF mode
   const isPDF = useIsPdf();
