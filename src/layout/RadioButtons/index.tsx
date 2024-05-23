@@ -5,8 +5,8 @@ import { Label, Paragraph } from '@digdir/designsystemet-react';
 
 import { Lang } from 'src/features/language/Lang';
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
-import classes from 'src/layout/Input/InputComponentSummary.module.css';
 import { RadioButtonsDef } from 'src/layout/RadioButtons/config.def.generated';
+import classes from 'src/layout/RadioButtons/ControlledRadioGroupSummary.module.css';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
