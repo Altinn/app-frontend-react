@@ -20,5 +20,8 @@ export function getExpressionDataSourcesMock(): ExpressionDataSources {
     nodeTraversal: () => {
       throw new Error('Not implemented: nodeTraversal()');
     },
+    transposeSelector: () => {
+      throw new Error('Not implemented: transposeSelector()');
+    },
   };
 }

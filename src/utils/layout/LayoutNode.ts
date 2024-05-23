@@ -1,5 +1,4 @@
 import { getComponentDef } from 'src/layout';
-import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { pickDataStorePath } from 'src/utils/layout/NodesContext';
 import type { CompClassMap, CompDef, NodeRef } from 'src/layout';
@@ -168,50 +167,6 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
 
     recurse(this as unknown as LayoutNode);
     return out as LayoutNode[];
-  }
-
-  private firstDataModelBinding() {
-    const item = this.item;
-    const firstBinding = Object.keys(item.dataModelBindings || {}).shift();
-    if (firstBinding && 'dataModelBindings' in item && item.dataModelBindings) {
-      return item.dataModelBindings[firstBinding];
-    }
-
-    return undefined;
-  }
-
-  /**
-   * This takes a dataModel path (without indexes) and alters it to add indexes such that the data model path refers
-   * to an item in the same repeating group row (or nested repeating group row) as the data model for the current
-   * component.
-   *
-   * Example: Let's say this component is in the second row of the first repeating group, and inside the third row
-   * of a nested repeating group. Our data model binding is such:
-   *    simpleBinding: 'MyModel.Group[1].NestedGroup[2].FirstName'
-   *
-   * If you pass the argument 'MyModel.Group.NestedGroup.Age' to this function, you'll get the
-   * transposed binding back: 'MyModel.Group[1].NestedGroup[2].Age'.
-   *
-   * If you pass the argument 'MyModel.Group[2].NestedGroup[3].Age' to this function, it will still be transposed to
-   * the current row indexes: 'MyModel.Group[1].NestedGroup[2].Age' unless you pass overwriteOtherIndices = false.
-   */
-  public transposeDataModel(dataModelPath: string, rowIndex?: number): string {
-    const firstBinding = this.firstDataModelBinding();
-    if (!firstBinding) {
-      if (this.parent instanceof BaseLayoutNode) {
-        return this.parent.transposeDataModel(dataModelPath, this.row?.index);
-      }
-
-      return dataModelPath;
-    }
-
-    const currentLocationIsRepGroup = this.isType('RepeatingGroup');
-    return transposeDataBinding({
-      subject: dataModelPath,
-      currentLocation: firstBinding,
-      rowIndex,
-      currentLocationIsRepGroup,
-    });
   }
 }
 

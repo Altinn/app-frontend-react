@@ -171,7 +171,7 @@ function functionResult(renderCount = 1, previous?: string) {
   return new RegExp(`Counter = ${expectedState}, random = \\d+\\.\\d+, render = ${renderCount}`);
 }
 
-describe('useDelayedMemoSelectorFactory', () => {
+describe('useDelayedSelectorFactory', () => {
   it('should cache according to cache key', async () => {
     render(<TestComponent />);
 

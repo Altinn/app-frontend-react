@@ -14,6 +14,7 @@ import { getComponentDef } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { Hidden } from 'src/utils/layout/NodesContext';
+import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import { useNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
@@ -54,6 +55,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
   const isHiddenSelector = Hidden.useIsHiddenSelector();
   const nodeDataSelector = useNodeFormDataSelector();
   const nodeTraversal = useNodeTraversalSelectorLax();
+  const transposeSelector = useDataModelBindingTranspose();
 
   return useMemo(
     () => ({
@@ -72,6 +74,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
       isHiddenSelector,
       nodeDataSelector,
       nodeTraversal,
+      transposeSelector,
     }),
     [
       formDataSelector,
@@ -89,6 +92,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
       isHiddenSelector,
       nodeDataSelector,
       nodeTraversal,
+      transposeSelector,
     ],
   );
 }

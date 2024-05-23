@@ -43,7 +43,7 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
   const { group, value, label, helpText, description } = source;
   const cleanValue = getKeyWithoutIndexIndicators(value);
   const cleanGroup = getKeyWithoutIndexIndicators(group);
-  const groupPath = node.transposeDataModel(cleanGroup) || group;
+  const groupPath = dataSources.transposeSelector(node, cleanGroup) || group;
   const output: IOptionInternal[] = [];
 
   if (groupPath) {

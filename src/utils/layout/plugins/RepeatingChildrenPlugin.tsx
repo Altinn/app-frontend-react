@@ -228,19 +228,17 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     childId: string,
     parentPath: string[],
   ): ReturnType<CompDef<C>['stateFactory']> {
-    const { baseComponentId } = splitDashedKey(childId);
+    const { baseComponentId, depth } = splitDashedKey(childId);
+    const lastIndex = depth[depth.length - 1];
     let child: NodeData<C> | undefined;
 
     // TODO: Try to include the row ID in the child ID (using new internal node IDs?) so that this lookup is more
     // effective.
     const rows = state[this.settings.internalProp] as InternalRowState<E>;
     for (const row of Object.values(rows)) {
-      if (row && row.children && row.children[baseComponentId]) {
+      if (row && row.index === lastIndex && row.children && row.children[baseComponentId]) {
         child = row.children[baseComponentId] as NodeData<C>;
-        if (child?.item?.id === childId) {
-          break;
-        }
-        child = undefined;
+        break;
       }
     }
 

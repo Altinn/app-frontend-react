@@ -36,7 +36,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExactNodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { BaseRow, NodeData, StateFactoryProps } from 'src/utils/layout/types';
-import type { NodeDataSelector } from 'src/utils/layout/useNodeItem';
+import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface BasicNodeGeneratorProps {
@@ -232,7 +232,7 @@ export interface SummaryRendererProps<Type extends CompTypes> {
   summaryNode: LayoutNode<'Summary'>;
   targetNode: LayoutNode<Type>;
   formDataSelector: FormDataSelector;
-  nodeDataSelector: NodeDataSelector;
+  nodeDataSelector: NodeFormDataSelector;
   onChangeClick: () => void;
   changeText: string | null;
   overrides?: ISummaryComponent['overrides'];

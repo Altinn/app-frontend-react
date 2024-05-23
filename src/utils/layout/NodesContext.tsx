@@ -18,6 +18,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
 import { UpdateExpressionValidation } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
+import { SelectorStrictness, useDelayedSelectorFactory } from 'src/hooks/delayedSelectors';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
@@ -37,6 +38,7 @@ import {
 } from 'src/utils/layout/useNodeTraversal';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
+import type { OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes } from 'src/layout/layout';
@@ -123,6 +125,8 @@ type ExtraHooks = AllFlat<{
 }>;
 
 export type NodesDataContext = {
+  addRemoveCounter: number;
+  ready: boolean;
   pages: PageHierarchy;
   addNode: <N extends LayoutNode>(node: N, targetState: any, row: BaseRow | undefined) => void;
   removeNode: (node: LayoutNode, row: BaseRow | undefined) => void;
@@ -136,20 +140,23 @@ export type NodesDataContext = {
   addPage: (pageKey: string) => void;
   removePage: (pageKey: string) => void;
   setPageProp: <K extends keyof PageData>(pageKey: string, prop: K, value: PageData[K]) => void;
+  markReady: () => void;
 } & ExtraFunctions;
 
 export type NodesDataStore = StoreApi<NodesDataContext>;
 export function createNodesDataStore() {
   return createStore<NodesDataContext>()(
     immer((set) => ({
+      addRemoveCounter: 0,
+      ready: false,
       pages: {
         type: 'pages' as const,
         pages: {},
       },
       addNode: (node, targetState, row) =>
-        set((s) => {
+        set((state) => {
           const parentPath = node.path.slice(0, -1);
-          const parent = pickDataStorePath(s.pages, parentPath);
+          const parent = pickDataStorePath(state.pages, parentPath);
           if (parent.type === 'page') {
             const id = node.getId();
             if (parent.topLevelNodes[id]) {
@@ -160,18 +167,26 @@ export function createNodesDataStore() {
             const def = getComponentDef(parent.layout.type);
             def.addChild(parent as any, node, targetState, row);
           }
+          if (state.ready) {
+            state.ready = false;
+          }
+          state.addRemoveCounter += 1;
         }),
       removeNode: (node, row) =>
-        set((s) => {
+        set((state) => {
           const parentPath = node.path.slice(0, -1);
           try {
-            const parent = pickDataStorePath(s.pages, parentPath);
+            const parent = pickDataStorePath(state.pages, parentPath);
             if (parent.type === 'page') {
               delete parent.topLevelNodes[node.getId()];
             } else {
               const def = getComponentDef(parent.layout.type);
               def.removeChild(parent as any, node, row);
             }
+            if (state.ready) {
+              state.ready = false;
+            }
+            state.addRemoveCounter += 1;
           } catch (e) {
             if (e instanceof NodePathNotFound) {
               return;
@@ -211,15 +226,27 @@ export function createNodesDataStore() {
             },
             topLevelNodes: {},
           };
+          if (state.ready) {
+            state.ready = false;
+          }
+          state.addRemoveCounter += 1;
         }),
       removePage: (pageKey) =>
         set((state) => {
           delete state.pages.pages[pageKey];
+          if (state.ready) {
+            state.ready = false;
+          }
+          state.addRemoveCounter += 1;
         }),
       setPageProp: (pageKey, prop, value) =>
         set((state) => {
           const obj = state.pages.pages[pageKey];
           Object.assign(obj, { [prop]: value });
+        }),
+      markReady: () =>
+        set((state) => {
+          state.ready = true;
         }),
 
       ...(Object.values(DataStorePlugins)
@@ -243,16 +270,17 @@ const DataStore = createZustandContext<NodesDataStore, NodesDataContext>({
 export type NodesDataStoreFull = typeof DataStore;
 
 export const NodesProvider = (props: React.PropsWithChildren) => (
-  <NodeStagesProvider>
-    <NodesStore.Provider>
-      <DataStore.Provider>
+  <NodesStore.Provider>
+    <DataStore.Provider>
+      <NodeStagesProvider>
         <NodesGenerator />
-        <InnerHiddenComponentsProvider />
-        <UpdateExpressionValidation />
-        <BlockUntilLoaded>{props.children}</BlockUntilLoaded>
-      </DataStore.Provider>
-    </NodesStore.Provider>
-  </NodeStagesProvider>
+      </NodeStagesProvider>
+      <InnerHiddenComponentsProvider />
+      <UpdateExpressionValidation />
+      <MarkAsReady />
+      <BlockUntilLoaded>{props.children}</BlockUntilLoaded>
+    </DataStore.Provider>
+  </NodesStore.Provider>
 );
 
 function InnerHiddenComponentsProvider() {
@@ -264,8 +292,32 @@ function InnerHiddenComponentsProvider() {
   return null;
 }
 
+/**
+ * Some selectors (like NodeTraversal) only re-runs when the data store is 'ready', and when nodes start being added
+ * or removed, the store is marked as not ready. This component will mark the store as ready when all nodes are added,
+ * by waiting until after the render effects are done.
+ *
+ * This causes the node traversal selectors to re-run only when all nodes in a new repeating group row (and similar)
+ * have been added.
+ */
+function MarkAsReady() {
+  const markReady = DataStore.useSelector((s) => s.markReady);
+  const isReady = DataStore.useSelector((s) => s.ready);
+  const hasNodes = NodesStore.useSelector((state) => !!state.nodes);
+  const shouldMarkAsReady = hasNodes && !isReady;
+
+  useEffect(() => {
+    if (shouldMarkAsReady) {
+      markReady();
+    }
+  }, [shouldMarkAsReady, markReady]);
+
+  return null;
+}
+
 function BlockUntilLoaded({ children }: PropsWithChildren) {
   const hasNodes = NodesStore.useSelector((state) => !!state.nodes);
+
   if (!hasNodes) {
     return <NodesLoader />;
   }
@@ -484,13 +536,31 @@ export type ExactNodeDataSelector = ReturnType<typeof NodesInternal.useExactNode
  * A set of tools, selectors and functions to use internally in node generator components.
  */
 export const NodesInternal = {
-  useNodeDataMemoLaxRaw<Out>(selector: (state: NodesDataContext) => Out): Out | typeof ContextNotProvided {
-    return DataStore.useLaxMemoSelector((state) => selector(state));
-  },
-  useNodeDataMemoSelectorLaxRaw() {
-    return DataStore.useLaxDelayedMemoSelectorFactory(
-      (selector: <U>(state: NodesDataContext) => U) => (state) => selector(state),
-    );
+  /**
+   * This is a special selector that will only re-render when the number of nodes that have been added/removed
+   * increases AND the selector would return a different result.
+   *
+   * This is useful for node traversal, which only needs to re-run when a node is added or removed, but don't care about
+   * expressions that are solved within. Also, the selectors will always return ContextNotProvided when the nodes
+   * are not ready yet.
+   */
+  useDataSelectorForTraversal(onlyWhenReady = true) {
+    return useDelayedSelectorFactory({
+      store: DataStore.useStore(),
+      strictness: SelectorStrictness.returnWhenNotProvided,
+      onlyReRenderWhen: ((state, lastValue, setNewValue) => {
+        if (!state.ready && onlyWhenReady) {
+          return false;
+        }
+        if (lastValue !== state.addRemoveCounter) {
+          setNewValue(state.addRemoveCounter);
+          return true;
+        }
+        return false;
+      }) satisfies OnlyReRenderWhen<NodesDataContext, number>,
+      primarySelector: (selector: <U>(state: NodesDataContext) => U) => (state) =>
+        state.ready || !onlyWhenReady ? selector(state) : ContextNotProvided,
+    });
   },
 
   useNodeDataMemo<N extends LayoutNode | LayoutPage | undefined, Out>(

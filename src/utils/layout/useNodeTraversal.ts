@@ -8,7 +8,7 @@ import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesInternal, pickDataStorePath, useNodesLax } from 'src/utils/layout/NodesContext';
 import type { NodeRef } from 'src/layout';
-import type { ParentNode } from 'src/layout/layout';
+import type { CompTypes, ParentNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { PageData, PageHierarchy } from 'src/utils/layout/NodesContext';
 import type { NodeData } from 'src/utils/layout/types';
@@ -131,7 +131,7 @@ export class NodeTraversal<T extends Node = LayoutPages> {
   constructor(
     private readonly state: PageHierarchy,
     private readonly rootNode: LayoutPages,
-    private readonly target: T,
+    public readonly target: T,
   ) {}
 
   /**
@@ -143,6 +143,13 @@ export class NodeTraversal<T extends Node = LayoutPages> {
 
   targetIsRoot(): this is NodeTraversalFromRoot {
     return this.target === this.rootNode;
+  }
+
+  targetIsNode<T extends CompTypes | undefined>(
+    ofType?: T,
+  ): this is NodeTraversalFromNode<T extends CompTypes ? LayoutNode<T> : LayoutNode> {
+    const target = this.target as any;
+    return target instanceof BaseLayoutNode && (!ofType || target.isType(ofType));
   }
 
   /**
@@ -271,6 +278,7 @@ export type NodeTraversalFrom<N extends Node> = N extends LayoutPages
       ? NodeTraversalFromNode<N>
       : never;
 
+export type NodeTraversalFromAny = NodeTraversalFromRoot | NodeTraversalFromPage | NodeTraversalFromNode<LayoutNode>;
 export type NodeTraversalFromRoot = Omit<NodeTraversal, 'parents'>;
 export type NodeTraversalFromPage = Omit<NodeTraversal<LayoutPage>, 'allNodes' | 'findPage'>;
 export type NodeTraversalFromNode<N extends LayoutNode> = Omit<
@@ -298,15 +306,19 @@ type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictn
 
 function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: never, strictness?: Strictness): Out {
   const nodes = useNodesLax();
-  const out = NodesInternal.useNodeDataMemoLaxRaw((state) => {
-    if (!nodes || nodes === ContextNotProvided) {
-      return ContextNotProvided;
-    }
+  const dataSelector = NodesInternal.useDataSelectorForTraversal();
+  const out = dataSelector(
+    (state) => {
+      if (!nodes || nodes === ContextNotProvided) {
+        return ContextNotProvided;
+      }
 
-    return node === undefined
-      ? (selector as any)(new NodeTraversal(state.pages, nodes, nodes))
-      : (selector as any)(new NodeTraversal(state.pages, nodes, node));
-  });
+      return node === undefined
+        ? (selector as any)(new NodeTraversal(state.pages, nodes, nodes))
+        : (selector as any)(new NodeTraversal(state.pages, nodes, node));
+    },
+    [nodes, node],
+  );
 
   if (out === ContextNotProvided) {
     if (strictness === Strictness.throwError) {
@@ -389,14 +401,14 @@ export function useNodeTraversalSilent<Out>(selector: (traverser: never) => Out,
  */
 function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: Strict) {
   const nodes = useNodesLax();
-  const selectState = NodesInternal.useNodeDataMemoSelectorLaxRaw();
+  const selectState = NodesInternal.useDataSelectorForTraversal();
 
   return useCallback(
     <U>(
       innerSelector: (traverser: NodeTraversalFromRoot) => InnerSelectorReturns<Strict, U>,
       deps: any[],
     ): InnerSelectorReturns<Strict, U> => {
-      if (selectState === ContextNotProvided || !nodes || nodes === ContextNotProvided) {
+      if (!nodes || nodes === ContextNotProvided) {
         if (strictness === Strictness.returnContextNotProvided) {
           return ContextNotProvided as any;
         }

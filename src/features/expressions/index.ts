@@ -456,7 +456,7 @@ export const ExprFunctions = {
 
       const maybeNode = this.failWithoutNode();
       if (maybeNode instanceof BaseLayoutNode) {
-        const newPath = maybeNode?.transposeDataModel(path);
+        const newPath = this.dataSources.transposeSelector(maybeNode as LayoutNode, path);
         return pickSimpleValue(newPath, this.dataSources.formDataSelector);
       }
 

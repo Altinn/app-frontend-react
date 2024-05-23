@@ -15,7 +15,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/useNodeItem';
+import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 
 export class MultipleSelect extends MultipleSelectDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'MultipleSelect'>>(
@@ -28,7 +28,7 @@ export class MultipleSelect extends MultipleSelectDef {
     node: LayoutNode<'MultipleSelect'>,
     langTools: IUseLanguage,
     optionsSelector: NodeOptionsSelector,
-    nodeDataSelector: NodeDataSelector,
+    nodeDataSelector: NodeFormDataSelector,
   ): { [key: string]: string } {
     const data = nodeDataSelector(node);
     if (!data.simpleBinding) {

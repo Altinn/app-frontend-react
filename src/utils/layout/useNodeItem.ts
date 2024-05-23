@@ -42,7 +42,10 @@ const selectNodeItem = <T extends CompTypes>(data: NodeData<T>): NodeItem<T> | u
 export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
   node: N,
 ): WaitForState<NodeItemFromNode<N> | undefined, RetVal> {
-  return NodesInternal.useWaitForNodeData(node, selectNodeItem);
+  return NodesInternal.useWaitForNodeData(node, selectNodeItem) as WaitForState<
+    NodeItemFromNode<N> | undefined,
+    RetVal
+  >;
 }
 
 export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): NodeRef[] | undefined {
@@ -65,7 +68,7 @@ export function useNodeFormData<N extends LayoutNode | undefined>(node: N): Node
   );
 }
 
-export type NodeDataSelector = ReturnType<typeof useNodeFormDataSelector>;
+export type NodeFormDataSelector = ReturnType<typeof useNodeFormDataSelector>;
 export function useNodeFormDataSelector() {
   const nodeSelector = NodesInternal.useNodeDataMemoSelector();
   const formDataSelector = FD.useDebouncedSelector();
