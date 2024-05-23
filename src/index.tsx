@@ -34,6 +34,8 @@ import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
+import { AppPrefetcher } from 'src/queries/appPrefetcher';
+import { PartyPrefetcher } from 'src/queries/partyPrefetcher';
 import * as queries from 'src/queries/queries';
 
 import 'react-toastify/dist/ReactToastify.css';
@@ -58,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const root = container && createRoot(container);
   root?.render(
     <AppQueriesProvider {...queries}>
+      <AppPrefetcher />
       <ErrorBoundary>
         <AppWrapper>
           <LanguageProvider>
@@ -80,13 +83,13 @@ function Root() {
     <InstantiationProvider>
       <ApplicationMetadataProvider>
         <GlobalFormDataReadersProvider>
-          <OrgsProvider>
-            <ApplicationSettingsProvider>
-              <LayoutSetsProvider>
-                <FooterLayoutProvider>
-                  <ProfileProvider>
-                    <PartyProvider>
-                      <TextResourcesProvider>
+          <LayoutSetsProvider>
+            <ProfileProvider>
+              <TextResourcesProvider>
+                <OrgsProvider>
+                  <ApplicationSettingsProvider>
+                    <FooterLayoutProvider>
+                      <PartyProvider>
                         <KeepAliveProvider>
                           <WindowTitleProvider>
                             <App />
@@ -99,13 +102,14 @@ function Root() {
                             <ScrollRestoration />
                           </WindowTitleProvider>
                         </KeepAliveProvider>
-                      </TextResourcesProvider>
-                    </PartyProvider>
-                  </ProfileProvider>
-                </FooterLayoutProvider>
-              </LayoutSetsProvider>
-            </ApplicationSettingsProvider>
-          </OrgsProvider>
+                      </PartyProvider>
+                    </FooterLayoutProvider>
+                  </ApplicationSettingsProvider>
+                </OrgsProvider>
+              </TextResourcesProvider>
+            </ProfileProvider>
+            <PartyPrefetcher />
+          </LayoutSetsProvider>
         </GlobalFormDataReadersProvider>
       </ApplicationMetadataProvider>
     </InstantiationProvider>

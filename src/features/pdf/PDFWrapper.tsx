@@ -6,12 +6,12 @@ import cn from 'classnames';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { PDFView } from 'src/features/pdf/PDFView';
 import classes from 'src/features/pdf/PDFView.module.css';
-import { useQueryKey } from 'src/features/routing/AppRoutingContext';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 
 export function PDFWrapper({ children }: PropsWithChildren) {
   const previewPDF = useDevToolsStore((state) => state.pdfPreview);
   const setPdfPreview = useDevToolsStore((state) => state.actions.setPdfPreview);
-  const renderInstead = useQueryKey('pdf') === '1';
+  const renderInstead = useIsPdf();
 
   useEffect(() => {
     if (previewPDF) {

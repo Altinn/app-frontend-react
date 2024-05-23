@@ -240,7 +240,7 @@ function usePagesWithErrors(rowsPerPage: number | undefined, node: LayoutNode<'R
 
     const visibleRows: RepGroupRow[] = [];
     for (const row of rows) {
-      if (!row.groupExpressions.hiddenRow) {
+      if (!row.groupExpressions?.hiddenRow) {
         visibleRows.push(row);
       }
     }
