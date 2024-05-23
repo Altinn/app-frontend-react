@@ -13,7 +13,6 @@ import { useCustomValidationConfigQuery } from 'src/features/customValidation/us
 import { useCurrentDataModelName, useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSchemaQuery';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
-import { FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { InvalidDataTypeException } from 'src/features/formData/InvalidDataTypeException';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
@@ -133,9 +132,7 @@ export function DataModelsProvider({ children }: PropsWithChildren) {
   return (
     <Provider>
       <DataModelsLoader />
-      <BlockUntilLoaded>
-        <FormDataWriteProvider>{children}</FormDataWriteProvider>
-      </BlockUntilLoaded>
+      <BlockUntilLoaded>{children}</BlockUntilLoaded>
     </Provider>
   );
 }
