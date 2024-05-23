@@ -19,6 +19,9 @@ export class AppFrontend {
 
     /** @see https://dev.altinn.studio/repos/ttd/payment-test */
     paymentTest: 'payment-test',
+
+    /** @see https://dev.altinn.studio/repos/ttd/multiple-datamodels-test */
+    multipleDatamodelsTest: 'multiple-datamodels-test',
   };
 
   //Start app instance page
@@ -336,6 +339,11 @@ export class AppFrontend {
     bosted: '#bosted',
     groupTag: 'input[id^=attachment-tag]',
     uploaders: '[id^=Vedlegg-]',
+  };
+
+  public multipleDatamodelsTest = {
+    variableParagraph: '#variableParagraph',
+    repeatingParagraph: '[id^=repeatingParagraph]',
   };
 }
 
