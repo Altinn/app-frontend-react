@@ -163,7 +163,7 @@ describe('saving multiple data models', () => {
       .invoke('val')
       .should('be.empty');
 
-    cy.findByRole('checkbox', { name: /vellykket?/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /vellykket?/i }).click();
     cy.findByRole('button', { name: /få tilfeldige verdier/i }).click();
 
     cy.findByRole('textbox', { name: /tilfeldig tall/i })
@@ -198,13 +198,13 @@ describe('saving multiple data models', () => {
 
     cy.findAllByRole('radio', { name: /middels/i })
       .eq(0)
-      .dsCheck();
+      .click();
     cy.findAllByRole('radio', { name: /i liten grad/i })
       .eq(1)
-      .dsCheck();
+      .click();
     cy.findAllByRole('radio', { name: /i stor grad/i })
       .eq(2)
-      .dsCheck();
+      .click();
 
     cy.waitUntilSaved();
     cy.then(() => expect(formDataRequests.length).to.be.eq(1));
@@ -228,24 +228,29 @@ describe('saving multiple data models', () => {
 
     cy.gotoNavPage('Side2');
 
-    cy.findByRole('radio', { name: /offentlig sektor/i }).dsCheck();
+    cy.findByRole('radio', { name: /offentlig sektor/i }).click();
     cy.waitUntilSaved();
 
     cy.then(() => expect(formDataRequests.length).to.be.eq(1));
 
-    cy.findByRole('checkbox', { name: /statlig/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /statlig/i }).click();
     cy.waitUntilSaved();
     cy.then(() => expect(formDataRequests.length).to.be.eq(2));
     cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(2));
     cy.then(() => formDataRequests.splice(0, formDataRequests.length)); // Clear requests
 
-    cy.findByRole('radio', { name: /privat/i }).dsCheck();
-    cy.findByRole('checkbox', { name: /forskning og utvikling/i }).should('exist');
+    cy.findByRole('radio', { name: /privat/i }).click();
+    cy.findByRole('checkbox', { name: /petroleum og engineering/i }).should('exist');
 
     cy.waitUntilSaved();
     cy.waitForNetworkIdle(400); // The checkbox clears a bit after the radio button finishes saving
 
     cy.then(() => expect(formDataRequests.length).to.be.eq(2));
     cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(2));
+
+    cy.waitUntilSaved();
+
+    cy.findByRole('checkbox', { name: /petroleum og engineering/i }).click();
+    cy.findByRole('alert', { name: /olje er ikke bra for planeten/i }).should('be.visible');
   });
 });

@@ -344,6 +344,9 @@ export class AppFrontend {
   public multipleDatamodelsTest = {
     variableParagraph: '#variableParagraph',
     repeatingParagraph: '[id^=repeatingParagraph]',
+    textField1: '#Input-bhWSyO',
+    textField2: '#Input-aWlSF3',
+    addressField: '#Address-xdZ7PE',
   };
 }
 
