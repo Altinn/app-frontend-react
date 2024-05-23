@@ -15,7 +15,7 @@ import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvi
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
-import { FD } from 'src/features/formData/FormDataWrite';
+import { FD, FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { makeFormDataMethodProxies, renderWithMinimalProviders } from 'src/test/renderWithProviders';
@@ -87,17 +87,19 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
           <GlobalFormDataReadersProvider>
             <LayoutSetsProvider>
               <LayoutsProvider>
-                <LayoutSettingsProvider>
-                  <DynamicsProvider>
-                    <RulesProvider>
-                      <FormDataWriteProxyProvider value={formDataProxies}>
-                        <DataModelsProvider>
-                          {props.renderer && typeof props.renderer === 'function' ? props.renderer() : props.renderer}
-                        </DataModelsProvider>
-                      </FormDataWriteProxyProvider>
-                    </RulesProvider>
-                  </DynamicsProvider>
-                </LayoutSettingsProvider>
+                <DataModelsProvider>
+                  <LayoutSettingsProvider>
+                    <DynamicsProvider>
+                      <RulesProvider>
+                        <FormDataWriteProxyProvider value={formDataProxies}>
+                          <FormDataWriteProvider>
+                            {props.renderer && typeof props.renderer === 'function' ? props.renderer() : props.renderer}
+                          </FormDataWriteProvider>
+                        </FormDataWriteProxyProvider>
+                      </RulesProvider>
+                    </DynamicsProvider>
+                  </LayoutSettingsProvider>
+                </DataModelsProvider>
               </LayoutsProvider>
             </LayoutSetsProvider>
           </GlobalFormDataReadersProvider>

@@ -45,7 +45,7 @@ export function BackendValidation({ dataType }: { dataType: string }) {
 
       const validations = getDataModelValidationsFromValidatorGroups();
       updateDataModelValidations('backend', dataType, validations, lastSaveValidations);
-    } else if (lastSaveValidations !== undefined && Object.keys(lastSaveValidations).length > 0) {
+    } else if (Object.keys(lastSaveValidations).length > 0) {
       // Validations have changed, update changed validator groups
 
       for (const [group, validationIssues] of Object.entries(lastSaveValidations)) {
