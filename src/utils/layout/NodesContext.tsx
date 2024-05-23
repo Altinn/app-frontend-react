@@ -167,9 +167,7 @@ export function createNodesDataStore() {
             const def = getComponentDef(parent.layout.type);
             def.addChild(parent as any, node, targetState, row);
           }
-          if (state.ready) {
-            state.ready = false;
-          }
+          state.ready = false;
           state.addRemoveCounter += 1;
         }),
       removeNode: (node, row) =>
@@ -183,9 +181,7 @@ export function createNodesDataStore() {
               const def = getComponentDef(parent.layout.type);
               def.removeChild(parent as any, node, row);
             }
-            if (state.ready) {
-              state.ready = false;
-            }
+            state.ready = false;
             state.addRemoveCounter += 1;
           } catch (e) {
             if (e instanceof NodePathNotFound) {
@@ -226,17 +222,13 @@ export function createNodesDataStore() {
             },
             topLevelNodes: {},
           };
-          if (state.ready) {
-            state.ready = false;
-          }
+          state.ready = false;
           state.addRemoveCounter += 1;
         }),
       removePage: (pageKey) =>
         set((state) => {
           delete state.pages.pages[pageKey];
-          if (state.ready) {
-            state.ready = false;
-          }
+          state.ready = false;
           state.addRemoveCounter += 1;
         }),
       setPageProp: (pageKey, prop, value) =>

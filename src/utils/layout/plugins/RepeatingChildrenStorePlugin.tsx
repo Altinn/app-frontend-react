@@ -40,6 +40,8 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           const newRows = { ...nodeStore[internalProp] };
           delete newRows[row.uuid];
           nodeStore[internalProp] = newRows;
+          state.ready = false;
+          state.addRemoveCounter += 1;
         });
       },
     };
