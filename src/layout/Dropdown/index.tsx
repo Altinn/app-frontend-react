@@ -29,8 +29,8 @@ export class Dropdown extends DropdownDef {
     }
 
     const value = String(nodeFormDataSelector(node).simpleBinding ?? '');
-    const optionList = optionsSelector(node);
-    return getSelectedValueToText(value, langTools, optionList) || '';
+    const { options } = optionsSelector(node);
+    return getSelectedValueToText(value, langTools, options) || '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Dropdown'>): JSX.Element | null {

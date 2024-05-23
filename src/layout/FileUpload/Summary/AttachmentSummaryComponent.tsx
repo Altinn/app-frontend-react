@@ -19,7 +19,7 @@ export function AttachmentSummaryComponent({ targetNode }: IAttachmentSummaryCom
   const component = useNodeItem(targetNode);
   const hasTag = component.type === 'FileUploadWithTag';
 
-  const allOptions = useNodeOptions(targetNode as LayoutNode<'FileUploadWithTag'>);
+  const { options: allOptions } = useNodeOptions(targetNode as LayoutNode<'FileUploadWithTag'>);
   const options = hasTag ? allOptions : undefined;
 
   const tryToGetTextResource = (tag: string) => {

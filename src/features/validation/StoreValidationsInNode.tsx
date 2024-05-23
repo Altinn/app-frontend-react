@@ -31,7 +31,7 @@ export function StoreValidationsInNode() {
 
   const validations = useNodeValidation(node, shouldValidate);
   NodeStages.EvaluateExpressions.useEffect(() => {
-    isAllAdded && isSelfAdded && setNodeProp(node, 'validations', validations, 'ignore');
+    isAllAdded && isSelfAdded && setNodeProp(node, 'validations', validations);
   }, [isAllAdded, isSelfAdded, node, setNodeProp, validations]);
 
   const initialMask = item
@@ -39,10 +39,7 @@ export function StoreValidationsInNode() {
     : undefined;
 
   NodeStages.EvaluateExpressions.useEffect(() => {
-    isAllAdded &&
-      isSelfAdded &&
-      initialMask !== undefined &&
-      setNodeProp(node, 'validationVisibility', initialMask, 'ignore');
+    isAllAdded && isSelfAdded && initialMask !== undefined && setNodeProp(node, 'validationVisibility', initialMask);
   }, [isAllAdded, isSelfAdded, initialMask, node, setNodeProp]);
 
   return null;

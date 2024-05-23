@@ -14,19 +14,10 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
   const item = useNodeItem(node);
   const { id, readOnly, textResourceBindings } = item;
   const debounce = FD.useDebounceImmediately();
-  const {
-    options: calculatedOptions,
-    currentStringy,
-    setData,
-  } = useGetOptions({
-    ...item,
-    node,
-    removeDuplicates: true,
-    valueType: 'multi',
-  });
   const { langAsString } = useLanguage();
 
-  const formattedOptions = useFormattedOptions(calculatedOptions, true);
+  const { options, currentStringy, setData } = useGetOptions(node, 'multi');
+  const formattedOptions = useFormattedOptions(options, true);
 
   return (
     <LegacySelect

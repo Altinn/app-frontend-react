@@ -134,11 +134,11 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
   );
 
   NodeStages.MarkHidden.useEffect(() => {
-    isAdded && setNodeProp(node, 'hidden', hidden, 'ignore');
+    isAdded && setNodeProp(node, 'hidden', hidden);
   }, [hidden, node, setNodeProp, isAdded]);
 
   NodeStages.EvaluateExpressions.useEffect(() => {
-    isAdded && setNodeProp(node, 'item', resolvedItem, 'ignore');
+    isAdded && setNodeProp(node, 'item', resolvedItem);
     node.updateCommonProps(resolvedItem as any);
   }, [node, resolvedItem, setNodeProp, isAdded]);
 

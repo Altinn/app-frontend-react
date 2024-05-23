@@ -19,13 +19,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
 
   const debounce = FD.useDebounceImmediately();
 
-  const { options, isFetching, currentStringy, setData } = useGetOptions({
-    ...item,
-    node,
-    removeDuplicates: true,
-    valueType: 'single',
-  });
-
+  const { options, isFetching, currentStringy, setData } = useGetOptions(node, 'single');
   const formattedOptions = useFormattedOptions(options);
 
   if (isFetching) {

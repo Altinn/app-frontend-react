@@ -105,7 +105,7 @@ describe('Expressions shared function tests', () => {
           },
           process,
           currentLanguage: profileSettings?.language || 'nb',
-          optionsSelector: (node) => options[node.getId()] || [],
+          optionsSelector: (node) => ({ options: options[node.getId()] || [], isFetching: false }),
         };
 
         const _layouts = convertLayouts(layouts);

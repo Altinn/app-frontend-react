@@ -7,7 +7,7 @@ import cn from 'classnames';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useGetOptions } from 'src/features/options/useGetOptions';
+import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -26,15 +26,9 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
     (t) => t.children((i) => i.type === 'node' && i.item?.type === 'LikertItem'),
     node,
   ) as LayoutNode<'LikertItem'>[];
-  const firstLikertChildItem = useNodeItem(children[0]);
   const { textResourceBindings } = useNodeItem(node);
   const mobileView = useIsMobileOrTablet();
-  const { options: calculatedOptions, isFetching } = useGetOptions({
-    ...(firstLikertChildItem || {}),
-    node,
-    valueType: 'single',
-    dataModelBindings: undefined,
-  });
+  const { options: calculatedOptions, isFetching } = useNodeOptions(children[0]);
   const { lang } = useLanguage();
 
   const id = node.getId();

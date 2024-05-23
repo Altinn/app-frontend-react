@@ -40,8 +40,8 @@ export class LikertItem extends LikertItemDef {
     }
 
     const value = String(nodeFormDataSelector(node).simpleBinding ?? '');
-    const optionList = optionsSelector(node);
-    return getSelectedValueToText(value, langTools, optionList) || '';
+    const { options } = optionsSelector(node);
+    return getSelectedValueToText(value, langTools, options) || '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'LikertItem'>): JSX.Element | null {

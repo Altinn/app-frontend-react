@@ -135,7 +135,6 @@ export type NodesDataContext = {
     node: N,
     prop: K,
     value: NodeDataFromNode<N>[K],
-    whenNotFound?: 'throwError' | 'ignore',
   ) => void;
 
   addPage: (pageKey: string) => void;
@@ -191,7 +190,7 @@ export function createNodesDataStore() {
             throw e;
           }
         }),
-      setNodeProp: (node, prop, value, whenNotFound = 'throwError') =>
+      setNodeProp: (node, prop, value) =>
         set((state) => {
           try {
             const obj = pickDataStorePath(state.pages, node.path);
@@ -200,7 +199,7 @@ export function createNodesDataStore() {
             }
             Object.assign(obj, { [prop]: value });
           } catch (e) {
-            if (e instanceof NodePathNotFound && whenNotFound === 'ignore') {
+            if (e instanceof NodePathNotFound) {
               return;
             }
             throw e;

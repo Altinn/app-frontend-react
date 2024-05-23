@@ -7,7 +7,7 @@ export function getExpressionDataSourcesMock(): ExpressionDataSources {
     formDataSelector: () => null,
     attachments: {},
     layoutSettings: { pages: { order: [] } },
-    optionsSelector: () => [],
+    optionsSelector: () => ({ isFetching: false, options: [] }),
     applicationSettings: getApplicationSettingsMock(),
     instanceDataSources: {} as any,
     authContext: null,

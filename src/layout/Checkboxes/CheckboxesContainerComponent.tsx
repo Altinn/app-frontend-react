@@ -22,17 +22,7 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
   const { id, layout, readOnly, textResourceBindings, required, labelSettings, alertOnChange } = item;
   const { langAsString } = useLanguage();
 
-  const {
-    options: calculatedOptions,
-    isFetching,
-    setData,
-    current,
-    currentStringy,
-  } = useGetOptions({
-    valueType: 'multi',
-    ...item,
-    node,
-  });
+  const { options: calculatedOptions, isFetching, setData, current, currentStringy } = useGetOptions(node, 'multi');
 
   const labelTextGroup = (
     <span className={classes.checkboxLabelContainer}>

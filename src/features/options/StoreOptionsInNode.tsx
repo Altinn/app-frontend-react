@@ -1,4 +1,4 @@
-import { useGetOptions } from 'src/features/options/useGetOptions';
+import { useFetchOptions } from 'src/features/options/useGetOptions';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { NodeGeneratorInternal } from 'src/utils/layout/NodesGeneratorContext';
 import { NodeStages } from 'src/utils/layout/NodeStages';
@@ -13,20 +13,19 @@ export function StoreOptionsInNode({ valueType }: { valueType: OptionsValueType 
   const isAllAdded = NodeStages.AddNodes.useIsDone();
   const isSelfAdded = NodesInternal.useIsAdded(node);
 
-  const { options, isFetching } = useGetOptions({
+  const { options, isFetching } = useFetchOptions({
     valueType,
-    ...item,
     node,
-
-    // Setting this makes sure we don't run preselection logic. We could however do that in the future, as doing
-    // that in the node generator would be more reliable than doing it in each component on render (as we might miss
-    // setting a preselection for a component unless the user sees it).
-    dataModelBindings: undefined,
+    item,
   });
 
+  const ready = isAllAdded && isSelfAdded;
   NodeStages.OptionsFetched.useEffect(() => {
-    isAllAdded && isSelfAdded && !isFetching && setNodeProp(node, 'options' as any, options, 'ignore');
-  }, [isAllAdded, isSelfAdded, node, setNodeProp, options]);
+    if (ready) {
+      !isFetching && setNodeProp(node, 'options' as any, options);
+      setNodeProp(node, 'isFetchingOptions' as any, isFetching);
+    }
+  }, [ready, node, setNodeProp, options]);
 
   return null;
 }

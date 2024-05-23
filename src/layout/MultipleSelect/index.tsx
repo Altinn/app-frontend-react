@@ -36,8 +36,8 @@ export class MultipleSelect extends MultipleSelectDef {
     }
 
     const value = String(data.simpleBinding ?? '');
-    const optionList = optionsSelector(node);
-    return getCommaSeparatedOptionsToText(value, optionList, langTools);
+    const { options } = optionsSelector(node);
+    return getCommaSeparatedOptionsToText(value, options, langTools);
   }
 
   getDisplayData(

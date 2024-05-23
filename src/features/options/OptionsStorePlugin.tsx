@@ -8,7 +8,10 @@ import type { NodesDataContext, NodesDataStoreFull } from 'src/utils/layout/Node
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
 
-export type NodeOptionsSelector = (node: LayoutNode<CompWithBehavior<'canHaveOptions'>>) => IOptionInternal[];
+export type NodeOptionsSelector = (node: LayoutNode<CompWithBehavior<'canHaveOptions'>>) => {
+  isFetching: boolean;
+  options: IOptionInternal[];
+};
 
 export interface OptionsStorePluginConfig {
   extraFunctions: undefined;
@@ -18,7 +21,19 @@ export interface OptionsStorePluginConfig {
   };
 }
 
-const emptyArray: never[] = [];
+const emptyArray: IOptionInternal[] = [];
+
+function nodeStoreToOptions(s: NodeData): IOptionInternal[] {
+  return s.type === 'node' && 'options' in s && s.options && Array.isArray(s.options) && s.options.length
+    ? (s.options as IOptionInternal[])
+    : emptyArray;
+}
+
+function nodeStoreToIsFetching(s: NodeData): boolean {
+  return s.type === 'node' && 'isFetchingOptions' in s && typeof s.isFetchingOptions === 'boolean'
+    ? s.isFetchingOptions
+    : false;
+}
 
 export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig> {
   extraFunctions(_set: NodeDataPluginSetState<NodesDataContext>) {
@@ -30,13 +45,11 @@ export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig>
       useNodeOptions: (node) =>
         store.useSelector((state) => {
           try {
-            const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
-            return nodeStore.type === 'node' && 'options' in nodeStore
-              ? (nodeStore.options as IOptionInternal[])
-              : emptyArray;
+            const s = pickDataStorePath(state.pages, node) as NodeData;
+            return { isFetching: nodeStoreToIsFetching(s), options: nodeStoreToOptions(s) };
           } catch (e) {
             if (e instanceof NodePathNotFound) {
-              return emptyArray;
+              return { isFetching: false, options: emptyArray };
             }
             throw e;
           }
@@ -44,13 +57,11 @@ export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig>
       useNodeOptionsSelector: () =>
         store.useDelayedMemoSelectorFactory((node: LayoutNode<CompWithBehavior<'canHaveOptions'>>) => (state) => {
           try {
-            const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
-            return nodeStore.type === 'node' && 'options' in nodeStore
-              ? (nodeStore.options as IOptionInternal[])
-              : emptyArray;
+            const store = pickDataStorePath(state.pages, node) as NodeData;
+            return { isFetching: nodeStoreToIsFetching(store), options: nodeStoreToOptions(store) };
           } catch (e) {
             if (e instanceof NodePathNotFound) {
-              return emptyArray;
+              return { isFetching: false, options: emptyArray };
             }
             throw e;
           }

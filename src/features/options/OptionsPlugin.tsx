@@ -6,6 +6,7 @@ import type { IOptionInternal } from 'src/features/options/castOptionsToStrings'
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { ISelectionComponent, ISelectionComponentFull } from 'src/layout/common.generated';
 import type { CompTypes } from 'src/layout/layout';
+import type { DefPluginExtraState, DefPluginStateFactoryProps } from 'src/utils/layout/plugins/NodeDefPlugin';
 
 interface Config<SupportsPreselection extends boolean> {
   componentType: CompTypes;
@@ -15,7 +16,8 @@ interface Config<SupportsPreselection extends boolean> {
     type: OptionsValueType;
   };
   extraState: {
-    options: IOptionInternal[];
+    options: IOptionInternal[] | undefined;
+    isFetchingOptions: boolean;
   };
 }
 
@@ -32,6 +34,13 @@ export class OptionsPlugin<E extends ExternalConfig> extends NodeDefPlugin<ToInt
       import: 'OptionsPlugin',
       from: 'src/features/options/OptionsPlugin',
     });
+  }
+
+  stateFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>): DefPluginExtraState<ToInternal<E>> {
+    return {
+      options: undefined,
+      isFetchingOptions: true,
+    };
   }
 
   addToComponent(component: ComponentConfig): void {

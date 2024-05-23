@@ -21,6 +21,7 @@ import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import { handleRejectedFiles } from 'src/layout/FileUpload/handleRejectedFiles';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
 
@@ -46,12 +47,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   const validations = useUnifiedValidationsForNode(node).filter((v) => !('attachmentId' in v) || !v.attachmentId);
   const langTools = useLanguage();
 
-  const { options } = useGetOptions({
-    ...item,
-    node,
-    valueType: 'single',
-    dataModelBindings: undefined,
-  });
+  const { options } = useGetOptions(node as LayoutNode<'FileUploadWithTag'>, 'single');
 
   const shouldShowFileUpload =
     !(attachments.length >= maxNumberOfAttachments) &&
