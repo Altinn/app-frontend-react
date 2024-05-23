@@ -30,6 +30,7 @@ import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
 import { NodeStagesProvider } from 'src/utils/layout/NodeStages';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
+import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import {
   useNodeTraversal,
   useNodeTraversalLax,
@@ -277,9 +278,7 @@ export const NodesProvider = (props: React.PropsWithChildren) => (
 
 function InnerHiddenComponentsProvider() {
   const setHidden = NodesStore.useSelector((state) => state.setHiddenViaRules);
-  const resolvedNodes = NodesStore.useSelector((state) => state.nodes);
-
-  useLegacyHiddenComponents(resolvedNodes, setHidden);
+  useLegacyHiddenComponents(setHidden);
 
   return null;
 }
@@ -720,22 +719,16 @@ export const NodesInternal = {
  * thus continually run the expressions until they stabilize. You _could_ run into an infinite loop if you
  * have a circular dependency in your expressions, but that's a problem with your form, not this hook.
  */
-function useLegacyHiddenComponents(
-  resolvedNodes: LayoutPages | undefined,
-  setHidden: React.Dispatch<React.SetStateAction<Set<string>>>,
-) {
+function useLegacyHiddenComponents(setHidden: React.Dispatch<React.SetStateAction<Set<string>>>) {
   const rules = useDynamics()?.conditionalRendering ?? null;
   const nodeTraversal = useNodeTraversalSelectorSilent();
   const formDataSelector = FD.useDebouncedSelector();
+  const transposeSelector = useDataModelBindingTranspose();
 
   useEffect(() => {
-    if (!resolvedNodes) {
-      return;
-    }
-
     let futureHiddenFields: Set<string>;
     try {
-      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes, formDataSelector, nodeTraversal);
+      futureHiddenFields = runConditionalRenderingRules(rules, formDataSelector, nodeTraversal, transposeSelector);
     } catch (error) {
       window.logError('Error while evaluating conditional rendering rules:\n', error);
       futureHiddenFields = new Set();
@@ -747,7 +740,7 @@ function useLegacyHiddenComponents(
       }
       return currentlyHidden;
     });
-  }, [resolvedNodes, rules, setHidden, nodeTraversal, formDataSelector]);
+  }, [rules, setHidden, nodeTraversal, formDataSelector, transposeSelector]);
 }
 
 /**

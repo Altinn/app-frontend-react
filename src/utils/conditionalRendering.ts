@@ -2,7 +2,7 @@ import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { IConditionalRenderingRule, IConditionalRenderingRules } from 'src/features/form/dynamics';
 import type { FormDataSelector } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
 import type { NodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
 
 /**
@@ -10,9 +10,9 @@ import type { NodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraver
  */
 export function runConditionalRenderingRules(
   rules: IConditionalRenderingRules | null,
-  nodes: LayoutPages,
   formDataSelector: FormDataSelector,
   nodeTraversal: NodeTraversalSelectorSilent,
+  transposeSelector: DataModelTransposeSelector,
 ): Set<string> {
   const componentsToHide = new Set<string>();
   if (!window.conditionalRuleHandlerObject) {
@@ -45,7 +45,13 @@ export function runConditionalRenderingRules(
         for (const row of node.item.rows) {
           const firstChildId = row.items[0]?.nodeRef;
           const firstChildNode = nodeTraversal((t) => t.findById(firstChildId), [firstChildId]);
-          runConditionalRenderingRule(connection, firstChildNode, componentsToHide, formDataSelector);
+          runConditionalRenderingRule(
+            connection,
+            firstChildNode,
+            componentsToHide,
+            formDataSelector,
+            transposeSelector,
+          );
           if (connection.repeatingGroup.childGroupId) {
             const childGroupId = connection.repeatingGroup.childGroupId;
             const childNode = nodeTraversal(
@@ -59,14 +65,20 @@ export function runConditionalRenderingRules(
               for (const childRow of childNode.item.rows) {
                 const firstNestedChildId = childRow.items[0]?.nodeRef;
                 const firstNestedChildNode = nodeTraversal((t) => t.findById(firstNestedChildId), [firstNestedChildId]);
-                runConditionalRenderingRule(connection, firstNestedChildNode, componentsToHide, formDataSelector);
+                runConditionalRenderingRule(
+                  connection,
+                  firstNestedChildNode,
+                  componentsToHide,
+                  formDataSelector,
+                  transposeSelector,
+                );
               }
             }
           }
         }
       }
     } else {
-      runConditionalRenderingRule(connection, topLevelNode, componentsToHide, formDataSelector);
+      runConditionalRenderingRule(connection, topLevelNode, componentsToHide, formDataSelector, transposeSelector);
     }
   }
 
@@ -78,6 +90,7 @@ function runConditionalRenderingRule(
   node: LayoutNode | undefined,
   hiddenFields: Set<string>,
   formDataSelector: FormDataSelector,
+  transposeSelector: DataModelTransposeSelector,
 ) {
   const functionToRun = rule.selectedFunction;
   const inputKeys = Object.keys(rule.inputParams);
@@ -85,7 +98,7 @@ function runConditionalRenderingRule(
   const inputObj = {} as Record<string, string | number | boolean | null>;
   for (const key of inputKeys) {
     const param = rule.inputParams[key].replace(/{\d+}/g, '');
-    const transposed = node?.transposeDataModel(param) ?? param;
+    const transposed = node ? transposeSelector(node, param) : param;
     const value = formDataSelector(transposed);
 
     if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
