@@ -536,7 +536,7 @@ export const NodesInternal = {
    * expressions that are solved within. Also, the selectors will always return ContextNotProvided when the nodes
    * are not ready yet.
    */
-  useDataSelectorForTraversal(onlyWhenReady = true) {
+  useDataSelectorForTraversal(onlyWhenReady = true, returnWhenNotReady = ContextNotProvided) {
     return useDelayedSelectorFactory({
       store: DataStore.useLaxStore(),
       strictness: SelectorStrictness.returnWhenNotProvided,
@@ -551,8 +551,11 @@ export const NodesInternal = {
         return false;
       }) satisfies OnlyReRenderWhen<NodesDataContext, number>,
       primarySelector: (selector: <U>(state: NodesDataContext) => U) => (state) =>
-        state.ready || !onlyWhenReady ? selector(state) : ContextNotProvided,
+        state.ready || !onlyWhenReady ? selector(state) : returnWhenNotReady,
     });
+  },
+  useIsDataReady() {
+    return DataStore.useSelector((s) => s.ready);
   },
 
   useNodeDataMemo<N extends LayoutNode | LayoutPage | undefined, Out>(

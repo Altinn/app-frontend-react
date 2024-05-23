@@ -304,16 +304,20 @@ type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictn
     ? U | typeof ContextNotProvided
     : U;
 
+const NotReadyYet = Symbol('NotReadyYet');
 function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: never, strictness?: Strictness): Out {
   const nodes = useNodesLax();
-  const dataSelector = NodesInternal.useDataSelectorForTraversal();
+  const isReady = NodesInternal.useIsDataReady();
+  const dataSelector = NodesInternal.useDataSelectorForTraversal(true, NotReadyYet);
 
   // We use the selector here, but we need it to re-render and re-select whenever we re-render. Otherwise the hook
   // would be treated as the same hook that was used in the previous render, and with the only deps being
   // 'nodes' and 'node', the previous value would be selected. We bust that caching by including a counter as
   // a dependency.
   const counterRef = useRef(0);
-  counterRef.current++;
+  if (isReady) {
+    counterRef.current++;
+  }
 
   const out = dataSelector(
     (state) => {
@@ -331,6 +335,13 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
   if (out === ContextNotProvided) {
     if (strictness === Strictness.throwError) {
       throw new Error('useNodeTraversal() must be used inside a NodesProvider');
+    }
+    return strictness === Strictness.returnUndefined ? undefined : (selector as any)(ContextNotProvided);
+  }
+
+  if (out === NotReadyYet) {
+    if (strictness === Strictness.throwError) {
+      throw new Error('useNodeTraversal() ran when not ready');
     }
     return strictness === Strictness.returnUndefined ? undefined : (selector as any)(ContextNotProvided);
   }
