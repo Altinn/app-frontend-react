@@ -16,6 +16,11 @@ export interface Layouts {
   };
 }
 
+/**
+ * TODO(Datamodels): dataModel is the default data model, which is still a concept.
+ * So maybe add an extra field like extraDataModels or additionalDataModels or something
+ * to be able to test expressions on multiple data models?
+ */
 export interface SharedTest {
   name: string;
   disabledFrontend?: boolean;
