@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -307,6 +307,14 @@ type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictn
 function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: never, strictness?: Strictness): Out {
   const nodes = useNodesLax();
   const dataSelector = NodesInternal.useDataSelectorForTraversal();
+
+  // We use the selector here, but we need it to re-render and re-select whenever we re-render. Otherwise the hook
+  // would be treated as the same hook that was used in the previous render, and with the only deps being
+  // 'nodes' and 'node', the previous value would be selected. We bust that caching by including a counter as
+  // a dependency.
+  const counterRef = useRef(0);
+  counterRef.current++;
+
   const out = dataSelector(
     (state) => {
       if (!nodes || nodes === ContextNotProvided) {
@@ -317,7 +325,7 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
         ? (selector as any)(new NodeTraversal(state.pages, nodes, nodes))
         : (selector as any)(new NodeTraversal(state.pages, nodes, node));
     },
-    [nodes, node],
+    [counterRef.current],
   );
 
   if (out === ContextNotProvided) {

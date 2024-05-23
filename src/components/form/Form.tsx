@@ -125,7 +125,7 @@ export function FormFirstPage() {
  * it is no longer needed.
  */
 function useRedirectToStoredPage() {
-  const pageKey = useNavigationParam('pageKey');
+  const pageKey = useCurrentView();
   const partyId = useNavigationParam('partyId');
   const instanceGuid = useNavigationParam('instanceGuid');
   const { isValidPageId, navigateToPage } = useNavigatePage();
