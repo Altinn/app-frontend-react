@@ -609,6 +609,10 @@ export const NodesInternal = {
     return useCallback(
       (callback) =>
         waitForState((state, setReturnValue) => {
+          if (!state.ready) {
+            return false;
+          }
+
           try {
             const nodeData = node ? pickDataStorePath(state.pages, node) : undefined;
             if (!nodeData) {

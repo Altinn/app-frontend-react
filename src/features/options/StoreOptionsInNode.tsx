@@ -7,7 +7,7 @@ import type { CompInternal, CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function StoreOptionsInNode({ valueType }: { valueType: OptionsValueType }) {
-  const item = NodeGeneratorInternal.useItem() as CompInternal<CompWithBehavior<'canHaveOptions'>>;
+  const item = NodeGeneratorInternal.useUnresolvedItem() as CompInternal<CompWithBehavior<'canHaveOptions'>>;
   const node = NodeGeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const setNodeProp = NodesInternal.useSetNodeProp();
   const isAllAdded = NodeStages.AddNodes.useIsDone();

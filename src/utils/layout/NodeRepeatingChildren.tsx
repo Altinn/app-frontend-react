@@ -26,8 +26,9 @@ interface Props {
 }
 
 export function NodeRepeatingChildren({ childIds, binding, multiPageSupport, externalProp, internalProp }: Props) {
-  const item = NodeGeneratorInternal.useExternalItem();
-  const freshRows = FD.useFreshRows(item?.dataModelBindings?.[binding]);
+  const item = NodeGeneratorInternal.useUnresolvedItem();
+  const groupBinding = item?.dataModelBindings?.[binding];
+  const freshRows = FD.useFreshRows(groupBinding);
   const prevRows = useRef<BaseRow[]>(freshRows);
   const rows = useReusedRows(freshRows, prevRows);
   const multiPage = multiPageSupport !== false && dot.pick(multiPageSupport, item) === true;
@@ -35,7 +36,6 @@ export function NodeRepeatingChildren({ childIds, binding, multiPageSupport, ext
     () => (multiPage ? makeMultiPageMapping(dot.pick(externalProp, item)) : undefined),
     [item, externalProp, multiPage],
   );
-  const groupBinding = dot.pick(`dataModelBindings.${binding}`, item);
 
   return (
     <>
@@ -129,7 +129,7 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
   const firstChildRaw = useNodeLax(nodeChildren?.[0]);
   const firstChild = firstChildRaw === ContextNotProvided ? undefined : firstChildRaw;
 
-  const item = NodeGeneratorInternal.useExternalItem();
+  const item = NodeGeneratorInternal.useUnresolvedItem();
   const props = useExpressionResolverProps(firstChild, item as CompExternal, row);
   const allNodesAdded = NodeStages.AddNodes.useIsDone();
 

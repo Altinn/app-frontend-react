@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { CompExternal, CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -144,15 +143,5 @@ export const NodeGeneratorInternal = {
   useParent: () => useCtx().parent,
   usePage: () => useCtx().page,
   useRow: () => useCtx().row,
-  useItem: () => useCtx().item,
-  useExternalItem: () => {
-    const parent = useCtx().parent;
-    const map = useCtx().layoutMap;
-
-    if (parent instanceof BaseLayoutNode && map[parent.getBaseId()]) {
-      return map[parent.getBaseId()] as CompExternal;
-    }
-
-    return undefined;
-  },
+  useUnresolvedItem: () => useCtx().item,
 };

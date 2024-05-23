@@ -10,7 +10,7 @@ import type { TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function StoreValidationsInNode() {
-  const item = NodeGeneratorInternal.useItem();
+  const item = NodeGeneratorInternal.useUnresolvedItem();
   const node = NodeGeneratorInternal.useParent() as LayoutNode<
     TypesFromCategory<CompCategory.Form | CompCategory.Container>
   >;
