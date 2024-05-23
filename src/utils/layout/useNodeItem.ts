@@ -75,7 +75,9 @@ export function useNodeFormDataSelector() {
 
   return useCallback(
     <N extends LayoutNode | undefined>(node: N): NodeFormData<N> => {
-      const dataModelBindings = nodeSelector({ node, path: 'item.dataModelBindings' });
+      const dataModelBindings = nodeSelector({ node, path: 'item.dataModelBindings' }) as
+        | IDataModelBindings
+        | undefined;
       return dataModelBindings
         ? (getNodeFormData(dataModelBindings, formDataSelector) as NodeFormData<N>)
         : (emptyObject as NodeFormData<N>);

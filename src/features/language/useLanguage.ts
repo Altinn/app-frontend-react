@@ -14,12 +14,15 @@ import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { smartLowerCaseFirst } from 'src/utils/formComponentUtils';
+import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import type { useDataModelReaders } from 'src/features/formData/FormDataReaders';
+import type { LimitedTextResourceVariablesDataSources } from 'src/features/language/LangDataSourcesProvider';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList, NestedTexts } from 'src/language/languages';
 import type { FormDataSelector } from 'src/layout';
 import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
 
 type SimpleLangParam = string | number | undefined;
 export type ValidLangParam = SimpleLangParam | ReactNode | TextReference;
@@ -58,6 +61,7 @@ export interface TextResourceVariablesDataSources {
   dataModels: ReturnType<typeof useDataModelReaders>;
   currentDataModelName: string | undefined;
   currentDataModel: FormDataSelector | typeof ContextNotProvided;
+  transposeSelector: DataModelTransposeSelector;
 }
 
 /**
@@ -97,6 +101,7 @@ export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
   const layoutSetId = useCurrentLayoutSetId();
   const currentDataModelName = useDataTypeByLayoutSetId(layoutSetId);
   const currentDataModel = FD.useLaxDebouncedSelector();
+  const transposeSelector = useDataModelBindingTranspose();
 
   return useMemo(() => {
     if (!textResources || !language || !selectedLanguage) {
@@ -104,12 +109,22 @@ export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
     }
 
     return staticUseLanguage(textResources, language, selectedLanguage, {
-      ...(dataSources as Omit<TextResourceVariablesDataSources, 'node' | 'currentDataModel' | 'currentDataModelName'>),
+      ...(dataSources as LimitedTextResourceVariablesDataSources),
       node,
       currentDataModel,
       currentDataModelName,
+      transposeSelector,
     });
-  }, [currentDataModel, currentDataModelName, dataSources, language, node, selectedLanguage, textResources]);
+  }, [
+    currentDataModel,
+    currentDataModelName,
+    dataSources,
+    language,
+    node,
+    selectedLanguage,
+    textResources,
+    transposeSelector,
+  ]);
 }
 
 interface ILanguageState {
@@ -279,6 +294,7 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
     dataModelPath,
     currentDataModelName,
     currentDataModel,
+    transposeSelector,
   } = dataSources;
   let out = text;
   for (const idx in variables) {
@@ -290,7 +306,9 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
       const cleanPath = getKeyWithoutIndexIndicators(value);
       const transposedPath = dataModelPath
         ? transposeDataBinding({ subject: cleanPath, currentLocation: dataModelPath })
-        : node?.transposeDataModel(cleanPath) || value;
+        : node
+          ? transposeSelector(node, cleanPath)
+          : value;
       if (transposedPath) {
         // If the data model is the current one, look up there
         const modelReader =
@@ -402,6 +420,7 @@ export function staticUseLanguageForTests({
     currentDataModel: () => null,
     applicationSettings: {},
     node: undefined,
+    transposeSelector: (_node, path) => path,
   },
 }: Partial<ILanguageState> = {}) {
   return staticUseLanguage(textResources, language, selectedLanguage, dataSources);

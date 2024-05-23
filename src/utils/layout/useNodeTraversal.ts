@@ -395,6 +395,20 @@ export function useNodeTraversalSilent<Out>(selector: (traverser: never) => Out,
   return useNodeTraversalProto(selector, node, Strictness.returnUndefined);
 }
 
+function throwOrReturn<R>(value: R, strictness: Strictness) {
+  if (value === ContextNotProvided) {
+    if (strictness === Strictness.throwError) {
+      throw new Error('useNodeTraversalSelector() must be used inside a NodesProvider');
+    }
+    if (strictness === Strictness.returnContextNotProvided) {
+      return ContextNotProvided;
+    }
+    return undefined;
+  }
+
+  return value;
+}
+
 /**
  * Hook that returns a selector that lets you traverse the hierarchy at a later time. Will re-render your
  * component when any of the traversals you did would return a different result.
@@ -409,19 +423,15 @@ function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: St
       deps: any[],
     ): InnerSelectorReturns<Strict, U> => {
       if (!nodes || nodes === ContextNotProvided) {
-        if (strictness === Strictness.returnContextNotProvided) {
-          return ContextNotProvided as any;
-        }
-        if (strictness === Strictness.throwError) {
-          throw new Error('useNodeTraversalSelector() must be used inside a NodesProvider');
-        }
-        return undefined as any;
+        return throwOrReturn(ContextNotProvided, strictness) as InnerSelectorReturns<Strict, U>;
       }
 
-      return selectState(
+      const value = selectState(
         (state) => innerSelector(new NodeTraversal(state.pages, nodes, nodes)),
         [innerSelector.toString(), ...deps],
       );
+
+      return throwOrReturn(value, strictness) as InnerSelectorReturns<Strict, U>;
     },
     [selectState, nodes, strictness],
   );

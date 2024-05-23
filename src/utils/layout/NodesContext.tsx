@@ -530,6 +530,7 @@ type NodeDataSelectorProp<N extends LayoutNode | undefined> = {
 };
 
 export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataMemoSelector>;
+export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataMemoSelector>;
 export type ExactNodeDataSelector = ReturnType<typeof NodesInternal.useExactNodeDataMemoSelector>;
 
 /**
@@ -546,7 +547,7 @@ export const NodesInternal = {
    */
   useDataSelectorForTraversal(onlyWhenReady = true) {
     return useDelayedSelectorFactory({
-      store: DataStore.useStore(),
+      store: DataStore.useLaxStore(),
       strictness: SelectorStrictness.returnWhenNotProvided,
       onlyReRenderWhen: ((state, lastValue, setNewValue) => {
         if (!state.ready && onlyWhenReady) {
@@ -633,9 +634,27 @@ export const NodesInternal = {
     );
   },
   useNodeDataMemoSelector: () =>
-    DataStore.useDelayedMemoSelectorFactory(
+    DataStore.useDelayedMemoSelectorFactory<NodeDataSelectorProp<LayoutNode | undefined>, unknown>(
       // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
-      <N extends LayoutNode | undefined>({ node, path }: NodeDataSelectorProp<N>) =>
+      ({ node, path }) =>
+        (state) => {
+          try {
+            return node ? dot.pick(path, pickDataStorePath(state.pages, node)) : undefined;
+          } catch (e) {
+            if (e instanceof NodePathNotFound) {
+              return undefined;
+            }
+            throw e;
+          }
+        },
+    ),
+  useLaxNodeDataMemoSelector: () =>
+    DataStore.useLaxDelayedMemoSelectorFactory<
+      NodeDataSelectorProp<LayoutNode | undefined>,
+      unknown | typeof ContextNotProvided
+    >(
+      // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
+      ({ node, path }) =>
         (state) => {
           try {
             return node ? dot.pick(path, pickDataStorePath(state.pages, node)) : undefined;

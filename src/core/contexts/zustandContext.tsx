@@ -8,7 +8,7 @@ import type { StoreApi } from 'zustand';
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { SelectorStrictness, useDelayedSelectorFactory } from 'src/hooks/delayedSelectors';
 import type { CreateContextProps } from 'src/core/contexts/context';
-import type { DelayedPrimarySelector } from 'src/hooks/delayedSelectors';
+import type { DelayedPrimarySelector, DelayedSecondarySelector } from 'src/hooks/delayedSelectors';
 
 type ExtractFromStoreApi<T> = T extends StoreApi<infer U> ? Exclude<U, void> : never;
 
@@ -133,7 +133,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
   const useLaxDelayedMemoSelectorFactory = <Arg, RetVal>(
     primarySelector: DelayedPrimarySelector<Arg, RetVal, Type>,
     deps?: any[],
-  ) =>
+  ): DelayedSecondarySelector<Arg, RetVal | typeof ContextNotProvided, Type> =>
     useDelayedSelectorFactory({
       store: useLaxCtx(),
       strictness: SelectorStrictness.returnWhenNotProvided,
@@ -144,7 +144,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
   const useDelayedMemoSelectorFactory = <Arg, RetVal>(
     primarySelector: DelayedPrimarySelector<Arg, RetVal, Type>,
     deps?: any[],
-  ) =>
+  ): DelayedSecondarySelector<Arg, RetVal, Type> =>
     useDelayedSelectorFactory({
       store: useCtx(),
       strictness: SelectorStrictness.throwWhenNotProvided,
