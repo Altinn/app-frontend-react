@@ -43,9 +43,9 @@ export class MultipleSelect extends MultipleSelectDef {
   getDisplayData(
     node: LayoutNode<'MultipleSelect'>,
     _item: CompInternal<'MultipleSelect'>,
-    { langTools, optionsSelector, nodeDataSelector }: DisplayDataProps,
+    { langTools, optionsSelector, nodeFormDataSelector }: DisplayDataProps,
   ): string {
-    return Object.values(this.getSummaryData(node, langTools, optionsSelector, nodeDataSelector)).join(', ');
+    return Object.values(this.getSummaryData(node, langTools, optionsSelector, nodeFormDataSelector)).join(', ');
   }
 
   renderSummary({ targetNode, nodeDataSelector }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {

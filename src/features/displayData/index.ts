@@ -12,7 +12,7 @@ export interface DisplayDataProps {
   langTools: IUseLanguage;
   currentLanguage: string;
   formDataSelector: FormDataSelector;
-  nodeDataSelector: NodeFormDataSelector;
+  nodeFormDataSelector: NodeFormDataSelector;
 }
 
 export interface DisplayData<Type extends CompTypes> {

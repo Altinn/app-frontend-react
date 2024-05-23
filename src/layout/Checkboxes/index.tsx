@@ -38,9 +38,9 @@ export class Checkboxes extends CheckboxesDef {
   getDisplayData(
     node: LayoutNode<'Checkboxes'>,
     _item: CompInternal<'Checkboxes'>,
-    { langTools, optionsSelector, nodeDataSelector }: DisplayDataProps,
+    { langTools, optionsSelector, nodeFormDataSelector }: DisplayDataProps,
   ): string {
-    return Object.values(this.getSummaryData(node, langTools, optionsSelector, nodeDataSelector)).join(', ');
+    return Object.values(this.getSummaryData(node, langTools, optionsSelector, nodeFormDataSelector)).join(', ');
   }
 
   renderSummary({ targetNode, nodeDataSelector }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {

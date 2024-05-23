@@ -21,13 +21,13 @@ export class TextArea extends TextAreaDef {
   getDisplayData(
     node: LayoutNode<'TextArea'>,
     item: CompInternal<'TextArea'>,
-    { nodeDataSelector }: DisplayDataProps,
+    { nodeFormDataSelector }: DisplayDataProps,
   ): string {
     if (!item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    return nodeDataSelector(node).simpleBinding ?? '';
+    return nodeFormDataSelector(node).simpleBinding ?? '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'TextArea'>): JSX.Element | null {

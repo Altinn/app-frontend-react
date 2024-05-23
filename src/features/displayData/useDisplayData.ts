@@ -17,7 +17,14 @@ export function useDisplayDataProps(): DisplayDataProps {
   const nodeDataSelector = useNodeFormDataSelector();
 
   return useMemo(
-    () => ({ optionsSelector, attachments, langTools, currentLanguage, formDataSelector, nodeDataSelector }),
+    () => ({
+      optionsSelector,
+      attachments,
+      langTools,
+      currentLanguage,
+      formDataSelector,
+      nodeFormDataSelector: nodeDataSelector,
+    }),
     [attachments, langTools, optionsSelector, currentLanguage, formDataSelector, nodeDataSelector],
   );
 }

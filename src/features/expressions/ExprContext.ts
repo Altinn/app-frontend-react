@@ -34,7 +34,7 @@ export interface ExpressionDataSources {
   };
   currentLanguage: string;
   isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
-  nodeDataSelector: NodeFormDataSelector;
+  nodeFormDataSelector: NodeFormDataSelector;
   nodeTraversal: NodeTraversalSelectorLax;
   transposeSelector: DataModelTransposeSelector;
   devToolsIsOpen: boolean;

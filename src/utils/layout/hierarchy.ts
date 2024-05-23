@@ -72,7 +72,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
       langToolsRef,
       currentLanguage,
       isHiddenSelector,
-      nodeDataSelector,
+      nodeFormDataSelector: nodeDataSelector,
       nodeTraversal,
       transposeSelector,
     }),

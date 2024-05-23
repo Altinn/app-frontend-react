@@ -522,7 +522,7 @@ export const ExprFunctions = {
         langTools: this.dataSources.langToolsRef.current,
         currentLanguage: this.dataSources.currentLanguage,
         formDataSelector: this.dataSources.formDataSelector,
-        nodeDataSelector: this.dataSources.nodeDataSelector,
+        nodeFormDataSelector: this.dataSources.nodeFormDataSelector,
       });
     },
     args: [ExprVal.String] as const,

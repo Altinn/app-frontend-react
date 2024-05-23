@@ -33,13 +33,13 @@ export class LikertItem extends LikertItemDef {
   getDisplayData(
     node: LayoutNode<'LikertItem'>,
     item: CompInternal<'LikertItem'>,
-    { langTools, optionsSelector, nodeDataSelector }: DisplayDataProps,
+    { langTools, optionsSelector, nodeFormDataSelector }: DisplayDataProps,
   ): string {
     if (!item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    const value = String(nodeDataSelector(node).simpleBinding ?? '');
+    const value = String(nodeFormDataSelector(node).simpleBinding ?? '');
     const optionList = optionsSelector(node);
     return getSelectedValueToText(value, langTools, optionList) || '';
   }

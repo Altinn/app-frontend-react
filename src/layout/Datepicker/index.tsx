@@ -31,14 +31,14 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
   getDisplayData(
     node: LayoutNode<'Datepicker'>,
     item: CompInternal<'Datepicker'>,
-    { currentLanguage, nodeDataSelector }: DisplayDataProps,
+    { currentLanguage, nodeFormDataSelector }: DisplayDataProps,
   ): string {
     if (!item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
     const dateFormat = getDateFormat(item.format, currentLanguage);
-    const data = nodeDataSelector(node).simpleBinding ?? '';
+    const data = nodeFormDataSelector(node).simpleBinding ?? '';
     return formatISOString(data, dateFormat) ?? data;
   }
 

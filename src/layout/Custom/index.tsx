@@ -20,9 +20,9 @@ export class Custom extends CustomDef {
   getDisplayData(
     node: LayoutNode<'Custom'>,
     _item: CompInternal<'Custom'>,
-    { nodeDataSelector }: DisplayDataProps,
+    { nodeFormDataSelector }: DisplayDataProps,
   ): string {
-    const data = nodeDataSelector(node);
+    const data = nodeFormDataSelector(node);
     return Object.values(data).join(', ');
   }
 

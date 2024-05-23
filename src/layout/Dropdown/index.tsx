@@ -22,13 +22,13 @@ export class Dropdown extends DropdownDef {
   getDisplayData(
     node: LayoutNode<'Dropdown'>,
     item: CompInternal<'Dropdown'>,
-    { langTools, optionsSelector, nodeDataSelector }: DisplayDataProps,
+    { langTools, optionsSelector, nodeFormDataSelector }: DisplayDataProps,
   ): string {
     if (!item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    const value = String(nodeDataSelector(node).simpleBinding ?? '');
+    const value = String(nodeFormDataSelector(node).simpleBinding ?? '');
     const optionList = optionsSelector(node);
     return getSelectedValueToText(value, langTools, optionList) || '';
   }
