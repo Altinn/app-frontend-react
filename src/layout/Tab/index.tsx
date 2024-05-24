@@ -1,13 +1,16 @@
 import React, { forwardRef } from 'react';
 
-import { Tabs } from '@digdir/designsystemet-react';
+import { Heading, Tabs } from '@digdir/designsystemet-react';
 
 import type { PropsFromGenericComponent } from '..';
 
+import { useLanguage } from 'src/features/language/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { TabDef } from 'src/layout/Tab/config.def.generated';
 import { TabHierarchyGenerator } from 'src/layout/Tab/hierarchy';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Tab extends TabDef {
   private _hierarchyGenerator = new TabHierarchyGenerator();
@@ -22,10 +25,9 @@ export class Tab extends TabDef {
     return this._hierarchyGenerator;
   }
 
-  // TODO: Implement renderSummary
-  // renderSummary(props: PropsFromGenericComponent<'Tab'>): JSX.Element | null {
-  //   return <SummaryTabComponent {...props} />;
-  // }
+  renderSummary(props: SummaryRendererProps<'Tab'>): JSX.Element | null {
+    return <SummaryTabComponent {...props} />;
+  }
 
   renderSummaryBoilerplate(): boolean {
     return false;
@@ -42,5 +44,32 @@ function TabComponent({ node }: PropsFromGenericComponent<'Tab'>) {
         />
       ))}
     </Tabs.Content>
+  );
+}
+
+type SummaryTabComponentProps = {
+  targetNode: LayoutNode<'Tab'>;
+};
+
+export function SummaryTabComponent({ targetNode }: SummaryTabComponentProps) {
+  const { langAsString } = useLanguage();
+
+  const title = langAsString(targetNode.item.textResourceBindings?.['title']);
+
+  return (
+    <div>
+      <div>
+        <Heading>{title}</Heading>
+      </div>
+      <div>
+        {targetNode.item.childComponents.map((n) => (
+          // TODO: Add support for summary components like SummaryGroupComponent
+          <GenericComponent
+            key={n.item.id}
+            node={n}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
