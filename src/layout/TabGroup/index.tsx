@@ -5,23 +5,24 @@ import { Tabs } from '@digdir/designsystemet-react';
 import type { PropsFromGenericComponent } from '..';
 
 import { TabGroupDef } from 'src/layout/TabGroup/config.def.generated';
+import { TabGroupHierarchyGenerator } from 'src/layout/TabGroup/hierarchy';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { CompTabGroupInternal } from 'src/layout/TabGroup/config.generated';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class TabGroup extends TabGroupDef {
-  // TODO:
-  // private _hierarchyGenerator = new TabGroupHierarchyGenerator();
+  private _hierarchyGenerator = new TabGroupHierarchyGenerator();
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'TabGroup'>>(
     function LayoutComponentTabGroupRender(props, _): JSX.Element | null {
       return <TabGroupComponent {...props} />;
     },
   );
-  // TODO:
-  // hierarchyGenerator(): ComponentHierarchyGenerator<'AccordionGroup'> {
-  //   return this._hierarchyGenerator;
-  // }
+
+  hierarchyGenerator(): ComponentHierarchyGenerator<'TabGroup'> {
+    return this._hierarchyGenerator;
+  }
 
   renderSummary(props: SummaryRendererProps<'TabGroup'>): JSX.Element | null {
     return <SummaryTabGroupComponent {...props} />;
@@ -50,11 +51,13 @@ function TabGroupComponent({ node }: PropsFromGenericComponent<'TabGroup'>) {
   console.log({ childComponents: node.item.childComponents });
   console.log({ children: node.item['children'] });
 
+  const children = node.item.childComponents;
+
   return (
     // TODO:
-    <Tabs defaultValue='value1'>
+    <Tabs defaultValue={children.at(0)?.item.id}>
       <Tabs.List>
-        {node.item.childComponents?.map((n: LayoutNode<'TabGroup'>, i: number) => (
+        {children.map((n, i) => (
           <Tabs.Tab
             key={n.item.id}
             value={n.item.id}
@@ -64,7 +67,7 @@ function TabGroupComponent({ node }: PropsFromGenericComponent<'TabGroup'>) {
           </Tabs.Tab>
         ))}
       </Tabs.List>
-      {node.item.childComponents?.map((n, i) => (
+      {children.map((n, i) => (
         <Tabs.Content
           key={n.item.id}
           value={n.item.id}
