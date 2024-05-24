@@ -9,17 +9,11 @@ export const StageEvaluateExpressions = Symbol('EvaluateExpressions');
 export const StageOptionsFetched = Symbol('OptionsFetched');
 export const StageFinished = Symbol('Finished');
 
-export const NodeStageList = [
-  StageAddNodes,
-  StageMarkHidden,
-  StageEvaluateExpressions,
-  StageOptionsFetched,
-  StageFinished,
-] as const;
-const SecondToLast = NodeStageList[NodeStageList.length - 2];
+const List = [StageAddNodes, StageMarkHidden, StageEvaluateExpressions, StageOptionsFetched, StageFinished] as const;
+const SecondToLast = List[List.length - 2];
 
-export type NodeStages = typeof NodeStageList;
-type Stage = NodeStages[number];
+type StageList = typeof List;
+type Stage = StageList[number];
 
 type OnStageDone = () => void;
 interface Context {
@@ -29,7 +23,7 @@ interface Context {
 }
 
 const { Provider, useCtx } = createContext<Context>({
-  name: 'NodeStages',
+  name: 'GeneratorStages',
   required: true,
 });
 
@@ -46,19 +40,19 @@ type HookRegistry = {
 };
 
 /**
- * Node stages provide useEffect() hooks that are called at different stages of the node generation process. This is
- * useful for separating logic into different stages that rely on earlier stages being completed before the next stage
- * can begin. When processing the node hierarchy, it is important that all nodes are added to the storage before
+ * Generator stages provide useEffect() hooks that are called at different stages of the node generation process. This
+ * is useful for separating logic into different stages that rely on earlier stages being completed before the
+ * stage can begin. When processing the node hierarchy, it is important that all nodes are added to the storage before
  * we can start evaluating expressions, because expressions can reference other nodes.
  *
  * Wrapping hooks this way ensures that the order of execution of the hooks is guaranteed.
  */
-export function NodeStagesProvider({ children }: PropsWithChildren) {
-  const [currentStage, setCurrentStage] = React.useState<Stage>(NodeStageList[0]);
+export function GeneratorStagesProvider({ children }: PropsWithChildren) {
+  const [currentStage, setCurrentStage] = React.useState<Stage>(List[0]);
   const tickTimeout = React.useRef<NodeJS.Timeout | null>(null);
   const hooks = React.useRef<HookRegistry>(
     Object.fromEntries(
-      NodeStageList.map(
+      List.map(
         (s) =>
           [
             s as Stage,
@@ -83,8 +77,8 @@ export function NodeStagesProvider({ children }: PropsWithChildren) {
         if (registered !== finished || registered === 0) {
           return stage;
         }
-        const currentIndex = NodeStageList.indexOf(stage);
-        const nextStage = NodeStageList[currentIndex + 1];
+        const currentIndex = List.indexOf(stage);
+        const nextStage = List[currentIndex + 1];
         if (nextStage) {
           hooks.current[stage].onDone.forEach((cb) => cb());
           hooks.current[stage].onDone = [];
@@ -99,14 +93,14 @@ export function NodeStagesProvider({ children }: PropsWithChildren) {
   return <Provider value={{ currentStage, hooks, tick }}>{children}</Provider>;
 }
 
-export const NodeStages = {
+export const GeneratorStages = {
   AddNodes: makeHooks(StageAddNodes),
   MarkHidden: makeHooks(StageMarkHidden),
   EvaluateExpressions: makeHooks(StageEvaluateExpressions),
   OptionsFetched: makeHooks(StageOptionsFetched),
   Finished: makeHooks(StageFinished),
   useIsFinished() {
-    return NodeStages[SecondToLast.description!].useIsDone();
+    return GeneratorStages[SecondToLast.description!].useIsDone();
   },
 };
 
@@ -116,8 +110,8 @@ function makeHooks(stage: Stage) {
       const uniqueId = useId();
 
       const { currentStage, hooks, tick } = useCtx();
-      const runInStageIndex = NodeStageList.indexOf(stage);
-      const currentIndex = NodeStageList.indexOf(currentStage);
+      const runInStageIndex = List.indexOf(stage);
+      const currentIndex = List.indexOf(currentStage);
       const shouldRun = currentIndex >= runInStageIndex;
 
       tick();
@@ -126,7 +120,7 @@ function makeHooks(stage: Stage) {
         throw new Error(
           `Cannot register a new hook ${uniqueId} for stage ${stage.description} before having reached ` +
             `the Finished stage. This will happen if the node generator components are generated after ` +
-            `NodeStages have advanced to a later stage.`,
+            `GeneratorStages have advanced to a later stage.`,
         );
       }
 
@@ -166,8 +160,8 @@ function makeHooks(stage: Stage) {
     },
     useIsDone() {
       const { currentStage } = useCtx();
-      const currentIndex = NodeStageList.indexOf(currentStage);
-      const targetStageIndex = NodeStageList.indexOf(stage);
+      const currentIndex = List.indexOf(currentStage);
+      const targetStageIndex = List.indexOf(stage);
       return currentIndex > targetStageIndex;
     },
   };

@@ -5,13 +5,13 @@ import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getComponentDef, getNodeConstructor } from 'src/layout';
+import { GeneratorInternal, GeneratorProvider } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorDebug } from 'src/utils/layout/generator/LayoutSetGenerator';
+import { useResolvedExpression } from 'src/utils/layout/generator/useResolvedExpression';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
-import { NodeGeneratorDebug } from 'src/utils/layout/NodesGenerator';
-import { NodeGeneratorInternal, NodesGeneratorProvider } from 'src/utils/layout/NodesGeneratorContext';
-import { NodeStages } from 'src/utils/layout/NodeStages';
-import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -40,13 +40,13 @@ import type { BaseRow, StateFactoryProps } from 'src/utils/layout/types';
  * component is not visible/rendered.
  */
 export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeGeneratorProps>) {
-  const layoutMap = NodeGeneratorInternal.useLayoutMap();
+  const layoutMap = GeneratorInternal.useLayoutMap();
   const item = useIntermediateItem(layoutMap[baseId]) as CompIntermediateExact<CompTypes>;
   const path = usePath(item);
   const node = useNewNode(item, path) as LayoutNode;
   useAddRemoveNode(node, item);
 
-  const hiddenParent = NodeGeneratorInternal.useHiddenState();
+  const hiddenParent = GeneratorInternal.useHiddenState();
   const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, layoutMap[baseId].hidden, false);
   const hiddenByRules = Hidden.useIsHiddenViaRules(node);
   const hidden: HiddenStateNode = useMemo(
@@ -61,7 +61,7 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
 
   return (
     <>
-      <NodesGeneratorProvider
+      <GeneratorProvider
         parent={node}
         hidden={hidden}
         item={item}
@@ -72,32 +72,32 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
           hidden={hidden}
         />
         {children}
-      </NodesGeneratorProvider>
+      </GeneratorProvider>
     </>
   );
 }
 
 function useAddRemoveNode(node: LayoutNode, item: CompIntermediate) {
-  const parent = NodeGeneratorInternal.useParent();
-  const row = NodeGeneratorInternal.useRow();
+  const parent = GeneratorInternal.useParent();
+  const row = GeneratorInternal.useRow();
   const rowRef = useAsRef(row);
   const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item, parent, row });
   const addNode = NodesInternal.useAddNode();
   const isParentAdded = NodesInternal.useIsAdded(parent);
 
-  const page = NodeGeneratorInternal.usePage();
+  const page = GeneratorInternal.usePage();
   const removeNode = NodesInternal.useRemoveNode();
   const nodeRef = useAsRef(node);
   const pageRef = useAsRef(page);
 
-  NodeStages.AddNodes.useEffect(() => {
+  GeneratorStages.AddNodes.useEffect(() => {
     if (isParentAdded) {
       const defaultState = nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any);
       addNode(nodeRef.current, defaultState, row);
     }
   }, [addNode, isParentAdded, nodeRef, stateFactoryPropsRef, row]);
 
-  NodeStages.AddNodes.useEffect(
+  GeneratorStages.AddNodes.useEffect(
     () => () => {
       pageRef.current._removeChild(nodeRef.current);
       removeNode(nodeRef.current, rowRef.current);
@@ -109,7 +109,7 @@ function useAddRemoveNode(node: LayoutNode, item: CompIntermediate) {
 function ResolveExpressions<T extends CompTypes>({ node, item, hidden }: NodeResolverProps<T>) {
   const resolved = useResolvedItem({ node, item, hidden });
 
-  return <>{NodeGeneratorDebug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolved, null, 2)}</pre>}</>;
+  return <>{GeneratorDebug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolved, null, 2)}</pre>}</>;
 }
 
 interface NodeResolverProps<T extends CompTypes> {
@@ -124,7 +124,7 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
   item,
 }: NodeResolverProps<T>): CompInternal<T> | undefined {
   const resolverProps = useExpressionResolverProps(node, item);
-  const allNodesAdded = NodeStages.AddNodes.useIsDone();
+  const allNodesAdded = GeneratorStages.AddNodes.useIsDone();
   const isAdded = NodesInternal.useIsAdded(node);
 
   const def = useDef(item.type);
@@ -134,11 +134,11 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
     [def, resolverProps, allNodesAdded],
   );
 
-  NodeStages.MarkHidden.useEffect(() => {
+  GeneratorStages.MarkHidden.useEffect(() => {
     isAdded && setNodeProp(node, 'hidden', hidden);
   }, [hidden, node, setNodeProp, isAdded]);
 
-  NodeStages.EvaluateExpressions.useEffect(() => {
+  GeneratorStages.EvaluateExpressions.useEffect(() => {
     isAdded && setNodeProp(node, 'item', resolvedItem);
     node.updateCommonProps(resolvedItem as any);
   }, [node, resolvedItem, setNodeProp, isAdded]);
@@ -271,8 +271,8 @@ export function useExpressionResolverProps<T extends CompTypes>(
 }
 
 function useIntermediateItem<T extends CompTypes = CompTypes>(item: CompExternal<T>): CompIntermediate<T> {
-  const directMutators = NodeGeneratorInternal.useDirectMutators();
-  const recursiveMutators = NodeGeneratorInternal.useRecursiveMutators();
+  const directMutators = GeneratorInternal.useDirectMutators();
+  const recursiveMutators = GeneratorInternal.useRecursiveMutators();
 
   return useMemo(() => {
     const newItem = structuredClone(item) as CompIntermediate<T>;
@@ -294,7 +294,7 @@ function useIntermediateItem<T extends CompTypes = CompTypes>(item: CompExternal
 }
 
 function usePath<T extends CompTypes>(item: CompIntermediate<T>): string[] {
-  const parent = NodeGeneratorInternal.useParent();
+  const parent = GeneratorInternal.useParent();
 
   return useMemo(() => {
     const parentPath = parent instanceof LayoutPage ? [parent.pageKey] : parent.path;
@@ -306,9 +306,9 @@ function usePath<T extends CompTypes>(item: CompIntermediate<T>): string[] {
  * Creates a new node instance for a component item, and adds that to the parent node and the store.
  */
 function useNewNode<T extends CompTypes>(item: CompIntermediate<T>, path: string[]): LayoutNode<T> {
-  const page = NodeGeneratorInternal.usePage();
-  const parent = NodeGeneratorInternal.useParent();
-  const row = NodeGeneratorInternal.useRow();
+  const page = GeneratorInternal.usePage();
+  const parent = GeneratorInternal.useParent();
+  const row = GeneratorInternal.useRow();
   const store = NodesInternal.useDataStore();
   const LNode = useNodeConstructor(item.type);
 

@@ -12,7 +12,7 @@ import { CompCategory } from 'src/layout/common';
 import { getComponentCapabilities } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
-import { NodeGenerator } from 'src/utils/layout/NodeGenerator';
+import { NodeGenerator } from 'src/utils/layout/generator/NodeGenerator';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';

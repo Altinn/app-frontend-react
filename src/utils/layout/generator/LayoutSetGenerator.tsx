@@ -4,12 +4,12 @@ import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
+import { GeneratorInternal, GeneratorPageProvider } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
+import { useResolvedExpression } from 'src/utils/layout/generator/useResolvedExpression';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
-import { NodeGeneratorInternal, NodesGeneratorPageProvider } from 'src/utils/layout/NodesGeneratorContext';
-import { NodeStages } from 'src/utils/layout/NodeStages';
-import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
 import type { CompExternal, CompTypes, ILayout } from 'src/layout/layout';
 import type {
   BasicNodeGeneratorProps,
@@ -17,12 +17,12 @@ import type {
   ComponentProto,
   ContainerGeneratorProps,
 } from 'src/layout/LayoutComponent';
+import type { ChildrenMap } from 'src/utils/layout/generator/GeneratorContext';
 import type { HiddenStatePage } from 'src/utils/layout/NodesContext';
-import type { ChildrenMap } from 'src/utils/layout/NodesGeneratorContext';
 
-export const NodeGeneratorDebug = false;
+export const GeneratorDebug = false;
 
-const style: React.CSSProperties = NodeGeneratorDebug
+const style: React.CSSProperties = GeneratorDebug
   ? {
       display: 'block',
       position: 'fixed',
@@ -43,7 +43,7 @@ interface ChildrenState {
   map: ChildrenMap | undefined;
 }
 
-export function NodesGenerator() {
+export function LayoutSetGenerator() {
   const layouts = useLayouts();
   const pages = useMemo(() => new LayoutPages(), []);
 
@@ -51,7 +51,7 @@ export function NodesGenerator() {
     <div style={style}>
       <SaveFinishedNodesToStore pages={pages} />
       <ExportStores />
-      {NodeGeneratorDebug && <h1>Node generator</h1>}
+      {GeneratorDebug && <h1>Node generator</h1>}
       {layouts &&
         Object.keys(layouts).map((key) => {
           const layout = layouts[key];
@@ -61,12 +61,13 @@ export function NodesGenerator() {
           }
 
           return (
-            <Page
-              key={key}
-              name={key}
-              layout={layout}
-              layoutSet={pages}
-            />
+            <GeneratorErrorBoundary key={key}>
+              <PageGenerator
+                name={key}
+                layout={layout}
+                layoutSet={pages}
+              />
+            </GeneratorErrorBoundary>
           );
         })}
     </div>
@@ -77,7 +78,7 @@ function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
   const layouts = useLayouts();
   const existingNodes = useNodes();
   const setNodes = NodesInternal.useSetNodes();
-  const isFinished = NodeStages.useIsFinished();
+  const isFinished = GeneratorStages.useIsFinished();
   const layoutKeys = useMemo(() => Object.keys(layouts), [layouts]);
 
   useEffect(() => {
@@ -123,7 +124,7 @@ interface PageProps {
   layoutSet: LayoutPages;
 }
 
-function Page({ layout, name, layoutSet }: PageProps) {
+function PageGenerator({ layout, name, layoutSet }: PageProps) {
   const [children, setChildren] = useState<ChildrenState>({ forLayout: layout, map: undefined });
   const page = useMemo(() => new LayoutPage(), []);
   const [hidden, setHidden] = useState<HiddenStatePage>({
@@ -188,16 +189,16 @@ function Page({ layout, name, layoutSet }: PageProps) {
             getProto={getProto}
           />
         ))}
-      {NodeGeneratorDebug && <h2>Page: {name}</h2>}
+      {GeneratorDebug && <h2>Page: {name}</h2>}
       {map !== undefined && (
-        <NodesGeneratorPageProvider
+        <GeneratorPageProvider
           parent={page}
           hidden={hidden}
           layoutMap={layoutMap}
           childrenMap={map}
         >
-          <NodeChildren childIds={topLevelIds} />
-        </NodesGeneratorPageProvider>
+          <GenerateNodeChildren childIds={topLevelIds} />
+        </GeneratorPageProvider>
       )}
     </>
   );
@@ -234,7 +235,7 @@ function MaintainPageState({ layoutSet, page, name, setHidden }: MaintainPageSta
   }
 
   // Removes the page from the store when is removed from the React tree
-  NodeStages.AddNodes.useEffect(
+  GeneratorStages.AddNodes.useEffect(
     () => () => {
       removePage(page.pageKey);
       page.unregisterCollection();
@@ -242,7 +243,7 @@ function MaintainPageState({ layoutSet, page, name, setHidden }: MaintainPageSta
     [page, removePage],
   );
 
-  NodeStages.MarkHidden.useEffect(() => {
+  GeneratorStages.MarkHidden.useEffect(() => {
     setPageProp(name, 'hidden', hidden);
     setHidden(hidden);
   }, [hidden, name, setPageProp, setHidden]);
@@ -254,19 +255,20 @@ interface NodeChildrenProps {
   childIds: string[];
 }
 
-export function NodeChildren({ childIds }: NodeChildrenProps) {
-  const layoutMap = NodeGeneratorInternal.useLayoutMap();
-  const map = NodeGeneratorInternal.useChildrenMap();
+export function GenerateNodeChildren({ childIds }: NodeChildrenProps) {
+  const layoutMap = GeneratorInternal.useLayoutMap();
+  const map = GeneratorInternal.useChildrenMap();
 
   return (
     <>
       {childIds.map((id) => (
-        <Component
-          key={id}
-          baseId={id}
-          childIds={map[id]}
-          type={layoutMap[id].type}
-        />
+        <GeneratorErrorBoundary key={id}>
+          <GenerateComponent
+            baseId={id}
+            childIds={map[id]}
+            type={layoutMap[id].type}
+          />
+        </GeneratorErrorBoundary>
       ))}
     </>
   );
@@ -325,12 +327,12 @@ function ComponentClaimChildren({ component, setChildren, getProto }: ComponentC
 
   return (
     <>
-      {NodeGeneratorDebug && (
+      {GeneratorDebug && (
         <h3>
           {component.id} ({component.type})
         </h3>
       )}
-      {NodeGeneratorDebug && <span>(first pass render)</span>}
+      {GeneratorDebug && <span>(first pass render)</span>}
     </>
   );
 }
@@ -341,7 +343,7 @@ interface ComponentProps {
   childIds: string[] | undefined;
 }
 
-function Component({ baseId, type, childIds }: ComponentProps) {
+function GenerateComponent({ baseId, type, childIds }: ComponentProps) {
   const def = getComponentDef(type);
   const Generator = def.renderNodeGenerator;
   const props = useMemo(() => {
@@ -364,12 +366,12 @@ function Component({ baseId, type, childIds }: ComponentProps) {
         paddingLeft: '5px',
       }}
     >
-      {NodeGeneratorDebug && (
+      {GeneratorDebug && (
         <h3>
           {baseId} ({type})
         </h3>
       )}
-      {NodeGeneratorDebug && <span>{childIds ? `Children: ${childIds.join(', ')}` : 'No children'}</span>}
+      {GeneratorDebug && <span>{childIds ? `Children: ${childIds.join(', ')}` : 'No children'}</span>}
       <Generator {...(props as any)} />
     </div>
   );

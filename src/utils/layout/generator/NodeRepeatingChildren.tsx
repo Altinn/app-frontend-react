@@ -5,16 +5,16 @@ import dot from 'dot-object';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useDef, useExpressionResolverProps } from 'src/utils/layout/NodeGenerator';
+import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
+import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
+import { useDef, useExpressionResolverProps } from 'src/utils/layout/generator/NodeGenerator';
 import { NodesInternal, useNodeLax } from 'src/utils/layout/NodesContext';
-import { NodeChildren } from 'src/utils/layout/NodesGenerator';
-import { NodeGeneratorInternal, NodesGeneratorRowProvider } from 'src/utils/layout/NodesGeneratorContext';
-import { NodeStages } from 'src/utils/layout/NodeStages';
 import { useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
 import type { CompDef } from 'src/layout';
 import type { CompExternal } from 'src/layout/layout';
+import type { ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ChildMutator } from 'src/utils/layout/NodesGeneratorContext';
 import type { BaseRow } from 'src/utils/layout/types';
 
 interface Props {
@@ -26,7 +26,7 @@ interface Props {
 }
 
 export function NodeRepeatingChildren({ childIds, binding, multiPageSupport, externalProp, internalProp }: Props) {
-  const item = NodeGeneratorInternal.useIntermediateItem();
+  const item = GeneratorInternal.useIntermediateItem();
   const groupBinding = item?.dataModelBindings?.[binding];
   const freshRows = FD.useFreshRows(groupBinding);
   const prevRows = useRef<BaseRow[]>(freshRows);
@@ -83,9 +83,9 @@ interface GenerateRowProps {
 }
 
 function _GenerateRow({ row, childIds, groupBinding, multiPageMapping, internalProp }: GenerateRowProps) {
-  const node = NodeGeneratorInternal.useParent() as LayoutNode;
+  const node = GeneratorInternal.useParent() as LayoutNode;
   const removeRow = NodesInternal.useRemoveRow();
-  const depth = NodeGeneratorInternal.useDepth();
+  const depth = GeneratorInternal.useDepth();
   const directMutators = useMemo(
     () => [mutateComponentId(row), mutateMultiPageIndex(multiPageMapping)],
     [multiPageMapping, row],
@@ -96,7 +96,7 @@ function _GenerateRow({ row, childIds, groupBinding, multiPageMapping, internalP
     [row, depth, groupBinding],
   );
 
-  NodeStages.AddNodes.useEffect(
+  GeneratorStages.AddNodes.useEffect(
     () => () => {
       removeRow(node, row, internalProp);
     },
@@ -104,14 +104,14 @@ function _GenerateRow({ row, childIds, groupBinding, multiPageMapping, internalP
   );
 
   return (
-    <NodesGeneratorRowProvider
+    <GeneratorRowProvider
       row={row}
       directMutators={directMutators}
       recursiveMutators={recursiveMutators}
     >
       <ResolveRowExpressions internalProp={internalProp} />
-      <NodeChildren childIds={childIds} />
-    </NodesGeneratorRowProvider>
+      <GenerateNodeChildren childIds={childIds} />
+    </GeneratorRowProvider>
   );
 }
 
@@ -123,15 +123,15 @@ interface ResolveRowProps {
 }
 
 function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
-  const parent = NodeGeneratorInternal.useParent() as LayoutNode;
-  const row = NodeGeneratorInternal.useRow() as BaseRow;
+  const parent = GeneratorInternal.useParent() as LayoutNode;
+  const row = GeneratorInternal.useRow() as BaseRow;
   const nodeChildren = useNodeDirectChildren(parent as LayoutNode, { onlyInRowUuid: row!.uuid });
   const firstChildRaw = useNodeLax(nodeChildren?.[0]);
   const firstChild = firstChildRaw === ContextNotProvided ? undefined : firstChildRaw;
 
-  const item = NodeGeneratorInternal.useIntermediateItem();
+  const item = GeneratorInternal.useIntermediateItem();
   const props = useExpressionResolverProps(firstChild, item as CompExternal, row);
-  const allNodesAdded = NodeStages.AddNodes.useIsDone();
+  const allNodesAdded = GeneratorStages.AddNodes.useIsDone();
 
   const setExtra = NodesInternal.useSetRowExtras();
   const def = useDef(item!.type);
@@ -140,7 +140,7 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
     [def, props, allNodesAdded],
   );
 
-  NodeStages.EvaluateExpressions.useEffect(() => {
+  GeneratorStages.EvaluateExpressions.useEffect(() => {
     if (resolvedRowExtras) {
       setExtra(parent, row, internalProp, resolvedRowExtras);
     }

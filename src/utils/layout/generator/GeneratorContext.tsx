@@ -14,22 +14,22 @@ export interface ChildrenMap {
   [parentId: string]: string[];
 }
 
-type PageProviderProps = Pick<NodesGeneratorContext, 'layoutMap' | 'childrenMap'> & {
+type PageProviderProps = Pick<GeneratorContext, 'layoutMap' | 'childrenMap'> & {
   hidden: HiddenStatePage;
   parent: LayoutPage;
 };
 
-type NodeGeneratorProps = Pick<NodesGeneratorContext, 'directMutators' | 'recursiveMutators'> & {
+type NodeGeneratorProps = Pick<GeneratorContext, 'directMutators' | 'recursiveMutators'> & {
   hidden: Omit<HiddenStateNode, 'parent'>;
   item: CompIntermediateExact<CompTypes>;
   parent: LayoutNode;
 };
 
-type RowGeneratorProps = Pick<NodesGeneratorContext, 'directMutators' | 'recursiveMutators'> & {
+type RowGeneratorProps = Pick<GeneratorContext, 'directMutators' | 'recursiveMutators'> & {
   row: BaseRow;
 };
 
-interface NodesGeneratorContext {
+interface GeneratorContext {
   directMutators?: ChildMutator[];
   recursiveMutators?: ChildMutator[];
   layoutMap: Record<string, CompExternal>;
@@ -43,8 +43,8 @@ interface NodesGeneratorContext {
   depth: number; // Depth is 1 for top level nodes, 2 for children of top level nodes, etc.
 }
 
-const { Provider, useCtx } = createContext<NodesGeneratorContext>({
-  name: 'NodesGenerator',
+const { Provider, useCtx } = createContext<GeneratorContext>({
+  name: 'Generator',
   required: true,
 });
 
@@ -55,9 +55,9 @@ const emptyArray: never[] = [];
  * mutators from the parent. This way we can have a single recursive mutator that is applied to all children, no
  * matter how many levels of context providers we have.
  */
-export function NodesGeneratorProvider({ children, ...rest }: PropsWithChildren<NodeGeneratorProps>) {
+export function GeneratorProvider({ children, ...rest }: PropsWithChildren<NodeGeneratorProps>) {
   const parent = useCtx();
-  const value: NodesGeneratorContext = useMemo(
+  const value: GeneratorContext = useMemo(
     () => ({
       // Inherit all values from the parent, overwrite with our own if they are passed
       ...parent,
@@ -86,8 +86,8 @@ export function NodesGeneratorProvider({ children, ...rest }: PropsWithChildren<
   return <Provider value={value}>{children}</Provider>;
 }
 
-export function NodesGeneratorPageProvider({ children, ...rest }: PropsWithChildren<PageProviderProps>) {
-  const value: NodesGeneratorContext = useMemo(
+export function GeneratorPageProvider({ children, ...rest }: PropsWithChildren<PageProviderProps>) {
+  const value: GeneratorContext = useMemo(
     () => ({
       page: rest.parent,
       claimedChildren: new Set(Object.values(rest.childrenMap).flat()),
@@ -106,14 +106,14 @@ export function NodesGeneratorPageProvider({ children, ...rest }: PropsWithChild
   return <Provider value={value}>{children}</Provider>;
 }
 
-export function NodesGeneratorRowProvider({
+export function GeneratorRowProvider({
   children,
   row,
   directMutators,
   recursiveMutators,
 }: PropsWithChildren<RowGeneratorProps>) {
   const parent = useCtx();
-  const value: NodesGeneratorContext = useMemo(
+  const value: GeneratorContext = useMemo(
     () => ({
       // Inherit all values from the parent, overwrite with our own if they are passed
       ...parent,
@@ -132,7 +132,7 @@ export function NodesGeneratorRowProvider({
   return <Provider value={value}>{children}</Provider>;
 }
 
-export const NodeGeneratorInternal = {
+export const GeneratorInternal = {
   useDirectMutators: () => useCtx().directMutators ?? emptyArray,
   useRecursiveMutators: () => useCtx().recursiveMutators ?? emptyArray,
   useHiddenState: () => useCtx().hidden,

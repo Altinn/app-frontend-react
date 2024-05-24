@@ -2,19 +2,19 @@ import React from 'react';
 
 import { render, waitFor } from '@testing-library/react';
 
-import { NodeStages, NodeStagesProvider } from 'src/utils/layout/NodeStages';
+import { GeneratorStages, GeneratorStagesProvider } from 'src/utils/layout/generator/GeneratorStages';
 
 interface Props {
   logger: (...args: any[]) => void;
 }
 
-describe('NodeStages', () => {
+describe('GeneratorStages', () => {
   function TestComponent1({ logger }: Props) {
-    NodeStages.MarkHidden.useEffect(() => {
+    GeneratorStages.MarkHidden.useEffect(() => {
       logger('useEffect in stage2');
     }, []);
 
-    NodeStages.AddNodes.useEffect(() => {
+    GeneratorStages.AddNodes.useEffect(() => {
       logger('useEffect in stage1');
     }, []);
 
@@ -24,9 +24,9 @@ describe('NodeStages', () => {
   it('should run hooks in the correct order', async () => {
     const logger = jest.fn();
     render(
-      <NodeStagesProvider>
+      <GeneratorStagesProvider>
         <TestComponent1 logger={logger} />
-      </NodeStagesProvider>,
+      </GeneratorStagesProvider>,
     );
     await waitFor(() => expect(logger).toHaveBeenCalledTimes(2));
     expect(logger).toHaveBeenNthCalledWith(1, 'useEffect in stage1');
@@ -34,15 +34,15 @@ describe('NodeStages', () => {
   });
 
   function TestComponentParent({ logger }: Props) {
-    NodeStages.AddNodes.useEffect(() => {
+    GeneratorStages.AddNodes.useEffect(() => {
       logger('useEffect in stage1 in parent');
     }, []);
 
-    NodeStages.MarkHidden.useEffect(() => {
+    GeneratorStages.MarkHidden.useEffect(() => {
       logger('useEffect in stage2 in parent');
     }, []);
 
-    NodeStages.AddNodes.useOnDone(() => {
+    GeneratorStages.AddNodes.useOnDone(() => {
       logger('stage1 now done');
     });
 
@@ -52,9 +52,9 @@ describe('NodeStages', () => {
   it('should run callback when done', async () => {
     const logger = jest.fn();
     render(
-      <NodeStagesProvider>
+      <GeneratorStagesProvider>
         <TestComponentParent logger={logger} />
-      </NodeStagesProvider>,
+      </GeneratorStagesProvider>,
     );
     await waitFor(() => expect(logger).toHaveBeenCalledTimes(5));
     expect(logger).toHaveBeenNthCalledWith(1, 'useEffect in stage1');

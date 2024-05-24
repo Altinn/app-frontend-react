@@ -2,20 +2,20 @@ import { useMemo } from 'react';
 
 import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
 import { getInitialMaskFromNode } from 'src/features/validation/utils';
+import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
-import { NodeGeneratorInternal } from 'src/utils/layout/NodesGeneratorContext';
-import { NodeStages } from 'src/utils/layout/NodeStages';
 import type { CompCategory } from 'src/layout/common';
 import type { TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function StoreValidationsInNode() {
-  const item = NodeGeneratorInternal.useIntermediateItem();
-  const node = NodeGeneratorInternal.useParent() as LayoutNode<
+  const item = GeneratorInternal.useIntermediateItem();
+  const node = GeneratorInternal.useParent() as LayoutNode<
     TypesFromCategory<CompCategory.Form | CompCategory.Container>
   >;
   const setNodeProp = NodesInternal.useSetNodeProp();
-  const isAllAdded = NodeStages.AddNodes.useIsDone();
+  const isAllAdded = GeneratorStages.AddNodes.useIsDone();
   const isSelfAdded = NodesInternal.useIsAdded(node);
   const isHidden = Hidden.useIsHiddenSelector();
 
@@ -30,7 +30,7 @@ export function StoreValidationsInNode() {
   );
 
   const validations = useNodeValidation(node, shouldValidate);
-  NodeStages.EvaluateExpressions.useEffect(() => {
+  GeneratorStages.EvaluateExpressions.useEffect(() => {
     isAllAdded && isSelfAdded && setNodeProp(node, 'validations', validations);
   }, [isAllAdded, isSelfAdded, node, setNodeProp, validations]);
 
@@ -38,7 +38,7 @@ export function StoreValidationsInNode() {
     ? getInitialMaskFromNode('showValidations' in item ? item.showValidations : undefined)
     : undefined;
 
-  NodeStages.EvaluateExpressions.useEffect(() => {
+  GeneratorStages.EvaluateExpressions.useEffect(() => {
     isAllAdded && isSelfAdded && initialMask !== undefined && setNodeProp(node, 'validationVisibility', initialMask);
   }, [isAllAdded, isSelfAdded, initialMask, node, setNodeProp]);
 

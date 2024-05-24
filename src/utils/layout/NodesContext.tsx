@@ -23,12 +23,12 @@ import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
+import { GeneratorStagesProvider } from 'src/utils/layout/generator/GeneratorStages';
+import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
-import { NodeStagesProvider } from 'src/utils/layout/NodeStages';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import {
@@ -264,9 +264,9 @@ export type NodesDataStoreFull = typeof DataStore;
 export const NodesProvider = (props: React.PropsWithChildren) => (
   <NodesStore.Provider>
     <DataStore.Provider>
-      <NodeStagesProvider>
-        <NodesGenerator />
-      </NodeStagesProvider>
+      <GeneratorStagesProvider>
+        <LayoutSetGenerator />
+      </GeneratorStagesProvider>
       <InnerHiddenComponentsProvider />
       <UpdateExpressionValidation />
       <MarkAsReady />

@@ -126,7 +126,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
   extraNodeGeneratorChildren(): string {
     const NodeRepeatingChildren = new CG.import({
       import: 'NodeRepeatingChildren',
-      from: 'src/utils/layout/NodeRepeatingChildren',
+      from: 'src/utils/layout/generator/NodeRepeatingChildren',
     });
     const multiPageSupport = this.settings.multiPageSupport === false ? 'false' : `'${this.settings.multiPageSupport}'`;
     return `

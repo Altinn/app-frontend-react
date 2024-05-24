@@ -21,12 +21,18 @@ export interface StateFactoryProps<Type extends CompTypes> {
   row?: BaseRow;
 }
 
+export interface NodeErrors {
+  // The key is the error message (making sure we don't have duplicates)
+  [key: string]: true;
+}
+
 export interface BaseNodeData<T extends CompTypes> {
   type: 'node';
   layout: CompIntermediate<T>;
   item: CompInternal<T> | undefined;
   hidden: HiddenStateNode | undefined;
   row: BaseRow | undefined;
+  errors: NodeErrors | undefined;
 }
 
 export type NodeData<Type extends CompTypes = CompTypes> = ReturnType<CompDef<Type>['stateFactory']>;

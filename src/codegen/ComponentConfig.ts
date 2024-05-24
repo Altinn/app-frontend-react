@@ -302,7 +302,7 @@ export class ComponentConfig {
 
     const NodeGenerator = new CG.import({
       import: 'NodeGenerator',
-      from: 'src/utils/layout/NodeGenerator',
+      from: 'src/utils/layout/generator/NodeGenerator',
     });
 
     const isFormComponent = this.config.category === CompCategory.Form;
@@ -442,6 +442,7 @@ export class ComponentConfig {
           layout: props.item,
           hidden: undefined,
           row: props.row,
+          errors: undefined,
         };
 
         return { ...baseState, ${pluginStateFactories} };

@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
+import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
-import { NodeStages } from 'src/utils/layout/NodeStages';
 import type { ExprConfig, ExprVal, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -20,7 +20,7 @@ export function useResolvedExpression<V extends ExprVal>(
   defaultValue: ExprValToActual<V>,
 ) {
   const allDataSources = useExpressionDataSources();
-  const allNodesAdded = NodeStages.AddNodes.useIsDone();
+  const allNodesAdded = GeneratorStages.AddNodes.useIsDone();
 
   return useMemo(() => {
     if (!allNodesAdded) {
