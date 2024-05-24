@@ -26,7 +26,7 @@ interface Props {
 }
 
 export function NodeRepeatingChildren({ childIds, binding, multiPageSupport, externalProp, internalProp }: Props) {
-  const item = NodeGeneratorInternal.useUnresolvedItem();
+  const item = NodeGeneratorInternal.useIntermediateItem();
   const groupBinding = item?.dataModelBindings?.[binding];
   const freshRows = FD.useFreshRows(groupBinding);
   const prevRows = useRef<BaseRow[]>(freshRows);
@@ -129,7 +129,7 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
   const firstChildRaw = useNodeLax(nodeChildren?.[0]);
   const firstChild = firstChildRaw === ContextNotProvided ? undefined : firstChildRaw;
 
-  const item = NodeGeneratorInternal.useUnresolvedItem();
+  const item = NodeGeneratorInternal.useIntermediateItem();
   const props = useExpressionResolverProps(firstChild, item as CompExternal, row);
   const allNodesAdded = NodeStages.AddNodes.useIsDone();
 

@@ -4,14 +4,14 @@ import { pickDataStorePath } from 'src/utils/layout/NodesContext';
 import type { CompClassMap, CompDef, NodeRef } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
-import type { CompExternalExact, CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
+import type { CompIntermediate, CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { NodesDataStore } from 'src/utils/layout/NodesContext';
 import type { BaseRow } from 'src/utils/layout/types';
 import type { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 
 export interface LayoutNodeProps<Type extends CompTypes> {
-  item: CompExternalExact<Type>;
+  item: CompIntermediate<Type>;
   store: NodesDataStore;
   path: string[];
   parent: ParentNode;

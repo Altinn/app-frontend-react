@@ -4,7 +4,6 @@ import type { ComponentBehaviors, ComponentCapabilities } from 'src/codegen/Comp
 import type { CompCategory } from 'src/layout/common';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
-import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompClassMapCategories } from 'src/layout/index';
 import type {
   ActionComponent,
@@ -12,8 +11,6 @@ import type {
   FormComponent,
   PresentationComponent,
 } from 'src/layout/LayoutComponent';
-import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
-import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -30,8 +27,6 @@ export interface ILayouts {
 export type CompTypes = keyof typeof ComponentConfigs & keyof ComponentTypeConfigs;
 type AllComponents = ComponentTypeConfigs[CompTypes]['layout'];
 
-export type CompExceptGroup = Exclude<CompTypes, 'Group', 'RepeatingGroup', 'Likert'>;
-
 /**
  * This type can be used to reference the layout declaration for a component. You can either use it to specify
  * any valid component:
@@ -45,14 +40,20 @@ export type CompExceptGroup = Exclude<CompTypes, 'Group', 'RepeatingGroup', 'Lik
  * @see CompInternal
  * @see LayoutNode
  */
-export type CompExternal<Type extends CompExceptGroup = CompExceptGroup> = Extract<AllComponents, { type: Type }>;
+export type CompExternal<Type extends CompTypes = CompTypes> = Extract<AllComponents, { type: Type }>;
 
 /**
  * Alternative version of the one above
  */
 export type CompExternalExact<Type extends CompTypes> = ComponentTypeConfigs[Type]['layout'];
 
-export type CompOrGroupExternal = CompRepeatingGroupExternal | CompLikertExternal | CompGroupExternal | CompExternal;
+/**
+ * When running hierarchy generation, an intermediate type is used. This will contain the same properties as
+ * CompExternal, but also the hierarchy extensions (as applied when running hierarchy mutations). At this point
+ * the ID property will be set to `<baseId>-<rowIndex>` as expected for repeating groups, etc.
+ */
+export type CompIntermediate<Type extends CompTypes = CompTypes> = CompExternal<Type> & HierarchyExtensions;
+export type CompIntermediateExact<Type extends CompTypes> = CompExternalExact<Type> & HierarchyExtensions;
 
 /**
  * This is the type you should use when referencing a specific component type, and will give
@@ -76,7 +77,6 @@ export type ILayout = CompOrGroupExternal[];
 interface HierarchyExtensions {
   // These will be set if the component is inside a repeating group
   baseComponentId?: string;
-  baseDataModelBindings?: IDataModelBindings;
   multiPageIndex?: number;
 }
 

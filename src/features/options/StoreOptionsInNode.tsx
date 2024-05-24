@@ -3,11 +3,11 @@ import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { NodeGeneratorInternal } from 'src/utils/layout/NodesGeneratorContext';
 import { NodeStages } from 'src/utils/layout/NodeStages';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
-import type { CompInternal, CompWithBehavior } from 'src/layout/layout';
+import type { CompIntermediate, CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function StoreOptionsInNode({ valueType }: { valueType: OptionsValueType }) {
-  const item = NodeGeneratorInternal.useUnresolvedItem() as CompInternal<CompWithBehavior<'canHaveOptions'>>;
+  const item = NodeGeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const node = NodeGeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const setNodeProp = NodesInternal.useSetNodeProp();
   const isAllAdded = NodeStages.AddNodes.useIsDone();

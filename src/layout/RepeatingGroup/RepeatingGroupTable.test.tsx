@@ -17,13 +17,13 @@ import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IRawOption } from 'src/layout/common.generated';
-import type { CompOrGroupExternal, ILayoutCollection } from 'src/layout/layout';
+import type { CompExternal, ILayoutCollection } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 (global as any).ResizeObserver = ResizeObserverModule;
 
-const getLayout = (group: CompRepeatingGroupExternal, components: CompOrGroupExternal[]): ILayoutCollection => ({
+const getLayout = (group: CompRepeatingGroupExternal, components: CompExternal[]): ILayoutCollection => ({
   FormLayout: {
     data: {
       layout: [group, ...components],
@@ -36,7 +36,7 @@ describe('RepeatingGroupTable', () => {
     id: 'mock-container-id',
   });
   const options: IRawOption[] = [{ value: 'option.value', label: 'option.label' }];
-  const components: CompOrGroupExternal[] = [
+  const components: CompExternal[] = [
     {
       id: 'field1',
       type: 'Input',

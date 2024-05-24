@@ -12,7 +12,7 @@ import { filterDuplicateOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelBindingsOptionsSimple, IDataModelBindingsSimple } from 'src/layout/common.generated';
-import type { CompExternal, CompWithBehavior } from 'src/layout/layout';
+import type { CompIntermediateExact, CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type OptionsValueType = 'single' | 'multi';
@@ -35,7 +35,7 @@ const useHasChanged = (val: any) => {
 interface FetchOptionsProps<T extends OptionsValueType> {
   valueType: T;
   node: LayoutNode<CompWithBehavior<'canHaveOptions'>>;
-  item: CompExternal<CompWithBehavior<'canHaveOptions'>>;
+  item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
 }
 
 interface SetOptionsProps<T extends OptionsValueType> {

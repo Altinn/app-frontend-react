@@ -19,7 +19,8 @@ import type { CompDef } from 'src/layout';
 import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
 import type {
   CompExternal,
-  CompExternalExact,
+  CompIntermediate,
+  CompIntermediateExact,
   CompInternal,
   CompTypes,
   ITextResourceBindings,
@@ -40,7 +41,7 @@ import type { BaseRow, StateFactoryProps } from 'src/utils/layout/types';
  */
 export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeGeneratorProps>) {
   const layoutMap = NodeGeneratorInternal.useLayoutMap();
-  const item = useItem(layoutMap[baseId]);
+  const item = useIntermediateItem(layoutMap[baseId]) as CompIntermediateExact<CompTypes>;
   const path = usePath(item);
   const node = useNewNode(item, path) as LayoutNode;
   useAddRemoveNode(node, item);
@@ -76,7 +77,7 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
   );
 }
 
-function useAddRemoveNode(node: LayoutNode, item: CompExternal) {
+function useAddRemoveNode(node: LayoutNode, item: CompIntermediate) {
   const parent = NodeGeneratorInternal.useParent();
   const row = NodeGeneratorInternal.useRow();
   const rowRef = useAsRef(row);
@@ -114,7 +115,7 @@ function ResolveExpressions<T extends CompTypes>({ node, item, hidden }: NodeRes
 interface NodeResolverProps<T extends CompTypes> {
   node: LayoutNode<T>;
   hidden: HiddenStateNode;
-  item: CompExternal<T>;
+  item: CompIntermediateExact<T>;
 }
 
 function useResolvedItem<T extends CompTypes = CompTypes>({
@@ -151,7 +152,7 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
  */
 export function useExpressionResolverProps<T extends CompTypes>(
   node: LayoutNode<T> | undefined,
-  item: CompExternalExact<T>,
+  item: CompIntermediateExact<T>,
   row?: BaseRow,
 ): ExprResolver<T> {
   const stateSelector = NodesInternal.useExactNodeDataMemoSelector(node);
@@ -269,12 +270,12 @@ export function useExpressionResolverProps<T extends CompTypes>(
   };
 }
 
-function useItem<T extends CompTypes = CompTypes>(item: CompExternal<T>): CompExternal<T> {
+function useIntermediateItem<T extends CompTypes = CompTypes>(item: CompExternal<T>): CompIntermediate<T> {
   const directMutators = NodeGeneratorInternal.useDirectMutators();
   const recursiveMutators = NodeGeneratorInternal.useRecursiveMutators();
 
   return useMemo(() => {
-    const newItem = structuredClone(item);
+    const newItem = structuredClone(item) as CompIntermediate<T>;
 
     // The hidden property is handled elsewhere, and should never be passed to the item (and resolved as an
     // expression) which could be read. Try useIsHidden() or useIsHiddenSelector() if you need to know if a
@@ -292,7 +293,7 @@ function useItem<T extends CompTypes = CompTypes>(item: CompExternal<T>): CompEx
   }, [directMutators, item, recursiveMutators]);
 }
 
-function usePath<T extends CompTypes>(item: CompExternal<T>): string[] {
+function usePath<T extends CompTypes>(item: CompIntermediate<T>): string[] {
   const parent = NodeGeneratorInternal.useParent();
 
   return useMemo(() => {
@@ -304,7 +305,7 @@ function usePath<T extends CompTypes>(item: CompExternal<T>): string[] {
 /**
  * Creates a new node instance for a component item, and adds that to the parent node and the store.
  */
-function useNewNode<T extends CompTypes>(item: CompExternal<T>, path: string[]): LayoutNode<T> {
+function useNewNode<T extends CompTypes>(item: CompIntermediate<T>, path: string[]): LayoutNode<T> {
   const page = NodeGeneratorInternal.usePage();
   const parent = NodeGeneratorInternal.useParent();
   const row = NodeGeneratorInternal.useRow();
@@ -320,11 +321,11 @@ function useNewNode<T extends CompTypes>(item: CompExternal<T>, path: string[]):
   }, [LNode, item, page, parent, path, row, store]);
 }
 
-function isFormItem(item: CompExternal): item is CompExternal & FormComponentProps {
+function isFormItem(item: CompIntermediate): item is CompIntermediate & FormComponentProps {
   return 'readOnly' in item || 'required' in item || 'showValidations' in item;
 }
 
-function isSummarizableItem(item: CompExternal): item is CompExternal & SummarizableComponentProps {
+function isSummarizableItem(item: CompIntermediate): item is CompIntermediate & SummarizableComponentProps {
   return 'renderAsSummary' in item;
 }
 

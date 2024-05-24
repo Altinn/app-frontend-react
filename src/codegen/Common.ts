@@ -15,7 +15,7 @@ const common = {
             new CG.arr(
               new CG.raw({
                 typeScript: new CG.import({
-                  import: 'CompOrGroupExternal',
+                  import: 'CompExternal',
                   from: 'src/layout/layout.d',
                 }),
                 jsonSchema: () => ({

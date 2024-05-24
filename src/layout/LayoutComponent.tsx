@@ -25,6 +25,7 @@ import type { FormDataSelector, NodeRef, PropsFromGenericComponent, ValidateEmpt
 import type {
   CompExternal,
   CompExternalExact,
+  CompIntermediateExact,
   CompInternal,
   CompTypes,
   IsContainerComp,
@@ -52,7 +53,7 @@ export type NodeGeneratorProps<Type extends CompTypes> =
 
 export interface ExprResolver<Type extends CompTypes> {
   stateSelector: ExactNodeDataSelector;
-  item: CompExternalExact<Type>;
+  item: CompIntermediateExact<Type>;
   row?: BaseRow;
   formDataSelector: FormDataSelector;
   evalBase: () => ExprResolved<Omit<ComponentBase, 'hidden'>>;

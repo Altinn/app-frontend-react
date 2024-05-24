@@ -2,13 +2,13 @@ import React, { useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
-import type { CompExternal, CompTypes } from 'src/layout/layout';
+import type { CompExternal, CompIntermediate, CompIntermediateExact, CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { HiddenState, HiddenStateNode, HiddenStatePage } from 'src/utils/layout/NodesContext';
 import type { BaseRow } from 'src/utils/layout/types';
 
-export type ChildMutator<T extends CompTypes = CompTypes> = (item: CompExternal<T>) => void;
+export type ChildMutator<T extends CompTypes = CompTypes> = (item: CompIntermediate<T>) => void;
 
 export interface ChildrenMap {
   [parentId: string]: string[];
@@ -21,7 +21,7 @@ type PageProviderProps = Pick<NodesGeneratorContext, 'layoutMap' | 'childrenMap'
 
 type NodeGeneratorProps = Pick<NodesGeneratorContext, 'directMutators' | 'recursiveMutators'> & {
   hidden: Omit<HiddenStateNode, 'parent'>;
-  item: CompExternal;
+  item: CompIntermediateExact<CompTypes>;
   parent: LayoutNode;
 };
 
@@ -36,7 +36,7 @@ interface NodesGeneratorContext {
   childrenMap: ChildrenMap;
   hidden: HiddenState;
   parent: LayoutNode | LayoutPage;
-  item: CompExternal | undefined;
+  item: CompIntermediateExact<CompTypes> | undefined;
   claimedChildren: Set<string>;
   row: BaseRow | undefined;
   page: LayoutPage;
@@ -143,5 +143,5 @@ export const NodeGeneratorInternal = {
   useParent: () => useCtx().parent,
   usePage: () => useCtx().page,
   useRow: () => useCtx().row,
-  useUnresolvedItem: () => useCtx().item,
+  useIntermediateItem: () => useCtx().item,
 };

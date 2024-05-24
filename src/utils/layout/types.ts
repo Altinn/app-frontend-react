@@ -1,5 +1,5 @@
 import type { CompDef } from 'src/layout';
-import type { CompExternalExact, CompInternal, CompTypes, TypeFromNode } from 'src/layout/layout';
+import type { CompIntermediate, CompInternal, CompTypes, TypeFromNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { HiddenStateNode } from 'src/utils/layout/NodesContext';
@@ -16,14 +16,14 @@ export interface BaseRow {
 }
 
 export interface StateFactoryProps<Type extends CompTypes> {
-  item: CompExternalExact<Type>;
+  item: CompIntermediate<Type>;
   parent: LayoutNode | LayoutPage;
   row?: BaseRow;
 }
 
 export interface BaseItemState<T extends CompTypes> {
   type: 'node';
-  layout: CompExternalExact<T>;
+  layout: CompIntermediate<T>;
   item: CompInternal<T> | undefined;
   hidden: HiddenStateNode | undefined;
   row: BaseRow | undefined;
@@ -31,4 +31,4 @@ export interface BaseItemState<T extends CompTypes> {
 
 export type NodeData<Type extends CompTypes = CompTypes> = ReturnType<CompDef<Type>['stateFactory']>;
 export type NodeDataFromNode<N extends LayoutNode | undefined> = NodeData<TypeFromNode<Exclude<N, undefined>>>;
-export type NodeItemFromNode<N extends LayoutNode | undefined> = Exclude<NodeDataFromNode<N>['item'], undefined>;
+export type NodeItemFromNode<N extends LayoutNode | undefined> = CompInternal<TypeFromNode<Exclude<N, undefined>>>;
