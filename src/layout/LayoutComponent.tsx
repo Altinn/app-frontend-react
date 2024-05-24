@@ -84,6 +84,13 @@ export abstract class AnyComponent<Type extends CompTypes> {
   abstract canRenderInAccordionGroup(): boolean;
 
   /**
+   * Return true to allow this component to be rendered in a TabGroup
+   */
+  canRenderInTabGroup(): boolean {
+    return false;
+  }
+
+  /**
    * Should GenericComponent render validation messages for simpleBinding outside of this component?
    * This has no effect if:
    *  - Your component renders directly, using directRender()

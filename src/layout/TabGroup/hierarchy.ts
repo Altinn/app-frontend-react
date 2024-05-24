@@ -4,18 +4,18 @@ import type { ChildFactory, HierarchyContext, HierarchyGenerator } from 'src/uti
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class TabGroupHierarchyGenerator extends ComponentHierarchyGenerator<'TabGroup'> {
-  stage1(generator: HierarchyGenerator, item: CompTabGroupExternal): void {
+  override stage1(generator: HierarchyGenerator, item: CompTabGroupExternal): void {
     item.children.forEach((childId) => {
       if (this.canRenderInTabGroup(generator, childId)) {
         generator.claimChild({ childId, parentId: item.id });
       }
     });
   }
-  stage2(ctx: HierarchyContext): ChildFactory<'TabGroup'> {
+  override stage2(ctx: HierarchyContext): ChildFactory<'TabGroup'> {
     return this.processTabContent(ctx);
   }
-  childrenFromNode(node: BaseLayoutNode<CompTabGroupInternal, 'TabGroup'>): LayoutNode[] {
-    // TODO: what is restrictions?
+
+  override childrenFromNode(node: BaseLayoutNode<CompTabGroupInternal, 'TabGroup'>): LayoutNode[] {
     return node.item.childComponents;
   }
 
@@ -43,13 +43,13 @@ export class TabGroupHierarchyGenerator extends ComponentHierarchyGenerator<'Tab
   }
 
   /**
-   * Check if a component can be rendered in an AccordionGroup.
+   * Check if a component can be rendered in an TabGroup.
    */
   private canRenderInTabGroup(generator: HierarchyGenerator, childId: string, outputWarning = true): boolean {
     const prototype = generator.prototype(childId);
-    const def = prototype && generator.getLayoutComponentObject(prototype.type);
+    const child = prototype && generator.getLayoutComponentObject(prototype.type);
 
-    const canRenderInTabGroup = true; // TODO: implement this
+    const canRenderInTabGroup = !!child?.canRenderInTabGroup();
 
     if (outputWarning && prototype && !canRenderInTabGroup) {
       window.logWarn(`Component of type "${prototype.type}" cannot be rendered in a TabGroup`);
