@@ -142,26 +142,25 @@ const mutateTextResourceBindings: (props: ChildFactoryProps<'Likert'>) => ChildM
     }
   };
 
-const defaultDataType = Symbol('defaultDataType');
 const mutateDataModelBindings: (props: ChildFactoryProps<'Likert'>, rowIndex: number) => ChildMutator<'LikertItem'> =
   (props, rowIndex) => (item) => {
     const questionsBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.questions : undefined;
     const questionsBindingProperty = isDataModelReference(questionsBinding)
       ? questionsBinding.property
       : questionsBinding;
-    const questionsBindingDataType = isDataModelReference(questionsBinding)
-      ? questionsBinding.dataType
-      : defaultDataType;
 
     if (questionsBindingProperty) {
       const bindings = item.dataModelBindings || {};
       for (const key of Object.keys(bindings)) {
-        if (typeof bindings[key] === 'string' && questionsBindingDataType === defaultDataType) {
-          bindings[key] = bindings[key].replace(questionsBindingProperty, `${questionsBindingProperty}[${rowIndex}]`);
-        } else if (isDataModelReference(bindings[key]) && bindings[key].dataType === questionsBindingDataType) {
+        if (typeof bindings[key] === 'string') {
+          bindings[key] = bindings[key].replace(
+            `${questionsBindingProperty}.`,
+            `${questionsBindingProperty}[${rowIndex}].`,
+          );
+        } else if (isDataModelReference(bindings[key])) {
           bindings[key].property = bindings[key].property.replace(
-            questionsBindingProperty,
-            `${questionsBindingProperty}[${rowIndex}]`,
+            `${questionsBindingProperty}.`,
+            `${questionsBindingProperty}[${rowIndex}].`,
           );
         }
       }

@@ -169,11 +169,11 @@ const mutateDataModelBindings: (props: ChildFactoryProps<'RepeatingGroup'>, rowI
       for (const key of Object.keys(bindings)) {
         // Work for both string and IDataModelReference
         if (typeof bindings[key] === 'string' && groupBindingDataType === defaultDataType) {
-          bindings[key] = bindings[key].replace(groupBindingProperty, `${groupBindingProperty}[${rowIndex}]`);
+          bindings[key] = bindings[key].replace(`${groupBindingProperty}.`, `${groupBindingProperty}[${rowIndex}].`);
         } else if (isDataModelReference(bindings[key]) && bindings[key].dataType === groupBindingDataType) {
           bindings[key].property = bindings[key].property.replace(
-            groupBindingProperty,
-            `${groupBindingProperty}[${rowIndex}]`,
+            `${groupBindingProperty}.`,
+            `${groupBindingProperty}[${rowIndex}].`,
           );
         }
       }

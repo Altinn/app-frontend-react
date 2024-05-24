@@ -7,7 +7,7 @@ import { resolveExpressionValidationConfig } from 'src/features/customValidation
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IExpressionValidationConfig } from 'src/features/validation';
 
-// TODO(Datamodels): Prefetch?
+// Also used for prefetching @see formPrefetcher.ts
 export function useCustomValidationConfigQueryDef(
   dataTypeId?: string,
 ): QueryDefinition<IExpressionValidationConfig | null> {

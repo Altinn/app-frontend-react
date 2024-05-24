@@ -48,23 +48,19 @@ export class LikertItem extends LikertItemDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'LikertItem'>): string[] {
-    const [answerErr, answer] = this.validateDataModelBindingsAny(ctx, 'simpleBinding', [
-      'string',
-      'number',
-      'boolean',
-    ]);
-    const errors: string[] = [...(answerErr || [])];
+    const [answerErr] = this.validateDataModelBindingsAny(ctx, 'simpleBinding', ['string', 'number', 'boolean']);
+    const errors: string[] = [...(answerErr ?? [])];
 
     const parentBindings = ctx.node.parent?.item.dataModelBindings as IDataModelBindingsLikertInternal | undefined;
     const bindings = ctx.node.item.dataModelBindings;
-    // TODO(Datamodels): Does this check make any sense?
+
+    if (parentBindings?.questions.dataType && bindings.simpleBinding.dataType !== parentBindings.questions.dataType) {
+      errors.push('answer-datamodellbindingen må peke på samme datatype som questions-datamodellbindingen');
+    }
+
     if (
-      answer &&
-      bindings &&
-      bindings.simpleBinding &&
-      parentBindings &&
-      parentBindings.questions &&
-      bindings.simpleBinding.property.startsWith(`${parentBindings.questions}.`)
+      parentBindings?.questions &&
+      !bindings.simpleBinding.property.startsWith(`${parentBindings.questions.property}[`)
     ) {
       errors.push(`answer-datamodellbindingen må peke på en egenskap inne i questions-datamodellbindingen`);
     }

@@ -11,7 +11,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { mapValidationIssueToFieldValidation } from 'src/features/validation/backendValidation/backendValidationUtils';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 
-// TODO(Datamodels): Prefetch?
+// Also used for prefetching @see formPrefetcher.ts
 export function useBackendValidationQueryDef(
   enabled: boolean,
   currentLanguage: string,
