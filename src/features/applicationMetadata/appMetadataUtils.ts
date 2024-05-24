@@ -131,7 +131,10 @@ export const getCurrentTaskDataElementId = (props: GetCurrentTaskDataElementIdPr
   return currentTaskDataElement?.id;
 };
 
-export function getFirstDataElementId(instance: IInstance, dataType: string) {
-  const currentTaskDataElement = (instance.data || []).find((element) => element.dataType === dataType);
-  return currentTaskDataElement?.id;
+export function getFirstDataElementId(instance: IInstance | undefined, dataType: string) {
+  return (instance?.data ?? []).find((element) => element.dataType === dataType)?.id;
+}
+
+export function getDataTypeById(application: IApplicationMetadata, dataTypeId: string | undefined) {
+  return application.dataTypes.find((type) => type.id === dataTypeId);
 }

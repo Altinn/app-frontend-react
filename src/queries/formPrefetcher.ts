@@ -23,6 +23,7 @@ import { usePaymentInformationQueryDef } from 'src/features/payment/PaymentInfor
 import { useHasPayment, useIsPayment } from 'src/features/payment/utils';
 import { usePdfFormatQueryDef } from 'src/features/pdf/usePdfFormatQuery';
 import { useBackendValidationQueryDef } from 'src/features/validation/backendValidation/backendValidationQuery';
+import { useIsValidationEnabled, useShouldValidateDataType } from 'src/features/validation/utils';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 
@@ -46,10 +47,16 @@ export function FormPrefetcher() {
   const currentLanguage = useCurrentLanguage();
   const instanceId = useLaxInstance()?.instanceId;
   const dataGuid = useCurrentDataModelGuid();
-  usePrefetchQuery(useBackendValidationQueryDef(true, currentLanguage, instanceId, dataGuid));
+  const dataTypeId = useCurrentDataModelName();
+
+  const shouldValidateDataType = useShouldValidateDataType()(dataTypeId);
+  const isValidationEnabled = useIsValidationEnabled();
+  usePrefetchQuery(
+    useBackendValidationQueryDef(true, currentLanguage, instanceId, dataGuid, currentTaskId),
+    isValidationEnabled && shouldValidateDataType,
+  );
 
   // Prefetch customvalidation config and schema for default data model
-  const dataTypeId = useCurrentDataModelName();
   usePrefetchQuery(useCustomValidationConfigQueryDef(dataTypeId));
   usePrefetchQuery(useDataModelSchemaQueryDef(dataTypeId));
 

@@ -1,4 +1,11 @@
+import { useCallback } from 'react';
+
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { getDataTypeById } from 'src/features/applicationMetadata/appMetadataUtils';
+import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { ValidationMask } from 'src/features/validation';
+import { useIsPdf } from 'src/hooks/useIsPdf';
+import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { implementsValidationFilter } from 'src/layout';
 import type {
   BaseValidation,
@@ -15,6 +22,27 @@ import type { ValidationSelector } from 'src/features/validation/validationConte
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+
+/*
+ * Validation should not be enabled for receipt or PDF
+ */
+export function useIsValidationEnabled() {
+  const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
+  const isPDF = useIsPdf();
+  return !isCustomReceipt && !isPDF;
+}
+
+/**
+ * We should only validate dataTypes that are editable in the current task
+ */
+export function useShouldValidateDataType() {
+  const taskId = useProcessTaskId();
+  const appMetadata = useApplicationMetadata();
+  return useCallback(
+    (dataTypeId: string | undefined) => taskId === getDataTypeById(appMetadata, dataTypeId)?.taskId,
+    [appMetadata, taskId],
+  );
+}
 
 export function mergeFieldValidations(...X: (FieldValidations | undefined)[]): FieldValidations {
   if (X.length === 0) {

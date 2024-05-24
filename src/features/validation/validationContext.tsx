@@ -8,7 +8,6 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { BackendValidation } from 'src/features/validation/backendValidation/BackendValidation';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
@@ -19,6 +18,8 @@ import {
   hasValidationErrors,
   mergeFieldValidations,
   selectValidations,
+  useIsValidationEnabled,
+  useShouldValidateDataType,
 } from 'src/features/validation/utils';
 import { useVisibility } from 'src/features/validation/visibility/useVisibility';
 import {
@@ -27,8 +28,6 @@ import {
   setVisibilityForNode,
 } from 'src/features/validation/visibility/visibilityUtils';
 import { useAsRef } from 'src/hooks/useAsRef';
-import { useIsPdf } from 'src/hooks/useIsPdf';
-import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type {
   BackendValidationIssueGroups,
@@ -188,9 +187,8 @@ export function ValidationProvider({ children }: PropsWithChildren) {
   const waitForStateRef = useRef<WaitForState<ValidationContext & Internals, unknown>>();
   const hasPendingAttachments = useHasPendingAttachments();
 
-  const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
-  const isPDF = useIsPdf();
-  const shouldNotValidate = isCustomReceipt || isPDF;
+  const isValidationEnabled = useIsValidationEnabled();
+  const shouldValidateDataType = useShouldValidateDataType();
 
   // Provide a promise that resolves when all pending validations have been completed
   const pendingAttachmentsRef = useAsRef(hasPendingAttachments);
@@ -212,7 +210,7 @@ export function ValidationProvider({ children }: PropsWithChildren) {
   );
 
   const neverValidating = useCallback(() => Promise.resolve(), []);
-  if (shouldNotValidate) {
+  if (!isValidationEnabled) {
     return <Provider validating={neverValidating}>{children}</Provider>;
   }
 
@@ -220,7 +218,7 @@ export function ValidationProvider({ children }: PropsWithChildren) {
     <Provider validating={validating}>
       <MakeWaitForState waitForStateRef={waitForStateRef} />
       <NodeValidation />
-      {dataTypes.map((dataType) => (
+      {dataTypes.filter(shouldValidateDataType).map((dataType) => (
         <DataModelValidations
           key={dataType}
           dataType={dataType}

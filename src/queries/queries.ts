@@ -230,9 +230,9 @@ export const fetchOrderDetails = (instanceId: string): Promise<OrderDetails> => 
 
 export const fetchBackendValidations = (
   instanceId: string,
-  currentDataElementId: string,
+  dataElementId: string,
   language: string,
-): Promise<BackendValidationIssue[]> => httpGet(getDataValidationUrl(instanceId, currentDataElementId, language));
+): Promise<BackendValidationIssue[]> => httpGet(getDataValidationUrl(instanceId, dataElementId, language));
 
 export const fetchLayoutSchema = async (): Promise<JSONSchema7 | undefined> => {
   // Hacky (and only) way to get the correct CDN url

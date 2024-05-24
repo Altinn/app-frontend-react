@@ -7,6 +7,7 @@ import type { BackendValidationIssue, BackendValidatorGroups } from '..';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { mapValidationIssueToFieldValidation } from 'src/features/validation/backendValidation/backendValidationUtils';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
@@ -16,14 +17,15 @@ export function useBackendValidationQueryDef(
   enabled: boolean,
   currentLanguage: string,
   instanceId?: string,
-  currentDataElementId?: string,
+  dataElementId?: string,
+  currentTaskId?: string,
 ): QueryDefinition<BackendValidationIssue[]> {
   const { fetchBackendValidations } = useAppQueries();
   return {
-    queryKey: ['validation', instanceId, currentDataElementId, enabled],
+    queryKey: ['validation', instanceId, dataElementId, currentTaskId, enabled],
     queryFn:
-      instanceId && currentDataElementId
-        ? () => fetchBackendValidations(instanceId, currentDataElementId, currentLanguage)
+      instanceId && dataElementId
+        ? () => fetchBackendValidations(instanceId, dataElementId, currentLanguage)
         : () => [],
     enabled,
     gcTime: 0,
@@ -34,10 +36,11 @@ export function useBackendValidationQuery(dataType: string, enabled: boolean) {
   const currentLanguage = useCurrentLanguage();
   const instance = useLaxInstance();
   const instanceId = instance?.instanceId;
-  const dataElementId = instance?.data ? getFirstDataElementId(instance.data, dataType) : undefined;
+  const dataElementId = getFirstDataElementId(instance?.data, dataType);
+  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
 
   const utils = useQuery({
-    ...useBackendValidationQueryDef(enabled, currentLanguage, instanceId, dataElementId),
+    ...useBackendValidationQueryDef(enabled, currentLanguage, instanceId, dataElementId, currentTaskId),
     select: (initialValidations) =>
       (initialValidations.map(mapValidationIssueToFieldValidation).reduce((validatorGroups, validation) => {
         if (!validatorGroups[validation.source]) {

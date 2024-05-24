@@ -16,11 +16,10 @@ import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { InvalidDataTypeException } from 'src/features/formData/InvalidDataTypeException';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { TaskKeys } from 'src/hooks/useNavigatePage';
+import { useIsValidationEnabled, useShouldValidateDataType } from 'src/features/validation/utils';
 import { isDataModelReference } from 'src/utils/databindings';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { HttpStatusCodes } from 'src/utils/network/networking';
@@ -259,16 +258,19 @@ function LoadInitialData({ dataType }: LoaderProps) {
 function LoadInitialValidations({ dataType }: LoaderProps) {
   const setInitialValidations = useSelector((state) => state.setInitialValidations);
   const setError = useSelector((state) => state.setError);
-  const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
-  const { data, error } = useBackendValidationQuery(dataType, !isCustomReceipt);
+  const isValidationEnabled = useIsValidationEnabled();
+  const shouldValidateDataType = useShouldValidateDataType()(dataType);
+  const enabled = isValidationEnabled && shouldValidateDataType;
+
+  const { data, error } = useBackendValidationQuery(dataType, enabled);
 
   useEffect(() => {
-    if (isCustomReceipt) {
+    if (!enabled) {
       setInitialValidations(dataType, {});
     } else if (data) {
       setInitialValidations(dataType, data);
     }
-  }, [data, dataType, isCustomReceipt, setInitialValidations]);
+  }, [data, dataType, enabled, setInitialValidations]);
 
   useEffect(() => {
     error && setError(error);
