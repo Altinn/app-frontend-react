@@ -4,6 +4,8 @@ import { Tabs } from '@digdir/designsystemet-react';
 
 import type { PropsFromGenericComponent } from '..';
 
+import { useLanguage } from 'src/features/language/useLanguage';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { TabGroupDef } from 'src/layout/TabGroup/config.def.generated';
 import { TabGroupHierarchyGenerator } from 'src/layout/TabGroup/hierarchy';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -46,40 +48,36 @@ export class TabGroup extends TabGroupDef {
 }
 
 function TabGroupComponent({ node }: PropsFromGenericComponent<'TabGroup'>) {
-  console.log({ tabGroupNode: node });
-
-  console.log({ childComponents: node.item.childComponents });
-  console.log({ children: node.item['children'] });
-
+  const { lang } = useLanguage();
   const children = node.item.childComponents;
 
   return (
-    // TODO:
     <Tabs defaultValue={children.at(0)?.item.id}>
       <Tabs.List>
-        {children.map((n, i) => (
-          <Tabs.Tab
-            key={n.item.id}
-            value={n.item.id}
-          >
-            {/* TODO: use textresourcebinding */}
-            Tab {i + 1}
-          </Tabs.Tab>
-        ))}
+        {children.map((n) => {
+          const text = lang(n.item.textResourceBindings?.['title']);
+
+          return (
+            <Tabs.Tab
+              key={n.item.id}
+              value={n.item.id}
+            >
+              {text}
+            </Tabs.Tab>
+          );
+        })}
       </Tabs.List>
-      {children.map((n, i) => (
-        <Tabs.Content
+      {children.map((n) => (
+        <GenericComponent
           key={n.item.id}
-          value={n.item.id}
-        >
-          {/* TODO: use textresourcebinding */}
-          Content {i + 1}
-        </Tabs.Content>
+          node={n}
+        />
       ))}
     </Tabs>
   );
 }
 
+// FIXME: Implement SummaryTabGroupComponent
 function SummaryTabGroupComponent(props: SummaryRendererProps<'TabGroup'>) {
   return <div>Summary</div>;
 }
