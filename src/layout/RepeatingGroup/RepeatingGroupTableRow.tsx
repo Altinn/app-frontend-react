@@ -60,13 +60,12 @@ function getEditButtonText(
   langTools: IUseLanguage,
   textResourceBindings: CompRepeatingGroupInternal['textResourceBindings'] | undefined,
 ) {
-  const buttonTextKey = isEditing
-    ? textResourceBindings?.edit_button_close
-      ? textResourceBindings?.edit_button_close
-      : 'general.save_and_close'
-    : textResourceBindings?.edit_button_open
-      ? textResourceBindings?.edit_button_open
-      : 'general.edit_alt';
+  let buttonTextKey: string;
+  if (isEditing) {
+    buttonTextKey = textResourceBindings?.edit_button_close ?? 'general.save_and_close';
+  } else {
+    buttonTextKey = textResourceBindings?.edit_button_open ?? 'general.edit_alt';
+  }
   return langTools.langAsString(buttonTextKey);
 }
 
@@ -340,12 +339,12 @@ export function shouldEditInTable(
   tableNode: LayoutNode,
   columnSettings: CompRepeatingGroupExternal['tableColumns'],
 ) {
-  const column = columnSettings && columnSettings[tableNode.item.baseComponentId || tableNode.item.id];
+  const column = columnSettings?.[tableNode.item.baseComponentId ?? tableNode.item.id];
   if (groupEdit?.mode === 'onlyTable' && column?.editInTable !== false) {
     return tableNode.def.canRenderInTable();
   }
 
-  if (column && column.editInTable) {
+  if (column?.editInTable) {
     return tableNode.def.canRenderInTable();
   }
 
