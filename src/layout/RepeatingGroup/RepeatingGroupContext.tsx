@@ -72,7 +72,7 @@ const ExtendedStore = createContext<ExtendedContext>({
   required: true,
 });
 
-interface NodeState {
+interface RowState {
   numVisibleRows: number;
   visibleRows: BaseRow[];
   hiddenRows: BaseRow[];
@@ -80,7 +80,7 @@ interface NodeState {
   deletableRows: BaseRow[];
 }
 
-function produceStateFromRows(rows: RepGroupRow[]): NodeState {
+function produceStateFromRows(rows: RepGroupRow[]): RowState {
   const hidden: BaseRow[] = [];
   const visible: BaseRow[] = [];
   const editable: BaseRow[] = [];
@@ -326,10 +326,10 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
 
   const waitForItem = useWaitForNodeItem(node);
 
-  const nodeStateRef = useNodeItemRef(node, (i) => produceStateFromRows(i.rows));
+  const rowStateRef = useNodeItemRef(node, (i) => produceStateFromRows(i.rows));
   const paginationStateRef = useNodeItemRef(node, (i) => {
-    const nodeState = produceStateFromRows(i.rows);
-    return producePaginationState(stateRef.current.currentPage, i.pagination, nodeState.visibleRows);
+    const rowState = produceStateFromRows(i.rows);
+    return producePaginationState(stateRef.current.currentPage, i.pagination, rowState.visibleRows);
   });
 
   const maybeValidateRow = useCallback(() => {
@@ -398,14 +398,14 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
         return;
       }
 
-      const page = getPageForRow(uuid, paginationStateRef.current, nodeStateRef.current.visibleRows);
+      const page = getPageForRow(uuid, paginationStateRef.current, rowStateRef.current.visibleRows);
       if (page == null) {
         return;
       }
 
       stateRef.current.changePage(page);
     },
-    [maybeValidateRow, nodeStateRef, paginationStateRef, stateRef],
+    [maybeValidateRow, rowStateRef, paginationStateRef, stateRef],
   );
 
   const isEditing = useCallback(
@@ -443,17 +443,17 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     });
     endAddingRow(uuid);
     const index = foundRow?.index ?? -1;
-    if (nodeStateRef.current.visibleRows.some((row) => row.uuid === uuid)) {
+    if (rowStateRef.current.visibleRows.some((row) => row.uuid === uuid)) {
       await openForEditing(uuid);
       return { result: 'addedAndOpened', uuid, index };
     }
 
     return { result: 'addedAndHidden', uuid, index };
-  }, [appendToList, groupBinding, maybeValidateRow, nodeStateRef, openForEditing, stateRef, waitForItem]);
+  }, [appendToList, groupBinding, maybeValidateRow, rowStateRef, openForEditing, stateRef, waitForItem]);
 
   const deleteRow = useCallback(
     async (uuid: string) => {
-      const { deletableRows } = nodeStateRef.current;
+      const { deletableRows } = rowStateRef.current;
       const { startDeletingRow, endDeletingRow } = stateRef.current;
       const row = deletableRows.find((row) => row.uuid === uuid);
       if (!row) {
@@ -476,7 +476,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       endDeletingRow(uuid, false);
       return false;
     },
-    [groupBinding, nodeStateRef, onBeforeRowDeletion, removeFromList, stateRef],
+    [groupBinding, rowStateRef, onBeforeRowDeletion, removeFromList, stateRef],
   );
 
   const isDeleting = useCallback((uuid: string) => stateRef.current.deletingIds.includes(uuid), [stateRef]);

@@ -21,7 +21,7 @@ export interface StateFactoryProps<Type extends CompTypes> {
   row?: BaseRow;
 }
 
-export interface BaseItemState<T extends CompTypes> {
+export interface BaseNodeData<T extends CompTypes> {
   type: 'node';
   layout: CompIntermediate<T>;
   item: CompInternal<T> | undefined;

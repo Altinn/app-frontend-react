@@ -280,14 +280,9 @@ export class ComponentConfig {
       from: 'src/utils/layout/types',
     });
 
-    const BaseItemState = new CG.import({
-      import: 'BaseItemState',
+    const BaseNodeData = new CG.import({
+      import: 'BaseNodeData',
       from: 'src/utils/layout/types',
-    });
-
-    const CompInternal = new CG.import({
-      import: 'CompInternal',
-      from: 'src/layout/layout',
     });
 
     const ExprResolver = new CG.import({
@@ -441,7 +436,7 @@ export class ComponentConfig {
       }
 
       stateFactory(props: ${StateFactoryProps}<'${this.type}'>) {
-        const baseState: ${BaseItemState}<'${this.type}'> = {
+        const baseState: ${BaseNodeData}<'${this.type}'> = {
           type: 'node',
           item: undefined,
           layout: props.item,

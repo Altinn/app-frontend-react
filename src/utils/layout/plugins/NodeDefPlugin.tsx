@@ -5,7 +5,7 @@ import type { NodeRef } from 'src/layout';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { BaseItemState, NodeData, StateFactoryProps } from 'src/utils/layout/types';
+import type { BaseNodeData, NodeData, StateFactoryProps } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface DefPluginConfig {
@@ -16,7 +16,7 @@ export interface DefPluginConfig {
   settings?: any;
 }
 
-interface DefPluginBaseItemState<Config extends DefPluginConfig> extends BaseItemState<DefPluginCompType<Config>> {
+interface DefPluginBaseNodeData<Config extends DefPluginConfig> extends BaseNodeData<DefPluginCompType<Config>> {
   item: DefPluginCompInternal<Config> & DefPluginExtraInItem<Config>;
 }
 
@@ -24,7 +24,7 @@ export type DefPluginCompType<Config extends DefPluginConfig> = Config['componen
 export type DefPluginExtraState<Config extends DefPluginConfig> = Config['extraState'];
 export type DefPluginExtraInItem<Config extends DefPluginConfig> = Config['extraInItem'];
 export type DefPluginCompInternal<Config extends DefPluginConfig> = CompInternal<DefPluginCompType<Config>>;
-export type DefPluginState<Config extends DefPluginConfig> = DefPluginBaseItemState<Config> &
+export type DefPluginState<Config extends DefPluginConfig> = DefPluginBaseNodeData<Config> &
   DefPluginExtraState<Config>;
 export type DefPluginStateFactoryProps<Config extends DefPluginConfig> = StateFactoryProps<DefPluginCompType<Config>>;
 export type DefPluginExprResolver<Config extends DefPluginConfig> = Omit<
