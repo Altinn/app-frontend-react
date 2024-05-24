@@ -204,6 +204,19 @@ export function FormDataWriteProvider({ children }: PropsWithChildren) {
 
 function AllFormDataEffects() {
   const dataTypes = useMemoSelector((s) => Object.keys(s.dataModels));
+  const hasUnsavedChanges = useHasUnsavedChanges();
+
+  // Marking the document as having unsaved changes. The data attribute is used in tests, while the beforeunload
+  // event is used to warn the user when they try to navigate away from the page with unsaved changes.
+  useEffect(() => {
+    document.body.setAttribute('data-unsaved-changes', hasUnsavedChanges.toString());
+    window.onbeforeunload = hasUnsavedChanges ? () => true : null;
+
+    return () => {
+      document.body.removeAttribute('data-unsaved-changes');
+      window.onbeforeunload = null;
+    };
+  }, [hasUnsavedChanges]);
 
   return (
     <>
@@ -232,7 +245,6 @@ function FormDataEffects({ dataType }: { dataType: string }) {
   const { mutate: performSave, error } = useFormDataSaveMutation(dataType);
   const isSaving = useIsSaving(dataType);
   const debounce = useDebounceImmediately();
-  const hasUnsavedChanges = useHasUnsavedChanges(dataType);
   const hasUnsavedChangesRef = useHasUnsavedChangesRef(dataType);
 
   // If errors occur, we want to throw them so that the user can see them, and they
@@ -269,18 +281,6 @@ function FormDataEffects({ dataType }: { dataType: string }) {
   useEffect(() => {
     shouldSave && performSave();
   }, [performSave, shouldSave]);
-
-  // Marking the document as having unsaved changes. The data attribute is used in tests, while the beforeunload
-  // event is used to warn the user when they try to navigate away from the page with unsaved changes.
-  useEffect(() => {
-    document.body.setAttribute('data-unsaved-changes', hasUnsavedChanges.toString());
-    window.onbeforeunload = hasUnsavedChanges ? () => true : null;
-
-    return () => {
-      document.body.removeAttribute('data-unsaved-changes');
-      window.onbeforeunload = null;
-    };
-  }, [hasUnsavedChanges]);
 
   // Always save unsaved changes when the user navigates away from the page and this component is unmounted.
   // We cannot put the current and last saved data in the dependency array, because that would cause the effect

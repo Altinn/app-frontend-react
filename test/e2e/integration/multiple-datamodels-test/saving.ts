@@ -23,7 +23,6 @@ describe('saving multiple data models', () => {
     cy.findByRole('textbox', { name: /tekstfelt 2/i }).type('fjerde');
 
     cy.waitUntilSaved();
-    cy.waitForNetworkIdle(400);
 
     cy.then(() => expect(formDataRequests.length).to.be.eq(2)); // Check that a total of two saves happened
     cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(2)); // And that they were to different urls, one for each data element
@@ -38,7 +37,6 @@ describe('saving multiple data models', () => {
     cy.findByRole('textbox', { name: /poststed/i }).should('have.value', 'TRONDHEIM');
 
     cy.waitUntilSaved();
-    cy.waitForNetworkIdle(400);
 
     cy.then(() => expect(formDataRequests.length).to.be.eq(3));
     cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(2));
@@ -245,7 +243,6 @@ describe('saving multiple data models', () => {
     cy.findByRole('checkbox', { name: /petroleum og engineering/i }).should('exist');
 
     cy.waitUntilSaved();
-    cy.waitForNetworkIdle(400); // The checkbox clears a bit after the radio button finishes saving
 
     cy.then(() => expect(formDataRequests.length).to.be.eq(2));
     cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(2));
