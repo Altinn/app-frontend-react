@@ -1,14 +1,18 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { useCurrentDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
+import { formatLayoutSchemaValidationError } from 'src/features/devtools/utils/layoutSchemaValidation';
+import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorValidation } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { getRootElementPath } from 'src/utils/schemaUtils';
+import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { CompIntermediate } from 'src/layout/layout';
+import type { CompExternalExact, CompIntermediate } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface NodeValidationProps {
@@ -20,6 +24,7 @@ export function NodeValidation(props: NodeValidationProps) {
   return (
     <>
       <DataModelValidation {...props} />
+      <SchemaValidation {...props} />
     </>
   );
 }
@@ -64,6 +69,41 @@ function DataModelValidation({ node, item }: NodeValidationProps) {
       addError(error, node);
     }
   }, [addError, errors, node]);
+
+  return null;
+}
+
+function SchemaValidation({ node }: NodeValidationProps) {
+  const validate = GeneratorValidation.useValidate();
+  const layoutMap = GeneratorInternal.useLayoutMap();
+  const addError = NodesInternal.useAddError();
+
+  useEffect(() => {
+    if (!validate) {
+      return;
+    }
+    const item = layoutMap[node.getBaseId()];
+    const errors = node.def.validateLayoutConfig(item as CompExternalExact<any>, validate);
+    if (!errors) {
+      return;
+    }
+
+    const errorMessages = errors
+      .map(formatLayoutSchemaValidationError)
+      .filter((m) => m != null)
+      .filter(duplicateStringFilter) as string[];
+    if (!errorMessages.length) {
+      return;
+    }
+
+    window.logErrorOnce(
+      `Layout configuration errors for component '/${node.path.join('/')}':\n- ${errorMessages.join('\n- ')}`,
+    );
+
+    for (const error of errorMessages) {
+      addError(error, node);
+    }
+  }, [node, layoutMap, validate, addError]);
 
   return null;
 }

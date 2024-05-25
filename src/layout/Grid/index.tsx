@@ -55,12 +55,12 @@ export class Grid extends GridDef {
   /**
    * Override layout validation to validate grid cells individually
    */
-  validateLayoutConfing(
+  validateLayoutConfig(
     component: CompExternalExact<'Grid'>,
-    validatate: (pointer: string | null, data: unknown) => ErrorObject[] | undefined,
+    validate: (pointer: string | null, data: unknown) => ErrorObject[] | undefined,
   ): ErrorObject[] | undefined {
     const schemaPointer = '#/definitions/AnyComponent';
-    const rawErrors = validatate(schemaPointer, component);
+    const rawErrors = validate(schemaPointer, component);
 
     if (!rawErrors) {
       return undefined;
@@ -86,7 +86,7 @@ export class Grid extends GridDef {
             } else if (typeof cell === 'object' && 'component' in cell) {
               cellPointer = '#/definitions/GridComponentRef';
             }
-            const cellErrors = validatate(cellPointer, cell);
+            const cellErrors = validate(cellPointer, cell);
             if (cellErrors) {
               // Rewrite instancePath to start at the component root
               errors.push(...cellErrors.map((e) => ({ ...e, instancePath: `/rows/${i}/cells/${j}${e.instancePath}` })));

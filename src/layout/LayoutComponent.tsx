@@ -212,16 +212,15 @@ export abstract class AnyComponent<Type extends CompTypes> {
   }
 
   /**
-   * Base implementation of validateLayoutConfing.
-   * Override this if you need to use a more specific pointer
-   * or modify/filter errors before returning them.
+   * Base implementation of validateLayoutConfig.
+   * Override this if you need to use a more specific pointer or modify/filter errors before returning them.
    */
-  validateLayoutConfing(
+  validateLayoutConfig(
     component: CompExternalExact<Type>,
-    validatate: (pointer: string | null, data: unknown) => ErrorObject[] | undefined,
+    validate: (pointer: string | null, data: unknown) => ErrorObject[] | undefined,
   ): ErrorObject[] | undefined {
     const schemaPointer = '#/definitions/AnyComponent';
-    return validatate(schemaPointer, component);
+    return validate(schemaPointer, component);
   }
 }
 

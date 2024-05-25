@@ -9,8 +9,8 @@ import { GeneratorInternal, GeneratorProvider } from 'src/utils/layout/generator
 import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
 import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
 import { GeneratorDebug } from 'src/utils/layout/generator/LayoutSetGenerator';
-import { NodeValidation } from 'src/utils/layout/generator/NodeValidation';
 import { useResolvedExpression } from 'src/utils/layout/generator/useResolvedExpression';
+import { NodeValidation } from 'src/utils/layout/generator/validation/NodeValidation';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';

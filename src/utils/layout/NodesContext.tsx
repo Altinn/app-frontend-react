@@ -25,6 +25,7 @@ import { getComponentDef } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { GeneratorStagesProvider } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
+import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
@@ -129,6 +130,7 @@ type ExtraHooks = AllFlat<{
 export type NodesDataContext = {
   addRemoveCounter: number;
   ready: boolean;
+  hasErrors: boolean;
   pages: PageHierarchy;
   addNode: <N extends LayoutNode>(node: N, targetState: any, row: BaseRow | undefined) => void;
   removeNode: (node: LayoutNode, row: BaseRow | undefined) => void;
@@ -162,6 +164,7 @@ export function createNodesDataStore() {
     immer((set) => ({
       addRemoveCounter: 0,
       ready: false,
+      hasErrors: false,
       pages: {
         type: 'pages' as const,
         pages: {},
@@ -220,6 +223,8 @@ export function createNodesDataStore() {
             // We need to mark the data as not ready as soon as an error is added, because GeneratorErrorBoundary
             // may need to remove the failing node from the tree before any more node traversal can happen safely.
             state.ready = false;
+
+            state.hasErrors = true;
           }),
         ),
       addPage: (pageKey) =>
@@ -282,9 +287,11 @@ export type NodesDataStoreFull = typeof DataStore;
 export const NodesProvider = (props: React.PropsWithChildren) => (
   <NodesStore.Provider>
     <DataStore.Provider>
-      <GeneratorStagesProvider>
-        <LayoutSetGenerator />
-      </GeneratorStagesProvider>
+      <GeneratorValidationProvider>
+        <GeneratorStagesProvider>
+          <LayoutSetGenerator />
+        </GeneratorStagesProvider>
+      </GeneratorValidationProvider>
       <InnerHiddenComponentsProvider />
       <UpdateExpressionValidation />
       <MarkAsReady />
@@ -717,6 +724,7 @@ export const NodesInternal = {
         throw e;
       }
     }),
+  useHasErrors: () => DataStore.useSelector((s) => s.hasErrors),
 
   useDataStore: () => DataStore.useStore(),
   useSetNodeProp: () => DataStore.useSelector((s) => s.setNodeProp),
