@@ -87,11 +87,11 @@ export class GridRowsPlugin<Type extends CompTypes>
   }
 
   extraNodeGeneratorChildren(): string {
-    const NodeChildren = new CG.import({
-      import: 'NodeChildren',
-      from: 'src/utils/layout/NodesGenerator',
+    const GenerateNodeChildren = new CG.import({
+      import: 'GenerateNodeChildren',
+      from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
-    return `<${NodeChildren} childIds={props.childIds} />`;
+    return `<${GenerateNodeChildren} childIds={props.childIds} />`;
   }
 
   evalDefaultExpressions({ item }: DefPluginExprResolver<Config<Type>>): Config<Type>['extraInItem'] {

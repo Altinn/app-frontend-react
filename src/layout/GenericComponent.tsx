@@ -3,8 +3,6 @@ import React, { useMemo } from 'react';
 import { Grid } from '@material-ui/core';
 import classNames from 'classnames';
 
-import { ContextNotProvided } from 'src/core/contexts/context';
-import { useLayoutValidationForNode } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
@@ -17,7 +15,8 @@ import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/G
 import { shouldRenderLabelInGenericComponent } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
-import { Hidden, useNode } from 'src/utils/layout/NodesContext';
+import { ComponentErrorBoundary } from 'src/utils/layout/ComponentErrorBoundary';
+import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
@@ -83,22 +82,24 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   overrideItemProps,
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
-  const layoutErrors = useLayoutValidationForNode(node);
-  if (layoutErrors !== ContextNotProvided && layoutErrors?.length !== undefined && layoutErrors?.length > 0) {
+  const generatorErrors = NodesInternal.useNodeDataMemo(node, (node) => node.errors);
+  if (generatorErrors && Object.keys(generatorErrors).length > 0) {
     return (
       <ErrorList
         node={node}
-        errors={layoutErrors}
+        errors={Object.keys(generatorErrors)}
       />
     );
   }
 
   return (
-    <ActualGenericComponent<Type>
-      node={node}
-      overrideItemProps={overrideItemProps}
-      overrideDisplay={overrideDisplay}
-    />
+    <ComponentErrorBoundary node={node}>
+      <ActualGenericComponent<Type>
+        node={node}
+        overrideItemProps={overrideItemProps}
+        overrideDisplay={overrideDisplay}
+      />
+    </ComponentErrorBoundary>
   );
 }
 

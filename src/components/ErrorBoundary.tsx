@@ -1,5 +1,4 @@
 import React from 'react';
-import type { ErrorInfo } from 'react';
 
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 
@@ -17,10 +16,6 @@ export class ErrorBoundary extends React.Component<Props, IErrorBoundary> {
 
   static getDerivedStateFromError(lastError: Error) {
     return { lastError };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error(error, errorInfo);
   }
 
   render() {

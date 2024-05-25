@@ -6,6 +6,7 @@ import { ExprVal } from 'src/features/expressions/types';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getComponentDef, getNodeConstructor } from 'src/layout';
 import { GeneratorInternal, GeneratorProvider } from 'src/utils/layout/generator/GeneratorContext';
+import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
 import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
 import { GeneratorDebug } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { useResolvedExpression } from 'src/utils/layout/generator/useResolvedExpression';
@@ -44,6 +45,7 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
   const item = useIntermediateItem(layoutMap[baseId]) as CompIntermediateExact<CompTypes>;
   const path = usePath(item);
   const node = useNewNode(item, path) as LayoutNode;
+  useGeneratorErrorBoundaryNodeRef().current = node;
   useAddRemoveNode(node, item);
 
   const hiddenParent = GeneratorInternal.useHiddenState();

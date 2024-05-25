@@ -5,6 +5,10 @@ import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layou
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { GeneratorInternal, GeneratorPageProvider } from 'src/utils/layout/generator/GeneratorContext';
+import {
+  GeneratorErrorBoundary,
+  useGeneratorErrorBoundaryNodeRef,
+} from 'src/utils/layout/generator/GeneratorErrorBoundary';
 import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
 import { useResolvedExpression } from 'src/utils/layout/generator/useResolvedExpression';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -127,6 +131,8 @@ interface PageProps {
 function PageGenerator({ layout, name, layoutSet }: PageProps) {
   const [children, setChildren] = useState<ChildrenState>({ forLayout: layout, map: undefined });
   const page = useMemo(() => new LayoutPage(), []);
+  useGeneratorErrorBoundaryNodeRef().current = page;
+
   const [hidden, setHidden] = useState<HiddenStatePage>({
     hiddenByTracks: false,
     hiddenByExpression: false,

@@ -47,7 +47,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
-import type { BaseRow, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
+import type { BaseRow, GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
 
 export interface NodesContext {
   nodes: LayoutPages | undefined;
@@ -99,6 +99,7 @@ export interface PageData {
   pageKey: string;
   hidden: HiddenStatePage;
   topLevelNodes: TopLevelNodesStore;
+  errors: GeneratorErrors | undefined;
 }
 
 export interface TopLevelNodesStore<Types extends CompTypes = CompTypes> {
@@ -136,12 +137,24 @@ export type NodesDataContext = {
     prop: K,
     value: NodeDataFromNode<N>[K],
   ) => void;
+  addError: (error: string, node: LayoutPage | LayoutNode) => void;
 
   addPage: (pageKey: string) => void;
   removePage: (pageKey: string) => void;
   setPageProp: <K extends keyof PageData>(pageKey: string, prop: K, value: PageData[K]) => void;
   markReady: () => void;
 } & ExtraFunctions;
+
+export function ignoreNodePathNotFound(fn: () => void): void {
+  try {
+    fn();
+  } catch (e) {
+    if (e instanceof NodePathNotFound) {
+      return;
+    }
+    throw e;
+  }
+}
 
 export type NodesDataStore = StoreApi<NodesDataContext>;
 export function createNodesDataStore() {
@@ -171,9 +184,9 @@ export function createNodesDataStore() {
           state.addRemoveCounter += 1;
         }),
       removeNode: (node, row) =>
-        set((state) => {
-          const parentPath = node.path.slice(0, -1);
-          try {
+        set((state) =>
+          ignoreNodePathNotFound(() => {
+            const parentPath = node.path.slice(0, -1);
             const parent = pickDataStorePath(state.pages, parentPath);
             if (parent.type === 'page') {
               delete parent.topLevelNodes[node.getId()];
@@ -183,28 +196,32 @@ export function createNodesDataStore() {
             }
             state.ready = false;
             state.addRemoveCounter += 1;
-          } catch (e) {
-            if (e instanceof NodePathNotFound) {
-              return;
-            }
-            throw e;
-          }
-        }),
+          }),
+        ),
       setNodeProp: (node, prop, value) =>
-        set((state) => {
-          try {
+        set((state) =>
+          ignoreNodePathNotFound(() => {
             const obj = pickDataStorePath(state.pages, node.path);
             if (obj.type === 'page') {
               throw new Error('Parent node is not a node');
             }
             Object.assign(obj, { [prop]: value });
-          } catch (e) {
-            if (e instanceof NodePathNotFound) {
-              return;
+          }),
+        ),
+      addError: (error, node) =>
+        set((state) =>
+          ignoreNodePathNotFound(() => {
+            const obj = pickDataStorePath(state.pages, node instanceof BaseLayoutNode ? node.path : [node.pageKey]);
+            if (!obj.errors) {
+              obj.errors = {};
             }
-            throw e;
-          }
-        }),
+            obj.errors[error] = true;
+
+            // We need to mark the data as not ready as soon as an error is added, because GeneratorErrorBoundary
+            // may need to remove the failing node from the tree before any more node traversal can happen safely.
+            state.ready = false;
+          }),
+        ),
       addPage: (pageKey) =>
         set((state) => {
           if (state.pages.pages[pageKey]) {
@@ -221,6 +238,7 @@ export function createNodesDataStore() {
               hiddenByTracks: false,
             },
             topLevelNodes: {},
+            errors: undefined,
           };
           state.ready = false;
           state.addRemoveCounter += 1;
@@ -699,6 +717,7 @@ export const NodesInternal = {
         throw e;
       }
     }),
+
   useDataStore: () => DataStore.useStore(),
   useSetNodeProp: () => DataStore.useSelector((s) => s.setNodeProp),
   useSetNodes: () => NodesStore.useSelector((s) => s.setNodes),
@@ -707,6 +726,7 @@ export const NodesInternal = {
   useRemovePage: () => DataStore.useSelector((s) => s.removePage),
   useAddNode: () => DataStore.useSelector((s) => s.addNode),
   useRemoveNode: () => DataStore.useSelector((s) => s.removeNode),
+  useAddError: () => DataStore.useSelector((s) => s.addError),
 
   ...(Object.values(DataStorePlugins)
     .map((plugin) => plugin.extraHooks(DataStore))
