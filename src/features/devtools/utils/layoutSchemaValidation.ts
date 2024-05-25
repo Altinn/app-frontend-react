@@ -5,7 +5,6 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { getComponentDef } from 'src/layout';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
-import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
 import type { ILayouts } from 'src/layout/layout';
 
 export const LAYOUT_SCHEMA_NAME = 'layout.schema.v1.json';

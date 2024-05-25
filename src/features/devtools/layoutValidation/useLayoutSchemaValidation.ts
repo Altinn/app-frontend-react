@@ -6,9 +6,8 @@ import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createLayoutValidator, validateLayoutSet } from 'src/features/devtools/utils/layoutSchemaValidation';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
-import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
 
-export function useLayoutSchemaValidation(enabled: boolean): LayoutValidationErrors | undefined {
+export function useLayoutSchemaValidation(enabled: boolean): any {
   const layouts = useLayouts();
   const layoutSetId = useCurrentLayoutSetId() || 'default';
 

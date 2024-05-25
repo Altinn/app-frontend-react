@@ -9,6 +9,7 @@ import { GeneratorInternal, GeneratorProvider } from 'src/utils/layout/generator
 import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
 import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
 import { GeneratorDebug } from 'src/utils/layout/generator/LayoutSetGenerator';
+import { NodeValidation } from 'src/utils/layout/generator/NodeValidation';
 import { useResolvedExpression } from 'src/utils/layout/generator/useResolvedExpression';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -72,6 +73,10 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
           node={node}
           item={item}
           hidden={hidden}
+        />
+        <NodeValidation
+          node={node}
+          item={item}
         />
         {children}
       </GeneratorProvider>
