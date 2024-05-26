@@ -1,13 +1,11 @@
 import React, { forwardRef } from 'react';
 
-import { Tabs } from '@digdir/designsystemet-react';
-
 import type { PropsFromGenericComponent } from '..';
 
-import { useLanguage } from 'src/features/language/useLanguage';
-import { GenericComponent } from 'src/layout/GenericComponent';
 import { TabGroupDef } from 'src/layout/TabGroup/config.def.generated';
 import { TabGroupHierarchyGenerator } from 'src/layout/TabGroup/hierarchy';
+import { SummaryTabGroupComponent } from 'src/layout/TabGroup/SummaryTabGroupComponent';
+import { TabGroup as TabGroupComponent } from 'src/layout/TabGroup/TabGroup';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { CompTabGroupInternal } from 'src/layout/TabGroup/config.generated';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -45,39 +43,4 @@ export class TabGroup extends TabGroupDef {
   public validateDataModelBindings(): string[] {
     return [];
   }
-}
-
-function TabGroupComponent({ node }: PropsFromGenericComponent<'TabGroup'>) {
-  const { lang } = useLanguage();
-  const children = node.item.childComponents;
-
-  return (
-    <Tabs defaultValue={children.at(0)?.item.id}>
-      <Tabs.List>
-        {children.map((n) => {
-          const text = lang(n.item.textResourceBindings?.['title']);
-
-          return (
-            <Tabs.Tab
-              key={n.item.id}
-              value={n.item.id}
-            >
-              {text}
-            </Tabs.Tab>
-          );
-        })}
-      </Tabs.List>
-      {children.map((n) => (
-        <GenericComponent
-          key={n.item.id}
-          node={n}
-        />
-      ))}
-    </Tabs>
-  );
-}
-
-// FIXME: Implement SummaryTabGroupComponent
-function SummaryTabGroupComponent(props: SummaryRendererProps<'TabGroup'>) {
-  return <div>Summary</div>;
 }
