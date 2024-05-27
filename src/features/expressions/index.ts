@@ -16,7 +16,7 @@ import { isDate } from 'src/utils/dateHelpers';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
+import { ignoreNodePathNotFound } from 'src/utils/layout/NodesContext';
 import type { DisplayData } from 'src/features/displayData';
 import type { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
@@ -395,18 +395,12 @@ export const ExprFunctions = {
 
       const node = this.failWithoutNode();
       const closest = this.dataSources.nodeTraversal(
-        (t) => {
-          try {
-            return t
-              .with(node)
-              .closest((c) => c.type === 'node' && (c.item?.id === id || c.item?.baseComponentId === id));
-          } catch (e) {
-            if (e instanceof NodePathNotFound) {
-              return TraversalThrewError;
-            }
-            throw e;
-          }
-        },
+        (t) =>
+          ignoreNodePathNotFound<LayoutNode | undefined | typeof ContextNotProvided | typeof TraversalThrewError>(
+            () =>
+              t.with(node).closest((c) => c.type === 'node' && (c.item?.id === id || c.item?.baseComponentId === id)),
+            TraversalThrewError,
+          ),
         [node, id],
       );
 
@@ -475,18 +469,12 @@ export const ExprFunctions = {
 
       const node = this.failWithoutNode();
       const targetNode = this.dataSources.nodeTraversal(
-        (t) => {
-          try {
-            return t
-              .with(node)
-              .closest((c) => c.type === 'node' && (c.item?.id === id || c.item?.baseComponentId === id));
-          } catch (e) {
-            if (e instanceof NodePathNotFound) {
-              return TraversalThrewError;
-            }
-            throw e;
-          }
-        },
+        (t) =>
+          ignoreNodePathNotFound<LayoutNode | undefined | typeof ContextNotProvided | typeof TraversalThrewError>(
+            () =>
+              t.with(node).closest((c) => c.type === 'node' && (c.item?.id === id || c.item?.baseComponentId === id)),
+            TraversalThrewError,
+          ),
         [node, id],
       );
 

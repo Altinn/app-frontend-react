@@ -1,9 +1,10 @@
 import type { AxiosError } from 'axios';
 
+import type { CompWithBehavior } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export type FileUploaderNode = LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
+export type FileUploaderNode = LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
 
 export interface AttachmentActionUpload {
   action: 'upload';

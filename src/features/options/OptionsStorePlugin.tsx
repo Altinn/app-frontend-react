@@ -1,5 +1,4 @@
-import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
-import { pickDataStorePath } from 'src/utils/layout/NodesContext';
+import { ignoreNodePathNotFound, pickDataStorePath } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { CompWithBehavior } from 'src/layout/layout';
@@ -22,6 +21,7 @@ export interface OptionsStorePluginConfig {
 }
 
 const emptyArray: IOptionInternal[] = [];
+const defaultReturn = { isFetching: false, options: emptyArray };
 
 function nodeStoreToOptions(s: NodeData): IOptionInternal[] {
   return s.type === 'node' && 'options' in s && s.options && Array.isArray(s.options) && s.options.length
@@ -43,29 +43,20 @@ export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig>
   extraHooks(store: NodesDataStoreFull): OptionsStorePluginConfig['extraHooks'] {
     return {
       useNodeOptions: (node) =>
-        store.useSelector((state) => {
-          try {
+        store.useSelector((state) =>
+          ignoreNodePathNotFound(() => {
             const s = pickDataStorePath(state.pages, node) as NodeData;
             return { isFetching: nodeStoreToIsFetching(s), options: nodeStoreToOptions(s) };
-          } catch (e) {
-            if (e instanceof NodePathNotFound) {
-              return { isFetching: false, options: emptyArray };
-            }
-            throw e;
-          }
-        }),
+          }, defaultReturn),
+        ),
       useNodeOptionsSelector: () =>
-        store.useDelayedMemoSelectorFactory((node: LayoutNode<CompWithBehavior<'canHaveOptions'>>) => (state) => {
-          try {
-            const store = pickDataStorePath(state.pages, node) as NodeData;
-            return { isFetching: nodeStoreToIsFetching(store), options: nodeStoreToOptions(store) };
-          } catch (e) {
-            if (e instanceof NodePathNotFound) {
-              return { isFetching: false, options: emptyArray };
-            }
-            throw e;
-          }
-        }),
+        store.useDelayedMemoSelectorFactory(
+          (node: LayoutNode<CompWithBehavior<'canHaveOptions'>>) => (state) =>
+            ignoreNodePathNotFound(() => {
+              const store = pickDataStorePath(state.pages, node) as NodeData;
+              return { isFetching: nodeStoreToIsFetching(store), options: nodeStoreToOptions(store) };
+            }, defaultReturn),
+        ),
     };
   }
 }

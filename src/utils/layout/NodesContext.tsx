@@ -147,12 +147,12 @@ export type NodesDataContext = {
   markReady: () => void;
 } & ExtraFunctions;
 
-export function ignoreNodePathNotFound(fn: () => void): void {
+export function ignoreNodePathNotFound<Ret>(fn: () => Ret, defaultReturnValue?: Ret): Ret {
   try {
-    fn();
+    return fn();
   } catch (e) {
     if (e instanceof NodePathNotFound) {
-      return;
+      return defaultReturnValue as Ret;
     }
     throw e;
   }
@@ -476,17 +476,11 @@ export const Hidden = {
     return DataStore.useDelayedMemoSelectorFactory(
       // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
       ({ node, options }: { node: NodeRef | LayoutNode | LayoutPage; options?: IsHiddenOptions }) =>
-        (state) => {
-          try {
+        (state) =>
+          ignoreNodePathNotFound(() => {
             const nodeState = pickDataStorePath(state.pages, getNodePath(node, nodeSelector));
             return isHidden(nodeState.hidden, forcedVisibleByDevTools, options);
-          } catch (e) {
-            if (e instanceof NodePathNotFound) {
-              return true;
-            }
-            throw e;
-          }
-        },
+          }, true),
     );
   },
 
@@ -586,46 +580,31 @@ export const NodesInternal = {
     node: N,
     selector: (state: N extends LayoutPage ? PageData : NodeDataFromNode<Exclude<N, LayoutPage>>) => Out,
   ): N extends undefined ? Out | undefined : Out {
-    return DataStore.useMemoSelector((s) => {
-      try {
-        return node ? selector(pickDataStorePath(s.pages, node) as any) : undefined;
-      } catch (e) {
-        if (e instanceof NodePathNotFound) {
-          return undefined;
-        }
-        throw e;
-      }
-    }) as any;
+    return DataStore.useMemoSelector((s) =>
+      ignoreNodePathNotFound(() => (node ? selector(pickDataStorePath(s.pages, node) as any) : undefined), undefined),
+    ) as any;
   },
   useNodeData<N extends LayoutNode | undefined, Out>(
     node: N,
     selector: (state: NodeDataFromNode<N>) => Out,
   ): N extends undefined ? Out | undefined : Out {
-    return DataStore.useSelector((s) => {
-      try {
-        return node ? selector(pickDataStorePath(s.pages, node) as NodeDataFromNode<N>) : undefined;
-      } catch (e) {
-        if (e instanceof NodePathNotFound) {
-          return undefined;
-        }
-        throw e;
-      }
-    }) as any;
+    return DataStore.useSelector((s) =>
+      ignoreNodePathNotFound(
+        () => (node ? selector(pickDataStorePath(s.pages, node) as NodeDataFromNode<N>) : undefined),
+        undefined,
+      ),
+    ) as any;
   },
   useNodeDataRef<N extends LayoutNode | undefined, Out>(
     node: N,
     selector: (state: NodeDataFromNode<N>) => Out,
   ): React.MutableRefObject<N extends undefined ? Out | undefined : Out> {
-    return DataStore.useSelectorAsRef((s) => {
-      try {
-        return node ? selector(pickDataStorePath(s.pages, node) as NodeDataFromNode<N>) : undefined;
-      } catch (e) {
-        if (e instanceof NodePathNotFound) {
-          return undefined;
-        }
-        throw e;
-      }
-    }) as any;
+    return DataStore.useSelectorAsRef((s) =>
+      ignoreNodePathNotFound(
+        () => (node ? selector(pickDataStorePath(s.pages, node) as NodeDataFromNode<N>) : undefined),
+        undefined,
+      ),
+    ) as any;
   },
   useWaitForNodeData<RetVal, N extends LayoutNode | undefined, Out>(
     node: N,
@@ -634,24 +613,19 @@ export const NodesInternal = {
     const waitForState = useWaitForState<RetVal, NodesDataContext>(DataStore.useStore());
     return useCallback(
       (callback) =>
-        waitForState((state, setReturnValue) => {
-          if (!state.ready) {
-            return false;
-          }
+        waitForState((state, setReturnValue) =>
+          ignoreNodePathNotFound(() => {
+            if (!state.ready) {
+              return false;
+            }
 
-          try {
             const nodeData = node ? pickDataStorePath(state.pages, node) : undefined;
             if (!nodeData) {
               return false;
             }
             return callback(selector(nodeData as NodeDataFromNode<N>), setReturnValue);
-          } catch (e) {
-            if (e instanceof NodePathNotFound) {
-              return false;
-            }
-            throw e;
-          }
-        }),
+          }, false),
+        ),
       [waitForState, node, selector],
     );
   },
@@ -659,16 +633,11 @@ export const NodesInternal = {
     DataStore.useDelayedMemoSelectorFactory<NodeDataSelectorProp<LayoutNode | undefined>, unknown>(
       // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
       ({ node, path }) =>
-        (state) => {
-          try {
-            return node ? dot.pick(path, pickDataStorePath(state.pages, node)) : undefined;
-          } catch (e) {
-            if (e instanceof NodePathNotFound) {
-              return undefined;
-            }
-            throw e;
-          }
-        },
+        (state) =>
+          ignoreNodePathNotFound(
+            () => (node ? dot.pick(path, pickDataStorePath(state.pages, node)) : undefined),
+            undefined,
+          ),
     ),
   useLaxNodeDataMemoSelector: () =>
     DataStore.useLaxDelayedMemoSelectorFactory<
@@ -677,53 +646,31 @@ export const NodesInternal = {
     >(
       // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
       ({ node, path }) =>
-        (state) => {
-          try {
-            return node ? dot.pick(path, pickDataStorePath(state.pages, node)) : undefined;
-          } catch (e) {
-            if (e instanceof NodePathNotFound) {
-              return undefined;
-            }
-            throw e;
-          }
-        },
+        (state) =>
+          ignoreNodePathNotFound(
+            () => (node ? dot.pick(path, pickDataStorePath(state.pages, node)) : undefined),
+            undefined,
+          ),
     ),
   useExactNodeDataMemoSelector: (node: LayoutNode | undefined) =>
-    DataStore.useDelayedMemoSelectorFactory((path: string) => (state) => {
-      try {
-        return !node ? undefined : dot.pick(path, pickDataStorePath(state.pages, node));
-      } catch (e) {
-        if (e instanceof NodePathNotFound) {
-          return undefined;
-        }
-        throw e;
-      }
-    }),
+    DataStore.useDelayedMemoSelectorFactory(
+      (path: string) => (state) =>
+        ignoreNodePathNotFound(
+          () => (!node ? undefined : dot.pick(path, pickDataStorePath(state.pages, node))),
+          undefined,
+        ),
+    ),
 
   useIsAdded: (node: LayoutNode | LayoutPage) =>
-    DataStore.useSelector((s) => {
-      try {
+    DataStore.useSelector((s) =>
+      ignoreNodePathNotFound(() => {
         pickDataStorePath(s.pages, node);
         return true;
-      } catch (e) {
-        if (e instanceof NodePathNotFound) {
-          return false;
-        }
-        throw e;
-      }
-    }),
+      }, false),
+    ),
   useNodesStore: () => NodesStore.useStore(),
   useDataStoreFor: (node: LayoutNode) =>
-    DataStore.useSelector((s) => {
-      try {
-        return pickDataStorePath(s.pages, node);
-      } catch (e) {
-        if (e instanceof NodePathNotFound) {
-          return undefined;
-        }
-        throw e;
-      }
-    }),
+    DataStore.useSelector((s) => ignoreNodePathNotFound(() => pickDataStorePath(s.pages, node), undefined)),
   useHasErrors: () => DataStore.useSelector((s) => s.hasErrors),
 
   useDataStore: () => DataStore.useStore(),

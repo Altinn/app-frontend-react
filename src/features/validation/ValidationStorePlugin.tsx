@@ -1,5 +1,4 @@
-import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
-import { pickDataStorePath } from 'src/utils/layout/NodesContext';
+import { ignoreNodePathNotFound, pickDataStorePath } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { AttachmentValidation, ComponentValidation, FieldValidation } from 'src/features/validation/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -70,29 +69,21 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
         }),
       useValidationVisibilitySelector: () =>
-        store.useDelayedMemoSelectorFactory((node: LayoutNode) => (state) => {
-          try {
-            const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
-            return 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
-          } catch (e) {
-            if (e instanceof NodePathNotFound) {
-              return 0;
-            }
-            throw e;
-          }
-        }),
+        store.useDelayedMemoSelectorFactory(
+          (node: LayoutNode) => (state) =>
+            ignoreNodePathNotFound(() => {
+              const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
+              return 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
+            }, 0),
+        ),
       useValidationsSelector: () =>
-        store.useDelayedMemoSelectorFactory((node: LayoutNode) => (state) => {
-          try {
-            const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
-            return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
-          } catch (e) {
-            if (e instanceof NodePathNotFound) {
-              return emptyArray;
-            }
-            throw e;
-          }
-        }),
+        store.useDelayedMemoSelectorFactory(
+          (node: LayoutNode) => (state) =>
+            ignoreNodePathNotFound(() => {
+              const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
+              return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
+            }, emptyArray),
+        ),
     };
 
     return { ...out };
