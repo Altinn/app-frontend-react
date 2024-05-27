@@ -1,8 +1,13 @@
 export function sanitizeImgSrcAndType(inputImgSrc: string): { imgSrc: string; imgType: string } {
   let imgSrc = inputImgSrc.split('/').filter(Boolean).join('/');
 
+  const imgPathPrefix = `/${window.org}/${window.app}`;
   if (imgSrc.startsWith('wwwroot')) {
-    imgSrc = imgSrc.replace('wwwroot', `/${window.org}/${window.app}`);
+    imgSrc = imgSrc.replace('wwwroot', imgPathPrefix);
+  }
+
+  if (!imgSrc.startsWith(imgPathPrefix)) {
+    imgSrc = [imgPathPrefix, imgSrc].join('/');
   }
 
   const imgType = imgSrc.split('.').at(-1);

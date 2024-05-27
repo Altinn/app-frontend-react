@@ -57,15 +57,11 @@ function TabHeader({ node, isActive }: { node: LayoutNode<'Tab'>; isActive?: boo
   const { langAsString } = useLanguage();
   const title = langAsString(node.item.textResourceBindings?.['title']);
 
-  let iconSrc = node.item.icon;
-  if (iconSrc) {
-    const { imgSrc, imgType } = sanitizeImgSrcAndType(iconSrc);
-    iconSrc = imgSrc;
+  let iconSrc: string | undefined;
 
-    const iconPathPrefix = `/${window.org}/${window.app}`;
-    if (!iconSrc.startsWith(iconPathPrefix)) {
-      iconSrc = [iconPathPrefix, iconSrc].join('/');
-    }
+  if (node.item.icon) {
+    const { imgSrc, imgType } = sanitizeImgSrcAndType(node.item.icon);
+    iconSrc = imgSrc;
 
     if (imgType.toLowerCase() !== 'svg') {
       throw new Error('Only SVG icons are supported');
