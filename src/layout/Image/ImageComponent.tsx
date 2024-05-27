@@ -6,6 +6,7 @@ import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { sanitizeImgSrcAndType } from 'src/utils/imageUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IImageProps = PropsFromGenericComponent<'Image'>;
@@ -21,16 +22,13 @@ export function ImageComponent({ node }: IImageProps) {
   const { id, image, textResourceBindings } = node.item;
   const classes = useStyles();
   const languageKey = useCurrentLanguage();
-  const width = image?.width || '100%';
-  const align = image?.align || 'center';
+  const width = image?.width ?? '100%';
+  const align = image?.align ?? 'center';
   const altText = textResourceBindings?.altTextImg && langAsString(textResourceBindings.altTextImg);
 
-  let imgSrc = image?.src[languageKey] || image?.src.nb || '';
-  if (imgSrc.startsWith('wwwroot')) {
-    imgSrc = imgSrc.replace('wwwroot', `/${window.org}/${window.app}`);
-  }
+  const originalImgSrc = image?.src[languageKey] ?? image?.src.nb ?? '';
+  const { imgSrc, imgType } = sanitizeImgSrcAndType(originalImgSrc);
 
-  const imgType = imgSrc.slice(-3);
   const renderSvg = imgType.toLowerCase() === 'svg';
 
   return (

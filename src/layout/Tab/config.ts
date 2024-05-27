@@ -28,4 +28,5 @@ export const Config = new CG.component({
         .setDescription('List of child component IDs to show inside the Tab'),
     ).onlyIn(Variant.External),
   )
-  .addProperty(new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal));
+  .addProperty(new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal))
+  .addProperty(new CG.prop('icon', new CG.str().optional()));
