@@ -13,7 +13,7 @@ export const TabGroup = ({ node }: PropsFromGenericComponent<'TabGroup'>) => {
 
   return (
     <Tabs
-      defaultValue={children.at(0)?.item.id}
+      defaultValue={node.item.defaultTab ?? children.at(0)?.item.id}
       size={node.item.size}
     >
       <Tabs.List>
