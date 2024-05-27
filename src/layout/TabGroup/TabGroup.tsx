@@ -26,6 +26,7 @@ export const TabGroup = ({ node }: PropsFromGenericComponent<'TabGroup'>) => {
   });
 
   const children = node.item.childComponents;
+
   return (
     <Tabs
       defaultValue={activeTab}
@@ -38,6 +39,7 @@ export const TabGroup = ({ node }: PropsFromGenericComponent<'TabGroup'>) => {
           <TabHeader
             key={n.item.id}
             node={n}
+            isActive={n.item.id === activeTab}
           />
         ))}
       </Tabs.List>
@@ -51,7 +53,7 @@ export const TabGroup = ({ node }: PropsFromGenericComponent<'TabGroup'>) => {
   );
 };
 
-function TabHeader({ node }: { node: LayoutNode<'Tab'> }) {
+function TabHeader({ node, isActive }: { node: LayoutNode<'Tab'>; isActive?: boolean }) {
   const { langAsString } = useLanguage();
   const title = langAsString(node.item.textResourceBindings?.['title']);
 
@@ -74,6 +76,9 @@ function TabHeader({ node }: { node: LayoutNode<'Tab'> }) {
     <Tabs.Tab
       key={node.item.id}
       value={node.item.id}
+      style={{
+        backgroundColor: isActive ? 'white' : 'transparent',
+      }}
     >
       {!!iconSrc && (
         <img
