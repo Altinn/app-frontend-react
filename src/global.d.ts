@@ -1,6 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query';
 
-import type { IAttachments } from 'src/features/attachments';
+import type { IAttachmentsMap } from 'src/features/attachments';
 import type { IFeatureTogglesOptionalMap } from 'src/features/toggles';
 import type { IRuleObject } from 'src/types';
 import type { NodesDataStore, NodesStore } from 'src/utils/layout/NodesContext';
@@ -24,7 +24,7 @@ declare global {
     // to read it in some tests.
     Cypress?: any; // Can be used to test if we are running in Cypress
     CypressState?: {
-      attachments?: IAttachments;
+      attachments?: IAttachmentsMap;
       formData?: object;
       nodesStore?: NodesStore;
       nodesDataStore?: NodesDataStore;

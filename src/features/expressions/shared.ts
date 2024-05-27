@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-import type { IAttachments, UploadedAttachment } from 'src/features/attachments';
+import type { IAttachmentsMap, UploadedAttachment } from 'src/features/attachments';
 import type { Expression } from 'src/features/expressions/types';
 import type { IRawTextResource } from 'src/features/language/textResources';
 import type { ILayout, ILayouts } from 'src/layout/layout';
@@ -109,8 +109,10 @@ export function convertLayouts(input: Layouts | undefined): ILayouts {
   return _layouts;
 }
 
-export function convertInstanceDataToAttachments(instanceData: IData[] | undefined): IAttachments<UploadedAttachment> {
-  const out: IAttachments<UploadedAttachment> = {};
+export function convertInstanceDataToAttachments(
+  instanceData: IData[] | undefined,
+): IAttachmentsMap<UploadedAttachment> {
+  const out: IAttachmentsMap<UploadedAttachment> = {};
   if (instanceData) {
     for (const data of instanceData) {
       const component = out[data.dataType] || [];

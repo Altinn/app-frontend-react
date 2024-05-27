@@ -505,7 +505,7 @@ export const ExprFunctions = {
       }
 
       return (def as DisplayData<any>).getDisplayData(targetNode, node.item, {
-        attachments: this.dataSources.attachments,
+        attachmentsSelector: this.dataSources.attachmentsSelector,
         optionsSelector: this.dataSources.optionsSelector,
         langTools: this.dataSources.langToolsRef.current,
         currentLanguage: this.dataSources.currentLanguage,

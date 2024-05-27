@@ -2,7 +2,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import type { FileRejection } from 'react-dropzone';
 
-import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/AttachmentsContext';
+import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/hooks';
 import {
   AttachmentsMappedToFormDataProvider,
   useAttachmentsMappedToFormData,

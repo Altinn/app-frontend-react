@@ -5,7 +5,9 @@ import type { ExpressionDataSources } from 'src/features/expressions/ExprContext
 export function getExpressionDataSourcesMock(): ExpressionDataSources {
   return {
     formDataSelector: () => null,
-    attachments: {},
+    attachmentsSelector: () => {
+      throw new Error('Not implemented: attachmentsSelector()');
+    },
     layoutSettings: { pages: { order: [] } },
     optionsSelector: () => ({ isFetching: false, options: [] }),
     applicationSettings: getApplicationSettingsMock(),

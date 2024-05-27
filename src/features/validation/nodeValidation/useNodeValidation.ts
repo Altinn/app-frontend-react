@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { useAttachmentsSelector } from 'src/features/attachments/hooks';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { Validation } from 'src/features/validation/validationContext';
@@ -51,16 +51,16 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): Co
 function useValidationDataSources(): ValidationDataSources {
   const formDataSelector = FD.useDebouncedSelector();
   const invalidDataSelector = FD.useInvalidDebouncedSelector();
-  const attachments = useAttachments();
+  const attachmentsSelector = useAttachmentsSelector();
   const currentLanguage = useCurrentLanguage();
 
   return useMemo(
     () => ({
       formDataSelector,
       invalidDataSelector,
-      attachments,
+      attachmentsSelector,
       currentLanguage,
     }),
-    [attachments, currentLanguage, formDataSelector, invalidDataSelector],
+    [attachmentsSelector, currentLanguage, formDataSelector, invalidDataSelector],
   );
 }

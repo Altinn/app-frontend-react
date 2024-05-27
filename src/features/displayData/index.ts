@@ -1,4 +1,4 @@
-import type { IAttachments } from 'src/features/attachments';
+import type { AttachmentsSelector } from 'src/features/attachments/hooks';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
 import type { FormDataSelector } from 'src/layout';
@@ -7,7 +7,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 
 export interface DisplayDataProps {
-  attachments: IAttachments;
+  attachmentsSelector: AttachmentsSelector;
   optionsSelector: NodeOptionsSelector;
   langTools: IUseLanguage;
   currentLanguage: string;

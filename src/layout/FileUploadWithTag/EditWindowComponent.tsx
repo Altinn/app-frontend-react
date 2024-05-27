@@ -7,7 +7,7 @@ import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { isAttachmentUploaded } from 'src/features/attachments';
-import { useAttachmentsUpdater } from 'src/features/attachments/AttachmentsContext';
+import { useAttachmentsUpdater } from 'src/features/attachments/hooks';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useOnAttachmentSave } from 'src/features/validation/callbacks/onAttachmentSave';

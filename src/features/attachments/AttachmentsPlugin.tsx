@@ -8,7 +8,8 @@ import type { DefPluginStateFactoryProps } from 'src/utils/layout/plugins/NodeDe
 interface Config {
   componentType: CompTypes;
   extraState: {
-    attachments: IAttachment[];
+    attachments: Record<string, IAttachment>;
+    attachmentsFailedToUpload: Record<string, string>; // Maps temporary attachment ID to error message
   };
 }
 
@@ -30,7 +31,8 @@ export class AttachmentsPlugin extends NodeDefPlugin<Config> {
 
   stateFactory(_props: DefPluginStateFactoryProps<Config>): Config['extraState'] {
     return {
-      attachments: [],
+      attachments: {},
+      attachmentsFailedToUpload: {},
     };
   }
 

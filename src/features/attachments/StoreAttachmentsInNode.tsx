@@ -25,14 +25,14 @@ export function StoreAttachmentsInNode() {
   const ready = isAllAdded && isSelfAdded;
   GeneratorStages.EvaluateExpressions.useEffect(() => {
     if (ready) {
-      setNodeProp(node, 'attachments' as any, attachments);
+      setNodeProp(node, 'attachments', attachments);
     }
   }, [ready, node, setNodeProp, attachments]);
 
   return null;
 }
 
-function useNodeAttachments() {
+function useNodeAttachments(): Record<string, IAttachment> {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
   const nodeData = useNodeFormData(node);
 
@@ -45,22 +45,22 @@ function useNodeAttachments() {
     [node, data, application, currentTask, nodeData],
   );
 
-  const prevAttachments = useRef<Map<string, IAttachment> | undefined>(undefined);
-  return useMemoDeepEqual((): IAttachment[] => {
+  const prevAttachments = useRef<Record<string, IAttachment>>({});
+  return useMemoDeepEqual(() => {
     const prevResult = prevAttachments.current ?? new Map<string, IAttachment>();
-    const result = new Map<string, IAttachment>();
+    const result: Record<string, IAttachment> = {};
 
     for (const attachment of mappedAttachments) {
-      result.set(attachment.id, {
+      result[attachment.id] = {
         uploaded: true,
-        updating: prevResult.get(attachment.id)?.updating ?? false,
-        deleting: prevResult.get(attachment.id)?.deleting ?? false,
+        updating: prevResult[attachment.id]?.updating ?? false,
+        deleting: prevResult[attachment.id]?.deleting ?? false,
         data: attachment,
-      });
+      };
     }
 
     prevAttachments.current = result;
-    return [...result.values()];
+    return result;
   }, [mappedAttachments]);
 }
 

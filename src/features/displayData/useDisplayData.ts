@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { useAttachmentsSelector } from 'src/features/attachments/hooks';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -11,7 +11,7 @@ import type { DisplayDataProps } from 'src/features/displayData/index';
 export function useDisplayDataProps(): DisplayDataProps {
   const langTools = useLanguage();
   const optionsSelector = useNodeOptionsSelector();
-  const attachments = useAttachments();
+  const attachmentsSelector = useAttachmentsSelector();
   const currentLanguage = useCurrentLanguage();
   const formDataSelector = FD.useDebouncedSelector();
   const nodeDataSelector = useNodeFormDataSelector();
@@ -19,12 +19,12 @@ export function useDisplayDataProps(): DisplayDataProps {
   return useMemo(
     () => ({
       optionsSelector,
-      attachments,
+      attachmentsSelector,
       langTools,
       currentLanguage,
       formDataSelector,
       nodeFormDataSelector: nodeDataSelector,
     }),
-    [attachments, langTools, optionsSelector, currentLanguage, formDataSelector, nodeDataSelector],
+    [attachmentsSelector, langTools, optionsSelector, currentLanguage, formDataSelector, nodeDataSelector],
   );
 }

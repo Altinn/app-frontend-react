@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -6,7 +6,7 @@ import { immer } from 'zustand/middleware/immer';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
-import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
+import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useBackendValidation } from 'src/features/validation/backendValidation/useBackendValidation';
@@ -30,11 +30,6 @@ import type {
   ValidationContext,
   WaitForValidation,
 } from 'src/features/validation';
-import type { WaitForState } from 'src/hooks/useWaitForState';
-
-interface NewStoreProps {
-  validating: WaitForValidation;
-}
 
 interface Internals {
   isLoading: boolean;
@@ -54,7 +49,7 @@ interface Internals {
   updateValidating: (validating: WaitForValidation) => void;
 }
 
-function initialCreateStore({ validating }: NewStoreProps) {
+function initialCreateStore() {
   return createStore<ValidationContext & Internals>()(
     immer((set) => ({
       // =======
@@ -68,7 +63,9 @@ function initialCreateStore({ validating }: NewStoreProps) {
           state.showAllErrors = newValue;
         }),
       showAllErrors: false,
-      validating,
+      validating: async () => {
+        throw new Error('Validating function not set yet');
+      },
 
       // =======
       // Internal state
@@ -118,9 +115,6 @@ const {
   name: 'Validation',
   required: true,
   initialCreateStore,
-  onReRender: (store, { validating }) => {
-    store.getState().updateValidating(validating);
-  },
 });
 
 interface InternalProps {
@@ -128,32 +122,12 @@ interface InternalProps {
 }
 
 export function ValidationProvider({ children }: PropsWithChildren) {
-  const waitForSave = FD.useWaitForSave();
-  const waitForStateRef = useRef<WaitForState<ValidationContext & Internals, unknown>>();
-  const hasPendingAttachments = useHasPendingAttachments();
-
   const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
   const isPDF = useIsPdf();
   const shouldLoadValidations = !isCustomReceipt && !isPDF;
 
-  // Provide a promise that resolves when all pending validations have been completed
-  const pendingAttachmentsRef = useAsRef(hasPendingAttachments);
-  const waitForAttachments = useWaitForState(pendingAttachmentsRef);
-
-  const validating: WaitForValidation = useCallback(
-    async (forceSave = true) => {
-      await waitForAttachments((state) => !state);
-
-      // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
-      const validationsFromSave = await waitForSave(forceSave);
-      await waitForStateRef.current!((state) => state.issueGroupsProcessedLast === validationsFromSave);
-    },
-    [waitForAttachments, waitForSave],
-  );
-
   return (
-    <Provider validating={validating}>
-      <MakeWaitForState waitForStateRef={waitForStateRef} />
+    <Provider>
       <UpdateValidations shouldLoadValidations={shouldLoadValidations} />
       <ManageShowAllErrors />
       <LoadingBlocker shouldLoadValidations={shouldLoadValidations}>{children}</LoadingBlocker>
@@ -161,12 +135,35 @@ export function ValidationProvider({ children }: PropsWithChildren) {
   );
 }
 
-function MakeWaitForState({
-  waitForStateRef,
-}: {
-  waitForStateRef: React.MutableRefObject<WaitForState<ValidationContext & Internals, unknown> | undefined>;
-}) {
-  waitForStateRef.current = useWaitForState(useStore());
+function useWaitForValidation(): WaitForValidation {
+  const waitForSave = FD.useWaitForSave();
+  const waitForState = useWaitForState<never, ValidationContext & Internals>(useStore());
+  const hasPendingAttachments = useHasPendingAttachments();
+
+  // Provide a promise that resolves when all pending validations have been completed
+  const pendingAttachmentsRef = useAsRef(hasPendingAttachments);
+  const waitForAttachments = useWaitForState(pendingAttachmentsRef);
+
+  return useCallback(
+    async (forceSave = true) => {
+      await waitForAttachments((state) => !state);
+
+      // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
+      const validationsFromSave = await waitForSave(forceSave);
+      await waitForState((state) => state.issueGroupsProcessedLast === validationsFromSave);
+    },
+    [waitForAttachments, waitForSave, waitForState],
+  );
+}
+
+export function ProvideWaitForValidation() {
+  const validate = useWaitForValidation();
+  const updateValidating = useSelector((state) => state.updateValidating);
+
+  useEffect(() => {
+    updateValidating(validate);
+  }, [updateValidating, validate]);
+
   return null;
 }
 

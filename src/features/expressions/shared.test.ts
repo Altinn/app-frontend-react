@@ -90,11 +90,12 @@ describe('Expressions shared function tests', () => {
           return;
         }
 
+        const attachments = convertInstanceDataToAttachments(instanceDataElements);
         const options: { [nodeId: string]: IOptionInternal[] | undefined } = {};
         const dataSources: ExpressionDataSources = {
           ...getExpressionDataSourcesMock(),
           formDataSelector: (path) => dot.pick(path, dataModel ?? {}),
-          attachments: convertInstanceDataToAttachments(instanceDataElements),
+          attachmentsSelector: (node) => attachments[node.getId()] ?? [],
           instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),
@@ -181,10 +182,11 @@ describe('Expressions shared context tests', () => {
     it.each(folder.content)(
       '$name',
       ({ layouts, dataModel, instanceDataElements, instance, frontendSettings, permissions, expectedContexts }) => {
+        const attachments = convertInstanceDataToAttachments(instanceDataElements);
         const dataSources: ExpressionDataSources = {
           ...getExpressionDataSourcesMock(),
           formDataSelector: (path) => dot.pick(path, dataModel ?? {}),
-          attachments: convertInstanceDataToAttachments(instanceDataElements),
+          attachmentsSelector: (node) => attachments[node.getId()] ?? [],
           instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),

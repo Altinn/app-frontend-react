@@ -10,13 +10,15 @@ import type { StoreApi } from 'zustand';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
+import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStorePlugin';
+import { UpdateAttachmentsForCypress } from 'src/features/attachments/UpdateAttachmentsForCypress';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { shouldUpdate } from 'src/features/form/dynamics/conditionalRendering';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
-import { UpdateExpressionValidation } from 'src/features/validation/validationContext';
+import { ProvideWaitForValidation, UpdateExpressionValidation } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { SelectorStrictness, useDelayedSelectorFactory } from 'src/hooks/delayedSelectors';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
@@ -38,6 +40,7 @@ import {
   useNodeTraversalSelector,
   useNodeTraversalSelectorSilent,
 } from 'src/utils/layout/useNodeTraversal';
+import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
@@ -110,12 +113,14 @@ export interface TopLevelNodesStore<Types extends CompTypes = CompTypes> {
 export type NodeDataStorePlugins = {
   validation: ValidationStorePluginConfig;
   options: OptionsStorePluginConfig;
+  attachments: AttachmentsStorePluginConfig;
   repeatingChildren: RepeatingChildrenStorePluginConfig;
 };
 
 const DataStorePlugins: { [K in keyof NodeDataStorePlugins]: NodeDataPlugin<NodeDataStorePlugins[K]> } = {
   validation: new ValidationStorePlugin(),
   options: new OptionsStorePlugin(),
+  attachments: new AttachmentsStorePlugin(),
   repeatingChildren: new RepeatingChildrenStorePlugin(),
 };
 
@@ -295,6 +300,8 @@ export const NodesProvider = (props: React.PropsWithChildren) => (
       <InnerHiddenComponentsProvider />
       <UpdateExpressionValidation />
       <MarkAsReady />
+      <ProvideWaitForValidation />
+      {window.Cypress && <UpdateAttachmentsForCypress />}
       <BlockUntilLoaded>{props.children}</BlockUntilLoaded>
     </DataStore.Provider>
   </NodesStore.Provider>

@@ -2,7 +2,7 @@ import dot from 'dot-object';
 
 import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/prettyErrors';
-import type { IAttachments } from 'src/features/attachments';
+import type { AttachmentsSelector } from 'src/features/attachments/hooks';
 import type { DevToolsHiddenComponents } from 'src/features/devtools/data/types';
 import type { EvalExprOptions } from 'src/features/expressions/index';
 import type { ExprConfig, Expression, ExprPositionalArgs } from 'src/features/expressions/types';
@@ -23,7 +23,7 @@ export interface ExpressionDataSources {
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
   formDataSelector: FormDataSelector;
-  attachments: IAttachments;
+  attachmentsSelector: AttachmentsSelector;
   layoutSettings: ILayoutSettings;
   optionsSelector: NodeOptionsSelector;
   authContext: Partial<IAuthContext> | null;

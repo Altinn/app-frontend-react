@@ -28,9 +28,11 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
   getDisplayData(
     node: LayoutNode<'FileUpload'>,
     _item: CompInternal<'FileUpload'>,
-    { attachments }: DisplayDataProps,
+    { attachmentsSelector }: DisplayDataProps,
   ): string {
-    return (attachments[node.getId()] || []).map((a) => a.data.filename).join(', ');
+    return attachmentsSelector(node)
+      .map((a) => a.data.filename)
+      .join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUpload'>): JSX.Element | null {
@@ -45,16 +47,13 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
   runComponentValidation(
     node: LayoutNode<'FileUpload'>,
     item: CompInternal<'FileUpload'>,
-    { attachments }: ValidationDataSources,
+    { attachmentsSelector }: ValidationDataSources,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
     // Validate minNumberOfAttachments
-    const id = node.getId();
-    if (
-      item.minNumberOfAttachments > 0 &&
-      (!attachments[id] || attachments[id]!.length < item.minNumberOfAttachments)
-    ) {
+    const attachments = attachmentsSelector(node);
+    if (item.minNumberOfAttachments > 0 && attachments.length < item.minNumberOfAttachments) {
       validations.push({
         message: {
           key: 'form_filler.file_uploader_validation_error_file_number',

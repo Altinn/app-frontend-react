@@ -3,7 +3,7 @@ import React from 'react';
 import { EyeSlashIcon } from '@navikt/aksel-icons';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
-import { useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { useAttachmentsFor } from 'src/features/attachments/hooks';
 import classes from 'src/features/devtools/components/NodeInspector/ValidationInspector.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { ValidationMask } from 'src/features/validation';
@@ -13,6 +13,7 @@ import { getResolvedVisibilityForAttachment } from 'src/features/validation/visi
 import { implementsAnyValidation, implementsValidationFilter } from 'src/layout';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { FileUploaderNode } from 'src/features/attachments';
 import type { AttachmentValidation, NodeValidation, ValidationSeverity } from 'src/features/validation';
 import type { ValidationFilterFunction } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -34,9 +35,8 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
   const fieldSelector = Validation.useFieldSelector();
   const validations = NodesInternal.useValidations(node);
   const nodeVisibility = NodesInternal.useValidationVisibility(node);
-  const { id, dataModelBindings, type } = useNodeItem(node);
-
-  const attachments = useAttachments();
+  const { dataModelBindings, type } = useNodeItem(node);
+  const attachments = useAttachmentsFor(node as FileUploaderNode);
 
   if (!implementsAnyValidation(node.def)) {
     return (
@@ -61,7 +61,7 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
     const attachmentValidation = 'attachmentId' in val ? val : undefined;
     if (attachmentValidation) {
       const attachmentId = attachmentValidation.attachmentId;
-      const attachment = attachments[id]?.find((a) => isAttachmentUploaded(a) && a.data.id === attachmentId);
+      const attachment = attachments.find((a) => isAttachmentUploaded(a) && a.data.id === attachmentId);
       const key = `Vedlegg ${attachment?.data.filename ?? attachmentId}`;
       if (!obj[key]) {
         const attachmentVisibility = getResolvedVisibilityForAttachment(

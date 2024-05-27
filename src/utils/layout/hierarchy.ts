@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
-import { useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { useAttachmentsSelector } from 'src/features/attachments/hooks';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -38,12 +38,11 @@ function resolvedNodesInLayouts(
   return unresolved as unknown as LayoutPages;
 }
 
-const emptyObject = {};
 export function useExpressionDataSources(): ExpressionDataSources {
   const instanceDataSources = useLaxInstanceDataSources();
   const formDataSelector = FD.useDebouncedSelector();
   const layoutSettings = useLayoutSettings();
-  const attachments = useAttachments();
+  const attachmentsSelector = useAttachmentsSelector();
   const optionsSelector = useNodeOptionsSelector();
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
@@ -53,14 +52,14 @@ export function useExpressionDataSources(): ExpressionDataSources {
   const currentLanguage = useCurrentLanguage();
   const authContext = useMemo(() => buildAuthContext(process?.currentTask), [process?.currentTask]);
   const isHiddenSelector = Hidden.useIsHiddenSelector();
-  const nodeDataSelector = useNodeFormDataSelector();
+  const nodeFormDataSelector = useNodeFormDataSelector();
   const nodeTraversal = useNodeTraversalSelectorLax();
   const transposeSelector = useDataModelBindingTranspose();
 
   return useMemo(
     () => ({
       formDataSelector,
-      attachments: attachments || emptyObject,
+      attachmentsSelector,
       layoutSettings,
       process,
       optionsSelector,
@@ -72,13 +71,13 @@ export function useExpressionDataSources(): ExpressionDataSources {
       langToolsRef,
       currentLanguage,
       isHiddenSelector,
-      nodeFormDataSelector: nodeDataSelector,
+      nodeFormDataSelector,
       nodeTraversal,
       transposeSelector,
     }),
     [
       formDataSelector,
-      attachments,
+      attachmentsSelector,
       layoutSettings,
       optionsSelector,
       process,
@@ -90,7 +89,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
       langToolsRef,
       currentLanguage,
       isHiddenSelector,
-      nodeDataSelector,
+      nodeFormDataSelector,
       nodeTraversal,
       transposeSelector,
     ],

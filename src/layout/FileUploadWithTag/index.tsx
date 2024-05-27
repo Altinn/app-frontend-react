@@ -35,9 +35,11 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
   getDisplayData(
     node: LayoutNode<'FileUploadWithTag'>,
     _item: CompInternal<'FileUploadWithTag'>,
-    { attachments }: DisplayDataProps,
+    { attachmentsSelector }: DisplayDataProps,
   ): string {
-    return (attachments[node.getId()] || []).map((a) => a.data.filename).join(', ');
+    return attachmentsSelector(node)
+      .map((a) => a.data.filename)
+      .join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUploadWithTag'>): JSX.Element | null {
@@ -52,16 +54,13 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
   runComponentValidation(
     node: LayoutNode<'FileUploadWithTag'>,
     item: CompInternal<'FileUploadWithTag'>,
-    { attachments }: ValidationDataSources,
+    { attachmentsSelector }: ValidationDataSources,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
     // Validate minNumberOfAttachments
-    const id = node.getId();
-    if (
-      item.minNumberOfAttachments > 0 &&
-      (!attachments[id] || attachments[id]!.length < item.minNumberOfAttachments)
-    ) {
+    const attachments = attachmentsSelector(node);
+    if (item.minNumberOfAttachments > 0 && attachments.length < item.minNumberOfAttachments) {
       validations.push({
         message: {
           key: 'form_filler.file_uploader_validation_error_file_number',
@@ -75,7 +74,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     }
 
     // Validate missing tags
-    for (const attachment of attachments[id] || []) {
+    for (const attachment of attachments) {
       if (
         isAttachmentUploaded(attachment) &&
         (attachment.data.tags === undefined || attachment.data.tags.length === 0)

@@ -1,4 +1,4 @@
-import type { IAttachments } from 'src/features/attachments';
+import type { AttachmentsSelector } from 'src/features/attachments/hooks';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { FormDataSelector } from 'src/layout';
@@ -149,7 +149,7 @@ export type ValidationDataSources = {
   currentLanguage: string;
   formDataSelector: FormDataSelector;
   invalidDataSelector: FormDataSelector;
-  attachments: IAttachments;
+  attachmentsSelector: AttachmentsSelector;
 };
 
 /**
