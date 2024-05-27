@@ -4,6 +4,8 @@ import { ensureAppsDirIsSet, getAllLayoutSets } from 'src/test/allApps';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { ILayouts } from 'src/layout/layout';
 
+// TODO: Also add assertions for layout validation (i.e. data model validation, layout schema validation)
+
 describe('All known layout sets should evaluate as a hierarchy', () => {
   const dir = ensureAppsDirIsSet();
   if (!dir) {
