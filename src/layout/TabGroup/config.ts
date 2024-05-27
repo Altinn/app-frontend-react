@@ -7,7 +7,7 @@ export const Config = new CG.component({
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
-    renderInAccordion: true, // FIXME: Should this be false?
+    renderInAccordion: false,
     renderInAccordionGroup: false,
     renderInTab: false,
   },

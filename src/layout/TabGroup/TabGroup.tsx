@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Tabs } from '@digdir/designsystemet-react';
 
+import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { sanitizeImgSrcAndType } from 'src/utils/imageUtils';
@@ -9,11 +10,27 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const TabGroup = ({ node }: PropsFromGenericComponent<'TabGroup'>) => {
-  const children = node.item.childComponents;
+  const [activeTab, setActiveTab] = useState<string | undefined>(
+    node.item.defaultTab ?? node.item.childComponents.at(0)?.item.id,
+  );
 
+  useRegisterNodeNavigationHandler((targetNode) => {
+    const tabIds = node.item.childComponents.map((n) => n.item.id);
+    for (const parent of targetNode.parents() ?? []) {
+      if (parent.item.id && tabIds.includes(parent.item.id)) {
+        setActiveTab(parent.item.id);
+        return true;
+      }
+    }
+    return false;
+  });
+
+  const children = node.item.childComponents;
   return (
     <Tabs
-      defaultValue={node.item.defaultTab ?? children.at(0)?.item.id}
+      defaultValue={activeTab}
+      value={activeTab}
+      onChange={(tabId) => setActiveTab(tabId)}
       size={node.item.size}
     >
       <Tabs.List>
