@@ -63,7 +63,3 @@
 .errorFallback + .errorFallback {
   margin-top: 12px;
 }
-
-.fullHeight {
-  height: 100%;
-}

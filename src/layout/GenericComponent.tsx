@@ -213,7 +213,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         <Grid
           key={`form-content-${id}`}
           item={true}
-          className={classNames({ [classes.fullHeight]: item.type === 'Card' })}
           id={`form-content-${id}`}
           {...gridBreakpoints(item.grid?.innerGrid)}
         >

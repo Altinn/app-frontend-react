@@ -11,7 +11,6 @@ export const Config = asUploaderComponent(
       renderInButtonGroup: false,
       renderInAccordion: false,
       renderInAccordionGroup: false,
-      renderInCardGroup: false,
       renderInCards: false,
       renderInCardsMedia: false,
     },
