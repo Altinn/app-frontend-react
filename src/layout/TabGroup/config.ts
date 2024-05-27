@@ -29,4 +29,5 @@ export const Config = new CG.component({
         ),
     ).onlyIn(Variant.External),
   )
-  .addProperty(new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal));
+  .addProperty(new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal))
+  .addProperty(new CG.prop('size', new CG.enum('small', 'medium', 'large').optional()));

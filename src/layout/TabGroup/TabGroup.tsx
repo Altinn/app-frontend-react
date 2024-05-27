@@ -12,7 +12,10 @@ export const TabGroup = ({ node }: PropsFromGenericComponent<'TabGroup'>) => {
   const children = node.item.childComponents;
 
   return (
-    <Tabs defaultValue={children.at(0)?.item.id}>
+    <Tabs
+      defaultValue={children.at(0)?.item.id}
+      size={node.item.size}
+    >
       <Tabs.List>
         {children.map((n: LayoutNode<'Tab'>) => {
           const text = lang(n.item.textResourceBindings?.['title']);
