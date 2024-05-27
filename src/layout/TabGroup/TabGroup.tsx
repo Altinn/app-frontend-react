@@ -35,16 +35,15 @@ export const TabGroup = ({ node }: PropsFromGenericComponent<'TabGroup'>) => {
 };
 
 function TabHeader({ node }: { node: LayoutNode<'Tab'> }) {
-  const { lang } = useLanguage();
-  const text = lang(node.item.textResourceBindings?.['title']);
-
-  const iconPathPrefix = `/${window.org}/${window.app}`;
+  const { langAsString } = useLanguage();
+  const title = langAsString(node.item.textResourceBindings?.['title']);
 
   let iconSrc = node.item.icon;
   if (iconSrc) {
     const { imgSrc, imgType } = sanitizeImgSrcAndType(iconSrc);
     iconSrc = imgSrc;
 
+    const iconPathPrefix = `/${window.org}/${window.app}`;
     if (!iconSrc.startsWith(iconPathPrefix)) {
       iconSrc = [iconPathPrefix, iconSrc].join('/');
     }
@@ -62,13 +61,13 @@ function TabHeader({ node }: { node: LayoutNode<'Tab'> }) {
       {!!iconSrc && (
         <img
           src={iconSrc}
-          alt='icon' // FIXME: Add alt text
+          alt={title ?? 'tab icon'}
           style={{
             width: '24px',
           }}
         />
       )}
-      {text}
+      {title}
     </Tabs.Tab>
   );
 }
