@@ -7,9 +7,10 @@ import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useParentCard } from 'src/layout/Cards/CardContext';
+import styles from 'src/layout/Video/Video.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IImageProps = PropsFromGenericComponent<'Image'>;
+export type IVideoProps = PropsFromGenericComponent<'Video'>;
 
 const useStyles = makeStyles({
   spacing: {
@@ -17,34 +18,28 @@ const useStyles = makeStyles({
   },
 });
 
-export function ImageComponent({ node }: IImageProps) {
+export function VideoComponent({ node }: IVideoProps) {
   const { langAsString } = useLanguage();
-  const { id, image, textResourceBindings } = node.item;
+  const { id, video, textResourceBindings } = node.item;
   const classes = useStyles();
   const languageKey = useCurrentLanguage();
-  const width = image?.width || '100%';
-  const align = image?.align || 'center';
-  const altText = textResourceBindings?.altTextImg ? langAsString(textResourceBindings.altTextImg) : undefined;
+  const altText = textResourceBindings?.altTextVideo ? langAsString(textResourceBindings.altTextVideo) : undefined;
 
-  let imgSrc = image?.src[languageKey] || image?.src.nb || '';
-  if (imgSrc.startsWith('wwwroot')) {
-    imgSrc = imgSrc.replace('wwwroot', `/${window.org}/${window.app}`);
+  let videoSrc = video?.src?.[languageKey] || '';
+  if (videoSrc.startsWith('wwwroot')) {
+    videoSrc = videoSrc.replace('wwwroot', `/${window.org}/${window.app}`);
   }
-
-  const imgType = imgSrc.slice(-3);
-  const renderSvg = imgType.toLowerCase() === 'svg';
-
   const renderedInCardMedia = useParentCard()?.renderedInMedia;
   const cardMediaHeight = useParentCard()?.minMediaHeight;
   if (renderedInCardMedia) {
     return (
-      <InnerImage
+      <InnerVideo
         id={id}
-        renderSvg={renderSvg}
-        altText={altText}
-        imgSrc={imgSrc}
-        width={width}
+        languageKey={languageKey}
+        videoSrc={videoSrc}
         height={cardMediaHeight}
+        altText={altText}
+        className={styles.container}
       />
     );
   }
@@ -53,16 +48,15 @@ export function ImageComponent({ node }: IImageProps) {
     <Grid
       container
       direction='row'
-      justifyContent={align}
       spacing={1}
     >
       <Grid item={true}>
-        <InnerImage
+        <InnerVideo
+          className={styles.container}
           id={id}
-          renderSvg={renderSvg}
+          languageKey={languageKey}
+          videoSrc={videoSrc}
           altText={altText}
-          imgSrc={imgSrc}
-          width={width}
         />
       </Grid>
       {textResourceBindings?.help && (
@@ -80,45 +74,30 @@ export function ImageComponent({ node }: IImageProps) {
   );
 }
 
-interface InnerImageProps {
-  renderSvg: boolean;
+interface InnerVideoProps {
   id: string;
-  imgSrc: string;
+  videoSrc: string;
   altText: string | undefined;
-  width: string;
+  languageKey: string | undefined;
   height?: string;
+  className: string;
 }
 
-function InnerImage({ renderSvg, id, imgSrc, altText, width, height }: InnerImageProps) {
-  if (renderSvg) {
-    return (
-      <object
-        type='image/svg+xml'
-        id={id}
-        data={imgSrc}
-        role={'presentation'}
-      >
-        <img
-          src={imgSrc}
-          alt={altText}
-          style={{
-            width,
-            height,
-          }}
-        />
-      </object>
-    );
-  }
-
+function InnerVideo({ id, videoSrc, altText, languageKey, height, className }: InnerVideoProps) {
   return (
-    <img
+    <video
+      controls
       id={id}
-      src={imgSrc}
-      alt={altText}
-      style={{
-        width,
-        height,
-      }}
-    />
+      style={{ height }}
+      className={className}
+    >
+      <source src={videoSrc} />
+      <track
+        kind='captions'
+        src={videoSrc}
+        srcLang={languageKey}
+        label={altText}
+      />
+    </video>
   );
 }
