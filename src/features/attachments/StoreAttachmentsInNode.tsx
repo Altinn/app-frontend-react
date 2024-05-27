@@ -1,0 +1,122 @@
+import { useRef } from 'react';
+
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
+import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeFormData } from 'src/utils/layout/useNodeItem';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IAttachment } from 'src/features/attachments/index';
+import type { CompWithBehavior } from 'src/layout/layout';
+import type { IData } from 'src/types/shared';
+import type { IComponentFormData } from 'src/utils/formComponentUtils';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+
+export function StoreAttachmentsInNode() {
+  const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
+  const setNodeProp = NodesInternal.useSetNodeProp();
+  const isAllAdded = GeneratorStages.AddNodes.useIsDone();
+  const isSelfAdded = NodesInternal.useIsAdded(node);
+  const attachments = useNodeAttachments();
+
+  const ready = isAllAdded && isSelfAdded;
+  GeneratorStages.EvaluateExpressions.useEffect(() => {
+    if (ready) {
+      setNodeProp(node, 'attachments' as any, attachments);
+    }
+  }, [ready, node, setNodeProp, attachments]);
+
+  return null;
+}
+
+function useNodeAttachments() {
+  const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
+  const nodeData = useNodeFormData(node);
+
+  const application = useApplicationMetadata();
+  const currentTask = useLaxProcessData()?.currentTask?.elementId;
+  const data = useLaxInstanceData()?.data;
+
+  const mappedAttachments = useMemoDeepEqual(
+    () => mapAttachments(node, data ?? [], application, currentTask, nodeData),
+    [node, data, application, currentTask, nodeData],
+  );
+
+  const prevAttachments = useRef<Map<string, IAttachment> | undefined>(undefined);
+  return useMemoDeepEqual((): IAttachment[] => {
+    const prevResult = prevAttachments.current ?? new Map<string, IAttachment>();
+    const result = new Map<string, IAttachment>();
+
+    for (const attachment of mappedAttachments) {
+      result.set(attachment.id, {
+        uploaded: true,
+        updating: prevResult.get(attachment.id)?.updating ?? false,
+        deleting: prevResult.get(attachment.id)?.deleting ?? false,
+        data: attachment,
+      });
+    }
+
+    prevAttachments.current = result;
+    return [...result.values()];
+  }, [mappedAttachments]);
+}
+
+function mapAttachments(
+  node: LayoutNode,
+  dataElements: IData[],
+  application: IApplicationMetadata,
+  currentTask: string | undefined,
+  formData: IComponentFormData<CompWithBehavior<'canHaveAttachments'>>,
+): IData[] {
+  const attachments: IData[] = [];
+  for (const data of dataElements) {
+    if (data.dataType && node.getBaseId() !== data.dataType) {
+      // The attachment does not belong to this node
+      continue;
+    }
+
+    const dataType = application.dataTypes.find((dt) => dt.id === data.dataType);
+    if (!dataType) {
+      continue;
+    }
+
+    if (dataType.taskId && dataType.taskId !== currentTask) {
+      continue;
+    }
+
+    if (dataType.appLogic?.classRef) {
+      // Data models are not attachments
+      continue;
+    }
+
+    if (dataType.id === 'ref-data-as-pdf') {
+      // Generated PDF receipts are not attachments
+      continue;
+    }
+
+    const simpleValue = formData && 'simpleBinding' in formData ? formData.simpleBinding : undefined;
+    const listValue = formData && 'list' in formData ? formData.list : undefined;
+
+    if (simpleValue && simpleValue === data.id) {
+      attachments.push(data);
+      break;
+    }
+
+    if (listValue && Array.isArray(listValue) && listValue.some((binding) => binding === data.id)) {
+      attachments.push(data);
+      break;
+    }
+
+    const nodeIsInRepeatingGroup = node.getId() !== node.getBaseId();
+    if (!simpleValue && !listValue && !nodeIsInRepeatingGroup) {
+      // We can safely assume the attachment belongs to this node.
+      attachments.push(data);
+      break;
+    }
+  }
+
+  return attachments;
+}

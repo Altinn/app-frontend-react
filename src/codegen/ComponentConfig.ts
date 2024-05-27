@@ -54,6 +54,7 @@ export class ComponentConfig {
     isSummarizable: false,
     canHaveLabel: false,
     canHaveOptions: false,
+    canHaveAttachments: false,
   };
   protected plugins: NodeDefPlugin<any>[] = [];
 

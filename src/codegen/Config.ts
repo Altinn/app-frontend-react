@@ -60,4 +60,5 @@ export interface ComponentBehaviors {
   isSummarizable: boolean;
   canHaveLabel: boolean;
   canHaveOptions: boolean;
+  canHaveAttachments: boolean;
 }

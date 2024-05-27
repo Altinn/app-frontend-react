@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import type React from 'react';
 
@@ -8,7 +7,6 @@ import type { AxiosError } from 'axios';
 import type { ImmerReducer } from 'use-immer';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
-import { useMappedAttachments } from 'src/features/attachments/utils/mapping';
 import { useLaxInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -19,7 +17,6 @@ import type {
   RawAttachmentAction,
   UploadedAttachment,
 } from 'src/features/attachments';
-import type { SimpleAttachments } from 'src/features/attachments/utils/mapping';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 type Update = AttachmentActionUpdate & { success: undefined };
@@ -30,30 +27,10 @@ type Remove = AttachmentActionRemove & { success: undefined };
 type RemoveFulfilled = AttachmentActionRemove & { success: true };
 type RemoveRejected = AttachmentActionRemove & { success: false; error: AxiosError };
 
-type ActionReplaceAll = { action: 'replaceAll'; attachments: SimpleAttachments };
-
-type Actions = Update | UpdateFulfilled | UpdateRejected | Remove | RemoveFulfilled | RemoveRejected | ActionReplaceAll;
+type Actions = Update | UpdateFulfilled | UpdateRejected | Remove | RemoveFulfilled | RemoveRejected;
 type Dispatch = React.Dispatch<Actions>;
 
 const reducer: ImmerReducer<IAttachments<UploadedAttachment>, Actions> = (draft, action) => {
-  if (action.action === 'replaceAll') {
-    const { attachments } = action;
-    const out: IAttachments<UploadedAttachment> = {};
-
-    for (const nodeId in attachments) {
-      for (const attachment of attachments[nodeId]!) {
-        out[nodeId] = out[nodeId] || [];
-        out[nodeId]?.push({
-          uploaded: true,
-          updating: false,
-          deleting: false,
-          data: attachment,
-        });
-      }
-    }
-
-    return out;
-  }
   if (action.action === 'update' && action.success === undefined) {
     const { tags, attachment, node } = action;
 
@@ -136,15 +113,9 @@ const reducer: ImmerReducer<IAttachments<UploadedAttachment>, Actions> = (draft,
 const initialState: IAttachments<UploadedAttachment> = {};
 
 export const usePostUpload = () => {
-  const fromInstance = useMappedAttachments();
-
   const [state, dispatch] = useImmerReducer(reducer, initialState);
   const update = useUpdate(dispatch);
   const remove = useRemove(dispatch);
-
-  useEffect(() => {
-    dispatch({ action: 'replaceAll', attachments: fromInstance || {} });
-  }, [dispatch, fromInstance]);
 
   return {
     state,

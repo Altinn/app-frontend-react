@@ -6,18 +6,18 @@ import type { IAttachment } from 'src/features/attachments';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type {
+  IDataModelBindingsList,
   IGridStyling,
   IPageBreak,
   ITableColumnFormatting,
   ITableColumnProperties,
 } from 'src/layout/common.generated';
 import type { CompTypes, IDataModelBindings, ITextResourceBindings } from 'src/layout/layout';
-import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type BindingToValues<B extends IDataModelBindings | undefined> = B extends undefined
   ? { [key: string]: undefined }
-  : B extends IDataModelBindingsForList
+  : B extends IDataModelBindingsList
     ? { list: string[] | undefined }
     : { [key in keyof B]: string | undefined };
 
