@@ -7,6 +7,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { AlertBaseComponent } from 'src/layout/Alert/AlertBaseComponent';
 import { useCurrentNode } from 'src/layout/FormComponentContext';
+import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
 import type { BaseValidation, NodeValidation } from 'src/features/validation';
 import type { AlertSeverity } from 'src/layout/Alert/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -59,10 +60,12 @@ export function ComponentValidations({ validations }: Props) {
 }
 
 function ErrorValidations({ validations, node }: { validations: BaseValidation<'error'>[]; node: LayoutNode }) {
+  const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
+
   return (
     <ol style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
       {validations.map((validation) => (
-        <li key={`validationMessage-${validation.message.key}`}>
+        <li key={getUniqueKeyFromObject(validation)}>
           <ErrorMessage
             role='alert'
             size='small'
@@ -88,6 +91,7 @@ function SoftValidations({
   variant: AlertSeverity;
   node: LayoutNode;
 }) {
+  const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
   const { langAsString } = useLanguage();
 
   /**
@@ -107,7 +111,7 @@ function SoftValidations({
           {validations.map((validation) => (
             <li
               role='alert'
-              key={`validationMessage-${validation.message.key}`}
+              key={getUniqueKeyFromObject(validation)}
             >
               <Lang
                 id={validation.message.key}
