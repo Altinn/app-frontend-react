@@ -1,4 +1,4 @@
-import type { FixedLanguageList } from 'src/language/languages';
+import type { FixedLanguageList, NestedTexts } from 'src/language/languages';
 
 export function nn(): FixedLanguageList {
   return {
@@ -146,6 +146,7 @@ export function nn(): FixedLanguageList {
       next: 'Neste',
       no_options: 'Ingen alternativ tilgjengeleg',
       optional: 'Valfri',
+      page_number: 'Side {0}',
       print_button_text: 'Print / Lagre PDF',
       progress: 'Side {0} av {1}',
       required: 'Obligatorisk',
@@ -259,6 +260,38 @@ export function nn(): FixedLanguageList {
         'Du kan endra [profilinnstillingane](https://altinn.no/ui/Profile) dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Avanserte innstillingar** > **Eg ønskjer ikkje å bli spurt om aktør kvar gong eg startar utfylling av eit nytt skjema**.',
       seeing_this_override: 'Denne appen er sett opp til å alltid spørja om aktør.',
     },
+    payment: {
+      pay: 'Betal',
+      summary: 'Oppsummering',
+      alert: {
+        paid: 'Du har betalt!',
+        failed: 'Betalinga feilet',
+      },
+      receipt: {
+        title: 'Betalingskvittering',
+        payment_id: 'Betalings ID',
+        altinn_ref: 'Altinn referanse',
+        payment_date: 'Dato for kjøp',
+        total_amount: 'Total beløp',
+        receiver: 'Mottaker',
+        payer: 'Betaler',
+        name: 'Navn',
+        phone: 'Telefon',
+        address: 'Addresse',
+        org_num: 'Organisasjonsnummer',
+        account_number: 'Kontonummer',
+        card_number: 'Kortnummer',
+        card_expiry: 'Utløpsdato',
+        email: 'E-post',
+      },
+      component: {
+        description: 'Beskrivelse',
+        quantity: 'Antall',
+        price: 'Pris',
+        total: 'Totalt',
+        vat: 'MVA',
+      },
+    },
     helptext: {
       button_title: 'Hjelp',
       button_title_prefix: 'Hjelpetekst for',
@@ -348,5 +381,5 @@ export function nn(): FixedLanguageList {
     likert: {
       left_column_default_header_text: 'Spørsmål',
     },
-  };
+  } satisfies NestedTexts;
 }

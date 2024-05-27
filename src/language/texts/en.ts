@@ -1,3 +1,5 @@
+import type { NestedTexts } from 'src/language/languages';
+
 export function en() {
   return {
     altinn: {
@@ -28,7 +30,7 @@ export function en() {
     confirm: {
       answers: 'Your responses',
       attachments: 'Attachments',
-      body: 'You are ready to submit {0}. Before you submit, we recomment that you look over and verify your responses. You cannot change your responses after submitting.',
+      body: 'You are ready to submit {0}. Before you submit, we recommend that you look over and verify your responses. You cannot change your responses after submitting.',
       button_text: 'Submit',
       deadline: 'Deadline',
       sender: 'Party',
@@ -144,6 +146,7 @@ export function en() {
       next: 'Next',
       no_options: 'No options available',
       optional: 'Optional',
+      page_number: 'Page {0}',
       print_button_text: 'Print / Save as PDF',
       progress: 'Page {0} of {1}',
       required: 'Required',
@@ -256,6 +259,38 @@ export function en() {
         'You can change your [profile settings](https://altinn.no/ui/Profile) to not get prompted for party selection each time you start a new instance. You can find this setting under **Profile** > **Advanced settings** > **Do not ask what party I represent each time I start to fill in a new form**.',
       seeing_this_override: 'This app has been configured to always prompt you for party selection.',
     },
+    payment: {
+      pay: 'Pay',
+      summary: 'Summary',
+      alert: {
+        paid: 'You have paid!',
+        failed: 'Your payment has failed',
+      },
+      receipt: {
+        title: 'Payment receipt',
+        payment_id: 'Payment ID',
+        altinn_ref: 'Altinn referance',
+        payment_date: 'Date of purchase',
+        total_amount: 'Total amount',
+        receiver: 'Receiver',
+        payer: 'Payer',
+        name: 'Name',
+        phone: 'Phone',
+        address: 'Address',
+        org_num: 'Org number',
+        account_number: 'Account number',
+        card_number: 'Card number',
+        card_expiry: 'Card expiry',
+        email: 'Email',
+      },
+      component: {
+        description: 'Description',
+        quantity: 'Quantity',
+        price: 'Price',
+        total: 'Total',
+        vat: 'VAT',
+      },
+    },
     helptext: {
       button_title: 'Help',
       button_title_prefix: 'Helptext for',
@@ -345,5 +380,5 @@ export function en() {
     likert: {
       left_column_default_header_text: 'Question',
     },
-  };
+  } satisfies NestedTexts;
 }

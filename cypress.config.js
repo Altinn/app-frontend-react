@@ -14,9 +14,18 @@ module.exports = defineConfig({
         if (browser.name === 'electron') {
           launchOptions.preferences.width = CYPRESS_WINDOW_WIDTH;
           launchOptions.preferences.height = CYPRESS_WINDOW_HEIGHT;
+          launchOptions.preferences.webPreferences = {
+            ...(launchOptions.preferences.webPreferences || {}),
+            webSecurity: false,
+          };
         }
         if (browser.name === 'chrome' && browser.isHeadless) {
           launchOptions.args.push(`--window-size=${CYPRESS_WINDOW_WIDTH},${CYPRESS_WINDOW_HEIGHT}`);
+        }
+
+        // Adding chromeWebSecurity: false
+        if (browser.name === 'chrome') {
+          launchOptions.args.push('--disable-web-security');
         }
 
         return launchOptions;
@@ -42,7 +51,7 @@ module.exports = defineConfig({
 Valid environments are:
 - ${validEnvironments.join('\n- ')}`);
     },
-    specPattern: 'test/e2e/integration/',
+    specPattern: ['test/e2e/integration/', 'test/e2e/manual/'],
     supportFile: 'test/e2e/support/index.ts',
   },
   fixturesFolder: 'test/e2e/fixtures',
