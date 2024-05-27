@@ -9,15 +9,9 @@ export const Config = new CG.component({
     renderInButtonGroup: false,
     renderInAccordion: true, // FIXME: Should this be false?
     renderInAccordionGroup: false,
+    renderInTab: false,
   },
 })
-  .addTextResource(
-    new CG.trb({
-      name: 'title',
-      title: 'Title',
-      description: 'The title of the tabs',
-    }),
-  )
   .addTextResource(
     new CG.trb({
       name: 'ariaLabel',

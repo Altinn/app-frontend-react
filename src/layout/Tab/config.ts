@@ -10,6 +10,7 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
     renderInTabGroup: true,
+    renderInTab: false,
   },
 })
   .addTextResource(
