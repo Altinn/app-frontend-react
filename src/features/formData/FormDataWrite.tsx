@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { useIsMutating, useMutation } from '@tanstack/react-query';
+import { useIsMutating, useMutation, useQueryClient } from '@tanstack/react-query';
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
 
@@ -138,6 +138,26 @@ function useIsSaving() {
       mutationKey: ['saveFormData', dataModelUrl === ContextNotProvided ? '__never__' : dataModelUrl],
     }) > 0
   );
+}
+
+function useIsSavingAsRef() {
+  const dataModelUrl = useLaxSelector((s) => s.controlState.saveUrl);
+  const ref = useRef(false);
+  const mutationCache = useQueryClient().getMutationCache();
+
+  useEffect(
+    () =>
+      mutationCache.subscribe(() => {
+        ref.current =
+          mutationCache.findAll({
+            status: 'pending',
+            mutationKey: ['saveFormData', dataModelUrl === ContextNotProvided ? '__never__' : dataModelUrl],
+          }).length > 0;
+      }),
+    [dataModelUrl, mutationCache],
+  );
+
+  return ref;
 }
 
 interface FormDataWriterProps extends PropsWithChildren {
@@ -282,8 +302,8 @@ const useHasUnsavedChanges = () => {
 };
 
 const useHasUnsavedChangesRef = () => {
-  const isSaving = useIsSaving();
-  return useLaxSelectorAsRef((state) => hasUnsavedChanges(state) || isSaving);
+  const isSavingRef = useIsSavingAsRef();
+  return useLaxSelectorAsRef((state) => hasUnsavedChanges(state) || isSavingRef.current);
 };
 
 const useWaitForSave = () => {
@@ -542,7 +562,10 @@ export const FD = {
       [isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawUnlock],
     );
 
-    return { lock, unlock, isLocked, lockedBy, isLockedByMe };
+    return useMemo(
+      () => ({ lock, unlock, isLocked, lockedBy, isLockedByMe }),
+      [isLocked, isLockedByMe, lock, lockedBy, unlock],
+    );
   },
 
   /**

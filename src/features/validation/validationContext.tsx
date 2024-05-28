@@ -214,25 +214,27 @@ export function UpdateExpressionValidation() {
 }
 
 function ManageShowAllErrors() {
+  const showAllErrors = useSelector((state) => state.showAllErrors);
+  return showAllErrors ? <UpdateShowAllErrors /> : null;
+}
+
+function UpdateShowAllErrors() {
   const taskValidations = useSelector((state) => state.state.task);
   const fieldValidations = useSelector((state) => state.state.fields);
-  const showAllErrors = useSelector((state) => state.showAllErrors);
   const setShowAllErrors = useSelector((state) => state.setShowAllErrors);
 
   /**
    * Hide unbound errors as soon as possible.
    */
   useEffect(() => {
-    if (showAllErrors) {
-      const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
-      const hasFieldErrors =
-        Object.values(fieldValidations).flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
+    const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
+    const hasFieldErrors =
+      Object.values(fieldValidations).flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
 
-      if (!hasFieldErrors && !hasValidationErrors(taskValidations)) {
-        setShowAllErrors(false);
-      }
+    if (!hasFieldErrors && !hasValidationErrors(taskValidations)) {
+      setShowAllErrors(false);
     }
-  }, [fieldValidations, setShowAllErrors, showAllErrors, taskValidations]);
+  }, [fieldValidations, setShowAllErrors, taskValidations]);
 
   return null;
 }
