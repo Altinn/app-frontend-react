@@ -32,7 +32,6 @@ export interface InstanceContext {
 
   // Methods/utilities
   changeData: ChangeInstanceData;
-  reFetch: () => Promise<void>;
 }
 
 export type ChangeInstanceData = (callback: (instance: IInstance | undefined) => IInstance | undefined) => void;
@@ -44,21 +43,17 @@ const { Provider, useCtx, useHasProvider } = createContext<InstanceContext | und
 });
 
 // Also used for prefetching @see appPrefetcher.ts
-export function useInstanceDataQueryDef(
-  enabled: boolean,
-  partyId?: string,
-  instanceGuid?: string,
-): QueryDefinition<IInstance> {
+export function useInstanceDataQueryDef(partyId?: string, instanceGuid?: string): QueryDefinition<IInstance> {
   const { fetchInstanceData } = useAppQueries();
   return {
-    queryKey: ['fetchInstanceData', partyId, instanceGuid, enabled],
+    queryKey: ['fetchInstanceData', partyId, instanceGuid],
     queryFn: partyId && instanceGuid ? () => fetchInstanceData(partyId, instanceGuid) : skipToken,
-    enabled: enabled && !!partyId && !!instanceGuid,
+    enabled: !!partyId && !!instanceGuid,
   };
 }
 
-function useGetInstanceDataQuery(enabled: boolean, partyId: string, instanceGuid: string) {
-  const utils = useQuery(useInstanceDataQueryDef(enabled, partyId, instanceGuid));
+function useGetInstanceDataQuery(partyId: string, instanceGuid: string) {
+  const utils = useQuery(useInstanceDataQueryDef(partyId, instanceGuid));
 
   useEffect(() => {
     utils.error && window.logError('Fetching instance data failed:\n', utils.error);
@@ -93,15 +88,13 @@ const InnerInstanceProvider = ({
   partyId: string;
   instanceGuid: string;
 }) => {
-  const [forceFetching, setForceFetching] = useState(false);
   const [data, setData] = useStateDeepEqual<IInstance | undefined>(undefined);
   const [error, setError] = useState<AxiosError | undefined>(undefined);
   const dataSources = useMemo(() => buildInstanceDataSources(data), [data]);
 
   const instantiation = useInstantiation();
 
-  const fetchEnabled = forceFetching || !instantiation.lastResult;
-  const fetchQuery = useGetInstanceDataQuery(fetchEnabled, partyId, instanceGuid);
+  const fetchQuery = useGetInstanceDataQuery(partyId, instanceGuid);
 
   const changeData: ChangeInstanceData = useCallback(
     (callback) => {
@@ -147,10 +140,6 @@ const InnerInstanceProvider = ({
         isFetching: fetchQuery.isFetching,
         error,
         changeData,
-        reFetch: async () => {
-          setForceFetching(true);
-          return void (await fetchQuery.refetch());
-        },
         partyId,
         instanceGuid,
         instanceId: `${partyId}/${instanceGuid}`,

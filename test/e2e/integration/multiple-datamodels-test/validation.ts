@@ -53,7 +53,7 @@ describe('validating multiple data models', () => {
     cy.findByRole('radio', { name: /kåre/i }).dsCheck();
     cy.get(appFrontend.errorReport).should('not.exist');
     cy.findByRole('button', { name: /send inn/i }).click();
-    cy.get(appFrontend.receipt.container).should('be.visible');
+    cy.findByRole('heading', { name: /fra forrige steg/i }).should('be.visible');
   });
 
   it('expression validation for multiple datamodels', () => {

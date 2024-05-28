@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from 'react';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
-import { useLaxInstance, useStrictInstance } from 'src/features/instance/InstanceContext';
+import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { mapValidationIssueToFieldValidation } from 'src/features/validation/backendValidation/backendValidationUtils';
@@ -25,8 +25,8 @@ const AbortedDueToFormErrors = Symbol('AbortedDueToErrors');
 const AbortedDueToFailure = Symbol('AbortedDueToFailure');
 
 function useProcessNext() {
+  const queryClient = useQueryClient();
   const { doProcessNext } = useAppMutations();
-  const { reFetch: reFetchInstanceData } = useStrictInstance();
   const language = useCurrentLanguage();
   const setProcessData = useSetProcessData();
   const currentProcessData = useLaxProcessData();
@@ -61,7 +61,7 @@ function useProcessNext() {
     },
     onSuccess: async ([processData, validationIssues]) => {
       if (processData) {
-        await reFetchInstanceData();
+        queryClient.invalidateQueries({ queryKey: ['fetchInstanceData'] });
         setProcessData?.({ ...processData, processTasks: currentProcessData?.processTasks });
         navigateToTask(processData?.currentTask?.elementId);
       } else if (validationIssues && updateTaskValidations !== ContextNotProvided) {

@@ -348,6 +348,11 @@ export class AppFrontend {
     textField2: '#Input-aWlSF3',
     addressField: '#Address-xdZ7PE',
     chooseIndusty: '#choose-industry',
+    textField1Summary: '[data-testid="summary-text1"]',
+    textField2Summary: '[data-testid="summary-text2"]',
+    sectorSummary: '[data-testid="summary-sector"]',
+    industrySummary: '[data-testid="summary-industry"]',
+    personsSummary: '[data-testid="summary-persons"]',
   };
 }
 

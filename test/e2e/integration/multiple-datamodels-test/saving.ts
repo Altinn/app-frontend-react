@@ -71,6 +71,14 @@ describe('saving multiple data models', () => {
 
     cy.gotoNavPage('Side3');
 
+    const today = new Date();
+    const age1 = 36;
+    const y1 = today.getFullYear() - age1;
+    const m = today.getMonth().toString().padStart(2, '0');
+    const d = today.getDate().toString().padStart(2, '0');
+    const age2 = 25;
+    const y2 = today.getFullYear() - age2;
+
     cy.findByRole('button', { name: /legg til ny/i }).click();
 
     cy.get(appFrontend.multipleDatamodelsTest.repeatingParagraph).should(
@@ -92,11 +100,6 @@ describe('saving multiple data models', () => {
       'Per Hansen er født dato og er dermed alder år gammel',
     );
 
-    const today = new Date();
-    const age1 = 36;
-    const y1 = today.getFullYear() - age1;
-    const m = today.getMonth().toString().padStart(2, '0');
-    const d = today.getDate().toString().padStart(2, '0');
     cy.findByRole('textbox', { name: /fødselsdato/i }).type(`${d}${m}${y1}`);
 
     cy.get(appFrontend.multipleDatamodelsTest.repeatingParagraph).should(
@@ -108,9 +111,6 @@ describe('saving multiple data models', () => {
       .first()
       .click();
     cy.findByRole('button', { name: /legg til ny/i }).click();
-
-    const age2 = 25;
-    const y2 = today.getFullYear() - age2;
 
     cy.findByRole('textbox', { name: /fornavn/i }).type('Hanne');
     cy.findByRole('textbox', { name: /etternavn/i }).type('Persen');
