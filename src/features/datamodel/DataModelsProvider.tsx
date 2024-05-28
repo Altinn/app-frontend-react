@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -8,28 +8,36 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
+import { getFirstDataElementId, isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useCustomValidationConfigQuery } from 'src/features/customValidation/useCustomValidationQuery';
 import { useCurrentDataModelName, useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSchemaQuery';
+import {
+  getAllReferencedDataTypes,
+  isDataTypeWritable,
+  MissingClassRefException,
+  MissingDataElementException,
+  MissingDataTypeException,
+} from 'src/features/datamodel/utils';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
-import { InvalidDataTypeException } from 'src/features/formData/InvalidDataTypeException';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { useIsValidationEnabled, useShouldValidateDataType } from 'src/features/validation/utils';
-import { isDataModelReference } from 'src/utils/databindings';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
+import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
 import type { BackendValidatorGroups, IExpressionValidations } from 'src/features/validation';
+import type { IDataModelReference } from 'src/layout/common.generated';
 
 interface DataModelsState {
   defaultDataType: string | undefined;
-  dataTypes: string[] | null;
+  allDataTypes: string[] | null;
+  writableDataTypes: string[] | null;
   initialData: { [dataType: string]: object };
   urls: { [dataType: string]: string };
   dataElementIds: { [dataType: string]: string | null };
@@ -41,7 +49,7 @@ interface DataModelsState {
 }
 
 interface DataModelsMethods {
-  setDataTypes: (dataTypes: string[], defaultDataType: string | undefined) => void;
+  setDataTypes: (allDataTypes: string[], writableDataTypes: string[], defaultDataType: string | undefined) => void;
   setInitialData: (dataType: string, initialData: object, url: string, dataElementId: string | null) => void;
   setInitialValidations: (dataType: string, initialValidations: BackendValidatorGroups) => void;
   setDataModelSchema: (dataType: string, schema: JSONSchema7, lookupTool: SchemaLookupTool) => void;
@@ -52,7 +60,8 @@ interface DataModelsMethods {
 function initialCreateStore() {
   return createStore<DataModelsState & DataModelsMethods>()((set) => ({
     defaultDataType: undefined,
-    dataTypes: null,
+    allDataTypes: null,
+    writableDataTypes: null,
     initialData: {},
     urls: {},
     dataElementIds: {},
@@ -62,8 +71,8 @@ function initialCreateStore() {
     expressionValidationConfigs: {},
     error: null,
 
-    setDataTypes: (dataTypes, defaultDataType) => {
-      set(() => ({ dataTypes, defaultDataType }));
+    setDataTypes: (allDataTypes, writableDataTypes, defaultDataType) => {
+      set(() => ({ allDataTypes, writableDataTypes, defaultDataType }));
     },
     setInitialData: (dataType, initialData, url, dataElementId) => {
       set((state) => ({
@@ -140,50 +149,65 @@ function DataModelsLoader() {
   const applicationMetadata = useApplicationMetadata();
   const setDataTypes = useSelector((state) => state.setDataTypes);
   const setError = useSelector((state) => state.setError);
-  const dataTypes = useSelector((state) => state.dataTypes);
+  const allDataTypes = useSelector((state) => state.allDataTypes);
+  const writableDataTypes = useSelector((state) => state.writableDataTypes);
   const layouts = useLayouts();
   const defaultDataType = useCurrentDataModelName();
+  const isStateless = isStatelessApp(applicationMetadata);
+  const instance = useLaxInstanceData();
 
   // Find all data types referenced in dataModelBindings in the layout
   useEffect(() => {
-    const dataTypes = new Set<string>();
+    const allDataTypes = getAllReferencedDataTypes(layouts, defaultDataType);
 
-    if (defaultDataType) {
-      dataTypes.add(defaultDataType);
-    }
+    // Verify that referenced data types are defined in application metadata, have a classRef, and have a corresponding data element in the instance data
+    for (const dataType of allDataTypes) {
+      const typeDef = applicationMetadata.dataTypes.find((dt) => dt.id === dataType);
 
-    for (const layout of Object.values(layouts)) {
-      for (const component of layout ?? []) {
-        if ('dataModelBindings' in component && component.dataModelBindings) {
-          for (const binding of Object.values(component.dataModelBindings)) {
-            if (isDataModelReference(binding)) {
-              dataTypes.add(binding.dataType);
-            }
-          }
-        }
+      if (!typeDef) {
+        const error = new MissingDataTypeException(dataType);
+        window.logErrorOnce(error.message);
+        setError(error);
+        return;
       }
-    }
-
-    // Verify that referenced data types are defined in application metadata, and have a classRef
-    for (const dataType of dataTypes) {
-      if (!applicationMetadata.dataTypes.find((dt) => dt.id === dataType && dt.appLogic?.classRef)) {
-        const error = new InvalidDataTypeException(dataType);
+      if (!typeDef?.appLogic?.classRef) {
+        const error = new MissingClassRefException(dataType);
+        window.logErrorOnce(error.message);
+        setError(error);
+        return;
+      }
+      if (!isStateless && !instance?.data.find((data) => data.dataType === dataType)) {
+        const error = new MissingDataElementException(dataType);
         window.logErrorOnce(error.message);
         setError(error);
         return;
       }
     }
 
-    setDataTypes([...dataTypes], defaultDataType);
-  }, [applicationMetadata.dataTypes, defaultDataType, layouts, setDataTypes, setError]);
+    // Identify data types that we are allowed to write to
+    const writableDataTypes: string[] = [];
+    for (const dataType of allDataTypes) {
+      if (isDataTypeWritable(dataType, isStateless, instance)) {
+        writableDataTypes.push(dataType);
+      }
+    }
 
+    setDataTypes(allDataTypes, writableDataTypes, defaultDataType);
+  }, [applicationMetadata, defaultDataType, isStateless, layouts, setDataTypes, setError, instance]);
+
+  // We should load form data and schema for all referenced data models, schema is used for dataModelBinding validation which we want to do even if it is readonly
+  // We only need to load validation and expression validation config for data types that are not readonly. Additionally, backend will error if we try to validate a model we are not supposed to
   return (
     <>
-      {dataTypes?.map((dataType) => (
+      {allDataTypes?.map((dataType) => (
         <React.Fragment key={dataType}>
           <LoadInitialData dataType={dataType} />
-          <LoadInitialValidations dataType={dataType} />
           <LoadSchema dataType={dataType} />
+        </React.Fragment>
+      ))}
+      {writableDataTypes?.map((dataType) => (
+        <React.Fragment key={dataType}>
+          <LoadInitialValidations dataType={dataType} />
           <LoadExpressionValidationConfig dataType={dataType} />
         </React.Fragment>
       ))}
@@ -192,9 +216,16 @@ function DataModelsLoader() {
 }
 
 function BlockUntilLoaded({ children }: PropsWithChildren) {
-  const { dataTypes, initialData, initialValidations, schemas, expressionValidationConfigs, error } = useSelector(
-    (state) => state,
-  );
+  const {
+    allDataTypes,
+    writableDataTypes,
+    initialData,
+    initialValidations,
+    schemas,
+    expressionValidationConfigs,
+    error,
+  } = useSelector((state) => state);
+  const isPDF = useIsPdf();
 
   if (error) {
     // Error trying to fetch data, if missing rights we display relevant page
@@ -205,24 +236,28 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
     return <DisplayError error={error} />;
   }
 
-  if (!dataTypes) {
+  if (!allDataTypes || !writableDataTypes) {
     return <Loader reason='data-types' />;
   }
 
-  for (const dataType of dataTypes) {
+  // in PDF mode, we do not load schema, validations, or expression validation config. So we should not block loading in that case
+
+  for (const dataType of allDataTypes) {
     if (!Object.keys(initialData).includes(dataType)) {
       return <Loader reason='initial-data' />;
     }
 
-    if (!Object.keys(initialValidations).includes(dataType)) {
+    if (!isPDF && !Object.keys(schemas).includes(dataType)) {
+      return <Loader reason='data-model-schema' />;
+    }
+  }
+
+  for (const dataType of writableDataTypes) {
+    if (!isPDF && !Object.keys(initialValidations).includes(dataType)) {
       return <Loader reason='initial-validations' />;
     }
 
-    if (!Object.keys(schemas).includes(dataType)) {
-      return <Loader reason='data-model-schema' />;
-    }
-
-    if (!Object.keys(expressionValidationConfigs).includes(dataType)) {
+    if (!isPDF && !Object.keys(expressionValidationConfigs).includes(dataType)) {
       return <Loader reason='expression-validation-config' />;
     }
   }
@@ -258,19 +293,19 @@ function LoadInitialData({ dataType }: LoaderProps) {
 function LoadInitialValidations({ dataType }: LoaderProps) {
   const setInitialValidations = useSelector((state) => state.setInitialValidations);
   const setError = useSelector((state) => state.setError);
-  const isValidationEnabled = useIsValidationEnabled();
-  const shouldValidateDataType = useShouldValidateDataType()(dataType);
-  const enabled = isValidationEnabled && shouldValidateDataType;
-
+  // No need to load validations in PDF or stateless apps
+  const isStateless = useIsStatelessApp();
+  const isPDF = useIsPdf();
+  const enabled = !isPDF && !isStateless;
   const { data, error } = useBackendValidationQuery(dataType, enabled);
 
   useEffect(() => {
-    if (!enabled) {
+    if (isStateless) {
       setInitialValidations(dataType, {});
     } else if (data) {
       setInitialValidations(dataType, data);
     }
-  }, [data, dataType, enabled, setInitialValidations]);
+  }, [data, dataType, isStateless, setInitialValidations]);
 
   useEffect(() => {
     error && setError(error);
@@ -282,13 +317,15 @@ function LoadInitialValidations({ dataType }: LoaderProps) {
 function LoadSchema({ dataType }: LoaderProps) {
   const setDataModelSchema = useSelector((state) => state.setDataModelSchema);
   const setError = useSelector((state) => state.setError);
-  const { data, error } = useDataModelSchemaQuery(dataType);
+  // No need to load schema in PDF
+  const enabled = !useIsPdf();
+  const { data, error } = useDataModelSchemaQuery(enabled, dataType);
 
   useEffect(() => {
     if (data) {
       setDataModelSchema(dataType, data.schema, data.lookupTool);
     }
-  }, [data, dataType, setDataModelSchema]);
+  }, [data, dataType, enabled, setDataModelSchema]);
 
   useEffect(() => {
     error && setError(error);
@@ -300,7 +337,9 @@ function LoadSchema({ dataType }: LoaderProps) {
 function LoadExpressionValidationConfig({ dataType }: LoaderProps) {
   const setExpressionValidationConfig = useSelector((state) => state.setExpressionValidationConfig);
   const setError = useSelector((state) => state.setError);
-  const { data, isSuccess, error } = useCustomValidationConfigQuery(dataType);
+  // No need to load validation config in PDF
+  const enabled = !useIsPdf();
+  const { data, isSuccess, error } = useCustomValidationConfigQuery(enabled, dataType);
 
   useEffect(() => {
     if (isSuccess) {
@@ -320,15 +359,24 @@ export const DataModels = {
 
   useLaxDefaultDataType: () => useLaxSelector((state) => state.defaultDataType),
 
-  useLaxWritableDataTypes: () => useLaxSelector((state) => state.dataTypes!),
+  useLaxReadableDataTypes: () => useLaxSelector((state) => state.allDataTypes!),
 
-  useWritableDataTypes: () => useSelector((state) => state.dataTypes!),
+  useWritableDataTypes: () => useSelector((state) => state.writableDataTypes!),
 
   useInitialValidations: (dataType: string) => useSelector((state) => state.initialValidations[dataType]),
 
   useDataModelSchema: (dataType: string) => useSelector((state) => state.schemas[dataType]),
 
-  useDataModelSchemaLookupTool: (dataType: string) => useSelector((state) => state.schemaLookup[dataType]),
+  useLookupBinding: () => {
+    const { schemaLookup, allDataTypes } = useSelector((state) => state);
+    return useMemo(() => {
+      if (allDataTypes?.every((dt) => schemaLookup[dt])) {
+        return (reference: IDataModelReference) =>
+          schemaLookup[reference.dataType].getSchemaForPath(reference.property);
+      }
+      return undefined;
+    }, [allDataTypes, schemaLookup]);
+  },
 
   useExpressionValidationConfig: (dataType: string) =>
     useSelector((state) => state.expressionValidationConfigs[dataType]),

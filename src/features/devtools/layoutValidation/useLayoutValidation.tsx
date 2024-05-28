@@ -11,11 +11,11 @@ import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useLayoutSchemaValidation } from 'src/features/devtools/layoutValidation/useLayoutSchemaValidation';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useIsDev } from 'src/hooks/useIsDev';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
-import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface LayoutValidationProps {
@@ -60,15 +60,15 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
   const layoutSetId = useCurrentLayoutSetId() || 'default';
   const { logErrors = false } = props;
   const nodes = useNodesStructureMemo();
-  const { schemaLookup } = DataModels.useFullState();
+  const lookupBinding = DataModels.useLookupBinding();
 
   return useMemo(() => {
     const failures: LayoutValidationErrors = {
       [layoutSetId]: {},
     };
-
-    const lookupBinding = (reference: IDataModelReference) =>
-      schemaLookup[reference.dataType].getSchemaForPath(reference.property);
+    if (!lookupBinding) {
+      return failures;
+    }
 
     for (const [pageName, layout] of Object.entries(nodes.all())) {
       for (const node of layout.flat(true)) {
@@ -93,7 +93,7 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
     }
 
     return failures;
-  }, [layoutSetId, schemaLookup, nodes, logErrors]);
+  }, [layoutSetId, lookupBinding, nodes, logErrors]);
 }
 
 /**
@@ -177,8 +177,9 @@ export function LayoutValidationProvider({ children }: PropsWithChildren) {
 
 export function Generator() {
   const isDev = useIsDev();
+  const isPdf = useIsPdf();
   const panelOpen = useDevToolsStore((s) => s.isOpen);
-  const enabled = isDev || panelOpen;
+  const enabled = !isPdf && (isDev || panelOpen);
 
   const layoutSchemaValidations = useLayoutSchemaValidation(enabled);
   const dataModelBindingsValidations = useDataModelBindingsValidation({ logErrors: true });

@@ -66,6 +66,9 @@ export interface DataModelState {
   // the way we track when to save the data model to the server. It can also be used to trigger a manual save
   // as a way to immediately save the data model to the server, for example before locking the data model.
   manualSaveRequested: boolean;
+
+  // Whether this data model can be written to or not
+  readonly: boolean;
 }
 
 type FormDataState = {
@@ -279,6 +282,10 @@ function makeActions(
   return {
     debounce: (dataType) =>
       set((state) => {
+        if (state.dataModels[dataType].readonly) {
+          window.logError(`Tried to write to readOnly dataType "${dataType}"`);
+          return;
+        }
         debounce(state, dataType);
       }),
     cancelSave: (dataType) =>
@@ -294,6 +301,10 @@ function makeActions(
       }),
     setLeafValue: ({ reference, newValue, ...rest }) =>
       set((state) => {
+        if (state.dataModels[reference.dataType].readonly) {
+          window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
+          return;
+        }
         const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
         if (existingValue === newValue) {
           return;
@@ -307,6 +318,10 @@ function makeActions(
     // list items are immediate.
     appendToListUnique: ({ reference, newValue }) =>
       set((state) => {
+        if (state.dataModels[reference.dataType].readonly) {
+          window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
+          return;
+        }
         const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
         if (Array.isArray(existingValue) && existingValue.includes(newValue)) {
           return;
@@ -320,6 +335,10 @@ function makeActions(
       }),
     appendToList: ({ reference, newValue }) =>
       set((state) => {
+        if (state.dataModels[reference.dataType].readonly) {
+          window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
+          return;
+        }
         const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
 
         if (Array.isArray(existingValue)) {
@@ -330,6 +349,10 @@ function makeActions(
       }),
     removeIndexFromList: ({ reference, index }) =>
       set((state) => {
+        if (state.dataModels[reference.dataType].readonly) {
+          window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
+          return;
+        }
         const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
         if (index >= existingValue.length) {
           return;
@@ -339,6 +362,10 @@ function makeActions(
       }),
     removeValueFromList: ({ reference, value }) =>
       set((state) => {
+        if (state.dataModels[reference.dataType].readonly) {
+          window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
+          return;
+        }
         const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
         if (!existingValue.includes(value)) {
           return;
@@ -348,6 +375,10 @@ function makeActions(
       }),
     removeFromListCallback: ({ reference, startAtIndex, callback }) =>
       set((state) => {
+        if (state.dataModels[reference.dataType].readonly) {
+          window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
+          return;
+        }
         const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
         if (!Array.isArray(existingValue)) {
           return;
@@ -378,6 +409,11 @@ function makeActions(
       set((state) => {
         const changedTypes = new Set<string>();
         for (const { reference, newValue } of changes) {
+          if (state.dataModels[reference.dataType].readonly) {
+            window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
+            continue;
+          }
+
           const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
           if (existingValue === newValue) {
             continue;
@@ -392,6 +428,10 @@ function makeActions(
     requestManualSave: (setTo = true) =>
       set((state) => {
         for (const dataType of Object.keys(state.dataModels)) {
+          if (state.dataModels[dataType].readonly) {
+            continue;
+          }
+
           state.dataModels[dataType].manualSaveRequested = setTo;
         }
       }),

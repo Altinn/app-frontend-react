@@ -37,10 +37,10 @@ export function useBackendValidationQuery(dataType: string, enabled: boolean) {
   const instance = useLaxInstance();
   const instanceId = instance?.instanceId;
   const dataElementId = getFirstDataElementId(instance?.data, dataType);
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const currentProcessTaskId = useLaxProcessData()?.currentTask?.elementId;
 
   const utils = useQuery({
-    ...useBackendValidationQueryDef(enabled, currentLanguage, instanceId, dataElementId, currentTaskId),
+    ...useBackendValidationQueryDef(enabled, currentLanguage, instanceId, dataElementId, currentProcessTaskId),
     select: (initialValidations) =>
       (initialValidations.map(mapValidationIssueToFieldValidation).reduce((validatorGroups, validation) => {
         if (!validatorGroups[validation.source]) {

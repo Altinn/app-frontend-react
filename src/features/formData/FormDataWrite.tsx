@@ -167,10 +167,11 @@ function useIsSaving(dataType?: string) {
 export function FormDataWriteProvider({ children }: PropsWithChildren) {
   const proxies = useFormDataWriteProxies();
   const ruleConnections = useRuleConnections();
-  const { dataTypes, initialData, schemaLookup, urls, dataElementIds } = DataModels.useFullState();
+  const { allDataTypes, writableDataTypes, initialData, schemaLookup, urls, dataElementIds } =
+    DataModels.useFullState();
   const autoSaveBehaviour = usePageSettings().autoSaveBehavior;
 
-  const initialDataModels = dataTypes!.reduce((dm, dt) => {
+  const initialDataModels = allDataTypes!.reduce((dm, dt) => {
     const emptyInvalidData = {};
     dm[dt] = {
       currentData: initialData[dt],
@@ -184,6 +185,7 @@ export function FormDataWriteProvider({ children }: PropsWithChildren) {
       saveUrl: urls[dt],
       dataElementId: dataElementIds[dt],
       manualSaveRequested: false,
+      readonly: !writableDataTypes!.includes(dt),
     };
     return dm;
   }, {});
@@ -203,7 +205,11 @@ export function FormDataWriteProvider({ children }: PropsWithChildren) {
 }
 
 function AllFormDataEffects() {
-  const dataTypes = useMemoSelector((s) => Object.keys(s.dataModels));
+  const writableDataTypes = useMemoSelector((s) =>
+    Object.entries(s.dataModels)
+      .filter(([, d]) => !d.readonly)
+      .map(([k]) => k),
+  );
   const hasUnsavedChanges = useHasUnsavedChanges();
 
   // Marking the document as having unsaved changes. The data attribute is used in tests, while the beforeunload
@@ -220,7 +226,7 @@ function AllFormDataEffects() {
 
   return (
     <>
-      {dataTypes.map((dataType) => (
+      {writableDataTypes.map((dataType) => (
         <FormDataEffects
           key={dataType}
           dataType={dataType}

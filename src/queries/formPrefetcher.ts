@@ -6,6 +6,7 @@ import {
   useCurrentDataModelUrl,
 } from 'src/features/datamodel/useBindingSchema';
 import { useDataModelSchemaQueryDef } from 'src/features/datamodel/useDataModelSchemaQuery';
+import { isDataTypeWritable } from 'src/features/datamodel/utils';
 import { useDynamicsQueryDef } from 'src/features/form/dynamics/DynamicsContext';
 import { useLayoutQueryDef, useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
 import { useLayoutSettingsQueryDef } from 'src/features/form/layoutSettings/LayoutSettingsContext';
@@ -23,15 +24,19 @@ import { usePaymentInformationQueryDef } from 'src/features/payment/PaymentInfor
 import { useHasPayment, useIsPayment } from 'src/features/payment/utils';
 import { usePdfFormatQueryDef } from 'src/features/pdf/usePdfFormatQuery';
 import { useBackendValidationQueryDef } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { useIsValidationEnabled, useShouldValidateDataType } from 'src/features/validation/utils';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
+import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 
 /**
  * Prefetches requests happening in the FormProvider
  */
 export function FormPrefetcher() {
   const layoutSetId = useLayoutSetId();
+  const isPDF = useIsPdf();
+  const currentProcessTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const isStateless = useIsStatelessApp();
+  const instance = useLaxInstance();
 
   // Prefetch layouts
   usePrefetchQuery(useLayoutQueryDef(true, layoutSetId));
@@ -39,26 +44,24 @@ export function FormPrefetcher() {
   // Prefetch default data model
   const url = getUrlWithLanguage(useCurrentDataModelUrl(true), useCurrentLanguage());
   const cacheKeyUrl = getFormDataCacheKeyUrl(url);
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const options = useFormDataQueryOptions();
-  usePrefetchQuery(useFormDataQueryDef(cacheKeyUrl, currentTaskId, url, options));
+  usePrefetchQuery(useFormDataQueryDef(cacheKeyUrl, currentProcessTaskId, url, options));
 
-  // Prefetch validations for default data model
+  // Prefetch validations for default data model, as long as its writable
   const currentLanguage = useCurrentLanguage();
-  const instanceId = useLaxInstance()?.instanceId;
   const dataGuid = useCurrentDataModelGuid();
   const dataTypeId = useCurrentDataModelName();
 
-  const shouldValidateDataType = useShouldValidateDataType()(dataTypeId);
-  const isValidationEnabled = useIsValidationEnabled();
+  // No need to load validations in PDF mode
+  const isWritable = isDataTypeWritable(dataTypeId, isStateless, instance?.data);
   usePrefetchQuery(
-    useBackendValidationQueryDef(true, currentLanguage, instanceId, dataGuid, currentTaskId),
-    isValidationEnabled && shouldValidateDataType,
+    useBackendValidationQueryDef(true, currentLanguage, instance?.instanceId, dataGuid, currentProcessTaskId),
+    !isPDF && !isStateless && isWritable,
   );
 
-  // Prefetch customvalidation config and schema for default data model
-  usePrefetchQuery(useCustomValidationConfigQueryDef(dataTypeId));
-  usePrefetchQuery(useDataModelSchemaQueryDef(dataTypeId));
+  // Prefetch customvalidation config and schema for default data model, unless in PDF
+  usePrefetchQuery(useCustomValidationConfigQueryDef(!isPDF && isWritable, dataTypeId));
+  usePrefetchQuery(useDataModelSchemaQueryDef(!isPDF, dataTypeId));
 
   // Prefetch other layout related files
   usePrefetchQuery(useLayoutSettingsQueryDef(layoutSetId));
@@ -66,12 +69,11 @@ export function FormPrefetcher() {
   usePrefetchQuery(useRulesQueryDef(layoutSetId));
 
   // Prefetch payment data if applicable
-  usePrefetchQuery(usePaymentInformationQueryDef(useIsPayment(), instanceId));
-  usePrefetchQuery(useOrderDetailsQueryDef(useHasPayment(), instanceId));
+  usePrefetchQuery(usePaymentInformationQueryDef(useIsPayment(), instance?.instanceId));
+  usePrefetchQuery(useOrderDetailsQueryDef(useHasPayment(), instance?.instanceId));
 
   // Prefetch PDF format only if we are in PDF mode
-  const isPDF = useIsPdf();
-  usePrefetchQuery(usePdfFormatQueryDef(true, instanceId, dataGuid), isPDF);
+  usePrefetchQuery(usePdfFormatQueryDef(true, instance?.instanceId, dataGuid), isPDF);
 
   return null;
 }

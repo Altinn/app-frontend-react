@@ -8,12 +8,10 @@ export function getLayoutSetsMock(): ILayoutSets {
       {
         id: 'stateless',
         dataType: statelessDataTypeMock,
-        tasks: ['Task_0'],
       },
       {
         id: 'stateless-anon',
         dataType: 'stateless-anon',
-        tasks: ['Task_0'],
       },
       {
         id: 'some-data-task',

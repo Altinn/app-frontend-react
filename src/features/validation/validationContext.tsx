@@ -18,8 +18,6 @@ import {
   hasValidationErrors,
   mergeFieldValidations,
   selectValidations,
-  useIsValidationEnabled,
-  useShouldValidateDataType,
 } from 'src/features/validation/utils';
 import { useVisibility } from 'src/features/validation/visibility/useVisibility';
 import {
@@ -28,6 +26,7 @@ import {
   setVisibilityForNode,
 } from 'src/features/validation/visibility/visibilityUtils';
 import { useAsRef } from 'src/hooks/useAsRef';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type {
   BackendValidationIssueGroups,
@@ -182,13 +181,11 @@ const {
 });
 
 export function ValidationProvider({ children }: PropsWithChildren) {
-  const dataTypes = DataModels.useWritableDataTypes();
+  const writableDataTypes = DataModels.useWritableDataTypes();
   const waitForSave = FD.useWaitForSave();
   const waitForStateRef = useRef<WaitForState<ValidationContext & Internals, unknown>>();
   const hasPendingAttachments = useHasPendingAttachments();
-
-  const isValidationEnabled = useIsValidationEnabled();
-  const shouldValidateDataType = useShouldValidateDataType();
+  const isPDF = useIsPdf();
 
   // Provide a promise that resolves when all pending validations have been completed
   const pendingAttachmentsRef = useAsRef(hasPendingAttachments);
@@ -210,7 +207,7 @@ export function ValidationProvider({ children }: PropsWithChildren) {
   );
 
   const neverValidating = useCallback(() => Promise.resolve(), []);
-  if (!isValidationEnabled) {
+  if (isPDF || !writableDataTypes.length) {
     return <Provider validating={neverValidating}>{children}</Provider>;
   }
 
@@ -218,7 +215,7 @@ export function ValidationProvider({ children }: PropsWithChildren) {
     <Provider validating={validating}>
       <MakeWaitForState waitForStateRef={waitForStateRef} />
       <NodeValidation />
-      {dataTypes.filter(shouldValidateDataType).map((dataType) => (
+      {writableDataTypes.map((dataType) => (
         <DataModelValidations
           key={dataType}
           dataType={dataType}

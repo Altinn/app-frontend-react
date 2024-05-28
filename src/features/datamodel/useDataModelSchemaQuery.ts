@@ -12,19 +12,19 @@ import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { SchemaLookupResult } from 'src/features/datamodel/SimpleSchemaTraversal';
 
 // Also used for prefetching @see formPrefetcher.ts
-export function useDataModelSchemaQueryDef(dataTypeId?: string): QueryDefinition<JSONSchema7> {
+export function useDataModelSchemaQueryDef(enabled: boolean, dataTypeId?: string): QueryDefinition<JSONSchema7> {
   const { fetchDataModelSchema } = useAppQueries();
   return {
     queryKey: ['fetchDataModelSchemas', dataTypeId],
     queryFn: dataTypeId ? () => fetchDataModelSchema(dataTypeId) : skipToken,
-    enabled: !!dataTypeId,
+    enabled: enabled && !!dataTypeId,
   };
 }
 
-export const useDataModelSchemaQuery = (dataTypeId: string) => {
+export const useDataModelSchemaQuery = (enabled: boolean, dataTypeId: string) => {
   const dataType = useDataModelType(dataTypeId);
 
-  const queryDef = useDataModelSchemaQueryDef(dataTypeId);
+  const queryDef = useDataModelSchemaQueryDef(enabled, dataTypeId);
   const utils = useQuery({
     ...queryDef,
     select: (schema) => {

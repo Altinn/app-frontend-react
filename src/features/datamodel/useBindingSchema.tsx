@@ -60,6 +60,7 @@ export function useCurrentDataModelUrl(includeRowIds: boolean) {
   return undefined;
 }
 
+// We assume that the first data element of the correct type is the one we should use, same as isDataTypeWritable
 export function useDataModelUrl(includeRowIds: boolean, dataType: string | undefined) {
   const isAnonymous = useAllowAnonymous();
   const isStateless = useIsStatelessApp();
@@ -109,14 +110,14 @@ export function useDataModelType(dataType: string) {
 }
 
 export function useBindingSchema<T extends IDataModelBindings | undefined>(bindings: T): AsSchema<T> | undefined {
-  const { schemaLookup } = DataModels.useFullState();
+  const lookupBinding = DataModels.useLookupBinding();
 
   return useMemo(() => {
     const resolvedBindings = bindings && Object.values(bindings).length ? { ...bindings } : undefined;
-    if (resolvedBindings) {
+    if (lookupBinding && resolvedBindings) {
       const out = {} as AsSchema<T>;
       for (const [key, reference] of Object.entries(resolvedBindings as Record<string, IDataModelReference>)) {
-        const [schema] = schemaLookup[reference.dataType].getSchemaForPath(reference.property);
+        const [schema] = lookupBinding(reference);
         out[key] = schema || null;
       }
 
@@ -124,5 +125,5 @@ export function useBindingSchema<T extends IDataModelBindings | undefined>(bindi
     }
 
     return undefined;
-  }, [bindings, schemaLookup]);
+  }, [bindings, lookupBinding]);
 }

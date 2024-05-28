@@ -56,7 +56,7 @@ export interface TextResourceVariablesDataSources {
   dataModelPath?: string;
   dataModels: ReturnType<typeof useDataModelReaders>;
   defaultDataType: string | undefined | typeof ContextNotProvided;
-  writableDataTypes: string[] | typeof ContextNotProvided;
+  formDataTypes: string[] | typeof ContextNotProvided;
   formDataSelector: FormDataSelector | typeof ContextNotProvided;
 }
 
@@ -95,7 +95,7 @@ export function useLanguage(node?: LayoutNode) {
 export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
   const { textResources, language, selectedLanguage, ...dataSources } = useLangToolsDataSources() || {};
   const defaultDataType = DataModels.useLaxDefaultDataType();
-  const writableDataTypes = DataModels.useLaxWritableDataTypes();
+  const formDataTypes = DataModels.useLaxReadableDataTypes();
   const formDataSelector = FD.useLaxDebouncedSelector();
 
   return useMemo(() => {
@@ -108,18 +108,9 @@ export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
       node,
       formDataSelector,
       defaultDataType,
-      writableDataTypes,
+      formDataTypes,
     });
-  }, [
-    dataSources,
-    defaultDataType,
-    formDataSelector,
-    language,
-    node,
-    selectedLanguage,
-    textResources,
-    writableDataTypes,
-  ]);
+  }, [dataSources, defaultDataType, formDataSelector, language, node, selectedLanguage, textResources, formDataTypes]);
 }
 
 interface ILanguageState {
@@ -288,7 +279,7 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
     applicationSettings,
     dataModelPath,
     defaultDataType,
-    writableDataTypes,
+    formDataTypes,
     formDataSelector,
   } = dataSources;
   let out = text;
@@ -311,7 +302,7 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
           transposedPath,
           dataModelName,
           defaultDataType,
-          writableDataTypes,
+          formDataTypes,
           formDataSelector,
         );
 
@@ -374,14 +365,14 @@ function tryReadFromDataModel(
   path: string,
   dataModelName: string,
   defaultDataType: string | undefined | typeof ContextNotProvided,
-  writableDataTypes: string[] | typeof ContextNotProvided,
+  formDataTypes: string[] | typeof ContextNotProvided,
   formDataSelector: FormDataSelector | typeof ContextNotProvided,
 ): unknown | typeof dataModelNotReadable {
-  if (formDataSelector === ContextNotProvided || writableDataTypes === ContextNotProvided) {
+  if (formDataSelector === ContextNotProvided || formDataTypes === ContextNotProvided) {
     return dataModelNotReadable;
   }
   if (dataModelName === 'default') {
-    if (typeof defaultDataType !== 'string' || !writableDataTypes.includes(defaultDataType)) {
+    if (typeof defaultDataType !== 'string' || !formDataTypes.includes(defaultDataType)) {
       window.logErrorOnce(
         "Tried to access a text resource variable using the dataSource: 'dataModel.default'. However, a default data model could not be found.",
       );
@@ -389,7 +380,7 @@ function tryReadFromDataModel(
     }
     return formDataSelector({ dataType: defaultDataType, property: path });
   } else {
-    if (!writableDataTypes.includes(dataModelName)) {
+    if (!formDataTypes.includes(dataModelName)) {
       return dataModelNotReadable;
     }
     return formDataSelector({ dataType: dataModelName, property: path });
@@ -447,7 +438,7 @@ export function staticUseLanguageForTests({
     },
     dataModels: new DataModelReaders({}),
     defaultDataType: undefined,
-    writableDataTypes: [],
+    formDataTypes: [],
     formDataSelector: () => null,
     applicationSettings: {},
     node: undefined,
