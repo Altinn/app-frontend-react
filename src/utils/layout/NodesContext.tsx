@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import dot from 'dot-object';
@@ -298,11 +298,13 @@ export const NodesProvider = (props: React.PropsWithChildren) => (
         </GeneratorStagesProvider>
       </GeneratorValidationProvider>
       <InnerHiddenComponentsProvider />
-      <UpdateExpressionValidation />
       <MarkAsReady />
-      <ProvideWaitForValidation />
       {window.Cypress && <UpdateAttachmentsForCypress />}
-      <BlockUntilLoaded>{props.children}</BlockUntilLoaded>
+      <BlockUntilLoaded>
+        <ProvideWaitForValidation />
+        <UpdateExpressionValidation />
+        {props.children}
+      </BlockUntilLoaded>
     </DataStore.Provider>
   </NodesStore.Provider>
 );
@@ -340,7 +342,11 @@ function MarkAsReady() {
 function BlockUntilLoaded({ children }: PropsWithChildren) {
   const hasNodes = NodesStore.useSelector((state) => !!state.nodes);
 
-  if (!hasNodes) {
+  const isReady = DataStore.useSelector((s) => s.ready);
+  const hasBeenReady = useRef(false);
+  hasBeenReady.current = hasBeenReady.current || isReady;
+
+  if (!hasNodes || (!isReady && !hasBeenReady.current)) {
     return <NodesLoader />;
   }
   return <>{children}</>;
