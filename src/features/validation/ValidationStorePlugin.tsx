@@ -1,14 +1,13 @@
 import { ignoreNodePathNotFound, pickDataStorePath } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
-import type { AttachmentValidation, ComponentValidation, FieldValidation } from 'src/features/validation/index';
+import type { AnyValidation, AttachmentValidation } from 'src/features/validation/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesDataContext, NodesDataStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
 
-type Validations = ComponentValidation | AttachmentValidation | FieldValidation;
 export type ValidationVisibilitySelector = (node: LayoutNode) => number;
-export type ValidationsSelector = (node: LayoutNode) => Validations[];
+export type ValidationsSelector = (node: LayoutNode) => AnyValidation[];
 
 export interface ValidationStorePluginConfig {
   extraFunctions: {
@@ -19,7 +18,7 @@ export interface ValidationStorePluginConfig {
     useSetNodeVisibility: () => ValidationStorePluginConfig['extraFunctions']['setNodeVisibility'];
     useSetAttachmentVisibility: () => ValidationStorePluginConfig['extraFunctions']['setAttachmentVisibility'];
     useValidationVisibility: (node: LayoutNode | undefined) => number;
-    useValidations: (node: LayoutNode | undefined) => Validations[];
+    useValidations: (node: LayoutNode | undefined) => AnyValidation[];
     useValidationVisibilitySelector: () => ValidationVisibilitySelector;
     useValidationsSelector: () => ValidationsSelector;
   };
@@ -38,9 +37,17 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           }
         });
       },
-      setAttachmentVisibility: (_attachmentId, _node, _newVisibility) => {
-        set((_state) => {
-          throw new Error('Method not implemented.');
+      setAttachmentVisibility: (attachmentId, node, newVisibility) => {
+        set((state) => {
+          const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
+          if ('validations' in nodeStore) {
+            for (const validation of nodeStore.validations) {
+              if ('attachmentId' in validation && validation.attachmentId === attachmentId) {
+                const v = validation as AttachmentValidation;
+                v.visibility = newVisibility;
+              }
+            }
+          }
         });
       },
     };

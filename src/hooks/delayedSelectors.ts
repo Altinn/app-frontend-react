@@ -13,8 +13,9 @@ type AnyFunc = (...args: any[]) => any;
 type DelayedSelectorFunc<T> = <U>(selector: Selector<T, U>, cacheKey: any[]) => U;
 type DelayedSelectorMap<T> = ShallowArrayMap<{ selector: Selector<T, any>; value: any }>;
 export type DelayedSecondarySelector<Arg, RetVal, T> = [Arg] extends [AnyFunc]
-  ? <U>(innerSelector: Selector<T, U>, deps: any[]) => U
+  ? DelayedSecondaryFunc<T>
   : (arg: Arg) => RetVal;
+export type DelayedSecondaryFunc<T> = <U>(innerSelector: Selector<T, U>, deps: any[]) => U;
 export type DelayedPrimarySelector<Arg, RetVal, T> = (arg: Arg) => Selector<T, RetVal>;
 
 /**

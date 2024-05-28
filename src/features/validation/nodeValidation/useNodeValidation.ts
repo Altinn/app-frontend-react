@@ -6,20 +6,20 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { Validation } from 'src/features/validation/validationContext';
 import { implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { AnyValidation, ValidationDataSources } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
  * Runs validations defined in the component classes. This runs from the node generator, and will collect all
  * validations for a node and return them.
  */
-export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): ComponentValidation[] {
-  const selector = Validation.useFieldSelector();
+export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): AnyValidation[] {
+  const fieldSelector = Validation.useFieldSelector();
   const validationDataSources = useValidationDataSources();
   const item = useNodeItem(node);
 
   return useMemo(() => {
-    const validations: ComponentValidation[] = [];
+    const validations: AnyValidation[] = [];
     if (!item || !shouldValidate) {
       return validations;
     }
@@ -34,7 +34,7 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): Co
 
     if (item.dataModelBindings) {
       for (const [bindingKey, field] of Object.entries(item.dataModelBindings)) {
-        const fieldValidations = selector((fields) => fields[field], [field]);
+        const fieldValidations = fieldSelector((fields) => fields[field], [field]);
         if (fieldValidations) {
           validations.push(...fieldValidations.map((v) => ({ ...v, node, bindingKey })));
         }
@@ -42,7 +42,7 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): Co
     }
 
     return validations;
-  }, [item, node, selector, shouldValidate, validationDataSources]);
+  }, [item, node, fieldSelector, shouldValidate, validationDataSources]);
 }
 
 /**

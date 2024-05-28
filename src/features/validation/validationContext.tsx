@@ -30,6 +30,7 @@ import type {
   ValidationContext,
   WaitForValidation,
 } from 'src/features/validation';
+import type { DelayedSecondaryFunc } from 'src/hooks/delayedSelectors';
 
 interface Internals {
   isLoading: boolean;
@@ -243,18 +244,18 @@ function ManageShowAllErrors() {
 function useDelayedSelector<U>(outerSelector: (state: ValidationContext) => U) {
   return useDelayedMemoSelectorFactory(
     (innerSelector: <U2>(state: U) => U2) => (state: ValidationContext) => innerSelector(outerSelector(state)),
-  );
+  ) as DelayedSecondaryFunc<U>;
 }
 
-export type ValidationSelector = ReturnType<typeof useDelayedSelector<ValidationContext>>;
-export type ValidationFieldSelector = ReturnType<typeof useDelayedSelector<FieldValidations>>;
+export type ValidationSelector = DelayedSecondaryFunc<ValidationContext>;
+export type ValidationFieldSelector = DelayedSecondaryFunc<FieldValidations>;
 
 export const Validation = {
   useFullStateRef: () => useSelectorAsRef((state) => state.state),
 
   // Selectors. These are memoized, so they won't cause a re-render unless the selected fields change.
-  useSelector: () => useDelayedSelector((state) => state),
-  useFieldSelector: () => useDelayedSelector((state) => state.state.fields),
+  useSelector: (): ValidationSelector => useDelayedSelector((state) => state),
+  useFieldSelector: (): ValidationFieldSelector => useDelayedSelector((state) => state.state.fields),
 
   useSetShowAllErrors: () => useSelector((state) => state.setShowAllErrors),
   useValidating: () => useSelector((state) => state.validating),
