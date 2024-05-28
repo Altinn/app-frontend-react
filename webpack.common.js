@@ -2,6 +2,7 @@ const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('node:path');
+const { defineReactCompilerLoaderOption, reactCompilerLoader } = require('react-compiler-webpack');
 
 module.exports = {
   entry: './src/index.tsx',
@@ -20,9 +21,15 @@ module.exports = {
     rules: [
       {
         test: /\.jsx?/,
-        use: {
-          loader: 'babel-loader',
-        },
+        use: [
+          {
+            loader: 'babel-loader',
+          },
+          {
+            loader: reactCompilerLoader,
+            options: defineReactCompilerLoaderOption({}),
+          },
+        ],
       },
       {
         test: /\.css$/,
