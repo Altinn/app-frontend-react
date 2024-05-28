@@ -5,6 +5,7 @@ import { useGetLayoutSetById } from 'src/features/form/layoutSets/useCurrentLayo
 import { useGetPage, useNode } from 'src/utils/layout/NodesContext';
 import type { IGrid } from 'src/layout/common.generated';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/config.generated';
+import type { CompSummary2External } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface ISummaryComponent2 {
@@ -93,11 +94,12 @@ function PageSummary({ pageId }: PageSummaryProps) {
 }
 
 interface ResolveComponentProps {
-  componentId: string;
+  summaryProps: CompSummary2External;
 }
 
-function ResolveComponent({ componentId }: ResolveComponentProps) {
-  const resolvedComponent = useNode(componentId);
+function ResolveComponent({ summaryProps }: ResolveComponentProps) {
+  const resolvedComponent = useNode(summaryProps.whatToRender.id);
+
   if (!resolvedComponent) {
     return null;
   }
@@ -130,7 +132,7 @@ function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
   }
 
   if (summaryNode.item.whatToRender.type === 'component') {
-    return <ResolveComponent componentId={summaryNode.item.whatToRender.id} />;
+    return <ResolveComponent summaryProps={summaryNode.item} />;
   }
 
   // if (summaryNode.item.whatToRender.type === 'task') {

@@ -44,4 +44,20 @@ export const Config = new CG.component({
         new CG.prop('id', new CG.str()),
       ),
     ),
+  )
+  .addProperty(
+    new CG.prop(
+      'overWriteProperties',
+      new CG.obj()
+        .additionalProperties(
+          new CG.obj()
+            .additionalProperties(new CG.str())
+            .setTitle('Property')
+            .setDescription(
+              'A property you want to overwrite. The key is the property name and the value is the new value.',
+            ),
+        )
+        .setTitle('Mapping')
+        .setDescription('Object with keys as the component id and values as the properties that should be overwritten'),
+    ),
   );
