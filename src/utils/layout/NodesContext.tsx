@@ -25,6 +25,7 @@ import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
+import { generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorStagesProvider } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
@@ -289,25 +290,31 @@ const DataStore = createZustandContext<NodesDataStore, NodesDataContext>({
 });
 export type NodesDataStoreFull = typeof DataStore;
 
-export const NodesProvider = (props: React.PropsWithChildren) => (
-  <NodesStore.Provider>
-    <DataStore.Provider>
-      <GeneratorValidationProvider>
-        <GeneratorStagesProvider>
-          <LayoutSetGenerator />
-        </GeneratorStagesProvider>
-      </GeneratorValidationProvider>
-      <InnerHiddenComponentsProvider />
-      <MarkAsReady />
-      {window.Cypress && <UpdateAttachmentsForCypress />}
-      <BlockUntilLoaded>
-        <ProvideWaitForValidation />
-        <UpdateExpressionValidation />
-        {props.children}
-      </BlockUntilLoaded>
-    </DataStore.Provider>
-  </NodesStore.Provider>
-);
+export const NodesProvider = (props: React.PropsWithChildren) => {
+  if (window.performance.getEntriesByName('NodesProvider:start').length === 0) {
+    window.performance.mark('NodesProvider:start');
+  }
+
+  return (
+    <NodesStore.Provider>
+      <DataStore.Provider>
+        <GeneratorValidationProvider>
+          <GeneratorStagesProvider>
+            <LayoutSetGenerator />
+          </GeneratorStagesProvider>
+        </GeneratorValidationProvider>
+        <InnerHiddenComponentsProvider />
+        <MarkAsReady />
+        {window.Cypress && <UpdateAttachmentsForCypress />}
+        <BlockUntilLoaded>
+          <ProvideWaitForValidation />
+          <UpdateExpressionValidation />
+          {props.children}
+        </BlockUntilLoaded>
+      </DataStore.Provider>
+    </NodesStore.Provider>
+  );
+};
 
 function InnerHiddenComponentsProvider() {
   const setHidden = NodesStore.useSelector((state) => state.setHiddenViaRules);
@@ -349,6 +356,13 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
   if (!hasNodes || (!isReady && !hasBeenReady.current)) {
     return <NodesLoader />;
   }
+
+  if (window.performance.getEntriesByName('NodesProvider:stop').length === 0) {
+    window.performance.mark('NodesProvider:stop');
+    const measure = window.performance.measure('NodesProvider', 'NodesProvider:start', 'NodesProvider:stop');
+    generatorLog('logDuration', 'Initial generation of nodes took', measure.duration, 'ms');
+  }
+
   return <>{children}</>;
 }
 

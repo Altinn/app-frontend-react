@@ -20,11 +20,13 @@ export function StoreOptionsInNode({ valueType }: { valueType: OptionsValueType 
   });
 
   const ready = isAllAdded && isSelfAdded;
-  GeneratorStages.OptionsFetched.useEffect(() => {
+  GeneratorStages.OptionsFetched.useConditionalEffect(() => {
     if (ready) {
       !isFetching && setNodeProp(node, 'options' as any, options);
       setNodeProp(node, 'isFetchingOptions' as any, isFetching);
+      return true;
     }
+    return false;
   }, [ready, node, setNodeProp, options]);
 
   return null;

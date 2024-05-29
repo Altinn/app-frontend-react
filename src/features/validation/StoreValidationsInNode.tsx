@@ -30,16 +30,24 @@ export function StoreValidationsInNode() {
   );
 
   const validations = useNodeValidation(node, shouldValidate);
-  GeneratorStages.EvaluateExpressions.useEffect(() => {
-    isAllAdded && isSelfAdded && setNodeProp(node, 'validations', validations);
+  GeneratorStages.EvaluateExpressions.useConditionalEffect(() => {
+    if (isAllAdded && isSelfAdded) {
+      setNodeProp(node, 'validations', validations);
+      return true;
+    }
+    return false;
   }, [isAllAdded, isSelfAdded, node, setNodeProp, validations]);
 
   const initialMask = item
     ? getInitialMaskFromNode('showValidations' in item ? item.showValidations : undefined)
     : undefined;
 
-  GeneratorStages.EvaluateExpressions.useEffect(() => {
-    isAllAdded && isSelfAdded && initialMask !== undefined && setNodeProp(node, 'validationVisibility', initialMask);
+  GeneratorStages.EvaluateExpressions.useConditionalEffect(() => {
+    if (isAllAdded && isSelfAdded && initialMask !== undefined) {
+      setNodeProp(node, 'validationVisibility', initialMask);
+      return true;
+    }
+    return false;
   }, [isAllAdded, isSelfAdded, initialMask, node, setNodeProp]);
 
   return null;

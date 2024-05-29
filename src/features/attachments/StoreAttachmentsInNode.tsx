@@ -23,10 +23,12 @@ export function StoreAttachmentsInNode() {
   const attachments = useNodeAttachments();
 
   const ready = isAllAdded && isSelfAdded;
-  GeneratorStages.EvaluateExpressions.useEffect(() => {
+  GeneratorStages.EvaluateExpressions.useConditionalEffect(() => {
     if (ready) {
       setNodeProp(node, 'attachments', attachments);
+      return true;
     }
+    return false;
   }, [ready, node, setNodeProp, attachments]);
 
   return null;

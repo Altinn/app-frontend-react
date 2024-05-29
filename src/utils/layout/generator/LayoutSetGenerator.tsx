@@ -4,6 +4,7 @@ import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
+import { GeneratorDebug } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal, GeneratorPageProvider } from 'src/utils/layout/generator/GeneratorContext';
 import {
   GeneratorErrorBoundary,
@@ -24,9 +25,7 @@ import type {
 import type { ChildrenMap } from 'src/utils/layout/generator/GeneratorContext';
 import type { HiddenStatePage } from 'src/utils/layout/NodesContext';
 
-export const GeneratorDebug = false;
-
-const style: React.CSSProperties = GeneratorDebug
+const style: React.CSSProperties = GeneratorDebug.displayState
   ? {
       display: 'block',
       position: 'fixed',
@@ -55,7 +54,7 @@ export function LayoutSetGenerator() {
     <div style={style}>
       <SaveFinishedNodesToStore pages={pages} />
       <ExportStores />
-      {GeneratorDebug && <h1>Node generator</h1>}
+      {GeneratorDebug.displayState && <h1>Node generator</h1>}
       {layouts &&
         Object.keys(layouts).map((key) => {
           const layout = layouts[key];
@@ -195,7 +194,7 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
             getProto={getProto}
           />
         ))}
-      {GeneratorDebug && <h2>Page: {name}</h2>}
+      {GeneratorDebug.displayState && <h2>Page: {name}</h2>}
       {map !== undefined && (
         <GeneratorPageProvider
           parent={page}
@@ -333,12 +332,12 @@ function ComponentClaimChildren({ component, setChildren, getProto }: ComponentC
 
   return (
     <>
-      {GeneratorDebug && (
+      {GeneratorDebug.displayState && (
         <h3>
           {component.id} ({component.type})
         </h3>
       )}
-      {GeneratorDebug && <span>(first pass render)</span>}
+      {GeneratorDebug.displayState && <span>(first pass render)</span>}
     </>
   );
 }
@@ -372,12 +371,12 @@ function GenerateComponent({ baseId, type, childIds }: ComponentProps) {
         paddingLeft: '5px',
       }}
     >
-      {GeneratorDebug && (
+      {GeneratorDebug.displayState && (
         <h3>
           {baseId} ({type})
         </h3>
       )}
-      {GeneratorDebug && <span>{childIds ? `Children: ${childIds.join(', ')}` : 'No children'}</span>}
+      {GeneratorDebug.displayState && <span>{childIds ? `Children: ${childIds.join(', ')}` : 'No children'}</span>}
       <Generator {...(props as any)} />
     </div>
   );
