@@ -82,7 +82,14 @@ export const Config = new CG.component({
         .setDescription('Boolean value indicating if the options should be instance aware. Defaults to false.'),
     ),
   )
-  .addProperty(new CG.prop('mapping', CG.common('IMapping').optional()))
+  .addProperty(
+    new CG.prop(
+      'mapping',
+      CG.common('IMapping')
+        .optional()
+        .setDeprecated('Will be removed in the next major version. Use `queryParameters` with expressions instead.'),
+    ),
+  )
   .addProperty(new CG.prop('queryParameters', CG.common('IQueryParameters').optional()))
   .addProperty(
     new CG.prop(

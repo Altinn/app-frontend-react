@@ -272,7 +272,6 @@ const common = {
     new CG.obj()
       .additionalProperties(new CG.str())
       .setTitle('Mapping')
-      .setDeprecated('Will be removed in the next major version. Use `queryParameters` with expressions instead.')
       .setDescription(
         'A mapping of key-value pairs (usually used for mapping a path in the data model to a query string parameter).',
       ),
@@ -349,7 +348,12 @@ const common = {
           .setTitle('Dynamic options (fetched from server)')
           .setDescription('ID of the option list to fetch from the server'),
       ),
-      new CG.prop('mapping', CG.common('IMapping').optional()),
+      new CG.prop(
+        'mapping',
+        CG.common('IMapping')
+          .optional()
+          .setDeprecated('Will be removed in the next major version. Use `queryParameters` with expressions instead.'),
+      ),
       new CG.prop('queryParameters', CG.common('IQueryParameters').optional()),
       new CG.prop(
         'options',
