@@ -8,6 +8,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export const Tab = ({ node }: PropsFromGenericComponent<'Tab'>) => (
   <Tabs.Content
     value={node.item.id}
+    role='tabpanel'
     style={{
       backgroundColor: 'white',
     }}
