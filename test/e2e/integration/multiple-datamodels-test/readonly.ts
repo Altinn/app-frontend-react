@@ -46,7 +46,9 @@ describe('readonly data models', () => {
     cy.findByRole('radio', { name: /kåre/i }).dsCheck();
     cy.get(appFrontend.errorReport).should('not.exist');
     cy.findByRole('button', { name: /send inn/i }).click();
+
     cy.findByRole('heading', { name: /fra forrige steg/i }).should('be.visible');
+    cy.get(appFrontend.errorReport).should('not.exist');
 
     cy.get(appFrontend.multipleDatamodelsTest.textField1Summary).should('contain.text', 'første');
     cy.get(appFrontend.multipleDatamodelsTest.textField2Summary).should('contain.text', 'andre');
@@ -63,5 +65,64 @@ describe('readonly data models', () => {
     cy.get(appFrontend.multipleDatamodelsTest.personsSummary).should('contain.text', 'Fornavn : Hanne');
     cy.get(appFrontend.multipleDatamodelsTest.personsSummary).should('contain.text', 'Etternavn : Persen');
     cy.get(appFrontend.multipleDatamodelsTest.personsSummary).should('contain.text', 'Alder : 25 år');
+
+    const formDataRequests: string[] = [];
+    cy.intercept('PATCH', '**/data/**', (req) => {
+      formDataRequests.push(req.url);
+    }).as('saveFormData');
+
+    cy.findByRole('textbox', { name: /tekstfelt 3/i }).type('Litt mer informasjon');
+
+    cy.waitUntilSaved();
+
+    cy.then(() => expect(formDataRequests.length).to.be.eq(1));
+
+    cy.findByRole('button', { name: /legg til ny/i }).click();
+    cy.findByRole('textbox', { name: /e-post/i }).type('test@test.test');
+    cy.findByRole('textbox', { name: /mobilnummer/i }).type('98765432');
+
+    cy.then(() => expect(formDataRequests.length).to.be.eq(4));
+
+    cy.findAllByRole('button', { name: /lagre og lukk/i })
+      .first()
+      .click();
+
+    cy.get(appFrontend.errorReport).should('not.exist');
+
+    // Test with autoSaveBehavior onChangePage in order to test that requestManualSave works as expected
+    cy.interceptLayoutSetsUiSettings({ autoSaveBehavior: 'onChangePage' });
+    cy.then(() => formDataRequests.splice(0, formDataRequests.length)); // Clear requests
+    cy.reloadAndWait();
+
+    cy.findByRole('textbox', { name: /tekstfelt 3/i }).clear();
+    cy.findByRole('textbox', { name: /tekstfelt 3/i }).type('Noe annet denne gangen');
+    cy.findByRole('button', { name: /legg til ny/i }).click();
+    cy.findByRole('textbox', { name: /e-post/i }).type('test123@test.test');
+    cy.findByRole('textbox', { name: /mobilnummer/i }).type('12345678');
+    cy.findAllByRole('button', { name: /lagre og lukk/i })
+      .first()
+      .click();
+
+    cy.waitForNetworkIdle(400);
+
+    cy.then(() => expect(formDataRequests.length).to.be.eq(0));
+
+    cy.findByRole('button', { name: /neste/i }).click();
+
+    cy.findByRole('heading', { name: /tittel/i }).should('be.visible');
+    cy.waitUntilSaved();
+
+    cy.then(() => expect(formDataRequests.length).to.be.eq(1));
+    cy.get(appFrontend.errorReport).should('not.exist');
+
+    cy.findByRole('button', { name: /tilbake/i }).click();
+    cy.findByRole('button', { name: /send inn/i }).click();
+
+    cy.findByRole('heading', { name: /kvittering/i }).should('be.visible');
+    cy.get(appFrontend.multipleDatamodelsTest.textField1Summary).should('contain.text', 'første');
+    cy.get(appFrontend.multipleDatamodelsTest.textField2Summary).should('contain.text', 'andre');
+    cy.get(appFrontend.multipleDatamodelsTest.textField3Summary).should('contain.text', 'Noe annet denne gangen');
+
+    cy.get(appFrontend.errorReport).should('not.exist');
   });
 });

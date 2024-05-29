@@ -350,6 +350,7 @@ export class AppFrontend {
     chooseIndusty: '#choose-industry',
     textField1Summary: '[data-testid="summary-text1"]',
     textField2Summary: '[data-testid="summary-text2"]',
+    textField3Summary: '[data-testid="summary-text3"]',
     sectorSummary: '[data-testid="summary-sector"]',
     industrySummary: '[data-testid="summary-industry"]',
     personsSummary: '[data-testid="summary-persons"]',
