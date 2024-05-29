@@ -61,7 +61,8 @@ function useProcessNext() {
     },
     onSuccess: async ([processData, validationIssues]) => {
       if (processData) {
-        queryClient.invalidateQueries({ queryKey: ['fetchInstanceData'] });
+        // Make sure we wait for new instance data to be loaded before proceeding
+        await queryClient.invalidateQueries({ queryKey: ['fetchInstanceData'] });
         setProcessData?.({ ...processData, processTasks: currentProcessData?.processTasks });
         navigateToTask(processData?.currentTask?.elementId);
       } else if (validationIssues && updateTaskValidations !== ContextNotProvided) {

@@ -72,20 +72,26 @@ describe('readonly data models', () => {
     }).as('saveFormData');
 
     cy.findByRole('textbox', { name: /tekstfelt 3/i }).type('Litt mer informasjon');
-
     cy.waitUntilSaved();
-
     cy.then(() => expect(formDataRequests.length).to.be.eq(1));
 
     cy.findByRole('button', { name: /legg til ny/i }).click();
-    cy.findByRole('textbox', { name: /e-post/i }).type('test@test.test');
-    cy.findByRole('textbox', { name: /mobilnummer/i }).type('98765432');
+    cy.waitUntilSaved();
+    cy.then(() => expect(formDataRequests.length).to.be.eq(2));
 
+    cy.findByRole('textbox', { name: /e-post/i }).type('test@test.test');
+    cy.waitUntilSaved();
+    cy.then(() => expect(formDataRequests.length).to.be.eq(3));
+
+    cy.findByRole('textbox', { name: /mobilnummer/i }).type('98765432');
+    cy.waitUntilSaved();
     cy.then(() => expect(formDataRequests.length).to.be.eq(4));
 
     cy.findAllByRole('button', { name: /lagre og lukk/i })
       .first()
       .click();
+    cy.waitUntilSaved();
+    cy.then(() => expect(formDataRequests.length).to.be.eq(4));
 
     cy.get(appFrontend.errorReport).should('not.exist');
 
