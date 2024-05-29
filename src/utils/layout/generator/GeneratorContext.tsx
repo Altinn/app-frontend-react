@@ -5,7 +5,6 @@ import { createContext } from 'src/core/contexts/context';
 import type { CompExternal, CompIntermediate, CompIntermediateExact, CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { HiddenState, HiddenStateNode, HiddenStatePage } from 'src/utils/layout/NodesContext';
 import type { BaseRow } from 'src/utils/layout/types';
 
 export type ChildMutator<T extends CompTypes = CompTypes> = (item: CompIntermediate<T>) => void;
@@ -15,12 +14,10 @@ export interface ChildrenMap {
 }
 
 type PageProviderProps = Pick<GeneratorContext, 'layoutMap' | 'childrenMap'> & {
-  hidden: HiddenStatePage;
   parent: LayoutPage;
 };
 
 type NodeGeneratorProps = Pick<GeneratorContext, 'directMutators' | 'recursiveMutators'> & {
-  hidden: Omit<HiddenStateNode, 'parent'>;
   item: CompIntermediateExact<CompTypes>;
   parent: LayoutNode;
 };
@@ -34,7 +31,6 @@ interface GeneratorContext {
   recursiveMutators?: ChildMutator[];
   layoutMap: Record<string, CompExternal>;
   childrenMap: ChildrenMap;
-  hidden: HiddenState;
   parent: LayoutNode | LayoutPage;
   item: CompIntermediateExact<CompTypes> | undefined;
   claimedChildren: Set<string>;
@@ -66,13 +62,6 @@ export function GeneratorProvider({ children, ...rest }: PropsWithChildren<NodeG
       // Direct mutators and rows are not meant to be inherited, if none are passed to us directly we'll reset
       directMutators: rest.directMutators ?? emptyArray,
       row: parent.row ?? undefined,
-
-      // If the parent is hidden, we are also hidden. The default is false, and every component inside a hidden one
-      // will be marked as hidden as well.
-      hidden: {
-        parent: parent.hidden,
-        ...rest.hidden,
-      },
 
       recursiveMutators: parent.recursiveMutators
         ? [...parent.recursiveMutators, ...(rest.recursiveMutators ?? [])]
@@ -135,7 +124,6 @@ export function GeneratorRowProvider({
 export const GeneratorInternal = {
   useDirectMutators: () => useCtx().directMutators ?? emptyArray,
   useRecursiveMutators: () => useCtx().recursiveMutators ?? emptyArray,
-  useHiddenState: () => useCtx().hidden,
   useDepth: () => useCtx().depth,
   useLayoutMap: () => useCtx().layoutMap,
   useChildrenMap: () => useCtx().childrenMap,

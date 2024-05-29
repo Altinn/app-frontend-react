@@ -1,4 +1,4 @@
-import React, { useEffect, useId } from 'react';
+import React, { useCallback, useEffect, useId } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
@@ -74,42 +74,45 @@ export function GeneratorStagesProvider({ children }: PropsWithChildren) {
     ) as HookRegistry,
   );
 
+  const tickFunc = useCallback(() => {
+    setCurrentStage((stage) => {
+      const registered = Object.keys(hooks.current[stage].hooks).length;
+      const finished = Object.values(hooks.current[stage].hooks).filter((h) => h.finished).length;
+      if (registered !== finished || registered === 0) {
+        return stage;
+      }
+      const currentIndex = List.indexOf(stage);
+      const nextStage = List[currentIndex + 1];
+      if (nextStage) {
+        hooks.current[stage].onDone.forEach((cb) => cb());
+        hooks.current[stage].onDone = [];
+        hooks.current[stage].finished = true;
+
+        window.performance.mark(`GeneratorStages:${stage.description}:end`);
+        window.performance.mark(`GeneratorStages:${nextStage.description}:start`);
+        const duration = window.performance.measure(
+          `GeneratorStages:${stage.description}`,
+          `GeneratorStages:${stage.description}:start`,
+          `GeneratorStages:${stage.description}:end`,
+        );
+        generatorLog(
+          'logStages',
+          `Stage finished: ${stage.description}, proceeding to ${nextStage.description}`,
+          `(hooks: ${registered}, duration: ${duration.duration.toFixed(2)}ms)`,
+        );
+
+        return nextStage;
+      }
+      return stage;
+    });
+  }, []);
+
   const tick = React.useCallback(() => {
     if (tickTimeout.current) {
       clearTimeout(tickTimeout.current);
     }
-    tickTimeout.current = setTimeout(() => {
-      setCurrentStage((stage) => {
-        const registered = Object.keys(hooks.current[stage].hooks).length;
-        const finished = Object.values(hooks.current[stage].hooks).filter((h) => h.finished).length;
-        if (registered !== finished || registered === 0) {
-          return stage;
-        }
-        const currentIndex = List.indexOf(stage);
-        const nextStage = List[currentIndex + 1];
-        if (nextStage) {
-          window.performance.mark(`GeneratorStages:${stage.description}:end`);
-          window.performance.mark(`GeneratorStages:${nextStage.description}:start`);
-          const duration = window.performance.measure(
-            `GeneratorStages:${stage.description}`,
-            `GeneratorStages:${stage.description}:start`,
-            `GeneratorStages:${stage.description}:end`,
-          );
-          generatorLog(
-            'logStages',
-            `Stage finished: ${stage.description}, proceeding to ${nextStage.description}`,
-            `(hooks: ${registered}, duration: ${duration.duration.toFixed(2)}ms)`,
-          );
-
-          hooks.current[stage].onDone.forEach((cb) => cb());
-          hooks.current[stage].onDone = [];
-          hooks.current[stage].finished = true;
-          return nextStage;
-        }
-        return stage;
-      });
-    }, 100);
-  }, []);
+    tickTimeout.current = setTimeout(tickFunc, 100);
+  }, [tickFunc]);
 
   useEffect(() => {
     if (GeneratorDebug.logStages) {
@@ -182,7 +185,6 @@ function makeHooks(stage: Stage) {
     const currentIndex = List.indexOf(currentStage);
     const shouldRun = currentIndex >= runInStageIndex;
 
-    tick();
     const registry = hooks.current[stage];
     if (registry.finished && !hooks.current[SecondToLast].finished && !registry.hooks[uniqueId]) {
       throw new Error(
@@ -197,7 +199,6 @@ function makeHooks(stage: Stage) {
       if (shouldRun) {
         const registry = hooks.current[stage];
         registry.hooks[uniqueId] = registry.hooks[uniqueId] || { finished: false };
-        tick();
         return () => {
           if (registry.hooks[uniqueId].finished) {
             delete registry.hooks[uniqueId];

@@ -132,13 +132,6 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
   const page = useMemo(() => new LayoutPage(), []);
   useGeneratorErrorBoundaryNodeRef().current = page;
 
-  const [hidden, setHidden] = useState<HiddenStatePage>({
-    hiddenByTracks: false,
-    hiddenByExpression: false,
-    hiddenByRules: false,
-    parent: undefined,
-  });
-
   const getProto = useMemo(() => {
     const proto: { [id: string]: ComponentProto } = {};
 
@@ -179,11 +172,14 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
 
   return (
     <>
-      <MaintainPageState
+      <AddRemovePage
         layoutSet={layoutSet}
         page={page}
         name={name}
-        setHidden={setHidden}
+      />
+      <MarkPageHidden
+        page={page}
+        name={name}
       />
       {map === undefined &&
         layout.map((component) => (
@@ -198,7 +194,6 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
       {map !== undefined && (
         <GeneratorPageProvider
           parent={page}
-          hidden={hidden}
           layoutMap={layoutMap}
           childrenMap={map}
         >
@@ -209,30 +204,15 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
   );
 }
 
-interface MaintainPageStateProps {
+interface CommonProps {
   layoutSet: LayoutPages;
   page: LayoutPage;
   name: string;
-  setHidden: React.Dispatch<React.SetStateAction<HiddenStatePage>>;
 }
 
-function MaintainPageState({ layoutSet, page, name, setHidden }: MaintainPageStateProps) {
+function AddRemovePage({ layoutSet, page, name }: CommonProps) {
   const addPage = NodesInternal.useAddPage();
-  const setPageProp = NodesInternal.useSetPageProp();
   const removePage = NodesInternal.useRemovePage();
-
-  const hiddenByTracks = Hidden.useIsPageHiddenViaTracks(name);
-  const hiddenByExpression = useIsHiddenPage(page);
-
-  const hidden: HiddenStatePage = useMemo(
-    () => ({
-      hiddenByTracks,
-      hiddenByExpression,
-      hiddenByRules: false,
-      parent: undefined,
-    }),
-    [hiddenByTracks, hiddenByExpression],
-  );
 
   addPage(name);
   if (!page.isRegisteredInCollection(layoutSet)) {
@@ -248,10 +228,26 @@ function MaintainPageState({ layoutSet, page, name, setHidden }: MaintainPageSta
     [page, removePage],
   );
 
+  return null;
+}
+
+function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
+  const setPageProp = NodesInternal.useSetPageProp();
+  const hiddenByTracks = Hidden.useIsPageHiddenViaTracks(name);
+  const hiddenByExpression = useIsHiddenPage(page);
+
+  const hidden: HiddenStatePage = useMemo(
+    () => ({
+      hiddenByTracks,
+      hiddenByExpression,
+      hiddenByRules: false,
+    }),
+    [hiddenByTracks, hiddenByExpression],
+  );
+
   GeneratorStages.MarkHidden.useEffect(() => {
     setPageProp(name, 'hidden', hidden);
-    setHidden(hidden);
-  }, [hidden, name, setPageProp, setHidden]);
+  }, [hidden, name, setPageProp]);
 
   return null;
 }

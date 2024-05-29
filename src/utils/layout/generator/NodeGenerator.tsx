@@ -48,34 +48,24 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
   const node = useNewNode(item, path) as LayoutNode;
   useGeneratorErrorBoundaryNodeRef().current = node;
 
-  const hiddenParent = GeneratorInternal.useHiddenState();
-  const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, layoutMap[baseId].hidden, false);
-  const hiddenByRules = Hidden.useIsHiddenViaRules(node);
-  const hidden: HiddenStateNode = useMemo(
-    () => ({
-      parent: hiddenParent,
-      hiddenByExpression,
-      hiddenByRules,
-      hiddenByTracks: false,
-    }),
-    [hiddenByExpression, hiddenByRules, hiddenParent],
-  );
-
   return (
     <>
+      <MarkAsHidden
+        node={node}
+        item={item}
+        baseId={baseId}
+      />
       <AddRemoveNode
         node={node}
         item={item}
       />
       <GeneratorProvider
         parent={node}
-        hidden={hidden}
         item={item}
       >
         <ResolveExpressions
           node={node}
           item={item}
-          hidden={hidden}
         />
         <NodeValidation
           node={node}
@@ -89,11 +79,40 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
 
 interface CommonProps<T extends CompTypes> {
   node: LayoutNode<T>;
-  hidden: HiddenStateNode;
   item: CompIntermediateExact<T>;
 }
 
-function AddRemoveNode<T extends CompTypes>({ node, item }: Omit<CommonProps<T>, 'hidden'>) {
+function MarkAsHidden<T extends CompTypes>({ node, baseId }: CommonProps<T> & { baseId: string }) {
+  const layoutMap = GeneratorInternal.useLayoutMap();
+  const allNodesAdded = GeneratorStages.AddNodes.useIsDone();
+  const isAdded = NodesInternal.useIsAdded(node);
+  const ready = isAdded && allNodesAdded;
+  const setNodeProp = NodesInternal.useSetNodeProp();
+
+  const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, layoutMap[baseId].hidden, false);
+  const hiddenByRules = Hidden.useIsHiddenViaRules(node);
+  const hidden = useMemo(
+    () =>
+      ({
+        hiddenByExpression,
+        hiddenByRules,
+        hiddenByTracks: false,
+      }) satisfies HiddenStateNode,
+    [hiddenByExpression, hiddenByRules],
+  );
+
+  GeneratorStages.MarkHidden.useConditionalEffect(() => {
+    if (ready) {
+      setNodeProp(node, 'hidden', hidden);
+      return true;
+    }
+    return false;
+  }, [hidden, node, setNodeProp, ready]);
+
+  return null;
+}
+
+function AddRemoveNode<T extends CompTypes>({ node, item }: CommonProps<T>) {
   const parent = GeneratorInternal.useParent();
   const row = GeneratorInternal.useRow();
   const rowRef = useAsRef(row);
@@ -126,7 +145,7 @@ function AddRemoveNode<T extends CompTypes>({ node, item }: Omit<CommonProps<T>,
   return null;
 }
 
-function ResolveExpressions<T extends CompTypes>({ node, item, hidden }: CommonProps<T>) {
+function ResolveExpressions<T extends CompTypes>({ node, item }: CommonProps<T>) {
   const resolverProps = useExpressionResolverProps(node, item);
   const allNodesAdded = GeneratorStages.AddNodes.useIsDone();
   const isAdded = NodesInternal.useIsAdded(node);
@@ -138,14 +157,6 @@ function ResolveExpressions<T extends CompTypes>({ node, item, hidden }: CommonP
     () => (ready ? ((def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>) : undefined),
     [ready, def, resolverProps],
   );
-
-  GeneratorStages.MarkHidden.useConditionalEffect(() => {
-    if (ready) {
-      setNodeProp(node, 'hidden', hidden);
-      return true;
-    }
-    return false;
-  }, [hidden, node, setNodeProp, ready]);
 
   GeneratorStages.EvaluateExpressions.useConditionalEffect(() => {
     if (ready && resolved !== undefined) {

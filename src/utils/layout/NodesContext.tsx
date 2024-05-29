@@ -84,14 +84,12 @@ interface Pages {
 }
 
 export interface HiddenStatePage {
-  parent: undefined;
   hiddenByRules: false;
   hiddenByExpression: boolean;
   hiddenByTracks: boolean;
 }
 
 export interface HiddenStateNode {
-  parent: HiddenState;
   hiddenByRules: boolean;
   hiddenByExpression: boolean;
   hiddenByTracks: false;
@@ -134,10 +132,16 @@ type ExtraHooks = AllFlat<{
 }>;
 
 export type NodesDataContext = {
+  // State
   addRemoveCounter: number;
   ready: boolean;
   hasErrors: boolean;
   pages: PageHierarchy;
+  nodesAdded: {
+    [key: string]: true | undefined;
+  };
+
+  // Functions
   addNode: <N extends LayoutNode>(node: N, targetState: any, row: BaseRow | undefined) => void;
   removeNode: (node: LayoutNode, row: BaseRow | undefined) => void;
   setNodeProp: <N extends LayoutNode, K extends keyof NodeDataFromNode<N>>(
@@ -175,6 +179,7 @@ export function createNodesDataStore() {
         type: 'pages' as const,
         pages: {},
       },
+      nodesAdded: {},
       addNode: (node, targetState, row) =>
         set((state) => {
           const parentPath = node.path.slice(0, -1);
@@ -189,6 +194,7 @@ export function createNodesDataStore() {
             const def = getComponentDef(parent.layout.type);
             def.addChild(parent as any, node, targetState, row);
           }
+          state.nodesAdded[node.getId()] = true;
           state.ready = false;
           state.addRemoveCounter += 1;
         }),
@@ -203,6 +209,7 @@ export function createNodesDataStore() {
               const def = getComponentDef(parent.layout.type);
               def.removeChild(parent as any, node, row);
             }
+            delete state.nodesAdded[node.getId()];
             state.ready = false;
             state.addRemoveCounter += 1;
           }),
@@ -243,7 +250,6 @@ export function createNodesDataStore() {
             type: 'page',
             pageKey,
             hidden: {
-              parent: undefined,
               hiddenByRules: false,
               hiddenByExpression: false,
               hiddenByTracks: false,
@@ -292,6 +298,7 @@ export type NodesDataStoreFull = typeof DataStore;
 
 export const NodesProvider = (props: React.PropsWithChildren) => {
   if (window.performance.getEntriesByName('NodesProvider:start').length === 0) {
+    generatorLog('logStages', 'Starting node generation');
     window.performance.mark('NodesProvider:start');
   }
 
@@ -437,8 +444,18 @@ export interface IsHiddenOptions {
   respectTracks?: boolean;
 }
 
-function isHidden(state: HiddenState | undefined, forcedVisibleByDevTools: boolean, options?: IsHiddenOptions) {
-  if (!state) {
+function isHidden(
+  state: NodesDataContext,
+  nodeOrPath: string[] | LayoutNode | LayoutPage | undefined,
+  forcedVisibleByDevTools: boolean,
+  options?: IsHiddenOptions,
+) {
+  if (!nodeOrPath) {
+    return true;
+  }
+
+  const hidden = pickDataStorePath(state.pages, nodeOrPath)?.hidden;
+  if (!hidden) {
     return true;
   }
 
@@ -447,14 +464,20 @@ function isHidden(state: HiddenState | undefined, forcedVisibleByDevTools: boole
     return true;
   }
 
-  const hiddenHere = state.hiddenByRules || state.hiddenByExpression || (respectTracks && state.hiddenByTracks);
+  const hiddenHere = hidden.hiddenByRules || hidden.hiddenByExpression || (respectTracks && hidden.hiddenByTracks);
   if (hiddenHere) {
     return true;
   }
 
-  if (state.parent) {
-    return isHidden(state.parent, forcedVisibleByDevTools, options);
+  if (nodeOrPath instanceof BaseLayoutNode) {
+    const parentPath = nodeOrPath.path.slice(0, -1);
+    return isHidden(state, parentPath, forcedVisibleByDevTools, options);
   }
+  if (Array.isArray(nodeOrPath) && nodeOrPath.length > 1) {
+    const parentPath = nodeOrPath.slice(0, -1);
+    return isHidden(state, parentPath, forcedVisibleByDevTools, options);
+  }
+
   return false;
 }
 
@@ -462,39 +485,23 @@ export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
   useIsHidden: (node: LayoutNode | LayoutPage | undefined, options?: IsHiddenOptions) => {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return DataStore.useMemoSelector((s) => {
-      if (!node) {
-        return true;
-      }
-      return isHidden(pickDataStorePath(s.pages, node).hidden, forcedVisibleByDevTools, options);
-    });
+    return DataStore.useMemoSelector((s) => isHidden(s, node, forcedVisibleByDevTools, options));
   },
   useIsHiddenPage: (pageKey: string, options?: IsHiddenOptions) => {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return DataStore.useMemoSelector((s) => {
-      const page = s.pages.pages[pageKey];
-      if (!page) {
-        return true;
-      }
-      return isHidden(page.hidden, forcedVisibleByDevTools, options);
-    });
+    return DataStore.useMemoSelector((s) => isHidden(s, [pageKey], forcedVisibleByDevTools, options));
   },
   useIsHiddenPageSelector: () => {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return DataStore.useDelayedMemoSelectorFactory((pageKey: string) => (state) => {
-      const page = state.pages.pages[pageKey];
-      if (!page) {
-        return true;
-      }
-      return isHidden(page.hidden, forcedVisibleByDevTools);
-    });
+    return DataStore.useDelayedMemoSelectorFactory(
+      (pageKey: string) => (state) => isHidden(state, [pageKey], forcedVisibleByDevTools),
+    );
   },
   useHiddenPages: (): Set<string> => {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    const hiddenPages = DataStore.useLaxMemoSelector((s) => {
-      const pages = s.pages.pages;
-      return Object.keys(pages).filter((key) => isHidden(pages[key].hidden, forcedVisibleByDevTools));
-    });
+    const hiddenPages = DataStore.useLaxMemoSelector((s) =>
+      Object.keys(s.pages.pages).filter((key) => isHidden(s, [key], forcedVisibleByDevTools)),
+    );
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
   },
   useIsHiddenSelector: () => {
@@ -504,10 +511,10 @@ export const Hidden = {
       // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
       ({ node, options }: { node: NodeRef | LayoutNode | LayoutPage; options?: IsHiddenOptions }) =>
         (state) =>
-          ignoreNodePathNotFound(() => {
-            const nodeState = pickDataStorePath(state.pages, getNodePath(node, nodeSelector));
-            return isHidden(nodeState.hidden, forcedVisibleByDevTools, options);
-          }, true),
+          ignoreNodePathNotFound(
+            () => isHidden(state, getNodePath(node, nodeSelector), forcedVisibleByDevTools, options),
+            true,
+          ),
     );
   },
 
@@ -689,12 +696,12 @@ export const NodesInternal = {
     ),
 
   useIsAdded: (node: LayoutNode | LayoutPage) =>
-    DataStore.useSelector((s) =>
-      ignoreNodePathNotFound(() => {
-        pickDataStorePath(s.pages, node);
-        return true;
-      }, false),
-    ),
+    DataStore.useSelector((s) => {
+      if (node instanceof LayoutPage) {
+        return s.pages.pages[node.pageKey] !== undefined;
+      }
+      return s.nodesAdded[node.getId()] !== undefined;
+    }),
   useNodesStore: () => NodesStore.useStore(),
   useDataStoreFor: (node: LayoutNode) =>
     DataStore.useSelector((s) => ignoreNodePathNotFound(() => pickDataStorePath(s.pages, node), undefined)),

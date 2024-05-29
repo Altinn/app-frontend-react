@@ -48,12 +48,7 @@ function FetchLayoutSchema({
 }: {
   setSchemaValidator: React.Dispatch<React.SetStateAction<ValidateFunc | undefined>>;
 }) {
-  const hasBeenEnabledBefore = useRef(false);
-  const isDev = useIsDev();
-  const panelOpen = useDevToolsStore((s) => s.isOpen);
-  const hasErrors = NodesInternal.useHasErrors();
-  const enabled = isDev || hasErrors || panelOpen || hasBeenEnabledBefore.current;
-  hasBeenEnabledBefore.current = enabled;
+  const enabled = useIsLayoutValidationEnabled();
 
   const { fetchLayoutSchema } = useAppQueries();
   const { data: layoutSchema, isSuccess } = useQuery({
@@ -70,6 +65,17 @@ function FetchLayoutSchema({
   }, [isSuccess, layoutSchema, setSchemaValidator]);
 
   return null;
+}
+
+function useIsLayoutValidationEnabled() {
+  const hasBeenEnabledBefore = useRef(false);
+  const isDev = useIsDev();
+  const panelOpen = useDevToolsStore((s) => s.isOpen);
+  const hasErrors = NodesInternal.useHasErrors();
+  const enabled = isDev || hasErrors || panelOpen || hasBeenEnabledBefore.current;
+  hasBeenEnabledBefore.current = enabled;
+
+  return enabled;
 }
 
 /**
