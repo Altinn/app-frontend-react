@@ -24,13 +24,10 @@ export function AudioComponent({ node }: IAudioProps) {
   const classes = useStyles();
   const languageKey = useCurrentLanguage();
   const altText = textResourceBindings?.altTextAudio ? langAsString(textResourceBindings.altTextAudio) : undefined;
-
-  let audioSrc = audio?.src?.[languageKey] || '';
-  if (audioSrc.startsWith('wwwroot')) {
-    audioSrc = audioSrc.replace('wwwroot', `/${window.org}/${window.app}`);
-  }
+  const audioSrc = audio?.src?.[languageKey] || '';
   const renderedInCardMedia = useParentCard()?.renderedInMedia;
   const cardMediaHeight = useParentCard()?.minMediaHeight;
+
   if (renderedInCardMedia) {
     return (
       <InnerAudio

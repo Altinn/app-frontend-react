@@ -24,13 +24,10 @@ export function VideoComponent({ node }: IVideoProps) {
   const classes = useStyles();
   const languageKey = useCurrentLanguage();
   const altText = textResourceBindings?.altTextVideo ? langAsString(textResourceBindings.altTextVideo) : undefined;
-
-  let videoSrc = video?.src?.[languageKey] || '';
-  if (videoSrc.startsWith('wwwroot')) {
-    videoSrc = videoSrc.replace('wwwroot', `/${window.org}/${window.app}`);
-  }
+  const videoSrc = video?.src?.[languageKey] || '';
   const renderedInCardMedia = useParentCard()?.renderedInMedia;
   const cardMediaHeight = useParentCard()?.minMediaHeight;
+
   if (renderedInCardMedia) {
     return (
       <InnerVideo
