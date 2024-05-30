@@ -153,21 +153,12 @@ function SetTickFunc() {
     registry.current[stage].onDone.forEach((cb) => cb());
     registry.current[stage].onDone = [];
     registry.current[stage].finished = true;
-
-    window.performance.mark(`GeneratorStages:${stage.description}:end`);
-    window.performance.mark(`GeneratorStages:${nextStage.description}:start`);
-    const duration = window.performance.measure(
-      `GeneratorStages:${stage.description}`,
-      `GeneratorStages:${stage.description}:start`,
-      `GeneratorStages:${stage.description}:end`,
-    );
-
     const hooks = Object.keys(registry.current[stage].hooks).length;
     const components = Object.keys(registry.current[stage].components).length;
     generatorLog(
       'logStages',
       `Stage finished: ${stage.description}, proceeding to ${nextStage.description}`,
-      `(hooks: ${hooks}, conditional components: ${components}, duration: ${duration.duration.toFixed(2)}ms)`,
+      `(hooks: ${hooks}, conditionals: ${components})`,
     );
 
     goToNextStage();
@@ -211,7 +202,7 @@ function LogSlowStages() {
       generatorLog(
         'logStages',
         `Still on stage ${current.description}`,
-        `(${doneHooks}/${numHooks} hooks finished, ${doneComponents}/${numComponents} conditional components finished)`,
+        `(${doneHooks}/${numHooks} hooks finished, ${doneComponents}/${numComponents} conditionals finished)`,
       );
 
       // If we're stuck on the same stage for a while, log a list of hooks that are still pending

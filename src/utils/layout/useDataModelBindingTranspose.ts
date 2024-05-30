@@ -60,7 +60,7 @@ function firstDataModelBinding(
   }
 
   const node = traversal.target;
-  const dataModelBindings = nodeSelector({ node, path: 'item.dataModelBindings' }) as
+  const dataModelBindings = nodeSelector({ node, path: 'layout.dataModelBindings' }) as
     | IDataModelBindings
     | typeof ContextNotProvided
     | undefined;

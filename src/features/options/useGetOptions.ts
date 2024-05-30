@@ -243,6 +243,12 @@ export function useFetchOptions<T extends OptionsValueType>({
       preselectedOption = draft[preselectedOptionIndex];
     }
 
+    if (draft && draft.length < 2) {
+      // No need to sort or filter if there are 0 or 1 options. Using langAsString() can lead to re-rendering, so
+      // we avoid it if we don't need it.
+      return [draft, preselectedOption];
+    }
+
     if (draft) {
       draft = filterDuplicateOptions(draft);
     }
