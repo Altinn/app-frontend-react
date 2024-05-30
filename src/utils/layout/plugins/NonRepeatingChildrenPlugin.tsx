@@ -105,11 +105,11 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
   }
 
   extraNodeGeneratorChildren(): string {
-    const GenerateNodeChildren = new CG.import({
-      import: 'GenerateNodeChildren',
+    const GenerateNodeChildrenWhenReady = new CG.import({
+      import: 'GenerateNodeChildrenWhenReady',
       from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
-    return `<${GenerateNodeChildren} childIds={props.childIds} />`;
+    return `<${GenerateNodeChildrenWhenReady} childIds={props.childIds} />`;
   }
 
   claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<ToInternal<E>>): void {

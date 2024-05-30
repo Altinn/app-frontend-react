@@ -10,7 +10,7 @@ import {
   GeneratorErrorBoundary,
   useGeneratorErrorBoundaryNodeRef,
 } from 'src/utils/layout/generator/GeneratorErrorBoundary';
-import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorCondition, GeneratorStages, StageAddNodes } from 'src/utils/layout/generator/GeneratorStages';
 import { useResolvedExpression } from 'src/utils/layout/generator/useResolvedExpression';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -254,6 +254,17 @@ function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
 
 interface NodeChildrenProps {
   childIds: string[];
+}
+
+export function GenerateNodeChildrenWhenReady({ childIds }: NodeChildrenProps) {
+  return (
+    <GeneratorCondition
+      stage={StageAddNodes}
+      mustBeAdded='parent'
+    >
+      <GenerateNodeChildren childIds={childIds} />
+    </GeneratorCondition>
+  );
 }
 
 export function GenerateNodeChildren({ childIds }: NodeChildrenProps) {

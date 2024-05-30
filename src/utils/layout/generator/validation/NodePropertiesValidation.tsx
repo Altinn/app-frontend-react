@@ -20,7 +20,10 @@ export interface NodeValidationProps {
   item: CompIntermediate;
 }
 
-export function NodeValidation(props: NodeValidationProps) {
+/**
+ * Validates the properties of a node. Note that this is not the same as validating form data in the node.
+ */
+export function NodePropertiesValidation(props: NodeValidationProps) {
   return (
     <>
       <DataModelValidation {...props} />

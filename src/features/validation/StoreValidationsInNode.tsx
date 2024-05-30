@@ -1,54 +1,57 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
 import { getInitialMaskFromNode } from 'src/features/validation/utils';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorCondition, GeneratorStages, StageFormValidation } from 'src/utils/layout/generator/GeneratorStages';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import type { CompCategory } from 'src/layout/common';
 import type { TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function StoreValidationsInNode() {
+  return (
+    <GeneratorCondition
+      stage={StageFormValidation}
+      mustBeAdded='parent'
+    >
+      <PerformWork />
+    </GeneratorCondition>
+  );
+}
+
+function PerformWork() {
   const item = GeneratorInternal.useIntermediateItem();
   const node = GeneratorInternal.useParent() as LayoutNode<
     TypesFromCategory<CompCategory.Form | CompCategory.Container>
   >;
   const setNodeProp = NodesInternal.useSetNodeProp();
-  const isAllAdded = GeneratorStages.AddNodes.useIsDone();
-  const isSelfAdded = NodesInternal.useIsAdded(node);
   const isHidden = Hidden.useIsHiddenSelector();
 
   const shouldValidate = useMemo(
     () =>
-      isAllAdded &&
-      isSelfAdded &&
       item !== undefined &&
       !isHidden({ node, options: { respectTracks: true } }) &&
       !('renderAsSummary' in item && item.renderAsSummary),
-    [isAllAdded, isSelfAdded, isHidden, item, node],
+    [isHidden, item, node],
   );
 
   const validations = useNodeValidation(node, shouldValidate);
-  GeneratorStages.EvaluateExpressions.useConditionalEffect(() => {
-    if (isAllAdded && isSelfAdded) {
-      setNodeProp(node, 'validations', validations);
-      return true;
-    }
-    return false;
-  }, [isAllAdded, isSelfAdded, node, setNodeProp, validations]);
+  GeneratorStages.FormValidation.useEffect(() => {
+    setNodeProp(node, 'validations', validations);
+  }, [node, setNodeProp, validations]);
 
   const initialMask = item
     ? getInitialMaskFromNode('showValidations' in item ? item.showValidations : undefined)
     : undefined;
 
-  GeneratorStages.EvaluateExpressions.useConditionalEffect(() => {
-    if (isAllAdded && isSelfAdded && initialMask !== undefined) {
+  GeneratorStages.FormValidation.useConditionalEffect(() => {
+    if (initialMask !== undefined) {
       setNodeProp(node, 'validationVisibility', initialMask);
       return true;
     }
     return false;
-  }, [isAllAdded, isSelfAdded, initialMask, node, setNodeProp]);
+  }, [initialMask, node, setNodeProp]);
 
   return null;
 }

@@ -8,9 +8,15 @@ import { getComponentDef, getNodeConstructor } from 'src/layout';
 import { GeneratorDebug } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal, GeneratorProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
-import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
+import {
+  GeneratorCondition,
+  GeneratorStages,
+  StageAddNodes,
+  StageEvaluateExpressions,
+  StageMarkHidden,
+} from 'src/utils/layout/generator/GeneratorStages';
 import { useResolvedExpression } from 'src/utils/layout/generator/useResolvedExpression';
-import { NodeValidation } from 'src/utils/layout/generator/validation/NodeValidation';
+import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
@@ -48,29 +54,38 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
   const node = useNewNode(item, path) as LayoutNode;
   useGeneratorErrorBoundaryNodeRef().current = node;
 
+  const commonProps: CommonProps<CompTypes> = { node, item, baseId };
+
   return (
     <>
-      <MarkAsHidden
-        node={node}
-        item={item}
-        baseId={baseId}
-      />
-      <AddRemoveNode
-        node={node}
-        item={item}
-      />
+      <GeneratorCondition
+        stage={StageAddNodes}
+        mustBeAdded='parent'
+      >
+        <AddRemoveNode {...commonProps} />
+      </GeneratorCondition>
+      <GeneratorCondition
+        stage={StageMarkHidden}
+        mustBeAdded='parent'
+      >
+        <MarkAsHidden {...commonProps} />
+      </GeneratorCondition>
+      <GeneratorCondition
+        stage={StageEvaluateExpressions}
+        mustBeAdded='all'
+      >
+        <ResolveExpressions {...commonProps} />
+      </GeneratorCondition>
+      <GeneratorCondition
+        stage={StageMarkHidden}
+        mustBeAdded='parent'
+      >
+        <NodePropertiesValidation {...commonProps} />
+      </GeneratorCondition>
       <GeneratorProvider
         parent={node}
         item={item}
       >
-        <ResolveExpressions
-          node={node}
-          item={item}
-        />
-        <NodeValidation
-          node={node}
-          item={item}
-        />
         {children}
       </GeneratorProvider>
     </>
@@ -80,13 +95,11 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
 interface CommonProps<T extends CompTypes> {
   node: LayoutNode<T>;
   item: CompIntermediateExact<T>;
+  baseId: string;
 }
 
-function MarkAsHidden<T extends CompTypes>({ node, baseId }: CommonProps<T> & { baseId: string }) {
+function MarkAsHidden<T extends CompTypes>({ node, baseId }: CommonProps<T>) {
   const layoutMap = GeneratorInternal.useLayoutMap();
-  const allNodesAdded = GeneratorStages.AddNodes.useIsDone();
-  const isAdded = NodesInternal.useIsAdded(node);
-  const ready = isAdded && allNodesAdded;
   const setNodeProp = NodesInternal.useSetNodeProp();
 
   const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, layoutMap[baseId].hidden, false);
@@ -101,13 +114,9 @@ function MarkAsHidden<T extends CompTypes>({ node, baseId }: CommonProps<T> & { 
     [hiddenByExpression, hiddenByRules],
   );
 
-  GeneratorStages.MarkHidden.useConditionalEffect(() => {
-    if (ready) {
-      setNodeProp(node, 'hidden', hidden);
-      return true;
-    }
-    return false;
-  }, [hidden, node, setNodeProp, ready]);
+  GeneratorStages.MarkHidden.useEffect(() => {
+    setNodeProp(node, 'hidden', hidden);
+  }, [hidden, node, setNodeProp]);
 
   return null;
 }
@@ -118,21 +127,16 @@ function AddRemoveNode<T extends CompTypes>({ node, item }: CommonProps<T>) {
   const rowRef = useAsRef(row);
   const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item, parent, row });
   const addNode = NodesInternal.useAddNode();
-  const isParentAdded = NodesInternal.useIsAdded(parent);
 
   const page = GeneratorInternal.usePage();
   const removeNode = NodesInternal.useRemoveNode();
   const nodeRef = useAsRef(node);
   const pageRef = useAsRef(page);
 
-  GeneratorStages.AddNodes.useConditionalEffect(() => {
-    if (isParentAdded) {
-      const defaultState = nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any);
-      addNode(nodeRef.current, defaultState, row);
-      return true;
-    }
-    return false;
-  }, [addNode, isParentAdded, nodeRef, stateFactoryPropsRef, row]);
+  GeneratorStages.AddNodes.useEffect(() => {
+    const defaultState = nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any);
+    addNode(nodeRef.current, defaultState, row);
+  }, [addNode, nodeRef, stateFactoryPropsRef, row]);
 
   GeneratorStages.AddNodes.useEffect(
     () => () => {
@@ -147,25 +151,18 @@ function AddRemoveNode<T extends CompTypes>({ node, item }: CommonProps<T>) {
 
 function ResolveExpressions<T extends CompTypes>({ node, item }: CommonProps<T>) {
   const resolverProps = useExpressionResolverProps(node, item);
-  const allNodesAdded = GeneratorStages.AddNodes.useIsDone();
-  const isAdded = NodesInternal.useIsAdded(node);
-  const ready = isAdded && allNodesAdded;
 
   const def = useDef(item.type);
   const setNodeProp = NodesInternal.useSetNodeProp();
   const resolved = useMemo(
-    () => (ready ? ((def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>) : undefined),
-    [ready, def, resolverProps],
+    () => (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>,
+    [def, resolverProps],
   );
 
-  GeneratorStages.EvaluateExpressions.useConditionalEffect(() => {
-    if (ready && resolved !== undefined) {
-      node.updateCommonProps(resolved as any);
-      setNodeProp(node, 'item', resolved);
-      return true;
-    }
-    return false;
-  }, [node, resolved, setNodeProp, ready]);
+  GeneratorStages.EvaluateExpressions.useEffect(() => {
+    node.updateCommonProps(resolved as any);
+    setNodeProp(node, 'item', resolved);
+  }, [node, resolved, setNodeProp]);
 
   return (
     <>{GeneratorDebug.displayState && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolved, null, 2)}</pre>}</>
@@ -358,7 +355,6 @@ function isSummarizableItem(item: CompIntermediate): item is CompIntermediate & 
 export function useDef<T extends CompTypes>(type: T) {
   const def = getComponentDef<T>(type)!;
   if (!def) {
-    // TODO: Log error and produce an error node instead
     throw new Error(`Component type "${type}" not found`);
   }
 
@@ -368,7 +364,6 @@ export function useDef<T extends CompTypes>(type: T) {
 function useNodeConstructor<T extends CompTypes>(type: T) {
   const LNode = getNodeConstructor(type);
   if (!LNode) {
-    // TODO: Log error and produce an error node instead
     throw new Error(`Component type "${type}" not found`);
   }
 

@@ -1,11 +1,15 @@
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
+import {
+  GeneratorCondition,
+  GeneratorStages,
+  StageEvaluateExpressions,
+} from 'src/utils/layout/generator/GeneratorStages';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeFormData } from 'src/utils/layout/useNodeItem';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
@@ -16,20 +20,24 @@ import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function StoreAttachmentsInNode() {
+  return (
+    <GeneratorCondition
+      stage={StageEvaluateExpressions}
+      mustBeAdded='parent'
+    >
+      <PerformWork />
+    </GeneratorCondition>
+  );
+}
+
+function PerformWork() {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
   const setNodeProp = NodesInternal.useSetNodeProp();
-  const isAllAdded = GeneratorStages.AddNodes.useIsDone();
-  const isSelfAdded = NodesInternal.useIsAdded(node);
   const attachments = useNodeAttachments();
 
-  const ready = isAllAdded && isSelfAdded;
-  GeneratorStages.EvaluateExpressions.useConditionalEffect(() => {
-    if (ready) {
-      setNodeProp(node, 'attachments', attachments);
-      return true;
-    }
-    return false;
-  }, [ready, node, setNodeProp, attachments]);
+  GeneratorStages.EvaluateExpressions.useEffect(() => {
+    setNodeProp(node, 'attachments', attachments);
+  }, [node, setNodeProp, attachments]);
 
   return null;
 }

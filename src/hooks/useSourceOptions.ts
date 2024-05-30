@@ -5,8 +5,6 @@ import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { memoize } from 'src/utils/memoize';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
@@ -20,14 +18,8 @@ interface IUseSourceOptionsArgs {
 
 export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOptionInternal[] | undefined => {
   const dataSources = useExpressionDataSources();
-  const isAdded = NodesInternal.useIsAdded(node);
-  const itemIsDefined = useNodeItem(node, (i) => !!i);
-  const ready = isAdded && itemIsDefined;
 
-  return useMemoDeepEqual(
-    () => (ready ? getSourceOptions({ source, node, dataSources }) : undefined),
-    [ready, source, node, dataSources],
-  );
+  return useMemoDeepEqual(() => getSourceOptions({ source, node, dataSources }), [source, node, dataSources]);
 };
 
 interface IGetSourceOptionsArgs extends IUseSourceOptionsArgs {
