@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useId } from 'react';
-import type { PropsWithChildren } from 'react';
+import type { MutableRefObject, PropsWithChildren } from 'react';
 
-import { createContext } from 'src/core/contexts/context';
-import { useAsRef } from 'src/hooks/useAsRef';
+import { createStore } from 'zustand';
+
+import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -31,12 +32,37 @@ type OnStageDone = () => void;
 interface Context {
   currentStage: Stage;
   registry: React.MutableRefObject<Registry>;
-  tick: () => void;
+  tick: undefined | (() => void);
+  setTick: (tick: () => void) => void;
+  nextStage: () => void;
 }
 
-const { Provider, useCtx } = createContext<Context>({
+interface CreateStoreProps {
+  registry: MutableRefObject<Registry>;
+}
+
+const { Provider, useSelector, useSelectorAsRef } = createZustandContext({
   name: 'GeneratorStages',
   required: true,
+  initialCreateStore: ({ registry }: CreateStoreProps) =>
+    createStore<Context>((set) => ({
+      currentStage: List[0],
+      registry,
+      tick: undefined,
+      setTick: (tick) => {
+        set({ tick });
+      },
+      nextStage: () => {
+        set((state) => {
+          const currentIndex = List.indexOf(state.currentStage);
+          const nextStage = List[currentIndex + 1];
+          if (nextStage) {
+            return { currentStage: nextStage };
+          }
+          return state;
+        });
+      },
+    })),
 });
 
 type Registry = {
@@ -83,9 +109,6 @@ export function GeneratorStagesProvider({ children }: PropsWithChildren) {
     window.performance.mark(`GeneratorStages:${List[0].description}:start`);
   }
 
-  const [currentStage, setCurrentStage] = React.useState<Stage>(List[0]);
-  const currentStageRef = useAsRef(currentStage);
-  const tickTimeout = React.useRef<NodeJS.Timeout | null>(null);
   const registry = React.useRef<Registry>(
     Object.fromEntries(
       List.map((s) => [
@@ -100,39 +123,55 @@ export function GeneratorStagesProvider({ children }: PropsWithChildren) {
     ) as Registry,
   );
 
+  return (
+    <Provider registry={registry}>
+      <SetTickFunc />
+      {GeneratorDebug.logStages && <LogSlowStages />}
+      <WhenTickIsSet>{children}</WhenTickIsSet>
+    </Provider>
+  );
+}
+
+function SetTickFunc() {
+  const currentStageRef = useSelectorAsRef((state) => state.currentStage);
+  const goToNextStage = useSelector((state) => state.nextStage);
+  const setTick = useSelector((state) => state.setTick);
+  const registry = useSelector((state) => state.registry);
+
+  const tickTimeout = React.useRef<NodeJS.Timeout | null>(null);
   const tickFunc = useCallback(() => {
-    setCurrentStage((stage) => {
-      if (!isStageDone(stage, registry.current)) {
-        return stage;
-      }
-      const currentIndex = List.indexOf(stage);
-      const nextStage = List[currentIndex + 1];
-      if (nextStage) {
-        registry.current[stage].onDone.forEach((cb) => cb());
-        registry.current[stage].onDone = [];
-        registry.current[stage].finished = true;
+    const stage = currentStageRef.current;
+    if (!isStageDone(stage, registry.current)) {
+      return;
+    }
+    const currentIndex = List.indexOf(stage);
+    const nextStage = List[currentIndex + 1];
+    if (!nextStage) {
+      return;
+    }
 
-        window.performance.mark(`GeneratorStages:${stage.description}:end`);
-        window.performance.mark(`GeneratorStages:${nextStage.description}:start`);
-        const duration = window.performance.measure(
-          `GeneratorStages:${stage.description}`,
-          `GeneratorStages:${stage.description}:start`,
-          `GeneratorStages:${stage.description}:end`,
-        );
+    registry.current[stage].onDone.forEach((cb) => cb());
+    registry.current[stage].onDone = [];
+    registry.current[stage].finished = true;
 
-        const hooks = Object.keys(registry.current[stage].hooks).length;
-        const components = Object.keys(registry.current[stage].components).length;
-        generatorLog(
-          'logStages',
-          `Stage finished: ${stage.description}, proceeding to ${nextStage.description}`,
-          `(hooks: ${hooks}, conditional components: ${components}, duration: ${duration.duration.toFixed(2)}ms)`,
-        );
+    window.performance.mark(`GeneratorStages:${stage.description}:end`);
+    window.performance.mark(`GeneratorStages:${nextStage.description}:start`);
+    const duration = window.performance.measure(
+      `GeneratorStages:${stage.description}`,
+      `GeneratorStages:${stage.description}:start`,
+      `GeneratorStages:${stage.description}:end`,
+    );
 
-        return nextStage;
-      }
-      return stage;
-    });
-  }, []);
+    const hooks = Object.keys(registry.current[stage].hooks).length;
+    const components = Object.keys(registry.current[stage].components).length;
+    generatorLog(
+      'logStages',
+      `Stage finished: ${stage.description}, proceeding to ${nextStage.description}`,
+      `(hooks: ${hooks}, conditional components: ${components}, duration: ${duration.duration.toFixed(2)}ms)`,
+    );
+
+    goToNextStage();
+  }, [currentStageRef, registry, goToNextStage]);
 
   const tick = React.useCallback(() => {
     if (tickTimeout.current) {
@@ -142,44 +181,66 @@ export function GeneratorStagesProvider({ children }: PropsWithChildren) {
   }, [tickFunc]);
 
   useEffect(() => {
-    if (GeneratorDebug.logStages) {
-      let lastReportedStage: Stage | undefined;
-      const interval = setInterval(() => {
-        const current = currentStageRef.current;
-        const last = List[List.length - 1];
-        if (current === last) {
-          clearInterval(interval);
-        }
-        if (lastReportedStage !== current) {
-          return;
-        }
+    setTick(tick);
+    return () => {
+      if (tickTimeout.current) {
+        clearTimeout(tickTimeout.current);
+      }
+    };
+  }, [setTick, tick]);
 
-        const { numHooks, doneHooks, numComponents, doneComponents } = registryStats(current, registry.current);
-        generatorLog(
-          'logStages',
-          `Still on stage ${current.description}`,
-          `(${doneHooks}/${numHooks} hooks finished, ${doneComponents}/${numComponents} conditional components finished)`,
-        );
+  return null;
+}
 
-        // If we're stuck on the same stage for a while, log a list of hooks that are still pending
-        const pendingHooks = Object.entries(registry.current[current].hooks)
-          .filter(([, hook]) => !hook.finished)
-          .map(([id]) => id)
-          .join('\n - ');
-        generatorLog('logStages', `Pending hooks:\n - ${pendingHooks}`);
+function LogSlowStages() {
+  const currentStageRef = useSelectorAsRef((state) => state.currentStage);
+  const registry = useSelector((state) => state.registry);
+  useEffect(() => {
+    let lastReportedStage: Stage | undefined;
+    const interval = setInterval(() => {
+      const current = currentStageRef.current;
+      const last = List[List.length - 1];
+      if (current === last) {
+        clearInterval(interval);
+      }
+      if (lastReportedStage !== current) {
+        return;
+      }
 
-        const pendingComponents = Object.entries(registry.current[current].components)
-          .filter(([, component]) => !component.finished)
-          .map(([id]) => id)
-          .join('\n - ');
-        generatorLog('logStages', `Pending components:\n - ${pendingComponents}`);
+      const { numHooks, doneHooks, numComponents, doneComponents } = registryStats(current, registry.current);
+      generatorLog(
+        'logStages',
+        `Still on stage ${current.description}`,
+        `(${doneHooks}/${numHooks} hooks finished, ${doneComponents}/${numComponents} conditional components finished)`,
+      );
 
-        lastReportedStage = current;
-      }, 2500);
-    }
-  }, [currentStageRef]);
+      // If we're stuck on the same stage for a while, log a list of hooks that are still pending
+      const pendingHooks = Object.entries(registry.current[current].hooks)
+        .filter(([, hook]) => !hook.finished)
+        .map(([id]) => id)
+        .join('\n - ');
+      generatorLog('logStages', `Pending hooks:\n - ${pendingHooks}`);
 
-  return <Provider value={{ currentStage, registry, tick }}>{children}</Provider>;
+      const pendingComponents = Object.entries(registry.current[current].components)
+        .filter(([, component]) => !component.finished)
+        .map(([id]) => id)
+        .join('\n - ');
+      generatorLog('logStages', `Pending components:\n - ${pendingComponents}`);
+
+      lastReportedStage = current;
+    }, 2500);
+  }, [currentStageRef, registry]);
+
+  return null;
+}
+
+function WhenTickIsSet({ children }: PropsWithChildren) {
+  const tick = useSelector((state) => state.tick);
+  if (!tick) {
+    return null;
+  }
+
+  return <>{children}</>;
 }
 
 /**
@@ -198,6 +259,22 @@ export const GeneratorStages = {
   },
 };
 
+function useWhenStageAtLeast(stage: Stage) {
+  return useSelector((state) => {
+    const currentIndex = List.indexOf(state.currentStage);
+    const targetIndex = List.indexOf(stage);
+    return currentIndex >= targetIndex;
+  });
+}
+
+function useIsStageAtLeastRef(stage: Stage) {
+  return useSelectorAsRef((state) => {
+    const currentIndex = List.indexOf(state.currentStage);
+    const targetIndex = List.indexOf(stage);
+    return currentIndex >= targetIndex;
+  });
+}
+
 interface ConditionProps {
   stage: Stage;
   mustBeAdded?: 'parent' | 'all';
@@ -209,15 +286,12 @@ interface ConditionProps {
  */
 export function GeneratorCondition({ stage, mustBeAdded, children }: PropsWithChildren<ConditionProps>) {
   const id = useUniqueId();
-  const { currentStage, registry } = useCtx();
+  const registry = useSelector((state) => state.registry);
   if (!registry.current[stage].components[id]) {
     registry.current[stage].components[id] = { finished: false };
   }
 
-  const currentIndex = List.indexOf(currentStage);
-  const targetIndex = List.indexOf(stage);
-  const shouldRender = currentIndex >= targetIndex;
-
+  const shouldRender = useWhenStageAtLeast(stage);
   if (!shouldRender) {
     return null;
   }
@@ -268,7 +342,7 @@ function Now({ id, stage, children }: WhenProps) {
 }
 
 function useMarkFinished(id: string, stage: Stage, ready: boolean) {
-  const { registry } = useCtx();
+  const registry = useSelector((state) => state.registry);
   useEffect(() => {
     if (ready) {
       registry.current[stage].components[id].finished = true;
@@ -284,10 +358,9 @@ function makeHooks(stage: Stage) {
   function useEffect(effect: (markFinished: () => void) => void | (() => void), deps?: React.DependencyList) {
     const uniqueId = useUniqueId();
 
-    const { currentStage, registry, tick } = useCtx();
-    const runInStageIndex = List.indexOf(stage);
-    const currentIndex = List.indexOf(currentStage);
-    const shouldRun = currentIndex >= runInStageIndex;
+    const registry = useSelector((state) => state.registry);
+    const tick = useSelector((state) => state.tick!);
+    const shouldRun = useWhenStageAtLeast(stage);
 
     const reg = registry.current[stage];
     if (reg.finished && !registry.current[SecondToLast].finished && !reg.hooks[uniqueId]) {
@@ -343,18 +416,18 @@ function makeHooks(stage: Stage) {
       }, deps);
     },
     useOnDone(cb: OnStageDone) {
+      const registry = useSelector((state) => state.registry);
+      const isDoneRef = useIsStageAtLeastRef(stage);
       const isAddedRef = React.useRef(false);
-      const { registry, currentStage } = useCtx();
-      if (currentStage === stage && !isAddedRef.current) {
+      if (!isDoneRef.current && !isAddedRef.current) {
         registry.current[stage].onDone.push(cb);
         isAddedRef.current = true;
+      } else if (isDoneRef.current) {
+        throw new Error(`Cannot add onDone callback to stage ${stage.description} after it has already finished`);
       }
     },
     useIsDone() {
-      const { currentStage } = useCtx();
-      const currentIndex = List.indexOf(currentStage);
-      const targetStageIndex = List.indexOf(stage);
-      return currentIndex > targetStageIndex;
+      return useWhenStageAtLeast(stage);
     },
   };
 }
