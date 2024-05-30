@@ -168,7 +168,7 @@ function SetTickFunc() {
     if (tickTimeout.current) {
       clearTimeout(tickTimeout.current);
     }
-    tickTimeout.current = setTimeout(tickFunc, 100);
+    tickTimeout.current = setTimeout(tickFunc, 4);
   }, [tickFunc]);
 
   useEffect(() => {

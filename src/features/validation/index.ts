@@ -57,7 +57,7 @@ export type WaitForValidation = (forceSave?: boolean) => Promise<void>;
 
 export type ValidationContext = {
   state: ValidationState;
-  validating: WaitForValidation;
+  validating: WaitForValidation | undefined;
 
   /**
    * This is a last resort to show all errors, to prevent unknown error

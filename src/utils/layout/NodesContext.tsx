@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import dot from 'dot-object';
@@ -18,7 +18,11 @@ import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
-import { ProvideWaitForValidation, UpdateExpressionValidation } from 'src/features/validation/validationContext';
+import {
+  LoadingBlockerWaitForValidation,
+  ProvideWaitForValidation,
+  UpdateExpressionValidation,
+} from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { SelectorStrictness, useDelayedSelectorFactory } from 'src/hooks/delayedSelectors';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
@@ -296,10 +300,20 @@ const DataStore = createZustandContext<NodesDataStore, NodesDataContext>({
 });
 export type NodesDataStoreFull = typeof DataStore;
 
+function usePerformanceMark(name: string, enabled = true) {
+  const uniqueId = useId();
+  if (enabled && window.performance.getEntriesByName(name + uniqueId).length === 0) {
+    window.performance.mark(name + uniqueId);
+    return [name + uniqueId, true] as const;
+  }
+  return [name + uniqueId, false] as const;
+}
+
 export const NodesProvider = (props: React.PropsWithChildren) => {
-  if (window.performance.getEntriesByName('NodesProvider:start').length === 0) {
+  const [markName, started] = usePerformanceMark('NodesProvider:start');
+  if (started) {
     generatorLog('logStages', 'Starting node generation');
-    window.performance.mark('NodesProvider:start');
+    window.document.body.style.border = '20px solid red';
   }
 
   return (
@@ -313,10 +327,10 @@ export const NodesProvider = (props: React.PropsWithChildren) => {
         <InnerHiddenComponentsProvider />
         <MarkAsReady />
         {window.Cypress && <UpdateAttachmentsForCypress />}
-        <BlockUntilLoaded>
+        <BlockUntilLoaded startMark={markName}>
           <ProvideWaitForValidation />
           <UpdateExpressionValidation />
-          {props.children}
+          <LoadingBlockerWaitForValidation>{props.children}</LoadingBlockerWaitForValidation>
         </BlockUntilLoaded>
       </DataStore.Provider>
     </NodesStore.Provider>
@@ -353,20 +367,21 @@ function MarkAsReady() {
   return null;
 }
 
-function BlockUntilLoaded({ children }: PropsWithChildren) {
+function BlockUntilLoaded({ startMark, children }: PropsWithChildren<{ startMark: string }>) {
   const hasNodes = NodesStore.useSelector((state) => !!state.nodes);
 
   const isReady = DataStore.useSelector((s) => s.ready);
   const hasBeenReady = useRef(false);
   hasBeenReady.current = hasBeenReady.current || isReady;
+  const stillLoading = !hasNodes || (!isReady && !hasBeenReady.current);
+  const [endMark, ended] = usePerformanceMark('NodesProvider:stop', !stillLoading);
 
-  if (!hasNodes || (!isReady && !hasBeenReady.current)) {
+  if (stillLoading) {
     return <NodesLoader />;
   }
 
-  if (window.performance.getEntriesByName('NodesProvider:stop').length === 0) {
-    window.performance.mark('NodesProvider:stop');
-    const measure = window.performance.measure('NodesProvider', 'NodesProvider:start', 'NodesProvider:stop');
+  if (ended) {
+    const measure = window.performance.measure(endMark, startMark, endMark);
     generatorLog('logDuration', 'Initial generation of nodes took', measure.duration, 'ms');
   }
 

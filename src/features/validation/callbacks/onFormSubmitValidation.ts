@@ -97,7 +97,7 @@ export function useOnFormSubmitValidation() {
       return false;
     }
 
-    await validation.current.validating();
+    await validation.current.validating!();
     return callback();
   }, [callback, validation]);
 }

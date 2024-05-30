@@ -64,9 +64,7 @@ function initialCreateStore() {
           state.showAllErrors = newValue;
         }),
       showAllErrors: false,
-      validating: async () => {
-        throw new Error('Validating function not set yet');
-      },
+      validating: undefined,
 
       // =======
       // Internal state
@@ -168,6 +166,15 @@ export function ProvideWaitForValidation() {
   return null;
 }
 
+export function LoadingBlockerWaitForValidation({ children }: PropsWithChildren) {
+  const validating = useSelector((state) => state.validating);
+  if (!validating) {
+    return <Loader reason='validation-awaiter' />;
+  }
+
+  return <>{children}</>;
+}
+
 function LoadingBlocker({ children, shouldLoadValidations }: PropsWithChildren<InternalProps>) {
   const isLoading = useSelector((state) => state.isLoading);
   if (isLoading && shouldLoadValidations) {
@@ -260,7 +267,7 @@ export const Validation = {
   useFieldSelector: (): ValidationFieldSelector => useDelayedSelector((state) => state.state.fields),
 
   useSetShowAllErrors: () => useSelector((state) => state.setShowAllErrors),
-  useValidating: () => useSelector((state) => state.validating),
+  useValidating: () => useSelector((state) => state.validating!),
   useUpdateTaskValidations: () => useLaxSelector((state) => state.updateTaskValidations),
 
   useRef: () => useSelectorAsRef((state) => state),
