@@ -7,7 +7,7 @@ import { useHasTextResources } from 'src/features/language/textResources/TextRes
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useOrgs } from 'src/hooks/queries/useOrgs';
 
-export function useTextResourceOr<T extends string | undefined>(resource: string, fallback: T): string | T {
+export function useTextResourceWithFallback(resource: string, fallback?: string | undefined) {
   const { langAsString } = useLanguage();
 
   const fromResources = langAsString(resource);
@@ -28,8 +28,8 @@ export function useHasAppTextsYet() {
 export function useAppName() {
   const application = useApplicationMetadata();
 
-  const appName = useTextResourceOr('appName', undefined);
-  const oldAppName = useTextResourceOr('ServiceName', undefined);
+  const appName = useTextResourceWithFallback('appName', undefined);
+  const oldAppName = useTextResourceWithFallback('ServiceName', undefined);
   const selectedLanguage = useCurrentLanguage();
   const appNameFromMetadata = application.title[selectedLanguage] || application.title.nb;
 
@@ -39,19 +39,19 @@ export function useAppName() {
 export function useAppOwner() {
   const application = useApplicationMetadata();
   const fromMetaData = useOrgName(application.org);
-  return useTextResourceOr('appOwner', fromMetaData);
+  return useTextResourceWithFallback('appOwner', fromMetaData);
 }
 
 export function useAppReceiver() {
   const application = useApplicationMetadata();
   const fromMetaData = useOrgName(application.org);
-  return useTextResourceOr('appReceiver', fromMetaData);
+  return useTextResourceWithFallback('appReceiver', fromMetaData);
 }
 
 export function useAppLogoAltText() {
   const application = useApplicationMetadata();
   const fromMetaData = useOrgName(application.org);
-  return useTextResourceOr('appLogo.altText', fromMetaData);
+  return useTextResourceWithFallback('appLogo.altText', fromMetaData);
 }
 
 function useOrgName(org: string | undefined) {

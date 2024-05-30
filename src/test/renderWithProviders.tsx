@@ -238,7 +238,7 @@ export function InstanceRouter({
     >
       <Routes>
         <Route
-          path={'instance/:partyId/:instanceGuid/:taskId/:pageId'}
+          path={'instance/:partyId/:instanceGuid/:taskId/:pageId/*'}
           element={children}
         />
         <Route
