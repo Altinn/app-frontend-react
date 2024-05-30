@@ -112,6 +112,13 @@ function defaultMakeCacheKey(args: unknown[]): unknown[] {
     return [args[0].toString().trim(), ...args[1]];
   }
 
+  // If one arg, and it's a non-class object, we cache the object entries as an array
+  if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null && args[0].constructor === Object) {
+    return Object.entries(args[0])
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .flat();
+  }
+
   return args;
 }
 

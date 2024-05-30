@@ -8,6 +8,7 @@ import { useIsInFormContext } from 'src/features/form/FormContext';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { IDevToolsState } from 'src/features/devtools/data/types';
+import type { IsHiddenOptions } from 'src/utils/layout/NodesContext';
 
 const pseudoHiddenCssFilter = 'contrast(0.75)';
 
@@ -42,6 +43,7 @@ function InnerDevHiddenFunctionality() {
   );
 }
 
+const isHiddenOptions: IsHiddenOptions = { respectDevTools: false };
 function MarkHiddenComponents() {
   const state = useDevToolsStore((state) => state.hiddenComponents);
   const isHiddenSelector = Hidden.useIsHiddenSelector();
@@ -53,7 +55,7 @@ function MarkHiddenComponents() {
         ref.style.filter = '';
       } else if (state === 'disabled') {
         const node = traversalSelector((t) => t.findById(id), [id]);
-        const isHidden = node ? isHiddenSelector({ node, options: { respectDevTools: false } }) : true;
+        const isHidden = node ? isHiddenSelector({ node, options: isHiddenOptions }) : true;
         if (isHidden) {
           ref.style.filter = pseudoHiddenCssFilter;
         }

@@ -8,6 +8,7 @@ import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import type { CompCategory } from 'src/layout/common';
 import type { TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { IsHiddenOptions } from 'src/utils/layout/NodesContext';
 
 export function StoreValidationsInNode() {
   return (
@@ -20,6 +21,8 @@ export function StoreValidationsInNode() {
   );
 }
 
+const isHiddenOptions: IsHiddenOptions = { respectTracks: true };
+
 function PerformWork() {
   const item = GeneratorInternal.useIntermediateItem();
   const node = GeneratorInternal.useParent() as LayoutNode<
@@ -31,7 +34,7 @@ function PerformWork() {
   const shouldValidate = useMemo(
     () =>
       item !== undefined &&
-      !isHidden({ node, options: { respectTracks: true } }) &&
+      !isHidden({ node, options: isHiddenOptions }) &&
       !('renderAsSummary' in item && item.renderAsSummary),
     [isHidden, item, node],
   );

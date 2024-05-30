@@ -523,7 +523,6 @@ export const Hidden = {
     const nodeSelector = useNodeSelector();
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     return DataStore.useDelayedMemoSelectorFactory(
-      // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
       ({ node, options }: { node: NodeRef | LayoutNode | LayoutPage; options?: IsHiddenOptions }) =>
         (state) =>
           ignoreNodePathNotFound(
@@ -680,7 +679,6 @@ export const NodesInternal = {
   },
   useNodeDataMemoSelector: () =>
     DataStore.useDelayedMemoSelectorFactory<NodeDataSelectorProp<LayoutNode | undefined>, unknown>(
-      // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
       ({ node, path }) =>
         (state) =>
           ignoreNodePathNotFound(
@@ -693,7 +691,6 @@ export const NodesInternal = {
       NodeDataSelectorProp<LayoutNode | undefined>,
       unknown | typeof ContextNotProvided
     >(
-      // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
       ({ node, path }) =>
         (state) =>
           ignoreNodePathNotFound(
