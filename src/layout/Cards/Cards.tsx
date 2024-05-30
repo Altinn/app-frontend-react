@@ -13,10 +13,15 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ICardsProps = PropsFromGenericComponent<'Cards'>;
 
-export const Cards = ({ node }: ICardsProps) => {
-  const { cardsInternal, minMediaHeight, minWidth, color, mediaPosition } = node.item;
+function parseSize(size: string | undefined, defaultValue: string): string {
+  return size && /^[0-9]+$/.test(size) ? `${size}px` : size ?? defaultValue;
+}
 
-  const processedMinWidth = minWidth && /^[0-9]+$/.test(minWidth) ? `${minWidth}px` : minWidth ?? '250px';
+export const Cards = ({ node }: ICardsProps) => {
+  const { cardsInternal, minMediaHeight, minWidth, color, mediaPosition: _mediaPosition } = node.item;
+  const processedMinWidth = parseSize(minWidth, '250px');
+  const processedMinMediaHeight = parseSize(minMediaHeight, '150px');
+  const mediaPosition = _mediaPosition ?? 'top';
 
   const cardContainer: CSSProperties = {
     display: 'grid',
@@ -36,7 +41,7 @@ export const Cards = ({ node }: ICardsProps) => {
             <Media
               card={card}
               node={node}
-              minMediaHeight={minMediaHeight}
+              minMediaHeight={processedMinMediaHeight}
             />
           )}
           {card.title && (
@@ -85,7 +90,7 @@ export const Cards = ({ node }: ICardsProps) => {
             <Media
               card={card}
               node={node}
-              minMediaHeight={minMediaHeight}
+              minMediaHeight={processedMinMediaHeight}
             />
           )}
         </Card>

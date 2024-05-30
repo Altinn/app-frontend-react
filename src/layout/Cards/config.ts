@@ -29,7 +29,7 @@ export const Config = new CG.component({
       new CG.str()
         .setTitle('minMediaHeight')
         .setDescription('Fixed minimum height of media (if media is present)')
-        .optional()
+        .optional({ default: '150px' })
         .addExample('100px', '100%', '100rem'),
     ),
   )
