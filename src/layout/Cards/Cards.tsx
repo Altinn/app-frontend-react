@@ -44,9 +44,9 @@ export const Cards = ({ node }: ICardsProps) => {
               <Lang id={card.title} />
             </Card.Header>
           )}
-          {card.body && (
+          {card.description && (
             <Card.Content>
-              <Lang id={card.body} />
+              <Lang id={card.description} />
             </Card.Content>
           )}
           {card.childNodes.length > 0 && (
@@ -62,18 +62,17 @@ export const Cards = ({ node }: ICardsProps) => {
                 item={true}
                 spacing={3}
               >
-                {card.childNodes.map((childNode, idx) => (
-                  <CardProvider
-                    key={node.item.id}
-                    node={node}
-                    renderedInMedia={false}
-                  >
+                <CardProvider
+                  node={node}
+                  renderedInMedia={false}
+                >
+                  {card.childNodes.map((childNode, idx) => (
                     <GenericComponent
                       key={idx}
                       node={childNode}
                     />
-                  </CardProvider>
-                ))}
+                  ))}
+                </CardProvider>
               </Grid>
             </Grid>
           )}

@@ -68,7 +68,13 @@ export const Config = new CG.component({
               .optional(),
           ),
           new CG.prop('title', new CG.str().setTitle('Title').setDescription('Title of the card').optional()),
-          new CG.prop('body', new CG.str().setTitle('Body text').setDescription('Body text of the card').optional()),
+          new CG.prop(
+            'description',
+            new CG.str()
+              .setTitle('Description/body text')
+              .setDescription('Full text displayed underneath the title, above any component children')
+              .optional(),
+          ),
           new CG.prop('footer', new CG.str().setTitle('Footer').setDescription('Footer text of the card').optional()),
           new CG.prop(
             'children',
@@ -87,9 +93,9 @@ export const Config = new CG.component({
       new CG.arr(
         new CG.obj(
           new CG.prop('mediaNode', new CG.union(CG.layoutNode, new CG.raw({ typeScript: 'undefined' }))),
-          new CG.prop('title', new CG.str().setTitle('Title').setDescription('Title of the card').optional()),
-          new CG.prop('body', new CG.str().setTitle('Body text').setDescription('Body text of the card').optional()),
-          new CG.prop('footer', new CG.str().setTitle('Footer').setDescription('Footer text of the card').optional()),
+          new CG.prop('title', new CG.str().optional()),
+          new CG.prop('description', new CG.str().optional()),
+          new CG.prop('footer', new CG.str().optional()),
           new CG.prop(
             'childNodes',
             new CG.arr(CG.layoutNode)
