@@ -20,13 +20,6 @@ export const Config = new CG.component({
       description: 'Alternative text for the video (for screen readers).',
     }),
   )
-  .addTextResource(
-    new CG.trb({
-      name: 'help',
-      title: 'Help text',
-      description: 'Help text for the video (shown in help text tooltip/popup)',
-    }),
-  )
   .addProperty(
     new CG.prop(
       'video',
