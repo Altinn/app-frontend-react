@@ -11,19 +11,11 @@ import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/Appl
 import { createFooterComponent } from 'src/features/footer';
 import classes from 'src/features/footer/Footer.module.css';
 
-// Also used for prefetching @see appPrefetcher.ts
-export function useFooterLayoutQueryDef() {
+export const Footer = () => {
   const { fetchFooterLayout } = useAppQueries();
-  return {
+  const { data, error: footerLayoutError } = useQuery({
     queryKey: ['fetchFooterLayout'],
     queryFn: fetchFooterLayout,
-  };
-}
-
-export const Footer = () => {
-  const footerQueryDef = useFooterLayoutQueryDef();
-  const { data, error: footerLayoutError } = useQuery({
-    ...footerQueryDef,
     staleTime: 1000 * 60 * 60 * 24, // 24 hours
   });
 
