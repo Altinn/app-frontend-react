@@ -60,12 +60,13 @@ function getEditButtonText(
   langTools: IUseLanguage,
   textResourceBindings: CompRepeatingGroupInternal['textResourceBindings'] | undefined,
 ) {
-  let buttonTextKey: string;
-  if (isEditing) {
-    buttonTextKey = textResourceBindings?.edit_button_close ?? 'general.save_and_close';
-  } else {
-    buttonTextKey = textResourceBindings?.edit_button_open ?? 'general.edit_alt';
-  }
+  const buttonTextKey = isEditing
+    ? textResourceBindings?.edit_button_close
+      ? textResourceBindings?.edit_button_close
+      : 'general.save_and_close'
+    : textResourceBindings?.edit_button_open
+      ? textResourceBindings?.edit_button_open
+      : 'general.edit_alt';
   return langTools.langAsString(buttonTextKey);
 }
 
