@@ -340,12 +340,12 @@ export function shouldEditInTable(
   tableNode: LayoutNode,
   columnSettings: CompRepeatingGroupExternal['tableColumns'],
 ) {
-  const column = columnSettings?.[tableNode.item.baseComponentId ?? tableNode.item.id];
+  const column = columnSettings && columnSettings[tableNode.item.baseComponentId || tableNode.item.id];
   if (groupEdit?.mode === 'onlyTable' && column?.editInTable !== false) {
     return tableNode.def.canRenderInTable();
   }
 
-  if (column?.editInTable) {
+  if (column && column.editInTable) {
     return tableNode.def.canRenderInTable();
   }
 
