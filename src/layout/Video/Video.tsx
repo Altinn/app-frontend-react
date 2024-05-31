@@ -11,7 +11,7 @@ export function VideoComponent({ node }: IVideoProps) {
   const { langAsString } = useLanguage();
   const { id, video, textResourceBindings } = node.item;
   const languageKey = useCurrentLanguage();
-  const altText = textResourceBindings?.altTextVideo ? langAsString(textResourceBindings.altTextVideo) : undefined;
+  const altText = textResourceBindings?.altText ? langAsString(textResourceBindings.altText) : undefined;
   const videoSrc = video?.src?.[languageKey] || '';
   const renderedInCardMedia = useParentCard()?.renderedInMedia;
   const cardMediaHeight = useParentCard()?.minMediaHeight;

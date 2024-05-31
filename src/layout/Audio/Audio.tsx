@@ -11,7 +11,7 @@ export function AudioComponent({ node }: IAudioProps) {
   const { langAsString } = useLanguage();
   const { id, audio, textResourceBindings } = node.item;
   const languageKey = useCurrentLanguage();
-  const altText = textResourceBindings?.altTextAudio ? langAsString(textResourceBindings.altTextAudio) : undefined;
+  const altText = textResourceBindings?.altText ? langAsString(textResourceBindings.altText) : undefined;
   const audioSrc = audio?.src?.[languageKey] || '';
   const renderedInCardMedia = useParentCard()?.renderedInMedia;
   const cardMediaHeight = useParentCard()?.minMediaHeight;

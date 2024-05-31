@@ -15,7 +15,7 @@ export const Config = new CG.component({
 })
   .addTextResource(
     new CG.trb({
-      name: 'altTextVideo',
+      name: 'altText',
       title: 'Alt text',
       description: 'Alternative text for the video (for screen readers).',
     }),

@@ -15,7 +15,7 @@ export const Config = new CG.component({
 })
   .addTextResource(
     new CG.trb({
-      name: 'altTextAudio',
+      name: 'altText',
       title: 'Alt text',
       description: 'Alternative text for the audio (for screen readers).',
     }),
