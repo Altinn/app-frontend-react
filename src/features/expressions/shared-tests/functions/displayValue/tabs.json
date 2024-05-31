@@ -1,0 +1,26 @@
+{
+  "name": "Display value of TabGroup component",
+  "expression": [
+    "displayValue",
+    "tabgroup"
+  ],
+  "context": {
+    "component": "tabgroup",
+    "currentLayout": "Page"
+  },
+  "expects": "",
+  "layouts": {
+    "Page": {
+      "$schema": "https://altinncdn.no/schemas/json/layout/layout.schema.v1.json",
+      "data": {
+        "layout": [
+          {
+            "id": "tabgroup",
+            "type": "TabGroup",
+            "children": []
+          }
+        ]
+      }
+    }
+  }
+}
