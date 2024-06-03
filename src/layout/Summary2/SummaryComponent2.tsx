@@ -99,6 +99,7 @@ interface ResolveComponentProps {
 
 function ResolveComponent({ summaryProps }: ResolveComponentProps) {
   const resolvedComponent = useNode(summaryProps.whatToRender.id);
+  // const summaryPropsFromComponent = resolvedComponent?.item.summaryProps ? resolvedComponent.item.summaryProps : {};
 
   if (!resolvedComponent) {
     return null;

@@ -1,4 +1,4 @@
-import { CG } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
@@ -23,6 +23,29 @@ export const Config = new CG.component({
         .setTitle('Alert on change')
         .setDescription('Boolean value indicating if the component should alert on uncheck'),
     ),
+  )
+  .addProperty(
+    new CG.prop(
+      'summaryProps',
+      new CG.obj(
+        new CG.prop(
+          'hidden',
+          new CG.bool()
+            .optional()
+            .setTitle('Hidden')
+            .setDescription('Boolean value indicating if the component should be hidden in the summary'),
+        ),
+        new CG.prop(
+          'displayType',
+          new CG.enum('list', 'string')
+            .setTitle('Display type')
+            .setDescription('How data should be displayed for the radio in the summary'),
+        ),
+      )
+        .optional()
+        .setTitle('Summary properties')
+        .setDescription('Properties for how to display the summary of the component'),
+    ).onlyIn(Variant.Internal),
   );
 // We don't render the label in GenericComponent, but we still need the
 // text resource bindings for rendering them on our own

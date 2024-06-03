@@ -1,4 +1,4 @@
-import { CG } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
@@ -32,6 +32,23 @@ export const Config = new CG.component({
         .setTitle('Show as card')
         .setDescription('Boolean value indicating if the options should be displayed as cards. Defaults to false.'),
     ),
+  )
+  .addProperty(
+    new CG.prop(
+      'summaryProps',
+      new CG.obj(
+        new CG.prop(
+          'hidden',
+          new CG.bool()
+            .optional()
+            .setTitle('Hidden')
+            .setDescription('Boolean value indicating if the component should be hidden in the summary'),
+        ),
+      )
+        .optional()
+        .setTitle('Summary properties')
+        .setDescription('Properties for how to display the summary of the component'),
+    ).onlyIn(Variant.Internal),
   );
 
 // We don't render the label in GenericComponent, but we still need the

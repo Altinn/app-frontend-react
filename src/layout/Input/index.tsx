@@ -50,6 +50,8 @@ export class Input extends InputDef {
   renderSummary2(componentNode: LayoutNode<'Input'>): JSX.Element | null {
     const { textResourceBindings } = componentNode.item;
     const displayData = this.useDisplayData(componentNode);
+    console.log('componentNode', componentNode);
+    console.log('textResourceBindings', textResourceBindings);
     return (
       <>
         <Label weight={'regular'}>
