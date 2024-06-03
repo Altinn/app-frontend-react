@@ -9,6 +9,7 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
 import type { IParty } from 'src/types/shared';
@@ -105,8 +106,39 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
   },
 });
 
+const GetValidParties = (parties: IParty[]): IParty[] => {
+  const appMetadata = useApplicationMetadata();
+
+  const flattenParties = (parties: IParty[]): IParty[] => {
+    const result: IParty[] = [];
+    const stack = [...parties];
+
+    while (stack.length) {
+      const current = stack.pop();
+      if (current) {
+        result.push(current);
+        if (current.childParties) {
+          stack.push(...current.childParties);
+        }
+      }
+    }
+
+    return result;
+  };
+
+  if (appMetadata) {
+    const { partyTypesAllowed } = appMetadata;
+    if (partyTypesAllowed.subUnit) {
+      const allParties = flattenParties(parties);
+      return allParties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
+    }
+  }
+
+  return parties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
+};
+
 const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
-  const validParties = usePartiesCtx() as IParty[];
+  const validParties = GetValidParties(usePartiesCtx() as IParty[]);
   const [sentToMutation, setSentToMutation] = useState<IParty | undefined>(undefined);
   const { mutateAsync, data: dataFromMutation, error: errorFromMutation } = useSetCurrentPartyMutation();
   const { data: partyFromQuery, isLoading, error: errorFromQuery } = useCurrentPartyQuery(true);
