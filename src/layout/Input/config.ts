@@ -1,4 +1,5 @@
 import { CG } from 'src/codegen/CG';
+import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -11,6 +12,20 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
+  .addTextResource(
+    new CG.trb({
+      name: 'prefix',
+      title: 'Prefix',
+      description: 'Prefix shown next to the input field',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'suffix',
+      title: 'Suffix',
+      description: 'Suffix shown next to the input field',
+    }),
+  )
   .addDataModelBinding(CG.common('IDataModelBindingsSimple'))
   .addProperty(new CG.prop('saveWhileTyping', CG.common('SaveWhileTyping').optional({ default: true })))
   .addProperty(
@@ -86,8 +101,8 @@ export const Config = new CG.component({
               new CG.prop('fixedDecimalScale', new CG.bool().optional()),
               new CG.prop('allowNegative', new CG.bool().optional()),
               new CG.prop('allowLeadingZeros', new CG.bool().optional()),
-              new CG.prop('suffix', new CG.str().optional()),
-              new CG.prop('prefix', new CG.str().optional()),
+              new CG.prop('suffix', new CG.expr(ExprVal.String).optional()),
+              new CG.prop('prefix', new CG.expr(ExprVal.String).optional()),
             )
               .exportAs('NumberFormatProps')
               .setTitle('Number formatting options')

@@ -928,6 +928,20 @@ export const ExprConfigForComponent: ExprObjConfig<CompExternal> = {
     defaultValue: false,
     resolvePerRow: false,
   },
+  formatting: {
+    number: {
+      prefix: {
+        returnType: ExprVal.String,
+        defaultValue: '',
+        resolvePerRow: false,
+      },
+      suffix: {
+        returnType: ExprVal.String,
+        defaultValue: '',
+        resolvePerRow: false,
+      },
+    },
+  },
 };
 
 export const ExprConfigForGroup:
