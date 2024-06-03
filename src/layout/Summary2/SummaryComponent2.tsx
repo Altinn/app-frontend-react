@@ -49,7 +49,7 @@ function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryP
     return null;
   }
 
-  const overrides = summaryOverrides.find((override) => override.componentId === componentNode.item.id);
+  const overrides = summaryOverrides?.find((override) => override.componentId === componentNode.item.id);
 
   const childComponents =
     componentNode.item.type === 'Group' &&

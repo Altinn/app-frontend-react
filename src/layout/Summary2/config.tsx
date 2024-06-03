@@ -47,5 +47,8 @@ export const Config = new CG.component({
     ),
   )
   .addProperty(
-    new CG.prop('overWriteProperties', new CG.arr(new CG.union(INPUT_SUMMARY_PROPS, CHECKBOX_SUMMARY_PROPS))),
+    new CG.prop(
+      'overWriteProperties',
+      new CG.arr(new CG.union(INPUT_SUMMARY_PROPS, CHECKBOX_SUMMARY_PROPS)).optional(),
+    ),
   );
