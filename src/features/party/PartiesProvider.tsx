@@ -145,6 +145,7 @@ const GetValidParties = (parties: IParty[]): IParty[] => {
     );
   }
 
+  // Fallback to allowing only top-level party types if app metadata is not available
   return allParties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
 };
 
