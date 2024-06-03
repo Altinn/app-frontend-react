@@ -101,6 +101,7 @@ export function en() {
       houseNumber: 'House Number',
       postPlace: 'Post Place',
       zipCode: 'Zip Code',
+      no_options_found: 'No matches found',
     },
     navigation: {
       main: 'App navigation',

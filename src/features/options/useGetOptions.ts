@@ -59,10 +59,8 @@ interface Props<T extends ValueType> {
 }
 
 type CurrentValue<T extends ValueType> = T extends 'single' ? IOptionInternal | undefined : IOptionInternal[];
-type CurrentValueAsString<T extends ValueType> = T extends 'single' ? string : string[];
-type ValueSetter<T extends ValueType> = T extends 'single'
-  ? (value: string | IOptionInternal) => void
-  : (value: string[] | IOptionInternal[]) => void;
+type CurrentValueAsString = string[];
+type ValueSetter = (values: string[]) => void;
 
 export interface OptionsResult<T extends ValueType> {
   // The current value, as an option (for single-option components) or an array of options (for multi-option components)
@@ -73,11 +71,11 @@ export interface OptionsResult<T extends ValueType> {
   // The current value, as a string (for single-option components) or an array of strings (for multi-option components)
   // This is useful if the downstream component you're using does not support options objects. Also, the value is
   // guaranteed to be stringy even if the underlying options JSON and/or data model contains numbers, booleans, etc.
-  currentStringy: CurrentValueAsString<T>;
+  currentStringy: CurrentValueAsString;
 
   // Function to set the current value. The value can be either a string or an option object. For multi-option
   // components, you always set the value of all the selected options at the same time, not just one of them.
-  setData: ValueSetter<T>;
+  setData: ValueSetter;
 
   // The final list of options deduced from the component settings. This will be an array of objects, where each object
   // has a string-typed 'value' property, regardless of the underlying options configuration.
@@ -97,8 +95,8 @@ interface EffectProps<T extends ValueType> {
   disable: boolean;
   valueType: T;
   preselectedOption: IOptionInternal | undefined;
-  currentValue: CurrentValueAsString<T>;
-  setValue: ValueSetter<T>;
+  currentValue: CurrentValueAsString;
+  setValue: ValueSetter;
 }
 
 const defaultOptions: IOptionInternal[] = [];
@@ -197,19 +195,10 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     return alwaysOptions.filter((option) => stringValues.includes(option.value)) as CurrentValue<T>;
   }, [value, valueType, alwaysOptions]);
 
-  const currentStringy = useMemo(() => {
-    if (valueType === 'single') {
-      return (value || '') as CurrentValueAsString<T>;
-    }
-    return (value ? value.split(',') : []) as CurrentValueAsString<T>;
-  }, [value, valueType]);
+  const currentStringy = useMemo(() => (value ? value.split(',') : []) as CurrentValueAsString, [value]);
 
   const translatedLabels = useMemo(
-    () =>
-      getLabelsForActiveOptions(
-        Array.isArray(currentStringy) ? currentStringy : [currentStringy],
-        calculatedOptions || [],
-      ).map((label) => langAsString(label)),
+    () => getLabelsForActiveOptions(currentStringy, calculatedOptions || []).map((label) => langAsString(label)),
 
     [calculatedOptions, currentStringy, langAsString],
   );
@@ -233,17 +222,13 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     }
   }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, valueType]);
 
-  const setData = useMemo(() => {
-    if (valueType === 'single') {
-      return (value: string | IOptionInternal) =>
-        setValue('simpleBinding', typeof value === 'string' ? value : value.value);
-    }
-
-    return (value: (string | IOptionInternal)[]) => {
-      const asString = value.map((v) => (typeof v === 'string' ? v : v.value)).join(',');
+  const setData = useMemo(
+    () => (values: string[]) => {
+      const asString = values.join(',');
       setValue('simpleBinding', asString);
-    };
-  }, [setValue, valueType]) as ValueSetter<T>;
+    },
+    [setValue],
+  ) as ValueSetter;
 
   const effectProps: EffectProps<T> = useMemo(
     () => ({
@@ -281,11 +266,7 @@ function usePreselectedOptionIndex<T extends ValueType>(props: EffectProps<T>) {
 
   useEffect(() => {
     if (shouldSelectOptionAutomatically && preselectedOption !== undefined && !disable) {
-      if (isMulti(props)) {
-        props.setValue([preselectedOption]);
-      } else if (isSingle(props)) {
-        props.setValue(preselectedOption);
-      }
+      props.setValue([preselectedOption.value]);
       hasSelectedInitial.current = true;
     }
   }, [disable, preselectedOption, props, shouldSelectOptionAutomatically]);
@@ -304,17 +285,10 @@ function useRemoveStaleValues<T extends ValueType>(props: EffectProps<T>) {
       return;
     }
 
-    if (options && isSingle(props)) {
-      const { currentValue, setValue } = props;
-      if (currentValue && !options.find((option) => option.value === currentValue)) {
-        setValue('');
-      }
-    } else if (options && isMulti(props)) {
-      const { currentValue, setValue } = props;
-      const itemsToRemove = currentValue.filter((v) => !options.find((option) => option.value === v));
-      if (itemsToRemove.length > 0) {
-        setValue(currentValue.filter((v) => !itemsToRemove.includes(v)));
-      }
+    const { currentValue, setValue } = props;
+    const itemsToRemove = currentValue.filter((v) => !options?.find((option) => option.value === v));
+    if (itemsToRemove.length > 0) {
+      setValue(currentValue.filter((v) => !itemsToRemove.includes(v)));
     }
   }, [disable, options, props]);
 }

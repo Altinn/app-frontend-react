@@ -22,7 +22,7 @@ export function ParagraphComponent({ node }: IParagraphProps) {
   return (
     <span className={classes.paragraphWrapper}>
       <Paragraph
-        as={hasInlineContent ? 'p' : 'div'}
+        asChild={!hasInlineContent}
         id={id}
         data-testid={`paragraph-component-${id}`}
       >

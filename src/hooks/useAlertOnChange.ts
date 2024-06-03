@@ -22,8 +22,8 @@ export function useAlertOnChange<Fn extends ChangeFn>(
   onChange: Fn,
   shouldAlert?: (...args: Parameters<Fn>) => boolean,
 ): AlertOnChange<Fn> {
-  const [alertOpen, setAlertOpen] = useState(false);
-  const argsRef = useRef<any[]>();
+  const [alertOpen, _setAlertOpen] = useState(false);
+  const argsRef = useRef<Parameters<Fn>>();
 
   const handleChange = useCallback(
     (...args: Parameters<Fn>) => {
@@ -34,7 +34,7 @@ export function useAlertOnChange<Fn extends ChangeFn>(
           event.preventDefault();
         }
         argsRef.current = args;
-        setAlertOpen(true);
+        _setAlertOpen(true);
       } else {
         onChange(...args);
       }
@@ -43,7 +43,7 @@ export function useAlertOnChange<Fn extends ChangeFn>(
   ) as Fn;
 
   const confirmChange = useCallback(() => {
-    setAlertOpen(false);
+    _setAlertOpen(false);
     if (argsRef.current) {
       onChange(...argsRef.current);
     }
@@ -52,23 +52,23 @@ export function useAlertOnChange<Fn extends ChangeFn>(
 
   const cancelChange = useCallback(() => {
     argsRef.current = undefined;
-    setAlertOpen(false);
+    _setAlertOpen(false);
   }, []);
 
   // Prevent the alert from opening from the outside
   // In that case there will be no event to pass through
   // Also make sure if the alert is closed from the outside
   // that the args are cleared
-  const _setAlertOpen = useCallback((open: boolean) => {
+  const setAlertOpen = useCallback((open: boolean) => {
     if (!open) {
       argsRef.current = undefined;
-      setAlertOpen(false);
+      _setAlertOpen(false);
     }
   }, []);
 
   return {
     alertOpen,
-    setAlertOpen: _setAlertOpen,
+    setAlertOpen,
     handleChange,
     confirmChange,
     cancelChange,

@@ -101,6 +101,7 @@ export function nn(): FixedLanguageList {
       houseNumber: 'Bustadnummer',
       postPlace: 'Poststad',
       zipCode: 'Postnr',
+      no_options_found: 'Fann ingen treff',
     },
     navigation: {
       main: 'Appnavigasjon',

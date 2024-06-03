@@ -84,7 +84,9 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
             alertOnChange={alertOnChange}
             checked={current.includes(option)}
             setChecked={(isChecked) => {
-              const newData = isChecked ? [...current, option] : current.filter((o) => o !== option);
+              const newData = isChecked
+                ? [...currentStringy, option.value]
+                : currentStringy.filter((o) => o !== option.value);
               setData(newData);
             }}
           />

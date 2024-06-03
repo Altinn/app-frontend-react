@@ -16,11 +16,11 @@ export const useRadioButtons = ({ node }: IRadioButtonsContainerProps) => {
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setData(event.target.value);
+    setData([event.target.value]);
   };
 
   const handleChangeRadioGroup = (value: string) => {
-    setData(value);
+    setData([value]);
   };
 
   return {

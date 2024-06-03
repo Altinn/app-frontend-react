@@ -67,7 +67,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
         </Typography>
       </Table.Cell>
       {calculatedOptions?.map((option) => {
-        const isChecked = selected === option.value;
+        const isChecked = selected[0] === option.value;
         return (
           <Table.Cell key={option.value}>
             <Radio
