@@ -140,12 +140,11 @@ const GetValidParties = (parties: IParty[]): IParty[] => {
     };
 
     return allParties.filter(
-      (party) =>
-        !party.isDeleted && !party.onlyHierarchyElementWithNoAccess && partyTypeFilters[party.partyTypeName] !== false,
+      (party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess && partyTypeFilters[party.partyTypeName],
     );
   }
 
-  // Fallback to allowing only top-level party types if app metadata is not available
+  // Fallback to allowing all parties if app metadata is not available
   return allParties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
 };
 
