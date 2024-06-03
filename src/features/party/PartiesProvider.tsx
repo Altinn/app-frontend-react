@@ -131,18 +131,18 @@ const GetValidParties = (parties: IParty[]): IParty[] => {
   // Filter out parties that are not allowed by the app metadata
   if (appMetadata) {
     const { partyTypesAllowed } = appMetadata;
-    if (!partyTypesAllowed.organisation) {
-      allParties.filter((party) => party.partyTypeName !== PartyType.Organisation);
-    }
-    if (!partyTypesAllowed.subUnit) {
-      allParties.filter((party) => party.partyTypeName !== PartyType.SubUnit);
-    }
-    if (!partyTypesAllowed.person) {
-      allParties.filter((party) => party.partyTypeName !== PartyType.Person);
-    }
-    if (!partyTypesAllowed.bankruptcyEstate) {
-      allParties.filter((party) => party.partyTypeName !== PartyType.BankruptcyEstate);
-    }
+
+    const partyTypeFilters = {
+      [PartyType.Organisation]: partyTypesAllowed.organisation,
+      [PartyType.SubUnit]: partyTypesAllowed.subUnit,
+      [PartyType.Person]: partyTypesAllowed.person,
+      [PartyType.BankruptcyEstate]: partyTypesAllowed.bankruptcyEstate,
+    };
+
+    return allParties.filter(
+      (party) =>
+        !party.isDeleted && !party.onlyHierarchyElementWithNoAccess && partyTypeFilters[party.partyTypeName] !== false,
+    );
   }
 
   return allParties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
