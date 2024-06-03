@@ -13,7 +13,7 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IInputFormatting } from 'src/layout/Input/config.generated';
+import type { CompInputInternal, IInputFormatting } from 'src/layout/Input/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export class Input extends InputDef {
@@ -47,11 +47,16 @@ export class Input extends InputDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(componentNode: LayoutNode<'Input'>): JSX.Element | null {
+  renderSummary2(
+    componentNode: LayoutNode<'Input'>,
+    summaryOverrides?: CompInputInternal['summaryProps'],
+  ): JSX.Element | null {
+    if (summaryOverrides?.hidden) {
+      return <h1>Im so hidden!!!</h1>;
+    }
+
     const { textResourceBindings } = componentNode.item;
     const displayData = this.useDisplayData(componentNode);
-    console.log('componentNode', componentNode);
-    console.log('textResourceBindings', textResourceBindings);
     return (
       <>
         <Label weight={'regular'}>
