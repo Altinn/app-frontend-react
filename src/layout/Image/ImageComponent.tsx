@@ -6,7 +6,6 @@ import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { sanitizeImgSrcAndType } from 'src/utils/imageUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IImageProps = PropsFromGenericComponent<'Image'>;
@@ -26,9 +25,12 @@ export function ImageComponent({ node }: IImageProps) {
   const align = image?.align ?? 'center';
   const altText = textResourceBindings?.altTextImg && langAsString(textResourceBindings.altTextImg);
 
-  const originalImgSrc = image?.src[languageKey] ?? image?.src.nb ?? '';
-  const { imgSrc, imgType } = sanitizeImgSrcAndType(originalImgSrc);
+  let imgSrc = image?.src[languageKey] ?? image?.src.nb ?? '';
+  if (imgSrc.startsWith('wwwroot')) {
+    imgSrc = imgSrc.replace('wwwroot', `/${window.org}/${window.app}`);
+  }
 
+  const imgType = imgSrc.slice(-3);
   const renderSvg = imgType.toLowerCase() === 'svg';
 
   return (

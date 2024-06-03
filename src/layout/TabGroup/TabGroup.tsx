@@ -5,7 +5,6 @@ import { Tabs } from '@digdir/designsystemet-react';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { sanitizeImgSrcAndType } from 'src/utils/imageUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -57,11 +56,13 @@ function TabHeader({ node, isActive }: { node: LayoutNode<'Tab'>; isActive?: boo
   const { langAsString } = useLanguage();
   const title = langAsString(node.item.textResourceBindings?.['title']);
 
-  let iconSrc: string | undefined;
+  const iconSrc: string | undefined = node.item.icon;
+  if (iconSrc) {
+    const imgType = iconSrc.split('.').at(-1);
 
-  if (node.item.icon) {
-    const { imgSrc, imgType } = sanitizeImgSrcAndType(node.item.icon);
-    iconSrc = imgSrc;
+    if (!imgType) {
+      throw new Error('Image source is missing file type. Are you sure the image source is correct?');
+    }
 
     if (imgType.toLowerCase() !== 'svg') {
       throw new Error('Only SVG icons are supported');
