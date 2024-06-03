@@ -940,6 +940,21 @@ export const ExprConfigForComponent: ExprObjConfig<CompExternal> = {
         defaultValue: '',
         resolvePerRow: false,
       },
+      thousandSeparator: {
+        returnType: ExprVal.Any,
+        defaultValue: '',
+        resolvePerRow: false,
+      },
+      decimalSeparator: {
+        returnType: ExprVal.String,
+        defaultValue: '',
+        resolvePerRow: false,
+      },
+      format: {
+        returnType: ExprVal.String,
+        defaultValue: '',
+        resolvePerRow: false,
+      },
     },
   },
 };

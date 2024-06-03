@@ -87,14 +87,17 @@ export const Config = new CG.component({
           'number',
           new CG.union(
             new CG.obj(
-              new CG.prop('format', new CG.str()),
+              new CG.prop('format', new CG.expr(ExprVal.String)),
               new CG.prop('mask', new CG.union(new CG.str(), new CG.arr(new CG.str())).optional()),
               new CG.prop('allowEmptyFormatting', new CG.bool().optional()),
               new CG.prop('patternChar', new CG.str().optional()),
             ).exportAs('PatternFormatProps'),
             new CG.obj(
-              new CG.prop('thousandSeparator', new CG.union(new CG.bool(), new CG.str()).optional()),
-              new CG.prop('decimalSeparator', new CG.str().optional()),
+              new CG.prop(
+                'thousandSeparator',
+                new CG.union(new CG.expr(ExprVal.Boolean), new CG.expr(ExprVal.String)).optional(),
+              ),
+              new CG.prop('decimalSeparator', new CG.expr(ExprVal.String).optional()),
               new CG.prop('allowedDecimalSeparators', new CG.arr(new CG.str()).optional()),
               new CG.prop('thousandsGroupStyle', new CG.enum('thousand', 'lakh', 'wan', 'none').optional()),
               new CG.prop('decimalScale', new CG.num().optional()),
