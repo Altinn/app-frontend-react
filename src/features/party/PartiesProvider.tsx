@@ -12,7 +12,7 @@ import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
-import type { IParty } from 'src/types/shared';
+import { type IParty, PartyType } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
@@ -126,15 +126,26 @@ const GetValidParties = (parties: IParty[]): IParty[] => {
     return result;
   };
 
+  const allParties = flattenParties(parties);
+
+  // Filter out parties that are not allowed by the app metadata
   if (appMetadata) {
     const { partyTypesAllowed } = appMetadata;
-    if (partyTypesAllowed.subUnit) {
-      const allParties = flattenParties(parties);
-      return allParties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
+    if (!partyTypesAllowed.organisation) {
+      allParties.filter((party) => party.partyTypeName !== PartyType.Organisation);
+    }
+    if (!partyTypesAllowed.subUnit) {
+      allParties.filter((party) => party.partyTypeName !== PartyType.SubUnit);
+    }
+    if (!partyTypesAllowed.person) {
+      allParties.filter((party) => party.partyTypeName !== PartyType.Person);
+    }
+    if (!partyTypesAllowed.bankruptcyEstate) {
+      allParties.filter((party) => party.partyTypeName !== PartyType.BankruptcyEstate);
     }
   }
 
-  return parties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
+  return allParties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
 };
 
 const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
