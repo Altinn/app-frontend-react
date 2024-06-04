@@ -11,6 +11,11 @@
   color: var(--semantic-text-neutral-default);
 }
 
+/* Workaround for the design-system aggressively setting the font to 'Inter' */
+[class^='fds-'] {
+  font-family: var(--font-family);
+}
+
 /* Override design system variables */
 * {
   --component-panel-font_size-header-breakpoint_sm: 1.4rem;
