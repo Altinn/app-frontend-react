@@ -19,8 +19,8 @@ import type { TextfieldProps } from '@digdir/designsystemet-react/dist/types/com
 
 interface InputComponentProps extends Omit<TextfieldProps, 'prefix' | 'suffix'> {
   textOnly?: boolean;
-  prefixExternal?: string;
-  suffixExternal?: string;
+  prefixText?: string;
+  suffixText?: string;
 }
 
 const TextOnly: React.FunctionComponent<TextfieldProps> = ({ className, id, value }) => {
@@ -49,7 +49,7 @@ const TextOnly: React.FunctionComponent<TextfieldProps> = ({ className, id, valu
 // of the TextField and the react-number-format components which also have a 'size' prop
 // The prefix/suffix props from the design system also conflicts with react-number-format
 const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) => {
-  const { size: _, textOnly, prefixExternal, suffixExternal, ...customProps } = props;
+  const { size: _, textOnly, prefixText, suffixText, ...customProps } = props;
 
   if (textOnly) {
     return <TextOnly {...customProps}></TextOnly>;
@@ -58,8 +58,8 @@ const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) =
   return (
     <Textfield
       size={'small'}
-      prefix={prefixExternal}
-      suffix={suffixExternal}
+      prefix={prefixText}
+      suffix={suffixText}
       {...customProps}
     ></Textfield>
   );

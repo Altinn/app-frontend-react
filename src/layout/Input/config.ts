@@ -16,14 +16,14 @@ export const Config = new CG.component({
     new CG.trb({
       name: 'prefix',
       title: 'Prefix',
-      description: 'Prefix shown next to the input field',
+      description: 'Prefix shown before the input field',
     }),
   )
   .addTextResource(
     new CG.trb({
       name: 'suffix',
       title: 'Suffix',
-      description: 'Suffix shown next to the input field',
+      description: 'Suffix shown after the input field',
     }),
   )
   .addDataModelBinding(CG.common('IDataModelBindingsSimple'))
