@@ -1,6 +1,19 @@
-import { CG } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
+export const INPUT_SUMMARY_PROPS = new CG.obj(
+  new CG.prop(
+    'hidden',
+    new CG.bool()
+      .optional()
+      .setTitle('Hidden')
+      .setDescription('Boolean value indicating if the component should be hidden in the summary'),
+  ),
+)
+  .extends(CG.common('ISummaryOverridesCommon'))
+  .optional()
+  .setTitle('Summary properties')
+  .setDescription('Properties for how to display the summary of the component');
 export const Config = new CG.component({
   category: CompCategory.Form,
   rendersWithLabel: true,
@@ -133,4 +146,5 @@ export const Config = new CG.component({
           'Max length of the input field. Will add a counter to let the user know how many characters are left.',
         ),
     ),
-  );
+  )
+  .addProperty(new CG.prop('summaryProps', INPUT_SUMMARY_PROPS).onlyIn(Variant.Internal));

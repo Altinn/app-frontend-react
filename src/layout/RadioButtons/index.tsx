@@ -36,9 +36,9 @@ export class RadioButtons extends RadioButtonsDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(summaryNode: LayoutNode<'RadioButtons'>): JSX.Element | null {
-    const { textResourceBindings } = summaryNode.item;
-    const displayData = this.useDisplayData(summaryNode);
+  renderSummary2(componentNode: LayoutNode<'RadioButtons'>): JSX.Element | null {
+    const { textResourceBindings } = componentNode.item;
+    const displayData = this.useDisplayData(componentNode);
     return (
       <>
         <Label weight={'regular'}>

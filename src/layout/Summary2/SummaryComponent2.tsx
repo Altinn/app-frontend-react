@@ -3,32 +3,28 @@ import React from 'react';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useGetLayoutSetById } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useGetPage, useNode } from 'src/utils/layout/NodesContext';
-import type { IGrid } from 'src/layout/common.generated';
-import type { SummaryDisplayProperties } from 'src/layout/Summary/config.generated';
+import type { CompSummary2External, CompSummary2Internal } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface ISummaryComponent2 {
   summaryNode: LayoutNode<'Summary2'>;
-  overrides?: {
-    targetNode?: LayoutNode;
-    grid?: IGrid;
-    largeGroup?: boolean;
-    display?: SummaryDisplayProperties;
-  };
 }
 
 interface LayoutSetSummaryProps {
   layoutSetId: string;
+  summaryOverrides: any;
 }
 interface PageSummaryProps {
   pageId: string;
+  summaryOverrides: any;
 }
 
 interface ComponentSummaryProps {
   componentNode: LayoutNode;
+  summaryOverrides: CompSummary2Internal['overWriteProperties'];
 }
 
-function LayoutSetSummary({ layoutSetId }: LayoutSetSummaryProps) {
+function LayoutSetSummary({ layoutSetId, summaryOverrides }: LayoutSetSummaryProps) {
   const layoutSet = useGetLayoutSetById(layoutSetId);
 
   const layouts = Object.keys(useLayouts());
@@ -41,16 +37,19 @@ function LayoutSetSummary({ layoutSetId }: LayoutSetSummaryProps) {
         <PageSummary
           pageId={layoutId}
           key={layoutId}
+          summaryOverrides={summaryOverrides}
         />
       ))}
     </div>
   );
 }
 
-function ComponentSummary({ componentNode }: ComponentSummaryProps) {
+function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryProps) {
   if (componentNode.isHidden()) {
     return null;
   }
+
+  const overrides = summaryOverrides?.find((override) => override.componentId === componentNode.item.id);
 
   const childComponents =
     componentNode.item.type === 'Group' &&
@@ -58,11 +57,12 @@ function ComponentSummary({ componentNode }: ComponentSummaryProps) {
       <ComponentSummary
         componentNode={child}
         key={child.item.id}
+        summaryOverrides={summaryOverrides}
       />
     ));
 
   const renderedComponent = componentNode.def.renderSummary2
-    ? componentNode.def.renderSummary2(componentNode as LayoutNode<any>)
+    ? componentNode.def.renderSummary2(componentNode as LayoutNode<any>, overrides)
     : null;
 
   return (
@@ -73,7 +73,7 @@ function ComponentSummary({ componentNode }: ComponentSummaryProps) {
   );
 }
 
-function PageSummary({ pageId }: PageSummaryProps) {
+function PageSummary({ pageId, summaryOverrides }: PageSummaryProps) {
   const page = useGetPage(pageId);
 
   if (!page) {
@@ -86,6 +86,7 @@ function PageSummary({ pageId }: PageSummaryProps) {
         <ComponentSummary
           componentNode={child}
           key={child.item.id}
+          summaryOverrides={summaryOverrides}
         />
       ))}
     </div>
@@ -93,16 +94,24 @@ function PageSummary({ pageId }: PageSummaryProps) {
 }
 
 interface ResolveComponentProps {
-  componentId: string;
+  summaryProps: CompSummary2External;
+  summaryOverrides: any;
 }
 
-function ResolveComponent({ componentId }: ResolveComponentProps) {
-  const resolvedComponent = useNode(componentId);
+function ResolveComponent({ summaryProps, summaryOverrides }: ResolveComponentProps) {
+  const resolvedComponent = useNode(summaryProps.whatToRender.id);
+  // const summaryPropsFromComponent = resolvedComponent?.item.summaryProps ? resolvedComponent.item.summaryProps : {};
+
   if (!resolvedComponent) {
     return null;
   }
 
-  return <ComponentSummary componentNode={resolvedComponent} />;
+  return (
+    <ComponentSummary
+      componentNode={resolvedComponent}
+      summaryOverrides={summaryOverrides}
+    />
+  );
 }
 
 function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
@@ -121,16 +130,37 @@ function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
   //   }
   // }, [lodedLayout, summaryNode.item.whatToRender.id, summaryNode.item.whatToRender.type]);
 
+  // summaryNode.item.overWriteProperties
+
   if (summaryNode.item.whatToRender.type === 'layoutSet') {
-    return <LayoutSetSummary layoutSetId={summaryNode.item.whatToRender.id} />;
+    return (
+      <LayoutSetSummary
+        layoutSetId={summaryNode.item.whatToRender.id}
+        summaryOverrides={summaryNode.item.overWriteProperties}
+      />
+    );
   }
 
   if (summaryNode.item.whatToRender.type === 'page') {
-    return <PageSummary pageId={summaryNode.item.whatToRender.id} />;
+    return (
+      <PageSummary
+        pageId={summaryNode.item.whatToRender.id}
+        summaryOverrides={summaryNode.item.overWriteProperties}
+      />
+    );
   }
 
   if (summaryNode.item.whatToRender.type === 'component') {
-    return <ResolveComponent componentId={summaryNode.item.whatToRender.id} />;
+    return (
+      <ResolveComponent
+        summaryProps={summaryNode.item}
+        summaryOverrides={summaryNode.item.overWriteProperties}
+      />
+    );
+  }
+
+  if (summaryNode.item.whatToRender.type === 'task') {
+    return <h1>Render task here</h1>;
   }
 
   // if (summaryNode.item.whatToRender.type === 'task') {

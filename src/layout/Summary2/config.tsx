@@ -1,6 +1,7 @@
 import { CG, Variant } from 'src/codegen/CG';
+import { CHECKBOX_SUMMARY_PROPS } from 'src/layout/Checkboxes/config';
 import { CompCategory } from 'src/layout/common';
-
+import { INPUT_SUMMARY_PROPS } from 'src/layout/Input/config';
 export const Config = new CG.component({
   category: CompCategory.Container,
   rendersWithLabel: false,
@@ -43,5 +44,11 @@ export const Config = new CG.component({
         ),
         new CG.prop('id', new CG.str()),
       ),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'overWriteProperties',
+      new CG.arr(new CG.union(INPUT_SUMMARY_PROPS, CHECKBOX_SUMMARY_PROPS)).optional(),
     ),
   );
