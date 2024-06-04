@@ -36,6 +36,15 @@ export function useCurrentDataModelGuid() {
   return getCurrentTaskDataElementId({ application, instance, taskId, layoutSets });
 }
 
+export function useGetDataModelGuid(taskId: string) {
+  const instance = useLaxInstanceData();
+  const application = useApplicationMetadata();
+  const layoutSets = useLayoutSets();
+  // const taskId = useProcessTaskId();
+
+  return getCurrentTaskDataElementId({ application, instance, taskId, layoutSets });
+}
+
 export function useCurrentDataModelUrl(includeRowIds: boolean) {
   const isAnonymous = useAllowAnonymous();
   const instance = useLaxInstanceData();

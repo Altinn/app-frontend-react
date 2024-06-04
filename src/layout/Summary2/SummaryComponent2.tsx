@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
+import { useGetDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useGetLayoutSetById } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
+import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { fetchLayouts } from 'src/queries/queries';
 import { useGetPage, useNode } from 'src/utils/layout/NodesContext';
+import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { CompSummary2External, CompSummary2Internal } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -42,6 +46,17 @@ function LayoutSetSummary({ layoutSetId, summaryOverrides }: LayoutSetSummaryPro
       ))}
     </div>
   );
+}
+
+interface RenderPreviousTaskProps {
+  instanceId: string;
+  dataGuid: string;
+}
+
+function RenderPreviousTask({ instanceId, dataGuid }: RenderPreviousTaskProps) {
+  const url = getDataModelUrl(instanceId, dataGuid, true);
+  console.log('url', url);
+  return <div></div>;
 }
 
 function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryProps) {
@@ -115,20 +130,27 @@ function ResolveComponent({ summaryProps, summaryOverrides }: ResolveComponentPr
 }
 
 function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
-  // const [lodedLayout, setLodedLayout] = useState<any>();
-  // useEffect(() => {
-  //   const fetchLayout = async () => {
-  //     // console.log('fetching');
-  //     // console.log(summaryNode.item.whatToRender.id);
-  //     const res = await fetchLayouts(summaryNode.item.whatToRender.id);
-  //     // console.log(res);
-  //     setLodedLayout(res);
-  //   };
-  //
-  //   if (summaryNode.item.whatToRender.type === 'task' && !lodedLayout) {
-  //     fetchLayout();
-  //   }
-  // }, [lodedLayout, summaryNode.item.whatToRender.id, summaryNode.item.whatToRender.type]);
+  const [lodedLayout, setLodedLayout] = useState<any>();
+
+  const guid = useGetDataModelGuid(summaryNode.item.whatToRender.id);
+
+  const instanceId = useLaxInstance()?.instanceId;
+
+  console.log('guid', guid);
+
+  useEffect(() => {
+    const fetchLayout = async () => {
+      // console.log('fetching');
+      // console.log(summaryNode.item.whatToRender.id);
+      const res = await fetchLayouts(summaryNode.item.whatToRender.id);
+      // console.log(res);
+      setLodedLayout(res);
+    };
+
+    if (summaryNode.item.whatToRender.type === 'task' && !lodedLayout) {
+      fetchLayout();
+    }
+  }, [lodedLayout, summaryNode.item.whatToRender.id, summaryNode.item.whatToRender.type]);
 
   // summaryNode.item.overWriteProperties
 
@@ -159,38 +181,63 @@ function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
     );
   }
 
-  if (summaryNode.item.whatToRender.type === 'task') {
-    return <h1>Render task here</h1>;
-  }
-
   // if (summaryNode.item.whatToRender.type === 'task') {
-  //   // Hent: http://local.altinn.cloud/ttd/component-library/api/layouts/form
-  //   // Hent: http://local.altinn.cloud/ttd/component-library/instances/501337/6f7c805f-76a5-437a-a437-82e0a6c8500e/data/3a672553-80ea-48d8-ab55-26fd4d3318eb?includeRowId=true&language=nn
-  //   console.log(lodedLayout);
-  //   if (lodedLayout) {
-  //     console.log(JSON.stringify(lodedLayout, null, 2));
-  //
-  //     // return Object.keys(lodedLayout).map((layoutId) => (
-  //     //   <GenericComponentById
-  //     //     key={layoutId}
-  //     //     id={layoutId}
-  //     //   />
-  //     // ));
-  //
-  //     // return Object.keys(lodedLayout).map((layoutId) => (
-  //     //   <PageSummary
-  //     //     pageId={layoutId}
-  //     //     key={layoutId}
-  //     //   />
-  //     // ));
-  //   }
-  //
-  //   return (
-  //     <div>
-  //       <h1>One day, I will render an ENTIRE process!</h1>
-  //     </div>
-  //   );
+  //   return <h1>Render task here</h1>;
   // }
+
+  if (summaryNode.item.whatToRender.type === 'task') {
+    // <FormProvider></FormProvider>
+
+    // Hent: http://local.altinn.cloud/ttd/component-library/api/layouts/form
+    // Hent: http://local.altinn.cloud/ttd/component-library/instances/501337/6f7c805f-76a5-437a-a437-82e0a6c8500e/data/3a672553-80ea-48d8-ab55-26fd4d3318eb?includeRowId=true&language=nn
+
+    // Task data
+    // layoutSet
+    // Finne ut hvordan vi skal rendre alt dette.
+
+    console.log(lodedLayout);
+    if (lodedLayout) {
+      console.log(JSON.stringify(lodedLayout, null, 2));
+      console.log(summaryNode.item.whatToRender.id);
+      //return <FormProvider taskId={summaryNode.item.whatToRender.id}></FormProvider>
+      // return (
+      //   <LayoutSetSummary
+      //     layoutSetId={summaryNode.item.whatToRender.id}
+      //     summaryOverrides={summaryNode.item.overWriteProperties}
+      //   />
+      // );
+
+      // return Object.keys(lodedLayout).map((layoutId) => (
+      //   <PageSummary
+      //     key={layoutId}
+      //     pageId={layoutId}
+      //     summaryOverrides={summaryNode.item.overWriteProperties}
+      //   />
+      // ));
+
+      // return Object.keys(lodedLayout).map((layoutId) => (
+      //   <PageSummary
+      //     pageId={layoutId}
+      //     key={layoutId}
+      //   />
+      // ));
+    }
+    if (guid && instanceId) {
+      return (
+        <RenderPreviousTask
+          dataGuid={guid}
+          instanceId={instanceId}
+        />
+      );
+    }
+
+    return (
+      <div>
+        <pre>{JSON.stringify(lodedLayout, null, 2)}</pre>
+        {/*<h1>One day, I will render an ENTIRE process!</h1>*/}
+      </div>
+    );
+  }
 
   throw new Error(`Invalid summary render type: ${summaryNode.item.whatToRender.type}`);
 }
