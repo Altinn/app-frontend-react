@@ -15,6 +15,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
+import type { CompCheckboxesInternal } from 'src/layout/Checkboxes/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -47,8 +48,10 @@ export class Checkboxes extends CheckboxesDef {
     ));
   }
 
-  private renderSummaryDisplayData(displayData: string): JSX.Element {
-    return displayData?.length > 75 ? (
+  private renderSummaryDisplayData(displayData: string, displayType?: string): JSX.Element {
+    const maxStringLength = 75;
+    const showAsList = displayType === 'list' || (!displayType && displayData?.length >= maxStringLength);
+    return showAsList ? (
       <List.Root>
         <List.Unordered>{this.renderSummaryListItems(displayData)}</List.Unordered>
       </List.Root>
@@ -71,7 +74,10 @@ export class Checkboxes extends CheckboxesDef {
     return <MultipleChoiceSummary formData={summaryData} />;
   }
 
-  renderSummary2(summaryNode: LayoutNode<'Checkboxes'>): JSX.Element | null {
+  renderSummary2(
+    summaryNode: LayoutNode<'Checkboxes'>,
+    summaryOverrides?: CompCheckboxesInternal['summaryProps'],
+  ): JSX.Element | null {
     const { textResourceBindings } = summaryNode.item;
     const displayData = this.useDisplayData(summaryNode);
     return (
@@ -79,7 +85,7 @@ export class Checkboxes extends CheckboxesDef {
         <Label weight={'regular'}>
           <Lang id={textResourceBindings?.title}></Lang>
         </Label>
-        {this.renderSummaryDisplayData(displayData)}
+        {this.renderSummaryDisplayData(displayData, summaryOverrides?.displayType)}
       </>
     );
   }
