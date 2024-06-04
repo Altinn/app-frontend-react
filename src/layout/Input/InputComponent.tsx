@@ -92,8 +92,8 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     formValue,
   );
   const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;
-  const prefixExternal = textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined;
-  const suffixExternal = textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined;
+  const prefixText = textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined;
+  const suffixText = textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined;
   const characterLimit = useCharacterLimit(maxLength);
 
   const commonProps = {
@@ -109,8 +109,8 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     required,
     onBlur: debounce,
     textOnly: overrideDisplay?.rowReadOnly && readOnly,
-    prefixExternal,
-    suffixExternal,
+    prefixText,
+    suffixText,
   };
 
   if (variant === 'search') {
