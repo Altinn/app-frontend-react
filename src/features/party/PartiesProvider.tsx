@@ -139,6 +139,11 @@ const GetValidParties = (parties: IParty[]): IParty[] => {
       [PartyType.BankruptcyEstate]: partyTypesAllowed.bankruptcyEstate,
     };
 
+    // Fun fact: If all party types are false then all are true
+    if (Object.values(partyTypeFilters).every((value) => !value)) {
+      return allParties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
+    }
+
     return allParties.filter(
       (party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess && partyTypeFilters[party.partyTypeName],
     );
