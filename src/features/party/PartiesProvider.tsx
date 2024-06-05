@@ -11,8 +11,9 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
+import { GetValidParties } from 'src/features/party/partyProviderUtils';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
-import { type IParty, PartyType } from 'src/types/shared';
+import { type IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
@@ -106,55 +107,8 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
   },
 });
 
-const GetValidParties = (parties: IParty[]): IParty[] => {
-  const appMetadata = useApplicationMetadata();
-
-  const flattenParties = (parties: IParty[]): IParty[] => {
-    const result: IParty[] = [];
-    const stack = [...parties];
-
-    while (stack.length) {
-      const current = stack.pop();
-      if (current) {
-        result.push(current);
-        if (current.childParties) {
-          stack.push(...current.childParties);
-        }
-      }
-    }
-
-    return result;
-  };
-
-  const allParties = flattenParties(parties);
-
-  // Filter out parties that are not allowed by the app metadata
-  if (appMetadata) {
-    const { partyTypesAllowed } = appMetadata;
-
-    const partyTypeFilters = {
-      [PartyType.Organisation]: partyTypesAllowed.organisation,
-      [PartyType.SubUnit]: partyTypesAllowed.subUnit,
-      [PartyType.Person]: partyTypesAllowed.person,
-      [PartyType.BankruptcyEstate]: partyTypesAllowed.bankruptcyEstate,
-    };
-
-    // Fun fact: If all party types are false then all are true
-    if (Object.values(partyTypeFilters).every((value) => !value)) {
-      return allParties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
-    }
-
-    return allParties.filter(
-      (party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess && partyTypeFilters[party.partyTypeName],
-    );
-  }
-
-  // Fallback to allowing all parties if app metadata is not available
-  return allParties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
-};
-
 const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
-  const validParties = GetValidParties(usePartiesCtx() as IParty[]);
+  const validParties = GetValidParties(usePartiesCtx() as IParty[], useApplicationMetadata());
   const [sentToMutation, setSentToMutation] = useState<IParty | undefined>(undefined);
   const { mutateAsync, data: dataFromMutation, error: errorFromMutation } = useSetCurrentPartyMutation();
   const { data: partyFromQuery, isLoading, error: errorFromQuery } = useCurrentPartyQuery(true);
