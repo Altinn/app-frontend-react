@@ -9,7 +9,7 @@ export const Config = new CG.component({
     renderInButtonGroup: false,
     renderInAccordion: false,
     renderInAccordionGroup: false,
-    renderInTabs: true,
+    renderInTabs: false,
   },
 })
   .addTextResource(
@@ -27,14 +27,14 @@ export const Config = new CG.component({
       new CG.arr(
         new CG.obj(
           new CG.prop('id', new CG.str()),
-          new CG.prop('title', new CG.str()),
+          new CG.prop('title', new CG.str().setTitle('Title').setDescription('Title of the tab')),
           new CG.prop('icon', new CG.str().optional().addExample('https://example.com/icon.svg')),
           new CG.prop(
             'children',
             new CG.arr(new CG.str())
               .setTitle('Children')
               .setDescription('List of component IDs that should be displayed in the Tab'),
-          ).onlyIn(Variant.External),
+          ),
         ).exportAs('TabConfigExternal'),
       ),
     ).onlyIn(Variant.External),
@@ -46,7 +46,7 @@ export const Config = new CG.component({
         new CG.obj(
           new CG.prop('id', new CG.str()),
           new CG.prop('title', new CG.str()),
-          new CG.prop('icon', new CG.str().optional().addExample('https://example.com/icon.svg')),
+          new CG.prop('icon', new CG.str().optional()),
           new CG.prop(
             'childNodes',
             new CG.arr(CG.layoutNode)

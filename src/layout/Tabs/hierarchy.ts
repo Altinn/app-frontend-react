@@ -15,7 +15,6 @@ export class TabsHierarchyGenerator extends ComponentHierarchyGenerator<'Tabs'> 
   private canRenderInTabChildren(generator: HierarchyGenerator, childId: string, outputWarning = true): boolean {
     const prototype = generator.prototype(childId);
     const def = prototype && generator.getLayoutComponentObject(prototype.type);
-    console.log(def?.canRenderInTabs());
     if (outputWarning && prototype && !def?.canRenderInTabs()) {
       window.logWarnOnce(
         `Tabs component included a component '${childId}' in the 'children' property, which ` +

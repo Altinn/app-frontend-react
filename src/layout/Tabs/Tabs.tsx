@@ -13,10 +13,13 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
   );
 
   useRegisterNodeNavigationHandler((targetNode) => {
-    const tabIds = node.item.tabsInternal.map((tab) => tab.id);
     for (const parent of targetNode.parents() ?? []) {
-      if (parent.item.id && tabIds.includes(parent.item.id)) {
-        setActiveTab(parent.item.id);
+      const tabsInternal = parent.item['tabsInternal'];
+      const targetTabId = tabsInternal?.find((tab) =>
+        tab.childNodes.some((child) => child.item.id === targetNode.item.id),
+      )?.id;
+      if (targetTabId) {
+        setActiveTab(targetTabId);
         return true;
       }
     }
