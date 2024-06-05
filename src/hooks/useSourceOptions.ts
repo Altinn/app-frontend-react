@@ -64,16 +64,14 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
          * langAsString function to actually be langAsStringUsingPathInDataModel partially
          * applied with the correct path in the data model.
          */
-        const modifiedDataSources = {
+        const modifiedDataSources: HierarchyDataSources = {
           ...dataSources,
-          langToolsRef: {
-            current: {
-              ...langTools,
-              langAsString: (key: string) => langTools.langAsStringUsingPathInDataModel(key, path),
-              langAsNonProcessedString: (key: string) =>
-                langTools.langAsNonProcessedStringUsingPathInDataModel(key, path),
-            },
-          },
+          langToolsSelector: () => ({
+            ...langTools,
+            langAsString: (key: string) => langTools.langAsStringUsingPathInDataModel(key, path),
+            langAsNonProcessedString: (key: string) =>
+              langTools.langAsNonProcessedStringUsingPathInDataModel(key, path),
+          }),
         };
 
         const config = {
