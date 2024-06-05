@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { Tabs as DesignsystemetTabs } from '@digdir/designsystemet-react';
 
+import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -11,7 +12,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
     node.item.defaultTab ?? node.item.tabsInternal.at(0)?.id,
   );
 
-  /*useRegisterNodeNavigationHandler((targetNode) => {
+  useRegisterNodeNavigationHandler((targetNode) => {
     const tabIds = node.item.tabsInternal.map((tab) => tab.id);
     for (const parent of targetNode.parents() ?? []) {
       if (parent.item.id && tabIds.includes(parent.item.id)) {
@@ -20,7 +21,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
       }
     }
     return false;
-  });*/
+  });
 
   const tabs = node.item.tabsInternal;
   return (
