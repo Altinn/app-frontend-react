@@ -195,7 +195,11 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     return alwaysOptions.filter((option) => stringValues.includes(option.value)) as CurrentValue<T>;
   }, [value, valueType, alwaysOptions]);
 
-  const currentStringy = useMemo(() => (value ? value.split(',') : []) as CurrentValueAsString, [value]);
+  const currentStringy = useMemo(
+    () =>
+      (value ? value.split(',').filter((v) => alwaysOptions.find((o) => o.value === v)) : []) as CurrentValueAsString,
+    [alwaysOptions, value],
+  );
 
   const translatedLabels = useMemo(
     () => getLabelsForActiveOptions(currentStringy, calculatedOptions || []).map((label) => langAsString(label)),
