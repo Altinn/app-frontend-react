@@ -125,6 +125,39 @@ describe('getValidParties', () => {
     expect(result).toEqual(expect.arrayContaining([parties[0]]));
   });
 
+  it('should return only parties that are allowed by app metadata and with access', () => {
+    const parties = setupParties();
+    const appMetadata = getApplicationMetadataMock();
+    appMetadata.partyTypesAllowed = {
+      organisation: true,
+      subUnit: false,
+      person: true,
+      bankruptcyEstate: false,
+    };
+
+    parties[1].onlyHierarchyElementWithNoAccess = true;
+
+    const result = GetValidParties(parties, appMetadata);
+    expect(result.length).toBe(1);
+    expect(result).toEqual(expect.arrayContaining([parties[0]]));
+  });
+  it('should return only parties that are allowed by app metadata and not deleted', () => {
+    const parties = setupParties();
+    const appMetadata = getApplicationMetadataMock();
+    appMetadata.partyTypesAllowed = {
+      organisation: true,
+      subUnit: false,
+      person: true,
+      bankruptcyEstate: false,
+    };
+
+    parties[1].isDeleted = true;
+
+    const result = GetValidParties(parties, appMetadata);
+    expect(result.length).toBe(1);
+    expect(result).toEqual(expect.arrayContaining([parties[0]]));
+  });
+
   it('should return only parties that are allowed by app metadata', () => {
     const parties = setupParties();
     const appMetadata = getApplicationMetadataMock();
