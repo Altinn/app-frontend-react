@@ -84,16 +84,9 @@ export abstract class AnyComponent<Type extends CompTypes> {
   abstract canRenderInAccordionGroup(): boolean;
 
   /**
-   * Return true to allow this component to be rendered in a TabGroup
+   * Return false to allow this component to be rendered in a Tabs
    */
-  canRenderInTabGroup(): boolean {
-    return false;
-  }
-
-  /**
-   * Return true to allow this component to be rendered in a Tab
-   */
-  canRenderInTab(): boolean {
+  canRenderInTabs(): boolean {
     return true;
   }
 

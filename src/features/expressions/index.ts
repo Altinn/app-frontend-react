@@ -65,7 +65,6 @@ export function evalExprInObj<T>(args: EvalExprInObjArgs<T>): ExprResolved<T> {
   if (!args.input) {
     return args.input as ExprResolved<T>;
   }
-
   const out = evalExprInObjectRecursive<T>(args.input, args as Omit<EvalExprInObjArgs<T>, 'input'>, []);
 
   if (args.deleteNonExpressions && out === DELETE_LATER) {
