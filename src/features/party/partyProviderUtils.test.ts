@@ -1,5 +1,5 @@
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
-import { flattenParties, GetValidParties } from 'src/features/party/partyProviderUtils';
+import { flattenParties, reduceToValidParties } from 'src/features/party/partyProviderUtils';
 import { PartyType } from 'src/types/shared';
 import type { IParty } from 'src/types/shared';
 
@@ -90,7 +90,7 @@ describe('getValidParties', () => {
       bankruptcyEstate: false,
     };
 
-    const result = GetValidParties(parties, appMetadata);
+    const result = reduceToValidParties(parties, appMetadata);
     expect(result.length).toBe(3);
     expect(result).toEqual(expect.arrayContaining(parties));
   });
@@ -105,7 +105,7 @@ describe('getValidParties', () => {
       bankruptcyEstate: true,
     };
 
-    const result = GetValidParties(parties, appMetadata);
+    const result = reduceToValidParties(parties, appMetadata);
     expect(result.length).toBe(3);
     expect(result).toEqual(expect.arrayContaining(parties));
   });
@@ -120,7 +120,7 @@ describe('getValidParties', () => {
       bankruptcyEstate: false,
     };
 
-    const result = GetValidParties(parties, appMetadata);
+    const result = reduceToValidParties(parties, appMetadata);
     expect(result.length).toBe(1);
     expect(result).toEqual(expect.arrayContaining([parties[0]]));
   });
@@ -137,7 +137,7 @@ describe('getValidParties', () => {
 
     parties[1].onlyHierarchyElementWithNoAccess = true;
 
-    const result = GetValidParties(parties, appMetadata);
+    const result = reduceToValidParties(parties, appMetadata);
     expect(result.length).toBe(1);
     expect(result).toEqual(expect.arrayContaining([parties[0]]));
   });
@@ -153,7 +153,7 @@ describe('getValidParties', () => {
 
     parties[1].isDeleted = true;
 
-    const result = GetValidParties(parties, appMetadata);
+    const result = reduceToValidParties(parties, appMetadata);
     expect(result.length).toBe(1);
     expect(result).toEqual(expect.arrayContaining([parties[0]]));
   });
@@ -168,7 +168,7 @@ describe('getValidParties', () => {
       bankruptcyEstate: false,
     };
 
-    const result = GetValidParties(parties, appMetadata);
+    const result = reduceToValidParties(parties, appMetadata);
     expect(result.length).toBe(1);
     expect(result).toEqual(expect.arrayContaining([parties[0].childParties![0]]));
   });

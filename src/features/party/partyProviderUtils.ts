@@ -18,7 +18,7 @@ export const flattenParties = (parties: IParty[]): IParty[] => {
   return result;
 };
 
-export const GetValidParties = (parties: IParty[], appMetadata: IApplicationMetadata): IParty[] => {
+export const reduceToValidParties = (parties: IParty[], appMetadata: IApplicationMetadata): IParty[] => {
   const allParties = flattenParties(parties);
   const { partyTypesAllowed } = appMetadata;
 
