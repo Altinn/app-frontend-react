@@ -591,7 +591,7 @@ export const ExprFunctions = {
       return component.def.getDisplayData(component as any, {
         attachments: this.dataSources.attachments,
         optionsSelector: this.dataSources.options,
-        langTools: this.dataSources.langToolsRef.current,
+        langTools: this.dataSources.langToolsSelector(node as LayoutNode),
         currentLanguage: this.dataSources.currentLanguage,
         formDataSelector: this.dataSources.formDataSelector,
       });
@@ -627,7 +627,8 @@ export const ExprFunctions = {
         return null;
       }
 
-      return this.dataSources.langToolsRef.current.langAsNonProcessedString(key);
+      const node = this.node instanceof BaseLayoutNode ? this.node : undefined;
+      return this.dataSources.langToolsSelector(node).langAsNonProcessedString(key);
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.String,
@@ -941,6 +942,35 @@ export const ExprConfigForComponent: ExprObjConfig<CompExternal> = {
       returnType: ExprVal.String,
       defaultValue: '',
       resolvePerRow: false,
+    },
+  },
+  formatting: {
+    number: {
+      prefix: {
+        returnType: ExprVal.String,
+        defaultValue: '',
+        resolvePerRow: false,
+      },
+      suffix: {
+        returnType: ExprVal.String,
+        defaultValue: '',
+        resolvePerRow: false,
+      },
+      thousandSeparator: {
+        returnType: ExprVal.Any,
+        defaultValue: '',
+        resolvePerRow: false,
+      },
+      decimalSeparator: {
+        returnType: ExprVal.String,
+        defaultValue: '',
+        resolvePerRow: false,
+      },
+      format: {
+        returnType: ExprVal.String,
+        defaultValue: '',
+        resolvePerRow: false,
+      },
     },
   },
 };

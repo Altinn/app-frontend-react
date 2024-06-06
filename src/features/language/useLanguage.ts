@@ -1,4 +1,4 @@
-import { Children, isValidElement, useMemo } from 'react';
+import { Children, isValidElement, useCallback, useMemo } from 'react';
 import type { JSX, ReactNode } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -111,6 +111,34 @@ export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
       formDataTypes,
     });
   }, [dataSources, defaultDataType, formDataSelector, language, node, selectedLanguage, textResources, formDataTypes]);
+}
+
+// Exactly the same as above, but returns a function accepting a node
+export function useLanguageWithForcedNodeSelector() {
+  const { textResources, language, selectedLanguage, ...dataSources } = useLangToolsDataSources() || {};
+  const defaultDataType = DataModels.useLaxDefaultDataType();
+  const formDataTypes = DataModels.useLaxReadableDataTypes();
+  const formDataSelector = FD.useLaxDebouncedSelector();
+
+  return useCallback(
+    (node: LayoutNode | undefined) => {
+      if (!textResources || !language || !selectedLanguage) {
+        throw new Error('useLanguage must be used inside a LangToolsStoreProvider');
+      }
+
+      return staticUseLanguage(textResources, language, selectedLanguage, {
+        ...(dataSources as Omit<
+          TextResourceVariablesDataSources,
+          'node' | 'currentDataModel' | 'currentDataModelName'
+        >),
+        node,
+        formDataSelector,
+        defaultDataType,
+        formDataTypes,
+      });
+    },
+    [dataSources, defaultDataType, formDataSelector, language, selectedLanguage, textResources, formDataTypes],
+  );
 }
 
 interface ILanguageState {
