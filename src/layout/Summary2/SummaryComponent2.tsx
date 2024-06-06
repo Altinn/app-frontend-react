@@ -1,7 +1,12 @@
 import React from 'react';
 
+import { Grid } from '@material-ui/core';
+import cn from 'classnames';
+
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useGetLayoutSetById } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
+import classes from 'src/layout/Summary2/SummaryComponent2.module.css';
+import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useGetPage, useNode } from 'src/utils/layout/NodesContext';
 import type { CompSummary2External, CompSummary2Internal } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -66,10 +71,14 @@ function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryP
     : null;
 
   return (
-    <div style={{ border: '2px solid yellow', display: 'flex', flexDirection: 'column' }}>
-      {renderedComponent && <div>{renderedComponent}</div>}
+    <Grid
+      item={true}
+      style={{ border: '2px solid yellow' }}
+      className={cn(pageBreakStyles(componentNode.item?.pageBreak), classes.summaryItem)}
+    >
+      {renderedComponent}
       {childComponents}
-    </div>
+    </Grid>
   );
 }
 
@@ -100,7 +109,6 @@ interface ResolveComponentProps {
 
 function ResolveComponent({ summaryProps, summaryOverrides }: ResolveComponentProps) {
   const resolvedComponent = useNode(summaryProps.whatToRender.id);
-  // const summaryPropsFromComponent = resolvedComponent?.item.summaryProps ? resolvedComponent.item.summaryProps : {};
 
   if (!resolvedComponent) {
     return null;
@@ -115,23 +123,6 @@ function ResolveComponent({ summaryProps, summaryOverrides }: ResolveComponentPr
 }
 
 function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
-  // const [lodedLayout, setLodedLayout] = useState<any>();
-  // useEffect(() => {
-  //   const fetchLayout = async () => {
-  //     // console.log('fetching');
-  //     // console.log(summaryNode.item.whatToRender.id);
-  //     const res = await fetchLayouts(summaryNode.item.whatToRender.id);
-  //     // console.log(res);
-  //     setLodedLayout(res);
-  //   };
-  //
-  //   if (summaryNode.item.whatToRender.type === 'task' && !lodedLayout) {
-  //     fetchLayout();
-  //   }
-  // }, [lodedLayout, summaryNode.item.whatToRender.id, summaryNode.item.whatToRender.type]);
-
-  // summaryNode.item.overWriteProperties
-
   if (summaryNode.item.whatToRender.type === 'layoutSet') {
     return (
       <LayoutSetSummary
@@ -162,36 +153,6 @@ function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
   if (summaryNode.item.whatToRender.type === 'task') {
     return <h1>Render task here</h1>;
   }
-
-  // if (summaryNode.item.whatToRender.type === 'task') {
-  //   // Hent: http://local.altinn.cloud/ttd/component-library/api/layouts/form
-  //   // Hent: http://local.altinn.cloud/ttd/component-library/instances/501337/6f7c805f-76a5-437a-a437-82e0a6c8500e/data/3a672553-80ea-48d8-ab55-26fd4d3318eb?includeRowId=true&language=nn
-  //   console.log(lodedLayout);
-  //   if (lodedLayout) {
-  //     console.log(JSON.stringify(lodedLayout, null, 2));
-  //
-  //     // return Object.keys(lodedLayout).map((layoutId) => (
-  //     //   <GenericComponentById
-  //     //     key={layoutId}
-  //     //     id={layoutId}
-  //     //   />
-  //     // ));
-  //
-  //     // return Object.keys(lodedLayout).map((layoutId) => (
-  //     //   <PageSummary
-  //     //     pageId={layoutId}
-  //     //     key={layoutId}
-  //     //   />
-  //     // ));
-  //   }
-  //
-  //   return (
-  //     <div>
-  //       <h1>One day, I will render an ENTIRE process!</h1>
-  //     </div>
-  //   );
-  // }
-
-  throw new Error(`Invalid summary render type: ${summaryNode.item.whatToRender.type}`);
 }
+
 export const SummaryComponent2 = React.forwardRef(_SummaryComponent2);

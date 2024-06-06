@@ -1,3 +1,19 @@
 .formValue {
   font-weight: bold;
 }
+
+.inputSummaryItem {
+  display: flex;
+  gap: var(--fds-spacing-2);
+  flex-direction: column;
+}
+
+.labelWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.editButton {
+  margin-left: auto;
+  min-width: unset;
+}
