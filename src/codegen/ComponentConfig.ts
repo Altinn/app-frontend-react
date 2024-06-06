@@ -26,6 +26,8 @@ export interface RequiredComponentConfig {
     renderInAccordion: boolean;
     renderInAccordionGroup: boolean;
     renderInTabs?: boolean;
+    renderInCards: boolean;
+    renderInCardsMedia: boolean;
   };
 }
 

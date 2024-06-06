@@ -11,6 +11,8 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
     renderInTabs: true,
+    renderInCards: true,
+    renderInCardsMedia: false,
   },
 })
   .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple'))
