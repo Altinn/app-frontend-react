@@ -85,6 +85,8 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
+        <pre>{JSON.stringify(mainIds, null, 2)} </pre>
+
         {mainIds.map((id) => (
           <GenericComponentById
             key={id}

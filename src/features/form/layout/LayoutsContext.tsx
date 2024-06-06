@@ -12,6 +12,7 @@ import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLa
 import { useHasInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
+import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
 import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IExpandedWidthLayouts, IHiddenLayoutsExternal } from 'src/types';
@@ -22,18 +23,20 @@ export interface LayoutContextValue {
   expandedWidthLayouts: IExpandedWidthLayouts;
 }
 
-function useLayoutQuery() {
+export function useLayoutQuery(layoutSetId?: string) {
   const { fetchLayouts } = useAppQueries();
   const hasInstance = useHasInstance();
   const process = useLaxProcessData();
   const currentLayoutSetId = useLayoutSetId();
+
+  console.log('IN QUUEEERY', currentLayoutSetId);
 
   const utils = useQuery({
     // Waiting to fetch layouts until we have an instance, if we're supposed to have one
     // We don't want to fetch form layouts for a process step which we are currently not on
     enabled: hasInstance ? !!process : true,
     queryKey: ['formLayouts', currentLayoutSetId],
-    queryFn: async () => processLayouts(await fetchLayouts(currentLayoutSetId!)),
+    queryFn: async () => processLayouts(await fetchLayouts(layoutSetId || currentLayoutSetId!)),
   });
 
   useEffect(() => {
@@ -55,12 +58,19 @@ export function useLayoutSetId() {
   const currentProcessLayoutSetId = useCurrentLayoutSetId();
   const { taskId } = useNavigationParams();
 
+  const { overriddenLayoutSetId } = useTaskStore();
+
+  if (overriddenLayoutSetId) {
+    return overriddenLayoutSetId;
+  }
+
   const layoutSetId = taskId != null ? layoutSets?.sets.find((set) => set.tasks?.includes(taskId))?.id : undefined;
 
   return layoutSetId ?? currentProcessLayoutSetId;
 }
 export const LayoutsProvider = Provider;
 export const useLayouts = () => useCtx().layouts;
+export const useGetLayout = (layoutId: string) => useCtx().layouts;
 
 export const useHiddenLayoutsExpressions = () => useCtx().hiddenLayoutsExpressions;
 

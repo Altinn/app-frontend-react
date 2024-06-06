@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { Form } from 'src/components/form/Form';
 import { useGetDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
-import { useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { useLayoutQuery, useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useGetLayoutSetById } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
-import { InstanceProvider, useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import { fetchLayouts } from 'src/queries/queries';
-import { useGetPage, useNode } from 'src/utils/layout/NodesContext';
+import { useGetPage, useNode, useNodes } from 'src/utils/layout/NodesContext';
 import type { CompSummary2External, CompSummary2Internal } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -119,6 +120,126 @@ function ResolveComponent({ summaryProps, summaryOverrides }: ResolveComponentPr
   );
 }
 
+interface TaskSummaryProps {
+  taskId: string;
+  summaryOverrides: any;
+}
+
+interface TaskSummaryWrapperProps {
+  taskId: string;
+  summaryOverrides: any;
+}
+
+function TaskSummary({ taskId, summaryOverrides }: TaskSummaryProps) {
+  const nodes = useNodes();
+  console.log('nodes', nodes);
+  console.log('nodes.allNodes()', nodes.allNodes());
+
+  const layouts = useLayouts();
+
+  console.log('layouts', layouts);
+
+  const dataModelGuid = useGetDataModelGuid(taskId);
+  const layoutSets = useLayoutSets();
+  const layoutSetForTask = layoutSets.sets.find((set) => set.tasks?.includes(taskId));
+  const layoutIdToFetch = layoutSets.sets.find((set) => set.tasks?.includes(taskId));
+
+  console.log('layoutIdToFetch', layoutIdToFetch);
+
+  const res = useLayoutQuery(layoutIdToFetch?.id);
+
+  console.log('res', res);
+
+  return (
+    <div>
+      <pre>{JSON.stringify({ layoutSetForTask, layoutSets, layouts }, null, 2)}</pre>
+
+      {nodes.allNodes().map((node) => (
+        <ComponentSummary
+          key={node.item.id}
+          componentNode={node}
+          summaryOverrides={summaryOverrides}
+        ></ComponentSummary>
+      ))}
+    </div>
+  );
+
+  //return nodes.map((node) => <ComponentSummary componentNode={node}></ComponentSummary>)
+  //return <h1>Hi im the tasks summary!</h1>;
+  // const { nonUrlTaskId, setTaskId, clearTaskId, depth, setDepth } = useTaskStore();
+  // const [taskIdSet, setTaskIdSet] = useState(false);
+  //
+  // useEffect(() => {
+  //   //const layout = useLayoutQuery();
+  //   setTaskId(taskId);
+  //   setTaskIdSet(true);
+  // }, [setTaskId, taskId]);
+  //
+  // if (taskIdSet) {
+  //   return <FormProvider></FormProvider>;
+  // }
+}
+
+function TaskSummaryWrapper({ taskId, summaryOverrides }: React.PropsWithChildren<TaskSummaryProps>) {
+  // const summaryPropsFromComponent = resolvedComponent?.item.summaryProps ? resolvedComponent.item.summaryProps : {};
+  const { setTaskId, setOverriddenDataModelId, setOverriddenLayoutSetId } = useTaskStore();
+
+  const [taskIdSet, setTaskIdSet] = useState(false);
+  const layoutSets = useLayoutSets();
+  const layoutSetForTask = layoutSets.sets.find((set) => set.tasks?.includes(taskId));
+  useEffect(() => {
+    //const layout = useLayoutQuery();
+
+    if (layoutSetForTask) {
+      setTaskId(taskId);
+      setOverriddenDataModelId(layoutSetForTask.dataType);
+      setOverriddenLayoutSetId(layoutSetForTask.id);
+      setTaskIdSet(true);
+    }
+  }, [layoutSetForTask, setOverriddenDataModelId, setOverriddenLayoutSetId, setTaskId, taskId]);
+
+  if (taskIdSet) {
+    return (
+      <FormProvider>
+        <TaskSummary
+          taskId={taskId}
+          summaryOverrides={summaryOverrides}
+        ></TaskSummary>
+      </FormProvider>
+    );
+  }
+
+  // useEffect(() => {
+  //   console.log('layoutIdToFetch', layoutIdToFetch);
+  //   if (layoutIdToFetch) {
+  //     // eslint-disable-next-line react-hooks/rules-of-hooks
+  //   }
+  //   // setHasRendered(true);
+  // }, [layoutSets.sets, taskId]);
+
+  //return <pre>{JSON.stringify({ taskId, dataMoodelGuid, layoutSets, layouts }, null, 2)}</pre>;
+
+  // if (hasRendered) {
+  //   return;
+  // }
+  //
+  // // if (depth > 1) {
+  // //   return <h1>Jøss?</h1>;
+  // // }
+  // // setDepth(depth + 1);
+  // return (
+  //   <div>
+  //     <h1>{depth}</h1>
+  //     <h2>er jeg her?</h2>
+  //     <InstanceProvider>
+  //       <FormProvider>
+  //         <Form />
+  //       </FormProvider>
+  //     </InstanceProvider>
+  //   </div>
+  // );
+}
+
 function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
   const [lodedLayout, setLodedLayout] = useState<any>();
   const hasRendered = useRef(false);
@@ -134,7 +255,7 @@ function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
       // console.log('fetching');
       // console.log(summaryNode.item.whatToRender.id);
       const res = await fetchLayouts(summaryNode.item.whatToRender.id);
-      // console.log(res);
+      console.log('res', res);
       setLodedLayout(res);
     };
 
@@ -177,18 +298,25 @@ function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
   // }
 
   if (summaryNode.item.whatToRender.type === 'task') {
-    const taskId = summaryNode.item.whatToRender.id;
+    // setTaskId(summaryNode.item.whatToRender.id);
 
-    if (!hasRendered.current) {
-      hasRendered.current = true;
-      return (
-        <InstanceProvider>
-          <FormProvider>
-            <Form />
-          </FormProvider>
-        </InstanceProvider>
-      );
-    }
+    return (
+      <TaskSummaryWrapper
+        taskId={summaryNode.item.whatToRender.id}
+        summaryOverrides={summaryNode.item.overWriteProperties}
+      />
+    );
+
+    // if (!hasRendered.current) {
+    //   hasRendered.current = true;
+    //   return (
+    //     <InstanceProvider>
+    //       <FormProvider>
+    //         <Form />
+    //       </FormProvider>
+    //     </InstanceProvider>
+    //   );
+    // }
   }
 }
 export const SummaryComponent2 = React.forwardRef(_SummaryComponent2);

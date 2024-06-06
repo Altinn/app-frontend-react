@@ -3,12 +3,20 @@ import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/Appl
 import { getLayoutSetIdForApplication } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useLaxLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
+import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import type { ILayoutSet } from 'src/layout/common.generated';
 
 export function useCurrentLayoutSetId() {
   const application = useLaxApplicationMetadata();
   const layoutSets = useLaxLayoutSets();
   const taskId = useProcessTaskId();
+  console.log('further down', taskId);
+
+  const { overriddenLayoutSetId } = useTaskStore();
+
+  if (overriddenLayoutSetId) {
+    return overriddenLayoutSetId;
+  }
 
   if (application === ContextNotProvided || layoutSets === ContextNotProvided) {
     return undefined;

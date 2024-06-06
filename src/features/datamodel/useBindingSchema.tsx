@@ -15,6 +15,7 @@ import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLa
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
+import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import {
   getAnonymousStatelessDataModelUrl,
   getDataModelUrl,
@@ -92,9 +93,15 @@ export function useDataModelUrl(includeRowIds: boolean, dataType: string | undef
 }
 
 export function useCurrentDataModelName() {
+  const { overriddenDataModelId } = useTaskStore();
+
   const application = useApplicationMetadata();
   const layoutSets = useLayoutSets();
   const taskId = useProcessTaskId();
+
+  if (overriddenDataModelId) {
+    return overriddenDataModelId;
+  }
 
   return getCurrentDataTypeForApplication({
     application,

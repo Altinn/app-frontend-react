@@ -33,6 +33,7 @@ export function useIsInFormContext() {
  */
 export function FormProvider({ children }: React.PropsWithChildren) {
   const hasProcess = useHasProcessProvider();
+
   const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
 
   return (
