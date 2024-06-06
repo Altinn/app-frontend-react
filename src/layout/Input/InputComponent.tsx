@@ -145,7 +145,10 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     return (
       <PatternFormat
         value={formValue}
-        onValueChange={(values) => {
+        onValueChange={(values, sourceInfo) => {
+          if (sourceInfo.source === 'prop') {
+            return;
+          }
           setValue('simpleBinding', values.value);
         }}
         customInput={TextfieldWrapped as React.ComponentType}
@@ -160,7 +163,12 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     return (
       <NumericFormat
         value={formValue}
-        onValueChange={(values) => {
+        onValueChange={(values, sourceInfo) => {
+          if (sourceInfo.source === 'prop') {
+            // Do not update the value if the change is from props (i.e. let's not send form data updates when
+            // visual-only decimalScale changes)
+            return;
+          }
           setValue('simpleBinding', values.value);
         }}
         onPaste={(event) => {
