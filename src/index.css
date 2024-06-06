@@ -149,11 +149,6 @@ dl {
   margin-top: 0;
 }
 
-svg,
-img {
-  vertical-align: middle;
-}
-
 /* Align text in table when right to left languages*/
 [dir='rtl'] td {
   text-align: right;

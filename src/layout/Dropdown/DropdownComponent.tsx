@@ -75,12 +75,10 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
             description={langAsString(option.description)}
             displayValue={langAsString(option.label)}
           >
-            <span style={{ display: 'inline-block', height: '1em' /* Workaround for misaligned checkmark */ }}>
-              <Lang
-                id={option.label}
-                node={node}
-              />
-            </span>
+            <Lang
+              id={option.label}
+              node={node}
+            />
           </Combobox.Option>
         ))}
       </Combobox>
