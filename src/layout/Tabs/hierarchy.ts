@@ -26,8 +26,8 @@ export class TabsHierarchyGenerator extends ComponentHierarchyGenerator<'Tabs'> 
   }
 
   override stage1(generator: HierarchyGenerator, item: CompTabsExternal): void {
-    item.tabs.forEach((tab) => {
-      tab.children.forEach((childId) => {
+    item.tabs?.forEach((tab) => {
+      tab.children?.forEach((childId) => {
         if (this.canRenderInTabChildren(generator, childId)) {
           generator.claimChild({ childId, parentId: item.id });
         }
@@ -41,7 +41,7 @@ export class TabsHierarchyGenerator extends ComponentHierarchyGenerator<'Tabs'> 
       const me = ctx.generator.makeNode(props);
 
       const tabsInternal: TabConfigInternal[] = [];
-      prototype?.tabs.forEach(({ children, ...rest }) => {
+      prototype?.tabs?.forEach(({ children, ...rest }) => {
         const tab: TabConfigInternal = {
           childNodes: [],
           ...rest,
