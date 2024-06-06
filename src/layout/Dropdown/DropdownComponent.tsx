@@ -19,14 +19,13 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
 
   const debounce = FD.useDebounceImmediately();
 
-  const { options, isFetching, currentStringy, setData } = useGetOptions({
+  const { options, isFetching, selectedValues, setData, rawData } = useGetOptions({
     ...node.item,
     node,
     removeDuplicates: true,
-    valueType: 'single',
   });
 
-  const selectedLabel = options.find((option) => option.value === currentStringy[0])?.label;
+  const selectedLabel = options.find((option) => option.value === selectedValues[0])?.label;
   const selectedLabelTranslated = langAsString(selectedLabel);
   const alertText = selectedLabel
     ? lang('form_filler.radiobutton_alert_label', [`<strong>${selectedLabelTranslated}</strong>`])
@@ -35,7 +34,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
   const { alertOpen, setAlertOpen, handleChange, confirmChange, cancelChange } = useAlertOnChange(
     Boolean(alertOnChange),
     setData,
-    (values) => values[0] !== currentStringy[0] && !!currentStringy.length,
+    (values) => values[0] !== selectedValues[0] && !!selectedValues.length,
   );
 
   return (
@@ -57,7 +56,8 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
       <Combobox
         id={id}
         hideLabel={true}
-        value={currentStringy}
+        key={rawData} // Workaround for clearing text input
+        value={selectedValues}
         readOnly={readOnly}
         onValueChange={handleChange}
         onBlur={debounce}

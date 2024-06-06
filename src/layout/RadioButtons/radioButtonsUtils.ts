@@ -8,11 +8,10 @@ export const useRadioButtons = ({ node }: IRadioButtonsContainerProps) => {
     options: calculatedOptions,
     isFetching: fetchingOptions,
     setData,
-    currentStringy,
+    selectedValues,
   } = useGetOptions({
     ...node.item,
     node,
-    valueType: 'single',
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,7 +26,7 @@ export const useRadioButtons = ({ node }: IRadioButtonsContainerProps) => {
     handleChange,
     handleChangeRadioGroup,
     fetchingOptions,
-    selected: currentStringy,
+    selectedValues,
     calculatedOptions,
   };
 };

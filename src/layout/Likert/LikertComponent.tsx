@@ -25,7 +25,6 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
   const { options: calculatedOptions, isFetching } = useGetOptions({
     ...(firstLikertChild?.item || {}),
     node,
-    valueType: 'single',
     dataModelBindings: undefined,
   });
   const { lang } = useLanguage();

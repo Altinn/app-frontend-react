@@ -14,13 +14,12 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
   const debounce = FD.useDebounceImmediately();
   const {
     options: calculatedOptions,
-    currentStringy,
+    selectedValues,
     setData,
   } = useGetOptions({
     ...node.item,
     node,
     removeDuplicates: true,
-    valueType: 'multi',
   });
   const { langAsString } = useLanguage();
 
@@ -38,7 +37,7 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
       error={!isValid}
       onChange={setData}
       onBlur={debounce}
-      value={currentStringy}
+      value={selectedValues}
       aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
     />
   );
