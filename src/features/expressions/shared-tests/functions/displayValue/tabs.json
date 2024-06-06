@@ -1,11 +1,11 @@
 {
-  "name": "Display value of TabGroup component",
+  "name": "Display value of Tabs component",
   "expression": [
     "displayValue",
-    "tabgroup"
+    "tabs"
   ],
   "context": {
-    "component": "tabgroup",
+    "component": "tabs",
     "currentLayout": "Page"
   },
   "expects": "",
@@ -15,8 +15,8 @@
       "data": {
         "layout": [
           {
-            "id": "tabgroup",
-            "type": "TabGroup",
+            "id": "tabs",
+            "type": "Tabs",
             "children": []
           }
         ]
