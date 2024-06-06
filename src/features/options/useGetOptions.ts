@@ -215,11 +215,20 @@ export function useGetOptions(props: Props): OptionsResult {
   usePreselectedOptionIndex(effectProps);
   useRemoveStaleValues(effectProps);
 
+  // This is a workaround for https://github.com/digdir/designsystemet/issues/2081
+  // Pls remove this ASAP
+  const wrappedSelectedValues = useMemo(() => selectedValues.map((v) => `_value_${v}`), [selectedValues]);
+  const wrappedSetData = useCallback((values: string[]) => setData(values.map((v) => v.substring(7))), [setData]);
+  const wrappedOptions = useMemo(
+    () => alwaysOptions.map((o) => ({ ...o, value: `_value_${o.value}` })),
+    [alwaysOptions],
+  );
+
   return {
     rawData: value,
-    selectedValues,
-    setData,
-    options: alwaysOptions,
+    selectedValues: wrappedSelectedValues,
+    setData: wrappedSetData,
+    options: wrappedOptions,
     isFetching: isFetching || !calculatedOptions,
     isError,
   };
