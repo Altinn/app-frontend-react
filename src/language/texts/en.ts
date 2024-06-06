@@ -102,6 +102,7 @@ export function en() {
       postPlace: 'Post Place',
       zipCode: 'Zip Code',
       no_options_found: 'No matches found',
+      clear_selection: 'Clear selection',
     },
     navigation: {
       main: 'App navigation',

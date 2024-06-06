@@ -204,12 +204,12 @@ export function useGetOptions(props: Props): OptionsResult {
   const effectProps: EffectProps = useMemo(
     () => ({
       options: calculatedOptions,
-      disable: !(props.dataModelBindings && 'simpleBinding' in props.dataModelBindings),
+      disable: isFetching || !(props.dataModelBindings && 'simpleBinding' in props.dataModelBindings),
       preselectedOption,
       currentValues,
       setValue: setData,
     }),
-    [calculatedOptions, currentValues, preselectedOption, props.dataModelBindings, setData],
+    [calculatedOptions, currentValues, isFetching, preselectedOption, props.dataModelBindings, setData],
   );
 
   usePreselectedOptionIndex(effectProps);

@@ -102,6 +102,7 @@ export function nn(): FixedLanguageList {
       postPlace: 'Poststad',
       zipCode: 'Postnr',
       no_options_found: 'Fann ingen treff',
+      clear_selection: 'Fjern alle valde',
     },
     navigation: {
       main: 'Appnavigasjon',
