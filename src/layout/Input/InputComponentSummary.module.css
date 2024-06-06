@@ -2,6 +2,11 @@
   font-weight: bold;
 }
 
+.emptyValue {
+  color: var(--fds-color-neutral-500);
+  font-style: italic;
+}
+
 .inputSummaryItem {
   display: flex;
   gap: var(--fds-spacing-2);
@@ -11,6 +16,7 @@
 .labelWrapper {
   display: flex;
   align-items: center;
+  gap: var(--fds-spacing-2);
 }
 
 .editButton {

@@ -18,7 +18,7 @@ export const InputComponentSummary = ({ componentNode, summaryOverrides, display
   if (summaryOverrides?.hidden) {
     return <h1>Im so hidden!!!</h1>;
   }
-  const value = displayData ?? <Lang id={'empty_summary'}></Lang>;
+  const value = <Lang id={'general.empty_summary'}></Lang>;
 
   const { textResourceBindings } = componentNode.item;
   return (
@@ -33,7 +33,22 @@ export const InputComponentSummary = ({ componentNode, summaryOverrides, display
           summaryComponentId={''}
         />
       </div>
-      <Paragraph className={classes.formValue}>{value}</Paragraph>
+      {displayData && (
+        <Paragraph
+          asChild
+          className={classes.formValue}
+        >
+          <span>{displayData}</span>
+        </Paragraph>
+      )}
+      {!displayData && (
+        <Paragraph
+          asChild
+          className={classes.emptyValue}
+        >
+          <span>{value}</span>
+        </Paragraph>
+      )}
     </div>
   );
 };
