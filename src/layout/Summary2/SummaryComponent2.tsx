@@ -6,7 +6,7 @@ import cn from 'classnames';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useGetLayoutSetById } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import classes from 'src/layout/Summary2/SummaryComponent2.module.css';
-import { pageBreakStyles } from 'src/utils/formComponentUtils';
+import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useGetPage, useNode } from 'src/utils/layout/NodesContext';
 import type { CompSummary2External, CompSummary2Internal } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -75,6 +75,7 @@ function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryP
       item={true}
       style={{ border: '2px solid yellow' }}
       className={cn(pageBreakStyles(componentNode.item?.pageBreak), classes.summaryItem)}
+      {...gridBreakpoints(componentNode.item.grid)}
     >
       {renderedComponent}
       {childComponents}
