@@ -63,7 +63,7 @@
   flex-shrink: 0;
 }
 
-.tabs [class*='tabcontent'] {
+.tabs [class*='tabs__content'] {
   min-height: 0;
   flex: 1;
   padding: 0;
