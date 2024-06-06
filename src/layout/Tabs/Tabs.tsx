@@ -99,6 +99,7 @@ function TabHeader({
       style={{
         backgroundColor: isActive ? 'white' : 'transparent',
       }}
+      tabIndex={0}
     >
       {!!icon && (
         <img
