@@ -153,12 +153,11 @@ function useFormDataSaveMutation(dataType: string) {
 }
 
 function useIsSaving(dataType?: string) {
-  const dataModels = useLaxSelector((s) => s.dataModels);
-  const saveUrl = dataType && dataModels !== ContextNotProvided ? dataModels[dataType].saveUrl : undefined;
+  const maybeSaveUrl = useLaxSelector((s) => (dataType ? s.dataModels[dataType].saveUrl : undefined));
   return (
     useIsMutating({
       mutationKey: dataType
-        ? ['saveFormData', dataModels === ContextNotProvided ? '__never__' : saveUrl]
+        ? ['saveFormData', typeof maybeSaveUrl === 'string' ? maybeSaveUrl : '__never__']
         : ['saveFormData'],
     }) > 0
   );
