@@ -13,6 +13,7 @@ export const CHECKBOX_SUMMARY_PROPS = new CG.obj(
   new CG.prop(
     'displayType',
     new CG.enum('list', 'string')
+      .optional()
       .setTitle('Display type')
       .setDescription('How data should be displayed for the radio in the summary'),
   ),
