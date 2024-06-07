@@ -38,7 +38,7 @@ function LayoutSetSummary({ layoutSetId, summaryOverrides }: LayoutSetSummaryPro
     throw new Error('LayoutSetId invalid in LayoutSetSummary.');
   }
   return (
-    <div style={{ border: '2px solid blue' }}>
+    <div>
       {layouts.map((layoutId) => (
         <PageSummary
           pageId={layoutId}
