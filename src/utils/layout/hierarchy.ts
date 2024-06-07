@@ -202,24 +202,13 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
 
 function useResolvedExpressions(isHidden: ReturnType<typeof useIsHiddenComponent>) {
   const layouts = useLayouts();
-
-  console.log('layouts', layouts);
-
   const currentView = useCurrentView();
-
-  console.log('currentView', currentView);
-
   const dataSources = useExpressionDataSources(isHidden);
-
-  console.log('dataSources', dataSources);
-
   const previousNodesRef = useRef<LayoutPages>();
   const nodes = useMemo(
     () => resolvedNodesInLayouts(layouts, currentView, dataSources, previousNodesRef.current),
     [layouts, currentView, dataSources],
   );
-
-  console.log('nodes', nodes);
 
   previousNodesRef.current = nodes;
 

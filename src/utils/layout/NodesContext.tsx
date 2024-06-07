@@ -55,7 +55,6 @@ export const NodesProvider = (props: React.PropsWithChildren) => (
 function InnerNodesProvider() {
   const isHidden = useIsHiddenComponent();
   const resolvedNodes = _private.useResolvedExpressions(isHidden);
-  console.log('resolvedNodes', resolvedNodes);
   const setNodes = useSelector((state) => state.setNodes);
 
   useEffect(() => {

@@ -33,8 +33,7 @@ interface ComponentSummaryProps {
   summaryOverrides: CompSummary2Internal['overWriteProperties'];
 }
 
-function LayoutSetSummary({ layoutSetId, summaryOverrides }: LayoutSetSummaryProps) {
-  // const layoutSet = useGetLayoutSetById(layoutSetId);
+function LayoutSetSummary({ summaryOverrides }: LayoutSetSummaryProps) {
   const pageOrder = useOrder();
   return (
     <div>
@@ -125,15 +124,36 @@ function ResolveComponent({ summaryProps, summaryOverrides }: ResolveComponentPr
 
 interface TaskSummaryProps {
   taskId: string;
+  pageId?: string;
+  componentId?: string;
   summaryOverrides: any;
 }
-function TaskSummary({ taskId, summaryOverrides }: TaskSummaryProps) {
+function TaskSummary({ pageId, componentId, summaryOverrides }: TaskSummaryProps) {
   const nodes = useNodes();
   const { langAsString } = useLanguage();
 
+  if (componentId) {
+    const nodeToRender = nodes.findById(componentId);
+    return (
+      nodeToRender && (
+        <div style={{ width: '100%' }}>
+          <ComponentSummary
+            componentNode={nodeToRender}
+            summaryOverrides={summaryOverrides}
+          />
+        </div>
+      )
+    );
+  }
+
+  let pageKeys = nodes.allPageKeys();
+  if (pageId) {
+    pageKeys = pageKeys.filter((key) => key === pageId);
+  }
+
   return (
     <div style={{ width: '100%' }}>
-      {nodes.allPageKeys().map((page) => (
+      {pageKeys.map((page) => (
         <div
           style={{ marginBottom: '10px' }}
           key={page}
@@ -158,7 +178,12 @@ function TaskSummary({ taskId, summaryOverrides }: TaskSummaryProps) {
   );
 }
 
-function TaskSummaryWrapper({ taskId, summaryOverrides }: React.PropsWithChildren<TaskSummaryProps>) {
+function TaskSummaryWrapper({
+  taskId,
+  pageId,
+  componentId,
+  summaryOverrides,
+}: React.PropsWithChildren<TaskSummaryProps>) {
   const { setTaskId, setOverriddenDataModelId, setOverriddenLayoutSetId } = useTaskStore((state) => ({
     setTaskId: state.setTaskId,
     setOverriddenDataModelId: state.setOverriddenDataModelId,
@@ -182,6 +207,8 @@ function TaskSummaryWrapper({ taskId, summaryOverrides }: React.PropsWithChildre
       <FormProvider>
         <TaskSummary
           taskId={taskId}
+          pageId={pageId}
+          componentId={componentId}
           summaryOverrides={summaryOverrides}
         />
       </FormProvider>
@@ -218,10 +245,19 @@ function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
   }
 
   if (summaryNode.item.whatToRender.type === 'task') {
+    const IDSplitted = summaryNode.item.whatToRender.id.split('>');
+
+    const taskId = IDSplitted.length > 1 ? IDSplitted[0] : summaryNode.item.whatToRender.id;
+    const pageId = IDSplitted.length > 1 ? IDSplitted[1] : undefined;
+
+    const componentId = IDSplitted.length > 2 ? IDSplitted[2] : undefined;
+
     return (
       <TaskIdStoreProvider>
         <TaskSummaryWrapper
-          taskId={summaryNode.item.whatToRender.id}
+          taskId={taskId}
+          pageId={pageId}
+          componentId={componentId}
           summaryOverrides={summaryNode.item.overWriteProperties}
         />
       </TaskIdStoreProvider>

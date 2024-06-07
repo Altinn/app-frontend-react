@@ -104,13 +104,4 @@ export class Address extends AddressDef implements ValidateComponent {
 
     return errors;
   }
-
-  // renderSummary2(summaryNode: LayoutNode<'Address'>): JSX.Element | null {
-  //   // If the code ever ends up with a Summary component referencing another Summary component, we should not end up
-  //   // in an infinite loop by rendering them all. This is usually stopped early in <SummaryComponent />.
-  //   console.log('summaryNode', summaryNode);
-  //   const data = this.useDisplayData(summaryNode);
-  //   console.log('data', data);
-  //   return <SummaryItemSimple formDataAsString={data} />;
-  // }
 }
