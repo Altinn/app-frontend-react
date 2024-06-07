@@ -3,7 +3,7 @@
 }
 
 .emptyValue {
-  color: var(--fds-color-neutral-500);
+  color: var(--fds-semantic-text-neutral-subtle);
   font-style: italic;
 }
 
@@ -11,6 +11,10 @@
   display: flex;
   gap: var(--fds-spacing-2);
   flex-direction: column;
+}
+
+.error {
+  border-bottom: var(--fds-semantic-border-danger-default) solid 2px;
 }
 
 .labelWrapper {
