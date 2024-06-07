@@ -6,8 +6,8 @@ import { formatNumericText } from '@digdir/design-system-react';
 import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { InputDef } from 'src/layout/Input/config.def.generated';
 import { InputComponent } from 'src/layout/Input/InputComponent';
+import { InputComponentSummary } from 'src/layout/Input/InputComponentSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { SingleFieldSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleFieldSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -50,7 +50,7 @@ export class Input extends InputDef {
     summaryOverrides?: CompInputInternal['summaryProps'],
   ): JSX.Element | null {
     return (
-      <SingleFieldSummary
+      <InputComponentSummary
         componentNode={componentNode}
         summaryOverrides={summaryOverrides}
         displayData={this.useDisplayData(componentNode)}

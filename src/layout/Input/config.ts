@@ -14,6 +14,7 @@ export const INPUT_SUMMARY_PROPS = new CG.obj(
   .optional()
   .setTitle('Summary properties')
   .setDescription('Properties for how to display the summary of the component');
+
 export const Config = new CG.component({
   category: CompCategory.Form,
   rendersWithLabel: true,

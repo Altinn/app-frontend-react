@@ -4,8 +4,8 @@ import { Label, Paragraph } from '@digdir/designsystemet-react';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
+import classes from 'src/layout/Input/InputComponentSummary.module.css';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
-import classes from 'src/layout/Summary2/CommonSummaryComponents/SingleFieldSummary.module.css';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface AddressSummaryProps {

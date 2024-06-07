@@ -4,30 +4,24 @@ import { ErrorMessage, Label, Paragraph } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
-import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
-import { validationsOfSeverity } from 'src/features/validation/utils';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import classes from 'src/layout/Summary2/CommonSummaryComponents/SingleFieldSummary.module.css';
-import type { CompInputInternal } from 'src/layout/Input/config.generated';
+import type { BaseValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type InputComponentSummaryProps = {
-  componentNode: LayoutNode<'Input'>;
-  displayData: string;
-  summaryOverrides?: CompInputInternal['summaryProps'];
+type SingleFieldSummaryProps = {
+  title: React.ReactNode;
+  errors: BaseValidation[];
+  componentNode: LayoutNode;
+  displayData?: string;
 };
 
-export const SingleFieldSummary = ({ componentNode, displayData, summaryOverrides }: InputComponentSummaryProps) => {
-  const validations = useUnifiedValidationsForNode(componentNode);
-  const errors = validationsOfSeverity(validations, 'error');
-
-  const { textResourceBindings } = componentNode.item;
+export const SingleFieldSummary = ({ title, errors, componentNode, displayData }: SingleFieldSummaryProps) => {
+  console.log('SingleFieldSummary');
   return (
-    <div className={classes.summaryItem}>
+    <div className={classes.inputSummaryItem}>
       <div className={classes.labelWrapper}>
-        <Label weight={'regular'}>
-          <Lang id={textResourceBindings?.title}></Lang>
-        </Label>
+        <Label weight={'regular'}>{title}</Label>
         <EditButton
           className={classes.editButton}
           componentNode={componentNode}

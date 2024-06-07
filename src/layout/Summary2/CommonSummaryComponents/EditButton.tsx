@@ -20,7 +20,7 @@ export function EditButton({ componentNode, summaryComponentId, className }: Edi
   const setNodeOfOrigin = useSetSummaryNodeOfOrigin();
   const { currentPageId } = useNavigatePage();
 
-  const onClick = async () => {
+  const onChangeClick = async () => {
     if (!componentNode.top.top.myKey) {
       return;
     }
@@ -31,7 +31,7 @@ export function EditButton({ componentNode, summaryComponentId, className }: Edi
   };
   return (
     <Button
-      onClick={onClick}
+      onClick={onChangeClick}
       variant='tertiary'
       size='small'
       className={className}
