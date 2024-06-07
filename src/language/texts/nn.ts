@@ -1,4 +1,4 @@
-import type { FixedLanguageList } from 'src/language/languages';
+import type { FixedLanguageList, NestedTexts } from 'src/language/languages';
 
 export function nn(): FixedLanguageList {
   return {
@@ -146,6 +146,7 @@ export function nn(): FixedLanguageList {
       next: 'Neste',
       no_options: 'Ingen alternativ tilgjengeleg',
       optional: 'Valfri',
+      page_number: 'Side {0}',
       print_button_text: 'Print / Lagre PDF',
       progress: 'Side {0} av {1}',
       required: 'Obligatorisk',
@@ -380,5 +381,5 @@ export function nn(): FixedLanguageList {
     likert: {
       left_column_default_header_text: 'Spørsmål',
     },
-  };
+  } satisfies NestedTexts;
 }

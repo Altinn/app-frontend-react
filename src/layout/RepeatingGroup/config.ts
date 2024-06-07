@@ -10,6 +10,8 @@ export const Config = new CG.component({
     renderInButtonGroup: false,
     renderInAccordion: false,
     renderInAccordionGroup: false,
+    renderInCards: false,
+    renderInCardsMedia: false,
   },
 })
   .addProperty(
@@ -79,6 +81,20 @@ export const Config = new CG.component({
       title: 'Edit button (open) (for repeating groups)',
       description:
         'The text for the "Edit" button when the repeating group item is not in edit mode (i.e. the user can open the edit mode)',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'pagination_next_button',
+      title: 'Next button in pagination',
+      description: 'The text for the "Next" button in pagination',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'pagination_back_button',
+      title: 'Back button in pagination',
+      description: 'The text for the "Back" button in pagination',
     }),
   )
   .addDataModelBinding(
@@ -188,6 +204,15 @@ export const Config = new CG.component({
       )
         .exportAs('IGroupEditProperties')
         .optional(),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'pagination',
+      new CG.obj(new CG.prop('rowsPerPage', new CG.int().setMin(1)))
+        .optional()
+        .setTitle('Pagination options')
+        .setDescription('Pagination options for the repeating group rows.'),
     ),
   )
   .addProperty(

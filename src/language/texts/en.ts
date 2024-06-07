@@ -1,3 +1,5 @@
+import type { NestedTexts } from 'src/language/languages';
+
 export function en() {
   return {
     altinn: {
@@ -28,7 +30,7 @@ export function en() {
     confirm: {
       answers: 'Your responses',
       attachments: 'Attachments',
-      body: 'You are ready to submit {0}. Before you submit, we recomment that you look over and verify your responses. You cannot change your responses after submitting.',
+      body: 'You are ready to submit {0}. Before you submit, we recommend that you look over and verify your responses. You cannot change your responses after submitting.',
       button_text: 'Submit',
       deadline: 'Deadline',
       sender: 'Party',
@@ -144,6 +146,7 @@ export function en() {
       next: 'Next',
       no_options: 'No options available',
       optional: 'Optional',
+      page_number: 'Page {0}',
       print_button_text: 'Print / Save as PDF',
       progress: 'Page {0} of {1}',
       required: 'Required',
@@ -377,5 +380,5 @@ export function en() {
     likert: {
       left_column_default_header_text: 'Question',
     },
-  };
+  } satisfies NestedTexts;
 }
