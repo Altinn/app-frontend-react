@@ -6,8 +6,8 @@ import cn from 'classnames';
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
-import classes from 'src/layout/Input/InputComponentSummary.module.css';
-import { EditButton } from 'src/layout/Summary2/EditButton';
+import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
+import classes from 'src/layout/Summary2/CommonSummaryComponents/SingleFieldSummary.module.css';
 import type { CompInputInternal } from 'src/layout/Input/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -17,13 +17,13 @@ type InputComponentSummaryProps = {
   summaryOverrides?: CompInputInternal['summaryProps'];
 };
 
-export const InputComponentSummary = ({ componentNode, displayData, summaryOverrides }: InputComponentSummaryProps) => {
+export const SingleFieldSummary = ({ componentNode, displayData, summaryOverrides }: InputComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
 
   const { textResourceBindings } = componentNode.item;
   return (
-    <div className={classes.inputSummaryItem}>
+    <div className={classes.summaryItem}>
       <div className={classes.labelWrapper}>
         <Label weight={'regular'}>
           <Lang id={textResourceBindings?.title}></Lang>
