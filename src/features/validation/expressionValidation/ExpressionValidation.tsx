@@ -11,7 +11,8 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { getKeyWithoutIndex } from 'src/utils/databindings';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
-import type { IDataModelReference } from 'src/layout/common.generated';
+import type { IDataModelReference, ILayoutSet } from 'src/layout/common.generated';
+import type { HierarchyDataSources } from 'src/layout/layout';
 
 const EXPR_CONFIG: ExprConfig<ExprVal.Boolean> = {
   defaultValue: false,
@@ -34,6 +35,19 @@ export function ExpressionValidation({ dataType }: { dataType: string }) {
           continue;
         }
 
+        // Modify the hierarchy data sources to make the current dataModel the default one when running expression validations
+        const currentLayoutSet = node.getDataSources().currentLayoutSet;
+        const modifiedCurrentLayoutSet: ILayoutSet | null = currentLayoutSet
+          ? {
+              ...currentLayoutSet,
+              dataType,
+            }
+          : null;
+        const dataSources: HierarchyDataSources = {
+          ...node.getDataSources(),
+          currentLayoutSet: modifiedCurrentLayoutSet,
+        };
+
         for (const reference of Object.values(node.item.dataModelBindings as Record<string, IDataModelReference>)) {
           if (reference.dataType !== dataType) {
             continue;
@@ -55,9 +69,9 @@ export function ExpressionValidation({ dataType }: { dataType: string }) {
           }
 
           for (const validationDef of validationDefs) {
-            const isInvalid = evalExpr(validationDef.condition as Expression, node, node.getDataSources(), {
+            const isInvalid = evalExpr(validationDef.condition as Expression, node, dataSources, {
               config: EXPR_CONFIG,
-              positionalArguments: [field, dataType],
+              positionalArguments: [field],
             });
             if (isInvalid) {
               if (!validations[field]) {
