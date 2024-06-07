@@ -126,7 +126,7 @@ describe('readonly data models', () => {
 
     cy.findByRole('heading', { name: /kvittering/i }).should('be.visible');
     cy.get(appFrontend.multipleDatamodelsTest.textField1Summary).should('contain.text', 'første');
-    cy.get(appFrontend.multipleDatamodelsTest.textField2Summary).should('contain.text', 'andre');
+    cy.get(appFrontend.multipleDatamodelsTest.textField2Paragraph).should('contain.text', 'andre');
     cy.get(appFrontend.multipleDatamodelsTest.textField3Summary).should('contain.text', 'Noe annet denne gangen');
 
     cy.get(appFrontend.errorReport).should('not.exist');

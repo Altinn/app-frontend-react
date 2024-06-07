@@ -38,7 +38,6 @@ export class MissingDataElementException extends Error {
 /**
  * Looks through all layouts and returns a list of unique data types that are referenced in dataModelBindings,
  * it will also include the default data type, which is necessary in case there are string bindings
- * TODO(Datamodels): Currently does not check expressions for referenced data types, maybe it should?
  */
 export function getAllReferencedDataTypes(layouts: ILayouts, defaultDataType?: string) {
   const dataTypes = new Set<string>();
@@ -56,10 +55,46 @@ export function getAllReferencedDataTypes(layouts: ILayouts, defaultDataType?: s
           }
         }
       }
+      addDataTypesFromExpressionsRecursive(component, dataTypes);
     }
   }
 
   return [...dataTypes];
+}
+
+/**
+ * Recurse component properties and look for data types in expressions ["dataModel", "...", "dataType"]
+ * Logs a warning if a non-string (e.g. nested expression) is found where the data type should be as we cannot resolve expressions at this point
+ */
+function addDataTypesFromExpressionsRecursive(obj: object, dataTypes: Set<string>) {
+  if (obj == null || typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
+    return;
+  }
+
+  if (Array.isArray(obj)) {
+    if (obj.at(0) === 'dataModel' && obj.length === 3) {
+      const maybeDataType = obj.at(2);
+      if (typeof maybeDataType === 'string') {
+        dataTypes.add(maybeDataType);
+      } else {
+        window.logWarnOnce(
+          'A non-string value was found when looking for dataType references in expressions, the following dataType could not be determined:\n',
+          maybeDataType,
+        );
+      }
+    }
+
+    for (const child of obj) {
+      addDataTypesFromExpressionsRecursive(child, dataTypes);
+    }
+    return;
+  }
+
+  if (typeof obj === 'object') {
+    for (const child of Object.values(obj)) {
+      addDataTypesFromExpressionsRecursive(child, dataTypes);
+    }
+  }
 }
 
 /**

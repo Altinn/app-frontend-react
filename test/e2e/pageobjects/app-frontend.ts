@@ -351,6 +351,7 @@ export class AppFrontend {
     textField1Summary: '[data-testid="summary-text1"]',
     textField2Summary: '[data-testid="summary-text2"]',
     textField3Summary: '[data-testid="summary-text3"]',
+    textField2Paragraph: '[data-testid="paragraph-component-text2"]',
     sectorSummary: '[data-testid="summary-sector"]',
     industrySummary: '[data-testid="summary-industry"]',
     personsSummary: '[data-testid="summary-persons"]',
