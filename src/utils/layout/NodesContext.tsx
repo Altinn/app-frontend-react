@@ -100,7 +100,7 @@ export const useGetPage = (pageId: string) =>
     if (!state?.nodes) {
       return null;
     }
-    return state.nodes.findLayout(pageId); //state.nodes.findById(pageId);
+    return state.nodes.findLayout(pageId);
   });
 
 export const useNodes = () => useSelector((s) => s.nodes!);

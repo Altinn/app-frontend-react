@@ -48,7 +48,11 @@ function useProcessQuery(instanceId: string) {
 export function ProcessProvider({ children, instance }: React.PropsWithChildren<{ instance: IInstance }>) {
   const { navigateToTask, taskId } = useNavigatePage();
 
-  const { overriddenTaskId, setTaskId, clearTaskId } = useTaskStore();
+  const { overriddenTaskId, setTaskId, clearTaskId } = useTaskStore(({ overriddenTaskId, setTaskId, clearTaskId }) => ({
+    overriddenTaskId,
+    setTaskId,
+    clearTaskId,
+  }));
 
   const activeTaskId = overriddenTaskId || taskId;
 

@@ -93,7 +93,7 @@ export function useDataModelUrl(includeRowIds: boolean, dataType: string | undef
 }
 
 export function useCurrentDataModelName() {
-  const { overriddenDataModelId } = useTaskStore();
+  const { overriddenDataModelId } = useTaskStore(({ overriddenDataModelId }) => ({ overriddenDataModelId }));
 
   const application = useApplicationMetadata();
   const layoutSets = useLayoutSets();

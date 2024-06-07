@@ -51,15 +51,14 @@ export class Input extends InputDef {
     componentNode: LayoutNode<'Input'>,
     summaryOverrides?: CompInputInternal['summaryProps'],
   ): JSX.Element | null {
-    if (summaryOverrides?.hidden) {
-      return <h1>Im so hidden!!!</h1>;
-    }
-
     const { textResourceBindings } = componentNode.item;
     const displayData = this.useDisplayData(componentNode);
     return (
       <>
-        <Label weight={'regular'}>
+        <Label
+          weight={'regular'}
+          size={'small'}
+        >
           <Lang id={textResourceBindings?.title}></Lang>
         </Label>
         <Paragraph className={classes.formValue}>{displayData}</Paragraph>

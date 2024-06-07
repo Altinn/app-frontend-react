@@ -58,7 +58,7 @@ export function useLayoutSetId() {
   const currentProcessLayoutSetId = useCurrentLayoutSetId();
   const { taskId } = useNavigationParams();
 
-  const { overriddenLayoutSetId } = useTaskStore();
+  const { overriddenLayoutSetId } = useTaskStore(({ overriddenLayoutSetId }) => ({ overriddenLayoutSetId }));
 
   if (overriddenLayoutSetId) {
     return overriddenLayoutSetId;

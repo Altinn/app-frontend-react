@@ -12,7 +12,7 @@ export function useCurrentLayoutSetId() {
   const taskId = useProcessTaskId();
   console.log('further down', taskId);
 
-  const { overriddenLayoutSetId } = useTaskStore();
+  const { overriddenLayoutSetId } = useTaskStore(({ overriddenLayoutSetId }) => ({ overriddenLayoutSetId }));
 
   if (overriddenLayoutSetId) {
     return overriddenLayoutSetId;
