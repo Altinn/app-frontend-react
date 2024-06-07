@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Combobox } from '@digdir/designsystemet-react';
 
+import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -37,6 +38,10 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
     (values) => values[0] !== selectedValues[0] && !!selectedValues.length,
   );
 
+  if (isFetching) {
+    return <AltinnSpinner />;
+  }
+
   return (
     <ConditionalWrapper
       condition={Boolean(alertOnChange)}
@@ -62,7 +67,6 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
         onValueChange={handleChange}
         onBlur={debounce}
         error={!isValid}
-        loading={isFetching}
         aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
       >
         <Combobox.Empty>

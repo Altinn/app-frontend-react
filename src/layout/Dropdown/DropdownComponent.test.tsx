@@ -96,7 +96,7 @@ describe('DropdownComponent', () => {
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'sweden' });
   });
 
-  it('should show as disabled when readOnly is true', async () => {
+  it('should show as readonly when readOnly is true', async () => {
     await render({
       component: {
         readOnly: true,
@@ -105,10 +105,10 @@ describe('DropdownComponent', () => {
     });
 
     const select = await screen.findByRole('combobox');
-    expect(select).toHaveProperty('disabled', true);
+    expect(select).toHaveAttribute('readonly');
   });
 
-  it('should not show as disabled when readOnly is false', async () => {
+  it('should not show as readonly when readOnly is false', async () => {
     await render({
       component: {
         readOnly: false,
@@ -117,7 +117,7 @@ describe('DropdownComponent', () => {
     });
 
     const select = await screen.findByRole('combobox');
-    expect(select).toHaveProperty('disabled', false);
+    expect(select).not.toHaveAttribute('readonly');
   });
 
   it('should trigger setLeafValue when preselectedOptionIndex is set', async () => {
@@ -151,6 +151,7 @@ describe('DropdownComponent', () => {
       headers: {},
     } as AxiosResponse<IRawOption[], any>);
 
+    await userEvent.click(await screen.findByRole('combobox'));
     await screen.findByText('Denmark');
 
     // The component always finishes loading the first time, but if we have mapping that affects the options
@@ -212,9 +213,9 @@ describe('DropdownComponent', () => {
     await userEvent.click(await screen.findByRole('combobox'));
     const options = await screen.findAllByRole('option');
 
-    expect(options[0]).toHaveValue('norway');
-    expect(options[1]).toHaveValue('sweden');
-    expect(options[2]).toHaveValue('denmark');
+    expect(options[0]).toHaveTextContent('Norway');
+    expect(options[1]).toHaveTextContent('Sweden');
+    expect(options[2]).toHaveTextContent('Denmark');
   });
 
   it('should present the provided options list sorted alphabetically in ascending order when providing sortOrder "asc"', async () => {
@@ -229,9 +230,9 @@ describe('DropdownComponent', () => {
     await userEvent.click(await screen.findByRole('combobox'));
     const options = await screen.findAllByRole('option');
 
-    expect(options[0]).toHaveValue('denmark');
-    expect(options[1]).toHaveValue('norway');
-    expect(options[2]).toHaveValue('sweden');
+    expect(options[0]).toHaveTextContent('Denmark');
+    expect(options[1]).toHaveTextContent('Norway');
+    expect(options[2]).toHaveTextContent('Sweden');
   });
 
   it('should present the provided options list sorted alphabetically in descending order when providing sortOrder "desc"', async () => {
@@ -246,9 +247,9 @@ describe('DropdownComponent', () => {
     await userEvent.click(await screen.findByRole('combobox'));
     const options = await screen.findAllByRole('option');
 
-    expect(options[0]).toHaveValue('sweden');
-    expect(options[1]).toHaveValue('norway');
-    expect(options[2]).toHaveValue('denmark');
+    expect(options[0]).toHaveTextContent('Sweden');
+    expect(options[1]).toHaveTextContent('Norway');
+    expect(options[2]).toHaveTextContent('Denmark');
   });
 
   it.each([

@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Combobox } from '@digdir/designsystemet-react';
 
+import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -19,6 +20,10 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
   });
   const { langAsString } = useLanguage();
 
+  if (isFetching) {
+    return <AltinnSpinner />;
+  }
+
   return (
     <Combobox
       multiple
@@ -29,7 +34,6 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
       onValueChange={setData}
       onBlur={debounce}
       error={!isValid}
-      loading={isFetching}
       clearButtonLabel={langAsString('form_filler.clear_selection')}
       aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
     >
