@@ -10,8 +10,6 @@ export function useCurrentLayoutSetId() {
   const application = useLaxApplicationMetadata();
   const layoutSets = useLaxLayoutSets();
   const taskId = useProcessTaskId();
-  console.log('further down', taskId);
-
   const { overriddenLayoutSetId } = useTaskStore(({ overriddenLayoutSetId }) => ({ overriddenLayoutSetId }));
 
   if (overriddenLayoutSetId) {

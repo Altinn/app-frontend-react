@@ -150,7 +150,6 @@ export const ProcessWrapper = () => {
   if (taskType === ProcessTaskType.Data) {
     return (
       <FormProvider>
-        <FormProvider />
         <LayoutValidationProvider>
           <Routes>
             <Route

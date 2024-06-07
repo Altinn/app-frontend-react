@@ -166,9 +166,6 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
         }
       }
     }
-
-    console.log('nodesFound', nodesFound);
-
     // Make sure we dispatch if on the receipt page and other non-node based pages, so that we
     // stop loading options and show the page
     if (nodes || currentTaskType !== ProcessTaskType.Data) {
