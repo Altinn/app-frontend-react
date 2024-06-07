@@ -1,16 +1,13 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { Label, List, Paragraph } from '@digdir/designsystemet-react';
-
-import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
+import { CheckboxesSummary } from 'src/layout/Checkboxes/CheckboxesSummary';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
-import classes from 'src/layout/RadioButtons/ControlledRadioGroupSummary.module.css';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -37,29 +34,6 @@ export class Checkboxes extends CheckboxesDef {
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 
-  private renderSummaryListItems(displayData: string): JSX.Element[] {
-    return displayData.split(',').map((item, index) => (
-      <List.Item
-        key={`list-item-${index}`}
-        className={classes.formValue}
-      >
-        {item}
-      </List.Item>
-    ));
-  }
-
-  private renderSummaryDisplayData(displayData: string, displayType?: string): JSX.Element {
-    const maxStringLength = 75;
-    const showAsList = displayType === 'list' || (!displayType && displayData?.length >= maxStringLength);
-    return showAsList ? (
-      <List.Root>
-        <List.Unordered>{this.renderSummaryListItems(displayData)}</List.Unordered>
-      </List.Root>
-    ) : (
-      <Paragraph className={classes.formValue}>{displayData}</Paragraph>
-    );
-  }
-
   getDisplayData(
     node: LayoutNode<'Checkboxes'>,
     { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
@@ -75,18 +49,16 @@ export class Checkboxes extends CheckboxesDef {
   }
 
   renderSummary2(
-    summaryNode: LayoutNode<'Checkboxes'>,
+    componentNode: LayoutNode<'Checkboxes'>,
     summaryOverrides?: CompCheckboxesInternal['summaryProps'],
   ): JSX.Element | null {
-    const { textResourceBindings } = summaryNode.item;
-    const displayData = this.useDisplayData(summaryNode);
+    const displayData = this.useDisplayData(componentNode);
     return (
-      <>
-        <Label weight={'regular'}>
-          <Lang id={textResourceBindings?.title}></Lang>
-        </Label>
-        {this.renderSummaryDisplayData(displayData, summaryOverrides?.displayType)}
-      </>
+      <CheckboxesSummary
+        componentNode={componentNode}
+        displayData={displayData}
+        summaryOverrides={summaryOverrides}
+      />
     );
   }
 

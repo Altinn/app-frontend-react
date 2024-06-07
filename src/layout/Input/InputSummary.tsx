@@ -13,7 +13,7 @@ type InputComponentSummaryProps = {
   summaryOverrides?: CompInputInternal['summaryProps'];
 };
 
-export const InputComponentSummary = ({ componentNode, displayData, summaryOverrides }: InputComponentSummaryProps) => {
+export const InputSummary = ({ componentNode, displayData, summaryOverrides }: InputComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = componentNode.item.textResourceBindings?.title;
