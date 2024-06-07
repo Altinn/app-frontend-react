@@ -3,8 +3,8 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useGetLayoutSetById } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
+import { useOrder } from 'src/hooks/useNavigatePage';
 import classes from 'src/layout/Summary2/SummaryComponent2.module.css';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useGetPage, useNode } from 'src/utils/layout/NodesContext';
@@ -31,14 +31,15 @@ interface ComponentSummaryProps {
 
 function LayoutSetSummary({ layoutSetId, summaryOverrides }: LayoutSetSummaryProps) {
   const layoutSet = useGetLayoutSetById(layoutSetId);
+  const pageOrder = useOrder();
 
-  const layouts = Object.keys(useLayouts());
-  if (!layoutSet) {
-    throw new Error('LayoutSetId invalid in LayoutSetSummary.');
-  }
+  // const layouts = Object.keys(useLayouts());
+  // if (!layoutSet) {
+  //   throw new Error('LayoutSetId invalid in LayoutSetSummary.');
+  // }
   return (
     <div style={{ border: '2px solid blue' }}>
-      {layouts.map((layoutId) => (
+      {pageOrder.map((layoutId) => (
         <PageSummary
           pageId={layoutId}
           key={layoutId}
@@ -73,7 +74,7 @@ function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryP
   return (
     <Grid
       item={true}
-      style={{ border: '2px solid yellow' }}
+      //style={{ border: '2px solid yellow' }}
       className={cn(pageBreakStyles(componentNode.item?.pageBreak), classes.summaryItem)}
       {...gridBreakpoints(componentNode.item.grid)}
     >

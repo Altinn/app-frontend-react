@@ -13,16 +13,13 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type InputComponentSummaryProps = {
   componentNode: LayoutNode<'Input'>;
-  summaryOverrides?: CompInputInternal['summaryProps'];
   displayData: string;
+  summaryOverrides?: CompInputInternal['summaryProps'];
 };
 
-export const InputComponentSummary = ({ componentNode, summaryOverrides, displayData }: InputComponentSummaryProps) => {
+export const InputComponentSummary = ({ componentNode, displayData, summaryOverrides }: InputComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
-  if (summaryOverrides?.hidden) {
-    return <h1>Im so hidden!!!</h1>;
-  }
 
   const { textResourceBindings } = componentNode.item;
   return (
@@ -37,22 +34,19 @@ export const InputComponentSummary = ({ componentNode, summaryOverrides, display
           summaryComponentId={''}
         />
       </div>
-      {displayData && (
-        <Paragraph
-          asChild
-          className={cn(classes.formValue, { [classes.error]: errors.length > 0 })}
-        >
-          <span>{displayData}</span>
-        </Paragraph>
-      )}
-      {!displayData && (
-        <Paragraph
-          asChild
-          className={cn(classes.emptyValue, { [classes.error]: errors.length > 0 })}
-        >
-          <span>{<Lang id={'general.empty_summary'}></Lang>}</span>
-        </Paragraph>
-      )}
+      <Paragraph
+        asChild
+        className={cn({
+          [classes.error]: errors.length > 0,
+          [classes.emptyValue]: !displayData,
+          [classes.formValue]: displayData,
+        })}
+      >
+        <span>
+          {!displayData && <Lang id={'general.empty_summary'}></Lang>}
+          {displayData}
+        </span>
+      </Paragraph>
       {errors.length > 0 &&
         errors.map(({ message }) => (
           <ErrorMessage key={message.key}>
