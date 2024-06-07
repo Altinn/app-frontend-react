@@ -40,11 +40,5 @@ export function InvalidDataValidation({ dataType }: { dataType: string }) {
     updateDataModelValidations('invalidData', dataType, validations);
   }, [dataType, invalidData, updateDataModelValidations]);
 
-  // Cleanup on unmount
-  useEffect(
-    () => () => updateDataModelValidations('invalidData', dataType, {}),
-    [dataType, updateDataModelValidations],
-  );
-
   return null;
 }

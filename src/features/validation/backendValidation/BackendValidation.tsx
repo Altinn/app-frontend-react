@@ -61,11 +61,5 @@ export function BackendValidation({ dataType }: { dataType: string }) {
     }
   }, [dataType, lastSaveValidations, updateDataModelValidations, getDataModelValidationsFromValidatorGroups]);
 
-  // Cleanup on unmount
-  useEffect(
-    () => () => updateDataModelValidations('backend', dataType, {}, undefined),
-    [dataType, updateDataModelValidations],
-  );
-
   return null;
 }

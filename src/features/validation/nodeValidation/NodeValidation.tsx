@@ -33,7 +33,6 @@ export function NodeValidation() {
 
 function SpecificNodeValidation<Type extends CompTypes>({ node: _node }: { node: LayoutNode<Type> }) {
   const updateComponentValidations = Validation.useUpdateComponentValidations();
-  const removeComponentValidations = Validation.useRemoveComponentValidations();
   const nodeId = _node.item.id;
   const validationDataSources = useValidationDataSourcesForNode(_node);
 
@@ -77,9 +76,6 @@ function SpecificNodeValidation<Type extends CompTypes>({ node: _node }: { node:
 
     updateComponentValidations(nodeId, validations);
   }, [nodeId, nodeRef, updateComponentValidations, validationDataSources]);
-
-  // Cleanup on unmount
-  useEffect(() => () => removeComponentValidations(nodeId), [nodeId, removeComponentValidations]);
 
   return null;
 }

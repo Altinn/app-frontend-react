@@ -118,8 +118,5 @@ export function SchemaValidation({ dataType }: { dataType: string }) {
     }
   }, [dataType, formData, rootElementPath, schema, updateDataModelValidations, validator]);
 
-  // Cleanup on unmount
-  useEffect(() => () => updateDataModelValidations('schema', dataType, {}), [dataType, updateDataModelValidations]);
-
   return null;
 }
