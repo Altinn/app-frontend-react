@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 
 import { Accordion } from '@digdir/designsystemet-react';
+import { Grid } from '@material-ui/core';
+import cn from 'classnames';
 
 import { FormProvider } from 'src/features/form/FormContext';
-import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useGetLayoutSetById } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useOrder } from 'src/hooks/useNavigatePage';
+import classes from 'src/layout/Summary2/SummaryComponent2.module.css';
 import { TaskIdStoreProvider, useTaskStore } from 'src/layout/Summary2/taskIdStore';
+import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useGetPage, useNode, useNodes } from 'src/utils/layout/NodesContext';
 import type { CompSummary2External, CompSummary2Internal } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -31,15 +34,11 @@ interface ComponentSummaryProps {
 }
 
 function LayoutSetSummary({ layoutSetId, summaryOverrides }: LayoutSetSummaryProps) {
-  const layoutSet = useGetLayoutSetById(layoutSetId);
-
-  const layouts = Object.keys(useLayouts());
-  if (!layoutSet) {
-    throw new Error('LayoutSetId invalid in LayoutSetSummary.');
-  }
+  // const layoutSet = useGetLayoutSetById(layoutSetId);
+  const pageOrder = useOrder();
   return (
     <div>
-      {layouts.map((layoutId) => (
+      {pageOrder.map((layoutId) => (
         <PageSummary
           pageId={layoutId}
           key={layoutId}
@@ -72,17 +71,19 @@ function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryP
     : null;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {renderedComponent && <div>{renderedComponent}</div>}
+    <Grid
+      item={true}
+      className={cn(pageBreakStyles(componentNode.item?.pageBreak), classes.summaryItem)}
+      {...gridBreakpoints(componentNode.item.grid)}
+    >
+      {renderedComponent}
       {childComponents}
-    </div>
+    </Grid>
   );
 }
 
 function PageSummary({ pageId, summaryOverrides }: PageSummaryProps) {
   const page = useGetPage(pageId);
-  const { langAsString } = useLanguage();
-
   if (!page) {
     throw new Error('PageId invalid in PageSummary.');
   }
@@ -109,6 +110,7 @@ interface ResolveComponentProps {
 
 function ResolveComponent({ summaryProps, summaryOverrides }: ResolveComponentProps) {
   const resolvedComponent = useNode(summaryProps.whatToRender.id);
+
   if (!resolvedComponent) {
     return null;
   }
@@ -226,4 +228,5 @@ function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
     );
   }
 }
+
 export const SummaryComponent2 = React.forwardRef(_SummaryComponent2);

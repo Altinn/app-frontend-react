@@ -5,12 +5,14 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
+import { CheckboxesSummary } from 'src/layout/Checkboxes/CheckboxesSummary';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
+import type { CompCheckboxesInternal } from 'src/layout/Checkboxes/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -44,6 +46,20 @@ export class Checkboxes extends CheckboxesDef {
     const options = useAllOptionsSelector();
     const summaryData = this.getSummaryData(targetNode, langTools, options, formDataSelector);
     return <MultipleChoiceSummary formData={summaryData} />;
+  }
+
+  renderSummary2(
+    componentNode: LayoutNode<'Checkboxes'>,
+    summaryOverrides?: CompCheckboxesInternal['summaryProps'],
+  ): JSX.Element | null {
+    const displayData = this.useDisplayData(componentNode);
+    return (
+      <CheckboxesSummary
+        componentNode={componentNode}
+        displayData={displayData}
+        summaryOverrides={summaryOverrides}
+      />
+    );
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Checkboxes'>): string[] {

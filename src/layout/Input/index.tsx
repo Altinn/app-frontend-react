@@ -2,13 +2,11 @@ import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { formatNumericText } from '@digdir/design-system-react';
-import { Label, Paragraph } from '@digdir/designsystemet-react';
 
-import { Lang } from 'src/features/language/Lang';
 import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { InputDef } from 'src/layout/Input/config.def.generated';
 import { InputComponent } from 'src/layout/Input/InputComponent';
-import classes from 'src/layout/Input/InputComponentSummary.module.css';
+import { InputSummary } from 'src/layout/Input/InputSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
@@ -51,20 +49,15 @@ export class Input extends InputDef {
     componentNode: LayoutNode<'Input'>,
     summaryOverrides?: CompInputInternal['summaryProps'],
   ): JSX.Element | null {
-    const { textResourceBindings } = componentNode.item;
-    const displayData = this.useDisplayData(componentNode);
     return (
-      <>
-        <Label
-          weight={'regular'}
-          size={'small'}
-        >
-          <Lang id={textResourceBindings?.title}></Lang>
-        </Label>
-        <Paragraph className={classes.formValue}>{displayData}</Paragraph>
-      </>
+      <InputSummary
+        componentNode={componentNode}
+        summaryOverrides={summaryOverrides}
+        displayData={this.useDisplayData(componentNode)}
+      />
     );
   }
+
   validateDataModelBindings(ctx: LayoutValidationCtx<'Input'>): string[] {
     return this.validateDataModelBindingsSimple(ctx);
   }

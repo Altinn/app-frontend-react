@@ -1,18 +1,16 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { Label, Paragraph } from '@digdir/designsystemet-react';
-
-import { Lang } from 'src/features/language/Lang';
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
-import classes from 'src/layout/Input/InputComponentSummary.module.css';
 import { RadioButtonsDef } from 'src/layout/RadioButtons/config.def.generated';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
+import { RadioButtonsSummary } from 'src/layout/RadioButtons/RadioButtonsSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompRadioButtonsInternal } from 'src/layout/RadioButtons/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RadioButtons extends RadioButtonsDef {
@@ -36,16 +34,17 @@ export class RadioButtons extends RadioButtonsDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(componentNode: LayoutNode<'RadioButtons'>): JSX.Element | null {
-    const { textResourceBindings } = componentNode.item;
+  renderSummary2(
+    componentNode: LayoutNode<'RadioButtons'>,
+    summaryOverrides?: CompRadioButtonsInternal['summaryProps'],
+  ): JSX.Element | null {
     const displayData = this.useDisplayData(componentNode);
     return (
-      <>
-        <Label weight={'regular'}>
-          <Lang id={textResourceBindings?.title}></Lang>
-        </Label>
-        <Paragraph className={classes.formValue}>{displayData}</Paragraph>
-      </>
+      <RadioButtonsSummary
+        componentNode={componentNode}
+        summaryOverrides={summaryOverrides}
+        displayData={displayData}
+      />
     );
   }
   validateDataModelBindings(ctx: LayoutValidationCtx<'RadioButtons'>): string[] {

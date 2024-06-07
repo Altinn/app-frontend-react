@@ -1,0 +1,14 @@
+.formValue {
+  font-weight: 500;
+}
+
+.labelWrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--fds-spacing-2);
+}
+
+.editButton {
+  margin-left: auto;
+  min-width: unset;
+}
