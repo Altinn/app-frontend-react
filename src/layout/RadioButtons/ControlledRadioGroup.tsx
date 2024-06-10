@@ -83,7 +83,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
         hideLegend={overrideDisplay?.renderLegend === false}
         description={<Lang id={textResourceBindings?.description} />}
         error={!isValid}
-        disabled={readOnly}
+        readOnly={readOnly}
         inline={shouldDisplayHorizontally}
         role='radiogroup'
       >
@@ -97,7 +97,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
             key={option.value}
             checked={option.value === selected}
             showAsCard={showAsCard}
-            disabled={readOnly}
+            readOnly={readOnly}
             onChange={handleChange}
             hideLabel={hideLabel}
             size='small'

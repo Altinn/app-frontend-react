@@ -62,7 +62,7 @@ describe('Expression validation shared tests', () => {
       formDataSelector: (path) => dot.pick(path, formData),
       instanceDataSources: buildInstanceDataSources(),
       authContext: buildAuthContext(undefined),
-      langToolsRef: { current: langTools },
+      langToolsSelector: () => langTools,
     };
 
     const customValidation = resolveExpressionValidationConfig(validationConfig);

@@ -48,6 +48,8 @@ export interface CompCapabilities {
   renderInButtonGroup: boolean;
   renderInAccordion: boolean;
   renderInAccordionGroup: boolean;
+  renderInCards: boolean;
+  renderInCardsMedia: boolean;
 }
 
 /**

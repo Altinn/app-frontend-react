@@ -4,7 +4,7 @@ import type { PropsWithChildren } from 'react';
 import { useIsLoading } from 'src/core/loading/LoadingContext';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { DataModelFetcher } from 'src/features/formData/FormDataReaders';
-import { LangDataSourcesProvider, ProvideUseLanguageRef } from 'src/features/language/LangDataSourcesProvider';
+import { LangDataSourcesProvider } from 'src/features/language/LangDataSourcesProvider';
 import { useNavigationEffect, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 
 interface Props extends PropsWithChildren {
@@ -21,7 +21,6 @@ export function RenderStart({ children, devTools = true, dataModelFetcher = true
   return (
     <LangDataSourcesProvider>
       <RunNavigationEffect />
-      <ProvideUseLanguageRef />
       {children}
       {devTools && <DevTools />}
       {dataModelFetcher && <DataModelFetcher />}

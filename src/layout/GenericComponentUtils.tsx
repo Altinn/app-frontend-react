@@ -73,6 +73,7 @@ export function GenericComponentLegend() {
       required={'required' in item ? item.required : false}
       labelSettings={'labelSettings' in item ? item.labelSettings : undefined}
       layout={('layout' in item && item.layout) || undefined}
+      readOnly={'readOnly' in item ? item.readOnly : false}
     />
   );
 }

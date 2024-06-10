@@ -8,8 +8,10 @@ export const Config = new CG.component({
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: false,
-    renderInAccordion: false,
+    renderInAccordion: true,
     renderInAccordionGroup: false,
+    renderInCards: true,
+    renderInCardsMedia: true,
   },
   functionality: {
     customExpressions: false,

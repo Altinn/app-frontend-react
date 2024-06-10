@@ -7,8 +7,8 @@ import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettin
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
-import { useLangToolsRef } from 'src/features/language/LangToolsStore';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
 import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
 import { getComponentDef } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
@@ -48,7 +48,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
   const applicationSettings = useApplicationSettings();
   const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
   const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
-  const langToolsRef = useLangToolsRef();
+  const langToolsSelector = useLanguageWithForcedNodeSelector();
   const currentLanguage = useCurrentLanguage();
   const authContext = useMemo(() => buildAuthContext(process?.currentTask), [process?.currentTask]);
   const isHiddenSelector = Hidden.useIsHiddenSelector();
@@ -68,7 +68,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
       authContext,
       devToolsIsOpen,
       devToolsHiddenComponents,
-      langToolsRef,
+      langToolsSelector,
       currentLanguage,
       isHiddenSelector,
       nodeFormDataSelector,
@@ -86,7 +86,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
       authContext,
       devToolsIsOpen,
       devToolsHiddenComponents,
-      langToolsRef,
+      langToolsSelector,
       currentLanguage,
       isHiddenSelector,
       nodeFormDataSelector,

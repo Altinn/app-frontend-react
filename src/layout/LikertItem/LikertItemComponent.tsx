@@ -45,7 +45,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   const { selected, handleChange, calculatedOptions, fetchingOptions } = useRadioButtons(props);
   const validations = useUnifiedValidationsForNode(node);
 
-  const id = node.getId();
+  const { id, readOnly } = useNodeItem(node);
   const groupContainer = useNodeTraversal(
     (t) => t.closest((i) => i.type === 'node' && i.item?.type === 'Likert'),
     node,
@@ -75,6 +75,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
           <Table.Cell key={option.value}>
             <Radio
               checked={isChecked}
+              readOnly={readOnly}
               onChange={handleChange}
               value={option.value}
               className={classes.likertRadioButton}

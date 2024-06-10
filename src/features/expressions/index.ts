@@ -507,7 +507,7 @@ export const ExprFunctions = {
       return (def as DisplayData<any>).getDisplayData(targetNode, node.item, {
         attachmentsSelector: this.dataSources.attachmentsSelector,
         optionsSelector: this.dataSources.optionsSelector,
-        langTools: this.dataSources.langToolsRef.current,
+        langTools: this.dataSources.langToolsSelector(node as LayoutNode),
         currentLanguage: this.dataSources.currentLanguage,
         formDataSelector: this.dataSources.formDataSelector,
         nodeFormDataSelector: this.dataSources.nodeFormDataSelector,
@@ -544,7 +544,8 @@ export const ExprFunctions = {
         return null;
       }
 
-      return this.dataSources.langToolsRef.current.langAsNonProcessedString(key);
+      const node = this.node instanceof BaseLayoutNode ? this.node : undefined;
+      return this.dataSources.langToolsSelector(node).langAsNonProcessedString(key);
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.String,

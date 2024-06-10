@@ -27,11 +27,7 @@ export interface ExpressionDataSources {
   layoutSettings: ILayoutSettings;
   optionsSelector: NodeOptionsSelector;
   authContext: Partial<IAuthContext> | null;
-  langToolsRef: {
-    // We pass langTools as a ref, because it itself re-renders a lot, and we don't want to
-    // re-create the hierarchy every time language stuff changes.
-    current: IUseLanguage;
-  };
+  langToolsSelector: (node: LayoutNode | undefined) => IUseLanguage;
   currentLanguage: string;
   isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
   nodeFormDataSelector: NodeFormDataSelector;

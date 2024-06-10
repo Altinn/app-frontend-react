@@ -11,6 +11,8 @@ export const Config = new CG.component({
     renderInButtonGroup: false,
     renderInAccordion: false,
     renderInAccordionGroup: false,
+    renderInCards: false,
+    renderInCardsMedia: false,
   },
   functionality: {
     customExpressions: false,
