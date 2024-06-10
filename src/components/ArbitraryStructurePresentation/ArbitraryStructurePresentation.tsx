@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { Card, Heading, Link, Paragraph } from '@digdir/designsystemet-react';
+import { Card, CardContent, CardHeader, Heading, Link, Paragraph } from '@digdir/designsystemet-react';
 import type { HeadingProps } from '@digdir/designsystemet-react';
 
-import classes from 'src/components/PresentationLayoutComponents/ArbitraryStructurePresentation.module.css';
+import classes from 'src/components/ArbitraryStructurePresentation/ArbitraryStructurePresentation.module.css';
 
 type BasicAllowedTypes = string | number | boolean;
 type LinkType = { value: string; href: string; icon?: string };
@@ -48,22 +48,25 @@ export function ArbitraryStructureComponent({
 
   return (
     <Card color='first'>
-      <dl>
+      <CardHeader>
         <SectionIntro
           {...sectionData}
           level={3}
         />
-        <div className={classes[direction]}>
-          {data.map((dataItem) => (
-            <div key={String(dataItem)}>
-              <PresentDataItem
-                dataItem={dataItem}
-                direction={direction}
-              />
-            </div>
-          ))}
-        </div>
-      </dl>
+      </CardHeader>
+      <CardContent>
+        {data.map((dataItem) => (
+          <div
+            key={String(dataItem)}
+            className={`${classes['presentationDataItem']} ${classes[direction]}`}
+          >
+            <PresentDataItem
+              dataItem={dataItem}
+              direction={direction}
+            />
+          </div>
+        ))}
+      </CardContent>
     </Card>
   );
 }
@@ -100,8 +103,9 @@ function PresentDataItem({ dataItem, direction }: PresentDataItemProps) {
   return (
     <div>
       <SectionIntro
-        {...sectionData}
         level={4}
+        {...sectionData}
+        className={classes['nestedSectionIntro']}
       />
       <div className={classes[direction]}>
         {Object.entries(data).map(([key, value]) => (
@@ -123,21 +127,20 @@ function PresentDataItem({ dataItem, direction }: PresentDataItemProps) {
   );
 }
 
-function SectionIntro({
-  level,
-  title,
-  description,
-}: {
+type SectionIntroProps = {
   level: NonNullable<HeadingProps['level']>;
   title?: string;
   description?: string;
-}) {
+  className?: string;
+};
+
+function SectionIntro({ level, title, description, className }: SectionIntroProps) {
   if (!title && !description) {
     return null;
   }
 
   return (
-    <div className={classes.sectionIntro}>
+    <div className={className}>
       {title && (
         <Heading
           size='small'
@@ -146,7 +149,7 @@ function SectionIntro({
           {title}
         </Heading>
       )}
-      {description && <Paragraph size='small'>{description}</Paragraph>}
+      {description && <Paragraph size='medium'>{description}</Paragraph>}
     </div>
   );
 }

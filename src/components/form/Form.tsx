@@ -168,6 +168,8 @@ export function Form() {
           input={{
             title: 'Kartverket',
             data: [
+              'Mosætervegen 55, 2636 Øyer',
+              { href: 'https://www.kartverket.no', value: 'Flere opplysninger på kartverket.no' },
               {
                 data: {
                   Kommunenr: '1337',

@@ -2,9 +2,9 @@ dl {
   width: 100%;
 }
 
-.sectionIntro {
-  margin-bottom: 1em;
+.nestedSectionIntro {
   margin-top: 1em;
+  margin-bottom: 0.5em;
 }
 
 dt::after {
@@ -31,6 +31,9 @@ div:has(> dt) {
   flex-wrap: wrap;
   column-gap: 2em;
   row-gap: 1em;
+  align-items: flex-start;
+  padding: 0;
+  width: 100%;
 
   & .presentationDataItem {
     display: flex;
