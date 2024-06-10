@@ -15,7 +15,7 @@ export function getExpressionDataSourcesMock(): ExpressionDataSources {
     authContext: null,
     devToolsIsOpen: false,
     devToolsHiddenComponents: 'hide',
-    langToolsRef: { current: staticUseLanguageForTests() },
+    langToolsSelector: () => staticUseLanguageForTests(),
     currentLanguage: 'nb',
     isHiddenSelector: () => false,
     nodeFormDataSelector: () => ({}) as any,

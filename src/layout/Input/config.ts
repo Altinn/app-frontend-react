@@ -15,7 +15,7 @@ export const Config = new CG.component({
     renderInCardsMedia: false,
   },
   functionality: {
-    customExpressions: false,
+    customExpressions: true,
   },
 })
   .addTextResource(

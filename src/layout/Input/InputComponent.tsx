@@ -12,7 +12,6 @@ import { isNumericFormat, isPatternFormat } from 'src/layout/Input/number-format
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IInputFormattingInternal } from 'src/layout/Input/config.generated';
 
 export type IInputProps = PropsFromGenericComponent<'Input'>;
 
@@ -87,10 +86,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
 
   const { langAsString } = useLanguage();
 
-  const reactNumberFormatConfig = useMapToReactNumberConfig(
-    formatting as IInputFormattingInternal | undefined,
-    formValue,
-  );
+  const reactNumberFormatConfig = useMapToReactNumberConfig(formatting, formValue);
   const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;
   const prefixText = textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined;
   const suffixText = textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined;
@@ -102,7 +98,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     autoComplete: autocomplete,
     characterLimit: !readOnly ? characterLimit : undefined,
     role: 'textbox',
-    className: reactNumberFormatConfig.align ? classes[`text-align-${reactNumberFormatConfig.align}`] : '',
+    className: formatting?.align ? classes[`text-align-${formatting.align}`] : '',
     id,
     readOnly,
     error: !isValid,

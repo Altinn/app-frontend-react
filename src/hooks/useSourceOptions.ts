@@ -57,7 +57,7 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
          * langAsString function to actually be langAsStringUsingPathInDataModel partially
          * applied with the correct path in the data model.
          */
-        const modifiedDataSources: HierarchyDataSources = {
+        const modifiedDataSources: ExpressionDataSources = {
           ...dataSources,
           langToolsSelector: () => ({
             ...langTools,
