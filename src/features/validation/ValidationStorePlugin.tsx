@@ -32,14 +32,14 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
       setNodeVisibility: (nodes, newVisibility, _rowIndex) => {
         set((state) => {
           for (const node of nodes) {
-            const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
+            const nodeStore = pickDataStorePath(state, node) as NodeData;
             (nodeStore as any).validationVisibility = newVisibility;
           }
         });
       },
       setAttachmentVisibility: (attachmentId, node, newVisibility) => {
         set((state) => {
-          const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
+          const nodeStore = pickDataStorePath(state, node) as NodeData;
           if ('validations' in nodeStore) {
             for (const validation of nodeStore.validations) {
               if ('attachmentId' in validation && validation.attachmentId === attachmentId) {
@@ -64,7 +64,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           if (!node) {
             return 0;
           }
-          const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
+          const nodeStore = pickDataStorePath(state, node) as NodeData;
           return 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
         }),
       useValidations: (node) =>
@@ -72,7 +72,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           if (!node) {
             return emptyArray;
           }
-          const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
+          const nodeStore = pickDataStorePath(state, node) as NodeData;
           return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
         }),
       useValidationVisibilitySelector: () =>
@@ -80,7 +80,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           mode: 'simple',
           selector: (node: LayoutNode) => (state) =>
             ignoreNodePathNotFound(() => {
-              const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
+              const nodeStore = pickDataStorePath(state, node) as NodeData;
               return 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
             }, 0),
         }),
@@ -89,7 +89,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           mode: 'simple',
           selector: (node: LayoutNode) => (state) =>
             ignoreNodePathNotFound(() => {
-              const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
+              const nodeStore = pickDataStorePath(state, node) as NodeData;
               return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
             }, emptyArray),
         }),

@@ -23,7 +23,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
     return {
       setRowExtras: (node, row, internalProp, extras) => {
         set((state) => {
-          const nodeStore = pickDataStorePath(state.pages, node);
+          const nodeStore = pickDataStorePath(state, node);
           const existingRow = nodeStore[internalProp][row.uuid];
           if (existingRow && deepEqual(existingRow.extras, extras)) {
             return;
@@ -36,7 +36,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
       },
       removeRow: (node, row, internalProp) => {
         set((state) => {
-          const nodeStore = pickDataStorePath(state.pages, node);
+          const nodeStore = pickDataStorePath(state, node);
           const newRows = { ...nodeStore[internalProp] };
           delete newRows[row.uuid];
           nodeStore[internalProp] = newRows;
