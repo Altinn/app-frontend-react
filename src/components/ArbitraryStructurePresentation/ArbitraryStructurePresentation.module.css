@@ -1,0 +1,65 @@
+dl {
+  width: 100%;
+}
+
+.sectionIntro {
+  margin-bottom: 1em;
+  margin-top: 1em;
+}
+
+dt::after {
+  content: ': ';
+}
+
+dt {
+  float: left;
+  clear: left;
+  font-weight: normal;
+}
+
+dd {
+  font-weight: bold;
+}
+
+div:has(> dt) {
+  display: flex;
+}
+
+.horizontal {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  column-gap: 2em;
+  row-gap: 1em;
+
+  & .presentationDataItem {
+    display: flex;
+    flex-direction: column;
+    overflow-wrap: break-word;
+
+    & dt {
+      max-width: 15em;
+    }
+    & dd {
+      margin-left: 0;
+    }
+  }
+}
+
+.vertical {
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: break-word;
+
+  & .presentationDataItem {
+    display: flex;
+    flex-direction: row;
+  }
+
+  & dt {
+    width: 10em;
+  }
+}
+
+.presentationDataItem {
+}

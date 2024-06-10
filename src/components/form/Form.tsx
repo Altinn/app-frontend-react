@@ -4,6 +4,7 @@ import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import deepEqual from 'fast-deep-equal';
 
+import { ArbitraryStructureComponent } from 'src/components/ArbitraryStructurePresentation/ArbitraryStructurePresentation';
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
@@ -85,6 +86,147 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
+        <ArbitraryStructureComponent
+          config={{
+            presentationDataId: 'aktør',
+          }}
+          input={{
+            title: 'Kari Nordmann',
+            data: [
+              {
+                data: {
+                  Fødselsnummer: '12345678901',
+                  Adresse: 'Norgesveien 12, 1337 Sandvika, Norge',
+                },
+              },
+              'Rolle gyldig fra: 01.01.2021',
+            ],
+          }}
+        />
+        <div style={{ height: '25px', width: '100%' }}></div>
+        <ArbitraryStructureComponent
+          config={{
+            presentationDataId: 'org',
+          }}
+          input={{
+            title: 'Follebu og Bæverfjord Regnskap AS',
+            data: [
+              {
+                data: {
+                  'Org nr.': '12345678901',
+                  Forretningsadresse: 'Norgesveien 123, 0088 Oslo, Norge',
+                },
+              },
+            ],
+          }}
+        />
+        <div style={{ height: '25px', width: '100%' }}></div>
+        <ArbitraryStructureComponent
+          config={{
+            presentationDataId: 'test',
+            direction: 'horizontal',
+          }}
+          input={{
+            title: 'Saksopplysninger',
+            description: 'Saksopplysninger for konkursboet til Follebu og Bæverfjord Regnskap AS',
+            data: [
+              {
+                data: {
+                  Åpningsdato: '14.10.2008',
+                  Tingrett: 'RINGERIKE, ASKER OG BÆRUM TINGRETT',
+                  Saksnummer: '01-52343FRE-TOS/09',
+                  'Tingrett 2': 'RINGERIKE, ASKER OG BÆRUM TINGRETT',
+                },
+              },
+            ],
+          }}
+        />
+        <div style={{ height: '25px', width: '100%' }}></div>
+        <ArbitraryStructureComponent
+          config={{
+            presentationDataId: 'test',
+          }}
+          input={{
+            title: 'Bostyrer',
+            data: [
+              {
+                data: {
+                  Åpningsdato: '14.10.2008',
+                  Tingrett: 'RINGERIKE, ASKER OG BÆRUM TINGRETT',
+                  Saksnummer: '56-35553TRE-FOS/08',
+                },
+              },
+            ],
+          }}
+        />
+        <div style={{ height: '25px', width: '100%' }}></div>
+        <ArbitraryStructureComponent
+          config={{
+            presentationDataId: 'test',
+            direction: 'horizontal',
+          }}
+          input={{
+            title: 'Kartverket',
+            data: [
+              {
+                data: {
+                  Kommunenr: '1337',
+                  Gårdsnr: '33',
+                  Bruksnr: '192',
+                  Festenr: '-',
+                  Seksjonsnr: '1',
+                  Landbruk: 'Nei',
+                  Eierbrøk: '1/2',
+                },
+              },
+            ],
+          }}
+        />
+
+        <div style={{ height: '25px', width: '100%' }}></div>
+        <ArbitraryStructureComponent
+          config={{
+            presentationDataId: 'test',
+          }}
+          input={{
+            title: 'Test data complicated structure',
+            data: [
+              {
+                data: {
+                  stringKey: 'string',
+                  numberKey: 42,
+                  booleanKey: true,
+                  linkKey: { value: 'link', href: 'https://example.com' },
+                  structureKey: {
+                    data: {
+                      stringKey2: 'string',
+                      numberKey2: 42,
+                      booleanKey2: true,
+                      linkKey2: { value: 'link', href: 'https://example.com' },
+                    },
+                  },
+                  structureArrayKey: [
+                    'string in array',
+                    42,
+                    true,
+                    { value: 'link', href: 'https://example.com' },
+                    {
+                      title: 'Test data complicated structure',
+                      description: 'This is a test data structure with a lot of different types of data',
+                      data: {
+                        stringKey: 'string',
+                        numberKey: 42,
+                        booleanKey: true,
+                        linkKey: { value: 'link', href: 'https://example.com' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          }}
+        />
+
         {mainIds.map((id) => (
           <GenericComponentById
             key={id}
