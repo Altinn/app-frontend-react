@@ -57,7 +57,13 @@ const parserOptions: HTMLReactParserOptions = {
      * since the text might already be used in f.ex `p`, `button`, `label` tags etc.
      * Span is a better solution, although not perfect, as block level elements are not valid children (f.ex h1), but this should be less frequent.
      */
-    if (isElement(domNode) && !domNode.parent && domNode.name === 'p') {
+    if (
+      isElement(domNode) &&
+      !domNode.parent &&
+      !domNode.nextSibling &&
+      !domNode.previousSibling &&
+      domNode.name === 'p'
+    ) {
       domNode.name = 'span';
       return;
     }
