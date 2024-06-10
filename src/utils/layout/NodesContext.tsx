@@ -317,7 +317,6 @@ export const NodesProvider = (props: React.PropsWithChildren) => {
   const [markName, started] = usePerformanceMark('NodesProvider:start');
   if (started) {
     generatorLog('logStages', 'Starting node generation');
-    window.document.body.style.border = '20px solid red';
   }
 
   return (
