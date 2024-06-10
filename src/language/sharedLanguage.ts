@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Heading } from '@digdir/designsystemet-react';
+import { Heading, Paragraph } from '@digdir/designsystemet-react';
 import DOMPurify from 'dompurify';
 import parseHtmlToReact, { domToReact } from 'html-react-parser';
 import { marked } from 'marked';
@@ -69,6 +69,12 @@ const parserOptions: HTMLReactParserOptions = {
     }
 
     /**
+     * Replace p tag with Paragraph component from design system
+     */
+    if (isElement(domNode) && domNode.name === 'p') {
+      return React.createElement(Paragraph, { size: 'sm' }, domToReact(domNode.children as DOMNode[], parserOptions));
+    }
+    /**
      * Replace h1-h6 tags with Heading component from design system
      */
     if (isElement(domNode) && domNode.name === 'h1') {
@@ -113,6 +119,9 @@ const parserOptions: HTMLReactParserOptions = {
         domToReact(domNode.children as DOMNode[], parserOptions),
       );
     }
+    /**
+     * Internal links
+     */
     if (isElement(domNode) && domNode.name === 'a' && domNode.attribs['data-link-type'] === 'LinkToPotentialNode') {
       return React.createElement(
         LinkToPotentialNode,
