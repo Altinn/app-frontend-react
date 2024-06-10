@@ -51,13 +51,17 @@ Cypress.Commands.add('waitUntilSaved', () => {
 
 Cypress.Commands.add('dsSelect', (selector, value) => {
   cy.log(`Selecting ${value} in ${selector}`);
+  // In case the option is dynamic, wait for save and progressbars to go away, otherwise the component could rerender after opening, causing it to close again
+  cy.waitUntilSaved();
+  cy.findByRole('progressbar').should('not.exist');
+
   cy.get(selector).should('not.be.disabled');
   cy.get(selector).click();
 
   // It is tempting to just use findByRole('option', { name: value }) here, but that's flakier than using findByText()
   // as it never retries if the element re-renders. More information here:
   // https://github.com/testing-library/cypress-testing-library/issues/205#issuecomment-974688283
-  cy.get('[id^="fds-select-"] [aria-expanded=true]').findByText(value).click();
+  cy.get('[class*="fds-combobox__option"]').findByText(value).click();
 
   cy.get('body').click();
 });
@@ -193,7 +197,6 @@ const knownWcagViolations: KnownViolation[] = [
 Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
   cy.get('#readyForPrint').should('exist');
   cy.findByRole('progressbar').should('not.exist');
-  cy.get('[aria-busy]').should('not.exist');
 
   // Find focused element and blur it, to ensure that we don't get any focus outlines or styles in the snapshot.
   cy.window().then((win) => {
@@ -371,14 +374,12 @@ Cypress.Commands.add('reloadAndWait', () => {
   cy.reload();
   cy.get('#readyForPrint').should('exist');
   cy.findByRole('progressbar').should('not.exist');
-  cy.get('[aria-busy]').should('not.exist');
   cy.injectAxe();
 });
 
 Cypress.Commands.add('waitForLoad', () => {
   cy.get('#readyForPrint').should('exist');
   cy.findByRole('progressbar').should('not.exist');
-  cy.get('[aria-busy]').should('not.exist');
   // An initialOption can cause a save to occur immediately after loading is finished, wait for this to finish as well
   cy.waitUntilSaved();
   cy.log('App finished loading');
