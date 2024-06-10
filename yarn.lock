@@ -2510,19 +2510,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/design-system-react@npm:0.53.8":
-  version: 0.53.8
-  resolution: "@digdir/design-system-react@npm:0.53.8"
+"@digdir/design-system-react@npm:0.54.0":
+  version: 0.54.0
+  resolution: "@digdir/design-system-react@npm:0.54.0"
   dependencies:
     "@altinn/figma-design-tokens": "npm:^6.0.1"
-    "@digdir/designsystemet-react": "npm:^0.58.0"
+    "@digdir/designsystemet-theme": "npm:0.15.3"
     "@floating-ui/react": "npm:0.26.4"
     "@navikt/aksel-icons": "npm:^5.12.2"
     react-number-format: "npm:5.3.1"
   peerDependencies:
-    react: ">=18.2.0"
-    react-dom: ">=18.2.0"
-  checksum: 10c0/35743f9fc4c06edb34a36178f1666208d62b1818dfba0126cfd544d92b3da105e9ec1f820b87b1f9f8187a3093d45972c681509c46ef8b95faa5b61a45b5a9ce
+    react: ">=18.3.1"
+    react-dom: ">=18.3.1"
+  checksum: 10c0/4e528ed980d764fbfab266c1025d0bb2f7921dd14cbea52ced543f31d0b57e3e8adcf6c2d635ade347f3c7fb1edc7d204f81aa5033e7f3c98c30ddc45eabf0e6
   languageName: node
   linkType: hard
 
@@ -2533,16 +2533,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/designsystemet-css@npm:0.9.0":
-  version: 0.9.0
-  resolution: "@digdir/designsystemet-css@npm:0.9.0"
-  checksum: 10c0/335ea6fddf2a85b123846269cced1caa295d143ee48182aef95f3adf87e10c3ffe189fa2c13578d5a28eb33869cb321a977f066aa4a13cac97ad455bfdc98c47
+"@digdir/designsystemet-css@npm:0.10.0":
+  version: 0.10.0
+  resolution: "@digdir/designsystemet-css@npm:0.10.0"
+  checksum: 10c0/695f3bedf73aa440d832bccdf710a7ebb1a0fc05bfce2b4f9a70fb3e8abfae67f3792cfaaaddf1d87f5a2e7cd8edbf2e6f0d3fd020878b731dee5e3f61044935
   languageName: node
   linkType: hard
 
-"@digdir/designsystemet-react@npm:0.62.0":
-  version: 0.62.0
-  resolution: "@digdir/designsystemet-react@npm:0.62.0"
+"@digdir/designsystemet-react@npm:0.63.0":
+  version: 0.63.0
+  resolution: "@digdir/designsystemet-react@npm:0.63.0"
   dependencies:
     "@floating-ui/react": "npm:0.26.12"
     "@navikt/aksel-icons": "npm:^5.12.2"
@@ -2551,22 +2551,7 @@ __metadata:
   peerDependencies:
     react: ">=18.3.1"
     react-dom: ">=18.3.1"
-  checksum: 10c0/94a7f54955d3720c8877cc1ea2e373bd6c1cabd62bd493ec35ad5007d55e93b6265190e471be49010653094c57e4871b8fca1ff5a2158b996d89746d02ff42be
-  languageName: node
-  linkType: hard
-
-"@digdir/designsystemet-react@npm:^0.58.0":
-  version: 0.58.0
-  resolution: "@digdir/designsystemet-react@npm:0.58.0"
-  dependencies:
-    "@floating-ui/react": "npm:0.26.4"
-    "@navikt/aksel-icons": "npm:^5.12.2"
-    "@radix-ui/react-slot": "npm:^1.0.2"
-    "@tanstack/react-virtual": "npm:^3.2.0"
-  peerDependencies:
-    react: ">=18.2.0"
-    react-dom: ">=18.2.0"
-  checksum: 10c0/2aecd7352d7b3a32cb483df56c6d1acd2187a37c0e6c6de56ab5a48566b31b0e0b68500d3e43d3f41037c82a144a3613e502e043bff3135c6cd76a6d48606fef
+  checksum: 10c0/722cf541ccbd480156edee67c4b18c63d44daec44cde032aee97977c3e5e10c4f6f726cb25f5df427545312317b4f2043feff3f9e080788c6b181041a5c0c5ea
   languageName: node
   linkType: hard
 
@@ -6090,9 +6075,9 @@ __metadata:
     "@babel/runtime": "npm:^7.21.0"
     "@babel/runtime-corejs3": "npm:^7.21.0"
     "@date-io/moment": "npm:1.3.13"
-    "@digdir/design-system-react": "npm:0.53.8"
-    "@digdir/designsystemet-css": "npm:0.9.0"
-    "@digdir/designsystemet-react": "npm:0.62.0"
+    "@digdir/design-system-react": "npm:0.54.0"
+    "@digdir/designsystemet-css": "npm:0.10.0"
+    "@digdir/designsystemet-react": "npm:0.63.0"
     "@digdir/designsystemet-theme": "npm:0.15.3"
     "@faker-js/faker": "npm:^8.4.1"
     "@material-ui/core": "npm:4.12.4"
