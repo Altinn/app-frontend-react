@@ -7,8 +7,8 @@ interface DebugConfig {
 const debugAll = false;
 export const GeneratorDebug: DebugConfig = {
   displayState: debugAll,
-  logDuration: debugAll,
-  logStages: debugAll,
+  logDuration: debugAll || true,
+  logStages: debugAll || true,
 };
 
 export const generatorLog = (logType: keyof DebugConfig, ...messages: unknown[]) => {

@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import deepEqual from 'fast-deep-equal';
+import { current, isDraft } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type { UnionToIntersection } from 'utility-types';
@@ -221,6 +223,11 @@ export function createNodesDataStore() {
             const obj = pickDataStorePath(state.pages, node.path);
             if (obj.type === 'page') {
               throw new Error('Parent node is not a node');
+            }
+            const prevValue = isDraft(obj[prop as any]) ? current(obj[prop as any]) : obj[prop as any];
+            const isEqual = deepEqual(prevValue, value);
+            if (isEqual) {
+              return;
             }
             Object.assign(obj, { [prop]: value });
           }),
