@@ -82,7 +82,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   overrideItemProps,
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
-  const generatorErrors = NodesInternal.useNodeDataMemo(node, (node) => node.errors);
+  const generatorErrors = NodesInternal.useNodeData(node, (node) => node.errors);
   if (generatorErrors && Object.keys(generatorErrors).length > 0) {
     return (
       <ErrorList

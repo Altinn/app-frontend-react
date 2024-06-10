@@ -62,7 +62,7 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
   const navigateTo = useCallback(
     async (node: LayoutNode, shouldFocus = true) =>
       new Promise<NavigationResult>((resolve) => {
-        if (isHidden({ node })) {
+        if (isHidden(node)) {
           resolve(NavigationResult.NodeIsHidden);
           return;
         }

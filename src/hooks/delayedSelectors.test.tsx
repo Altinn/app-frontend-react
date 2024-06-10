@@ -20,19 +20,24 @@ function initialCreateStore() {
   }));
 }
 
-const { Provider, useDelayedMemoSelectorFactory, useSelector } = createZustandContext({
+const { Provider, useDelayedSelector, useSelector } = createZustandContext({
   name: 'Test',
   required: true,
   initialCreateStore,
 });
 
 const useSelectorWithStringCache = () =>
-  useDelayedMemoSelectorFactory(
-    (cacheKey: string) => (state) => `cacheKey = ${cacheKey}, state = ${state.state}, random number = ${Math.random()}`,
-  );
+  useDelayedSelector({
+    mode: 'simple',
+    selector: (cacheKey: string) => (state) =>
+      `cacheKey = ${cacheKey}, state = ${state.state}, random number = ${Math.random()}`,
+  });
 
 const useSelectorWithFunctionCache = () =>
-  useDelayedMemoSelectorFactory((innerSelector: <U>(state: State) => U) => (state) => innerSelector(state));
+  useDelayedSelector({
+    mode: 'innerSelector',
+    makeArgs: (state) => [state],
+  });
 
 function TestComponent() {
   return (
@@ -171,7 +176,7 @@ function functionResult(renderCount = 1, previous?: string) {
   return new RegExp(`Counter = ${expectedState}, random = \\d+\\.\\d+, render = ${renderCount}`);
 }
 
-describe('useDelayedSelectorFactory', () => {
+describe('useDelayedSelector', () => {
   it('should cache according to cache key', async () => {
     render(<TestComponent />);
 

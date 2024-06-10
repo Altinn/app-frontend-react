@@ -59,7 +59,7 @@ export function isGridRowHidden(row: GridRow, isHiddenSelector: IsHiddenSelector
   const allCellsAreHidden = row.cells.every((cell) => {
     if (isNodeRef(cell)) {
       atLeastNoneNodeExists = true;
-      return isHiddenSelector({ node: cell });
+      return isHiddenSelector(cell);
     }
 
     // Non-component cells always collapse and hide if components in other cells are hidden

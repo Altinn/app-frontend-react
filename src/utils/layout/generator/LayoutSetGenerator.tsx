@@ -357,7 +357,6 @@ interface ComponentProps {
 
 function GenerateComponent({ baseId, type, childIds }: ComponentProps) {
   const def = getComponentDef(type);
-  const Generator = def.renderNodeGenerator;
   const props = useMemo(() => {
     if (def instanceof ContainerComponent) {
       const out: ContainerGeneratorProps = {
@@ -371,6 +370,11 @@ function GenerateComponent({ baseId, type, childIds }: ComponentProps) {
     return out;
   }, [childIds, baseId, def]);
 
+  if (!def) {
+    return null;
+  }
+
+  const Generator = def.renderNodeGenerator;
   return (
     <div
       style={{

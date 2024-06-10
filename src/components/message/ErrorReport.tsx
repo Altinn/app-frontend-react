@@ -39,7 +39,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
       return;
     }
     ev.preventDefault();
-    if (isHidden({ node })) {
+    if (isHidden(node)) {
       // No point in trying to focus on a hidden component
       return;
     }

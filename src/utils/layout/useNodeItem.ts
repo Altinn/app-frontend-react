@@ -21,7 +21,7 @@ export function useNodeItem<N extends LayoutNode | undefined, Out>(
 ): Out;
 export function useNodeItem<N extends LayoutNode | undefined>(node: N, selector?: undefined): NodeItemFromNode<N>;
 export function useNodeItem(node: never, selector: never): never {
-  return NodesInternal.useNodeDataMemo(node, (node: NodeData) => (selector ? (selector as any)(node.item) : node.item));
+  return NodesInternal.useNodeData(node, (node: NodeData) => (selector ? (selector as any)(node.item) : node.item));
 }
 
 export function useNodeItemRef<N extends LayoutNode | undefined, Out>(
@@ -70,14 +70,12 @@ export function useNodeFormData<N extends LayoutNode | undefined>(node: N): Node
 
 export type NodeFormDataSelector = ReturnType<typeof useNodeFormDataSelector>;
 export function useNodeFormDataSelector() {
-  const nodeSelector = NodesInternal.useNodeDataMemoSelector();
+  const nodeSelector = NodesInternal.useNodeDataSelector();
   const formDataSelector = FD.useDebouncedSelector();
 
   return useCallback(
     <N extends LayoutNode | undefined>(node: N): NodeFormData<N> => {
-      const dataModelBindings = nodeSelector({ node, path: 'item.dataModelBindings' }) as
-        | IDataModelBindings
-        | undefined;
+      const dataModelBindings = nodeSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
       return dataModelBindings
         ? (getNodeFormData(dataModelBindings, formDataSelector) as NodeFormData<N>)
         : (emptyObject as NodeFormData<N>);

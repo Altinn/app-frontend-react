@@ -76,21 +76,23 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
         }),
       useValidationVisibilitySelector: () =>
-        store.useDelayedMemoSelectorFactory(
-          (node: LayoutNode) => (state) =>
+        store.useDelayedSelector({
+          mode: 'simple',
+          selector: (node: LayoutNode) => (state) =>
             ignoreNodePathNotFound(() => {
               const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
               return 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
             }, 0),
-        ),
+        }),
       useValidationsSelector: () =>
-        store.useDelayedMemoSelectorFactory(
-          (node: LayoutNode) => (state) =>
+        store.useDelayedSelector({
+          mode: 'simple',
+          selector: (node: LayoutNode) => (state) =>
             ignoreNodePathNotFound(() => {
               const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
               return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
             }, emptyArray),
-        ),
+        }),
     };
 
     return { ...out };

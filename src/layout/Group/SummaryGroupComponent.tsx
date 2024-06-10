@@ -87,7 +87,7 @@ export function SummaryGroupComponent({
   }
 
   const childSummaryComponents = children.map((child) => {
-    if (!child.isCategory(CompCategory.Form) || isHidden({ node: child })) {
+    if (!child.isCategory(CompCategory.Form) || isHidden(child)) {
       return;
     }
     const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<SummaryRendererProps<any>>;

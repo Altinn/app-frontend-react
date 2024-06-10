@@ -50,13 +50,14 @@ export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig>
           }, defaultReturn),
         ),
       useNodeOptionsSelector: () =>
-        store.useDelayedMemoSelectorFactory(
-          (node: LayoutNode<CompWithBehavior<'canHaveOptions'>>) => (state) =>
+        store.useDelayedSelector({
+          mode: 'simple',
+          selector: (node: LayoutNode<CompWithBehavior<'canHaveOptions'>>) => (state) =>
             ignoreNodePathNotFound(() => {
               const store = pickDataStorePath(state.pages, node) as NodeData;
               return { isFetching: nodeStoreToIsFetching(store), options: nodeStoreToOptions(store) };
             }, defaultReturn),
-        ),
+        }),
     };
   }
 }

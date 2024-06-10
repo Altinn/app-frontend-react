@@ -80,6 +80,7 @@ type ToInternal<E extends ExternalConfig> = Config<
   FromImport<Setting<E, 'extraRowState'>>
 >;
 type InternalRowState<E extends ExternalConfig> = RowsState<FromImport<Combined<E>['extraRowState']>>;
+type InternalState<E extends ExternalConfig> = { [key in Setting<E, 'internalProp'>]: InternalRowState<E> };
 
 export class RepeatingChildrenPlugin<E extends ExternalConfig>
   extends NodeDefPlugin<ToInternal<E>>
@@ -144,7 +145,11 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
   }
 
   evalDefaultExpressions({ stateSelector }: DefPluginExprResolver<ToInternal<E>>): DefPluginExtraInItem<ToInternal<E>> {
-    const internalRows = stateSelector(this.settings.internalProp) as InternalRowState<E>;
+    const internalRows = stateSelector(
+      (state) => (state as InternalState<E>)[this.settings.internalProp],
+      [this.settings.internalProp],
+    ) as InternalRowState<E>;
+
     const rows: (RepChildrenRow & FromImport<Combined<E>['extraRowState']>)[] = [];
     for (const row of Object.values(internalRows || {})) {
       rows.push({

@@ -6,7 +6,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { NodesInternal, pickDataStorePath, useNodesLax } from 'src/utils/layout/NodesContext';
+import { NodesInternal, NotReadyYet, pickDataStorePath, useNodesLax } from 'src/utils/layout/NodesContext';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, ParentNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -304,11 +304,10 @@ type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictn
     ? U | typeof ContextNotProvided
     : U;
 
-const NotReadyYet = Symbol('NotReadyYet');
 function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: never, strictness?: Strictness): Out {
   const nodes = useNodesLax();
   const isReady = NodesInternal.useIsDataReady();
-  const dataSelector = NodesInternal.useDataSelectorForTraversal(true, NotReadyYet);
+  const dataSelector = NodesInternal.useDataSelectorForTraversal();
 
   // We use the selector here, but we need it to re-render and re-select whenever we re-render. Otherwise the hook
   // would be treated as the same hook that was used in the previous render, and with the only deps being
@@ -323,6 +322,9 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
     (state) => {
       if (!nodes || nodes === ContextNotProvided) {
         return ContextNotProvided;
+      }
+      if (state === NotReadyYet) {
+        return NotReadyYet;
       }
 
       return node === undefined
@@ -446,7 +448,19 @@ function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: St
       }
 
       const value = selectState(
-        (state) => innerSelector(new NodeTraversal(state.pages, nodes, nodes)),
+        (state) => {
+          if (state === NotReadyYet) {
+            if (strictness === Strictness.returnUndefined) {
+              return undefined;
+            }
+            if (strictness === Strictness.returnContextNotProvided) {
+              return ContextNotProvided;
+            }
+            throw new Error('useNodeTraversalSelector() ran when not ready');
+          }
+
+          return innerSelector(new NodeTraversal(state.pages, nodes, nodes)) as InnerSelectorReturns<Strict, U>;
+        },
         [innerSelector.toString(), ...deps],
       );
 

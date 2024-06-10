@@ -6,9 +6,9 @@ import { createStore, useStore } from 'zustand';
 import type { StoreApi } from 'zustand';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
-import { SelectorStrictness, useDelayedSelectorFactory } from 'src/hooks/delayedSelectors';
+import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import type { CreateContextProps } from 'src/core/contexts/context';
-import type { DelayedPrimarySelector, DelayedSecondarySelector } from 'src/hooks/delayedSelectors';
+import type { DSConfig, DSMode, DSReturn } from 'src/hooks/delayedSelectors';
 
 type ExtractFromStoreApi<T> = T extends StoreApi<infer U> ? Exclude<U, void> : never;
 
@@ -130,25 +130,25 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     return <Provider value={storeRef.current}>{children}</Provider>;
   }
 
-  const useLaxDelayedMemoSelectorFactory = <Arg, RetVal>(
-    primarySelector: DelayedPrimarySelector<Arg, RetVal, Type>,
+  const useLaxDS = <Mode extends DSMode<Type>>(
+    mode: Mode,
     deps?: any[],
-  ): DelayedSecondarySelector<Arg, RetVal | typeof ContextNotProvided, Type> =>
-    useDelayedSelectorFactory({
+  ): DSReturn<DSConfig<Type, Mode, SelectorStrictness.returnWhenNotProvided>> =>
+    useDelayedSelector({
       store: useLaxCtx(),
       strictness: SelectorStrictness.returnWhenNotProvided,
-      primarySelector,
+      mode,
       deps,
     });
 
-  const useDelayedMemoSelectorFactory = <Arg, RetVal>(
-    primarySelector: DelayedPrimarySelector<Arg, RetVal, Type>,
+  const useDS = <Mode extends DSMode<Type>>(
+    mode: Mode,
     deps?: any[],
-  ): DelayedSecondarySelector<Arg, RetVal, Type> =>
-    useDelayedSelectorFactory({
+  ): DSReturn<DSConfig<Type, Mode, SelectorStrictness.throwWhenNotProvided>> =>
+    useDelayedSelector({
       store: useCtx(),
       strictness: SelectorStrictness.throwWhenNotProvided,
-      primarySelector,
+      mode,
       deps,
     });
 
@@ -160,8 +160,8 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     useMemoSelector,
     useLaxMemoSelector,
     useLaxSelector,
-    useDelayedMemoSelectorFactory,
-    useLaxDelayedMemoSelectorFactory,
+    useDelayedSelector: useDS,
+    useLaxDelayedSelector: useLaxDS,
     useHasProvider,
     useStore: useCtx,
     useLaxStore: useLaxCtx,

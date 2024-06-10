@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import dot from 'dot-object';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type { UnionToIntersection } from 'utility-types';
@@ -24,7 +23,7 @@ import {
   UpdateExpressionValidation,
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
-import { SelectorStrictness, useDelayedSelectorFactory } from 'src/hooks/delayedSelectors';
+import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
@@ -48,7 +47,7 @@ import {
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
-import type { OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
+import type { DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes } from 'src/layout/layout';
@@ -98,8 +97,6 @@ export interface HiddenStateNode {
   hiddenByExpression: boolean;
   hiddenByTracks: false;
 }
-
-export type HiddenState = HiddenStatePage | HiddenStateNode;
 
 export interface PageData {
   type: 'page';
@@ -498,38 +495,39 @@ function isHidden(
 
 export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
-  useIsHidden: (node: LayoutNode | LayoutPage | undefined, options?: IsHiddenOptions) => {
+  useIsHidden(node: LayoutNode | LayoutPage | undefined, options?: IsHiddenOptions) {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     return DataStore.useMemoSelector((s) => isHidden(s, node, forcedVisibleByDevTools, options));
   },
-  useIsHiddenPage: (pageKey: string, options?: IsHiddenOptions) => {
+  useIsHiddenPage(pageKey: string, options?: IsHiddenOptions) {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     return DataStore.useMemoSelector((s) => isHidden(s, [pageKey], forcedVisibleByDevTools, options));
   },
-  useIsHiddenPageSelector: () => {
+  useIsHiddenPageSelector() {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return DataStore.useDelayedMemoSelectorFactory(
-      (pageKey: string) => (state) => isHidden(state, [pageKey], forcedVisibleByDevTools),
-    );
+    return DataStore.useDelayedSelector({
+      mode: 'simple',
+      selector: (pageKey: string) => (state) => isHidden(state, [pageKey], forcedVisibleByDevTools),
+    });
   },
-  useHiddenPages: (): Set<string> => {
+  useHiddenPages(): Set<string> {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     const hiddenPages = DataStore.useLaxMemoSelector((s) =>
       Object.keys(s.pages.pages).filter((key) => isHidden(s, [key], forcedVisibleByDevTools)),
     );
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
   },
-  useIsHiddenSelector: () => {
+  useIsHiddenSelector() {
     const nodeSelector = useNodeSelector();
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return DataStore.useDelayedMemoSelectorFactory(
-      ({ node, options }: { node: NodeRef | LayoutNode | LayoutPage; options?: IsHiddenOptions }) =>
-        (state) =>
-          ignoreNodePathNotFound(
-            () => isHidden(state, getNodePath(node, nodeSelector), forcedVisibleByDevTools, options),
-            true,
-          ),
-    );
+    return DataStore.useDelayedSelector({
+      mode: 'simple',
+      selector: (node: NodeRef | LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
+        ignoreNodePathNotFound(
+          () => isHidden(state, getNodePath(node, nodeSelector), forcedVisibleByDevTools, options),
+          true,
+        ),
+    });
   },
 
   /**
@@ -537,13 +535,13 @@ export const Hidden = {
    */
   useIsHiddenViaRules: (node: LayoutNode) =>
     NodesStore.useSelector((s) => s.hiddenViaRules.has(node.getId()) || s.hiddenViaRules.has(node.getBaseId())),
-  useIsForcedVisibleByDevTools: () => {
+  useIsForcedVisibleByDevTools() {
     const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
     const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
 
     return devToolsIsOpen && devToolsHiddenComponents !== 'hide';
   },
-  useIsPageHiddenViaTracks: (pageKey: string) => {
+  useIsPageHiddenViaTracks(pageKey: string) {
     const currentView = useCurrentView();
     const maybeLayoutSettings = useLaxLayoutSettings();
     const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? [] : maybeLayoutSettings.pages.order;
@@ -581,14 +579,17 @@ function getNodePath(nodeId: NodeRef | LayoutNode | LayoutPage, nodeSelector: No
   return node instanceof LayoutPage ? [node.pageKey] : node.path;
 }
 
-type NodeDataSelectorProp<N extends LayoutNode | undefined> = {
-  node: N;
-  path: string;
-};
+export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
+export type ExactNodeDataSelector = ReturnType<typeof NodesInternal.useExactNodeDataSelector>;
 
-export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataMemoSelector>;
-export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataMemoSelector>;
-export type ExactNodeDataSelector = ReturnType<typeof NodesInternal.useExactNodeDataMemoSelector>;
+export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefined>(node: N) => NodePickerReturns<N>;
+type NodePickerReturns<N extends LayoutNode | undefined> = N extends undefined ? undefined : NodeDataFromNode<N>;
+
+function selectNodeData<N extends LayoutNode | undefined>(node: N, state: NodesDataContext): NodePickerReturns<N> {
+  return ignoreNodePathNotFound(() => (node ? pickDataStorePath(state.pages, node) : undefined), undefined) as any;
+}
+
+export const NotReadyYet = Symbol('NotReadyYet');
 
 /**
  * A set of tools, selectors and functions to use internally in node generator components.
@@ -602,12 +603,16 @@ export const NodesInternal = {
    * expressions that are solved within. Also, the selectors will always return ContextNotProvided when the nodes
    * are not ready yet.
    */
-  useDataSelectorForTraversal(onlyWhenReady = true, returnWhenNotReady = ContextNotProvided) {
-    return useDelayedSelectorFactory({
+  useDataSelectorForTraversal(): DSReturn<{
+    store: StoreApi<NodesDataContext>;
+    strictness: SelectorStrictness.returnWhenNotProvided;
+    mode: InnerSelectorMode<NodesDataContext, [NodesDataContext | typeof NotReadyYet]>;
+  }> {
+    return useDelayedSelector({
       store: DataStore.useLaxStore(),
       strictness: SelectorStrictness.returnWhenNotProvided,
       onlyReRenderWhen: ((state, lastValue, setNewValue) => {
-        if (!state.ready && onlyWhenReady) {
+        if (!state.ready) {
           return false;
         }
         if (lastValue !== state.addRemoveCounter) {
@@ -616,22 +621,16 @@ export const NodesInternal = {
         }
         return false;
       }) satisfies OnlyReRenderWhen<NodesDataContext, number>,
-      primarySelector: (selector: <U>(state: NodesDataContext) => U) => (state) =>
-        state.ready || !onlyWhenReady ? selector(state) : returnWhenNotReady,
+      mode: {
+        mode: 'innerSelector',
+        makeArgs: (state) => [state.ready ? state : NotReadyYet],
+      } satisfies InnerSelectorMode<NodesDataContext, [NodesDataContext | typeof NotReadyYet]>,
     });
   },
   useIsDataReady() {
     return DataStore.useSelector((s) => s.ready);
   },
 
-  useNodeDataMemo<N extends LayoutNode | LayoutPage | undefined, Out>(
-    node: N,
-    selector: (state: N extends LayoutPage ? PageData : NodeDataFromNode<Exclude<N, LayoutPage>>) => Out,
-  ): N extends undefined ? Out | undefined : Out {
-    return DataStore.useMemoSelector((s) =>
-      ignoreNodePathNotFound(() => (node ? selector(pickDataStorePath(s.pages, node) as any) : undefined), undefined),
-    ) as any;
-  },
   useNodeData<N extends LayoutNode | undefined, Out>(
     node: N,
     selector: (state: NodeDataFromNode<N>) => Out,
@@ -677,35 +676,21 @@ export const NodesInternal = {
       [waitForState, node, selector],
     );
   },
-  useNodeDataMemoSelector: () =>
-    DataStore.useDelayedMemoSelectorFactory<NodeDataSelectorProp<LayoutNode | undefined>, unknown>(
-      ({ node, path }) =>
-        (state) =>
-          ignoreNodePathNotFound(
-            () => (node ? dot.pick(path, pickDataStorePath(state.pages, node)) : undefined),
-            undefined,
-          ),
-    ),
-  useLaxNodeDataMemoSelector: () =>
-    DataStore.useLaxDelayedMemoSelectorFactory<
-      NodeDataSelectorProp<LayoutNode | undefined>,
-      unknown | typeof ContextNotProvided
-    >(
-      ({ node, path }) =>
-        (state) =>
-          ignoreNodePathNotFound(
-            () => (node ? dot.pick(path, pickDataStorePath(state.pages, node)) : undefined),
-            undefined,
-          ),
-    ),
-  useExactNodeDataMemoSelector: (node: LayoutNode | undefined) =>
-    DataStore.useDelayedMemoSelectorFactory(
-      (path: string) => (state) =>
-        ignoreNodePathNotFound(
-          () => (!node ? undefined : dot.pick(path, pickDataStorePath(state.pages, node))),
-          undefined,
-        ),
-    ),
+  useNodeDataSelector: () =>
+    DataStore.useDelayedSelector({
+      mode: 'innerSelector',
+      makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
+    }),
+  useLaxNodeDataSelector: () =>
+    DataStore.useLaxDelayedSelector({
+      mode: 'innerSelector',
+      makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
+    }),
+  useExactNodeDataSelector: <N extends LayoutNode | undefined>(node: N) =>
+    DataStore.useDelayedSelector({
+      mode: 'innerSelector',
+      makeArgs: (state) => [selectNodeData(node, state)],
+    }),
 
   useIsAdded: (node: LayoutNode | LayoutPage) =>
     DataStore.useSelector((s) => {
@@ -715,8 +700,6 @@ export const NodesInternal = {
       return s.nodesAdded[node.getId()] !== undefined;
     }),
   useNodesStore: () => NodesStore.useStore(),
-  useDataStoreFor: (node: LayoutNode) =>
-    DataStore.useSelector((s) => ignoreNodePathNotFound(() => pickDataStorePath(s.pages, node), undefined)),
   useHasErrors: () => DataStore.useSelector((s) => s.hasErrors),
 
   useDataStore: () => DataStore.useStore(),
@@ -813,19 +796,19 @@ export function pickDataStorePath(
     return pickDataStorePath(node, remaining, fullPath);
   }
 
-  const def = getComponentDef(container.layout.type);
+  const def = getComponentDef(container?.layout?.type);
   if (!def) {
-    throw new Error(`Component type "${container.layout.type}" not found`);
+    throw new Error(`Component type "${container?.layout?.type}" not found for path /${fullPath.join('/')}`);
   }
 
   const child = def.pickChild(container as NodeData<any>, target, fullPath);
   return pickDataStorePath(child, remaining, fullPath);
 }
 
-function isPages(state: PageHierarchy | PageData | NodeData): state is PageHierarchy {
-  return 'type' in state && state.type === 'pages';
+function isPages(state: PageHierarchy | PageData | NodeData | undefined): state is PageHierarchy {
+  return !!(state && 'type' in state && state.type === 'pages');
 }
 
-function isPage(state: PageHierarchy | PageData | NodeData): state is PageData {
-  return 'type' in state && state.type === 'page';
+function isPage(state: PageHierarchy | PageData | NodeData | undefined): state is PageData {
+  return !!(state && 'type' in state && state.type === 'page');
 }

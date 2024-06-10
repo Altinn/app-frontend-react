@@ -55,7 +55,7 @@ function MarkHiddenComponents() {
         ref.style.filter = '';
       } else if (state === 'disabled') {
         const node = traversalSelector((t) => t.findById(id), [id]);
-        const isHidden = node ? isHiddenSelector({ node, options: isHiddenOptions }) : true;
+        const isHidden = node ? isHiddenSelector(node, isHiddenOptions) : true;
         if (isHidden) {
           ref.style.filter = pseudoHiddenCssFilter;
         }

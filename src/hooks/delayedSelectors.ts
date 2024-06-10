@@ -6,17 +6,14 @@ import type { StoreApi } from 'zustand';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { ShallowArrayMap } from 'src/core/structures/ShallowArrayMap';
 
-type ExtractFromStoreApi<T> = T extends StoreApi<infer U> ? Exclude<U, void> : never;
-
 type Selector<T, U> = (state: T) => U;
-type AnyFunc = (...args: any[]) => any;
-type DelayedSelectorFunc<T> = <U>(selector: Selector<T, U>, cacheKey: any[]) => U;
-type DelayedSelectorMap<T> = ShallowArrayMap<{ selector: Selector<T, any>; value: any }>;
-export type DelayedSecondarySelector<Arg, RetVal, T> = [Arg] extends [AnyFunc]
-  ? DelayedSecondaryFunc<T>
-  : (arg: Arg) => RetVal;
-export type DelayedSecondaryFunc<T> = <U>(innerSelector: Selector<T, U>, deps: any[]) => U;
-export type DelayedPrimarySelector<Arg, RetVal, T> = (arg: Arg) => Selector<T, RetVal>;
+type SelectorMap<C extends DSConfig> = ShallowArrayMap<{
+  fullSelector: Selector<TypeFromConf<C>, unknown>;
+  value: unknown;
+}>;
+
+type TypeFromConf<C extends DSConfig> = C extends DSConfig<infer T> ? T : never;
+type ModeFromConf<C extends DSConfig> = C extends DSConfig<any, infer M> ? M : never;
 
 /**
  * A complex hook that returns a function you can use to select a value at some point in the future. If you never
@@ -29,14 +26,16 @@ export type DelayedPrimarySelector<Arg, RetVal, T> = (arg: Arg) => Selector<T, R
  * because the function itself will be recreated every time the component re-renders, and the function
  * will not be able to be used as a cache key.
  */
-function useDelayedSelectorProto<Store extends StoreApi<any>, Type = ExtractFromStoreApi<Store>>(
-  store: Store | typeof ContextNotProvided,
-  {
-    equalityFn = deepEqual,
-    onlyReRenderWhen,
-  }: Pick<DelayedSelectorFactoryProps<any, any, Type, any>, 'equalityFn' | 'onlyReRenderWhen'>,
-): DelayedSelectorFunc<Type> {
-  const selectorsCalled = useRef<DelayedSelectorMap<Type>>(new ShallowArrayMap());
+export function useDelayedSelector<C extends DSConfig>({
+  store,
+  deps = [],
+  strictness,
+  mode,
+  makeCacheKey = mode.mode === 'simple' ? defaultMakeCacheKey : defaultMakeCacheKeyForInnerSelector,
+  equalityFn = deepEqual,
+  onlyReRenderWhen,
+}: DSProps<C>): DSReturn<C> {
+  const selectorsCalled = useRef<SelectorMap<C>>(new ShallowArrayMap());
   const [renderCount, forceRerender] = useState(0);
   const lastReRenderValue = useRef<unknown>(undefined);
 
@@ -61,8 +60,8 @@ function useDelayedSelectorProto<Store extends StoreApi<any>, Type = ExtractFrom
         // did change, we'll clear the list of selectors to force a re-render.
         const selectors = selectorsCalled.current.values();
         let changed = false;
-        for (const { selector, value } of selectors) {
-          if (!equalityFn(value, selector(state))) {
+        for (const { fullSelector, value } of selectors) {
+          if (!equalityFn(value, fullSelector(state))) {
             changed = true;
             break;
           }
@@ -78,45 +77,75 @@ function useDelayedSelectorProto<Store extends StoreApi<any>, Type = ExtractFrom
   );
 
   return useCallback(
-    (selector, cacheKey) => {
+    (...args: unknown[]) => {
       if (store === ContextNotProvided) {
-        return undefined;
+        if (strictness === SelectorStrictness.throwWhenNotProvided) {
+          throw new Error('useDelayedSelector: store not provided');
+        }
+        return ContextNotProvided;
       }
+
       if (isNaN(renderCount)) {
         // This should not happen, and this piece of code looks a bit out of place. This really is only here
         // to make sure the callback is re-created and the component re-renders when the store changes.
         throw new Error('useDelayedSelector: renderCount is NaN');
       }
 
-      // Check if this function has been called before. If it has, with the same arguments, we can return the
-      // cached value instead of the new one.
+      const cacheKey = makeCacheKey(args);
       const prev = selectorsCalled.current.get(cacheKey);
       if (prev) {
+        // Performance-wise we could also just have called the selector here, it doesn't really matter. What is
+        // important however, is that we let developers know as early as possible if they forgot to include a dependency
+        // or otherwise used the hook incorrectly, so we'll make sure to return the value to them here even if it
+        // could be stale (but only when improperly used).
         return prev.value;
       }
 
       const state = store.getState();
-      const value = selector(state);
 
-      // The value has changed, or the callback is new to us. No need to re-render the component now, because
-      // this is always the first render where this value is referenced, and we're always selecting from fresh state.
-      selectorsCalled.current.set(cacheKey, { selector, value });
-      return value;
+      if (mode.mode === 'simple') {
+        const { selector } = mode as SimpleArgMode;
+        const fullSelector: Selector<TypeFromConf<C>, unknown> = (state) => selector(...args)(state);
+        const value = fullSelector(state);
+        selectorsCalled.current.set(cacheKey, { fullSelector, value });
+        return value;
+      }
+
+      if (mode.mode === 'innerSelector') {
+        const { makeArgs } = mode as InnerSelectorMode;
+        if (typeof args[0] !== 'function' || !Array.isArray(args[1]) || args.length !== 2) {
+          throw new Error('useDelayedSelector: innerSelector must be a function');
+        }
+        const fullSelector: Selector<TypeFromConf<C>, unknown> = (state) => {
+          const innerArgs = makeArgs(state);
+          const innerSelector = args[0] as (...args: typeof innerArgs) => unknown;
+          return innerSelector(...innerArgs);
+        };
+
+        const value = fullSelector(state);
+        selectorsCalled.current.set(cacheKey, { fullSelector, value });
+        return value;
+      }
+
+      throw new Error('useDelayedSelector: invalid mode');
     },
-    [store, renderCount],
-  );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [store, renderCount, ...deps],
+  ) as DSReturn<C>;
 }
 
-function defaultMakeCacheKey(args: unknown[]): unknown[] {
+function defaultMakeCacheKeyForInnerSelector(args: unknown[]): unknown[] {
   if (args.length === 2 && typeof args[0] === 'function' && Array.isArray(args[1])) {
     return [args[0].toString().trim(), ...args[1]];
   }
 
-  // If one arg, and it's a non-class object, we cache the object entries as an array
-  if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null && args[0].constructor === Object) {
-    return Object.entries(args[0])
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .flat();
+  throw new Error('defaultMakeCacheKeyForInnerSelector: invalid arguments, use simple mode instead');
+}
+
+function defaultMakeCacheKey(args: unknown[]): unknown[] {
+  // Make sure we don't allow inner selectors here, they need to use another mode:
+  if (args.length === 2 && typeof args[0] === 'function' && Array.isArray(args[1])) {
+    throw new Error('defaultMakeCacheKey: inner selectors are not allowed, use innerSelector mode instead');
   }
 
   return args;
@@ -133,12 +162,30 @@ export type OnlyReRenderWhen<Type, Internal> = (
   setNewValue: (v: Internal) => void,
 ) => boolean;
 
-export interface DelayedSelectorFactoryProps<Arg, RetVal, Type, Strictness extends SelectorStrictness> {
-  // A delayed selector must work with a Zustand store, or with ContextNotProvided if the store is not provided.
+export interface SimpleArgMode<T = unknown, Args extends any[] = unknown[], RetVal = unknown> {
+  mode: 'simple';
+  selector: (...args: Args) => (state: T) => RetVal;
+}
+
+export interface InnerSelectorMode<T = unknown, Args extends any[] = unknown[]> {
+  mode: 'innerSelector';
+  makeArgs: (state: T) => Args;
+}
+
+export type DSMode<T> = SimpleArgMode<T> | InnerSelectorMode<T>;
+
+export interface DSConfig<Type = any, Mode extends DSMode<Type> = any, Strictness extends SelectorStrictness = any> {
   store: StoreApi<Type> | typeof ContextNotProvided;
+  mode: Mode;
+  strictness: Strictness;
+}
+
+export interface DSProps<C extends DSConfig> {
+  // A delayed selector must work with a Zustand store, or with ContextNotProvided if the store is not provided.
+  store: C['store'];
 
   // Strictness changes how the delayed selector will work when ContextNotProvided is passed as the store.
-  strictness: Strictness;
+  strictness: C['strictness'];
 
   // State selected from the delayed selector will be compared with this function. The default is deepEqual, meaning
   // that the state will be compared by value, not by reference.
@@ -150,56 +197,19 @@ export interface DelayedSelectorFactoryProps<Arg, RetVal, Type, Strictness exten
 
   // Optionally, you can pass a function that will determine if the selector functions should re-run. If this function
   // returns false, an update to the store will not cause a re-render of the component.
-  onlyReRenderWhen?: OnlyReRenderWhen<Type, unknown>;
+  onlyReRenderWhen?: OnlyReRenderWhen<TypeFromConf<C>, unknown>;
 
-  // The primary selector is the function that will be called with the arguments passed to the delayed selector.
-  primarySelector: DelayedPrimarySelector<Arg, RetVal, Type>;
+  mode: C['mode'];
 
-  // Any dependencies that should be passed to the delayed selector. This is used to determine when the primary
+  // Any dependencies that should be passed to the delayed selector. This is used to determine when the entire
   // selector should be re-created.
   deps?: any[];
 }
 
-/**
- * The factory function for creating a delayed selector. This will be the hook you'll actually use, but it is expected
- * you package this some way - or use the ones exported from zustandContext.tsx.
- */
-export function useDelayedSelectorFactory<Arg, RetVal, Type, Strictness extends SelectorStrictness>({
-  store,
-  strictness,
-  makeCacheKey = defaultMakeCacheKey,
-  primarySelector,
-  deps = [],
-  ...rest
-}: DelayedSelectorFactoryProps<Arg, RetVal, Type, Strictness>) {
-  const _delayedSelector = useDelayedSelectorProto(store, rest);
-  const delayedSelector = store === ContextNotProvided ? ContextNotProvided : _delayedSelector;
-
-  // TODO: Do we need two sets of callback refs?
-  const callbacks = useRef(new ShallowArrayMap<Selector<Type, RetVal>>());
-
-  useEffect(() => {
-    callbacks.current = new ShallowArrayMap();
-  }, [delayedSelector]);
-
-  return useCallback(
-    (...args: any[]) => {
-      if (delayedSelector === ContextNotProvided && strictness === SelectorStrictness.throwWhenNotProvided) {
-        throw new Error('useDelayedSelector: store not provided');
-      }
-      if (delayedSelector === ContextNotProvided) {
-        return ContextNotProvided as RetVal;
-      }
-
-      const cacheKey = makeCacheKey(args);
-      if (!callbacks.current.has(cacheKey)) {
-        callbacks.current.set(cacheKey, primarySelector(args[0]));
-      }
-      return delayedSelector(callbacks.current.get(cacheKey)!, cacheKey) as RetVal;
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [delayedSelector, ...deps],
-  ) as Strictness extends SelectorStrictness.throwWhenNotProvided
-    ? DelayedSecondarySelector<Arg, RetVal, Type>
-    : DelayedSecondarySelector<Arg, RetVal | typeof ContextNotProvided, Type>;
-}
+export type DSReturn<C extends DSConfig> =
+  ModeFromConf<C> extends SimpleArgMode
+    ? (...args: Parameters<C['mode']['selector']>) => ReturnType<ReturnType<C['mode']['selector']>>
+    : <U>(
+        innerSelector: (...args: ReturnType<C['mode']['makeArgs']>) => U,
+        deps: any[],
+      ) => C['strictness'] extends SelectorStrictness.returnWhenNotProvided ? U | typeof ContextNotProvided : U;

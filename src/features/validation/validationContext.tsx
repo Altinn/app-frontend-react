@@ -30,7 +30,6 @@ import type {
   ValidationContext,
   WaitForValidation,
 } from 'src/features/validation';
-import type { DelayedSecondaryFunc } from 'src/hooks/delayedSelectors';
 
 interface Internals {
   isLoading: boolean;
@@ -102,19 +101,12 @@ function initialCreateStore() {
   );
 }
 
-const {
-  Provider,
-  useSelector,
-  useLaxSelector,
-  useSelectorAsRef,
-  useStore,
-  useLaxSelectorAsRef,
-  useDelayedMemoSelectorFactory,
-} = createZustandContext({
-  name: 'Validation',
-  required: true,
-  initialCreateStore,
-});
+const { Provider, useSelector, useLaxSelector, useSelectorAsRef, useStore, useLaxSelectorAsRef, useDelayedSelector } =
+  createZustandContext({
+    name: 'Validation',
+    required: true,
+    initialCreateStore,
+  });
 
 interface InternalProps {
   shouldLoadValidations: boolean;
@@ -250,21 +242,22 @@ function UpdateShowAllErrors() {
  * This hook returns a function that lets you select one or more fields from the validation state. The hook will
  * only force a re-render if the selected fields have changed.
  */
-function useDelayedSelector<U>(outerSelector: (state: ValidationContext) => U) {
-  return useDelayedMemoSelectorFactory(
-    (innerSelector: <U2>(state: U) => U2) => (state: ValidationContext) => innerSelector(outerSelector(state)),
-  ) as DelayedSecondaryFunc<U>;
+function useDS<U>(outerSelector: (state: ValidationContext) => U) {
+  return useDelayedSelector({
+    mode: 'innerSelector',
+    makeArgs: (state) => [outerSelector(state)],
+  });
 }
 
-export type ValidationSelector = DelayedSecondaryFunc<ValidationContext>;
-export type ValidationFieldSelector = DelayedSecondaryFunc<FieldValidations>;
+export type ValidationSelector = ReturnType<typeof Validation.useSelector>;
+export type ValidationFieldSelector = ReturnType<typeof Validation.useFieldSelector>;
 
 export const Validation = {
   useFullStateRef: () => useSelectorAsRef((state) => state.state),
 
   // Selectors. These are memoized, so they won't cause a re-render unless the selected fields change.
-  useSelector: (): ValidationSelector => useDelayedSelector((state) => state),
-  useFieldSelector: (): ValidationFieldSelector => useDelayedSelector((state) => state.state.fields),
+  useSelector: () => useDS((state) => state),
+  useFieldSelector: () => useDS((state) => state.state.fields),
 
   useSetShowAllErrors: () => useSelector((state) => state.setShowAllErrors),
   useValidating: () => useSelector((state) => state.validating!),

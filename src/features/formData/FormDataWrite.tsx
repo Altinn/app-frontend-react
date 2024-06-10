@@ -49,8 +49,8 @@ const {
   useSelectorAsRef,
   useLaxMemoSelector,
   useLaxSelectorAsRef,
-  useLaxDelayedMemoSelectorFactory,
-  useDelayedMemoSelectorFactory,
+  useLaxDelayedSelector,
+  useDelayedSelector,
   useLaxSelector,
   useLaxStore,
   useStore,
@@ -353,16 +353,20 @@ export const FD = {
    * pretend to have the full data model available to look up values from.
    */
   useDebouncedSelector(): FormDataSelector {
-    return useDelayedMemoSelectorFactory((path: string) => (state) => dot.pick(path, state.debouncedCurrentData));
+    return useDelayedSelector({
+      mode: 'simple',
+      selector: (path: string) => (state) => dot.pick(path, state.debouncedCurrentData),
+    });
   },
 
   /**
    * Same as above, but for invalid data.
    */
   useInvalidDebouncedSelector(): FormDataSelector {
-    return useDelayedMemoSelectorFactory(
-      (path: string) => (state) => dot.pick(path, state.invalidDebouncedCurrentData),
-    );
+    return useDelayedSelector({
+      mode: 'simple',
+      selector: (path: string) => (state) => dot.pick(path, state.invalidDebouncedCurrentData),
+    });
   },
 
   /**
@@ -378,7 +382,10 @@ export const FD = {
    * provider is not present.
    */
   useLaxDebouncedSelector(): FormDataSelector | typeof ContextNotProvided {
-    return useLaxDelayedMemoSelectorFactory((path: string) => (state) => dot.pick(path, state.debouncedCurrentData));
+    return useLaxDelayedSelector({
+      mode: 'simple',
+      selector: (path: string) => (state) => dot.pick(path, state.debouncedCurrentData),
+    });
   },
 
   /**

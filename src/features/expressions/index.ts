@@ -422,7 +422,7 @@ export const ExprFunctions = {
       const simpleBinding =
         dataModelBindings && 'simpleBinding' in dataModelBindings ? dataModelBindings.simpleBinding : undefined;
       if (closest && simpleBinding) {
-        if (this.dataSources.isHiddenSelector({ node: closest })) {
+        if (this.dataSources.isHiddenSelector(closest)) {
           return null;
         }
 
@@ -500,7 +500,7 @@ export const ExprFunctions = {
         throw new ExprRuntimeError(this, `Component with identifier ${id} does not have a displayValue`);
       }
 
-      if (this.dataSources.isHiddenSelector({ node: targetNode })) {
+      if (this.dataSources.isHiddenSelector(targetNode)) {
         return null;
       }
 

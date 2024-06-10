@@ -51,7 +51,7 @@ export function SummaryRepeatingGroup(props: ISummaryRepeatingGroup) {
     if (!row || row.groupExpressions?.hiddenRow || row.index === undefined) {
       continue;
     }
-    const allHidden = row.items.every((n) => isHidden({ node: n }));
+    const allHidden = row.items.every((n) => isHidden(n));
     if (allHidden) {
       continue;
     }
@@ -171,7 +171,7 @@ function RegularRepeatingGroupRow({
   const childSummaryComponents = children
     .filter((n) => !inExcludedChildren(n))
     .map((child) => {
-      if (isHidden({ node: child }) || !child.isCategory(CompCategory.Form)) {
+      if (isHidden(child) || !child.isCategory(CompCategory.Form)) {
         return;
       }
       const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<
@@ -214,7 +214,7 @@ function LargeRepeatingGroup({ targetNode, summaryNode, overrides, inExcludedChi
           groupNode={targetNode}
           onlyInRowUuid={row.uuid}
           renderLayoutNode={(n) => {
-            if (inExcludedChildren(n) || isHidden({ node: n })) {
+            if (inExcludedChildren(n) || isHidden(n)) {
               return null;
             }
 

@@ -359,8 +359,9 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         });
       },
       useAttachmentsSelector() {
-        return store.useDelayedMemoSelectorFactory(
-          (node: LayoutNode) => (state) =>
+        return store.useDelayedSelector({
+          mode: 'simple',
+          selector: (node: LayoutNode) => (state) =>
             ignoreNodePathNotFound(() => {
               const nodeData = pickDataStorePath(state.pages, node) as NodeData;
               if ('attachments' in nodeData) {
@@ -368,7 +369,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               }
               return emptyArray;
             }, emptyArray),
-        );
+        });
       },
       useWaitUntilUploaded() {
         const zustandStore = store.useStore();

@@ -64,7 +64,7 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
             groupNode={targetNode}
             onlyInRowUuid={row.uuid}
             renderLayoutNode={(n) => {
-              if (inExcludedChildren(n) || isHidden({ node: n })) {
+              if (inExcludedChildren(n) || isHidden(n)) {
                 return null;
               }
 

@@ -4,7 +4,6 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
-import type { IDataModelBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LaxNodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeTraversalFromAny } from 'src/utils/layout/useNodeTraversal';
@@ -27,7 +26,7 @@ export type DataModelTransposeSelector = ReturnType<typeof useDataModelBindingTr
  * the current row indexes: 'MyModel.Group[1].NestedGroup[2].Age' unless you pass overwriteOtherIndices = false.
  */
 export function useDataModelBindingTranspose() {
-  const nodeSelector = NodesInternal.useLaxNodeDataMemoSelector();
+  const nodeSelector = NodesInternal.useLaxNodeDataSelector();
   const traversal = useNodeTraversalSelectorLax();
 
   return useCallback(
@@ -60,10 +59,7 @@ function firstDataModelBinding(
   }
 
   const node = traversal.target;
-  const dataModelBindings = nodeSelector({ node, path: 'layout.dataModelBindings' }) as
-    | IDataModelBindings
-    | typeof ContextNotProvided
-    | undefined;
+  const dataModelBindings = nodeSelector((picker) => picker(node).layout.dataModelBindings, [node]);
   if (dataModelBindings === ContextNotProvided) {
     return [undefined, false];
   }

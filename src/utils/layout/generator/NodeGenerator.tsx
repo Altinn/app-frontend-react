@@ -178,7 +178,7 @@ export function useExpressionResolverProps<T extends CompTypes>(
   item: CompIntermediateExact<T>,
   row?: BaseRow,
 ): ExprResolver<T> {
-  const stateSelector = NodesInternal.useExactNodeDataMemoSelector(node);
+  const stateSelector = NodesInternal.useExactNodeDataSelector(node);
   const allDataSources = useExpressionDataSources();
   const allDataSourcesAsRef = useAsRef(allDataSources);
 

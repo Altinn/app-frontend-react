@@ -33,9 +33,7 @@ function PerformWork() {
 
   const shouldValidate = useMemo(
     () =>
-      item !== undefined &&
-      !isHidden({ node, options: isHiddenOptions }) &&
-      !('renderAsSummary' in item && item.renderAsSummary),
+      item !== undefined && !isHidden(node, isHiddenOptions) && !('renderAsSummary' in item && item.renderAsSummary),
     [isHidden, item, node],
   );
 

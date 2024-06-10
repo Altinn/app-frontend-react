@@ -311,7 +311,7 @@ function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
       className={css.mobileFieldset}
     >
       {nodes
-        .filter((child) => !isHidden({ node: child }))
+        .filter((child) => !isHidden(child))
         .map((child) => (
           <GenericComponent
             key={child.getId()}
