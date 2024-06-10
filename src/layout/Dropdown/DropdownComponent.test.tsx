@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
@@ -91,9 +91,11 @@ describe('DropdownComponent', () => {
 
     expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('combobox'));
-    await userEvent.click(screen.getByText('Sweden'));
+    await userEvent.click(screen.getByRole('option', { name: /sweden/i }));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'sweden' });
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'sweden' }),
+    );
   });
 
   it('should show as readonly when readOnly is true', async () => {
@@ -152,7 +154,7 @@ describe('DropdownComponent', () => {
     } as AxiosResponse<IRawOption[], any>);
 
     await userEvent.click(await screen.findByRole('combobox'));
-    await screen.findByText('Denmark');
+    await screen.findByRole('option', { name: /denmark/i });
 
     // The component always finishes loading the first time, but if we have mapping that affects the options
     // the component renders a spinner for a while when fetching the options again.
@@ -173,7 +175,8 @@ describe('DropdownComponent', () => {
     } as AxiosResponse<IRawOption[], any>);
 
     await waitFor(() => expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument());
-    expect(screen.getByText('Finland')).toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('combobox'));
+    expect(screen.getByRole('option', { name: /finland/i })).toBeInTheDocument();
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger setLeafValue with replaced values', async () => {
@@ -192,14 +195,18 @@ describe('DropdownComponent', () => {
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('The value from the group is: Label for first'));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for first' });
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for first' }),
+    );
 
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('The value from the group is: Label for second'));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for second' });
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for second' }),
+    );
   });
 
   it('should present the options list in the order it is provided when sortOrder is not specified', async () => {
@@ -280,7 +287,7 @@ describe('DropdownComponent', () => {
     await user.click(screen.getByText(label));
 
     expect(await screen.findByText(label)).toBeInTheDocument();
-    jest.advanceTimersByTime(1000);
+    act(() => jest.advanceTimersByTime(1000));
 
     await waitFor(() => expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(1));
     expect(mutations.doPatchFormData.mock).toHaveBeenCalledWith(
