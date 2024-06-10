@@ -89,11 +89,7 @@ export function implementsAnyValidation<Def extends CompDef>(
 }
 
 export interface ValidateEmptyField<Type extends CompTypes> {
-  runEmptyFieldValidation: (
-    node: LayoutNode<Type>,
-    item: CompInternal<Type>,
-    validationContext: ValidationDataSources,
-  ) => ComponentValidation[];
+  runEmptyFieldValidation: (node: LayoutNode<Type>, validationContext: ValidationDataSources) => ComponentValidation[];
 }
 
 export function implementsValidateEmptyField<Def extends CompDef>(
@@ -103,11 +99,7 @@ export function implementsValidateEmptyField<Def extends CompDef>(
 }
 
 export interface ValidateComponent<Type extends CompTypes> {
-  runComponentValidation: (
-    node: LayoutNode,
-    item: CompInternal<Type>,
-    validationContext: ValidationDataSources,
-  ) => ComponentValidation[];
+  runComponentValidation: (node: LayoutNode<Type>, validationContext: ValidationDataSources) => ComponentValidation[];
 }
 
 export function implementsValidateComponent<Def extends CompDef>(

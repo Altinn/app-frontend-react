@@ -579,6 +579,7 @@ function getNodePath(nodeId: NodeRef | LayoutNode | LayoutPage, nodeSelector: No
   return node instanceof LayoutPage ? [node.pageKey] : node.path;
 }
 
+export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
 export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
 export type ExactNodeDataSelector = ReturnType<typeof NodesInternal.useExactNodeDataSelector>;
 

@@ -53,18 +53,22 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
   runComponentValidation(
     node: LayoutNode<'FileUploadWithTag'>,
-    item: CompInternal<'FileUploadWithTag'>,
-    { attachmentsSelector }: ValidationDataSources,
+    { attachmentsSelector, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
+    const minNumberOfAttachments = nodeDataSelector((picker) => picker(node).item?.minNumberOfAttachments, [node]);
 
     // Validate minNumberOfAttachments
     const attachments = attachmentsSelector(node);
-    if (item.minNumberOfAttachments > 0 && attachments.length < item.minNumberOfAttachments) {
+    if (
+      minNumberOfAttachments !== undefined &&
+      minNumberOfAttachments > 0 &&
+      attachments.length < minNumberOfAttachments
+    ) {
       validations.push({
         message: {
           key: 'form_filler.file_uploader_validation_error_file_number',
-          params: [item.minNumberOfAttachments],
+          params: [minNumberOfAttachments],
         },
         severity: 'error',
         source: FrontendValidationSource.Component,
@@ -79,7 +83,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
         isAttachmentUploaded(attachment) &&
         (attachment.data.tags === undefined || attachment.data.tags.length === 0)
       ) {
-        const tagKey = item.textResourceBindings?.tagTitle;
+        const tagKey = nodeDataSelector((picker) => picker(node).item?.textResourceBindings?.tagTitle, [node]);
         const tagReference = tagKey
           ? {
               key: tagKey,

@@ -46,18 +46,22 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
 
   runComponentValidation(
     node: LayoutNode<'FileUpload'>,
-    item: CompInternal<'FileUpload'>,
-    { attachmentsSelector }: ValidationDataSources,
+    { attachmentsSelector, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
+    const minNumberOfAttachments = nodeDataSelector((picker) => picker(node).item?.minNumberOfAttachments, [node]);
 
     // Validate minNumberOfAttachments
     const attachments = attachmentsSelector(node);
-    if (item.minNumberOfAttachments > 0 && attachments.length < item.minNumberOfAttachments) {
+    if (
+      minNumberOfAttachments !== undefined &&
+      minNumberOfAttachments > 0 &&
+      attachments.length < minNumberOfAttachments
+    ) {
       validations.push({
         message: {
           key: 'form_filler.file_uploader_validation_error_file_number',
-          params: [item.minNumberOfAttachments],
+          params: [minNumberOfAttachments],
         },
         severity: 'error',
         source: FrontendValidationSource.Component,

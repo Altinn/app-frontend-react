@@ -53,11 +53,10 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
   }
 
   runComponentValidation(
-    _node: LayoutNode<'Datepicker'>,
-    item: CompInternal<'Datepicker'>,
-    { formDataSelector, currentLanguage }: ValidationDataSources,
+    node: LayoutNode<'Datepicker'>,
+    { formDataSelector, currentLanguage, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    const field = item.dataModelBindings?.simpleBinding;
+    const field = nodeDataSelector((picker) => picker(node).layout.dataModelBindings?.simpleBinding, [node]);
     const data = field ? formDataSelector(field) : undefined;
     const dataAsString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
 
@@ -65,9 +64,18 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
       return [];
     }
 
-    const minDate = getDateConstraint(item.minDate, 'min');
-    const maxDate = getDateConstraint(item.maxDate, 'max');
-    const format = getDateFormat(item.format, currentLanguage);
+    const minDate = getDateConstraint(
+      nodeDataSelector((picker) => picker(node).item?.minDate, [node]),
+      'min',
+    );
+    const maxDate = getDateConstraint(
+      nodeDataSelector((picker) => picker(node).item?.maxDate, [node]),
+      'max',
+    );
+    const format = getDateFormat(
+      nodeDataSelector((picker) => picker(node).item?.format, [node]),
+      currentLanguage,
+    );
 
     const validations: ComponentValidation[] = [];
 

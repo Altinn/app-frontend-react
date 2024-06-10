@@ -39,16 +39,16 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
   }
 
   runComponentValidation(
-    _node: LayoutNode<'Address'>,
-    item: CompInternal<'Address'>,
-    { formDataSelector }: ValidationDataSources,
+    node: LayoutNode<'Address'>,
+    { formDataSelector, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    if (!item.dataModelBindings) {
+    const dataModelBindings = nodeDataSelector((picker) => picker(node).layout.dataModelBindings, [node]);
+    if (!dataModelBindings) {
       return [];
     }
     const validations: ComponentValidation[] = [];
 
-    const zipCodeField = item.dataModelBindings.zipCode;
+    const zipCodeField = dataModelBindings.zipCode;
     const zipCode = zipCodeField ? formDataSelector(zipCodeField) : undefined;
     const zipCodeAsString = typeof zipCode === 'string' || typeof zipCode === 'number' ? String(zipCode) : undefined;
 
@@ -63,7 +63,7 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
       });
     }
 
-    const houseNumberField = item.dataModelBindings.houseNumber;
+    const houseNumberField = dataModelBindings.houseNumber;
     const houseNumber = houseNumberField ? formDataSelector(houseNumberField) : undefined;
     const houseNumberAsString =
       typeof houseNumber === 'string' || typeof houseNumber === 'number' ? String(houseNumber) : undefined;

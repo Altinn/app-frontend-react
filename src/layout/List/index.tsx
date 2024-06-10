@@ -43,17 +43,24 @@ export class List extends ListDef {
   }
 
   runEmptyFieldValidation(
-    _node: LayoutNode<'List'>,
-    item: CompInternal<'List'>,
-    { formDataSelector, invalidDataSelector }: ValidationDataSources,
+    node: LayoutNode<'List'>,
+    { formDataSelector, invalidDataSelector, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    if (!item.required || !item.dataModelBindings) {
+    const required = nodeDataSelector(
+      (picker) => {
+        const item = picker(node).item;
+        return item && 'required' in item ? item.required : false;
+      },
+      [node],
+    );
+    const dataModelBindings = nodeDataSelector((picker) => picker(node).layout.dataModelBindings, [node]);
+    if (!required || !dataModelBindings) {
       return [];
     }
 
-    const fields = Object.values(item.dataModelBindings);
+    const fields = Object.values(dataModelBindings);
     const validations: ComponentValidation[] = [];
-    const textResourceBindings = item.textResourceBindings;
+    const textResourceBindings = nodeDataSelector((picker) => picker(node).item?.textResourceBindings, [node]);
 
     let listHasErrors = false;
     for (const field of fields) {
@@ -71,7 +78,7 @@ export class List extends ListDef {
         : 'form_filler.error_required';
 
       const fieldNameReference = {
-        key: getFieldNameKey(item.textResourceBindings, undefined),
+        key: getFieldNameKey(textResourceBindings, undefined),
         makeLowerCase: true,
       };
 

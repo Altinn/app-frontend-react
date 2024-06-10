@@ -10,9 +10,8 @@ import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/RepeatingGroup
 import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { BaseValidation, ComponentValidation } from 'src/features/validation';
+import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
-import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { GroupExpressions, RepGroupInternal, RepGroupRowExtras } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -102,20 +101,24 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
   }
 
   runComponentValidation(
-    _node: LayoutNode<'RepeatingGroup'>,
-    item: CompInternal<'RepeatingGroup'>,
+    node: LayoutNode<'RepeatingGroup'>,
+    { nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    if (!item.dataModelBindings) {
+    const dataModelBindings = nodeDataSelector((picker) => picker(node).layout.dataModelBindings, [node]);
+    if (!dataModelBindings) {
       return [];
     }
 
     const validations: ComponentValidation[] = [];
     // check if minCount is less than visible rows
-    const minCount = item.minCount || 0;
-    const visibleRows = item.rows.filter((row) => row && !row.groupExpressions?.hiddenRow).length;
+    const minCount = nodeDataSelector((picker) => picker(node).item?.minCount, [node]) || 0;
+    const visibleRows = nodeDataSelector(
+      (picker) => picker(node).item?.rows.filter((row) => row && !row.groupExpressions?.hiddenRow).length,
+      [node],
+    );
 
     // Validate minCount
-    if (visibleRows < minCount) {
+    if (visibleRows !== undefined && visibleRows < minCount) {
       validations.push({
         message: { key: 'validation_errors.minItems', params: [minCount] },
         severity: 'error',

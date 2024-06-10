@@ -3,6 +3,7 @@ import type { Expression, ExprValToActual } from 'src/features/expressions/types
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { FormDataSelector } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 export enum FrontendValidationSource {
   EmptyField = '__empty_field__',
@@ -150,6 +151,7 @@ export type ValidationDataSources = {
   formDataSelector: FormDataSelector;
   invalidDataSelector: FormDataSelector;
   attachmentsSelector: AttachmentsSelector;
+  nodeDataSelector: NodeDataSelector;
 };
 
 /**

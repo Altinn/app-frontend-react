@@ -29,7 +29,6 @@ import type {
   CompInternal,
   CompTypes,
   IsContainerComp,
-  ITextResourceBindings,
   ITextResourceBindingsExternal,
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -392,21 +391,28 @@ export abstract class FormComponent<Type extends CompTypes>
   readonly category = CompCategory.Form;
 
   runEmptyFieldValidation(
-    _node: LayoutNode<Type>,
-    item: CompInternal<Type>,
-    { formDataSelector, invalidDataSelector }: ValidationDataSources,
+    node: LayoutNode<Type>,
+    { formDataSelector, invalidDataSelector, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    if (!('required' in item) || !item.required || !item.dataModelBindings) {
+    const required = nodeDataSelector(
+      (picker) => {
+        const item = picker(node).item;
+        return item && 'required' in item ? item.required : false;
+      },
+      [node],
+    );
+    const dataModelBindings = nodeDataSelector((picker) => picker(node).layout.dataModelBindings, [node]);
+    if (!required || !dataModelBindings) {
       return [];
     }
 
     const validations: ComponentValidation[] = [];
 
-    for (const [bindingKey, field] of Object.entries(item.dataModelBindings) as [string, string][]) {
+    for (const [bindingKey, field] of Object.entries(dataModelBindings) as [string, string][]) {
       const data = formDataSelector(field) ?? invalidDataSelector(field);
       const asString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
-      const trb: ITextResourceBindings = 'textResourceBindings' in item ? item.textResourceBindings : {};
+      const trb = nodeDataSelector((picker) => picker(node).item?.textResourceBindings, [node]);
 
       if (asString.length === 0) {
         const key =
