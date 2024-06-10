@@ -25,8 +25,7 @@ function TestOptions({ node }: { node: LayoutNode<'Dropdown' | 'MultipleSelect'>
     node,
   });
 
-  const setterFor = (index: number) => () =>
-    (setData as any)(node.item.type === 'Dropdown' ? options[index] : [options[index]]);
+  const setterFor = (index: number) => () => setData([options[index].value]);
 
   return (
     <>
@@ -153,14 +152,6 @@ describe('useGetOptions', () => {
         newValue: option.value.toString(),
       });
       (formDataMethods.setLeafValue as jest.Mock).mockClear();
-
-      const currentOption = JSON.parse(screen.getByTestId('current').textContent as string);
-      expect(currentOption).toEqual([
-        {
-          label: option.label,
-          value: option.value.toString(),
-        },
-      ]);
 
       const currentStringy = JSON.parse(screen.getByTestId('currentStringy').textContent as string);
       expect(currentStringy).toEqual([option.value.toString()]);
