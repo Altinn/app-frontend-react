@@ -16,8 +16,10 @@ export interface DefPluginConfig {
   settings?: any;
 }
 
-interface DefPluginBaseNodeData<Config extends DefPluginConfig> extends BaseNodeData<DefPluginCompType<Config>> {
+interface DefPluginBaseNodeData<Config extends DefPluginConfig>
+  extends Omit<BaseNodeData<DefPluginCompType<Config>>, 'layout'> {
   item: DefPluginCompInternal<Config> & DefPluginExtraInItem<Config>;
+  layout: DefPluginCompExternal<Config>;
 }
 
 export type DefPluginCompType<Config extends DefPluginConfig> = Config['componentType'];
