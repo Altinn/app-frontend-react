@@ -66,7 +66,7 @@ export function getAllReferencedDataTypes(layouts: ILayouts, defaultDataType?: s
  * Recurse component properties and look for data types in expressions ["dataModel", "...", "dataType"]
  * Logs a warning if a non-string (e.g. nested expression) is found where the data type should be as we cannot resolve expressions at this point
  */
-function addDataTypesFromExpressionsRecursive(obj: object, dataTypes: Set<string>) {
+function addDataTypesFromExpressionsRecursive(obj: unknown, dataTypes: Set<string>) {
   if (obj == null || typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
     return;
   }
