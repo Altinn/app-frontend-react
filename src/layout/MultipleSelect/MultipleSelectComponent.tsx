@@ -28,12 +28,12 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
     (values: string[]) => {
       const labelsToRemove = options
         .filter((o) => selectedValues.includes(o.value) && !values.includes(o.value))
-        .map((o) => o.label)
+        .map((o) => langAsString(o.label))
         .join(', ');
 
       return lang('form_filler.multi_select_alert', [labelsToRemove]);
     },
-    [lang, options, selectedValues],
+    [lang, langAsString, options, selectedValues],
   );
 
   const { alertOpen, setAlertOpen, handleChange, confirmChange, cancelChange, alertMessage } = useAlertOnChange(
