@@ -19,7 +19,7 @@
 
 .labelWrapper {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--fds-spacing-2);
 }
 
