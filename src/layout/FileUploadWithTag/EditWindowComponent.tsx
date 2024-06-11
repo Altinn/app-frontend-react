@@ -199,7 +199,7 @@ export function EditWindowComponent({ attachment, mobileView, node, options }: E
             ) : (
               <Button
                 size='small'
-                onClick={() => handleSave()}
+                onClick={handleSave}
                 id={`attachment-save-tag-button-${uniqueId}`}
                 disabled={saveIsDisabled}
               >

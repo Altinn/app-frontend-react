@@ -27,6 +27,7 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
     selectedValues,
   } = useGetOptions({
     ...node.item,
+    valueType: 'multi',
     node,
   });
 

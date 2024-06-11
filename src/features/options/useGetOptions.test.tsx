@@ -22,6 +22,7 @@ interface RenderProps {
 function TestOptions({ node }: { node: LayoutNode<'Dropdown' | 'MultipleSelect'> }) {
   const { options, setData, selectedValues } = useGetOptions({
     ...node.item,
+    valueType: node.item.type === 'Dropdown' ? 'single' : 'multi',
     node,
   });
 

@@ -34,6 +34,7 @@ const useHasChanged = (val: any) => {
 };
 
 interface Props {
+  valueType: 'single' | 'multi';
   // Generic props
   node: LayoutNode;
   removeDuplicates?: boolean;
@@ -101,6 +102,7 @@ const compareOptionAlphabetically =
 export function useGetOptions(props: Props): OptionsResult {
   const {
     node,
+    valueType: type,
     options,
     optionsId,
     secure,
@@ -196,8 +198,12 @@ export function useGetOptions(props: Props): OptionsResult {
       return;
     }
 
-    setValue('label' as any, translatedLabels);
-  }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue]);
+    if (type === 'single') {
+      setValue('label' as any, translatedLabels.at(0));
+    } else {
+      setValue('label' as any, translatedLabels);
+    }
+  }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, type]);
 
   const setData = useCallback((values: string[]) => setValue('simpleBinding', values.join(',')), [setValue]);
 

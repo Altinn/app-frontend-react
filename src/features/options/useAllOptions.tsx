@@ -225,6 +225,7 @@ function DummyOptionsSaver({ node, onError }: { node: LayoutNode; onError: () =>
     // These don't really matter to us, but by setting them we effectively disable the 'preselectedOptionIndex'
     // functionality, and automatic resetting of stale values. We only want to fetch options here, not update the
     // data model in any way.
+    valueType: 'single',
     dataModelBindings: undefined,
   });
 

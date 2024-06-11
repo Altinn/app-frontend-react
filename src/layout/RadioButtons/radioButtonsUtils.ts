@@ -11,6 +11,7 @@ export const useRadioButtons = ({ node }: IRadioButtonsContainerProps) => {
     selectedValues,
   } = useGetOptions({
     ...node.item,
+    valueType: 'single',
     node,
   });
 

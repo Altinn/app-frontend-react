@@ -22,6 +22,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
 
   const { options, isFetching, selectedValues, setData, rawData } = useGetOptions({
     ...node.item,
+    valueType: 'single',
     node,
     removeDuplicates: true,
   });

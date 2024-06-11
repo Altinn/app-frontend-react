@@ -15,6 +15,7 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
   const debounce = FD.useDebounceImmediately();
   const { options, isFetching, selectedValues, setData } = useGetOptions({
     ...node.item,
+    valueType: 'multi',
     node,
     removeDuplicates: true,
   });
