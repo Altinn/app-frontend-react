@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 
 type ChangeFn = (...args: any[]) => any;
 export interface AlertOnChange<Fn extends ChangeFn> {
@@ -7,6 +8,7 @@ export interface AlertOnChange<Fn extends ChangeFn> {
   handleChange: Fn;
   confirmChange: () => void;
   cancelChange: () => void;
+  alertMessage: ReactNode;
 }
 
 /**
@@ -21,8 +23,10 @@ export function useAlertOnChange<Fn extends ChangeFn>(
   enabled: boolean,
   onChange: Fn,
   shouldAlert?: (...args: Parameters<Fn>) => boolean,
+  generateMessage?: (...args: Parameters<Fn>) => ReactNode,
 ): AlertOnChange<Fn> {
   const [alertOpen, _setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<ReactNode>('');
   const argsRef = useRef<Parameters<Fn>>();
 
   const handleChange = useCallback(
@@ -34,16 +38,20 @@ export function useAlertOnChange<Fn extends ChangeFn>(
           event.preventDefault();
         }
         argsRef.current = args;
+        if (generateMessage) {
+          setAlertMessage(generateMessage(...args));
+        }
         _setAlertOpen(true);
       } else {
         onChange(...args);
       }
     },
-    [enabled, onChange, shouldAlert],
+    [enabled, generateMessage, onChange, shouldAlert],
   ) as Fn;
 
   const confirmChange = useCallback(() => {
     _setAlertOpen(false);
+    setAlertMessage('');
     if (argsRef.current) {
       onChange(...argsRef.current);
     }
@@ -53,6 +61,7 @@ export function useAlertOnChange<Fn extends ChangeFn>(
   const cancelChange = useCallback(() => {
     argsRef.current = undefined;
     _setAlertOpen(false);
+    setAlertMessage('');
   }, []);
 
   // Prevent the alert from opening from the outside
@@ -72,5 +81,6 @@ export function useAlertOnChange<Fn extends ChangeFn>(
     handleChange,
     confirmChange,
     cancelChange,
+    alertMessage,
   };
 }

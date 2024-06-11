@@ -57,6 +57,7 @@ export function en() {
     form_filler: {
       alert_confirm: 'Confirm',
       checkbox_alert: 'Are you sure you want to uncheck?',
+      multi_select_alert: 'Are you sure you want to delete **{0}**?',
       back_to_summary: 'Return to summary',
       error_report_header: 'These need to be corrected before continuing',
       error_required: 'You have to fill out {0}',
