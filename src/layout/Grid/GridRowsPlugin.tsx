@@ -141,8 +141,8 @@ export class GridRowsPlugin<Type extends CompTypes>
     return child satisfies NodeData as NodeData<C>;
   }
 
-  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode, childStore: NodeData): void {
-    state.gridItems[childNode.getId()] = childStore;
+  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode, childData: NodeData): void {
+    state.gridItems[childNode.getId()] = childData;
   }
 
   removeChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): void {

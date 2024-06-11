@@ -253,14 +253,14 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     return child;
   }
 
-  addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode, childStore: NodeData): void {
+  addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode, childData: NodeData): void {
     const row = childNode.row;
     if (!row) {
       throw new Error(`Child node of repeating component missing 'row' property`);
     }
     const rows = state[this.settings.internalProp] as InternalRowState<E>;
     const children = rows[row.uuid]?.children ?? {};
-    children[childNode.getBaseId()] = childStore;
+    children[childNode.getBaseId()] = childData;
     rows[row.uuid] = { ...row, children, extras: rows[row.uuid]?.extras };
   }
 

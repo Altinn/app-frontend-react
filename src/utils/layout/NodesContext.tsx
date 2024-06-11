@@ -57,7 +57,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
-import type { BaseRow, GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
+import type { GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
 
 export interface NodesContext {
   nodes: LayoutPages | undefined;
@@ -145,8 +145,8 @@ export type NodesDataContext = {
   };
 
   // Functions
-  addNode: <N extends LayoutNode>(node: N, targetState: any, row: BaseRow | undefined) => void;
-  removeNode: (node: LayoutNode, row: BaseRow | undefined) => void;
+  addNode: <N extends LayoutNode>(node: N, targetState: any) => void;
+  removeNode: (node: LayoutNode) => void;
   setNodeProp: <N extends LayoutNode, K extends keyof NodeDataFromNode<N>>(
     node: N,
     prop: K,
@@ -183,7 +183,7 @@ export function createNodesDataStore() {
         pages: {},
       },
       nodesAdded: {},
-      addNode: (node, targetState, row) =>
+      addNode: (node, targetState) =>
         set((state) => {
           const parentPath = node.path.slice(0, -1);
           const parent = pickDataStorePath(state.pages, parentPath);
@@ -195,13 +195,13 @@ export function createNodesDataStore() {
             parent.topLevelNodes[id] = targetState;
           } else {
             const def = getComponentDef(parent.layout.type);
-            def.addChild(parent as any, node, targetState, row);
+            def.addChild(parent as any, node, targetState);
           }
           state.nodesAdded[node.getId()] = true;
           state.ready = false;
           state.addRemoveCounter += 1;
         }),
-      removeNode: (node, row) =>
+      removeNode: (node) =>
         set((state) =>
           ignoreNodePathNotFound(() => {
             const parentPath = node.path.slice(0, -1);
@@ -210,7 +210,7 @@ export function createNodesDataStore() {
               delete parent.topLevelNodes[node.getId()];
             } else {
               const def = getComponentDef(parent.layout.type);
-              def.removeChild(parent as any, node, row);
+              def.removeChild(parent as any, node);
             }
             delete state.nodesAdded[node.getId()];
             state.ready = false;

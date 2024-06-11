@@ -124,7 +124,6 @@ function MarkAsHidden<T extends CompTypes>({ node, baseId }: CommonProps<T>) {
 function AddRemoveNode<T extends CompTypes>({ node, item }: CommonProps<T>) {
   const parent = GeneratorInternal.useParent();
   const row = GeneratorInternal.useRow();
-  const rowRef = useAsRef(row);
   const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item, parent, row });
   const addNode = NodesInternal.useAddNode();
 
@@ -135,15 +134,15 @@ function AddRemoveNode<T extends CompTypes>({ node, item }: CommonProps<T>) {
 
   GeneratorStages.AddNodes.useEffect(() => {
     const defaultState = nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any);
-    addNode(nodeRef.current, defaultState, row);
-  }, [addNode, nodeRef, stateFactoryPropsRef, row]);
+    addNode(nodeRef.current, defaultState);
+  }, [addNode, nodeRef, stateFactoryPropsRef]);
 
   GeneratorStages.AddNodes.useEffect(
     () => () => {
       pageRef.current._removeChild(nodeRef.current);
-      removeNode(nodeRef.current, rowRef.current);
+      removeNode(nodeRef.current);
     },
-    [nodeRef, pageRef, removeNode, rowRef],
+    [nodeRef, pageRef, removeNode],
   );
 
   return null;

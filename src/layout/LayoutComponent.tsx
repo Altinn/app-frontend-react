@@ -121,12 +121,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Adds a child node to the parent node. This must be implemented for every component type that can adopt children.
    */
-  public addChild(
-    _state: NodeData<Type>,
-    _childNode: LayoutNode,
-    _childStore: NodeData,
-    _row: BaseRow | undefined,
-  ): void {
+  public addChild(_state: NodeData<Type>, _childNode: LayoutNode, _childData: NodeData): void {
     throw new Error(
       `addChild() is not implemented yet for '${this.type}'. ` +
         `You have to implement this if the component type supports children.`,
@@ -137,7 +132,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Removes a child node from the parent node. This must be implemented for every component
    * type that can adopt children.
    */
-  public removeChild(_state: NodeData<Type>, _childNode: LayoutNode, _row: BaseRow | undefined): void {
+  public removeChild(_state: NodeData<Type>, _childNode: LayoutNode): void {
     throw new Error(
       `removeChild() is not implemented yet for '${this.type}'. ` +
         `You have to implement this if the component type supports children.`,
@@ -458,9 +453,9 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
 
   abstract pickDirectChildren(state: NodeData<Type>, restriction?: TraversalRestriction): NodeRef[];
 
-  abstract addChild(state: NodeData<Type>, childNode: LayoutNode, childStore: NodeData, row: BaseRow | undefined): void;
+  abstract addChild(state: NodeData<Type>, childNode: LayoutNode, childData: NodeData): void;
 
-  abstract removeChild(state: NodeData<Type>, childNode: LayoutNode, row: BaseRow | undefined): void;
+  abstract removeChild(state: NodeData<Type>, childNode: LayoutNode): void;
 }
 
 export type LayoutComponent<Type extends CompTypes = CompTypes> =
