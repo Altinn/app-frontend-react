@@ -52,11 +52,12 @@ import type { ValidationStorePluginConfig } from 'src/features/validation/Valida
 import type { DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { NodeRef } from 'src/layout';
+import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
-import type { GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
+import type { BaseRow, GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
 
 export interface NodesContext {
   nodes: LayoutPages | undefined;
@@ -103,7 +104,12 @@ export interface PageData {
   type: 'page';
   pageKey: string;
   hidden: HiddenStatePage;
+  topLevelNodes: TopLevelNodesStore;
   errors: GeneratorErrors | undefined;
+}
+
+export interface TopLevelNodesStore<Types extends CompTypes = CompTypes> {
+  [key: string]: NodeData<Types>;
 }
 
 export type NodeDataStorePlugins = {
@@ -134,13 +140,13 @@ export type NodesDataContext = {
   ready: boolean;
   hasErrors: boolean;
   pages: PageHierarchy;
-  flatNodes: {
-    [key: string]: NodeData;
+  nodesAdded: {
+    [key: string]: true | undefined;
   };
 
   // Functions
-  addNode: <N extends LayoutNode>(node: N, targetState: any) => void;
-  removeNode: (node: LayoutNode) => void;
+  addNode: <N extends LayoutNode>(node: N, targetState: any, row: BaseRow | undefined) => void;
+  removeNode: (node: LayoutNode, row: BaseRow | undefined) => void;
   setNodeProp: <N extends LayoutNode, K extends keyof NodeDataFromNode<N>>(
     node: N,
     prop: K,
@@ -176,29 +182,37 @@ export function createNodesDataStore() {
         type: 'pages' as const,
         pages: {},
       },
-      flatNodes: {},
-      addNode: (node, targetState) =>
+      nodesAdded: {},
+      addNode: (node, targetState, row) =>
         set((state) => {
           const parentPath = node.path.slice(0, -1);
-          const parent = pickDataStorePath(state, parentPath);
-          if (parent.type !== 'page') {
+          const parent = pickDataStorePath(state.pages, parentPath);
+          if (parent.type === 'page') {
+            const id = node.getId();
+            if (parent.topLevelNodes[id]) {
+              throw new Error(`Node already exists: ${id}`);
+            }
+            parent.topLevelNodes[id] = targetState;
+          } else {
             const def = getComponentDef(parent.layout.type);
-            def.addChild(parent as any, node);
+            def.addChild(parent as any, node, targetState, row);
           }
-          state.flatNodes[node.getId()] = targetState;
+          state.nodesAdded[node.getId()] = true;
           state.ready = false;
           state.addRemoveCounter += 1;
         }),
-      removeNode: (node) =>
+      removeNode: (node, row) =>
         set((state) =>
           ignoreNodePathNotFound(() => {
             const parentPath = node.path.slice(0, -1);
-            const parent = pickDataStorePath(state, parentPath);
-            if (parent.type !== 'page') {
+            const parent = pickDataStorePath(state.pages, parentPath);
+            if (parent.type === 'page') {
+              delete parent.topLevelNodes[node.getId()];
+            } else {
               const def = getComponentDef(parent.layout.type);
-              def.removeChild(parent as any, node);
+              def.removeChild(parent as any, node, row);
             }
-            delete state.flatNodes[node.getId()];
+            delete state.nodesAdded[node.getId()];
             state.ready = false;
             state.addRemoveCounter += 1;
           }),
@@ -206,7 +220,7 @@ export function createNodesDataStore() {
       setNodeProp: (node, prop, value) =>
         set((state) =>
           ignoreNodePathNotFound(() => {
-            const obj = pickDataStorePath(state, node.path);
+            const obj = pickDataStorePath(state.pages, node.path);
             if (obj.type === 'page') {
               throw new Error('Parent node is not a node');
             }
@@ -221,7 +235,7 @@ export function createNodesDataStore() {
       addError: (error, node) =>
         set((state) =>
           ignoreNodePathNotFound(() => {
-            const obj = pickDataStorePath(state, node instanceof BaseLayoutNode ? node.path : [node.pageKey]);
+            const obj = pickDataStorePath(state.pages, node instanceof BaseLayoutNode ? node.path : [node.pageKey]);
             if (!obj.errors) {
               obj.errors = {};
             }
@@ -248,6 +262,7 @@ export function createNodesDataStore() {
               hiddenByExpression: false,
               hiddenByTracks: false,
             },
+            topLevelNodes: {},
             errors: undefined,
           };
           state.ready = false;
@@ -457,7 +472,7 @@ function isHidden(
     return true;
   }
 
-  const hidden = pickDataStorePath(state, nodeOrPath)?.hidden;
+  const hidden = pickDataStorePath(state.pages, nodeOrPath)?.hidden;
   if (!hidden) {
     return true;
   }
@@ -578,7 +593,7 @@ export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefi
 type NodePickerReturns<N extends LayoutNode | undefined> = N extends undefined ? undefined : NodeDataFromNode<N>;
 
 function selectNodeData<N extends LayoutNode | undefined>(node: N, state: NodesDataContext): NodePickerReturns<N> {
-  return ignoreNodePathNotFound(() => (node ? pickDataStorePath(state, node) : undefined), undefined) as any;
+  return ignoreNodePathNotFound(() => (node ? pickDataStorePath(state.pages, node) : undefined), undefined) as any;
 }
 
 export const NotReadyYet = Symbol('NotReadyYet');
@@ -629,7 +644,7 @@ export const NodesInternal = {
   ): N extends undefined ? Out | undefined : Out {
     return DataStore.useSelector((s) =>
       ignoreNodePathNotFound(
-        () => (node ? selector(pickDataStorePath(s, node) as NodeDataFromNode<N>) : undefined),
+        () => (node ? selector(pickDataStorePath(s.pages, node) as NodeDataFromNode<N>) : undefined),
         undefined,
       ),
     ) as any;
@@ -640,7 +655,7 @@ export const NodesInternal = {
   ): React.MutableRefObject<N extends undefined ? Out | undefined : Out> {
     return DataStore.useSelectorAsRef((s) =>
       ignoreNodePathNotFound(
-        () => (node ? selector(pickDataStorePath(s, node) as NodeDataFromNode<N>) : undefined),
+        () => (node ? selector(pickDataStorePath(s.pages, node) as NodeDataFromNode<N>) : undefined),
         undefined,
       ),
     ) as any;
@@ -658,7 +673,7 @@ export const NodesInternal = {
               return false;
             }
 
-            const nodeData = node ? pickDataStorePath(state, node) : undefined;
+            const nodeData = node ? pickDataStorePath(state.pages, node) : undefined;
             if (!nodeData) {
               return false;
             }
@@ -689,7 +704,7 @@ export const NodesInternal = {
       if (node instanceof LayoutPage) {
         return s.pages.pages[node.pageKey] !== undefined;
       }
-      return s.flatNodes[node.getId()] !== undefined;
+      return s.nodesAdded[node.getId()] !== undefined;
     }),
   useNodesStore: () => NodesStore.useStore(),
   useHasErrors: () => DataStore.useSelector((s) => s.hasErrors),
@@ -747,8 +762,9 @@ function useLegacyHiddenComponents(setHidden: React.Dispatch<React.SetStateActio
  * children.
  */
 export function pickDataStorePath(
-  state: NodesDataContext,
+  container: PageHierarchy | PageData | NodeData,
   _pathOrNode: string[] | LayoutNode | LayoutPage,
+  parentPath: string[] = [],
 ): NodeData | PageData {
   const path =
     _pathOrNode instanceof LayoutPage
@@ -758,23 +774,48 @@ export function pickDataStorePath(
         : _pathOrNode;
 
   if (path.length === 0) {
-    throw new Error('Cannot pick root node');
-  }
-
-  if (path.length === 1) {
-    const page = state.pages.pages[path[0]];
-    if (!page) {
-      throw new NodePathNotFound(`Page not found at path /${path.join('/')}`);
+    if (parentPath.length === 0) {
+      throw new Error('Cannot pick root node');
     }
-    return page;
+
+    return container as NodeData | PageData;
   }
 
-  const lastLeg = path[path.length - 1];
-  const node = state.flatNodes[lastLeg];
+  const [target, ...remaining] = path;
+  if (!target) {
+    throw new Error('Invalid leg in path');
+  }
+  const fullPath = [...parentPath, target];
 
-  if (!node) {
-    throw new NodePathNotFound(`Node not found at path /${path.join('/')}`);
+  if (isPages(container)) {
+    const page = container.pages[target];
+    if (!page) {
+      throw new NodePathNotFound(`Page not found at path /${fullPath.join('/')}`);
+    }
+    return pickDataStorePath(page, remaining, fullPath);
   }
 
-  return node;
+  if (isPage(container)) {
+    const node = container.topLevelNodes[target];
+    if (!node) {
+      throw new NodePathNotFound(`Top level node not found at path /${fullPath.join('/')}`);
+    }
+    return pickDataStorePath(node, remaining, fullPath);
+  }
+
+  const def = getComponentDef(container?.layout?.type);
+  if (!def) {
+    throw new Error(`Component type "${container?.layout?.type}" not found for path /${fullPath.join('/')}`);
+  }
+
+  const child = def.pickChild(container as NodeData<any>, target, fullPath);
+  return pickDataStorePath(child, remaining, fullPath);
+}
+
+function isPages(state: PageHierarchy | PageData | NodeData | undefined): state is PageHierarchy {
+  return !!(state && 'type' in state && state.type === 'pages');
+}
+
+function isPage(state: PageHierarchy | PageData | NodeData | undefined): state is PageData {
+  return !!(state && 'type' in state && state.type === 'page');
 }

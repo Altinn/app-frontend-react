@@ -31,9 +31,9 @@ interface Config<Type extends CompTypes> {
   extraState: {
     cardsItems: {
       [cardIndex: number]: {
-        media?: NodeRef;
+        media?: NodeData;
         children: {
-          [nodeId: string]: NodeRef;
+          [nodeId: string]: NodeData;
         };
       };
     };
@@ -136,10 +136,14 @@ export class CardsPlugin<Type extends CompTypes>
     const refs: NodeRef[] = [];
     for (const card of Object.values(state.cardsItems)) {
       if (card.media) {
-        refs.push(card.media);
+        refs.push({
+          nodeRef: card.media.layout.id,
+        });
       }
       for (const child of Object.values(card.children)) {
-        refs.push(child);
+        refs.push({
+          nodeRef: child.layout.id,
+        });
       }
     }
 
@@ -152,7 +156,7 @@ export class CardsPlugin<Type extends CompTypes>
     parentPath: string[],
   ): NodeData<C> {
     for (const card of Object.values(state.cardsItems)) {
-      if (card.media?.nodeRef === childId) {
+      if (card.media?.layout.id === childId) {
         return card.media as NodeData<C>;
       }
       if (card.children[childId]) {
@@ -163,7 +167,7 @@ export class CardsPlugin<Type extends CompTypes>
     throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
   }
 
-  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): void {
+  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode, childStore: NodeData): void {
     // First we need to find the child in the layout again to figure out which card it belongs to and if it's media
     let cardIndex: number | undefined;
     let isMedia: boolean | undefined;
@@ -192,15 +196,15 @@ export class CardsPlugin<Type extends CompTypes>
     }
 
     if (isMedia) {
-      state.cardsItems[cardIndex].media = { nodeRef: childNode.getId() };
+      state.cardsItems[cardIndex].media = childStore;
     } else {
-      state.cardsItems[cardIndex].children[childNode.getId()] = { nodeRef: childNode.getId() };
+      state.cardsItems[cardIndex].children[childNode.getId()] = childStore;
     }
   }
 
   removeChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): void {
     for (const card of Object.values(state.cardsItems)) {
-      if (card.media?.nodeRef === childNode.getId()) {
+      if (card.media?.layout.id === childNode.getId()) {
         card.media = undefined;
         return;
       }

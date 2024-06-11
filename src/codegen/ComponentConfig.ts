@@ -413,8 +413,8 @@ export class ComponentConfig {
         `pickChild<C extends ${CompTypes}>(state: ${NodeData}<'${this.type}'>, childId: string, parentPath: string[]) {
           return ${pluginRef(plugin)}.pickChild<C>(state as any, childId, parentPath);
         }`,
-        `addChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}): void {
-          ${pluginRef(plugin)}.addChild(state as any, childNode);
+        `addChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}, childStore: ${NodeData}): void {
+          ${pluginRef(plugin)}.addChild(state as any, childNode, childStore);
         }`,
         `removeChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}): void {
           ${pluginRef(plugin)}.removeChild(state as any, childNode);

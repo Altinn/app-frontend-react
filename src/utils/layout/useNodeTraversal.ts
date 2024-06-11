@@ -10,7 +10,7 @@ import { NodesInternal, NotReadyYet, pickDataStorePath, useNodesLax } from 'src/
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, ParentNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesDataContext, PageData, PageHierarchy } from 'src/utils/layout/NodesContext';
+import type { PageData, PageHierarchy } from 'src/utils/layout/NodesContext';
 import type { NodeData } from 'src/utils/layout/types';
 
 type AnyData = PageHierarchy | PageData | NodeData;
@@ -38,7 +38,7 @@ const emptyArray: never[] = [];
 
 export class TraversalTask {
   constructor(
-    private state: NodesDataContext,
+    private state: PageHierarchy,
     private rootNode: LayoutPages,
     public readonly matcher: TraversalMatcher | undefined,
     public readonly restriction: TraversalRestriction | undefined,
@@ -58,7 +58,7 @@ export class TraversalTask {
     }
 
     if (target instanceof LayoutPages) {
-      return this.state.pages as DataFrom<T>;
+      return this.state as DataFrom<T>;
     }
 
     return pickDataStorePath(this.state, target as LayoutNode | LayoutPage) as DataFrom<T>;
@@ -129,7 +129,7 @@ export class TraversalTask {
 
 export class NodeTraversal<T extends Node = LayoutPages> {
   constructor(
-    private readonly state: NodesDataContext,
+    private readonly state: PageHierarchy,
     private readonly rootNode: LayoutPages,
     public readonly target: T,
   ) {}
@@ -328,8 +328,8 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
       }
 
       return node === undefined
-        ? (selector as any)(new NodeTraversal(state, nodes, nodes))
-        : (selector as any)(new NodeTraversal(state, nodes, node));
+        ? (selector as any)(new NodeTraversal(state.pages, nodes, nodes))
+        : (selector as any)(new NodeTraversal(state.pages, nodes, node));
     },
     [counterRef.current],
   );
@@ -459,7 +459,7 @@ function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: St
             throw new Error('useNodeTraversalSelector() ran when not ready');
           }
 
-          return innerSelector(new NodeTraversal(state, nodes, nodes)) as InnerSelectorReturns<Strict, U>;
+          return innerSelector(new NodeTraversal(state.pages, nodes, nodes)) as InnerSelectorReturns<Strict, U>;
         },
         [innerSelector.toString(), ...deps],
       );

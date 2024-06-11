@@ -28,7 +28,7 @@ interface Config<
     [key in ExternalProp]: string[];
   };
   extraState: {
-    [key in ExternalProp]: { [key: string]: NodeRef };
+    [key in ExternalProp]: { [key: string]: NodeData };
   };
   extraInItem: { [key in ExternalProp]: undefined } & { [key in InternalProp]: NodeRef[] };
 }
@@ -133,7 +133,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
 
   stateFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>): ToInternal<E>['extraState'] {
     return {
-      [this.settings.externalProp as Combined<E>['externalProp']]: {} as { [key: string]: NodeRef },
+      [this.settings.externalProp as Combined<E>['externalProp']]: {} as { [key: string]: NodeData },
     } as ToInternal<E>['extraState'];
   }
 
@@ -160,8 +160,8 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     return child as NodeData<C>;
   }
 
-  addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode) {
-    state[this.settings.externalProp][childNode.getId()] = { nodeRef: childNode.getId() };
+  addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode, childStore: NodeData) {
+    state[this.settings.externalProp][childNode.getId()] = childStore;
   }
 
   removeChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode) {

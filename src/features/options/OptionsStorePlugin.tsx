@@ -45,7 +45,7 @@ export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig>
       useNodeOptions: (node) =>
         store.useSelector((state) =>
           ignoreNodePathNotFound(() => {
-            const s = pickDataStorePath(state, node) as NodeData;
+            const s = pickDataStorePath(state.pages, node) as NodeData;
             return { isFetching: nodeStoreToIsFetching(s), options: nodeStoreToOptions(s) };
           }, defaultReturn),
         ),
@@ -54,7 +54,7 @@ export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig>
           mode: 'simple',
           selector: (node: LayoutNode<CompWithBehavior<'canHaveOptions'>>) => (state) =>
             ignoreNodePathNotFound(() => {
-              const store = pickDataStorePath(state, node) as NodeData;
+              const store = pickDataStorePath(state.pages, node) as NodeData;
               return { isFetching: nodeStoreToIsFetching(store), options: nodeStoreToOptions(store) };
             }, defaultReturn),
         }),

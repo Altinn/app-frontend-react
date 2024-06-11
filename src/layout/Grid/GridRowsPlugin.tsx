@@ -27,7 +27,7 @@ interface Config<Type extends CompTypes> {
   };
   extraState: {
     gridItems: {
-      [nodeId: string]: NodeRef;
+      [nodeId: string]: NodeData;
     };
   };
   extraInItem: {
@@ -138,11 +138,11 @@ export class GridRowsPlugin<Type extends CompTypes>
     if (!child) {
       throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
     }
-    return child as NodeData<C>;
+    return child satisfies NodeData as NodeData<C>;
   }
 
-  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): void {
-    state.gridItems[childNode.getId()] = { nodeRef: childNode.getId() };
+  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode, childStore: NodeData): void {
+    state.gridItems[childNode.getId()] = childStore;
   }
 
   removeChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): void {

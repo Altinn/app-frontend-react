@@ -29,7 +29,7 @@ interface RowsState<Extras> {
   [uuid: string]: {
     extras: Extras;
     children: {
-      [baseId: string]: NodeRefInRow;
+      [baseId: string]: NodeData;
     };
   } & BaseRow;
 }
@@ -155,7 +155,11 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
       rows.push({
         index: row.index,
         uuid: row.uuid,
-        items: Object.values(row.children),
+        items: Object.values(row.children).map((child) => ({
+          baseId: child.item?.baseComponentId,
+          multiPageIndex: child.item?.multiPageIndex,
+          nodeRef: child.item?.id,
+        })),
         ...(row.extras && typeof row.extras === 'object' ? row.extras : ({} as any)),
       });
     }
@@ -210,7 +214,14 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
       }
 
       for (const child of Object.values(row.children)) {
-        out.push(child);
+        const item = child.item;
+        if (item) {
+          out.push({
+            baseId: item.baseComponentId ?? item.id,
+            multiPageIndex: item.multiPageIndex,
+            nodeRef: item.id,
+          });
+        }
       }
     }
 
@@ -242,18 +253,14 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     return child;
   }
 
-  addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode): void {
+  addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode, childStore: NodeData): void {
     const row = childNode.row;
     if (!row) {
       throw new Error(`Child node of repeating component missing 'row' property`);
     }
     const rows = state[this.settings.internalProp] as InternalRowState<E>;
     const children = rows[row.uuid]?.children ?? {};
-    children[childNode.getBaseId()] = {
-      nodeRef: childNode.getId(),
-      baseId: childNode.getBaseId(),
-      multiPageIndex: childNode.getMultiPageIndex(),
-    };
+    children[childNode.getBaseId()] = childStore;
     rows[row.uuid] = { ...row, children, extras: rows[row.uuid]?.extras };
   }
 
