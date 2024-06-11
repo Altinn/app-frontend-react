@@ -58,6 +58,7 @@ export function nn(): FixedLanguageList {
       alert_confirm: 'Bekreft',
       checkbox_alert: 'Er du sikker på at du vil fjerne avkrysningen?',
       multi_select_alert: 'Er du sikker på at du vil slette **{0}**?',
+      dropdown_alert: 'Er du sikker på at du vil endre til **{0}**?',
       back_to_summary: 'Attende til samandrag',
       error_report_header: 'Du må retta desse feila før du kan gå vidare',
       error_required: 'Du må fylle ut {0}',

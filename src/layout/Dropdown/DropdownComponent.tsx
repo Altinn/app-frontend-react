@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { Combobox } from '@digdir/designsystemet-react';
 
@@ -27,16 +27,23 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
     removeDuplicates: true,
   });
 
-  const selectedLabel = options.find((option) => option.value === selectedValues[0])?.label;
-  const selectedLabelTranslated = langAsString(selectedLabel);
-  const alertText = selectedLabel
-    ? lang('form_filler.radiobutton_alert_label', [`<strong>${selectedLabelTranslated}</strong>`])
-    : lang('form_filler.radiobutton_alert');
+  const changeMessageGenerator = useCallback(
+    (values: string[]) => {
+      const label = options
+        .filter((o) => values.includes(o.value))
+        .map((o) => langAsString(o.label))
+        .join(', ');
 
-  const { alertOpen, setAlertOpen, handleChange, confirmChange, cancelChange } = useAlertOnChange(
+      return lang('form_filler.dropdown_alert', [label]);
+    },
+    [lang, langAsString, options],
+  );
+
+  const { alertOpen, setAlertOpen, handleChange, confirmChange, cancelChange, alertMessage } = useAlertOnChange(
     Boolean(alertOnChange),
     setData,
     (values) => values[0] !== selectedValues[0] && !!selectedValues.length,
+    changeMessageGenerator,
   );
 
   if (isFetching) {
@@ -51,7 +58,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
           onPopoverDeleteClick={confirmChange}
           onCancelClick={cancelChange}
           deleteButtonText={langAsString('form_filler.alert_confirm')}
-          messageText={alertText}
+          messageText={alertMessage}
           open={alertOpen}
           setOpen={setAlertOpen}
         >
