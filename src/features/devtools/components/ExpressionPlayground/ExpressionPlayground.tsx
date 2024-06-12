@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 
-import { LegacySelect } from '@digdir/design-system-react';
-import { Checkbox, Fieldset, Tabs } from '@digdir/designsystemet-react';
+import { Checkbox, Combobox, Fieldset, Tabs } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/ExpressionPlayground/ExpressionPlayground.module.css';
@@ -48,6 +47,8 @@ export const ExpressionPlayground = () => {
   ]);
   const nodes = useNodes();
   const { currentPageId } = useNavigatePage();
+
+  const selectedContext = forPage && forComponentId ? [`${forPage}|${forComponentId}`] : [];
 
   const isHidden = useIsHiddenComponent();
   const _dataSources = useExpressionDataSources(isHidden);
@@ -210,17 +211,30 @@ export const ExpressionPlayground = () => {
         </SplitView>
         <div className={classes.rightColumn}>
           <Fieldset legend={'Kjør uttrykk i kontekst av komponent'}>
-            <LegacySelect
-              value={`${forPage}|${forComponentId}`}
-              onChange={(value) => {
-                const [forPage, forComponentId] = value.split('|', 2);
-                setContext(forPage, forComponentId);
+            <Combobox
+              size='sm'
+              value={selectedContext}
+              onValueChange={(values) => {
+                const selected = values.at(0);
+                if (selected) {
+                  const [forPage, forComponentId] = selected.split('|', 2);
+                  setContext(forPage, forComponentId);
+                }
               }}
-              options={Object.values(nodes?.all() || [])
+            >
+              {Object.values(nodes?.all() || [])
                 .map((page) => page.flat(true))
                 .flat()
-                .map((n) => ({ label: n.item.id, value: `${n.top.top.myKey}|${n.item.id}` }))}
-            />
+                .map((n) => (
+                  <Combobox.Option
+                    key={n.item.id}
+                    value={`${n.top.top.myKey}|${n.item.id}`}
+                    displayValue={n.item.id}
+                  >
+                    {n.item.id}
+                  </Combobox.Option>
+                ))}
+            </Combobox>
             {forComponentId && forPage === currentPageId && (
               // eslint-disable-next-line jsx-a11y/anchor-is-valid
               <a

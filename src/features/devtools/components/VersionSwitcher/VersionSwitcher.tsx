@@ -58,6 +58,7 @@ export const VersionSwitcher = () => {
       style={{ width: 250 }}
     >
       <Combobox
+        size='sm'
         value={selectedVersion ? [selectedVersion] : []}
         onValueChange={(values) => setSelectedVersion(values.at(0))}
       >

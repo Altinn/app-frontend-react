@@ -93,6 +93,7 @@ const InnerDevNavigationButtons = () => {
       </div>
       <div className={cn(classes.dropdown, { [classes.responsiveDropdown]: !compactView })}>
         <Combobox
+          size='sm'
           value={[currentPageId]}
           onValueChange={handleChange}
         >
