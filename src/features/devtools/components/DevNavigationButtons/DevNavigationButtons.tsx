@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { LegacySelect } from '@digdir/design-system-react';
-import { Chip, Fieldset } from '@digdir/designsystemet-react';
+import { Chip, Combobox, Fieldset } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons.module.css';
@@ -28,8 +27,11 @@ const InnerDevNavigationButtons = () => {
   const order = orderWithHidden ?? [];
   const allPages = ctx?.allPageKeys() || [];
 
-  function handleChange(newView: string) {
-    navigateToPage(newView);
+  function handleChange(values: string[]) {
+    const newView = values.at(0);
+    if (newView) {
+      navigateToPage(newView);
+    }
   }
 
   function isHidden(page: string) {
@@ -81,7 +83,7 @@ const InnerDevNavigationButtons = () => {
               title={hiddenText(page)}
               // TODO(DevTools): Navigate to hidden pages is not working
               disabled={isHidden(page)}
-              onClick={() => handleChange(page)}
+              onClick={() => handleChange([page])}
               selected={currentPageId == page}
             >
               {page}
@@ -90,24 +92,25 @@ const InnerDevNavigationButtons = () => {
         </Chip.Group>
       </div>
       <div className={cn(classes.dropdown, { [classes.responsiveDropdown]: !compactView })}>
-        <LegacySelect
-          value={currentPageId}
-          options={
-            order?.map((page) => ({
-              value: page,
-              label: page,
-              formattedLabel: (
-                <span
-                  className={isHidden(page) ? classes.hiddenPage : classes.visiblePage}
-                  title={hiddenText(page)}
-                >
-                  {page}
-                </span>
-              ),
-            })) ?? []
-          }
-          onChange={handleChange}
-        />
+        <Combobox
+          value={[currentPageId]}
+          onValueChange={handleChange}
+        >
+          {order?.map((page) => (
+            <Combobox.Option
+              key={page}
+              value={page}
+              displayValue={page}
+            >
+              <span
+                className={isHidden(page) ? classes.hiddenPage : classes.visiblePage}
+                title={hiddenText(page)}
+              >
+                {page}
+              </span>
+            </Combobox.Option>
+          ))}
+        </Combobox>
       </div>
     </Fieldset>
   );
