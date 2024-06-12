@@ -1,4 +1,5 @@
 import deepEqual from 'fast-deep-equal';
+import { produce } from 'immer';
 
 import { pickDataStorePath } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
@@ -30,29 +31,33 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
   extraFunctions(set: NodeDataPluginSetState<NodesDataContext>): RepeatingChildrenStorePluginConfig['extraFunctions'] {
     return {
       setRowExtras: (requests) => {
-        set((state) => {
-          for (const { node, row, internalProp, extras } of requests) {
-            const nodeStore = pickDataStorePath(state.pages, node);
-            const existingRow = nodeStore[internalProp][row.uuid];
-            if (existingRow && deepEqual(existingRow.extras, extras)) {
-              continue;
-            }
+        set(
+          produce((state) => {
+            for (const { node, row, internalProp, extras } of requests) {
+              const nodeStore = pickDataStorePath(state, node);
+              const existingRow = nodeStore[internalProp][row.uuid];
+              if (existingRow && deepEqual(existingRow.extras, extras)) {
+                continue;
+              }
 
-            const newRows = { ...nodeStore[internalProp] };
-            newRows[row.uuid] = { ...nodeStore[internalProp][row.uuid], extras };
-            nodeStore[internalProp] = newRows;
-          }
-        });
+              const newRows = { ...nodeStore[internalProp] };
+              newRows[row.uuid] = { ...nodeStore[internalProp][row.uuid], extras };
+              nodeStore[internalProp] = newRows;
+            }
+          }),
+        );
       },
       removeRow: (node, row, internalProp) => {
-        set((state) => {
-          const nodeStore = pickDataStorePath(state.pages, node);
-          const newRows = { ...nodeStore[internalProp] };
-          delete newRows[row.uuid];
-          nodeStore[internalProp] = newRows;
-          state.ready = false;
-          state.addRemoveCounter += 1;
-        });
+        set(
+          produce((state) => {
+            const nodeStore = pickDataStorePath(state, node);
+            const newRows = { ...nodeStore[internalProp] };
+            delete newRows[row.uuid];
+            nodeStore[internalProp] = newRows;
+            state.ready = false;
+            state.addRemoveCounter += 1;
+          }),
+        );
       },
     };
   }

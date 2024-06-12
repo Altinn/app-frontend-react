@@ -1,5 +1,3 @@
-import type { Draft } from 'immer';
-
 import type { NodesDataContext, NodesDataStoreFull } from 'src/utils/layout/NodesContext';
 
 export interface NodeDataPluginConfig {
@@ -7,7 +5,7 @@ export interface NodeDataPluginConfig {
   extraHooks?: Record<string, (...args: any[]) => any>;
 }
 
-export type NodeDataPluginSetState<T> = (fn: (state: Draft<T>) => void) => void;
+export type NodeDataPluginSetState<T> = (fn: (state: T) => Partial<T>) => void;
 export type ConfigFromNodeDataPlugin<C extends NodeDataPlugin<any>> =
   C extends NodeDataPlugin<infer Config> ? Config : never;
 

@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { toast } from 'react-toastify';
 
 import { useMutation } from '@tanstack/react-query';
+import { produce } from 'immer';
 import { v4 as uuidv4 } from 'uuid';
 import type { UseMutationOptions } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
@@ -82,103 +83,121 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
   extraFunctions(set: NodeDataPluginSetState<NodesDataContext>): AttachmentsStorePluginConfig['extraFunctions'] {
     return {
       attachmentUpload: ({ file, node, temporaryId }) => {
-        set((draft) => {
-          const nodeData = pickDataStorePath(draft.pages, node) as ProperData;
-          nodeData.attachments[temporaryId] = {
-            uploaded: false,
-            updating: false,
-            deleting: false,
-            data: {
-              temporaryId,
-              filename: file.name,
-              size: file.size,
-            },
-          } satisfies TemporaryAttachment;
-        });
+        set(
+          produce((draft) => {
+            const nodeData = pickDataStorePath(draft, node) as ProperData;
+            nodeData.attachments[temporaryId] = {
+              uploaded: false,
+              updating: false,
+              deleting: false,
+              data: {
+                temporaryId,
+                filename: file.name,
+                size: file.size,
+              },
+            } satisfies TemporaryAttachment;
+          }),
+        );
       },
       attachmentUploadFulfilled: ({ temporaryId, node }, data) => {
-        set((draft) => {
-          const nodeData = pickDataStorePath(draft.pages, node) as ProperData;
-          delete nodeData.attachments[temporaryId];
-          nodeData.attachments[data.id] = {
-            temporaryId,
-            uploaded: true,
-            updating: false,
-            deleting: false,
-            data,
-          } satisfies UploadedAttachment;
-        });
+        set(
+          produce((draft) => {
+            const nodeData = pickDataStorePath(draft, node) as ProperData;
+            delete nodeData.attachments[temporaryId];
+            nodeData.attachments[data.id] = {
+              temporaryId,
+              uploaded: true,
+              updating: false,
+              deleting: false,
+              data,
+            } satisfies UploadedAttachment;
+          }),
+        );
       },
       attachmentUploadRejected: ({ node, temporaryId }, error) => {
-        set((draft) => {
-          const nodeData = pickDataStorePath(draft.pages, node) as ProperData;
-          delete nodeData.attachments[temporaryId];
-          nodeData.attachmentsFailedToUpload[temporaryId] = error;
-        });
+        set(
+          produce((draft) => {
+            const nodeData = pickDataStorePath(draft, node) as ProperData;
+            delete nodeData.attachments[temporaryId];
+            nodeData.attachmentsFailedToUpload[temporaryId] = error;
+          }),
+        );
       },
       attachmentUpdate: ({ node, attachment, tags }) => {
-        set((draft) => {
-          const nodeData = pickDataStorePath(draft.pages, node) as ProperData;
-          const attachmentData = nodeData.attachments[attachment.data.id];
-          if (isAttachmentUploaded(attachmentData)) {
-            attachmentData.updating = true;
-            attachmentData.data.tags = tags;
-          } else {
-            throw new Error('Cannot update a temporary attachment');
-          }
-        });
+        set(
+          produce((draft) => {
+            const nodeData = pickDataStorePath(draft, node) as ProperData;
+            const attachmentData = nodeData.attachments[attachment.data.id];
+            if (isAttachmentUploaded(attachmentData)) {
+              attachmentData.updating = true;
+              attachmentData.data.tags = tags;
+            } else {
+              throw new Error('Cannot update a temporary attachment');
+            }
+          }),
+        );
       },
       attachmentUpdateFulfilled: ({ node, attachment }) => {
-        set((draft) => {
-          const nodeData = pickDataStorePath(draft.pages, node) as ProperData;
-          const attachmentData = nodeData.attachments[attachment.data.id];
-          if (isAttachmentUploaded(attachmentData)) {
-            attachmentData.updating = false;
-          } else {
-            throw new Error('Cannot update a temporary attachment');
-          }
-        });
+        set(
+          produce((draft) => {
+            const nodeData = pickDataStorePath(draft, node) as ProperData;
+            const attachmentData = nodeData.attachments[attachment.data.id];
+            if (isAttachmentUploaded(attachmentData)) {
+              attachmentData.updating = false;
+            } else {
+              throw new Error('Cannot update a temporary attachment');
+            }
+          }),
+        );
       },
       attachmentUpdateRejected: ({ node, attachment }, error) => {
-        set((draft) => {
-          const nodeData = pickDataStorePath(draft.pages, node) as ProperData;
-          const attachmentData = nodeData.attachments[attachment.data.id];
-          if (isAttachmentUploaded(attachmentData)) {
-            attachmentData.updating = false;
-            attachmentData.error = error;
-          } else {
-            throw new Error('Cannot update a temporary attachment');
-          }
-        });
+        set(
+          produce((draft) => {
+            const nodeData = pickDataStorePath(draft, node) as ProperData;
+            const attachmentData = nodeData.attachments[attachment.data.id];
+            if (isAttachmentUploaded(attachmentData)) {
+              attachmentData.updating = false;
+              attachmentData.error = error;
+            } else {
+              throw new Error('Cannot update a temporary attachment');
+            }
+          }),
+        );
       },
       attachmentRemove: ({ node, attachment }) => {
-        set((draft) => {
-          const nodeData = pickDataStorePath(draft.pages, node) as ProperData;
-          const attachmentData = nodeData.attachments[attachment.data.id];
-          if (isAttachmentUploaded(attachmentData)) {
-            attachmentData.deleting = true;
-          } else {
-            throw new Error('Cannot remove a temporary attachment');
-          }
-        });
+        set(
+          produce((draft) => {
+            const nodeData = pickDataStorePath(draft, node) as ProperData;
+            const attachmentData = nodeData.attachments[attachment.data.id];
+            if (isAttachmentUploaded(attachmentData)) {
+              attachmentData.deleting = true;
+            } else {
+              throw new Error('Cannot remove a temporary attachment');
+            }
+          }),
+        );
       },
       attachmentRemoveFulfilled: ({ node, attachment }) => {
-        set((draft) => {
-          const nodeData = pickDataStorePath(draft.pages, node) as ProperData;
-          delete nodeData.attachments[attachment.data.id];
-        });
+        set(
+          produce((draft) => {
+            const nodeData = pickDataStorePath(draft, node) as ProperData;
+            delete nodeData.attachments[attachment.data.id];
+          }),
+        );
       },
       attachmentRemoveRejected: ({ node, attachment }, error) => {
-        set((draft) => {
-          const nodeData = pickDataStorePath(draft.pages, node) as ProperData;
-          const attachmentData = nodeData.attachments[attachment.data.id];
-          if (isAttachmentUploaded(attachmentData)) {
-            attachmentData.deleting = false;
-            attachmentData.error = error;
-          } else {
-            throw new Error('Cannot remove a temporary attachment');
-          }
-        });
+        set(
+          produce((draft) => {
+            const nodeData = pickDataStorePath(draft, node) as ProperData;
+            const attachmentData = nodeData.attachments[attachment.data.id];
+            if (isAttachmentUploaded(attachmentData)) {
+              attachmentData.deleting = false;
+              attachmentData.error = error;
+            } else {
+              throw new Error('Cannot remove a temporary attachment');
+            }
+          }),
+        );
       },
     };
   }
@@ -350,7 +369,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             return emptyArray;
           }
 
-          const nodeData = pickDataStorePath(state.pages, node) as NodeData;
+          const nodeData = pickDataStorePath(state, node) as NodeData;
           if ('attachments' in nodeData) {
             return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
           }
@@ -363,7 +382,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
           mode: 'simple',
           selector: (node: LayoutNode) => (state) =>
             ignoreNodePathNotFound(() => {
-              const nodeData = pickDataStorePath(state.pages, node) as NodeData;
+              const nodeData = pickDataStorePath(state, node) as NodeData;
               if ('attachments' in nodeData) {
                 return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
               }
@@ -378,7 +397,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         return useCallback(
           (node, attachment) =>
             waitFor((state, setReturnValue) => {
-              const nodeData = pickDataStorePath(state.pages, node) as NodeData;
+              const nodeData = pickDataStorePath(state, node) as NodeData;
               if (!('attachments' in nodeData) || !('attachmentsFailedToUpload' in nodeData)) {
                 setReturnValue(false);
                 return true;

@@ -31,9 +31,9 @@ interface Config<Type extends CompTypes> {
   extraState: {
     cardsItems: {
       [cardIndex: number]: {
-        media?: NodeData;
+        media?: NodeRef;
         children: {
-          [nodeId: string]: NodeData;
+          [nodeId: string]: NodeRef;
         };
       };
     };
@@ -136,14 +136,10 @@ export class CardsPlugin<Type extends CompTypes>
     const refs: NodeRef[] = [];
     for (const card of Object.values(state.cardsItems)) {
       if (card.media) {
-        refs.push({
-          nodeRef: card.media.layout.id,
-        });
+        refs.push(card.media);
       }
       for (const child of Object.values(card.children)) {
-        refs.push({
-          nodeRef: child.layout.id,
-        });
+        refs.push(child);
       }
     }
 
@@ -156,7 +152,7 @@ export class CardsPlugin<Type extends CompTypes>
     parentPath: string[],
   ): NodeData<C> {
     for (const card of Object.values(state.cardsItems)) {
-      if (card.media?.layout.id === childId) {
+      if (card.media?.nodeRef === childId) {
         return card.media as NodeData<C>;
       }
       if (card.children[childId]) {
@@ -167,7 +163,7 @@ export class CardsPlugin<Type extends CompTypes>
     throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
   }
 
-  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode, childData: NodeData): void {
+  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): Partial<DefPluginState<Config<Type>>> {
     // First we need to find the child in the layout again to figure out which card it belongs to and if it's media
     let cardIndex: number | undefined;
     let isMedia: boolean | undefined;
@@ -188,23 +184,35 @@ export class CardsPlugin<Type extends CompTypes>
       throw new NodePathNotFound(`Child with id ${childNode.getId()} not found in layout`);
     }
 
-    if (!state.cardsItems[cardIndex]) {
-      state.cardsItems[cardIndex] = {
+    const cardsItems = { ...state.cardsItems };
+    if (!cardsItems[cardIndex]) {
+      cardsItems[cardIndex] = {
         media: undefined,
         children: {},
       };
     }
 
     if (isMedia) {
-      state.cardsItems[cardIndex].media = childData;
+      cardsItems[cardIndex] = {
+        ...cardsItems[cardIndex],
+        media: { nodeRef: childNode.getId() },
+      };
     } else {
-      state.cardsItems[cardIndex].children[childNode.getId()] = childData;
+      cardsItems[cardIndex] = {
+        ...cardsItems[cardIndex],
+        children: {
+          ...cardsItems[cardIndex].children,
+          [childNode.getId()]: { nodeRef: childNode.getId() },
+        },
+      };
     }
+
+    return { cardsItems };
   }
 
   removeChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): void {
     for (const card of Object.values(state.cardsItems)) {
-      if (card.media?.layout.id === childNode.getId()) {
+      if (card.media?.nodeRef === childNode.getId()) {
         card.media = undefined;
         return;
       }

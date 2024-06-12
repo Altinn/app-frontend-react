@@ -167,7 +167,15 @@ function useCommit() {
 
     let changes = false;
     if (toCommit.setNodeProps.length) {
-      generatorLog('logCommits', 'Committing', toCommit.setNodeProps.length, 'setNodeProps requests');
+      generatorLog('logCommits', 'Committing', toCommit.setNodeProps.length, 'setNodeProps requests:', () => {
+        const counts = {};
+        for (const { prop } of toCommit.setNodeProps) {
+          counts[prop] = (counts[prop] || 0) + 1;
+        }
+        return Object.entries(counts)
+          .map(([prop, count]) => `${count}x ${prop}`)
+          .join(', ');
+      });
       setNodeProps(toCommit.setNodeProps);
       toCommit.setNodeProps.length = 0;
       changes = true;

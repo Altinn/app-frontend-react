@@ -121,7 +121,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Adds a child node to the parent node. This must be implemented for every component type that can adopt children.
    */
-  public addChild(_state: NodeData<Type>, _childNode: LayoutNode, _childData: NodeData): void {
+  public addChild(_state: NodeData<Type>, _childNode: LayoutNode): Partial<NodeData<Type>> {
     throw new Error(
       `addChild() is not implemented yet for '${this.type}'. ` +
         `You have to implement this if the component type supports children.`,
@@ -453,7 +453,7 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
 
   abstract pickDirectChildren(state: NodeData<Type>, restriction?: TraversalRestriction): NodeRef[];
 
-  abstract addChild(state: NodeData<Type>, childNode: LayoutNode, childData: NodeData): void;
+  abstract addChild(state: NodeData<Type>, childNode: LayoutNode): Partial<NodeData<Type>>;
 
   abstract removeChild(state: NodeData<Type>, childNode: LayoutNode): void;
 }

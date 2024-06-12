@@ -54,7 +54,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    * TODO: Find usages and make them useNodeItem() instead.
    */
   public get item() {
-    const node = pickDataStorePath(this.store.getState().pages, this.path);
+    const node = pickDataStorePath(this.store.getState(), this.path);
     if (!node || node.type !== 'node') {
       throw new Error(`Node not found in path: /${this.path.join('/')}`);
     }
