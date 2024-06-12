@@ -10,6 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
+import comboboxClasses from 'src/styles/combobox.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
@@ -76,6 +77,7 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
         error={!isValid}
         clearButtonLabel={langAsString('form_filler.clear_selection')}
         aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+        className={comboboxClasses.container}
       >
         <Combobox.Empty>
           <Lang id={'form_filler.no_options_found'} />

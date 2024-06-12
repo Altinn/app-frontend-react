@@ -11,6 +11,7 @@ import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import comboboxClasses from 'src/styles/combobox.module.css';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { useIsHiddenComponent, useNodes } from 'src/utils/layout/NodesContext';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
@@ -221,6 +222,7 @@ export const ExpressionPlayground = () => {
                   setContext(forPage, forComponentId);
                 }
               }}
+              className={comboboxClasses.container}
             >
               {Object.values(nodes?.all() || [])
                 .map((page) => page.flat(true))

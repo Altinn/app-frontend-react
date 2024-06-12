@@ -4,6 +4,7 @@ import { Button, Combobox, Fieldset, Spinner } from '@digdir/designsystemet-reac
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
+import comboboxClasses from 'src/styles/combobox.module.css';
 import { appFrontendCDNPath, appPath, frontendVersionsCDN } from 'src/utils/urls/appUrlHelper';
 
 export const VersionSwitcher = () => {
@@ -61,6 +62,7 @@ export const VersionSwitcher = () => {
         size='sm'
         value={selectedVersion ? [selectedVersion] : []}
         onValueChange={(values) => setSelectedVersion(values.at(0))}
+        className={comboboxClasses.container}
       >
         {versions.map((version) => (
           <Combobox.Option

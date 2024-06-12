@@ -18,6 +18,7 @@ import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/Attach
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
+import comboboxClasses from 'src/styles/combobox.module.css';
 import type { IAttachment } from 'src/features/attachments';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -165,6 +166,7 @@ export function EditWindowComponent({ attachment, mobileView, node, options }: E
               disabled={saveIsDisabled}
               onValueChange={setChosenTags}
               error={hasErrors}
+              className={comboboxClasses.container}
             >
               <Combobox.Empty>
                 <Lang id={'form_filler.no_options_found'} />

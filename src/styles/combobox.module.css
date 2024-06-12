@@ -1,5 +1,5 @@
 /*
- * Workaround to make the language selector shrink on narrow screens
+ * Workaround to make the combobox shrink on narrow screens
  */
 .container [class*='fds-combobox__input__wrapper'],
 .container [class*='fds-combobox__chip-and-input'],

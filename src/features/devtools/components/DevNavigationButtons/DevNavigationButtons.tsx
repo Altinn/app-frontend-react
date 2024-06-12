@@ -8,6 +8,7 @@ import { useIsInFormContext } from 'src/features/form/FormContext';
 import { useIsHiddenPage } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import comboboxClasses from 'src/styles/combobox.module.css';
 import { useNodes } from 'src/utils/layout/NodesContext';
 
 export function DevNavigationButtons() {
@@ -96,6 +97,7 @@ const InnerDevNavigationButtons = () => {
           size='sm'
           value={[currentPageId]}
           onValueChange={handleChange}
+          className={comboboxClasses.container}
         >
           {order?.map((page) => (
             <Combobox.Option

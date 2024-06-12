@@ -3,11 +3,11 @@ import React from 'react';
 import { Combobox } from '@digdir/designsystemet-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import classes from 'src/components/presentation/LanguageSelector.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage, useSetCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useGetAppLanguageQuery } from 'src/features/language/textResources/useGetAppLanguagesQuery';
 import { useLanguage } from 'src/features/language/useLanguage';
+import comboboxClasses from 'src/styles/combobox.module.css';
 
 export const LanguageSelector = ({ hideLabel }: { hideLabel?: boolean }) => {
   const { langAsString } = useLanguage();
@@ -36,7 +36,7 @@ export const LanguageSelector = ({ hideLabel }: { hideLabel?: boolean }) => {
         label={langAsString('language.selector.label')}
         onValueChange={handleAppLanguageChange}
         value={[selectedLanguage]}
-        className={classes.container}
+        className={comboboxClasses.container}
       >
         {appLanguages?.map((lang) => (
           <Combobox.Option
