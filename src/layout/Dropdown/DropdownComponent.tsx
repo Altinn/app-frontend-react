@@ -68,6 +68,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
     >
       <Combobox
         id={id}
+        size='sm'
         hideLabel={true}
         key={rawData} // Workaround for clearing text input
         value={selectedValues}

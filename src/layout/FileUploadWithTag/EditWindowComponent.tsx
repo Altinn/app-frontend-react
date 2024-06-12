@@ -158,6 +158,7 @@ export function EditWindowComponent({ attachment, mobileView, node, options }: E
           >
             <Combobox
               id={`attachment-tag-dropdown-${uniqueId}`}
+              size='sm'
               hideLabel={true}
               label={langAsString('general.choose')}
               value={chosenTags}

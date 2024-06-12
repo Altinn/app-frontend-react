@@ -68,6 +68,7 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
         multiple
         hideLabel
         id={id}
+        size='sm'
         value={selectedValues}
         readOnly={readOnly}
         onValueChange={handleChange}
