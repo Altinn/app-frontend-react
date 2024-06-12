@@ -11,6 +11,7 @@ import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/Gen
 import {
   GeneratorCondition,
   GeneratorStages,
+  NodesStateQueue,
   StageAddNodes,
   StageEvaluateExpressions,
   StageMarkHidden,
@@ -100,7 +101,7 @@ interface CommonProps<T extends CompTypes> {
 
 function MarkAsHidden<T extends CompTypes>({ node, baseId }: CommonProps<T>) {
   const layoutMap = GeneratorInternal.useLayoutMap();
-  const setNodeProp = NodesInternal.useSetNodeProp();
+  const setNodeProp = NodesStateQueue.useSetNodeProp();
 
   const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, layoutMap[baseId].hidden, false);
   const hiddenByRules = Hidden.useIsHiddenViaRules(node);
@@ -115,7 +116,7 @@ function MarkAsHidden<T extends CompTypes>({ node, baseId }: CommonProps<T>) {
   );
 
   GeneratorStages.MarkHidden.useEffect(() => {
-    setNodeProp(node, 'hidden', hidden);
+    setNodeProp({ node, prop: 'hidden', value: hidden });
   }, [hidden, node, setNodeProp]);
 
   return null;
@@ -125,7 +126,7 @@ function AddRemoveNode<T extends CompTypes>({ node, item }: CommonProps<T>) {
   const parent = GeneratorInternal.useParent();
   const row = GeneratorInternal.useRow();
   const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item, parent, row });
-  const addNode = NodesInternal.useAddNode();
+  const addNode = NodesStateQueue.useAddNode();
 
   const page = GeneratorInternal.usePage();
   const removeNode = NodesInternal.useRemoveNode();
@@ -134,7 +135,7 @@ function AddRemoveNode<T extends CompTypes>({ node, item }: CommonProps<T>) {
 
   GeneratorStages.AddNodes.useEffect(() => {
     const defaultState = nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any);
-    addNode(nodeRef.current, defaultState);
+    addNode({ node: nodeRef.current, targetState: defaultState });
   }, [addNode, nodeRef, stateFactoryPropsRef]);
 
   GeneratorStages.AddNodes.useEffect(
@@ -152,7 +153,7 @@ function ResolveExpressions<T extends CompTypes>({ node, item }: CommonProps<T>)
   const resolverProps = useExpressionResolverProps(node, item);
 
   const def = useDef(item.type);
-  const setNodeProp = NodesInternal.useSetNodeProp();
+  const setNodeProp = NodesStateQueue.useSetNodeProp();
   const resolved = useMemo(
     () => (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>,
     [def, resolverProps],
@@ -160,7 +161,7 @@ function ResolveExpressions<T extends CompTypes>({ node, item }: CommonProps<T>)
 
   GeneratorStages.EvaluateExpressions.useEffect(() => {
     node.updateCommonProps(resolved as any);
-    setNodeProp(node, 'item', resolved);
+    setNodeProp({ node, prop: 'item', value: resolved });
   }, [node, resolved, setNodeProp]);
 
   return (

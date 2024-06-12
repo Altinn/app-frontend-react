@@ -8,9 +8,9 @@ import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import {
   GeneratorCondition,
   GeneratorStages,
+  NodesStateQueue,
   StageEvaluateExpressions,
 } from 'src/utils/layout/generator/GeneratorStages';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeFormData } from 'src/utils/layout/useNodeItem';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IAttachment } from 'src/features/attachments/index';
@@ -32,11 +32,11 @@ export function StoreAttachmentsInNode() {
 
 function PerformWork() {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
-  const setNodeProp = NodesInternal.useSetNodeProp();
+  const setNodeProp = NodesStateQueue.useSetNodeProp();
   const attachments = useNodeAttachments();
 
   GeneratorStages.EvaluateExpressions.useEffect(() => {
-    setNodeProp(node, 'attachments', attachments);
+    setNodeProp({ node, prop: 'attachments', value: attachments });
   }, [node, setNodeProp, attachments]);
 
   return null;

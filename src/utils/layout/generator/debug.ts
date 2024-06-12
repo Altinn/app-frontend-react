@@ -1,17 +1,12 @@
-interface DebugConfig {
-  displayState?: boolean;
-  logDuration?: boolean;
-  logStages?: boolean;
-}
-
 const debugAll = false;
-export const GeneratorDebug: DebugConfig = {
+export const GeneratorDebug = {
   displayState: debugAll,
-  logDuration: debugAll || true,
-  logStages: debugAll || true,
+  logDuration: debugAll,
+  logStages: debugAll,
+  logCommits: debugAll,
 };
 
-export const generatorLog = (logType: keyof DebugConfig, ...messages: unknown[]) => {
+export const generatorLog = (logType: keyof typeof GeneratorDebug, ...messages: unknown[]) => {
   if (GeneratorDebug[logType]) {
     // eslint-disable-next-line no-console
     console.log('Node generator:', ...messages);

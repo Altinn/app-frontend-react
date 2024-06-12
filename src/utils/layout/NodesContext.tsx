@@ -31,7 +31,7 @@ import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { generatorLog } from 'src/utils/layout/generator/debug';
-import { GeneratorStagesProvider } from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorStages, GeneratorStagesProvider } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -134,6 +134,17 @@ type ExtraHooks = AllFlat<{
   [K in keyof NodeDataStorePlugins]: NodeDataStorePlugins[K]['extraHooks'];
 }>;
 
+export interface AddNodeRequest<T extends CompTypes = CompTypes> {
+  node: LayoutNode<T>;
+  targetState: NodeData<T>;
+}
+
+export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeData<T>> {
+  node: LayoutNode<T>;
+  prop: K;
+  value: NodeData<T>[K];
+}
+
 export type NodesDataContext = {
   // State
   addRemoveCounter: number;
@@ -145,13 +156,9 @@ export type NodesDataContext = {
   };
 
   // Functions
-  addNode: <N extends LayoutNode>(node: N, targetState: any) => void;
+  addNodes: (requests: AddNodeRequest[]) => void;
   removeNode: (node: LayoutNode) => void;
-  setNodeProp: <N extends LayoutNode, K extends keyof NodeDataFromNode<N>>(
-    node: N,
-    prop: K,
-    value: NodeDataFromNode<N>[K],
-  ) => void;
+  setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
   addError: (error: string, node: LayoutPage | LayoutNode) => void;
 
   addPage: (pageKey: string) => void;
@@ -183,23 +190,25 @@ export function createNodesDataStore() {
         pages: {},
       },
       nodesAdded: {},
-      addNode: (node, targetState) =>
+      addNodes: (requests) =>
         set((state) => {
-          const parentPath = node.path.slice(0, -1);
-          const parent = pickDataStorePath(state.pages, parentPath);
-          if (parent.type === 'page') {
-            const id = node.getId();
-            if (parent.topLevelNodes[id]) {
-              throw new Error(`Node already exists: ${id}`);
+          for (const { node, targetState } of requests) {
+            const parentPath = node.path.slice(0, -1);
+            const parent = pickDataStorePath(state.pages, parentPath);
+            if (parent.type === 'page') {
+              const id = node.getId();
+              if (parent.topLevelNodes[id]) {
+                throw new Error(`Node already exists: ${id}`);
+              }
+              parent.topLevelNodes[id] = targetState;
+            } else {
+              const def = getComponentDef(parent.layout.type);
+              def.addChild(parent as any, node, targetState);
             }
-            parent.topLevelNodes[id] = targetState;
-          } else {
-            const def = getComponentDef(parent.layout.type);
-            def.addChild(parent as any, node, targetState);
+            state.nodesAdded[node.getId()] = true;
           }
-          state.nodesAdded[node.getId()] = true;
           state.ready = false;
-          state.addRemoveCounter += 1;
+          state.addRemoveCounter += requests.length;
         }),
       removeNode: (node) =>
         set((state) =>
@@ -217,9 +226,9 @@ export function createNodesDataStore() {
             state.addRemoveCounter += 1;
           }),
         ),
-      setNodeProp: (node, prop, value) =>
-        set((state) =>
-          ignoreNodePathNotFound(() => {
+      setNodeProps: (requests) =>
+        set((state) => {
+          for (const { node, prop, value } of requests) {
             const obj = pickDataStorePath(state.pages, node.path);
             if (obj.type === 'page') {
               throw new Error('Parent node is not a node');
@@ -227,11 +236,12 @@ export function createNodesDataStore() {
             const prevValue = isDraft(obj[prop as any]) ? current(obj[prop as any]) : obj[prop as any];
             const isEqual = deepEqual(prevValue, value);
             if (isEqual) {
-              return;
+              continue;
             }
+
             Object.assign(obj, { [prop]: value });
-          }),
-        ),
+          }
+        }),
       addError: (error, node) =>
         set((state) =>
           ignoreNodePathNotFound(() => {
@@ -322,13 +332,13 @@ export const NodesProvider = (props: React.PropsWithChildren) => {
   return (
     <NodesStore.Provider>
       <DataStore.Provider>
-        <GeneratorValidationProvider>
-          <GeneratorStagesProvider>
+        <GeneratorStagesProvider>
+          <GeneratorValidationProvider>
             <LayoutSetGenerator />
-          </GeneratorStagesProvider>
-        </GeneratorValidationProvider>
-        <InnerHiddenComponentsProvider />
-        <MarkAsReady />
+          </GeneratorValidationProvider>
+          <InnerHiddenComponentsProvider />
+          <MarkAsReady />
+        </GeneratorStagesProvider>
         {window.Cypress && <UpdateAttachmentsForCypress />}
         <BlockUntilLoaded startMark={markName}>
           <ProvideWaitForValidation />
@@ -359,7 +369,8 @@ function MarkAsReady() {
   const markReady = DataStore.useSelector((s) => s.markReady);
   const isReady = DataStore.useSelector((s) => s.ready);
   const hasNodes = NodesStore.useSelector((state) => !!state.nodes);
-  const shouldMarkAsReady = hasNodes && !isReady;
+  const stagesFinished = GeneratorStages.useIsFinished();
+  const shouldMarkAsReady = hasNodes && !isReady && stagesFinished;
 
   useEffect(() => {
     if (shouldMarkAsReady) {
@@ -710,12 +721,12 @@ export const NodesInternal = {
   useHasErrors: () => DataStore.useSelector((s) => s.hasErrors),
 
   useDataStore: () => DataStore.useStore(),
-  useSetNodeProp: () => DataStore.useSelector((s) => s.setNodeProp),
+  useSetNodeProps: () => DataStore.useSelector((s) => s.setNodeProps),
   useSetNodes: () => NodesStore.useSelector((s) => s.setNodes),
   useAddPage: () => DataStore.useSelector((s) => s.addPage),
   useSetPageProp: () => DataStore.useSelector((s) => s.setPageProp),
   useRemovePage: () => DataStore.useSelector((s) => s.removePage),
-  useAddNode: () => DataStore.useSelector((s) => s.addNode),
+  useAddNodes: () => DataStore.useSelector((s) => s.addNodes),
   useRemoveNode: () => DataStore.useSelector((s) => s.removeNode),
   useAddError: () => DataStore.useSelector((s) => s.addError),
 

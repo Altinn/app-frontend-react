@@ -7,6 +7,8 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { AddNodeRequest, SetNodePropRequest } from 'src/utils/layout/NodesContext';
+import type { SetRowExtrasRequest } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 
 export const StageAddNodes = Symbol('AddNodes');
 export const StageMarkHidden = Symbol('MarkHidden');
@@ -35,13 +37,18 @@ interface Context {
   tick: undefined | (() => void);
   setTick: (tick: () => void) => void;
   nextStage: () => void;
+  toCommit: {
+    addNodes: AddNodeRequest[];
+    setNodeProps: SetNodePropRequest<any, any>[];
+    setRowExtras: SetRowExtrasRequest[];
+  };
 }
 
 interface CreateStoreProps {
   registry: MutableRefObject<Registry>;
 }
 
-const { Provider, useSelector, useSelectorAsRef } = createZustandContext({
+const { Provider, useSelector, useSelectorAsRef, useMemoSelector } = createZustandContext({
   name: 'GeneratorStages',
   required: true,
   initialCreateStore: ({ registry }: CreateStoreProps) =>
@@ -61,6 +68,13 @@ const { Provider, useSelector, useSelectorAsRef } = createZustandContext({
           }
           return state;
         });
+      },
+      toCommit: {
+        // These should be considered as 'refs'. Meaning, we won't set them via an action, we'll always just manipulate
+        // the arrays references directly.
+        addNodes: [],
+        setNodeProps: [],
+        setRowExtras: [],
       },
     })),
 });
@@ -94,6 +108,11 @@ function registryStats(stage: Stage, registry: Registry) {
 function isStageDone(stage: Stage, registry: Registry) {
   const { numHooks, doneHooks, numComponents, doneComponents } = registryStats(stage, registry);
   return numHooks === doneHooks && numComponents === doneComponents;
+}
+
+function shouldCommit(stage: Stage, registry: Registry) {
+  const { numHooks, doneHooks } = registryStats(stage, registry);
+  return numHooks === doneHooks;
 }
 
 /**
@@ -132,21 +151,105 @@ export function GeneratorStagesProvider({ children }: PropsWithChildren) {
   );
 }
 
+function useCommit() {
+  const addNodes = NodesInternal.useAddNodes();
+  const setNodeProps = NodesInternal.useSetNodeProps();
+  const setRowExtras = NodesInternal.useSetRowExtras();
+  const toCommit = useSelector((state) => state.toCommit);
+
+  return useCallback(() => {
+    if (toCommit.addNodes.length) {
+      generatorLog('logCommits', 'Committing', toCommit.addNodes.length, 'addNodes requests');
+      addNodes(toCommit.addNodes);
+      toCommit.addNodes.length = 0; // This truncates the array, but keeps the reference
+      return true;
+    }
+
+    let changes = false;
+    if (toCommit.setNodeProps.length) {
+      generatorLog('logCommits', 'Committing', toCommit.setNodeProps.length, 'setNodeProps requests');
+      setNodeProps(toCommit.setNodeProps);
+      toCommit.setNodeProps.length = 0;
+      changes = true;
+    }
+
+    if (toCommit.setRowExtras.length) {
+      generatorLog('logCommits', 'Committing', toCommit.setRowExtras.length, 'setRowExtras requests');
+      setRowExtras(toCommit.setRowExtras);
+      toCommit.setRowExtras.length = 0;
+      changes = true;
+    }
+
+    return changes;
+  }, [addNodes, setNodeProps, setRowExtras, toCommit]);
+}
+
+/**
+ * When we're adding nodes, we could be calling setState() on each of the states we need to update, but this would
+ * be very costly and scale badly with larger forms (layout sets). Instead, we collect all the changes we need to make
+ * and then apply them all at once. The principle only works if we're calling these queue functions in useEffect
+ * hooks from a stage, because we'll check to make sure all hooks registered in a render cycle have finished before
+ * committing all the changes in one go.
+ */
+export const NodesStateQueue = {
+  useAddNode() {
+    const addNodeRequestsRef = useSelector((state) => state.toCommit.addNodes);
+
+    return useCallback(
+      (request: AddNodeRequest) => {
+        addNodeRequestsRef.push(request);
+      },
+      [addNodeRequestsRef],
+    );
+  },
+  useSetNodeProp() {
+    const setNodePropRequestsRef = useSelector((state) => state.toCommit.setNodeProps);
+
+    return useCallback(
+      (request: SetNodePropRequest<any, any>) => {
+        setNodePropRequestsRef.push(request);
+      },
+      [setNodePropRequestsRef],
+    );
+  },
+  useSetRowExtras() {
+    const setRowExtrasRequestsRef = useSelector((state) => state.toCommit.setRowExtras);
+
+    return useCallback(
+      (request: SetRowExtrasRequest) => {
+        setRowExtrasRequestsRef.push(request);
+      },
+      [setRowExtrasRequestsRef],
+    );
+  },
+};
+
 function SetTickFunc() {
   const currentStageRef = useSelectorAsRef((state) => state.currentStage);
   const goToNextStage = useSelector((state) => state.nextStage);
   const setTick = useSelector((state) => state.setTick);
   const registry = useSelector((state) => state.registry);
+  const commit = useCommit();
 
   const tickTimeout = React.useRef<NodeJS.Timeout | null>(null);
   const tickFunc = useCallback(() => {
+    tickTimeout.current = null;
+
     const stage = currentStageRef.current;
     if (!isStageDone(stage, registry.current)) {
+      if (shouldCommit(stage, registry.current)) {
+        commit();
+      }
       return;
     }
     const currentIndex = List.indexOf(stage);
     const nextStage = List[currentIndex + 1];
     if (!nextStage) {
+      return;
+    }
+
+    if (commit()) {
+      setTimeout(tickFunc, 4);
       return;
     }
 
@@ -162,13 +265,12 @@ function SetTickFunc() {
     );
 
     goToNextStage();
-  }, [currentStageRef, registry, goToNextStage]);
+  }, [currentStageRef, registry, goToNextStage, commit]);
 
   const tick = React.useCallback(() => {
-    if (tickTimeout.current) {
-      clearTimeout(tickTimeout.current);
+    if (!tickTimeout.current) {
+      tickTimeout.current = setTimeout(tickFunc, 4);
     }
-    tickTimeout.current = setTimeout(tickFunc, 4);
   }, [tickFunc]);
 
   useEffect(() => {
@@ -193,10 +295,13 @@ function LogSlowStages() {
       const last = List[List.length - 1];
       if (current === last) {
         clearInterval(interval);
-      }
-      if (lastReportedStage !== current) {
         return;
       }
+      if (lastReportedStage !== current) {
+        lastReportedStage = current;
+        return;
+      }
+      lastReportedStage = current;
 
       const { numHooks, doneHooks, numComponents, doneComponents } = registryStats(current, registry.current);
       generatorLog(
@@ -217,8 +322,6 @@ function LogSlowStages() {
         .map(([id]) => id)
         .join('\n - ');
       generatorLog('logStages', `Pending components:\n - ${pendingComponents}`);
-
-      lastReportedStage = current;
     }, 2500);
   }, [currentStageRef, registry]);
 
@@ -246,7 +349,7 @@ export const GeneratorStages = {
   EvaluateExpressions: makeHooks(StageEvaluateExpressions),
   Finished: makeHooks(StageFinished),
   useIsFinished() {
-    return GeneratorStages[SecondToLast.description!].useIsDone();
+    return GeneratorStages.Finished.useIsCurrent();
   },
 };
 
@@ -419,6 +522,9 @@ function makeHooks(stage: Stage) {
     },
     useIsDone() {
       return useWhenStageAtLeast(stage);
+    },
+    useIsCurrent() {
+      return useMemoSelector((state) => state.currentStage === stage);
     },
   };
 }

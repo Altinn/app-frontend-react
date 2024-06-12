@@ -2,8 +2,12 @@ import React from 'react';
 
 import { useFetchOptions } from 'src/features/options/useGetOptions';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { GeneratorCondition, GeneratorStages, StageFetchOptions } from 'src/utils/layout/generator/GeneratorStages';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import {
+  GeneratorCondition,
+  GeneratorStages,
+  NodesStateQueue,
+  StageFetchOptions,
+} from 'src/utils/layout/generator/GeneratorStages';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { CompIntermediate, CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -26,7 +30,7 @@ export function StoreOptionsInNode(props: Props) {
 function PerformWork({ valueType }: Props) {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
-  const setNodeProp = NodesInternal.useSetNodeProp();
+  const setNodeProp = NodesStateQueue.useSetNodeProp();
 
   const { options, isFetching } = useFetchOptions({
     valueType,
@@ -35,8 +39,8 @@ function PerformWork({ valueType }: Props) {
   });
 
   GeneratorStages.FetchOptions.useEffect(() => {
-    !isFetching && setNodeProp(node, 'options' as any, options);
-    setNodeProp(node, 'isFetchingOptions' as any, isFetching);
+    !isFetching && setNodeProp({ node, prop: 'options', value: options });
+    setNodeProp({ node, prop: 'isFetchingOptions', value: isFetching });
   }, [node, setNodeProp, options]);
 
   return null;

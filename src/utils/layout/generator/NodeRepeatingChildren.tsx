@@ -9,6 +9,7 @@ import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/genera
 import {
   GeneratorCondition,
   GeneratorStages,
+  NodesStateQueue,
   StageAddNodes,
   StageEvaluateExpressions,
 } from 'src/utils/layout/generator/GeneratorStages';
@@ -153,12 +154,12 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
   const item = GeneratorInternal.useIntermediateItem();
   const props = useExpressionResolverProps(firstChild, item as CompExternal, row);
 
-  const setExtra = NodesInternal.useSetRowExtras();
+  const setExtra = NodesStateQueue.useSetRowExtras();
   const def = useDef(item!.type);
   const resolvedRowExtras = useMemo(() => (def as CompDef).evalExpressionsForRow(props as any), [def, props]);
 
   GeneratorStages.EvaluateExpressions.useEffect(() => {
-    setExtra(parent, row, internalProp, resolvedRowExtras);
+    setExtra({ node: parent, row, internalProp, extras: resolvedRowExtras });
   }, [resolvedRowExtras, setExtra, parent, row, internalProp]);
 
   return null;
