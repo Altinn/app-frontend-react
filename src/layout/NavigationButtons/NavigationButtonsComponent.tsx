@@ -23,8 +23,8 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const refPrev = React.useRef<HTMLButtonElement>(null);
   const refNext = React.useRef<HTMLButtonElement>(null);
 
-  const nextTextKey = textResourceBindings?.next || 'next';
-  const backTextKey = textResourceBindings?.back || 'back';
+  const nextTextKey = textResourceBindings?.next ?? 'next';
+  const backTextKey = textResourceBindings?.back ?? 'back';
   const returnToViewText =
     summaryItem?.textResourceBindings?.returnToSummaryButtonTitle ?? 'form_filler.back_to_summary';
 

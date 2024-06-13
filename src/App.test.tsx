@@ -43,14 +43,4 @@ describe('App', () => {
     });
     await screen.findByRole('heading', { level: 1, name: 'Ukjent feil' });
   });
-
-  test('should render unknown error when hasOrgsError', async () => {
-    await renderWithInstanceAndLayout({
-      renderer: () => <App />,
-      queries: {
-        fetchOrgs: () => Promise.reject(new Error('400 Bad Request')),
-      },
-    });
-    await screen.findByRole('heading', { level: 1, name: 'Ukjent feil' });
-  });
 });

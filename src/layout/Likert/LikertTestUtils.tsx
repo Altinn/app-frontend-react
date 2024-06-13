@@ -166,7 +166,7 @@ export const render = async ({
 
 export function ContainerTester(props: { id: string }) {
   const node = useResolvedNode(props.id);
-  if (!node || !node.isType('Likert')) {
+  if (!node?.isType('Likert')) {
     throw new Error(`Could not resolve node with id ${props.id}, or unexpected node type`);
   }
 

@@ -7,9 +7,9 @@ import { useFooterLayoutQueryDef } from 'src/features/footer/FooterLayoutProvide
 import { useLayoutSetsQueryDef } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useInstanceDataQueryDef } from 'src/features/instance/InstanceContext';
 import { useProcessQueryDef } from 'src/features/instance/ProcessContext';
-import { useOrgsQueryDef } from 'src/features/orgs/OrgsProvider';
 import { useCurrentPartyQueryDef, usePartiesQueryDef } from 'src/features/party/PartiesProvider';
 import { useProfileQueryDef } from 'src/features/profile/ProfileProvider';
+import { useOrgsQueryDef } from 'src/hooks/queries/useOrgs';
 
 /**
  * Prefetches requests that require no processed data to determine the url

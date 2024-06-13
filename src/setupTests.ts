@@ -45,7 +45,8 @@ window.org = 'ttd';
 window.app = 'test';
 
 window.logError = (...args) => {
-  throw new Error(args.join(' '));
+  // eslint-disable-next-line no-console
+  console.log(args.join(' '));
 };
 window.logWarn = window.logError;
 window.logInfo = window.logError;

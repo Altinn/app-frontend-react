@@ -15,9 +15,8 @@ import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsCon
 import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { _private, useExpressionDataSources } from 'src/utils/layout/hierarchy';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutNodeFromObj } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode, type LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { CompTypes, LayoutNodeFromObj } from 'src/layout/layout';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 interface NodesContext {
@@ -117,19 +116,21 @@ export function useIsHiddenComponent() {
  *    belongs to. If you only provide 'currentValue', and the component is still inside a repeating group, most likely
  *    you'll get the first row item as a result.
  */
-export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode): LayoutNodeFromObj<T> | undefined {
+export function useResolvedNode<T extends { type: CompTypes }>(
+  selector: string | undefined | null | T | LayoutNode,
+): LayoutNodeFromObj<T> | undefined {
   const nodes = useNodes();
 
   if (typeof selector === 'object' && selector !== null && selector instanceof BaseLayoutNode) {
-    return selector as any;
+    return selector as LayoutNodeFromObj<T>;
   }
 
   if (typeof selector === 'string') {
-    return nodes?.findById(selector) as any;
+    return nodes?.findById(selector) as LayoutNodeFromObj<T> | undefined;
   }
 
-  if (typeof selector == 'object' && selector !== null && 'id' in selector && typeof selector.id === 'string') {
-    return nodes?.findById(selector.id) as any;
+  if (typeof selector === 'object' && selector !== null && 'id' in selector && typeof selector.id === 'string') {
+    return nodes?.findById(selector.id) as LayoutNodeFromObj<T> | undefined;
   }
 
   return undefined;

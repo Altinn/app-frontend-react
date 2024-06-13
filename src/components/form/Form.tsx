@@ -232,7 +232,7 @@ function HandleNavigationFocusComponent() {
   }, [searchParams, setSearchParams]);
 
   React.useEffect(() => {
-    if (focusNode != null) {
+    if (focusNode) {
       navigateTo(focusNode);
     }
   }, [navigateTo, focusNode]);
