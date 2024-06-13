@@ -4,7 +4,6 @@ import React from 'react';
 import { Button, Tabs } from '@digdir/designsystemet-react';
 import { Close } from '@navikt/ds-icons';
 
-import { ComponentSelector } from 'src/features/devtools/components/LayoutInspector/ComponentSelector';
 import reusedClasses from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { NodeHierarchy } from 'src/features/devtools/components/NodeInspector/NodeHierarchy';
 import { NodeInspectorContextProvider } from 'src/features/devtools/components/NodeInspector/NodeInspectorContext';
@@ -28,7 +27,6 @@ export const NodeInspector = () => {
       sizes={[300]}
     >
       <div className={reusedClasses.container}>
-        <ComponentSelector type='node' />
         <NodeHierarchy
           nodes={currentPage?.children()}
           selected={selectedId}

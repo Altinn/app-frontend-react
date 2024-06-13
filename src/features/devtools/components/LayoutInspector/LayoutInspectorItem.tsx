@@ -18,8 +18,8 @@ interface ILayoutInspectorItemProps {
 
 export const LayoutInspectorItem = ({ component, onClick, selected, hasErrors }: ILayoutInspectorItemProps) => {
   const { onMouseEnter, onMouseLeave } = useComponentHighlighter(component.id);
-  const el = useRef<HTMLLIElement>(null);
 
+  const el = useRef<HTMLLIElement>(null);
   useEffect(() => {
     if (selected && el.current) {
       el.current.scrollIntoView({ block: 'nearest' });

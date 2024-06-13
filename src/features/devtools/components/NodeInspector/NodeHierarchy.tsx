@@ -60,12 +60,11 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
   const isRepGroup = node.isType('RepeatingGroup');
 
   const el = useRef<HTMLLIElement>(null);
-
   useEffect(() => {
-    if (selected && el.current) {
+    if (node.item.id === selected && el.current) {
       el.current.scrollIntoView({ block: 'nearest' });
     }
-  }, [selected]);
+  }, [node.item.id, selected]);
 
   return (
     <>

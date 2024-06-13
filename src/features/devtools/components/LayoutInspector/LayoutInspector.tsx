@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button } from '@digdir/designsystemet-react';
 import { Close } from '@navikt/ds-icons';
 
-import { ComponentSelector } from 'src/features/devtools/components/LayoutInspector/ComponentSelector';
 import classes from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { LayoutInspectorItem } from 'src/features/devtools/components/LayoutInspector/LayoutInspectorItem';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
@@ -108,7 +107,6 @@ export const LayoutInspector = () => {
       sizes={[300]}
     >
       <div className={classes.container}>
-        <ComponentSelector type='component' />
         <ul className={classes.list}>
           {currentLayout?.map((component) => (
             <LayoutInspectorItem

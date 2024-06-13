@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@digdir/designsystemet-react';
-import { HandFingerFillIcon } from '@navikt/aksel-icons';
+import { FingerButtonIcon } from '@navikt/aksel-icons';
 
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { setHighlightStyle } from 'src/features/devtools/hooks/useComponentHighlighter';
@@ -112,16 +112,24 @@ export function ComponentSelector({ type }: ComponentSelectorProps) {
   useEffect(() => cleanup, [cleanup]);
 
   return (
-    <div style={{ position: 'relative' }}>
-      <Button
-        size='sm'
-        onClick={toggle}
-        variant={active ? 'secondary' : 'primary'}
-        color='second'
-        style={{ position: 'absolute', zIndex: 10, right: 0, top: 0 }}
-      >
-        <HandFingerFillIcon aria-hidden />
-      </Button>
-    </div>
+    <Button
+      title={type === 'node' ? 'Velg en komponent' : 'Velg en layout-komponent'}
+      size='sm'
+      onClick={toggle}
+      variant={active ? 'primary' : 'tertiary'}
+      color='second'
+      style={{
+        marginTop: 2,
+        width: 33,
+        height: 33,
+        minWidth: 0,
+        minHeight: 0,
+      }}
+    >
+      <FingerButtonIcon
+        fontSize={20}
+        aria-hidden
+      />
+    </Button>
   );
 }
