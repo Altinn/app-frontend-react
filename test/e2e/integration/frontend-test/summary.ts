@@ -37,6 +37,7 @@ describe('Summary', () => {
     cy.gotoNavPage('form');
     cy.fillOut('changename');
     cy.gotoNavPage('summary');
+    cy.waitUntilSaved();
     cy.get(appFrontend.backButton).should('be.visible');
 
     // Summary displays change button for editable fields and does not for readonly fields
@@ -132,6 +133,7 @@ describe('Summary', () => {
     cy.dsSelect('#reference', 'Ola Nordmann');
     cy.dsSelect('#reference2', 'Ole');
     cy.gotoNavPage('summary');
+    cy.waitUntilSaved();
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
       .then((items) => {
@@ -145,6 +147,7 @@ describe('Summary', () => {
     cy.dsSelect('#reference', 'Sophie Salt');
     cy.dsSelect('#reference2', 'Dole');
     cy.gotoNavPage('summary');
+    cy.waitUntilSaved();
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
       .then((items) => {
@@ -158,6 +161,7 @@ describe('Summary', () => {
     cy.dsSelect('#reference', 'Test');
     cy.dsSelect('#reference2', 'Doffen');
     cy.gotoNavPage('summary');
+    cy.waitUntilSaved();
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
       .then((items) => {
