@@ -1,10 +1,10 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, type JSX } from 'react';
 
 import type { PropsFromGenericComponent } from '..';
 
+import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { TabsDef } from 'src/layout/Tabs/config.def.generated';
 import { TabsHierarchyGenerator } from 'src/layout/Tabs/hierarchy';
-import { SummaryTabsComponent } from 'src/layout/Tabs/SummaryTabsComponent';
 import { Tabs as TabsComponent } from 'src/layout/Tabs/Tabs';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { CompTabsInternal } from 'src/layout/Tabs/config.generated';
@@ -24,8 +24,25 @@ export class Tabs extends TabsDef {
     return this._hierarchyGenerator;
   }
 
-  renderSummary(props: SummaryRendererProps<'Tabs'>): JSX.Element | null {
-    return <SummaryTabsComponent {...props} />;
+  renderSummary({ summaryNode, targetNode, overrides }: SummaryRendererProps<'Tabs'>): JSX.Element | null {
+    const children = targetNode.item.tabsInternal.map((card) => card.childNodes).flat();
+
+    return (
+      <>
+        {children.map((child) => (
+          <SummaryComponent
+            key={child.item.id}
+            summaryNode={summaryNode}
+            overrides={{
+              ...overrides,
+              targetNode: child,
+              grid: {},
+              largeGroup: true,
+            }}
+          />
+        ))}
+      </>
+    );
   }
 
   renderSummaryBoilerplate(): boolean {
