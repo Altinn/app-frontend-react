@@ -8,6 +8,12 @@ import { PDFView } from 'src/features/pdf/PDFView';
 import classes from 'src/features/pdf/PDFView.module.css';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 
+export const usePdfModeActive = (): boolean => {
+  const previewPDF = useDevToolsStore((state) => state.pdfPreview);
+  const pdfIsSetInUrl = useIsPdf();
+  return pdfIsSetInUrl || previewPDF;
+};
+
 export function PDFWrapper({ children }: PropsWithChildren) {
   const previewPDF = useDevToolsStore((state) => state.pdfPreview);
   const setPdfPreview = useDevToolsStore((state) => state.actions.setPdfPreview);

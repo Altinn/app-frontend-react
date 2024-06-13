@@ -19,6 +19,17 @@ const PDF_LAYOUT_NAME = '__pdf__';
 
 export const usePdfPage = (): LayoutPage | null => {
   const layoutPages = useNodes();
+
+  // console.log('layoutPages', layoutPages);
+
+  // layoutPages.  .map((node) => {
+  //   console.log('node', node);
+  // });
+
+  // layoutPages.allNodes().map((node) => {
+  //   console.log('node', node);
+  // });
+
   const pageNavigationConfig = usePageNavigationConfig();
   const isHidden = useIsHiddenComponent();
   const dataSources = useExpressionDataSources(isHidden);
@@ -87,7 +98,7 @@ function generateAutomaticPage(
       if (node.def.shouldRenderInAutomaticPDF(node as any)) {
         return {
           id: `__pdf__${node.item.id}`,
-          type: 'Summary',
+          type: 'Summary', //'Summary', // node.item.type, //node.def.renderSummary2 ? 'Summary2' : 'Summary',
           componentRef: node.item.id,
           excludedChildren: pdfFormat?.excludedComponents,
           grid: node.item.grid,
@@ -102,8 +113,13 @@ function generateAutomaticPage(
       }
     });
 
+  // console.log('automaticPdfLayout', automaticPdfLayout);
+
   // Generate the hierarchy for the automatic PDF layout
   const pdfPage = generateHierarchy(automaticPdfLayout, dataSources, getLayoutComponentObject);
+
+  // console.log('pdfPage', pdfPage);
+
   pdfPage.top = { myKey: PDF_LAYOUT_NAME, collection: layoutPages };
   return pdfPage;
 }

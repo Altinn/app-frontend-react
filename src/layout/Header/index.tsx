@@ -11,14 +11,4 @@ export class Header extends HeaderDef {
       return <HeaderComponent {...props} />;
     },
   );
-
-  // renderSummary2(summaryNode: LayoutNode<'Header'>): JSX.Element | null {
-  //   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
-  //   return (
-  //     <HeaderComponent
-  //       containerDivRef={containerDivRef}
-  //       node={summaryNode}
-  //     />
-  //   );
-  // }
 }

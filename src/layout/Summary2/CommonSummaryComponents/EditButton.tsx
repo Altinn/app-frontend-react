@@ -6,6 +6,7 @@ import { Edit } from '@navikt/ds-icons';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
+import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -19,7 +20,11 @@ export function EditButton({ componentNode, summaryComponentId, className }: Edi
   const setReturnToView = useSetReturnToView();
   const setNodeOfOrigin = useSetSummaryNodeOfOrigin();
   const { currentPageId } = useNavigatePage();
+  const pdfModeActive = usePdfModeActive();
 
+  if (pdfModeActive) {
+    return null;
+  }
   const onChangeClick = async () => {
     if (!componentNode.top.top.myKey) {
       return;
