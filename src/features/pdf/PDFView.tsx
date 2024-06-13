@@ -92,14 +92,9 @@ export const PDFView = () => {
     return null;
   }
 
-  const pdfPage = nodes
-    .allPageKeys()
+  const pdfPage = pageNavigationConfig.order
+    ?.filter((pageKey) => !pageNavigationConfig.isHiddenPage(pageKey))
     .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
-    .filter((pageKey) => !pageNavigationConfig.isHiddenPage(pageKey))
-    .filter((pageKey) => pageNavigationConfig.order?.includes(pageKey))
-    .sort(([pA], [pB]) =>
-      pageNavigationConfig.order ? pageNavigationConfig.order.indexOf(pA) - pageNavigationConfig.order.indexOf(pB) : 0,
-    )
     .flatMap((layoutPage) => {
       const currentLayout = nodes.findLayout(layoutPage);
       return currentLayout
