@@ -58,7 +58,7 @@ export const returnInstanceMetaDataObject = (
 
 export const getInstanceReferenceNumber = (instance: IInstance): string => instance.id.split('/')[1].split('-')[4];
 
-export function InstanceInformationComponent2({ elements }: CompInstanceInformationInternal) {
+export function InstanceInformation({ elements }: CompInstanceInformationInternal) {
   const { dateSent, sender, receiver, referenceNumber } = elements || {};
 
   const langTools = useLanguage();
@@ -107,52 +107,5 @@ export function InstanceInformationComponent2({ elements }: CompInstanceInformat
 }
 
 export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
-  // const elements = node.item.elements;
-
-  return <InstanceInformationComponent2 {...node.item} />;
-
-  // const { dateSent, sender, receiver, referenceNumber } = elements || {};
-  // const langTools = useLanguage();
-  // const selectedLanguage = useCurrentLanguage();
-  //
-  // const instance = useLaxInstanceData();
-  // const parties = useParties();
-  // const appReceiver = useAppReceiver();
-  //
-  // const instanceOwnerParty =
-  //   instance && parties?.find((party: IParty) => party.partyId.toString() === instance.instanceOwner.partyId);
-  //
-  // const instanceDateSent =
-  //   dateSent !== false && Moment(instance?.lastChanged).format(getDateFormat(undefined, selectedLanguage));
-  //
-  // const instanceSender =
-  //   sender !== false &&
-  //   instanceOwnerParty &&
-  //   `${instanceOwnerParty.ssn ? instanceOwnerParty.ssn : instanceOwnerParty.orgNumber}-${instanceOwnerParty.name}`;
-  //
-  // const instanceReceiver = receiver !== false ? appReceiver ?? 'Error: Receiver org not found' : undefined;
-  //
-  // const instanceReferenceNumber = referenceNumber !== false && instance && getInstanceReferenceNumber(instance);
-  //
-  // const instanceMetaDataObject = returnInstanceMetaDataObject(
-  //   langTools,
-  //   instanceDateSent,
-  //   instanceSender,
-  //   instanceReceiver,
-  //   instanceReferenceNumber,
-  // );
-  //
-  // if (!instanceMetaDataObject) {
-  //   return null;
-  // }
-  //
-  // return (
-  //   <Grid
-  //     item={true}
-  //     container={true}
-  //     xs={12}
-  //   >
-  //     <AltinnSummaryTable summaryDataObject={instanceMetaDataObject} />
-  //   </Grid>
-  // );
+  return <InstanceInformation {...node.item} />;
 }
