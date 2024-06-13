@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
@@ -49,10 +49,9 @@ describe('MultipleSelect', () => {
         fetchFormData: async () => ({ someField: 'value1,value3' }),
       },
     });
-    const input = screen.getByTestId('InputWrapper');
-    expect(within(input).getByText('label1')).toBeInTheDocument();
-    expect(within(input).queryByText('label2')).not.toBeInTheDocument();
-    expect(within(input).getByText('label3')).toBeInTheDocument();
+    expect(screen.getByText('label1')).toBeInTheDocument();
+    expect(screen.queryByText('label2')).not.toBeInTheDocument();
+    expect(screen.getByText('label3')).toBeInTheDocument();
   });
 
   it('should remove item from comma separated form data on delete', async () => {
@@ -64,9 +63,11 @@ describe('MultipleSelect', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /Slett label2/i }));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'someField', dataType: defaultDataTypeMock },
-      newValue: 'value1,value3',
-    });
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { property: 'someField', dataType: defaultDataTypeMock },
+        newValue: 'value1,value3',
+      }),
+    );
   });
 });
