@@ -35,17 +35,13 @@ interface ComponentSummaryProps {
 
 function LayoutSetSummary({ summaryOverrides }: LayoutSetSummaryProps) {
   const pageOrder = useOrder();
-  return (
-    <div>
-      {pageOrder.map((layoutId) => (
-        <PageSummary
-          pageId={layoutId}
-          key={layoutId}
-          summaryOverrides={summaryOverrides}
-        />
-      ))}
-    </div>
-  );
+  return pageOrder.map((layoutId) => (
+    <PageSummary
+      pageId={layoutId}
+      key={layoutId}
+      summaryOverrides={summaryOverrides}
+    />
+  ));
 }
 
 function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryProps) {
@@ -65,16 +61,13 @@ function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryP
       />
     ));
 
-  // console.log('componentNode', componentNode);
-
   const renderedComponent = componentNode.def.renderSummary2
     ? componentNode.def.renderSummary2(componentNode as LayoutNode<any>, overrides)
     : null;
 
-  // console.log('renderedComponent', renderedComponent);
-  // if (componentNode.def.renderSummary2) {
-  //   console.log('renderedComponent', componentNode.def);
-  // }
+  if (!renderedComponent) {
+    return null;
+  }
 
   return (
     <Grid
@@ -94,19 +87,13 @@ function PageSummary({ pageId, summaryOverrides }: PageSummaryProps) {
     throw new Error('PageId invalid in PageSummary.');
   }
 
-  return (
-    <div>
-      {page.children().map((child) => (
-        <>
-          <ComponentSummary
-            componentNode={child}
-            key={child.item.id}
-            summaryOverrides={summaryOverrides}
-          />
-        </>
-      ))}
-    </div>
-  );
+  return page.children().map((child) => (
+    <ComponentSummary
+      componentNode={child}
+      key={child.item.id}
+      summaryOverrides={summaryOverrides}
+    />
+  ));
 }
 
 interface ResolveComponentProps {
@@ -142,12 +129,10 @@ function TaskSummary({ pageId, componentId, summaryOverrides }: TaskSummaryProps
     const nodeToRender = nodes.findById(componentId);
     return (
       nodeToRender && (
-        <div style={{ width: '100%' }}>
-          <ComponentSummary
-            componentNode={nodeToRender}
-            summaryOverrides={summaryOverrides}
-          />
-        </div>
+        <ComponentSummary
+          componentNode={nodeToRender}
+          summaryOverrides={summaryOverrides}
+        />
       )
     );
   }
