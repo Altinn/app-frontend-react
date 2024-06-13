@@ -8,6 +8,7 @@ import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useOrder } from 'src/hooks/useNavigatePage';
+import { GroupSummary } from 'src/layout/Group/GroupSummary';
 import classes from 'src/layout/Summary2/SummaryComponent2.module.css';
 import { TaskIdStoreProvider, useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
@@ -80,12 +81,13 @@ function ComponentSummary({ componentNode, summaryOverrides, isNested }: Compone
       {...gridBreakpoints(componentNode.item.grid)}
     >
       {renderedComponent}
-      {isNested && isGroup ? (
-        <div className={cn(classes.nestedGroupContainer)}>{childComponents}</div>
-      ) : (
-        childComponents
+      {isGroup && (
+        <GroupSummary
+          componentNode={componentNode as LayoutNode<'Group'>}
+          isNested={isNested}
+          childComponents={childComponents || null}
+        />
       )}
-      {childComponents}
     </Grid>
   );
 }
