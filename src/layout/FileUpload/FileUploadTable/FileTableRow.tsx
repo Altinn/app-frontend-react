@@ -144,16 +144,7 @@ const StatusCellContent = ({ uploaded, mobileView }) => {
   return (
     <td>
       {uploaded ? (
-        <div className={classes.fileStatus}>
-          {mobileView ? null : status}
-          <CheckmarkCircleFillIcon
-            data-testid='checkmark-success'
-            style={mobileView ? { marginLeft: '10px' } : {}}
-            aria-hidden={!mobileView}
-            aria-label={status}
-            role='img'
-          />
-        </div>
+        <div className={classes.fileStatus}>{mobileView ? null : status}</div>
       ) : (
         <AltinnLoader
           id='loader-upload'

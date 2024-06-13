@@ -5,6 +5,7 @@ import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
+import { InstanceInformationComponent2 } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2';
 import { useNode, useNodes } from 'src/utils/layout/NodesContext';
@@ -91,7 +92,7 @@ export const PDFView = () => {
     return null;
   }
 
-  return nodes
+  const pdfPage = nodes
     .allPageKeys()
     .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
     .filter((pageKey) => !pageNavigationConfig.isHiddenPage(pageKey))
@@ -137,4 +138,24 @@ export const PDFView = () => {
           );
         });
     });
+
+  return (
+    <>
+      <InstanceInformationComponent2
+        type={'InstanceInformation'}
+        id={'__pdf__instance-information'}
+        elements={{
+          dateSent: true,
+          sender: true,
+          receiver: true,
+          referenceNumber: true,
+        }}
+        pageBreak={{
+          breakAfter: 'always',
+        }}
+        textResourceBindings={undefined}
+      />
+      {pdfPage}
+    </>
+  );
 };
