@@ -11,10 +11,12 @@ import comboboxClasses from 'src/styles/combobox.module.css';
 
 export const LanguageSelector = ({ hideLabel }: { hideLabel?: boolean }) => {
   const { langAsString } = useLanguage();
-  const selectedLanguage = useCurrentLanguage();
+  const currentLanguage = useCurrentLanguage();
   const { setWithLanguageSelector } = useSetCurrentLanguage();
 
   const { data: appLanguages, isError: appLanguageError } = useGetAppLanguageQuery();
+  // Combobox crashes if the value is not present in the options
+  const selectedLanguage = appLanguages?.filter((lang) => lang === currentLanguage) ?? [];
 
   const handleAppLanguageChange = (values: string[]) => {
     const lang = values.at(0);
@@ -35,16 +37,16 @@ export const LanguageSelector = ({ hideLabel }: { hideLabel?: boolean }) => {
         hideLabel={hideLabel}
         label={langAsString('language.selector.label')}
         onValueChange={handleAppLanguageChange}
-        value={[selectedLanguage]}
+        value={selectedLanguage}
         className={comboboxClasses.container}
       >
         {appLanguages?.map((lang) => (
           <Combobox.Option
-            key={lang.language}
-            value={lang.language}
-            displayValue={langAsString(`language.full_name.${lang.language}`)}
+            key={lang}
+            value={lang}
+            displayValue={langAsString(`language.full_name.${lang}`)}
           >
-            <Lang id={`language.full_name.${lang.language}`} />
+            <Lang id={`language.full_name.${lang}`} />
           </Combobox.Option>
         ))}
       </Combobox>
