@@ -55,6 +55,10 @@ export class Group extends GroupDef implements ValidateComponent {
     );
   }
 
+  renderSummary2(): JSX.Element | null {
+    return <></>;
+  }
+
   renderSummaryBoilerplate(): boolean {
     return false;
   }
