@@ -6,6 +6,8 @@ import { Edit } from '@navikt/ds-icons';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
+import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -16,9 +18,15 @@ type EditButtonProps = {
 
 export function EditButton({ componentNode, summaryComponentId, className }: EditButtonProps) {
   const navigateTo = useNavigateToNode();
+  const { lang, langAsString } = useLanguage();
   const setReturnToView = useSetReturnToView();
   const setNodeOfOrigin = useSetSummaryNodeOfOrigin();
   const { currentPageId } = useNavigatePage();
+
+  const accessibleTitle =
+    componentNode?.item?.textResourceBindings && 'title' in componentNode.item.textResourceBindings
+      ? langAsString(componentNode.item.textResourceBindings?.title)
+      : '';
 
   const onChangeClick = async () => {
     if (!componentNode.top.top.myKey) {
@@ -36,10 +44,11 @@ export function EditButton({ componentNode, summaryComponentId, className }: Edi
       size='small'
       className={className}
     >
-      <Lang id={'general.edit'} />
+      {!useIsMobile() && <Lang id={'general.edit'} />}
       <Edit
         fontSize='1rem'
         aria-hidden={true}
+        title={`${langAsString('form_filler.summary_item_change')} ${accessibleTitle}`}
       />
     </Button>
   );

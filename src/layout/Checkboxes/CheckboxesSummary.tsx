@@ -3,7 +3,7 @@ import React from 'react';
 import { Label, List, Paragraph } from '@digdir/designsystemet-react';
 
 import { Lang } from 'src/features/language/Lang';
-import classes from 'src/layout/Checkboxes/CheckboxesSumary.module.css';
+import classes from 'src/layout/Checkboxes/CheckboxesSummary.module.css';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import type { CompCheckboxesInternal } from 'src/layout/Checkboxes/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
