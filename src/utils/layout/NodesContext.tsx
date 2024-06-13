@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useId, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
@@ -29,7 +29,6 @@ import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
-import { generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorStages, GeneratorStagesProvider } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
@@ -321,41 +320,25 @@ const DataStore = createZustandContext<NodesDataStore, NodesDataContext>({
 });
 export type NodesDataStoreFull = typeof DataStore;
 
-function usePerformanceMark(name: string, enabled = true) {
-  const uniqueId = useId();
-  if (enabled && window.performance.getEntriesByName(name + uniqueId).length === 0) {
-    window.performance.mark(name + uniqueId);
-    return [name + uniqueId, true] as const;
-  }
-  return [name + uniqueId, false] as const;
-}
-
-export const NodesProvider = ({ children }: React.PropsWithChildren) => {
-  const [markName, started] = usePerformanceMark('NodesProvider:start');
-  if (started) {
-    generatorLog('logStages', 'Starting node generation');
-  }
-
-  return (
-    <NodesStore.Provider>
-      <DataStore.Provider>
-        <GeneratorStagesProvider>
-          <GeneratorValidationProvider>
-            <LayoutSetGenerator />
-          </GeneratorValidationProvider>
-          <InnerHiddenComponentsProvider />
-          <MarkAsReady />
-        </GeneratorStagesProvider>
-        {window.Cypress && <UpdateAttachmentsForCypress />}
-        <BlockUntilLoaded startMark={markName}>
-          <ProvideWaitForValidation />
-          <UpdateExpressionValidation />
-          <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
-        </BlockUntilLoaded>
-      </DataStore.Provider>
-    </NodesStore.Provider>
-  );
-};
+export const NodesProvider = ({ children }: React.PropsWithChildren) => (
+  <NodesStore.Provider>
+    <DataStore.Provider>
+      <GeneratorStagesProvider>
+        <GeneratorValidationProvider>
+          <LayoutSetGenerator />
+        </GeneratorValidationProvider>
+        <InnerHiddenComponentsProvider />
+        <MarkAsReady />
+      </GeneratorStagesProvider>
+      {window.Cypress && <UpdateAttachmentsForCypress />}
+      <BlockUntilLoaded>
+        <ProvideWaitForValidation />
+        <UpdateExpressionValidation />
+        <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
+      </BlockUntilLoaded>
+    </DataStore.Provider>
+  </NodesStore.Provider>
+);
 
 function InnerHiddenComponentsProvider() {
   const setHidden = NodesStore.useSelector((state) => state.setHiddenViaRules);
@@ -388,14 +371,13 @@ function MarkAsReady() {
   return null;
 }
 
-function BlockUntilLoaded({ startMark, children }: PropsWithChildren<{ startMark: string }>) {
+function BlockUntilLoaded({ children }: PropsWithChildren) {
   const hasNodes = NodesStore.useSelector((state) => !!state.nodes);
 
   const isReady = DataStore.useSelector((s) => s.ready);
   const hasBeenReady = useRef(false);
   hasBeenReady.current = hasBeenReady.current || isReady;
   const stillLoading = !hasNodes || (!isReady && !hasBeenReady.current);
-  const [endMark, ended] = usePerformanceMark('NodesProvider:stop', !stillLoading);
 
   if (stillLoading) {
     return <NodesLoader />;

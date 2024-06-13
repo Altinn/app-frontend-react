@@ -77,7 +77,7 @@ export function GenericComponentByRef<Type extends CompTypes = CompTypes>(props:
   );
 }
 
-export function GenericComponent<Type extends CompTypes = CompTypes>({
+function _GenericComponent<Type extends CompTypes = CompTypes>({
   node,
   overrideItemProps,
   overrideDisplay,
@@ -102,6 +102,9 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     </ComponentErrorBoundary>
   );
 }
+
+export const GenericComponent = React.memo(_GenericComponent);
+GenericComponent.displayName = 'GenericComponent';
 
 function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   node,
