@@ -2447,21 +2447,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/design-system-react@npm:^0.47.0":
-  version: 0.47.0
-  resolution: "@digdir/design-system-react@npm:0.47.0"
+"@digdir/design-system-react@npm:^0.54.0":
+  version: 0.54.0
+  resolution: "@digdir/design-system-react@npm:0.54.0"
   dependencies:
     "@altinn/figma-design-tokens": ^6.0.1
-    "@digdir/design-system-tokens": ^0.12.0
+    "@digdir/designsystemet-theme": 0.15.3
     "@floating-ui/react": 0.26.4
     "@navikt/aksel-icons": ^5.12.2
-    "@radix-ui/react-slot": ^1.0.2
-    "@tanstack/react-virtual": ^3.0.1
     react-number-format: 5.3.1
   peerDependencies:
-    react: ">=18.2.0"
-    react-dom: ">=18.2.0"
-  checksum: c91df7b3f739cd8aacf8798cab11093d2aa2a2b6edd93e6e09ff4a0bed26875252d77740d71660ce4aa04fbd943d058da26cbdc9cb41324f64dabecb23bf2ce1
+    react: ">=18.3.1"
+    react-dom: ">=18.3.1"
+  checksum: db7e5b9ddec7d3b40473ed09089d2cedcdbb717619709e805a0d565cf1ea261e88cdc2e823b0d67659f240680cc52229c45680f5f7a9818be83e4bdb66f9a553
   languageName: node
   linkType: hard
 
@@ -2479,10 +2477,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/design-system-tokens@npm:^0.12.0":
-  version: 0.12.0
-  resolution: "@digdir/design-system-tokens@npm:0.12.0"
-  checksum: 7089ba919876fc73e5f13c696426f3c3553b7f0ebb5e8785411fc0bbc6fd86385ddd46a65073232a115f4c479b1eb40f2c20c5d31546e301fdf0cdf7edc715f9
+"@digdir/designsystemet-theme@npm:0.15.3":
+  version: 0.15.3
+  resolution: "@digdir/designsystemet-theme@npm:0.15.3"
+  checksum: 7acfd7d8c56bcad4ee6f82fc9f56225d896a6761379b64a10c190c19970a43e17323a828d252de5bb34792eca215ff0e01e1ebfe2ba3130be03a48d4652bf4a9
   languageName: node
   linkType: hard
 
@@ -3705,21 +3703,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-compose-refs@npm:1.0.1":
-  version: 1.0.1
-  resolution: "@radix-ui/react-compose-refs@npm:1.0.1"
-  dependencies:
-    "@babel/runtime": ^7.13.10
-  peerDependencies:
-    "@types/react": "*"
-    react: ^16.8 || ^17.0 || ^18.0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  checksum: 2b9a613b6db5bff8865588b6bf4065f73021b3d16c0a90b2d4c23deceeb63612f1f15de188227ebdc5f88222cab031be617a9dd025874c0487b303be3e5cc2a8
-  languageName: node
-  linkType: hard
-
 "@radix-ui/react-context@npm:1.0.0":
   version: 1.0.0
   resolution: "@radix-ui/react-context@npm:1.0.0"
@@ -3883,22 +3866,6 @@ __metadata:
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
   checksum: 60c0190ebdca21785b4f8b58a0c52717600c98953fc49da9580870519c60f52d5cf873dffa05446f4bb539066326ccec0827f4ca252b02ec4ff1a4ae203f59d7
-  languageName: node
-  linkType: hard
-
-"@radix-ui/react-slot@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@radix-ui/react-slot@npm:1.0.2"
-  dependencies:
-    "@babel/runtime": ^7.13.10
-    "@radix-ui/react-compose-refs": 1.0.1
-  peerDependencies:
-    "@types/react": "*"
-    react: ^16.8 || ^17.0 || ^18.0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  checksum: edf5edf435ff594bea7e198bf16d46caf81b6fb559493acad4fa8c308218896136acb16f9b7238c788fd13e94a904f2fd0b6d834e530e4cae94522cdb8f77ce9
   languageName: node
   linkType: hard
 
@@ -4171,25 +4138,6 @@ __metadata:
     react-native:
       optional: true
   checksum: 1aff0a476859386f8d32253fa0d0bde7b81769a6d4d4d9cbd78778f0f955459a3bdb7ee27a0d2ee7373090f12998b45df80db0b5b313bd0a7a39d36c6e8e51c5
-  languageName: node
-  linkType: hard
-
-"@tanstack/react-virtual@npm:^3.0.1":
-  version: 3.0.4
-  resolution: "@tanstack/react-virtual@npm:3.0.4"
-  dependencies:
-    "@tanstack/virtual-core": 3.0.0
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: d01ea51d8a130c8f2cf87941d312a8d7929e19334bbe85a3ab125b935742cf58ee76d71f590cbd5c50b4fbdbbd6a7b8e58f7c0538c43aa4d5ccab20914246b28
-  languageName: node
-  linkType: hard
-
-"@tanstack/virtual-core@npm:3.0.0":
-  version: 3.0.0
-  resolution: "@tanstack/virtual-core@npm:3.0.0"
-  checksum: 7283d50fc7b7a56608c37a8e94a93b85890ff7e39c6281633a19c4d6f6f4fbf25f8418f1eec302a008a8746a0d1d0cd00630137b55e6cf019818d68af8ed16b6
   languageName: node
   linkType: hard
 
@@ -5647,7 +5595,7 @@ __metadata:
     "@babel/runtime": ^7.21.0
     "@babel/runtime-corejs3": ^7.21.0
     "@date-io/moment": 1.3.13
-    "@digdir/design-system-react": ^0.47.0
+    "@digdir/design-system-react": ^0.54.0
     "@digdir/design-system-tokens": ^0.10.0
     "@material-ui/core": 4.12.4
     "@material-ui/icons": 4.11.3
