@@ -37,9 +37,13 @@ export function ComponentSelector({ type }: ComponentSelectorProps) {
 
       const elementsToCheck = new Set<Element>();
       const hoverElements = document.elementsFromPoint(event.clientX, event.clientY);
-      for (const element of hoverElements) {
+      loop: for (const element of hoverElements) {
         let e: Element | null = element;
         while (e) {
+          if (elementsToCheck.has(e)) {
+            continue loop;
+          }
+
           elementsToCheck.add(e);
           e = e.parentElement;
         }
