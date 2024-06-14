@@ -40,7 +40,6 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
     <Grid
       item={true}
       xs={12}
-      data-componentid={node?.item.id}
     >
       {hasTitle && (
         <Typography
@@ -69,6 +68,8 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
       <Grid
         item
         container
+        data-componentid={node.item.id}
+        data-componentbaseid={node.item.baseComponentId || node.item.id}
       >
         <Header />
         <div
@@ -95,7 +96,12 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
   }
 
   return (
-    <>
+    <Grid
+      item
+      container
+      data-componentid={node.item.id}
+      data-componentbaseid={node.item.baseComponentId || node.item.id}
+    >
       <Header />
       {isFetching ? (
         <AltinnSpinner />
@@ -161,6 +167,6 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           </Table>
         </div>
       )}
-    </>
+    </Grid>
   );
 };

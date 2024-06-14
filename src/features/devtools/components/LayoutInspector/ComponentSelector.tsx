@@ -35,8 +35,17 @@ export function ComponentSelector({ type }: ComponentSelectorProps) {
       let newElement: Element | null = null;
       let newId: string | null = null;
 
+      const elementsToCheck = new Set<Element>();
       const hoverElements = document.elementsFromPoint(event.clientX, event.clientY);
       for (const element of hoverElements) {
+        let e: Element | null = element;
+        while (e) {
+          elementsToCheck.add(e);
+          e = e.parentElement;
+        }
+      }
+
+      for (const element of elementsToCheck) {
         const id = element.getAttribute(type === 'node' ? 'data-componentid' : 'data-componentbaseid');
         if (id) {
           newElement = element;

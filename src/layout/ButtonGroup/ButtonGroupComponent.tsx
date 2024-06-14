@@ -17,11 +17,13 @@ export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'Button
       alignItems='center'
       className={classes.container}
       data-componentid={node.item.id}
+      data-componentbaseid={node.item.baseComponentId || node.item.id}
     >
       {childNodes.map((n: LayoutNode) => (
         <div
           key={n.item.id}
           data-componentid={n.item.id}
+          data-componentbaseid={n.item.baseComponentId || n.item.id}
         >
           <GenericComponent
             node={n}
