@@ -20,7 +20,8 @@ export function ComponentSelector({ type }: ComponentSelectorProps) {
 
   const highlightElementsRef = useRef(new Map<Element, Element>());
 
-  function toggle() {
+  function toggle(e: React.MouseEvent) {
+    e.stopPropagation();
     if (!active) {
       activate();
     } else {
@@ -132,9 +133,12 @@ export function ComponentSelector({ type }: ComponentSelectorProps) {
       variant={active ? 'primary' : 'tertiary'}
       color='second'
       style={{
-        marginTop: 2,
-        width: 33,
-        height: 33,
+        marginTop: -10,
+        marginBottom: -10,
+        marginRight: -10,
+        overflow: 'visible',
+        width: 30,
+        height: 30,
         minWidth: 0,
         minHeight: 0,
       }}
