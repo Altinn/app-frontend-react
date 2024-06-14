@@ -16,8 +16,6 @@ export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'Button
       container
       alignItems='center'
       className={classes.container}
-      data-componentid={node.item.id}
-      data-componentbaseid={node.item.baseComponentId || node.item.id}
     >
       {childNodes.map((n: LayoutNode) => (
         <div
