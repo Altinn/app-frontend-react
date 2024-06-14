@@ -49,7 +49,6 @@ export class Input extends InputDef {
     componentNode: LayoutNode<'Input'>,
     summaryOverrides?: CompInputInternal['summaryProps'],
   ): JSX.Element | null {
-    console.log('RENDER SUMMARY 222!');
     return (
       <InputSummary
         componentNode={componentNode}
