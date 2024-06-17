@@ -38,12 +38,8 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
               throw new Error('Extras must be an object');
             }
 
-            const nodeData = nodeData[node.getId()];
-            if (!nodeData) {
-              continue;
-            }
-
-            const existingRows = nodeData.item && (nodeData.item[internalProp] as RepChildrenRow[] | undefined);
+            const thisNode = nodeData[node.getId()];
+            const existingRows = thisNode.item && (thisNode.item[internalProp] as RepChildrenRow[] | undefined);
             const existingRowIndex = existingRows?.findIndex((r) => r.uuid === row.uuid);
             const existingRow =
               existingRows && existingRowIndex !== undefined ? existingRows[existingRowIndex] : undefined;
@@ -56,7 +52,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
               changes = true;
               const newRows = [...(existingRows || [])];
               newRows[existingRowIndex] = nextRow;
-              nodeData[node.getId()] = { ...nodeData, item: { ...nodeData.item, [internalProp]: newRows } as any };
+              nodeData[node.getId()] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
             }
           }
 
@@ -66,8 +62,8 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
       removeRow: (node, row, internalProp) => {
         set((state) => {
           const nodeData = { ...state.nodeData };
-          const nodeData = nodeData[node.getId()];
-          const existingRows = nodeData.item && (nodeData.item[internalProp] as RepChildrenRow[] | undefined);
+          const thisNode = nodeData[node.getId()];
+          const existingRows = thisNode.item && (thisNode.item[internalProp] as RepChildrenRow[] | undefined);
           if (!existingRows) {
             return {};
           }
@@ -77,7 +73,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           }
           const newRows = [...existingRows];
           newRows.splice(existingRowIndex, 1);
-          nodeData[node.getId()] = { ...nodeData, item: { ...nodeData.item, [internalProp]: newRows } as any };
+          nodeData[node.getId()] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
 
           return { nodeData, ready: false };
         });
