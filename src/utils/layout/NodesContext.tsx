@@ -61,42 +61,34 @@ import type { GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layo
 // re-run when in a generation stage).
 // TODO: Move the generator stages in here as well?
 
-export interface PageHierarchy {
+export interface PagesData {
   type: 'pages';
-  pages: Pages;
+  pages: {
+    [key: string]: PageData;
+  };
 }
 
-interface Pages {
-  [key: string]: PageData;
-}
-
-export interface HiddenStatePage {
-  hiddenByRules: false;
-  hiddenByExpression: boolean;
-  hiddenByTracks: boolean;
-}
-
-export interface HiddenStateNode {
+export interface HiddenState {
   hiddenByRules: boolean;
   hiddenByExpression: boolean;
-  hiddenByTracks: false;
+  hiddenByTracks: boolean;
 }
 
 export interface PageData {
   type: 'page';
   pageKey: string;
-  hidden: HiddenStatePage;
+  hidden: HiddenState;
   errors: GeneratorErrors | undefined;
 }
 
-export type NodeDataStorePlugins = {
+export type NodesStorePlugins = {
   validation: ValidationStorePluginConfig;
   options: OptionsStorePluginConfig;
   attachments: AttachmentsStorePluginConfig;
   repeatingChildren: RepeatingChildrenStorePluginConfig;
 };
 
-const DataStorePlugins: { [K in keyof NodeDataStorePlugins]: NodeDataPlugin<NodeDataStorePlugins[K]> } = {
+const StorePlugins: { [K in keyof NodesStorePlugins]: NodeDataPlugin<NodesStorePlugins[K]> } = {
   validation: new ValidationStorePlugin(),
   options: new OptionsStorePlugin(),
   attachments: new AttachmentsStorePlugin(),
@@ -105,10 +97,10 @@ const DataStorePlugins: { [K in keyof NodeDataStorePlugins]: NodeDataPlugin<Node
 
 type AllFlat<T> = UnionToIntersection<T extends Record<string, infer U> ? (U extends undefined ? never : U) : never>;
 type ExtraFunctions = AllFlat<{
-  [K in keyof NodeDataStorePlugins]: NodeDataStorePlugins[K]['extraFunctions'];
+  [K in keyof NodesStorePlugins]: NodesStorePlugins[K]['extraFunctions'];
 }>;
 type ExtraHooks = AllFlat<{
-  [K in keyof NodeDataStorePlugins]: NodeDataStorePlugins[K]['extraHooks'];
+  [K in keyof NodesStorePlugins]: NodesStorePlugins[K]['extraHooks'];
 }>;
 
 export interface AddNodeRequest<T extends CompTypes = CompTypes> {
@@ -127,8 +119,8 @@ export type NodesDataContext = {
   // State
   ready: boolean;
   hasErrors: boolean;
-  pages: PageHierarchy;
   nodes: LayoutPages | undefined;
+  pagesData: PagesData;
   nodeData: { [key: string]: NodeData };
   hiddenViaRules: Set<string>;
 
@@ -162,11 +154,11 @@ export function createNodesDataStore() {
   return createStore<NodesDataContext>((set) => ({
     ready: false,
     hasErrors: false,
-    pages: {
-      type: 'pages' as const,
+    nodes: undefined,
+    pagesData: {
+      type: 'pages',
       pages: {},
     },
-    nodes: undefined,
     nodeData: {},
 
     hiddenViaRules: new Set(),
@@ -292,7 +284,7 @@ export function createNodesDataStore() {
       ),
     markReady: () => set(() => ({ ready: true })),
 
-    ...(Object.values(DataStorePlugins)
+    ...(Object.values(StorePlugins)
       .map((plugin) => plugin.extraFunctions(set))
       .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraFunctions),
   }));
@@ -497,7 +489,7 @@ export const Hidden = {
   useHiddenPages(): Set<string> {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     const hiddenPages = Store.useLaxMemoSelector((s) =>
-      Object.keys(s.pages.pages).filter((key) => isHidden(s, [key], forcedVisibleByDevTools)),
+      Object.keys(s.pagesData.pages).filter((key) => isHidden(s, [key], forcedVisibleByDevTools)),
     );
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
   },
@@ -664,7 +656,7 @@ export const NodesInternal = {
   useIsAdded: (node: LayoutNode | LayoutPage) =>
     Store.useSelector((s) => {
       if (node instanceof LayoutPage) {
-        return s.pages.pages[node.pageKey] !== undefined;
+        return s.pagesData.pages[node.pageKey] !== undefined;
       }
       return s.nodeData[node.getId()] !== undefined;
     }),
@@ -681,7 +673,7 @@ export const NodesInternal = {
   useRemoveNode: () => Store.useSelector((s) => s.removeNode),
   useAddError: () => Store.useSelector((s) => s.addError),
 
-  ...(Object.values(DataStorePlugins)
+  ...(Object.values(StorePlugins)
     .map((plugin) => plugin.extraHooks(Store))
     .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraHooks),
 };
@@ -739,7 +731,7 @@ export function pickDataStorePath(
   }
 
   if (path.length === 1) {
-    const page = state.pages.pages[path[0]];
+    const page = state.pagesData.pages[path[0]];
     if (!page) {
       throw new NodePathNotFound(`Page not found at path /${path.join('/')}`);
     }

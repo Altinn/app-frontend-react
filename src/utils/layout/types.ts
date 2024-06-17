@@ -2,7 +2,7 @@ import type { CompDef } from 'src/layout';
 import type { CompIntermediate, CompInternal, CompTypes, TypeFromNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { HiddenStateNode } from 'src/utils/layout/NodesContext';
+import type { HiddenState } from 'src/utils/layout/NodesContext';
 
 /**
  * A row (from the data model) in a repeating group, or other components using such a structure (object[]).
@@ -30,7 +30,7 @@ export interface BaseNodeData<T extends CompTypes> {
   type: 'node';
   layout: CompIntermediate<T>;
   item: CompInternal<T> | undefined;
-  hidden: HiddenStateNode | undefined;
+  hidden: HiddenState | undefined;
   row: BaseRow | undefined;
   errors: GeneratorErrors | undefined;
 }

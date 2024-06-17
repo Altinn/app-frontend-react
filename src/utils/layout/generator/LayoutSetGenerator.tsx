@@ -23,7 +23,7 @@ import type {
   ContainerGeneratorProps,
 } from 'src/layout/LayoutComponent';
 import type { ChildrenMap } from 'src/utils/layout/generator/GeneratorContext';
-import type { HiddenStatePage } from 'src/utils/layout/NodesContext';
+import type { HiddenState } from 'src/utils/layout/NodesContext';
 
 const style: React.CSSProperties = GeneratorDebug.displayState
   ? {
@@ -236,7 +236,7 @@ function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
   const hiddenByTracks = Hidden.useIsPageHiddenViaTracks(name);
   const hiddenByExpression = useIsHiddenPage(page);
 
-  const hidden: HiddenStatePage = useMemo(
+  const hidden: HiddenState = useMemo(
     () => ({
       hiddenByTracks,
       hiddenByExpression,

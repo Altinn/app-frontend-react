@@ -10,17 +10,17 @@ import { NodesInternal, NotReadyYet, pickDataStorePath, useNodesLax } from 'src/
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, ParentNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesDataContext, PageData, PageHierarchy } from 'src/utils/layout/NodesContext';
+import type { NodesDataContext, PageData, PagesData } from 'src/utils/layout/NodesContext';
 import type { NodeData } from 'src/utils/layout/types';
 
-type AnyData = PageHierarchy | PageData | NodeData;
+type AnyData = PagesData | PageData | NodeData;
 type Node = BaseLayoutNode | LayoutPage | LayoutPages;
 type DataFrom<T extends NodeRef | Node> = T extends NodeRef
   ? NodeData
   : T extends LayoutPage
     ? PageData
     : T extends LayoutPages
-      ? PageHierarchy
+      ? PagesData
       : NodeData;
 
 export interface TraversalRowIndexRestriction {
@@ -58,7 +58,7 @@ export class TraversalTask {
     }
 
     if (target instanceof LayoutPages) {
-      return this.state.pages as DataFrom<T>;
+      return this.state.pagesData as DataFrom<T>;
     }
 
     return pickDataStorePath(this.state, target as LayoutNode | LayoutPage) as DataFrom<T>;

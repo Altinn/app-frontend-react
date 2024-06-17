@@ -36,7 +36,7 @@ import type {
 } from 'src/layout/layout';
 import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
 import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
-import type { HiddenStateNode } from 'src/utils/layout/NodesContext';
+import type { HiddenState } from 'src/utils/layout/NodesContext';
 import type { BaseRow, StateFactoryProps } from 'src/utils/layout/types';
 
 /**
@@ -111,7 +111,7 @@ function MarkAsHidden<T extends CompTypes>({ node, baseId }: CommonProps<T>) {
         hiddenByExpression,
         hiddenByRules,
         hiddenByTracks: false,
-      }) satisfies HiddenStateNode,
+      }) satisfies HiddenState,
     [hiddenByExpression, hiddenByRules],
   );
 
