@@ -14,7 +14,7 @@ export const Config = new CG.component({
     renderInCardsMedia: false,
   },
 })
-  .addProperty(new CG.prop('size', new CG.enum('small', 'medium', 'large').optional()))
+  .addProperty(new CG.prop('size', new CG.enum('small', 'medium', 'large').optional({ default: 'medium' })))
   .addProperty(new CG.prop('defaultTab', new CG.str().optional()))
   .addProperty(
     new CG.prop(
