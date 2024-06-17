@@ -125,7 +125,6 @@ interface TaskSummaryProps {
 function TaskSummary({ pageId, componentId, summaryOverrides }: TaskSummaryProps) {
   const nodes = useNodes();
   const { langAsString } = useLanguage();
-
   if (componentId) {
     const nodeToRender = nodes.findById(componentId);
     return (
@@ -208,7 +207,7 @@ function TaskSummaryWrapper({
   }
 }
 
-function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
+export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
   if (summaryNode.item.whatToRender.type === 'layoutSet') {
     return (
       <LayoutSetSummary

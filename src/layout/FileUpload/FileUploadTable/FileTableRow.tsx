@@ -5,10 +5,12 @@ import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
+import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import type { IAttachment } from 'src/features/attachments';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -18,19 +20,19 @@ class IFileUploadTableRowProps {
   mobileView: boolean;
   node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
   tagLabel: string | undefined;
+  isSummary?: boolean;
 }
 
 export const bytesInOneMB = 1048576;
 
-export function FileTableRow({ node, attachment, mobileView, tagLabel }: IFileUploadTableRowProps) {
+export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary }: IFileUploadTableRowProps) {
   const { langAsString } = useLanguage();
   const hasTag = node.item.type === 'FileUploadWithTag';
-
+  const pdfModeActive = usePdfModeActive();
   const readableSize = `${(attachment.data.size / bytesInOneMB).toFixed(2)} ${langAsString(
     'form_filler.file_uploader_mb',
   )}`;
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
-
   return (
     <tr
       key={uniqueId}
@@ -45,18 +47,30 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel }: IFileUp
         hasTag={hasTag}
       />
       {hasTag && <FileTypeCell tagLabel={tagLabel} />}
-      {!(hasTag && mobileView) && (
+      {!(hasTag && mobileView) && !pdfModeActive && (
         <StatusCellContent
           uploaded={attachment.uploaded}
           mobileView={mobileView}
         />
       )}
-      <ButtonCellContent
-        node={node}
-        attachment={attachment}
-        deleting={attachment.deleting}
-        mobileView={mobileView}
-      />
+
+      {!isSummary && (
+        <ButtonCellContent
+          node={node}
+          attachment={attachment}
+          deleting={attachment.deleting}
+          mobileView={mobileView}
+        />
+      )}
+      {isSummary && !pdfModeActive && (
+        <td>
+          <EditButton
+            className={classes.marginLeftAuto}
+            componentNode={node}
+            summaryComponentId={''}
+          />
+        </td>
+      )}
     </tr>
   );
 }
@@ -130,16 +144,7 @@ const StatusCellContent = ({ uploaded, mobileView }) => {
   return (
     <td>
       {uploaded ? (
-        <div className={classes.fileStatus}>
-          {mobileView ? null : status}
-          <CheckmarkCircleFillIcon
-            data-testid='checkmark-success'
-            style={mobileView ? { marginLeft: '10px' } : {}}
-            aria-hidden={!mobileView}
-            aria-label={status}
-            role='img'
-          />
-        </div>
+        <div className={classes.fileStatus}>{mobileView ? null : status}</div>
       ) : (
         <AltinnLoader
           id='loader-upload'

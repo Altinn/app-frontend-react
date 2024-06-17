@@ -12,6 +12,17 @@
   margin-top: 0;
 }
 
+.pdf-wrapper .page {
+  border: 1px solid var(--fds-colors-grey-300);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--fds-spacing-4);
+  padding: var(--fds-spacing-2);
+  margin-bottom: var(--fds-spacing-2);
+}
+
+
 .paymentTitleContainer {
   display: flex;
   align-items: center;

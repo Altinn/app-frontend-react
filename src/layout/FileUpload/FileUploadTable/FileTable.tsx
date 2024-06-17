@@ -2,6 +2,7 @@ import React from 'react';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { Lang } from 'src/features/language/Lang';
+import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
 import { FileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRow';
 import { FileTableRowProvider } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
@@ -17,13 +18,20 @@ export interface FileTableProps {
   attachments: IAttachment[];
   mobileView: boolean;
   options?: IOptionInternal[];
+  isSummary?: boolean;
 }
 
-export function FileTable({ attachments, mobileView, node, options }: FileTableProps): React.JSX.Element | null {
+export function FileTable({
+  attachments,
+  mobileView,
+  node,
+  options,
+  isSummary,
+}: FileTableProps): React.JSX.Element | null {
   const { textResourceBindings, type } = node.item;
   const hasTag = type === 'FileUploadWithTag';
+  const pdfModeActive = usePdfModeActive();
   const [editIndex, setEditIndex] = React.useState<number>(-1);
-
   if (!attachments || attachments.length === 0) {
     return null;
   }
@@ -63,16 +71,19 @@ export function FileTable({ attachments, mobileView, node, options }: FileTableP
                 <Lang id={tagTitle} />
               </th>
             )}
-            {!(hasTag && mobileView) && (
+            {!(hasTag && mobileView) && !pdfModeActive && (
               <th>
                 <Lang id={'form_filler.file_uploader_list_header_status'} />
               </th>
             )}
-            <th>
-              <p className='sr-only'>
-                <Lang id={'form_filler.file_uploader_list_header_delete_sr'} />
-              </p>
-            </th>
+
+            {!pdfModeActive && (
+              <th>
+                <p className='sr-only'>
+                  <Lang id={'form_filler.file_uploader_list_header_delete_sr'} />
+                </p>
+              </th>
+            )}
           </tr>
         </thead>
       )}
@@ -99,6 +110,7 @@ export function FileTable({ attachments, mobileView, node, options }: FileTableP
                 attachment={attachment}
                 mobileView={mobileView}
                 tagLabel={label(attachment)}
+                isSummary={isSummary}
               />
             </FileTableRowProvider>
           ) : (
