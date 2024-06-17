@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { Summary2Def } from 'src/layout/Summary2/config.def.generated';
-import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2';
+import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Summary2 extends Summary2Def {
