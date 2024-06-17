@@ -29,18 +29,14 @@ export const LikertItemComponent = forwardRef<HTMLTableRowElement, PropsFromGene
       );
     }
 
-    return (
-      <div className={classes.likertRadioGroupWrapperMobile}>
-        <ControlledRadioGroup {...props} />
-      </div>
-    );
+    return <ControlledRadioGroup {...props} />;
   },
 );
 LikertItemComponent.displayName = 'LikertItemComponent';
 
 const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroupProps>((props, ref) => {
   const { node } = props;
-  const { selected, handleChange, calculatedOptions, fetchingOptions } = useRadioButtons(props);
+  const { selectedValues, handleChange, calculatedOptions, fetchingOptions } = useRadioButtons(props);
   const validations = useUnifiedValidationsForNode(node);
 
   const { id, readOnly } = node.item;
@@ -67,7 +63,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
         </Typography>
       </Table.Cell>
       {calculatedOptions?.map((option) => {
-        const isChecked = selected === option.value;
+        const isChecked = selectedValues[0] === option.value;
         return (
           <Table.Cell key={option.value}>
             <Radio
