@@ -16,12 +16,6 @@ tr > .fullWidthCellLast {
   width: 100%;
 }
 
-@media (max-width: 992px) {
-  .table {
-    border-top: 1px solid #dde3e5;
-  }
-}
-
 .table th {
   border-bottom: 2px solid var(--fds-semantic-border-neutral-strong);
 }
