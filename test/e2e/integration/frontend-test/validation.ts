@@ -101,7 +101,7 @@ describe('Validation', () => {
     }
   });
 
-  it('Page validation on clicking next', () => {
+  it.only('Page validation on clicking next', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).clear();
     cy.get(appFrontend.changeOfName.newFirstName).type('test');
@@ -135,7 +135,7 @@ describe('Validation', () => {
 
     cy.get(appFrontend.errorReport)
       .get(`button:contains("${texts.requiredFieldLastName}")`)
-      //.should('be.inViewport')
+      .should('be.inViewport')
       .click();
 
     // Observe that we scrolled to show the error message and have the field focussed

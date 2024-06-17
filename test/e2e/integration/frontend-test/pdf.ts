@@ -16,7 +16,7 @@ describe('PDF', () => {
     });
   });
 
-  it.only('should generate PDF for changename step', () => {
+  it('should generate PDF for changename step', () => {
     cy.goto('changename');
 
     cy.findByRole('textbox', { name: /nytt fornavn/i }).type('Ola');
