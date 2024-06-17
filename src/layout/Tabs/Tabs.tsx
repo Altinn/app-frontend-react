@@ -87,8 +87,7 @@ function TabHeader({
     if (!imgType) {
       throw new Error('Image source is missing file type. Are you sure the image source is correct?');
     }
-
-    if (['svg', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff'].includes(imgType.toLowerCase())) {
+    if (!['svg', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff'].includes(imgType.toLowerCase())) {
       throw new Error('Only images of the types: .svg, .png, .jpg, .jpeg, .gif, .bmp, .tiff, are supported');
     }
   }
@@ -105,7 +104,7 @@ function TabHeader({
       {!!icon && (
         <img
           src={icon}
-          alt={translatedTitle ?? 'tab icon'}
+          alt=''
           style={{
             width: '24px',
           }}
