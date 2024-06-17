@@ -18,6 +18,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
       const targetTabId = tabsInternal?.find((tab) =>
         tab.childNodes.some((child) => child.item.id === targetNode.item.id),
       )?.id;
+
       if (targetTabId) {
         setActiveTab(targetTabId);
         return true;
@@ -87,8 +88,8 @@ function TabHeader({
       throw new Error('Image source is missing file type. Are you sure the image source is correct?');
     }
 
-    if (imgType.toLowerCase() !== 'svg') {
-      throw new Error('Only SVG icons are supported');
+    if (['svg', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff'].includes(imgType.toLowerCase())) {
+      throw new Error('Only images of the types: .svg, .png, .jpg, .jpeg, .gif, .bmp, .tiff, are supported');
     }
   }
 
