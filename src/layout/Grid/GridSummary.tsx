@@ -10,6 +10,7 @@ import { Label } from 'src/components/form/Label';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { useIsMobile } from 'src/hooks/useIsMobile';
+import { CompCategory } from 'src/layout/common';
 import classes from 'src/layout/Grid/GridSummary.module.css';
 import { isGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
@@ -79,7 +80,11 @@ interface GridRowProps {
 
 export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: GridRowProps) {
   const firstComponentCell = row.cells.find((cell) => cell && 'node' in cell);
-  const firstComponentNode = firstComponentCell && 'node' in firstComponentCell && firstComponentCell.node;
+  const firstComponentNode =
+    firstComponentCell &&
+    'node' in firstComponentCell &&
+    firstComponentCell.node.isCategory(CompCategory.Form) &&
+    firstComponentCell.node;
 
   return isGridRowHidden(row) ? null : (
     <InternalRow
@@ -156,17 +161,19 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
           })}
         />
       )}
-      {firstComponentNode && !row.header && (
+      {!row.header && (
         <Table.Cell
           align='right'
           className={cn({
             [classes.fullWidthCellLast]: !isNested,
           })}
         >
-          <EditButton
-            componentNode={firstComponentNode}
-            summaryComponentId=''
-          />
+          {firstComponentNode && (
+            <EditButton
+              componentNode={firstComponentNode}
+              summaryComponentId=''
+            />
+          )}
         </Table.Cell>
       )}
     </InternalRow>
