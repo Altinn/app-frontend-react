@@ -7,6 +7,7 @@ import type { PropsFromGenericComponent } from '..';
 import classes from 'src/layout/ButtonGroup/ButtonGroupComponent.module.css';
 import { GenericComponentByRef } from 'src/layout/GenericComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 
 export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'ButtonGroup'>) {
   const item = useNodeItem(node);
@@ -17,12 +18,12 @@ export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'Button
       container
       alignItems='center'
       className={classes.container}
-      data-componentid={node.getId()}
     >
       {childNodeRefs.map((nodeRef) => (
         <div
           key={nodeRef.nodeRef}
           data-componentid={nodeRef.nodeRef}
+          data-componentbaseid={splitDashedKey(nodeRef.nodeRef).baseComponentId}
         >
           <GenericComponentByRef
             nodeRef={nodeRef}

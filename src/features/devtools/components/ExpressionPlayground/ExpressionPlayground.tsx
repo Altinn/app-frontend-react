@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 
-import { LegacySelect } from '@digdir/design-system-react';
-import { Checkbox, Fieldset, Tabs } from '@digdir/designsystemet-react';
+import { Checkbox, Combobox, Fieldset, Tabs } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/ExpressionPlayground/ExpressionPlayground.module.css';
@@ -12,6 +11,7 @@ import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import comboboxClasses from 'src/styles/combobox.module.css';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal, useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
@@ -50,7 +50,9 @@ export const ExpressionPlayground = () => {
   const nodes = useNodes();
   const currentPageId = useNavigationParam('pageKey');
 
+  const selectedContext = forPage && forComponentId ? [`${forPage}|${forComponentId}`] : [];
   const dataSources = useExpressionDataSources();
+
   const setOutputWithHistory = useCallback(
     (newValue: string, isError: boolean): boolean => {
       const lastOutput = outputs[0];
@@ -229,14 +231,28 @@ export const ExpressionPlayground = () => {
         </SplitView>
         <div className={classes.rightColumn}>
           <Fieldset legend={'Kjør uttrykk i kontekst av komponent'}>
-            <LegacySelect
-              value={`${forPage}|${forComponentId}`}
-              onChange={(value) => {
-                const [forPage, forComponentId] = value.split('|', 2);
-                setContext(forPage, forComponentId);
+            <Combobox
+              size='sm'
+              value={selectedContext}
+              onValueChange={(values) => {
+                const selected = values.at(0);
+                if (selected) {
+                  const [forPage, forComponentId] = selected.split('|', 2);
+                  setContext(forPage, forComponentId);
+                }
               }}
-              options={componentOptions}
-            />
+              className={comboboxClasses.container}
+            >
+              {componentOptions.map(({ value, label }) => (
+                <Combobox.Option
+                  key={value}
+                  value={value}
+                  displayValue={label}
+                >
+                  {label}
+                </Combobox.Option>
+              ))}
+            </Combobox>
             {forComponentId && forPage === currentPageId && (
               // eslint-disable-next-line jsx-a11y/anchor-is-valid
               <a

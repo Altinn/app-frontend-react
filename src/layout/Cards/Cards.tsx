@@ -7,6 +7,7 @@ import { Grid } from '@material-ui/core';
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
 import { GenericComponentByRef } from 'src/layout/GenericComponent';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CardInternal } from 'src/layout/Cards/CardsPlugin';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -117,13 +118,17 @@ function Media({ card, node, minMediaHeight }: MediaProps) {
         renderedInMedia={true}
         minMediaHeight={minMediaHeight}
       >
-        <GenericComponentByRef
-          key={card.media.nodeRef}
-          nodeRef={card.media}
-          overrideDisplay={{
-            directRender: true,
-          }}
-        />
+        <div
+          data-componentid={card.media.nodeRef}
+          data-componentbaseid={splitDashedKey(card.media.nodeRef).baseComponentId}
+        >
+          <GenericComponentByRef
+            nodeRef={card.media}
+            overrideDisplay={{
+              directRender: true,
+            }}
+          />
+        </div>
       </CardProvider>
     </Card.Media>
   );

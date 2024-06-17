@@ -23,11 +23,11 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const parentItem = useNodeItem(node.parent instanceof BaseLayoutNode ? node.parent : undefined);
   const { id, layout, readOnly, textResourceBindings, required } = item;
   const showAsCard = 'showAsCard' in item ? item.showAsCard : false;
-  const alertOnChange = 'alertOnChange' in item ? item.alertOnChange : undefined;
-  const labelSettings = 'labelSettings' in item ? item.labelSettings : undefined;
-  const { selected, handleChange, fetchingOptions, calculatedOptions } = useRadioButtons(props);
+  const alertOnChange = 'alertOnChange' in node.item ? node.item.alertOnChange : undefined;
+  const labelSettings = 'labelSettings' in node.item ? node.item.labelSettings : undefined;
+  const { selectedValues, handleChange, fetchingOptions, calculatedOptions } = useRadioButtons(props);
   const { lang, langAsString } = useLanguage();
-  const selectedLabel = calculatedOptions.find((option) => option.value === selected)?.label;
+  const selectedLabel = calculatedOptions.find((option) => option.value === selectedValues[0])?.label;
   const selectedLabelTranslated = langAsString(selectedLabel);
   const alertText = selectedLabel
     ? lang('form_filler.radiobutton_alert_label', [`<strong>${selectedLabelTranslated}</strong>`])
@@ -95,7 +95,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
             helpText={option.helpText && <Lang id={option.helpText} />}
             name={id}
             key={option.value}
-            checked={option.value === selected}
+            checked={option.value === selectedValues[0]}
             showAsCard={showAsCard}
             readOnly={readOnly}
             onChange={handleChange}

@@ -20,19 +20,14 @@ interface RenderProps {
 }
 
 function TestOptions({ node }: { node: LayoutNode<'Dropdown' | 'MultipleSelect'> }) {
-  const { options, setData, current, currentStringy } = useGetOptions(
-    node,
-    node.isType('Dropdown') ? 'single' : 'multi',
-  );
+  const { options, setData, selectedValues } = useGetOptions(node, node.isType('Dropdown') ? 'single' : 'multi');
 
-  const setterFor = (index: number) => () =>
-    (setData as any)(node.isType('Dropdown') ? options[index] : [options[index]]);
+  const setterFor = (index: number) => () => setData([options[index].value]);
 
   return (
     <>
       <div data-testid='options'>{JSON.stringify(options)}</div>
-      <div data-testid='current'>{JSON.stringify(current)}</div>
-      <div data-testid='currentStringy'>{JSON.stringify(currentStringy)}</div>
+      <div data-testid='currentStringy'>{JSON.stringify(selectedValues)}</div>
       <button onClick={setterFor(0)}>Choose first option</button>
       <button onClick={setterFor(1)}>Choose second option</button>
       <button onClick={setterFor(2)}>Choose third option</button>
@@ -155,27 +150,8 @@ describe('useGetOptions', () => {
       });
       (formDataMethods.setLeafValue as jest.Mock).mockClear();
 
-      const currentOption = JSON.parse(screen.getByTestId('current').textContent as string);
-      if (props.type === 'single') {
-        expect(currentOption).toEqual({
-          label: option.label,
-          value: option.value.toString(),
-        });
-      } else {
-        expect(currentOption).toEqual([
-          {
-            label: option.label,
-            value: option.value.toString(),
-          },
-        ]);
-      }
-
       const currentStringy = JSON.parse(screen.getByTestId('currentStringy').textContent as string);
-      if (props.type === 'single') {
-        expect(currentStringy).toEqual(option.value.toString());
-      } else {
-        expect(currentStringy).toEqual([option.value.toString()]);
-      }
+      expect(currentStringy).toEqual([option.value.toString()]);
     }
   });
 

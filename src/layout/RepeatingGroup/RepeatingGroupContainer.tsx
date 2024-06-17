@@ -53,6 +53,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
       container={true}
       item={true}
       data-componentid={node.getId()}
+      data-componentbaseid={node.getBaseId()}
       ref={ref}
     >
       {(!edit?.mode ||
@@ -135,7 +136,11 @@ function AddButton() {
     return null;
   }
 
-  if ((tooManyRows || isEditingAnyRow) && !forceShow) {
+  if (tooManyRows) {
+    return null;
+  }
+
+  if (isEditingAnyRow && !forceShow) {
     return null;
   }
 

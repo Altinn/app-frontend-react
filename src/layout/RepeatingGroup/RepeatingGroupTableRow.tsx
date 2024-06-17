@@ -68,7 +68,7 @@ function getEditButtonText(
   return langTools.langAsString(buttonTextKey);
 }
 
-export function RepeatingGroupTableRow({
+function _RepeatingGroupTableRow({
   className,
   uuid,
   mobileView,
@@ -334,6 +334,9 @@ export function RepeatingGroupTableRow({
   );
 }
 
+export const RepeatingGroupTableRow = React.memo(_RepeatingGroupTableRow);
+RepeatingGroupTableRow.displayName = 'RepeatingGroupTableRow';
+
 export function shouldEditInTable(
   groupEdit: CompInternal<'RepeatingGroup'>['edit'],
   tableNode: LayoutNode,
@@ -389,7 +392,6 @@ const DeleteElement = ({
     <Button
       variant='tertiary'
       color='danger'
-      iconPlacement='right'
       size='small'
       disabled={isDeletingRow}
       onClick={() => handleDelete(uuid)}

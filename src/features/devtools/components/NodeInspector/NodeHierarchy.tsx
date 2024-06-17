@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { EyeSlashIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
@@ -72,9 +72,17 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
   const hasChildren = children.length > 0;
   const isHidden = Hidden.useIsHidden(node, { respectDevTools: false });
 
+  const el = useRef<HTMLLIElement>(null);
+  useEffect(() => {
+    if (node.item.id === selected && el.current) {
+      el.current.scrollIntoView({ block: 'nearest' });
+    }
+  }, [node.item.id, selected]);
+
   return (
     <>
       <li
+        ref={el}
         className={cn({
           [classes.item]: true,
           [classes.active]: nodeId === selected,

@@ -136,7 +136,6 @@ export const PartySelection = () => {
             <Button
               size='small'
               variant='secondary'
-              dashedBorder={true}
               onClick={() => setNumberOfPartiesShown(numberOfPartiesShown + 4)}
             >
               {

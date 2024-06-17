@@ -21,8 +21,7 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
   const item = useNodeItem(node);
   const { id, layout, readOnly, textResourceBindings, required, labelSettings, alertOnChange } = item;
   const { langAsString } = useLanguage();
-
-  const { options: calculatedOptions, isFetching, setData, current, currentStringy } = useGetOptions(node, 'multi');
+  const { options: calculatedOptions, isFetching, setData, selectedValues } = useGetOptions(node, 'multi');
 
   const labelTextGroup = (
     <span className={classes.checkboxLabelContainer}>
@@ -64,7 +63,7 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
         hideLegend={overrideDisplay?.renderLegend === false}
         error={!isValid}
         aria-label={ariaLabel}
-        value={currentStringy}
+        value={selectedValues}
         data-testid='checkboxes-fieldset'
       >
         {calculatedOptions.map((option) => (
@@ -74,9 +73,11 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
             option={option}
             hideLabel={hideLabel}
             alertOnChange={alertOnChange}
-            checked={current.includes(option)}
+            checked={selectedValues.includes(option.value)}
             setChecked={(isChecked) => {
-              const newData = isChecked ? [...current, option] : current.filter((o) => o !== option);
+              const newData = isChecked
+                ? [...selectedValues, option.value]
+                : selectedValues.filter((o) => o !== option.value);
               setData(newData);
             }}
           />
