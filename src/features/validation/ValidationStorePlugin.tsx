@@ -4,7 +4,7 @@ import { ignoreNodePathNotFound, pickDataStorePath } from 'src/utils/layout/Node
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { AnyValidation, AttachmentValidation } from 'src/features/validation/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesDataContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
+import type { NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
 
@@ -29,7 +29,7 @@ export interface ValidationStorePluginConfig {
 const emptyArray: never[] = [];
 
 export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginConfig> {
-  extraFunctions(set: NodeDataPluginSetState<NodesDataContext>) {
+  extraFunctions(set: NodeDataPluginSetState<NodesContext>) {
     const out: ValidationStorePluginConfig['extraFunctions'] = {
       setNodeVisibility: (nodes, newVisibility, _rowIndex) => {
         set(

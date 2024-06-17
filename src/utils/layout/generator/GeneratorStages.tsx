@@ -65,7 +65,7 @@ function formatDuration(runNum: number, stage?: Stage) {
   return `${(end.startTime - start.startTime).toFixed(0)}ms`;
 }
 
-const { Provider, useSelector, useSelectorAsRef, useMemoSelector } = createZustandContext({
+const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider } = createZustandContext({
   name: 'GeneratorStages',
   required: true,
   initialCreateStore: ({ registry }: CreateStoreProps) => {
@@ -416,6 +416,9 @@ export const GeneratorStages = {
   EvaluateExpressions: makeHooks(StageEvaluateExpressions),
   useIsFinished() {
     return Finished.useIsCurrent();
+  },
+  useIsGenerating() {
+    return useHasProvider();
   },
 };
 

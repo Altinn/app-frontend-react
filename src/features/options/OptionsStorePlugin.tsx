@@ -3,7 +3,7 @@ import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesDataContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
+import type { NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
 
@@ -36,7 +36,7 @@ function nodeStoreToIsFetching(s: NodeData): boolean {
 }
 
 export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig> {
-  extraFunctions(_set: NodeDataPluginSetState<NodesDataContext>) {
+  extraFunctions(_set: NodeDataPluginSetState<NodesContext>) {
     return undefined;
   }
 

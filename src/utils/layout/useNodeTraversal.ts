@@ -10,7 +10,7 @@ import { NodesInternal, NotReadyYet, pickDataStorePath, useNodesLax } from 'src/
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, ParentNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesDataContext, PageData, PagesData } from 'src/utils/layout/NodesContext';
+import type { NodesContext, PageData, PagesData } from 'src/utils/layout/NodesContext';
 import type { NodeData } from 'src/utils/layout/types';
 
 type AnyData = PagesData | PageData | NodeData;
@@ -38,7 +38,7 @@ const emptyArray: never[] = [];
 
 export class TraversalTask {
   constructor(
-    private state: NodesDataContext,
+    private state: NodesContext,
     private rootNode: LayoutPages,
     public readonly matcher: TraversalMatcher | undefined,
     public readonly restriction: TraversalRestriction | undefined,
@@ -129,7 +129,7 @@ export class TraversalTask {
 
 export class NodeTraversal<T extends Node = LayoutPages> {
   constructor(
-    private readonly state: NodesDataContext,
+    private readonly state: NodesContext,
     private readonly rootNode: LayoutPages,
     public readonly target: T,
   ) {}
@@ -306,7 +306,7 @@ type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictn
 
 function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: never, strictness?: Strictness): Out {
   const nodes = useNodesLax();
-  const isReady = NodesInternal.useIsDataReady();
+  const isReady = NodesInternal.useIsReady();
   const dataSelector = NodesInternal.useDataSelectorForTraversal();
 
   // We use the selector here, but we need it to re-render and re-select whenever we re-render. Otherwise the hook

@@ -29,7 +29,7 @@ import type { BackendValidationIssue } from 'src/features/validation';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesDataContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
+import type { NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
 
@@ -80,7 +80,7 @@ const emptyArray: IAttachment[] = [];
 type ProperData = NodeData<CompWithBehavior<'canHaveAttachments'>>;
 
 export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePluginConfig> {
-  extraFunctions(set: NodeDataPluginSetState<NodesDataContext>): AttachmentsStorePluginConfig['extraFunctions'] {
+  extraFunctions(set: NodeDataPluginSetState<NodesContext>): AttachmentsStorePluginConfig['extraFunctions'] {
     return {
       attachmentUpload: ({ file, node, temporaryId }) => {
         set(
@@ -392,7 +392,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
       useWaitUntilUploaded() {
         const zustandStore = store.useStore();
-        const waitFor = useWaitForState<IData | false, NodesDataContext>(zustandStore);
+        const waitFor = useWaitForState<IData | false, NodesContext>(zustandStore);
 
         return useCallback(
           (node, attachment) =>
