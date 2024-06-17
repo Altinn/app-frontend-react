@@ -101,7 +101,7 @@ describe('Validation', () => {
     }
   });
 
-  it.only('Page validation on clicking next', () => {
+  it('Page validation on clicking next', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).clear();
     cy.get(appFrontend.changeOfName.newFirstName).type('test');
