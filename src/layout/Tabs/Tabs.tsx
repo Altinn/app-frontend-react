@@ -5,6 +5,7 @@ import { Tabs as DesignsystemetTabs } from '@digdir/designsystemet-react';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { GenericComponent } from 'src/layout/GenericComponent';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
@@ -14,14 +15,14 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
 
   useRegisterNodeNavigationHandler((targetNode) => {
     for (const parent of targetNode.parents() ?? []) {
-      const tabsInternal = parent.item['tabsInternal'];
-      const targetTabId = tabsInternal?.find((tab) =>
-        tab.childNodes.some((child) => child.item.id === targetNode.item.id),
-      )?.id;
-
-      if (targetTabId) {
-        setActiveTab(targetTabId);
-        return true;
+      if (parent instanceof BaseLayoutNode && parent.isType('Tabs') && parent.item.id === node.item.id) {
+        const targetTabId = parent.item['tabsInternal']?.find((tab) =>
+          tab.childNodes.some((child) => child.item.id === targetNode.item.id),
+        )?.id;
+        if (targetTabId) {
+          setActiveTab(targetTabId);
+          return true;
+        }
       }
     }
     return false;
