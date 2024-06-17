@@ -14,13 +14,6 @@ export const Config = new CG.component({
     renderInCardsMedia: false,
   },
 })
-  .addTextResource(
-    new CG.trb({
-      name: 'ariaLabel',
-      title: 'Aria Label',
-      description: 'The aria label for the tabs',
-    }),
-  )
   .addProperty(new CG.prop('size', new CG.enum('small', 'medium', 'large').optional()))
   .addProperty(new CG.prop('defaultTab', new CG.str().optional()))
   .addProperty(
