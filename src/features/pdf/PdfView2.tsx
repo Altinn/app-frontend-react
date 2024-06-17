@@ -88,6 +88,7 @@ export const PDFView2 = () => {
               if (node.def.renderSummary2) {
                 return (
                   <SummaryComponent2
+                    key={node.item.id}
                     summaryNode={
                       {
                         item: {
