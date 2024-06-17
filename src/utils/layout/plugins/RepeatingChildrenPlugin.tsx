@@ -8,7 +8,7 @@ import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { CompDef, NodeRefInRow } from 'src/layout';
-import type { CompTypes } from 'src/layout/layout';
+import type { CompInternal, CompTypes, TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
@@ -25,28 +25,22 @@ export interface RepChildrenRow extends BaseRow {
   items: NodeRefInRow[];
 }
 
-interface RowsState<Extras> {
-  [uuid: string]: {
-    extras: Extras;
-    children: {
-      [baseId: string]: NodeRefInRow;
-    };
-  } & BaseRow;
-}
-
-interface Config<ExternalProp extends string, InternalProp extends string, Extras> {
-  componentType: CompTypes;
+interface Config<
+  T extends TypesFromCategory<CompCategory.Container>,
+  ExternalProp extends string,
+  InternalProp extends string,
+  Extras,
+> {
+  componentType: T;
   settings: Required<Pick<ExternalConfig, 'title' | 'description'>>;
   expectedFromExternal: {
     [key in ExternalProp]: string[];
-  };
-  extraState: {
-    [key in InternalProp]: RowsState<Extras>;
   };
   extraInItem: { [key in ExternalProp]: undefined } & { [key in InternalProp]: (RepChildrenRow & Extras)[] };
 }
 
 export interface ExternalConfig {
+  componentType?: TypesFromCategory<CompCategory.Container>;
   dataModelGroupBinding?: string;
   multiPageSupport?: false | string; // Path to property that indicates if multi-page support is enabled
   extraRowState?: unknown;
@@ -57,6 +51,7 @@ export interface ExternalConfig {
 }
 
 const defaultConfig = {
+  componentType: 'unknown' as TypesFromCategory<CompCategory.Container>,
   dataModelGroupBinding: 'group' as const,
   multiPageSupport: false as const,
   extraRowState: undefined,
@@ -75,12 +70,13 @@ type Combined<E extends ExternalConfig> = {
 type Setting<E extends ExternalConfig, P extends keyof ExternalConfig> = Combined<E>[P];
 
 type ToInternal<E extends ExternalConfig> = Config<
+  Setting<E, 'componentType'>,
   Setting<E, 'externalProp'>,
   Setting<E, 'internalProp'>,
   FromImport<Setting<E, 'extraRowState'>>
 >;
-type InternalRowState<E extends ExternalConfig> = RowsState<FromImport<Combined<E>['extraRowState']>>;
-type InternalState<E extends ExternalConfig> = { [key in Setting<E, 'internalProp'>]: InternalRowState<E> };
+
+type Row<E extends ExternalConfig> = RepChildrenRow & E['extraRowState'];
 
 export class RepeatingChildrenPlugin<E extends ExternalConfig>
   extends NodeDefPlugin<ToInternal<E>>
@@ -107,6 +103,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
   }
 
   makeConstructorArgs(asGenericArgs = false): string {
+    this.settings.componentType = this.component!.type as any;
     return super.makeConstructorArgsWithoutDefaultSettings(defaultConfig, asGenericArgs);
   }
 
@@ -141,30 +138,19 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
   }
 
   stateFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>) {
-    return { [this.settings.internalProp]: {} } as ToInternal<E>['extraState'];
+    return {
+      item: {
+        [this.settings.internalProp]: [],
+      } as CompInternal<ToInternal<E>['componentType']>,
+    };
   }
 
-  evalDefaultExpressions({ stateSelector }: DefPluginExprResolver<ToInternal<E>>): DefPluginExtraInItem<ToInternal<E>> {
-    const internalRows = stateSelector(
-      (state) => (state as InternalState<E>)[this.settings.internalProp],
-      [this.settings.internalProp],
-    ) as InternalRowState<E>;
-
-    const rows: (RepChildrenRow & FromImport<Combined<E>['extraRowState']>)[] = [];
-    for (const row of Object.values(internalRows || {})) {
-      rows.push({
-        index: row.index,
-        uuid: row.uuid,
-        items: Object.values(row.children),
-        ...(row.extras && typeof row.extras === 'object' ? row.extras : ({} as any)),
-      });
-    }
-    rows.sort((a, b) => a.index - b.index);
-
+  evalDefaultExpressions(_props: DefPluginExprResolver<ToInternal<E>>): DefPluginExtraInItem<ToInternal<E>> {
+    // Row state isn't set here, it's constructed when adding/removing rows. Expressions in rows are resolved
+    // and added by ResolveRowExpressions.
     return {
       [this.settings.externalProp]: undefined,
-      [this.settings.internalProp]: rows,
-    } as DefPluginExtraInItem<ToInternal<E>>;
+    } as unknown as DefPluginExtraInItem<ToInternal<E>>;
   }
 
   extraMethodsInDef(): string[] {
@@ -183,7 +169,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     const multiPage =
       this.settings.multiPageSupport !== false && dot.pick(this.settings.multiPageSupport, item) === true;
 
-    for (const id of item[this.settings.externalProp]) {
+    for (const id of (item as any)[this.settings.externalProp]) {
       if (multiPage) {
         const [, childId] = id.split(':', 2);
         claimChild(childId);
@@ -196,12 +182,12 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
   pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: TraversalRestriction): NodeRefInRow[] {
     const out: NodeRefInRow[] = [];
 
-    const rows = state[this.settings.internalProp] as InternalRowState<E>;
+    const rows = (state.item as any)[this.settings.internalProp] as Row<E>[];
     if (!rows) {
       return out;
     }
 
-    for (const row of Object.values(rows)) {
+    for (const row of rows) {
       if (restriction && 'onlyInRowUuid' in restriction && row.uuid !== restriction.onlyInRowUuid) {
         continue;
       }
@@ -209,7 +195,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
         continue;
       }
 
-      for (const child of Object.values(row.children)) {
+      for (const child of row.items) {
         out.push(child);
       }
     }
@@ -224,22 +210,21 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
   ): ReturnType<CompDef<C>['stateFactory']> {
     const { baseComponentId, depth } = splitDashedKey(childId);
     const lastIndex = depth[depth.length - 1];
-    let child: NodeData<C> | undefined;
 
     // TODO: Try to include the row ID in the child ID (using new internal node IDs?) so that this lookup is more
     // effective.
-    const rows = state[this.settings.internalProp] as InternalRowState<E>;
+    const rows = (state.item as any)[this.settings.internalProp] as Row<E>[];
     for (const row of Object.values(rows)) {
-      if (row && row.index === lastIndex && row.children && row.children[baseComponentId]) {
-        child = row.children[baseComponentId] as NodeData<C>;
-        break;
+      if (row && row.index === lastIndex && row.items) {
+        for (const item of row.items) {
+          if (item.baseId === baseComponentId) {
+            return item as NodeData<C>;
+          }
+        }
       }
     }
 
-    if (!child) {
-      throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
-    }
-    return child;
+    throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
   }
 
   addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode): Partial<DefPluginState<ToInternal<E>>> {
@@ -247,28 +232,26 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     if (!row) {
       throw new Error(`Child node of repeating component missing 'row' property`);
     }
-    const rows = { ...state[this.settings.internalProp] } as InternalRowState<E>;
-    const children = rows[row.uuid]?.children ?? {};
-    children[childNode.getBaseId()] = {
+    const rows = [...(state.item as any)[this.settings.internalProp]] as Row<E>[];
+    const existingRowIndex = rows.findIndex((r) => r.uuid === row.uuid);
+    const items = [...(rows[existingRowIndex]?.items || [])];
+    items.push({
       nodeRef: childNode.getId(),
       baseId: childNode.getBaseId(),
       multiPageIndex: childNode.getMultiPageIndex(),
-    };
-    rows[row.uuid] = { ...row, children, extras: rows[row.uuid]?.extras };
+    });
 
-    return { [this.settings.internalProp]: rows } as Partial<DefPluginState<ToInternal<E>>>;
+    if (existingRowIndex === -1) {
+      rows.push({ ...(rows[existingRowIndex] || {}), ...row, items });
+    } else {
+      rows[existingRowIndex] = { ...(rows[existingRowIndex] || {}), ...row, items };
+    }
+
+    return { item: { ...state.item, [this.settings.internalProp]: rows } } as Partial<DefPluginState<ToInternal<E>>>;
   }
 
-  removeChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode): void {
-    const row = childNode.row;
-    if (!row) {
-      throw new Error(`Child node of repeating component missing 'row' property`);
-    }
-    const rows = state[this.settings.internalProp] as InternalRowState<E>;
-    if (!rows[row.uuid]) {
-      return;
-    }
-
-    delete rows[row.uuid].children[childNode.getBaseId()];
+  removeChild(_state: DefPluginState<ToInternal<E>>, _childNode: LayoutNode): void {
+    // There is no need to remove the reference to the child node, as the child node is removed from the state when
+    // the whole row is removed.
   }
 }

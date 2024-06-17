@@ -57,25 +57,9 @@ import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import type { GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
 
-export interface NodesContext {
-  nodes: LayoutPages | undefined;
-  setNodes: (nodes: LayoutPages) => void;
-
-  hiddenViaRules: Set<string>;
-  setHiddenViaRules: (mutator: (hidden: Set<string>) => Set<string>) => void;
-}
-
-export type NodesStore = ReturnType<typeof createNodesStore>;
-function createNodesStore() {
-  return createStore<NodesContext>((set) => ({
-    nodes: undefined,
-    setNodes: (nodes: LayoutPages) => set({ nodes }),
-
-    hiddenViaRules: new Set(),
-    setHiddenViaRules: (mutator: (currentlyHidden: Set<string>) => Set<string>) =>
-      set((state) => ({ hiddenViaRules: mutator(state.hiddenViaRules) })),
-  }));
-}
+// TODO: Wrap DataStore with more functions for selecting data only when ready (letting only the generators
+// re-run when in a generation stage).
+// TODO: Move the generator stages in here as well?
 
 export interface PageHierarchy {
   type: 'pages';
@@ -136,23 +120,25 @@ export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeDat
   node: LayoutNode<T>;
   prop: K;
   value: NodeData<T>[K];
+  partial?: boolean;
 }
 
 export type NodesDataContext = {
   // State
-  addRemoveCounter: number;
   ready: boolean;
   hasErrors: boolean;
   pages: PageHierarchy;
-  flatNodes: {
-    [key: string]: NodeData;
-  };
+  nodes: LayoutPages | undefined;
+  nodeData: { [key: string]: NodeData };
+  hiddenViaRules: Set<string>;
 
   // Functions
+  setNodes: (nodes: LayoutPages) => void;
   addNodes: (requests: AddNodeRequest[]) => void;
   removeNode: (node: LayoutNode) => void;
   setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
   addError: (error: string, node: LayoutPage | LayoutNode) => void;
+  setHiddenViaRules: (mutator: (currentlyHidden: Set<string>) => Set<string>) => void;
 
   addPage: (pageKey: string) => void;
   removePage: (pageKey: string) => void;
@@ -174,68 +160,75 @@ export function ignoreNodePathNotFound<Ret>(fn: () => Ret, defaultReturnValue?: 
 export type NodesDataStore = StoreApi<NodesDataContext>;
 export function createNodesDataStore() {
   return createStore<NodesDataContext>((set) => ({
-    addRemoveCounter: 0,
     ready: false,
     hasErrors: false,
     pages: {
       type: 'pages' as const,
       pages: {},
     },
-    flatNodes: {},
+    nodes: undefined,
+    nodeData: {},
+
+    hiddenViaRules: new Set(),
+    setHiddenViaRules: (mutator: (currentlyHidden: Set<string>) => Set<string>) =>
+      set((state) => ({ hiddenViaRules: mutator(state.hiddenViaRules) })),
+
+    setNodes: (nodes) => set({ nodes }),
     addNodes: (requests) =>
       set((state) => {
-        const flatNodes = { ...state.flatNodes };
+        const nodeData = { ...state.nodeData };
         for (const { node, targetState } of requests) {
-          flatNodes[node.getId()] = targetState;
+          nodeData[node.getId()] = targetState;
 
           const parentPath = node.path.slice(0, -1);
-          const parent = pickDataStorePath({ ...state, flatNodes }, parentPath);
+          const parent = pickDataStorePath({ ...state, nodeData }, parentPath);
           if (parent.type === 'node') {
             const def = getComponentDef(parent.layout.type);
             const additionalParentState = def.addChild(parent as any, node);
-            flatNodes[parent.layout.id] = {
-              ...flatNodes[parent.layout.id],
+            nodeData[parent.layout.id] = {
+              ...nodeData[parent.layout.id],
               ...(additionalParentState as any),
             };
           }
         }
-        return { flatNodes, ready: false, addRemoveCounter: state.addRemoveCounter + requests.length };
+        return { nodeData, ready: false };
       }),
+    // TODO: Make a queue for this as well?
     removeNode: (node) =>
       set((state) => {
         const parentPath = node.path.slice(0, -1);
         const parent = pickDataStorePath(state, parentPath);
-        if (parent.type !== 'page') {
+        if (parent.type === 'node') {
           const def = getComponentDef(parent.layout.type);
           def.removeChild(parent as any, node);
         }
-        const flatNodes = { ...state.flatNodes };
-        delete flatNodes[node.getId()];
-        return { flatNodes, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
+        const nodeData = { ...state.nodeData };
+        delete nodeData[node.getId()];
+        return { nodeData, ready: false };
       }),
     setNodeProps: (requests) =>
       set((state) => {
-        let changes = 0;
-        const flatNodes = { ...state.flatNodes };
-        for (const { node, prop, value } of requests) {
-          const obj = flatNodes[node.getId()];
-          const prevValue = obj[prop as any];
-          const isEqual = deepEqual(prevValue, value);
-          if (!isEqual) {
-            flatNodes[node.getId()] = { ...obj, [prop]: value };
-            changes += 1;
+        let changes = false;
+        const nodeData = { ...state.nodeData };
+        for (const { node, prop, value, partial } of requests) {
+          const thisNode = { ...nodeData[node.getId()] };
+          const prev = thisNode[prop as any];
+          if (partial && value && prev && typeof prev === 'object' && typeof value === 'object') {
+            thisNode[prop as any] = { ...thisNode[prop as any], ...value };
+          } else {
+            thisNode[prop as any] = value;
+          }
+          if (!deepEqual(thisNode[node.getId()][prop], thisNode[prop])) {
+            changes = true;
+            nodeData[node.getId()] = thisNode;
           }
         }
-
-        if (changes === 0) {
-          return {};
-        }
-
-        return { flatNodes };
+        return changes ? { nodeData } : {};
       }),
     addError: (error, node) =>
       set(
         produce((state) => {
+          // TODO: Simplify this
           if (node instanceof LayoutPage) {
             if (!state.pages.pages[node.pageKey]) {
               return;
@@ -280,7 +273,6 @@ export function createNodesDataStore() {
             errors: undefined,
           };
           state.ready = false;
-          state.addRemoveCounter += 1;
         }),
       ),
     removePage: (pageKey) =>
@@ -288,7 +280,6 @@ export function createNodesDataStore() {
         produce((state) => {
           delete state.pages.pages[pageKey];
           state.ready = false;
-          state.addRemoveCounter += 1;
         }),
       ),
     // TODO: Make a queue for this as well?
@@ -306,42 +297,34 @@ export function createNodesDataStore() {
       .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraFunctions),
   }));
 }
-
-const NodesStore = createZustandContext({
+const Store = createZustandContext<NodesDataStore, NodesDataContext>({
   name: 'Nodes',
-  required: true,
-  initialCreateStore: createNodesStore,
-});
-
-const DataStore = createZustandContext<NodesDataStore, NodesDataContext>({
-  name: 'NodesData',
   required: true,
   initialCreateStore: createNodesDataStore,
 });
-export type NodesDataStoreFull = typeof DataStore;
+
+export type NodesStoreFull = typeof Store;
 
 export const NodesProvider = ({ children }: React.PropsWithChildren) => (
-  <NodesStore.Provider>
-    <DataStore.Provider>
-      <GeneratorStagesProvider>
-        <GeneratorValidationProvider>
-          <LayoutSetGenerator />
-        </GeneratorValidationProvider>
-        <InnerHiddenComponentsProvider />
-        <MarkAsReady />
-      </GeneratorStagesProvider>
-      {window.Cypress && <UpdateAttachmentsForCypress />}
-      <BlockUntilLoaded>
-        <ProvideWaitForValidation />
-        <UpdateExpressionValidation />
-        <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
-      </BlockUntilLoaded>
-    </DataStore.Provider>
-  </NodesStore.Provider>
+  <Store.Provider>
+    <GeneratorStagesProvider>
+      <GeneratorValidationProvider>
+        <LayoutSetGenerator />
+      </GeneratorValidationProvider>
+      <InnerHiddenComponentsProvider />
+      <MarkAsReady />
+    </GeneratorStagesProvider>
+    {window.Cypress && <UpdateAttachmentsForCypress />}
+    <BlockUntilLoaded>
+      <ProvideWaitForValidation />
+      <UpdateExpressionValidation />
+      <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
+    </BlockUntilLoaded>
+  </Store.Provider>
 );
 
 function InnerHiddenComponentsProvider() {
-  const setHidden = NodesStore.useSelector((state) => state.setHiddenViaRules);
+  const setHidden = Store.useSelector((state) => state.setHiddenViaRules);
   useLegacyHiddenComponents(setHidden);
 
   return null;
@@ -356,9 +339,9 @@ function InnerHiddenComponentsProvider() {
  * have been added.
  */
 function MarkAsReady() {
-  const markReady = DataStore.useSelector((s) => s.markReady);
-  const isReady = DataStore.useSelector((s) => s.ready);
-  const hasNodes = NodesStore.useSelector((state) => !!state.nodes);
+  const markReady = Store.useSelector((s) => s.markReady);
+  const isReady = Store.useSelector((s) => s.ready);
+  const hasNodes = Store.useSelector((state) => !!state.nodes);
   const stagesFinished = GeneratorStages.useIsFinished();
   const shouldMarkAsReady = hasNodes && !isReady && stagesFinished;
 
@@ -372,20 +355,15 @@ function MarkAsReady() {
 }
 
 function BlockUntilLoaded({ children }: PropsWithChildren) {
-  const hasNodes = NodesStore.useSelector((state) => !!state.nodes);
+  const hasNodes = Store.useSelector((state) => !!state.nodes);
 
-  const isReady = DataStore.useSelector((s) => s.ready);
+  const isReady = Store.useSelector((s) => s.ready);
   const hasBeenReady = useRef(false);
   hasBeenReady.current = hasBeenReady.current || isReady;
   const stillLoading = !hasNodes || (!isReady && !hasBeenReady.current);
 
   if (stillLoading) {
     return <NodesLoader />;
-  }
-
-  if (ended) {
-    const measure = window.performance.measure(endMark, startMark, endMark);
-    generatorLog('logDuration', 'Initial generation of nodes took', measure.duration, 'ms');
   }
 
   return <>{children}</>;
@@ -435,8 +413,8 @@ export function useNodeLax<T extends string | NodeRef | undefined | LayoutNode>(
   return node as RetValFromNodeRef<T> | typeof ContextNotProvided;
 }
 
-export const useNodes = () => NodesStore.useSelector((s) => s.nodes!);
-export const useNodesLax = () => NodesStore.useLaxSelector((s) => s.nodes);
+export const useNodes = () => Store.useSelector((s) => s.nodes!);
+export const useNodesLax = () => Store.useLaxSelector((s) => s.nodes);
 
 export type NodeSelector = ReturnType<typeof useNodeSelector>;
 export function useNodeSelector() {
@@ -503,22 +481,22 @@ export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
   useIsHidden(node: LayoutNode | LayoutPage | undefined, options?: IsHiddenOptions) {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return DataStore.useMemoSelector((s) => isHidden(s, node, forcedVisibleByDevTools, options));
+    return Store.useMemoSelector((s) => isHidden(s, node, forcedVisibleByDevTools, options));
   },
   useIsHiddenPage(pageKey: string, options?: IsHiddenOptions) {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return DataStore.useMemoSelector((s) => isHidden(s, [pageKey], forcedVisibleByDevTools, options));
+    return Store.useMemoSelector((s) => isHidden(s, [pageKey], forcedVisibleByDevTools, options));
   },
   useIsHiddenPageSelector() {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return DataStore.useDelayedSelector({
+    return Store.useDelayedSelector({
       mode: 'simple',
       selector: (pageKey: string) => (state) => isHidden(state, [pageKey], forcedVisibleByDevTools),
     });
   },
   useHiddenPages(): Set<string> {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    const hiddenPages = DataStore.useLaxMemoSelector((s) =>
+    const hiddenPages = Store.useLaxMemoSelector((s) =>
       Object.keys(s.pages.pages).filter((key) => isHidden(s, [key], forcedVisibleByDevTools)),
     );
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
@@ -526,7 +504,7 @@ export const Hidden = {
   useIsHiddenSelector() {
     const nodeSelector = useNodeSelector();
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return DataStore.useDelayedSelector({
+    return Store.useDelayedSelector({
       mode: 'simple',
       selector: (node: NodeRef | LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
         ignoreNodePathNotFound(
@@ -540,7 +518,7 @@ export const Hidden = {
    * The next ones are primarily for internal use:
    */
   useIsHiddenViaRules: (node: LayoutNode) =>
-    NodesStore.useSelector((s) => s.hiddenViaRules.has(node.getId()) || s.hiddenViaRules.has(node.getBaseId())),
+    Store.useSelector((s) => s.hiddenViaRules.has(node.getId()) || s.hiddenViaRules.has(node.getBaseId())),
   useIsForcedVisibleByDevTools() {
     const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
     const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
@@ -587,7 +565,6 @@ function getNodePath(nodeId: NodeRef | LayoutNode | LayoutPage, nodeSelector: No
 
 export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
 export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
-export type ExactNodeDataSelector = ReturnType<typeof NodesInternal.useExactNodeDataSelector>;
 
 export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefined>(node: N) => NodePickerReturns<N>;
 type NodePickerReturns<N extends LayoutNode | undefined> = N extends undefined ? undefined : NodeDataFromNode<N>;
@@ -616,18 +593,9 @@ export const NodesInternal = {
     mode: InnerSelectorMode<NodesDataContext, [NodesDataContext | typeof NotReadyYet]>;
   }> {
     return useDelayedSelector({
-      store: DataStore.useLaxStore(),
+      store: Store.useLaxStore(),
       strictness: SelectorStrictness.returnWhenNotProvided,
-      onlyReRenderWhen: ((state, lastValue, setNewValue) => {
-        if (!state.ready) {
-          return false;
-        }
-        if (lastValue !== state.addRemoveCounter) {
-          setNewValue(state.addRemoveCounter);
-          return true;
-        }
-        return false;
-      }) satisfies OnlyReRenderWhen<NodesDataContext, number>,
+      onlyReRenderWhen: ((state) => state.ready) satisfies OnlyReRenderWhen<NodesDataContext, void>,
       mode: {
         mode: 'innerSelector',
         makeArgs: (state) => [state.ready ? state : NotReadyYet],
@@ -635,14 +603,14 @@ export const NodesInternal = {
     });
   },
   useIsDataReady() {
-    return DataStore.useSelector((s) => s.ready);
+    return Store.useSelector((s) => s.ready);
   },
 
   useNodeData<N extends LayoutNode | undefined, Out>(
     node: N,
     selector: (state: NodeDataFromNode<N>) => Out,
   ): N extends undefined ? Out | undefined : Out {
-    return DataStore.useSelector((s) =>
+    return Store.useSelector((s) =>
       ignoreNodePathNotFound(
         () => (node ? selector(pickDataStorePath(s, node) as NodeDataFromNode<N>) : undefined),
         undefined,
@@ -653,7 +621,7 @@ export const NodesInternal = {
     node: N,
     selector: (state: NodeDataFromNode<N>) => Out,
   ): React.MutableRefObject<N extends undefined ? Out | undefined : Out> {
-    return DataStore.useSelectorAsRef((s) =>
+    return Store.useSelectorAsRef((s) =>
       ignoreNodePathNotFound(
         () => (node ? selector(pickDataStorePath(s, node) as NodeDataFromNode<N>) : undefined),
         undefined,
@@ -664,7 +632,7 @@ export const NodesInternal = {
     node: N,
     selector: (state: NodeDataFromNode<N>) => Out,
   ): WaitForState<Out, RetVal> {
-    const waitForState = useWaitForState<RetVal, NodesDataContext>(DataStore.useStore());
+    const waitForState = useWaitForState<RetVal, NodesDataContext>(Store.useStore());
     return useCallback(
       (callback) =>
         waitForState((state, setReturnValue) =>
@@ -684,43 +652,37 @@ export const NodesInternal = {
     );
   },
   useNodeDataSelector: () =>
-    DataStore.useDelayedSelector({
+    Store.useDelayedSelector({
       mode: 'innerSelector',
       makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
     }),
   useLaxNodeDataSelector: () =>
-    DataStore.useLaxDelayedSelector({
+    Store.useLaxDelayedSelector({
       mode: 'innerSelector',
       makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
     }),
-  useExactNodeDataSelector: <N extends LayoutNode | undefined>(node: N) =>
-    DataStore.useDelayedSelector({
-      mode: 'innerSelector',
-      makeArgs: (state) => [selectNodeData(node, state)],
-    }),
-
   useIsAdded: (node: LayoutNode | LayoutPage) =>
-    DataStore.useSelector((s) => {
+    Store.useSelector((s) => {
       if (node instanceof LayoutPage) {
         return s.pages.pages[node.pageKey] !== undefined;
       }
-      return s.flatNodes[node.getId()] !== undefined;
+      return s.nodeData[node.getId()] !== undefined;
     }),
-  useNodesStore: () => NodesStore.useStore(),
-  useHasErrors: () => DataStore.useSelector((s) => s.hasErrors),
+  useNodesStore: () => Store.useStore(),
+  useHasErrors: () => Store.useSelector((s) => s.hasErrors),
 
-  useDataStore: () => DataStore.useStore(),
-  useSetNodeProps: () => DataStore.useSelector((s) => s.setNodeProps),
-  useSetNodes: () => NodesStore.useSelector((s) => s.setNodes),
-  useAddPage: () => DataStore.useSelector((s) => s.addPage),
-  useSetPageProp: () => DataStore.useSelector((s) => s.setPageProp),
-  useRemovePage: () => DataStore.useSelector((s) => s.removePage),
-  useAddNodes: () => DataStore.useSelector((s) => s.addNodes),
-  useRemoveNode: () => DataStore.useSelector((s) => s.removeNode),
-  useAddError: () => DataStore.useSelector((s) => s.addError),
+  useDataStore: () => Store.useStore(),
+  useSetNodeProps: () => Store.useSelector((s) => s.setNodeProps),
+  useSetNodes: () => Store.useSelector((s) => s.setNodes),
+  useAddPage: () => Store.useSelector((s) => s.addPage),
+  useSetPageProp: () => Store.useSelector((s) => s.setPageProp),
+  useRemovePage: () => Store.useSelector((s) => s.removePage),
+  useAddNodes: () => Store.useSelector((s) => s.addNodes),
+  useRemoveNode: () => Store.useSelector((s) => s.removeNode),
+  useAddError: () => Store.useSelector((s) => s.addError),
 
   ...(Object.values(DataStorePlugins)
-    .map((plugin) => plugin.extraHooks(DataStore))
+    .map((plugin) => plugin.extraHooks(Store))
     .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraHooks),
 };
 
@@ -785,7 +747,7 @@ export function pickDataStorePath(
   }
 
   const lastLeg = path[path.length - 1];
-  const node = state.flatNodes[lastLeg];
+  const node = state.nodeData[lastLeg];
 
   if (!node) {
     throw new NodePathNotFound(`Node not found at path /${path.join('/')}`);

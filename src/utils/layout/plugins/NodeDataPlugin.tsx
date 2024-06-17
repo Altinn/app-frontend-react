@@ -1,4 +1,4 @@
-import type { NodesDataContext, NodesDataStoreFull } from 'src/utils/layout/NodesContext';
+import type { NodesDataContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
 
 export interface NodeDataPluginConfig {
   extraFunctions?: Record<string, (...args: any[]) => any>;
@@ -11,5 +11,5 @@ export type ConfigFromNodeDataPlugin<C extends NodeDataPlugin<any>> =
 
 export abstract class NodeDataPlugin<Config extends NodeDataPluginConfig> {
   abstract extraFunctions(set: NodeDataPluginSetState<NodesDataContext>): Config['extraFunctions'];
-  abstract extraHooks(store: NodesDataStoreFull): Config['extraHooks'];
+  abstract extraHooks(store: NodesStoreFull): Config['extraHooks'];
 }

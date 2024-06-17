@@ -1,12 +1,11 @@
 import deepEqual from 'fast-deep-equal';
-import { produce } from 'immer';
 
-import { pickDataStorePath } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesDataContext, NodesDataStoreFull } from 'src/utils/layout/NodesContext';
+import type { NodesDataContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
+import type { RepChildrenRow } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 import type { BaseRow } from 'src/utils/layout/types';
 
 export interface SetRowExtrasRequest<T extends CompTypes = CompTypes> {
@@ -31,38 +30,62 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
   extraFunctions(set: NodeDataPluginSetState<NodesDataContext>): RepeatingChildrenStorePluginConfig['extraFunctions'] {
     return {
       setRowExtras: (requests) => {
-        set(
-          produce((state) => {
-            for (const { node, row, internalProp, extras } of requests) {
-              const nodeStore = pickDataStorePath(state, node);
-              const existingRow = nodeStore[internalProp][row.uuid];
-              if (existingRow && deepEqual(existingRow.extras, extras)) {
-                continue;
-              }
-
-              const newRows = { ...nodeStore[internalProp] };
-              newRows[row.uuid] = { ...nodeStore[internalProp][row.uuid], extras };
-              nodeStore[internalProp] = newRows;
+        set((state) => {
+          let changes = false;
+          const nodeData = { ...state.nodeData };
+          for (const { node, row, internalProp, extras } of requests) {
+            if (typeof extras !== 'object' || !extras) {
+              throw new Error('Extras must be an object');
             }
-          }),
-        );
+
+            const nodeData = nodeData[node.getId()];
+            if (!nodeData) {
+              continue;
+            }
+
+            const existingRows = nodeData.item && (nodeData.item[internalProp] as RepChildrenRow[] | undefined);
+            const existingRowIndex = existingRows?.findIndex((r) => r.uuid === row.uuid);
+            const existingRow =
+              existingRows && existingRowIndex !== undefined ? existingRows[existingRowIndex] : undefined;
+            const nextRow = { ...existingRow, ...extras } as RepChildrenRow;
+            if (existingRows && existingRow && deepEqual(existingRow, nextRow)) {
+              continue;
+            }
+
+            if (existingRowIndex !== undefined) {
+              changes = true;
+              const newRows = [...(existingRows || [])];
+              newRows[existingRowIndex] = nextRow;
+              nodeData[node.getId()] = { ...nodeData, item: { ...nodeData.item, [internalProp]: newRows } as any };
+            }
+          }
+
+          return changes ? { nodeData } : {};
+        });
       },
       removeRow: (node, row, internalProp) => {
-        set(
-          produce((state) => {
-            const nodeStore = pickDataStorePath(state, node);
-            const newRows = { ...nodeStore[internalProp] };
-            delete newRows[row.uuid];
-            nodeStore[internalProp] = newRows;
-            state.ready = false;
-            state.addRemoveCounter += 1;
-          }),
-        );
+        set((state) => {
+          const nodeData = { ...state.nodeData };
+          const nodeData = nodeData[node.getId()];
+          const existingRows = nodeData.item && (nodeData.item[internalProp] as RepChildrenRow[] | undefined);
+          if (!existingRows) {
+            return {};
+          }
+          const existingRowIndex = existingRows.findIndex((r) => r.uuid === row.uuid);
+          if (existingRowIndex === -1) {
+            return {};
+          }
+          const newRows = [...existingRows];
+          newRows.splice(existingRowIndex, 1);
+          nodeData[node.getId()] = { ...nodeData, item: { ...nodeData.item, [internalProp]: newRows } as any };
+
+          return { nodeData, ready: false };
+        });
       },
     };
   }
 
-  extraHooks(store: NodesDataStoreFull): RepeatingChildrenStorePluginConfig['extraHooks'] {
+  extraHooks(store: NodesStoreFull): RepeatingChildrenStorePluginConfig['extraHooks'] {
     return {
       useSetRowExtras: () => store.useSelector((state) => state.setRowExtras),
       useRemoveRow: () => store.useSelector((state) => state.removeRow),

@@ -80,7 +80,7 @@ export class TraversalTask {
       return this.rootNode.findLayout(this, lookup.pageKey)!;
     }
 
-    return this.rootNode.findById(this, lookup.item?.id)!;
+    return this.rootNode.findById(this, lookup.layout.id)!;
   }
 
   /**

@@ -4,7 +4,7 @@ import { ignoreNodePathNotFound, pickDataStorePath } from 'src/utils/layout/Node
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { AnyValidation, AttachmentValidation } from 'src/features/validation/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesDataContext, NodesDataStoreFull } from 'src/utils/layout/NodesContext';
+import type { NodesDataContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
 
@@ -61,7 +61,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
     return { ...out };
   }
 
-  extraHooks(store: NodesDataStoreFull) {
+  extraHooks(store: NodesStoreFull) {
     const out: ValidationStorePluginConfig['extraHooks'] = {
       useSetNodeVisibility: () => store.useSelector((state) => state.setNodeVisibility),
       useSetAttachmentVisibility: () => store.useSelector((state) => state.setAttachmentVisibility),

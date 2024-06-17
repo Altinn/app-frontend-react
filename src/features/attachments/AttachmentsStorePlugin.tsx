@@ -29,7 +29,7 @@ import type { BackendValidationIssue } from 'src/features/validation';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesDataContext, NodesDataStoreFull } from 'src/utils/layout/NodesContext';
+import type { NodesDataContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
 
@@ -201,7 +201,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
     };
   }
-  extraHooks(store: NodesDataStoreFull): AttachmentsStorePluginConfig['extraHooks'] {
+  extraHooks(store: NodesStoreFull): AttachmentsStorePluginConfig['extraHooks'] {
     return {
       useAttachmentsUpload() {
         const { changeData: changeInstanceData } = useLaxInstance() || {};

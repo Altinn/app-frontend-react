@@ -161,7 +161,7 @@ function ResolveExpressions<T extends CompTypes>({ node, item }: CommonProps<T>)
 
   GeneratorStages.EvaluateExpressions.useEffect(() => {
     node.updateCommonProps(resolved as any);
-    setNodeProp({ node, prop: 'item', value: resolved });
+    setNodeProp({ node, prop: 'item', value: resolved, partial: true });
   }, [node, resolved, setNodeProp]);
 
   return (
@@ -178,7 +178,6 @@ export function useExpressionResolverProps<T extends CompTypes>(
   item: CompIntermediateExact<T>,
   row?: BaseRow,
 ): ExprResolver<T> {
-  const stateSelector = NodesInternal.useExactNodeDataSelector(node);
   const allDataSources = useExpressionDataSources();
   const allDataSourcesAsRef = useAsRef(allDataSources);
 
@@ -279,7 +278,6 @@ export function useExpressionResolverProps<T extends CompTypes>(
 
   return {
     item,
-    stateSelector,
     row,
     evalBool,
     evalNum,

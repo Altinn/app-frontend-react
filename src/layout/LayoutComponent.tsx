@@ -33,7 +33,6 @@ import type {
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ExactNodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { BaseRow, NodeData, StateFactoryProps } from 'src/utils/layout/types';
 import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
@@ -51,7 +50,6 @@ export type NodeGeneratorProps<Type extends CompTypes> =
   IsContainerComp<Type> extends true ? ContainerGeneratorProps : BasicNodeGeneratorProps;
 
 export interface ExprResolver<Type extends CompTypes> {
-  stateSelector: ExactNodeDataSelector;
   item: CompIntermediateExact<Type>;
   row?: BaseRow;
   formDataSelector: FormDataSelector;

@@ -98,7 +98,7 @@ export function RepeatingGroupEditRowProvider({ editId, children }: PropsWithChi
     // and navigate there. Then it's a problem that can be forwarded there.
     const ourChildrenIds = new Set(ourDirectChildren.map((n) => n.getId()));
     const childWeAreLookingFor = traversal(
-      (t) => t.with(targetNode).parents((i) => i.type === 'node' && i.item && ourChildrenIds.has(i.item.id)),
+      (t) => t.with(targetNode).parents((i) => i.type === 'node' && ourChildrenIds.has(i.layout.id)),
       [targetNode],
     )[0];
 

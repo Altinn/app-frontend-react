@@ -5,6 +5,7 @@ import dot from 'dot-object';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { FD } from 'src/features/formData/FormDataWrite';
+import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
 import {
   GeneratorCondition,
@@ -156,7 +157,7 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
 
   const setExtra = NodesStateQueue.useSetRowExtras();
   const def = useDef(item!.type);
-  const resolvedRowExtras = useMemo(() => (def as CompDef).evalExpressionsForRow(props as any), [def, props]);
+  const resolvedRowExtras = useMemoDeepEqual(() => (def as CompDef).evalExpressionsForRow(props as any), [def, props]);
 
   GeneratorStages.EvaluateExpressions.useEffect(() => {
     setExtra({ node: parent, row, internalProp, extras: resolvedRowExtras });

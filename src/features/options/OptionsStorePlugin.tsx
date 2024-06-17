@@ -3,7 +3,7 @@ import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesDataContext, NodesDataStoreFull } from 'src/utils/layout/NodesContext';
+import type { NodesDataContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
 
@@ -40,7 +40,7 @@ export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig>
     return undefined;
   }
 
-  extraHooks(store: NodesDataStoreFull): OptionsStorePluginConfig['extraHooks'] {
+  extraHooks(store: NodesStoreFull): OptionsStorePluginConfig['extraHooks'] {
     return {
       useNodeOptions: (node) =>
         store.useSelector((state) =>
