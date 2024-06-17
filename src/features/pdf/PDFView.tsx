@@ -1,49 +1,83 @@
 import React from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
+import { Grid } from '@material-ui/core';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
-import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsPayment } from 'src/features/payment/utils';
 import classes from 'src/features/pdf/PDFView.module.css';
-import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
-import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
+import { usePdfPage } from 'src/hooks/usePdfPage';
+import { CompCategory } from 'src/layout/common';
+import { GenericComponent } from 'src/layout/GenericComponent';
+import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2';
-import { useNodes } from 'src/utils/layout/NodesContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export const PDFView = () => {
-  const nodes = useNodes();
-  const pageNavigationConfig = usePageNavigationConfig();
-  const { data: pdfSettings, isFetching: pdfFormatIsLoading } = usePdfFormatQuery(true);
-  const pdfLayoutName = useLayoutSettings().pages.pdfLayoutName;
-  const enableOrgLogo = Boolean(useApplicationMetadata().logo);
-  const appOwner = useAppOwner();
-  const appName = useAppName();
-  const { langAsString } = useLanguage();
-  const pagesToRender = pdfLayoutName ? [pdfLayoutName] : pageNavigationConfig.order;
-  const isPayment = useIsPayment();
+const PDFComponent = ({ node }: { node: LayoutNode }) => {
+  if (node.isType('Summary') || ('renderAsSummary' in node.item && node.item.renderAsSummary)) {
+    return (
+      <SummaryComponent
+        summaryNode={node as LayoutNode<'Summary'>}
+        overrides={{
+          display: { hideChangeButton: true, hideValidationMessages: true },
+        }}
+      />
+    );
+  } else if (node.isType('Group')) {
+    // Support grouping of summary components
+    return (
+      <GroupComponent
+        groupNode={node}
+        renderLayoutNode={(child: LayoutNode) => (
+          <PDFComponent
+            key={child.item.id}
+            node={child}
+          />
+        )}
+      />
+    );
+  } else if (node.isCategory(CompCategory.Presentation)) {
+    return (
+      <GenericComponent
+        node={node}
+        overrideItemProps={{
+          grid: { xs: 12 },
+        }}
+      />
+    );
+  } else {
+    window.logWarnOnce(`Component type: "${node.item.type}" is not allowed in PDF. Component id: "${node.item.id}"`);
+    return null;
+  }
+};
 
-  if (pdfFormatIsLoading) {
+export const PDFView = () => {
+  const pdfPage = usePdfPage();
+  const appName = useAppName();
+  const appOwner = useAppOwner();
+  const { langAsString } = useLanguage();
+
+  const isPayment = useIsPayment();
+  const enableOrgLogo = Boolean(useApplicationMetadata().logo);
+
+  if (!pdfPage) {
     return null;
   }
 
   return (
     <div
-      id={'pdfView'}
+      id='pdfView'
       className={classes['pdf-wrapper']}
     >
       {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
 
       <ConditionalWrapper
-        condition={enableOrgLogo}
+        condition={isPayment && enableOrgLogo}
         wrapper={(children) => (
           <div className={classes.paymentTitleContainer}>
             {children} <OrganisationLogo></OrganisationLogo>
@@ -58,72 +92,19 @@ export const PDFView = () => {
           {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
         </Heading>
       </ConditionalWrapper>
-      <InstanceInformation
-        type={'InstanceInformation'}
-        id={'__pdf__instance-information'}
-        elements={{
-          dateSent: true,
-          sender: true,
-          receiver: true,
-          referenceNumber: true,
-        }}
-        pageBreak={{
-          breakAfter: 'always',
-        }}
-        textResourceBindings={undefined}
-      />
 
-      {pagesToRender
-        ?.filter((pageKey) => (!pdfLayoutName ? pageKey : pageKey === pdfLayoutName))
-        .filter((pageKey) => !pageNavigationConfig.isHiddenPage(pageKey))
-        .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
-        .map((layoutPageKey) => {
-          const layoutPage = nodes.findLayout(layoutPageKey);
-
-          const allComponents = layoutPage
-            ?.children()
-            .filter((node) => !pdfSettings?.excludedComponents.includes(node.item.id))
-            .filter((node) => node.def.shouldRenderInAutomaticPDF(node as any))
-            .map((node) => {
-              if (node.def.renderSummary2) {
-                return (
-                  <SummaryComponent2
-                    summaryNode={
-                      {
-                        item: {
-                          type: 'Summary2',
-                          whatToRender: {
-                            type: 'component',
-                            id: node.item.id,
-                          },
-                          childComponents: [],
-                          id: node.item.id,
-                        },
-                      } as any
-                    }
-                  />
-                );
-              }
-              return (
-                <SummaryComponent
-                  key={node.item.id}
-                  summaryNode={node as LayoutNode<'Summary'>}
-                  overrides={{
-                    display: { hideChangeButton: true, hideValidationMessages: true },
-                  }}
-                />
-              );
-            });
-          return (
-            <div
-              key={layoutPageKey}
-              className={classes.page}
-            >
-              <Heading>{langAsString(layoutPageKey)}</Heading>
-              {allComponents}
-            </div>
-          );
-        })}
+      <Grid
+        container={true}
+        spacing={3}
+        alignItems='flex-start'
+      >
+        {pdfPage.children().map((node) => (
+          <PDFComponent
+            key={node.item.id}
+            node={node}
+          />
+        ))}
+      </Grid>
       <ReadyForPrint />
     </div>
   );
