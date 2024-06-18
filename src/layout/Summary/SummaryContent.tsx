@@ -13,7 +13,8 @@ import { useNodeFormDataSelector, useNodeItem } from 'src/utils/layout/useNodeIt
 import type { CompTypes } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
-interface SummaryContentProps extends Omit<SummaryRendererProps<CompTypes>, 'formDataSelector' | 'nodeDataSelector'> {
+interface SummaryContentProps
+  extends Omit<SummaryRendererProps<CompTypes>, 'formDataSelector' | 'nodeFormDataSelector'> {
   RenderSummary: React.ElementType<SummaryRendererProps<CompTypes>>;
 }
 
@@ -45,7 +46,7 @@ export function SummaryContent({
     textBindings && 'summaryTitle' in textBindings ? (textBindings.summaryTitle as string) : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const formDataSelector = FD.useDebouncedSelector();
-  const nodeDataSelector = useNodeFormDataSelector();
+  const nodeFormDataSelector = useNodeFormDataSelector();
 
   return (
     <div className={classes.container}>
@@ -70,7 +71,7 @@ export function SummaryContent({
           targetNode={targetNode}
           overrides={overrides}
           formDataSelector={formDataSelector}
-          nodeDataSelector={nodeDataSelector}
+          nodeFormDataSelector={nodeFormDataSelector}
         />
       </span>
       {displaySummaryBoilerPlate && shouldShowChangeButton && (

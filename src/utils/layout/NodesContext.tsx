@@ -27,7 +27,6 @@ import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePl
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import { getComponentDef } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { GeneratorStages, GeneratorStagesProvider } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
@@ -172,13 +171,10 @@ export function createNodesDataStore() {
         for (const { node, targetState } of requests) {
           nodeData[node.getId()] = targetState;
 
-          const parentPath = node.path.slice(0, -1);
-          const parent = pickDataStorePath({ ...state, nodeData }, parentPath);
-          if (parent.type === 'node') {
-            const def = getComponentDef(parent.layout.type);
-            const additionalParentState = def.addChild(parent as any, node);
-            nodeData[parent.layout.id] = {
-              ...nodeData[parent.layout.id],
+          if (node.parent instanceof BaseLayoutNode) {
+            const additionalParentState = node.parent.def.addChild(nodeData[node.parent.getId()] as any, node);
+            nodeData[node.parent.getId()] = {
+              ...nodeData[node.parent.getId()],
               ...(additionalParentState as any),
             };
           }
@@ -188,13 +184,16 @@ export function createNodesDataStore() {
     // TODO: Make a queue for this as well?
     removeNode: (node) =>
       set((state) => {
-        const parentPath = node.path.slice(0, -1);
-        const parent = pickDataStorePath(state, parentPath);
-        if (parent.type === 'node') {
-          const def = getComponentDef(parent.layout.type);
-          def.removeChild(parent as any, node);
-        }
         const nodeData = { ...state.nodeData };
+        if (node.parent instanceof BaseLayoutNode) {
+          const parentData = nodeData[node.parent.getId()];
+          if (parentData) {
+            nodeData[node.parent.getId()] = {
+              ...parentData,
+              ...node.parent.def.removeChild(parentData as any, node),
+            } as NodeData;
+          }
+        }
         delete nodeData[node.getId()];
         return { nodeData, ready: false };
       }),
@@ -512,6 +511,7 @@ function isHidden(
     const parentPath = nodeOrPath.path.slice(0, -1);
     return isHidden(state, parentPath, forcedVisibleByDevTools, options);
   }
+
   if (Array.isArray(nodeOrPath) && nodeOrPath.length > 1) {
     const parentPath = nodeOrPath.slice(0, -1);
     return isHidden(state, parentPath, forcedVisibleByDevTools, options);
@@ -610,7 +610,7 @@ export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelect
 export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
 
 export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefined>(node: N) => NodePickerReturns<N>;
-type NodePickerReturns<N extends LayoutNode | undefined> = N extends undefined ? undefined : NodeDataFromNode<N>;
+type NodePickerReturns<N extends LayoutNode | undefined> = NodeDataFromNode<N> | undefined;
 
 function selectNodeData<N extends LayoutNode | undefined>(node: N, state: NodesContext): NodePickerReturns<N> {
   return ignoreNodePathNotFound(() => (node ? pickDataStorePath(state, node) : undefined), undefined) as any;

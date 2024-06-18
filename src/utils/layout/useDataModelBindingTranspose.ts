@@ -59,7 +59,7 @@ function firstDataModelBinding(
   }
 
   const node = traversal.target;
-  const dataModelBindings = nodeSelector((picker) => picker(node).layout.dataModelBindings, [node]);
+  const dataModelBindings = nodeSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
   if (dataModelBindings === ContextNotProvided) {
     return [undefined, false];
   }

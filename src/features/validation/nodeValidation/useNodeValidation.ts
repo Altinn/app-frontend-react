@@ -32,7 +32,7 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
     }
 
     const dataModelBindings = validationDataSources.nodeDataSelector(
-      (picker) => picker(node).layout.dataModelBindings,
+      (picker) => picker(node)?.layout.dataModelBindings,
       [node],
     );
     if (dataModelBindings) {

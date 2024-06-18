@@ -168,7 +168,9 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     return { [this.settings.externalProp]: newState } as unknown as Partial<DefPluginState<ToInternal<E>>>;
   }
 
-  removeChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode) {
-    delete state[this.settings.externalProp][childNode.getId()];
+  removeChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode): Partial<DefPluginState<ToInternal<E>>> {
+    const newChildren = { ...state[this.settings.externalProp] };
+    delete newChildren[childNode.getId()];
+    return { [this.settings.externalProp]: newChildren } as unknown as Partial<DefPluginState<ToInternal<E>>>;
   }
 }

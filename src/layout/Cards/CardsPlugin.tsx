@@ -210,16 +210,20 @@ export class CardsPlugin<Type extends CompTypes>
     return { cardsItems };
   }
 
-  removeChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): void {
-    for (const card of Object.values(state.cardsItems)) {
+  removeChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): Partial<DefPluginState<Config<Type>>> {
+    const cardsItems = { ...state.cardsItems };
+    for (const key of Object.keys(cardsItems)) {
+      const card = cardsItems[key];
       if (card.media?.nodeRef === childNode.getId()) {
-        card.media = undefined;
-        return;
+        cardsItems[key] = { ...card, media: undefined };
+        return { cardsItems };
       }
       if (card.children[childNode.getId()]) {
-        delete card.children[childNode.getId()];
-        return;
+        cardsItems[key] = { ...card, children: { ...card.children, [childNode.getId()]: undefined } };
+        return { cardsItems };
       }
     }
+
+    return state;
   }
 }

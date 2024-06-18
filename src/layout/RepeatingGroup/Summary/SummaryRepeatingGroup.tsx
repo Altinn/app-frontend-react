@@ -186,7 +186,7 @@ function RegularRepeatingGroupRow({
           summaryNode={summaryNode}
           overrides={{}}
           formDataSelector={formDataSelector}
-          nodeDataSelector={nodeDataSelector}
+          nodeFormDataSelector={nodeDataSelector}
         />
       );
     });

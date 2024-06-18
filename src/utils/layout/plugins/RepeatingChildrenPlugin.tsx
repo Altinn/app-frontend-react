@@ -250,8 +250,9 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     return { item: { ...state.item, [this.settings.internalProp]: rows } } as Partial<DefPluginState<ToInternal<E>>>;
   }
 
-  removeChild(_state: DefPluginState<ToInternal<E>>, _childNode: LayoutNode): void {
+  removeChild(_state: DefPluginState<ToInternal<E>>, _childNode: LayoutNode): Partial<DefPluginState<ToInternal<E>>> {
     // There is no need to remove the reference to the child node, as the child node is removed from the state when
     // the whole row is removed.
+    return _state;
   }
 }

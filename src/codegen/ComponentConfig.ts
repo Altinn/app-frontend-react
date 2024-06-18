@@ -416,8 +416,8 @@ export class ComponentConfig {
         `addChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}) {
           return ${pluginRef(plugin)}.addChild(state as any, childNode) as Partial<${NodeData}<'${this.type}'>>;
         }`,
-        `removeChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}): void {
-          ${pluginRef(plugin)}.removeChild(state as any, childNode);
+        `removeChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}) {
+          return ${pluginRef(plugin)}.removeChild(state as any, childNode) as Partial<${NodeData}<'${this.type}'>>;
         }`,
       );
     }

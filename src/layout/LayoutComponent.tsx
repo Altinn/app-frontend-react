@@ -130,7 +130,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Removes a child node from the parent node. This must be implemented for every component
    * type that can adopt children.
    */
-  public removeChild(_state: NodeData<Type>, _childNode: LayoutNode): void {
+  public removeChild(_state: NodeData<Type>, _childNode: LayoutNode): Partial<NodeData<Type>> {
     throw new Error(
       `removeChild() is not implemented yet for '${this.type}'. ` +
         `You have to implement this if the component type supports children.`,
@@ -224,7 +224,7 @@ export interface SummaryRendererProps<Type extends CompTypes> {
   summaryNode: LayoutNode<'Summary'>;
   targetNode: LayoutNode<Type>;
   formDataSelector: FormDataSelector;
-  nodeDataSelector: NodeFormDataSelector;
+  nodeFormDataSelector: NodeFormDataSelector;
   onChangeClick: () => void;
   changeText: string | null;
   overrides?: ISummaryComponent['overrides'];
@@ -389,12 +389,12 @@ export abstract class FormComponent<Type extends CompTypes>
   ): ComponentValidation[] {
     const required = nodeDataSelector(
       (picker) => {
-        const item = picker(node).item;
+        const item = picker(node)?.item;
         return item && 'required' in item ? item.required : false;
       },
       [node],
     );
-    const dataModelBindings = nodeDataSelector((picker) => picker(node).layout.dataModelBindings, [node]);
+    const dataModelBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
     if (!required || !dataModelBindings) {
       return [];
     }
@@ -405,7 +405,7 @@ export abstract class FormComponent<Type extends CompTypes>
       const data = formDataSelector(field) ?? invalidDataSelector(field);
       const asString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
-      const trb = nodeDataSelector((picker) => picker(node).item?.textResourceBindings, [node]);
+      const trb = nodeDataSelector((picker) => picker(node)?.item?.textResourceBindings, [node]);
 
       if (asString.length === 0) {
         const key =
@@ -453,7 +453,7 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
 
   abstract addChild(state: NodeData<Type>, childNode: LayoutNode): Partial<NodeData<Type>>;
 
-  abstract removeChild(state: NodeData<Type>, childNode: LayoutNode): void;
+  abstract removeChild(state: NodeData<Type>, childNode: LayoutNode): Partial<NodeData<Type>>;
 }
 
 export type LayoutComponent<Type extends CompTypes = CompTypes> =

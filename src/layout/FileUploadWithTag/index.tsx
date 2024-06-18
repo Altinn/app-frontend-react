@@ -56,7 +56,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     { attachmentsSelector, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
-    const minNumberOfAttachments = nodeDataSelector((picker) => picker(node).item?.minNumberOfAttachments, [node]);
+    const minNumberOfAttachments = nodeDataSelector((picker) => picker(node)?.item?.minNumberOfAttachments, [node]);
 
     // Validate minNumberOfAttachments
     const attachments = attachmentsSelector(node);
@@ -83,7 +83,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
         isAttachmentUploaded(attachment) &&
         (attachment.data.tags === undefined || attachment.data.tags.length === 0)
       ) {
-        const tagKey = nodeDataSelector((picker) => picker(node).item?.textResourceBindings?.tagTitle, [node]);
+        const tagKey = nodeDataSelector((picker) => picker(node)?.item?.textResourceBindings?.tagTitle, [node]);
         const tagReference = tagKey
           ? {
               key: tagKey,

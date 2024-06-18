@@ -43,10 +43,10 @@ export class Checkboxes extends CheckboxesDef {
     return Object.values(this.getSummaryData(node, langTools, optionsSelector, nodeFormDataSelector)).join(', ');
   }
 
-  renderSummary({ targetNode, nodeDataSelector }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {
+  renderSummary({ targetNode, nodeFormDataSelector }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {
     const langTools = useLanguage();
     const options = useNodeOptionsSelector();
-    const summaryData = this.getSummaryData(targetNode, langTools, options, nodeDataSelector);
+    const summaryData = this.getSummaryData(targetNode, langTools, options, nodeFormDataSelector);
     return <MultipleChoiceSummary formData={summaryData} />;
   }
 

@@ -43,7 +43,7 @@ export function SummaryGroupComponent({
   const display = overrides?.display || summaryItem.display;
   const { langAsString } = useLanguage();
   const formDataSelector = FD.useDebouncedSelector();
-  const nodeDataSelector = useNodeFormDataSelector();
+  const nodeFormDataSelector = useNodeFormDataSelector();
   const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = useCallback(
@@ -100,7 +100,7 @@ export function SummaryGroupComponent({
         summaryNode={summaryNode}
         overrides={{}}
         formDataSelector={formDataSelector}
-        nodeDataSelector={nodeDataSelector}
+        nodeFormDataSelector={nodeFormDataSelector}
       />
     );
   });

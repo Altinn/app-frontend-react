@@ -148,7 +148,9 @@ export class GridRowsPlugin<Type extends CompTypes>
     return { gridItems };
   }
 
-  removeChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): void {
-    delete state.gridItems[childNode.getId()];
+  removeChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): Partial<DefPluginState<Config<Type>>> {
+    const newGridItems = { ...state.gridItems };
+    delete newGridItems[childNode.getId()];
+    return { gridItems: newGridItems };
   }
 }

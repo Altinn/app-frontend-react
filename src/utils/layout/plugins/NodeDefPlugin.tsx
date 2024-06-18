@@ -205,7 +205,7 @@ export interface NodeDefChildrenPlugin<Config extends DefPluginConfig> {
   pickDirectChildren(state: DefPluginState<Config>, restriction?: TraversalRestriction): NodeRef[];
   pickChild<C extends CompTypes>(state: DefPluginState<Config>, childId: string, parentPath: string[]): NodeData<C>;
   addChild(state: DefPluginState<Config>, childNode: LayoutNode): Partial<DefPluginState<Config>>;
-  removeChild(state: DefPluginState<Config>, childNode: LayoutNode): void;
+  removeChild(state: DefPluginState<Config>, childNode: LayoutNode): Partial<DefPluginState<Config>>;
 }
 
 export function isNodeDefChildrenPlugin(plugin: any): plugin is NodeDefChildrenPlugin<any> {
