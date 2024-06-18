@@ -36,12 +36,7 @@ export function useOnFormSubmitValidation() {
      * First: check and show any frontend errors
      */
     const nodesWithFrontendErrors = traversalSelector(
-      (t) =>
-        t.allNodes().filter((n) => {
-          const validations = nodeValidationsSelector(n);
-          const filtered = selectValidations(validations, ValidationMask.All, 'error');
-          return filtered.length > 0;
-        }),
+      (t) => t.allNodes().filter((n) => nodeValidationsSelector(n, ValidationMask.All, 'error').length > 0),
       [nodeValidationsSelector],
     );
 
@@ -61,10 +56,7 @@ export function useOnFormSubmitValidation() {
      */
     const nodesWithAnyError = traversalSelector(
       (t) =>
-        t.allNodes().filter((n) => {
-          const validations = nodeValidationsSelector(n);
-          return selectValidations(validations, ValidationMask.AllIncludingBackend, 'error').length > 0;
-        }),
+        t.allNodes().filter((n) => nodeValidationsSelector(n, ValidationMask.AllIncludingBackend, 'error').length > 0),
       [nodeValidationsSelector],
     );
 

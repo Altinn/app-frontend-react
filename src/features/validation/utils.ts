@@ -1,5 +1,11 @@
 import { ValidationMask } from 'src/features/validation';
-import type { BaseValidation, FieldValidations, ValidationMaskKeys, ValidationSeverity } from 'src/features/validation';
+import type {
+  AnyValidation,
+  BaseValidation,
+  FieldValidations,
+  ValidationMaskKeys,
+  ValidationSeverity,
+} from 'src/features/validation';
 import type { AllowedValidationMasks } from 'src/layout/common.generated';
 
 export function mergeFieldValidations(...X: FieldValidations[]): FieldValidations {
@@ -38,10 +44,16 @@ export function hasValidationErrors<V extends BaseValidation>(validations: V[] |
   return validations?.some((validation: any) => validation.severity === 'error') ?? false;
 }
 
-export function isValidationVisible<T extends BaseValidation>(validation: T, mask: number): boolean {
+export function isValidationVisible<T extends AnyValidation>(validation: T, mask: number): boolean {
   if (validation.category === 0) {
     return true;
   }
+
+  if ('visibility' in validation && validation.visibility !== undefined) {
+    const specificMask = mask | validation.visibility;
+    return (specificMask & validation.category) > 0;
+  }
+
   return (mask & validation.category) > 0;
 }
 

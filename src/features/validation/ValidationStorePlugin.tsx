@@ -1,15 +1,24 @@
 import { produce } from 'immer';
 
-import { ignoreNodePathNotFound, pickDataStorePath } from 'src/utils/layout/NodesContext';
+import { selectValidations } from 'src/features/validation/utils';
+import { pickDataStorePath } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
-import type { AnyValidation, AttachmentValidation } from 'src/features/validation/index';
+import type {
+  AnyValidation,
+  AttachmentValidation,
+  ValidationMask,
+  ValidationSeverity,
+} from 'src/features/validation/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
 
-export type ValidationVisibilitySelector = (node: LayoutNode) => number;
-export type ValidationsSelector = (node: LayoutNode) => AnyValidation[];
+export type ValidationsSelector = (
+  node: LayoutNode,
+  mask: ValidationMask | 'visible',
+  severity?: ValidationSeverity,
+) => AnyValidation[];
 
 export interface ValidationStorePluginConfig {
   extraFunctions: {
@@ -21,7 +30,7 @@ export interface ValidationStorePluginConfig {
     useSetAttachmentVisibility: () => ValidationStorePluginConfig['extraFunctions']['setAttachmentVisibility'];
     useValidationVisibility: (node: LayoutNode | undefined) => number;
     useValidations: (node: LayoutNode | undefined) => AnyValidation[];
-    useValidationVisibilitySelector: () => ValidationVisibilitySelector;
+    useVisibleValidations: (node: LayoutNode | undefined, severity?: ValidationSeverity) => AnyValidation[];
     useValidationsSelector: () => ValidationsSelector;
   };
 }
@@ -81,23 +90,30 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           const nodeStore = pickDataStorePath(state, node) as NodeData;
           return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
         }),
-      useValidationVisibilitySelector: () =>
-        store.useDelayedSelector({
-          mode: 'simple',
-          selector: (node: LayoutNode) => (state) =>
-            ignoreNodePathNotFound(() => {
-              const nodeStore = pickDataStorePath(state, node) as NodeData;
-              return 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
-            }, 0),
+      useVisibleValidations: (node, severity) =>
+        store.useSelector((state) => {
+          if (!node) {
+            return emptyArray;
+          }
+          const nodeStore = pickDataStorePath(state, node) as NodeData;
+          const visibility = 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
+          return 'validations' in nodeStore
+            ? selectValidations(nodeStore.validations, visibility, severity)
+            : emptyArray;
         }),
       useValidationsSelector: () =>
         store.useDelayedSelector({
           mode: 'simple',
-          selector: (node: LayoutNode) => (state) =>
-            ignoreNodePathNotFound(() => {
-              const nodeStore = pickDataStorePath(state, node) as NodeData;
-              return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
-            }, emptyArray),
+          selector: (node: LayoutNode, mask: ValidationMask | 'visible', severity?: ValidationSeverity) => (state) => {
+            const nodeStore = state.nodeData[node.getId()];
+            if (!nodeStore) {
+              return emptyArray;
+            }
+            const visibility = 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
+            return 'validations' in nodeStore
+              ? selectValidations(nodeStore.validations, mask === 'visible' ? visibility : mask, severity)
+              : emptyArray;
+          },
         }),
     };
 

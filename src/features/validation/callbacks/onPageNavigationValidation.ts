@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { getVisibilityMask, selectValidations } from 'src/features/validation/utils';
+import { getVisibilityMask } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
@@ -63,10 +63,9 @@ export function useOnPageNavigationValidation() {
     let onCurrentOrPreviousPage = false;
     const nodeErrors = nodes
       .map((n) => {
-        const validations = getNodeValidations(n);
-        const filtered = selectValidations(validations, mask, 'error');
+        const validations = getNodeValidations(n, mask, 'error');
         onCurrentOrPreviousPage = onCurrentOrPreviousPage || pageOrder.indexOf(n.pageKey()) <= currentIndex;
-        return [n, filtered.length > 0] as const;
+        return [n, validations.length > 0] as const;
       })
       .filter(([_, e]) => e);
 

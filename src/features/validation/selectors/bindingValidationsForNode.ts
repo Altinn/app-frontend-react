@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 
 import type { ComponentValidation, FieldValidation, NodeValidation } from '..';
 
-import { selectValidations } from 'src/features/validation/utils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompTypes, IDataModelBindings } from 'src/layout/layout';
@@ -18,8 +17,7 @@ export function useBindingValidationsForNode<
   N extends LayoutNode,
   T extends CompTypes = N extends BaseLayoutNode<infer T> ? T : never,
 >(node: N): { [binding in keyof NonNullable<IDataModelBindings<T>>]: OutValues } | undefined {
-  const mask = NodesInternal.useValidationVisibility(node);
-  const component = NodesInternal.useValidations(node);
+  const component = NodesInternal.useVisibleValidations(node);
   const dataModelBindings = useNodeItem(node).dataModelBindings;
 
   return useMemo(() => {
@@ -31,14 +29,16 @@ export function useBindingValidationsForNode<
     for (const bindingKey of Object.keys(dataModelBindings)) {
       bindingValidations[bindingKey] = [];
 
-      const componentValidations = component.filter(
-        (v) => 'bindingKey' in v && v.bindingKey === bindingKey,
-      ) as ComponentValidation[];
-      const validations = selectValidations(componentValidations, mask);
-      bindingValidations[bindingKey].push(...validations.map((validation) => ({ ...validation, bindingKey, node })));
+      const validations = component as ComponentValidation[];
+      bindingValidations[bindingKey].push(
+        ...validations
+          .filter((v) => 'bindingKey' in v && v.bindingKey === bindingKey)
+          .map((validation) => ({ ...validation, bindingKey, node }) as NodeValidation<ComponentValidation>),
+      );
     }
+
     return bindingValidations as {
       [binding in keyof NonNullable<IDataModelBindings<T>>]: OutValues;
     };
-  }, [component, mask, node, dataModelBindings]);
+  }, [component, node, dataModelBindings]);
 }

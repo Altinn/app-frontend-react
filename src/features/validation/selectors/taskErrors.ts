@@ -18,7 +18,6 @@ export function useTaskErrors(): {
   taskErrors: BaseValidation<'error'>[];
 } {
   const selector = Validation.useSelector();
-  const visibilitySelector = NodesInternal.useValidationVisibilitySelector();
   const nodeValidationsSelector = NodesInternal.useValidationsSelector();
   const traversalSelector = useNodeTraversalSelectorSilent();
 
@@ -30,14 +29,12 @@ export function useTaskErrors(): {
     const formErrors: NodeValidation<AnyValidation<'error'>>[] = [];
     const allNodes = traversalSelector((t) => t?.allNodes(), []);
     for (const node of allNodes ?? emptyArray) {
-      const mask = visibilitySelector(node);
-      const validations = nodeValidationsSelector(node);
-      const selected = selectValidations(validations, mask, 'error') as AnyValidation<'error'>[];
-      formErrors.push(...selected.map((v) => ({ ...v, node })));
+      const validations = nodeValidationsSelector(node, 'visible', 'error') as AnyValidation<'error'>[];
+      formErrors.push(...validations.map((v) => ({ ...v, node })));
     }
 
     return formErrors;
-  }, [nodeValidationsSelector, traversalSelector, visibilitySelector]);
+  }, [nodeValidationsSelector, traversalSelector]);
 
   const taskErrors = useMemo(() => {
     const taskErrors: BaseValidation<'error'>[] = [];

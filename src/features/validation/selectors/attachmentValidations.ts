@@ -2,8 +2,6 @@ import { useMemo } from 'react';
 
 import type { AttachmentValidation, NodeValidation } from '..';
 
-import { selectValidations } from 'src/features/validation/utils';
-import { getResolvedVisibilityForAttachment } from 'src/features/validation/visibility/visibilityUtils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { AttachmentsPlugin } from 'src/features/attachments/AttachmentsPlugin';
 import type { ValidationPlugin } from 'src/features/validation/ValidationPlugin';
@@ -19,18 +17,17 @@ export function useAttachmentValidations(
   node: LayoutNode<ValidTypes>,
   attachmentId: string | undefined,
 ): NodeValidation<AttachmentValidation>[] {
-  const visibility = NodesInternal.useValidationVisibility(node);
-  const validations = NodesInternal.useValidations(node);
+  const validations = NodesInternal.useVisibleValidations(node);
 
   return useMemo(() => {
     if (!attachmentId) {
-      return [];
+      return emptyArray;
     }
-    const v = validations.filter(
-      (v) => 'attachmentId' in v && v.attachmentId === attachmentId,
-    ) as AttachmentValidation[];
 
-    const output = selectValidations(v, getResolvedVisibilityForAttachment(v[0]?.visibility, visibility));
-    return output.map((validation) => ({ ...validation, node }));
-  }, [attachmentId, node, validations, visibility]);
+    return validations
+      .filter((v) => 'attachmentId' in v && v.attachmentId === attachmentId)
+      .map((validation) => ({ ...validation, node })) as NodeValidation<AttachmentValidation>[];
+  }, [attachmentId, node, validations]);
 }
+
+const emptyArray: never[] = [];

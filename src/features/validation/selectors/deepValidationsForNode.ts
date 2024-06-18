@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 
 import type { NodeValidation } from '..';
 
-import { selectValidations } from 'src/features/validation/utils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -17,7 +16,6 @@ export function useDeepValidationsForNode(
   onlyChildren: boolean = false,
   onlyInRowUuid?: string,
 ): NodeValidation[] {
-  const visibilitySelector = NodesInternal.useValidationVisibilitySelector();
   const validationsSelector = NodesInternal.useValidationsSelector();
   const nodesToValidate = useNodeTraversal((t) => {
     if (!node || t.targetIsRoot()) {
@@ -39,11 +37,8 @@ export function useDeepValidationsForNode(
       return emptyArray;
     }
 
-    return nodesToValidate.flatMap((node) => {
-      const mask = visibilitySelector(node);
-      const validations = validationsSelector(node);
-      const filtered = selectValidations(validations, mask);
-      return filtered.map((validation) => ({ ...validation, node }));
-    });
-  }, [nodesToValidate, visibilitySelector, validationsSelector]);
+    return nodesToValidate.flatMap((node) =>
+      validationsSelector(node, 'visible').map((validation) => ({ ...validation, node })),
+    );
+  }, [nodesToValidate, validationsSelector]);
 }

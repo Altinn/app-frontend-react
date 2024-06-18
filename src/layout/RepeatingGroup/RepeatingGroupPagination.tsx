@@ -5,7 +5,6 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { selectValidations } from 'src/features/validation/utils';
 import { useIsMini, useIsMobile, useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import {
   useRepeatingGroup,
@@ -230,7 +229,6 @@ function PaginationComponent({
 function usePagesWithErrors(rowsPerPage: number | undefined, node: LayoutNode<'RepeatingGroup'>) {
   const rows = useNodeItem(node).rows;
   const nodeValidationsSelector = NodesInternal.useValidationsSelector();
-  const visibilitySelector = NodesInternal.useValidationVisibilitySelector();
   const traversalSelector = useNodeTraversalSelector();
 
   return useMemo(() => {
@@ -263,10 +261,8 @@ function usePagesWithErrors(rowsPerPage: number | undefined, node: LayoutNode<'R
       });
 
       for (const node of deepNodes) {
-        const validations = nodeValidationsSelector(node);
-        const mask = visibilitySelector(node);
-        const filtered = selectValidations(validations, mask, 'error');
-        if (filtered.length > 0) {
+        const validations = nodeValidationsSelector(node, 'visible', 'error');
+        if (validations.length > 0) {
           pagesWithErrors.push(pageNumber);
           break;
         }
@@ -274,5 +270,5 @@ function usePagesWithErrors(rowsPerPage: number | undefined, node: LayoutNode<'R
     }
 
     return pagesWithErrors;
-  }, [nodeValidationsSelector, rows, rowsPerPage, traversalSelector, visibilitySelector]);
+  }, [nodeValidationsSelector, rows, rowsPerPage, traversalSelector]);
 }

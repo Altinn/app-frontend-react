@@ -125,7 +125,7 @@ export type AttachmentValidation<Severity extends ValidationSeverity = Validatio
      * Attachment validations may have their own validation visibility tacked on. This is used to postpone displaying
      * the validation for 'you have to select a tag' for FileUploadWithTag until the user has interacted with the
      * save button.
-     * @see getResolvedVisibilityForAttachment
+     * @see isValidationVisible
      */
     visibility?: number;
   };

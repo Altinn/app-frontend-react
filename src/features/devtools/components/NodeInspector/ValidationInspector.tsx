@@ -9,7 +9,6 @@ import { Lang } from 'src/features/language/Lang';
 import { ValidationMask } from 'src/features/validation';
 import { isValidationVisible } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
-import { getResolvedVisibilityForAttachment } from 'src/features/validation/visibility/visibilityUtils';
 import { implementsAnyValidation } from 'src/layout';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -62,10 +61,7 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
       const attachment = attachments.find((a) => isAttachmentUploaded(a) && a.data.id === attachmentId);
       const key = `Vedlegg ${attachment?.data.filename ?? attachmentId}`;
       if (!obj[key]) {
-        const attachmentVisibility = getResolvedVisibilityForAttachment(
-          attachmentValidation.visibility,
-          nodeVisibility,
-        );
+        const attachmentVisibility = nodeVisibility | (attachmentValidation.visibility ?? 0);
         obj[key] = { attachmentVisibility, validations: [] };
       }
       obj[key].validations.push(val);

@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { getVisibilityMask, selectValidations } from 'src/features/validation/utils';
+import { getVisibilityMask } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -28,11 +28,7 @@ export function useOnGroupCloseValidation() {
           .with(node)
           .flat(undefined, { onlyInRowUuid: rowUuid })
           .filter((n) => n.getId() !== node.getId()) // Exclude self, only check children
-          .filter((n) => {
-            const validations = nodeValidationSelector(n);
-            const filtered = selectValidations(validations, mask, 'error');
-            return filtered.length > 0;
-          }),
+          .filter((n) => nodeValidationSelector(n, mask, 'error').length > 0),
       [node, rowUuid, mask],
     );
 
