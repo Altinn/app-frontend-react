@@ -26,6 +26,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
     valueType: 'single',
     node,
     removeDuplicates: true,
+    removeEmpty: true,
   });
 
   const changeMessageGenerator = useCallback(
@@ -88,10 +89,10 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
             key={option.value}
             value={option.value}
             description={option.description ? langAsString(option.description) : undefined}
-            displayValue={langAsString(option.label ?? option.value)}
+            displayValue={langAsString(option.label)}
           >
             <Lang
-              id={option.label ?? option.value}
+              id={option.label}
               node={node}
             />
           </Combobox.Option>

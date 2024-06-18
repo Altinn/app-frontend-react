@@ -22,6 +22,7 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
     valueType: 'multi',
     node,
     removeDuplicates: true,
+    removeEmpty: true,
   });
   const { langAsString, lang } = useLanguage();
 
@@ -87,10 +88,10 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
             key={option.value}
             value={option.value}
             description={option.description ? langAsString(option.description) : undefined}
-            displayValue={langAsString(option.label ?? option.value)}
+            displayValue={langAsString(option.label)}
           >
             <Lang
-              id={option.label ?? option.value}
+              id={option.label}
               node={node}
             />
           </Combobox.Option>

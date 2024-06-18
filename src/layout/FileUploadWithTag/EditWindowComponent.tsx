@@ -176,10 +176,10 @@ export function EditWindowComponent({ attachment, mobileView, node, options }: E
                   key={option.value}
                   value={option.value}
                   description={option.description ? langAsString(option.description) : undefined}
-                  displayValue={langAsString(option.label ?? option.value)}
+                  displayValue={langAsString(option.label)}
                 >
                   <Lang
-                    id={option.label ?? option.value}
+                    id={option.label}
                     node={node}
                   />
                 </Combobox.Option>
