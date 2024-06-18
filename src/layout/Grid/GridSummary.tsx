@@ -30,9 +30,9 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
   const { rows, textResourceBindings } = componentNode.item;
   const { title } = textResourceBindings ?? {};
 
-  const shouldHaveFullWidth = componentNode.parent instanceof LayoutPage;
   const columnSettings: ITableColumnFormatting = {};
   const isMobile = useIsMobile();
+  const shouldHaveFullWidth = componentNode.parent instanceof LayoutPage && !isMobile;
   const isNested = componentNode.parent instanceof BaseLayoutNode;
 
   return (
@@ -79,6 +79,7 @@ interface GridRowProps {
 }
 
 export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: GridRowProps) {
+  const isMobile = useIsMobile();
   const firstComponentCell = row.cells.find((cell) => cell && 'node' in cell);
   const firstComponentNode =
     firstComponentCell &&
@@ -154,14 +155,14 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
           />
         );
       })}
-      {row.header && (
+      {row.header && !isMobile && (
         <Table.HeaderCell
           className={cn({
             [classes.fullWidthCellLast]: !isNested,
           })}
         />
       )}
-      {!row.header && (
+      {!row.header && !isMobile && (
         <Table.Cell
           align='right'
           className={cn({
@@ -227,6 +228,7 @@ function CellWithComponent({
   rowReadOnly,
 }: CellWithComponentProps) {
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
+  const isMobile = useIsMobile();
   const displayDataProps = useDisplayDataProps();
   if (node && !node.isHidden()) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
@@ -236,15 +238,13 @@ function CellWithComponent({
         style={columnStyles}
       >
         {('getDisplayData' in node.def && node.def.getDisplayData(node as LayoutNode<any>, displayDataProps)) || '-'}
-        {/* <GenericComponent
-          node={node}
-          overrideDisplay={{
-            renderLabel: false,
-            renderLegend: false,
-            renderedInTable: true,
-            rowReadOnly,
-          }}
-        /> */}
+        {isMobile && (
+          <EditButton
+            className={classes.mobileEditButton}
+            componentNode={node}
+            summaryComponentId=''
+          />
+        )}
       </CellComponent>
     );
   }

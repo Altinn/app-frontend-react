@@ -95,9 +95,14 @@ tr > .fullWidthCellLast {
   flex-direction: column;
 }
 
-.responsiveTable {
-  display: block;
+.mobileEditButton {
+  margin-left: auto;
 }
+
+/* after fixing wcag issue with single rows wrapped in individual tablebodies
+ .responsiveTable {
+  display: block;
+} */
 
 .responsiveTable thead {
   display: none;
@@ -114,14 +119,18 @@ tr > .fullWidthCellLast {
 }
 
 .responsiveTable td {
-  display: block;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   border: none;
+  padding: var(--fds-spacing-2) 0;
 }
 
+/*  after fixing wcag issue with single rows wrapped in individual tablebodies
 .responsiveTable tr:last-child {
   border-bottom: none;
-}
+} */
 
 .responsiveTable tr {
-  border-bottom: 1px solid var(--fds-semantic-border-neutral-default);
+  border-bottom: 2px solid var(--fds-semantic-border-neutral-default);
 }
