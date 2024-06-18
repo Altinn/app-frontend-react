@@ -87,11 +87,11 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
           <Combobox.Option
             key={option.value}
             value={option.value}
-            description={langAsString(option.description)}
-            displayValue={langAsString(option.label)}
+            description={option.description ? langAsString(option.description) : undefined}
+            displayValue={langAsString(option.label ?? option.value)}
           >
             <Lang
-              id={option.label}
+              id={option.label ?? option.value}
               node={node}
             />
           </Combobox.Option>
