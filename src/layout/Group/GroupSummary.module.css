@@ -5,6 +5,7 @@
   border-radius: var(--fds-border_radius-medium);
   border-color: var(--fds-semantic-border-neutral-default);
   border-style: dashed;
+  margin-top: var(--fds-spacing-4);
 }
 
 .groupContainer .description {
