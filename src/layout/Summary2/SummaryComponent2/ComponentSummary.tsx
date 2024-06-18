@@ -3,6 +3,7 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
+import { GroupSummary } from 'src/layout/Group/GroupSummary';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useNode } from 'src/utils/layout/NodesContext';
@@ -12,6 +13,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 interface ComponentSummaryProps {
   componentNode: LayoutNode;
   summaryOverrides: CompSummary2Internal['overWriteProperties'];
+  hierarchyLevel?: number;
 }
 
 interface ResolveComponentProps {
@@ -19,7 +21,7 @@ interface ResolveComponentProps {
   summaryOverrides: any;
 }
 
-export function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryProps) {
+export function ComponentSummary({ componentNode, summaryOverrides, hierarchyLevel = 0 }: ComponentSummaryProps) {
   if (componentNode.isHidden()) {
     return null;
   }
@@ -31,6 +33,7 @@ export function ComponentSummary({ componentNode, summaryOverrides }: ComponentS
     componentNode.item.childComponents.map((child) => (
       <ComponentSummary
         componentNode={child}
+        hierarchyLevel={hierarchyLevel + 1}
         key={child.item.id}
         summaryOverrides={summaryOverrides}
       />
@@ -44,6 +47,8 @@ export function ComponentSummary({ componentNode, summaryOverrides }: ComponentS
     return null;
   }
 
+  const isGroup = componentNode.item.type === 'Group';
+
   return (
     <Grid
       item={true}
@@ -51,7 +56,13 @@ export function ComponentSummary({ componentNode, summaryOverrides }: ComponentS
       {...gridBreakpoints(componentNode.item.grid)}
     >
       {renderedComponent}
-      {childComponents}
+      {isGroup && (
+        <GroupSummary
+          componentNode={componentNode as LayoutNode<'Group'>}
+          hierarchyLevel={hierarchyLevel}
+          childComponents={childComponents || null}
+        />
+      )}
     </Grid>
   );
 }
