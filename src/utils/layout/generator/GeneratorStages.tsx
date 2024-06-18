@@ -277,6 +277,7 @@ export const NodesStateQueue = {
   },
   useSetNodeProp() {
     const setNodePropRequestsRef = useSelector((state) => state.toCommit.setNodeProps);
+    useCommitWhenFinished();
 
     return useCallback(
       (request: SetNodePropRequest<any, any>) => {
@@ -287,6 +288,7 @@ export const NodesStateQueue = {
   },
   useSetRowExtras() {
     const setRowExtrasRequestsRef = useSelector((state) => state.toCommit.setRowExtras);
+    useCommitWhenFinished();
 
     return useCallback(
       (request: SetRowExtrasRequest) => {
@@ -296,6 +298,25 @@ export const NodesStateQueue = {
     );
   },
 };
+
+/**
+ * Some of the queue hooks need to commit changes even when all stages are in a finished state. Even though we're not
+ * in a generation cycle, we still need to commit changes like expressions updating, validations, etc. To speed this
+ * up (setTimeout is slow, at least when debugging), we'll set a timeout once if this selector find out the generator
+ * has finished.
+ */
+let commitTimeout: NodeJS.Timeout | null = null;
+function useCommitWhenFinished() {
+  const commit = useCommit();
+  useSelector((state) => {
+    if (state.currentStage === StageFinished && !commitTimeout) {
+      commitTimeout = setTimeout(() => {
+        commit();
+        commitTimeout = null;
+      }, 4);
+    }
+  });
+}
 
 function SetTickFunc() {
   const currentStageRef = useSelectorAsRef((state) => state.currentStage);

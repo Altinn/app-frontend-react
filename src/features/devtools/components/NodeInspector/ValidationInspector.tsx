@@ -8,7 +8,6 @@ import classes from 'src/features/devtools/components/NodeInspector/ValidationIn
 import { Lang } from 'src/features/language/Lang';
 import { ValidationMask } from 'src/features/validation';
 import { isValidationVisible } from 'src/features/validation/utils';
-import { Validation } from 'src/features/validation/validationContext';
 import { implementsAnyValidation } from 'src/layout';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -30,7 +29,6 @@ const categories = [
 ] as const;
 
 export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
-  const fieldSelector = Validation.useFieldSelector();
   const validations = NodesInternal.useValidations(node);
   const nodeVisibility = NodesInternal.useValidationVisibility(node);
   const { dataModelBindings, type } = useNodeItem(node);
@@ -71,16 +69,11 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
 
   // Validations for data model bindings
   const bindingValidations: { [key: string]: NodeValidation[] } = {};
-  for (const [bindingKey, field] of Object.entries(dataModelBindings ?? {})) {
+  for (const bindingKey of Object.keys(dataModelBindings ?? {})) {
     const key = `Datamodell ${bindingKey}`;
-    bindingValidations[key] = [];
 
-    const fieldValidation = fieldSelector((fields) => fields[field], [field]);
-    if (fieldValidation) {
-      bindingValidations[key].push(...fieldValidation.map((validation) => ({ ...validation, node, bindingKey })));
-    }
     const validationsForKey = componentValidations.filter((v) => 'bindingKey' in v && v.bindingKey === bindingKey);
-    bindingValidations[key].push(...validationsForKey.map((validation) => ({ ...validation, node, bindingKey })));
+    bindingValidations[key] = validationsForKey.map((validation) => ({ ...validation, node }));
   }
 
   return (
