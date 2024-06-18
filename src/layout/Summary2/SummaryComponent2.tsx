@@ -32,7 +32,7 @@ interface PageSummaryProps {
 interface ComponentSummaryProps {
   componentNode: LayoutNode;
   summaryOverrides: CompSummary2Internal['overWriteProperties'];
-  isNested?: boolean;
+  hierarchyLevel?: number;
 }
 
 function LayoutSetSummary({ summaryOverrides }: LayoutSetSummaryProps) {
@@ -46,7 +46,7 @@ function LayoutSetSummary({ summaryOverrides }: LayoutSetSummaryProps) {
   ));
 }
 
-function ComponentSummary({ componentNode, summaryOverrides, isNested }: ComponentSummaryProps) {
+function ComponentSummary({ componentNode, summaryOverrides, hierarchyLevel = 0 }: ComponentSummaryProps) {
   if (componentNode.isHidden()) {
     return null;
   }
@@ -60,7 +60,7 @@ function ComponentSummary({ componentNode, summaryOverrides, isNested }: Compone
         key={child.item.id}
         componentNode={child}
         summaryOverrides={summaryOverrides}
-        isNested
+        hierarchyLevel={hierarchyLevel + 1}
       />
     ));
 
@@ -84,7 +84,7 @@ function ComponentSummary({ componentNode, summaryOverrides, isNested }: Compone
       {isGroup && (
         <GroupSummary
           componentNode={componentNode as LayoutNode<'Group'>}
-          isNested={isNested}
+          hierarchyLevel={hierarchyLevel}
           childComponents={childComponents || null}
         />
       )}
