@@ -161,7 +161,7 @@ const defaultDataType = Symbol('defaultDataType');
 const mutateDataModelBindings: (props: ChildFactoryProps<'RepeatingGroup'>, rowIndex: number) => ChildMutator =
   (props, rowIndex) => (item) => {
     const groupBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.group : undefined;
-    const groupBindingProperty = isDataModelReference(groupBinding) ? groupBinding.property : groupBinding;
+    const groupBindingProperty = isDataModelReference(groupBinding) ? groupBinding.field : groupBinding;
     const groupBindingDataType = isDataModelReference(groupBinding) ? groupBinding.dataType : defaultDataType;
 
     if (groupBindingProperty) {
@@ -171,7 +171,7 @@ const mutateDataModelBindings: (props: ChildFactoryProps<'RepeatingGroup'>, rowI
         if (typeof bindings[key] === 'string' && groupBindingDataType === defaultDataType) {
           bindings[key] = bindings[key].replace(`${groupBindingProperty}.`, `${groupBindingProperty}[${rowIndex}].`);
         } else if (isDataModelReference(bindings[key]) && bindings[key].dataType === groupBindingDataType) {
-          bindings[key].property = bindings[key].property.replace(
+          bindings[key].field = bindings[key].field.replace(
             `${groupBindingProperty}.`,
             `${groupBindingProperty}[${rowIndex}].`,
           );

@@ -91,7 +91,7 @@ const createLikertLayout = (props: Partial<CompLikertExternal> | undefined): Com
 export const createFormDataUpdateProp = (index: number, optionValue: string): FDNewValue => ({
   reference: {
     dataType: defaultDataTypeMock,
-    property: `Questions[${index}].Answer`,
+    field: `Questions[${index}].Answer`,
   },
   newValue: optionValue,
 });

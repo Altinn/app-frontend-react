@@ -406,12 +406,12 @@ function tryReadFromDataModel(
       );
       return undefined;
     }
-    return formDataSelector({ dataType: defaultDataType, property: path });
+    return formDataSelector({ dataType: defaultDataType, field: path });
   } else {
     if (!formDataTypes.includes(dataModelName)) {
       return dataModelNotReadable;
     }
-    return formDataSelector({ dataType: dataModelName, property: path });
+    return formDataSelector({ dataType: dataModelName, field: path });
   }
 }
 

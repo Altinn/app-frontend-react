@@ -68,7 +68,7 @@ export function runLegacyRules(
 
     if (updatedDataBinding) {
       changes.push({
-        reference: { property: updatedDataBinding, dataType },
+        reference: { field: updatedDataBinding, dataType },
         newValue: result,
       });
     }

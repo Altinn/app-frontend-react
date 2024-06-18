@@ -150,7 +150,7 @@ describe('useGetOptions', () => {
     for (const option of options) {
       await userEvent.click(screen.getByRole('button', { name: `Choose ${option.label} option` }));
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'result', dataType: defaultDataTypeMock },
+        reference: { field: 'result', dataType: defaultDataTypeMock },
         newValue: option.value.toString(),
       });
       (formDataMethods.setLeafValue as jest.Mock).mockClear();

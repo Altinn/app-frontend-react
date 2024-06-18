@@ -135,7 +135,7 @@ describe('RepeatingGroupTable', () => {
 
       expect(formDataMethods.removeFromListCallback).toBeCalledTimes(1);
       expect(formDataMethods.removeFromListCallback).toBeCalledWith({
-        reference: { property: 'some-group', dataType: defaultDataTypeMock },
+        reference: { field: 'some-group', dataType: defaultDataTypeMock },
         startAtIndex: 0,
         callback: expect.any(Function),
       });

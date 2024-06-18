@@ -32,7 +32,7 @@ export function NodeInspectorDataModelBindings({ dataModelBindings }: Props) {
             {bindings[key].dataType}
             <br />
             <em>Sti: </em>
-            {bindings[key].property}
+            {bindings[key].field}
             <br />
             <em>Resultat: </em>
             <div className={classes.json}>{JSON.stringify(results[key], null, 2)}</div>

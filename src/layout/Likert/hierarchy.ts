@@ -145,9 +145,7 @@ const mutateTextResourceBindings: (props: ChildFactoryProps<'Likert'>) => ChildM
 const mutateDataModelBindings: (props: ChildFactoryProps<'Likert'>, rowIndex: number) => ChildMutator<'LikertItem'> =
   (props, rowIndex) => (item) => {
     const questionsBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.questions : undefined;
-    const questionsBindingProperty = isDataModelReference(questionsBinding)
-      ? questionsBinding.property
-      : questionsBinding;
+    const questionsBindingProperty = isDataModelReference(questionsBinding) ? questionsBinding.field : questionsBinding;
 
     if (questionsBindingProperty) {
       const bindings = item.dataModelBindings || {};
@@ -158,7 +156,7 @@ const mutateDataModelBindings: (props: ChildFactoryProps<'Likert'>, rowIndex: nu
             `${questionsBindingProperty}[${rowIndex}].`,
           );
         } else if (isDataModelReference(bindings[key])) {
-          bindings[key].property = bindings[key].property.replace(
+          bindings[key].field = bindings[key].field.replace(
             `${questionsBindingProperty}.`,
             `${questionsBindingProperty}[${rowIndex}].`,
           );

@@ -33,7 +33,7 @@ interface Props extends Partial<Omit<RenderGenericComponentTestProps<'Dropdown'>
 
 function MySuperSimpleInput() {
   const { setValue, formData } = useDataModelBindings({
-    simpleBinding: { property: 'myInput', dataType: defaultDataTypeMock },
+    simpleBinding: { field: 'myInput', dataType: defaultDataTypeMock },
   });
 
   return (
@@ -98,7 +98,7 @@ describe('DropdownComponent', () => {
 
     await waitFor(() =>
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'myDropdown', dataType: defaultDataTypeMock },
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
         newValue: 'sweden',
       }),
     );
@@ -138,7 +138,7 @@ describe('DropdownComponent', () => {
 
     await waitFor(() =>
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'myDropdown', dataType: defaultDataTypeMock },
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
         newValue: 'denmark',
       }),
     );
@@ -207,7 +207,7 @@ describe('DropdownComponent', () => {
     await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1));
     await waitFor(() =>
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'myDropdown', dataType: defaultDataTypeMock },
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
         newValue: 'Value for first',
       }),
     );
@@ -218,7 +218,7 @@ describe('DropdownComponent', () => {
     await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(2));
     await waitFor(() =>
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'myDropdown', dataType: defaultDataTypeMock },
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
         newValue: 'Value for second',
       }),
     );

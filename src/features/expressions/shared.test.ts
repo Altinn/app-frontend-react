@@ -88,7 +88,7 @@ describe('Expressions shared function tests', () => {
         const options: AllOptionsMap = {};
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
-          formDataSelector: (reference) => dot.pick(reference.property, dataModel ?? {}), // TODO(Datamodels): We should probably support multiple data models in shared tests. This will also require changes to the backend expressions engine.
+          formDataSelector: (reference) => dot.pick(reference.field, dataModel ?? {}), // TODO(Datamodels): We should probably support multiple data models in shared tests. This will also require changes to the backend expressions engine.
           attachments: convertInstanceDataToAttachments(instanceDataElements),
           instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
@@ -194,7 +194,7 @@ describe('Expressions shared context tests', () => {
       ({ layouts, dataModel, instanceDataElements, instance, frontendSettings, permissions, expectedContexts }) => {
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
-          formDataSelector: (reference) => dot.pick(reference.property, dataModel ?? {}), // TODO(Datamodels): We should probably support multiple data models in shared tests. This will also require changes to the backend expressions engine.
+          formDataSelector: (reference) => dot.pick(reference.field, dataModel ?? {}), // TODO(Datamodels): We should probably support multiple data models in shared tests. This will also require changes to the backend expressions engine.
           attachments: convertInstanceDataToAttachments(instanceDataElements),
           instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),

@@ -233,7 +233,7 @@ function makeActions(
       // have caused data to change.
       const ruleResults = runLegacyRules(ruleConnections, savedData, state.dataModels[dataType].currentData, dataType);
       for (const { reference, newValue } of ruleResults) {
-        dot.str(reference.property, newValue, state.dataModels[dataType].currentData);
+        dot.str(reference.field, newValue, state.dataModels[dataType].currentData);
       }
     } else {
       state.dataModels[dataType].lastSavedData = savedData;
@@ -255,7 +255,7 @@ function makeActions(
       dataType,
     );
     for (const { reference, newValue } of ruleChanges) {
-      dot.str(reference.property, newValue, state.dataModels[dataType].currentData);
+      dot.str(reference.field, newValue, state.dataModels[dataType].currentData);
     }
 
     state.dataModels[dataType].debouncedCurrentData = state.dataModels[dataType].currentData;
@@ -264,17 +264,17 @@ function makeActions(
   function setValue(props: { reference: IDataModelReference; newValue: FDLeafValue; state: FormDataContext }) {
     const { reference, newValue, state } = props;
     if (newValue === '' || newValue === null || newValue === undefined) {
-      dot.delete(reference.property, state.dataModels[reference.dataType].currentData);
-      dot.delete(reference.property, state.dataModels[reference.dataType].invalidCurrentData);
+      dot.delete(reference.field, state.dataModels[reference.dataType].currentData);
+      dot.delete(reference.field, state.dataModels[reference.dataType].invalidCurrentData);
     } else {
-      const schema = schemaLookup[reference.dataType].getSchemaForPath(reference.property)[0];
+      const schema = schemaLookup[reference.dataType].getSchemaForPath(reference.field)[0];
       const { newValue: convertedValue, error } = convertData(newValue, schema);
       if (error) {
-        dot.delete(reference.property, state.dataModels[reference.dataType].currentData);
-        dot.str(reference.property, newValue, state.dataModels[reference.dataType].invalidCurrentData);
+        dot.delete(reference.field, state.dataModels[reference.dataType].currentData);
+        dot.str(reference.field, newValue, state.dataModels[reference.dataType].invalidCurrentData);
       } else {
-        dot.delete(reference.property, state.dataModels[reference.dataType].invalidCurrentData);
-        dot.str(reference.property, convertedValue, state.dataModels[reference.dataType].currentData);
+        dot.delete(reference.field, state.dataModels[reference.dataType].invalidCurrentData);
+        dot.str(reference.field, convertedValue, state.dataModels[reference.dataType].currentData);
       }
     }
   }
@@ -305,7 +305,7 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
-        const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
+        const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
         if (existingValue === newValue) {
           return;
         }
@@ -322,7 +322,7 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
-        const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
+        const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
         if (Array.isArray(existingValue) && existingValue.includes(newValue)) {
           return;
         }
@@ -330,7 +330,7 @@ function makeActions(
         if (Array.isArray(existingValue)) {
           existingValue.push(newValue);
         } else {
-          dot.str(reference.property, [newValue], state.dataModels[reference.dataType].currentData);
+          dot.str(reference.field, [newValue], state.dataModels[reference.dataType].currentData);
         }
       }),
     appendToList: ({ reference, newValue }) =>
@@ -339,12 +339,12 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
-        const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
+        const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
 
         if (Array.isArray(existingValue)) {
           existingValue.push(newValue);
         } else {
-          dot.str(reference.property, [newValue], state.dataModels[reference.dataType].currentData);
+          dot.str(reference.field, [newValue], state.dataModels[reference.dataType].currentData);
         }
       }),
     removeIndexFromList: ({ reference, index }) =>
@@ -353,7 +353,7 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
-        const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
+        const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
         if (index >= existingValue.length) {
           return;
         }
@@ -366,7 +366,7 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
-        const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
+        const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
         if (!existingValue.includes(value)) {
           return;
         }
@@ -379,7 +379,7 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
-        const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
+        const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
         if (!Array.isArray(existingValue)) {
           return;
         }
@@ -414,7 +414,7 @@ function makeActions(
             continue;
           }
 
-          const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
+          const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
           if (existingValue === newValue) {
             continue;
           }

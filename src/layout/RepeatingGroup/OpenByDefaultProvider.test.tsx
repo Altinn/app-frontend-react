@@ -39,7 +39,7 @@ describe('openByDefault', () => {
     }));
     const { deleteRow, visibleRows, hiddenRows } = useRepeatingGroup();
 
-    const data = FD.useDebouncedPick({ property: 'MyGroup', dataType: defaultDataTypeMock });
+    const data = FD.useDebouncedPick({ field: 'MyGroup', dataType: defaultDataTypeMock });
     return (
       <>
         <div data-testid='state'>

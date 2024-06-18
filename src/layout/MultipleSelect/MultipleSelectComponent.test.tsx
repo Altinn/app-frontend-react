@@ -65,7 +65,7 @@ describe('MultipleSelect', () => {
 
     await waitFor(() =>
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'someField', dataType: defaultDataTypeMock },
+        reference: { field: 'someField', dataType: defaultDataTypeMock },
         newValue: 'value1,value3',
       }),
     );

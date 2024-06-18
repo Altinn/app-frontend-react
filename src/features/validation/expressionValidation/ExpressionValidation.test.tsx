@@ -70,7 +70,7 @@ describe('Expression validation shared tests', () => {
 
     const dataSources: HierarchyDataSources = {
       ...getHierarchyDataSourcesMock(),
-      formDataSelector: ({ property }) => dot.pick(property, formData),
+      formDataSelector: ({ field }) => dot.pick(field, formData),
       instanceDataSources: buildInstanceDataSources(),
       authContext: buildAuthContext(undefined),
       isHidden: (nodeId: string) => hiddenFields.has(nodeId),

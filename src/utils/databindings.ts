@@ -22,9 +22,9 @@ export function getBaseDataModelBindings(
   }
 
   return Object.fromEntries(
-    Object.entries(dataModelBindings).map(([bindingKey, { dataType, property }]: [string, IDataModelReference]) => [
+    Object.entries(dataModelBindings).map(([bindingKey, { dataType, field }]: [string, IDataModelReference]) => [
       bindingKey,
-      { dataType, property: getKeyWithoutIndex(property) },
+      { dataType, field: getKeyWithoutIndex(field) },
     ]),
   );
 }
@@ -51,8 +51,8 @@ export function isDataModelReference(binding: unknown): binding is IDataModelRef
     typeof binding === 'object' &&
     binding != null &&
     !Array.isArray(binding) &&
-    'property' in binding &&
-    typeof binding.property === 'string' &&
+    'field' in binding &&
+    typeof binding.field === 'string' &&
     'dataType' in binding &&
     typeof binding.dataType === 'string'
   );
@@ -74,7 +74,7 @@ export function resolveDataModelBindings<Item extends UnprocessedItem = Unproces
     const dataType = currentLayoutSet.dataType;
     for (const [bindingKey, binding] of Object.entries(item.dataModelBindings)) {
       if (typeof binding === 'string') {
-        item.dataModelBindings[bindingKey] = { dataType, property: binding };
+        item.dataModelBindings[bindingKey] = { dataType, field: binding };
       }
     }
   }

@@ -68,7 +68,7 @@ function runConditionalRenderingRule(
   for (const key of inputKeys) {
     const param = rule.inputParams[key].replace(/{\d+}/g, '');
     const transposed = node?.transposeDataModel(param) ?? param;
-    const value = formDataSelector({ dataType, property: transposed });
+    const value = formDataSelector({ dataType, field: transposed });
 
     if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
       inputObj[key] = value;

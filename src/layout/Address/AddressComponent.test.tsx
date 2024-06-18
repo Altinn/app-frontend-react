@@ -87,7 +87,7 @@ describe('AddressComponent', () => {
     await userEvent.tab();
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'address', dataType: defaultDataTypeMock },
+      reference: { field: 'address', dataType: defaultDataTypeMock },
       newValue: 'Slottsplassen 1',
     });
   });
@@ -146,7 +146,7 @@ describe('AddressComponent', () => {
     await screen.findByDisplayValue('OSLO');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'postPlace', dataType: defaultDataTypeMock },
+      reference: { field: 'postPlace', dataType: defaultDataTypeMock },
       newValue: 'OSLO',
     });
   });
@@ -165,7 +165,7 @@ describe('AddressComponent', () => {
     await userEvent.tab();
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'zipCode', dataType: defaultDataTypeMock },
+      reference: { field: 'zipCode', dataType: defaultDataTypeMock },
       newValue: '0001',
     });
   });
@@ -184,11 +184,11 @@ describe('AddressComponent', () => {
     await userEvent.tab();
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'zipCode', dataType: defaultDataTypeMock },
+      reference: { field: 'zipCode', dataType: defaultDataTypeMock },
       newValue: '',
     });
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'postPlace', dataType: defaultDataTypeMock },
+      reference: { field: 'postPlace', dataType: defaultDataTypeMock },
       newValue: '',
     });
 

@@ -74,7 +74,7 @@ describe('CheckboxesContainerComponent', () => {
 
     await waitFor(() => {
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'selectedValues', dataType: defaultDataTypeMock },
+        reference: { field: 'selectedValues', dataType: defaultDataTypeMock },
         newValue: 'sweden',
       });
     });
@@ -132,7 +132,7 @@ describe('CheckboxesContainerComponent', () => {
 
     await waitFor(() => {
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'selectedValues', dataType: defaultDataTypeMock },
+        reference: { field: 'selectedValues', dataType: defaultDataTypeMock },
         newValue: 'norway,denmark',
       });
     });
@@ -154,7 +154,7 @@ describe('CheckboxesContainerComponent', () => {
 
     await waitFor(() => {
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'selectedValues', dataType: defaultDataTypeMock },
+        reference: { field: 'selectedValues', dataType: defaultDataTypeMock },
         newValue: 'norway',
       });
     });
@@ -188,7 +188,7 @@ describe('CheckboxesContainerComponent', () => {
 
     await waitFor(() => {
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'selectedValues', dataType: defaultDataTypeMock },
+        reference: { field: 'selectedValues', dataType: defaultDataTypeMock },
         newValue: 'denmark',
       });
     });
@@ -280,7 +280,7 @@ describe('CheckboxesContainerComponent', () => {
 
     await waitFor(() => {
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'selectedValues', dataType: defaultDataTypeMock },
+        reference: { field: 'selectedValues', dataType: defaultDataTypeMock },
         newValue: 'Value for second',
       });
     });

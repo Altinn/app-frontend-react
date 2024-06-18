@@ -64,7 +64,7 @@ describe('conditionalRendering', () => {
   function makeNodes(formData: object) {
     return resolvedNodesInLayouts({ FormLayout: layout }, 'FormLayout', {
       ...getHierarchyDataSourcesMock(),
-      formDataSelector: (reference) => dot.pick(reference.property, formData), // the dataType is ignored and can set to whatever
+      formDataSelector: (reference) => dot.pick(reference.field, formData), // the dataType is ignored and can set to whatever
     });
   }
 

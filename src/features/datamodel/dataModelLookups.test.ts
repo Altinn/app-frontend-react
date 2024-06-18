@@ -45,7 +45,7 @@ describe('Data model lookups in real apps', () => {
         const ctx: LayoutValidationCtx<any> = {
           node,
           lookupBinding(reference: IDataModelReference) {
-            const schemaPath = dotNotationToPointer(reference.property);
+            const schemaPath = dotNotationToPointer(reference.field);
             return lookupBindingInSchema({
               schema,
               targetPointer: schemaPath,

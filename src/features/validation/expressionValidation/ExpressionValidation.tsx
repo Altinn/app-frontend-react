@@ -53,7 +53,7 @@ export function ExpressionValidation({ dataType }: { dataType: string }) {
             continue;
           }
 
-          const field = reference.property;
+          const field = reference.field;
 
           /**
            * Should not run validations on the same field multiple times

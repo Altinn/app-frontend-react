@@ -555,12 +555,12 @@ export const ExprFunctions = {
       const maybeNode = this.failWithoutNode();
       if (maybeNode instanceof BaseLayoutNode) {
         const newPath = maybeNode?.transposeDataModel(propertyPath);
-        return pickSimpleValue({ property: newPath, dataType }, this.dataSources.formDataSelector);
+        return pickSimpleValue({ field: newPath, dataType }, this.dataSources.formDataSelector);
       }
 
       // No need to transpose the data model according to the location inside a repeating group when the context is
       // a LayoutPage (i.e., when we're resolving an expression directly on the layout definition).
-      return pickSimpleValue({ property: propertyPath, dataType }, this.dataSources.formDataSelector);
+      return pickSimpleValue({ field: propertyPath, dataType }, this.dataSources.formDataSelector);
     },
     args: [ExprVal.String, ExprVal.String] as const,
     minArguments: 1,
@@ -775,7 +775,7 @@ export const ExprFunctions = {
       if (dataType == null) {
         throw new ExprRuntimeError(this, `Cannot lookup dataType undefined`);
       }
-      const array = this.dataSources.formDataSelector({ property: path, dataType });
+      const array = this.dataSources.formDataSelector({ field: path, dataType });
       if (typeof array != 'object' || !Array.isArray(array)) {
         return '';
       }

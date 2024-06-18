@@ -407,10 +407,10 @@ const useWaitForSave = () => {
 const emptyObject: any = {};
 
 const debouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
-  dot.pick(reference.property, state.dataModels[reference.dataType].debouncedCurrentData);
+  dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
 const invalidDebouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
-  dot.pick(reference.property, state.dataModels[reference.dataType].invalidDebouncedCurrentData);
-const makeCacheKey = (reference: IDataModelReference) => `${reference.dataType}/${reference.property}`;
+  dot.pick(reference.field, state.dataModels[reference.dataType].invalidDebouncedCurrentData);
+const makeCacheKey = (reference: IDataModelReference) => `${reference.dataType}/${reference.field}`;
 
 export const FD = {
   /**
@@ -451,7 +451,7 @@ export const FD = {
    * the value is explicitly set to null.
    */
   useDebouncedPick(reference: IDataModelReference): FDValue {
-    return useSelector((v) => dot.pick(reference.property, v.dataModels[reference.dataType].debouncedCurrentData));
+    return useSelector((v) => dot.pick(reference.field, v.dataModels[reference.dataType].debouncedCurrentData));
   },
 
   /**
@@ -470,15 +470,15 @@ export const FD = {
       }
       const out: any = {};
       for (const key of Object.keys(bindings)) {
-        const property = bindings[key].property;
+        const field = bindings[key].field;
         const dataType = bindings[key].dataType;
-        const invalidValue = dot.pick(property, s.dataModels[dataType].invalidCurrentData);
+        const invalidValue = dot.pick(field, s.dataModels[dataType].invalidCurrentData);
         if (invalidValue !== undefined) {
           out[key] = invalidValue;
           continue;
         }
 
-        const value = dot.pick(property, s.dataModels[dataType].currentData);
+        const value = dot.pick(field, s.dataModels[dataType].currentData);
         if (dataAs === 'raw') {
           out[key] = value;
         } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
@@ -508,9 +508,9 @@ export const FD = {
       }
       const out: any = {};
       for (const key of Object.keys(bindings)) {
-        const property = bindings[key].property;
+        const field = bindings[key].field;
         const dataType = bindings[key].dataType;
-        out[key] = dot.pick(property, s.dataModels[dataType].invalidCurrentData) === undefined;
+        out[key] = dot.pick(field, s.dataModels[dataType].invalidCurrentData) === undefined;
       }
       return out;
     }),

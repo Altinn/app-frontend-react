@@ -159,8 +159,8 @@ export function getValidationsForNode(
       node.item.dataModelBindings as Record<string, IDataModelReference>,
     )) {
       const fieldValidations = selector(
-        `field/${reference.dataType}/${reference.property}`,
-        (state) => state.state.dataModels[reference.dataType]?.[reference.property],
+        `field/${reference.dataType}/${reference.field}`,
+        (state) => state.state.dataModels[reference.dataType]?.[reference.field],
       );
       if (fieldValidations) {
         const validations = filterValidations(selectValidations(fieldValidations, mask, severity), node);

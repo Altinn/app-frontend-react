@@ -39,7 +39,7 @@ describe('TextAreaComponent', () => {
     await userEvent.type(textarea, addedText);
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'myTextArea', dataType: defaultDataTypeMock },
+      reference: { field: 'myTextArea', dataType: defaultDataTypeMock },
       newValue: `${initialText}${addedText}`,
     });
   });

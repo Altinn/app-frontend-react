@@ -22,10 +22,10 @@ describe('useDataModelBindings', () => {
     renderCount.current++;
 
     const { formData, setValue, setValues, isValid, debounce } = useDataModelBindings({
-      stringy: { property: 'stringyField', dataType: defaultDataTypeMock },
-      decimal: { property: 'decimalField', dataType: defaultDataTypeMock },
-      integer: { property: 'integerField', dataType: defaultDataTypeMock },
-      boolean: { property: 'booleanField', dataType: defaultDataTypeMock },
+      stringy: { field: 'stringyField', dataType: defaultDataTypeMock },
+      decimal: { field: 'decimalField', dataType: defaultDataTypeMock },
+      integer: { field: 'integerField', dataType: defaultDataTypeMock },
+      boolean: { field: 'booleanField', dataType: defaultDataTypeMock },
     });
 
     return (
@@ -130,7 +130,7 @@ describe('useDataModelBindings', () => {
     expect(screen.getByTestId('isValid-stringy')).toHaveTextContent('yes');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'stringyField', dataType: defaultDataTypeMock },
+      reference: { field: 'stringyField', dataType: defaultDataTypeMock },
       newValue: fooBar,
     });
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(fooBar.length);
@@ -146,7 +146,7 @@ describe('useDataModelBindings', () => {
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'decimalField', dataType: defaultDataTypeMock },
+      reference: { field: 'decimalField', dataType: defaultDataTypeMock },
       newValue: '-',
     });
 
@@ -176,7 +176,7 @@ describe('useDataModelBindings', () => {
     expect(screen.getByTestId('isValid-decimal')).toHaveTextContent('yes');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'decimalField', dataType: defaultDataTypeMock },
+      reference: { field: 'decimalField', dataType: defaultDataTypeMock },
       newValue: '-1.53', // Inputs are passed as strings
     });
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(fullDecimal.length);
@@ -193,7 +193,7 @@ describe('useDataModelBindings', () => {
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'integerField', dataType: defaultDataTypeMock },
+      reference: { field: 'integerField', dataType: defaultDataTypeMock },
       newValue: '-',
     });
 
@@ -223,7 +223,7 @@ describe('useDataModelBindings', () => {
     expect(screen.getByTestId('isValid-integer')).toHaveTextContent('yes');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'integerField', dataType: defaultDataTypeMock },
+      reference: { field: 'integerField', dataType: defaultDataTypeMock },
       newValue: '-153', // Inputs are passed as strings
     });
 
@@ -246,7 +246,7 @@ describe('useDataModelBindings', () => {
     expect(screen.getByTestId('isValid-boolean')).toHaveTextContent('yes');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'booleanField', dataType: defaultDataTypeMock },
+      reference: { field: 'booleanField', dataType: defaultDataTypeMock },
       newValue: 'true', // Inputs are passed as strings
     });
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(4);

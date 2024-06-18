@@ -150,9 +150,9 @@ describe('ListComponent', () => {
     expect(formDataMethods.setMultiLeafValues).toHaveBeenCalledWith({
       debounceTimeout: undefined,
       changes: [
-        { reference: { property: 'CountryName', dataType: defaultDataTypeMock }, newValue: 'Sweden' },
-        { reference: { property: 'CountryPopulation', dataType: defaultDataTypeMock }, newValue: 10 },
-        { reference: { property: 'CountryHighestMountain', dataType: defaultDataTypeMock }, newValue: 1738 },
+        { reference: { field: 'CountryName', dataType: defaultDataTypeMock }, newValue: 'Sweden' },
+        { reference: { field: 'CountryPopulation', dataType: defaultDataTypeMock }, newValue: 10 },
+        { reference: { field: 'CountryHighestMountain', dataType: defaultDataTypeMock }, newValue: 1738 },
       ],
     });
     expect(screen.getByTestId('render-count')).toHaveTextContent('2');
@@ -162,9 +162,9 @@ describe('ListComponent', () => {
     expect(formDataMethods.setMultiLeafValues).toHaveBeenCalledWith({
       debounceTimeout: undefined,
       changes: [
-        { reference: { property: 'CountryName', dataType: defaultDataTypeMock }, newValue: 'Denmark' },
-        { reference: { property: 'CountryPopulation', dataType: defaultDataTypeMock }, newValue: 6 },
-        { reference: { property: 'CountryHighestMountain', dataType: defaultDataTypeMock }, newValue: 170 },
+        { reference: { field: 'CountryName', dataType: defaultDataTypeMock }, newValue: 'Denmark' },
+        { reference: { field: 'CountryPopulation', dataType: defaultDataTypeMock }, newValue: 6 },
+        { reference: { field: 'CountryHighestMountain', dataType: defaultDataTypeMock }, newValue: 170 },
       ],
     });
     expect(screen.getByTestId('render-count')).toHaveTextContent('3');

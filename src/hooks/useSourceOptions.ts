@@ -49,7 +49,7 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
   const groupDataType = dataType ?? dataSources.currentLayoutSet?.dataType;
 
   if (groupPath && groupDataType) {
-    const groupData = formDataSelector({ dataType: groupDataType, property: groupPath });
+    const groupData = formDataSelector({ dataType: groupDataType, field: groupPath });
     if (groupData && Array.isArray(groupData)) {
       for (const idx in groupData) {
         const path = `${groupPath}[${idx}]`;
@@ -89,7 +89,7 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
         const helpTextExpression = memoizedAsExpression(helpText, config);
 
         output.push({
-          value: String(formDataSelector({ dataType: groupDataType, property: valuePath })),
+          value: String(formDataSelector({ dataType: groupDataType, field: valuePath })),
           label:
             label && !Array.isArray(label)
               ? langTools.langAsStringUsingPathInDataModel(label, path)

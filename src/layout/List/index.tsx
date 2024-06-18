@@ -28,7 +28,7 @@ export class List extends ListDef {
       return formData[node.item.summaryBinding] ?? '';
     } else if (node.item.bindingToShowInSummary && dmBindings) {
       for (const [key, binding] of Object.entries(dmBindings)) {
-        if (binding.property === node.item.bindingToShowInSummary) {
+        if (binding.field === node.item.bindingToShowInSummary) {
           return formData[key] ?? '';
         }
       }

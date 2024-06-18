@@ -371,8 +371,7 @@ export const DataModels = {
     const { schemaLookup, allDataTypes } = useSelector((state) => state);
     return useMemo(() => {
       if (allDataTypes?.every((dt) => schemaLookup[dt])) {
-        return (reference: IDataModelReference) =>
-          schemaLookup[reference.dataType].getSchemaForPath(reference.property);
+        return (reference: IDataModelReference) => schemaLookup[reference.dataType].getSchemaForPath(reference.field);
       }
       return undefined;
     }, [allDataTypes, schemaLookup]);

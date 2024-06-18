@@ -299,9 +299,9 @@ function useDataModelSelector(): (reference: IDataModelReference) => FieldValida
 
   return useCallback(
     (reference: IDataModelReference) => {
-      const cacheKey = `${reference.dataType}/${reference.property}`;
+      const cacheKey = `${reference.dataType}/${reference.field}`;
       if (!callbacks.current[cacheKey]) {
-        callbacks.current[cacheKey] = (state) => state.state.dataModels[reference.dataType]?.[reference.property];
+        callbacks.current[cacheKey] = (state) => state.state.dataModels[reference.dataType]?.[reference.field];
       }
       return selector(callbacks.current[cacheKey]) as any;
     },

@@ -58,10 +58,7 @@ export class LikertItem extends LikertItemDef {
       errors.push('answer-datamodellbindingen må peke på samme datatype som questions-datamodellbindingen');
     }
 
-    if (
-      parentBindings?.questions &&
-      !bindings.simpleBinding.property.startsWith(`${parentBindings.questions.property}[`)
-    ) {
+    if (parentBindings?.questions && !bindings.simpleBinding.field.startsWith(`${parentBindings.questions.field}[`)) {
       errors.push(`answer-datamodellbindingen må peke på en egenskap inne i questions-datamodellbindingen`);
     }
 

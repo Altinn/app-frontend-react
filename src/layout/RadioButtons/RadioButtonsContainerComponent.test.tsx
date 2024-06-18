@@ -74,7 +74,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     await waitFor(() =>
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'myRadio', dataType: defaultDataTypeMock },
+        reference: { field: 'myRadio', dataType: defaultDataTypeMock },
         newValue: 'sweden',
       }),
     );
@@ -128,7 +128,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     await waitFor(() =>
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'myRadio', dataType: defaultDataTypeMock },
+        reference: { field: 'myRadio', dataType: defaultDataTypeMock },
         newValue: 'denmark',
       }),
     );
@@ -186,7 +186,7 @@ describe('RadioButtonsContainerComponent', () => {
     expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(getRadio({ name: /The value from the group is: Label for first/ }));
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'myRadio', dataType: defaultDataTypeMock },
+      reference: { field: 'myRadio', dataType: defaultDataTypeMock },
       newValue: 'Value for first',
     });
   });

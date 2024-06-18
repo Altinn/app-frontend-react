@@ -151,7 +151,7 @@ describe('FormData', () => {
       const {
         formData: { simpleBinding: value },
       } = useDataModelBindings({
-        simpleBinding: { property: path, dataType: statelessDataTypeMock },
+        simpleBinding: { field: path, dataType: statelessDataTypeMock },
       });
 
       return <div data-testid={`reader-${path}`}>{value}</div>;
@@ -163,7 +163,7 @@ describe('FormData', () => {
         formData: { simpleBinding: value },
         setValue,
       } = useDataModelBindings({
-        simpleBinding: { property: path, dataType: statelessDataTypeMock },
+        simpleBinding: { field: path, dataType: statelessDataTypeMock },
       });
 
       return (
@@ -259,7 +259,7 @@ describe('FormData', () => {
       await userEvent.type(screen.getByTestId('writer-obj1.prop1'), 'a');
       expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        reference: { property: 'obj1.prop1', dataType: statelessDataTypeMock },
+        reference: { field: 'obj1.prop1', dataType: statelessDataTypeMock },
         newValue: 'value1a',
       });
 
@@ -276,7 +276,7 @@ describe('FormData', () => {
       formData: { simpleBinding: value },
       setValue,
     } = useDataModelBindings({
-      simpleBinding: { property: path, dataType: statelessDataTypeMock },
+      simpleBinding: { field: path, dataType: statelessDataTypeMock },
     });
 
     return (

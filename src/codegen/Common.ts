@@ -133,8 +133,8 @@ const common = {
         new CG.str().setTitle('Data type').setDescription('The name of the datamodel type to reference'),
       ),
       new CG.prop(
-        'property',
-        new CG.str().setTitle('Property').setDescription('The path to the property using dot-notation'),
+        'field',
+        new CG.str().setTitle('Field').setDescription('The path to the property using dot-notation'),
       ),
     ),
   IDataModelBinding: () => new CG.union(new CG.str(), CG.common('IDataModelReference')),

@@ -268,7 +268,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     const currentLocationIsRepGroup = this.isType('RepeatingGroup');
     return transposeDataBinding({
       subject: dataModelPath,
-      currentLocation: firstBinding.property,
+      currentLocation: firstBinding.field,
       rowIndex,
       currentLocationIsRepGroup,
     });

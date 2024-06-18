@@ -46,7 +46,7 @@ describe('InputComponent', () => {
 
     expect(inputComponent).toHaveValue(typedValue);
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'some.field', dataType: defaultDataTypeMock },
+      reference: { field: 'some.field', dataType: defaultDataTypeMock },
       newValue: typedValue,
     });
     expect(inputComponent).toHaveValue(typedValue);
@@ -79,7 +79,7 @@ describe('InputComponent', () => {
 
     expect(inputComponent).toHaveValue(finalValueFormatted);
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'some.field', dataType: defaultDataTypeMock },
+      reference: { field: 'some.field', dataType: defaultDataTypeMock },
       newValue: finalValuePlainText,
     });
   });
@@ -120,7 +120,7 @@ describe('InputComponent', () => {
     await userEvent.type(inputComponent, typedValue);
     expect(inputComponent).toHaveValue(formattedValue);
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'some.field', dataType: defaultDataTypeMock },
+      reference: { field: 'some.field', dataType: defaultDataTypeMock },
       newValue: typedValue,
     });
     expect(inputComponent).toHaveValue(formattedValue);
@@ -143,7 +143,7 @@ describe('InputComponent', () => {
     await userEvent.type(inputComponent, typedValue);
     expect(inputComponent).toHaveValue(formattedValue);
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { property: 'some.field', dataType: defaultDataTypeMock },
+      reference: { field: 'some.field', dataType: defaultDataTypeMock },
       newValue: typedValue,
     });
     expect(inputComponent).toHaveValue(formattedValue);
