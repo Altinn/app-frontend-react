@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import type { NodeValidation } from '..';
 
-import { filterValidations, selectValidations } from 'src/features/validation/utils';
+import { selectValidations } from 'src/features/validation/utils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -42,7 +42,7 @@ export function useDeepValidationsForNode(
     return nodesToValidate.flatMap((node) => {
       const mask = visibilitySelector(node);
       const validations = validationsSelector(node);
-      const filtered = filterValidations(selectValidations(validations, mask), node);
+      const filtered = selectValidations(validations, mask);
       return filtered.map((validation) => ({ ...validation, node }));
     });
   }, [nodesToValidate, visibilitySelector, validationsSelector]);

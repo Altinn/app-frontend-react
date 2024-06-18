@@ -15,6 +15,7 @@ import type { GridRowsInternal } from 'src/layout/Grid/types';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { GroupExpressions, RepGroupInternal, RepGroupRowExtras } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
   render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>(
@@ -140,8 +141,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     );
   }
 
-  getValidationFilters(_node: LayoutNode<'RepeatingGroup'>): ValidationFilterFunction[] {
-    if ((_node.item.minCount ?? 0) > 0) {
+  getValidationFilters(node: LayoutNode<'RepeatingGroup'>, selector: NodeDataSelector): ValidationFilterFunction[] {
+    if (selector((picker) => picker(node)?.item.minCount ?? 0, [node]) > 0) {
       return [this.schemaMinItemsFilter];
     }
     return [];

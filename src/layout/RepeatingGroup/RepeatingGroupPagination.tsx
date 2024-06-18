@@ -5,7 +5,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { filterValidations, selectValidations } from 'src/features/validation/utils';
+import { selectValidations } from 'src/features/validation/utils';
 import { useIsMini, useIsMobile, useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import {
   useRepeatingGroup,
@@ -265,7 +265,7 @@ function usePagesWithErrors(rowsPerPage: number | undefined, node: LayoutNode<'R
       for (const node of deepNodes) {
         const validations = nodeValidationsSelector(node);
         const mask = visibilitySelector(node);
-        const filtered = filterValidations(selectValidations(validations, mask, 'error'), node);
+        const filtered = selectValidations(validations, mask, 'error');
         if (filtered.length > 0) {
           pagesWithErrors.push(pageNumber);
           break;

@@ -20,6 +20,7 @@ import type {
 import type { CompInternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 export class Datepicker extends DatepickerDef implements ValidateComponent<'Datepicker'>, ValidationFilter {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Datepicker'>>(
@@ -119,7 +120,10 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     );
   }
 
-  getValidationFilters(_node: LayoutNode): ValidationFilterFunction[] {
+  getValidationFilters(
+    _node: LayoutNode<'Datepicker'>,
+    _nodeDataSelector: NodeDataSelector,
+  ): ValidationFilterFunction[] {
     return [this.schemaFormatFilter];
   }
 

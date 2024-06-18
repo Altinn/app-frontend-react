@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import type { AttachmentValidation, NodeValidation } from '..';
 
-import { filterValidations, selectValidations } from 'src/features/validation/utils';
+import { selectValidations } from 'src/features/validation/utils';
 import { getResolvedVisibilityForAttachment } from 'src/features/validation/visibility/visibilityUtils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { AttachmentsPlugin } from 'src/features/attachments/AttachmentsPlugin';
@@ -26,14 +26,11 @@ export function useAttachmentValidations(
     if (!attachmentId) {
       return [];
     }
-    const validation = validations.filter(
+    const v = validations.filter(
       (v) => 'attachmentId' in v && v.attachmentId === attachmentId,
     ) as AttachmentValidation[];
 
-    const output = filterValidations(
-      selectValidations(validation, getResolvedVisibilityForAttachment(validation[0]?.visibility, visibility)),
-      node,
-    );
+    const output = selectValidations(v, getResolvedVisibilityForAttachment(v[0]?.visibility, visibility));
     return output.map((validation) => ({ ...validation, node }));
   }, [attachmentId, node, validations, visibility]);
 }

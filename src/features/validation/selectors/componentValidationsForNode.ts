@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import type { ComponentValidation, NodeValidation } from '..';
 
-import { filterValidations, selectValidations } from 'src/features/validation/utils';
+import { selectValidations } from 'src/features/validation/utils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -15,7 +15,7 @@ export function useComponentValidationsForNode(node: LayoutNode): NodeValidation
 
   return useMemo(() => {
     const notBound = component.filter((v) => !('bindingKey' in v));
-    const validations = filterValidations(selectValidations(notBound, mask), node);
+    const validations = selectValidations(notBound, mask);
     return validations.map((validation) => ({ ...validation, node }));
   }, [component, mask, node]);
 }

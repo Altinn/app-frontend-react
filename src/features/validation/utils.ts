@@ -1,8 +1,6 @@
 import { ValidationMask } from 'src/features/validation';
-import { implementsValidationFilter } from 'src/layout';
 import type { BaseValidation, FieldValidations, ValidationMaskKeys, ValidationSeverity } from 'src/features/validation';
 import type { AllowedValidationMasks } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function mergeFieldValidations(...X: FieldValidations[]): FieldValidations {
   if (X.length === 0) {
@@ -38,35 +36,6 @@ export function validationsOfSeverity<I extends BaseValidation, S extends Valida
 
 export function hasValidationErrors<V extends BaseValidation>(validations: V[] | undefined): boolean {
   return validations?.some((validation: any) => validation.severity === 'error') ?? false;
-}
-
-/**
- * Filters a list of validations based on the validation filters of a node
- */
-export function filterValidations<Validation extends BaseValidation>(
-  validations: Validation[],
-  node: LayoutNode,
-): Validation[] {
-  if (!implementsValidationFilter(node.def)) {
-    return validations;
-  }
-
-  const filters = node.def.getValidationFilters(node as any);
-  if (filters.length == 0) {
-    return validations;
-  }
-
-  const out: Validation[] = [];
-  validationsLoop: for (let i = 0; i < validations.length; i++) {
-    for (const filter of filters) {
-      if (!filter(validations[i], i, validations)) {
-        // Skip validation if any filter returns false
-        continue validationsLoop;
-      }
-    }
-    out.push(validations[i]);
-  }
-  return out;
 }
 
 export function isValidationVisible<T extends BaseValidation>(validation: T, mask: number): boolean {

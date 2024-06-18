@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { ValidationMask } from '..';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { filterValidations, getVisibilityMask, selectValidations } from 'src/features/validation/utils';
+import { getVisibilityMask, selectValidations } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -39,7 +39,7 @@ export function useOnFormSubmitValidation() {
       (t) =>
         t.allNodes().filter((n) => {
           const validations = nodeValidationsSelector(n);
-          const filtered = filterValidations(selectValidations(validations, ValidationMask.All, 'error'), n);
+          const filtered = selectValidations(validations, ValidationMask.All, 'error');
           return filtered.length > 0;
         }),
       [nodeValidationsSelector],
@@ -63,9 +63,7 @@ export function useOnFormSubmitValidation() {
       (t) =>
         t.allNodes().filter((n) => {
           const validations = nodeValidationsSelector(n);
-          return (
-            filterValidations(selectValidations(validations, ValidationMask.AllIncludingBackend, 'error'), n).length > 0
-          );
+          return selectValidations(validations, ValidationMask.AllIncludingBackend, 'error').length > 0;
         }),
       [nodeValidationsSelector],
     );

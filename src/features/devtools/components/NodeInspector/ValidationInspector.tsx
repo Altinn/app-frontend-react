@@ -10,12 +10,11 @@ import { ValidationMask } from 'src/features/validation';
 import { isValidationVisible } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { getResolvedVisibilityForAttachment } from 'src/features/validation/visibility/visibilityUtils';
-import { implementsAnyValidation, implementsValidationFilter } from 'src/layout';
+import { implementsAnyValidation } from 'src/layout';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { FileUploaderNode } from 'src/features/attachments';
 import type { AttachmentValidation, NodeValidation, ValidationSeverity } from 'src/features/validation';
-import type { ValidationFilterFunction } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface ValidationInspectorProps {
@@ -46,7 +45,6 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
     );
   }
 
-  const filters = implementsValidationFilter(node.def) ? node.def.getValidationFilters(node as any) : [];
   const componentValidations: NodeValidation[] = validations.map((validation) => ({ ...validation, node })) ?? [];
 
   // Validations that are not bound to any data model field or attachment
@@ -97,7 +95,6 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
         validations={unboundComponentValidations}
         node={node}
         visibility={nodeVisibility}
-        filters={filters}
       />
       {Object.entries(bindingValidations).map(([binding, validations]) => (
         <ValidationItems
@@ -106,7 +103,6 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
           validations={validations}
           node={node}
           visibility={nodeVisibility}
-          filters={filters}
         />
       ))}
       {Object.entries(attachmentValidations).map(([attachment, { attachmentVisibility, validations }]) => (
@@ -116,7 +112,6 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
           validations={validations}
           node={node}
           visibility={attachmentVisibility}
-          filters={filters}
         />
       ))}
     </div>
@@ -149,9 +144,8 @@ interface ValidationItemsProps {
   validations: NodeValidation[];
   node: LayoutNode;
   visibility: number;
-  filters: ValidationFilterFunction[];
 }
-const ValidationItems = ({ grouping, validations, node, visibility, filters }: ValidationItemsProps) => {
+const ValidationItems = ({ grouping, validations, node, visibility }: ValidationItemsProps) => {
   if (!validations?.length) {
     return null;
   }
@@ -166,7 +160,6 @@ const ValidationItems = ({ grouping, validations, node, visibility, filters }: V
             validation={validation}
             node={node}
             visibility={visibility}
-            filters={filters}
           />
         ))}
       </ul>
@@ -178,9 +171,8 @@ interface ValidationItemProps {
   validation: NodeValidation;
   node: LayoutNode;
   visibility: number;
-  filters: ValidationFilterFunction[];
 }
-const ValidationItem = ({ validation, node, visibility, filters }: ValidationItemProps) => {
+const ValidationItem = ({ validation, node, visibility }: ValidationItemProps) => {
   // Ignore old severities which are no longer supported
   if (!['error', 'warning', 'info', 'success'].includes(validation.severity)) {
     return null;
@@ -191,13 +183,9 @@ const ValidationItem = ({ validation, node, visibility, filters }: ValidationIte
   const isVisible = isValidationVisible(validation, visibility);
   const category = categories.find((c) => validation.category === c.category);
 
-  const isFiltered = filters.some((filter) => !filter(validation, 0, [validation]));
   return (
-    <li
-      className={classes.listItem}
-      title={isFiltered ? 'Denne valideringen er filtrert bort' : undefined}
-    >
-      <div style={{ color, textDecoration: isFiltered ? 'line-through' : 'none' }}>
+    <li className={classes.listItem}>
+      <div style={{ color }}>
         {!isVisible && (
           <EyeSlashIcon
             style={{ marginRight: '6px' }}

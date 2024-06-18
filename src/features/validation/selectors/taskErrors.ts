@@ -2,12 +2,7 @@ import { useMemo } from 'react';
 
 import type { AnyValidation, BaseValidation, NodeValidation } from '..';
 
-import {
-  filterValidations,
-  getVisibilityMask,
-  selectValidations,
-  validationsOfSeverity,
-} from 'src/features/validation/utils';
+import { getVisibilityMask, selectValidations, validationsOfSeverity } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
@@ -37,9 +32,8 @@ export function useTaskErrors(): {
     for (const node of allNodes ?? emptyArray) {
       const mask = visibilitySelector(node);
       const validations = nodeValidationsSelector(node);
-      const selected = selectValidations(validations, mask, 'error');
-      const filtered = filterValidations(selected, node) as AnyValidation<'error'>[];
-      formErrors.push(...filtered.map((v) => ({ ...v, node })));
+      const selected = selectValidations(validations, mask, 'error') as AnyValidation<'error'>[];
+      formErrors.push(...selected.map((v) => ({ ...v, node })));
     }
 
     return formErrors;

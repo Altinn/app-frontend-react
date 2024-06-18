@@ -8,6 +8,7 @@ import type { BaseValidation, ComponentValidation, ValidationDataSources } from 
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 export type CompClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
@@ -115,14 +116,10 @@ export type ValidationFilterFunction = (
 ) => boolean;
 
 export interface ValidationFilter {
-  getValidationFilters: (node: LayoutNode) => ValidationFilterFunction[];
+  getValidationFilters: (node: LayoutNode, nodeDataSelector: NodeDataSelector) => ValidationFilterFunction[];
 }
 
 export type FormDataSelector = (path: string) => unknown;
-
-export function implementsValidationFilter<Def extends CompDef>(def: Def): def is Def & ValidationFilter {
-  return 'getValidationFilters' in def;
-}
 
 export function implementsDisplayData<Def extends CompDef>(def: Def): def is Def & DisplayData<TypeFromDef<Def>> {
   return 'getDisplayData' in def && 'useDisplayData' in def;
