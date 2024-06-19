@@ -21,7 +21,7 @@ export function useNodeItem<N extends LayoutNode | undefined, Out>(
 ): Out;
 export function useNodeItem<N extends LayoutNode | undefined>(node: N, selector?: undefined): NodeItemFromNode<N>;
 export function useNodeItem(node: never, selector: never): never {
-  return NodesInternal.useNodeData(node, (node: NodeData) => (selector ? (selector as any)(node.item) : node.item));
+  return NodesInternal.useNodeData(node, (data: NodeData) => (selector ? (selector as any)(data.item) : data.item));
 }
 
 export function useNodeItemRef<N extends LayoutNode | undefined, Out>(

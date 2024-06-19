@@ -6,7 +6,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { NodesInternal, NotReadyYet, pickDataStorePath, useNodesLax } from 'src/utils/layout/NodesContext';
+import { NodesInternal, pickDataStorePath, useNodesLax } from 'src/utils/layout/NodesContext';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, ParentNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -323,9 +323,6 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
       if (!nodes || nodes === ContextNotProvided) {
         return ContextNotProvided;
       }
-      if (state === NotReadyYet) {
-        return NotReadyYet;
-      }
 
       return node === undefined
         ? (selector as any)(new NodeTraversal(state, nodes, nodes))
@@ -337,13 +334,6 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
   if (out === ContextNotProvided) {
     if (strictness === Strictness.throwError) {
       throw new Error('useNodeTraversal() must be used inside a NodesProvider');
-    }
-    return strictness === Strictness.returnUndefined ? undefined : (selector as any)(ContextNotProvided);
-  }
-
-  if (out === NotReadyYet) {
-    if (strictness === Strictness.throwError) {
-      throw new Error('useNodeTraversal() ran when not ready');
     }
     return strictness === Strictness.returnUndefined ? undefined : (selector as any)(ContextNotProvided);
   }
@@ -448,19 +438,7 @@ function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: St
       }
 
       const value = selectState(
-        (state) => {
-          if (state === NotReadyYet) {
-            if (strictness === Strictness.returnUndefined) {
-              return undefined;
-            }
-            if (strictness === Strictness.returnContextNotProvided) {
-              return ContextNotProvided;
-            }
-            throw new Error('useNodeTraversalSelector() ran when not ready');
-          }
-
-          return innerSelector(new NodeTraversal(state, nodes, nodes)) as InnerSelectorReturns<Strict, U>;
-        },
+        (state) => innerSelector(new NodeTraversal(state, nodes, nodes)) as InnerSelectorReturns<Strict, U>,
         [innerSelector.toString(), ...deps],
       );
 

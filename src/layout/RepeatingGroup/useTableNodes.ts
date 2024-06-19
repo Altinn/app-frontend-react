@@ -8,13 +8,11 @@ export function useTableNodes(node: LayoutNode<'RepeatingGroup'>, restriction: T
   const tableHeaders = useNodeItem(node, (item) => item.tableHeaders);
 
   return useNodeTraversal((traverser) => {
-    const nodes = traverser.children(undefined, restriction).filter((child) => {
-      if (tableHeaders) {
-        const { id, baseComponentId } = child.item;
-        return !!(tableHeaders.includes(id) || (baseComponentId && tableHeaders.includes(baseComponentId)));
-      }
-      return child.isCategory(CompCategory.Form);
-    });
+    const nodes = traverser
+      .children(undefined, restriction)
+      .filter((child) =>
+        tableHeaders ? !!tableHeaders.includes(child.getBaseId()) : child.isCategory(CompCategory.Form),
+      );
 
     // Sort using the order from tableHeaders
     if (tableHeaders) {

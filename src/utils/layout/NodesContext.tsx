@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import type { PropsWithChildren } from 'react';
+import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 import { produce } from 'immer';
@@ -55,10 +55,6 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import type { GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
-
-// TODO: Wrap DataStore with more functions for selecting data only when ready (letting only the generators
-// re-run when in a generation stage).
-// TODO: Move the generator stages in here as well?
 
 export interface PagesData {
   type: 'pages';
@@ -202,6 +198,10 @@ export function createNodesDataStore() {
         let changes = false;
         const nodeData = { ...state.nodeData };
         for (const { node, prop, value, partial } of requests) {
+          if (!nodeData[node.getId()]) {
+            continue;
+          }
+
           const thisNode = { ...nodeData[node.getId()] };
           const prev = thisNode[prop as any];
           if (partial && value && prev && typeof prev === 'object' && typeof value === 'object') {
@@ -303,28 +303,36 @@ export type NodesStoreFull = typeof Store;
  */
 const WhenReady = {
   useSelector: <T,>(selector: (state: NodesContext) => T): T | undefined => {
-    const prevValue = useRef<T | undefined>(undefined);
-    return Store.useSelector((state) => {
-      if (state.ready) {
-        const value = selector(state);
-        prevValue.current = value;
-        return value;
-      }
-      return prevValue.current;
-    });
+    const prevValue = useRef<T | typeof NeverInitialized>(NeverInitialized);
+    return Store.useSelector((state) => whenReadySelector(state, selector, prevValue));
+  },
+  useMemoSelector: <T,>(selector: (state: NodesContext) => T): T | undefined => {
+    const prevValue = useRef<T | typeof NeverInitialized>(NeverInitialized);
+    return Store.useMemoSelector((state) => whenReadySelector(state, selector, prevValue));
   },
   useLaxSelector: <T,>(selector: (state: NodesContext) => T): T | typeof ContextNotProvided => {
-    const prevValue = useRef<T | typeof ContextNotProvided>(ContextNotProvided);
-    return Store.useLaxSelector((state) => {
-      if (state.ready) {
-        const value = selector(state);
-        prevValue.current = value;
-        return value;
-      }
-      return prevValue.current;
-    });
+    const prevValue = useRef<T | typeof ContextNotProvided | typeof NeverInitialized>(NeverInitialized);
+    return Store.useLaxSelector((state) => whenReadySelector(state, selector, prevValue));
+  },
+  useLaxMemoSelector: <T,>(selector: (state: NodesContext) => T): T | typeof ContextNotProvided => {
+    const prevValue = useRef<T | typeof ContextNotProvided | typeof NeverInitialized>(NeverInitialized);
+    return Store.useLaxMemoSelector((state) => whenReadySelector(state, selector, prevValue));
   },
 };
+
+const NeverInitialized = Symbol('NeverInitialized');
+function whenReadySelector<T>(
+  state: NodesContext,
+  selector: (state: NodesContext) => T,
+  prevValue: MutableRefObject<T | typeof NeverInitialized>,
+) {
+  if (state.ready || prevValue.current === NeverInitialized) {
+    const value = selector(state);
+    prevValue.current = value;
+    return value;
+  }
+  return prevValue.current;
+}
 
 /**
  * Another set of hooks for internal use that will work different ways depending on the render context. If you use
@@ -353,9 +361,9 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => (
       </GeneratorValidationProvider>
       <MarkAsReady />
     </GeneratorStagesProvider>
-    <HiddenComponentsProvider />
     {window.Cypress && <UpdateAttachmentsForCypress />}
     <BlockUntilLoaded>
+      <HiddenComponentsProvider />
       <ProvideWaitForValidation />
       <UpdateExpressionValidation />
       <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
@@ -456,6 +464,7 @@ export function useNodeLax<T extends string | NodeRef | undefined | LayoutNode>(
 }
 
 export const useNodes = () => WhenReady.useSelector((s) => s.nodes!);
+export const useNodesWhenNotReady = () => Store.useSelector((s) => s.nodes);
 export const useNodesLax = () => WhenReady.useLaxSelector((s) => s.nodes);
 
 export type NodeSelector = ReturnType<typeof useNodeSelector>;
@@ -524,11 +533,11 @@ export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
   useIsHidden(node: LayoutNode | LayoutPage | undefined, options?: IsHiddenOptions) {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return Store.useMemoSelector((s) => isHidden(s, node, forcedVisibleByDevTools, options));
+    return WhenReady.useMemoSelector((s) => isHidden(s, node, forcedVisibleByDevTools, options));
   },
   useIsHiddenPage(pageKey: string, options?: IsHiddenOptions) {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return Store.useMemoSelector((s) => isHidden(s, [pageKey], forcedVisibleByDevTools, options));
+    return WhenReady.useMemoSelector((s) => isHidden(s, [pageKey], forcedVisibleByDevTools, options));
   },
   useIsHiddenPageSelector() {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
@@ -539,7 +548,7 @@ export const Hidden = {
   },
   useHiddenPages(): Set<string> {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    const hiddenPages = Store.useLaxMemoSelector((s) =>
+    const hiddenPages = WhenReady.useLaxMemoSelector((s) =>
       Object.keys(s.pagesData.pages).filter((key) => isHidden(s, [key], forcedVisibleByDevTools)),
     );
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
@@ -616,8 +625,6 @@ function selectNodeData<N extends LayoutNode | undefined>(node: N, state: NodesC
   return ignoreNodePathNotFound(() => (node ? pickDataStorePath(state, node) : undefined), undefined) as any;
 }
 
-export const NotReadyYet = Symbol('NotReadyYet');
-
 /**
  * A set of tools, selectors and functions to use internally in node generator components.
  */
@@ -633,7 +640,7 @@ export const NodesInternal = {
   useDataSelectorForTraversal(): DSReturn<{
     store: StoreApi<NodesContext>;
     strictness: SelectorStrictness.returnWhenNotProvided;
-    mode: InnerSelectorMode<NodesContext, [NodesContext | typeof NotReadyYet]>;
+    mode: InnerSelectorMode<NodesContext, [NodesContext]>;
   }> {
     return useDelayedSelector({
       store: Store.useLaxStore(),
@@ -641,24 +648,18 @@ export const NodesInternal = {
       onlyReRenderWhen: ((state) => state.ready) satisfies OnlyReRenderWhen<NodesContext, void>,
       mode: {
         mode: 'innerSelector',
-        makeArgs: (state) => [state.ready ? state : NotReadyYet],
-      } satisfies InnerSelectorMode<NodesContext, [NodesContext | typeof NotReadyYet]>,
+        makeArgs: (state) => [state],
+      } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
     });
   },
   useIsReady() {
     return Store.useSelector((s) => s.ready);
   },
 
-  useNodeData<N extends LayoutNode | undefined, Out>(
-    node: N,
-    selector: (state: NodeDataFromNode<N>) => Out,
-  ): N extends undefined ? Out | undefined : Out {
+  useNodeData<N extends LayoutNode | undefined, Out>(node: N, selector: (state: NodeDataFromNode<N>) => Out) {
     return Conditionally.useSelector((s) =>
-      ignoreNodePathNotFound(
-        () => (node ? selector(pickDataStorePath(s, node) as NodeDataFromNode<N>) : undefined),
-        undefined,
-      ),
-    ) as any;
+      node && s.nodeData[node.getId()] ? selector(s.nodeData[node.getId()] as NodeDataFromNode<N>) : undefined,
+    ) as N extends undefined ? Out | undefined : Out;
   },
   useNodeDataRef<N extends LayoutNode | undefined, Out>(
     node: N,

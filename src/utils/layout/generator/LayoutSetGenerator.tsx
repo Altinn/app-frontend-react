@@ -14,7 +14,7 @@ import { GeneratorCondition, GeneratorStages, StageAddNodes } from 'src/utils/la
 import { useResolvedExpression } from 'src/utils/layout/generator/useResolvedExpression';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal, useNodesWhenNotReady } from 'src/utils/layout/NodesContext';
 import type { CompExternal, CompTypes, ILayout } from 'src/layout/layout';
 import type {
   BasicNodeGeneratorProps,
@@ -79,7 +79,7 @@ export function LayoutSetGenerator() {
 
 function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
   const layouts = useLayouts();
-  const existingNodes = useNodes();
+  const existingNodes = useNodesWhenNotReady();
   const setNodes = NodesInternal.useSetNodes();
   const isFinished = GeneratorStages.useIsFinished();
   const layoutKeys = useMemo(() => Object.keys(layouts), [layouts]);
