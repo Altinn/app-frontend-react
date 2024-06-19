@@ -15,6 +15,7 @@ interface TaskSummaryProps {
   pageId?: string;
   componentId?: string;
   summaryOverrides: any;
+  hideEditButton?: boolean;
 }
 
 function TaskSummaryAccordion({ pageKey, children }: React.PropsWithChildren<{ pageKey: string }>) {
@@ -80,13 +81,13 @@ export function TaskSummaryWrapper({
   componentId,
   summaryOverrides,
 }: React.PropsWithChildren<TaskSummaryProps>) {
-  const { setTaskId, setOverriddenDataModelId, setOverriddenLayoutSetId } = useTaskStore((state) => ({
+  const { setTaskId, setOverriddenDataModelId, setOverriddenLayoutSetId, overriddenTaskId } = useTaskStore((state) => ({
     setTaskId: state.setTaskId,
     setOverriddenDataModelId: state.setOverriddenDataModelId,
     setOverriddenLayoutSetId: state.setOverriddenLayoutSetId,
+    overriddenTaskId: state.overriddenTaskId,
   }));
 
-  const [taskIdSet, setTaskIdSet] = useState(false);
   const layoutSets = useLayoutSets();
   const layoutSetForTask = layoutSets.sets.find((set) => set.tasks?.includes(taskId));
   useEffect(() => {
@@ -94,11 +95,10 @@ export function TaskSummaryWrapper({
       setTaskId && setTaskId(taskId);
       setOverriddenDataModelId && setOverriddenDataModelId(layoutSetForTask.dataType);
       setOverriddenLayoutSetId && setOverriddenLayoutSetId(layoutSetForTask.id);
-      setTaskIdSet(true);
     }
   }, [layoutSetForTask, setOverriddenDataModelId, setOverriddenLayoutSetId, setTaskId, taskId]);
 
-  if (taskIdSet) {
+  if (overriddenTaskId) {
     return (
       <FormProvider>
         <TaskSummary
