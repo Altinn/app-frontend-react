@@ -24,6 +24,7 @@ export const Config = new CG.component({
     renderInButtonGroup: false,
     renderInAccordion: false,
     renderInAccordionGroup: false,
+    renderInTabs: true,
     renderInCards: true,
     renderInCardsMedia: false,
   },
