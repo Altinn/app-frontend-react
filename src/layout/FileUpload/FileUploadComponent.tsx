@@ -48,8 +48,10 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
 
   const { options } = useGetOptions({
     ...node.item,
-    node,
     valueType: 'single',
+    node,
+    removeDuplicates: true,
+    removeEmpty: true,
     dataModelBindings: undefined,
   });
 
