@@ -258,7 +258,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node, cu
             [classes.fullWidthCellLast]: !isNested,
           })}
         >
-          {firstComponentNode && (
+          {firstComponentNode && !row.readOnly && (
             <EditButton
               componentNode={firstComponentNode}
               summaryComponentId=''
