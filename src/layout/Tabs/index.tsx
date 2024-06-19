@@ -2,9 +2,9 @@ import React, { forwardRef, type JSX } from 'react';
 
 import type { PropsFromGenericComponent } from '..';
 
-import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { TabsDef } from 'src/layout/Tabs/config.def.generated';
 import { Tabs as TabsComponent } from 'src/layout/Tabs/Tabs';
+import { TabsSummary } from 'src/layout/Tabs/TabsSummary';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -16,23 +16,12 @@ export class Tabs extends TabsDef {
   );
 
   renderSummary({ summaryNode, targetNode, overrides }: SummaryRendererProps<'Tabs'>): JSX.Element | null {
-    const children = targetNode.item.tabsInternal.map((card) => card.childNodes).flat();
-
     return (
-      <>
-        {children.map((child) => (
-          <SummaryComponent
-            key={child.item.id}
-            summaryNode={summaryNode}
-            overrides={{
-              ...overrides,
-              targetNode: child,
-              grid: {},
-              largeGroup: true,
-            }}
-          />
-        ))}
-      </>
+      <TabsSummary
+        targetNode={targetNode}
+        summaryNode={summaryNode}
+        overrides={overrides}
+      />
     );
   }
 

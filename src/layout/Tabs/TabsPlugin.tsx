@@ -19,7 +19,7 @@ import type { NodeData } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface TabConfigInternal extends Omit<TabConfig, 'children'> {
-  children?: NodeRef[];
+  children: NodeRef[];
 }
 
 interface Config<Type extends CompTypes> {
