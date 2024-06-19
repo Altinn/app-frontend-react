@@ -5,18 +5,18 @@ import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
-import classes from 'src/layout/Summary2/CommonSummaryComponents/SingleFieldSummary.module.css';
+import classes from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary.module.css';
 import type { BaseValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type SingleFieldSummaryProps = {
+type SingleValueSummaryProps = {
   title: React.ReactNode;
   errors: BaseValidation[];
   componentNode: LayoutNode;
   displayData?: string;
 };
 
-export const SingleFieldSummary = ({ title, errors, componentNode, displayData }: SingleFieldSummaryProps) => (
+export const SingleValueSummary = ({ title, errors, componentNode, displayData }: SingleValueSummaryProps) => (
   <div className={classes.inputSummaryItem}>
     <div className={classes.labelValueWrapper}>
       <Label weight={'regular'}>{title}</Label>

@@ -4,16 +4,16 @@ import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { MultipleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
-import type { CompCheckboxesInternal } from 'src/layout/Checkboxes/config.generated';
+import type { CompMultipleSelectInternal } from 'src/layout/MultipleSelect/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type CheckboxesSummaryProps = {
-  componentNode: LayoutNode<'Checkboxes'>;
-  summaryOverrides?: CompCheckboxesInternal['summaryProps'];
+type MultupleSelectSummaryProps = {
+  componentNode: LayoutNode<'MultipleSelect'>;
+  summaryOverrides?: CompMultipleSelectInternal['summaryProps'];
   displayData: string;
 };
 
-export const CheckboxesSummary = ({ componentNode, summaryOverrides, displayData }: CheckboxesSummaryProps) => {
+export const MultipleSelectSummary = ({ componentNode, summaryOverrides, displayData }: MultupleSelectSummaryProps) => {
   const maxStringLength = 75;
   const showAsList =
     summaryOverrides?.displayType === 'list' ||
