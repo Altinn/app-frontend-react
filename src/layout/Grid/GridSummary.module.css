@@ -99,10 +99,9 @@ tr > .fullWidthCellLast {
   margin-left: auto;
 }
 
-/* after fixing wcag issue with single rows wrapped in individual tablebodies
- .responsiveTable {
+.responsiveTable {
   display: block;
-} */
+}
 
 .responsiveTable thead {
   display: none;
@@ -120,17 +119,30 @@ tr > .fullWidthCellLast {
 
 .responsiveTable td {
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
   border: none;
   padding: var(--fds-spacing-2) 0;
 }
 
-/*  after fixing wcag issue with single rows wrapped in individual tablebodies
-.responsiveTable tr:last-child {
+.responsiveTable td .contentWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.responsiveTable tbody:last-child tr:last-child {
   border-bottom: none;
-} */
+}
 
 .responsiveTable tr {
   border-bottom: 2px solid var(--fds-semantic-border-neutral-default);
+}
+
+.responsiveTable td[data-header-title]:not([data-header-title=''])::before,
+.responsiveTable th[data-header-title]:not([data-header-title=''])::before {
+  content: attr(data-header-title);
+  display: block;
+  text-align: left;
+  font-weight: 500;
 }
