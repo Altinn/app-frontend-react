@@ -192,6 +192,13 @@ export abstract class AnyComponent<Type extends CompTypes> {
   }
 
   /**
+   * Return true to allow this component to be rendered in a Tabs
+   */
+  canRenderInTabs(): boolean {
+    return true;
+  }
+
+  /**
    * Should GenericComponent render validation messages for simpleBinding outside of this component?
    * This has no effect if:
    *  - Your component renders directly, using directRender()

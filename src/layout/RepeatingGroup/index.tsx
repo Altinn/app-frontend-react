@@ -112,7 +112,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
 
     const validations: ComponentValidation[] = [];
     // check if minCount is less than visible rows
-    const minCount = nodeDataSelector((picker) => picker(node)?.item?.minCount, [node]) || 0;
+    const minCount = nodeDataSelector((picker) => picker(node)?.item?.minCount, [node]) ?? 0;
     const visibleRows = nodeDataSelector(
       (picker) => picker(node)?.item?.rows.filter((row) => row && !row.groupExpressions?.hiddenRow).length,
       [node],

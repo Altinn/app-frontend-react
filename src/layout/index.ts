@@ -48,7 +48,7 @@ export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> exte
 
 export function getComponentDef<T extends keyof CompClassMap>(type: T): CompClassMap[T] {
   if (type && type in ComponentConfigs) {
-    return ComponentConfigs[type as keyof typeof ComponentConfigs].def as any;
+    return ComponentConfigs[type].def as any;
   }
   return undefined as any;
 }
