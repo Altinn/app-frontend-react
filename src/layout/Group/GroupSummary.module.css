@@ -1,6 +1,5 @@
 .groupContainer.nested {
   padding: var(--fds-spacing-6) var(--fds-spacing-4) var(--fds-spacing-6) var(--fds-spacing-4);
-  gap: var(--fds-spacing6);
   border-width: var(--fds-border_width-default);
   border-radius: var(--fds-border_radius-medium);
   border-color: var(--fds-semantic-border-neutral-default);
