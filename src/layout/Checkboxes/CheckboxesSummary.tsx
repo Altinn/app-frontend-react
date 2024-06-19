@@ -20,39 +20,39 @@ export const CheckboxesSummary = ({ componentNode, summaryOverrides, displayData
     summaryOverrides?.displayType === 'list' ||
     (!summaryOverrides?.displayType && displayData?.length >= maxStringLength);
   return (
-    <>
-      <div className={classes.labelWrapper}>
+    <div className={classes.checkboxSummaryItem}>
+      <div className={classes.labelValueWrapper}>
         <Label weight={'regular'}>
           <Lang id={componentNode.item.textResourceBindings?.title}></Lang>
         </Label>
-        <EditButton
-          className={classes.editButton}
-          componentNode={componentNode}
-          summaryComponentId={''}
-        />
+        {showAsList && (
+          <List.Root>
+            <List.Unordered>
+              {displayData.split(',').map((item) => (
+                <List.Item
+                  key={`list-item-${item}`}
+                  className={classes.formValue}
+                >
+                  {item}
+                </List.Item>
+              ))}
+            </List.Unordered>
+          </List.Root>
+        )}
+        {!showAsList && (
+          <Paragraph
+            asChild
+            className={classes.formValue}
+          >
+            <span>{displayData}</span>
+          </Paragraph>
+        )}
       </div>
-      {showAsList && (
-        <List.Root>
-          <List.Unordered>
-            {displayData.split(',').map((item) => (
-              <List.Item
-                key={`list-item-${item}`}
-                className={classes.formValue}
-              >
-                {item}
-              </List.Item>
-            ))}
-          </List.Unordered>
-        </List.Root>
-      )}
-      {!showAsList && (
-        <Paragraph
-          asChild
-          className={classes.formValue}
-        >
-          <span>{displayData}</span>
-        </Paragraph>
-      )}
-    </>
+      <EditButton
+        className={classes.editButton}
+        componentNode={componentNode}
+        summaryComponentId={''}
+      />
+    </div>
   );
 };

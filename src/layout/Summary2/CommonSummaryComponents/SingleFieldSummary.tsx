@@ -18,27 +18,27 @@ type SingleFieldSummaryProps = {
 
 export const SingleFieldSummary = ({ title, errors, componentNode, displayData }: SingleFieldSummaryProps) => (
   <div className={classes.inputSummaryItem}>
-    <div className={classes.labelWrapper}>
+    <div className={classes.labelValueWrapper}>
       <Label weight={'regular'}>{title}</Label>
-      <EditButton
-        className={classes.editButton}
-        componentNode={componentNode}
-        summaryComponentId={''}
-      />
+      <Paragraph
+        asChild
+        className={cn({
+          [classes.error]: errors.length > 0,
+          [classes.emptyValue]: !displayData,
+          [classes.formValue]: displayData,
+        })}
+      >
+        <span>
+          {!displayData && <Lang id={'general.empty_summary'}></Lang>}
+          {displayData}
+        </span>
+      </Paragraph>
     </div>
-    <Paragraph
-      asChild
-      className={cn({
-        [classes.error]: errors.length > 0,
-        [classes.emptyValue]: !displayData,
-        [classes.formValue]: displayData,
-      })}
-    >
-      <span>
-        {!displayData && <Lang id={'general.empty_summary'}></Lang>}
-        {displayData}
-      </span>
-    </Paragraph>
+    <EditButton
+      className={classes.editButton}
+      componentNode={componentNode}
+      summaryComponentId={''}
+    />
     {errors.length > 0 &&
       errors.map(({ message }) => (
         <ErrorMessage key={message.key}>

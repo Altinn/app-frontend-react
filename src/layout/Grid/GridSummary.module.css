@@ -89,6 +89,10 @@ tr > .fullWidthCellLast {
   text-align: left;
 }
 
+.validationError {
+  border-bottom: var(--fds-semantic-border-danger-default) solid 2px;
+}
+
 .mobileFieldset {
   display: flex;
   gap: 24px;
