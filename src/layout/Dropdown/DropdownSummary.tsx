@@ -4,16 +4,16 @@ import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import type { CompInputInternal } from 'src/layout/Input/config.generated';
+import type { CompDropdownInternal } from 'src/layout/Dropdown/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type InputComponentSummaryProps = {
-  componentNode: LayoutNode<'Input'>;
+type DropdownComponentSummaryProps = {
+  componentNode: LayoutNode<'Dropdown'>;
   displayData: string;
-  summaryOverrides?: CompInputInternal['summaryProps'];
+  summaryOverrides?: CompDropdownInternal['summaryProps'];
 };
 
-export const InputSummary = ({ componentNode, displayData, summaryOverrides }: InputComponentSummaryProps) => {
+export const DropdownSummary = ({ componentNode, displayData, summaryOverrides }: DropdownComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = componentNode.item.textResourceBindings?.title;

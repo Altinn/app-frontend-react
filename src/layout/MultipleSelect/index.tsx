@@ -7,11 +7,13 @@ import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
+import { MultipleSelectSummary } from 'src/layout/MultipleSelect/MultipleSelectSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompMultipleSelectInternal } from 'src/layout/MultipleSelect/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class MultipleSelect extends MultipleSelectDef {
@@ -48,6 +50,20 @@ export class MultipleSelect extends MultipleSelectDef {
     const options = useAllOptionsSelector();
     const summaryData = this.getSummaryData(targetNode, langTools, options, formDataSelector);
     return <MultipleChoiceSummary formData={summaryData} />;
+  }
+
+  renderSummary2(
+    componentNode: LayoutNode<'MultipleSelect'>,
+    summaryOverrides?: CompMultipleSelectInternal['summaryProps'],
+  ): JSX.Element | null {
+    const displayData = this.useDisplayData(componentNode);
+    return (
+      <MultipleSelectSummary
+        componentNode={componentNode}
+        displayData={displayData}
+        summaryOverrides={summaryOverrides}
+      />
+    );
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'MultipleSelect'>): string[] {
