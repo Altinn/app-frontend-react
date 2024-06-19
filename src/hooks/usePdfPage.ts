@@ -54,7 +54,7 @@ export const usePdfPage = (): LayoutPage | undefined => {
 function generateAutomaticPage(
   pdfFormat: IPdfFormat,
   pageOrder: string[],
-  isHiddenPage: (pageId: string) => boolean,
+  isHiddenPage: ReturnType<typeof Hidden.useIsHiddenPageSelector>,
   layoutPages: LayoutPages,
   dataSources: ExpressionDataSources,
   traversal: NodeTraversalSelector,
@@ -83,7 +83,7 @@ function generateAutomaticPage(
   // Iterate over all pages, and add all components that should be included in the automatic PDF as summary components
   const allPages = traversal((t) => t.children(), []);
   const filteredSortedPages = allPages
-    .filter((p) => !excludedPages.has(p.pageKey) && !isHiddenPage(p.pageKey) && pageOrder?.includes(p.pageKey))
+    .filter((p) => !excludedPages.has(p.pageKey) && !isHiddenPage(p) && pageOrder?.includes(p.pageKey))
     .sort((pA, pB) => (pageOrder ? pageOrder.indexOf(pA.pageKey) - pageOrder.indexOf(pB.pageKey) : 0));
   const nodes = traversal((t) => filteredSortedPages.map((p) => t.with(p).children()).flat(), filteredSortedPages);
   const nodesFiltered = nodes.filter((n) => !excludedComponents.has(n.getId()));

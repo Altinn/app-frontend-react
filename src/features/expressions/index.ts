@@ -16,7 +16,6 @@ import { isDate } from 'src/utils/dateHelpers';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { ignoreNodePathNotFound } from 'src/utils/layout/NodesContext';
 import type { DisplayData } from 'src/features/displayData';
 import type { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
@@ -231,8 +230,6 @@ function pickSimpleValue(path: string | undefined | null, selector: FormDataSele
   return null;
 }
 
-const TraversalThrewError = Symbol('TraversalThrewError');
-
 /**
  * All the functions available to execute inside expressions
  */
@@ -395,25 +392,13 @@ export const ExprFunctions = {
 
       const node = this.failWithoutNode();
       const closest = this.dataSources.nodeTraversal(
-        (t) =>
-          ignoreNodePathNotFound<LayoutNode | undefined | typeof ContextNotProvided | typeof TraversalThrewError>(
-            () =>
-              t.with(node).closest((c) => c.type === 'node' && (c.item?.id === id || c.item?.baseComponentId === id)),
-            TraversalThrewError,
-          ),
+        (t) => t.with(node).closest((c) => c.type === 'node' && (c.item?.id === id || c.item?.baseComponentId === id)),
         [node, id],
       );
 
       if (closest === ContextNotProvided) {
         // Expressions will run before the layout is fully loaded, so we might not have all the components available
         // yet. If that's the case, silently ignore this expression.
-        return null;
-      }
-
-      if (closest === TraversalThrewError) {
-        // When the traversal throws an error, it usually means that repeating group rows etc are in the process of
-        // being added/removed, and such the component is not available yet. We should silently ignore this expression.
-        // It will re-run when the layout is stable.
         return null;
       }
 
@@ -469,25 +454,13 @@ export const ExprFunctions = {
 
       const node = this.failWithoutNode();
       const targetNode = this.dataSources.nodeTraversal(
-        (t) =>
-          ignoreNodePathNotFound<LayoutNode | undefined | typeof ContextNotProvided | typeof TraversalThrewError>(
-            () =>
-              t.with(node).closest((c) => c.type === 'node' && (c.item?.id === id || c.item?.baseComponentId === id)),
-            TraversalThrewError,
-          ),
+        (t) => t.with(node).closest((c) => c.type === 'node' && (c.item?.id === id || c.item?.baseComponentId === id)),
         [node, id],
       );
 
       if (targetNode === ContextNotProvided) {
         // Expressions will run before the layout is fully loaded, so we might not have all the components available
         // yet. If that's the case, silently ignore this expression.
-        return null;
-      }
-
-      if (targetNode === TraversalThrewError) {
-        // When the traversal throws an error, it usually means that repeating group rows etc are in the process of
-        // being added/removed, and such the component is not available yet. We should silently ignore this expression.
-        // It will re-run when the layout is stable.
         return null;
       }
 

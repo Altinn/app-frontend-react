@@ -20,12 +20,6 @@ export const Config = new CG.component({
     customExpressions: true,
   },
 })
-  .setLayoutNodeType(
-    new CG.import({
-      import: 'RepGroupNode',
-      from: 'src/layout/RepeatingGroup/RepGroupNode',
-    }),
-  )
   .addPlugin(
     new RepeatingChildrenPlugin({
       multiPageSupport: 'edit.multiPage',

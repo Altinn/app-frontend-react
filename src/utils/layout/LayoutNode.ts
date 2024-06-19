@@ -1,6 +1,5 @@
 import { getComponentDef } from 'src/layout';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { pickDataStorePath } from 'src/utils/layout/NodesContext';
 import type { CompClassMap, CompDef, NodeRef } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
@@ -54,11 +53,14 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    * TODO: Find usages and make them useNodeItem() instead.
    */
   public get item() {
-    const node = pickDataStorePath(this.store.getState(), this.path);
-    if (!node || node.type !== 'node') {
+    const nodeData = this.store.getState().nodeData[this.getId()];
+    if (!nodeData || nodeData.type !== 'node') {
       throw new Error(`Node not found in path: /${this.path.join('/')}`);
     }
-    return node.item as CompInternal<Type>;
+    if (!nodeData.item) {
+      throw new Error(`Node item not found in path: /${this.path.join('/')}`);
+    }
+    return nodeData.item as CompInternal<Type>;
   }
 
   public updateCommonProps(item = this.item) {

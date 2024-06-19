@@ -6,7 +6,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { NodesInternal, pickDataStorePath, useNodesLax } from 'src/utils/layout/NodesContext';
+import { NodesInternal, useNodesLax } from 'src/utils/layout/NodesContext';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, ParentNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -54,14 +54,18 @@ export class TraversalTask {
         throw new NodePathNotFound(`Failed to look up nodeRef '${target.nodeRef}'`);
       }
 
-      return pickDataStorePath(this.state, node) satisfies PageData | NodeData as DataFrom<T>;
+      return this.state.nodeData[node.getId()] as DataFrom<T>;
+    }
+
+    if (target instanceof LayoutPage) {
+      return this.state.pagesData[target.pageKey] as DataFrom<T>;
     }
 
     if (target instanceof LayoutPages) {
       return this.state.pagesData as DataFrom<T>;
     }
 
-    return pickDataStorePath(this.state, target as LayoutNode | LayoutPage) as DataFrom<T>;
+    return this.state.nodeData[target.getId()] as DataFrom<T>;
   }
 
   /**

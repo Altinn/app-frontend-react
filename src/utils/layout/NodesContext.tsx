@@ -33,7 +33,6 @@ import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerato
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
@@ -134,17 +133,6 @@ export type NodesContext = {
   setPageProp: <K extends keyof PageData>(pageKey: string, prop: K, value: PageData[K]) => void;
   markReady: () => void;
 } & ExtraFunctions;
-
-export function ignoreNodePathNotFound<Ret>(fn: () => Ret, defaultReturnValue?: Ret): Ret {
-  try {
-    return fn();
-  } catch (e) {
-    if (e instanceof NodePathNotFound) {
-      return defaultReturnValue as Ret;
-    }
-    throw e;
-  }
-}
 
 export type NodesDataStore = StoreApi<NodesContext>;
 export function createNodesDataStore() {
@@ -496,39 +484,59 @@ export interface IsHiddenOptions {
   respectTracks?: boolean;
 }
 
-function isHidden(
-  state: NodesContext,
-  nodeOrPath: string[] | LayoutNode | LayoutPage | undefined,
-  forcedVisibleByDevTools: boolean,
-  options?: IsHiddenOptions,
-) {
-  if (!nodeOrPath) {
-    return true;
-  }
-
-  const hidden = pickDataStorePath(state, nodeOrPath)?.hidden;
-  if (!hidden) {
-    return true;
-  }
-
+function isHiddenHere(hidden: HiddenState, forcedVisibleByDevTools: boolean, options?: IsHiddenOptions) {
   const { respectDevTools = true, respectTracks = false } = options ?? {};
   if (forcedVisibleByDevTools && respectDevTools) {
     return true;
   }
 
-  const hiddenHere = hidden.hiddenByRules || hidden.hiddenByExpression || (respectTracks && hidden.hiddenByTracks);
+  return hidden.hiddenByRules || hidden.hiddenByExpression || (respectTracks && hidden.hiddenByTracks);
+}
+
+function isHiddenPage(
+  state: NodesContext,
+  page: LayoutPage | string | undefined,
+  forcedVisibleByDevTools: boolean,
+  options?: IsHiddenOptions,
+) {
+  if (!page) {
+    return true;
+  }
+
+  const pageKey = typeof page === 'string' ? page : page.pageKey;
+  const hiddenState = state.pagesData.pages[pageKey]?.hidden;
+  if (!hiddenState) {
+    return true;
+  }
+
+  return isHiddenHere(hiddenState, forcedVisibleByDevTools, options);
+}
+
+function isHidden(
+  state: NodesContext,
+  node: LayoutNode | LayoutPage | undefined,
+  forcedVisibleByDevTools: boolean,
+  options?: IsHiddenOptions,
+) {
+  if (!node) {
+    return true;
+  }
+
+  const hiddenState =
+    node instanceof LayoutPage ? state.pagesData.pages[node.pageKey]?.hidden : state.nodeData[node.getId()]?.hidden;
+
+  if (!hiddenState) {
+    return true;
+  }
+
+  const hiddenHere = isHiddenHere(hiddenState, forcedVisibleByDevTools, options);
   if (hiddenHere) {
     return true;
   }
 
-  if (nodeOrPath instanceof BaseLayoutNode) {
-    const parentPath = nodeOrPath.path.slice(0, -1);
-    return isHidden(state, parentPath, forcedVisibleByDevTools, options);
-  }
-
-  if (Array.isArray(nodeOrPath) && nodeOrPath.length > 1) {
-    const parentPath = nodeOrPath.slice(0, -1);
-    return isHidden(state, parentPath, forcedVisibleByDevTools, options);
+  if (node instanceof BaseLayoutNode) {
+    const parent = node.parent;
+    return isHidden(state, parent, forcedVisibleByDevTools, options);
   }
 
   return false;
@@ -540,34 +548,32 @@ export const Hidden = {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     return WhenReady.useMemoSelector((s) => isHidden(s, node, forcedVisibleByDevTools, options));
   },
-  useIsHiddenPage(pageKey: string, options?: IsHiddenOptions) {
+  useIsHiddenPage(page: LayoutPage | string | undefined, options?: IsHiddenOptions) {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return WhenReady.useMemoSelector((s) => isHidden(s, [pageKey], forcedVisibleByDevTools, options));
+    return WhenReady.useMemoSelector((s) => isHiddenPage(s, page, forcedVisibleByDevTools, options));
   },
   useIsHiddenPageSelector() {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     return Store.useDelayedSelector({
       mode: 'simple',
-      selector: (pageKey: string) => (state) => isHidden(state, [pageKey], forcedVisibleByDevTools),
+      selector: (page: LayoutPage | string) => (state) => isHiddenPage(state, page, forcedVisibleByDevTools),
     });
   },
   useHiddenPages(): Set<string> {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     const hiddenPages = WhenReady.useLaxMemoSelector((s) =>
-      Object.keys(s.pagesData.pages).filter((key) => isHidden(s, [key], forcedVisibleByDevTools)),
+      Object.keys(s.pagesData.pages).filter((key) =>
+        isHiddenHere(s.pagesData.pages[key].hidden, forcedVisibleByDevTools),
+      ),
     );
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
   },
   useIsHiddenSelector() {
-    const nodeSelector = useNodeSelector();
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     return Store.useDelayedSelector({
       mode: 'simple',
-      selector: (node: NodeRef | LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
-        ignoreNodePathNotFound(
-          () => isHidden(state, getNodePath(node, nodeSelector), forcedVisibleByDevTools, options),
-          true,
-        ),
+      selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
+        isHidden(state, node, forcedVisibleByDevTools, options),
     });
   },
 
@@ -604,22 +610,6 @@ export const Hidden = {
   },
 };
 
-function getNodePath(nodeId: NodeRef | LayoutNode | LayoutPage, nodeSelector: NodeSelector) {
-  const node = isNodeRef(nodeId) ? nodeSelector(nodeId.nodeRef) : nodeId;
-
-  if (!node) {
-    const asString = isNodeRef(nodeId)
-      ? nodeId.nodeRef
-      : nodeId instanceof BaseLayoutNode
-        ? nodeId.getId()
-        : nodeId.pageKey;
-
-    throw new Error(`Node not found: ${asString}`);
-  }
-
-  return node instanceof LayoutPage ? [node.pageKey] : node.path;
-}
-
 export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
 export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
 
@@ -627,7 +617,7 @@ export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefi
 type NodePickerReturns<N extends LayoutNode | undefined> = NodeDataFromNode<N> | undefined;
 
 function selectNodeData<N extends LayoutNode | undefined>(node: N, state: NodesContext): NodePickerReturns<N> {
-  return ignoreNodePathNotFound(() => (node ? pickDataStorePath(state, node) : undefined), undefined) as any;
+  return (node ? state.nodeData[node.getId()] : undefined) as any;
 }
 
 /**
@@ -680,10 +670,7 @@ export const NodesInternal = {
     selector: (state: NodeDataFromNode<N>) => Out,
   ): React.MutableRefObject<N extends undefined ? Out | undefined : Out> {
     return Store.useSelectorAsRef((s) =>
-      ignoreNodePathNotFound(
-        () => (node ? selector(pickDataStorePath(s, node) as NodeDataFromNode<N>) : undefined),
-        undefined,
-      ),
+      node ? selector(s.nodeData[node.getId()] as NodeDataFromNode<N>) : undefined,
     ) as any;
   },
   useWaitForNodeData<RetVal, N extends LayoutNode | undefined, Out>(
@@ -693,19 +680,17 @@ export const NodesInternal = {
     const waitForState = useWaitForState<RetVal, NodesContext>(Store.useStore());
     return useCallback(
       (callback) =>
-        waitForState((state, setReturnValue) =>
-          ignoreNodePathNotFound(() => {
-            if (!state.ready) {
-              return false;
-            }
+        waitForState((state, setReturnValue) => {
+          if (!state.ready) {
+            return false;
+          }
 
-            const nodeData = node ? pickDataStorePath(state, node) : undefined;
-            if (!nodeData) {
-              return false;
-            }
-            return callback(selector(nodeData as NodeDataFromNode<N>), setReturnValue);
-          }, false),
-        ),
+          const nodeData = node ? state.nodeData[node.getId()] : undefined;
+          if (!nodeData) {
+            return false;
+          }
+          return callback(selector(nodeData as NodeDataFromNode<N>), setReturnValue);
+        }),
       [waitForState, node, selector],
     );
   },
@@ -774,42 +759,4 @@ function useLegacyHiddenComponents(setHidden: React.Dispatch<React.SetStateActio
       return currentlyHidden;
     });
   }, [rules, setHidden, nodeTraversal, formDataSelector, transposeSelector]);
-}
-
-/**
- * Recursive function to look up a node stored in the page hierarchy. Components may store their children
- * in different ways, so this function has to call out to each component specific implementation to look up
- * children.
- */
-export function pickDataStorePath(
-  state: NodesContext,
-  _pathOrNode: string[] | LayoutNode | LayoutPage,
-): NodeData | PageData {
-  const path =
-    _pathOrNode instanceof LayoutPage
-      ? [_pathOrNode.pageKey]
-      : _pathOrNode instanceof BaseLayoutNode
-        ? _pathOrNode.path
-        : _pathOrNode;
-
-  if (path.length === 0) {
-    throw new Error('Cannot pick root node');
-  }
-
-  if (path.length === 1) {
-    const page = state.pagesData.pages[path[0]];
-    if (!page) {
-      throw new NodePathNotFound(`Page not found at path /${path.join('/')}`);
-    }
-    return page;
-  }
-
-  const lastLeg = path[path.length - 1];
-  const node = state.nodeData[lastLeg];
-
-  if (!node) {
-    throw new NodePathNotFound(`Node not found at path /${path.join('/')}`);
-  }
-
-  return node;
 }

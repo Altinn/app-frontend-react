@@ -51,10 +51,6 @@ export function SummaryRepeatingGroup(props: ISummaryRepeatingGroup) {
     if (!row || row.groupExpressions?.hiddenRow || row.index === undefined) {
       continue;
     }
-    const allHidden = row.items.every((n) => isHidden(n));
-    if (allHidden) {
-      continue;
-    }
     rows.push(row);
   }
 
