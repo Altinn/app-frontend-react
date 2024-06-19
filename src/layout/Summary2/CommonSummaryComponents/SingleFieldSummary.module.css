@@ -9,21 +9,20 @@
 
 .inputSummaryItem {
   display: flex;
-  gap: var(--fds-spacing-2);
-  flex-direction: column;
+  flex-direction: row;
+  align-items: flex-start;
 }
 
 .error {
   border-bottom: var(--fds-semantic-border-danger-default) solid 2px;
 }
 
-.labelWrapper {
+.labelValueWrapper {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
   gap: var(--fds-spacing-2);
 }
 
 .editButton {
   margin-left: auto;
-  min-width: unset;
 }
