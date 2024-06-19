@@ -111,15 +111,17 @@ export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeDat
 }
 
 export type NodesContext = {
-  // State
   ready: boolean;
+
+  // Counter to prevent re-rendering of NodeTraversal when expressions/options/validations change
+  addRemoveCounter: number;
+
   hasErrors: boolean;
   nodes: LayoutPages | undefined;
   pagesData: PagesData;
   nodeData: { [key: string]: NodeData };
   hiddenViaRules: Set<string>;
 
-  // Functions
   setNodes: (nodes: LayoutPages) => void;
   addNodes: (requests: AddNodeRequest[]) => void;
   removeNode: (node: LayoutNode) => void;
@@ -148,6 +150,7 @@ export type NodesDataStore = StoreApi<NodesContext>;
 export function createNodesDataStore() {
   return createStore<NodesContext>((set) => ({
     ready: false,
+    addRemoveCounter: 0,
     hasErrors: false,
     nodes: undefined,
     pagesData: {
@@ -175,7 +178,7 @@ export function createNodesDataStore() {
             };
           }
         }
-        return { nodeData, ready: false };
+        return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
       }),
     // TODO: Make a queue for this as well?
     removeNode: (node) =>
@@ -191,7 +194,7 @@ export function createNodesDataStore() {
           }
         }
         delete nodeData[node.getId()];
-        return { nodeData, ready: false };
+        return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
       }),
     setNodeProps: (requests) =>
       set((state) => {
@@ -220,24 +223,14 @@ export function createNodesDataStore() {
       set(
         produce((state: NodesContext) => {
           // TODO: Simplify this
-          if (node instanceof LayoutPage) {
-            if (!state.pagesData.pages[node.pageKey]) {
-              return;
-            }
-
-            if (!state.pagesData.pages[node.pageKey].errors) {
-              state.pagesData.pages[node.pageKey].errors = {};
-            }
-            state.pagesData.pages[node.pageKey].errors![error] = true;
-            state.hasErrors = true;
+          const data = node instanceof LayoutPage ? state.pagesData.pages[node.pageKey] : state.nodeData[node.getId()];
+          if (!data) {
             return;
           }
-
-          const obj = state.nodeData[node.getId()];
-          if (!obj.errors) {
-            obj.errors = {};
+          if (!data.errors) {
+            data.errors = {};
           }
-          obj.errors[error] = true;
+          data.errors[error] = true;
 
           // We need to mark the data as not ready as soon as an error is added, because GeneratorErrorBoundary
           // may need to remove the failing node from the tree before any more node traversal can happen safely.
@@ -264,6 +257,7 @@ export function createNodesDataStore() {
             errors: undefined,
           };
           state.ready = false;
+          state.addRemoveCounter += 1;
         }),
       ),
     removePage: (pageKey) =>
@@ -271,6 +265,7 @@ export function createNodesDataStore() {
         produce((state: NodesContext) => {
           delete state.pagesData.pages[pageKey];
           state.ready = false;
+          state.addRemoveCounter += 1;
         }),
       ),
     // TODO: Make a queue for this as well?
@@ -655,7 +650,16 @@ export const NodesInternal = {
     return useDelayedSelector({
       store: Store.useLaxStore(),
       strictness: SelectorStrictness.returnWhenNotProvided,
-      onlyReRenderWhen: ((state) => state.ready) satisfies OnlyReRenderWhen<NodesContext, void>,
+      onlyReRenderWhen: ((state, lastValue, setNewValue) => {
+        if (!state.ready) {
+          return false;
+        }
+        if (lastValue !== state.addRemoveCounter) {
+          setNewValue(state.addRemoveCounter);
+          return true;
+        }
+        return false;
+      }) satisfies OnlyReRenderWhen<NodesContext, number>,
       mode: {
         mode: 'innerSelector',
         makeArgs: (state) => [state],
