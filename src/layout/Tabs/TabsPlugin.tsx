@@ -15,7 +15,6 @@ import type {
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { NodeData } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface TabConfigInternal extends Omit<TabConfig, 'children'> {
@@ -123,20 +122,6 @@ export class TabsPlugin<Type extends CompTypes>
     }
 
     return refs;
-  }
-
-  pickChild<C extends CompTypes>(
-    state: DefPluginState<Config<Type>>,
-    childId: string,
-    parentPath: string[],
-  ): NodeData<C> {
-    for (const tab of Object.values(state.tabsItems)) {
-      if (tab.children[childId]) {
-        return tab.children[childId] as NodeData<C>;
-      }
-    }
-
-    throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
   }
 
   addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): Partial<DefPluginState<Config<Type>>> {

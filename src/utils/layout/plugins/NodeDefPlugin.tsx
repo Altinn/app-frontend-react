@@ -5,7 +5,7 @@ import type { NodeRef } from 'src/layout';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { BaseNodeData, NodeData, StateFactoryProps } from 'src/utils/layout/types';
+import type { BaseNodeData, StateFactoryProps } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface DefPluginConfig {
@@ -203,7 +203,6 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
 export interface NodeDefChildrenPlugin<Config extends DefPluginConfig> {
   claimChildren(props: DefPluginChildClaimerProps<Config>): void;
   pickDirectChildren(state: DefPluginState<Config>, restriction?: TraversalRestriction): NodeRef[];
-  pickChild<C extends CompTypes>(state: DefPluginState<Config>, childId: string, parentPath: string[]): NodeData<C>;
   addChild(state: DefPluginState<Config>, childNode: LayoutNode): Partial<DefPluginState<Config>>;
   removeChild(state: DefPluginState<Config>, childNode: LayoutNode): Partial<DefPluginState<Config>>;
 }
@@ -212,7 +211,6 @@ export function isNodeDefChildrenPlugin(plugin: any): plugin is NodeDefChildrenP
   return (
     typeof plugin.claimChildren === 'function' &&
     typeof plugin.pickDirectChildren === 'function' &&
-    typeof plugin.pickChild === 'function' &&
     typeof plugin.addChild === 'function' &&
     typeof plugin.removeChild === 'function'
   );

@@ -96,17 +96,6 @@ export abstract class AnyComponent<Type extends CompTypes> {
   abstract stateFactory(props: StateFactoryProps<Type>): unknown;
 
   /**
-   * Picks a (direct) child state from the nodes store, returning the item store for that child. This must be
-   * implemented for every component type that can adopt children.
-   */
-  public pickChild<C extends CompTypes>(_state: NodeData<Type>, _childId: string, _parentPath: string[]): NodeData<C> {
-    throw new Error(
-      `pickChild() is not implemented yet for '${this.type}'. ` +
-        `You have to implement this if the component type supports children.`,
-    );
-  }
-
-  /**
    * Picks all direct children of a node, returning an array of item stores for each child. This must be implemented for
    * every component type that can adopt children.
    */
@@ -450,8 +439,6 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
   }
 
   abstract claimChildren(props: ChildClaimerProps<Type>): void;
-
-  abstract pickChild<C extends CompTypes>(state: NodeData<Type>, childId: string, parentPath: string[]): NodeData<C>;
 
   abstract pickDirectChildren(state: NodeData<Type>, restriction?: TraversalRestriction): NodeRef[];
 

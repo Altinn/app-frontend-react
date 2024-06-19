@@ -15,7 +15,6 @@ import type {
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { NodeData } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface CardInternal extends Omit<CardConfigExternal, 'children' | 'media'> {
@@ -144,23 +143,6 @@ export class CardsPlugin<Type extends CompTypes>
     }
 
     return refs;
-  }
-
-  pickChild<C extends CompTypes>(
-    state: DefPluginState<Config<Type>>,
-    childId: string,
-    parentPath: string[],
-  ): NodeData<C> {
-    for (const card of Object.values(state.cardsItems)) {
-      if (card.media?.nodeRef === childId) {
-        return card.media as NodeData<C>;
-      }
-      if (card.children[childId]) {
-        return card.children[childId] as NodeData<C>;
-      }
-    }
-
-    throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
   }
 
   addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): Partial<DefPluginState<Config<Type>>> {

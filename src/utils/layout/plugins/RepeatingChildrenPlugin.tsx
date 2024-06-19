@@ -2,13 +2,11 @@ import dot from 'dot-object';
 
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
-import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
-import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
-import type { CompDef, NodeRefInRow } from 'src/layout';
-import type { CompInternal, CompTypes, TypesFromCategory } from 'src/layout/layout';
+import type { NodeRefInRow } from 'src/layout';
+import type { CompInternal, TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
@@ -18,7 +16,7 @@ import type {
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { BaseRow, NodeData } from 'src/utils/layout/types';
+import type { BaseRow } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface RepChildrenRow extends BaseRow {
@@ -201,30 +199,6 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     }
 
     return out;
-  }
-
-  pickChild<C extends CompTypes>(
-    state: DefPluginState<ToInternal<E>>,
-    childId: string,
-    parentPath: string[],
-  ): ReturnType<CompDef<C>['stateFactory']> {
-    const { baseComponentId, depth } = splitDashedKey(childId);
-    const lastIndex = depth[depth.length - 1];
-
-    // TODO: Try to include the row ID in the child ID (using new internal node IDs?) so that this lookup is more
-    // effective.
-    const rows = (state.item as any)[this.settings.internalProp] as Row<E>[];
-    for (const row of Object.values(rows)) {
-      if (row && row.index === lastIndex && row.items) {
-        for (const item of row.items) {
-          if (item.baseId === baseComponentId) {
-            return item as NodeData<C>;
-          }
-        }
-      }
-    }
-
-    throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
   }
 
   addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode): Partial<DefPluginState<ToInternal<E>>> {

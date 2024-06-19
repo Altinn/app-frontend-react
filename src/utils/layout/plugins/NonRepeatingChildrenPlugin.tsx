@@ -1,11 +1,10 @@
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
-import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { NodeRef } from 'src/layout';
-import type { CompTypes, TypesFromCategory } from 'src/layout/layout';
+import type { TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
@@ -14,7 +13,6 @@ import type {
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { NodeData } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 interface Config<
@@ -150,14 +148,6 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
 
   pickDirectChildren(state: DefPluginState<ToInternal<E>>, _restriction?: TraversalRestriction): NodeRef[] {
     return state.item?.[this.settings.internalProp] || [];
-  }
-
-  pickChild<C extends CompTypes>(state: DefPluginState<ToInternal<E>>, childId: string, parentPath: string[]) {
-    const child = state[this.settings.externalProp][childId];
-    if (!child) {
-      throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
-    }
-    return child as NodeData<C>;
   }
 
   addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode): Partial<DefPluginState<ToInternal<E>>> {

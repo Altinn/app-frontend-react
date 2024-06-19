@@ -400,7 +400,6 @@ export class ComponentConfig {
         import: 'TraversalRestriction',
         from: 'src/utils/layout/useNodeTraversal',
       });
-      const CompTypes = new CG.import({ import: 'CompTypes', from: 'src/layout/layout' });
       const LayoutNode = new CG.import({ import: 'LayoutNode', from: 'src/utils/layout/LayoutNode' });
 
       const plugin = childrenPlugins[0];
@@ -410,9 +409,6 @@ export class ComponentConfig {
         }`,
         `pickDirectChildren(state: ${NodeData}<'${this.type}'>, restriction?: ${TraversalRestriction}) {
           return ${pluginRef(plugin)}.pickDirectChildren(state as any, restriction);
-        }`,
-        `pickChild<C extends ${CompTypes}>(state: ${NodeData}<'${this.type}'>, childId: string, parentPath: string[]) {
-          return ${pluginRef(plugin)}.pickChild<C>(state as any, childId, parentPath);
         }`,
         `addChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}) {
           return ${pluginRef(plugin)}.addChild(state as any, childNode) as Partial<${NodeData}<'${this.type}'>>;
