@@ -17,6 +17,7 @@ tr > .fullWidthCellLast {
 }
 
 .table th {
+  font-weight: 500;
   border-bottom: 2px solid var(--fds-semantic-border-neutral-strong);
 }
 
