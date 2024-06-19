@@ -1,8 +1,27 @@
 .descriptionList {
   display: flex;
+  margin: 0;
   dt {
+    display: flex;
+    span::after {
+      content: ': ';
+    }
   }
   dl {
+    padding: 0;
+    margin: 0;
     font-weight: bold;
   }
+}
+
+.horizontal {
+  flex-direction: row;
+  gap: 24px;
+}
+.vertical {
+  flex-direction: column;
+}
+.icon {
+  width: 24px;
+  margin-right: 12px;
 }
