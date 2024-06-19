@@ -5,6 +5,7 @@ import deepEqual from 'fast-deep-equal';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useOrderDetails, useRefetchOrderDetails } from 'src/features/payment/OrderDetailsProvider';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IPaymentDetailsProps = PropsFromGenericComponent<'PaymentDetails'>;
@@ -12,8 +13,8 @@ export type IPaymentDetailsProps = PropsFromGenericComponent<'PaymentDetails'>;
 export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
   const orderDetails = useOrderDetails();
   const refetchOrderDetails = useRefetchOrderDetails();
-  const { title, description } = node.item.textResourceBindings || {};
-  const mapping = node.item.mapping;
+  const { title, description } = useNodeItem(node, (i) => i.textResourceBindings || {});
+  const mapping = useNodeItem(node, (i) => i.mapping);
   const hasUnsavedChanges = FD.useHasUnsavedChanges();
 
   const mappedValues = FD.useMapping(mapping);

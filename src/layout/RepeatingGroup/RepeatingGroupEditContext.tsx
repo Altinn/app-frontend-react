@@ -87,7 +87,7 @@ export function RepeatingGroupEditRowProvider({ editId, children }: PropsWithChi
     const ourDirectChildren = traversal((t) => t.with(node).children(), [node]);
     const ourChildDirectly = ourDirectChildren.find((n) => n === targetNode);
     if (ourChildDirectly) {
-      const targetMultiPageIndex = targetNode.item.multiPageIndex ?? 0;
+      const targetMultiPageIndex = targetNode.getMultiPageIndex() ?? 0;
       if (targetMultiPageIndex !== state.multiPageIndex) {
         setMultiPageIndex(targetMultiPageIndex);
       }

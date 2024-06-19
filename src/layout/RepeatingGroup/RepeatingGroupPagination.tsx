@@ -44,10 +44,11 @@ function _RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationP
   const isTablet = useIsMobileOrTablet();
   const isMobile = useIsMobile();
   const isMini = useIsMini();
+  const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings || {});
 
   const getScrollPosition = useCallback(
-    () => document.querySelector(`[data-pagination-id="${node.item.id}"]`)?.getClientRects().item(0)?.y,
-    [node.item.id],
+    () => document.querySelector(`[data-pagination-id="${node.getId()}"]`)?.getClientRects().item(0)?.y,
+    [node],
   );
 
   // Should never be true, but leaving it for type inference
@@ -98,9 +99,9 @@ function _RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationP
       )}
     >
       <PaginationComponent
-        nextTextKey={node.item.textResourceBindings?.pagination_next_button ?? 'general.next'}
-        backTextKey={node.item.textResourceBindings?.pagination_back_button ?? 'general.back'}
-        data-pagination-id={node.item.id}
+        nextTextKey={textResourceBindings?.pagination_next_button ?? 'general.next'}
+        backTextKey={textResourceBindings?.pagination_back_button ?? 'general.back'}
+        data-pagination-id={node.getId()}
         className={classes.pagination}
         currentPage={currentPage + 1}
         totalPages={totalPages}

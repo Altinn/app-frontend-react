@@ -7,6 +7,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { type FieldValidations, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getKeyWithoutIndex } from 'src/utils/databindings';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeTraversalSilent } from 'src/utils/layout/useNodeTraversal';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
 
@@ -22,6 +23,7 @@ export function useExpressionValidation(): FieldValidations {
   const customValidationConfig = useCustomValidationConfig();
   const dataSources = useExpressionDataSources();
   const allNodes = useNodeTraversalSilent((t) => t.allNodes());
+  const nodeDataSelector = NodesInternal.useNodeDataSelector();
 
   /**
    * Should only update when form data changes
@@ -32,11 +34,12 @@ export function useExpressionValidation(): FieldValidations {
     }
 
     return allNodes.reduce((validations, node) => {
-      if (!node.item.dataModelBindings) {
+      const dmb = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
+      if (!dmb) {
         return validations;
       }
 
-      for (const field of Object.values(node.item.dataModelBindings)) {
+      for (const field of Object.values(dmb)) {
         /**
          * Should not run validations on the same field multiple times
          */
@@ -73,5 +76,5 @@ export function useExpressionValidation(): FieldValidations {
 
       return validations;
     }, {});
-  }, [customValidationConfig, formData, allNodes, dataSources]);
+  }, [customValidationConfig, formData, allNodes, nodeDataSelector, dataSources]);
 }

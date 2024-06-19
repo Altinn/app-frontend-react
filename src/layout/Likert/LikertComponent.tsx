@@ -69,8 +69,8 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
       <Grid
         item
         container
-        data-componentid={node.item.id}
-        data-componentbaseid={node.item.baseComponentId || node.item.id}
+        data-componentid={node.getId()}
+        data-componentbaseid={node.getBaseId()}
       >
         <Header />
         <div
@@ -94,8 +94,8 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
     <Grid
       item
       container
-      data-componentid={node.item.id}
-      data-componentbaseid={node.item.baseComponentId || node.item.id}
+      data-componentid={node.getId()}
+      data-componentbaseid={node.getBaseId()}
     >
       <Header />
       {isFetching ? (
@@ -116,12 +116,10 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
               <Table.HeaderCell id={`${id}-likert-columnheader-left`}>
                 <span
                   className={cn(classes.likertTableHeaderCell, {
-                    'sr-only': node?.item.textResourceBindings?.leftColumnHeader == null,
+                    'sr-only': textResourceBindings?.leftColumnHeader == null,
                   })}
                 >
-                  <Lang
-                    id={node?.item.textResourceBindings?.leftColumnHeader ?? 'likert.left_column_default_header_text'}
-                  />
+                  <Lang id={textResourceBindings?.leftColumnHeader ?? 'likert.left_column_default_header_text'} />
                 </span>
               </Table.HeaderCell>
               {calculatedOptions.map((option, index) => {

@@ -7,6 +7,7 @@ import { Grid } from '@material-ui/core';
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
 import { GenericComponentByRef } from 'src/layout/GenericComponent';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CardInternal } from 'src/layout/Cards/CardsPlugin';
@@ -19,7 +20,7 @@ function parseSize(size: string | undefined, defaultValue: string): string {
 }
 
 export const Cards = ({ node }: ICardsProps) => {
-  const { cardsInternal, minMediaHeight, minWidth, color, mediaPosition: _mediaPosition } = node.item;
+  const { cardsInternal, minMediaHeight, minWidth, color, mediaPosition: _mediaPosition } = useNodeItem(node);
   const processedMinWidth = parseSize(minWidth, '250px');
   const processedMinMediaHeight = parseSize(minMediaHeight, '150px');
   const mediaPosition = _mediaPosition ?? 'top';

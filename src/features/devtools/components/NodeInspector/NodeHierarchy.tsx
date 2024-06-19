@@ -74,10 +74,10 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
 
   const el = useRef<HTMLLIElement>(null);
   useEffect(() => {
-    if (node.item.id === selected && el.current) {
+    if (node.getId() === selected && el.current) {
       el.current.scrollIntoView({ block: 'nearest' });
     }
-  }, [node.item.id, selected]);
+  }, [node, selected]);
 
   return (
     <>
