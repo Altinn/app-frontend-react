@@ -4,6 +4,7 @@ import { Tabs as DesignsystemetTabs } from '@digdir/designsystemet-react';
 
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -79,6 +80,9 @@ function TabHeader({
   icon: string | undefined;
   isActive?: boolean;
 }) {
+  const { langAsString } = useLanguage();
+  const translatedTitle = langAsString(title);
+
   if (icon) {
     const imgType = icon.split('.').at(-1);
 
@@ -108,7 +112,7 @@ function TabHeader({
           }}
         />
       )}
-      <Lang id={title} />
+      <Lang id={translatedTitle} />
     </DesignsystemetTabs.Tab>
   );
 }
