@@ -6,6 +6,7 @@ import type { Location } from '@altinn/altinn-design-system';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
+import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { markerIcon } from 'src/layout/Map/MapIcons';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -18,8 +19,9 @@ export const useStyles = makeStyles(() => ({
   },
 }));
 
-export function MapComponent({ isValid, node }: IMapComponentProps) {
+export function MapComponent({ node }: IMapComponentProps) {
   const { readOnly, layers, centerLocation, zoom, dataModelBindings } = useNodeItem(node);
+  const isValid = useIsValid(node);
   const classes = useStyles();
   const { formData, setValue } = useDataModelBindings(dataModelBindings);
   const value = 'simpleBinding' in formData ? formData.simpleBinding : undefined;

@@ -9,6 +9,7 @@ import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
+import { useIsValid } from 'src/features/validation/selectors/isValid';
 import classes from 'src/layout/Checkboxes/CheckboxesContainerComponent.module.css';
 import { WrappedCheckbox } from 'src/layout/Checkboxes/WrappedCheckbox';
 import { shouldUseRowLayout } from 'src/utils/layout';
@@ -17,11 +18,12 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type ICheckboxContainerProps = PropsFromGenericComponent<'Checkboxes'>;
 
-export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: ICheckboxContainerProps) => {
+export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxContainerProps) => {
   const item = useNodeItem(node);
   const { id, layout, readOnly, textResourceBindings, required, labelSettings, alertOnChange } = item;
   const { langAsString } = useLanguage();
   const { options: calculatedOptions, isFetching, setData, selectedValues } = useGetOptions(node, 'multi');
+  const isValid = useIsValid(node);
 
   const labelTextGroup = (
     <span className={classes.checkboxLabelContainer}>

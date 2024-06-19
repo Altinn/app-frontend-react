@@ -343,7 +343,6 @@ interface Props<T extends Types> extends Partial<RenderGenericComponentTestProps
 async function renderAbstract<T extends Types>({
   type,
   component,
-  genericProps,
   attachments: attachmentsGenerator = (dataType) => getDataElements({ dataType }),
 }: Props<T>) {
   const id = uuidv4();
@@ -367,10 +366,6 @@ async function renderAbstract<T extends Types>({
       }),
       ...component,
     } as CompExternalExact<T>,
-    genericProps: {
-      isValid: true,
-      ...genericProps,
-    },
     queries: {
       fetchApplicationMetadata: async () =>
         getApplicationMetadataMock((a) => {

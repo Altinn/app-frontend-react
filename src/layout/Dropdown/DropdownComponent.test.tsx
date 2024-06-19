@@ -42,7 +42,7 @@ function MySuperSimpleInput() {
   );
 }
 
-const render = async ({ component, genericProps, options, ...rest }: Props = {}) => {
+const render = async ({ component, options, ...rest }: Props = {}) => {
   const fetchOptions = queryPromiseMock('fetchOptions');
   const utils = await renderGenericComponentTest({
     type: 'Dropdown',
@@ -59,10 +59,6 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
         simpleBinding: 'myDropdown',
       },
       ...component,
-    },
-    genericProps: {
-      isValid: true,
-      ...genericProps,
     },
     ...rest,
     queries: {

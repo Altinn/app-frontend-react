@@ -1,8 +1,7 @@
 const debugAll = false;
 export const GeneratorDebug = {
   displayState: debugAll,
-  logDuration: debugAll,
-  logStages: debugAll,
+  logStages: debugAll || true,
   logCommits: debugAll,
 };
 

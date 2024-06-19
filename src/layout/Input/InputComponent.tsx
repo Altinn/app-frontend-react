@@ -17,6 +17,8 @@ export type IInputProps = PropsFromGenericComponent<'Input'>;
 
 import type { TextfieldProps } from '@digdir/designsystemet-react/dist/types/components/form/Textfield/Textfield';
 
+import { useIsValid } from 'src/features/validation/selectors/isValid';
+
 interface InputComponentProps extends Omit<TextfieldProps, 'prefix' | 'suffix'> {
   textOnly?: boolean;
   prefixText?: string;
@@ -65,7 +67,7 @@ const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) =
   );
 };
 
-export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isValid, overrideDisplay }) => {
+export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, overrideDisplay }) => {
   const {
     id,
     readOnly,
@@ -78,6 +80,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     autocomplete,
     maxLength,
   } = useNodeItem(node);
+  const isValid = useIsValid(node);
   const {
     formData: { simpleBinding: formValue },
     setValue,

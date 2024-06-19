@@ -38,7 +38,6 @@ export interface NodeRefInRow extends NodeRef {
 
 export interface IComponentProps {
   containerDivRef: MutableRefObject<HTMLDivElement | null>;
-  isValid?: boolean;
 }
 
 export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> extends IComponentProps {

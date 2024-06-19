@@ -10,6 +10,7 @@ import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { getDateConstraint, getDateFormat, getDateString } from 'src/utils/dateHelpers';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -104,8 +105,9 @@ class AltinnMomentUtils extends MomentUtils {
 // We dont use the built-in validation for the 3rd party component, so it is always empty string
 const emptyString = '';
 
-export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepickerProps) {
+export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps) {
   const classes = useStyles();
+  const isValid = useIsValid(node);
   const { langAsString } = useLanguage();
   const languageLocale = useCurrentLanguage();
   const {

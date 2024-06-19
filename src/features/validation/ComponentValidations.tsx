@@ -4,6 +4,7 @@ import { ErrorMessage } from '@digdir/designsystemet-react';
 
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { AlertBaseComponent } from 'src/layout/Alert/AlertBaseComponent';
 import { useCurrentNode } from 'src/layout/FormComponentContext';
@@ -12,15 +13,22 @@ import type { BaseValidation, NodeValidation } from 'src/features/validation';
 import type { AlertSeverity } from 'src/layout/Alert/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type Props = {
+interface Props {
   validations: NodeValidation[] | undefined;
-};
+}
+
+export function AllComponentValidations() {
+  const node = useCurrentNode();
+  const validations = useUnifiedValidationsForNode(node);
+  return <ComponentValidations validations={validations} />;
+}
 
 export function ComponentValidations({ validations }: Props) {
   const node = useCurrentNode();
   if (!validations || validations.length === 0 || !node) {
     return null;
   }
+
   const errors = validationsOfSeverity(validations, 'error');
   const warnings = validationsOfSeverity(validations, 'warning');
   const info = validationsOfSeverity(validations, 'info');

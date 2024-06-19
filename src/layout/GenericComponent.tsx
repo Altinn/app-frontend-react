@@ -5,9 +5,7 @@ import classNames from 'classnames';
 
 import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
-import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
-import { hasValidationErrors } from 'src/features/validation/utils';
+import { AllComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
@@ -122,18 +120,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   }
 
   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
-  const validations = useUnifiedValidationsForNode(node);
-  const isValid = !hasValidationErrors(validations);
   const isHidden = Hidden.useIsHidden(node);
-
-  // If maxLength is set in both schema and component, don't display the schema error message
-  const maxLength = 'maxLength' in item && item.maxLength;
-  const filteredValidationErrors = maxLength
-    ? validations.filter(
-        (validation) =>
-          !(validation.message.key === 'validation_errors.maxLength' && validation.message.params?.at(0) === maxLength),
-      )
-    : validations;
 
   const formComponentContext = useMemo<IFormComponentContext>(
     () => ({
@@ -186,7 +173,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
 
   const componentProps: PropsFromGenericComponent<Type> = {
     containerDivRef,
-    isValid,
     node: node as unknown as LayoutNode<Type>,
     overrideItemProps,
     overrideDisplay,
@@ -254,7 +240,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
           {...gridBreakpoints(item.grid?.innerGrid)}
         >
           <RenderComponent {...componentProps} />
-          {showValidationMessages && <ComponentValidations validations={filteredValidationErrors} />}
+          {showValidationMessages && <AllComponentValidations />}
         </Grid>
       </Grid>
     </FormComponentContextProvider>

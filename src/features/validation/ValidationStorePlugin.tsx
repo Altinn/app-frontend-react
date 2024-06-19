@@ -92,7 +92,8 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           if (!nodeData) {
             return emptyArray;
           }
-          return 'validations' in nodeData ? nodeData.validations : emptyArray;
+          const out = 'validations' in nodeData ? nodeData.validations : undefined;
+          return out && out.length > 0 ? out : emptyArray;
         }),
       useVisibleValidations: (node, severity) =>
         store.useSelector((state) => {
@@ -104,7 +105,9 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             return emptyArray;
           }
           const visibility = 'validationVisibility' in nodeData ? nodeData.validationVisibility : 0;
-          return 'validations' in nodeData ? selectValidations(nodeData.validations, visibility, severity) : emptyArray;
+          const out =
+            'validations' in nodeData ? selectValidations(nodeData.validations, visibility, severity) : undefined;
+          return out && out.length > 0 ? out : emptyArray;
         }),
       useValidationsSelector: () =>
         store.useDelayedSelector({

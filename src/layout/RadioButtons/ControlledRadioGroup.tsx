@@ -8,6 +8,7 @@ import { RadioButton } from 'src/components/form/RadioButton';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useIsValid } from 'src/features/validation/selectors/isValid';
 import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { shouldUseRowLayout } from 'src/utils/layout';
@@ -18,7 +19,8 @@ import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioB
 export type IControlledRadioGroupProps = IRadioButtonsContainerProps;
 
 export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
-  const { node, isValid, overrideDisplay } = props;
+  const { node, overrideDisplay } = props;
+  const isValid = useIsValid(node);
   const item = useNodeItem(node);
   const parentItem = useNodeItem(node.parent instanceof BaseLayoutNode ? node.parent : undefined);
   const { id, layout, readOnly, textResourceBindings, required } = item;

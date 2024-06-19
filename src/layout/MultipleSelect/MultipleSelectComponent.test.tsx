@@ -9,11 +9,7 @@ import type { RenderGenericComponentTestProps } from 'src/test/renderWithProvide
 
 const dummyLabel = 'dummyLabel';
 
-const render = async ({
-  component,
-  genericProps,
-  ...rest
-}: Partial<RenderGenericComponentTestProps<'MultipleSelect'>> = {}) =>
+const render = async ({ component, ...rest }: Partial<RenderGenericComponentTestProps<'MultipleSelect'>> = {}) =>
   await renderGenericComponentTest({
     type: 'MultipleSelect',
     renderer: (props) => (
@@ -33,10 +29,6 @@ const render = async ({
       required: false,
       textResourceBindings: {},
       ...component,
-    },
-    genericProps: {
-      isValid: true,
-      ...genericProps,
     },
     ...rest,
   });
