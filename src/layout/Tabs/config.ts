@@ -1,9 +1,11 @@
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
+import { LabelRendering } from 'src/codegen/Config';
 import { CompCategory } from 'src/layout/common';
+import { TabsPlugin } from 'src/layout/Tabs/TabsPlugin';
 
 export const Config = new CG.component({
   category: CompCategory.Container,
-  rendersWithLabel: false,
+  rendersWithLabel: LabelRendering.Off,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
@@ -13,7 +15,11 @@ export const Config = new CG.component({
     renderInCards: false,
     renderInCardsMedia: false,
   },
+  functionality: {
+    customExpressions: false,
+  },
 })
+  .addPlugin(new TabsPlugin())
   .addProperty(new CG.prop('size', new CG.enum('small', 'medium', 'large').optional({ default: 'medium' })))
   .addProperty(new CG.prop('defaultTab', new CG.str().optional()))
   .addProperty(
@@ -30,25 +36,7 @@ export const Config = new CG.component({
               .setTitle('Children')
               .setDescription('List of component IDs that should be displayed in the Tab'),
           ),
-        ).exportAs('TabConfigExternal'),
+        ).exportAs('TabConfig'),
       ),
-    ).onlyIn(Variant.External),
-  )
-  .addProperty(
-    new CG.prop(
-      'tabsInternal',
-      new CG.arr(
-        new CG.obj(
-          new CG.prop('id', new CG.str()),
-          new CG.prop('title', new CG.str()),
-          new CG.prop('icon', new CG.str().optional()),
-          new CG.prop(
-            'childNodes',
-            new CG.arr(CG.layoutNode)
-              .setTitle('Children')
-              .setDescription('List of component IDs that should be displayed in the Tab'),
-          ),
-        ).exportAs('TabConfigInternal'),
-      ),
-    ).onlyIn(Variant.Internal),
+    ),
   );
