@@ -191,6 +191,9 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
     if (draft) {
       draft = filterDuplicateOptions(draft);
     }
+    if (draft && removeEmpty) {
+      draft = filterEmptyOptions(draft);
+    }
     if (draft && sortOrder) {
       draft = [...draft].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
     }
