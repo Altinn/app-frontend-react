@@ -1,0 +1,8 @@
+.descriptionList {
+  display: flex;
+  dt {
+  }
+  dl {
+    font-weight: bold;
+  }
+}
