@@ -1,7 +1,7 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { Paragraph, Table } from '@digdir/designsystemet-react';
+import { ErrorMessage, Paragraph, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
@@ -10,6 +10,8 @@ import { Label } from 'src/components/form/Label';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
+import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { CompCategory } from 'src/layout/common';
 import classes from 'src/layout/Grid/GridSummary.module.css';
@@ -230,7 +232,6 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node, cu
         }
         const componentNode = cell && 'node' in cell ? cell.node : undefined;
         const componentId = componentNode && componentNode.item.id;
-        console.log(headerTitle);
 
         return (
           <CellWithComponent
@@ -313,6 +314,8 @@ function CellWithComponent({
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
   const isMobile = useIsMobile();
   const displayDataProps = useDisplayDataProps();
+  const validations = useUnifiedValidationsForNode(node);
+  const errors = validationsOfSeverity(validations, 'error');
   if (node && !node.isHidden()) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
     return (
@@ -321,7 +324,7 @@ function CellWithComponent({
         style={columnStyles}
         data-header-title={isMobile ? headerTitle : ''}
       >
-        <div className={classes.contentWrapper}>
+        <div className={cn(classes.contentWrapper, { [classes.validationError]: errors.length > 0 })}>
           {('getDisplayData' in node.def && node.def.getDisplayData(node as LayoutNode<any>, displayDataProps)) || '-'}
           {isMobile && !rowReadOnly && (
             <EditButton
@@ -331,6 +334,16 @@ function CellWithComponent({
             />
           )}
         </div>
+        {errors.length > 0 &&
+          errors.map(({ message }) => (
+            <ErrorMessage key={message.key}>
+              <Lang
+                id={message.key}
+                params={message.params}
+                node={node}
+              ></Lang>
+            </ErrorMessage>
+          ))}
       </CellComponent>
     );
   }
