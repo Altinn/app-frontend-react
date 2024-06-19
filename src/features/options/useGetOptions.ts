@@ -8,7 +8,7 @@ import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { filterDuplicateOptions } from 'src/utils/options';
+import { filterDuplicateOptions, filterEmptyOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelBindingsOptionsSimple, IDataModelBindingsSimple } from 'src/layout/common.generated';
@@ -190,8 +190,6 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
 
     if (draft) {
       draft = filterDuplicateOptions(draft);
-    }
-    if (draft && removeEmpty) {
       draft = filterEmptyOptions(draft);
     }
     if (draft && sortOrder) {
