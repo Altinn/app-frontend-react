@@ -346,10 +346,20 @@ const Conditionally = {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return isGenerating ? Store.useSelector(selector) : WhenReady.useSelector(selector);
   },
+  useMemoSelector: <T,>(selector: (state: NodesContext) => T): T | undefined => {
+    const isGenerating = GeneratorStages.useIsGenerating();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return isGenerating ? Store.useMemoSelector(selector) : WhenReady.useMemoSelector(selector);
+  },
   useLaxSelector: <T,>(selector: (state: NodesContext) => T): T | typeof ContextNotProvided => {
     const isGenerating = GeneratorStages.useIsGenerating();
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return isGenerating ? Store.useLaxSelector(selector) : WhenReady.useLaxSelector(selector);
+  },
+  useLaxMemoSelector: <T,>(selector: (state: NodesContext) => T): T | typeof ContextNotProvided => {
+    const isGenerating = GeneratorStages.useIsGenerating();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return isGenerating ? Store.useLaxMemoSelector(selector) : WhenReady.useLaxMemoSelector(selector);
   },
 };
 
@@ -657,7 +667,7 @@ export const NodesInternal = {
   },
 
   useNodeData<N extends LayoutNode | undefined, Out>(node: N, selector: (state: NodeDataFromNode<N>) => Out) {
-    return Conditionally.useSelector((s) =>
+    return Conditionally.useMemoSelector((s) =>
       node && s.nodeData[node.getId()] ? selector(s.nodeData[node.getId()] as NodeDataFromNode<N>) : undefined,
     ) as N extends undefined ? Out | undefined : Out;
   },
