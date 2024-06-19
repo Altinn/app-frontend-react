@@ -20,11 +20,12 @@ import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/Repeatin
 import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/RepeatingGroupTableRow';
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/RepeatingGroupTableTitle';
 import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
-import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { GridCellInternal } from 'src/layout/Grid/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
@@ -110,16 +111,11 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
           <Table.Head id={`group-${id}-table-header`}>
             <Table.Row className={classes.repeatingGroupRow}>
               {tableNodes?.map((n) => (
-                <Table.HeaderCell
+                <TitleCell
                   key={n.getId()}
-                  className={classes.tableCellFormatting}
-                  style={getColumnStylesRepeatingGroups(n, columnSettings)}
-                >
-                  <RepeatingGroupTableTitle
-                    node={n}
-                    columnSettings={columnSettings}
-                  />
-                </Table.HeaderCell>
+                  node={n}
+                  columnSettings={columnSettings}
+                />
               ))}
               {displayEditColumn && (
                 <Table.HeaderCell style={{ padding: 0, paddingRight: '10px' }}>
@@ -243,5 +239,20 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
         />
       ))}
     </>
+  );
+}
+
+function TitleCell({ node, columnSettings }: { node: LayoutNode; columnSettings: ITableColumnFormatting }) {
+  const style = useColumnStylesRepeatingGroups(node, columnSettings);
+  return (
+    <Table.HeaderCell
+      className={classes.tableCellFormatting}
+      style={style}
+    >
+      <RepeatingGroupTableTitle
+        node={node}
+        columnSettings={columnSettings}
+      />
+    </Table.HeaderCell>
   );
 }

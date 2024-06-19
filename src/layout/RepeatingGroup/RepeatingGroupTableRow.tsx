@@ -19,11 +19,12 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
-import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import type { DisplayData } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
+import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { CompInternal, ITextResourceBindings } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { GroupExpressions } from 'src/layout/RepeatingGroup/types';
@@ -159,17 +160,14 @@ function _RepeatingGroupTableRow({
               </div>
             </Table.Cell>
           ) : (
-            <Table.Cell
-              key={`${n.getId()}`}
-              className={classes.tableCell}
-            >
-              <span
-                className={classes.contentFormatting}
-                style={getColumnStylesRepeatingGroups(n, columnSettings)}
-              >
-                {isEditingRow ? null : displayData[idx]}
-              </span>
-            </Table.Cell>
+            <NonEditableCell
+              key={n.getId()}
+              node={n}
+              isEditingRow={isEditingRow}
+              idx={idx}
+              displayData={displayData}
+              columnSettings={columnSettings}
+            />
           ),
         )
       ) : (
@@ -354,7 +352,7 @@ export function shouldEditInTable(
   return false;
 }
 
-const DeleteElement = ({
+function DeleteElement({
   uuid,
   isDeletingRow,
   editForRow,
@@ -372,39 +370,67 @@ const DeleteElement = ({
   langAsString: (key: string) => string;
   alertOnDeleteProps: AlertOnChange<(uuid: string) => void>;
   children: React.ReactNode;
-}) => (
-  <ConditionalWrapper
-    condition={Boolean(editForRow?.alertOnDelete)}
-    wrapper={(children) => (
-      <DeleteWarningPopover
-        placement='left'
-        deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
-        messageText={langAsString('group.row_popover_delete_message')}
-        onCancelClick={cancelChange}
-        onPopoverDeleteClick={confirmChange}
-        open={alertOpen}
-        setOpen={setAlertOpen}
+}) {
+  return (
+    <ConditionalWrapper
+      condition={Boolean(editForRow?.alertOnDelete)}
+      wrapper={(children) => (
+        <DeleteWarningPopover
+          placement='left'
+          deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
+          messageText={langAsString('group.row_popover_delete_message')}
+          onCancelClick={cancelChange}
+          onPopoverDeleteClick={confirmChange}
+          open={alertOpen}
+          setOpen={setAlertOpen}
+        >
+          {children}
+        </DeleteWarningPopover>
+      )}
+    >
+      <Button
+        variant='tertiary'
+        color='danger'
+        size='small'
+        disabled={isDeletingRow}
+        onClick={() => handleDelete(uuid)}
+        aria-label={`${deleteButtonText}-${firstCellData}`}
+        data-testid='delete-button'
+        icon={!children}
+        className={classes.tableButton}
       >
         {children}
-      </DeleteWarningPopover>
-    )}
-  >
-    <Button
-      variant='tertiary'
-      color='danger'
-      size='small'
-      disabled={isDeletingRow}
-      onClick={() => handleDelete(uuid)}
-      aria-label={`${deleteButtonText}-${firstCellData}`}
-      data-testid='delete-button'
-      icon={!children}
-      className={classes.tableButton}
-    >
-      {children}
-      <DeleteIcon
-        fontSize='1rem'
-        aria-hidden='true'
-      />
-    </Button>
-  </ConditionalWrapper>
-);
+        <DeleteIcon
+          fontSize='1rem'
+          aria-hidden='true'
+        />
+      </Button>
+    </ConditionalWrapper>
+  );
+}
+
+function NonEditableCell({
+  node,
+  columnSettings,
+  isEditingRow,
+  idx,
+  displayData,
+}: {
+  node: LayoutNode;
+  columnSettings: ITableColumnFormatting | undefined;
+  idx: number;
+  displayData: string[];
+  isEditingRow: boolean;
+}) {
+  const style = useColumnStylesRepeatingGroups(node, columnSettings);
+  return (
+    <Table.Cell className={classes.tableCell}>
+      <span
+        className={classes.contentFormatting}
+        style={style}
+      >
+        {isEditingRow ? null : displayData[idx]}
+      </span>
+    </Table.Cell>
+  );
+}

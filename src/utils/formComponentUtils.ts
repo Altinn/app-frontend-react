@@ -2,6 +2,7 @@ import type React from 'react';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
 import printStyles from 'src/styles/print.module.css';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IAttachment } from 'src/features/attachments';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -161,31 +162,26 @@ export const pageBreakStyles = (pageBreak: ExprResolved<IPageBreak> | undefined)
   };
 };
 
-export function getTextAlignment(node: LayoutNode): 'left' | 'center' | 'right' {
-  if (!node.isType('Input')) {
+export function useTextAlignment(node: LayoutNode): 'left' | 'center' | 'right' {
+  const formatting = useNodeItem(node, (i) => (i.type === 'Input' ? i.formatting : undefined));
+  if (!formatting) {
     return 'left';
   }
-  const formatting = node.item.formatting;
-  if (formatting && formatting.align) {
+  if (formatting.align) {
     return formatting.align;
   }
-  if (formatting && formatting.number) {
-    return 'right';
-  }
-  return 'left';
+  return formatting.number ? 'right' : 'left';
 }
 
-export function getColumnStylesRepeatingGroups(
-  tableItem: LayoutNode,
-  columnSettings: ITableColumnFormatting | undefined,
-) {
-  const column = columnSettings && columnSettings[tableItem.getBaseId()];
+export function useColumnStylesRepeatingGroups(node: LayoutNode, columnSettings: ITableColumnFormatting | undefined) {
+  const textAlignment = useTextAlignment(node);
+  const column = columnSettings && columnSettings[node.getBaseId()];
   if (!column) {
     return;
   }
 
   const columnCopy = { ...column };
-  columnCopy.alignText = columnCopy.alignText ?? getTextAlignment(tableItem);
+  columnCopy.alignText = columnCopy.alignText ?? textAlignment;
 
   return getColumnStyles(columnCopy);
 }

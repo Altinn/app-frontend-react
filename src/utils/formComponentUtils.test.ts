@@ -1,13 +1,6 @@
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
-import { newLayoutNodeForTesting } from 'src/test/node';
-import {
-  getColumnStyles,
-  getColumnStylesRepeatingGroups,
-  getFieldName,
-  gridBreakpoints,
-  smartLowerCaseFirst,
-} from 'src/utils/formComponentUtils';
-import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import { getColumnStyles, getFieldName, gridBreakpoints, smartLowerCaseFirst } from 'src/utils/formComponentUtils';
+import type { IGridStyling, ITableColumnProperties } from 'src/layout/common.generated';
 
 describe('formComponentUtils', () => {
   describe('getFieldName', () => {
@@ -120,47 +113,6 @@ describe('formComponentUtils', () => {
       expect(result.xs).toBe(12);
       expect(result.md).toBeUndefined();
       expect(result.lg).toBeUndefined();
-    });
-  });
-  describe('getColumnStylesRepeatingGroups', () => {
-    it('should return undefined if columnSettings does not contain specified baseComponentId', () => {
-      const node = newLayoutNodeForTesting({ baseComponentId: 'headerName1' });
-      const columnSettings = { headerName2: { width: '100px' } };
-      expect(getColumnStylesRepeatingGroups(node, columnSettings)).toBeUndefined();
-    });
-
-    it('should set textAlignment to alignText property of columnSettings if present', () => {
-      const node = newLayoutNodeForTesting({ baseComponentId: 'headerName1' });
-      const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px', alignText: 'center' } };
-      const columnStyles = getColumnStylesRepeatingGroups(node, columnSettings);
-      expect(columnStyles).toEqual({
-        '--cell-max-number-of-lines': 2,
-        '--cell-text-alignment': 'center',
-        '--cell-width': '100px',
-      });
-    });
-
-    it('should set textAlignment to getTextAlignment(tableHeader) if alignText is not present in columnSettings', () => {
-      const node = newLayoutNodeForTesting({
-        baseComponentId: 'headerName1',
-        id: 'headerName1',
-        type: 'Input',
-        formatting: { number: {} },
-      });
-      const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px' } };
-      const columnStyles = getColumnStylesRepeatingGroups(node, columnSettings);
-      expect(columnStyles).toEqual({
-        '--cell-max-number-of-lines': 2,
-        '--cell-text-alignment': 'right',
-        '--cell-width': '100px',
-      });
-    });
-
-    it('should return columnStyles object if columnSettings is provided and contains specified baseComponentId', () => {
-      const node = newLayoutNodeForTesting({ baseComponentId: 'headerName1' });
-      const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px' } };
-      const columnStyles = getColumnStylesRepeatingGroups(node, columnSettings);
-      expect(columnStyles).toBeDefined();
     });
   });
 
