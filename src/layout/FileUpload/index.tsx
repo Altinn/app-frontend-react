@@ -10,7 +10,6 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -25,11 +24,7 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
     return false;
   }
 
-  getDisplayData(
-    node: LayoutNode<'FileUpload'>,
-    _item: CompInternal<'FileUpload'>,
-    { attachmentsSelector }: DisplayDataProps,
-  ): string {
+  getDisplayData(node: LayoutNode<'FileUpload'>, { attachmentsSelector }: DisplayDataProps): string {
     return attachmentsSelector(node)
       .map((a) => a.data.filename)
       .join(', ');

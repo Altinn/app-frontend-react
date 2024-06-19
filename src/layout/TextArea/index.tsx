@@ -7,7 +7,6 @@ import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -18,15 +17,7 @@ export class TextArea extends TextAreaDef {
     },
   );
 
-  getDisplayData(
-    node: LayoutNode<'TextArea'>,
-    item: CompInternal<'TextArea'>,
-    { nodeFormDataSelector }: DisplayDataProps,
-  ): string {
-    if (!item.dataModelBindings?.simpleBinding) {
-      return '';
-    }
-
+  getDisplayData(node: LayoutNode<'TextArea'>, { nodeFormDataSelector }: DisplayDataProps): string {
     return nodeFormDataSelector(node).simpleBinding ?? '';
   }
 

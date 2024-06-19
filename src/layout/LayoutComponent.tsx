@@ -13,7 +13,6 @@ import { getComponentCapabilities } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { NodeGenerator } from 'src/utils/layout/generator/NodeGenerator';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
@@ -26,7 +25,6 @@ import type {
   CompExternal,
   CompExternalExact,
   CompIntermediateExact,
-  CompInternal,
   CompTypes,
   IsContainerComp,
   ITextResourceBindingsExternal,
@@ -238,12 +236,11 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
    * @see renderSummary
    * @see renderCompactSummary
    */
-  abstract getDisplayData(node: LayoutNode<Type>, item: CompInternal<Type>, displayDataProps: DisplayDataProps): string;
+  abstract getDisplayData(node: LayoutNode<Type>, displayDataProps: DisplayDataProps): string;
 
   useDisplayData(node: LayoutNode<Type>): string {
     const displayDataProps = useDisplayDataProps();
-    const item = useNodeItem(node);
-    return this.getDisplayData(node, item as any, displayDataProps);
+    return this.getDisplayData(node, displayDataProps);
   }
 
   /**

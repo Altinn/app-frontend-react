@@ -19,6 +19,9 @@ export function getExpressionDataSourcesMock(): ExpressionDataSources {
     currentLanguage: 'nb',
     isHiddenSelector: () => false,
     nodeFormDataSelector: () => ({}) as any,
+    nodeDataSelector: () => {
+      throw new Error('Not implemented: nodeDataSelector()');
+    },
     nodeTraversal: () => {
       throw new Error('Not implemented: nodeTraversal()');
     },

@@ -10,7 +10,6 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { AttachmentValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -32,11 +31,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     return false;
   }
 
-  getDisplayData(
-    node: LayoutNode<'FileUploadWithTag'>,
-    _item: CompInternal<'FileUploadWithTag'>,
-    { attachmentsSelector }: DisplayDataProps,
-  ): string {
+  getDisplayData(node: LayoutNode<'FileUploadWithTag'>, { attachmentsSelector }: DisplayDataProps): string {
     return attachmentsSelector(node)
       .map((a) => a.data.filename)
       .join(', ');

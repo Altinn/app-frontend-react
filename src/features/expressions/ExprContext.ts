@@ -13,7 +13,7 @@ import type { ILayoutSettings } from 'src/layout/common.generated';
 import type { IApplicationSettings, IAuthContext, IInstanceDataSources, IProcess } from 'src/types/shared';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { Hidden } from 'src/utils/layout/NodesContext';
+import type { Hidden, NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
 import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import type { NodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
@@ -31,6 +31,7 @@ export interface ExpressionDataSources {
   currentLanguage: string;
   isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
   nodeFormDataSelector: NodeFormDataSelector;
+  nodeDataSelector: NodeDataSelector;
   nodeTraversal: NodeTraversalSelectorLax;
   transposeSelector: DataModelTransposeSelector;
   devToolsIsOpen: boolean;

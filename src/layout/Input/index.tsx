@@ -12,7 +12,6 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { NumberFormatProps, PatternFormatProps } from 'src/layout/Input/config.generated';
-import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -25,15 +24,15 @@ export class Input extends InputDef {
 
   getDisplayData(
     node: LayoutNode<'Input'>,
-    item: CompInternal<'Input'>,
-    { currentLanguage, nodeFormDataSelector }: DisplayDataProps,
+    { currentLanguage, nodeFormDataSelector, nodeDataSelector }: DisplayDataProps,
   ): string {
-    if (!item.dataModelBindings?.simpleBinding) {
+    const text = nodeFormDataSelector(node).simpleBinding || '';
+    if (!text) {
       return '';
     }
 
-    const text = nodeFormDataSelector(node).simpleBinding || '';
-    const numberFormatting = getMapToReactNumberConfig(item.formatting, text, currentLanguage);
+    const formatting = nodeDataSelector((picker) => picker(node)?.item?.formatting, [node]);
+    const numberFormatting = getMapToReactNumberConfig(formatting, text, currentLanguage);
 
     if (numberFormatting?.number) {
       return formatNumericText(text, numberFormatting.number);

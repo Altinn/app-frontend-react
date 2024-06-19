@@ -8,7 +8,6 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -21,7 +20,6 @@ export class RadioButtons extends RadioButtonsDef {
 
   getDisplayData(
     node: LayoutNode<'RadioButtons'>,
-    _item: CompInternal<'RadioButtons'>,
     { langTools, optionsSelector, nodeFormDataSelector }: DisplayDataProps,
   ): string {
     const value = String(nodeFormDataSelector(node).simpleBinding ?? '');

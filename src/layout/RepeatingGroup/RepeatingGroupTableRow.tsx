@@ -100,7 +100,7 @@ function _RepeatingGroupTableRow({
       return '';
     }
 
-    return (def as DisplayData<any>).getDisplayData(node, node.item, displayDataProps);
+    return (def as DisplayData<any>).getDisplayData(node, displayDataProps);
   });
   const firstCellData = displayData.find((c) => !!c);
   const isEditingRow = isEditing(uuid);
@@ -110,7 +110,7 @@ function _RepeatingGroupTableRow({
   // then the component getting highlighted is enough
   const tableEditingNodeIds = tableNodes
     .filter((n) => shouldEditInTable(editForGroup, n, columnSettings))
-    .map((n) => n.item.id);
+    .map((n) => n.getId());
   const rowValidations = useDeepValidationsForNode(node, true, uuid);
   const rowHasErrors = rowValidations.some(
     (validation) => validation.severity === 'error' && !tableEditingNodeIds.includes(validation.node.getId()),

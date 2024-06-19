@@ -6,7 +6,6 @@ import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -17,11 +16,7 @@ export class Custom extends CustomDef {
     },
   );
 
-  getDisplayData(
-    node: LayoutNode<'Custom'>,
-    _item: CompInternal<'Custom'>,
-    { nodeFormDataSelector }: DisplayDataProps,
-  ): string {
+  getDisplayData(node: LayoutNode<'Custom'>, { nodeFormDataSelector }: DisplayDataProps): string {
     const data = nodeFormDataSelector(node);
     return Object.values(data).join(', ');
   }

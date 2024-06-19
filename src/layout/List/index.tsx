@@ -10,7 +10,6 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -21,15 +20,12 @@ export class List extends ListDef {
     },
   );
 
-  getDisplayData(
-    node: LayoutNode<'List'>,
-    item: CompInternal<'List'>,
-    { nodeFormDataSelector }: DisplayDataProps,
-  ): string {
+  getDisplayData(node: LayoutNode<'List'>, { nodeFormDataSelector, nodeDataSelector }: DisplayDataProps): string {
     const formData = nodeFormDataSelector(node);
-    const dmBindings = item.dataModelBindings;
+    const dmBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
+    const dmBindingForSummary = nodeDataSelector((picker) => picker(node)?.item?.bindingToShowInSummary, [node]);
     for (const [key, binding] of Object.entries(dmBindings || {})) {
-      if (binding == item.bindingToShowInSummary) {
+      if (binding == dmBindingForSummary) {
         return formData[key] || '';
       }
     }

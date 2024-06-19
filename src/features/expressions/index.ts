@@ -504,13 +504,14 @@ export const ExprFunctions = {
         return null;
       }
 
-      return (def as DisplayData<any>).getDisplayData(targetNode, node.item, {
+      return (def as DisplayData<any>).getDisplayData(targetNode, {
         attachmentsSelector: this.dataSources.attachmentsSelector,
         optionsSelector: this.dataSources.optionsSelector,
         langTools: this.dataSources.langToolsSelector(node as LayoutNode),
         currentLanguage: this.dataSources.currentLanguage,
         formDataSelector: this.dataSources.formDataSelector,
         nodeFormDataSelector: this.dataSources.nodeFormDataSelector,
+        nodeDataSelector: this.dataSources.nodeDataSelector,
       });
     },
     args: [ExprVal.String] as const,

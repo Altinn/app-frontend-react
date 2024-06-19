@@ -9,7 +9,6 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -20,11 +19,7 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     },
   );
 
-  getDisplayData(
-    node: LayoutNode<'Address'>,
-    _item: CompInternal<'Address'>,
-    { nodeFormDataSelector }: DisplayDataProps,
-  ): string {
+  getDisplayData(node: LayoutNode<'Address'>, { nodeFormDataSelector }: DisplayDataProps): string {
     const data = nodeFormDataSelector(node);
     return Object.values(data).join(' ');
   }

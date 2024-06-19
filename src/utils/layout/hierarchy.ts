@@ -13,7 +13,7 @@ import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
 import { getComponentDef } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import { useNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
@@ -53,6 +53,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
   const authContext = useMemo(() => buildAuthContext(process?.currentTask), [process?.currentTask]);
   const isHiddenSelector = Hidden.useIsHiddenSelector();
   const nodeFormDataSelector = useNodeFormDataSelector();
+  const nodeDataSelector = NodesInternal.useNodeDataSelector();
   const nodeTraversal = useNodeTraversalSelectorLax();
   const transposeSelector = useDataModelBindingTranspose();
 
@@ -72,6 +73,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
       currentLanguage,
       isHiddenSelector,
       nodeFormDataSelector,
+      nodeDataSelector,
       nodeTraversal,
       transposeSelector,
     }),
@@ -90,6 +92,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
       currentLanguage,
       isHiddenSelector,
       nodeFormDataSelector,
+      nodeDataSelector,
       nodeTraversal,
       transposeSelector,
     ],
