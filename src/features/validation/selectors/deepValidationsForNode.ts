@@ -23,7 +23,7 @@ export function useDeepValidationsForNode(
     }
 
     if (onlyChildren) {
-      return t.children();
+      return onlyInRowUuid ? t.children(undefined, { onlyInRowUuid }) : t.children();
     }
     if (!onlyInRowUuid) {
       return t.flat();
