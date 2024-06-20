@@ -36,7 +36,7 @@ export const SingleValueSummary = ({
         })}
       >
         <span>
-          {!displayData && <Lang id={'general.empty_summary'}></Lang>}
+          {!displayData && <Lang id={'general.empty_summary'} />}
           {displayData}
         </span>
       </Paragraph>

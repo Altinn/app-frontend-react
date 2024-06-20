@@ -11,20 +11,16 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface ComponentSummaryProps {
   componentNode: LayoutNode;
-  summaryOverrides?: CompSummary2Internal['overWriteProperties'];
+  summaryOverrides?: CompSummary2Internal['overrides'];
 }
 
 interface ResolveComponentProps {
   summaryProps: CompSummary2External;
-  summaryOverrides?: any;
+  summaryOverrides?: CompSummary2Internal['overrides'];
 }
-
 export function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryProps) {
-  if (componentNode.isHidden()) {
-    return null;
-  }
+  const override = summaryOverrides?.find((override) => override.componentId === componentNode.item.id);
 
-  const overrides = summaryOverrides?.find((override) => override.componentId === componentNode.item.id);
   const childComponents =
     componentNode.item.type === 'Group' &&
     componentNode.item.childComponents.map((child) => (
@@ -36,10 +32,14 @@ export function ComponentSummary({ componentNode, summaryOverrides }: ComponentS
     ));
 
   const renderedComponent = componentNode.def.renderSummary2
-    ? componentNode.def.renderSummary2(componentNode as LayoutNode<any>, overrides)
+    ? componentNode.def.renderSummary2(componentNode as LayoutNode<any>, override)
     : null;
 
   if (!renderedComponent) {
+    return null;
+  }
+
+  if (override?.hidden) {
     return null;
   }
 
@@ -56,7 +56,7 @@ export function ComponentSummary({ componentNode, summaryOverrides }: ComponentS
 }
 
 export function ResolveComponent({ summaryProps, summaryOverrides }: ResolveComponentProps) {
-  const resolvedComponent = useNode(summaryProps.whatToRender.id);
+  const resolvedComponent = useNode(summaryProps.target.id);
 
   if (!resolvedComponent) {
     return null;

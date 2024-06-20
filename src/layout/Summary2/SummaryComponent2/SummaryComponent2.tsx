@@ -12,37 +12,37 @@ export interface ISummaryComponent2 {
 }
 
 export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
-  if (summaryNode.item.whatToRender.type === 'layoutSet') {
+  if (summaryNode.item.target.type === 'layoutSet') {
     return (
       <LayoutSetSummary
-        layoutSetId={summaryNode.item.whatToRender.id}
-        summaryOverrides={summaryNode.item.overWriteProperties}
+        layoutSetId={summaryNode.item.target.id}
+        summaryOverrides={summaryNode.item.overrides}
       />
     );
   }
 
-  if (summaryNode.item.whatToRender.type === 'page') {
+  if (summaryNode.item.target.type === 'page') {
     return (
       <PageSummary
-        pageId={summaryNode.item.whatToRender.id}
-        summaryOverrides={summaryNode.item.overWriteProperties}
+        pageId={summaryNode.item.target.id}
+        summaryOverrides={summaryNode.item.overrides}
       />
     );
   }
 
-  if (summaryNode.item.whatToRender.type === 'component') {
+  if (summaryNode.item.target.type === 'component') {
     return (
       <ResolveComponent
-        componentId={summaryNode.item.id}
-        summaryOverrides={summaryNode.item.overWriteProperties}
+        summaryProps={summaryNode.item}
+        summaryOverrides={summaryNode.item.overrides}
       />
     );
   }
 
-  if (summaryNode.item.whatToRender.type === 'task') {
-    const IDSplitted = summaryNode.item.whatToRender.id.split('>');
+  if (summaryNode.item.target.type === 'task') {
+    const IDSplitted = summaryNode.item.target.id.split('>');
 
-    const taskId = IDSplitted.length > 1 ? IDSplitted[0] : summaryNode.item.whatToRender.id;
+    const taskId = IDSplitted.length > 1 ? IDSplitted[0] : summaryNode.item.target.id;
     const pageId = IDSplitted.length > 1 ? IDSplitted[1] : undefined;
 
     const componentId = IDSplitted.length > 2 ? IDSplitted[2] : undefined;
@@ -53,7 +53,7 @@ export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
           taskId={taskId}
           pageId={pageId}
           componentId={componentId}
-          summaryOverrides={summaryNode.item.overWriteProperties}
+          summaryOverrides={summaryNode.item.overrides}
         />
       </TaskIdStoreProvider>
     );

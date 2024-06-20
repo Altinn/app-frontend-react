@@ -1,4 +1,4 @@
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
 import { CHECKBOX_SUMMARY_PROPS } from 'src/layout/Checkboxes/config';
 import { CompCategory } from 'src/layout/common';
 import { DROPDOWN_SUMMARY_PROPS } from 'src/layout/Dropdown/config';
@@ -19,26 +19,7 @@ export const Config = new CG.component({
 })
   .addProperty(
     new CG.prop(
-      'children',
-      new CG.arr(new CG.str())
-        .optional()
-        .setTitle('Children')
-        .setDescription('Array of component IDs that should be displayed in the summary'),
-    ).onlyIn(Variant.External),
-  )
-  .addProperty(new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal))
-  .addProperty(
-    new CG.prop(
-      'children',
-      new CG.arr(new CG.str())
-        .optional()
-        .setTitle('Children')
-        .setDescription('Array of component IDs that should be displayed in the summary'),
-    ).onlyIn(Variant.External),
-  )
-  .addProperty(
-    new CG.prop(
-      'whatToRender',
+      'target',
       new CG.obj(
         new CG.prop(
           'type',
@@ -53,7 +34,7 @@ export const Config = new CG.component({
   )
   .addProperty(
     new CG.prop(
-      'overWriteProperties',
+      'overrides',
       new CG.arr(
         new CG.union(
           INPUT_SUMMARY_PROPS,

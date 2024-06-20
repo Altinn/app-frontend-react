@@ -24,7 +24,7 @@
           {
             "id": "summary2",
             "type": "Summary2",
-            "whatToRender": {
+            "target": {
               "type": "component",
               "id": "penger"
             }

@@ -13,7 +13,7 @@ type DropdownComponentSummaryProps = {
   summaryOverrides?: CompDropdownInternal['summaryProps'];
 };
 
-export const DropdownSummary = ({ componentNode, displayData, summaryOverrides }: DropdownComponentSummaryProps) => {
+export const DropdownSummary = ({ componentNode, displayData }: DropdownComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = componentNode.item.textResourceBindings?.title;
