@@ -45,7 +45,7 @@ export const SingleValueSummary = ({
       <EditButton
         className={classes.editButton}
         componentNode={componentNode}
-        summaryComponentId={''}
+        summaryComponentId={componentNode.item.id}
       />
     )}
 
