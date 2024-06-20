@@ -33,7 +33,7 @@ export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
   if (summaryNode.item.whatToRender.type === 'component') {
     return (
       <ResolveComponent
-        summaryProps={summaryNode.item}
+        componentId={summaryNode.item.id}
         summaryOverrides={summaryNode.item.overWriteProperties}
       />
     );

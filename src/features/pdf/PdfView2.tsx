@@ -15,7 +15,7 @@ import classes from 'src/features/pdf/PDFView.module.css';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
+import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -86,21 +86,9 @@ export const PDFView2 = () => {
             .map((node) => {
               if (node.def.renderSummary2) {
                 return (
-                  <SummaryComponent2
+                  <ComponentSummary
                     key={node.item.id}
-                    summaryNode={
-                      {
-                        item: {
-                          type: 'Summary2',
-                          whatToRender: {
-                            type: 'component',
-                            id: node.item.id,
-                          },
-                          childComponents: [],
-                          id: node.item.id,
-                        },
-                      } as any
-                    }
+                    componentNode={node}
                   />
                 );
               }

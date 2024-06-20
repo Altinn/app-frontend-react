@@ -11,12 +11,12 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface ComponentSummaryProps {
   componentNode: LayoutNode;
-  summaryOverrides: CompSummary2Internal['overWriteProperties'];
+  summaryOverrides?: CompSummary2Internal['overWriteProperties'];
 }
 
 interface ResolveComponentProps {
   summaryProps: CompSummary2External;
-  summaryOverrides: any;
+  summaryOverrides?: any;
 }
 
 export function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryProps) {
@@ -25,7 +25,6 @@ export function ComponentSummary({ componentNode, summaryOverrides }: ComponentS
   }
 
   const overrides = summaryOverrides?.find((override) => override.componentId === componentNode.item.id);
-
   const childComponents =
     componentNode.item.type === 'Group' &&
     componentNode.item.childComponents.map((child) => (
