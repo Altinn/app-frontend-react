@@ -10,6 +10,7 @@ import { Label } from 'src/components/form/Label';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useIsMobile } from 'src/hooks/useIsMobile';
@@ -40,7 +41,11 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
 
   const columnSettings: ITableColumnFormatting = {};
   const isMobile = useIsMobile();
-  const shouldHaveFullWidth = componentNode.parent instanceof LayoutPage && !isMobile;
+  const pdfModeActive = usePdfModeActive();
+
+  const isSmall = isMobile && !pdfModeActive;
+
+  const shouldHaveFullWidth = componentNode.parent instanceof LayoutPage && !isSmall;
   const isNested = componentNode.parent instanceof BaseLayoutNode;
 
   // this fixes a wcag issue where we had wrapped each row in its own table body or table head
@@ -112,7 +117,7 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
     >
       <Table
         id={componentNode.item.id}
-        className={cn(classes.table, { [classes.responsiveTable]: isMobile })}
+        className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
       >
         {title && (
           <caption className={cn({ [classes.captionFullWidth]: shouldHaveFullWidth }, classes.tableCaption)}>
@@ -163,6 +168,11 @@ const getCellText = (cell: GridCellInternal | undefined) => {
 export function GridRowRenderer({ row, isNested, mutableColumnSettings, node, currentHeaderCells }: GridRowProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
+
+  const pdfModeActive = usePdfModeActive();
+
+  const isSmall = isMobile && !pdfModeActive;
+
   const firstComponentCell = row.cells.find((cell) => cell && 'node' in cell);
   const firstComponentNode =
     firstComponentCell &&
@@ -245,14 +255,14 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node, cu
           />
         );
       })}
-      {row.header && !isMobile && (
+      {row.header && !isSmall && (
         <Table.HeaderCell
           className={cn({
             [classes.fullWidthCellLast]: !isNested,
           })}
         />
       )}
-      {!row.header && !isMobile && (
+      {!row.header && !isSmall && (
         <Table.Cell
           align='right'
           className={cn({
@@ -313,6 +323,9 @@ function CellWithComponent({
 }: CellWithComponentProps) {
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
   const isMobile = useIsMobile();
+  const pdfModeActive = usePdfModeActive();
+
+  const isSmall = isMobile && !pdfModeActive;
   const displayDataProps = useDisplayDataProps();
   const validations = useUnifiedValidationsForNode(node);
   const errors = validationsOfSeverity(validations, 'error');
@@ -322,11 +335,11 @@ function CellWithComponent({
       <CellComponent
         className={cn(classes.tableCellFormatting, className)}
         style={columnStyles}
-        data-header-title={isMobile ? headerTitle : ''}
+        data-header-title={isSmall ? headerTitle : ''}
       >
         <div className={cn(classes.contentWrapper, { [classes.validationError]: errors.length > 0 })}>
           {('getDisplayData' in node.def && node.def.getDisplayData(node as LayoutNode<any>, displayDataProps)) || '-'}
-          {isMobile && !rowReadOnly && (
+          {isSmall && !rowReadOnly && (
             <EditButton
               className={classes.mobileEditButton}
               componentNode={node}

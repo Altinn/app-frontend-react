@@ -50,7 +50,12 @@ export const PDFView2 = () => {
           </div>
         )}
       >
-        <Heading level={1}>{isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}</Heading>
+        <Heading
+          level={1}
+          size={'lg'}
+        >
+          {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
+        </Heading>
       </ConditionalWrapper>
       <InstanceInformation
         type={'InstanceInformation'}
