@@ -114,7 +114,6 @@ export const PDFView2 = () => {
               key={layoutPageKey}
               className={classes.page}
             >
-              <Heading level={2}>{langAsString(layoutPageKey)}</Heading>
               {allComponents}
             </div>
           );

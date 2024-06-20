@@ -4,8 +4,6 @@ import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 
 const common = {
-  // ISummaryOverrides: () =>
-  //   new CG.obj(new CG.prop('overWriteProperties', new CG.union(INPUT_SUMMARY_PROPS, CHECKBOX_SUMMARY_PROPS))),
   ISummaryOverridesCommon: () => new CG.obj(new CG.prop('componentId', new CG.str())),
   ILayoutFile: () =>
     new CG.obj(

@@ -55,7 +55,7 @@ export function FileTable({
       {(atLeastOneTagExists(attachments) || !hasTag) && (
         <thead>
           <tr
-            className={classes.blueUnderline}
+            className={pdfModeActive ? classes.grayUnderline : classes.blueUnderline}
             id='altinn-file-list-row-header'
           >
             <th>
