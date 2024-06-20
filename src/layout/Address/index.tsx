@@ -5,7 +5,7 @@ import dot from 'dot-object';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
-import { AddressSummary } from 'src/layout/Address/AddressSummary';
+import { AddressSummary } from 'src/layout/Address/AddressSummary/AddressSummary';
 import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';

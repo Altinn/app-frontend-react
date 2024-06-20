@@ -14,9 +14,16 @@ type SingleValueSummaryProps = {
   errors: BaseValidation[];
   componentNode: LayoutNode;
   displayData?: string;
+  hideEditButton?: boolean;
 };
 
-export const SingleValueSummary = ({ title, errors, componentNode, displayData }: SingleValueSummaryProps) => (
+export const SingleValueSummary = ({
+  title,
+  errors,
+  componentNode,
+  displayData,
+  hideEditButton,
+}: SingleValueSummaryProps) => (
   <div className={classes.inputSummaryItem}>
     <div className={classes.labelValueWrapper}>
       <Label weight={'regular'}>{title}</Label>
@@ -34,11 +41,14 @@ export const SingleValueSummary = ({ title, errors, componentNode, displayData }
         </span>
       </Paragraph>
     </div>
-    <EditButton
-      className={classes.editButton}
-      componentNode={componentNode}
-      summaryComponentId={''}
-    />
+    {!hideEditButton && (
+      <EditButton
+        className={classes.editButton}
+        componentNode={componentNode}
+        summaryComponentId={''}
+      />
+    )}
+
     {errors.length > 0 &&
       errors.map(({ message }) => (
         <ErrorMessage key={message.key}>
