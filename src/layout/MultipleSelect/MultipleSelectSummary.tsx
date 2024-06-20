@@ -7,13 +7,13 @@ import { MultipleValueSummary } from 'src/layout/Summary2/CommonSummaryComponent
 import type { CompMultipleSelectInternal } from 'src/layout/MultipleSelect/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type MultupleSelectSummaryProps = {
+type MultipleSelectSummaryProps = {
   componentNode: LayoutNode<'MultipleSelect'>;
   summaryOverrides?: CompMultipleSelectInternal['summaryProps'];
   displayData: string;
 };
 
-export const MultipleSelectSummary = ({ componentNode, summaryOverrides, displayData }: MultupleSelectSummaryProps) => {
+export const MultipleSelectSummary = ({ componentNode, summaryOverrides, displayData }: MultipleSelectSummaryProps) => {
   const maxStringLength = 75;
   const showAsList =
     summaryOverrides?.displayType === 'list' ||

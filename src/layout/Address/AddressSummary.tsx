@@ -15,7 +15,7 @@ export function AddressSummary({ componentNode }: AddressSummaryProps) {
   const textResourceBindings = componentNode.item.textResourceBindings;
   const { title, zipCodeTitle, postPlaceTitle } = textResourceBindings ?? {};
   const { formData } = useDataModelBindings(componentNode.item.dataModelBindings);
-  const { address, careOf, postPlace, zipCode, houseNumber } = formData;
+  const { address, postPlace, zipCode } = formData;
 
   return (
     <div>
