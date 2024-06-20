@@ -1,4 +1,5 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+import type { BackendValidationResult } from 'test/e2e/support/global';
 
 const appFrontend = new AppFrontend();
 
@@ -57,27 +58,56 @@ describe('validating multiple data models', () => {
   });
 
   it('expression validation for multiple datamodels', () => {
+    const validationResult: BackendValidationResult = { validations: null, dataElementId: null };
+    cy.runAllBackendValidations();
     cy.waitForLoad();
 
     cy.get(appFrontend.fieldValidation(appFrontend.multipleDatamodelsTest.textField1)).should('not.exist');
+    cy.getNextPatchValidations(validationResult);
     cy.findByRole('textbox', { name: /tekstfelt 1/i }).type('feil');
     cy.get(appFrontend.fieldValidation(appFrontend.multipleDatamodelsTest.textField1)).should(
       'contain.text',
       'Feil er feil',
     );
+    // TODO: Verify data element id
+    cy.expectValidationToExist(
+      validationResult,
+      'Expression',
+      (v) => v.severity === 1 && v.customTextKey === 'Feil er feil' && v.field === 'tekstfelt',
+    );
+    cy.expectValidationNotToExist(
+      validationResult,
+      'Required',
+      (v, d) => v.severity === 1 && v.code === 'required' && v.field === 'tekstfelt' && v.dataElementId === d,
+    );
+
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
+    cy.getNextPatchValidations(validationResult);
     cy.findByRole('textbox', { name: /tekstfelt 1/i }).clear();
+    cy.expectValidationToExist(
+      validationResult,
+      'Required',
+      (v, d) => v.severity === 1 && v.code === 'required' && v.field === 'tekstfelt' && v.dataElementId === d,
+    );
 
     cy.get(appFrontend.fieldValidation(appFrontend.multipleDatamodelsTest.textField2)).should('not.exist');
+    cy.getNextPatchValidations(validationResult);
     cy.findByRole('textbox', { name: /tekstfelt 2/i }).type('feil');
     cy.get(appFrontend.fieldValidation(appFrontend.multipleDatamodelsTest.textField2)).should(
       'contain.text',
       'Feil er advarsel',
     );
+    // TODO: Verify data element id
+    cy.expectValidationToExist(
+      validationResult,
+      'Expression',
+      (v) => v.severity === 2 && v.customTextKey === 'Feil er advarsel' && v.field === 'tekstfelt',
+    );
     cy.get(appFrontend.errorReport).should('not.exist');
     cy.findByRole('textbox', { name: /tekstfelt 2/i }).clear();
 
     cy.gotoNavPage('Side2');
+    cy.getNextPatchValidations(validationResult);
     cy.findAllByRole('checkbox').eq(0).click();
     cy.findAllByRole('checkbox').eq(1).click();
     cy.findAllByRole('checkbox').eq(2).click();
@@ -91,6 +121,15 @@ describe('validating multiple data models', () => {
       'contain.text',
       'Du kan ikke velge både IKT og Verkstedindustri',
     );
+    // TODO: Verify data element id
+    cy.expectValidationToExist(
+      validationResult,
+      'Expression',
+      (v) =>
+        v.severity === 1 &&
+        v.customTextKey === 'Du kan ikke velge både IKT og Verkstedindustri' &&
+        v.field === 'bransje',
+    );
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
 
     cy.findByRole('checkbox', { name: /verkstedindustri/i }).click();
@@ -100,12 +139,23 @@ describe('validating multiple data models', () => {
 
     cy.gotoNavPage('Side3');
     cy.findByRole('button', { name: /legg til ny/i }).click();
+    cy.getNextPatchValidations(validationResult);
     cy.findByRole('textbox', { name: /etternavn/i }).type('Helt Konge!');
 
     cy.get(appFrontend.fieldValidation('person-etternavn-0')).should(
       'contain.text',
       'Etternavn kan ikke inneholde utropstegn!!!',
     );
+    // TODO: Verify data element id
+    cy.expectValidationToExist(
+      validationResult,
+      'Expression',
+      (v) =>
+        v.severity === 1 &&
+        v.customTextKey === 'Etternavn kan ikke inneholde utropstegn!!!' &&
+        v.field === 'personer[0].etternavn',
+    );
+
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
 
     cy.findAllByRole('button', { name: /slett/i }).first().click();
