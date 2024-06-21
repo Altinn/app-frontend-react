@@ -58,7 +58,7 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
       // If there are accumulated body rows, push them into a tbody
       if (currentBodyRows.length > 0) {
         tableSections.push(
-          <tbody key={`tbody-${index}`}>
+          <Table.Body key={`tbody-${index}`}>
             {currentBodyRows.map((bodyRow, bodyIndex) => (
               <GridRowRenderer
                 key={bodyIndex}
@@ -68,13 +68,13 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
                 node={componentNode}
               />
             ))}
-          </tbody>,
+          </Table.Body>,
         );
         currentBodyRows = [];
       }
       // Add the header row
       tableSections.push(
-        <thead key={`thead-${index}`}>
+        <Table.Head key={`thead-${index}`}>
           <GridRowRenderer
             key={index}
             row={row}
@@ -83,7 +83,7 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
             node={componentNode}
             currentHeaderCells={currentHeaderRow?.cells}
           />
-        </thead>,
+        </Table.Head>,
       );
       currentHeaderRow = row;
     } else {
