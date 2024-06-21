@@ -1,8 +1,8 @@
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
-export const MULTIPLE_SELECT_SUMMARY_PROPS = new CG.obj(
+export const MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS = new CG.obj(
   new CG.prop(
     'displayType',
     new CG.enum('list', 'string')
@@ -14,7 +14,8 @@ export const MULTIPLE_SELECT_SUMMARY_PROPS = new CG.obj(
   .extends(CG.common('ISummaryOverridesCommon'))
   .optional()
   .setTitle('Summary properties')
-  .setDescription('Properties for how to display the summary of the component');
+  .setDescription('Properties for how to display the summary of the component')
+  .exportAs('MultipleSelectSummaryOverrideProps');
 
 export const Config = new CG.component({
   category: CompCategory.Form,
@@ -38,5 +39,4 @@ export const Config = new CG.component({
         .setDescription('Boolean value indicating if the component should alert on change'),
     ),
   )
-  .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple'))
-  .addProperty(new CG.prop('summaryProps', MULTIPLE_SELECT_SUMMARY_PROPS).onlyIn(Variant.Internal));
+  .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple'));

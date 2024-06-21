@@ -13,7 +13,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CompMultipleSelectInternal } from 'src/layout/MultipleSelect/config.generated';
+import type { MultipleSelectSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class MultipleSelect extends MultipleSelectDef {
@@ -54,7 +54,7 @@ export class MultipleSelect extends MultipleSelectDef {
 
   renderSummary2(
     componentNode: LayoutNode<'MultipleSelect'>,
-    summaryOverrides?: CompMultipleSelectInternal['summaryProps'],
+    summaryOverrides?: MultipleSelectSummaryOverrideProps,
   ): JSX.Element | null {
     const displayData = this.useDisplayData(componentNode);
     return (

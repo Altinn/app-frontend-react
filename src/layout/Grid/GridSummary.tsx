@@ -27,15 +27,13 @@ import type {
   ITableColumnFormatting,
   ITableColumnProperties,
 } from 'src/layout/common.generated';
-import type { CompInputInternal } from 'src/layout/Input/config.generated';
 import type { ITextResourceBindings } from 'src/layout/layout';
 
 type GridSummaryProps = {
   componentNode: LayoutNode<'Grid'>;
-  summaryOverrides?: CompInputInternal['summaryProps'];
 };
 
-export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProps) => {
+export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   const { rows, textResourceBindings } = componentNode.item;
   const { title } = textResourceBindings ?? {};
 

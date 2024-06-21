@@ -12,8 +12,8 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
-import type { CompCheckboxesInternal } from 'src/layout/Checkboxes/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CheckboxSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Checkboxes extends CheckboxesDef {
@@ -50,7 +50,7 @@ export class Checkboxes extends CheckboxesDef {
 
   renderSummary2(
     componentNode: LayoutNode<'Checkboxes'>,
-    summaryOverrides?: CompCheckboxesInternal['summaryProps'],
+    summaryOverrides?: CheckboxSummaryOverrideProps,
   ): JSX.Element | null {
     const displayData = this.useDisplayData(componentNode);
     return (

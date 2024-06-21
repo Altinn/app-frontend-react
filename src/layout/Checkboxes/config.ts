@@ -1,8 +1,8 @@
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
-export const CHECKBOX_SUMMARY_PROPS = new CG.obj(
+export const CHECKBOX_SUMMARY_OVERRIDE_PROPS = new CG.obj(
   new CG.prop(
     'displayType',
     new CG.enum('list', 'string')
@@ -14,7 +14,8 @@ export const CHECKBOX_SUMMARY_PROPS = new CG.obj(
   .extends(CG.common('ISummaryOverridesCommon'))
   .optional()
   .setTitle('Summary properties')
-  .setDescription('Properties for how to display the summary of the component');
+  .setDescription('Properties for how to display the summary of the component')
+  .exportAs('CheckboxSummaryOverrideProps');
 
 export const Config = new CG.component({
   category: CompCategory.Form,
@@ -39,8 +40,7 @@ export const Config = new CG.component({
         .setTitle('Alert on change')
         .setDescription('Boolean value indicating if the component should alert on uncheck'),
     ),
-  )
-  .addProperty(new CG.prop('summaryProps', CHECKBOX_SUMMARY_PROPS).onlyIn(Variant.Internal));
+  );
 // We don't render the label in GenericComponent, but we still need the
 // text resource bindings for rendering them on our own
 Config.addTextResourcesForLabel().inner.extends(CG.common('LabeledComponentProps'));
