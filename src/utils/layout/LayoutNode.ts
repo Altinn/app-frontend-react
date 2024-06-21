@@ -1,6 +1,6 @@
 import { getComponentDef } from 'src/layout';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { CompClassMap, CompDef, NodeRef } from 'src/layout';
+import type { CompClassMap, CompDef } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompIntermediate, CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
@@ -127,8 +127,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
 
   private childrenAsList(task: TraversalTask) {
     const def = this.def as CompDef<any>;
-    const refs = def.pickDirectChildren(task.getData(this), task.restriction) as NodeRef[];
-    return refs.map((ref) => task.getNode(ref)) as LayoutNode[];
+    return def.pickDirectChildren(task.getData(this), task.restriction) as LayoutNode[];
   }
 
   public firstChild(task: TraversalTask): LayoutNode | undefined {

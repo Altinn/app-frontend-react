@@ -20,12 +20,12 @@ import { NodesInternal, useNodeLax } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
 import type { CompDef } from 'src/layout';
 import type { CompExternal } from 'src/layout/layout';
-import type { ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
+import type { ChildClaims, ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { BaseRow } from 'src/utils/layout/types';
 
 interface Props {
-  childIds: string[];
+  claims: ChildClaims;
   internalProp: string;
   externalProp: string;
   binding: string;
@@ -43,7 +43,7 @@ export function NodeRepeatingChildren(props: Props) {
   );
 }
 
-function PerformWork({ childIds, binding, multiPageSupport, externalProp, internalProp }: Props) {
+function PerformWork({ claims, binding, multiPageSupport, externalProp, internalProp }: Props) {
   const item = GeneratorInternal.useIntermediateItem();
   const groupBinding = item?.dataModelBindings?.[binding];
   const freshRows = FD.useFreshRows(groupBinding);
@@ -62,7 +62,7 @@ function PerformWork({ childIds, binding, multiPageSupport, externalProp, intern
           key={row.uuid}
           row={row}
           groupBinding={groupBinding}
-          childIds={childIds}
+          claims={claims}
           multiPageMapping={multiPageMapping}
           internalProp={internalProp}
         />
@@ -94,13 +94,13 @@ function useReusedRows(freshRows: BaseRow[], prevRows: MutableRefObject<BaseRow[
 
 interface GenerateRowProps {
   row: BaseRow;
-  childIds: string[];
+  claims: ChildClaims;
   groupBinding: string | undefined;
   multiPageMapping: MultiPageMapping | undefined;
   internalProp: string;
 }
 
-function _GenerateRow({ row, childIds, groupBinding, multiPageMapping, internalProp }: GenerateRowProps) {
+function _GenerateRow({ row, claims, groupBinding, multiPageMapping, internalProp }: GenerateRowProps) {
   const node = GeneratorInternal.useParent() as LayoutNode;
   const removeRow = NodesInternal.useRemoveRow();
   const depth = GeneratorInternal.useDepth();
@@ -133,7 +133,7 @@ function _GenerateRow({ row, childIds, groupBinding, multiPageMapping, internalP
       >
         <ResolveRowExpressions internalProp={internalProp} />
       </GeneratorCondition>
-      <GenerateNodeChildrenWhenReady childIds={childIds} />
+      <GenerateNodeChildrenWhenReady claims={claims} />
     </GeneratorRowProvider>
   );
 }

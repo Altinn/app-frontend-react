@@ -21,14 +21,16 @@ export type GroupExpressions = ExprResolved<
 
 // This then, by its definition, is the opposite of the above types. It's the properties that are resolved for the
 // entire repeating group component at once, including the 'rows' property.
-export type RepGroupInternal = ExprResolved<
-  Omit<Comp, PerRowProps | 'textResourceBindings' | 'edit' | 'rowsAfter' | 'rowsBefore'> & {
-    textResourceBindings?: Omit<RepGroupTrb, PerRowTrb>;
-    edit?: Omit<RepGroupEdit, PerRowEdit>;
-    rowsBefore?: GridRowsInternal;
-    rowsAfter?: GridRowsInternal;
-  }
+type RepGroupBase = ExprResolved<
+  Omit<Comp, PerRowProps | 'textResourceBindings' | 'edit' | 'rows' | 'rowsAfter' | 'rowsBefore'>
 >;
+export type RepGroupInternal = RepGroupBase & {
+  textResourceBindings?: Omit<RepGroupTrb, PerRowTrb>;
+  edit?: Omit<RepGroupEdit, PerRowEdit>;
+  rows: RepGroupRow[];
+  rowsBefore?: GridRowsInternal;
+  rowsAfter?: GridRowsInternal;
+};
 
 export interface RepGroupRowExtras {
   groupExpressions: GroupExpressions;

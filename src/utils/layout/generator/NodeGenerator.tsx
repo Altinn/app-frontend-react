@@ -35,6 +35,7 @@ import type {
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
+import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 import type { HiddenState } from 'src/utils/layout/NodesContext';
 import type { BaseRow, StateFactoryProps } from 'src/utils/layout/types';
@@ -48,7 +49,7 @@ import type { BaseRow, StateFactoryProps } from 'src/utils/layout/types';
  * can always be up-to-date, and so that we can implement effects for components that run even when the
  * component is not visible/rendered.
  */
-export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeGeneratorProps>) {
+export function NodeGenerator({ children, baseId, claim }: PropsWithChildren<BasicNodeGeneratorProps>) {
   const layoutMap = GeneratorInternal.useLayoutMap();
   const item = useIntermediateItem(layoutMap[baseId]) as CompIntermediateExact<CompTypes>;
   const path = usePath(item);
@@ -63,7 +64,10 @@ export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeG
         stage={StageAddNodes}
         mustBeAdded='parent'
       >
-        <AddRemoveNode {...commonProps} />
+        <AddRemoveNode
+          {...commonProps}
+          claim={claim}
+        />
       </GeneratorCondition>
       <GeneratorCondition
         stage={StageMarkHidden}
@@ -122,7 +126,11 @@ function MarkAsHidden<T extends CompTypes>({ node, baseId }: CommonProps<T>) {
   return null;
 }
 
-function AddRemoveNode<T extends CompTypes>({ node, item }: CommonProps<T>) {
+interface AddRemoveNodeProps<T extends CompTypes> extends CommonProps<T> {
+  claim: ChildClaim;
+}
+
+function AddRemoveNode<T extends CompTypes>({ node, item, claim }: AddRemoveNodeProps<T>) {
   const parent = GeneratorInternal.useParent();
   const row = GeneratorInternal.useRow();
   const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item, parent, row });
@@ -135,8 +143,8 @@ function AddRemoveNode<T extends CompTypes>({ node, item }: CommonProps<T>) {
 
   GeneratorStages.AddNodes.useEffect(() => {
     const defaultState = nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any);
-    addNode({ node: nodeRef.current, targetState: defaultState });
-  }, [addNode, nodeRef, stateFactoryPropsRef]);
+    addNode({ node: nodeRef.current, targetState: defaultState, claim });
+  }, [addNode, nodeRef, stateFactoryPropsRef, claim]);
 
   GeneratorStages.AddNodes.useEffect(
     () => () => {

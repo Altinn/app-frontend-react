@@ -33,13 +33,11 @@ import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerato
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import {
   useNodeTraversal,
   useNodeTraversalLax,
-  useNodeTraversalSelector,
   useNodeTraversalSelectorSilent,
 } from 'src/utils/layout/useNodeTraversal';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
@@ -47,8 +45,8 @@ import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStore
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
 import type { WaitForState } from 'src/hooks/useWaitForState';
-import type { NodeRef } from 'src/layout';
 import type { CompTypes } from 'src/layout/layout';
+import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
@@ -100,6 +98,7 @@ type ExtraHooks = AllFlat<{
 export interface AddNodeRequest<T extends CompTypes = CompTypes> {
   node: LayoutNode<T>;
   targetState: NodeData<T>;
+  claim: ChildClaim;
 }
 
 export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeData<T>> {
@@ -155,11 +154,11 @@ export function createNodesDataStore() {
     addNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        for (const { node, targetState } of requests) {
+        for (const { node, targetState, claim } of requests) {
           nodeData[node.getId()] = targetState;
 
           if (node.parent instanceof BaseLayoutNode) {
-            const additionalParentState = node.parent.def.addChild(nodeData[node.parent.getId()] as any, node);
+            const additionalParentState = node.parent.def.addChild(nodeData[node.parent.getId()] as any, node, claim);
             nodeData[node.parent.getId()] = {
               ...nodeData[node.parent.getId()],
               ...(additionalParentState as any),
@@ -172,15 +171,6 @@ export function createNodesDataStore() {
     removeNode: (node) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        if (node.parent instanceof BaseLayoutNode) {
-          const parentData = nodeData[node.parent.getId()];
-          if (parentData) {
-            nodeData[node.parent.getId()] = {
-              ...parentData,
-              ...node.parent.def.removeChild(parentData as any, node),
-            } as NodeData;
-          }
-        }
         delete nodeData[node.getId()];
         return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
       }),
@@ -210,7 +200,6 @@ export function createNodesDataStore() {
     addError: (error, node) =>
       set(
         produce((state: NodesContext) => {
-          // TODO: Simplify this
           const data = node instanceof LayoutPage ? state.pagesData.pages[node.pageKey] : state.nodeData[node.getId()];
           if (!data) {
             return;
@@ -416,18 +405,16 @@ function NodesLoader() {
   return <Loader reason='nodes' />;
 }
 
-type MaybeNodeRef = string | NodeRef | undefined | null | LayoutNode;
+type MaybeNodeRef = string | undefined | null | LayoutNode;
 type RetValFromNodeRef<T extends MaybeNodeRef> = T extends LayoutNode
   ? T
   : T extends undefined
     ? undefined
     : T extends null
       ? null
-      : T extends NodeRef
+      : T extends string
         ? LayoutNode
-        : T extends string
-          ? LayoutNode
-          : never;
+        : never;
 
 /**
  * Use the expression context. This will return a LayoutPages object containing the full tree of resolved
@@ -436,14 +423,12 @@ type RetValFromNodeRef<T extends MaybeNodeRef> = T extends LayoutNode
  *
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
-export function useNode<T extends string | NodeRef | undefined | LayoutNode>(idOrRef: T): RetValFromNodeRef<T> {
-  const node = useNodeTraversal((traverser) =>
-    idOrRef instanceof BaseLayoutNode ? idOrRef : traverser.findById(idOrRef),
-  );
+export function useNode<T extends string | undefined | LayoutNode>(id: T): RetValFromNodeRef<T> {
+  const node = useNodeTraversal((traverser) => (id instanceof BaseLayoutNode ? id : traverser.findById(id)));
   return node as RetValFromNodeRef<T>;
 }
 
-export function useNodeLax<T extends string | NodeRef | undefined | LayoutNode>(
+export function useNodeLax<T extends string | undefined | LayoutNode>(
   idOrRef: T,
 ): RetValFromNodeRef<T> | typeof ContextNotProvided {
   const node = useNodeTraversalLax((traverser) =>
@@ -459,18 +444,6 @@ export function useNodeLax<T extends string | NodeRef | undefined | LayoutNode>(
 export const useNodes = () => WhenReady.useSelector((s) => s.nodes!);
 export const useNodesWhenNotReady = () => Store.useSelector((s) => s.nodes);
 export const useNodesLax = () => WhenReady.useLaxSelector((s) => s.nodes);
-
-export type NodeSelector = ReturnType<typeof useNodeSelector>;
-export function useNodeSelector() {
-  const traversalSelector = useNodeTraversalSelector();
-  return useCallback(
-    (nodeId: string | NodeRef) => {
-      const id = isNodeRef(nodeId) ? nodeId.nodeRef : nodeId;
-      return traversalSelector((t) => t.findById(id), [id]);
-    },
-    [traversalSelector],
-  );
-}
 
 export interface IsHiddenOptions {
   /**

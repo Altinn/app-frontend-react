@@ -45,7 +45,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       // TODO: Call the code in Grid to evaluate the rowsBefore and rowsAfter
       rowsBefore: item.rowsBefore as GridRowsInternal | undefined,
       rowsAfter: item.rowsAfter as GridRowsInternal | undefined,
-    };
+    } as RepGroupInternal;
   }
 
   evalExpressionsForRow(props: ExprResolver<'RepeatingGroup'>) {
@@ -114,7 +114,13 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     // check if minCount is less than visible rows
     const minCount = nodeDataSelector((picker) => picker(node)?.item?.minCount, [node]) ?? 0;
     const visibleRows = nodeDataSelector(
-      (picker) => picker(node)?.item?.rows.filter((row) => row && !row.groupExpressions?.hiddenRow).length,
+      (picker) => {
+        const item = picker(node)?.item;
+        if (!item || !item.rows) {
+          // debugger;
+        }
+        return item?.rows?.filter((row) => row && !row.groupExpressions?.hiddenRow).length;
+      },
       [node],
     );
 
@@ -142,7 +148,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
   }
 
   getValidationFilters(node: LayoutNode<'RepeatingGroup'>, selector: NodeDataSelector): ValidationFilterFunction[] {
-    if (selector((picker) => picker(node)?.item.minCount ?? 0, [node]) > 0) {
+    if (selector((picker) => picker(node)?.item?.minCount ?? 0, [node]) > 0) {
       return [this.schemaMinItemsFilter];
     }
     return [];

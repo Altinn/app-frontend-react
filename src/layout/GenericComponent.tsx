@@ -18,7 +18,7 @@ import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
-import type { NodeRef, PropsFromGenericComponent } from 'src/layout/index';
+import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -36,10 +36,6 @@ export interface IGenericComponentByIdProps<Type extends CompTypes> extends Over
   id: string;
 }
 
-export interface IGenericComponentByRefProps<Type extends CompTypes> extends OverrideProps<Type> {
-  nodeRef: NodeRef;
-}
-
 /**
  * Lazily renders a component referenced by a component ID. This is useful when you want to optimize rendering
  * (for example in Form.tsx) where it's important that a component does not re-render when other nodes in the
@@ -49,21 +45,6 @@ export function GenericComponentById<Type extends CompTypes = CompTypes>(props: 
   const node = useNode(props.id);
   if (!node) {
     throw new Error(`Node with id '${props.id}' not found`);
-  }
-
-  return (
-    <GenericComponent
-      node={node}
-      overrideItemProps={props.overrideItemProps}
-      overrideDisplay={props.overrideDisplay}
-    />
-  );
-}
-
-export function GenericComponentByRef<Type extends CompTypes = CompTypes>(props: IGenericComponentByRefProps<Type>) {
-  const node = useNode(props.nodeRef);
-  if (!node) {
-    throw new Error(`Node with ref '${props.nodeRef.nodeRef}' not found`);
   }
 
   return (

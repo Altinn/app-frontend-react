@@ -6,9 +6,8 @@ import { Grid } from '@material-ui/core';
 
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
-import { GenericComponentByRef } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CardInternal } from 'src/layout/Cards/CardsPlugin';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -73,10 +72,10 @@ export const Cards = ({ node }: ICardsProps) => {
                   node={node}
                   renderedInMedia={false}
                 >
-                  {card.children.map((childRef, idx) => (
-                    <GenericComponentByRef
+                  {card.children.map((childNode, idx) => (
+                    <GenericComponent
                       key={idx}
-                      nodeRef={childRef}
+                      node={childNode}
                     />
                   ))}
                 </CardProvider>
@@ -120,11 +119,11 @@ function Media({ card, node, minMediaHeight }: MediaProps) {
         minMediaHeight={minMediaHeight}
       >
         <div
-          data-componentid={card.media.nodeRef}
-          data-componentbaseid={splitDashedKey(card.media.nodeRef).baseComponentId}
+          data-componentid={card.media.getId()}
+          data-componentbaseid={card.media.getBaseId()}
         >
-          <GenericComponentByRef
-            nodeRef={card.media}
+          <GenericComponent
+            node={card.media}
             overrideDisplay={{
               directRender: true,
             }}

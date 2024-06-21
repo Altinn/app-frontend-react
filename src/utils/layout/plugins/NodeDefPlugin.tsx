@@ -1,7 +1,7 @@
+import { CG } from 'src/codegen/CG';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { SerializableSetting } from 'src/codegen/SerializableSetting';
-import type { NodeRef } from 'src/layout';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -13,17 +13,30 @@ export interface DefPluginConfig {
   expectedFromExternal?: Record<string, any>;
   extraState?: Record<string, any>;
   extraInItem?: Record<string, any>;
+  childClaimMetadata?: Record<string, any>;
   settings?: any;
 }
 
 interface DefPluginBaseNodeData<Config extends DefPluginConfig>
-  extends Omit<BaseNodeData<DefPluginCompType<Config>>, 'layout'> {
-  item: DefPluginCompInternal<Config> & DefPluginExtraInItem<Config>;
+  extends Omit<BaseNodeData<DefPluginCompType<Config>>, 'layout' | 'item'> {
+  item: (DefPluginCompInternal<Config> & DefPluginExtraInItem<Config>) | undefined;
   layout: DefPluginCompExternal<Config>;
 }
 
+// If the key 'extraInItem' exists in the plugin config, return the type of that key,
+// otherwise return 'undefined'
+export type DefPluginExtraInItemFromPlugin<Plugin extends NodeDefPlugin<any>> =
+  Plugin extends NodeDefPlugin<infer Config>
+    ? DefPluginExtraInItem<Config> extends object
+      ? DefPluginExtraInItem<Config>
+      : Record<string, never>
+    : never;
+
+export type DefPluginClaimMetadata<Config extends DefPluginConfig> = Config['childClaimMetadata'];
 export type DefPluginCompType<Config extends DefPluginConfig> = Config['componentType'];
-export type DefPluginExtraState<Config extends DefPluginConfig> = Config['extraState'];
+export type DefPluginExtraState<Config extends DefPluginConfig> = Config['extraState'] extends undefined
+  ? unknown
+  : Config['extraState'];
 export type DefPluginExtraInItem<Config extends DefPluginConfig> = Config['extraInItem'];
 export type DefPluginCompInternal<Config extends DefPluginConfig> = CompInternal<DefPluginCompType<Config>>;
 export type DefPluginState<Config extends DefPluginConfig> = DefPluginBaseNodeData<Config> &
@@ -36,10 +49,12 @@ export type DefPluginExprResolver<Config extends DefPluginConfig> = Omit<
   item: DefPluginCompExternal<Config>;
 };
 export type DefPluginCompExternal<Config extends DefPluginConfig> = Config['expectedFromExternal'];
-export type DefPluginChildClaimerProps<Config extends DefPluginConfig> = ChildClaimerProps<
-  DefPluginCompType<Config>
+export type DefPluginChildClaimerProps<Config extends DefPluginConfig> = Omit<
+  ChildClaimerProps<DefPluginCompType<Config>, DefPluginClaimMetadata<Config>>,
+  'claimChild'
 > & {
   item: DefPluginCompExternal<Config>;
+  claimChild(childId: string, metadata: DefPluginClaimMetadata<Config>): void;
 };
 export type DefPluginSettings<Config extends DefPluginConfig> = Config['settings'];
 export type ConfigFromDefPlugin<C extends NodeDefPlugin<any>> = C extends NodeDefPlugin<infer Config> ? Config : never;
@@ -195,6 +210,26 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
   extraMethodsInDef(): string[] {
     return [];
   }
+
+  /**
+   * Outputs any extra code that should be output in the evalExpressions method. If you implement
+   * evalDefaultExpressions() this method will not be called, as it is expected that you will output
+   * the data there. This only aids in indicating extra state that is placed in the item object by your
+   * plugin (such as state added by addChild(), etc).
+   */
+  extraInEvalExpressions(): string {
+    const implementsExpressions = this.evalDefaultExpressions !== NodeDefPlugin.prototype.evalDefaultExpressions;
+    if (implementsExpressions) {
+      return '';
+    }
+
+    const DefPluginExtraInItemFromPlugin = new CG.import({
+      import: 'DefPluginExtraInItemFromPlugin',
+      from: 'src/utils/layout/plugins/NodeDefPlugin',
+    });
+
+    return `...({} as ${DefPluginExtraInItemFromPlugin}<(typeof this.plugins)['${this.getKey()}']>),`;
+  }
 }
 
 /**
@@ -202,16 +237,18 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
  */
 export interface NodeDefChildrenPlugin<Config extends DefPluginConfig> {
   claimChildren(props: DefPluginChildClaimerProps<Config>): void;
-  pickDirectChildren(state: DefPluginState<Config>, restriction?: TraversalRestriction): NodeRef[];
-  addChild(state: DefPluginState<Config>, childNode: LayoutNode): Partial<DefPluginState<Config>>;
-  removeChild(state: DefPluginState<Config>, childNode: LayoutNode): Partial<DefPluginState<Config>>;
+  pickDirectChildren(state: DefPluginState<Config>, restriction?: TraversalRestriction): LayoutNode[];
+  addChild(
+    state: DefPluginState<Config>,
+    childNode: LayoutNode,
+    metadata: DefPluginClaimMetadata<Config>,
+  ): Partial<DefPluginState<Config>>;
 }
 
 export function isNodeDefChildrenPlugin(plugin: any): plugin is NodeDefChildrenPlugin<any> {
   return (
     typeof plugin.claimChildren === 'function' &&
     typeof plugin.pickDirectChildren === 'function' &&
-    typeof plugin.addChild === 'function' &&
-    typeof plugin.removeChild === 'function'
+    typeof plugin.addChild === 'function'
   );
 }

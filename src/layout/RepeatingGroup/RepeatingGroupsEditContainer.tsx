@@ -7,7 +7,7 @@ import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
-import { GenericComponentByRef } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useRepeatingGroup, useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import {
@@ -137,19 +137,19 @@ function RepeatingGroupsEditContainerInternal({
           ref={(n) => refSetter && editingRowIndex !== undefined && refSetter(editingRowIndex, 'editContainer', n)}
         >
           {rowItems.map((n) => {
-            const isOnOtherMultiPage = multiPageEnabled && n.multiPageIndex !== multiPageIndex;
+            const isOnOtherMultiPage = multiPageEnabled && n.getMultiPageIndex() !== multiPageIndex;
             if (isOnOtherMultiPage) {
               return null;
             }
 
-            if (group.tableColumns && group.tableColumns[n.baseId]?.showInExpandedEdit === false) {
+            if (group.tableColumns && group.tableColumns[n.getBaseId()]?.showInExpandedEdit === false) {
               return null;
             }
 
             return (
-              <GenericComponentByRef
-                nodeRef={n}
-                key={n.nodeRef}
+              <GenericComponent
+                key={n.getId()}
+                node={n}
               />
             );
           })}

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
@@ -22,7 +22,7 @@ import type {
   ComponentProto,
   ContainerGeneratorProps,
 } from 'src/layout/LayoutComponent';
-import type { ChildrenMap } from 'src/utils/layout/generator/GeneratorContext';
+import type { ChildClaim, ChildClaims, ChildClaimsMap } from 'src/utils/layout/generator/GeneratorContext';
 import type { HiddenState } from 'src/utils/layout/NodesContext';
 
 const style: React.CSSProperties = GeneratorDebug.displayState
@@ -43,7 +43,7 @@ const style: React.CSSProperties = GeneratorDebug.displayState
 
 interface ChildrenState {
   forLayout: ILayout;
-  map: ChildrenMap | undefined;
+  map: ChildClaimsMap | undefined;
 }
 
 export function LayoutSetGenerator() {
@@ -121,6 +121,65 @@ function ExportStores() {
   return null;
 }
 
+function useChildClaims(layout: ILayout, getProto: (id: string) => ComponentProto | undefined) {
+  const mapRef = useRef<ChildClaimsMap>({});
+  const [children, setChildren] = useState<ChildrenState>({ forLayout: layout, map: undefined });
+
+  useEffect(() => {
+    if (children.forLayout !== layout) {
+      // Force a new first pass if the layout changes
+      setChildren({ forLayout: layout, map: undefined });
+      mapRef.current = {};
+    }
+    if (children.map === undefined) {
+      // We always run this in a useEffect, so that even if nobody calls setChildren() via addClaim(), the
+      // first pass still finishes. This is needed to support layouts without any child-bearing components.
+      setChildren((prev) => ({ ...prev, map: prev.map ?? {} }));
+    }
+  }, [children, layout]);
+
+  const getClaimedBy = useCallback((childId: string) => {
+    if (mapRef.current === undefined) {
+      return [];
+    }
+
+    const out: string[] = [];
+    for (const parentId in mapRef.current) {
+      if (mapRef.current[parentId]?.[childId]) {
+        out.push(parentId);
+      }
+    }
+
+    return out;
+  }, []);
+
+  const addClaim = useCallback(
+    (parentId: string, childId: string, pluginKey: string, metadata: unknown) => {
+      if (getProto(childId) === undefined) {
+        window.logError(`Component '${childId}' (as referenced by '${parentId}') does not exist`);
+        return;
+      }
+      const otherClaims = getClaimedBy(childId);
+      if (otherClaims.length > 0) {
+        const claimsStr = otherClaims.join(', ');
+        window.logError(`Component '${childId}' (as referenced by '${parentId}') is already claimed by '${claimsStr}'`);
+        return;
+      }
+
+      // We keep both the ref and the state in sync, so that getClaimedBy() can work immediately during a render (and not
+      // have to wait for the next render to get the updated state).
+      mapRef.current[parentId] = {
+        ...mapRef.current[parentId],
+        [childId]: { pluginKey, metadata },
+      };
+      setChildren((prev) => ({ ...prev, map: mapRef.current }));
+    },
+    [getProto, getClaimedBy],
+  );
+
+  return { map: children.map, addClaim };
+}
+
 interface PageProps {
   layout: ILayout;
   name: string;
@@ -128,7 +187,6 @@ interface PageProps {
 }
 
 function PageGenerator({ layout, name, layoutSet }: PageProps) {
-  const [children, setChildren] = useState<ChildrenState>({ forLayout: layout, map: undefined });
   const page = useMemo(() => new LayoutPage(), []);
   useGeneratorErrorBoundaryNodeRef().current = page;
 
@@ -145,10 +203,25 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
     return (id: string) => proto[id];
   }, [layout]);
 
-  const map = children.map;
-  const topLevelIds = useMemo(() => {
-    const claimedChildren = new Set(map ? Object.values(map).flat() : []);
-    return layout.filter((component) => !claimedChildren.has(component.id)).map((component) => component.id);
+  const claims = useChildClaims(layout, getProto);
+  const map = claims.map;
+
+  const topLevelIdsAsClaims = useMemo(() => {
+    if (!map) {
+      return {};
+    }
+
+    const claimedChildren = new Set(
+      Object.values(map)
+        .map((claims) => Object.keys(claims))
+        .flat(),
+    );
+    const ids = layout.filter((component) => !claimedChildren.has(component.id)).map((component) => component.id);
+    const claims: ChildClaims = {};
+    for (const id of ids) {
+      claims[id] = {};
+    }
+    return claims;
   }, [map, layout]);
 
   const layoutMap = useMemo(() => {
@@ -159,12 +232,6 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
 
     return out;
   }, [layout]);
-
-  if (children.forLayout !== layout) {
-    // Force a new first pass if the layout changes
-    setChildren({ forLayout: layout, map: undefined });
-    return null;
-  }
 
   if (layout.length === 0) {
     return null;
@@ -186,7 +253,7 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
           <ComponentClaimChildren
             key={component.id}
             component={component}
-            setChildren={setChildren}
+            claims={claims}
             getProto={getProto}
           />
         ))}
@@ -197,7 +264,7 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
           layoutMap={layoutMap}
           childrenMap={map}
         >
-          <GenerateNodeChildren childIds={topLevelIds} />
+          <GenerateNodeChildren claims={topLevelIdsAsClaims} />
         </GeneratorPageProvider>
       )}
     </>
@@ -253,31 +320,32 @@ function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
 }
 
 interface NodeChildrenProps {
-  childIds: string[];
+  claims: ChildClaims;
 }
 
-export function GenerateNodeChildrenWhenReady({ childIds }: NodeChildrenProps) {
+export function GenerateNodeChildrenWhenReady({ claims }: NodeChildrenProps) {
   return (
     <GeneratorCondition
       stage={StageAddNodes}
       mustBeAdded='parent'
     >
-      <GenerateNodeChildren childIds={childIds} />
+      <GenerateNodeChildren claims={claims} />
     </GeneratorCondition>
   );
 }
 
-export function GenerateNodeChildren({ childIds }: NodeChildrenProps) {
+export function GenerateNodeChildren({ claims }: NodeChildrenProps) {
   const layoutMap = GeneratorInternal.useLayoutMap();
   const map = GeneratorInternal.useChildrenMap();
 
   return (
     <>
-      {childIds.map((id) => (
+      {Object.keys(claims).map((id) => (
         <GeneratorErrorBoundary key={id}>
           <GenerateComponent
             baseId={id}
-            childIds={map[id]}
+            claim={claims[id]}
+            childClaims={map[id]}
             type={layoutMap[id].type}
           />
         </GeneratorErrorBoundary>
@@ -293,27 +361,23 @@ function useIsHiddenPage(page: LayoutPage) {
 
 interface ComponentClaimChildrenProps {
   component: CompExternal;
-  setChildren: React.Dispatch<React.SetStateAction<ChildrenState>>;
+  claims: ReturnType<typeof useChildClaims>;
   getProto: (id: string) => ComponentProto | undefined;
 }
 
-function ComponentClaimChildren({ component, setChildren, getProto }: ComponentClaimChildrenProps) {
+function ComponentClaimChildren({ component, claims, getProto }: ComponentClaimChildrenProps) {
   const def = getComponentDef(component.type);
+  const { addClaim } = claims;
 
   // The first render will be used to determine which components will be claimed as children by others (which will
   // prevent them from rendering on the top-level on the next render pass). We must always set a state here,
   // otherwise the page will not know if the first pass is done.
   useEffect(() => {
     if (def instanceof ContainerComponent) {
-      const claimedChildren: string[] = [];
-      const props: ChildClaimerProps<any> = {
+      const props: ChildClaimerProps<any, unknown> = {
         item: component,
-        claimChild: (id) => {
-          if (getProto(id) === undefined) {
-            window.logError(`Component '${id}' (as referenced by '${component.id}') does not exist`);
-            return;
-          }
-          claimedChildren.push(id);
+        claimChild: (pluginKey, childId, metadata) => {
+          addClaim(component.id, childId, pluginKey, metadata);
         },
         getProto: (id) => {
           const proto = getProto(id);
@@ -325,17 +389,8 @@ function ComponentClaimChildren({ component, setChildren, getProto }: ComponentC
       };
 
       def.claimChildren(props as unknown as any);
-      setChildren((prev) => ({
-        ...prev,
-        map: {
-          ...prev.map,
-          [component.id]: claimedChildren,
-        },
-      }));
-    } else {
-      setChildren((prev) => (prev.map === undefined ? { ...prev, map: {} } : prev));
     }
-  }, [def, component, setChildren, getProto]);
+  }, [def, component, getProto, addClaim]);
 
   return (
     <>
@@ -352,23 +407,25 @@ function ComponentClaimChildren({ component, setChildren, getProto }: ComponentC
 interface ComponentProps {
   baseId: string;
   type: CompTypes;
-  childIds: string[] | undefined;
+  claim: ChildClaim;
+  childClaims: ChildClaims | undefined;
 }
 
-function GenerateComponent({ baseId, type, childIds }: ComponentProps) {
+function GenerateComponent({ baseId, type, claim, childClaims }: ComponentProps) {
   const def = getComponentDef(type);
   const props = useMemo(() => {
     if (def instanceof ContainerComponent) {
       const out: ContainerGeneratorProps = {
+        claim,
         baseId,
-        childIds: childIds ?? [],
+        childClaims: childClaims ?? {},
       };
       return out;
     }
 
-    const out: BasicNodeGeneratorProps = { baseId };
+    const out: BasicNodeGeneratorProps = { claim, baseId };
     return out;
-  }, [childIds, baseId, def]);
+  }, [claim, childClaims, baseId, def]);
 
   if (!def) {
     return null;
@@ -387,7 +444,9 @@ function GenerateComponent({ baseId, type, childIds }: ComponentProps) {
           {baseId} ({type})
         </h3>
       )}
-      {GeneratorDebug.displayState && <span>{childIds ? `Children: ${childIds.join(', ')}` : 'No children'}</span>}
+      {GeneratorDebug.displayState && (
+        <span>{childClaims ? `Children: ${Object.keys(childClaims).join(', ')}` : 'No children'}</span>
+      )}
       <Generator {...(props as any)} />
     </div>
   );

@@ -252,15 +252,7 @@ function usePagesWithErrors(rowsPerPage: number | undefined, node: LayoutNode<'R
         continue;
       }
 
-      const deepNodes = visibleRows[i].items.flatMap((nodeRef) => {
-        const node = traversalSelector((t) => t.findById(nodeRef.nodeRef), [nodeRef]);
-        if (!node) {
-          return [];
-        }
-
-        return traversalSelector((t) => t.with(node).flat(), [node]);
-      });
-
+      const deepNodes = visibleRows[i].items.flatMap((node) => traversalSelector((t) => t.with(node).flat(), [node]));
       for (const node of deepNodes) {
         const validations = nodeValidationsSelector(node, 'visible', 'error');
         if (validations.length > 0) {

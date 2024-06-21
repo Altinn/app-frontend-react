@@ -137,10 +137,10 @@ function usePreselectedOptionIndex(props: EffectProps) {
   const { setValue, preselectedOption } = props;
   const hasSelectedInitial = useRef(false);
   const hasValue = props.selectedValues.length > 0;
-  const shouldSelectOptionAutomatically = !hasValue && !hasSelectedInitial.current;
+  const shouldSelectOptionAutomatically = !hasValue && !hasSelectedInitial.current && preselectedOption !== undefined;
 
   useEffect(() => {
-    if (shouldSelectOptionAutomatically && preselectedOption !== undefined) {
+    if (shouldSelectOptionAutomatically) {
       setValue([preselectedOption.value]);
       hasSelectedInitial.current = true;
     }

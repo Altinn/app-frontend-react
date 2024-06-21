@@ -381,6 +381,9 @@ export class ComponentConfig {
     for (const plugin of this.plugins) {
       const extraMethodsFromPlugin = plugin.extraMethodsInDef();
       additionalMethods.push(...extraMethodsFromPlugin);
+
+      const extraInEval = plugin.extraInEvalExpressions();
+      extraInEval && evalLines.push(extraInEval);
     }
 
     const childrenPlugins = this.plugins.filter((plugin) =>
@@ -388,12 +391,6 @@ export class ComponentConfig {
     ) as unknown as (NodeDefChildrenPlugin<any> & NodeDefPlugin<any>)[];
 
     if (childrenPlugins.length > 0) {
-      if (childrenPlugins.length > 1) {
-        throw new Error(
-          `Component ${symbol} has multiple children plugins. Only one children plugin is allowed per component.`,
-        );
-      }
-
       const ChildClaimerProps = new CG.import({ import: 'ChildClaimerProps', from: 'src/layout/LayoutComponent' });
       const NodeData = new CG.import({ import: 'NodeData', from: 'src/utils/layout/types' });
       const TraversalRestriction = new CG.import({
@@ -401,20 +398,29 @@ export class ComponentConfig {
         from: 'src/utils/layout/useNodeTraversal',
       });
       const LayoutNode = new CG.import({ import: 'LayoutNode', from: 'src/utils/layout/LayoutNode' });
+      const ChildClaim = new CG.import({ import: 'ChildClaim', from: 'src/utils/layout/generator/GeneratorContext' });
 
-      const plugin = childrenPlugins[0];
+      const claimChildrenBody = childrenPlugins.map((plugin) =>
+        `${pluginRef(plugin)}.claimChildren({
+            ...props,
+            claimChild: (id: string, metadata: unknown) =>
+              props.claimChild('${plugin.getKey()}', id, metadata),
+         });`.trim(),
+      );
+
+      const pickDirectChildrenBody = childrenPlugins.map(
+        (plugin) => `...${pluginRef(plugin)}.pickDirectChildren(state as any, restriction)`,
+      );
+
       additionalMethods.push(
-        `claimChildren(props: ${ChildClaimerProps}<'${this.type}'>) {
-          return ${pluginRef(plugin)}.claimChildren(props as any);
+        `claimChildren(props: ${ChildClaimerProps}<'${this.type}', unknown>) {
+          ${claimChildrenBody.join('\n')}
         }`,
         `pickDirectChildren(state: ${NodeData}<'${this.type}'>, restriction?: ${TraversalRestriction}) {
-          return ${pluginRef(plugin)}.pickDirectChildren(state as any, restriction);
+          return [${pickDirectChildrenBody.join(', ')}];
         }`,
-        `addChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}) {
-          return ${pluginRef(plugin)}.addChild(state as any, childNode) as Partial<${NodeData}<'${this.type}'>>;
-        }`,
-        `removeChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}) {
-          return ${pluginRef(plugin)}.removeChild(state as any, childNode) as Partial<${NodeData}<'${this.type}'>>;
+        `addChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}, { pluginKey, metadata }: ${ChildClaim}) {
+          return this.plugins[pluginKey!].addChild(state as any, childNode, metadata) as Partial<${NodeData}<'${this.type}'>>;
         }`,
       );
     }

@@ -1,65 +1,53 @@
-import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { Hidden, useNodeSelector } from 'src/utils/layout/NodesContext';
-import type { GridCell, GridCellLabelFrom, GridCellText, GridRow, GridRows } from 'src/layout/common.generated';
-import type { GridCellInternal, GridCellNodeRef } from 'src/layout/Grid/types';
+import { Hidden } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { GridCell, GridCellLabelFrom, GridCellText } from 'src/layout/common.generated';
+import type { GridCellInternal, GridCellNode, GridRowInternal, GridRowsInternal } from 'src/layout/Grid/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IsHiddenSelector, NodeSelector } from 'src/utils/layout/NodesContext';
+import type { IsHiddenSelector } from 'src/utils/layout/NodesContext';
+
+const emptyArray: never[] = [];
 
 export function useNodesFromGrid(grid: LayoutNode<'Grid'> | undefined, enabled = true) {
   const isHiddenSelector = Hidden.useIsHiddenSelector();
-  const nodeSelector = useNodeSelector();
-  return enabled && grid ? nodesFromGrid(grid, isHiddenSelector, nodeSelector) : [];
+  const rows = useNodeItem(grid, (item) => item.rowsInternal);
+  return enabled && grid && rows ? nodesFromGridRows(rows, isHiddenSelector) : emptyArray;
 }
 
-export function nodesFromGrid(
-  grid: LayoutNode<'Grid'>,
-  isHiddenSelector: IsHiddenSelector,
-  nodeSelector: NodeSelector,
-): LayoutNode[] {
-  return nodesFromGridRows(grid.item.rows, isHiddenSelector, nodeSelector);
-}
-
-export function useNodesFromGridRows(rows: GridRows | undefined, enabled = true) {
+export function useNodesFromGridRows(rows: GridRowsInternal | undefined, enabled = true) {
   const isHiddenSelector = Hidden.useIsHiddenSelector();
-  const nodeSelector = useNodeSelector();
-  return enabled && rows ? nodesFromGridRows(rows, isHiddenSelector, nodeSelector) : [];
+  return enabled && rows ? nodesFromGridRows(rows, isHiddenSelector) : emptyArray;
 }
 
-export function nodesFromGridRows(
-  rows: GridRows,
-  isHiddenSelector: IsHiddenSelector,
-  nodeSelector: NodeSelector,
-): LayoutNode[] {
+function nodesFromGridRows(rows: GridRowsInternal, isHiddenSelector: IsHiddenSelector): LayoutNode[] {
   const out: LayoutNode[] = [];
   for (const row of rows) {
     if (isGridRowHidden(row, isHiddenSelector)) {
       continue;
     }
 
-    out.push(...nodesFromGridRow(row, nodeSelector));
+    out.push(...nodesFromGridRow(row));
   }
 
-  return out;
+  return out.length ? out : emptyArray;
 }
 
-export function nodesFromGridRow(row: GridRow, nodeSelector: NodeSelector): LayoutNode[] {
+export function nodesFromGridRow(row: GridRowInternal): LayoutNode[] {
   const out: LayoutNode[] = [];
   for (const cell of row.cells) {
-    if (isNodeRef(cell)) {
-      const node = nodeSelector(cell);
-      node && out.push(node);
+    if (isGridCellNode(cell)) {
+      out.push(cell.node);
     }
   }
 
-  return out;
+  return out.length ? out : emptyArray;
 }
 
-export function isGridRowHidden(row: GridRow, isHiddenSelector: IsHiddenSelector) {
+export function isGridRowHidden(row: GridRowInternal, isHiddenSelector: IsHiddenSelector) {
   let atLeastNoneNodeExists = false;
   const allCellsAreHidden = row.cells.every((cell) => {
-    if (isNodeRef(cell)) {
+    if (isGridCellNode(cell)) {
       atLeastNoneNodeExists = true;
-      return isHiddenSelector(cell);
+      return isHiddenSelector(cell.node);
     }
 
     // Non-component cells always collapse and hide if components in other cells are hidden
@@ -81,6 +69,6 @@ export function isGridCellEmpty(cell: GridCellInternal | GridCell): boolean {
   return cell === null || (isGridCellText(cell) && cell.text === '');
 }
 
-export function isGridCellNode(cell: GridCellInternal): cell is GridCellNodeRef {
-  return isNodeRef(cell);
+export function isGridCellNode(cell: GridCellInternal): cell is GridCellNode {
+  return !!(cell && 'node' in cell && cell.node);
 }

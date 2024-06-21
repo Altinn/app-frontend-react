@@ -1,8 +1,5 @@
-import type { NodeRef } from '..';
-
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
-import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CardConfigExternal } from 'src/layout/Cards/config.generated';
@@ -10,16 +7,19 @@ import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
-  DefPluginExprResolver,
   DefPluginState,
-  DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface CardInternal extends Omit<CardConfigExternal, 'children' | 'media'> {
-  children?: NodeRef[];
-  media?: NodeRef;
+  children?: LayoutNode[];
+  media?: LayoutNode;
+}
+
+interface ClaimMetadata {
+  cardIdx: number;
+  child: number | 'media';
 }
 
 interface Config<Type extends CompTypes> {
@@ -27,17 +27,10 @@ interface Config<Type extends CompTypes> {
   expectedFromExternal: {
     cards: CardConfigExternal[];
   };
-  extraState: {
-    cardsItems: {
-      [cardIndex: number]: {
-        media?: NodeRef;
-        children: {
-          [nodeId: string]: NodeRef;
-        };
-      };
-    };
-  };
+  childClaimMetadata: ClaimMetadata;
+  extraState: undefined;
   extraInItem: {
+    cards: undefined;
     cardsInternal: CardInternal[];
   };
 }
@@ -67,7 +60,7 @@ export class CardsPlugin<Type extends CompTypes>
   }
 
   claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<Config<Type>>): void {
-    for (const card of item.cards || []) {
+    for (const [cardIdx, card] of item.cards.entries()) {
       if (card.media) {
         const proto = getProto(card.media);
         if (!proto) {
@@ -80,10 +73,10 @@ export class CardsPlugin<Type extends CompTypes>
           );
           continue;
         }
-        claimChild(card.media);
+        claimChild(card.media, { cardIdx, child: 'media' });
       }
 
-      for (const child of card.children || []) {
+      for (const [childIdx, child] of card.children?.entries() ?? []) {
         const proto = getProto(child);
         if (!proto) {
           continue;
@@ -95,15 +88,9 @@ export class CardsPlugin<Type extends CompTypes>
           );
           continue;
         }
-        claimChild(child);
+        claimChild(child, { cardIdx, child: childIdx });
       }
     }
-  }
-
-  stateFactory(_props: DefPluginStateFactoryProps<Config<Type>>): Config<Type>['extraState'] {
-    return {
-      cardsItems: {},
-    };
   }
 
   extraNodeGeneratorChildren(): string {
@@ -111,101 +98,41 @@ export class CardsPlugin<Type extends CompTypes>
       import: 'GenerateNodeChildrenWhenReady',
       from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
-    return `<${GenerateNodeChildrenWhenReady} childIds={props.childIds} />`;
+    return `<${GenerateNodeChildrenWhenReady} claims={props.childClaims} />`;
   }
 
-  evalDefaultExpressions({ item }: DefPluginExprResolver<Config<Type>>): Config<Type>['extraInItem'] {
-    const cards: CardInternal[] = [];
-    for (const externalCard of item.cards) {
-      const { children, media, ...rest } = externalCard;
-      cards.push({
-        ...rest,
-        media: media ? { nodeRef: media } : undefined,
-        children:
-          children?.map((child) => ({
-            nodeRef: child,
-          })) || [],
-      });
-    }
-
-    return { cardsInternal: cards };
-  }
-
-  pickDirectChildren(state: DefPluginState<Config<Type>>, _restriction?: TraversalRestriction | undefined): NodeRef[] {
-    const refs: NodeRef[] = [];
-    for (const card of Object.values(state.cardsItems)) {
+  pickDirectChildren(
+    state: DefPluginState<Config<Type>>,
+    _restriction?: TraversalRestriction | undefined,
+  ): LayoutNode[] {
+    const out: LayoutNode[] = [];
+    for (const card of Object.values(state.item?.cardsInternal || [])) {
       if (card.media) {
-        refs.push(card.media);
+        out.push(card.media);
       }
-      for (const child of Object.values(card.children)) {
-        refs.push(child);
+      for (const child of card.children ?? []) {
+        child && out.push(child);
       }
     }
 
-    return refs;
+    return out;
   }
 
-  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): Partial<DefPluginState<Config<Type>>> {
-    // First we need to find the child in the layout again to figure out which card it belongs to and if it's media
-    let cardIndex: number | undefined;
-    let isMedia: boolean | undefined;
-    for (const [index, card] of state.layout.cards.entries()) {
-      if (card.media === childNode.getBaseId()) {
-        cardIndex = index;
-        isMedia = true;
-        break;
-      }
-      if (card.children?.find((child) => child === childNode.getBaseId())) {
-        cardIndex = index;
-        isMedia = false;
-        break;
-      }
-    }
-
-    if (cardIndex === undefined || isMedia === undefined) {
-      throw new NodePathNotFound(`Child with id ${childNode.getId()} not found in layout`);
-    }
-
-    const cardsItems = { ...state.cardsItems };
-    if (!cardsItems[cardIndex]) {
-      cardsItems[cardIndex] = {
-        media: undefined,
-        children: {},
-      };
-    }
-
-    if (isMedia) {
-      cardsItems[cardIndex] = {
-        ...cardsItems[cardIndex],
-        media: { nodeRef: childNode.getId() },
-      };
+  addChild(
+    state: DefPluginState<Config<Type>>,
+    childNode: LayoutNode,
+    metadata: ClaimMetadata,
+  ): Partial<DefPluginState<Config<Type>>> {
+    const cardsInternal = [...(state.item?.cardsInternal || [])];
+    const card = cardsInternal[metadata.cardIdx] ?? {};
+    if (metadata.child === 'media') {
+      cardsInternal[metadata.cardIdx] = { ...card, media: childNode };
     } else {
-      cardsItems[cardIndex] = {
-        ...cardsItems[cardIndex],
-        children: {
-          ...cardsItems[cardIndex].children,
-          [childNode.getId()]: { nodeRef: childNode.getId() },
-        },
-      };
+      const children = [...(card.children || [])];
+      children[metadata.child] = childNode;
+      cardsInternal[metadata.cardIdx] = { ...card, children };
     }
 
-    return { cardsItems };
-  }
-
-  removeChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): Partial<DefPluginState<Config<Type>>> {
-    const cardsItems = { ...state.cardsItems };
-    for (const key of Object.keys(cardsItems)) {
-      const card = cardsItems[key];
-      if (card.media?.nodeRef === childNode.getId()) {
-        cardsItems[key] = { ...card, media: undefined };
-        return { cardsItems };
-      }
-      if (card.children[childNode.getId()]) {
-        cardsItems[key] = { ...card, children: { ...card.children, [childNode.getId()]: undefined } };
-        return { cardsItems };
-      }
-    }
-
-    return state;
+    return { item: { ...state.item, cardsInternal } } as Partial<DefPluginState<Config<Type>>>;
   }
 }

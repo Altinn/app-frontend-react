@@ -4,7 +4,7 @@ import type { MutableRefObject } from 'react';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { WaitForState } from 'src/hooks/useWaitForState';
-import type { FormDataSelector, NodeRef } from 'src/layout';
+import type { FormDataSelector } from 'src/layout';
 import type { CompTypes, IDataModelBindings, NodeItem, TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -48,7 +48,10 @@ export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
   >;
 }
 
-export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): NodeRef[] | undefined {
+export function useNodeDirectChildren(
+  parent: LayoutNode,
+  restriction?: TraversalRestriction,
+): LayoutNode[] | undefined {
   return NodesInternal.useNodeData(parent, (store) => parent.def.pickDirectChildren(store as any, restriction));
 }
 

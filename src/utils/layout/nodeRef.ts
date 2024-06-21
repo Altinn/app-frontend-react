@@ -1,5 +1,8 @@
 import type { NodeRef } from 'src/layout';
 
+/**
+ * @deprecated
+ */
 export function isNodeRef(ref: any): ref is NodeRef {
   return (
     ref !== undefined &&

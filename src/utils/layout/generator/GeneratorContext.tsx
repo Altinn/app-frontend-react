@@ -9,8 +9,17 @@ import type { BaseRow } from 'src/utils/layout/types';
 
 export type ChildMutator<T extends CompTypes = CompTypes> = (item: CompIntermediate<T>) => void;
 
-export interface ChildrenMap {
-  [parentId: string]: string[];
+export interface ChildClaim {
+  pluginKey?: string;
+  metadata?: unknown;
+}
+
+export interface ChildClaims {
+  [childId: string]: ChildClaim;
+}
+
+export interface ChildClaimsMap {
+  [parentId: string]: ChildClaims;
 }
 
 type PageProviderProps = Pick<GeneratorContext, 'layoutMap' | 'childrenMap'> & {
@@ -30,10 +39,9 @@ interface GeneratorContext {
   directMutators?: ChildMutator[];
   recursiveMutators?: ChildMutator[];
   layoutMap: Record<string, CompExternal>;
-  childrenMap: ChildrenMap;
+  childrenMap: ChildClaimsMap;
   parent: LayoutNode | LayoutPage;
   item: CompIntermediateExact<CompTypes> | undefined;
-  claimedChildren: Set<string>;
   row: BaseRow | undefined;
   page: LayoutPage;
   depth: number; // Depth is 1 for top level nodes, 2 for children of top level nodes, etc.
@@ -79,7 +87,6 @@ export function GeneratorPageProvider({ children, ...rest }: PropsWithChildren<P
   const value: GeneratorContext = useMemo(
     () => ({
       page: rest.parent,
-      claimedChildren: new Set(Object.values(rest.childrenMap).flat()),
       item: undefined,
       row: undefined,
 
@@ -127,7 +134,6 @@ export const GeneratorInternal = {
   useDepth: () => useCtx().depth,
   useLayoutMap: () => useCtx().layoutMap,
   useChildrenMap: () => useCtx().childrenMap,
-  useClaimedChildren: () => useCtx().claimedChildren,
   useParent: () => useCtx().parent,
   usePage: () => useCtx().page,
   useRow: () => useCtx().row,

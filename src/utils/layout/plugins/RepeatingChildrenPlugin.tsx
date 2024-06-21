@@ -5,22 +5,18 @@ import { CompCategory } from 'src/layout/common';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
-import type { NodeRefInRow } from 'src/layout';
-import type { CompInternal, TypesFromCategory } from 'src/layout/layout';
+import type { TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
-  DefPluginExprResolver,
-  DefPluginExtraInItem,
   DefPluginState,
-  DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { BaseRow } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface RepChildrenRow extends BaseRow {
-  items: NodeRefInRow[];
+  items: LayoutNode[];
 }
 
 interface Config<
@@ -127,28 +123,12 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     const multiPageSupport = this.settings.multiPageSupport === false ? 'false' : `'${this.settings.multiPageSupport}'`;
     return `
       <${NodeRepeatingChildren}
-        childIds={props.childIds}
+        claims={props.childClaims}
         binding={'${this.settings.dataModelGroupBinding}'}
         internalProp={'${this.settings.internalProp}'}
         externalProp={'${this.settings.externalProp}'}
         multiPageSupport={${multiPageSupport}}
       />`.trim();
-  }
-
-  stateFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>) {
-    return {
-      item: {
-        [this.settings.internalProp]: [],
-      } as CompInternal<ToInternal<E>['componentType']>,
-    };
-  }
-
-  evalDefaultExpressions(_props: DefPluginExprResolver<ToInternal<E>>): DefPluginExtraInItem<ToInternal<E>> {
-    // Row state isn't set here, it's constructed when adding/removing rows. Expressions in rows are resolved
-    // and added by ResolveRowExpressions.
-    return {
-      [this.settings.externalProp]: undefined,
-    } as unknown as DefPluginExtraInItem<ToInternal<E>>;
   }
 
   extraMethodsInDef(): string[] {
@@ -169,16 +149,22 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
 
     for (const id of (item as any)[this.settings.externalProp]) {
       if (multiPage) {
+        if (!/^\d+:[^:]+$/u.test(id)) {
+          throw new Error(
+            `Ved bruk av multiPage må ID være på formatet 'sideIndeks:komponentId' (f.eks. '0:komponentId'). Referansen '${id}' er ikke gyldig.`,
+          );
+        }
+
         const [, childId] = id.split(':', 2);
-        claimChild(childId);
+        claimChild(childId, undefined);
       } else {
-        claimChild(id);
+        claimChild(id, undefined);
       }
     }
   }
 
-  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: TraversalRestriction): NodeRefInRow[] {
-    const out: NodeRefInRow[] = [];
+  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: TraversalRestriction): LayoutNode[] {
+    const out: LayoutNode[] = [];
 
     const rows = (state.item as any)[this.settings.internalProp] as Row<E>[];
     if (!rows) {
@@ -194,7 +180,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
       }
 
       for (const child of row.items) {
-        out.push(child);
+        child && out.push(child);
       }
     }
 
@@ -206,14 +192,11 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     if (!row) {
       throw new Error(`Child node of repeating component missing 'row' property`);
     }
-    const rows = [...(state.item as any)[this.settings.internalProp]] as Row<E>[];
+    const item = state.item as any;
+    const rows = (item && this.settings.internalProp in item ? [...item[this.settings.internalProp]] : []) as Row<E>[];
     const existingRowIndex = rows.findIndex((r) => r.uuid === row.uuid);
     const items = [...(rows[existingRowIndex]?.items || [])];
-    items.push({
-      nodeRef: childNode.getId(),
-      baseId: childNode.getBaseId(),
-      multiPageIndex: childNode.getMultiPageIndex(),
-    });
+    items.push(childNode);
 
     if (existingRowIndex === -1) {
       rows.push({ ...(rows[existingRowIndex] || {}), ...row, items });
@@ -221,12 +204,12 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
       rows[existingRowIndex] = { ...(rows[existingRowIndex] || {}), ...row, items };
     }
 
-    return { item: { ...state.item, [this.settings.internalProp]: rows } } as Partial<DefPluginState<ToInternal<E>>>;
-  }
-
-  removeChild(_state: DefPluginState<ToInternal<E>>, _childNode: LayoutNode): Partial<DefPluginState<ToInternal<E>>> {
-    // There is no need to remove the reference to the child node, as the child node is removed from the state when
-    // the whole row is removed.
-    return _state;
+    return {
+      item: {
+        ...state.item,
+        [this.settings.internalProp]: rows,
+        [this.settings.externalProp]: undefined,
+      },
+    } as Partial<DefPluginState<ToInternal<E>>>;
   }
 }

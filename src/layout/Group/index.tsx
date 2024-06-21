@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { GenericComponentByRef } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
@@ -14,10 +14,10 @@ export class Group extends GroupDef {
       return (
         <GroupComponent
           groupNode={props.node}
-          renderLayoutNode={(ref) => (
-            <GenericComponentByRef
-              key={ref.nodeRef}
-              nodeRef={ref}
+          renderLayoutNode={(node) => (
+            <GenericComponent
+              key={node.getId()}
+              node={node}
             />
           )}
         />

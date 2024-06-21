@@ -1,9 +1,11 @@
-import type { NodeRef } from 'src/layout';
 import type { GridCellLabelFrom, GridCellText, GridComponentRef, GridRow } from 'src/layout/common.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export type GridCellNodeRef = NodeRef & Omit<GridComponentRef, 'component'>;
+export interface GridCellNode extends Omit<GridComponentRef, 'component'> {
+  node: LayoutNode;
+}
 
-export type GridCellInternal = GridCellNodeRef | null | GridCellText | GridCellLabelFrom;
+export type GridCellInternal = GridCellNode | null | GridCellText | GridCellLabelFrom;
 
 export interface GridRowInternal extends Omit<GridRow, 'cells'> {
   cells: GridCellInternal[];

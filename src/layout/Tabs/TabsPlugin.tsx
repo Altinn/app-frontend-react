@@ -1,8 +1,5 @@
-import type { NodeRef } from '..';
-
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
-import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CompTypes } from 'src/layout/layout';
@@ -10,15 +7,19 @@ import type { TabConfig } from 'src/layout/Tabs/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
-  DefPluginExprResolver,
   DefPluginState,
-  DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface TabConfigInternal extends Omit<TabConfig, 'children'> {
-  children: NodeRef[];
+  children: LayoutNode[];
+}
+
+interface ClaimMetadata {
+  tabIdx: number;
+  tabId: string;
+  childIdx: number;
 }
 
 interface Config<Type extends CompTypes> {
@@ -26,16 +27,10 @@ interface Config<Type extends CompTypes> {
   expectedFromExternal: {
     tabs: TabConfig[];
   };
-  extraState: {
-    tabsItems: {
-      [tabIndex: number]: {
-        children: {
-          [nodeId: string]: NodeRef;
-        };
-      };
-    };
-  };
+  metaData: ClaimMetadata;
+  extraState: undefined;
   extraInItem: {
+    tabs: undefined;
     tabsInternal: TabConfigInternal[];
   };
 }
@@ -65,8 +60,8 @@ export class TabsPlugin<Type extends CompTypes>
   }
 
   claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<Config<Type>>): void {
-    for (const tab of item.tabs || []) {
-      for (const child of tab.children || []) {
+    for (const [tabIdx, tab] of item.tabs.entries()) {
+      for (const [childIdx, child] of tab.children.entries()) {
         const proto = getProto(child);
         if (!proto) {
           continue;
@@ -78,15 +73,9 @@ export class TabsPlugin<Type extends CompTypes>
           );
           continue;
         }
-        claimChild(child);
+        claimChild(child, { tabIdx, tabId: tab.id, childIdx });
       }
     }
-  }
-
-  stateFactory(_props: DefPluginStateFactoryProps<Config<Type>>): Config<Type>['extraState'] {
-    return {
-      tabsItems: {},
-    };
   }
 
   extraNodeGeneratorChildren(): string {
@@ -94,77 +83,32 @@ export class TabsPlugin<Type extends CompTypes>
       import: 'GenerateNodeChildrenWhenReady',
       from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
-    return `<${GenerateNodeChildrenWhenReady} childIds={props.childIds} />`;
+    return `<${GenerateNodeChildrenWhenReady} claims={props.childClaims} />`;
   }
 
-  evalDefaultExpressions({ item }: DefPluginExprResolver<Config<Type>>): Config<Type>['extraInItem'] {
-    const tabs: TabConfigInternal[] = [];
-    for (const externalTab of item.tabs) {
-      const { children, ...rest } = externalTab;
-      tabs.push({
-        ...rest,
-        children:
-          children?.map((child) => ({
-            nodeRef: child,
-          })) || [],
-      });
-    }
-
-    return { tabsInternal: tabs };
-  }
-
-  pickDirectChildren(state: DefPluginState<Config<Type>>, _restriction?: TraversalRestriction | undefined): NodeRef[] {
-    const refs: NodeRef[] = [];
-    for (const tab of Object.values(state.tabsItems)) {
-      for (const child of Object.values(tab.children)) {
-        refs.push(child);
+  pickDirectChildren(
+    state: DefPluginState<Config<Type>>,
+    _restriction?: TraversalRestriction | undefined,
+  ): LayoutNode[] {
+    const out: LayoutNode[] = [];
+    for (const tab of state.item?.tabsInternal || []) {
+      for (const child of tab.children) {
+        child && out.push(child);
       }
     }
 
-    return refs;
+    return out;
   }
 
-  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): Partial<DefPluginState<Config<Type>>> {
-    let idx: number | undefined;
-    for (const [index, tab] of state.layout.tabs.entries()) {
-      if (tab.children?.find((child) => child === childNode.getBaseId())) {
-        idx = index;
-        break;
-      }
-    }
-
-    if (idx === undefined) {
-      throw new NodePathNotFound(`Child with id ${childNode.getId()} not found in layout`);
-    }
-
-    const tabsItems = { ...state.tabsItems };
-    if (!tabsItems[idx]) {
-      tabsItems[idx] = {
-        children: {},
-      };
-    }
-
-    tabsItems[idx] = {
-      ...tabsItems[idx],
-      children: {
-        ...tabsItems[idx].children,
-        [childNode.getId()]: { nodeRef: childNode.getId() },
-      },
-    };
-
-    return { tabsItems };
-  }
-
-  removeChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): Partial<DefPluginState<Config<Type>>> {
-    const tabsItems = { ...state.tabsItems };
-    for (const key of Object.keys(tabsItems)) {
-      const tab = tabsItems[key];
-      if (tab.children[childNode.getId()]) {
-        tabsItems[key] = { ...tab, children: { ...tab.children, [childNode.getId()]: undefined } };
-        return { tabsItems };
-      }
-    }
-
-    return state;
+  addChild(
+    state: DefPluginState<Config<Type>>,
+    childNode: LayoutNode,
+    metadata: ClaimMetadata,
+  ): Partial<DefPluginState<Config<Type>>> {
+    const tabsInternal = [...(state.item?.tabsInternal || [])];
+    const children = [...tabsInternal[metadata.tabIdx].children];
+    children[metadata.childIdx] = childNode;
+    tabsInternal[metadata.tabIdx] = { ...tabsInternal[metadata.tabIdx], children };
+    return { item: { ...state.item, tabs: undefined, tabsInternal } } as Partial<DefPluginState<Config<Type>>>;
   }
 }

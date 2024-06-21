@@ -12,17 +12,17 @@ import type { SetRowExtrasRequest } from 'src/utils/layout/plugins/RepeatingChil
 
 export const StageAddNodes = Symbol('AddNodes');
 export const StageMarkHidden = Symbol('MarkHidden');
-export const StageFormValidation = Symbol('FormValidation');
-export const StageEvaluateExpressions = Symbol('EvaluateExpressions');
 export const StageFetchOptions = Symbol('OptionsFetched');
+export const StageEvaluateExpressions = Symbol('EvaluateExpressions');
+export const StageFormValidation = Symbol('FormValidation');
 export const StageFinished = Symbol('Finished');
 
 const List = [
   StageAddNodes,
   StageMarkHidden,
-  StageFormValidation,
   StageFetchOptions,
   StageEvaluateExpressions,
+  StageFormValidation,
   StageFinished,
 ] as const;
 const SecondToLast = List[List.length - 2];
@@ -432,9 +432,9 @@ const Finished = makeHooks(StageFinished);
 export const GeneratorStages = {
   AddNodes: makeHooks(StageAddNodes),
   MarkHidden: makeHooks(StageMarkHidden),
-  FormValidation: makeHooks(StageFormValidation),
   FetchOptions: makeHooks(StageFetchOptions),
   EvaluateExpressions: makeHooks(StageEvaluateExpressions),
+  FormValidation: makeHooks(StageFormValidation),
   useIsFinished() {
     return Finished.useIsCurrent();
   },

@@ -4,8 +4,6 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
-import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesInternal, useNodesLax } from 'src/utils/layout/NodesContext';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, ParentNode } from 'src/layout/layout';
@@ -47,16 +45,7 @@ export class TraversalTask {
   /**
    * Get the node data for a given node
    */
-  public getData<T extends NodeRef | Node>(target: T): DataFrom<T> {
-    if (isNodeRef(target)) {
-      const node = this.rootNode.findById(this, target.nodeRef);
-      if (!node) {
-        throw new NodePathNotFound(`Failed to look up nodeRef '${target.nodeRef}'`);
-      }
-
-      return this.state.nodeData[node.getId()] as DataFrom<T>;
-    }
-
+  public getData<T extends Node>(target: T): DataFrom<T> {
     if (target instanceof LayoutPage) {
       return this.state.pagesData[target.pageKey] as DataFrom<T>;
     }
@@ -71,11 +60,7 @@ export class TraversalTask {
   /**
    * Get a node object, given some node data
    */
-  public getNode(lookup: AnyData | NodeRef): LayoutNode | LayoutPage | LayoutPages {
-    if (isNodeRef(lookup)) {
-      return this.rootNode.findById(this, lookup.nodeRef)!;
-    }
-
+  public getNode(lookup: AnyData): LayoutNode | LayoutPage | LayoutPages {
     if (lookup.type === 'pages') {
       return this.rootNode;
     }
@@ -227,12 +212,11 @@ export class NodeTraversal<T extends Node = LayoutPages> {
   /**
    * Find all nodes with a specific ID
    */
-  findAllById(idOrRef: string | NodeRef | undefined): LayoutNode[] {
+  findAllById(id: string | undefined): LayoutNode[] {
     if ((this.target as any) instanceof BaseLayoutNode) {
       throw new Error('Cannot call findAllById() on a LayoutNode object');
     }
 
-    const id = isNodeRef(idOrRef) ? idOrRef.nodeRef : idOrRef;
     if (!id) {
       return emptyArray;
     }
@@ -245,12 +229,11 @@ export class NodeTraversal<T extends Node = LayoutPages> {
   /**
    * Find a node (never a page) by the given ID
    */
-  findById(idOrRef: string | NodeRef | undefined): LayoutNode | undefined {
+  findById(id: string | undefined): LayoutNode | undefined {
     if ((this.target as any) instanceof BaseLayoutNode) {
       throw new Error('Cannot call findById() on a LayoutNode object');
     }
 
-    const id = isNodeRef(idOrRef) ? idOrRef.nodeRef : idOrRef;
     return (this.target as LayoutPage | LayoutPages).findById(
       new TraversalTask(this.state, this.rootNode, undefined, undefined),
       id,

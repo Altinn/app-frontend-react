@@ -5,13 +5,11 @@ import { Grid } from '@material-ui/core';
 import type { PropsFromGenericComponent } from '..';
 
 import classes from 'src/layout/ButtonGroup/ButtonGroupComponent.module.css';
-import { GenericComponentByRef } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { splitDashedKey } from 'src/utils/splitDashedKey';
 
 export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'ButtonGroup'>) {
-  const item = useNodeItem(node);
-  const childNodeRefs = item.childComponents;
+  const childComponents = useNodeItem(node, (i) => i.childComponents);
   return (
     <Grid
       item
@@ -19,14 +17,14 @@ export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'Button
       alignItems='center'
       className={classes.container}
     >
-      {childNodeRefs.map((nodeRef) => (
+      {childComponents.map((node) => (
         <div
-          key={nodeRef.nodeRef}
-          data-componentid={nodeRef.nodeRef}
-          data-componentbaseid={splitDashedKey(nodeRef.nodeRef).baseComponentId}
+          key={node.getId()}
+          data-componentid={node.getId()}
+          data-componentbaseid={node.getBaseId()}
         >
-          <GenericComponentByRef
-            nodeRef={nodeRef}
+          <GenericComponent
+            node={node}
             overrideDisplay={{ directRender: true }}
           />
         </div>
