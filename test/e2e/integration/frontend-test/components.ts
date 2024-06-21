@@ -59,7 +59,7 @@ describe('UI Components', () => {
       .find(appFrontend.changeOfName.uploadingAnimation)
       .should('be.visible');
     cy.wait('@uploadWithDelay');
-    cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
+    cy.get(appFrontend.changeOfName.fileUploadSuccess).should('exist');
     cy.get(appFrontend.changeOfName.uploadedTable)
       .find(appFrontend.changeOfName.uploadingAnimation)
       .should('not.exist');
