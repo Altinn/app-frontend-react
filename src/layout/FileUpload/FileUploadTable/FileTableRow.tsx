@@ -145,7 +145,12 @@ const StatusCellContent = ({ uploaded, mobileView }) => {
   return (
     <td>
       {uploaded ? (
-        <div className={classes.fileStatus}>{mobileView ? null : status}</div>
+        <div
+          className={classes.fileStatus}
+          data-testid='status-success'
+        >
+          {mobileView ? null : status}
+        </div>
       ) : (
         <AltinnLoader
           id='loader-upload'
