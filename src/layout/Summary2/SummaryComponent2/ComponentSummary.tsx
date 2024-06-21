@@ -21,16 +21,6 @@ interface ResolveComponentProps {
 export function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryProps) {
   const override = summaryOverrides?.find((override) => override.componentId === componentNode.item.id);
 
-  const childComponents =
-    componentNode.item.type === 'Group' &&
-    componentNode.item.childComponents.map((child) => (
-      <ComponentSummary
-        componentNode={child}
-        key={child.item.id}
-        summaryOverrides={summaryOverrides}
-      />
-    ));
-
   const renderedComponent = componentNode.def.renderSummary2
     ? componentNode.def.renderSummary2(componentNode as LayoutNode<any>, override)
     : null;
@@ -50,7 +40,6 @@ export function ComponentSummary({ componentNode, summaryOverrides }: ComponentS
       {...gridBreakpoints(componentNode.item.grid)}
     >
       {renderedComponent}
-      {childComponents}
     </Grid>
   );
 }
