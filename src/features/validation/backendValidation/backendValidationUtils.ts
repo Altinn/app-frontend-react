@@ -26,6 +26,15 @@ export function getValidationIssueSeverity(issue: BackendValidationIssue): Valid
 }
 
 /**
+ * Checks the source field of a validation issue to determine if it is a standard backend validation
+ * which is already covered by frontend validation and should therefore not be shown as it would be a duplicate
+ */
+function isStandardBackend(rawSource: string): boolean {
+  const source = rawSource.includes('+') ? rawSource.split('+')[0] : rawSource;
+  return Object.values<string>(BuiltInValidationIssueSources).includes(source);
+}
+
+/**
  * Extracts field validations from a list of validation issues and assigns the correct data type based on the dataElementId
  * Will skip over any validations that are missing a field and/or dataElementId
  */
@@ -56,7 +65,7 @@ export function mapBackendIssuesToFieldValdiations(
      * Custom backend validations should use the CustomBackend mask
      */
     let category: number = ValidationMask.Backend;
-    if (!Object.values<string>(BuiltInValidationIssueSources).includes(source)) {
+    if (!isStandardBackend(issue.source)) {
       if (issue.showImmediately) {
         category = 0;
       } else if (issue.actLikeRequired) {
