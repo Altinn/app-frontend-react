@@ -27,3 +27,7 @@
   margin-left: auto;
   min-width: unset;
 }
+
+.multiline {
+  white-space: pre-wrap;
+}
