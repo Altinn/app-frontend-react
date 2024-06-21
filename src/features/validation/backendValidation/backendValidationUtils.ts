@@ -3,8 +3,10 @@ import { validationTexts } from 'src/features/validation/backendValidation/valid
 import type { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import type { TextReference } from 'src/features/language/useLanguage';
 import type {
+  BackendFieldValidatorGroups,
   BackendValidationIssue,
   BaseValidation,
+  DataModelValidations,
   FieldValidation,
   ValidationSeverity,
 } from 'src/features/validation';
@@ -112,4 +114,29 @@ export function getValidationIssueMessage(issue: BackendValidationIssue): TextRe
   }
 
   return { key: issue.source ? `${issue.source}.${issue.code}` : issue.code };
+}
+
+export function mapValidatorGroupsToDataModelValidations(
+  validators: BackendFieldValidatorGroups,
+  dataTypes: string[],
+): DataModelValidations {
+  const backendValidations: DataModelValidations = {};
+
+  // We need to clear all data types regardless if there are any validations or not
+  // Otherwise it would not update if there are no validations for a data type any more
+  for (const dataType of dataTypes) {
+    backendValidations[dataType] = {};
+  }
+
+  // Map validator groups to validations per data type and field
+  for (const group of Object.values(validators)) {
+    for (const validation of group) {
+      if (!backendValidations[validation.dataType][validation.field]) {
+        backendValidations[validation.dataType][validation.field] = [];
+      }
+      backendValidations[validation.dataType][validation.field].push(validation);
+    }
+  }
+
+  return backendValidations;
 }

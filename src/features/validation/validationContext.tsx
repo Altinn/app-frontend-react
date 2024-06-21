@@ -35,6 +35,7 @@ import type {
   DataModelValidations,
   FieldValidation,
   FieldValidations,
+  LastValidationInfo,
   ValidationContext,
   WaitForValidation,
 } from 'src/features/validation';
@@ -68,8 +69,7 @@ interface Internals {
   ) => void;
   updateBackendValidations: (
     backendValidations: { [dataType: string]: FieldValidations },
-    savedDataType: string,
-    issueGroupsProcessedLast: BackendValidationIssueGroups,
+    validationInfo?: LastValidationInfo,
   ) => void;
   updateVisibility: (mutator: (visibility: Visibility) => void) => void;
   updateValidating: (validating: WaitForValidation) => void;
@@ -139,9 +139,11 @@ function initialCreateStore({ validating }: NewStoreProps) {
             );
           }
         }),
-      updateBackendValidations: (backendValidations, savedDataType, issueGroupsProcessedLast) =>
+      updateBackendValidations: (backendValidations, validationInfo) =>
         set((state) => {
-          state.issueGroupsProcessedLast[savedDataType] = issueGroupsProcessedLast;
+          if (validationInfo) {
+            state.issueGroupsProcessedLast[validationInfo.dataType] = validationInfo.processedLast;
+          }
           for (const [dataType, validations] of Object.entries(backendValidations)) {
             state.individualFieldValidations.backend[dataType] = validations;
             state.state.dataModels[dataType] = mergeFieldValidations(
