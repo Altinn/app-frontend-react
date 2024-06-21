@@ -4,13 +4,6 @@ import { CompCategory } from 'src/layout/common';
 
 export const CHECKBOX_SUMMARY_PROPS = new CG.obj(
   new CG.prop(
-    'hidden',
-    new CG.bool()
-      .optional()
-      .setTitle('Hidden')
-      .setDescription('Boolean value indicating if the component should be hidden in the summary'),
-  ),
-  new CG.prop(
     'displayType',
     new CG.enum('list', 'string')
       .optional()

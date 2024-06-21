@@ -9,7 +9,6 @@ import { Loader } from 'src/core/loading/Loader';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { TaskKeys, useNavigatePage } from 'src/hooks/useNavigatePage';
-import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
@@ -53,15 +52,6 @@ function useProcessQuery(instanceId: string) {
 
 export function ProcessProvider({ children, instance }: React.PropsWithChildren<{ instance: IInstance }>) {
   const { navigateToTask, taskId } = useNavigatePage();
-
-  const { overriddenTaskId } = useTaskStore(({ overriddenTaskId, setTaskId, clearTaskId }) => ({
-    overriddenTaskId,
-    setTaskId,
-    clearTaskId,
-  }));
-
-  const activeTaskId = overriddenTaskId || taskId;
-
   const query = useProcessQuery(instance.id);
   const reFetchNative = query.refetch;
   const reFetch = useCallback(async () => void (await reFetchNative()), [reFetchNative]);
@@ -83,8 +73,8 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
       } else {
         navigateToTask(TaskKeys.ProcessEnd);
       }
-    } else if (elementId && elementId !== activeTaskId) {
-      navigateToTask(elementId, { replace: true, runEffect: activeTaskId !== undefined });
+    } else if (elementId && elementId !== taskId) {
+      navigateToTask(elementId, { replace: true, runEffect: taskId !== undefined });
     }
     /**
      * We only want to run this effect when the query data changes.

@@ -5,40 +5,50 @@ import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
-import classes from 'src/layout/Summary2/CommonSummaryComponents/SingleFieldSummary.module.css';
+import classes from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary.module.css';
 import type { BaseValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type SingleFieldSummaryProps = {
+type SingleValueSummaryProps = {
   title: React.ReactNode;
   errors: BaseValidation[];
   componentNode: LayoutNode;
   displayData?: string;
+  hideEditButton?: boolean;
 };
 
-export const SingleFieldSummary = ({ title, errors, componentNode, displayData }: SingleFieldSummaryProps) => (
+export const SingleValueSummary = ({
+  title,
+  errors,
+  componentNode,
+  displayData,
+  hideEditButton,
+}: SingleValueSummaryProps) => (
   <div className={classes.inputSummaryItem}>
-    <div className={classes.labelWrapper}>
+    <div className={classes.labelValueWrapper}>
       <Label weight={'regular'}>{title}</Label>
+      <Paragraph
+        asChild
+        className={cn({
+          [classes.error]: errors.length > 0,
+          [classes.emptyValue]: !displayData,
+          [classes.formValue]: displayData,
+        })}
+      >
+        <span>
+          {!displayData && <Lang id={'general.empty_summary'} />}
+          {displayData}
+        </span>
+      </Paragraph>
+    </div>
+    {!hideEditButton && (
       <EditButton
         className={classes.editButton}
         componentNode={componentNode}
-        summaryComponentId={''}
+        summaryComponentId={componentNode.item.id}
       />
-    </div>
-    <Paragraph
-      asChild
-      className={cn({
-        [classes.error]: errors.length > 0,
-        [classes.emptyValue]: !displayData,
-        [classes.formValue]: displayData,
-      })}
-    >
-      <span>
-        {!displayData && <Lang id={'general.empty_summary'}></Lang>}
-        {displayData}
-      </span>
-    </Paragraph>
+    )}
+
     {errors.length > 0 &&
       errors.map(({ message }) => (
         <ErrorMessage key={message.key}>

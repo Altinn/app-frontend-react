@@ -3,7 +3,7 @@ import React from 'react';
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
-import { SingleFieldSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleFieldSummary';
+import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import type { CompRadioButtonsInternal } from 'src/layout/RadioButtons/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -18,7 +18,7 @@ export const RadioButtonsSummary = ({ componentNode, displayData, summaryOverrid
   const errors = validationsOfSeverity(validations, 'error');
   const title = componentNode.item.textResourceBindings?.title;
   return (
-    <SingleFieldSummary
+    <SingleValueSummary
       title={title && <Lang id={title} />}
       displayData={displayData}
       errors={errors}

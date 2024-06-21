@@ -1,7 +1,7 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { Paragraph, Table } from '@digdir/designsystemet-react';
+import { ErrorMessage, Paragraph, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
@@ -9,6 +9,10 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Label } from 'src/components/form/Label';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
+import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
+import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
+import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { CompCategory } from 'src/layout/common';
 import classes from 'src/layout/Grid/GridSummary.module.css';
@@ -17,7 +21,12 @@ import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButt
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode, type LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { GridRowInternal, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import type {
+  GridCellInternal,
+  GridRowInternal,
+  ITableColumnFormatting,
+  ITableColumnProperties,
+} from 'src/layout/common.generated';
 import type { CompInputInternal } from 'src/layout/Input/config.generated';
 import type { ITextResourceBindings } from 'src/layout/layout';
 
@@ -30,10 +39,76 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
   const { rows, textResourceBindings } = componentNode.item;
   const { title } = textResourceBindings ?? {};
 
-  const shouldHaveFullWidth = componentNode.parent instanceof LayoutPage;
   const columnSettings: ITableColumnFormatting = {};
   const isMobile = useIsMobile();
+  const pdfModeActive = usePdfModeActive();
+
+  const isSmall = isMobile && !pdfModeActive;
+
+  const shouldHaveFullWidth = componentNode.parent instanceof LayoutPage && !isSmall;
   const isNested = componentNode.parent instanceof BaseLayoutNode;
+
+  // this fixes a wcag issue where we had wrapped each row in its own table body or table head
+  const tableSections: JSX.Element[] = [];
+  let currentHeaderRow: GridRowInternal | undefined = undefined;
+  let currentBodyRows: GridRowInternal[] = [];
+
+  rows.forEach((row, index) => {
+    if (row.header) {
+      // If there are accumulated body rows, push them into a tbody
+      if (currentBodyRows.length > 0) {
+        tableSections.push(
+          <tbody key={`tbody-${index}`}>
+            {currentBodyRows.map((bodyRow, bodyIndex) => (
+              <GridRowRenderer
+                key={bodyIndex}
+                row={bodyRow}
+                isNested={isNested}
+                mutableColumnSettings={columnSettings}
+                node={componentNode}
+              />
+            ))}
+          </tbody>,
+        );
+        currentBodyRows = [];
+      }
+      // Add the header row
+      tableSections.push(
+        <thead key={`thead-${index}`}>
+          <GridRowRenderer
+            key={index}
+            row={row}
+            isNested={isNested}
+            mutableColumnSettings={columnSettings}
+            node={componentNode}
+            currentHeaderCells={currentHeaderRow?.cells}
+          />
+        </thead>,
+      );
+      currentHeaderRow = row;
+    } else {
+      // Add to the current body rows
+      currentBodyRows.push(row);
+    }
+  });
+
+  // Push remaining body rows if any
+  if (currentBodyRows.length > 0) {
+    tableSections.push(
+      <tbody key={`tbody-${rows.length}`}>
+        {currentBodyRows.map((bodyRow, bodyIndex) => (
+          <GridRowRenderer
+            key={bodyIndex}
+            row={bodyRow}
+            isNested={isNested}
+            mutableColumnSettings={columnSettings}
+            node={componentNode}
+            currentHeaderCells={currentHeaderRow?.cells}
+          />
+        ))}
+      </tbody>,
+    );
+  }
 
   return (
     <ConditionalWrapper
@@ -42,7 +117,7 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
     >
       <Table
         id={componentNode.item.id}
-        className={cn(classes.table, { [classes.responsiveTable]: isMobile })}
+        className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
       >
         {title && (
           <caption className={cn({ [classes.captionFullWidth]: shouldHaveFullWidth }, classes.tableCaption)}>
@@ -57,15 +132,7 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
             </Paragraph>
           </caption>
         )}
-        {rows.map((row, rowIdx) => (
-          <GridRowRenderer
-            key={rowIdx}
-            row={row}
-            isNested={isNested}
-            mutableColumnSettings={columnSettings}
-            node={componentNode}
-          />
-        ))}
+        {tableSections}
       </Table>
     </ConditionalWrapper>
   );
@@ -76,9 +143,36 @@ interface GridRowProps {
   isNested: boolean;
   mutableColumnSettings: ITableColumnFormatting;
   node: LayoutNode;
+  currentHeaderCells?: GridCellInternal[];
 }
 
-export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: GridRowProps) {
+const getCurrentHeaderCells = (currentHeaderCells: GridCellInternal[], index: number): GridCellInternal | undefined =>
+  currentHeaderCells[index] ?? undefined;
+
+const getCellText = (cell: GridCellInternal | undefined) => {
+  if (!cell) {
+    return '';
+  }
+
+  if ('text' in cell) {
+    return cell.text;
+  }
+
+  if ('labelFrom' in cell) {
+    return cell.labelFrom;
+  }
+
+  return '';
+};
+
+export function GridRowRenderer({ row, isNested, mutableColumnSettings, node, currentHeaderCells }: GridRowProps) {
+  const { langAsString } = useLanguage();
+  const isMobile = useIsMobile();
+
+  const pdfModeActive = usePdfModeActive();
+
+  const isSmall = isMobile && !pdfModeActive;
+
   const firstComponentCell = row.cells.find((cell) => cell && 'node' in cell);
   const firstComponentNode =
     firstComponentCell &&
@@ -92,6 +186,11 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
       readOnly={row.readOnly}
     >
       {row.cells.map((cell, cellIdx) => {
+        const currentHeaderCell = getCurrentHeaderCells(currentHeaderCells ?? [], cellIdx);
+        let headerTitle = getCellText(currentHeaderCell);
+        if (currentHeaderCell && 'text' in currentHeaderCell && currentHeaderCell.text) {
+          headerTitle = langAsString(headerTitle);
+        }
         const isFirst = cellIdx === 0;
         const isLast = cellIdx === row.cells.length - 1;
         const className = cn({
@@ -143,6 +242,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
         }
         const componentNode = cell && 'node' in cell ? cell.node : undefined;
         const componentId = componentNode && componentNode.item.id;
+
         return (
           <CellWithComponent
             rowReadOnly={row.readOnly}
@@ -151,24 +251,25 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
             isHeader={row.header}
             className={className}
             columnStyleOptions={mutableColumnSettings[cellIdx]}
+            headerTitle={headerTitle}
           />
         );
       })}
-      {row.header && (
+      {row.header && !isSmall && (
         <Table.HeaderCell
           className={cn({
             [classes.fullWidthCellLast]: !isNested,
           })}
         />
       )}
-      {!row.header && (
+      {!row.header && !isSmall && (
         <Table.Cell
           align='right'
           className={cn({
             [classes.fullWidthCellLast]: !isNested,
           })}
         >
-          {firstComponentNode && (
+          {firstComponentNode && !row.readOnly && (
             <EditButton
               componentNode={firstComponentNode}
               summaryComponentId=''
@@ -186,18 +287,10 @@ function InternalRow({ header, readOnly, children }: InternalRowProps) {
   const className = readOnly ? classes.rowReadOnly : undefined;
 
   if (header) {
-    return (
-      <Table.Head>
-        <Table.Row className={className}>{children}</Table.Row>
-      </Table.Head>
-    );
+    return <Table.Row className={className}>{children}</Table.Row>;
   }
 
-  return (
-    <Table.Body>
-      <Table.Row className={className}>{children}</Table.Row>
-    </Table.Body>
-  );
+  return <Table.Row className={className}>{children}</Table.Row>;
 }
 
 interface CellProps {
@@ -205,6 +298,7 @@ interface CellProps {
   columnStyleOptions?: ITableColumnProperties;
   isHeader?: boolean;
   rowReadOnly?: boolean;
+  headerTitle?: string;
 }
 
 interface CellWithComponentProps extends CellProps {
@@ -225,26 +319,44 @@ function CellWithComponent({
   columnStyleOptions,
   isHeader = false,
   rowReadOnly,
+  headerTitle,
 }: CellWithComponentProps) {
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
+  const isMobile = useIsMobile();
+  const pdfModeActive = usePdfModeActive();
+
+  const isSmall = isMobile && !pdfModeActive;
   const displayDataProps = useDisplayDataProps();
+  const validations = useUnifiedValidationsForNode(node);
+  const errors = validationsOfSeverity(validations, 'error');
   if (node && !node.isHidden()) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
     return (
       <CellComponent
         className={cn(classes.tableCellFormatting, className)}
         style={columnStyles}
+        data-header-title={isSmall ? headerTitle : ''}
       >
-        {('getDisplayData' in node.def && node.def.getDisplayData(node as LayoutNode<any>, displayDataProps)) || '-'}
-        {/* <GenericComponent
-          node={node}
-          overrideDisplay={{
-            renderLabel: false,
-            renderLegend: false,
-            renderedInTable: true,
-            rowReadOnly,
-          }}
-        /> */}
+        <div className={cn(classes.contentWrapper, { [classes.validationError]: errors.length > 0 })}>
+          {('getDisplayData' in node.def && node.def.getDisplayData(node as LayoutNode<any>, displayDataProps)) || '-'}
+          {isSmall && !rowReadOnly && (
+            <EditButton
+              className={classes.mobileEditButton}
+              componentNode={node}
+              summaryComponentId=''
+            />
+          )}
+        </div>
+        {errors.length > 0 &&
+          errors.map(({ message }) => (
+            <ErrorMessage key={message.key}>
+              <Lang
+                id={message.key}
+                params={message.params}
+                node={node}
+              ></Lang>
+            </ErrorMessage>
+          ))}
       </CellComponent>
     );
   }

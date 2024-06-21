@@ -4,7 +4,7 @@ import { create } from 'zustand';
 
 interface TaskState {
   overriddenTaskId?: string;
-  overriddenDataModelId?: string;
+  overriddenDataModelType?: string;
   overriddenLayoutSetId?: string;
   setOverriddenLayoutSetId?: (layoutSetId: string) => void;
   setOverriddenDataModelId?: (taskId: string) => void;
@@ -14,27 +14,15 @@ interface TaskState {
   depth?: number;
 }
 
-// export const useTaskStore = create<TaskState>((set) => ({
-//   overriddenTaskId: '',
-//   overriddenDataModelId: '',
-//   overriddenLayoutSetId: '',
-//   depth: 1,
-//   setTaskId: (overriddenTaskId: string) => set({ overriddenTaskId }),
-//   setOverriddenLayoutSetId: (overriddenLayoutSetId: string) => set({ overriddenLayoutSetId }),
-//   setOverriddenDataModelId: (overriddenDataModelId: string) => set({ overriddenDataModelId }),
-//   clearTaskId: () => set({ overriddenTaskId: '' }),
-//   setDepth: (depth: number) => set({ depth }),
-// }));
-
 export const createTaskIdStore = () =>
   create<TaskState>((set) => ({
     overriddenTaskId: '',
-    overriddenDataModelId: '',
+    overriddenDataModelType: '',
     overriddenLayoutSetId: '',
     depth: 1,
     setTaskId: (overriddenTaskId: string) => set({ overriddenTaskId }),
     setOverriddenLayoutSetId: (overriddenLayoutSetId: string) => set({ overriddenLayoutSetId }),
-    setOverriddenDataModelId: (overriddenDataModelId: string) => set({ overriddenDataModelId }),
+    setOverriddenDataModelId: (overriddenDataModelType: string) => set({ overriddenDataModelType }),
     clearTaskId: () => set({ overriddenTaskId: '' }),
     setDepth: (depth: number) => set({ depth }),
   }));
@@ -51,7 +39,6 @@ export const useTaskStore = <T,>(selector: (state: TaskState) => T): T => {
   const store = useContext(StoreContext);
   if (!store) {
     return {} as T;
-    //  throw new Error('useStore must be used within a StoreProvider');
   }
   return store(selector);
 };

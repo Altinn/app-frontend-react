@@ -32,11 +32,12 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
   const readableSize = `${(attachment.data.size / bytesInOneMB).toFixed(2)} ${langAsString(
     'form_filler.file_uploader_mb',
   )}`;
+
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
   return (
     <tr
       key={uniqueId}
-      className={classes.blueUnderlineDotted}
+      className={pdfModeActive ? classes.grayUnderline : classes.blueUnderlineDotted}
       id={`altinn-file-list-row-${uniqueId}`}
       tabIndex={0}
     >

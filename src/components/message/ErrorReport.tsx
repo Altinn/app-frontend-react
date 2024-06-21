@@ -28,11 +28,6 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
   const navigateTo = useNavigateToNode();
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
-
-  console.log('formErrors', formErrors);
-
-  console.log('taskErrors', taskErrors);
-
   if (!hasErrors) {
     return null;
   }

@@ -1,7 +1,9 @@
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
 import { CHECKBOX_SUMMARY_PROPS } from 'src/layout/Checkboxes/config';
 import { CompCategory } from 'src/layout/common';
+import { DROPDOWN_SUMMARY_PROPS } from 'src/layout/Dropdown/config';
 import { INPUT_SUMMARY_PROPS } from 'src/layout/Input/config';
+import { MULTIPLE_SELECT_SUMMARY_PROPS } from 'src/layout/MultipleSelect/config';
 import { RADIO_SUMMARY_PROPS } from 'src/layout/RadioButtons/config';
 export const Config = new CG.component({
   category: CompCategory.Container,
@@ -17,26 +19,7 @@ export const Config = new CG.component({
 })
   .addProperty(
     new CG.prop(
-      'children',
-      new CG.arr(new CG.str())
-        .optional()
-        .setTitle('Children')
-        .setDescription('Array of component IDs that should be displayed in the summary'),
-    ).onlyIn(Variant.External),
-  )
-  .addProperty(new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal))
-  .addProperty(
-    new CG.prop(
-      'children',
-      new CG.arr(new CG.str())
-        .optional()
-        .setTitle('Children')
-        .setDescription('Array of component IDs that should be displayed in the summary'),
-    ).onlyIn(Variant.External),
-  )
-  .addProperty(
-    new CG.prop(
-      'whatToRender',
+      'target',
       new CG.obj(
         new CG.prop(
           'type',
@@ -51,7 +34,15 @@ export const Config = new CG.component({
   )
   .addProperty(
     new CG.prop(
-      'overWriteProperties',
-      new CG.arr(new CG.union(INPUT_SUMMARY_PROPS, CHECKBOX_SUMMARY_PROPS, RADIO_SUMMARY_PROPS)).optional(),
+      'overrides',
+      new CG.arr(
+        new CG.union(
+          INPUT_SUMMARY_PROPS,
+          CHECKBOX_SUMMARY_PROPS,
+          RADIO_SUMMARY_PROPS,
+          DROPDOWN_SUMMARY_PROPS,
+          MULTIPLE_SELECT_SUMMARY_PROPS,
+        ),
+      ).optional(),
     ),
   );

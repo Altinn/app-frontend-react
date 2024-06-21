@@ -84,14 +84,14 @@ export function useDataModelUrl(includeRowIds: boolean, dataType: string | undef
 }
 
 export function useCurrentDataModelName() {
-  const { overriddenDataModelId } = useTaskStore(({ overriddenDataModelId }) => ({ overriddenDataModelId }));
+  const { overriddenDataModelType } = useTaskStore(({ overriddenDataModelType }) => ({ overriddenDataModelType }));
 
   const application = useApplicationMetadata();
   const layoutSets = useLayoutSets();
   const taskId = useProcessTaskId();
 
-  if (overriddenDataModelId) {
-    return overriddenDataModelId;
+  if (overriddenDataModelType) {
+    return overriddenDataModelType;
   }
 
   return getCurrentDataTypeForApplication({

@@ -17,6 +17,7 @@ tr > .fullWidthCellLast {
 }
 
 .table th {
+  font-weight: 500;
   border-bottom: 2px solid var(--fds-semantic-border-neutral-strong);
 }
 
@@ -89,10 +90,18 @@ tr > .fullWidthCellLast {
   text-align: left;
 }
 
+.validationError {
+  border-bottom: var(--fds-semantic-border-danger-default) solid 2px;
+}
+
 .mobileFieldset {
   display: flex;
   gap: 24px;
   flex-direction: column;
+}
+
+.mobileEditButton {
+  margin-left: auto;
 }
 
 .responsiveTable {
@@ -114,14 +123,31 @@ tr > .fullWidthCellLast {
 }
 
 .responsiveTable td {
-  display: block;
+  display: flex;
+  flex-direction: column;
   border: none;
+  padding: var(--fds-spacing-2) 0;
 }
 
-.responsiveTable tr:last-child {
+.responsiveTable td .contentWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.responsiveTable tbody:last-child tr:last-child {
   border-bottom: none;
 }
 
 .responsiveTable tr {
-  border-bottom: 1px solid var(--fds-semantic-border-neutral-default);
+  border-bottom: 2px solid var(--fds-semantic-border-neutral-default);
+}
+
+.responsiveTable td[data-header-title]:not([data-header-title=''])::before,
+.responsiveTable th[data-header-title]:not([data-header-title=''])::before {
+  content: attr(data-header-title);
+  display: block;
+  text-align: left;
+  font-weight: 500;
 }
