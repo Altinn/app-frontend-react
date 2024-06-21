@@ -11,8 +11,9 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInputInternal, IInputFormattingInternal } from 'src/layout/Input/config.generated';
+import type { IInputFormattingInternal } from 'src/layout/Input/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { InputSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export class Input extends InputDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Input'>>(
@@ -45,10 +46,7 @@ export class Input extends InputDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(
-    componentNode: LayoutNode<'Input'>,
-    summaryOverrides?: CompInputInternal['summaryProps'],
-  ): JSX.Element | null {
+  renderSummary2(componentNode: LayoutNode<'Input'>, summaryOverrides?: InputSummaryOverrideProps): JSX.Element | null {
     return (
       <InputSummary
         componentNode={componentNode}

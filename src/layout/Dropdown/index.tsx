@@ -9,8 +9,8 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompDropdownInternal } from 'src/layout/Dropdown/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { DropdownSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Dropdown extends DropdownDef {
@@ -40,7 +40,7 @@ export class Dropdown extends DropdownDef {
 
   renderSummary2(
     componentNode: LayoutNode<'Dropdown'>,
-    summaryOverrides?: CompDropdownInternal['summaryProps'],
+    summaryOverrides?: DropdownSummaryOverrideProps,
   ): JSX.Element | null {
     return (
       <DropdownSummary

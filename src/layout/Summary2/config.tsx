@@ -1,10 +1,10 @@
 import { CG } from 'src/codegen/CG';
-import { CHECKBOX_SUMMARY_PROPS } from 'src/layout/Checkboxes/config';
+import { CHECKBOX_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Checkboxes/config';
 import { CompCategory } from 'src/layout/common';
-import { DROPDOWN_SUMMARY_PROPS } from 'src/layout/Dropdown/config';
-import { INPUT_SUMMARY_PROPS } from 'src/layout/Input/config';
-import { MULTIPLE_SELECT_SUMMARY_PROPS } from 'src/layout/MultipleSelect/config';
-import { RADIO_SUMMARY_PROPS } from 'src/layout/RadioButtons/config';
+import { DROPDOWN_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Dropdown/config';
+import { INPUT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Input/config';
+import { MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/MultipleSelect/config';
+import { RADIO_SUMMARY_OVERRIDE_PROPS } from 'src/layout/RadioButtons/config';
 export const Config = new CG.component({
   category: CompCategory.Container,
   rendersWithLabel: false,
@@ -37,11 +37,11 @@ export const Config = new CG.component({
       'overrides',
       new CG.arr(
         new CG.union(
-          INPUT_SUMMARY_PROPS,
-          CHECKBOX_SUMMARY_PROPS,
-          RADIO_SUMMARY_PROPS,
-          DROPDOWN_SUMMARY_PROPS,
-          MULTIPLE_SELECT_SUMMARY_PROPS,
+          INPUT_SUMMARY_OVERRIDE_PROPS,
+          CHECKBOX_SUMMARY_OVERRIDE_PROPS,
+          RADIO_SUMMARY_OVERRIDE_PROPS,
+          DROPDOWN_SUMMARY_OVERRIDE_PROPS,
+          MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS,
         ),
       ).optional(),
     ),
