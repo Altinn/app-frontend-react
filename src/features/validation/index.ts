@@ -110,6 +110,10 @@ export type BackendValidatorGroups = {
   [validator: string]: (BaseValidation | FieldValidation)[];
 };
 
+export type BackendFieldValidatorGroups = {
+  [validator: string]: FieldValidation[];
+};
+
 /**
  * Storage format for frontend validations.
  */
@@ -133,6 +137,7 @@ export type BaseValidation<Severity extends ValidationSeverity = ValidationSever
  */
 export type FieldValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
   field: string;
+  dataType: string;
 };
 
 /**

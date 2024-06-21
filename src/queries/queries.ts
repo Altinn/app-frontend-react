@@ -15,7 +15,6 @@ import {
   getCreateInstancesUrl,
   getCustomValidationConfigUrl,
   getDataElementUrl,
-  getDataValidationUrl,
   getFetchFormDynamicsUrl,
   getFileTagUrl,
   getFileUploadUrl,
@@ -31,6 +30,7 @@ import {
   getProcessStateUrl,
   getRulehandlerUrl,
   getSetCurrentPartyUrl,
+  getValidationUrl,
   instancesControllerUrl,
   instantiateUrl,
   profileApiUrl,
@@ -234,11 +234,8 @@ export const fetchPaymentInformation = (instanceId: string, language?: string): 
 export const fetchOrderDetails = (instanceId: string, language?: string): Promise<OrderDetails> =>
   httpGet(getOrderDetailsUrl(instanceId, language));
 
-export const fetchBackendValidations = (
-  instanceId: string,
-  dataElementId: string,
-  language: string,
-): Promise<BackendValidationIssue[]> => httpGet(getDataValidationUrl(instanceId, dataElementId, language));
+export const fetchBackendValidations = (instanceId: string, language: string): Promise<BackendValidationIssue[]> =>
+  httpGet(getValidationUrl(instanceId, language));
 
 export const fetchLayoutSchema = async (): Promise<JSONSchema7 | undefined> => {
   // Hacky (and only) way to get the correct CDN url

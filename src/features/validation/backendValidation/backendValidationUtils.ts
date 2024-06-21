@@ -1,5 +1,6 @@
 import { BackendValidationSeverity, BuiltInValidationIssueSources, ValidationMask } from 'src/features/validation';
 import { validationTexts } from 'src/features/validation/backendValidation/validationTexts';
+import type { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import type { TextReference } from 'src/features/language/useLanguage';
 import type {
   BackendValidationIssue,
@@ -22,33 +23,67 @@ export function getValidationIssueSeverity(issue: BackendValidationIssue): Valid
   return severityMap[issue.severity];
 }
 
-export function mapValidationIssueToFieldValidation(issue: BackendValidationIssue): BaseValidation | FieldValidation {
-  const { field, source } = issue;
-  const severity = getValidationIssueSeverity(issue);
-  const message = getValidationIssueMessage(issue);
+/**
+ * Extracts field validations from a list of validation issues and assigns the correct data type based on the dataElementId
+ * Will skip over any validations that are missing a field and/or dataElementId
+ */
+export function mapBackendIssuesToFieldValdiations(
+  issues: BackendValidationIssue[],
+  getDataTypeFromElementId: ReturnType<typeof DataModels.useGetDataTypeForDataElementId>,
+): FieldValidation[] {
+  const fieldValidations: FieldValidation[] = [];
+  for (const issue of issues) {
+    const { field, source, dataElementId } = issue;
 
-  /**
-   * Identify category (visibility mask)
-   * Standard validation sources should use the Backend mask
-   * Custom backend validations should use the CustomBackend mask
-   */
-  let category: number = ValidationMask.Backend;
-  if (!Object.values<string>(BuiltInValidationIssueSources).includes(source)) {
-    if (issue.showImmediately) {
-      category = 0;
-    } else if (issue.actLikeRequired) {
-      category = ValidationMask.Required;
-    } else {
-      category = ValidationMask.CustomBackend;
+    if (!field) {
+      continue;
     }
+
+    const dataType = getDataTypeFromElementId(dataElementId);
+
+    if (!dataType) {
+      continue;
+    }
+
+    const severity = getValidationIssueSeverity(issue);
+    const message = getValidationIssueMessage(issue);
+
+    /**
+     * Identify category (visibility mask)
+     * Standard validation sources should use the Backend mask
+     * Custom backend validations should use the CustomBackend mask
+     */
+    let category: number = ValidationMask.Backend;
+    if (!Object.values<string>(BuiltInValidationIssueSources).includes(source)) {
+      if (issue.showImmediately) {
+        category = 0;
+      } else if (issue.actLikeRequired) {
+        category = ValidationMask.Required;
+      } else {
+        category = ValidationMask.CustomBackend;
+      }
+    }
+
+    fieldValidations.push({ field, dataType, severity, message, category, source });
   }
 
-  if (!field) {
-    // Unmapped error (task validation)
-    return { severity, message, category: 0, source };
-  }
+  return fieldValidations;
+}
 
-  return { field, severity, message, category, source };
+export function mapBackendIssuesToTaskValidations(issues: BackendValidationIssue[]): BaseValidation[] {
+  const taskValidations: BaseValidation[] = [];
+  for (const issue of issues) {
+    const { field, source } = issue;
+    if (field) {
+      continue;
+    }
+
+    const severity = getValidationIssueSeverity(issue);
+    const message = getValidationIssueMessage(issue);
+
+    taskValidations.push({ severity, message, category: 0, source });
+  }
+  return taskValidations;
 }
 
 /**

@@ -43,8 +43,8 @@ describe('Frontend urlHelper.ts', () => {
       );
     });
     it('should return the expected url for getValidationUrl', () => {
-      expect(getValidationUrl('12345/instanceId-1234')).toBe(
-        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/validate',
+      expect(getValidationUrl('12345/instanceId-1234', 'nb')).toBe(
+        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/validate?language=nb',
       );
     });
     it('should return the expected url for getDataValidationUrl', () => {

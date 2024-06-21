@@ -53,11 +53,12 @@ export function FormPrefetcher() {
   const dataTypeId = useCurrentDataModelName();
 
   // No need to load validations in PDF mode
-  const isWritable = isDataTypeWritable(dataTypeId, isStateless, instance?.data);
   usePrefetchQuery(
-    useBackendValidationQueryDef(true, currentLanguage, instance?.instanceId, dataGuid, currentProcessTaskId),
-    !isPDF && !isStateless && isWritable,
+    useBackendValidationQueryDef(true, currentLanguage, instance?.instanceId, currentProcessTaskId),
+    !isPDF && !isStateless,
   );
+
+  const isWritable = isDataTypeWritable(dataTypeId, isStateless, instance?.data);
 
   // Prefetch customvalidation config and schema for default data model, unless in PDF
   usePrefetchQuery(useCustomValidationConfigQueryDef(!isPDF && isWritable, dataTypeId));

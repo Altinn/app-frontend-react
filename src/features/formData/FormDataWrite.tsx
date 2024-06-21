@@ -18,7 +18,7 @@ import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteSta
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { type BackendValidationIssueGroups, BuiltInValidationIssueSources } from 'src/features/validation';
+import { type BackendValidationIssueGroups } from 'src/features/validation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
@@ -120,7 +120,8 @@ function useFormDataSaveMutation(dataType: string) {
         const result = await doPatchFormData(urlWithLanguage, {
           patch,
           // Ignore validations that require layout parsing in the backend which will slow down requests significantly
-          ignoredValidators: [BuiltInValidationIssueSources.Required, BuiltInValidationIssueSources.Expression],
+          // ignoredValidators: [BuiltInValidationIssueSources.Required, BuiltInValidationIssueSources.Expression],
+          ignoredValidators: [],
         });
         return { ...result, patch, savedData: next };
       }

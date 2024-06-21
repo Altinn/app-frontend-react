@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -31,7 +31,7 @@ import { HttpStatusCodes } from 'src/utils/network/networking';
 import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
-import type { BackendValidatorGroups, IExpressionValidations } from 'src/features/validation';
+import type { BackendValidationIssue, IExpressionValidations } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 
 interface DataModelsState {
@@ -41,7 +41,7 @@ interface DataModelsState {
   initialData: { [dataType: string]: object };
   urls: { [dataType: string]: string };
   dataElementIds: { [dataType: string]: string | null };
-  initialValidations: { [dataType: string]: BackendValidatorGroups };
+  initialValidations: BackendValidationIssue[] | null;
   schemas: { [dataType: string]: JSONSchema7 };
   schemaLookup: { [dataType: string]: SchemaLookupTool };
   expressionValidationConfigs: { [dataType: string]: IExpressionValidations | null };
@@ -51,7 +51,7 @@ interface DataModelsState {
 interface DataModelsMethods {
   setDataTypes: (allDataTypes: string[], writableDataTypes: string[], defaultDataType: string | undefined) => void;
   setInitialData: (dataType: string, initialData: object, url: string, dataElementId: string | null) => void;
-  setInitialValidations: (dataType: string, initialValidations: BackendValidatorGroups) => void;
+  setInitialValidations: (initialValidations: BackendValidationIssue[]) => void;
   setDataModelSchema: (dataType: string, schema: JSONSchema7, lookupTool: SchemaLookupTool) => void;
   setExpressionValidationConfig: (dataType: string, config: IExpressionValidations | null) => void;
   setError: (error: Error) => void;
@@ -65,7 +65,7 @@ function initialCreateStore() {
     initialData: {},
     urls: {},
     dataElementIds: {},
-    initialValidations: {},
+    initialValidations: null,
     schemas: {},
     schemaLookup: {},
     expressionValidationConfigs: {},
@@ -90,14 +90,7 @@ function initialCreateStore() {
         },
       }));
     },
-    setInitialValidations: (dataType, initialValidations) => {
-      set((state) => ({
-        initialValidations: {
-          ...state.initialValidations,
-          [dataType]: initialValidations,
-        },
-      }));
-    },
+    setInitialValidations: (initialValidations) => set({ initialValidations }),
     setDataModelSchema: (dataType, schema, lookupTool) => {
       set((state) => ({
         schemas: {
@@ -205,9 +198,9 @@ function DataModelsLoader() {
           <LoadSchema dataType={dataType} />
         </React.Fragment>
       ))}
+      <LoadInitialValidations />
       {writableDataTypes?.map((dataType) => (
         <React.Fragment key={dataType}>
-          <LoadInitialValidations dataType={dataType} />
           <LoadExpressionValidationConfig dataType={dataType} />
         </React.Fragment>
       ))}
@@ -252,11 +245,11 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
     }
   }
 
-  for (const dataType of writableDataTypes) {
-    if (!isPDF && !Object.keys(initialValidations).includes(dataType)) {
-      return <Loader reason='initial-validations' />;
-    }
+  if (!isPDF && !initialValidations) {
+    return <Loader reason='initial-validations' />;
+  }
 
+  for (const dataType of writableDataTypes) {
     if (!isPDF && !Object.keys(expressionValidationConfigs).includes(dataType)) {
       return <Loader reason='expression-validation-config' />;
     }
@@ -290,22 +283,23 @@ function LoadInitialData({ dataType }: LoaderProps) {
   return null;
 }
 
-function LoadInitialValidations({ dataType }: LoaderProps) {
+// TODO: Load all validations in one go
+function LoadInitialValidations() {
   const setInitialValidations = useSelector((state) => state.setInitialValidations);
   const setError = useSelector((state) => state.setError);
   // No need to load validations in PDF or stateless apps
   const isStateless = useIsStatelessApp();
   const isPDF = useIsPdf();
   const enabled = !isPDF && !isStateless;
-  const { data, error } = useBackendValidationQuery(dataType, enabled);
+  const { data, error } = useBackendValidationQuery(enabled);
 
   useEffect(() => {
     if (isStateless) {
-      setInitialValidations(dataType, {});
+      setInitialValidations([]);
     } else if (data) {
-      setInitialValidations(dataType, data);
+      setInitialValidations(data);
     }
-  }, [data, dataType, isStateless, setInitialValidations]);
+  }, [data, isStateless, setInitialValidations]);
 
   useEffect(() => {
     error && setError(error);
@@ -363,7 +357,7 @@ export const DataModels = {
 
   useWritableDataTypes: () => useSelector((state) => state.writableDataTypes!),
 
-  useInitialValidations: (dataType: string) => useSelector((state) => state.initialValidations[dataType]),
+  useInitialValidations: () => useSelector((state) => state.initialValidations),
 
   useDataModelSchema: (dataType: string) => useSelector((state) => state.schemas[dataType]),
 
@@ -379,4 +373,17 @@ export const DataModels = {
 
   useExpressionValidationConfig: (dataType: string) =>
     useSelector((state) => state.expressionValidationConfigs[dataType]),
+
+  useGetDataTypeForDataElementId: () => {
+    const typeToElement = useSelector((state) => state.dataElementIds);
+    return useCallback(
+      (dataElementId: string | undefined) =>
+        dataElementId
+          ? Object.entries(typeToElement)
+              .find(([_, id]) => dataElementId === id)
+              ?.at(0) ?? null
+          : null,
+      [typeToElement],
+    );
+  },
 };

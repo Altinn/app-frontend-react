@@ -1,65 +1,112 @@
-import { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import type { FieldValidations } from '..';
+import deepEqual from 'fast-deep-equal';
 
+import type { BackendFieldValidatorGroups, BackendValidationIssueGroups, FieldValidations } from '..';
+
+import { createContext } from 'src/core/contexts/context';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { mapValidationIssueToFieldValidation } from 'src/features/validation/backendValidation/backendValidationUtils';
+import { mapBackendIssuesToFieldValdiations } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { Validation } from 'src/features/validation/validationContext';
-import { useAsRef } from 'src/hooks/useAsRef';
 
-export function BackendValidation({ dataType }: { dataType: string }) {
-  const dataTypeRef = useAsRef(dataType);
-  const updateDataModelValidations = Validation.useUpdateDataModelValidations();
-
+function IndividualBackendValidation({ dataType }: { dataType: string }) {
+  const setGroups = useSetGroups();
   const lastSaveValidations = FD.useLastSaveValidationIssues(dataType);
-  const validatorGroups = useRef(DataModels.useInitialValidations(dataType));
-
-  const getDataModelValidationsFromValidatorGroups = useCallback(() => {
-    const validations: FieldValidations = {};
-
-    // Map validator groups to validations per field
-    for (const [key, group] of Object.entries(validatorGroups.current)) {
-      for (const validation of group) {
-        // TODO(Validation): Consider removing this check if it is no longer possible to get task errors mixed in with form data errors
-        if ('field' in validation) {
-          if (!validations[validation.field]) {
-            validations[validation.field] = [];
-          }
-          validations[validation.field].push(validation);
-        } else {
-          // Unmapped error (task validation)
-          window.logWarn(
-            `When validating datamodel ${dataTypeRef.current}, validator ${key} returned a validation error without a field\n`,
-            validation,
-          );
-        }
-      }
-    }
-    return validations;
-  }, [dataTypeRef]);
 
   useEffect(() => {
-    if (!lastSaveValidations) {
-      // Set initial validations
-
-      const validations = getDataModelValidationsFromValidatorGroups();
-      updateDataModelValidations('backend', dataType, validations, lastSaveValidations);
-    } else if (Object.keys(lastSaveValidations).length > 0) {
-      // Validations have changed, update changed validator groups
-
-      for (const [group, validationIssues] of Object.entries(lastSaveValidations)) {
-        validatorGroups.current[group] = validationIssues.map(mapValidationIssueToFieldValidation);
-      }
-
-      const validations = getDataModelValidationsFromValidatorGroups();
-      updateDataModelValidations('backend', dataType, validations, lastSaveValidations);
-    } else {
-      // Nothing has changed, return undefined which causes nothing to change except to set the updated lastSaveValidations
-
-      updateDataModelValidations('backend', dataType, undefined, lastSaveValidations);
+    if (lastSaveValidations) {
+      setGroups(lastSaveValidations, dataType);
     }
-  }, [dataType, lastSaveValidations, updateDataModelValidations, getDataModelValidationsFromValidatorGroups]);
+  }, [dataType, lastSaveValidations, setGroups]);
 
   return null;
 }
+
+type ValidatorGroupMethods = {
+  setGroups: (groups: BackendValidationIssueGroups, savedDataType: string) => void;
+};
+
+const { Provider, useCtx } = createContext<ValidatorGroupMethods>({
+  name: 'ValidatorGroupsContext',
+  required: true,
+});
+
+export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
+  const updateBackendValidations = Validation.useUpdateBackendValidations();
+  const getDataTypeForElementId = DataModels.useGetDataTypeForDataElementId();
+
+  // Map initial validations
+  const initialValidations = DataModels.useInitialValidations();
+  const initialValidatorGroups: BackendFieldValidatorGroups = useMemo(() => {
+    if (!initialValidations) {
+      return {};
+    }
+    const fieldValidations = mapBackendIssuesToFieldValdiations(initialValidations, getDataTypeForElementId);
+    const validatorGroups: BackendFieldValidatorGroups = {};
+    for (const validation of fieldValidations) {
+      if (!validatorGroups[validation.source]) {
+        validatorGroups[validation.source] = [];
+      }
+      validatorGroups[validation.source].push(validation);
+    }
+    return validatorGroups;
+  }, [getDataTypeForElementId, initialValidations]);
+
+  // TODO(Datamodels): Set initial validations in ValidationContext state!
+
+  const validatorGroups = useRef<BackendFieldValidatorGroups>(initialValidatorGroups);
+
+  // Function to update validators and propagate changes to validationcontext
+  const setGroups = useCallback(
+    (groups: BackendValidationIssueGroups, savedDataType: string) => {
+      const newValidatorGroups = structuredClone(validatorGroups.current);
+
+      for (const [group, validationIssues] of Object.entries(groups)) {
+        newValidatorGroups[group] = mapBackendIssuesToFieldValdiations(validationIssues, getDataTypeForElementId);
+      }
+
+      if (deepEqual(validatorGroups.current, newValidatorGroups)) {
+        // Dont update any validations, only set last saved validations
+        updateBackendValidations({}, savedDataType, groups);
+        return;
+      }
+
+      validatorGroups.current = newValidatorGroups;
+
+      // Update backend validations
+      const backendValidations: { [dataType: string]: FieldValidations } = {};
+
+      // We need to clear all data types regardless if there are any validations or not
+      // Otherwise it would not update if there are no validations for a data type any more
+      for (const dataType of dataTypes) {
+        backendValidations[dataType] = {};
+      }
+
+      // Map validator groups to validations per data type and field
+      for (const group of Object.values(validatorGroups.current)) {
+        for (const validation of group) {
+          if (!backendValidations[validation.dataType][validation.field]) {
+            backendValidations[validation.dataType][validation.field] = [];
+          }
+          backendValidations[validation.dataType][validation.field].push(validation);
+        }
+      }
+      updateBackendValidations(backendValidations, savedDataType, groups);
+    },
+    [dataTypes, getDataTypeForElementId, updateBackendValidations],
+  );
+
+  return (
+    <Provider value={{ setGroups }}>
+      {dataTypes.map((dataType) => (
+        <IndividualBackendValidation
+          key={dataType}
+          dataType={dataType}
+        />
+      ))}
+    </Provider>
+  );
+}
+
+const useSetGroups = () => useCtx().setGroups;

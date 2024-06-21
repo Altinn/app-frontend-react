@@ -59,7 +59,10 @@ export const getActionsUrl = (partyId: string, instanceId: string, language?: st
 
 export const getCreateInstancesUrl = (partyId: number) => `${appPath}/instances?instanceOwnerPartyId=${partyId}`;
 
-export const getValidationUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/validate`;
+export const getValidationUrl = (instanceId: string, language: string) => {
+  const queryString = getQueryStringFromObject({ language });
+  return `${appPath}/instances/${instanceId}/validate${queryString}`;
+};
 
 export const getDataValidationUrl = (instanceId: string, dataGuid: string, language: string) => {
   const queryString = getQueryStringFromObject({ language });

@@ -107,6 +107,7 @@ export function SchemaValidation({ dataType }: { dataType: string }) {
           validations[field].push({
             message,
             field,
+            dataType,
             source: FrontendValidationSource.Schema,
             category,
             severity: 'error',

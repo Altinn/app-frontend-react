@@ -62,10 +62,14 @@ interface Internals {
    * if validations is undefined, nothing will be changed
    */
   updateDataModelValidations: (
-    key: keyof Internals['individualFieldValidations'],
+    key: Exclude<keyof Internals['individualFieldValidations'], 'backend'>,
     dataType: string,
     validations?: FieldValidations,
-    issueGroupsProcessedLast?: BackendValidationIssueGroups,
+  ) => void;
+  updateBackendValidations: (
+    backendValidations: { [dataType: string]: FieldValidations },
+    savedDataType: string,
+    issueGroupsProcessedLast: BackendValidationIssueGroups,
   ) => void;
   updateVisibility: (mutator: (visibility: Visibility) => void) => void;
   updateValidating: (validating: WaitForValidation) => void;
@@ -123,13 +127,23 @@ function initialCreateStore({ validating }: NewStoreProps) {
         set((state) => {
           state.state.components[componentId] = validations;
         }),
-      updateDataModelValidations: (key, dataType, validations, issueGroupsProcessedLast) =>
+      updateDataModelValidations: (key, dataType, validations) =>
         set((state) => {
-          if (key === 'backend') {
-            state.issueGroupsProcessedLast[dataType] = issueGroupsProcessedLast;
-          }
           if (validations) {
             state.individualFieldValidations[key][dataType] = validations;
+            state.state.dataModels[dataType] = mergeFieldValidations(
+              state.individualFieldValidations.backend[dataType],
+              state.individualFieldValidations.invalidData[dataType],
+              state.individualFieldValidations.schema[dataType],
+              state.individualFieldValidations.expression[dataType],
+            );
+          }
+        }),
+      updateBackendValidations: (backendValidations, savedDataType, issueGroupsProcessedLast) =>
+        set((state) => {
+          state.issueGroupsProcessedLast[savedDataType] = issueGroupsProcessedLast;
+          for (const [dataType, validations] of Object.entries(backendValidations)) {
+            state.individualFieldValidations.backend[dataType] = validations;
             state.state.dataModels[dataType] = mergeFieldValidations(
               state.individualFieldValidations.backend[dataType],
               state.individualFieldValidations.invalidData[dataType],
@@ -208,6 +222,7 @@ export function ValidationProvider({ children }: PropsWithChildren) {
           dataType={dataType}
         />
       ))}
+      <BackendValidation dataTypes={writableDataTypes} />
       <ManageVisibility />
       {children}
     </Provider>
@@ -217,7 +232,6 @@ export function ValidationProvider({ children }: PropsWithChildren) {
 function DataModelValidations({ dataType }: { dataType: string }) {
   return (
     <>
-      <BackendValidation dataType={dataType} />
       <SchemaValidation dataType={dataType} />
       <ExpressionValidation dataType={dataType} />
       <InvalidDataValidation dataType={dataType} />
@@ -331,6 +345,7 @@ export const Validation = {
   useUpdateTaskValidations: () => useLaxSelector((state) => state.updateTaskValidations),
   useUpdateComponentValidations: () => useSelector((state) => state.updateComponentValidations),
   useUpdateDataModelValidations: () => useSelector((state) => state.updateDataModelValidations),
+  useUpdateBackendValidations: () => useSelector((state) => state.updateBackendValidations),
 
   useLaxRef: () => useLaxSelectorAsRef((state) => state),
 };
