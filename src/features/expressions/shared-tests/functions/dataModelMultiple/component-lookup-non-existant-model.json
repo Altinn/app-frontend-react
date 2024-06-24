@@ -1,6 +1,9 @@
 {
-  "name": "Simple lookup for non-existing key equals null (2)",
-  "expression": ["dataModel", "a.otherValue.Count"],
+  "name": "Lookup non non existant model returns null",
+  "expression": [
+    "component",
+    "current-component"
+  ],
   "expects": null,
   "dataModels": [
     {
@@ -13,6 +16,17 @@
           "value": "ABC"
         }
       }
+    },
+    {
+      "dataElement": {
+        "id": "123",
+        "dataType": "non-default"
+      },
+      "data": {
+        "a": {
+          "value": "valueFromNonDefaultModel"
+        }
+      }
     }
   ],
   "layouts": {
@@ -22,7 +36,13 @@
         "layout": [
           {
             "id": "current-component",
-            "type": "Paragraph"
+            "type": "Input",
+            "dataModelBindings": {
+              "simpleBinding": {
+                "dataType": "non-existant",
+                "field": "a.value"
+              }
+            }
           }
         ]
       }

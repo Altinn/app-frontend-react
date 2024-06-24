@@ -1,7 +1,11 @@
 {
-  "name": "Simple lookup",
-  "expression": ["dataModel", "a.value"],
-  "expects": "ABC",
+  "name": "dataModel non default data type lookup",
+  "expression": [
+    "dataModel",
+    "a.value",
+    "non-defualt"
+  ],
+  "expects": "valueFromNonDefaultModel",
   "dataModels": [
     {
       "dataElement": {
@@ -11,6 +15,17 @@
       "data": {
         "a": {
           "value": "ABC"
+        }
+      }
+    },
+    {
+      "dataElement": {
+        "id": "123",
+        "dataType": "non-defualt"
+      },
+      "data": {
+        "a": {
+          "value": "valueFromNonDefaultModel"
         }
       }
     }

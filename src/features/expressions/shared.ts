@@ -16,6 +16,11 @@ export interface Layouts {
   };
 }
 
+export type DataModelAndElement = {
+  dataElement: IData;
+  data: any;
+};
+
 /**
  * TODO(Datamodels): dataModel is the default data model, which is still a concept.
  * So maybe add an extra field like extraDataModels or additionalDataModels or something
@@ -26,6 +31,7 @@ export interface SharedTest {
   disabledFrontend?: boolean;
   layouts?: Layouts;
   dataModel?: any;
+  dataModels?: DataModelAndElement[];
   instance?: IInstance;
   process?: IProcess;
   instanceDataElements?: IData[];

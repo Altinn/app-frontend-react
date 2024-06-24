@@ -17,6 +17,7 @@ import { generateEntireHierarchy, generateHierarchy } from 'src/utils/layout/Hie
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IApplicationSettings } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -71,6 +72,7 @@ describe('Expressions shared function tests', () => {
         context,
         layouts,
         dataModel,
+        dataModels,
         instanceDataElements,
         instance,
         process,
@@ -84,11 +86,20 @@ describe('Expressions shared function tests', () => {
           return;
         }
 
+        const formDataSelector = (reference: IDataModelReference) => {
+          if (dataModels) {
+            const model = dataModels.find((d) => d.dataElement.dataType === reference.dataType)?.data;
+            return dot.pick(reference.field, model ?? {});
+          }
+          return dot.pick(reference.field, dataModel ?? {});
+        };
+
         const hidden = new Set<string>();
         const options: AllOptionsMap = {};
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
-          formDataSelector: (reference) => dot.pick(reference.field, dataModel ?? {}), // TODO(Datamodels): We should probably support multiple data models in shared tests. This will also require changes to the backend expressions engine.
+          formDataSelector,
+          currentLayoutSet: { id: 'form', dataType: 'default', tasks: ['task1'] },
           attachments: convertInstanceDataToAttachments(instanceDataElements),
           instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
