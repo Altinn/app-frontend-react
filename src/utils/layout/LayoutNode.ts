@@ -5,14 +5,13 @@ import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompIntermediate, CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
-import type { NodesDataStore } from 'src/utils/layout/NodesContext';
+import type { NodesContextStore } from 'src/utils/layout/NodesContext';
 import type { BaseRow } from 'src/utils/layout/types';
 import type { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 
 export interface LayoutNodeProps<Type extends CompTypes> {
   item: CompIntermediate<Type>;
-  store: NodesDataStore;
-  path: string[];
+  store: NodesContextStore;
   parent: ParentNode;
   row?: BaseRow;
 }
@@ -22,8 +21,8 @@ export interface LayoutNodeProps<Type extends CompTypes> {
  * instance of a component inside a repeating group), finding other components near it.
  */
 export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements LayoutObject {
-  protected readonly store: NodesDataStore;
-  public readonly path: string[];
+  protected readonly store: NodesContextStore;
+
   public readonly parent: ParentNode;
   public readonly page: LayoutPage;
   public readonly row?: BaseRow;
@@ -35,12 +34,11 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   protected type: Type;
   protected multiPageIndex: number | undefined;
 
-  public constructor({ item, store, path, parent, row }: LayoutNodeProps<Type>) {
+  public constructor({ item, store, parent, row }: LayoutNodeProps<Type>) {
     this.updateCommonProps(item as CompInternal<Type>);
     this.page = parent instanceof LayoutPage ? parent : parent.page;
     this.def = getComponentDef(this.type);
     this.store = store;
-    this.path = path;
     this.parent = parent;
     this.row = row;
   }
@@ -54,11 +52,11 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    */
   public get item() {
     const nodeData = this.store.getState().nodeData[this.getId()];
-    if (!nodeData || nodeData.type !== 'node') {
-      throw new Error(`Node not found in path: /${this.path.join('/')}`);
+    if (!nodeData) {
+      throw new Error(`Node not found: /${this.getId()}`);
     }
     if (!nodeData.item) {
-      throw new Error(`Node item not found in path: /${this.path.join('/')}`);
+      throw new Error(`Node item not found: /${this.getId()}`);
     }
     return nodeData.item as CompInternal<Type>;
   }

@@ -19,7 +19,6 @@ import {
 import { useResolvedExpression } from 'src/utils/layout/generator/useResolvedExpression';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
-import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
@@ -52,8 +51,7 @@ import type { BaseRow, StateFactoryProps } from 'src/utils/layout/types';
 export function NodeGenerator({ children, baseId, claim }: PropsWithChildren<BasicNodeGeneratorProps>) {
   const layoutMap = GeneratorInternal.useLayoutMap();
   const item = useIntermediateItem(layoutMap[baseId]) as CompIntermediateExact<CompTypes>;
-  const path = usePath(item);
-  const node = useNewNode(item, path) as LayoutNode;
+  const node = useNewNode(item) as LayoutNode;
   useGeneratorErrorBoundaryNodeRef().current = node;
 
   const commonProps: CommonProps<CompTypes> = { node, item, baseId };
@@ -322,19 +320,10 @@ function useIntermediateItem<T extends CompTypes = CompTypes>(item: CompExternal
   }, [directMutators, item, recursiveMutators]);
 }
 
-function usePath<T extends CompTypes>(item: CompIntermediate<T>): string[] {
-  const parent = GeneratorInternal.useParent();
-
-  return useMemo(() => {
-    const parentPath = parent instanceof LayoutPage ? [parent.pageKey] : parent.path;
-    return [...parentPath, item.id];
-  }, [item.id, parent]);
-}
-
 /**
  * Creates a new node instance for a component item, and adds that to the parent node and the store.
  */
-function useNewNode<T extends CompTypes>(item: CompIntermediate<T>, path: string[]): LayoutNode<T> {
+function useNewNode<T extends CompTypes>(item: CompIntermediate<T>): LayoutNode<T> {
   const page = GeneratorInternal.usePage();
   const parent = GeneratorInternal.useParent();
   const row = GeneratorInternal.useRow();
@@ -342,12 +331,12 @@ function useNewNode<T extends CompTypes>(item: CompIntermediate<T>, path: string
   const LNode = useNodeConstructor(item.type);
 
   return useMemo(() => {
-    const newNodeProps: LayoutNodeProps<T> = { item, parent, row, store, path };
+    const newNodeProps: LayoutNodeProps<T> = { item, parent, row, store };
     const node = new LNode(newNodeProps as any) as LayoutNode<T>;
     page._addChild(node);
 
     return node;
-  }, [LNode, item, page, parent, path, row, store]);
+  }, [LNode, item, page, parent, row, store]);
 }
 
 function isFormItem(item: CompIntermediate): item is CompIntermediate & FormComponentProps {

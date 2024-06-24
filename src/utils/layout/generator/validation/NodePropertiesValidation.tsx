@@ -66,7 +66,7 @@ function DataModelValidation({ node, item }: NodeValidationProps) {
       return;
     }
 
-    window.logErrorOnce(`Data model binding errors for component '/${node.path.join('/')}':\n- ${errors.join('\n- ')}`);
+    window.logErrorOnce(`Data model binding errors for component '/${node.getId()}':\n- ${errors.join('\n- ')}`);
 
     for (const error of errors) {
       addError(error, node);
@@ -100,7 +100,7 @@ function SchemaValidation({ node }: NodeValidationProps) {
     }
 
     window.logErrorOnce(
-      `Layout configuration errors for component '/${node.path.join('/')}':\n- ${errorMessages.join('\n- ')}`,
+      `Layout configuration errors for component '/${node.getId()}':\n- ${errorMessages.join('\n- ')}`,
     );
 
     for (const error of errorMessages) {

@@ -133,7 +133,7 @@ export type NodesContext = {
   markReady: () => void;
 } & ExtraFunctions;
 
-export type NodesDataStore = StoreApi<NodesContext>;
+export type NodesContextStore = StoreApi<NodesContext>;
 export function createNodesDataStore() {
   return createStore<NodesContext>((set) => ({
     ready: false,
@@ -260,7 +260,7 @@ export function createNodesDataStore() {
       .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraFunctions),
   }));
 }
-const Store = createZustandContext<NodesDataStore, NodesContext>({
+const Store = createZustandContext<NodesContextStore, NodesContext>({
   name: 'Nodes',
   required: true,
   initialCreateStore: createNodesDataStore,
