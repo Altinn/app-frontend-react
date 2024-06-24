@@ -3,7 +3,7 @@ import deepEqual from 'fast-deep-equal';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
+import type { NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepChildrenRow } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 import type { BaseRow } from 'src/utils/layout/types';
@@ -27,7 +27,7 @@ export interface RepeatingChildrenStorePluginConfig {
 }
 
 export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildrenStorePluginConfig> {
-  extraFunctions(set: NodeDataPluginSetState<NodesContext>): RepeatingChildrenStorePluginConfig['extraFunctions'] {
+  extraFunctions(set: NodeDataPluginSetState): RepeatingChildrenStorePluginConfig['extraFunctions'] {
     return {
       setRowExtras: (requests) => {
         set((state) => {

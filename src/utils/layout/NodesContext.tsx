@@ -133,6 +133,14 @@ export type NodesContext = {
   markReady: () => void;
 } & ExtraFunctions;
 
+/**
+ * Using the inferred types in the immer produce() function here introduces a lot of typescript overhead, which slows
+ * down development. Using this instead short-circuits the type-checking to make it fast again.
+ */
+export function nodesProduce(fn: (draft: NodesContext) => void) {
+  return produce(fn) as unknown as Partial<NodesContext>;
+}
+
 export type NodesContextStore = StoreApi<NodesContext>;
 export function createNodesDataStore() {
   return createStore<NodesContext>((set) => ({
@@ -199,8 +207,9 @@ export function createNodesDataStore() {
       }),
     addError: (error, node) =>
       set(
-        produce((state: NodesContext) => {
+        nodesProduce((state) => {
           const data = node instanceof LayoutPage ? state.pagesData.pages[node.pageKey] : state.nodeData[node.getId()];
+
           if (!data) {
             return;
           }
@@ -218,7 +227,7 @@ export function createNodesDataStore() {
       ),
     addPage: (pageKey) =>
       set(
-        produce((state: NodesContext) => {
+        nodesProduce((state) => {
           if (state.pagesData.pages[pageKey]) {
             return;
           }
@@ -239,7 +248,7 @@ export function createNodesDataStore() {
       ),
     removePage: (pageKey) =>
       set(
-        produce((state: NodesContext) => {
+        nodesProduce((state) => {
           delete state.pagesData.pages[pageKey];
           state.ready = false;
           state.addRemoveCounter += 1;
@@ -248,7 +257,7 @@ export function createNodesDataStore() {
     // TODO: Make a queue for this as well?
     setPageProp: (pageKey, prop, value) =>
       set(
-        produce((state: NodesContext) => {
+        nodesProduce((state) => {
           const obj = state.pagesData.pages[pageKey];
           Object.assign(obj, { [prop]: value });
         }),

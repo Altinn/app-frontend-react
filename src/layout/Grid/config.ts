@@ -17,6 +17,4 @@ export const Config = new CG.component({
   functionality: {
     customExpressions: false,
   },
-})
-  .addPlugin(new GridRowsPlugin())
-  .addProperty(new CG.prop('rows', CG.common('GridRows')));
+}).addPlugin(new GridRowsPlugin());

@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { toast } from 'react-toastify';
 
 import { useMutation } from '@tanstack/react-query';
-import { produce } from 'immer';
 import { v4 as uuidv4 } from 'uuid';
 import type { UseMutationOptions } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
@@ -17,6 +16,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { getValidationIssueMessage } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { isAxiosError } from 'src/utils/isAxiosError';
+import { nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type {
   FileUploaderNode,
@@ -79,11 +79,11 @@ const emptyArray: IAttachment[] = [];
 type ProperData = NodeData<CompWithBehavior<'canHaveAttachments'>>;
 
 export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePluginConfig> {
-  extraFunctions(set: NodeDataPluginSetState<NodesContext>): AttachmentsStorePluginConfig['extraFunctions'] {
+  extraFunctions(set: NodeDataPluginSetState): AttachmentsStorePluginConfig['extraFunctions'] {
     return {
       attachmentUpload: ({ file, node, temporaryId }) => {
         set(
-          produce((draft) => {
+          nodesProduce((draft) => {
             const data = draft.nodeData[node.getId()] as ProperData;
             data.attachments[temporaryId] = {
               uploaded: false,
@@ -100,7 +100,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
       attachmentUploadFulfilled: ({ temporaryId, node }, data) => {
         set(
-          produce((draft) => {
+          nodesProduce((draft) => {
             const nodeData = draft.nodeData[node.getId()] as ProperData;
             delete nodeData.attachments[temporaryId];
             nodeData.attachments[data.id] = {
@@ -115,7 +115,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
       attachmentUploadRejected: ({ node, temporaryId }, error) => {
         set(
-          produce((draft) => {
+          nodesProduce((draft) => {
             const nodeData = draft.nodeData[node.getId()] as ProperData;
             delete nodeData.attachments[temporaryId];
             nodeData.attachmentsFailedToUpload[temporaryId] = error;
@@ -124,7 +124,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
       attachmentUpdate: ({ node, attachment, tags }) => {
         set(
-          produce((draft) => {
+          nodesProduce((draft) => {
             const nodeData = draft.nodeData[node.getId()] as ProperData;
             const attachmentData = nodeData.attachments[attachment.data.id];
             if (isAttachmentUploaded(attachmentData)) {
@@ -138,7 +138,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
       attachmentUpdateFulfilled: ({ node, attachment }) => {
         set(
-          produce((draft) => {
+          nodesProduce((draft) => {
             const nodeData = draft.nodeData[node.getId()] as ProperData;
             const attachmentData = nodeData.attachments[attachment.data.id];
             if (isAttachmentUploaded(attachmentData)) {
@@ -151,7 +151,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
       attachmentUpdateRejected: ({ node, attachment }, error) => {
         set(
-          produce((draft) => {
+          nodesProduce((draft) => {
             const nodeData = draft.nodeData[node.getId()] as ProperData;
             const attachmentData = nodeData.attachments[attachment.data.id];
             if (isAttachmentUploaded(attachmentData)) {
@@ -165,7 +165,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
       attachmentRemove: ({ node, attachment }) => {
         set(
-          produce((draft) => {
+          nodesProduce((draft) => {
             const nodeData = draft.nodeData[node.getId()] as ProperData;
             const attachmentData = nodeData.attachments[attachment.data.id];
             if (isAttachmentUploaded(attachmentData)) {
@@ -178,7 +178,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
       attachmentRemoveFulfilled: ({ node, attachment }) => {
         set(
-          produce((draft) => {
+          nodesProduce((draft) => {
             const nodeData = draft.nodeData[node.getId()] as ProperData;
             delete nodeData.attachments[attachment.data.id];
           }),
@@ -186,7 +186,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
       attachmentRemoveRejected: ({ node, attachment }, error) => {
         set(
-          produce((draft) => {
+          nodesProduce((draft) => {
             const nodeData = draft.nodeData[node.getId()] as ProperData;
             const attachmentData = nodeData.attachments[attachment.data.id];
             if (isAttachmentUploaded(attachmentData)) {

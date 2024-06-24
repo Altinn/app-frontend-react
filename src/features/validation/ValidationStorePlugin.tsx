@@ -1,6 +1,5 @@
-import { produce } from 'immer';
-
 import { selectValidations } from 'src/features/validation/utils';
+import { nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type {
   AnyValidation,
@@ -9,7 +8,7 @@ import type {
   ValidationSeverity,
 } from 'src/features/validation/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
+import type { NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 
 export type ValidationsSelector = (
@@ -36,11 +35,11 @@ export interface ValidationStorePluginConfig {
 const emptyArray: never[] = [];
 
 export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginConfig> {
-  extraFunctions(set: NodeDataPluginSetState<NodesContext>) {
+  extraFunctions(set: NodeDataPluginSetState) {
     const out: ValidationStorePluginConfig['extraFunctions'] = {
       setNodeVisibility: (nodes, newVisibility, _rowIndex) => {
         set(
-          produce((state) => {
+          nodesProduce((state) => {
             for (const node of nodes) {
               const nodeData = state.nodeData[node.getId()];
               (nodeData as any).validationVisibility = newVisibility;
@@ -50,7 +49,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
       },
       setAttachmentVisibility: (attachmentId, node, newVisibility) => {
         set(
-          produce((state) => {
+          nodesProduce((state) => {
             const nodeData = state.nodeData[node.getId()];
             if ('validations' in nodeData) {
               for (const validation of nodeData.validations) {

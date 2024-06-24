@@ -4,7 +4,7 @@ import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GridRows } from 'src/layout/common.generated';
 import type { GridCellNode, GridRowsInternal } from 'src/layout/Grid/types';
-import type { CompTypes } from 'src/layout/layout';
+import type { CompTypes, TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
@@ -18,24 +18,59 @@ interface ClaimMetadata {
   cellIdx: number;
 }
 
-interface Config<Type extends CompTypes> {
+interface ExternalConfig {
+  componentType?: TypesFromCategory<CompCategory.Container>;
+  externalProp?: string;
+  internalProp?: string;
+  optional?: boolean;
+}
+
+interface Config<Type extends CompTypes, ExternalProp extends string, InternalProp extends string> {
   componentType: Type;
   expectedFromExternal: {
-    rows: GridRows;
+    [key in ExternalProp]?: GridRows;
   };
   childClaimMetadata: ClaimMetadata;
   extraState: undefined;
   extraInItem: {
-    rows: undefined;
-    rowsInternal: GridRowsInternal;
+    [key in ExternalProp]: undefined;
+  } & {
+    [key in InternalProp]: GridRowsInternal;
   };
 }
 
-export class GridRowsPlugin<Type extends CompTypes>
-  extends NodeDefPlugin<Config<Type>>
-  implements NodeDefChildrenPlugin<Config<Type>>
+const defaultConfig = {
+  componentType: 'unknown' as TypesFromCategory<CompCategory.Container>,
+  externalProp: 'rows' as const,
+  internalProp: 'rowsInternal' as const,
+  optional: false as const,
+};
+
+type ConfigOrDefault<C, D> = D & C extends never ? C : D & C;
+type Combined<E extends ExternalConfig> = {
+  [key in keyof Required<ExternalConfig>]: Exclude<ConfigOrDefault<E[key], (typeof defaultConfig)[key]>, undefined>;
+};
+type Setting<E extends ExternalConfig, P extends keyof ExternalConfig> = Combined<E>[P];
+
+type ToInternal<E extends ExternalConfig> = Config<
+  Setting<E, 'componentType'>,
+  Setting<E, 'externalProp'>,
+  Setting<E, 'internalProp'>
+>;
+
+export class GridRowsPlugin<E extends ExternalConfig>
+  extends NodeDefPlugin<ToInternal<E>>
+  implements NodeDefChildrenPlugin<ToInternal<E>>
 {
+  protected settings: Combined<E>;
   protected component: ComponentConfig | undefined;
+
+  constructor(settings?: E) {
+    super({
+      ...defaultConfig,
+      ...settings,
+    } as Combined<E>);
+  }
 
   makeImport() {
     return new CG.import({
@@ -44,19 +79,36 @@ export class GridRowsPlugin<Type extends CompTypes>
     });
   }
 
+  getKey(): string {
+    return [this.constructor.name, this.settings.externalProp].join('/');
+  }
+
+  makeConstructorArgs(asGenericArgs = false): string {
+    this.settings.componentType = this.component!.type as any;
+    return super.makeConstructorArgsWithoutDefaultSettings(defaultConfig, asGenericArgs);
+  }
+
   addToComponent(component: ComponentConfig): void {
     this.component = component;
     if (component.config.category !== CompCategory.Container) {
       throw new Error('GridRowsPlugin can only be used with container components');
     }
+
+    const prop = CG.common('GridRows');
+    if (this.settings.optional) {
+      prop.optional();
+    }
+
+    component.addProperty(new CG.prop(this.settings.externalProp, prop));
   }
 
-  makeGenericArgs(): string {
-    return `'${this.component!.type}'`;
-  }
+  claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<ToInternal<E>>): void {
+    const rows = (item as any)[this.settings.externalProp] as GridRows | undefined;
+    if (!rows) {
+      return;
+    }
 
-  claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<Config<Type>>): void {
-    for (const [rowIdx, row] of item.rows.entries()) {
+    for (const [rowIdx, row] of rows.entries()) {
       for (const [cellIdx, cell] of row.cells.entries()) {
         if (cell && 'component' in cell && cell.component) {
           const proto = getProto(cell.component);
@@ -85,11 +137,12 @@ export class GridRowsPlugin<Type extends CompTypes>
   }
 
   pickDirectChildren(
-    state: DefPluginState<Config<Type>>,
+    state: DefPluginState<ToInternal<E>>,
     _restriction?: TraversalRestriction | undefined,
   ): LayoutNode[] {
     const out: LayoutNode[] = [];
-    for (const row of state.item?.rowsInternal || []) {
+    const rows = (state.item?.[this.settings.externalProp] || []) as GridRowsInternal;
+    for (const row of rows) {
       for (const cell of row.cells) {
         if (cell && 'node' in cell && cell.node) {
           out.push(cell.node);
@@ -101,16 +154,23 @@ export class GridRowsPlugin<Type extends CompTypes>
   }
 
   addChild(
-    state: DefPluginState<Config<Type>>,
+    state: DefPluginState<ToInternal<E>>,
     node: LayoutNode,
     metaData: ClaimMetadata,
-  ): Partial<DefPluginState<Config<Type>>> {
-    const rowsInternal = [...(state.item?.rowsInternal ?? [])];
+  ): Partial<DefPluginState<ToInternal<E>>> {
+    const rowsInternal = [...(state.item?.[this.settings.internalProp] ?? [])] as GridRowsInternal;
     const row = rowsInternal[metaData.rowIdx];
     const cells = [...(row.cells ?? [])];
     const overwriteLayout: any = { component: undefined };
     cells[metaData.cellIdx] = { ...cells[metaData.cellIdx], ...overwriteLayout, node } as GridCellNode;
     rowsInternal[metaData.rowIdx] = { ...row, cells };
-    return { item: { ...state.item, rowsInternal } } as Partial<DefPluginState<Config<Type>>>;
+
+    return {
+      item: {
+        ...state.item,
+        [this.settings.externalProp]: undefined,
+        [this.settings.internalProp]: rowsInternal,
+      },
+    } as Partial<DefPluginState<ToInternal<E>>>;
   }
 }

@@ -2,6 +2,7 @@ import { CG } from 'src/codegen/CG';
 import { LabelRendering } from 'src/codegen/Config';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
+import { GridRowsPlugin } from 'src/layout/Grid/GridRowsPlugin';
 import { RepeatingChildrenPlugin } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 
 export const Config = new CG.component({
@@ -27,6 +28,20 @@ export const Config = new CG.component({
         import: 'RepGroupRowExtras',
         from: 'src/layout/RepeatingGroup/types',
       }),
+    }),
+  )
+  .addPlugin(
+    new GridRowsPlugin({
+      externalProp: 'rowsBefore',
+      internalProps: 'rowsBeforeInternal',
+      optional: true,
+    }),
+  )
+  .addPlugin(
+    new GridRowsPlugin({
+      externalProp: 'rowsAfter',
+      internalProps: 'rowsAfterInternal',
+      optional: true,
     }),
   )
   .addTextResource(
@@ -312,6 +327,4 @@ export const Config = new CG.component({
         .setDescription('If set to true, the header of the repeating group will be sticky'),
     ),
   )
-  .addProperty(new CG.prop('rowsBefore', CG.common('GridRows').optional()))
-  .addProperty(new CG.prop('rowsAfter', CG.common('GridRows').optional()))
   .addProperty(new CG.prop('labelSettings', CG.common('ILabelSettings').optional()));
