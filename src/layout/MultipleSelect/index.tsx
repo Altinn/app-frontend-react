@@ -41,9 +41,16 @@ export class MultipleSelect extends MultipleSelectDef {
   getDisplayData(
     node: LayoutNode<'MultipleSelect'>,
     { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
-  ): string {
-    return Object.values(this.getSummaryData(node, langTools, optionsSelector, formDataSelector)).join(', ');
+  ): any {
+    return Object.values(this.getSummaryData(node, langTools, optionsSelector, formDataSelector));
   }
+
+  // getDisplayData(
+  //   node: LayoutNode<'MultipleSelect'>,
+  //   { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
+  // ): any {
+  //   return Object.values(this.getSummaryData(node, langTools, optionsSelector, formDataSelector));
+  // }
 
   renderSummary({ targetNode, formDataSelector }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
     const langTools = useLanguage();
@@ -57,6 +64,12 @@ export class MultipleSelect extends MultipleSelectDef {
     summaryOverrides?: MultipleSelectSummaryOverrideProps,
   ): JSX.Element | null {
     const displayData = this.useDisplayData(componentNode);
+
+    // const displayDataRaw = this.getDisplayData(componentNode);
+    // console.log('displayDataRaw', displayDataRaw);
+
+    // const summaryData = this.getSummaryData(targetNode, langTools, options, formDataSelector);
+    // const values = return Object.values(this.getSummaryData(node, langTools, optionsSelector, formDataSelector));
     return (
       <MultipleSelectSummary
         componentNode={componentNode}
