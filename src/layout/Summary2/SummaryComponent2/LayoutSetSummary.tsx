@@ -4,17 +4,25 @@ import { useOrder } from 'src/hooks/useNavigatePage';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
 
 interface LayoutSetSummaryProps {
-  layoutSetId: string;
-  summaryOverrides: any;
+  layoutSetId?: string;
+  summaryOverrides?: any;
 }
 
-export function LayoutSetSummary({ summaryOverrides }: LayoutSetSummaryProps) {
+export function LayoutSetSummary({ layoutSetId, summaryOverrides }: LayoutSetSummaryProps) {
   const pageOrder = useOrder();
-  return pageOrder.map((layoutId) => (
-    <PageSummary
-      pageId={layoutId}
-      key={layoutId}
-      summaryOverrides={summaryOverrides}
-    />
-  ));
+
+  return pageOrder
+    .filter((layoutId) => {
+      if (!layoutSetId) {
+        return layoutId;
+      }
+      return layoutId === layoutSetId;
+    })
+    .map((layoutId) => (
+      <PageSummary
+        pageId={layoutId}
+        key={layoutId}
+        summaryOverrides={summaryOverrides}
+      />
+    ));
 }

@@ -25,8 +25,6 @@ export const MultipleValueSummary = ({
   showAsList,
 }: MultipleValueSummaryProps) => (
   <div className={classes.checkboxSummaryItem}>
-    <pre>{JSON.stringify(displayData, null, 2)}</pre>
-
     <div className={cn(classes.labelValueWrapper, { [classes.error]: errors.length > 0 })}>
       <Label weight={'regular'}>{title}</Label>
       {displayData && showAsList && (
