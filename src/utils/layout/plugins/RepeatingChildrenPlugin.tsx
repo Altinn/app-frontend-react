@@ -10,6 +10,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
   DefPluginState,
+  DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { BaseRow } from 'src/utils/layout/types';
@@ -142,6 +143,18 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
       `// You have to implement this method because the component uses the RepeatingChildrenPlugin
       abstract evalExpressionsForRow(props: ${ExprResolver}<'${this.component!.type}'>): unknown;`,
     ];
+  }
+
+  stateFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>) {
+    // Components with repeating children will have exactly _zero_ rows by default. We can't rely on
+    // addChild() being called when there are no children, so to start off we'll have to initialize it all
+    // with no rows to avoid later code crashing when there's no array of rows yet.
+    return {
+      item: {
+        [this.settings.externalProp]: undefined,
+        [this.settings.internalProp]: [],
+      },
+    } as unknown as Record<string, never>;
   }
 
   claimChildren({ claimChild, item }: DefPluginChildClaimerProps<ToInternal<E>>): void {
