@@ -98,7 +98,7 @@ export class CardsPlugin<Type extends CompTypes>
       import: 'GenerateNodeChildrenWhenReady',
       from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
-    return `<${GenerateNodeChildrenWhenReady} claims={props.childClaims} />`;
+    return `<${GenerateNodeChildrenWhenReady} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
   }
 
   pickDirectChildren(

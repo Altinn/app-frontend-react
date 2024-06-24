@@ -11,7 +11,6 @@ import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/Repeatin
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
-import type { GridRowsInternal } from 'src/layout/Grid/types';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { GroupExpressions, RepGroupInternal, RepGroupRowExtras } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -41,10 +40,6 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
             addButton: evalBool(item.edit.addButton, true),
           }
         : undefined,
-
-      // TODO: Call the code in Grid to evaluate the rowsBefore and rowsAfter
-      rowsBefore: item.rowsBefore as GridRowsInternal | undefined,
-      rowsAfter: item.rowsAfter as GridRowsInternal | undefined,
     } as RepGroupInternal;
   }
 

@@ -128,6 +128,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
         internalProp={'${this.settings.internalProp}'}
         externalProp={'${this.settings.externalProp}'}
         multiPageSupport={${multiPageSupport}}
+        pluginKey='${this.getKey()}'
       />`.trim();
   }
 

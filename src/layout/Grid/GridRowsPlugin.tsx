@@ -133,7 +133,7 @@ export class GridRowsPlugin<E extends ExternalConfig>
       import: 'GenerateNodeChildrenWhenReady',
       from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
-    return `<${GenerateNodeChildrenWhenReady} claims={props.childClaims} />`;
+    return `<${GenerateNodeChildrenWhenReady} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
   }
 
   pickDirectChildren(
@@ -159,7 +159,7 @@ export class GridRowsPlugin<E extends ExternalConfig>
     metaData: ClaimMetadata,
   ): Partial<DefPluginState<ToInternal<E>>> {
     const rowsInternal = [...(state.item?.[this.settings.internalProp] ?? [])] as GridRowsInternal;
-    const row = rowsInternal[metaData.rowIdx];
+    const row = rowsInternal[metaData.rowIdx] ?? { cells: [] };
     const cells = [...(row.cells ?? [])];
     const overwriteLayout: any = { component: undefined };
     cells[metaData.cellIdx] = { ...cells[metaData.cellIdx], ...overwriteLayout, node } as GridCellNode;

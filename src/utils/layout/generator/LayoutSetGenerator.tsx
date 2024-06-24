@@ -321,20 +321,31 @@ function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
 
 interface NodeChildrenProps {
   claims: ChildClaims;
+  pluginKey: string;
 }
 
-export function GenerateNodeChildrenWhenReady({ claims }: NodeChildrenProps) {
+export function GenerateNodeChildrenWhenReady({ claims, pluginKey }: NodeChildrenProps) {
+  const filteredClaims = useMemo(() => {
+    const out: ChildClaims = {};
+    for (const id in claims) {
+      if (claims[id].pluginKey === pluginKey) {
+        out[id] = claims[id];
+      }
+    }
+    return out;
+  }, [claims, pluginKey]);
+
   return (
     <GeneratorCondition
       stage={StageAddNodes}
       mustBeAdded='parent'
     >
-      <GenerateNodeChildren claims={claims} />
+      <GenerateNodeChildren claims={filteredClaims} />
     </GeneratorCondition>
   );
 }
 
-export function GenerateNodeChildren({ claims }: NodeChildrenProps) {
+export function GenerateNodeChildren({ claims }: Omit<NodeChildrenProps, 'pluginKey'>) {
   const layoutMap = GeneratorInternal.useLayoutMap();
   const map = GeneratorInternal.useChildrenMap();
 

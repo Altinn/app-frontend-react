@@ -30,6 +30,7 @@ interface Props {
   externalProp: string;
   binding: string;
   multiPageSupport: false | string;
+  pluginKey: string;
 }
 
 export function NodeRepeatingChildren(props: Props) {
@@ -43,7 +44,7 @@ export function NodeRepeatingChildren(props: Props) {
   );
 }
 
-function PerformWork({ claims, binding, multiPageSupport, externalProp, internalProp }: Props) {
+function PerformWork({ claims, binding, multiPageSupport, externalProp, internalProp, pluginKey }: Props) {
   const item = GeneratorInternal.useIntermediateItem();
   const groupBinding = item?.dataModelBindings?.[binding];
   const freshRows = FD.useFreshRows(groupBinding);
@@ -65,6 +66,7 @@ function PerformWork({ claims, binding, multiPageSupport, externalProp, internal
           claims={claims}
           multiPageMapping={multiPageMapping}
           internalProp={internalProp}
+          pluginKey={pluginKey}
         />
       ))}
     </>
@@ -98,9 +100,10 @@ interface GenerateRowProps {
   groupBinding: string | undefined;
   multiPageMapping: MultiPageMapping | undefined;
   internalProp: string;
+  pluginKey: string;
 }
 
-function _GenerateRow({ row, claims, groupBinding, multiPageMapping, internalProp }: GenerateRowProps) {
+function _GenerateRow({ row, claims, groupBinding, multiPageMapping, internalProp, pluginKey }: GenerateRowProps) {
   const node = GeneratorInternal.useParent() as LayoutNode;
   const removeRow = NodesInternal.useRemoveRow();
   const depth = GeneratorInternal.useDepth();
@@ -133,7 +136,10 @@ function _GenerateRow({ row, claims, groupBinding, multiPageMapping, internalPro
       >
         <ResolveRowExpressions internalProp={internalProp} />
       </GeneratorCondition>
-      <GenerateNodeChildrenWhenReady claims={claims} />
+      <GenerateNodeChildrenWhenReady
+        claims={claims}
+        pluginKey={pluginKey}
+      />
     </GeneratorRowProvider>
   );
 }

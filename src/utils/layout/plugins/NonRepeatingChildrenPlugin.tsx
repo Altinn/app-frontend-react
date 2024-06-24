@@ -107,7 +107,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
       import: 'GenerateNodeChildrenWhenReady',
       from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
-    return `<${GenerateNodeChildrenWhenReady} claims={props.childClaims} />`;
+    return `<${GenerateNodeChildrenWhenReady} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
   }
 
   claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<ToInternal<E>>): void {
