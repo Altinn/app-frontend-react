@@ -8,15 +8,15 @@ import { Lang } from 'src/features/language/Lang';
 import { type IUseLanguage, useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
+import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
+import { validationsOfSeverity } from 'src/features/validation/utils';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import classes from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary.module.css';
-import type { BaseValidation } from 'src/features/validation';
 import type { FormDataSelector } from 'src/layout/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type MultipleValueSummaryProps = {
   title: React.ReactNode;
-  errors: BaseValidation[];
   componentNode: LayoutNode;
   showAsList?: boolean;
 };
@@ -36,13 +36,17 @@ function getSummaryData(
   return getCommaSeparatedOptionsToText(value, optionList, langTools);
 }
 
-export const MultipleValueSummary = ({ title, errors, componentNode, showAsList }: MultipleValueSummaryProps) => {
+export const MultipleValueSummary = ({ title, componentNode, showAsList }: MultipleValueSummaryProps) => {
   const formDataSelector = FD.useDebouncedSelector();
 
   const langTools = useLanguage();
   const options = useAllOptionsSelector();
   const summaryData = getSummaryData(componentNode, langTools, options, formDataSelector);
   const displayValues = Object.values(summaryData);
+
+  const validations = useUnifiedValidationsForNode(componentNode);
+  const errors = validationsOfSeverity(validations, 'error');
+
   return (
     <div className={classes.checkboxSummaryItem}>
       <div className={cn(classes.labelValueWrapper, { [classes.error]: errors.length > 0 })}>

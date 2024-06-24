@@ -1,13 +1,14 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
-import { MultipleSelectSummary } from 'src/layout/MultipleSelect/MultipleSelectSummary';
+import { MultipleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -57,11 +58,16 @@ export class MultipleSelect extends MultipleSelectDef {
     summaryOverrides?: MultipleSelectSummaryOverrideProps,
   ): JSX.Element | null {
     const displayData = this.useDisplayData(componentNode);
+    const maxStringLength = 75;
+    const showAsList =
+      summaryOverrides?.displayType === 'list' ||
+      (!summaryOverrides?.displayType && displayData?.length >= maxStringLength);
+    const title = componentNode.item.textResourceBindings?.title;
     return (
-      <MultipleSelectSummary
+      <MultipleValueSummary
+        title={<Lang id={title} />}
         componentNode={componentNode}
-        displayData={displayData}
-        summaryOverrides={summaryOverrides}
+        showAsList={showAsList}
       />
     );
   }
