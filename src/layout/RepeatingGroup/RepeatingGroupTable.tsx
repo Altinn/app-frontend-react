@@ -198,7 +198,7 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
   const item = useNodeItem(node);
   const isNested = node.parent instanceof BaseLayoutNode;
 
-  const rows = where === 'Before' ? item.rowsBefore : item.rowsAfter;
+  const rows = where === 'Before' ? item.rowsBeforeInternal : item.rowsAfterInternal;
   const mobileNodes = useNodesFromGridRows(rows, mobileView);
   if (isEmpty || !rows) {
     return null;

@@ -128,10 +128,10 @@ function RepeatingGroupExtensions({ node, selected, onClick }: INodeHierarchyIte
 
   return (
     <>
-      {nodeItem.rowsBefore && (
+      {nodeItem.rowsBeforeInternal && (
         <GridRows
-          rows={nodeItem.rowsBefore}
-          text={'rowsBefore'}
+          rows={nodeItem.rowsBeforeInternal}
+          text='rowsBefore'
           selected={selected}
           onClick={onClick}
         />
@@ -151,10 +151,10 @@ function RepeatingGroupExtensions({ node, selected, onClick }: INodeHierarchyIte
           />
         </li>
       ))}
-      {nodeItem.rowsAfter && (
+      {nodeItem.rowsAfterInternal && (
         <GridRows
-          rows={nodeItem.rowsAfter}
-          text={'rowsAfter'}
+          rows={nodeItem.rowsAfterInternal}
+          text='rowsAfter'
           selected={selected}
           onClick={onClick}
         />

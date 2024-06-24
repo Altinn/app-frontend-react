@@ -31,7 +31,7 @@ interface Config<
   extraInItem: { [key in ExternalProp]: undefined } & { [key in InternalProp]: LayoutNode[] };
 }
 
-export interface ExternalConfig {
+interface ExternalConfig {
   componentType?: TypesFromCategory<CompCategory.Container>;
   externalProp?: string;
   internalProp?: string;

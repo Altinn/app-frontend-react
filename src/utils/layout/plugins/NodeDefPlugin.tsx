@@ -186,6 +186,15 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
   }
 
   /**
+   * Returns initial state for the item object. This may be needed if your plugin has to initialize the item object
+   * with some state, and stateFactory() won't work properly since multiple plugins will overwrite each others item
+   * object.
+   */
+  itemFactory(_props: DefPluginStateFactoryProps<Config>): DefPluginExtraInItem<Config> {
+    return {} as DefPluginExtraInItem<Config>;
+  }
+
+  /**
    * Evaluates some expressions for the component. This can be used to add custom expressions to the component.
    */
   evalDefaultExpressions(_props: DefPluginExprResolver<Config>): DefPluginExtraInItem<Config> {
@@ -213,14 +222,13 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
 
   /**
    * Outputs any extra code that should be output in the evalExpressions method. If you implement
-   * evalDefaultExpressions() this method will not be called, as it is expected that you will output
-   * the data there. This only aids in indicating extra state that is placed in the item object by your
+   * evalDefaultExpressions(). This aids in indicating extra state that is placed in the item object by your
    * plugin (such as state added by addChild(), etc).
    */
   extraInEvalExpressions(): string {
     const implementsExpressions = this.evalDefaultExpressions !== NodeDefPlugin.prototype.evalDefaultExpressions;
     if (implementsExpressions) {
-      return '';
+      return `...this.plugins['${this.getKey()}'].evalDefaultExpressions(props as any),`;
     }
 
     const DefPluginExtraInItemFromPlugin = new CG.import({
@@ -228,6 +236,8 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
       from: 'src/utils/layout/plugins/NodeDefPlugin',
     });
 
+    // Fakes the state to make sure inferred types catch our additions to the state (even if the state is created
+    // somewhere else).
     return `...({} as ${DefPluginExtraInItemFromPlugin}<(typeof this.plugins)['${this.getKey()}']>),`;
   }
 }

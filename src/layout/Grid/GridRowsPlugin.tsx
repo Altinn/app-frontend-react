@@ -8,7 +8,10 @@ import type { CompTypes, TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
+  DefPluginExprResolver,
+  DefPluginExtraInItem,
   DefPluginState,
+  DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
@@ -136,6 +139,24 @@ export class GridRowsPlugin<E extends ExternalConfig>
     return `<${GenerateNodeChildrenWhenReady} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
   }
 
+  itemFactory({ item }: DefPluginStateFactoryProps<ToInternal<E>>) {
+    // Components with Grid rows may not have component references in all the cells, so we cannot rely on
+    // addChild() alone to produce a fully complete state. This adds all the non-component cells to the item
+    // state as soon as the node state is first created.
+    return {
+      [this.settings.externalProp]: undefined,
+      [this.settings.internalProp]: structuredClone((item as any)[this.settings.externalProp]),
+    } as DefPluginExtraInItem<ToInternal<E>>;
+  }
+
+  evalDefaultExpressions(_props: DefPluginExprResolver<ToInternal<E>>): DefPluginExtraInItem<ToInternal<E>> {
+    // If we don't set this to undefined, we run the risk that the regular evalExpressions() run will set
+    // the external prop back to its original state.
+    return {
+      [this.settings.externalProp]: undefined,
+    } as DefPluginExtraInItem<ToInternal<E>>;
+  }
+
   pickDirectChildren(
     state: DefPluginState<ToInternal<E>>,
     _restriction?: TraversalRestriction | undefined,
@@ -156,14 +177,17 @@ export class GridRowsPlugin<E extends ExternalConfig>
   addChild(
     state: DefPluginState<ToInternal<E>>,
     node: LayoutNode,
-    metaData: ClaimMetadata,
+    metadata: ClaimMetadata,
   ): Partial<DefPluginState<ToInternal<E>>> {
     const rowsInternal = [...(state.item?.[this.settings.internalProp] ?? [])] as GridRowsInternal;
-    const row = rowsInternal[metaData.rowIdx] ?? { cells: [] };
+    const row =
+      rowsInternal[metadata.rowIdx] ??
+      structuredClone((state as any).layout[this.settings.externalProp][metadata.rowIdx]);
+
     const cells = [...(row.cells ?? [])];
     const overwriteLayout: any = { component: undefined };
-    cells[metaData.cellIdx] = { ...cells[metaData.cellIdx], ...overwriteLayout, node } as GridCellNode;
-    rowsInternal[metaData.rowIdx] = { ...row, cells };
+    cells[metadata.cellIdx] = { ...cells[metadata.cellIdx], ...overwriteLayout, node } as GridCellNode;
+    rowsInternal[metadata.rowIdx] = { ...row, cells };
 
     return {
       item: {

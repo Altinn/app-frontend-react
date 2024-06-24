@@ -307,6 +307,11 @@ export class ComponentConfig {
       from: 'src/utils/layout/generator/NodeGenerator',
     });
 
+    const CompInternal = new CG.import({
+      import: 'CompInternal',
+      from: 'src/layout/layout',
+    });
+
     const isFormComponent = this.config.category === CompCategory.Form;
     const isSummarizable = this.behaviors.isSummarizable;
 
@@ -341,10 +346,14 @@ export class ComponentConfig {
       .map((plugin) => `...${pluginRef(plugin)}.stateFactory(props as any),`)
       .join('\n');
 
-    const pluginEvalExpressions = this.plugins
-      .filter((plugin) => plugin.evalDefaultExpressions !== NodeDefPlugin.prototype.evalDefaultExpressions)
-      .map((plugin) => `...${pluginRef(plugin)}.evalDefaultExpressions(props as any),`)
+    const pluginItemFactories = this.plugins
+      .filter((plugin) => plugin.itemFactory !== NodeDefPlugin.prototype.itemFactory)
+      .map((plugin) => `...${pluginRef(plugin)}.itemFactory(props as any)`)
       .join(',\n');
+
+    const itemDef = pluginItemFactories
+      ? `const item = { ${pluginItemFactories} } as ${CompInternal}<'${this.type}'>;`
+      : '';
 
     const pluginGeneratorChildren = this.plugins
       .filter((plugin) => plugin.extraNodeGeneratorChildren !== NodeDefPlugin.prototype.extraNodeGeneratorChildren)
@@ -448,8 +457,9 @@ export class ComponentConfig {
           row: props.row,
           errors: undefined,
         };
+        ${itemDef}
 
-        return { ...baseState, ${pluginStateFactories} };
+        return { ...baseState, ${pluginStateFactories} ${itemDef ? 'item' : ''} };
       }
 
       // Do not override this one, set functionality.customExpressions to true instead
@@ -457,7 +467,7 @@ export class ComponentConfig {
         return {
           ...props.item as Omit<typeof props.item, ${itemLine.join(' | ')} | 'hidden'>,
           ${evalLines.join('\n')}
-          ...props.evalTrb(),${pluginEvalExpressions}
+          ...props.evalTrb(),
         };
       }
 

@@ -9,6 +9,7 @@ import type { TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
+  DefPluginExtraInItem,
   DefPluginState,
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
@@ -145,16 +146,14 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     ];
   }
 
-  stateFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>) {
-    // Components with repeating children will have exactly _zero_ rows by default. We can't rely on
+  itemFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>) {
+    // Components with repeating children will have exactly _zero_ rows to begin with. We can't rely on
     // addChild() being called when there are no children, so to start off we'll have to initialize it all
     // with no rows to avoid later code crashing when there's no array of rows yet.
     return {
-      item: {
-        [this.settings.externalProp]: undefined,
-        [this.settings.internalProp]: [],
-      },
-    } as unknown as Record<string, never>;
+      [this.settings.externalProp]: undefined,
+      [this.settings.internalProp]: [],
+    } as DefPluginExtraInItem<ToInternal<E>>;
   }
 
   claimChildren({ claimChild, item }: DefPluginChildClaimerProps<ToInternal<E>>): void {

@@ -22,14 +22,26 @@ export type GroupExpressions = ExprResolved<
 // This then, by its definition, is the opposite of the above types. It's the properties that are resolved for the
 // entire repeating group component at once, including the 'rows' property.
 type RepGroupBase = ExprResolved<
-  Omit<Comp, PerRowProps | 'textResourceBindings' | 'edit' | 'rows' | 'rowsAfter' | 'rowsBefore'>
+  Omit<
+    Comp,
+    | PerRowProps
+    | 'textResourceBindings'
+    | 'edit'
+    | 'rows'
+    | 'rowsAfter'
+    | 'rowsBefore'
+    | 'rowsAfterInternal'
+    | 'rowsBeforeInternal'
+  >
 >;
 export type RepGroupInternal = RepGroupBase & {
   textResourceBindings?: Omit<RepGroupTrb, PerRowTrb>;
   edit?: Omit<RepGroupEdit, PerRowEdit>;
   rows: RepGroupRow[];
-  rowsBefore?: GridRowsInternal;
-  rowsAfter?: GridRowsInternal;
+  rowsBefore: undefined;
+  rowsAfter: undefined;
+  rowsBeforeInternal?: GridRowsInternal;
+  rowsAfterInternal?: GridRowsInternal;
 };
 
 export interface RepGroupRowExtras {
