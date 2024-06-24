@@ -24,7 +24,6 @@ export const CheckboxesSummary = ({ componentNode, summaryOverrides, displayData
   return (
     <MultipleValueSummary
       title={<Lang id={title} />}
-      displayData={displayData}
       errors={errors}
       componentNode={componentNode}
       showAsList={showAsList}

@@ -25,7 +25,6 @@ export const MultipleSelectSummary = ({ componentNode, summaryOverrides, display
   return (
     <MultipleValueSummary
       title={<Lang id={title} />}
-      displayData={displayData}
       errors={errors}
       componentNode={componentNode}
       showAsList={showAsList}
