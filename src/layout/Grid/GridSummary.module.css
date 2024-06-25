@@ -94,6 +94,10 @@ tr > .fullWidthCellLast {
   border-bottom: var(--fds-semantic-border-danger-default) solid 2px;
 }
 
+.errorMessage {
+  padding-bottom: var(--fds-spacing-2);
+}
+
 .mobileFieldset {
   display: flex;
   gap: 24px;
