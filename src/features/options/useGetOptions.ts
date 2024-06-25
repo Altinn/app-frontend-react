@@ -6,7 +6,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
 import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
-import { filterDuplicateOptions } from 'src/utils/options';
+import { filterDuplicateOptions, filterEmptyOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type {
@@ -37,6 +37,7 @@ interface Props {
   // Generic props
   node: LayoutNode;
   removeDuplicates?: boolean;
+  removeEmpty?: boolean;
   preselectedOptionIndex?: number;
 
   dataModelBindings?: IDataModelBindingsOptionsSimpleInternal;
@@ -108,6 +109,7 @@ export function useGetOptions(props: Props): OptionsResult {
     optionsId,
     secure,
     removeDuplicates,
+    removeEmpty,
     source,
     mapping,
     queryParameters,
@@ -134,6 +136,9 @@ export function useGetOptions(props: Props): OptionsResult {
     if (draft && removeDuplicates) {
       draft = filterDuplicateOptions(draft);
     }
+    if (draft && removeEmpty) {
+      draft = filterEmptyOptions(draft);
+    }
     if (draft && sortOrder) {
       draft = [...draft].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
     }
@@ -144,6 +149,7 @@ export function useGetOptions(props: Props): OptionsResult {
     langAsString,
     preselectedOptionIndex,
     removeDuplicates,
+    removeEmpty,
     selectedLanguage,
     sortOrder,
     sourceOptions,

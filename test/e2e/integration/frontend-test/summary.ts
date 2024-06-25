@@ -409,6 +409,7 @@ describe('Summary', () => {
       cy.navPage('form').click();
       cy.get(appFrontend.changeOfName.newFirstName).clear();
       cy.get(appFrontend.changeOfName.newFirstName).type(`Anne`);
+      cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
       cy.get(appFrontend.changeOfName.newLastName).clear();
       cy.get(appFrontend.changeOfName.sources).should('have.value', 'Altinn');
       cy.get(appFrontend.nextButton).click();
@@ -432,6 +433,7 @@ describe('Summary', () => {
         }
 
         cy.gotoNavPage('form');
+        cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
         cy.get(appFrontend.changeOfName.newLastName).type('a');
         cy.get(appFrontend.changeOfName.newLastName).blur();
         cy.get(appFrontend.nextButton).click();
@@ -486,6 +488,7 @@ describe('Summary', () => {
     cy.gotoAndComplete('changename');
     injectExtraPageAndSetTriggers();
     cy.navPage('form').click();
+    cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
     cy.get(appFrontend.changeOfName.newLastName).clear();
     cy.navPage('lastPage').click();
     cy.get('#page3-submit').click();
@@ -567,6 +570,7 @@ describe('Summary', () => {
   it('backToSummary should disappear when navigating away from the current page', () => {
     cy.goto('changename');
 
+    cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
     cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
     cy.get(appFrontend.nextButton).should('be.visible');
