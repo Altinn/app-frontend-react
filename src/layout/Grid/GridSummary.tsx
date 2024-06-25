@@ -17,7 +17,6 @@ import classes from 'src/layout/Grid/GridSummary.module.css';
 import { isGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
-import { type LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   GridCellInternal,
   GridRowInternal,
@@ -25,6 +24,7 @@ import type {
   ITableColumnProperties,
 } from 'src/layout/common.generated';
 import type { ITextResourceBindings } from 'src/layout/layout';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type GridSummaryProps = {
   componentNode: LayoutNode<'Grid'>;
@@ -128,10 +128,10 @@ interface GridRowProps {
   currentHeaderCells?: GridCellInternal[];
 }
 
-const getCurrentHeaderCells = (currentHeaderCells: GridCellInternal[], index: number): GridCellInternal | undefined =>
+const getCurrentHeaderCell = (currentHeaderCells: GridCellInternal[], index: number): GridCellInternal | undefined =>
   currentHeaderCells[index] ?? undefined;
 
-const getCellText = (cell: GridCellInternal | undefined) => {
+const getHeaderText = (cell: GridCellInternal | undefined, referencedNode) => {
   if (!cell) {
     return '';
   }
@@ -141,14 +141,16 @@ const getCellText = (cell: GridCellInternal | undefined) => {
   }
 
   if ('labelFrom' in cell) {
-    return cell.labelFrom;
+    return referencedNode?.item.textResourceBindings && 'title' in referencedNode.item.textResourceBindings
+      ? referencedNode?.item.textResourceBindings?.title
+      : '';
   }
 
   return '';
 };
 
 export function GridRowRenderer({ row, mutableColumnSettings, node, currentHeaderCells }: GridRowProps) {
-  const { langAsString } = useLanguage();
+  const { langAsString, langAsNonProcessedString } = useLanguage();
   const isMobile = useIsMobile();
 
   const pdfModeActive = usePdfModeActive();
@@ -168,11 +170,26 @@ export function GridRowRenderer({ row, mutableColumnSettings, node, currentHeade
       readOnly={row.readOnly}
     >
       {row.cells.map((cell, cellIdx) => {
-        const currentHeaderCell = getCurrentHeaderCells(currentHeaderCells ?? [], cellIdx);
-        let headerTitle = getCellText(currentHeaderCell);
-        if (currentHeaderCell && 'text' in currentHeaderCell && currentHeaderCell.text) {
-          headerTitle = langAsString(headerTitle);
+        const currentHeaderCell = getCurrentHeaderCell(currentHeaderCells ?? [], cellIdx);
+        let referencedNode: BaseLayoutNode | undefined = undefined;
+        let referencedNodeIsRequired = false;
+        if (currentHeaderCell && 'labelFrom' in currentHeaderCell) {
+          const referencedComponent = node
+            .flat(true)
+            .find(
+              (n) =>
+                n.item.id === currentHeaderCell.labelFrom || n.item.baseComponentId === currentHeaderCell.labelFrom,
+            );
+          if (referencedComponent) {
+            referencedNode = referencedComponent;
+            referencedNodeIsRequired =
+              ('required' in referencedComponent.item && referencedComponent.item.required) ?? false;
+          }
         }
+        const requiredIndicator = referencedNodeIsRequired
+          ? ` ${langAsNonProcessedString('form_filler.required_label')}`
+          : '';
+        const headerTitle = `${langAsString(getHeaderText(currentHeaderCell, referencedNode))}${requiredIndicator}`;
 
         if (row.header && cell && 'columnOptions' in cell && cell.columnOptions) {
           mutableColumnSettings[cellIdx] = cell.columnOptions;
@@ -191,6 +208,8 @@ export function GridRowRenderer({ row, mutableColumnSettings, node, currentHeade
                 help={cell?.help}
                 isHeader={row.header}
                 columnStyleOptions={textCellSettings}
+                headerTitle={headerTitle}
+                isSmall={isSmall}
               >
                 <Lang
                   id={cell.text}
@@ -204,12 +223,15 @@ export function GridRowRenderer({ row, mutableColumnSettings, node, currentHeade
             const closestComponent = node
               .flat(true)
               .find((n) => n.item.id === cell.labelFrom || n.item.baseComponentId === cell.labelFrom);
+
             return (
               <CellWithLabel
                 key={`${cell.labelFrom}/${cellIdx}`}
                 isHeader={row.header}
                 columnStyleOptions={textCellSettings}
                 referenceComponent={closestComponent}
+                headerTitle={headerTitle}
+                isSmall={isSmall}
               />
             );
           }
@@ -225,6 +247,7 @@ export function GridRowRenderer({ row, mutableColumnSettings, node, currentHeade
             isHeader={row.header}
             columnStyleOptions={mutableColumnSettings[cellIdx]}
             headerTitle={headerTitle}
+            isSmall={isSmall}
           />
         );
       })}
@@ -261,6 +284,7 @@ interface CellProps {
   isHeader?: boolean;
   rowReadOnly?: boolean;
   headerTitle?: string;
+  isSmall?: boolean;
 }
 
 interface CellWithComponentProps extends CellProps {
@@ -282,12 +306,9 @@ function CellWithComponent({
   isHeader = false,
   rowReadOnly,
   headerTitle,
+  isSmall,
 }: CellWithComponentProps) {
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
-  const isMobile = useIsMobile();
-  const pdfModeActive = usePdfModeActive();
-
-  const isSmall = isMobile && !pdfModeActive;
   const displayDataProps = useDisplayDataProps();
   const validations = useUnifiedValidationsForNode(node);
   const errors = validationsOfSeverity(validations, 'error');
@@ -309,6 +330,7 @@ function CellWithComponent({
             />
           )}
         </div>
+        <div className={cn({ [classes.errorMessage]: errors.length > 0 })}></div>
         {errors.length > 0 &&
           errors.map(({ message }) => (
             <ErrorMessage key={message.key}>
@@ -326,7 +348,14 @@ function CellWithComponent({
   return <CellComponent className={className} />;
 }
 
-function CellWithText({ children, className, columnStyleOptions, isHeader = false }: CellWithTextProps) {
+function CellWithText({
+  children,
+  className,
+  columnStyleOptions,
+  isHeader = false,
+  headerTitle,
+  isSmall,
+}: CellWithTextProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
 
@@ -334,6 +363,7 @@ function CellWithText({ children, className, columnStyleOptions, isHeader = fals
     <CellComponent
       className={cn(classes.tableCellFormatting, className)}
       style={columnStyles}
+      data-header-title={isSmall ? headerTitle : ''}
     >
       <span
         className={classes.contentFormatting}
@@ -345,7 +375,14 @@ function CellWithText({ children, className, columnStyleOptions, isHeader = fals
   );
 }
 
-function CellWithLabel({ className, columnStyleOptions, referenceComponent, isHeader = false }: CellWithLabelProps) {
+function CellWithLabel({
+  className,
+  columnStyleOptions,
+  referenceComponent,
+  isHeader = false,
+  headerTitle,
+  isSmall,
+}: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const refItem = referenceComponent?.item;
   const trb = (refItem && 'textResourceBindings' in refItem ? refItem.textResourceBindings : {}) as
@@ -362,6 +399,7 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent, isHe
     <CellComponent
       className={cn(classes.tableCellFormatting, className)}
       style={columnStyles}
+      data-header-title={isSmall ? headerTitle : ''}
     >
       {componentId && (
         <span className={classes.textLabel}>
