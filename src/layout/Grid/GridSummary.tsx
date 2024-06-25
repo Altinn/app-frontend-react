@@ -4,8 +4,6 @@ import type { PropsWithChildren } from 'react';
 import { ErrorMessage, Paragraph, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Label } from 'src/components/form/Label';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
@@ -19,7 +17,7 @@ import classes from 'src/layout/Grid/GridSummary.module.css';
 import { isGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
-import { BaseLayoutNode, type LayoutNode } from 'src/utils/layout/LayoutNode';
+import { type LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   GridCellInternal,
   GridRowInternal,
@@ -41,10 +39,7 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   const pdfModeActive = usePdfModeActive();
 
   const isSmall = isMobile && !pdfModeActive;
-  const isNested = componentNode.parent instanceof BaseLayoutNode;
-  const shouldHaveFullWidth = !isNested && !isSmall;
 
-  // this fixes a wcag issue where we had wrapped each row in its own table body or table head
   const tableSections: JSX.Element[] = [];
   let currentHeaderRow: GridRowInternal | undefined = undefined;
   let currentBodyRows: GridRowInternal[] = [];
@@ -59,7 +54,6 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
               <GridRowRenderer
                 key={bodyIndex}
                 row={bodyRow}
-                isNested={isNested}
                 mutableColumnSettings={columnSettings}
                 node={componentNode}
               />
@@ -74,7 +68,6 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
           <GridRowRenderer
             key={index}
             row={row}
-            isNested={isNested}
             mutableColumnSettings={columnSettings}
             node={componentNode}
             currentHeaderCells={currentHeaderRow?.cells}
@@ -96,7 +89,6 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
           <GridRowRenderer
             key={bodyIndex}
             row={bodyRow}
-            isNested={isNested}
             mutableColumnSettings={columnSettings}
             node={componentNode}
             currentHeaderCells={currentHeaderRow?.cells}
@@ -107,36 +99,30 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   }
 
   return (
-    <ConditionalWrapper
-      condition={shouldHaveFullWidth}
-      wrapper={(child) => <FullWidthWrapper>{child}</FullWidthWrapper>}
+    <Table
+      id={componentNode.item.id}
+      className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
     >
-      <Table
-        id={componentNode.item.id}
-        className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
-      >
-        {title && (
-          <caption className={cn({ [classes.captionFullWidth]: shouldHaveFullWidth }, classes.tableCaption)}>
-            <Paragraph
-              className={classes.gridSummaryTitle}
-              size='large'
-              asChild
-            >
-              <span>
-                <Lang id={title} />
-              </span>
-            </Paragraph>
-          </caption>
-        )}
-        {tableSections}
-      </Table>
-    </ConditionalWrapper>
+      {title && (
+        <caption className={classes.tableCaption}>
+          <Paragraph
+            className={classes.gridSummaryTitle}
+            size='large'
+            asChild
+          >
+            <span>
+              <Lang id={title} />
+            </span>
+          </Paragraph>
+        </caption>
+      )}
+      {tableSections}
+    </Table>
   );
 };
 
 interface GridRowProps {
   row: GridRowInternal;
-  isNested: boolean;
   mutableColumnSettings: ITableColumnFormatting;
   node: LayoutNode;
   currentHeaderCells?: GridCellInternal[];
@@ -161,7 +147,7 @@ const getCellText = (cell: GridCellInternal | undefined) => {
   return '';
 };
 
-export function GridRowRenderer({ row, isNested, mutableColumnSettings, node, currentHeaderCells }: GridRowProps) {
+export function GridRowRenderer({ row, mutableColumnSettings, node, currentHeaderCells }: GridRowProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
 
@@ -187,12 +173,6 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node, cu
         if (currentHeaderCell && 'text' in currentHeaderCell && currentHeaderCell.text) {
           headerTitle = langAsString(headerTitle);
         }
-        const isFirst = cellIdx === 0;
-        const isLast = cellIdx === row.cells.length - 1;
-        const className = cn({
-          [classes.fullWidthCellFirst]: isFirst && !isNested,
-          [classes.fullWidthCellLast]: isLast && !isNested,
-        });
 
         if (row.header && cell && 'columnOptions' in cell && cell.columnOptions) {
           mutableColumnSettings[cellIdx] = cell.columnOptions;
@@ -208,7 +188,6 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node, cu
             return (
               <CellWithText
                 key={`${cell.text}/${cellIdx}`}
-                className={className}
                 help={cell?.help}
                 isHeader={row.header}
                 columnStyleOptions={textCellSettings}
@@ -228,7 +207,6 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node, cu
             return (
               <CellWithLabel
                 key={`${cell.labelFrom}/${cellIdx}`}
-                className={className}
                 isHeader={row.header}
                 columnStyleOptions={textCellSettings}
                 referenceComponent={closestComponent}
@@ -245,26 +223,14 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node, cu
             key={`${componentId}/${cellIdx}`}
             node={componentNode}
             isHeader={row.header}
-            className={className}
             columnStyleOptions={mutableColumnSettings[cellIdx]}
             headerTitle={headerTitle}
           />
         );
       })}
-      {row.header && !isSmall && (
-        <Table.HeaderCell
-          className={cn({
-            [classes.fullWidthCellLast]: !isNested,
-          })}
-        />
-      )}
+      {row.header && !isSmall && <Table.HeaderCell />}
       {!row.header && !isSmall && (
-        <Table.Cell
-          align='right'
-          className={cn({
-            [classes.fullWidthCellLast]: !isNested,
-          })}
-        >
+        <Table.Cell align='right'>
           {firstComponentNode && !row.readOnly && (
             <EditButton
               componentNode={firstComponentNode}

@@ -24,6 +24,7 @@ export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
           pageId={summaryNode.item.target?.type === 'page' ? summaryNode.item.target.id : undefined}
           componentId={summaryNode.item.target?.type === 'component' ? summaryNode.item.target.id : undefined}
           summaryOverrides={summaryNode.item.overrides}
+          showAccordion={summaryNode.item.showPageInAccordion}
         />
       </TaskIdStoreProvider>
     );
