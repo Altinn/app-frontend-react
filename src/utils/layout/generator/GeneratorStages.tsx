@@ -51,16 +51,24 @@ interface CreateStoreProps {
 }
 
 function performanceMark(action: 'start' | 'end', runNum: number, stage?: Stage) {
+  if (typeof window.performance?.mark !== 'function') {
+    return;
+  }
+
   const _stage = stage ? stage.description : 'total';
   window.performance.mark(`GeneratorStages:${_stage}:${action}:${runNum}`);
 }
 
 function formatDuration(runNum: number, stage?: Stage) {
+  if (typeof window.performance?.getEntriesByName !== 'function') {
+    return '?ms';
+  }
+
   const _stage = stage ? stage.description : 'total';
   const start = window.performance.getEntriesByName(`GeneratorStages:${_stage}:start:${runNum}`)[0];
   const end = window.performance.getEntriesByName(`GeneratorStages:${_stage}:end:${runNum}`)[0];
   if (!start || !end) {
-    return '';
+    return '?ms';
   }
   return `${(end.startTime - start.startTime).toFixed(0)}ms`;
 }
@@ -189,10 +197,6 @@ function shouldCommit(stage: Stage, registry: Registry) {
  * Wrapping hooks this way ensures that the order of execution of the hooks is guaranteed.
  */
 export function GeneratorStagesProvider({ children }: PropsWithChildren) {
-  if (window.performance.getEntriesByName(`GeneratorStages:${List[0].description}:start`).length === 0) {
-    window.performance.mark(`GeneratorStages:${List[0].description}:start`);
-  }
-
   const registry = React.useRef<Registry>(
     Object.fromEntries(
       List.map((s) => [
@@ -211,7 +215,10 @@ export function GeneratorStagesProvider({ children }: PropsWithChildren) {
     <Provider registry={registry}>
       <SetTickFunc />
       {GeneratorDebug.logStages && <LogSlowStages />}
-      <WhenTickIsSet>{children}</WhenTickIsSet>
+      <WhenTickIsSet>
+        <CatchEmptyStages />
+        {children}
+      </WhenTickIsSet>
     </Provider>
   );
 }
@@ -368,6 +375,26 @@ function SetTickFunc() {
       }
     };
   }, [setTick, tick]);
+
+  return null;
+}
+
+function CatchEmptyStages() {
+  const currentStage = useSelector((state) => state.currentStage);
+  const registry = useSelector((state) => state.registry);
+  const tick = useSelector((state) => state.tick);
+
+  useEffect(() => {
+    // If, after a render we don't have any registered hooks or callbacks for the current stage, we should just proceed
+    // to the next stage (using the tick function).
+    setTimeout(() => {
+      const numHooks = Object.keys(registry.current[currentStage].hooks).length;
+      const numComponents = Object.keys(registry.current[currentStage].components).length;
+      if (numHooks === 0 && numComponents === 0) {
+        tick && tick();
+      }
+    }, 4);
+  }, [currentStage, registry, tick]);
 
   return null;
 }

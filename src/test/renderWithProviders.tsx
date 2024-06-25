@@ -40,6 +40,7 @@ import { TextResourcesProvider } from 'src/features/language/textResources/TextR
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
+import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import { PageNavigationRouter } from 'src/test/routerUtils';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -218,7 +219,7 @@ function DefaultRouter({ children }: PropsWithChildren) {
       <Routes>
         <Route
           path={'/'}
-          element={<>{children}</>}
+          element={<AppRoutingProvider>{children}</AppRoutingProvider>}
         />
         <Route
           path={'*'}
@@ -243,11 +244,11 @@ export function InstanceRouter({
       <Routes>
         <Route
           path={'instance/:partyId/:instanceGuid/:taskId/:pageId'}
-          element={children}
+          element={<AppRoutingProvider>{children}</AppRoutingProvider>}
         />
         <Route
           path={'instance/:partyId/:instanceGuid/:taskId'}
-          element={children}
+          element={<AppRoutingProvider>{children}</AppRoutingProvider>}
         />
         <Route
           path={'*'}

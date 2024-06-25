@@ -1,15 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { useCurrentDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
-import { dotNotationToPointer } from 'src/features/datamodel/notations';
-import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
-import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
+import { useCurrentDataModelSchemaLookup } from 'src/features/datamodel/DataModelSchemaProvider';
 import { formatLayoutSchemaValidationError } from 'src/features/devtools/utils/layoutSchemaValidation';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
 import { GeneratorValidation } from 'src/utils/layout/generator/validation/GenerationValidationContext';
+import { useIsJest } from 'src/utils/layout/generator/validation/useIsJest';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { getRootElementPath } from 'src/utils/schemaUtils';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { CompExternalExact, CompIntermediate } from 'src/layout/layout';
@@ -34,31 +31,25 @@ export function NodePropertiesValidation(props: NodeValidationProps) {
 
 function DataModelValidation({ node, item }: NodeValidationProps) {
   const addError = NodesInternal.useAddError();
-  const schema = useCurrentDataModelSchema();
-  const dataType = useCurrentDataModelType();
+  const schemaLookup = useCurrentDataModelSchemaLookup();
+  const isJest = useIsJest();
 
   const errors = useMemo(() => {
-    if ('validateDataModelBindings' in node.def && schema) {
-      const rootElementPath = getRootElementPath(schema, dataType);
-      // TODO: Verify that caching in lookupBindingInSchema still works after this
-      // functionality have been spread out to each node generator
-      const lookupBinding = (binding: string) =>
-        lookupBindingInSchema({
-          schema,
-          rootElementPath,
-          targetPointer: dotNotationToPointer(binding),
-        });
+    if (isJest) {
+      return [];
+    }
 
+    if ('validateDataModelBindings' in node.def) {
       const ctx: LayoutValidationCtx<any> = {
         node: node as LayoutNode<any>,
         item: item as CompIntermediate<any>,
-        lookupBinding,
+        lookupBinding: (binding: string) => schemaLookup.getSchemaForPath(binding),
       };
       return node.def.validateDataModelBindings(ctx as any);
     }
 
     return [];
-  }, [dataType, item, node, schema]);
+  }, [item, node, schemaLookup, isJest]);
 
   // Must run after nodes have been added for the errors to actually be added
   GeneratorStages.MarkHidden.useEffect(() => {

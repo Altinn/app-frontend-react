@@ -13,6 +13,7 @@ import {
   LAYOUT_SCHEMA_NAME,
 } from 'src/features/devtools/utils/layoutSchemaValidation';
 import { useIsDev } from 'src/hooks/useIsDev';
+import { useIsJest } from 'src/utils/layout/generator/validation/useIsJest';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 
 interface Context {
@@ -70,9 +71,10 @@ function FetchLayoutSchema({
 function useIsLayoutValidationEnabled() {
   const hasBeenEnabledBefore = useRef(false);
   const isDev = useIsDev();
+  const isJest = useIsJest();
   const panelOpen = useDevToolsStore((s) => s.isOpen);
   const hasErrors = NodesInternal.useHasErrors();
-  const enabled = isDev || hasErrors || panelOpen || hasBeenEnabledBefore.current;
+  const enabled = (isDev || hasErrors || panelOpen || hasBeenEnabledBefore.current) && !isJest;
   hasBeenEnabledBefore.current = enabled;
 
   return enabled;
