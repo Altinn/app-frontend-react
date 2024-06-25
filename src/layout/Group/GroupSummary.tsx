@@ -48,11 +48,15 @@ function renderChildComponents(componentNode: LayoutNode, hierarchyLevel = 0, su
           return renderGroupComponentSummary(child as LayoutNode<'Group'>, hierarchyLevel);
         } else {
           return (
-            <ComponentSummary
+            <div
               key={child?.item?.id}
-              componentNode={child}
-              summaryOverrides={summaryOverrides}
-            />
+              className={cn(classes.childItem)}
+            >
+              <ComponentSummary
+                componentNode={child}
+                summaryOverrides={summaryOverrides}
+              />
+            </div>
           );
         }
       })
@@ -68,18 +72,15 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrid
   const isNestedGroup = isGroup && hierarchyLevel > 0;
   return (
     <section className={isNestedGroup ? cn(classes.groupContainer, classes.nested) : cn(classes.groupContainer)}>
-      <Heading
-        size={isNestedGroup ? 'xsmall' : 'small'}
-        level={headingLevel}
-      >
-        {title}
-      </Heading>
-      <Paragraph
-        spacing
-        className={cn(classes.description)}
-      >
-        {description}
-      </Paragraph>
+      <div className={cn(classes.groupHeading)}>
+        <Heading
+          size={isNestedGroup ? 'xsmall' : 'small'}
+          level={headingLevel}
+        >
+          {title}
+        </Heading>
+        <Paragraph className={cn(classes.description)}>{description}</Paragraph>
+      </div>
       {renderChildComponents(componentNode, hierarchyLevel, summaryOverrides)}
     </section>
   );

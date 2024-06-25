@@ -4,9 +4,17 @@
   border-radius: var(--fds-border_radius-medium);
   border-color: var(--fds-semantic-border-neutral-default);
   border-style: dashed;
-  margin-top: var(--fds-spacing-4);
+  margin-top: var(--fds-spacing-6);
+}
+
+.groupContainer .groupHeading {
+  margin-bottom: var(--fds-spacing-6);
 }
 
 .groupContainer .description {
   color: var(--semantic-text-neutral-subtle);
+}
+
+.groupContainer .childItem:not(:last-of-type) {
+  margin-bottom: var(--fds-spacing-8);
 }
