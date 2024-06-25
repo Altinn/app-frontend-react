@@ -4,7 +4,7 @@ import { Accordion } from '@digdir/designsystemet-react';
 
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { Lang } from 'src/features/language/Lang';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
 import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
@@ -20,7 +20,6 @@ interface TaskSummaryProps {
 
 function TaskSummaryAccordion({ pageKey, children }: React.PropsWithChildren<{ pageKey: string }>) {
   const [isOpen, setIsOpen] = useState(true);
-  const { langAsString } = useLanguage();
   return (
     <Accordion
       border
@@ -30,7 +29,9 @@ function TaskSummaryAccordion({ pageKey, children }: React.PropsWithChildren<{ p
         key={pageKey}
         open={isOpen}
       >
-        <Accordion.Header onHeaderClick={() => setIsOpen(!isOpen)}>{langAsString(pageKey)}</Accordion.Header>
+        <Accordion.Header onHeaderClick={() => setIsOpen(!isOpen)}>
+          <Lang id={pageKey} />
+        </Accordion.Header>
         <Accordion.Content>{children}</Accordion.Content>
       </Accordion.Item>
     </Accordion>

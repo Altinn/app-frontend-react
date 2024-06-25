@@ -4,13 +4,13 @@ import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import type { CompDropdownInternal } from 'src/layout/Dropdown/config.generated';
+import type { DropdownSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type DropdownComponentSummaryProps = {
   componentNode: LayoutNode<'Dropdown'>;
   displayData: string;
-  summaryOverrides?: CompDropdownInternal['summaryProps'];
+  summaryOverrides?: DropdownSummaryOverrideProps;
 };
 
 export const DropdownSummary = ({ componentNode, displayData }: DropdownComponentSummaryProps) => {

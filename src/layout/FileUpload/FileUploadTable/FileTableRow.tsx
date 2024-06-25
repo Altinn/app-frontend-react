@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
-
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { isAttachmentUploaded } from 'src/features/attachments';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
@@ -107,11 +106,9 @@ const NameCell = ({
                 <div>
                   {readableSize}
                   {hasTag && (
-                    <CheckmarkCircleFillIcon
-                      aria-label={langAsString('form_filler.file_uploader_list_status_done')}
-                      role='img'
-                      style={{ marginLeft: '5px' }}
-                    />
+                    <div data-testid='status-success'>
+                      <Lang id={'form_filler.file_uploader_list_status_done'} />
+                    </div>
                   )}
                 </div>
               ) : (
@@ -145,7 +142,12 @@ const StatusCellContent = ({ uploaded, mobileView }) => {
   return (
     <td>
       {uploaded ? (
-        <div className={classes.fileStatus}>{mobileView ? null : status}</div>
+        <div
+          className={classes.fileStatus}
+          data-testid='status-success'
+        >
+          {mobileView ? null : status}
+        </div>
       ) : (
         <AltinnLoader
           id='loader-upload'

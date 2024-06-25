@@ -20,22 +20,19 @@ import { isGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode, type LayoutNode } from 'src/utils/layout/LayoutNode';
-import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type {
   GridCellInternal,
   GridRowInternal,
   ITableColumnFormatting,
   ITableColumnProperties,
 } from 'src/layout/common.generated';
-import type { CompInputInternal } from 'src/layout/Input/config.generated';
 import type { ITextResourceBindings } from 'src/layout/layout';
 
 type GridSummaryProps = {
   componentNode: LayoutNode<'Grid'>;
-  summaryOverrides?: CompInputInternal['summaryProps'];
 };
 
-export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProps) => {
+export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   const { rows, textResourceBindings } = componentNode.item;
   const { title } = textResourceBindings ?? {};
 
@@ -44,9 +41,8 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
   const pdfModeActive = usePdfModeActive();
 
   const isSmall = isMobile && !pdfModeActive;
-
-  const shouldHaveFullWidth = componentNode.parent instanceof LayoutPage && !isSmall;
   const isNested = componentNode.parent instanceof BaseLayoutNode;
+  const shouldHaveFullWidth = !isNested && !isSmall;
 
   // this fixes a wcag issue where we had wrapped each row in its own table body or table head
   const tableSections: JSX.Element[] = [];
@@ -58,7 +54,7 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
       // If there are accumulated body rows, push them into a tbody
       if (currentBodyRows.length > 0) {
         tableSections.push(
-          <tbody key={`tbody-${index}`}>
+          <Table.Body key={`tbody-${index}`}>
             {currentBodyRows.map((bodyRow, bodyIndex) => (
               <GridRowRenderer
                 key={bodyIndex}
@@ -68,13 +64,13 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
                 node={componentNode}
               />
             ))}
-          </tbody>,
+          </Table.Body>,
         );
         currentBodyRows = [];
       }
       // Add the header row
       tableSections.push(
-        <thead key={`thead-${index}`}>
+        <Table.Head key={`thead-${index}`}>
           <GridRowRenderer
             key={index}
             row={row}
@@ -83,7 +79,7 @@ export const GridSummary = ({ componentNode, summaryOverrides }: GridSummaryProp
             node={componentNode}
             currentHeaderCells={currentHeaderRow?.cells}
           />
-        </thead>,
+        </Table.Head>,
       );
       currentHeaderRow = row;
     } else {

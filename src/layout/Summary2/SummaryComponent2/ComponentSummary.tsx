@@ -45,8 +45,11 @@ export function ComponentSummary({ componentNode, summaryOverrides }: ComponentS
 }
 
 export function ResolveComponent({ summaryProps, summaryOverrides }: ResolveComponentProps) {
-  const resolvedComponent = useNode(summaryProps.target.id);
+  if (!summaryProps.target?.id) {
+    throw new Error('Tried to render component without, this should not happen.');
+  }
 
+  const resolvedComponent = useNode(summaryProps.target.id);
   if (!resolvedComponent) {
     return null;
   }

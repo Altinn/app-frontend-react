@@ -142,6 +142,8 @@ tr > .fullWidthCellLast {
 
 .responsiveTable tr {
   border-bottom: 2px solid var(--fds-semantic-border-neutral-default);
+  padding-top: var(--fds-spacing-3);
+  padding-bottom: var(--fds-spacing-3);
 }
 
 .responsiveTable td[data-header-title]:not([data-header-title=''])::before,

@@ -12,16 +12,24 @@ export interface ISummaryComponent2 {
 }
 
 export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
-  if (summaryNode.item.target.type === 'layoutSet') {
+  if (!summaryNode.item.target && !summaryNode.item.taskId) {
+    return <LayoutSetSummary />;
+  }
+
+  if (summaryNode.item.taskId) {
     return (
-      <LayoutSetSummary
-        layoutSetId={summaryNode.item.target.id}
-        summaryOverrides={summaryNode.item.overrides}
-      />
+      <TaskIdStoreProvider>
+        <TaskSummaryWrapper
+          taskId={summaryNode.item.taskId}
+          pageId={summaryNode.item.target?.type === 'page' ? summaryNode.item.target.id : undefined}
+          componentId={summaryNode.item.target?.type === 'component' ? summaryNode.item.target.id : undefined}
+          summaryOverrides={summaryNode.item.overrides}
+        />
+      </TaskIdStoreProvider>
     );
   }
 
-  if (summaryNode.item.target.type === 'page') {
+  if (summaryNode.item.target?.type === 'page') {
     return (
       <PageSummary
         pageId={summaryNode.item.target.id}
@@ -30,32 +38,12 @@ export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
     );
   }
 
-  if (summaryNode.item.target.type === 'component') {
+  if (summaryNode.item.target?.type === 'component') {
     return (
       <ResolveComponent
         summaryProps={summaryNode.item}
         summaryOverrides={summaryNode.item.overrides}
       />
-    );
-  }
-
-  if (summaryNode.item.target.type === 'task') {
-    const IDSplitted = summaryNode.item.target.id.split('>');
-
-    const taskId = IDSplitted.length > 1 ? IDSplitted[0] : summaryNode.item.target.id;
-    const pageId = IDSplitted.length > 1 ? IDSplitted[1] : undefined;
-
-    const componentId = IDSplitted.length > 2 ? IDSplitted[2] : undefined;
-
-    return (
-      <TaskIdStoreProvider>
-        <TaskSummaryWrapper
-          taskId={taskId}
-          pageId={pageId}
-          componentId={componentId}
-          summaryOverrides={summaryNode.item.overrides}
-        />
-      </TaskIdStoreProvider>
     );
   }
 }
