@@ -374,16 +374,23 @@ export const DataModels = {
   useExpressionValidationConfig: (dataType: string) =>
     useSelector((state) => state.expressionValidationConfigs[dataType]),
 
+  /**
+   * Takes a dataElementId and returns the corresponding data type if we have it,
+   * it will return the default data type if undefined is provided,
+   * this is to be backwards compatible with validation issues where the data element id was
+   * sometimes not set.
+   */
   useGetDataTypeForDataElementId: () => {
     const typeToElement = useSelector((state) => state.dataElementIds);
+    const defaultDataType = useSelector((state) => state.defaultDataType);
     return useCallback(
       (dataElementId: string | undefined) =>
-        dataElementId
+        (dataElementId
           ? Object.entries(typeToElement)
               .find(([_, id]) => dataElementId === id)
-              ?.at(0) ?? null
-          : null,
-      [typeToElement],
+              ?.at(0)
+          : defaultDataType) ?? null,
+      [defaultDataType, typeToElement],
     );
   },
 };

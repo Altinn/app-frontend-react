@@ -40,7 +40,7 @@ function isStandardBackend(rawSource: string): boolean {
  */
 export function mapBackendIssuesToFieldValdiations(
   issues: BackendValidationIssue[],
-  getDataTypeFromElementId: ReturnType<typeof DataModels.useGetDataTypeForDataElementId>,
+  getDataTypeForElementId: ReturnType<typeof DataModels.useGetDataTypeForDataElementId>,
 ): FieldValidation[] {
   const fieldValidations: FieldValidation[] = [];
   for (const issue of issues) {
@@ -50,7 +50,7 @@ export function mapBackendIssuesToFieldValdiations(
       continue;
     }
 
-    const dataType = getDataTypeFromElementId(dataElementId);
+    const dataType = getDataTypeForElementId(dataElementId);
 
     if (!dataType) {
       continue;
