@@ -6,7 +6,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
 import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
-import { filterDuplicateOptions } from 'src/utils/options';
+import { filterDuplicateOptions, verifyOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type {
@@ -124,6 +124,7 @@ export function useGetOptions(props: Props): OptionsResult {
 
   const [calculatedOptions, preselectedOption] = useMemo(() => {
     let draft = sourceOptions || fetchedOptions?.data || staticOptions;
+    verifyOptions(draft);
     let preselectedOption: IOptionInternal | undefined = undefined;
     if (preselectedOptionIndex !== undefined && draft && draft[preselectedOptionIndex]) {
       // This index uses the original options array, before any filtering or sorting
