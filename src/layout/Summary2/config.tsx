@@ -31,6 +31,7 @@ export const Config = new CG.component({
         .optional(),
     ),
   )
+  .addProperty(new CG.prop('showPageInAccordion', new CG.bool().optional()))
   .addProperty(
     new CG.prop(
       'taskId',

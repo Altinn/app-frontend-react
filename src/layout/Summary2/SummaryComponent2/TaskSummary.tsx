@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { Accordion } from '@digdir/designsystemet-react';
 
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { Lang } from 'src/features/language/Lang';
@@ -16,6 +17,7 @@ interface TaskSummaryProps {
   componentId?: string;
   summaryOverrides: any;
   hideEditButton?: boolean;
+  showAccordion?: boolean;
 }
 
 function TaskSummaryAccordion({ pageKey, children }: React.PropsWithChildren<{ pageKey: string }>) {
@@ -38,7 +40,7 @@ function TaskSummaryAccordion({ pageKey, children }: React.PropsWithChildren<{ p
   );
 }
 
-function TaskSummary({ pageId, componentId, summaryOverrides }: TaskSummaryProps) {
+function TaskSummary({ pageId, componentId, summaryOverrides, showAccordion }: TaskSummaryProps) {
   const nodes = useNodes();
   if (componentId) {
     const nodeToRender = nodes.findById(componentId);
@@ -58,6 +60,8 @@ function TaskSummary({ pageId, componentId, summaryOverrides }: TaskSummaryProps
     pageKeys = pageKeys.filter((key) => key === pageId);
   }
 
+  const showAccordionWrapper = !!showAccordion;
+
   return (
     <div style={{ width: '100%' }}>
       {pageKeys.map((page) => (
@@ -65,12 +69,15 @@ function TaskSummary({ pageId, componentId, summaryOverrides }: TaskSummaryProps
           style={{ marginBottom: '10px' }}
           key={page}
         >
-          <TaskSummaryAccordion pageKey={page}>
+          <ConditionalWrapper
+            condition={showAccordionWrapper}
+            wrapper={(child) => <TaskSummaryAccordion pageKey={page}>{child}</TaskSummaryAccordion>}
+          >
             <PageSummary
               pageId={page}
               summaryOverrides={summaryOverrides}
             />
-          </TaskSummaryAccordion>
+          </ConditionalWrapper>
         </div>
       ))}
     </div>
@@ -81,6 +88,7 @@ export function TaskSummaryWrapper({
   pageId,
   componentId,
   summaryOverrides,
+  showAccordion,
 }: React.PropsWithChildren<TaskSummaryProps>) {
   const { setTaskId, setOverriddenDataModelId, setOverriddenLayoutSetId, overriddenTaskId } = useTaskStore((state) => ({
     setTaskId: state.setTaskId,
@@ -107,6 +115,7 @@ export function TaskSummaryWrapper({
           pageId={pageId}
           componentId={componentId}
           summaryOverrides={summaryOverrides}
+          showAccordion={showAccordion}
         />
       </FormProvider>
     );
