@@ -17,7 +17,7 @@ export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
 
 export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownProps) {
   const { id, readOnly, textResourceBindings, alertOnChange } = node.item;
-  const { langAsString, lang } = useLanguage();
+  const { langAsString, lang } = useLanguage(node);
 
   const debounce = FD.useDebounceImmediately();
 
@@ -26,7 +26,6 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
     valueType: 'single',
     node,
     removeDuplicates: true,
-    removeEmpty: true,
   });
 
   const changeMessageGenerator = useCallback(
@@ -89,12 +88,15 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
             key={option.value}
             value={option.value}
             description={option.description ? langAsString(option.description) : undefined}
-            displayValue={langAsString(option.label)}
+            displayValue={langAsString(option.label) || '\u200b'} // Workaround to prevent component from crashing due to empty string
           >
-            <Lang
-              id={option.label}
-              node={node}
-            />
+            <span>
+              <wbr />
+              <Lang
+                id={option.label}
+                node={node}
+              />
+            </span>
           </Combobox.Option>
         ))}
       </Combobox>
