@@ -13,7 +13,6 @@ import { LayoutStyle } from 'src/layout/common.generated';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/LikertItem/LikertItemComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -22,14 +21,11 @@ interface LikertComponentProps {
 }
 
 export const LikertComponent = ({ node }: LikertComponentProps) => {
-  const children = useNodeTraversal(
-    (t) => t.children((i) => i.type === 'node' && i.item?.type === 'LikertItem'),
-    node,
-  ) as LayoutNode<'LikertItem'>[];
-  const { textResourceBindings } = useNodeItem(node);
+  const { textResourceBindings, rows } = useNodeItem(node);
   const mobileView = useIsMobileOrTablet();
-  const { options: calculatedOptions, isFetching } = useNodeOptions(children[0]);
+  const { options: calculatedOptions, isFetching } = useNodeOptions(rows[0].item);
   const { lang } = useLanguage();
+  const rowItems = rows.map((row) => row.item);
 
   const id = node.getId();
   const hasDescription = !!textResourceBindings?.description;
@@ -79,7 +75,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           aria-labelledby={(hasTitle && titleId) || undefined}
           aria-describedby={(hasDescription && descriptionId) || undefined}
         >
-          {children.map((comp) => (
+          {rowItems.map((comp) => (
             <GenericComponent
               key={comp.getId()}
               node={comp}
@@ -137,7 +133,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
             </Table.Row>
           </Table.Head>
           <Table.Body id={`likert-table-body-${id}`}>
-            {children.map((comp) => {
+            {rowItems.map((comp) => {
               const override: IGenericComponentProps<'LikertItem'>['overrideItemProps'] = {
                 layout: LayoutStyle.Table,
               };
@@ -145,7 +141,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
               return (
                 <GenericComponent
                   key={comp.getId()}
-                  node={comp as LayoutNode<'LikertItem'>}
+                  node={comp}
                   overrideItemProps={override}
                 />
               );

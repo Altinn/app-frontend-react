@@ -11,8 +11,8 @@ import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
 import classes from 'src/layout/LikertItem/LikertItemComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
 
@@ -42,10 +42,8 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   const validations = useUnifiedValidationsForNode(node);
 
   const { id, readOnly } = useNodeItem(node);
-  const groupContainer = useNodeTraversal(
-    (t) => t.closest((i) => i.type === 'node' && i.item?.type === 'Likert'),
-    node,
-  );
+  const groupContainer =
+    node.parent instanceof BaseLayoutNode && node.parent.isType('Likert') ? node.parent : undefined;
   const groupContainerId = groupContainer?.getId();
 
   const headerColumnId = `${groupContainerId}-likert-columnheader-left`;
@@ -60,7 +58,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
       ref={ref}
     >
       <Table.Cell id={rowLabelId}>
-        <Typography component={'div'}>
+        <Typography component='div'>
           <GenericComponentLegend />
           <ComponentValidations validations={validations} />
         </Typography>

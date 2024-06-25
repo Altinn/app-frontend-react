@@ -15,7 +15,7 @@ import { useResolvedExpression } from 'src/utils/layout/generator/useResolvedExp
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { Hidden, NodesInternal, useNodesWhenNotReady } from 'src/utils/layout/NodesContext';
-import type { CompExternal, CompTypes, ILayout } from 'src/layout/layout';
+import type { CompExternal, CompExternalExact, CompTypes, ILayout } from 'src/layout/layout';
 import type {
   BasicNodeGeneratorProps,
   ChildClaimerProps,
@@ -264,7 +264,10 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
           layoutMap={layoutMap}
           childrenMap={map}
         >
-          <GenerateNodeChildren claims={topLevelIdsAsClaims} />
+          <GenerateNodeChildren
+            claims={topLevelIdsAsClaims}
+            pluginKey={undefined}
+          />
         </GeneratorPageProvider>
       )}
     </>
@@ -319,13 +322,12 @@ function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
   return null;
 }
 
-interface NodeChildrenProps {
-  claims: ChildClaims;
-  pluginKey: string;
-}
+function useFilteredClaims(claims: ChildClaims, pluginKey: string | undefined) {
+  return useMemo(() => {
+    if (!pluginKey) {
+      return claims;
+    }
 
-export function GenerateNodeChildrenWhenReady({ claims, pluginKey }: NodeChildrenProps) {
-  const filteredClaims = useMemo(() => {
     const out: ChildClaims = {};
     for (const id in claims) {
       if (claims[id].pluginKey === pluginKey) {
@@ -334,19 +336,62 @@ export function GenerateNodeChildrenWhenReady({ claims, pluginKey }: NodeChildre
     }
     return out;
   }, [claims, pluginKey]);
+}
+
+interface NodeChildrenProps {
+  claims: ChildClaims;
+  pluginKey: string | undefined;
+}
+
+export function GenerateNodeChildren({ claims, pluginKey }: NodeChildrenProps) {
+  const layoutMap = GeneratorInternal.useLayoutMap();
+  const filteredClaims = useFilteredClaims(claims, pluginKey);
 
   return (
     <GeneratorCondition
       stage={StageAddNodes}
       mustBeAdded='parent'
     >
-      <GenerateNodeChildren claims={filteredClaims} />
+      <GenerateNodeChildrenInternal
+        claims={filteredClaims}
+        layoutMap={layoutMap}
+      />
     </GeneratorCondition>
   );
 }
 
-export function GenerateNodeChildren({ claims }: Omit<NodeChildrenProps, 'pluginKey'>) {
-  const layoutMap = GeneratorInternal.useLayoutMap();
+interface NodeChildrenStaticLayoutProps {
+  staticLayoutMap: Record<string, CompExternal>;
+  claims: ChildClaims;
+  pluginKey?: string;
+}
+
+export function GenerateNodeChildrenWithStaticLayout({
+  claims,
+  pluginKey,
+  staticLayoutMap,
+}: NodeChildrenStaticLayoutProps) {
+  const filteredClaims = useFilteredClaims(claims, pluginKey);
+
+  return (
+    <GeneratorCondition
+      stage={StageAddNodes}
+      mustBeAdded='parent'
+    >
+      <GenerateNodeChildrenInternal
+        claims={filteredClaims}
+        layoutMap={staticLayoutMap}
+      />
+    </GeneratorCondition>
+  );
+}
+
+interface NodeChildrenInternalProps {
+  claims: ChildClaims;
+  layoutMap: Record<string, CompExternal>;
+}
+
+function GenerateNodeChildrenInternal({ claims, layoutMap }: NodeChildrenInternalProps) {
   const map = GeneratorInternal.useChildrenMap();
 
   return (
@@ -354,10 +399,9 @@ export function GenerateNodeChildren({ claims }: Omit<NodeChildrenProps, 'plugin
       {Object.keys(claims).map((id) => (
         <GeneratorErrorBoundary key={id}>
           <GenerateComponent
-            baseId={id}
+            layout={layoutMap[id]}
             claim={claims[id]}
             childClaims={map[id]}
-            type={layoutMap[id].type}
           />
         </GeneratorErrorBoundary>
       ))}
@@ -416,27 +460,26 @@ function ComponentClaimChildren({ component, claims, getProto }: ComponentClaimC
 }
 
 interface ComponentProps {
-  baseId: string;
-  type: CompTypes;
+  layout: CompExternalExact<CompTypes>;
   claim: ChildClaim;
   childClaims: ChildClaims | undefined;
 }
 
-function GenerateComponent({ baseId, type, claim, childClaims }: ComponentProps) {
-  const def = getComponentDef(type);
+function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
+  const def = getComponentDef(layout.type);
   const props = useMemo(() => {
     if (def instanceof ContainerComponent) {
       const out: ContainerGeneratorProps = {
         claim,
-        baseId,
+        externalItem: layout,
         childClaims: childClaims ?? {},
       };
       return out;
     }
 
-    const out: BasicNodeGeneratorProps = { claim, baseId };
+    const out: BasicNodeGeneratorProps = { claim, externalItem: layout };
     return out;
-  }, [claim, childClaims, baseId, def]);
+  }, [def, claim, layout, childClaims]);
 
   if (!def) {
     return null;
@@ -452,7 +495,7 @@ function GenerateComponent({ baseId, type, claim, childClaims }: ComponentProps)
     >
       {GeneratorDebug.displayState && (
         <h3>
-          {baseId} ({type})
+          {layout.id} ({layout.type})
         </h3>
       )}
       {GeneratorDebug.displayState && (

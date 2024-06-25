@@ -2,7 +2,13 @@ import React, { useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
-import type { CompExternal, CompIntermediate, CompIntermediateExact, CompTypes } from 'src/layout/layout';
+import type {
+  CompExternal,
+  CompExternalExact,
+  CompIntermediate,
+  CompIntermediateExact,
+  CompTypes,
+} from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { BaseRow } from 'src/utils/layout/types';
@@ -27,7 +33,8 @@ type PageProviderProps = Pick<GeneratorContext, 'layoutMap' | 'childrenMap'> & {
 };
 
 type NodeGeneratorProps = Pick<GeneratorContext, 'directMutators' | 'recursiveMutators'> & {
-  item: CompIntermediateExact<CompTypes>;
+  externalItem: CompExternalExact<CompTypes>;
+  intermediateItem: CompIntermediateExact<CompTypes>;
   parent: LayoutNode;
 };
 
@@ -41,7 +48,8 @@ interface GeneratorContext {
   layoutMap: Record<string, CompExternal>;
   childrenMap: ChildClaimsMap;
   parent: LayoutNode | LayoutPage;
-  item: CompIntermediateExact<CompTypes> | undefined;
+  externalItem: CompExternalExact<CompTypes> | undefined;
+  intermediateItem: CompIntermediateExact<CompTypes> | undefined;
   row: BaseRow | undefined;
   page: LayoutPage;
   depth: number; // Depth is 1 for top level nodes, 2 for children of top level nodes, etc.
@@ -87,7 +95,8 @@ export function GeneratorPageProvider({ children, ...rest }: PropsWithChildren<P
   const value: GeneratorContext = useMemo(
     () => ({
       page: rest.parent,
-      item: undefined,
+      externalItem: undefined,
+      intermediateItem: undefined,
       row: undefined,
 
       // For a page, the depth starts at 1 because in principle the page is the top level node, at depth 0, so
@@ -137,5 +146,7 @@ export const GeneratorInternal = {
   useParent: () => useCtx().parent,
   usePage: () => useCtx().page,
   useRow: () => useCtx().row,
-  useIntermediateItem: () => useCtx().item,
+
+  useExternalItem: () => useCtx().externalItem,
+  useIntermediateItem: () => useCtx().intermediateItem,
 };

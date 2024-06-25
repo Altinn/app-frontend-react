@@ -14,7 +14,7 @@ import {
   StageAddNodes,
   StageEvaluateExpressions,
 } from 'src/utils/layout/generator/GeneratorStages';
-import { GenerateNodeChildrenWhenReady } from 'src/utils/layout/generator/LayoutSetGenerator';
+import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { useDef, useExpressionResolverProps } from 'src/utils/layout/generator/NodeGenerator';
 import { NodesInternal, useNodeLax } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
@@ -77,7 +77,7 @@ function PerformWork({ claims, binding, multiPageSupport, externalProp, internal
  * Re-uses the existing row objects from previous runs whenever row uuids match.
  * This causes props to not change for the row components, which is important for performance.
  */
-function useReusedRows(freshRows: BaseRow[], prevRows: MutableRefObject<BaseRow[]>): BaseRow[] {
+export function useReusedRows(freshRows: BaseRow[], prevRows: MutableRefObject<BaseRow[]>): BaseRow[] {
   const out: BaseRow[] = [];
   const prevRowsMap = new Map(prevRows.current.map((r) => [r.uuid, r]));
 
@@ -136,7 +136,7 @@ function _GenerateRow({ row, claims, groupBinding, multiPageMapping, internalPro
       >
         <ResolveRowExpressions internalProp={internalProp} />
       </GeneratorCondition>
-      <GenerateNodeChildrenWhenReady
+      <GenerateNodeChildren
         claims={claims}
         pluginKey={pluginKey}
       />
@@ -223,14 +223,14 @@ function mutateMultiPageIndex(multiPageMapping: MultiPageMapping | undefined): C
   };
 }
 
-function mutateComponentId(row: BaseRow): ChildMutator {
+export function mutateComponentId(row: BaseRow): ChildMutator {
   return (item) => {
     (item as any).baseComponentId = (item as any).baseComponentId || item.id;
     item.id += `-${row.index}`;
   };
 }
 
-function mutateDataModelBindings(row: BaseRow, groupBinding: string | undefined): ChildMutator {
+export function mutateDataModelBindings(row: BaseRow, groupBinding: string | undefined): ChildMutator {
   return (item) => {
     const bindings = item.dataModelBindings || {};
     for (const key of Object.keys(bindings)) {
@@ -241,7 +241,7 @@ function mutateDataModelBindings(row: BaseRow, groupBinding: string | undefined)
   };
 }
 
-function mutateMapping(row: BaseRow, depth: number): ChildMutator {
+export function mutateMapping(row: BaseRow, depth: number): ChildMutator {
   return (item) => {
     if ('mapping' in item && item.mapping) {
       const depthMarker = depth - 1;

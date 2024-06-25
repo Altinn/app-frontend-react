@@ -132,11 +132,11 @@ export class GridRowsPlugin<E extends ExternalConfig>
   }
 
   extraNodeGeneratorChildren(): string {
-    const GenerateNodeChildrenWhenReady = new CG.import({
-      import: 'GenerateNodeChildrenWhenReady',
+    const GenerateNodeChildren = new CG.import({
+      import: 'GenerateNodeChildren',
       from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
-    return `<${GenerateNodeChildrenWhenReady} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
+    return `<${GenerateNodeChildren} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
   }
 
   itemFactory({ item }: DefPluginStateFactoryProps<ToInternal<E>>) {

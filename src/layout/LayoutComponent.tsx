@@ -38,8 +38,8 @@ import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface BasicNodeGeneratorProps {
+  externalItem: CompExternalExact<CompTypes>;
   claim: ChildClaim;
-  baseId: string;
 }
 
 export interface ContainerGeneratorProps extends BasicNodeGeneratorProps {

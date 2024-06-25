@@ -14,7 +14,7 @@ import classes from 'src/layout/Likert/Summary/LikertSummary.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { Hidden } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeFormDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -34,6 +34,7 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
   const display = overrides?.display || summaryItem.display;
   const { lang, langAsString } = useLanguage();
   const formDataSelector = FD.useDebouncedSelector();
+  const nodeFormDataSelector = useNodeFormDataSelector();
   const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
@@ -50,9 +51,7 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
   const title = lang(summaryTitleTrb ?? titleTrb);
   const ariaLabel = langAsString(summaryTitleTrb ?? summaryAccessibleTitleTrb ?? titleTrb);
 
-  // TODO: Implement Likert rows
-  // const rows = targetItem.rows;
-  const rows = undefined as any;
+  const rows = targetItem.rows;
 
   if (summaryItem.largeGroup && overrides?.largeGroup !== false && rows.length) {
     return (
@@ -113,32 +112,29 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
             <span className={classes.emptyField}>{lang('general.empty_summary')}</span>
           ) : (
             rows.map((row) => {
-              const childSummaryComponents = row.items
-                .filter((n) => !inExcludedChildren(n))
-                .map((child) => {
-                  if (child.isHidden() || !child.isCategory(CompCategory.Form)) {
-                    return;
-                  }
-                  const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def);
-                  return (
-                    <RenderCompactSummary
-                      onChangeClick={onChangeClick}
-                      changeText={changeText}
-                      key={child.getId()}
-                      targetNode={child as any}
-                      summaryNode={summaryNode}
-                      overrides={{}}
-                      formDataSelector={formDataSelector}
-                    />
-                  );
-                });
+              if (inExcludedChildren(row.item)) {
+                return null;
+              }
+              if (isHidden(row.item) || !row.item.isCategory(CompCategory.Form)) {
+                return null;
+              }
 
+              const RenderCompactSummary = row.item.def.renderCompactSummary.bind(row.item.def);
               return (
                 <div
                   key={`row-${row.uuid}`}
                   className={classes.border}
                 >
-                  {childSummaryComponents}
+                  <RenderCompactSummary
+                    onChangeClick={onChangeClick}
+                    changeText={changeText}
+                    key={row.item.getId()}
+                    targetNode={row.item as any}
+                    summaryNode={summaryNode}
+                    overrides={{}}
+                    formDataSelector={formDataSelector}
+                    nodeFormDataSelector={nodeFormDataSelector}
+                  />
                 </div>
               );
             })

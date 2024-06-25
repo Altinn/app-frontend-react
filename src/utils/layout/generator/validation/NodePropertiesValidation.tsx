@@ -14,7 +14,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface NodeValidationProps {
   node: LayoutNode;
-  item: CompIntermediate;
+  intermediateItem: CompIntermediate;
 }
 
 /**
@@ -29,7 +29,7 @@ export function NodePropertiesValidation(props: NodeValidationProps) {
   );
 }
 
-function DataModelValidation({ node, item }: NodeValidationProps) {
+function DataModelValidation({ node, intermediateItem }: NodeValidationProps) {
   const addError = NodesInternal.useAddError();
   const schemaLookup = useCurrentDataModelSchemaLookup();
   const isJest = useIsJest();
@@ -42,14 +42,14 @@ function DataModelValidation({ node, item }: NodeValidationProps) {
     if ('validateDataModelBindings' in node.def) {
       const ctx: LayoutValidationCtx<any> = {
         node: node as LayoutNode<any>,
-        item: item as CompIntermediate<any>,
+        item: intermediateItem as CompIntermediate<any>,
         lookupBinding: (binding: string) => schemaLookup.getSchemaForPath(binding),
       };
       return node.def.validateDataModelBindings(ctx as any);
     }
 
     return [];
-  }, [item, node, schemaLookup, isJest]);
+  }, [intermediateItem, node, schemaLookup, isJest]);
 
   // Must run after nodes have been added for the errors to actually be added
   GeneratorStages.MarkHidden.useEffect(() => {
@@ -69,14 +69,13 @@ function DataModelValidation({ node, item }: NodeValidationProps) {
 
 function SchemaValidation({ node }: NodeValidationProps) {
   const validate = GeneratorValidation.useValidate();
-  const layoutMap = GeneratorInternal.useLayoutMap();
+  const item = GeneratorInternal.useExternalItem();
   const addError = NodesInternal.useAddError();
 
   useEffect(() => {
     if (!validate) {
       return;
     }
-    const item = layoutMap[node.getBaseId()];
     const errors = node.def.validateLayoutConfig(item as CompExternalExact<any>, validate);
     if (!errors) {
       return;
@@ -97,7 +96,7 @@ function SchemaValidation({ node }: NodeValidationProps) {
     for (const error of errorMessages) {
       addError(error, node);
     }
-  }, [node, layoutMap, validate, addError]);
+  }, [node, item, validate, addError]);
 
   return null;
 }

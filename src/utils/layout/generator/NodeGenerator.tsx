@@ -27,6 +27,7 @@ import type { CompDef } from 'src/layout';
 import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
 import type {
   CompExternal,
+  CompExternalExact,
   CompIntermediate,
   CompIntermediateExact,
   CompInternal,
@@ -48,13 +49,12 @@ import type { BaseRow, StateFactoryProps } from 'src/utils/layout/types';
  * can always be up-to-date, and so that we can implement effects for components that run even when the
  * component is not visible/rendered.
  */
-export function NodeGenerator({ children, baseId, claim }: PropsWithChildren<BasicNodeGeneratorProps>) {
-  const layoutMap = GeneratorInternal.useLayoutMap();
-  const item = useIntermediateItem(layoutMap[baseId]) as CompIntermediateExact<CompTypes>;
-  const node = useNewNode(item) as LayoutNode;
+export function NodeGenerator({ children, claim, externalItem }: PropsWithChildren<BasicNodeGeneratorProps>) {
+  const intermediateItem = useIntermediateItem(externalItem) as CompIntermediateExact<CompTypes>;
+  const node = useNewNode(intermediateItem) as LayoutNode;
   useGeneratorErrorBoundaryNodeRef().current = node;
 
-  const commonProps: CommonProps<CompTypes> = { node, item, baseId };
+  const commonProps: CommonProps<CompTypes> = { node, externalItem, intermediateItem };
 
   return (
     <>
@@ -79,16 +79,17 @@ export function NodeGenerator({ children, baseId, claim }: PropsWithChildren<Bas
       >
         <ResolveExpressions {...commonProps} />
       </GeneratorCondition>
-      <GeneratorCondition
-        stage={StageMarkHidden}
-        mustBeAdded='parent'
-      >
-        <NodePropertiesValidation {...commonProps} />
-      </GeneratorCondition>
       <GeneratorProvider
         parent={node}
-        item={item}
+        externalItem={externalItem}
+        intermediateItem={intermediateItem}
       >
+        <GeneratorCondition
+          stage={StageMarkHidden}
+          mustBeAdded='parent'
+        >
+          <NodePropertiesValidation {...commonProps} />
+        </GeneratorCondition>
         {children}
       </GeneratorProvider>
     </>
@@ -97,15 +98,14 @@ export function NodeGenerator({ children, baseId, claim }: PropsWithChildren<Bas
 
 interface CommonProps<T extends CompTypes> {
   node: LayoutNode<T>;
-  item: CompIntermediateExact<T>;
-  baseId: string;
+  externalItem: CompExternalExact<T>;
+  intermediateItem: CompIntermediateExact<T>;
 }
 
-function MarkAsHidden<T extends CompTypes>({ node, baseId }: CommonProps<T>) {
-  const layoutMap = GeneratorInternal.useLayoutMap();
+function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T>) {
   const setNodeProp = NodesStateQueue.useSetNodeProp();
 
-  const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, layoutMap[baseId].hidden, false);
+  const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, externalItem.hidden, false);
   const hiddenByRules = Hidden.useIsHiddenViaRules(node);
   const hidden = useMemo(
     () =>
@@ -128,10 +128,10 @@ interface AddRemoveNodeProps<T extends CompTypes> extends CommonProps<T> {
   claim: ChildClaim;
 }
 
-function AddRemoveNode<T extends CompTypes>({ node, item, claim }: AddRemoveNodeProps<T>) {
+function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: AddRemoveNodeProps<T>) {
   const parent = GeneratorInternal.useParent();
   const row = GeneratorInternal.useRow();
-  const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item, parent, row });
+  const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item: intermediateItem, parent, row });
   const addNode = NodesStateQueue.useAddNode();
 
   const page = GeneratorInternal.usePage();
@@ -155,10 +155,10 @@ function AddRemoveNode<T extends CompTypes>({ node, item, claim }: AddRemoveNode
   return null;
 }
 
-function ResolveExpressions<T extends CompTypes>({ node, item }: CommonProps<T>) {
-  const resolverProps = useExpressionResolverProps(node, item);
+function ResolveExpressions<T extends CompTypes>({ node, intermediateItem }: CommonProps<T>) {
+  const resolverProps = useExpressionResolverProps(node, intermediateItem);
 
-  const def = useDef(item.type);
+  const def = useDef(intermediateItem.type);
   const setNodeProp = NodesStateQueue.useSetNodeProp();
   const resolved = useMemo(
     () => (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>,

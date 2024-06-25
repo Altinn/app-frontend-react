@@ -31,7 +31,7 @@ export function useDataModelBindingTranspose() {
 
   return useCallback(
     (node: LayoutNode, subject: string, rowIndex?: number) => {
-      const result = traversal((t) => firstDataModelBinding(t, nodeSelector), [node]);
+      const result = traversal((t) => firstDataModelBinding(t.with(node), nodeSelector), [node]);
 
       if (result === ContextNotProvided) {
         return subject;
