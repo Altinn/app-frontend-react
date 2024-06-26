@@ -108,6 +108,16 @@ export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeDat
   partial?: boolean;
 }
 
+export interface SetPagePropRequest<K extends keyof PageData> {
+  pageKey: string;
+  prop: K;
+  value: PageData[K];
+}
+
+export interface RemoveNodeRequest<T extends CompTypes = CompTypes> {
+  node: LayoutNode<T>;
+}
+
 export type NodesContext = {
   ready: boolean;
 
@@ -122,14 +132,14 @@ export type NodesContext = {
 
   setNodes: (nodes: LayoutPages) => void;
   addNodes: (requests: AddNodeRequest[]) => void;
-  removeNode: (node: LayoutNode) => void;
+  removeNodes: (requests: RemoveNodeRequest[]) => void;
   setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
   addError: (error: string, node: LayoutPage | LayoutNode) => void;
   setHiddenViaRules: (mutator: (currentlyHidden: Set<string>) => Set<string>) => void;
 
   addPage: (pageKey: string) => void;
   removePage: (pageKey: string) => void;
-  setPageProp: <K extends keyof PageData>(pageKey: string, prop: K, value: PageData[K]) => void;
+  setPageProps: (requests: SetPagePropRequest<any>[]) => void;
   markReady: () => void;
 } & ExtraFunctions;
 
@@ -175,11 +185,12 @@ export function createNodesDataStore() {
         }
         return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
       }),
-    // TODO: Make a queue for this as well?
-    removeNode: (node) =>
+    removeNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        delete nodeData[node.getId()];
+        for (const { node } of requests) {
+          delete nodeData[node.getId()];
+        }
         return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
       }),
     setNodeProps: (requests) =>
@@ -254,14 +265,19 @@ export function createNodesDataStore() {
           state.addRemoveCounter += 1;
         }),
       ),
-    // TODO: Make a queue for this as well?
-    setPageProp: (pageKey, prop, value) =>
-      set(
-        nodesProduce((state) => {
-          const obj = state.pagesData.pages[pageKey];
-          Object.assign(obj, { [prop]: value });
-        }),
-      ),
+    setPageProps: (requests) =>
+      set((state) => {
+        const pageData = { ...state.pagesData.pages };
+        for (const { pageKey, prop, value } of requests) {
+          const obj = { ...pageData[pageKey] };
+          if (!obj) {
+            continue;
+          }
+          obj[prop] = value;
+          pageData[pageKey] = obj;
+        }
+        return { pagesData: { type: 'pages', pages: pageData } };
+      }),
     markReady: () => set(() => ({ ready: true })),
 
     ...(Object.values(StorePlugins)
@@ -704,10 +720,10 @@ export const NodesInternal = {
   useSetNodeProps: () => Store.useSelector((s) => s.setNodeProps),
   useSetNodes: () => Store.useSelector((s) => s.setNodes),
   useAddPage: () => Store.useSelector((s) => s.addPage),
-  useSetPageProp: () => Store.useSelector((s) => s.setPageProp),
+  useSetPageProps: () => Store.useSelector((s) => s.setPageProps),
   useRemovePage: () => Store.useSelector((s) => s.removePage),
   useAddNodes: () => Store.useSelector((s) => s.addNodes),
-  useRemoveNode: () => Store.useSelector((s) => s.removeNode),
+  useRemoveNodes: () => Store.useSelector((s) => s.removeNodes),
   useAddError: () => Store.useSelector((s) => s.addError),
 
   ...(Object.values(StorePlugins)

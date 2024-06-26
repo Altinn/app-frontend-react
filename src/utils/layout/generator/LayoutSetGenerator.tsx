@@ -10,7 +10,12 @@ import {
   GeneratorErrorBoundary,
   useGeneratorErrorBoundaryNodeRef,
 } from 'src/utils/layout/generator/GeneratorErrorBoundary';
-import { GeneratorCondition, GeneratorStages, StageAddNodes } from 'src/utils/layout/generator/GeneratorStages';
+import {
+  GeneratorCondition,
+  GeneratorStages,
+  NodesStateQueue,
+  StageAddNodes,
+} from 'src/utils/layout/generator/GeneratorStages';
 import { useResolvedExpression } from 'src/utils/layout/generator/useResolvedExpression';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -302,7 +307,7 @@ function AddRemovePage({ layoutSet, page, name }: CommonProps) {
 }
 
 function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
-  const setPageProp = NodesInternal.useSetPageProp();
+  const setPageProp = NodesStateQueue.useSetPageProp();
   const hiddenByTracks = Hidden.useIsPageHiddenViaTracks(name);
   const hiddenByExpression = useIsHiddenPage(page);
 
@@ -316,7 +321,7 @@ function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
   );
 
   GeneratorStages.MarkHidden.useEffect(() => {
-    setPageProp(name, 'hidden', hidden);
+    setPageProp({ pageKey: name, prop: 'hidden', value: hidden });
   }, [hidden, name, setPageProp]);
 
   return null;

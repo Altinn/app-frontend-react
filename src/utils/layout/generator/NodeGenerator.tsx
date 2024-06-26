@@ -136,7 +136,7 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: A
   const addNode = NodesStateQueue.useAddNode();
 
   const page = GeneratorInternal.usePage();
-  const removeNode = NodesInternal.useRemoveNode();
+  const removeNode = NodesStateQueue.useRemoveNode();
   const nodeRef = useAsRef(node);
   const pageRef = useAsRef(page);
 
@@ -148,7 +148,7 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: A
   GeneratorStages.AddNodes.useEffect(
     () => () => {
       pageRef.current._removeChild(nodeRef.current);
-      removeNode(nodeRef.current);
+      removeNode({ node: nodeRef.current });
     },
     [nodeRef, pageRef, removeNode],
   );

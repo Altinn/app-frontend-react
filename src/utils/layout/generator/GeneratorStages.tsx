@@ -7,7 +7,12 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type { AddNodeRequest, SetNodePropRequest } from 'src/utils/layout/NodesContext';
+import type {
+  AddNodeRequest,
+  RemoveNodeRequest,
+  SetNodePropRequest,
+  SetPagePropRequest,
+} from 'src/utils/layout/NodesContext';
 import type { SetRowExtrasRequest } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 
 export const StageAddNodes = Symbol('AddNodes');
@@ -43,6 +48,8 @@ interface Context {
     addNodes: AddNodeRequest[];
     setNodeProps: SetNodePropRequest<any, any>[];
     setRowExtras: SetRowExtrasRequest[];
+    setPageProps: SetPagePropRequest<any>[];
+    removeNodes: RemoveNodeRequest[];
   };
 }
 
@@ -145,6 +152,8 @@ const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider
         addNodes: [],
         setNodeProps: [],
         setRowExtras: [],
+        setPageProps: [],
+        removeNodes: [],
       },
     }));
   },
@@ -226,7 +235,9 @@ export function GeneratorStagesProvider({ children }: PropsWithChildren) {
 function useCommit() {
   const addNodes = NodesInternal.useAddNodes();
   const setNodeProps = NodesInternal.useSetNodeProps();
+  const setPageProps = NodesInternal.useSetPageProps();
   const setRowExtras = NodesInternal.useSetRowExtras();
+  const removeNodes = NodesInternal.useRemoveNodes();
   const toCommit = useSelector((state) => state.toCommit);
 
   return useCallback(() => {
@@ -234,6 +245,13 @@ function useCommit() {
       generatorLog('logCommits', 'Committing', toCommit.addNodes.length, 'addNodes requests');
       addNodes(toCommit.addNodes);
       toCommit.addNodes.length = 0; // This truncates the array, but keeps the reference
+      return true;
+    }
+
+    if (toCommit.removeNodes.length) {
+      generatorLog('logCommits', 'Committing', toCommit.removeNodes.length, 'removeNodes requests');
+      removeNodes(toCommit.removeNodes);
+      toCommit.removeNodes.length = 0;
       return true;
     }
 
@@ -260,8 +278,15 @@ function useCommit() {
       changes = true;
     }
 
+    if (toCommit.setPageProps.length) {
+      generatorLog('logCommits', 'Committing', toCommit.setPageProps.length, 'setPageProps requests');
+      setPageProps(toCommit.setPageProps);
+      toCommit.setPageProps.length = 0;
+      changes = true;
+    }
+
     return changes;
-  }, [addNodes, setNodeProps, setRowExtras, toCommit]);
+  }, [addNodes, setNodeProps, setRowExtras, toCommit, setPageProps, removeNodes]);
 }
 
 /**
@@ -302,6 +327,27 @@ export const NodesStateQueue = {
         setRowExtrasRequestsRef.push(request);
       },
       [setRowExtrasRequestsRef],
+    );
+  },
+  useSetPageProp() {
+    const setPagePropRequestsRef = useSelector((state) => state.toCommit.setPageProps);
+    useCommitWhenFinished();
+
+    return useCallback(
+      (request: SetPagePropRequest<any>) => {
+        setPagePropRequestsRef.push(request);
+      },
+      [setPagePropRequestsRef],
+    );
+  },
+  useRemoveNode() {
+    const removeNodeRequestsRef = useSelector((state) => state.toCommit.removeNodes);
+
+    return useCallback(
+      (request: RemoveNodeRequest) => {
+        removeNodeRequestsRef.push(request);
+      },
+      [removeNodeRequestsRef],
     );
   },
 };
