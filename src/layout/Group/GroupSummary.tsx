@@ -41,7 +41,7 @@ const RenderChildComponents = ({ componentNode, hierarchyLevel, summaryOverrides
         return (
           <GroupSummary
             componentNode={child as LayoutNode<'Group'>}
-            hierarchyLevel={hierarchyLevel}
+            hierarchyLevel={hierarchyLevel ? hierarchyLevel + 1 : 1}
             key={componentNode.item.id}
           />
         );
