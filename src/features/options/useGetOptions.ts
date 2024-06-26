@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -6,7 +6,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
 import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
-import { filterDuplicateOptions, filterEmptyOptions } from 'src/utils/options';
+import { filterDuplicateOptions, verifyOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type {
@@ -37,7 +37,6 @@ interface Props {
   // Generic props
   node: LayoutNode;
   removeDuplicates?: boolean;
-  removeEmpty?: boolean;
   preselectedOptionIndex?: number;
 
   dataModelBindings?: IDataModelBindingsOptionsSimpleInternal;
@@ -63,8 +62,6 @@ export interface OptionsResult {
 
   setData: (values: string[]) => void;
 
-  rawData: string;
-
   debounce: () => void;
 
   // The final list of options deduced from the component settings. This will be an array of objects, where each object
@@ -78,6 +75,10 @@ export interface OptionsResult {
 
   // Whether there was an error fetching the options from the API. If this is true, you should probably render the unknown error page
   isError: boolean;
+
+  // Workaround for dropdown (Combobox single) not clearing text input when value changes
+  // Can be used in the key-prop, will change every time the value changes
+  key: number;
 }
 
 interface EffectProps {
@@ -104,12 +105,11 @@ const compareOptionAlphabetically =
 export function useGetOptions(props: Props): OptionsResult {
   const {
     node,
-    valueType: type,
+    valueType,
     options,
     optionsId,
     secure,
     removeDuplicates,
-    removeEmpty,
     source,
     mapping,
     queryParameters,
@@ -127,6 +127,7 @@ export function useGetOptions(props: Props): OptionsResult {
 
   const [calculatedOptions, preselectedOption] = useMemo(() => {
     let draft = sourceOptions || fetchedOptions?.data || staticOptions;
+    verifyOptions(draft, valueType === 'multi');
     let preselectedOption: IOptionInternal | undefined = undefined;
     if (preselectedOptionIndex !== undefined && draft && draft[preselectedOptionIndex]) {
       // This index uses the original options array, before any filtering or sorting
@@ -135,9 +136,6 @@ export function useGetOptions(props: Props): OptionsResult {
 
     if (draft && removeDuplicates) {
       draft = filterDuplicateOptions(draft);
-    }
-    if (draft && removeEmpty) {
-      draft = filterEmptyOptions(draft);
     }
     if (draft && sortOrder) {
       draft = [...draft].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
@@ -149,11 +147,11 @@ export function useGetOptions(props: Props): OptionsResult {
     langAsString,
     preselectedOptionIndex,
     removeDuplicates,
-    removeEmpty,
     selectedLanguage,
     sortOrder,
     sourceOptions,
     staticOptions,
+    valueType,
   ]);
 
   // Log error if fetching options failed
@@ -181,7 +179,10 @@ export function useGetOptions(props: Props): OptionsResult {
     }
   }, [dataModelBindings, downstreamParameters, setValue]);
 
-  const currentValues = useMemo(() => (value && value.length > 0 ? value.split(',') : []), [value]);
+  const currentValues = useMemo(
+    () => (value && value.length > 0 ? (valueType === 'multi' ? value.split(',') : [value]) : []),
+    [value, valueType],
+  );
 
   const selectedValues = useMemo(
     () => currentValues.filter((value) => alwaysOptions.find((option) => option.value === value)),
@@ -205,14 +206,25 @@ export function useGetOptions(props: Props): OptionsResult {
       return;
     }
 
-    if (type === 'single') {
+    if (valueType === 'single') {
       setValue('label' as any, translatedLabels.at(0));
     } else {
       setValue('label' as any, translatedLabels);
     }
-  }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, type]);
+  }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, valueType]);
 
-  const setData = useCallback((values: string[]) => setValue('simpleBinding', values.join(',')), [setValue]);
+  const [key, setKey] = useState(0);
+  const setData = useCallback(
+    (values: string[]) => {
+      if (valueType === 'single') {
+        setValue('simpleBinding', values.at(0));
+      } else if (valueType === 'multi') {
+        setValue('simpleBinding', values.join(','));
+      }
+      setKey((k) => k + 1); // Workaround for Combobox
+    },
+    [setValue, valueType],
+  );
 
   const effectProps: EffectProps = useMemo(
     () => ({
@@ -229,7 +241,7 @@ export function useGetOptions(props: Props): OptionsResult {
   useRemoveStaleValues(effectProps);
 
   return {
-    rawData: value,
+    key,
     selectedValues,
     setData,
     debounce,
