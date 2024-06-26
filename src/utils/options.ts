@@ -41,7 +41,7 @@ export function verifyOptions(options: IOptionInternal[] | undefined, multi: boo
     // Option used for single select can be weird when containing empty values
     // If you only select the empty value, the form data will be set to an empty string (""), which we then converted to null
     // this will cause nothing to be selected. This can be resonable behavor for a Dropdown, but will look very strange in Radiobuttons
-    if (multi && option.value?.length === 0) {
+    if (!multi && option.value?.length === 0) {
       // Warning because it could be resonable in a Dropdown component
       window.logWarnOnce(
         'Option used in single-select (RadioButtons or Dropdown) has an empty value, this can lead to unexpected behavior when saving and reading form data\n',
