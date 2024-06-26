@@ -6,7 +6,6 @@ import { TabsDef } from 'src/layout/Tabs/config.def.generated';
 import { Tabs as TabsComponent } from 'src/layout/Tabs/Tabs';
 import { TabsSummary } from 'src/layout/Tabs/TabsSummary';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Tabs extends TabsDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Tabs'>>(
@@ -27,10 +26,6 @@ export class Tabs extends TabsDef {
 
   renderSummaryBoilerplate(): boolean {
     return false;
-  }
-
-  shouldRenderInAutomaticPDF(node: LayoutNode<'Tabs'>): boolean {
-    return !node.item.renderAsSummary;
   }
 
   getDisplayData(): string {

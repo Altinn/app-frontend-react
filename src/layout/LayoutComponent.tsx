@@ -17,6 +17,7 @@ import type { CompCapabilities } from 'src/codegen/Config';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { SimpleEval } from 'src/features/expressions';
+import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { ComponentBase, FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
@@ -151,16 +152,16 @@ export abstract class AnyComponent<Type extends CompTypes> {
     return false;
   }
 
-  /**
-   * TODO: Remove this, and replace it with something that can useNodeItem() instead of getting the state snapshot
-   * from the node directly.
-   */
-  shouldRenderInAutomaticPDF(node: LayoutNode<Type>): boolean {
-    if (!('renderAsSummary' in node.item)) {
-      return true;
-    }
+  shouldRenderInAutomaticPDF(node: LayoutNode<Type>, dataSources: ExpressionDataSources): boolean {
+    const renderAsSummary = dataSources.nodeDataSelector(
+      (picker) => {
+        const item = picker(node)?.item;
+        return item && 'renderAsSummary' in item ? item.renderAsSummary : false;
+      },
+      [node],
+    );
 
-    return !node.item.renderAsSummary;
+    return !renderAsSummary;
   }
 
   /**
@@ -349,7 +350,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
 export abstract class ActionComponent<Type extends CompTypes> extends AnyComponent<Type> {
   readonly category = CompCategory.Action;
 
-  shouldRenderInAutomaticPDF() {
+  shouldRenderInAutomaticPDF(_node: LayoutNode<Type>, _dataSources: ExpressionDataSources): boolean {
     return false;
   }
 }

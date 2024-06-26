@@ -6,7 +6,6 @@ import { AccordionGroupDef } from 'src/layout/AccordionGroup/config.def.generate
 import { SummaryAccordionGroupComponent } from 'src/layout/AccordionGroup/SummaryAccordionGroupComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class AccordionGroup extends AccordionGroupDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'AccordionGroup'>>(
@@ -21,9 +20,5 @@ export class AccordionGroup extends AccordionGroupDef {
 
   renderSummaryBoilerplate(): boolean {
     return false;
-  }
-
-  shouldRenderInAutomaticPDF(node: LayoutNode<'AccordionGroup'>): boolean {
-    return !node.item.renderAsSummary;
   }
 }
