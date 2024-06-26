@@ -12,17 +12,6 @@ type InputComponentSummaryProps = {
   displayData: string;
   summaryOverrides?: InputSummaryOverrideProps;
 };
-
-/*
- * Hidden: Dersom hidden = true fjernes hele node fra hierarkiet.
- * hvis vi da rendrer summary, vil fjernes også være fjernet fra summary
- * Hvis vi da vil vise komponent kun på summary, er det vanskelig å få til.
- *
- *
- * hideInSummary
- *
- * */
-
 export const InputSummary = ({ componentNode, displayData }: InputComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');

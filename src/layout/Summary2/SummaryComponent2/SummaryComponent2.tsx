@@ -12,15 +12,15 @@ export interface ISummaryComponent2 {
 }
 
 export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
-  if (!summaryNode.item.target && !summaryNode.item.taskId) {
+  if (!summaryNode.item.target) {
     return <LayoutSetSummary />;
   }
 
-  if (summaryNode.item.taskId) {
+  if (summaryNode.item.target?.taskId) {
     return (
       <TaskIdStoreProvider>
         <TaskSummaryWrapper
-          taskId={summaryNode.item.taskId}
+          taskId={summaryNode.item.target?.taskId}
           pageId={summaryNode.item.target?.type === 'page' ? summaryNode.item.target.id : undefined}
           componentId={summaryNode.item.target?.type === 'component' ? summaryNode.item.target.id : undefined}
           summaryOverrides={summaryNode.item.overrides}

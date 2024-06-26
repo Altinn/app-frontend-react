@@ -26,23 +26,20 @@ export const Config = new CG.component({
           new CG.enum('page', 'layoutSet', 'component').optional({ default: 'component' }).setTitle('Mode'),
         ),
         new CG.prop('id', new CG.str()),
+
+        new CG.prop(
+          'taskId',
+          new CG.str()
+            .optional()
+            .setTitle('Task ID')
+            .setDescription('Use this if you want to render something from another task.'),
+        ),
       )
         .setDescription('Config for what should be rendered. If you set taskId, this property is optional.')
         .optional(),
     ),
   )
   .addProperty(new CG.prop('showPageInAccordion', new CG.bool().optional()))
-  .addProperty(
-    new CG.prop(
-      'taskId',
-      new CG.str()
-        .optional()
-        .setTitle('Task ID')
-        .setDescription(
-          'Use this if you want to render something from another task. You specify what you want to render in the "target" prop.',
-        ),
-    ),
-  )
   .addProperty(
     new CG.prop(
       'overrides',
