@@ -7,12 +7,13 @@ import type { HeadingProps } from '@digdir/designsystemet-react';
 import classes from 'src/layout/Group/GroupSummary.module.css';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import type { CompGroupInternal } from 'src/layout/Group/config.generated';
+import type { CompSummary2Internal } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type GroupComponentSummaryProps = {
   componentNode: LayoutNode<'Group'>;
   hierarchyLevel?: number;
-  summaryOverrides?: CompGroupInternal['summaryProps'];
+  summaryOverrides?: CompGroupInternal['summaryProps'] | CompSummary2Internal['overrides'];
 };
 
 type HeadingLevel = HeadingProps['level'];
@@ -28,37 +29,34 @@ function getHeadingLevel(hierarchyLevel: number): HeadingLevel {
     return maximumHeadingLevel;
   }
 }
-
-function renderGroupComponentSummary(componentNode: LayoutNode<'Group'>, hierarchyLevel = 0) {
-  return (
-    <GroupSummary
-      componentNode={componentNode}
-      hierarchyLevel={hierarchyLevel + 1}
-      key={componentNode.item.id}
-    />
-  );
-}
-
-function renderChildComponents(componentNode: LayoutNode, hierarchyLevel = 0, summaryOverrides) {
-  if ('childComponents' in componentNode.item) {
-    return (
-      !!componentNode?.item?.childComponents?.length &&
-      componentNode.item.childComponents.map((child) => {
-        if (child?.item?.type === 'Group') {
-          return renderGroupComponentSummary(child as LayoutNode<'Group'>, hierarchyLevel);
-        } else {
-          return (
-            <ComponentSummary
-              key={child?.item?.id}
-              componentNode={child}
-              summaryOverrides={summaryOverrides}
-            />
-          );
-        }
-      })
-    );
+const RenderChildComponents = ({ componentNode, hierarchyLevel, summaryOverrides }: GroupComponentSummaryProps) => {
+  if (!('childComponents' in componentNode.item)) {
+    return null;
   }
-}
+
+  return (
+    componentNode?.item?.childComponents?.length &&
+    componentNode.item.childComponents.map((child) => {
+      if (child?.item?.type === 'Group') {
+        return (
+          <GroupSummary
+            componentNode={child as LayoutNode<'Group'>}
+            hierarchyLevel={hierarchyLevel}
+            key={componentNode.item.id}
+          />
+        );
+      } else {
+        return (
+          <ComponentSummary
+            key={child?.item?.id}
+            componentNode={child}
+            summaryOverrides={summaryOverrides as CompSummary2Internal['overrides']}
+          />
+        );
+      }
+    })
+  );
+};
 
 export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrides }: GroupComponentSummaryProps) => {
   const title = componentNode.item.textResourceBindings?.title;
@@ -80,7 +78,11 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrid
       >
         {description}
       </Paragraph>
-      {renderChildComponents(componentNode, hierarchyLevel, summaryOverrides)}
+      <RenderChildComponents
+        componentNode={componentNode}
+        hierarchyLevel={hierarchyLevel}
+        summaryOverrides={summaryOverrides}
+      />
     </section>
   );
 };
