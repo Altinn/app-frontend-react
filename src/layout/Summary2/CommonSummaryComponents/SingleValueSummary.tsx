@@ -11,7 +11,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type SingleValueSummaryProps = {
   title: React.ReactNode;
-  errors: BaseValidation[];
+  errors?: BaseValidation[];
   componentNode: LayoutNode;
   displayData?: string;
   hideEditButton?: boolean;
@@ -30,7 +30,7 @@ export const SingleValueSummary = ({
       <Paragraph
         asChild
         className={cn({
-          [classes.error]: errors.length > 0,
+          [classes.error]: errors && errors?.length > 0,
           [classes.emptyValue]: !displayData,
           [classes.formValue]: displayData,
         })}
@@ -49,8 +49,9 @@ export const SingleValueSummary = ({
       />
     )}
 
-    {errors.length > 0 &&
-      errors.map(({ message }) => (
+    {errors &&
+      errors?.length > 0 &&
+      errors?.map(({ message }) => (
         <ErrorMessage key={message.key}>
           <Lang
             id={message.key}

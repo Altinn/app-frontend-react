@@ -161,4 +161,3 @@ export const Config = new CG.component({
         ),
     ),
   );
-//.addProperty(new CG.prop('summaryProps', INPUT_SUMMARY_PROPS).onlyIn(Variant.Internal));
