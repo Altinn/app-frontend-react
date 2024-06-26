@@ -46,7 +46,8 @@ export function ComponentSummary({ componentNode, summaryOverrides }: ComponentS
 
 export function ResolveComponent({ summaryProps, summaryOverrides }: ResolveComponentProps) {
   if (!summaryProps.target?.id) {
-    throw new Error('Tried to render component without, this should not happen.');
+    window.logError('Tried to render component without component ID, please add id property to target.');
+    throw new Error();
   }
 
   const resolvedComponent = useNode(summaryProps.target.id);
