@@ -4,6 +4,7 @@ import type { Layouts } from 'src/features/expressions/shared';
 
 // TODO: Remove this function when no longer in use
 function evalAllExpressions(_layouts: Layouts) {
+  throw new Error('Not implemented');
   // const dataSources = getExpressionDataSourcesMock();
   // const nodes = generateEntireHierarchy(convertLayouts(layouts), Object.keys(layouts)[0], dataSources, getComponentDef);
   // for (const page of Object.values(nodes.all())) {
@@ -44,8 +45,6 @@ describe('Expression validation', () => {
       const result: (typeof tests)['content'][number]['layouts'] = {};
       for (const page of Object.keys(t.layouts)) {
         const layout = t.layouts[page].data.layout;
-        // TODO: Re-implement pre-processing
-        // preProcessLayout(layout);
         result[page] = {
           $schema: t.layouts[page].$schema,
           data: { layout },

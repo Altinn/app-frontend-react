@@ -6,6 +6,7 @@ import classes from 'src/features/devtools/components/NodeInspector/NodeInspecto
 import { NodeInspectorDataField } from 'src/features/devtools/components/NodeInspector/NodeInspectorDataField';
 import { NodeInspectorDataModelBindings } from 'src/features/devtools/components/NodeInspector/NodeInspectorDataModelBindings';
 import { NodeInspectorTextResourceBindings } from 'src/features/devtools/components/NodeInspector/NodeInspectorTextResourceBindings';
+import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -15,7 +16,13 @@ interface DefaultNodeInspectorParams {
 }
 
 export function DefaultNodeInspector({ node, ignoredProperties }: DefaultNodeInspectorParams) {
-  const item = useNodeItem(node);
+  // Hidden state is removed from the item by the hierarchy generator, but we simulate adding it back here (but only
+  // if it's an expression). This allows app developers to inspect this as well.
+  const _item = useNodeItem(node);
+  const hidden = Hidden.useIsHidden(node);
+  const hiddenIsExpression = NodesInternal.useNodeData(node, (s) => Array.isArray(s.layout.hidden));
+  const item = hiddenIsExpression ? { ..._item, hidden } : _item;
+
   const ignoredPropertiesFinal = new Set(
     ['id', 'type', 'multiPageIndex', 'baseComponentId'].concat(ignoredProperties ?? []),
   );

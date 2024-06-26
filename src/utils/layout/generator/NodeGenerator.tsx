@@ -182,11 +182,19 @@ function ResolveExpressions<T extends CompTypes>({ node, intermediateItem }: Com
  */
 export function useExpressionResolverProps<T extends CompTypes>(
   node: LayoutNode<T> | undefined,
-  item: CompIntermediateExact<T>,
+  _item: CompIntermediateExact<T>,
   row?: BaseRow,
 ): ExprResolver<T> {
   const allDataSources = useExpressionDataSources();
   const allDataSourcesAsRef = useAsRef(allDataSources);
+
+  // The hidden property is handled elsewhere, and should never be passed to the item (and resolved as an
+  // expression) which could be read. Try useIsHidden() or useIsHiddenSelector() if you need to know if a
+  // component is hidden.
+  const item = useMemo(() => {
+    const { hidden: _hidden, ...rest } = _item;
+    return rest;
+  }, [_item]) as CompIntermediate<T>;
 
   const evalProto = useCallback(
     <T extends ExprVal>(
@@ -309,11 +317,6 @@ function useIntermediateItem<T extends CompTypes = CompTypes>(item: CompExternal
 
   return useMemo(() => {
     const newItem = structuredClone(item) as CompIntermediate<T>;
-
-    // The hidden property is handled elsewhere, and should never be passed to the item (and resolved as an
-    // expression) which could be read. Try useIsHidden() or useIsHiddenSelector() if you need to know if a
-    // component is hidden.
-    delete newItem['hidden'];
 
     for (const mutator of directMutators) {
       mutator(newItem);

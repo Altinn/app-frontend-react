@@ -14,17 +14,10 @@ function getCaseMapping(): ComponentTypeCaseMapping {
   return componentTypeCaseMapping;
 }
 
-export function cleanLayout(layout: ILayout, validateExpressions = true): ILayout {
+export function cleanLayout(layout: ILayout): ILayout {
   const mapping = getCaseMapping();
-  const newLayout = layout.map((component) => ({
+  return layout.map((component) => ({
     ...component,
     type: mapping[component.type.toLowerCase()] || component.type,
   })) as ILayout;
-
-  if (validateExpressions) {
-    // TODO: Re-implement layout cleaning
-    // preProcessLayout(newLayout);
-  }
-
-  return newLayout;
 }
