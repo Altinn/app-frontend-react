@@ -32,7 +32,7 @@ export interface EditWindowProps {
 
 export function EditWindowComponent({ attachment, mobileView, node, options }: EditWindowProps): React.JSX.Element {
   const { textResourceBindings, readOnly } = node.item;
-  const { langAsString } = useLanguage();
+  const { langAsString } = useLanguage(node);
   const { setEditIndex } = useFileTableRow();
   const uploadedAttachment = isAttachmentUploaded(attachment) ? attachment : undefined;
   const rawSelectedTags = uploadedAttachment?.data.tags?.filter((tag) => options?.find((o) => o.value === tag)) ?? [];

@@ -23,7 +23,7 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
     node,
     removeDuplicates: true,
   });
-  const { langAsString, lang } = useLanguage();
+  const { langAsString, lang } = useLanguage(node);
 
   const changeMessageGenerator = useCallback(
     (values: string[]) => {
