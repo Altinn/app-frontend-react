@@ -2,19 +2,13 @@ import { useMemo } from 'react';
 
 import { useCustomValidationConfig } from 'src/features/customValidation/CustomValidationContext';
 import { evalExpr } from 'src/features/expressions';
-import { ExprVal } from 'src/features/expressions/types';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { type FieldValidations, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getKeyWithoutIndex } from 'src/utils/databindings';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeTraversalSilent } from 'src/utils/layout/useNodeTraversal';
-import type { ExprConfig, Expression } from 'src/features/expressions/types';
-
-const EXPR_CONFIG: ExprConfig<ExprVal.Boolean> = {
-  defaultValue: false,
-  returnType: ExprVal.Boolean,
-};
+import type { Expression } from 'src/features/expressions/types';
 
 const __default__ = {};
 
@@ -55,7 +49,6 @@ export function useExpressionValidation(): FieldValidations {
 
         for (const validationDef of validationDefs) {
           const isInvalid = evalExpr(validationDef.condition as Expression, node, dataSources, {
-            config: EXPR_CONFIG,
             positionalArguments: [field],
           });
           if (isInvalid) {

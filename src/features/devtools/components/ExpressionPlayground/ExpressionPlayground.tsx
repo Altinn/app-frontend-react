@@ -9,7 +9,7 @@ import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
-import { asExpression } from 'src/features/expressions/validation';
+import { ExprValidation } from 'src/features/expressions/validation';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
@@ -89,7 +89,7 @@ export const ExpressionPlayground = () => {
     }
 
     try {
-      let maybeExpression: string;
+      let maybeExpression: unknown;
       try {
         maybeExpression = JSON.parse(input);
       } catch (e) {
@@ -102,13 +102,9 @@ export const ExpressionPlayground = () => {
       const config: ExprConfig<ExprVal.Any> = {
         returnType: ExprVal.Any,
         defaultValue: null,
-        errorAsException: true,
       };
 
-      const expr = asExpression(maybeExpression, config);
-      if (!expr) {
-        throw new Error('Ugyldig uttrykk');
-      }
+      ExprValidation.throwIfInvalidNorScalar(maybeExpression);
 
       let evalContext: LayoutPage | LayoutNode | undefined = traversalSelector(
         (t) => t.findPage(currentPageId),
@@ -139,7 +135,7 @@ export const ExpressionPlayground = () => {
         calls.push(`${indent}${JSON.stringify([func, ...args])} => ${JSON.stringify(result)}`);
       };
 
-      const out = evalExpr(expr as Expression, evalContext, dataSources, { config, onAfterFunctionCall });
+      const out = evalExpr(maybeExpression as Expression, evalContext, dataSources, { config, onAfterFunctionCall });
 
       if (showAllSteps) {
         setOutputWithHistory(calls.join('\n'), false);

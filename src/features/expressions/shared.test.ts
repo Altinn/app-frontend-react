@@ -5,7 +5,7 @@ import { getExpressionDataSourcesMock } from 'src/__mocks__/getExpressionDataSou
 import { evalExpr } from 'src/features/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { convertInstanceDataToAttachments, convertLayouts, getSharedTests } from 'src/features/expressions/shared';
-import { asExpression } from 'src/features/expressions/validation';
+import { ExprValidation } from 'src/features/expressions/validation';
 import { resourcesAsMap } from 'src/features/language/textResources/resourcesAsMap';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
@@ -17,7 +17,6 @@ import { generateEntireHierarchy, generateHierarchy } from 'src/utils/layout/Hie
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
-import type { Expression } from 'src/features/expressions/types';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IApplicationSettings } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -126,8 +125,8 @@ describe('Expressions shared function tests', () => {
 
         if (expectsFailure) {
           expect(() => {
-            const expr = asExpression(expression);
-            return evalExpr(expr as Expression, component, dataSources);
+            ExprValidation.throwIfInvalidNorScalar(expression);
+            return evalExpr(expression, component, dataSources);
           }).toThrow(expectsFailure);
         } else {
           // Simulate what happens in checkIfConditionalRulesShouldRunSaga()
@@ -140,8 +139,8 @@ describe('Expressions shared function tests', () => {
             }
           }
 
-          const expr = asExpression(expression) as Expression;
-          expect(evalExpr(expr, component, dataSources)).toEqual(expects);
+          ExprValidation.throwIfInvalidNorScalar(expression);
+          expect(evalExpr(expression, component, dataSources)).toEqual(expects);
         }
       },
     );

@@ -1,11 +1,10 @@
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
-import { asExpression } from 'src/features/expressions/validation';
+import { ExprValidation } from 'src/features/expressions/validation';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
-import { memoize } from 'src/utils/memoize';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IOptionSource } from 'src/layout/common.generated';
@@ -67,37 +66,25 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
           }),
         };
 
-        const config = {
-          defaultValue: '',
-          returnType: ExprVal.String,
-          resolvePerRow: false,
-        };
-
-        const memoizedAsExpression = memoize(asExpression);
-
-        const labelExpression = memoizedAsExpression(label, config);
-        const descriptionExpression = memoizedAsExpression(description, config);
-        const helpTextExpression = memoizedAsExpression(helpText, config);
-
         output.push({
           value: String(formDataSelector(valuePath)),
           label:
-            label && !Array.isArray(label)
+            label && ExprValidation.isNotValid(label, ExprVal.String)
               ? langTools.langAsStringUsingPathInDataModel(label, path)
-              : Array.isArray(labelExpression)
-                ? evalExpr(labelExpression, node, modifiedDataSources)
+              : ExprValidation.isValid(label)
+                ? evalExpr(label, node, modifiedDataSources)
                 : undefined,
           description:
-            description && !Array.isArray(description)
+            description && ExprValidation.isNotValid(description, ExprVal.String)
               ? langTools.langAsStringUsingPathInDataModel(description, path)
-              : Array.isArray(descriptionExpression)
-                ? evalExpr(descriptionExpression, node, modifiedDataSources)
+              : ExprValidation.isValid(description)
+                ? evalExpr(description, node, modifiedDataSources)
                 : undefined,
           helpText:
-            helpText && !Array.isArray(helpText)
+            helpText && ExprValidation.isNotValid(helpText, ExprVal.String)
               ? langTools.langAsStringUsingPathInDataModel(helpText, path)
-              : Array.isArray(helpTextExpression)
-                ? evalExpr(helpTextExpression, node, modifiedDataSources)
+              : ExprValidation.isValid(helpText)
+                ? evalExpr(helpText, node, modifiedDataSources)
                 : undefined,
         });
       }

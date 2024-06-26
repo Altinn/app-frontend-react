@@ -1,7 +1,7 @@
 import dot from 'dot-object';
 
 import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
-import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/prettyErrors';
+import { prettyErrors } from 'src/features/expressions/prettyErrors';
 import type { AttachmentsSelector } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { DevToolsHiddenComponents } from 'src/features/devtools/data/types';
 import type { EvalExprOptions } from 'src/features/expressions/index';
@@ -119,12 +119,11 @@ export class ExprContext {
    */
   public trace(err: Error, options?: PrettyErrorsOptions) {
     if (!(err instanceof ExprRuntimeError)) {
-      console.error(err);
+      window.logError(err);
       return;
     }
 
-    // eslint-disable-next-line no-console
-    console.log(...this.prettyErrorConsole(err, options));
+    window.logError(this.prettyError(err, options));
   }
 
   public prettyError(err: Error, options?: PrettyErrorsOptions): string {
@@ -144,26 +143,5 @@ export class ExprContext {
     }
 
     return err.message;
-  }
-
-  public prettyErrorConsole(err: Error, options?: PrettyErrorsOptions): string[] {
-    if (err instanceof ExprRuntimeError) {
-      const prettyPrinted = prettyErrorsToConsole({
-        input: this.expr,
-        errors: { [this.path.join('')]: [err.message] },
-        indentation: 1,
-        defaultStyle: '',
-      });
-
-      const introText = options && 'introText' in options ? options.introText : 'Evaluated expression:';
-
-      const extra =
-        options && options.config ? `\n%cUsing default value instead:\n  %c${options.config.defaultValue}%c` : '';
-      const extraCss = options && options.config ? ['', 'color: red;', ''] : [];
-
-      return [`${introText}:\n${prettyPrinted.lines}${extra}`, ...prettyPrinted.css, ...extraCss];
-    }
-
-    return [err.message];
   }
 }

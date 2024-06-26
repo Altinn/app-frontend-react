@@ -133,13 +133,13 @@ export type ExprResolved<T> = T extends [FunctionsReturning<any>, ...any]
 type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 /**
- * Expression configuration. This configuration object needs to be set on every layout property which can be resolved
- * as an expression, and it is the configuration passed to the expression evaluator.
+ * Expression configuration. This configuration object indicates to the expression engine what we expect of the
+ * expression, such as the return type and the default value (which will be used should the expression fail at
+ * some point)
  */
 export interface ExprConfig<V extends ExprVal = ExprVal> {
   returnType: V;
   defaultValue: ExprValToActual<V> | null;
-  errorAsException?: true;
 }
 
 export type ExprPositionalArgs = ExprValToActual<ExprVal.Any>[];

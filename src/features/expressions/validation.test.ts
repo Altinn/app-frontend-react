@@ -1,5 +1,5 @@
 import { getSharedTests } from 'src/features/expressions/shared';
-import { asExpression } from 'src/features/expressions/validation';
+import { ExprValidation } from 'src/features/expressions/validation';
 import type { Layouts } from 'src/features/expressions/shared';
 
 // TODO: Remove this function when no longer in use
@@ -28,7 +28,7 @@ describe('Expression validation', () => {
   describe('Shared tests for invalid expressions', () => {
     const invalidSharedTests = getSharedTests('invalid');
     it.each(invalidSharedTests.content)('$name', (invalid) => {
-      expect(() => asExpression(invalid.expression)).toThrow(invalid.expectsFailure);
+      expect(() => ExprValidation.throwIfInvalidNorScalar(invalid.expression)).toThrow(invalid.expectsFailure);
     });
   });
 
@@ -87,7 +87,7 @@ describe('Expression validation', () => {
       { expr: 'hello world' },
       { expr: '5 == 5', and: 'other property' },
     ])('should validate %p as an invalid expression (non-throwing)', (maybeExpr) => {
-      expect(asExpression(maybeExpr)).toBeUndefined();
+      expect(ExprValidation.throwIfInvalidNorScalar(maybeExpr)).toBeUndefined();
     });
   });
 });

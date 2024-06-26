@@ -3,6 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
+import { ExprValidation } from 'src/features/expressions/validation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getComponentDef, getNodeConstructor } from 'src/layout';
 import { GeneratorDebug } from 'src/utils/layout/generator/debug';
@@ -198,12 +199,17 @@ export function useExpressionResolverProps<T extends CompTypes>(
         return defaultValue;
       }
 
+      const errorIntroText = `Invalid expression for component '${node.getBaseId()}'`;
+      if (!ExprValidation.isValidOrScalar(expr, type, errorIntroText)) {
+        return defaultValue;
+      }
+
       const config: ExprConfig = {
         returnType: type,
         defaultValue,
       };
 
-      return evalExpr(expr, node, { ...allDataSourcesAsRef.current, ...dataSources }, { config });
+      return evalExpr(expr, node, { ...allDataSourcesAsRef.current, ...dataSources }, { config, errorIntroText });
     },
     [allDataSourcesAsRef, node],
   );

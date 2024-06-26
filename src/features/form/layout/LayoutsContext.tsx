@@ -88,7 +88,6 @@ function processLayouts(input: ILayoutCollection): LayoutContextValue {
     defaultValue: false,
   };
 
-  // TODO: Re-implement pre-processing for layouts
   // for (const key of Object.keys(hiddenLayoutsExpressions)) {
   //   hiddenLayoutsExpressions[key] = preProcessItem(hiddenLayoutsExpressions[key], config, ['hidden'], key);
   // }
