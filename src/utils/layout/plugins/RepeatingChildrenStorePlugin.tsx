@@ -63,6 +63,9 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
         set((state) => {
           const nodeData = { ...state.nodeData };
           const thisNode = nodeData[node.getId()];
+          if (!thisNode) {
+            return {};
+          }
           const existingRows = thisNode.item && (thisNode.item[internalProp] as RepChildrenRow[] | undefined);
           if (!existingRows) {
             return {};

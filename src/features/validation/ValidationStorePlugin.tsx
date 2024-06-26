@@ -1,6 +1,7 @@
 import { selectValidations } from 'src/features/validation/utils';
 import { nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
+import type { ContextNotProvided } from 'src/core/contexts/context';
 import type {
   AnyValidation,
   AttachmentValidation,
@@ -24,11 +25,15 @@ export interface ValidationStorePluginConfig {
   };
   extraHooks: {
     useSetNodeVisibility: () => ValidationStorePluginConfig['extraFunctions']['setNodeVisibility'];
+    useLaxSetNodeVisibility: () =>
+      | ValidationStorePluginConfig['extraFunctions']['setNodeVisibility']
+      | typeof ContextNotProvided;
     useSetAttachmentVisibility: () => ValidationStorePluginConfig['extraFunctions']['setAttachmentVisibility'];
     useValidationVisibility: (node: LayoutNode | undefined) => number;
     useValidations: (node: LayoutNode | undefined) => AnyValidation[];
     useVisibleValidations: (node: LayoutNode | undefined, severity?: ValidationSeverity) => AnyValidation[];
     useValidationsSelector: () => ValidationsSelector;
+    useLaxValidationsSelector: () => ValidationsSelector | typeof ContextNotProvided;
   };
 }
 
@@ -68,8 +73,23 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
   }
 
   extraHooks(store: NodesStoreFull) {
+    const selectorArg: Parameters<(typeof store)['useDelayedSelector']>[0] = {
+      mode: 'simple',
+      selector: (node: LayoutNode, mask: ValidationMask | 'visible', severity?: ValidationSeverity) => (state) => {
+        const nodeData = state.nodeData[node.getId()];
+        if (!nodeData) {
+          return emptyArray;
+        }
+        const visibility = 'validationVisibility' in nodeData ? nodeData.validationVisibility : 0;
+        return 'validations' in nodeData
+          ? selectValidations(nodeData.validations, mask === 'visible' ? visibility : mask, severity)
+          : emptyArray;
+      },
+    };
+
     const out: ValidationStorePluginConfig['extraHooks'] = {
       useSetNodeVisibility: () => store.useSelector((state) => state.setNodeVisibility),
+      useLaxSetNodeVisibility: () => store.useLaxSelector((state) => state.setNodeVisibility),
       useSetAttachmentVisibility: () => store.useSelector((state) => state.setAttachmentVisibility),
       useValidationVisibility: (node) =>
         store.useSelector((state) => {
@@ -108,20 +128,8 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             'validations' in nodeData ? selectValidations(nodeData.validations, visibility, severity) : undefined;
           return out && out.length > 0 ? out : emptyArray;
         }),
-      useValidationsSelector: () =>
-        store.useDelayedSelector({
-          mode: 'simple',
-          selector: (node: LayoutNode, mask: ValidationMask | 'visible', severity?: ValidationSeverity) => (state) => {
-            const nodeData = state.nodeData[node.getId()];
-            if (!nodeData) {
-              return emptyArray;
-            }
-            const visibility = 'validationVisibility' in nodeData ? nodeData.validationVisibility : 0;
-            return 'validations' in nodeData
-              ? selectValidations(nodeData.validations, mask === 'visible' ? visibility : mask, severity)
-              : emptyArray;
-          },
-        }),
+      useValidationsSelector: () => store.useDelayedSelector(selectorArg) as ValidationsSelector,
+      useLaxValidationsSelector: () => store.useLaxDelayedSelector(selectorArg) as ValidationsSelector,
     };
 
     return { ...out };

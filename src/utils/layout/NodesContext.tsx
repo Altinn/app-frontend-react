@@ -639,7 +639,11 @@ export const NodesInternal = {
     });
   },
   useIsReady() {
-    return Store.useSelector((s) => s.ready);
+    const isReady = Store.useLaxSelector((s) => s.ready);
+    if (isReady === ContextNotProvided) {
+      return true;
+    }
+    return isReady;
   },
 
   useNodeData<N extends LayoutNode | undefined, Out>(node: N, selector: (state: NodeDataFromNode<N>) => Out) {

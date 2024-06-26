@@ -7,7 +7,9 @@ import type { TabConfig } from 'src/layout/Tabs/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
+  DefPluginExtraInItem,
   DefPluginState,
+  DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
@@ -86,6 +88,13 @@ export class TabsPlugin<Type extends CompTypes>
     return `<${GenerateNodeChildren} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
   }
 
+  itemFactory({ item }: DefPluginStateFactoryProps<Config<Type>>) {
+    return {
+      tabs: undefined,
+      tabsInternal: (item as any).tabs as TabConfigInternal[],
+    } as DefPluginExtraInItem<Config<Type>>;
+  }
+
   pickDirectChildren(
     state: DefPluginState<Config<Type>>,
     _restriction?: TraversalRestriction | undefined,
@@ -106,7 +115,11 @@ export class TabsPlugin<Type extends CompTypes>
     metadata: ClaimMetadata,
   ): Partial<DefPluginState<Config<Type>>> {
     const tabsInternal = [...(state.item?.tabsInternal || [])];
-    const children = [...tabsInternal[metadata.tabIdx].children];
+    const tab = tabsInternal[metadata.tabIdx];
+    if (!tab) {
+      throw new Error(`Tab with index ${metadata.tabIdx} not found`);
+    }
+    const children = [...tab.children];
     children[metadata.childIdx] = childNode;
     tabsInternal[metadata.tabIdx] = { ...tabsInternal[metadata.tabIdx], children };
     return { item: { ...state.item, tabs: undefined, tabsInternal } } as Partial<DefPluginState<Config<Type>>>;

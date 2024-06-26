@@ -18,6 +18,7 @@ import { useWaitForState } from 'src/hooks/useWaitForState';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
+import type { ContextNotProvided } from 'src/core/contexts/context';
 import type {
   FileUploaderNode,
   IAttachment,
@@ -25,6 +26,7 @@ import type {
   UploadedAttachment,
 } from 'src/features/attachments/index';
 import type { BackendValidationIssue } from 'src/features/validation';
+import type { DSMode } from 'src/hooks/delayedSelectors';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -49,6 +51,8 @@ export interface AttachmentActionRemove {
   attachment: UploadedAttachment;
 }
 
+export type AttachmentsSelector = (node: FileUploaderNode) => IAttachment[];
+
 export interface AttachmentsStorePluginConfig {
   extraFunctions: {
     attachmentUpload: (action: AttachmentActionUpload) => void;
@@ -69,7 +73,8 @@ export interface AttachmentsStorePluginConfig {
     useAttachmentsRemove: () => (action: AttachmentActionRemove) => Promise<boolean>;
 
     useAttachments: (node: FileUploaderNode) => IAttachment[];
-    useAttachmentsSelector: () => (node: FileUploaderNode) => IAttachment[];
+    useAttachmentsSelector: () => AttachmentsSelector;
+    useLaxAttachmentsSelector: () => typeof ContextNotProvided | AttachmentsSelector;
     useWaitUntilUploaded: () => (node: FileUploaderNode, attachment: TemporaryAttachment) => Promise<IData | false>;
   };
 }
@@ -201,6 +206,20 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
     };
   }
   extraHooks(store: NodesStoreFull): AttachmentsStorePluginConfig['extraHooks'] {
+    const selectorArg: DSMode<NodesContext> = {
+      mode: 'simple',
+      selector: (node: LayoutNode) => (state) => {
+        const nodeData = state.nodeData[node.getId()];
+        if (!nodeData) {
+          return emptyArray;
+        }
+        if ('attachments' in nodeData) {
+          return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
+        }
+        return emptyArray;
+      },
+    };
+
     return {
       useAttachmentsUpload() {
         const { changeData: changeInstanceData } = useLaxInstance() || {};
@@ -377,19 +396,10 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         });
       },
       useAttachmentsSelector() {
-        return store.useDelayedSelector({
-          mode: 'simple',
-          selector: (node: LayoutNode) => (state) => {
-            const nodeData = state.nodeData[node.getId()];
-            if (!nodeData) {
-              return emptyArray;
-            }
-            if ('attachments' in nodeData) {
-              return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
-            }
-            return emptyArray;
-          },
-        });
+        return store.useDelayedSelector(selectorArg) as AttachmentsSelector;
+      },
+      useLaxAttachmentsSelector() {
+        return store.useLaxDelayedSelector(selectorArg) as AttachmentsSelector;
       },
       useWaitUntilUploaded() {
         const zustandStore = store.useStore();

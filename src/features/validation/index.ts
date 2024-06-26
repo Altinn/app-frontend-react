@@ -1,4 +1,4 @@
-import type { AttachmentsSelector } from 'src/features/attachments/hooks';
+import type { AttachmentsSelector } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { FormDataSelector } from 'src/layout';

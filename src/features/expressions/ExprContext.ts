@@ -2,7 +2,7 @@ import dot from 'dot-object';
 
 import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/prettyErrors';
-import type { AttachmentsSelector } from 'src/features/attachments/hooks';
+import type { AttachmentsSelector } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { DevToolsHiddenComponents } from 'src/features/devtools/data/types';
 import type { EvalExprOptions } from 'src/features/expressions/index';
 import type { ExprConfig, Expression, ExprPositionalArgs } from 'src/features/expressions/types';

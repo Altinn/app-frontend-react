@@ -18,14 +18,18 @@ import { useNodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
  */
 export function useOnFormSubmitValidation() {
   const validation = Validation.useLaxRef();
-  const setNodeVisibility = NodesInternal.useSetNodeVisibility();
-  const nodeValidationsSelector = NodesInternal.useValidationsSelector();
+  const setNodeVisibility = NodesInternal.useLaxSetNodeVisibility();
+  const nodeValidationsSelector = NodesInternal.useLaxValidationsSelector();
   const traversalSelector = useNodeTraversalSelectorLax();
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((): boolean => {
-    if (validation.current === ContextNotProvided) {
-      // If the validation context is not provided, we cannot validate
+    if (
+      validation.current === ContextNotProvided ||
+      nodeValidationsSelector === ContextNotProvided ||
+      setNodeVisibility === ContextNotProvided
+    ) {
+      // If the validation context or nodes context is not provided, we cannot validate
       return false;
     }
 

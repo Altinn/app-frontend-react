@@ -1,3 +1,4 @@
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { AttachmentsPlugin } from 'src/features/attachments/AttachmentsPlugin';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeTraversalSilent } from 'src/utils/layout/useNodeTraversal';
@@ -11,12 +12,16 @@ export const useAttachmentsAwaiter = () => NodesInternal.useWaitUntilUploaded();
 export const useAttachmentsFor = (node: FileUploaderNode) => NodesInternal.useAttachments(node);
 
 export const useAttachmentsSelector = () => NodesInternal.useAttachmentsSelector();
-export type AttachmentsSelector = ReturnType<typeof useAttachmentsSelector>;
+export const useLaxAttachmentsSelector = () => NodesInternal.useLaxAttachmentsSelector();
 
 export function useHasPendingAttachments() {
-  const selector = useAttachmentsSelector();
+  const selector = useLaxAttachmentsSelector();
   return (
     useNodeTraversalSilent((t) => {
+      if (selector === ContextNotProvided) {
+        return false;
+      }
+
       const withAttachments = t.allNodes().filter((node) => node.def.hasPlugin(AttachmentsPlugin));
       return withAttachments.some((node: FileUploaderNode) => {
         const attachments = selector(node);

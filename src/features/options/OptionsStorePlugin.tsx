@@ -21,14 +21,14 @@ export interface OptionsStorePluginConfig {
 
 const emptyArray: IOptionInternal[] = [];
 
-function nodeDataToOptions(s: NodeData): IOptionInternal[] {
-  return 'options' in s && s.options && Array.isArray(s.options) && s.options.length
+function nodeDataToOptions(s: NodeData | undefined): IOptionInternal[] {
+  return s && 'options' in s && s.options && Array.isArray(s.options) && s.options.length
     ? (s.options as IOptionInternal[])
     : emptyArray;
 }
 
-function nodeDataToIsFetching(s: NodeData): boolean {
-  return 'isFetchingOptions' in s && typeof s.isFetchingOptions === 'boolean' ? s.isFetchingOptions : false;
+function nodeDataToIsFetching(s: NodeData | undefined): boolean {
+  return s && 'isFetchingOptions' in s && typeof s.isFetchingOptions === 'boolean' ? s.isFetchingOptions : false;
 }
 
 export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig> {
