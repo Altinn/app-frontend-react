@@ -21,7 +21,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
 
   const debounce = FD.useDebounceImmediately();
 
-  const { options, isFetching, selectedValues, setData, rawData } = useGetOptions({
+  const { options, isFetching, selectedValues, setData, key } = useGetOptions({
     ...node.item,
     valueType: 'single',
     node,
@@ -71,7 +71,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
         id={id}
         size='sm'
         hideLabel={true}
-        key={rawData} // Workaround for clearing text input
+        key={key} // Workaround for clearing text input
         value={selectedValues}
         readOnly={readOnly}
         onValueChange={handleChange}

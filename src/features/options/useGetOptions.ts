@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -63,8 +63,6 @@ export interface OptionsResult {
 
   setData: (values: string[]) => void;
 
-  rawData: string;
-
   // The final list of options deduced from the component settings. This will be an array of objects, where each object
   // has a string-typed 'value' property, regardless of the underlying options configuration.
   options: IOptionInternal[];
@@ -76,6 +74,10 @@ export interface OptionsResult {
 
   // Whether there was an error fetching the options from the API. If this is true, you should probably render the unknown error page
   isError: boolean;
+
+  // Workaround for dropdown (Combobox single) not clearing text input when value changes
+  // Can be used in the key-prop, will change every time the value changes
+  key: number;
 }
 
 interface EffectProps {
@@ -102,7 +104,7 @@ const compareOptionAlphabetically =
 export function useGetOptions(props: Props): OptionsResult {
   const {
     node,
-    valueType: type,
+    valueType,
     options,
     optionsId,
     secure,
@@ -124,7 +126,7 @@ export function useGetOptions(props: Props): OptionsResult {
 
   const [calculatedOptions, preselectedOption] = useMemo(() => {
     let draft = sourceOptions || fetchedOptions?.data || staticOptions;
-    verifyOptions(draft);
+    verifyOptions(draft, valueType === 'multi');
     let preselectedOption: IOptionInternal | undefined = undefined;
     if (preselectedOptionIndex !== undefined && draft && draft[preselectedOptionIndex]) {
       // This index uses the original options array, before any filtering or sorting
@@ -148,6 +150,7 @@ export function useGetOptions(props: Props): OptionsResult {
     sortOrder,
     sourceOptions,
     staticOptions,
+    valueType,
   ]);
 
   // Log error if fetching options failed
@@ -175,7 +178,10 @@ export function useGetOptions(props: Props): OptionsResult {
     }
   }, [dataModelBindings, downstreamParameters, setValue]);
 
-  const currentValues = useMemo(() => (value && value.length > 0 ? value.split(',') : []), [value]);
+  const currentValues = useMemo(
+    () => (value && value.length > 0 ? (valueType === 'multi' ? value.split(',') : [value]) : []),
+    [value, valueType],
+  );
 
   const selectedValues = useMemo(
     () => currentValues.filter((value) => alwaysOptions.find((option) => option.value === value)),
@@ -199,14 +205,25 @@ export function useGetOptions(props: Props): OptionsResult {
       return;
     }
 
-    if (type === 'single') {
+    if (valueType === 'single') {
       setValue('label' as any, translatedLabels.at(0));
     } else {
       setValue('label' as any, translatedLabels);
     }
-  }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, type]);
+  }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, valueType]);
 
-  const setData = useCallback((values: string[]) => setValue('simpleBinding', values.join(',')), [setValue]);
+  const [key, setKey] = useState(0);
+  const setData = useCallback(
+    (values: string[]) => {
+      if (valueType === 'single') {
+        setValue('simpleBinding', values.at(0));
+      } else if (valueType === 'multi') {
+        setValue('simpleBinding', values.join(','));
+      }
+      setKey((k) => k + 1); // Workaround for Combobox
+    },
+    [setValue, valueType],
+  );
 
   const effectProps: EffectProps = useMemo(
     () => ({
@@ -223,7 +240,7 @@ export function useGetOptions(props: Props): OptionsResult {
   useRemoveStaleValues(effectProps);
 
   return {
-    rawData: value,
+    key,
     selectedValues,
     setData,
     options: alwaysOptions,
