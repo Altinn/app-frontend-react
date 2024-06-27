@@ -33,6 +33,11 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
   )}`;
 
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
+
+  const status = attachment.uploaded
+    ? langAsString('form_filler.file_uploader_list_status_done')
+    : langAsString('general.loading');
+
   return (
     <tr
       key={uniqueId}
@@ -45,12 +50,15 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
         mobileView={mobileView}
         readableSize={readableSize}
         hasTag={hasTag}
+        uploadStatus={status}
+        tagLabel={tagLabel}
       />
-      {hasTag && <FileTypeCell tagLabel={tagLabel} />}
-      {!(hasTag && mobileView) && !pdfModeActive && (
+      {hasTag && !mobileView && <FileTypeCell tagLabel={tagLabel} />}
+      {!(hasTag && mobileView) && !pdfModeActive && !mobileView && (
         <StatusCellContent
-          uploaded={attachment.uploaded}
+          status={status}
           mobileView={mobileView}
+          uploaded={attachment.uploaded}
         />
       )}
 
@@ -80,11 +88,15 @@ const NameCell = ({
   attachment,
   readableSize,
   hasTag,
+  uploadStatus,
+  tagLabel,
 }: {
   mobileView: boolean;
   attachment: IAttachment;
   readableSize: string;
   hasTag: boolean;
+  uploadStatus: string;
+  tagLabel?: string;
 }) => {
   const { langAsString } = useLanguage();
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
@@ -104,8 +116,13 @@ const NameCell = ({
             >
               {attachment.uploaded ? (
                 <div>
-                  {readableSize}
-                  {hasTag && (
+                  {tagLabel && mobileView && (
+                    <div>
+                      <Lang id={tagLabel} />
+                    </div>
+                  )}
+                  {`${readableSize} ${mobileView ? uploadStatus : ''}`}
+                  {hasTag && !mobileView && (
                     <div data-testid='status-success'>
                       <Lang id={'form_filler.file_uploader_list_status_done'} />
                     </div>
@@ -133,31 +150,24 @@ const FileTypeCell = ({ tagLabel }: { tagLabel: string | undefined }) => {
   return <td key={`attachment-tag-${index}`}>{tagLabel && langAsString(tagLabel)}</td>;
 };
 
-const StatusCellContent = ({ uploaded, mobileView }) => {
-  const { langAsString } = useLanguage();
-  const status = uploaded
-    ? langAsString('form_filler.file_uploader_list_status_done')
-    : langAsString('general.loading');
-
-  return (
-    <td>
-      {uploaded ? (
-        <div
-          className={classes.fileStatus}
-          data-testid='status-success'
-        >
-          {mobileView ? null : status}
-        </div>
-      ) : (
-        <AltinnLoader
-          id='loader-upload'
-          className={classes.altinnLoader}
-          srContent={status}
-        />
-      )}
-    </td>
-  );
-};
+const StatusCellContent = ({ uploaded, mobileView, status }) => (
+  <td>
+    {uploaded ? (
+      <div
+        className={classes.fileStatus}
+        data-testid='status-success'
+      >
+        {mobileView ? null : status}
+      </div>
+    ) : (
+      <AltinnLoader
+        id='loader-upload'
+        className={classes.altinnLoader}
+        srContent={status}
+      />
+    )}
+  </td>
+);
 
 interface IButtonCellContentProps {
   deleting: boolean;
