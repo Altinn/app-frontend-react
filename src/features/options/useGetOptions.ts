@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -48,6 +48,10 @@ export interface SetOptionsResult {
   rawData: string;
 
   setData: (values: string[]) => void;
+
+  // Workaround for dropdown (Combobox single) not clearing text input when value changes
+  // Can be used in the key-prop, will change every time the value changes
+  key: number;
 }
 
 interface EffectProps {
@@ -91,7 +95,10 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
   const value = formData.simpleBinding ?? '';
   const { langAsString } = useLanguage();
 
-  const currentValues = useMemo(() => (value && value.length > 0 ? value.split(',') : []), [value]);
+  const currentValues = useMemo(
+    () => (value && value.length > 0 ? (valueType === 'multi' ? value.split(',') : [value]) : []),
+    [value, valueType],
+  );
 
   const selectedValues = useMemo(
     () => currentValues.filter((value) => alwaysOptions.find((option) => option.value === value)),
@@ -121,9 +128,21 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
     }
   }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, valueType]);
 
-  const setData = useCallback((values: string[]) => setValue('simpleBinding', values.join(',')), [setValue]);
+  const [key, setKey] = useState(0);
+  const setData = useCallback(
+    (values: string[]) => {
+      if (valueType === 'single') {
+        setValue('simpleBinding', values.at(0));
+      } else if (valueType === 'multi') {
+        setValue('simpleBinding', values.join(','));
+      }
+      setKey((k) => k + 1); // Workaround for Combobox
+    },
+    [setValue, valueType],
+  );
 
   return {
+    key,
     rawData: value,
     selectedValues,
     setData,
@@ -183,6 +202,8 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
       preselectedOption = draft[preselectedOptionIndex];
     }
 
+    verifyOptions(draft, valueType === 'multi');
+
     if (draft && draft.length < 2) {
       // No need to sort or filter if there are 0 or 1 options. Using langAsString() can lead to re-rendering, so
       // we avoid it if we don't need it.
@@ -191,7 +212,6 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
 
     if (draft) {
       draft = filterDuplicateOptions(draft);
-      draft = filterEmptyOptions(draft);
     }
     if (draft && sortOrder) {
       draft = [...draft].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
