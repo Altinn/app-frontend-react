@@ -3,6 +3,8 @@ import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/Appl
 import { getLayoutSetForApplication } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useLaxLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
+import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
+import type { ILayoutSet } from 'src/layout/common.generated';
 
 export function useCurrentLayoutSetId() {
   return useCurrentLayoutSet()?.id;
@@ -12,10 +14,24 @@ export function useCurrentLayoutSet() {
   const application = useLaxApplicationMetadata();
   const layoutSets = useLaxLayoutSets();
   const taskId = useProcessTaskId();
+  const { overriddenLayoutSetId } = useTaskStore(({ overriddenLayoutSetId }) => ({ overriddenLayoutSetId }));
 
   if (application === ContextNotProvided || layoutSets === ContextNotProvided) {
     return undefined;
   }
 
+  if (overriddenLayoutSetId) {
+    return layoutSets.sets.find((set) => set.id === overriddenLayoutSetId);
+  }
+
   return getLayoutSetForApplication({ application, layoutSets, taskId });
+}
+
+export function useGetLayoutSetById(layoutSetId: string): ILayoutSet | undefined {
+  const layoutSets = useLaxLayoutSets();
+  if (layoutSets === ContextNotProvided) {
+    return undefined;
+  }
+
+  return layoutSets.sets.find((layoutSet) => layoutSet.id === layoutSetId);
 }

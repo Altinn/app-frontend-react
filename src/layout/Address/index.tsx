@@ -3,6 +3,7 @@ import type { JSX } from 'react';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
+import { AddressSummary } from 'src/layout/Address/AddressSummary/AddressSummary';
 import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -27,6 +28,10 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
   renderSummary({ targetNode }: SummaryRendererProps<'Address'>): JSX.Element | null {
     const data = this.useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={data} />;
+  }
+
+  renderSummary2(componentNode: LayoutNode<'Address'>): JSX.Element | null {
+    return <AddressSummary componentNode={componentNode} />;
   }
 
   renderDefaultValidations(): boolean {

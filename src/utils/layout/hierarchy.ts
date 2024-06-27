@@ -217,6 +217,7 @@ function useResolvedExpressions(isHidden: ReturnType<typeof useIsHiddenComponent
     () => resolvedNodesInLayouts(layouts, currentView, dataSources, previousNodesRef.current),
     [layouts, currentView, dataSources],
   );
+
   previousNodesRef.current = nodes;
 
   return nodes;
