@@ -13,7 +13,7 @@ export const AccordionGroup = ({ node }: IAccordionGroupProps) => {
     <AccordionGroupProvider>
       {childComponents.map((node) => (
         <GenericComponent
-          key={node.getId()}
+          key={node.id}
           node={node}
         />
       ))}

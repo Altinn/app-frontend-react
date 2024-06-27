@@ -145,7 +145,7 @@ const ValidationItems = ({ grouping, validations, node, visibility }: Validation
       <ul style={{ padding: 0 }}>
         {validations.map((validation) => (
           <ValidationItem
-            key={`${validation.node.getId()}-${validation.source}-${validation.message.key}-${validation.severity}`}
+            key={`${validation.node.id}-${validation.source}-${validation.message.key}-${validation.severity}`}
             validation={validation}
             node={node}
             visibility={visibility}

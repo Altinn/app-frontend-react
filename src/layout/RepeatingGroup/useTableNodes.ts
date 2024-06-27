@@ -10,15 +10,13 @@ export function useTableNodes(node: LayoutNode<'RepeatingGroup'>, restriction: T
   return useNodeTraversal((traverser) => {
     const nodes = traverser
       .children(undefined, restriction)
-      .filter((child) =>
-        tableHeaders ? !!tableHeaders.includes(child.getBaseId()) : child.isCategory(CompCategory.Form),
-      );
+      .filter((child) => (tableHeaders ? !!tableHeaders.includes(child.baseId) : child.isCategory(CompCategory.Form)));
 
     // Sort using the order from tableHeaders
     if (tableHeaders) {
       nodes.sort((a, b) => {
-        const aIndex = tableHeaders.indexOf(a.getBaseId());
-        const bIndex = tableHeaders.indexOf(b.getBaseId());
+        const aIndex = tableHeaders.indexOf(a.baseId);
+        const bIndex = tableHeaders.indexOf(b.baseId);
         return aIndex - bIndex;
       });
     }

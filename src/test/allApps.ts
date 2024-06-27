@@ -74,7 +74,7 @@ export function getAllLayoutSets(dir: string): AppLayoutSet[] {
           ...layoutContent,
           data: {
             ...layoutContent.data,
-            layout: cleanLayout(layoutContent.data.layout, false),
+            layout: cleanLayout(layoutContent.data.layout),
           },
         };
         entireFiles[basename] = layoutContent;

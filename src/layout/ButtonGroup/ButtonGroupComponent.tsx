@@ -19,9 +19,9 @@ export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'Button
     >
       {childComponents.map((node) => (
         <div
-          key={node.getId()}
-          data-componentid={node.getId()}
-          data-componentbaseid={node.getBaseId()}
+          key={node.id}
+          data-componentid={node.id}
+          data-componentbaseid={node.baseId}
         >
           <GenericComponent
             node={node}

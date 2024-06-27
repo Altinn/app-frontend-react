@@ -38,7 +38,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
               throw new Error('Extras must be an object');
             }
 
-            const thisNode = nodeData[node.getId()];
+            const thisNode = nodeData[node.id];
             const existingRows = thisNode.item && (thisNode.item[internalProp] as RepChildrenRow[] | undefined);
             const existingRowIndex = existingRows?.findIndex((r) => r.uuid === row.uuid);
             const existingRow =
@@ -52,7 +52,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
               changes = true;
               const newRows = [...(existingRows || [])];
               newRows[existingRowIndex] = nextRow;
-              nodeData[node.getId()] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
+              nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
             }
           }
 
@@ -62,7 +62,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
       removeRow: (node, row, internalProp) => {
         set((state) => {
           const nodeData = { ...state.nodeData };
-          const thisNode = nodeData[node.getId()];
+          const thisNode = nodeData[node.id];
           if (!thisNode) {
             return {};
           }
@@ -76,7 +76,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           }
           const newRows = [...existingRows];
           newRows.splice(existingRowIndex, 1);
-          nodeData[node.getId()] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
+          nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
 
           return { nodeData, ready: false };
         });

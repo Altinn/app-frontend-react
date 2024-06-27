@@ -58,15 +58,15 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     }
     setReturnToView?.(undefined);
     if (currentTaskType === ProcessTaskType.Data) {
-      next({ nodeId: node.getId() });
+      next({ nodeId: node.id });
     } else if (currentTaskType === ProcessTaskType.Confirm) {
-      next({ nodeId: node.getId(), action: 'confirm' });
+      next({ nodeId: node.id, action: 'confirm' });
     }
   };
   return (
     <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
       <SubmitButton
-        nodeId={node.getId()}
+        nodeId={node.id}
         onClick={submitTask}
         busyWithId={busyWithId}
         disabled={disabled}

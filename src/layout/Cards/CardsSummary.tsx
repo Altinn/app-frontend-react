@@ -19,7 +19,7 @@ export function CardsSummary({ targetNode, summaryNode, overrides }: Props) {
 
         return (
           <SummaryComponent
-            key={child.getId()}
+            key={child.id}
             summaryNode={summaryNode}
             overrides={{
               ...overrides,

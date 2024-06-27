@@ -57,7 +57,7 @@ function DataModelValidation({ node, intermediateItem }: NodeValidationProps) {
       return;
     }
 
-    window.logErrorOnce(`Data model binding errors for component '/${node.getId()}':\n- ${errors.join('\n- ')}`);
+    window.logErrorOnce(`Data model binding errors for component '/${node.id}':\n- ${errors.join('\n- ')}`);
 
     for (const error of errors) {
       addError(error, node);
@@ -89,9 +89,7 @@ function SchemaValidation({ node }: NodeValidationProps) {
       return;
     }
 
-    window.logErrorOnce(
-      `Layout configuration errors for component '/${node.getId()}':\n- ${errorMessages.join('\n- ')}`,
-    );
+    window.logErrorOnce(`Layout configuration errors for component '/${node.id}':\n- ${errorMessages.join('\n- ')}`);
 
     for (const error of errorMessages) {
       addError(error, node);

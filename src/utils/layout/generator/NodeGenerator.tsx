@@ -207,7 +207,7 @@ export function useExpressionResolverProps<T extends CompTypes>(
         return defaultValue;
       }
 
-      const errorIntroText = `Invalid expression for component '${node.getBaseId()}'`;
+      const errorIntroText = `Invalid expression for component '${node.baseId}'`;
       if (!ExprValidation.isValidOrScalar(expr, type, errorIntroText)) {
         return defaultValue;
       }

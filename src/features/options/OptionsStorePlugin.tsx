@@ -40,14 +40,14 @@ export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig>
     return {
       useNodeOptions: (node) =>
         store.useSelector((state) => {
-          const s = state.nodeData[node.getId()];
+          const s = state.nodeData[node.id];
           return { isFetching: nodeDataToIsFetching(s), options: nodeDataToOptions(s) };
         }),
       useNodeOptionsSelector: () =>
         store.useDelayedSelector({
           mode: 'simple',
           selector: (node: LayoutNode<CompWithBehavior<'canHaveOptions'>>) => (state) => {
-            const store = state.nodeData[node.getId()];
+            const store = state.nodeData[node.id];
             return { isFetching: nodeDataToIsFetching(store), options: nodeDataToOptions(store) };
           },
         }),

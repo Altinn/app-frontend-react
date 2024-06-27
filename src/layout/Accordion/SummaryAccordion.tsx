@@ -49,7 +49,7 @@ export function SummaryAccordionComponent({ targetNode }: ISummaryAccordionCompo
       <div className={classes.padding}>
         {childComponents.map((node) => (
           <GenericComponent
-            key={node.getId()}
+            key={node.id}
             node={node}
           />
         ))}

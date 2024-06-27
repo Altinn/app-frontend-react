@@ -27,7 +27,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
   const { lang } = useLanguage();
   const rowItems = rows.map((row) => row.item);
 
-  const id = node.getId();
+  const id = node.id;
   const hasDescription = !!textResourceBindings?.description;
   const hasTitle = !!textResourceBindings?.title;
   const titleId = `likert-title-${id}`;
@@ -65,8 +65,8 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
       <Grid
         item
         container
-        data-componentid={node.getId()}
-        data-componentbaseid={node.getBaseId()}
+        data-componentid={node.id}
+        data-componentbaseid={node.baseId}
       >
         <Header />
         <div
@@ -77,7 +77,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
         >
           {rowItems.map((comp) => (
             <GenericComponent
-              key={comp.getId()}
+              key={comp.id}
               node={comp}
             />
           ))}
@@ -90,8 +90,8 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
     <Grid
       item
       container
-      data-componentid={node.getId()}
-      data-componentbaseid={node.getBaseId()}
+      data-componentid={node.id}
+      data-componentbaseid={node.baseId}
     >
       <Header />
       {isFetching ? (
@@ -140,7 +140,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
 
               return (
                 <GenericComponent
-                  key={comp.getId()}
+                  key={comp.id}
                   node={comp}
                   overrideItemProps={override}
                 />

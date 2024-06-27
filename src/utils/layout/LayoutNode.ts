@@ -28,15 +28,18 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   public readonly row?: BaseRow;
   public readonly def: CompClassMap[Type];
 
-  // Common properties that are overwritten when changed in the item store
-  protected id: string;
-  protected baseId: string;
-  protected type: Type;
-  protected multiPageIndex: number | undefined;
+  // These may be overwritten if the state in NodesContext changes. They are only kept
+  // updated here for convenience.
+  public id: string;
+  public baseId: string;
+  public multiPageIndex: number | undefined;
+  public pageKey: string;
+  public type: Type;
 
   public constructor({ item, store, parent, row }: LayoutNodeProps<Type>) {
     this.updateCommonProps(item as CompInternal<Type>);
     this.page = parent instanceof LayoutPage ? parent : parent.page;
+    this.pageKey = this.page.pageKey;
     this.def = getComponentDef(this.type);
     this.store = store;
     this.parent = parent;
@@ -51,12 +54,12 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    * TODO: Find usages and make them useNodeItem() instead.
    */
   public get item() {
-    const nodeData = this.store.getState().nodeData[this.getId()];
+    const nodeData = this.store.getState().nodeData[this.id];
     if (!nodeData) {
-      throw new Error(`Node not found: /${this.getId()}`);
+      throw new Error(`Node not found: /${this.id}`);
     }
     if (!nodeData.item) {
-      throw new Error(`Node item not found: /${this.getId()}`);
+      throw new Error(`Node item not found: /${this.id}`);
     }
     return nodeData.item as CompInternal<Type>;
   }
@@ -68,32 +71,12 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
     this.multiPageIndex = item.multiPageIndex;
   }
 
-  public getId() {
-    return this.id;
-  }
-
-  public getBaseId() {
-    return this.baseId;
-  }
-
-  public getMultiPageIndex() {
-    return this.multiPageIndex;
-  }
-
   public isType<T extends CompTypes>(type: T): this is LayoutNode<T> {
     return (this.type as any) === type;
   }
 
-  public getType(): Type {
-    return this.type;
-  }
-
   public isCategory<T extends CompCategory>(category: T): this is LayoutNodeFromCategory<T> {
     return this.def.category === category;
-  }
-
-  public pageKey(): string {
-    return this.page.pageKey;
   }
 
   public closest(task: TraversalTask, _passedFrom?: LayoutPage | LayoutNode): LayoutNode | undefined {

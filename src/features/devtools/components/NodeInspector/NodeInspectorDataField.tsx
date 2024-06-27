@@ -36,7 +36,7 @@ export function Value({ children, className, property, collapsible, wasExpressio
 
   const editExpression = () => {
     setExpression(JSON.stringify(wasExpression, null, 2));
-    setExprContext(context.node?.page.pageKey, context.node?.getId());
+    setExprContext(context.node?.page.pageKey, context.node?.id);
     setActiveTab(DevToolsTab.Expressions);
   };
 
@@ -114,10 +114,10 @@ function OtherNode(props: { property: string; node: LayoutNode }) {
         role={'button'}
         onClick={(e) => {
           e.preventDefault();
-          context.selectNode(props.node.getId());
+          context.selectNode(props.node.id);
         }}
       >
-        {props.node.getId()}
+        {props.node.id}
       </a>
     </Value>
   );

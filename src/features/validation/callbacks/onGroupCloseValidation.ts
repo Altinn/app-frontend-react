@@ -27,7 +27,7 @@ export function useOnGroupCloseValidation() {
         t
           .with(node)
           .flat(undefined, { onlyInRowUuid: rowUuid })
-          .filter((n) => n.getId() !== node.getId()) // Exclude self, only check children
+          .filter((n) => n !== node) // Exclude self, only check children
           .filter((n) => nodeValidationSelector(n, mask, 'error').length > 0),
       [node, rowUuid, mask],
     );

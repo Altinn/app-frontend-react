@@ -47,7 +47,7 @@ function _RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationP
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings || {});
 
   const getScrollPosition = useCallback(
-    () => document.querySelector(`[data-pagination-id="${node.getId()}"]`)?.getClientRects().item(0)?.y,
+    () => document.querySelector(`[data-pagination-id="${node.id}"]`)?.getClientRects().item(0)?.y,
     [node],
   );
 
@@ -101,7 +101,7 @@ function _RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationP
       <PaginationComponent
         nextTextKey={textResourceBindings?.pagination_next_button ?? 'general.next'}
         backTextKey={textResourceBindings?.pagination_back_button ?? 'general.back'}
-        data-pagination-id={node.getId()}
+        data-pagination-id={node.id}
         className={classes.pagination}
         currentPage={currentPage + 1}
         totalPages={totalPages}

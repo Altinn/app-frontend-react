@@ -119,8 +119,8 @@ function Media({ card, node, minMediaHeight }: MediaProps) {
         minMediaHeight={minMediaHeight}
       >
         <div
-          data-componentid={card.media.getId()}
-          data-componentbaseid={card.media.getBaseId()}
+          data-componentid={card.media.id}
+          data-componentbaseid={card.media.baseId}
         >
           <GenericComponent
             node={card.media}

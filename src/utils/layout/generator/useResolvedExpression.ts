@@ -28,7 +28,7 @@ export function useResolvedExpression<V extends ExprVal>(
       return defaultValue;
     }
 
-    const identifier = node instanceof LayoutPage ? `page '${node.pageKey}'` : `component '${node.getBaseId()}'`;
+    const identifier = node instanceof LayoutPage ? `page '${node.pageKey}'` : `component '${node.baseId}'`;
     const errorIntroText = `Invalid expression for ${identifier}`;
     if (!ExprValidation.isValidOrScalar(expr, type, errorIntroText)) {
       return defaultValue;

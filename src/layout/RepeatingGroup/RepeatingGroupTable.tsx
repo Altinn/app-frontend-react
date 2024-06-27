@@ -112,7 +112,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
             <Table.Row className={classes.repeatingGroupRow}>
               {tableNodes?.map((n) => (
                 <TitleCell
-                  key={n.getId()}
+                  key={n.id}
                   node={n}
                   columnSettings={columnSettings}
                 />
@@ -215,7 +215,7 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
           <Table.Cell className={classes.mobileTableCell}>
             {mobileNodes.map((child) => (
               <GenericComponent
-                key={child.getId()}
+                key={child.id}
                 node={child}
               />
             ))}

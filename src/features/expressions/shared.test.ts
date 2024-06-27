@@ -94,7 +94,7 @@ describe('Expressions shared function tests', () => {
         const dataSources: ExpressionDataSources = {
           ...getExpressionDataSourcesMock(),
           formDataSelector: (path) => dot.pick(path, dataModel ?? {}),
-          attachmentsSelector: (node) => attachments[node.getId()] ?? [],
+          attachmentsSelector: (node) => attachments[node.id] ?? [],
           instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),
@@ -104,7 +104,7 @@ describe('Expressions shared function tests', () => {
             }),
           process,
           currentLanguage: profileSettings?.language || 'nb',
-          optionsSelector: (node) => ({ options: options[node.getId()] || [], isFetching: false }),
+          optionsSelector: (node) => ({ options: options[node.id] || [], isFetching: false }),
         };
 
         const _layouts = convertLayouts(layouts);
@@ -119,7 +119,7 @@ describe('Expressions shared function tests', () => {
           if ('options' in node.item) {
             // Extremely simple mock of useGetOptions() and useAllOptions(), assuming
             // all components use plain static options
-            options[node.getId()] = castOptionsToStrings(node.item.options);
+            options[node.id] = castOptionsToStrings(node.item.options);
           }
         }
 
@@ -159,7 +159,7 @@ describe('Expressions shared context tests', () => {
   }
 
   function recurse(node: LayoutNode, key: string): SharedTestContextList {
-    const splitKey = splitDashedKey(node.getId());
+    const splitKey = splitDashedKey(node.id);
     const context: SharedTestContextList = {
       component: splitKey.baseComponentId,
       currentLayout: key,
@@ -184,7 +184,7 @@ describe('Expressions shared context tests', () => {
         const dataSources: ExpressionDataSources = {
           ...getExpressionDataSourcesMock(),
           formDataSelector: (path) => dot.pick(path, dataModel ?? {}),
-          attachmentsSelector: (node) => attachments[node.getId()] ?? [],
+          attachmentsSelector: (node) => attachments[node.id] ?? [],
           instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),

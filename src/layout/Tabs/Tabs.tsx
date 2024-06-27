@@ -60,7 +60,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
         >
           {tab.children.map((node) => (
             <GenericComponent
-              key={node.getId()}
+              key={node.id}
               node={node}
             />
           ))}

@@ -175,7 +175,7 @@ export function useTextAlignment(node: LayoutNode): 'left' | 'center' | 'right' 
 
 export function useColumnStylesRepeatingGroups(node: LayoutNode, columnSettings: ITableColumnFormatting | undefined) {
   const textAlignment = useTextAlignment(node);
-  const column = columnSettings && columnSettings[node.getBaseId()];
+  const column = columnSettings && columnSettings[node.baseId];
   if (!column) {
     return;
   }

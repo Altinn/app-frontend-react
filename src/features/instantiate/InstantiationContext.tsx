@@ -85,7 +85,7 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
             return;
           }
           isInstantiatingRef.current = true;
-          setBusyWithId(node ? node.getId() : 'unknown');
+          setBusyWithId(node ? node.id : 'unknown');
           instantiate.mutate(instanceOwnerPartyId);
         },
         instantiateWithPrefill: (node, value) => {
@@ -93,7 +93,7 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
             return;
           }
           isInstantiatingRef.current = true;
-          setBusyWithId(node ? node.getId() : 'unknown');
+          setBusyWithId(node ? node.id : 'unknown');
           instantiateWithPrefill.mutate(value);
         },
 

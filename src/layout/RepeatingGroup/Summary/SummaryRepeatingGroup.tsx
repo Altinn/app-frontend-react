@@ -44,7 +44,7 @@ export function SummaryRepeatingGroup(props: ISummaryRepeatingGroup) {
   const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
-    excludedChildren ? excludedChildren.includes(n.getId()) || excludedChildren.includes(n.getBaseId()) : false;
+    excludedChildren ? excludedChildren.includes(n.id) || excludedChildren.includes(n.baseId) : false;
 
   const rows: RepGroupRow[] = [];
   for (const row of _rows) {
@@ -177,7 +177,7 @@ function RegularRepeatingGroupRow({
         <RenderCompactSummary
           onChangeClick={onChangeClick}
           changeText={changeText}
-          key={child.getId()}
+          key={child.id}
           targetNode={child}
           summaryNode={summaryNode}
           overrides={{}}
@@ -205,8 +205,8 @@ function LargeRepeatingGroup({ targetNode, summaryNode, overrides, inExcludedChi
     <>
       {rows.map((row) => (
         <LargeGroupSummaryContainer
-          key={`summary-${targetNode.getId()}-${row.uuid}`}
-          id={`summary-${targetNode.getId()}-${row.index}`}
+          key={`summary-${targetNode.id}-${row.uuid}`}
+          id={`summary-${targetNode.id}-${row.index}`}
           groupNode={targetNode}
           onlyInRowUuid={row.uuid}
           renderLayoutNode={(n) => {
@@ -216,7 +216,7 @@ function LargeRepeatingGroup({ targetNode, summaryNode, overrides, inExcludedChi
 
             return (
               <SummaryComponent
-                key={n.getId()}
+                key={n.id}
                 summaryNode={summaryNode}
                 overrides={{
                   ...overrides,

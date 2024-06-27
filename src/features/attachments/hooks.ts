@@ -41,7 +41,7 @@ export function useAllAttachments(): IAttachmentsMap {
         .allNodes()
         .filter((node) => node.def.hasPlugin(AttachmentsPlugin)) as FileUploaderNode[];
       for (const node of withAttachments) {
-        out[node.getId()] = selector(node);
+        out[node.id] = selector(node);
       }
       return out;
     }) ?? emptyMap

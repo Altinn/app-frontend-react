@@ -20,7 +20,7 @@ export function TabsSummary({ targetNode, summaryNode, overrides }: Props): JSX.
 
         return (
           <SummaryComponent
-            key={child.getId()}
+            key={child.id}
             summaryNode={summaryNode}
             overrides={{
               ...overrides,

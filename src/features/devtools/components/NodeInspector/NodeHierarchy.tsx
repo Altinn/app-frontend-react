@@ -60,9 +60,9 @@ const GridRows = ({ rows, onClick, text, selected }: IGridRowsRenderer) => (
 );
 
 export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyItemProps) => {
-  const nodeId = node.getId();
-  const nodeType = node.getType();
-  const nodeMultiPageIndex = node.getMultiPageIndex();
+  const nodeId = node.id;
+  const nodeType = node.type;
+  const nodeMultiPageIndex = node.multiPageIndex;
   const { onMouseEnter, onMouseLeave } = useComponentHighlighter(nodeId, false);
   const children = useNodeTraversal((t) => t.children(), node);
   const hasChildren = children.length > 0;
@@ -70,7 +70,7 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
 
   const el = useRef<HTMLLIElement>(null);
   useEffect(() => {
-    if (node.getId() === selected && el.current) {
+    if (node.id === selected && el.current) {
       el.current.scrollIntoView({ block: 'nearest' });
     }
   }, [node, selected]);
@@ -173,7 +173,7 @@ export function NodeHierarchy({ nodes, selected, onClick }: INodeHierarchyProps)
 
         return (
           <NodeHierarchyItem
-            key={child.getId()}
+            key={child.id}
             node={child}
             selected={selected}
             onClick={onClick}

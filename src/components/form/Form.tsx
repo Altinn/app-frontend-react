@@ -190,7 +190,7 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
     }
 
     const all = traverser.with(page).children();
-    return all.map((n) => n.getId());
+    return all.map((n) => n.id);
   });
 
   const hasRequired = useNodeTraversal((traverser) => {
@@ -209,7 +209,7 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
     return extractBottomButtons(traverser.with(page).children());
   });
   const requiredFieldsMissing = formErrors.some(
-    (error) => error.source === FrontendValidationSource.EmptyField && error.node.pageKey() === currentPageId,
+    (error) => error.source === FrontendValidationSource.EmptyField && error.node.pageKey === currentPageId,
   );
 
   useEffect(() => {

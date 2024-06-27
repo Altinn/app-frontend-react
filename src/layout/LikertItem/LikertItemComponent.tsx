@@ -44,7 +44,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   const { id, readOnly } = useNodeItem(node);
   const groupContainer =
     node.parent instanceof BaseLayoutNode && node.parent.isType('Likert') ? node.parent : undefined;
-  const groupContainerId = groupContainer?.getId();
+  const groupContainerId = groupContainer?.id;
 
   const headerColumnId = `${groupContainerId}-likert-columnheader-left`;
   const rowLabelId = `row-label-${id}`;
@@ -52,7 +52,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   return (
     <Table.Row
       aria-labelledby={`${headerColumnId} ${rowLabelId}`}
-      data-componentid={node.getId()}
+      data-componentid={node.id}
       data-is-loading={fetchingOptions ? 'true' : 'false'}
       role='radiogroup'
       ref={ref}

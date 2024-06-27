@@ -216,7 +216,7 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
       const _secure = secure ? `\nsecure: ${secure}` : '';
 
       window.logErrorOnce(
-        `Failed to fetch options for node ${node.getId()}${_optionsId}${_mapping}${_queryParameters}${_secure}`,
+        `Failed to fetch options for node ${node.id}${_optionsId}${_mapping}${_queryParameters}${_secure}`,
       );
     }
   }, [isError, mapping, node, optionsId, queryParameters, secure]);

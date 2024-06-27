@@ -86,14 +86,14 @@ function generateAutomaticPage(
     .filter((p) => !excludedPages.has(p.pageKey) && !isHiddenPage(p) && pageOrder?.includes(p.pageKey))
     .sort((pA, pB) => (pageOrder ? pageOrder.indexOf(pA.pageKey) - pageOrder.indexOf(pB.pageKey) : 0));
   const nodes = traversal((t) => filteredSortedPages.map((p) => t.with(p).children()).flat(), filteredSortedPages);
-  const nodesFiltered = nodes.filter((n) => !excludedComponents.has(n.getId()));
+  const nodesFiltered = nodes.filter((n) => !excludedComponents.has(n.id));
 
   for (const node of nodesFiltered) {
     if (node.def.shouldRenderInAutomaticPDF(node as any, dataSources)) {
       automaticPdfLayout.push({
-        id: `__pdf__${node.getId()}`,
+        id: `__pdf__${node.id}`,
         type: 'Summary',
-        componentRef: node.getId(),
+        componentRef: node.id,
         excludedChildren: pdfFormat?.excludedComponents,
         grid: node.item.grid,
         largeGroup: node.isType('Group'),

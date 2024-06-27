@@ -16,7 +16,7 @@ export class Group extends GroupDef {
           groupNode={props.node}
           renderLayoutNode={(node) => (
             <GenericComponent
-              key={node.getId()}
+              key={node.id}
               node={node}
             />
           )}

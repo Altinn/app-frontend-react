@@ -57,7 +57,7 @@ function StoreErrorAndBail({ error, node }: { error: Error; node: LayoutPage | L
 
   useEffect(() => {
     if (isNode(node)) {
-      window.logError(`Exception thrown when generating node "${node.getId()}":\n`, error);
+      window.logError(`Exception thrown when generating node "${node.id}":\n`, error);
       addError(error.message, node);
     } else if (isPage(node)) {
       window.logError(`Exception thrown when generating page "${node.pageKey}":\n`, error);

@@ -77,7 +77,7 @@ export const NodeInspector = () => {
                       href='#'
                       onClick={(e) => {
                         e.preventDefault();
-                        focusLayoutInspector(selectedNode?.getBaseId());
+                        focusLayoutInspector(selectedNode?.baseId);
                       }}
                     >
                       Rediger konfigurasjonen i Layout-fanen

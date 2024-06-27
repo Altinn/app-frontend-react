@@ -32,12 +32,12 @@ export function extractBottomButtons(topLevelNodes: LayoutNode[]) {
   const toMainLayout: string[] = [];
   const toErrorReport: string[] = [];
   for (const node of all.reverse()) {
-    const capabilities = getComponentCapabilities(node.getType());
+    const capabilities = getComponentCapabilities(node.type);
     const isButtonLike = node.isType('ButtonGroup') || (capabilities.renderInButtonGroup && !node.isType('Custom'));
     if (isButtonLike && toMainLayout.length === 0) {
-      toErrorReport.push(node.getId());
+      toErrorReport.push(node.id);
     } else {
-      toMainLayout.push(node.getId());
+      toMainLayout.push(node.id);
     }
   }
 

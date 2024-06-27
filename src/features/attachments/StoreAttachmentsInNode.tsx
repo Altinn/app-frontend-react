@@ -83,7 +83,7 @@ function mapAttachments(
 ): IData[] {
   const attachments: IData[] = [];
   for (const data of dataElements) {
-    if (data.dataType && node.getBaseId() !== data.dataType) {
+    if (data.dataType && node.baseId !== data.dataType) {
       // The attachment does not belong to this node
       continue;
     }
@@ -120,7 +120,7 @@ function mapAttachments(
       break;
     }
 
-    const nodeIsInRepeatingGroup = node.getId() !== node.getBaseId();
+    const nodeIsInRepeatingGroup = node.id !== node.baseId;
     if (!simpleValue && !listValue && !nodeIsInRepeatingGroup) {
       // We can safely assume the attachment belongs to this node.
       attachments.push(data);

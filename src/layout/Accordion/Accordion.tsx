@@ -35,7 +35,7 @@ export const Accordion = ({ node }: IAccordionProps) => {
         >
           {childComponents.map((node) => (
             <GenericComponent
-              key={node.getId()}
+              key={node.id}
               node={node}
             />
           ))}
@@ -62,7 +62,7 @@ export const Accordion = ({ node }: IAccordionProps) => {
         >
           {childComponents.map((node) => (
             <GenericComponent
-              key={node.getId()}
+              key={node.id}
               node={node}
             />
           ))}

@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Props>) {
-  const groupId = node.getId();
+  const groupId = node.id;
   const item = useNodeItem(node);
   const openByDefault = item.edit?.openByDefault;
   const isFirstRender = useRef(true);

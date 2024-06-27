@@ -20,11 +20,11 @@ export class LayoutPage implements LayoutObject {
    * Adds a child to the collection. For internal use only.
    */
   public _addChild(child: LayoutNode) {
-    this.allChildren.set(child.getId(), child);
+    this.allChildren.set(child.id, child);
   }
 
   public _removeChild(child: LayoutNode) {
-    this.allChildren.delete(child.getId());
+    this.allChildren.delete(child.id);
   }
 
   /**

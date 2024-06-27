@@ -110,7 +110,7 @@ function runConditionalRenderingRule(
   const action = rule.selectedAction;
   const hide = (action === 'Show' && !result) || (action === 'Hide' && result);
 
-  const splitId = splitDashedKey(node?.getId() ?? '');
+  const splitId = splitDashedKey(node?.id ?? '');
   for (const elementToPerformActionOn of Object.keys(rule.selectedFields)) {
     if (elementToPerformActionOn && hide) {
       const elementId = rule.selectedFields[elementToPerformActionOn].replace(/{\d+}/g, (match) => {

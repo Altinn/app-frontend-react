@@ -38,7 +38,7 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
   const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
-    excludedChildren && (excludedChildren.includes(n.getId()) || excludedChildren.includes(n.getBaseId()));
+    excludedChildren && (excludedChildren.includes(n.id) || excludedChildren.includes(n.baseId));
 
   const groupValidations = useDeepValidationsForNode(targetNode);
   const groupHasErrors = hasValidationErrors(groupValidations);
@@ -58,8 +58,8 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
       <>
         {rows.map((row) => (
           <LargeLikertSummaryContainer
-            key={`summary-${targetNode.getId()}-${row.uuid}`}
-            id={`summary-${targetNode.getId()}-${row.index}`}
+            key={`summary-${targetNode.id}-${row.uuid}`}
+            id={`summary-${targetNode.id}-${row.index}`}
             groupNode={targetNode}
             onlyInRowUuid={row.uuid}
             renderLayoutNode={(n) => {
@@ -69,7 +69,7 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
 
               return (
                 <SummaryComponent
-                  key={n.getId()}
+                  key={n.id}
                   summaryNode={summaryNode}
                   overrides={{
                     ...overrides,
@@ -128,7 +128,7 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
                   <RenderCompactSummary
                     onChangeClick={onChangeClick}
                     changeText={changeText}
-                    key={row.item.getId()}
+                    key={row.item.id}
                     targetNode={row.item as any}
                     summaryNode={summaryNode}
                     overrides={{}}

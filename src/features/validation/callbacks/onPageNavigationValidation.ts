@@ -64,7 +64,7 @@ export function useOnPageNavigationValidation() {
     const nodeErrors = nodes
       .map((n) => {
         const validations = getNodeValidations(n, mask, 'error');
-        onCurrentOrPreviousPage = onCurrentOrPreviousPage || pageOrder.indexOf(n.pageKey()) <= currentIndex;
+        onCurrentOrPreviousPage = onCurrentOrPreviousPage || pageOrder.indexOf(n.pageKey) <= currentIndex;
         return [n, validations.length > 0] as const;
       })
       .filter(([_, e]) => e);

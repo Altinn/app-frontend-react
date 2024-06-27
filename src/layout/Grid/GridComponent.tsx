@@ -54,7 +54,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
       wrapper={(child) => <FullWidthWrapper>{child}</FullWidthWrapper>}
     >
       <Table
-        id={node.getId()}
+        id={node.id}
         className={css.table}
       >
         {title && (
@@ -141,7 +141,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
           );
         }
         const componentNode = isGridCellNode(cell) ? cell.node : undefined;
-        const componentId = componentNode && componentNode.getId();
+        const componentId = componentNode && componentNode.id;
         return (
           <CellWithComponent
             rowReadOnly={row.readOnly}
@@ -260,7 +260,7 @@ function CellWithText({ children, className, columnStyleOptions, help, isHeader 
 
 function CellWithLabel({ className, columnStyleOptions, labelFrom, node, isHeader = false }: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
-  const labelFromNode = useNodeTraversal((t) => t.flat().find((n) => n.getBaseId() === labelFrom), node);
+  const labelFromNode = useNodeTraversal((t) => t.flat().find((n) => n.baseId === labelFrom), node);
   const refItem = useNodeItem(labelFromNode);
   const trb = (refItem && 'textResourceBindings' in refItem ? refItem.textResourceBindings : {}) as
     | ITextResourceBindings
@@ -269,7 +269,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, node, isHeade
   const help = trb && 'help' in trb ? trb.help : undefined;
   const description = trb && 'description' in trb ? trb.description : undefined;
   const required = (refItem && 'required' in refItem && refItem.required) ?? false;
-  const componentId = labelFromNode?.getId();
+  const componentId = labelFromNode?.id;
 
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
 
@@ -320,7 +320,7 @@ function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
         .filter((child) => !isHidden(child))
         .map((child) => (
           <GenericComponent
-            key={child.getId()}
+            key={child.id}
             node={child}
           />
         ))}

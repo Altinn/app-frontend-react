@@ -69,7 +69,7 @@ function RepeatingGroupsEditContainerInternal({
 
   const { multiPageEnabled, multiPageIndex, nextMultiPage, prevMultiPage, hasNextMultiPage, hasPrevMultiPage } =
     useRepeatingGroupEdit();
-  const id = node.getId();
+  const id = node.id;
   const textsForRow = row.groupExpressions.textResourceBindings;
   const editForRow = row.groupExpressions.edit;
   const editForGroup = group.edit;
@@ -137,18 +137,18 @@ function RepeatingGroupsEditContainerInternal({
           ref={(n) => refSetter && editingRowIndex !== undefined && refSetter(editingRowIndex, 'editContainer', n)}
         >
           {rowItems.map((n) => {
-            const isOnOtherMultiPage = multiPageEnabled && n.getMultiPageIndex() !== multiPageIndex;
+            const isOnOtherMultiPage = multiPageEnabled && n.multiPageIndex !== multiPageIndex;
             if (isOnOtherMultiPage) {
               return null;
             }
 
-            if (group.tableColumns && group.tableColumns[n.getBaseId()]?.showInExpandedEdit === false) {
+            if (group.tableColumns && group.tableColumns[n.baseId]?.showInExpandedEdit === false) {
               return null;
             }
 
             return (
               <GenericComponent
-                key={n.getId()}
+                key={n.id}
                 node={n}
               />
             );

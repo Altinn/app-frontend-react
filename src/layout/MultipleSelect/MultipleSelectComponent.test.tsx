@@ -14,7 +14,7 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
     type: 'MultipleSelect',
     renderer: (props) => (
       <>
-        <label htmlFor={props.node.getId()}>{dummyLabel}</label>
+        <label htmlFor={props.node.id}>{dummyLabel}</label>
         <MultipleSelectComponent {...props} />
       </>
     ),

@@ -54,7 +54,7 @@ export class TraversalTask {
       return this.state.pagesData as DataFrom<T>;
     }
 
-    return this.state.nodeData[target.getId()] as DataFrom<T>;
+    return this.state.nodeData[target.id] as DataFrom<T>;
   }
 
   /**

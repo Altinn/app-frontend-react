@@ -47,7 +47,7 @@ export function SummaryGroupComponent({
 
   const inExcludedChildren = useCallback(
     (n: LayoutNode) =>
-      excludedChildren ? excludedChildren.includes(n.getId()) || excludedChildren.includes(n.getBaseId()) : false,
+      excludedChildren ? excludedChildren.includes(n.id) || excludedChildren.includes(n.baseId) : false,
     [excludedChildren],
   );
 
@@ -67,8 +67,8 @@ export function SummaryGroupComponent({
       <>
         {
           <GroupComponent
-            key={`summary-${targetNode.getId()}`}
-            id={`summary-${targetNode.getId()}`}
+            key={`summary-${targetNode.id}`}
+            id={`summary-${targetNode.id}`}
             groupNode={targetNode}
             isSummary={true}
             renderLayoutNode={(node) => (
@@ -94,7 +94,7 @@ export function SummaryGroupComponent({
       <RenderCompactSummary
         onChangeClick={onChangeClick}
         changeText={changeText}
-        key={child.getId()}
+        key={child.id}
         targetNode={child}
         summaryNode={summaryNode}
         overrides={{}}

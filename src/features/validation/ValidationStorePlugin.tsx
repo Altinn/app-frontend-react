@@ -46,7 +46,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
         set(
           nodesProduce((state) => {
             for (const node of nodes) {
-              const nodeData = state.nodeData[node.getId()];
+              const nodeData = state.nodeData[node.id];
               (nodeData as any).validationVisibility = newVisibility;
             }
           }),
@@ -55,7 +55,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
       setAttachmentVisibility: (attachmentId, node, newVisibility) => {
         set(
           nodesProduce((state) => {
-            const nodeData = state.nodeData[node.getId()];
+            const nodeData = state.nodeData[node.id];
             if ('validations' in nodeData) {
               for (const validation of nodeData.validations) {
                 if ('attachmentId' in validation && validation.attachmentId === attachmentId) {
@@ -76,7 +76,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
     const selectorArg: Parameters<(typeof store)['useDelayedSelector']>[0] = {
       mode: 'simple',
       selector: (node: LayoutNode, mask: ValidationMask | 'visible', severity?: ValidationSeverity) => (state) => {
-        const nodeData = state.nodeData[node.getId()];
+        const nodeData = state.nodeData[node.id];
         if (!nodeData) {
           return emptyArray;
         }
@@ -96,7 +96,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           if (!node) {
             return 0;
           }
-          const nodeData = state.nodeData[node.getId()];
+          const nodeData = state.nodeData[node.id];
           if (!nodeData) {
             return 0;
           }
@@ -107,7 +107,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           if (!node) {
             return emptyArray;
           }
-          const nodeData = state.nodeData[node.getId()];
+          const nodeData = state.nodeData[node.id];
           if (!nodeData) {
             return emptyArray;
           }
@@ -119,7 +119,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           if (!node) {
             return emptyArray;
           }
-          const nodeData = state.nodeData[node.getId()];
+          const nodeData = state.nodeData[node.id];
           if (!nodeData) {
             return emptyArray;
           }

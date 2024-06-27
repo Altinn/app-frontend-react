@@ -91,7 +91,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
   let item = useNodeItem(node);
-  const id = node.getId();
+  const id = node.id;
 
   if (overrideItemProps) {
     item = {
@@ -114,7 +114,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   );
 
   useFinishNodeNavigation(async (targetNode, shouldFocus, onHit) => {
-    if (targetNode.getId() !== id) {
+    if (targetNode.id !== id) {
       return undefined;
     }
     onHit();
@@ -190,9 +190,9 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   return (
     <FormComponentContextProvider value={formComponentContext}>
       <Grid
-        data-componentbaseid={node.getBaseId()}
-        data-componentid={node.getId()}
-        data-componenttype={node.getType()}
+        data-componentbaseid={node.baseId}
+        data-componentid={node.id}
+        data-componenttype={node.type}
         ref={containerDivRef}
         item={true}
         container={true}
@@ -205,7 +205,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         )}
         alignItems='baseline'
       >
-        {shouldRenderLabelInGenericComponent(node.getType()) && overrideDisplay?.renderLabel !== false && (
+        {shouldRenderLabelInGenericComponent(node.type) && overrideDisplay?.renderLabel !== false && (
           <Grid
             item={true}
             {...gridBreakpoints(item.grid?.labelGrid)}
@@ -243,7 +243,7 @@ const gridToClasses = (labelGrid: IGridStyling | undefined, classes: { [key: str
 };
 
 const ErrorList = ({ node, errors }: { node: LayoutNode; errors: string[] }) => {
-  const id = node.getId();
+  const id = node.id;
   const isDev = useIsDev();
   if (!isDev) {
     return null;

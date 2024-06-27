@@ -33,7 +33,7 @@ function useRepeatingGroupEditRowState(
     const row = rows.find((r) => r.uuid === editId);
     let lastPage = 0;
     for (const childNode of row?.items ?? []) {
-      lastPage = Math.max(lastPage, childNode.getMultiPageIndex() ?? 0);
+      lastPage = Math.max(lastPage, childNode.multiPageIndex ?? 0);
     }
     return lastPage;
   }, [editId, rows]);
@@ -87,7 +87,7 @@ export function RepeatingGroupEditRowProvider({ editId, children }: PropsWithChi
     const ourDirectChildren = traversal((t) => t.with(node).children(), [node]);
     const ourChildDirectly = ourDirectChildren.find((n) => n === targetNode);
     if (ourChildDirectly) {
-      const targetMultiPageIndex = targetNode.getMultiPageIndex() ?? 0;
+      const targetMultiPageIndex = targetNode.multiPageIndex ?? 0;
       if (targetMultiPageIndex !== state.multiPageIndex) {
         setMultiPageIndex(targetMultiPageIndex);
       }
@@ -96,7 +96,7 @@ export function RepeatingGroupEditRowProvider({ editId, children }: PropsWithChi
 
     // It's our child, but not directly. We need to figure out which of our children contains the target node,
     // and navigate there. Then it's a problem that can be forwarded there.
-    const ourChildrenIds = new Set(ourDirectChildren.map((n) => n.getId()));
+    const ourChildrenIds = new Set(ourDirectChildren.map((n) => n.id));
     const childWeAreLookingFor = traversal(
       (t) => t.with(targetNode).parents((i) => i.type === 'node' && ourChildrenIds.has(i.layout.id)),
       [targetNode],

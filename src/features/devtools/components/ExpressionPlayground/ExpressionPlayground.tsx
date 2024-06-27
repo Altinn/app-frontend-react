@@ -77,7 +77,7 @@ export const ExpressionPlayground = () => {
   const traversalSelector = useNodeTraversalSelector();
 
   const componentOptions = useNodeTraversal((t) =>
-    t.allNodes().map((n) => ({ label: n.getId(), value: `${n.page.pageKey}|${n.getId()}` })),
+    t.allNodes().map((n) => ({ label: n.id, value: `${n.page.pageKey}|${n.id}` })),
   );
 
   useEffect(() => {

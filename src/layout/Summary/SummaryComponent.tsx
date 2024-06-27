@@ -41,7 +41,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
 
   const targetNode = useNode(overrides?.targetNode || summaryItem.componentRef || id);
   const targetItem = useNodeItem(targetNode);
-  const targetView = targetNode?.pageKey();
+  const targetView = targetNode?.pageKey;
   const targetIsHidden = Hidden.useIsHidden(targetNode);
 
   const validations = useUnifiedValidationsForNode(targetNode);
@@ -83,7 +83,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
       md={displayGrid?.md || false}
       lg={displayGrid?.lg || false}
       xl={displayGrid?.xl || false}
-      data-testid={`summary-${overrides?.targetNode?.getId() || id}`}
+      data-testid={`summary-${overrides?.targetNode?.id || id}`}
       data-componentid={summaryItem.id}
       data-componentbaseid={summaryItem.baseComponentId || summaryItem.id}
       className={cn(pageBreakStyles(summaryItem.pageBreak ?? targetItem?.pageBreak))}

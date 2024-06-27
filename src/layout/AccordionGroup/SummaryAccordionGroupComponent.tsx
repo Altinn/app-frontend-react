@@ -26,7 +26,7 @@ export const SummaryAccordionGroupComponent = ({ targetNode, ...rest }: ISummary
 
         return (
           <SummaryAccordionComponent
-            key={targetNode.getId()}
+            key={targetNode.id}
             targetNode={targetNode as LayoutNode<'Accordion'>}
             {...rest}
           />

@@ -173,12 +173,12 @@ export function createNodesDataStore() {
       set((state) => {
         const nodeData = { ...state.nodeData };
         for (const { node, targetState, claim } of requests) {
-          nodeData[node.getId()] = targetState;
+          nodeData[node.id] = targetState;
 
           if (node.parent instanceof BaseLayoutNode) {
-            const additionalParentState = node.parent.def.addChild(nodeData[node.parent.getId()] as any, node, claim);
-            nodeData[node.parent.getId()] = {
-              ...nodeData[node.parent.getId()],
+            const additionalParentState = node.parent.def.addChild(nodeData[node.parent.id] as any, node, claim);
+            nodeData[node.parent.id] = {
+              ...nodeData[node.parent.id],
               ...(additionalParentState as any),
             };
           }
@@ -189,7 +189,7 @@ export function createNodesDataStore() {
       set((state) => {
         const nodeData = { ...state.nodeData };
         for (const { node } of requests) {
-          delete nodeData[node.getId()];
+          delete nodeData[node.id];
         }
         return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
       }),
@@ -198,20 +198,20 @@ export function createNodesDataStore() {
         let changes = false;
         const nodeData = { ...state.nodeData };
         for (const { node, prop, value, partial } of requests) {
-          if (!nodeData[node.getId()]) {
+          if (!nodeData[node.id]) {
             continue;
           }
 
-          const thisNode = { ...nodeData[node.getId()] };
+          const thisNode = { ...nodeData[node.id] };
           const prev = thisNode[prop as any];
           if (partial && value && prev && typeof prev === 'object' && typeof value === 'object') {
             thisNode[prop as any] = { ...thisNode[prop as any], ...value };
           } else {
             thisNode[prop as any] = value;
           }
-          if (!deepEqual(nodeData[node.getId()][prop], thisNode[prop])) {
+          if (!deepEqual(nodeData[node.id][prop], thisNode[prop])) {
             changes = true;
-            nodeData[node.getId()] = thisNode;
+            nodeData[node.id] = thisNode;
           }
         }
         return changes ? { nodeData } : {};
@@ -219,7 +219,7 @@ export function createNodesDataStore() {
     addError: (error, node) =>
       set(
         nodesProduce((state) => {
-          const data = node instanceof LayoutPage ? state.pagesData.pages[node.pageKey] : state.nodeData[node.getId()];
+          const data = node instanceof LayoutPage ? state.pagesData.pages[node.pageKey] : state.nodeData[node.id];
 
           if (!data) {
             return;
@@ -521,7 +521,7 @@ function isHidden(
   }
 
   const hiddenState =
-    node instanceof LayoutPage ? state.pagesData.pages[node.pageKey]?.hidden : state.nodeData[node.getId()]?.hidden;
+    node instanceof LayoutPage ? state.pagesData.pages[node.pageKey]?.hidden : state.nodeData[node.id]?.hidden;
 
   if (!hiddenState) {
     return true;
@@ -579,7 +579,7 @@ export const Hidden = {
    * The next ones are primarily for internal use:
    */
   useIsHiddenViaRules: (node: LayoutNode) =>
-    Store.useSelector((s) => s.hiddenViaRules.has(node.getId()) || s.hiddenViaRules.has(node.getBaseId())),
+    Store.useSelector((s) => s.hiddenViaRules.has(node.id) || s.hiddenViaRules.has(node.baseId)),
   useIsForcedVisibleByDevTools() {
     const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
     const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
@@ -615,7 +615,7 @@ export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefi
 type NodePickerReturns<N extends LayoutNode | undefined> = NodeDataFromNode<N> | undefined;
 
 function selectNodeData<N extends LayoutNode | undefined>(node: N, state: NodesContext): NodePickerReturns<N> {
-  return (node ? state.nodeData[node.getId()] : undefined) as any;
+  return (node ? state.nodeData[node.id] : undefined) as any;
 }
 
 /**
@@ -664,7 +664,7 @@ export const NodesInternal = {
 
   useNodeData<N extends LayoutNode | undefined, Out>(node: N, selector: (state: NodeDataFromNode<N>) => Out) {
     return Conditionally.useMemoSelector((s) =>
-      node && s.nodeData[node.getId()] ? selector(s.nodeData[node.getId()] as NodeDataFromNode<N>) : undefined,
+      node && s.nodeData[node.id] ? selector(s.nodeData[node.id] as NodeDataFromNode<N>) : undefined,
     ) as N extends undefined ? Out | undefined : Out;
   },
   useNodeDataRef<N extends LayoutNode | undefined, Out>(
@@ -672,7 +672,7 @@ export const NodesInternal = {
     selector: (state: NodeDataFromNode<N>) => Out,
   ): React.MutableRefObject<N extends undefined ? Out | undefined : Out> {
     return Store.useSelectorAsRef((s) =>
-      node ? selector(s.nodeData[node.getId()] as NodeDataFromNode<N>) : undefined,
+      node ? selector(s.nodeData[node.id] as NodeDataFromNode<N>) : undefined,
     ) as any;
   },
   useWaitForNodeData<RetVal, N extends LayoutNode | undefined, Out>(
@@ -687,7 +687,7 @@ export const NodesInternal = {
             return false;
           }
 
-          const nodeData = node ? state.nodeData[node.getId()] : undefined;
+          const nodeData = node ? state.nodeData[node.id] : undefined;
           if (!nodeData) {
             return false;
           }
@@ -711,7 +711,7 @@ export const NodesInternal = {
       if (node instanceof LayoutPage) {
         return s.pagesData.pages[node.pageKey] !== undefined;
       }
-      return s.nodeData[node.getId()] !== undefined;
+      return s.nodeData[node.id] !== undefined;
     }),
   useNodesStore: () => Store.useStore(),
   useHasErrors: () => Store.useSelector((s) => s.hasErrors),
