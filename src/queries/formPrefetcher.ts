@@ -18,6 +18,7 @@ import {
 } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useOrderDetailsQueryDef } from 'src/features/payment/OrderDetailsProvider';
 import { usePaymentInformationQueryDef } from 'src/features/payment/PaymentInformationProvider';
@@ -25,6 +26,7 @@ import { useHasPayment, useIsPayment } from 'src/features/payment/utils';
 import { usePdfFormatQueryDef } from 'src/features/pdf/usePdfFormatQuery';
 import { useBackendValidationQueryDef } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useIsPdf } from 'src/hooks/useIsPdf';
+import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 
@@ -51,11 +53,12 @@ export function FormPrefetcher() {
   const currentLanguage = useCurrentLanguage();
   const dataGuid = useCurrentDataModelGuid();
   const dataTypeId = useCurrentDataModelName();
+  const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
 
   // No need to load validations in PDF mode
   usePrefetchQuery(
     useBackendValidationQueryDef(true, currentLanguage, instance?.instanceId, currentProcessTaskId),
-    !isPDF && !isStateless,
+    !isCustomReceipt && !isPDF && !isStateless,
   );
 
   const isWritable = isDataTypeWritable(dataTypeId, isStateless, instance?.data);

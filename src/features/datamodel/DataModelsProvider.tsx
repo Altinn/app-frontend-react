@@ -25,6 +25,7 @@ import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
+import { useShouldValidateInitial } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { HttpStatusCodes } from 'src/utils/network/networking';
@@ -219,6 +220,7 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
     error,
   } = useSelector((state) => state);
   const isPDF = useIsPdf();
+  const shouldValidateInitial = useShouldValidateInitial();
 
   if (error) {
     // Error trying to fetch data, if missing rights we display relevant page
@@ -245,7 +247,7 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
     }
   }
 
-  if (!isPDF && !initialValidations) {
+  if (shouldValidateInitial && !initialValidations) {
     return <Loader reason='initial-validations' />;
   }
 
@@ -283,14 +285,12 @@ function LoadInitialData({ dataType }: LoaderProps) {
   return null;
 }
 
-// TODO: Load all validations in one go
 function LoadInitialValidations() {
   const setInitialValidations = useSelector((state) => state.setInitialValidations);
   const setError = useSelector((state) => state.setError);
   // No need to load validations in PDF or stateless apps
   const isStateless = useIsStatelessApp();
-  const isPDF = useIsPdf();
-  const enabled = !isPDF && !isStateless;
+  const enabled = useShouldValidateInitial();
   const { data, error } = useBackendValidationQuery(enabled);
 
   useEffect(() => {

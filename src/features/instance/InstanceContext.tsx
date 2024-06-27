@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
@@ -32,6 +32,7 @@ export interface InstanceContext {
 
   // Methods/utilities
   changeData: ChangeInstanceData;
+  reFetch: () => Promise<void>;
 }
 
 export type ChangeInstanceData = (callback: (instance: IInstance | undefined) => IInstance | undefined) => void;
@@ -88,6 +89,7 @@ const InnerInstanceProvider = ({
   partyId: string;
   instanceGuid: string;
 }) => {
+  const queryClient = useQueryClient();
   const [data, setData] = useStateDeepEqual<IInstance | undefined>(undefined);
   const [error, setError] = useState<AxiosError | undefined>(undefined);
   const dataSources = useMemo(() => buildInstanceDataSources(data), [data]);
@@ -140,6 +142,10 @@ const InnerInstanceProvider = ({
         isFetching: fetchQuery.isFetching,
         error,
         changeData,
+        reFetch: async () => {
+          setData(undefined);
+          await queryClient.invalidateQueries({ queryKey: ['fetchInstanceData'] });
+        },
         partyId,
         instanceGuid,
         instanceId: `${partyId}/${instanceGuid}`,
