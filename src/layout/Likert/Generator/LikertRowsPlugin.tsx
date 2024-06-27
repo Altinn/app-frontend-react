@@ -14,7 +14,7 @@ import type { BaseRow } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 interface LikertRow extends BaseRow {
-  item: LayoutNode<'LikertItem'>;
+  itemNode: LayoutNode<'LikertItem'>;
 }
 
 interface Config {
@@ -57,7 +57,7 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
   claimChildren(_props: DefPluginChildClaimerProps<Config>) {}
 
   pickDirectChildren(state: DefPluginState<Config>, _restriction?: TraversalRestriction | undefined): LayoutNode[] {
-    return state.item?.rows.map((row) => row.item) || [];
+    return state.item?.rows.map((row) => row.itemNode) || [];
   }
 
   addChild(state: DefPluginState<Config>, childNode: LayoutNode): Partial<DefPluginState<Config>> {
@@ -74,9 +74,9 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
     const existingRowIndex = rows.findIndex((r) => r.uuid === row.uuid);
 
     if (existingRowIndex === -1) {
-      rows.push({ ...(rows[existingRowIndex] || {}), ...row, item: childNode });
+      rows.push({ ...(rows[existingRowIndex] || {}), ...row, itemNode: childNode });
     } else {
-      rows[existingRowIndex] = { ...(rows[existingRowIndex] || {}), ...row, item: childNode };
+      rows[existingRowIndex] = { ...(rows[existingRowIndex] || {}), ...row, itemNode: childNode };
     }
 
     return {

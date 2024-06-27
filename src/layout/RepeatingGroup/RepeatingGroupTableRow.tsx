@@ -20,6 +20,7 @@ import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupConte
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import type { DisplayData } from 'src/features/displayData';
@@ -93,6 +94,7 @@ function _RepeatingGroupTableRow({
 
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
+  const nodeDataSelector = NodesInternal.useNodeDataSelector();
   const tableNodes = useTableNodes(node, { onlyInRowUuid: uuid });
   const displayDataProps = useDisplayDataProps();
   const displayData = tableNodes.map((node) => {
@@ -200,7 +202,12 @@ function _RepeatingGroupTableRow({
                     key={n.id}
                   >
                     <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>
-                      <Lang id={getTableTitle('textResourceBindings' in n.item ? n.item.textResourceBindings : {})} />:
+                      <Lang
+                        id={getTableTitle(
+                          nodeDataSelector((picker) => picker(n)?.item?.textResourceBindings ?? {}, [n]),
+                        )}
+                      />
+                      :
                     </b>
                     <span className={classes.contentFormatting}>{displayData[i]}</span>
                     {i < length - 1 && <div style={{ height: 8 }} />}

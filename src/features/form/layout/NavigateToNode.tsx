@@ -5,7 +5,7 @@ import { createContext } from 'src/core/contexts/context';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type NavigationHandler = (node: LayoutNode) => boolean;
+type NavigationHandler = (node: LayoutNode) => Promise<boolean>;
 type FinishNavigationHandler = (
   node: LayoutNode,
   shouldFocus: boolean,
@@ -71,11 +71,11 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
           let finished = false;
           let lastTick = Date.now();
 
-          const onHandlerAdded = (handler: NavigationHandler) => {
+          const onHandlerAdded = async (handler: NavigationHandler) => {
             if (finished) {
               return;
             }
-            if (handler(node)) {
+            if (await handler(node)) {
               lastTick = Date.now();
             }
           };
@@ -102,7 +102,7 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
           };
 
           for (const handler of navigationHandlers.current.values()) {
-            onHandlerAdded(handler);
+            await onHandlerAdded(handler);
           }
           for (const handler of finishHandlers.current.values()) {
             await onFinishedHandlerAdded(handler);

@@ -95,7 +95,7 @@ function generateAutomaticPage(
         type: 'Summary',
         componentRef: node.id,
         excludedChildren: pdfFormat?.excludedComponents,
-        grid: node.item.grid,
+        grid: dataSources.nodeDataSelector((picker) => picker(node)?.item?.grid, [node]),
         largeGroup: node.isType('Group'),
       } as CompSummaryExternal);
     }

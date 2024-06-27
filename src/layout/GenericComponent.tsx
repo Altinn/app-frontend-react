@@ -176,7 +176,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     );
   }
 
-  if (layoutComponent.directRender(componentProps) || overrideDisplay?.directRender) {
+  if (overrideDisplay?.directRender || layoutComponent.directRender(item)) {
     return (
       <FormComponentContextProvider value={formComponentContext}>
         <RenderComponent

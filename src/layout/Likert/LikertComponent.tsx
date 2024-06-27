@@ -23,9 +23,9 @@ interface LikertComponentProps {
 export const LikertComponent = ({ node }: LikertComponentProps) => {
   const { textResourceBindings, rows } = useNodeItem(node);
   const mobileView = useIsMobileOrTablet();
-  const { options: calculatedOptions, isFetching } = useNodeOptions(rows[0].item);
+  const { options: calculatedOptions, isFetching } = useNodeOptions(rows[0].itemNode);
   const { lang } = useLanguage();
-  const rowItems = rows.map((row) => row.item);
+  const rowNodes = rows.map((row) => row.itemNode);
 
   const id = node.id;
   const hasDescription = !!textResourceBindings?.description;
@@ -75,7 +75,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           aria-labelledby={(hasTitle && titleId) || undefined}
           aria-describedby={(hasDescription && descriptionId) || undefined}
         >
-          {rowItems.map((comp) => (
+          {rowNodes.map((comp) => (
             <GenericComponent
               key={comp.id}
               node={comp}
@@ -133,7 +133,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
             </Table.Row>
           </Table.Head>
           <Table.Body id={`likert-table-body-${id}`}>
-            {rowItems.map((comp) => {
+            {rowNodes.map((comp) => {
               const override: IGenericComponentProps<'LikertItem'>['overrideItemProps'] = {
                 layout: LayoutStyle.Table,
               };

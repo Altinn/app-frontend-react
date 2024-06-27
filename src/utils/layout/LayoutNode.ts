@@ -46,27 +46,9 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
     this.row = row;
   }
 
-  /**
-   * Gets the item state from the store.
-   * Please note that this state is the current state, and getting this state will not make your component
-   * re-render if this state changes. For that, useNodeItem() instead.
-   *
-   * TODO: Find usages and make them useNodeItem() instead.
-   */
-  public get item() {
-    const nodeData = this.store.getState().nodeData[this.id];
-    if (!nodeData) {
-      throw new Error(`Node not found: /${this.id}`);
-    }
-    if (!nodeData.item) {
-      throw new Error(`Node item not found: /${this.id}`);
-    }
-    return nodeData.item as CompInternal<Type>;
-  }
-
-  public updateCommonProps(item = this.item) {
+  public updateCommonProps(item: CompInternal<Type>) {
     this.id = item.id;
-    this.baseId = item.baseComponentId || item.id;
+    this.baseId = item.baseComponentId ?? item.id;
     this.type = item.type as Type;
     this.multiPageIndex = item.multiPageIndex;
   }

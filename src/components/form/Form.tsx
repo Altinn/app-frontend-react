@@ -46,10 +46,10 @@ export function Form() {
   useRedirectToStoredPage();
   useSetExpandedWidth();
 
-  useRegisterNodeNavigationHandler((targetNode) => {
+  useRegisterNodeNavigationHandler(async (targetNode) => {
     const targetView = targetNode?.page.pageKey;
     if (targetView && targetView !== currentPageId) {
-      navigateToPage(targetView, {
+      await navigateToPage(targetView, {
         shouldFocusComponent: true,
         replace: window.location.href.includes(SearchParams.FocusComponentId),
       });

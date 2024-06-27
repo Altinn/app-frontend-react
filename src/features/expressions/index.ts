@@ -392,7 +392,8 @@ export const ExprFunctions = {
 
       const node = this.failWithoutNode();
       const closest = this.dataSources.nodeTraversal(
-        (t) => t.with(node).closest((c) => c.type === 'node' && (c.item?.id === id || c.item?.baseComponentId === id)),
+        (t) =>
+          t.with(node).closest((c) => c.type === 'node' && (c.layout.id === id || c.layout.baseComponentId === id)),
         [node, id],
       );
 
@@ -402,8 +403,10 @@ export const ExprFunctions = {
         return null;
       }
 
-      const dataModelBindings =
-        closest && 'dataModelBindings' in closest.item ? closest.item.dataModelBindings : undefined;
+      const dataModelBindings = closest
+        ? this.dataSources.nodeDataSelector((picker) => picker(closest)?.layout.dataModelBindings, [closest])
+        : undefined;
+
       const simpleBinding =
         dataModelBindings && 'simpleBinding' in dataModelBindings ? dataModelBindings.simpleBinding : undefined;
       if (closest && simpleBinding) {

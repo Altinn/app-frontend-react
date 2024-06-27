@@ -17,7 +17,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
   const [activeTab, setActiveTab] = useState<string | undefined>(defaultTab ?? tabs.at(0)?.id);
 
   const traversalSelector = useNodeTraversalSelector();
-  useRegisterNodeNavigationHandler((targetNode) => {
+  useRegisterNodeNavigationHandler(async (targetNode) => {
     const parents = traversalSelector((t) => t.with(targetNode).parents(), [targetNode]);
     for (const parent of parents ?? []) {
       if (parent === node) {

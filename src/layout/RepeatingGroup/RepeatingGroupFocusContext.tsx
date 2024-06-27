@@ -4,6 +4,7 @@ import type { PropsWithChildren } from 'react';
 import { createContext } from 'src/core/contexts/context';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import { useNodeItemRef } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 
 type FocusableHTMLElement = HTMLElement &
@@ -38,7 +39,8 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
   const traversal = useNodeTraversalSelector();
 
   const { node, openForEditing, changePageToRow } = useRepeatingGroup();
-  useRegisterNodeNavigationHandler((targetNode) => {
+  const nodeItem = useNodeItemRef(node);
+  useRegisterNodeNavigationHandler(async (targetNode) => {
     // We are a parent of the target component, and the targetChild is the target component (or a nested group
     // containing the target component).
     let targetChild = targetNode;
@@ -48,26 +50,25 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
         continue;
       }
 
-      const row = node.item.rows.find((r) => r.items.some((n) => n === targetChild));
+      const row = nodeItem.current.rows.find((r) => r.items.some((n) => n === targetChild));
 
       // If pagination is used, navigate to the correct page
-      if (node.item.pagination) {
+      if (nodeItem.current.pagination) {
         if (row) {
-          changePageToRow(row.uuid);
+          await changePageToRow(row.uuid);
         } else {
           return false;
         }
       }
 
-      if (node.item.edit?.mode === 'showAll' || node.item.edit?.mode === 'onlyTable') {
+      if (nodeItem.current.edit?.mode === 'showAll' || nodeItem.current.edit?.mode === 'onlyTable') {
         // We're already showing all nodes, so nothing further to do
         return true;
       }
 
       // Check if we need to open the row containing targetChild for editing.
-      const targetChildBaseComponentId = targetChild.item.baseComponentId ?? targetChild.item.id;
       const tableColSetup =
-        (node.item.tableColumns && targetChildBaseComponentId && node.item.tableColumns[targetChildBaseComponentId]) ||
+        (nodeItem.current.tableColumns && targetChild.baseId && nodeItem.current.tableColumns[targetChild.baseId]) ||
         {};
 
       if (tableColSetup.editInTable || tableColSetup.showInExpandedEdit === false) {

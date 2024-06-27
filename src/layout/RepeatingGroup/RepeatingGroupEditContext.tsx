@@ -68,7 +68,7 @@ export function RepeatingGroupEditRowProvider({ editId, children }: PropsWithChi
   const { setMultiPageIndex, ...state } = useRepeatingGroupEditRowState(node, editId);
   const traversal = useNodeTraversalSelector();
 
-  useRegisterNodeNavigationHandler((targetNode) => {
+  useRegisterNodeNavigationHandler(async (targetNode) => {
     if (!state.multiPageEnabled) {
       // Nothing to do here. Other navigation handlers will make sure this row is opened for editing.
       return false;
@@ -103,7 +103,7 @@ export function RepeatingGroupEditRowProvider({ editId, children }: PropsWithChi
     )[0];
 
     if (childWeAreLookingFor && !(childWeAreLookingFor instanceof LayoutPage)) {
-      const targetMultiPageIndex = childWeAreLookingFor.item.multiPageIndex ?? 0;
+      const targetMultiPageIndex = childWeAreLookingFor.multiPageIndex ?? 0;
       if (targetMultiPageIndex !== state.multiPageIndex) {
         setMultiPageIndex(targetMultiPageIndex);
       }

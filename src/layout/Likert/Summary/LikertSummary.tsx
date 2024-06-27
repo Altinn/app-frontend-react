@@ -112,14 +112,14 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
             <span className={classes.emptyField}>{lang('general.empty_summary')}</span>
           ) : (
             rows.map((row) => {
-              if (inExcludedChildren(row.item)) {
+              if (inExcludedChildren(row.itemNode)) {
                 return null;
               }
-              if (isHidden(row.item) || !row.item.isCategory(CompCategory.Form)) {
+              if (isHidden(row.itemNode) || !row.itemNode.isCategory(CompCategory.Form)) {
                 return null;
               }
 
-              const RenderCompactSummary = row.item.def.renderCompactSummary.bind(row.item.def);
+              const RenderCompactSummary = row.itemNode.def.renderCompactSummary.bind(row.itemNode.def);
               return (
                 <div
                   key={`row-${row.uuid}`}
@@ -128,8 +128,8 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
                   <RenderCompactSummary
                     onChangeClick={onChangeClick}
                     changeText={changeText}
-                    key={row.item.id}
-                    targetNode={row.item as any}
+                    key={row.itemNode.id}
+                    targetNode={row.itemNode as any}
                     summaryNode={summaryNode}
                     overrides={{}}
                     formDataSelector={formDataSelector}

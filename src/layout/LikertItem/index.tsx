@@ -9,7 +9,7 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IDataModelBindingsLikert } from 'src/layout/common.generated';
+import type { CompInternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -25,8 +25,8 @@ export class LikertItem extends LikertItemDef {
     },
   );
 
-  directRender(props: PropsFromGenericComponent<'LikertItem'>): boolean {
-    return props.node.item.layout === LayoutStyle.Table || props.overrideItemProps?.layout === LayoutStyle.Table;
+  directRender(item: CompInternal<'LikertItem'>): boolean {
+    return item.layout === LayoutStyle.Table;
   }
 
   getDisplayData(
@@ -55,7 +55,10 @@ export class LikertItem extends LikertItemDef {
     ]);
     const errors: string[] = [...(answerErr || [])];
 
-    const parentBindings = ctx.node.parent?.item.dataModelBindings as IDataModelBindingsLikert | undefined;
+    const parentBindings = ctx.nodeDataSelector(
+      (picker) => picker(ctx.node.parent as LayoutNode<'Likert'>)?.layout?.dataModelBindings,
+      [ctx.node.parent],
+    );
     const bindings = ctx.item.dataModelBindings;
     if (
       answer &&

@@ -33,6 +33,7 @@ function DataModelValidation({ node, intermediateItem }: NodeValidationProps) {
   const addError = NodesInternal.useAddError();
   const schemaLookup = useCurrentDataModelSchemaLookup();
   const isJest = useIsJest();
+  const nodeDataSelector = NodesInternal.useNodeDataSelector();
 
   const errors = useMemo(() => {
     if (isJest) {
@@ -43,13 +44,14 @@ function DataModelValidation({ node, intermediateItem }: NodeValidationProps) {
       const ctx: LayoutValidationCtx<any> = {
         node: node as LayoutNode<any>,
         item: intermediateItem as CompIntermediate<any>,
+        nodeDataSelector,
         lookupBinding: (binding: string) => schemaLookup.getSchemaForPath(binding),
       };
       return node.def.validateDataModelBindings(ctx as any);
     }
 
     return [];
-  }, [intermediateItem, node, schemaLookup, isJest]);
+  }, [intermediateItem, node, schemaLookup, isJest, nodeDataSelector]);
 
   // Must run after nodes have been added for the errors to actually be added
   GeneratorStages.MarkHidden.useEffect(() => {
