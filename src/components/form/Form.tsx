@@ -8,6 +8,7 @@ import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { SubFormTable } from 'src/components/SubFormTable';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useExpandedWidthLayouts } from 'src/features/form/layout/LayoutsContext';
@@ -85,6 +86,7 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
+        <SubFormTable />
         {mainIds.map((id) => (
           <GenericComponentById
             key={id}

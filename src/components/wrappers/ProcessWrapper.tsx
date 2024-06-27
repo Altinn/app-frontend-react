@@ -7,6 +7,7 @@ import Grid from '@material-ui/core/Grid';
 
 import { Form, FormFirstPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
+import { SubForm } from 'src/components/SubForm';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
@@ -152,6 +153,10 @@ export const ProcessWrapper = () => {
       <FormProvider>
         <LayoutValidationProvider>
           <Routes>
+            <Route
+              path=':pageKey/:subformId'
+              element={<SubForm />}
+            />
             <Route
               path=':pageKey'
               element={

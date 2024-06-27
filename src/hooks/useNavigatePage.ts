@@ -34,7 +34,7 @@ export enum SearchParams {
 export const useNavigationParams = () => {
   const instanceMatch = useMatch('/instance/:partyId/:instanceGuid');
   const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
-  const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
+  const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey/*');
   const statelessMatch = useMatch('/:pageKey');
   const queryKeys = useLocation().search ?? '';
 
