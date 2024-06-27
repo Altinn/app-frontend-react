@@ -278,25 +278,27 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
             <UiConfigProvider>
               <PageNavigationProvider>
                 <Router>
-                  <ApplicationMetadataProvider>
-                    <GlobalFormDataReadersProvider>
-                      <OrgsProvider>
-                        <ApplicationSettingsProvider>
-                          <LayoutSetsProvider>
-                            <ProfileProvider>
-                              <PartyProvider>
-                                <TextResourcesProvider>
-                                  <FooterLayoutProvider>
-                                    <InstantiationProvider>{children}</InstantiationProvider>
-                                  </FooterLayoutProvider>
-                                </TextResourcesProvider>
-                              </PartyProvider>
-                            </ProfileProvider>
-                          </LayoutSetsProvider>
-                        </ApplicationSettingsProvider>
-                      </OrgsProvider>
-                    </GlobalFormDataReadersProvider>
-                  </ApplicationMetadataProvider>
+                  <AppRoutingProvider>
+                    <ApplicationMetadataProvider>
+                      <GlobalFormDataReadersProvider>
+                        <OrgsProvider>
+                          <ApplicationSettingsProvider>
+                            <LayoutSetsProvider>
+                              <ProfileProvider>
+                                <PartyProvider>
+                                  <TextResourcesProvider>
+                                    <FooterLayoutProvider>
+                                      <InstantiationProvider>{children}</InstantiationProvider>
+                                    </FooterLayoutProvider>
+                                  </TextResourcesProvider>
+                                </PartyProvider>
+                              </ProfileProvider>
+                            </LayoutSetsProvider>
+                          </ApplicationSettingsProvider>
+                        </OrgsProvider>
+                      </GlobalFormDataReadersProvider>
+                    </ApplicationMetadataProvider>
+                  </AppRoutingProvider>
                 </Router>
               </PageNavigationProvider>
             </UiConfigProvider>

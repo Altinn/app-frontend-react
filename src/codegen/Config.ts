@@ -48,7 +48,7 @@ export interface CompCapabilities {
   renderInButtonGroup: boolean;
   renderInAccordion: boolean;
   renderInAccordionGroup: boolean;
-  renderInTabs?: boolean;
+  renderInTabs: boolean;
   renderInCards: boolean;
   renderInCardsMedia: boolean;
 }
@@ -59,7 +59,7 @@ export interface CompCapabilities {
  * @see CompWithBehavior
  * @see getComponentBehavior
  */
-export interface ComponentBehaviors {
+export interface CompBehaviors {
   isSummarizable: boolean;
   canHaveLabel: boolean;
   canHaveOptions: boolean;

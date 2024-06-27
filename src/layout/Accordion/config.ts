@@ -13,6 +13,7 @@ export const Config = new CG.component({
     renderInAccordionGroup: true,
     renderInCards: false,
     renderInCardsMedia: false,
+    renderInTabs: true,
   },
   functionality: {
     customExpressions: false,

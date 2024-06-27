@@ -6,13 +6,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
+import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
 import { OldVersionError } from 'src/features/applicationMetadata/OldVersionError';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
-
-export const MINIMUM_APPLICATION_VERSION = {
-  build: '8.0.0.108',
-  name: 'v8.0.0',
-};
 
 // Also used for prefetching @see appPrefetcher.ts
 export function useApplicationMetadataQueryDef() {

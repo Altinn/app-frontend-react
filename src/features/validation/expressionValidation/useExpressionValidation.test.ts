@@ -14,8 +14,8 @@ import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { _private } from 'src/utils/layout/hierarchy';
 import * as NodesContext from 'src/utils/layout/NodesContext';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
-import type { Layouts } from 'src/features/expressions/shared';
 import type { IExpressionValidationConfig } from 'src/features/validation';
+import type { ILayoutCollection } from 'src/layout/layout';
 const { resolvedNodesInLayouts } = _private;
 
 type ExpressionValidationTest = {
@@ -28,7 +28,7 @@ type ExpressionValidationTest = {
   }[];
   validationConfig: IExpressionValidationConfig;
   formData: object;
-  layouts: Layouts;
+  layouts: ILayoutCollection;
 };
 
 function getSharedTests() {

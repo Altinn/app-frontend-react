@@ -1,4 +1,4 @@
-import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 
 export const getApplicationMetadataMock = (

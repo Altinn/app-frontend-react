@@ -426,8 +426,8 @@ function NodesLoader() {
   return <Loader reason='nodes' />;
 }
 
-type MaybeNodeRef = string | undefined | null | LayoutNode;
-type RetValFromNodeRef<T extends MaybeNodeRef> = T extends LayoutNode
+type MaybeNode = string | undefined | null | LayoutNode;
+type RetValFromNode<T extends MaybeNode> = T extends LayoutNode
   ? T
   : T extends undefined
     ? undefined
@@ -444,14 +444,14 @@ type RetValFromNodeRef<T extends MaybeNodeRef> = T extends LayoutNode
  *
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
-export function useNode<T extends string | undefined | LayoutNode>(id: T): RetValFromNodeRef<T> {
+export function useNode<T extends string | undefined | LayoutNode>(id: T): RetValFromNode<T> {
   const node = useNodeTraversal((traverser) => (id instanceof BaseLayoutNode ? id : traverser.findById(id)));
-  return node as RetValFromNodeRef<T>;
+  return node as RetValFromNode<T>;
 }
 
 export function useNodeLax<T extends string | undefined | LayoutNode>(
   idOrRef: T,
-): RetValFromNodeRef<T> | typeof ContextNotProvided {
+): RetValFromNode<T> | typeof ContextNotProvided {
   const node = useNodeTraversalLax((traverser) =>
     traverser === ContextNotProvided
       ? ContextNotProvided
@@ -459,7 +459,7 @@ export function useNodeLax<T extends string | undefined | LayoutNode>(
         ? idOrRef
         : traverser.findById(idOrRef),
   );
-  return node as RetValFromNodeRef<T> | typeof ContextNotProvided;
+  return node as RetValFromNode<T> | typeof ContextNotProvided;
 }
 
 export const useNodes = () => WhenReady.useSelector((s) => s.nodes!);

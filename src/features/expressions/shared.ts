@@ -3,23 +3,13 @@ import fs from 'node:fs';
 import type { IAttachmentsMap, UploadedAttachment } from 'src/features/attachments';
 import type { Expression } from 'src/features/expressions/types';
 import type { IRawTextResource } from 'src/features/language/textResources';
-import type { ILayout, ILayouts } from 'src/layout/layout';
+import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IApplicationSettings, IData, IInstance, IProcess, ITask } from 'src/types/shared';
-
-export interface Layouts {
-  [key: string]: {
-    $schema: string;
-    data: {
-      hidden?: Expression;
-      layout: ILayout;
-    };
-  };
-}
 
 export interface SharedTest {
   name: string;
   disabledFrontend?: boolean;
-  layouts?: Layouts;
+  layouts?: ILayoutCollection;
   dataModel?: any;
   instance?: IInstance;
   process?: IProcess;
@@ -58,8 +48,8 @@ export interface FunctionTest extends SharedTest {
 
 export interface LayoutPreprocessorTest {
   name: string;
-  layouts: Layouts;
-  expects: Layouts;
+  layouts: ILayoutCollection;
+  expects: ILayoutCollection;
   expectsWarnings?: string[];
 }
 
@@ -100,7 +90,7 @@ export function getSharedTests<Folder extends keyof TestFolders>(
   return out;
 }
 
-export function convertLayouts(input: Layouts | undefined): ILayouts {
+export function convertLayouts(input: ILayoutCollection | undefined): ILayouts {
   const _layouts: ILayouts = {};
   for (const key of Object.keys(input || {})) {
     _layouts[key] = (input || {})[key]?.data.layout;

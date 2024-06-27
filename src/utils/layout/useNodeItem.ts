@@ -5,7 +5,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector } from 'src/layout';
-import type { CompTypes, IDataModelBindings, NodeItem, TypeFromNode } from 'src/layout/layout';
+import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeData, NodeItemFromNode } from 'src/utils/layout/types';
@@ -38,7 +38,8 @@ export function useNodeItemRef(node: never, selector: never): never {
   ) as never;
 }
 
-const selectNodeItem = <T extends CompTypes>(data: NodeData<T>): NodeItem<T> | undefined => data.item as NodeItem<T>;
+const selectNodeItem = <T extends CompTypes>(data: NodeData<T>): CompInternal<T> | undefined =>
+  data.item as CompInternal<T>;
 export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
   node: N,
 ): WaitForState<NodeItemFromNode<N> | undefined, RetVal> {

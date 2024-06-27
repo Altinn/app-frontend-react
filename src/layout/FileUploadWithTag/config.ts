@@ -15,6 +15,7 @@ export const Config = asUploaderComponent(
       renderInAccordionGroup: false,
       renderInCards: false,
       renderInCardsMedia: false,
+      renderInTabs: true,
     },
     functionality: {
       customExpressions: false,

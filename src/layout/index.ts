@@ -1,8 +1,8 @@
 import type { MutableRefObject } from 'react';
 
 import { LabelRendering } from 'src/codegen/Config';
-import { ComponentConfigs } from 'src/layout/components.generated';
-import type { ComponentBehaviors } from 'src/codegen/Config';
+import { getComponentConfigs } from 'src/layout/components.generated';
+import type { CompBehaviors } from 'src/codegen/Config';
 import type { DisplayData } from 'src/features/displayData';
 import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
@@ -10,31 +10,17 @@ import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
+type ComponentConfigs = ReturnType<typeof getComponentConfigs>;
+
 export type CompClassMap = {
-  [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
+  [K in keyof ComponentConfigs]: ComponentConfigs[K]['def'];
 };
 
 export type CompClassMapCategories = {
   [K in keyof CompClassMap]: CompClassMap[K]['category'];
 };
 
-export type CompDef<T extends CompTypes = CompTypes> = (typeof ComponentConfigs)[T]['def'];
-
-/**
- * A nodeRef represents a reference to a node in the layout tree. It is used to reference a specific node,
- * and you can use it to find the node in the layout tree via hooks and utilities like:
- * @see useNode
- * @see isNodeRef
- * @deprecated
- */
-export interface NodeRef {
-  nodeRef: string;
-}
-
-export interface NodeRefInRow extends NodeRef {
-  baseId: string;
-  multiPageIndex?: number;
-}
+export type CompDef<T extends CompTypes = CompTypes> = ComponentConfigs[T]['def'];
 
 export interface IComponentProps {
   containerDivRef: MutableRefObject<HTMLDivElement | null>;
@@ -47,37 +33,40 @@ export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> exte
 }
 
 export function getComponentDef<T extends keyof CompClassMap>(type: T): CompClassMap[T] {
-  if (type && type in ComponentConfigs) {
-    return ComponentConfigs[type].def as any;
+  const configs = getComponentConfigs();
+  if (type && type in configs) {
+    return configs[type].def as any;
   }
   return undefined as any;
 }
 
-export function getNodeConstructor<T extends CompTypes>(type: T): (typeof ComponentConfigs)[T]['nodeConstructor'] {
-  if (type && type in ComponentConfigs) {
-    return ComponentConfigs[type].nodeConstructor;
-  }
-
-  return undefined as any;
-}
-
-export function getComponentCapabilities<T extends CompTypes>(type: T): (typeof ComponentConfigs)[T]['capabilities'] {
-  if (type && type in ComponentConfigs) {
-    return ComponentConfigs[type].capabilities;
+export function getNodeConstructor<T extends CompTypes>(type: T): ComponentConfigs[T]['nodeConstructor'] {
+  const configs = getComponentConfigs();
+  if (type && type in configs) {
+    return configs[type].nodeConstructor;
   }
 
   return undefined as any;
 }
 
-export function getComponentBehavior<T extends CompTypes, K extends keyof ComponentBehaviors>(
+export function getComponentCapabilities<T extends CompTypes>(type: T): ComponentConfigs[T]['capabilities'] {
+  const configs = getComponentConfigs();
+  if (type && type in configs) {
+    return configs[type].capabilities;
+  }
+
+  return undefined as any;
+}
+
+export function getComponentBehavior<T extends CompTypes, K extends keyof CompBehaviors>(
   type: T,
   behavior: K,
-): (typeof ComponentConfigs)[T]['behaviors'][K] {
-  return ComponentConfigs[type].behaviors[behavior];
+): ComponentConfigs[T]['behaviors'][K] {
+  return getComponentConfigs()[type].behaviors[behavior];
 }
 
 export function shouldRenderLabelInGenericComponent<T extends CompTypes>(type: T): boolean {
-  return ComponentConfigs[type].rendersWithLabel === LabelRendering.FromGenericComponent;
+  return getComponentConfigs()[type].rendersWithLabel === LabelRendering.FromGenericComponent;
 }
 
 type TypeFromDef<Def extends CompDef> = Def extends CompDef<infer T> ? T : CompTypes;

@@ -5,7 +5,6 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { NodesInternal, useNodesLax } from 'src/utils/layout/NodesContext';
-import type { NodeRef } from 'src/layout';
 import type { CompTypes, ParentNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesContext, PageData, PagesData } from 'src/utils/layout/NodesContext';
@@ -13,13 +12,7 @@ import type { NodeData } from 'src/utils/layout/types';
 
 type AnyData = PagesData | PageData | NodeData;
 type Node = BaseLayoutNode | LayoutPage | LayoutPages;
-type DataFrom<T extends NodeRef | Node> = T extends NodeRef
-  ? NodeData
-  : T extends LayoutPage
-    ? PageData
-    : T extends LayoutPages
-      ? PagesData
-      : NodeData;
+type DataFrom<T extends Node> = T extends LayoutPage ? PageData : T extends LayoutPages ? PagesData : NodeData;
 
 export interface TraversalRowIndexRestriction {
   onlyInRowIndex: number;

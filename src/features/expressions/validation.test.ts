@@ -1,9 +1,9 @@
 import { getSharedTests } from 'src/features/expressions/shared';
 import { ExprValidation } from 'src/features/expressions/validation';
-import type { Layouts } from 'src/features/expressions/shared';
+import type { ILayoutCollection } from 'src/layout/layout';
 
 // TODO: Remove this function when no longer in use
-function evalAllExpressions(_layouts: Layouts) {
+function evalAllExpressions(_layouts: ILayoutCollection) {
   throw new Error('Not implemented');
   // const dataSources = getExpressionDataSourcesMock();
   // const nodes = generateEntireHierarchy(convertLayouts(layouts), Object.keys(layouts)[0], dataSources, getComponentDef);

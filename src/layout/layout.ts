@@ -1,9 +1,9 @@
 import type { $Keys, PickByValue } from 'utility-types';
 
-import type { ComponentBehaviors, ComponentCapabilities } from 'src/codegen/ComponentConfig';
+import type { CompBehaviors, CompCapabilities } from 'src/codegen/Config';
 import type { CompCategory } from 'src/layout/common';
-import type { ILayoutFileExternal } from 'src/layout/common.generated';
-import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
+import type { ILayoutFile } from 'src/layout/common.generated';
+import type { ComponentTypeConfigs, getComponentConfigs } from 'src/layout/components.generated';
 import type { CompClassMapCategories } from 'src/layout/index';
 import type {
   ActionComponent,
@@ -24,7 +24,8 @@ export interface ILayouts {
  * type (ex. ILayoutCompTextArea), or ILayoutComponent<'TextArea'>.
  */
 
-export type CompTypes = keyof typeof ComponentConfigs & keyof ComponentTypeConfigs;
+type ComponentConfigs = ReturnType<typeof getComponentConfigs>;
+export type CompTypes = keyof ComponentConfigs & keyof ComponentTypeConfigs;
 type AllComponents = ComponentTypeConfigs[CompTypes]['layout'];
 
 /**
@@ -69,7 +70,7 @@ export type ITextResourceBindingsExternal<T extends CompTypes = CompTypes> =
 
 export type ITextResourceBindings<T extends CompTypes = CompTypes> = CompInternal<T>['textResourceBindings'];
 
-export type ILayout = CompOrGroupExternal[];
+export type ILayout = CompExternal[];
 
 /**
  * These keys are not defined anywhere in the actual form layout files, but are added by the hierarchy.
@@ -84,7 +85,7 @@ interface HierarchyExtensions {
  * Any item inside a hierarchy. Note that a LayoutNode _contains_ an item. The LayoutNode itself is an instance of the
  * LayoutNode class, while _an item_ is the object inside it that is somewhat similar to layout objects.
  */
-type NodeItem<T extends CompTypes> = ReturnType<(typeof ComponentConfigs)[T]['def']['evalExpressions']>;
+type NodeItem<T extends CompTypes> = ReturnType<ComponentConfigs[T]['def']['evalExpressions']>;
 
 export type CompInternal<T extends CompTypes = CompTypes> = NodeItem<T> & HierarchyExtensions;
 
@@ -130,7 +131,7 @@ export type DefFromCategory<C extends CompCategory> = C extends 'presentation'
 
 export type LayoutNodeFromCategory<Type> = Type extends CompCategory ? LayoutNode<TypesFromCategory<Type>> : LayoutNode;
 
-export type ILayoutCollection = { [pageName: string]: ILayoutFileExternal };
+export type ILayoutCollection = { [pageName: string]: ILayoutFile };
 
 export type IsContainerComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends CompCategory.Container
   ? true
@@ -147,10 +148,10 @@ export type IsFormComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'
 export type IsPresentationComp<T extends CompTypes> =
   ComponentTypeConfigs[T]['category'] extends CompCategory.Presentation ? true : false;
 
-export type CompWithCap<Capability extends keyof ComponentCapabilities> = {
-  [Type in CompTypes]: (typeof ComponentConfigs)[Type]['capabilities'][Capability] extends true ? Type : never;
+export type CompWithCap<Capability extends keyof CompCapabilities> = {
+  [Type in CompTypes]: ComponentConfigs[Type]['capabilities'][Capability] extends true ? Type : never;
 }[CompTypes];
 
-export type CompWithBehavior<Behavior extends keyof ComponentBehaviors> = {
-  [Type in CompTypes]: (typeof ComponentConfigs)[Type]['behaviors'][Behavior] extends true ? Type : never;
+export type CompWithBehavior<Behavior extends keyof CompBehaviors> = {
+  [Type in CompTypes]: ComponentConfigs[Type]['behaviors'][Behavior] extends true ? Type : never;
 }[CompTypes];

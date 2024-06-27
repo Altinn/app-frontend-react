@@ -8,7 +8,7 @@ import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { ValidationPlugin } from 'src/features/validation/ValidationPlugin';
 import { CompCategory } from 'src/layout/common';
 import { isNodeDefChildrenPlugin, NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { ComponentBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
+import type { CompBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
@@ -51,7 +51,7 @@ export class ComponentConfig {
   public typeSymbol: string;
   public layoutNodeType = baseLayoutNode;
   readonly inner = new CG.obj();
-  public behaviors: ComponentBehaviors = {
+  public behaviors: CompBehaviors = {
     isSummarizable: false,
     canHaveLabel: false,
     canHaveOptions: false,

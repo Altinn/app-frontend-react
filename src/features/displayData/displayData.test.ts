@@ -1,10 +1,10 @@
 import { getSharedTests } from 'src/features/expressions/shared';
 import { implementsDisplayData } from 'src/layout';
-import { ComponentConfigs } from 'src/layout/components.generated';
+import { getComponentConfigs } from 'src/layout/components.generated';
 
 describe('Every component implementing DisplayData should have at least one shared test of displayValue expression', () => {
   const sharedTests = getSharedTests('functions').content.find(({ folderName }) => folderName === 'displayValue');
-  for (const [type, config] of Object.entries(ComponentConfigs)) {
+  for (const [type, config] of Object.entries(getComponentConfigs())) {
     if (implementsDisplayData(config.def)) {
       it(`Component: ${type}`, () => {
         expect(
