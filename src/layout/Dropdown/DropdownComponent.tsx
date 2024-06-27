@@ -21,11 +21,11 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
   const item = useNodeItem(node);
   const isValid = useIsValid(node);
   const { id, readOnly, textResourceBindings, alertOnChange } = item;
-  const { langAsString, lang } = useLanguage();
+  const { langAsString, lang } = useLanguage(node);
 
   const debounce = FD.useDebounceImmediately();
 
-  const { options, isFetching, selectedValues, setData, rawData } = useGetOptions(node, 'single');
+  const { options, isFetching, selectedValues, setData, key } = useGetOptions(node, 'single');
 
   const changeMessageGenerator = useCallback(
     (values: string[]) => {
@@ -70,7 +70,7 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
         id={id}
         size='sm'
         hideLabel={true}
-        key={rawData} // Workaround for clearing text input
+        key={key} // Workaround for clearing text input
         value={selectedValues}
         readOnly={readOnly}
         onValueChange={handleChange}
@@ -87,12 +87,15 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
             key={option.value}
             value={option.value}
             description={option.description ? langAsString(option.description) : undefined}
-            displayValue={langAsString(option.label)}
+            displayValue={langAsString(option.label) || '\u200b'} // Workaround to prevent component from crashing due to empty string
           >
-            <Lang
-              id={option.label}
-              node={node}
-            />
+            <span>
+              <wbr />
+              <Lang
+                id={option.label}
+                node={node}
+              />
+            </span>
           </Combobox.Option>
         ))}
       </Combobox>

@@ -8,7 +8,7 @@ import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { filterDuplicateOptions, filterEmptyOptions } from 'src/utils/options';
+import { filterDuplicateOptions, verifyOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelBindingsOptionsSimple, IDataModelBindingsSimple } from 'src/layout/common.generated';
@@ -176,6 +176,7 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
 
   const [calculatedOptions, preselectedOption] = useMemo(() => {
     let draft = sourceOptions || fetchedOptions?.data || staticOptions;
+    verifyOptions(draft, valueType === 'multi');
     let preselectedOption: IOptionInternal | undefined = undefined;
     if (preselectedOptionIndex !== undefined && draft && draft[preselectedOptionIndex]) {
       // This index uses the original options array, before any filtering or sorting
@@ -205,6 +206,7 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
     sortOrder,
     sourceOptions,
     staticOptions,
+    valueType,
   ]);
 
   // Log error if fetching options failed
