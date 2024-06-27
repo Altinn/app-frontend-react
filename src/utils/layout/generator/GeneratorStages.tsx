@@ -667,6 +667,9 @@ function makeHooks(stage: Stage) {
     }
 
     if (reg.finished && !registry.current[SecondToLast].finished && isNew) {
+      // TODO: This can be triggered if you click the prefill checkboxes with just the right timing for them
+      // to start adding nodes before the generator has finished the last row you added. This should be made more
+      // reliable.
       throw new Error(
         `Cannot register a new hook ${uniqueId} for stage ${stage.description} before having reached ` +
           `the Finished stage. This will happen if the node generator components are generated after ` +
