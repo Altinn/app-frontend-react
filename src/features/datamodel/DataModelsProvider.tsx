@@ -123,7 +123,7 @@ function initialCreateStore() {
   }));
 }
 
-const { Provider, useSelector, useLaxSelector } = createZustandContext({
+const { Provider, useSelector, useMemoSelector, useLaxMemoSelector } = createZustandContext({
   name: 'DataModels',
   required: true,
   initialCreateStore,
@@ -351,13 +351,13 @@ function LoadExpressionValidationConfig({ dataType }: LoaderProps) {
 export const DataModels = {
   useFullState: () => useSelector((state) => state),
 
-  useLaxDefaultDataType: () => useLaxSelector((state) => state.defaultDataType),
+  useLaxDefaultDataType: () => useLaxMemoSelector((state) => state.defaultDataType),
 
-  useLaxReadableDataTypes: () => useLaxSelector((state) => state.allDataTypes!),
+  useLaxReadableDataTypes: () => useLaxMemoSelector((state) => state.allDataTypes!),
 
-  useWritableDataTypes: () => useSelector((state) => state.writableDataTypes!),
+  useWritableDataTypes: () => useMemoSelector((state) => state.writableDataTypes!),
 
-  useInitialValidations: () => useSelector((state) => state.initialValidations),
+  useInitialValidations: () => useMemoSelector((state) => state.initialValidations),
 
   useDataModelSchema: (dataType: string) => useSelector((state) => state.schemas[dataType]),
 
@@ -381,8 +381,8 @@ export const DataModels = {
    * sometimes not set.
    */
   useGetDataTypeForDataElementId: () => {
-    const typeToElement = useSelector((state) => state.dataElementIds);
-    const defaultDataType = useSelector((state) => state.defaultDataType);
+    const typeToElement = useMemoSelector((state) => state.dataElementIds);
+    const defaultDataType = useMemoSelector((state) => state.defaultDataType);
     return useCallback(
       (dataElementId: string | undefined) =>
         (dataElementId
