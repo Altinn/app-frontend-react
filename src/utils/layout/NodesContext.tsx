@@ -13,10 +13,8 @@ import { Loader } from 'src/core/loading/Loader';
 import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStorePlugin';
 import { UpdateAttachmentsForCypress } from 'src/features/attachments/UpdateAttachmentsForCypress';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
-import { shouldUpdate } from 'src/features/form/dynamics/conditionalRendering';
-import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
+import { HiddenComponentsProvider } from 'src/features/form/dynamics/HiddenComponentsProvider';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
 import {
   LoadingBlockerWaitForValidation,
@@ -27,19 +25,13 @@ import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePl
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { GeneratorStages, GeneratorStagesProvider } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
-import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
-import {
-  useNodeTraversal,
-  useNodeTraversalLax,
-  useNodeTraversalSelectorSilent,
-} from 'src/utils/layout/useNodeTraversal';
+import { useNodeTraversal, useNodeTraversalLax } from 'src/utils/layout/useNodeTraversal';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
@@ -128,14 +120,14 @@ export type NodesContext = {
   nodes: LayoutPages | undefined;
   pagesData: PagesData;
   nodeData: { [key: string]: NodeData };
-  hiddenViaRules: Set<string>;
+  hiddenViaRules: { [key: string]: true | undefined };
 
   setNodes: (nodes: LayoutPages) => void;
   addNodes: (requests: AddNodeRequest[]) => void;
   removeNodes: (requests: RemoveNodeRequest[]) => void;
   setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
   addError: (error: string, node: LayoutPage | LayoutNode) => void;
-  setHiddenViaRules: (mutator: (currentlyHidden: Set<string>) => Set<string>) => void;
+  markHiddenViaRule: (nodeId: string, hidden: boolean) => void;
 
   addPage: (pageKey: string) => void;
   removePage: (pageKey: string) => void;
@@ -164,9 +156,20 @@ export function createNodesDataStore() {
     },
     nodeData: {},
 
-    hiddenViaRules: new Set(),
-    setHiddenViaRules: (mutator: (currentlyHidden: Set<string>) => Set<string>) =>
-      set((state) => ({ hiddenViaRules: mutator(state.hiddenViaRules) })),
+    hiddenViaRules: {},
+    markHiddenViaRule: (nodeId, hidden) =>
+      set((state) => {
+        const newState = { ...state.hiddenViaRules };
+        if (hidden && !newState[nodeId]) {
+          newState[nodeId] = true;
+        } else if (!hidden && newState[nodeId]) {
+          delete newState[nodeId];
+        } else {
+          return {};
+        }
+
+        return { hiddenViaRules: newState };
+      }),
 
     setNodes: (nodes) => set({ nodes }),
     addNodes: (requests) =>
@@ -378,13 +381,6 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => (
   </Store.Provider>
 );
 
-function HiddenComponentsProvider() {
-  const setHidden = Store.useSelector((state) => state.setHiddenViaRules);
-  useLegacyHiddenComponents(setHidden);
-
-  return null;
-}
-
 /**
  * Some selectors (like NodeTraversal) only re-runs when the data store is 'ready', and when nodes start being added
  * or removed, the store is marked as not ready. This component will mark the store as ready when all nodes are added,
@@ -579,7 +575,7 @@ export const Hidden = {
    * The next ones are primarily for internal use:
    */
   useIsHiddenViaRules: (node: LayoutNode) =>
-    Store.useSelector((s) => s.hiddenViaRules.has(node.id) || s.hiddenViaRules.has(node.baseId)),
+    Store.useSelector((s) => s.hiddenViaRules[node.id] ?? s.hiddenViaRules[node.baseId] ?? false),
   useIsForcedVisibleByDevTools() {
     const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
     const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
@@ -725,40 +721,9 @@ export const NodesInternal = {
   useAddNodes: () => Store.useSelector((s) => s.addNodes),
   useRemoveNodes: () => Store.useSelector((s) => s.removeNodes),
   useAddError: () => Store.useSelector((s) => s.addError),
+  useMarkHiddenViaRule: () => Store.useSelector((s) => s.markHiddenViaRule),
 
   ...(Object.values(StorePlugins)
     .map((plugin) => plugin.extraHooks(Store))
     .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraHooks),
 };
-
-/**
- * This hook replaces checkIfConditionalRulesShouldRunSaga(), and fixes a problem that was hard to solve in sagas;
- * namely, that expressions that cause a component to suddenly be visible might also cause other component lookups
- * to start producing a value, so we don't really know how many times we need to run the expressions to reach
- * a stable state. As React hooks are...reactive, we can just run the expressions again when the data changes, and
- * thus continually run the expressions until they stabilize. You _could_ run into an infinite loop if you
- * have a circular dependency in your expressions, but that's a problem with your form, not this hook.
- */
-function useLegacyHiddenComponents(setHidden: React.Dispatch<React.SetStateAction<Set<string>>>) {
-  const rules = useDynamics()?.conditionalRendering ?? null;
-  const nodeTraversal = useNodeTraversalSelectorSilent();
-  const formDataSelector = FD.useDebouncedSelector();
-  const transposeSelector = useDataModelBindingTranspose();
-
-  useEffect(() => {
-    let futureHiddenFields: Set<string>;
-    try {
-      futureHiddenFields = runConditionalRenderingRules(rules, formDataSelector, nodeTraversal, transposeSelector);
-    } catch (error) {
-      window.logError('Error while evaluating conditional rendering rules:\n', error);
-      futureHiddenFields = new Set();
-    }
-
-    setHidden((currentlyHidden) => {
-      if (shouldUpdate(currentlyHidden, futureHiddenFields)) {
-        return futureHiddenFields;
-      }
-      return currentlyHidden;
-    });
-  }, [rules, setHidden, nodeTraversal, formDataSelector, transposeSelector]);
-}
