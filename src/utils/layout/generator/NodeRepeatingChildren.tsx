@@ -107,13 +107,10 @@ function _GenerateRow({ row, claims, groupBinding, multiPageMapping, internalPro
   const node = GeneratorInternal.useParent() as LayoutNode;
   const removeRow = NodesInternal.useRemoveRow();
   const depth = GeneratorInternal.useDepth();
-  const directMutators = useMemo(
-    () => [mutateComponentId(row), mutateMultiPageIndex(multiPageMapping)],
-    [multiPageMapping, row],
-  );
+  const directMutators = useMemo(() => [mutateMultiPageIndex(multiPageMapping)], [multiPageMapping]);
 
   const recursiveMutators = useMemo(
-    () => [mutateDataModelBindings(row, groupBinding), mutateMapping(row, depth)],
+    () => [mutateComponentId(row), mutateDataModelBindings(row, groupBinding), mutateMapping(row, depth)],
     [row, depth, groupBinding],
   );
 

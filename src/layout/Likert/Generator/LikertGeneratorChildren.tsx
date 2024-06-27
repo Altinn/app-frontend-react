@@ -62,7 +62,6 @@ function _GenerateRow({ row, questionsBinding }: GenerateRowProps) {
   const node = GeneratorInternal.useParent() as LayoutNode<'Likert'>;
   const removeRow = NodesInternal.useRemoveRow();
   const depth = GeneratorInternal.useDepth();
-  const directMutators = useMemo(() => [mutateComponentId(row)], [row]);
 
   const childId = `${parentItem.id}-item`;
 
@@ -111,7 +110,7 @@ function _GenerateRow({ row, questionsBinding }: GenerateRowProps) {
   );
 
   const recursiveMutators = useMemo(
-    () => [mutateDataModelBindings(row, questionsBinding), mutateMapping(row, depth)],
+    () => [mutateComponentId(row), mutateDataModelBindings(row, questionsBinding), mutateMapping(row, depth)],
     [row, depth, questionsBinding],
   );
 
@@ -125,7 +124,6 @@ function _GenerateRow({ row, questionsBinding }: GenerateRowProps) {
   return (
     <GeneratorRowProvider
       row={row}
-      directMutators={directMutators}
       recursiveMutators={recursiveMutators}
     >
       <GenerateNodeChildrenWithStaticLayout
