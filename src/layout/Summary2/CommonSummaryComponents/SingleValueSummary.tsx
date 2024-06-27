@@ -15,6 +15,7 @@ type SingleValueSummaryProps = {
   componentNode: LayoutNode;
   displayData?: string;
   hideEditButton?: boolean;
+  multiline?: boolean;
 };
 
 export const SingleValueSummary = ({
@@ -23,6 +24,7 @@ export const SingleValueSummary = ({
   componentNode,
   displayData,
   hideEditButton,
+  multiline,
 }: SingleValueSummaryProps) => (
   <div className={classes.inputSummaryItem}>
     <div className={classes.labelValueWrapper}>
@@ -33,6 +35,7 @@ export const SingleValueSummary = ({
           [classes.error]: errors && errors?.length > 0,
           [classes.emptyValue]: !displayData,
           [classes.formValue]: displayData,
+          [classes.multiline]: multiline,
         })}
       >
         <span>
