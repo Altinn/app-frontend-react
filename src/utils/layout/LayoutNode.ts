@@ -5,13 +5,11 @@ import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompIntermediate, CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
-import type { NodesContextStore } from 'src/utils/layout/NodesContext';
 import type { BaseRow } from 'src/utils/layout/types';
 import type { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 
 export interface LayoutNodeProps<Type extends CompTypes> {
   item: CompIntermediate<Type>;
-  store: NodesContextStore;
   parent: ParentNode;
   row?: BaseRow;
 }
@@ -21,8 +19,6 @@ export interface LayoutNodeProps<Type extends CompTypes> {
  * instance of a component inside a repeating group), finding other components near it.
  */
 export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements LayoutObject {
-  protected readonly store: NodesContextStore;
-
   public readonly parent: ParentNode;
   public readonly page: LayoutPage;
   public readonly row?: BaseRow;
@@ -36,12 +32,11 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   public pageKey: string;
   public type: Type;
 
-  public constructor({ item, store, parent, row }: LayoutNodeProps<Type>) {
+  public constructor({ item, parent, row }: LayoutNodeProps<Type>) {
     this.updateCommonProps(item as CompInternal<Type>);
     this.page = parent instanceof LayoutPage ? parent : parent.page;
     this.pageKey = this.page.pageKey;
     this.def = getComponentDef(this.type);
-    this.store = store;
     this.parent = parent;
     this.row = row;
   }

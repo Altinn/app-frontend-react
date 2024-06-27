@@ -1,4 +1,4 @@
-import type { IFooterBaseComponent } from 'src/features/footer/types';
+import type { IFooterBaseComponent, IFooterIcon } from 'src/features/footer/types';
 
 export interface IFooterLinkComponent extends IFooterBaseComponent<'Link'> {
   title: string;

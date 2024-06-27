@@ -114,14 +114,12 @@ function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
 }
 
 function ExportStores() {
-  const nodesStore = NodesInternal.useNodesStore();
-  const dataStore = NodesInternal.useDataStore();
+  const nodesStore = NodesInternal.useStore();
 
   useEffect(() => {
     window.CypressState = window.CypressState || {};
     window.CypressState.nodesStore = nodesStore;
-    window.CypressState.nodesDataStore = dataStore;
-  }, [nodesStore, dataStore]);
+  }, [nodesStore]);
 
   return null;
 }

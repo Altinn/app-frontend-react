@@ -709,10 +709,9 @@ export const NodesInternal = {
       }
       return s.nodeData[node.id] !== undefined;
     }),
-  useNodesStore: () => Store.useStore(),
   useHasErrors: () => Store.useSelector((s) => s.hasErrors),
 
-  useDataStore: () => Store.useStore(),
+  useStore: () => Store.useStore(),
   useSetNodeProps: () => Store.useSelector((s) => s.setNodeProps),
   useSetNodes: () => Store.useSelector((s) => s.setNodes),
   useAddPage: () => Store.useSelector((s) => s.addPage),

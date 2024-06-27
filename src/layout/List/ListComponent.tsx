@@ -80,7 +80,7 @@ export const ListComponent = ({ node }: IListProps) => {
   const renderPagination = () =>
     pagination && (
       <Pagination
-        numberOfRows={data?._metaData.totaltItemsCount}
+        numberOfRows={data?._metaData.totaltItemsCount ?? 0}
         rowsPerPageOptions={pagination?.alternatives ? pagination?.alternatives : []}
         rowsPerPage={pageSize}
         onRowsPerPageChange={(event: React.ChangeEvent<HTMLSelectElement>) => {

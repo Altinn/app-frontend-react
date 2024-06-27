@@ -20,7 +20,7 @@ import {
 import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -336,16 +336,15 @@ function useNewNode<T extends CompTypes>(item: CompIntermediate<T>): LayoutNode<
   const page = GeneratorInternal.usePage();
   const parent = GeneratorInternal.useParent();
   const row = GeneratorInternal.useRow();
-  const store = NodesInternal.useDataStore();
   const LNode = useNodeConstructor(item.type);
 
   return useMemo(() => {
-    const newNodeProps: LayoutNodeProps<T> = { item, parent, row, store };
+    const newNodeProps: LayoutNodeProps<T> = { item, parent, row };
     const node = new LNode(newNodeProps as any) as LayoutNode<T>;
     page._addChild(node);
 
     return node;
-  }, [LNode, item, page, parent, row, store]);
+  }, [LNode, item, page, parent, row]);
 }
 
 function isFormItem(item: CompIntermediate): item is CompIntermediate & FormComponentProps {
