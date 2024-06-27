@@ -10,6 +10,7 @@ import { DevToolsTab } from 'src/features/devtools/data/types';
 import { canBeExpression } from 'src/features/expressions/validation';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface NodeInspectorDataFieldParams {
@@ -146,6 +147,10 @@ function ExpandArray(props: { path: string[]; property: string; elements: unknow
 
 export function NodeInspectorDataField({ path, property, value: inputValue }: NodeInspectorDataFieldParams) {
   const { node } = useNodeInspectorContext();
+  const firstRowExpr = useNodeItem(
+    node,
+    (i) => i && i.type === 'RepeatingGroup' && i.rows && i.rows[0].groupExpressions,
+  );
   const itemWithExpressions = NodesInternal.useNodeData(node, (s) => s.layout);
 
   let value = inputValue;
@@ -155,14 +160,11 @@ export function NodeInspectorDataField({ path, property, value: inputValue }: No
     canBeExpression(value, true);
 
   let exprText = 'Ble evaluert til:';
-  if (isExpression && node?.isType('RepeatingGroup')) {
-    const firstRow = node.item.rows[0];
-    if (firstRow && firstRow.groupExpressions) {
-      const realValue = dot.pick(path.join('.'), firstRow.groupExpressions);
-      if (realValue !== undefined) {
-        value = realValue;
-        exprText = 'Ble evaluert til (for første rad):';
-      }
+  if (isExpression && node?.isType('RepeatingGroup') && firstRowExpr) {
+    const realValue = dot.pick(path.join('.'), firstRowExpr);
+    if (realValue !== undefined) {
+      value = realValue;
+      exprText = 'Ble evaluert til (for første rad):';
     }
   }
 
