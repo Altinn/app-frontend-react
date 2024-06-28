@@ -15,6 +15,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface Props {
   validations: NodeValidation[] | undefined;
+  node?: LayoutNode;
 }
 
 export function AllComponentValidations() {
@@ -23,8 +24,9 @@ export function AllComponentValidations() {
   return <ComponentValidations validations={validations} />;
 }
 
-export function ComponentValidations({ validations }: Props) {
-  const node = useCurrentNode();
+export function ComponentValidations({ validations, node: _node }: Props) {
+  const currentNode = useCurrentNode();
+  const node = _node ?? currentNode;
   if (!validations || validations.length === 0 || !node) {
     return null;
   }

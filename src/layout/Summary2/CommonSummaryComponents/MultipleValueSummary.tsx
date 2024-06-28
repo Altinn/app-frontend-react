@@ -7,12 +7,14 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { type IUseLanguage, useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
+import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import classes from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary.module.css';
+import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { FormDataSelector } from 'src/layout/index';
+import type { CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type MultipleValueSummaryProps = {
@@ -24,7 +26,7 @@ type MultipleValueSummaryProps = {
 function getSummaryData(
   node: LayoutNode<any>,
   langTools: IUseLanguage,
-  options: ReturnType<typeof useAllOptionsSelector>,
+  options: IOptionInternal[],
   formDataSelector: FormDataSelector,
 ): { [key: string]: string } {
   if (!node.item.dataModelBindings?.simpleBinding) {
@@ -32,15 +34,14 @@ function getSummaryData(
   }
 
   const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');
-  const optionList = options(node.item.id);
-  return getCommaSeparatedOptionsToText(value, optionList, langTools);
+  return getCommaSeparatedOptionsToText(value, options, langTools);
 }
 
 export const MultipleValueSummary = ({ title, componentNode, showAsList }: MultipleValueSummaryProps) => {
   const formDataSelector = FD.useDebouncedSelector();
 
   const langTools = useLanguage();
-  const options = useAllOptionsSelector();
+  const options = useNodeOptions(componentNode as LayoutNode<CompWithBehavior<'canHaveOptions'>>).options;
   const summaryData = getSummaryData(componentNode, langTools, options, formDataSelector);
   const displayValues = Object.values(summaryData);
 

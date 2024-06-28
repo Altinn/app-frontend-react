@@ -4,7 +4,7 @@ import {
   AttachmentsMappedToFormDataProvider,
   useAttachmentsMappedToFormData,
 } from 'src/features/attachments/useAttachmentsMappedToFormData';
-import { useAllOptions } from 'src/features/options/useAllOptions';
+import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
@@ -17,10 +17,8 @@ export interface IAttachmentSummaryComponent {
 
 export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryComponent) {
   const attachments = useUploaderSummaryData(targetNode);
-  const component = targetNode.item;
-  const allOptions = useAllOptions();
-  const hasTag = component.type === 'FileUploadWithTag';
-  const options = hasTag ? allOptions[component.id] : undefined;
+  const hasTag = targetNode.isType('FileUploadWithTag');
+  const options = useNodeOptions(targetNode as LayoutNode<'FileUploadWithTag'>).options;
   const mappingTools = useAttachmentsMappedToFormData(targetNode);
   const mobileView = useIsMobileOrTablet();
   const pdfModeActive = usePdfModeActive();

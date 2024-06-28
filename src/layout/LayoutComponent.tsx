@@ -17,7 +17,6 @@ import type { CompCapabilities } from 'src/codegen/Config';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { SimpleEval } from 'src/features/expressions';
-import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { ComponentBase, FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
@@ -32,8 +31,10 @@ import type {
   ITextResourceBindingsExternal,
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import type { AnySummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { ChildClaim, ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { BaseRow, NodeData, StateFactoryProps } from 'src/utils/layout/types';
 import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
@@ -78,7 +79,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
     | ReturnType<typeof React.forwardRef<HTMLElement, PropsFromGenericComponent<Type>>>
     | ((props: PropsFromGenericComponent<Type>) => JSX.Element | null);
 
-  renderSummary2?(componentNode: LayoutNode<Type>): JSX.Element | null;
+  renderSummary2?(componentNode: LayoutNode<Type>, overrides: AnySummaryOverrideProps): JSX.Element | null;
 
   /**
    * Render a node generator for this component. This can be overridden if you want to extend
@@ -157,8 +158,8 @@ export abstract class AnyComponent<Type extends CompTypes> {
     return false;
   }
 
-  shouldRenderInAutomaticPDF(node: LayoutNode<Type>, dataSources: ExpressionDataSources): boolean {
-    const renderAsSummary = dataSources.nodeDataSelector(
+  shouldRenderInAutomaticPDF(node: LayoutNode<Type>, nodeDataSelector: NodeDataSelector): boolean {
+    const renderAsSummary = nodeDataSelector(
       (picker) => {
         const item = picker(node)?.item;
         return item && 'renderAsSummary' in item ? item.renderAsSummary : false;
@@ -355,7 +356,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
 export abstract class ActionComponent<Type extends CompTypes> extends AnyComponent<Type> {
   readonly category = CompCategory.Action;
 
-  shouldRenderInAutomaticPDF(_node: LayoutNode<Type>, _dataSources: ExpressionDataSources): boolean {
+  shouldRenderInAutomaticPDF(_node: LayoutNode<Type>, _nodeDataSelector: NodeDataSelector): boolean {
     return false;
   }
 }

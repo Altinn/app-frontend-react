@@ -10,6 +10,7 @@ import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Grid extends GridDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Grid'>>(

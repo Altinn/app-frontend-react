@@ -17,7 +17,7 @@ export function PageSummary({ pageId, summaryOverrides }: PageSummaryProps) {
   return page.children().map((child) => (
     <ComponentSummary
       componentNode={child}
-      key={child.item.id}
+      key={child.id}
       summaryOverrides={summaryOverrides}
     />
   ));

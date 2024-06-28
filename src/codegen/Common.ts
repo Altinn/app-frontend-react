@@ -18,7 +18,7 @@ const common = {
               new CG.raw({
                 typeScript: new CG.import({
                   import: 'CompExternal',
-                  from: 'src/layout/layout.d',
+                  from: 'src/layout/layout',
                 }),
                 jsonSchema: () => ({
                   $ref: '#/definitions/AnyComponent',

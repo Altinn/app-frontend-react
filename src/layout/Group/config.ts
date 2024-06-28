@@ -7,7 +7,8 @@ export const GROUP_SUMMARY_PROPS = new CG.obj()
   .extends(CG.common('ISummaryOverridesCommon'))
   .optional()
   .setTitle('Summary properties')
-  .setDescription('Properties for how to display the summary of the component');
+  .setDescription('Properties for how to display the summary of the component')
+  .exportAs('GroupSummaryOverrideProps');
 
 export const Config = new CG.component({
   category: CompCategory.Container,

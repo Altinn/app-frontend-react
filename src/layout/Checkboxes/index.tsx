@@ -1,14 +1,13 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
+import { CheckboxesSummary } from 'src/layout/Checkboxes/CheckboxesSummary';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
-import { MultipleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -56,16 +55,11 @@ export class Checkboxes extends CheckboxesDef {
     summaryOverrides?: CheckboxSummaryOverrideProps,
   ): JSX.Element | null {
     const displayData = this.useDisplayData(componentNode);
-    const maxStringLength = 75;
-    const showAsList =
-      summaryOverrides?.displayType === 'list' ||
-      (!summaryOverrides?.displayType && displayData?.length >= maxStringLength);
-    const title = componentNode.item.textResourceBindings?.title;
     return (
-      <MultipleValueSummary
-        title={<Lang id={title} />}
+      <CheckboxesSummary
         componentNode={componentNode}
-        showAsList={showAsList}
+        displayData={displayData}
+        summaryOverrides={summaryOverrides}
       />
     );
   }

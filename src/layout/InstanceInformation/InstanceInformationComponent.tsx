@@ -15,6 +15,7 @@ import { getDateFormat } from 'src/utils/dateHelpers';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
+import type { CompInternal } from 'src/layout/layout';
 import type { IInstance, IParty } from 'src/types/shared';
 
 export const returnInstanceMetaDataObject = (
@@ -107,6 +108,6 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
 }
 
 export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
-  const elements = useNodeItem(node).elements;
+  const elements = useNodeItem(node, (i) => i.elements);
   return <InstanceInformation elements={elements} />;
 }

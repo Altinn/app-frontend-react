@@ -1,5 +1,5 @@
 import React from 'react';
-import type { PropsWithChildren } from 'react';
+import type { JSX, PropsWithChildren } from 'react';
 
 import { ErrorMessage, Paragraph, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
@@ -17,16 +17,19 @@ import classes from 'src/layout/Grid/GridSummary.module.css';
 import { isGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
+import { Hidden } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import type { GridCellInternal, GridRowInternal } from 'src/layout/Grid/types';
 import type { ITextResourceBindings } from 'src/layout/layout';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type GridSummaryProps = {
   componentNode: LayoutNode<'Grid'>;
 };
 
 export const GridSummary = ({ componentNode }: GridSummaryProps) => {
-  const { rows, textResourceBindings } = componentNode.item;
+  const { rowsInternal, textResourceBindings } = useNodeItem(componentNode);
   const { title } = textResourceBindings ?? {};
 
   const columnSettings: ITableColumnFormatting = {};
@@ -39,7 +42,7 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   let currentHeaderRow: GridRowInternal | undefined = undefined;
   let currentBodyRows: GridRowInternal[] = [];
 
-  rows.forEach((row, index) => {
+  rowsInternal.forEach((row, index) => {
     if (row.header) {
       // If there are accumulated body rows, push them into a tbody
       if (currentBodyRows.length > 0) {
@@ -79,7 +82,7 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   // Push remaining body rows if any
   if (currentBodyRows.length > 0) {
     tableSections.push(
-      <tbody key={`tbody-${rows.length}`}>
+      <tbody key={`tbody-${rowsInternal.length}`}>
         {currentBodyRows.map((bodyRow, bodyIndex) => (
           <GridRowRenderer
             key={bodyIndex}
@@ -95,7 +98,7 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
 
   return (
     <Table
-      id={componentNode.item.id}
+      id={componentNode.id}
       className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
     >
       {title && (
@@ -126,7 +129,7 @@ interface GridRowProps {
 const getCurrentHeaderCell = (currentHeaderCells: GridCellInternal[], index: number): GridCellInternal | undefined =>
   currentHeaderCells[index] ?? undefined;
 
-const getHeaderText = (cell: GridCellInternal | undefined, referencedNode) => {
+const getHeaderText = (cell: GridCellInternal | undefined, referencedNode: LayoutNode) => {
   if (!cell) {
     return '';
   }
@@ -166,15 +169,12 @@ export function GridRowRenderer({ row, mutableColumnSettings, node, currentHeade
     >
       {row.cells.map((cell, cellIdx) => {
         const currentHeaderCell = getCurrentHeaderCell(currentHeaderCells ?? [], cellIdx);
-        let referencedNode: BaseLayoutNode | undefined = undefined;
+        let referencedNode: LayoutNode | undefined = undefined;
         let referencedNodeIsRequired = false;
         if (currentHeaderCell && 'labelFrom' in currentHeaderCell) {
           const referencedComponent = node
             .flat(true)
-            .find(
-              (n) =>
-                n.item.id === currentHeaderCell.labelFrom || n.item.baseComponentId === currentHeaderCell.labelFrom,
-            );
+            .find((n) => n.id === currentHeaderCell.labelFrom || n.baseId === currentHeaderCell.labelFrom);
           if (referencedComponent) {
             referencedNode = referencedComponent;
             referencedNodeIsRequired =
@@ -217,7 +217,7 @@ export function GridRowRenderer({ row, mutableColumnSettings, node, currentHeade
           if ('labelFrom' in cell && cell.labelFrom) {
             const closestComponent = node
               .flat(true)
-              .find((n) => n.item.id === cell.labelFrom || n.item.baseComponentId === cell.labelFrom);
+              .find((n) => n.id === cell.labelFrom || n.baseId === cell.labelFrom);
 
             return (
               <CellWithLabel
@@ -232,7 +232,7 @@ export function GridRowRenderer({ row, mutableColumnSettings, node, currentHeade
           }
         }
         const componentNode = cell && 'node' in cell ? cell.node : undefined;
-        const componentId = componentNode && componentNode.item.id;
+        const componentId = componentNode && componentNode.id;
 
         return (
           <CellWithComponent
@@ -307,7 +307,8 @@ function CellWithComponent({
   const displayDataProps = useDisplayDataProps();
   const validations = useUnifiedValidationsForNode(node);
   const errors = validationsOfSeverity(validations, 'error');
-  if (node && !node.isHidden()) {
+  const isHidden = Hidden.useIsHidden(node);
+  if (node && !isHidden) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
     return (
       <CellComponent
@@ -378,15 +379,14 @@ function CellWithLabel({
   headerTitle,
   isSmall,
 }: CellWithLabelProps) {
+  const refItem = useNodeItem(referenceComponent);
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
-  const refItem = referenceComponent?.item;
   const trb = (refItem && 'textResourceBindings' in refItem ? refItem.textResourceBindings : {}) as
     | ITextResourceBindings
     | undefined;
   const title = trb && 'title' in trb ? trb.title : undefined;
-  const required =
-    (referenceComponent && 'required' in referenceComponent.item && referenceComponent.item.required) ?? false;
-  const componentId = referenceComponent?.item.id ?? referenceComponent?.item.baseComponentId;
+  const required = (referenceComponent && 'required' in refItem && refItem.required) ?? false;
+  const componentId = refItem.id ?? refItem.baseComponentId;
 
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
 

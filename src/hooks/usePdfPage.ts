@@ -89,7 +89,7 @@ function generateAutomaticPage(
   const nodesFiltered = nodes.filter((n) => !excludedComponents.has(n.id));
 
   for (const node of nodesFiltered) {
-    if (node.def.shouldRenderInAutomaticPDF(node as any, dataSources)) {
+    if (node.def.shouldRenderInAutomaticPDF(node as any, dataSources.nodeDataSelector)) {
       automaticPdfLayout.push({
         id: `__pdf__${node.id}`,
         type: 'Summary',
