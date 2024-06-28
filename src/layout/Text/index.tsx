@@ -6,7 +6,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Text extends TextDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Text'>>(
-    function LayoutComponentParagraphRender(props, _): JSX.Element | null {
+    function LayoutComponentTextRender(props, _): JSX.Element | null {
       return <TextComponent {...props} />;
     },
   );

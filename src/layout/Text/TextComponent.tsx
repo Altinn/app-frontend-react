@@ -21,7 +21,7 @@ export const TextComponent = ({ node }: PropsFromGenericComponent<'Text'>) => {
   }
 
   if (!textResourceBindings?.title) {
-    return;
+    return <span>{value}</span>;
   }
 
   return (

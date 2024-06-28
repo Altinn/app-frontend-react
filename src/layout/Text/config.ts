@@ -1,4 +1,5 @@
 import { CG } from 'src/codegen/CG';
+import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -20,6 +21,6 @@ export const Config = new CG.component({
       description: 'The title of the value',
     }),
   )
-  .addProperty(new CG.prop('value', new CG.arr(new CG.str())))
+  .addProperty(new CG.prop('value', new CG.expr(ExprVal.String)))
   .addProperty(new CG.prop('direction', new CG.enum('horizontal', 'vertical').optional({ default: 'horizontal' })))
   .addProperty(new CG.prop('icon', new CG.str().optional().addExample('https://example.com/icon.svg')));
