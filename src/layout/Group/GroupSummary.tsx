@@ -6,8 +6,6 @@ import type { HeadingProps } from '@digdir/designsystemet-react';
 
 import classes from 'src/layout/Group/GroupSummary.module.css';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
-import type { CompGroupInternal } from 'src/layout/Group/config.generated';
-import type { CompSummary2Internal } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type GroupComponentSummaryProps = {

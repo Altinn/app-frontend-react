@@ -31,7 +31,7 @@ import { GeneratorValidationProvider } from 'src/utils/layout/generator/validati
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
-import { useNodeTraversal, useNodeTraversalLax } from 'src/utils/layout/useNodeTraversal';
+import { TraversalTask, useNodeTraversal, useNodeTraversalLax } from 'src/utils/layout/useNodeTraversal';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
@@ -450,7 +450,7 @@ export function useNode<T extends string | undefined | LayoutNode>(id: T): RetVa
 }
 
 export const useGetPage = (pageId: string) =>
-  useSelector((state) => {
+  Store.useSelector((state) => {
     if (!pageId) {
       return null;
     }
@@ -458,7 +458,7 @@ export const useGetPage = (pageId: string) =>
     if (!state?.nodes) {
       return null;
     }
-    return state.nodes.findLayout(pageId);
+    return state.nodes.findLayout(new TraversalTask(state, state.nodes, undefined, undefined), pageId);
   });
 
 export function useNodeLax<T extends string | undefined | LayoutNode>(

@@ -6,17 +6,17 @@ import cn from 'classnames';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useNode } from 'src/utils/layout/NodesContext';
-import type { CompSummary2External, CompSummary2Internal } from 'src/layout/Summary2/config.generated';
+import type { CompExternal, CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface ComponentSummaryProps {
   componentNode: LayoutNode;
-  summaryOverrides?: CompSummary2Internal['overrides'];
+  summaryOverrides?: CompInternal<'Summary2'>['overrides'];
 }
 
 interface ResolveComponentProps {
-  summaryProps: CompSummary2External;
-  summaryOverrides?: CompSummary2Internal['overrides'];
+  summaryProps: CompExternal<'Summary2'>;
+  summaryOverrides?: CompInternal<'Summary2'>['overrides'];
 }
 export function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryProps) {
   const override = summaryOverrides?.find((override) => override.componentId === componentNode.item.id);

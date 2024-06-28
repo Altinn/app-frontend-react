@@ -9,7 +9,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useIsMobile } from 'src/hooks/useIsMobile';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -23,7 +23,7 @@ export function EditButton({ componentNode, summaryComponentId, className }: Edi
   const { langAsString } = useLanguage();
   const setReturnToView = useSetReturnToView();
   const setNodeOfOrigin = useSetSummaryNodeOfOrigin();
-  const { currentPageId } = useNavigatePage();
+  const currentPageId = useCurrentView();
   const pdfModeActive = usePdfModeActive();
   const isMobile = useIsMobile();
 

@@ -62,5 +62,4 @@ export const Config = new CG.component({
         .setTitle('Heading level')
         .setDescription('The heading level of the group title.'),
     ),
-  )
-  .addProperty(new CG.prop('summaryProps', GROUP_SUMMARY_PROPS).onlyIn(Variant.Internal));
+  );
