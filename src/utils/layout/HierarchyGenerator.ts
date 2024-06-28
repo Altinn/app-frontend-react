@@ -410,7 +410,7 @@ export class SimpleComponentHierarchyGenerator<Type extends CompTypes> extends C
     return undefined;
   }
 
-  stage2(ctx): ChildFactory<Type> {
+  stage2(ctx: HierarchyContext): ChildFactory<Type> {
     return (props) => ctx.generator.makeNode(props);
   }
 

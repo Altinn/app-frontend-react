@@ -101,7 +101,7 @@ export const Config = new CG.component({
     new CG.obj(
       new CG.prop(
         'group',
-        new CG.str()
+        new CG.dmb()
           .setTitle('Group')
           .setDescription(
             'Dot notation location for a repeating group structure (array of objects), where the data is stored',

@@ -1,8 +1,6 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import dot from 'dot-object';
-
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { AddressSummary } from 'src/layout/Address/AddressSummary/AddressSummary';
@@ -15,7 +13,7 @@ import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Address extends AddressDef implements ValidateComponent {
+export class Address extends AddressDef implements ValidateComponent<'Address'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Address'>>(
     function LayoutComponentAddressRender(props, _): JSX.Element | null {
       return <AddressComponent {...props} />;
@@ -40,14 +38,17 @@ export class Address extends AddressDef implements ValidateComponent {
     return false;
   }
 
-  runComponentValidation(node: LayoutNode<'Address'>, { formData }: ValidationDataSources): ComponentValidation[] {
+  runComponentValidation(
+    node: LayoutNode<'Address'>,
+    { formData }: ValidationDataSources<'Address'>,
+  ): ComponentValidation[] {
     if (!node.item.dataModelBindings) {
       return [];
     }
     const validations: ComponentValidation[] = [];
 
-    const zipCodeField = node.item.dataModelBindings.zipCode;
-    const zipCode = zipCodeField ? dot.pick(zipCodeField, formData) : undefined;
+    const { zipCode, houseNumber } = formData;
+
     const zipCodeAsString = typeof zipCode === 'string' || typeof zipCode === 'number' ? String(zipCode) : undefined;
 
     // TODO(Validation): Add better message for the special case of 0000 or add better validation for zipCodes that the API says are invalid
@@ -62,8 +63,6 @@ export class Address extends AddressDef implements ValidateComponent {
       });
     }
 
-    const houseNumberField = node.item.dataModelBindings.houseNumber;
-    const houseNumber = houseNumberField ? dot.pick(houseNumberField, formData) : undefined;
     const houseNumberAsString =
       typeof houseNumber === 'string' || typeof houseNumber === 'number' ? String(houseNumber) : undefined;
 

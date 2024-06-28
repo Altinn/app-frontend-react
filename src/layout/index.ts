@@ -3,9 +3,10 @@ import type { MutableRefObject } from 'react';
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { DisplayData } from 'src/features/displayData';
 import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
-import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
+import type { AnyComponent } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type CompClassMap = {
@@ -14,19 +15,6 @@ export type CompClassMap = {
 
 export type CompClassMapTypes = {
   [K in keyof CompClassMap]: CompClassMap[K]['type'];
-};
-
-// noinspection JSUnusedLocalSymbols
-/**
- * This type is only used to make sure all components exist and are correct in the list above. If any component is
- * missing above, this type will give you an error.
- */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-const _componentsTypeCheck: {
-  [Type in CompTypes]: { def: LayoutComponent<Type> };
-} = {
-  ...ComponentConfigs,
 };
 
 export interface IComponentProps {
@@ -57,23 +45,23 @@ export function implementsAnyValidation<Type extends CompTypes>(component: AnyCo
   return 'runEmptyFieldValidation' in component || 'runComponentValidation' in component;
 }
 
-export interface ValidateEmptyField {
-  runEmptyFieldValidation: (node: LayoutNode, validationContext: ValidationDataSources) => ComponentValidation[];
+export interface ValidateEmptyField<Type extends CompTypes> {
+  runEmptyFieldValidation: (node: LayoutNode<Type>, dataSources: ValidationDataSources<Type>) => ComponentValidation[];
 }
 
 export function implementsValidateEmptyField<Type extends CompTypes>(
   component: AnyComponent<Type>,
-): component is typeof component & ValidateEmptyField {
+): component is typeof component & ValidateEmptyField<Type> {
   return 'runEmptyFieldValidation' in component;
 }
 
-export interface ValidateComponent {
-  runComponentValidation: (node: LayoutNode, validationContext: ValidationDataSources) => ComponentValidation[];
+export interface ValidateComponent<Type extends CompTypes> {
+  runComponentValidation: (node: LayoutNode<Type>, dataSources: ValidationDataSources<Type>) => ComponentValidation[];
 }
 
 export function implementsValidateComponent<Type extends CompTypes>(
   component: AnyComponent<Type>,
-): component is typeof component & ValidateComponent {
+): component is typeof component & ValidateComponent<Type> {
   return 'runComponentValidation' in component;
 }
 
@@ -87,7 +75,7 @@ export interface ValidationFilter {
   getValidationFilters: (node: LayoutNode) => ValidationFilterFunction[];
 }
 
-export type FormDataSelector = (path: string, postProcessor?: (data: unknown) => unknown) => unknown;
+export type FormDataSelector = (reference: IDataModelReference, postProcessor?: (data: unknown) => unknown) => unknown;
 
 export function implementsValidationFilter<Type extends CompTypes>(
   component: AnyComponent<Type>,

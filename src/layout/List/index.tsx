@@ -1,8 +1,6 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import dot from 'dot-object';
-
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
@@ -25,9 +23,14 @@ export class List extends ListDef {
   getDisplayData(node: LayoutNode<'List'>, { formDataSelector }: DisplayDataProps): string {
     const formData = node.getFormData(formDataSelector);
     const dmBindings = node.item.dataModelBindings;
-    for (const [key, binding] of Object.entries(dmBindings || {})) {
-      if (binding == node.item.bindingToShowInSummary) {
-        return formData[key] || '';
+
+    if (node.item.summaryBinding && dmBindings) {
+      return formData[node.item.summaryBinding] ?? '';
+    } else if (node.item.bindingToShowInSummary && dmBindings) {
+      for (const [key, binding] of Object.entries(dmBindings)) {
+        if (binding.field === node.item.bindingToShowInSummary) {
+          return formData[key] ?? '';
+        }
       }
     }
 
@@ -41,21 +44,20 @@ export class List extends ListDef {
 
   runEmptyFieldValidation(
     node: LayoutNode<'List'>,
-    { formData, invalidData }: ValidationDataSources,
+    { formData, invalidData }: ValidationDataSources<'List'>,
   ): ComponentValidation[] {
     if (!node.item.required || !node.item.dataModelBindings) {
       return [];
     }
-
-    const fields = Object.values(node.item.dataModelBindings);
 
     const validations: ComponentValidation[] = [];
 
     const textResourceBindings = node.item.textResourceBindings;
 
     let listHasErrors = false;
-    for (const field of fields) {
-      const data = dot.pick(field, formData) ?? dot.pick(field, invalidData);
+
+    for (const bindingKey of Object.keys(node.item.dataModelBindings)) {
+      const data = formData[bindingKey] || invalidData[bindingKey];
       const dataAsString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : undefined;
 
@@ -88,10 +90,10 @@ export class List extends ListDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
-    const possibleBindings = Object.keys(ctx.node.item.tableHeaders || {});
+    const possibleBindings = Object.keys(ctx.node.item.tableHeaders ?? {});
 
     const errors: string[] = [];
-    for (const binding of possibleBindings) {
+    for (const binding of Object.keys(ctx.node.item.dataModelBindings ?? {})) {
       if (possibleBindings.includes(binding)) {
         const [newErrors] = this.validateDataModelBindingsAny(
           ctx,

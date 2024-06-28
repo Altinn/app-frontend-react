@@ -8,7 +8,7 @@ import type { ExprConfig, Expression, ExprPositionalArgs } from 'src/features/ex
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import type { FormDataSelector } from 'src/layout';
-import type { ILayoutSettings } from 'src/layout/common.generated';
+import type { ILayoutSet, ILayoutSettings } from 'src/layout/common.generated';
 import type { IHiddenLayoutsExternal } from 'src/types';
 import type { IApplicationSettings, IAuthContext, IInstanceDataSources, IProcess } from 'src/types/shared';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -26,6 +26,7 @@ export interface ContextDataSources {
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
   formDataSelector: FormDataSelector;
+  invalidDataSelector: FormDataSelector;
   attachments: IAttachments;
   layoutSettings: ILayoutSettings;
   pageNavigationConfig: PageNavigationConfig;
@@ -34,6 +35,7 @@ export interface ContextDataSources {
   isHidden: (nodeId: string) => boolean;
   langToolsSelector: (node: LayoutNode | undefined) => IUseLanguage;
   currentLanguage: string;
+  currentLayoutSet: ILayoutSet | null;
 }
 
 export interface PrettyErrorsOptions {

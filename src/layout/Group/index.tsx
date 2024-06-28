@@ -8,15 +8,13 @@ import { GroupSummary } from 'src/layout/Group/GroupSummary';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
-import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompGroupInternal } from 'src/layout/Group/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Group extends GroupDef implements ValidateComponent {
-  runComponentValidation: (node: LayoutNode, validationContext: ValidationDataSources) => ComponentValidation[];
+export class Group extends GroupDef {
   private _hierarchyGenerator = new GroupHierarchyGenerator();
 
   directRender(): boolean {

@@ -6,17 +6,14 @@ import { createStore } from 'zustand';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
-import { useCurrentDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
-import { dotNotationToPointer } from 'src/features/datamodel/notations';
-import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
-import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useLayoutSchemaValidation } from 'src/features/devtools/layoutValidation/useLayoutSchemaValidation';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useIsDev } from 'src/hooks/useIsDev';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useNodes } from 'src/utils/layout/NodesContext';
-import { getRootElementPath } from 'src/utils/schemaUtils';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -62,25 +59,16 @@ function mergeValidationErrors(a: LayoutValidationErrors, b: LayoutValidationErr
 function useDataModelBindingsValidation(props: LayoutValidationProps) {
   const layoutSetId = useCurrentLayoutSetId() || 'default';
   const { logErrors = false } = props;
-  const schema = useCurrentDataModelSchema();
-  const dataType = useCurrentDataModelType();
   const nodes = useNodesStructureMemo();
+  const lookupBinding = DataModels.useLookupBinding();
 
   return useMemo(() => {
     const failures: LayoutValidationErrors = {
       [layoutSetId]: {},
     };
-    if (!schema) {
+    if (!lookupBinding) {
       return failures;
     }
-    const rootElementPath = getRootElementPath(schema, dataType);
-
-    const lookupBinding = (binding: string) =>
-      lookupBindingInSchema({
-        schema,
-        rootElementPath,
-        targetPointer: dotNotationToPointer(binding),
-      });
 
     for (const [pageName, layout] of Object.entries(nodes.all())) {
       for (const node of layout.flat(true)) {
@@ -105,7 +93,7 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
     }
 
     return failures;
-  }, [layoutSetId, schema, dataType, nodes, logErrors]);
+  }, [layoutSetId, lookupBinding, nodes, logErrors]);
 }
 
 /**
@@ -189,8 +177,9 @@ export function LayoutValidationProvider({ children }: PropsWithChildren) {
 
 export function Generator() {
   const isDev = useIsDev();
+  const isPdf = useIsPdf();
   const panelOpen = useDevToolsStore((s) => s.isOpen);
-  const enabled = isDev || panelOpen;
+  const enabled = !isPdf && (isDev || panelOpen);
 
   const layoutSchemaValidations = useLayoutSchemaValidation(enabled);
   const dataModelBindingsValidations = useDataModelBindingsValidation({ logErrors: true });

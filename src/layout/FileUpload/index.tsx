@@ -14,7 +14,7 @@ import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class FileUpload extends FileUploadDef implements ValidateComponent {
+export class FileUpload extends FileUploadDef implements ValidateComponent<'FileUpload'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUpload'>>(
     function LayoutComponentFileUploadRender(props, _): JSX.Element | null {
       return <FileUploadComponent {...props} />;
@@ -48,14 +48,14 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
 
   runComponentValidation(
     node: LayoutNode<'FileUpload'>,
-    { attachments }: ValidationDataSources,
+    { attachments }: ValidationDataSources<'FileUpload'>,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
     // Validate minNumberOfAttachments
     if (
       node.item.minNumberOfAttachments > 0 &&
-      (!attachments[node.item.id] || attachments[node.item.id]!.length < node.item.minNumberOfAttachments)
+      (!attachments || attachments.length < node.item.minNumberOfAttachments)
     ) {
       validations.push({
         message: {

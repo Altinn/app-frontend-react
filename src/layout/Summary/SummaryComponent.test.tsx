@@ -2,6 +2,7 @@ import React from 'react';
 
 import { fireEvent, screen } from '@testing-library/react';
 
+import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { renderWithNode } from 'src/test/renderWithProviders';
@@ -57,6 +58,7 @@ describe('SummaryComponent', () => {
         {
           customTextKey: 'Error message',
           field: 'field',
+          dataElementId: defaultMockDataElementId,
           severity: BackendValidationSeverity.Error,
           source: 'custom',
           showImmediately: true,

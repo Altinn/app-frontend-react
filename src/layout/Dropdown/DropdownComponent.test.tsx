@@ -5,6 +5,7 @@ import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
 import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepGroup';
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { queryPromiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
@@ -31,7 +32,9 @@ interface Props extends Partial<Omit<RenderGenericComponentTestProps<'Dropdown'>
 }
 
 function MySuperSimpleInput() {
-  const { setValue, formData } = useDataModelBindings({ simpleBinding: 'myInput' });
+  const { setValue, formData } = useDataModelBindings({
+    simpleBinding: { field: 'myInput', dataType: defaultDataTypeMock },
+  });
 
   return (
     <input
@@ -94,7 +97,10 @@ describe('DropdownComponent', () => {
     await userEvent.click(screen.getByRole('option', { name: /sweden/i }));
 
     await waitFor(() =>
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'sweden' }),
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
+        newValue: 'sweden',
+      }),
     );
   });
 
@@ -131,7 +137,10 @@ describe('DropdownComponent', () => {
     });
 
     await waitFor(() =>
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'denmark' }),
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
+        newValue: 'denmark',
+      }),
     );
   });
 
@@ -197,7 +206,10 @@ describe('DropdownComponent', () => {
 
     await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1));
     await waitFor(() =>
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for first' }),
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
+        newValue: 'Value for first',
+      }),
     );
 
     await userEvent.click(screen.getByRole('combobox'));
@@ -205,7 +217,10 @@ describe('DropdownComponent', () => {
 
     await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(2));
     await waitFor(() =>
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for second' }),
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
+        newValue: 'Value for second',
+      }),
     );
   });
 

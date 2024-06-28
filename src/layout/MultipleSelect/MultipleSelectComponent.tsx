@@ -5,7 +5,6 @@ import { Combobox } from '@digdir/designsystemet-react';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
@@ -14,10 +13,10 @@ import comboboxClasses from 'src/styles/combobox.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
+
 export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMultipleSelectProps) {
   const { id, readOnly, textResourceBindings, alertOnChange } = node.item;
-  const debounce = FD.useDebounceImmediately();
-  const { options, isFetching, selectedValues, setData } = useGetOptions({
+  const { options, isFetching, selectedValues, setData, debounce } = useGetOptions({
     ...node.item,
     valueType: 'multi',
     node,

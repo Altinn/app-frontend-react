@@ -9,7 +9,7 @@ import {
   getFirstDataElementId,
   useDataTypeByLayoutSetId,
 } from 'src/features/applicationMetadata/appMetadataUtils';
-import { useLaxCurrentDataModelSchemaLookup } from 'src/features/datamodel/DataModelSchemaProvider';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
@@ -22,6 +22,7 @@ import {
   getStatelessDataModelUrl,
 } from 'src/utils/urls/appUrlHelper';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 export type AsSchema<T> = {
@@ -60,6 +61,7 @@ export function useCurrentDataModelUrl(includeRowIds: boolean) {
   return undefined;
 }
 
+// We assume that the first data element of the correct type is the one we should use, same as isDataTypeWritable
 export function useDataModelUrl(includeRowIds: boolean, dataType: string | undefined) {
   const isAnonymous = useAllowAnonymous();
   const isStateless = useIsStatelessApp();
@@ -108,16 +110,21 @@ export function useCurrentDataModelType() {
   return application.dataTypes.find((dt) => dt.id === name);
 }
 
+export function useDataModelType(dataType: string) {
+  const application = useApplicationMetadata();
+
+  return application.dataTypes.find((dt) => dt.id === dataType);
+}
+
 export function useBindingSchema<T extends IDataModelBindings | undefined>(bindings: T): AsSchema<T> | undefined {
-  const lookup = useLaxCurrentDataModelSchemaLookup();
+  const lookupBinding = DataModels.useLookupBinding();
 
   return useMemo(() => {
     const resolvedBindings = bindings && Object.values(bindings).length ? { ...bindings } : undefined;
-    if (resolvedBindings && lookup) {
+    if (lookupBinding && resolvedBindings) {
       const out = {} as AsSchema<T>;
-      for (const [key, _value] of Object.entries(resolvedBindings)) {
-        const value = _value as string;
-        const [schema] = lookup.getSchemaForPath(value);
+      for (const [key, reference] of Object.entries(resolvedBindings as Record<string, IDataModelReference>)) {
+        const [schema] = lookupBinding(reference);
         out[key] = schema || null;
       }
 
@@ -125,5 +132,5 @@ export function useBindingSchema<T extends IDataModelBindings | undefined>(bindi
     }
 
     return undefined;
-  }, [bindings, lookup]);
+  }, [bindings, lookupBinding]);
 }

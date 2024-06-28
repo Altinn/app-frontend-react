@@ -31,7 +31,7 @@ const categories = [
 ] as const;
 
 export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
-  const fieldSelector = Validation.useFieldSelector();
+  const dataModelSelector = Validation.useDataModelSelector();
   const componentSelector = Validation.useComponentSelector();
   const visibilitySelector = Validation.useVisibilitySelector();
   const attachments = useAttachments();
@@ -72,14 +72,14 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
 
   // Validations for datamodel bindings
   const bindingValidations: { [key: string]: NodeValidation[] } = {};
-  for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings ?? {})) {
+  for (const [bindingKey, reference] of Object.entries(node.item.dataModelBindings ?? {})) {
     const key = `Datamodell ${bindingKey}`;
     bindingValidations[key] = [];
 
-    const fieldValidation = fieldSelector(field, (fields) => fields[field]);
-    if (fieldValidation) {
+    const fieldValidations = dataModelSelector(reference);
+    if (fieldValidations) {
       bindingValidations[key].push(
-        ...fieldValidation.map((validation) => buildNodeValidation(node, validation, bindingKey)),
+        ...fieldValidations.map((validation) => buildNodeValidation(node, validation, bindingKey)),
       );
     }
     if (component?.bindingKeys?.[bindingKey]) {

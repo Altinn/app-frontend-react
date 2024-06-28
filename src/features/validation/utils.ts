@@ -12,21 +12,25 @@ import type {
   ValidationState,
 } from 'src/features/validation';
 import type { ValidationSelector } from 'src/features/validation/validationContext';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
-export function mergeFieldValidations(...X: FieldValidations[]): FieldValidations {
+export function mergeFieldValidations(...X: (FieldValidations | undefined)[]): FieldValidations {
   if (X.length === 0) {
     return {};
   }
 
   if (X.length === 1) {
-    return X[0];
+    return X[0] ?? {};
   }
 
   const [X1, ...XRest] = X;
-  const out = structuredClone(X1);
+  const out = X1 ? structuredClone(X1) : {};
   for (const Xn of XRest) {
+    if (!Xn) {
+      continue;
+    }
     for (const [field, validations] of Object.entries(structuredClone(Xn))) {
       if (!out[field]) {
         out[field] = [];
@@ -151,14 +155,19 @@ export function getValidationsForNode(
   };
 
   if (node.item.dataModelBindings) {
-    for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
-      const fieldValidations = selector(`field-${field}`, (state) => state.state.fields[field]);
+    for (const [bindingKey, reference] of Object.entries(
+      node.item.dataModelBindings as Record<string, IDataModelReference>,
+    )) {
+      const fieldValidations = selector(
+        `field/${reference.dataType}/${reference.field}`,
+        (state) => state.state.dataModels[reference.dataType]?.[reference.field],
+      );
       if (fieldValidations) {
         const validations = filterValidations(selectValidations(fieldValidations, mask, severity), node);
         validationMessages.push(...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)));
       }
 
-      const cacheKey = ['binding', node.item.id, bindingKey].join('-');
+      const cacheKey = ['binding', node.item.id, bindingKey].join('/');
       const bindingValidations = selector(
         cacheKey,
         (state) => state.state.components[node.item.id]?.bindingKeys?.[bindingKey],
