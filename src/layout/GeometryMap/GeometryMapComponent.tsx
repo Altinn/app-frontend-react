@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { AttributionControl, MapContainer, TileLayer } from 'react-leaflet';
+import { AttributionControl, MapContainer, Polygon, TileLayer } from 'react-leaflet';
 
-import { Typography } from '@material-ui/core';
-import type { Location } from '@altinn/altinn-design-system';
-import type { Map as LeafletMap } from 'leaflet';
+import WKT from 'terraformer-wkt-parser';
+import type { Location, MapLayer } from '@altinn/altinn-design-system';
+import type { Geometry } from 'geojson';
+import type { LatLngExpression, Map as LeafletMap } from 'leaflet';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/GeometryMap/GeometryMapComponent.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GeometryMapLocation } from 'src/layout/GeometryMap/config.generated';
@@ -15,25 +15,36 @@ export type IGeometryMapComponentProps = PropsFromGenericComponent<'GeometryMap'
 
 export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentProps) {
   const { readOnly, layers, centerLocation, zoom, dataModelBindings } = node.item;
+
+  const layers2: MapLayer[] = [
+    {
+      url: 'https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=europa_forenklet&zoom={z}&x={x}&y={y}',
+      attribution: 'Data © <a href="https://www.kartverket.no/">Kartverket</a>',
+    },
+    {
+      url: 'https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=norgeskart_bakgrunn2&zoom={z}&x={x}&y={y}',
+      attribution: 'Data © <a href="https://www.kartverket.no/">Kartverket</a>',
+    },
+  ];
+
   const { formData, setValue } = useDataModelBindings(dataModelBindings);
   const value = 'simpleBinding' in formData ? formData.simpleBinding : undefined;
-  const location = parseLocation(value);
 
-  const handleGeometryMapClicked = ({ latitude, longitude }: Location) => {
-    const fractionDigits = 6;
-    setValue('simpleBinding', `${latitude.toFixed(fractionDigits)},${longitude.toFixed(fractionDigits)}`);
-  };
+  const [inputCoords, geometryType] = findCoordinates(value);
+
+  const polyCenter = findPolygonCenter(inputCoords[0]);
 
   const DefaultCenterLocation: Location = {
     latitude: 64.888996,
     longitude: 12.8186054,
   };
 
-  const center = location
-    ? locationToTuple(location)
+  const center = polyCenter
+    ? polyCenter
     : centerLocation
       ? locationToTuple(centerLocation)
       : locationToTuple(DefaultCenterLocation);
+
   const [map, setMap] = useState<LeafletMap | null>(null);
 
   return (
@@ -42,11 +53,11 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
         className={classes.map}
         center={center}
         ref={setMap}
-        zoom={location ? 16 : zoom}
+        zoom={polyCenter ? 12 : 8}
         dragging={!readOnly}
         attributionControl={false}
       >
-        {layers?.map((layer, i) => (
+        {layers2.map((layer, i) => (
           <TileLayer
             key={i}
             url={layer.url}
@@ -56,25 +67,11 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
           />
         ))}
         <AttributionControl prefix={false} />
+        <Polygon
+          positions={inputCoords[0]}
+          color='blue'
+        />
       </MapContainer>
-      {/* <Map
-        layers={layers}
-        centerLocation={location || centerLocation}
-        markerLocation={location}
-        readOnly={readOnly}
-        onClick={handleGeometryMapClicked}
-        markerIcon={markerIcon}
-      /> */}
-      <Typography className={classes.contaier}>
-        {location ? (
-          <Lang
-            id={'geometry_map_component.selectedLocation'}
-            params={[location.latitude, location.longitude]}
-          />
-        ) : (
-          <Lang id={'geometry_map_component.noSelectedLocation'} />
-        )}
-      </Typography>
     </div>
   );
 }
@@ -104,4 +101,63 @@ export function parseLocation(locationString: string | undefined): Location | un
 
 function locationToTuple(location: Location | GeometryMapLocation): [number, number] {
   return [location.latitude, location.longitude];
+}
+
+function findPolygonCenter(polygonCoords: LatLngExpression[]): [number, number] {
+  let totalLat = 0;
+  let totalLng = 0;
+
+  polygonCoords.forEach((coord) => {
+    totalLat += coord[1];
+    totalLng += coord[0];
+  });
+
+  const avgLat = totalLat / polygonCoords.length;
+  const avgLng = totalLng / polygonCoords.length;
+
+  return [avgLng, avgLat];
+}
+
+function findCoordinates(inputString): [LatLngExpression[][], string] {
+  return handleGeoJson(parseWKTtoGeoJSON(inputString));
+}
+
+function parseWKTtoGeoJSON(wktString): Geometry {
+  return WKT.parse(wktString);
+}
+
+function handleGeoJson(geojson: Geometry): [LatLngExpression[][], string] {
+  const coordinates: LatLngExpression[][] = [];
+  switch (geojson.type) {
+    case 'LineString': {
+      const linestringCoords: LatLngExpression[] = [];
+      geojson.coordinates.forEach((pos) => {
+        linestringCoords.push([pos[1], pos[0]]);
+      });
+      coordinates.push(linestringCoords);
+      return [coordinates, 'linestring'];
+    }
+    case 'Polygon': {
+      const polygonCoords: LatLngExpression[] = [];
+      geojson.coordinates[0].forEach((pos) => {
+        polygonCoords.push([pos[1], pos[0]]);
+      });
+      coordinates.push(polygonCoords);
+      return [coordinates, 'polygon'];
+    }
+    case 'MultiPolygon': {
+      geojson.coordinates.forEach((polygon) => {
+        const polygonCoords: LatLngExpression[] = [];
+        polygon.forEach((ring) => {
+          ring.forEach((pos) => {
+            polygonCoords.push([pos[1], pos[0]]);
+          });
+        });
+        coordinates.push(polygonCoords);
+      });
+      return [coordinates, 'multipolygon'];
+    }
+    default:
+      throw new Error(`Unsupported GeoJSON type: ${geojson.type}`);
+  }
 }
