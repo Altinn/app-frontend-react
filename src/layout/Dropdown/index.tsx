@@ -10,7 +10,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { DropdownSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Dropdown extends DropdownDef {
@@ -38,15 +38,12 @@ export class Dropdown extends DropdownDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(
-    componentNode: LayoutNode<'Dropdown'>,
-    summaryOverrides?: DropdownSummaryOverrideProps,
-  ): JSX.Element | null {
+  renderSummary2(props: Summary2Props<'Dropdown'>): JSX.Element | null {
     return (
       <DropdownSummary
-        componentNode={componentNode}
-        summaryOverrides={summaryOverrides}
-        displayData={this.useDisplayData(componentNode)}
+        componentNode={props.target}
+        summaryOverrides={props.overrides}
+        displayData={this.useDisplayData(props.target)}
       />
     );
   }

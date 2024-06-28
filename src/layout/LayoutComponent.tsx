@@ -31,7 +31,7 @@ import type {
   ITextResourceBindingsExternal,
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { AnySummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { ChildClaim, ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
@@ -79,7 +79,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
     | ReturnType<typeof React.forwardRef<HTMLElement, PropsFromGenericComponent<Type>>>
     | ((props: PropsFromGenericComponent<Type>) => JSX.Element | null);
 
-  renderSummary2?(componentNode: LayoutNode<Type>, overrides: AnySummaryOverrideProps): JSX.Element | null;
+  renderSummary2?(props: Summary2Props<Type>): JSX.Element | null;
 
   /**
    * Render a node generator for this component. This can be overridden if you want to extend

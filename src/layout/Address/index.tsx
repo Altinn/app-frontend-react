@@ -11,6 +11,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Address extends AddressDef implements ValidateComponent<'Address'> {
@@ -30,8 +31,8 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     return <SummaryItemSimple formDataAsString={data} />;
   }
 
-  renderSummary2(componentNode: LayoutNode<'Address'>): JSX.Element | null {
-    return <AddressSummary componentNode={componentNode} />;
+  renderSummary2(props: Summary2Props<'Address'>): JSX.Element | null {
+    return <AddressSummary componentNode={props.target} />;
   }
 
   renderDefaultValidations(): boolean {

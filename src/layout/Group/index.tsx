@@ -8,8 +8,7 @@ import { GroupSummary } from 'src/layout/Group/GroupSummary';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { GroupSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Group extends GroupDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Group'>>(
@@ -46,11 +45,11 @@ export class Group extends GroupDef {
     );
   }
 
-  renderSummary2(componentNode: LayoutNode<'Group'>, summaryOverrides?: GroupSummaryOverrideProps): JSX.Element | null {
+  renderSummary2(props: Summary2Props<'Group'>): JSX.Element | null {
     return (
       <GroupSummary
-        componentNode={componentNode}
-        summaryOverrides={summaryOverrides}
+        componentNode={props.target}
+        summaryOverrides={props.overrides}
       />
     );
   }

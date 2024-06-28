@@ -12,6 +12,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class FileUpload extends FileUploadDef implements ValidateComponent<'FileUpload'> {
@@ -35,8 +36,8 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
     return <AttachmentSummaryComponent targetNode={targetNode} />;
   }
 
-  renderSummary2(componentNode: LayoutNode<'FileUpload'>): JSX.Element | null {
-    return <AttachmentSummaryComponent2 targetNode={componentNode} />;
+  renderSummary2(props: Summary2Props<'FileUpload'>): JSX.Element | null {
+    return <AttachmentSummaryComponent2 targetNode={props.target} />;
   }
 
   shouldRenderInAutomaticPDF() {

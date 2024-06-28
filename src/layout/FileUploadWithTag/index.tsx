@@ -12,6 +12,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { AttachmentValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent<'FileUploadWithTag'> {
@@ -42,8 +43,8 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     return <AttachmentSummaryComponent targetNode={targetNode} />;
   }
 
-  renderSummary2(componentNode: LayoutNode<'FileUploadWithTag'>): JSX.Element | null {
-    return <AttachmentSummaryComponent2 targetNode={componentNode} />;
+  renderSummary2(props: Summary2Props<'FileUploadWithTag'>): JSX.Element | null {
+    return <AttachmentSummaryComponent2 targetNode={props.target} />;
   }
 
   // This component does not have empty field validation, so has to override its inherited method

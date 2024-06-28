@@ -14,7 +14,7 @@ import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CheckboxSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 
@@ -50,16 +50,13 @@ export class Checkboxes extends CheckboxesDef {
     return <MultipleChoiceSummary formData={summaryData} />;
   }
 
-  renderSummary2(
-    componentNode: LayoutNode<'Checkboxes'>,
-    summaryOverrides?: CheckboxSummaryOverrideProps,
-  ): JSX.Element | null {
-    const displayData = this.useDisplayData(componentNode);
+  renderSummary2(props: Summary2Props<'Checkboxes'>): JSX.Element | null {
+    const displayData = this.useDisplayData(props.target);
     return (
       <CheckboxesSummary
-        componentNode={componentNode}
+        componentNode={props.target}
         displayData={displayData}
-        summaryOverrides={summaryOverrides}
+        summaryOverrides={props.overrides}
       />
     );
   }

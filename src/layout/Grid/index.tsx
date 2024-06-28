@@ -10,7 +10,7 @@ import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Grid extends GridDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Grid'>>(
@@ -23,8 +23,8 @@ export class Grid extends GridDef {
     return <GridSummaryComponent {...props} />;
   }
 
-  renderSummary2(componentNode: LayoutNode<'Grid'>): JSX.Element | null {
-    return <GridSummary componentNode={componentNode} />;
+  renderSummary2(props: Summary2Props<'Grid'>): JSX.Element | null {
+    return <GridSummary componentNode={props.target} />;
   }
 
   renderSummaryBoilerplate(): boolean {

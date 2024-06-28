@@ -10,7 +10,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { RadioSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RadioButtons extends RadioButtonsDef {
@@ -34,15 +34,12 @@ export class RadioButtons extends RadioButtonsDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(
-    componentNode: LayoutNode<'RadioButtons'>,
-    summaryOverrides?: RadioSummaryOverrideProps,
-  ): JSX.Element | null {
-    const displayData = this.useDisplayData(componentNode);
+  renderSummary2(props: Summary2Props<'RadioButtons'>): JSX.Element | null {
+    const displayData = this.useDisplayData(props.target);
     return (
       <RadioButtonsSummary
-        componentNode={componentNode}
-        summaryOverrides={summaryOverrides}
+        componentNode={props.target}
+        summaryOverrides={props.overrides}
         displayData={displayData}
       />
     );

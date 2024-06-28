@@ -14,7 +14,7 @@ import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { MultipleSelectSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 
@@ -55,15 +55,12 @@ export class MultipleSelect extends MultipleSelectDef {
     return <MultipleChoiceSummary formData={summaryData} />;
   }
 
-  renderSummary2(
-    componentNode: LayoutNode<'MultipleSelect'>,
-    summaryOverrides?: MultipleSelectSummaryOverrideProps,
-  ): JSX.Element | null {
-    const displayData = this.useDisplayData(componentNode);
+  renderSummary2(props: Summary2Props<'MultipleSelect'>): JSX.Element | null {
+    const displayData = this.useDisplayData(props.target);
     return (
       <MultipleSelectSummary
-        componentNode={componentNode}
-        summaryOverrides={summaryOverrides}
+        componentNode={props.target}
+        summaryOverrides={props.overrides}
         displayData={displayData}
       />
     );

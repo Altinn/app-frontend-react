@@ -8,6 +8,7 @@ import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompExternal, CompInternal } from 'src/layout/layout';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface ComponentSummaryProps {
@@ -17,17 +18,18 @@ interface ComponentSummaryProps {
 
 export function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryProps) {
   const { pageBreak, grid } = useNodeItem(componentNode, (i) => ({ pageBreak: i.pageBreak, grid: i.grid }));
-  const override = summaryOverrides?.find((override) => override.componentId === componentNode.id);
+  const overrides = summaryOverrides?.find((override) => override.componentId === componentNode.baseId);
+  const props: Summary2Props<any> = {
+    target: componentNode,
+    overrides: summaryOverrides,
+  };
 
-  const renderedComponent = componentNode.def.renderSummary2
-    ? componentNode.def.renderSummary2(componentNode as LayoutNode<any>, override)
-    : null;
-
+  const renderedComponent = componentNode.def.renderSummary2 ? componentNode.def.renderSummary2(props as any) : null;
   if (!renderedComponent) {
     return null;
   }
 
-  if (override?.hidden) {
+  if (overrides?.hidden) {
     return null;
   }
 

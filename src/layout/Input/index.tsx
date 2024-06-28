@@ -14,7 +14,7 @@ import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/ty
 import type { PropsFromGenericComponent, ValidationFilter, ValidationFilterFunction } from 'src/layout';
 import type { NumberFormatProps, PatternFormatProps } from 'src/layout/Input/config.generated';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { InputSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
@@ -49,12 +49,12 @@ export class Input extends InputDef implements ValidationFilter {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(componentNode: LayoutNode<'Input'>, summaryOverrides?: InputSummaryOverrideProps): JSX.Element | null {
+  renderSummary2(props: Summary2Props<'Input'>): JSX.Element | null {
     return (
       <InputSummary
-        componentNode={componentNode}
-        summaryOverrides={summaryOverrides}
-        displayData={this.useDisplayData(componentNode)}
+        componentNode={props.target}
+        summaryOverrides={props.overrides}
+        displayData={this.useDisplayData(props.target)}
       />
     );
   }

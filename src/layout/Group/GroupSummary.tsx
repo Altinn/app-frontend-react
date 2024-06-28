@@ -8,13 +8,13 @@ import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupSummary.module.css';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { GroupSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type GroupComponentSummaryProps = {
   componentNode: LayoutNode<'Group'>;
   hierarchyLevel?: number;
-  summaryOverrides?: GroupSummaryOverrideProps;
+  summaryOverrides?: CompInternal<'Summary2'>['overrides'];
 };
 
 type HeadingLevel = HeadingProps['level'];

@@ -5,13 +5,13 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { InputSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type InputComponentSummaryProps = {
   componentNode: LayoutNode<'Input'>;
   displayData: string;
-  summaryOverrides?: InputSummaryOverrideProps;
+  summaryOverrides?: CompInternal<'Summary2'>['overrides'];
 };
 export const InputSummary = ({ componentNode, displayData }: InputComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
