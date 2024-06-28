@@ -25,7 +25,7 @@ export const TextComponent = ({ node }: PropsFromGenericComponent<'Text'>) => {
   }
 
   return (
-    <dd className={cn(classes.descriptionList, direction === 'vertical' ? classes.vertical : classes.horizontal)}>
+    <dl className={cn(classes.descriptionList, direction === 'vertical' ? classes.vertical : classes.horizontal)}>
       <dt>
         {!!icon && (
           <img
@@ -36,7 +36,7 @@ export const TextComponent = ({ node }: PropsFromGenericComponent<'Text'>) => {
         )}
         <Lang id={textResourceBindings.title} />
       </dt>
-      <dl>{value}</dl>
-    </dd>
+      <dd>{value}</dd>
+    </dl>
   );
 };
