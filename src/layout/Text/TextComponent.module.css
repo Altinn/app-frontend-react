@@ -1,0 +1,28 @@
+.descriptionList {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  dt {
+    display: flex;
+    span::after {
+      content: ': ';
+    }
+  }
+  dd {
+    padding: 0;
+    margin: 0;
+    font-weight: bold;
+  }
+}
+
+.horizontal {
+  flex-direction: row;
+  gap: 24px;
+}
+.vertical {
+  flex-direction: column;
+}
+.icon {
+  width: 24px;
+  margin-right: 12px;
+}
