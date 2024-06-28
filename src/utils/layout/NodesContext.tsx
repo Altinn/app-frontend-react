@@ -449,6 +449,18 @@ export function useNode<T extends string | undefined | LayoutNode>(id: T): RetVa
   return node as RetValFromNode<T>;
 }
 
+export const useGetPage = (pageId: string) =>
+  useSelector((state) => {
+    if (!pageId) {
+      return null;
+    }
+
+    if (!state?.nodes) {
+      return null;
+    }
+    return state.nodes.findLayout(pageId);
+  });
+
 export function useNodeLax<T extends string | undefined | LayoutNode>(
   idOrRef: T,
 ): RetValFromNode<T> | typeof ContextNotProvided {

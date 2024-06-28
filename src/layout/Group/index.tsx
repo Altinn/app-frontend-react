@@ -4,8 +4,10 @@ import type { JSX } from 'react';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
+import { GroupSummary } from 'src/layout/Group/GroupSummary';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { CompGroupInternal } from 'src/layout/Group/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class Group extends GroupDef {
@@ -39,6 +41,18 @@ export class Group extends GroupDef {
         summaryNode={summaryNode}
         targetNode={targetNode}
         overrides={overrides}
+      />
+    );
+  }
+
+  renderSummary2(
+    componentNode: LayoutNode<'Group'>,
+    summaryOverrides?: CompGroupInternal['summaryProps'],
+  ): JSX.Element | null {
+    return (
+      <GroupSummary
+        componentNode={componentNode}
+        summaryOverrides={summaryOverrides}
       />
     );
   }

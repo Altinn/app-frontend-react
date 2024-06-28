@@ -58,9 +58,9 @@ export const returnInstanceMetaDataObject = (
 
 export const getInstanceReferenceNumber = (instance: IInstance): string => instance.id.split('/')[1].split('-')[4];
 
-export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
-  const elements = useNodeItem(node).elements;
+export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInformation'>, 'elements'>) {
   const { dateSent, sender, receiver, referenceNumber } = elements || {};
+
   const langTools = useLanguage();
   const selectedLanguage = useCurrentLanguage();
 
@@ -104,4 +104,9 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
       <AltinnSummaryTable summaryDataObject={instanceMetaDataObject} />
     </Grid>
   );
+}
+
+export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
+  const elements = useNodeItem(node).elements;
+  return <InstanceInformation elements={elements} />;
 }

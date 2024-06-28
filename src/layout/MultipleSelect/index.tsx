@@ -1,18 +1,21 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
+import { MultipleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { MultipleSelectSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 
@@ -51,6 +54,25 @@ export class MultipleSelect extends MultipleSelectDef {
     const options = useNodeOptionsSelector();
     const summaryData = this.getSummaryData(targetNode, langTools, options, nodeFormDataSelector);
     return <MultipleChoiceSummary formData={summaryData} />;
+  }
+
+  renderSummary2(
+    componentNode: LayoutNode<'MultipleSelect'>,
+    summaryOverrides?: MultipleSelectSummaryOverrideProps,
+  ): JSX.Element | null {
+    const displayData = this.useDisplayData(componentNode);
+    const maxStringLength = 75;
+    const showAsList =
+      summaryOverrides?.displayType === 'list' ||
+      (!summaryOverrides?.displayType && displayData?.length >= maxStringLength);
+    const title = componentNode.item.textResourceBindings?.title;
+    return (
+      <MultipleValueSummary
+        title={<Lang id={title} />}
+        componentNode={componentNode}
+        showAsList={showAsList}
+      />
+    );
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'MultipleSelect'>): string[] {

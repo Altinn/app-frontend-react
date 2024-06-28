@@ -5,6 +5,7 @@ import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoade
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { LoadingProvider } from 'src/core/loading/LoadingContext';
 import { Lang } from 'src/features/language/Lang';
+import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import { ProcessTaskType } from 'src/types';
 
 interface LoaderProps {
@@ -14,6 +15,13 @@ interface LoaderProps {
 }
 
 export const Loader = ({ renderPresentation = true, ...rest }: LoaderProps) => {
+  const { overriddenTaskId } = useTaskStore(({ overriddenTaskId }) => ({
+    overriddenTaskId,
+  }));
+
+  if (overriddenTaskId) {
+    return null;
+  }
   if (renderPresentation) {
     return (
       <LoadingProvider reason={rest.reason}>

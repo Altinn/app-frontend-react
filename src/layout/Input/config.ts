@@ -3,6 +3,13 @@ import { LabelRendering } from 'src/codegen/Config';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
+export const INPUT_SUMMARY_OVERRIDE_PROPS = new CG.obj()
+  .extends(CG.common('ISummaryOverridesCommon'))
+  .optional()
+  .setTitle('Summary properties')
+  .setDescription('Properties for how to display the summary of the component')
+  .exportAs('InputSummaryOverrideProps');
+
 export const Config = new CG.component({
   category: CompCategory.Form,
   rendersWithLabel: LabelRendering.FromGenericComponent,

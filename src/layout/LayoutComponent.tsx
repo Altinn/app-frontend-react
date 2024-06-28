@@ -78,6 +78,8 @@ export abstract class AnyComponent<Type extends CompTypes> {
     | ReturnType<typeof React.forwardRef<HTMLElement, PropsFromGenericComponent<Type>>>
     | ((props: PropsFromGenericComponent<Type>) => JSX.Element | null);
 
+  renderSummary2?(componentNode: LayoutNode<Type>): JSX.Element | null;
+
   /**
    * Render a node generator for this component. This can be overridden if you want to extend
    * the default node generator with additional functionality.

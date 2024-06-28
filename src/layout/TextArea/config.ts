@@ -2,6 +2,12 @@ import { CG } from 'src/codegen/CG';
 import { LabelRendering } from 'src/codegen/Config';
 import { CompCategory } from 'src/layout/common';
 
+export const TEXTAREA_SUMMARY_PROPS = new CG.obj()
+  .extends(CG.common('ISummaryOverridesCommon'))
+  .optional()
+  .setTitle('Summary properties')
+  .setDescription('Properties for how to display the summary of the component');
+
 export const Config = new CG.component({
   category: CompCategory.Form,
   rendersWithLabel: LabelRendering.FromGenericComponent,

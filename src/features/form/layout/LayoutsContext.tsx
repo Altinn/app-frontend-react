@@ -11,10 +11,10 @@ import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLa
 import { useHasInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IExpandedWidthLayouts, IHiddenLayoutsExternal } from 'src/types';
-
 export interface LayoutContextValue {
   layouts: ILayouts;
   hiddenLayoutsExpressions: IHiddenLayoutsExternal;
@@ -58,6 +58,12 @@ export function useLayoutSetId() {
   const layoutSets = useLayoutSets();
   const currentProcessLayoutSetId = useCurrentLayoutSetId();
   const taskId = useNavigationParam('taskId');
+
+  const { overriddenLayoutSetId } = useTaskStore(({ overriddenLayoutSetId }) => ({ overriddenLayoutSetId }));
+
+  if (overriddenLayoutSetId) {
+    return overriddenLayoutSetId;
+  }
 
   const layoutSetId = taskId != null ? layoutSets?.sets.find((set) => set.tasks?.includes(taskId))?.id : undefined;
 

@@ -6,6 +6,7 @@ import { formatNumericText } from '@digdir/design-system-react';
 import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { InputDef } from 'src/layout/Input/config.def.generated';
 import { InputComponent } from 'src/layout/Input/InputComponent';
+import { InputSummary } from 'src/layout/Input/InputSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
@@ -13,6 +14,7 @@ import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/ty
 import type { PropsFromGenericComponent, ValidationFilter, ValidationFilterFunction } from 'src/layout';
 import type { NumberFormatProps, PatternFormatProps } from 'src/layout/Input/config.generated';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { InputSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
@@ -45,6 +47,16 @@ export class Input extends InputDef implements ValidationFilter {
   renderSummary({ targetNode }: SummaryRendererProps<'Input'>): JSX.Element | null {
     const displayData = this.useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
+  }
+
+  renderSummary2(componentNode: LayoutNode<'Input'>, summaryOverrides?: InputSummaryOverrideProps): JSX.Element | null {
+    return (
+      <InputSummary
+        componentNode={componentNode}
+        summaryOverrides={summaryOverrides}
+        displayData={this.useDisplayData(componentNode)}
+      />
+    );
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Input'>): string[] {

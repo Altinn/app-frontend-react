@@ -4,6 +4,13 @@ import { AlertOnChangePlugin } from 'src/features/alertOnChange/AlertOnChangePlu
 import { OptionsPlugin } from 'src/features/options/OptionsPlugin';
 import { CompCategory } from 'src/layout/common';
 
+export const RADIO_SUMMARY_OVERRIDE_PROPS = new CG.obj()
+  .extends(CG.common('ISummaryOverridesCommon'))
+  .optional()
+  .setTitle('Summary properties')
+  .setDescription('Properties for how to display the summary of the component')
+  .exportAs('RadioSummaryOverrideProps');
+
 export const Config = new CG.component({
   category: CompCategory.Form,
   rendersWithLabel: LabelRendering.InSelf,
