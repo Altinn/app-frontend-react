@@ -6,7 +6,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Number extends NumberDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Number'>>(
-    function LayoutComponentParagraphRender(props, _): JSX.Element | null {
+    function LayoutComponentNumberRender(props, _): JSX.Element | null {
       return <NumberComponent {...props} />;
     },
   );
