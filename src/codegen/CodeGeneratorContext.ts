@@ -1,5 +1,5 @@
 import deepEqual from 'fast-deep-equal';
-import type { JSONSchema7 } from 'json-schema';
+import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
 import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { SchemaFile } from 'src/codegen/SchemaFile';
@@ -10,17 +10,17 @@ import type { SchemaFile } from 'src/codegen/SchemaFile';
  * to store information about the current file being generated (such as imports, etc).
  */
 export class CodeGeneratorContext {
-  private static fileInstance: CodeGeneratorFileContext<any> | undefined;
+  private static fileContext: CodeGeneratorFileContext<any> | undefined;
 
   public static curFile(): CodeGeneratorFileContext<any> {
-    if (!this.fileInstance) {
+    if (!this.fileContext) {
       throw new Error(
         'CodeGeneratorFileContext has not been initialized, run this in code that is called ' +
           'within CodeGeneratorContext.generateFile(), such as a CodeGenerator.toTypeScript() method',
       );
     }
 
-    return this.fileInstance;
+    return this.fileContext;
   }
 
   public static async generateTypeScript(
@@ -28,7 +28,7 @@ export class CodeGeneratorContext {
     fn: () => string | Promise<string>,
   ): Promise<{ result: string }> {
     const instance = new CodeGeneratorFileContext(targetFile, 'typeScript');
-    CodeGeneratorContext.fileInstance = instance;
+    CodeGeneratorContext.fileContext = instance;
     const functionOutput = await fn();
     const parts: string[] = [];
     const symbols: SymbolTable<'typeScript'> = {};
@@ -38,7 +38,7 @@ export class CodeGeneratorContext {
     }
 
     // Sort symbols and add them in sorted order to the file
-    const sortedSymbols = Object.keys(symbols).sort();
+    const sortedSymbols = Object.keys(symbols).sort((a, b) => a.localeCompare(b));
     for (const symbol of sortedSymbols) {
       parts.push(symbols[symbol]);
     }
@@ -51,68 +51,100 @@ export class CodeGeneratorContext {
       parts.push(functionOutput);
     }
 
-    CodeGeneratorContext.fileInstance = undefined;
+    CodeGeneratorContext.fileContext = undefined;
 
     return { result: parts.join('\n\n') };
   }
 
-  public static async generateJsonSchema(baseFilePath: string, file: SchemaFile): Promise<{ result: JSONSchema7 }> {
-    const targetFile = baseFilePath + file.getFileName();
-    const instance = new CodeGeneratorFileContext(targetFile, 'jsonSchema');
-    CodeGeneratorContext.fileInstance = instance;
-    const functionOutput = await file.getSchema();
+  private static async getJsonSchema({
+    file,
+    jsonSchemaFileContext,
+  }: {
+    file: SchemaFile;
+    jsonSchemaFileContext: CodeGeneratorFileContext<'jsonSchema'>;
+  }): Promise<JSONSchema7> {
     const symbols: SymbolTable<'jsonSchema'> = {};
-    while (Object.keys(instance.symbols).length) {
-      const newSymbols = instance.getSymbols(symbols);
+    while (Object.keys(jsonSchemaFileContext.symbols).length) {
+      const newSymbols = jsonSchemaFileContext.getSymbols(symbols);
       Object.assign(symbols, newSymbols);
     }
+    const sortedSymbols = Object.keys(symbols).sort((a, b) => a.localeCompare(b));
 
     // Sort symbols and add them in sorted order to the file
-    const sortedSymbols = Object.keys(symbols).sort();
+    const jsonSchema = await file.getSchema();
     for (const symbol of sortedSymbols) {
-      functionOutput.definitions = functionOutput.definitions || {};
-      functionOutput.definitions[symbol] = symbols[symbol];
+      jsonSchema.definitions = jsonSchema.definitions || {};
+      jsonSchema.definitions[symbol] = symbols[symbol];
     }
 
-    if (file.shouldCleanDefinitions() && functionOutput.definitions) {
-      let removedLastRound: number | undefined = undefined;
-      while (removedLastRound === undefined || removedLastRound > 0) {
-        const { definitions, ...rest } = functionOutput;
-        const foundRefs = new Set<string>();
-        const allRefs = new Set<string>(Object.keys(definitions));
-        const defs = [...Object.values(definitions), rest];
-        for (const value of defs) {
-          const asJson = JSON.stringify(value);
-          const refRegex = /"\$ref":\s*"([^"]+)"/g;
-          const refMatches = asJson.match(refRegex);
-          if (refMatches) {
-            for (const ref of refMatches) {
-              const result = ref.replace('"$ref":', '').replace(/"/g, '').trim().replace('#/definitions/', '');
-              foundRefs.add(result);
-            }
-          } else if (asJson.includes('$ref')) {
-            throw new Error(`Could not find ref in ${asJson}`);
-          }
-        }
+    return jsonSchema;
+  }
 
-        const notFoundRefs = [...allRefs].filter((ref) => !foundRefs.has(ref));
-        const finalSchemaDefs = structuredClone(definitions);
-        removedLastRound = 0;
-        for (const key of notFoundRefs) {
-          delete finalSchemaDefs[key];
-          removedLastRound++;
-        }
-        functionOutput.definitions = finalSchemaDefs;
+  private static findRefs({
+    defs,
+    jsonSchemaWithoutDefs,
+  }: {
+    defs: {
+      [x: string]: JSONSchema7Definition;
+    };
+    jsonSchemaWithoutDefs: Omit<JSONSchema7, 'definitions'>;
+  }) {
+    const refRegex = /"\$ref":\s*"([^"]+)"/g;
+    const foundRefs = new Set<string>();
+
+    for (const value of [...Object.values(defs), jsonSchemaWithoutDefs]) {
+      const asJson = JSON.stringify(value);
+      const refMatch = asJson.match(refRegex)?.at(0);
+
+      if (refMatch) {
+        const result = refMatch.replace('"$ref":', '').replace(/"/g, '').trim().replace('#/definitions/', '');
+        foundRefs.add(result);
+      } else if (asJson.includes('$ref')) {
+        throw new Error(`Could not find ref in ${asJson}`);
       }
     }
 
-    CodeGeneratorContext.fileInstance = undefined;
+    return foundRefs;
+  }
+
+  private static cleanJsonSchemaDefinitions(jsonSchema: JSONSchema7) {
+    const { definitions, ...jsonSchemaWithoutDefs } = jsonSchema;
+    if (!definitions) {
+      return jsonSchema;
+    }
+
+    const tempDefinitions = { ...definitions };
+    let removedLastRound: number | undefined = undefined;
+
+    while (removedLastRound === undefined || removedLastRound > 0) {
+      const allRefs = new Set<string>(Object.keys(tempDefinitions));
+      const foundRefs = this.findRefs({ defs: tempDefinitions, jsonSchemaWithoutDefs });
+      const notFoundRefs = [...allRefs].filter((ref) => !foundRefs.has(ref));
+
+      removedLastRound = 0;
+      for (const notFoundRefKey of notFoundRefs) {
+        delete tempDefinitions[notFoundRefKey];
+        removedLastRound++;
+      }
+    }
+
+    return { ...jsonSchema, definitions: tempDefinitions };
+  }
+
+  public static async generateJsonSchema(baseFilePath: string, file: SchemaFile): Promise<{ result: JSONSchema7 }> {
+    const targetFile = baseFilePath + file.getFileName();
+    const jsonSchemaFileContext = new CodeGeneratorFileContext(targetFile, 'jsonSchema');
+    CodeGeneratorContext.fileContext = jsonSchemaFileContext;
+    const jsonSchema = await this.getJsonSchema({ file, jsonSchemaFileContext });
+    const cleanedJsonSchema = file.shouldCleanDefinitions() ? this.cleanJsonSchemaDefinitions(jsonSchema) : jsonSchema;
+
+    CodeGeneratorContext.fileContext = undefined;
 
     return {
       result: {
         $schema: 'http://json-schema.org/draft-07/schema#',
         $id: `https://altinncdn.no/${targetFile}`,
-        ...functionOutput,
+        ...cleanedJsonSchema,
       },
     };
   }
@@ -146,7 +178,7 @@ export class CodeGeneratorFileContext<T extends FileType> {
       this.imports[from] = new Set();
     }
 
-    const set = this.imports[from] as Set<string>;
+    const set: Set<string> = this.imports[from];
     set.add(symbol);
   }
 
@@ -175,7 +207,7 @@ export class CodeGeneratorFileContext<T extends FileType> {
 
   getImportsAsTypeScript(): string {
     const importLines = Object.keys(this.imports).map((fileName) => {
-      const symbols = Array.from(this.imports[fileName]).sort();
+      const symbols = Array.from(this.imports[fileName]).sort((a, b) => a.localeCompare(b));
       return `import { ${symbols.join(', ')} } from '${fileName}';`;
     });
 
