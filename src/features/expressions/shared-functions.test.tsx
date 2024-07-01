@@ -52,9 +52,11 @@ describe('Expressions shared function tests', () => {
   let preHash;
   beforeAll(() => {
     preHash = window.location.hash;
+    jest.spyOn(window, 'logError').mockImplementation(() => {});
   });
   afterAll(() => {
     window.location.hash = preHash;
+    jest.clearAllMocks();
   });
 
   const sharedTests = getSharedTests('functions');
@@ -109,14 +111,11 @@ describe('Expressions shared function tests', () => {
       });
 
       if (expectsFailure) {
-        expect(() => {
-          ExprValidation.throwIfInvalidNorScalar(expression);
-          throw new Error('Not implemented');
-          // return evalExpr(expression, component, dataSources);
-        }).toThrow(expectsFailure);
+        const mock = window.logError as jest.Mock;
+        expect(mock).toHaveBeenCalledWith(expect.stringContaining(expectsFailure));
       } else {
-        const result = JSON.parse((await screen.findByTestId('expr-result')).textContent!);
         ExprValidation.throwIfInvalidNorScalar(expression);
+        const result = JSON.parse((await screen.findByTestId('expr-result')).textContent!);
         expect(result).toEqual(expects);
       }
     });

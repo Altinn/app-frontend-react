@@ -17,7 +17,7 @@ import {
   StageEvaluateExpressions,
   StageMarkHidden,
 } from 'src/utils/layout/generator/GeneratorStages';
-import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
+import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { Hidden } from 'src/utils/layout/NodesContext';
@@ -106,7 +106,7 @@ interface CommonProps<T extends CompTypes> {
 function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T>) {
   const setNodeProp = NodesStateQueue.useSetNodeProp();
 
-  const hiddenByExpression = useEvalExpression(ExprVal.Boolean, node, externalItem.hidden, false);
+  const hiddenByExpression = useEvalExpressionInGenerator(ExprVal.Boolean, node, externalItem.hidden, false);
   const hiddenByRules = Hidden.useIsHiddenViaRules(node);
   const hidden = useMemo(
     () =>

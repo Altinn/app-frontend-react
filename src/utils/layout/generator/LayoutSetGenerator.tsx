@@ -16,7 +16,7 @@ import {
   NodesStateQueue,
   StageAddNodes,
 } from 'src/utils/layout/generator/GeneratorStages';
-import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
+import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { Hidden, NodesInternal, useNodesWhenNotReady } from 'src/utils/layout/NodesContext';
@@ -414,7 +414,7 @@ function GenerateNodeChildrenInternal({ claims, layoutMap }: NodeChildrenInterna
 
 function useIsHiddenPage(page: LayoutPage) {
   const hiddenExpr = useHiddenLayoutsExpressions();
-  return useEvalExpression(ExprVal.Boolean, page, hiddenExpr[page.pageKey], false);
+  return useEvalExpressionInGenerator(ExprVal.Boolean, page, hiddenExpr[page.pageKey], false);
 }
 
 interface ComponentClaimChildrenProps {

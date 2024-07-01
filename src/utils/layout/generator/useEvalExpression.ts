@@ -8,9 +8,19 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ExprConfig, ExprVal, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
+export function useEvalExpressionInGenerator<V extends ExprVal>(
+  type: V,
+  node: LayoutNode | LayoutPage,
+  expr: ExprValToActualOrExpr<V> | undefined,
+  defaultValue: ExprValToActual<V>,
+) {
+  const enabled = GeneratorStages.AddNodes.useIsDone();
+  return useEvalExpression(type, node, expr, defaultValue, enabled);
+}
+
 /**
  * Resolves one expression and returns the result. This is a hook version of the evalExpr function, and it's probably
- * not what you really want to use - this may make your component re-render often.
+ * not what you want to use.
  *
  * Prefer to put expressions in your component configuration. There are two main ways:
  *
@@ -31,12 +41,12 @@ export function useEvalExpression<V extends ExprVal>(
   node: LayoutNode | LayoutPage,
   expr: ExprValToActualOrExpr<V> | undefined,
   defaultValue: ExprValToActual<V>,
+  enabled = true,
 ) {
   const allDataSources = useExpressionDataSources();
-  const allNodesAdded = GeneratorStages.AddNodes.useIsDone();
 
   return useMemo(() => {
-    if (!allNodesAdded) {
+    if (!enabled) {
       return defaultValue;
     }
 
@@ -52,5 +62,5 @@ export function useEvalExpression<V extends ExprVal>(
     };
 
     return evalExpr(expr, node, allDataSources, { config, errorIntroText });
-  }, [allNodesAdded, allDataSources, defaultValue, expr, node, type]);
+  }, [enabled, allDataSources, defaultValue, expr, node, type]);
 }
