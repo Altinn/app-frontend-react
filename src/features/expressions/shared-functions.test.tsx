@@ -54,13 +54,10 @@ function getDefaultLayouts(): ILayoutCollection {
 }
 
 describe('Expressions shared function tests', () => {
-  let preHash;
   beforeAll(() => {
-    preHash = window.location.hash;
     jest.spyOn(window, 'logError').mockImplementation(() => {});
   });
   afterAll(() => {
-    window.location.hash = preHash;
     jest.restoreAllMocks();
   });
 
@@ -120,7 +117,6 @@ describe('Expressions shared function tests', () => {
         profile.profileSettingPreference.language = profileSettings.language;
       }
 
-      window.location.hash = instance ? '#/instance/510001/d00ce51c-800b-416a-a906-ccab55f597e9/Task_3/grid' : '';
       const nodeId = nodeIdFromContext(context);
       await renderWithNode({
         nodeId,

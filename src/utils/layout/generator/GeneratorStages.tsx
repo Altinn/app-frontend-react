@@ -640,12 +640,14 @@ function Now({ id, stage, children }: WhenProps) {
 }
 
 function useMarkFinished(id: string, stage: Stage, ready: boolean) {
+  const tick = useSelector((state) => state.tick!);
   const registry = useSelector((state) => state.registry);
   useEffect(() => {
     if (ready) {
       registry.current[stage].components[id].finished = true;
+      tick();
     }
-  }, [id, registry, stage, ready]);
+  }, [id, registry, stage, ready, tick]);
 }
 
 function useUniqueId() {
@@ -681,15 +683,13 @@ function makeHooks(stage: Stage) {
 
     // Unregister the hook when it is removed
     React.useEffect(() => {
-      if (shouldRun) {
-        const reg = registry.current[stage];
-        return () => {
-          if (reg.hooks[uniqueId].finished) {
-            delete reg.hooks[uniqueId];
-          }
-        };
-      }
-    }, [uniqueId, registry, shouldRun]);
+      const reg = registry.current[stage];
+      return () => {
+        if (reg.hooks[uniqueId].finished) {
+          delete reg.hooks[uniqueId];
+        }
+      };
+    }, [uniqueId, registry]);
 
     // Run the actual hook
     React.useEffect(() => {
