@@ -6,7 +6,7 @@ import type { Location, MapLayer } from '@altinn/altinn-design-system';
 import type { Geometry } from 'geojson';
 import type { LatLngExpression, Map as LeafletMap } from 'leaflet';
 
-import { FD } from 'src/features/formData/FormDataWrite';
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import classes from 'src/layout/GeometryMap/GeometryMapComponent.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GeometryMapLocation } from 'src/layout/GeometryMap/config.generated';
@@ -27,10 +27,8 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
     },
   ];
 
-  const formData = FD.useFreshBindings(dataModelBindings, 'raw');
-  const values = formData.input?.valueOf();
-
-  const value = 'input' in formData && Array.isArray(formData.input) ? formData.input : undefined;
+  const { formData, setValue } = useDataModelBindings(dataModelBindings);
+  const value = 'simpleBinding' in formData ? formData.simpleBinding : undefined;
 
   const [inputCoords, geometryType] = findCoordinates(value);
 
@@ -81,6 +79,29 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
       </MapContainer>
     </div>
   );
+}
+
+export function parseLocation(locationString: string | undefined): Location | undefined {
+  if (!locationString) {
+    return undefined;
+  }
+  const latLonArray = locationString.split(',');
+  if (latLonArray.length != 2) {
+    window.logErrorOnce(`Invalid location string: ${locationString}`);
+    return undefined;
+  }
+  const latString = latLonArray[0];
+  const lonString = latLonArray[1];
+  const lat = parseFloat(latString);
+  const lon = parseFloat(lonString);
+  if (isNaN(lat) || isNaN(lon)) {
+    window.logErrorOnce(`Invalid location string: ${locationString}`);
+    return undefined;
+  }
+  return {
+    latitude: lat,
+    longitude: lon,
+  } as Location;
 }
 
 function locationToTuple(location: Location | GeometryMapLocation): [number, number] {
