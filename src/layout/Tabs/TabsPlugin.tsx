@@ -62,7 +62,7 @@ export class TabsPlugin<Type extends CompTypes>
   }
 
   claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<Config<Type>>): void {
-    for (const [tabIdx, tab] of item.tabs.entries()) {
+    for (const [tabIdx, tab] of (item.tabs || []).entries()) {
       for (const [childIdx, child] of tab.children.entries()) {
         const proto = getProto(child);
         if (!proto) {
@@ -89,7 +89,7 @@ export class TabsPlugin<Type extends CompTypes>
   }
 
   itemFactory({ item }: DefPluginStateFactoryProps<Config<Type>>) {
-    const tabsInternal = structuredClone((item as any).tabs) as TabConfigInternal[];
+    const tabsInternal = structuredClone((item as any).tabs || []) as TabConfigInternal[];
 
     // Remove all children, as they will be added as nodes later:
     for (const tab of tabsInternal) {
