@@ -93,6 +93,10 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   let item = useNodeItem(node);
   const id = node.id;
 
+  if (!item || !node) {
+    throw new Error(`Node with id '${id ?? node?.id ?? 'unknown'}' not found`);
+  }
+
   if (overrideItemProps) {
     item = {
       ...item,

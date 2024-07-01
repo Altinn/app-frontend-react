@@ -89,9 +89,16 @@ export class TabsPlugin<Type extends CompTypes>
   }
 
   itemFactory({ item }: DefPluginStateFactoryProps<Config<Type>>) {
+    const tabsInternal = structuredClone((item as any).tabs) as TabConfigInternal[];
+
+    // Remove all children, as they will be added as nodes later:
+    for (const tab of tabsInternal) {
+      tab.children = [];
+    }
+
     return {
       tabs: undefined,
-      tabsInternal: (item as any).tabs as TabConfigInternal[],
+      tabsInternal,
     } as DefPluginExtraInItem<Config<Type>>;
   }
 
