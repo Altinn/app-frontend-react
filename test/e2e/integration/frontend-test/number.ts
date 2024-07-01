@@ -5,7 +5,6 @@ describe('Number component', () => {
     cy.findByRole('checkbox', { name: /cards/i }).check();
     cy.gotoNavPage('cards');
     const numberCard = '[data-componentid="number-Card"]';
-    cy.get(numberCard).findAllByRole('term'); // .findByText('Total gjeld').and('eq', 'number-Card');
     cy.get(numberCard)
       .findAllByRole('term')
       .should((terms) => {
