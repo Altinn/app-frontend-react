@@ -34,7 +34,7 @@ export class LayoutPage implements LayoutObject {
    * and otherwise pass the task upwards to all pages.
    */
   public closest(task: TraversalTask, passedFrom?: LayoutPage | LayoutNode | LayoutPages): LayoutNode | undefined {
-    const out = this.firstChild(task);
+    const out = this.firstDeepChild(task); // First deep child that passes
     if (out) {
       return out;
     }
@@ -52,6 +52,16 @@ export class LayoutPage implements LayoutObject {
 
   public firstChild(task: TraversalTask): LayoutNode | undefined {
     for (const node of this.directChildren(task)) {
+      if (task.passes(node)) {
+        return node;
+      }
+    }
+
+    return undefined;
+  }
+
+  private firstDeepChild(task: TraversalTask): LayoutNode | undefined {
+    for (const node of this.allChildren.values()) {
       if (task.passes(node)) {
         return node;
       }
