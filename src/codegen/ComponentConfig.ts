@@ -246,12 +246,14 @@ export class ComponentConfig {
             .join(' | ');
 
     const staticElements = [
-      `export const Config = {
-         def: new ${impl.toTypeScript()}(),
-         rendersWithLabel: ${labelRendering.toTypeScript()}.${ucFirst(this.config.rendersWithLabel)} as const,
-         nodeConstructor: ${nodeObj},
-         capabilities: ${JSON.stringify(this.config.capabilities, null, 2)} as const,
-         behaviors: ${JSON.stringify(this.behaviors, null, 2)} as const,
+      `export function getConfig() {
+         return {
+           def: new ${impl.toTypeScript()}(),
+           rendersWithLabel: ${labelRendering.toTypeScript()}.${ucFirst(this.config.rendersWithLabel)} as const,
+           nodeConstructor: ${nodeObj},
+           capabilities: ${JSON.stringify(this.config.capabilities, null, 2)} as const,
+           behaviors: ${JSON.stringify(this.behaviors, null, 2)} as const,
+         };
        }`,
       `export type TypeConfig = {
          category: ${CompCategory}.${this.config.category},
