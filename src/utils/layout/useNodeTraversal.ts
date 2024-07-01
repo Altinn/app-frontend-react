@@ -127,6 +127,10 @@ export class NodeTraversal<T extends Node = LayoutPages> {
     return this.target === this.rootNode;
   }
 
+  targetIsPage(): this is NodeTraversalFromPage {
+    return this.target instanceof LayoutPage;
+  }
+
   targetIsNode<T extends CompTypes | undefined>(
     ofType?: T,
   ): this is NodeTraversalFromNode<T extends CompTypes ? LayoutNode<T> : LayoutNode> {

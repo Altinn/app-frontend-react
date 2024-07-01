@@ -452,11 +452,11 @@ export function useNode<T extends string | undefined | LayoutNode>(id: T): RetVa
 export const useGetPage = (pageId: string) =>
   Store.useSelector((state) => {
     if (!pageId) {
-      return null;
+      return undefined;
     }
 
     if (!state?.nodes) {
-      return null;
+      return undefined;
     }
     return state.nodes.findLayout(new TraversalTask(state, state.nodes, undefined, undefined), pageId);
   });
