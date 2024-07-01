@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { AttributionControl, MapContainer, Polygon, TileLayer } from 'react-leaflet';
+import { AttributionControl, MapContainer, Polygon, TileLayer, Tooltip } from 'react-leaflet';
 
 import WKT from 'terraformer-wkt-parser';
 import type { Location, MapLayer } from '@altinn/altinn-design-system';
 import type { Geometry } from 'geojson';
 import type { LatLngExpression, Map as LeafletMap } from 'leaflet';
 
-import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { FD } from 'src/features/formData/FormDataWrite';
 import classes from 'src/layout/GeometryMap/GeometryMapComponent.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GeometryMapLocation } from 'src/layout/GeometryMap/config.generated';
@@ -14,9 +14,9 @@ import type { GeometryMapLocation } from 'src/layout/GeometryMap/config.generate
 export type IGeometryMapComponentProps = PropsFromGenericComponent<'GeometryMap'>;
 
 export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentProps) {
-  const { readOnly, layers, centerLocation, zoom, dataModelBindings } = node.item;
+  const { readOnly, centerLocation, zoom, dataModelBindings } = node.item;
 
-  const layers2: MapLayer[] = [
+  const layers: MapLayer[] = [
     {
       url: 'https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=europa_forenklet&zoom={z}&x={x}&y={y}',
       attribution: 'Data © <a href="https://www.kartverket.no/">Kartverket</a>',
@@ -27,8 +27,10 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
     },
   ];
 
-  const { formData, setValue } = useDataModelBindings(dataModelBindings);
-  const value = 'simpleBinding' in formData ? formData.simpleBinding : undefined;
+  const formData = FD.useFreshBindings(dataModelBindings, 'raw');
+  const values = formData.input?.valueOf();
+
+  const value = 'input' in formData && Array.isArray(formData.input) ? formData.input : undefined;
 
   const [inputCoords, geometryType] = findCoordinates(value);
 
@@ -57,7 +59,7 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
         dragging={!readOnly}
         attributionControl={false}
       >
-        {layers2.map((layer, i) => (
+        {layers.map((layer, i) => (
           <TileLayer
             key={i}
             url={layer.url}
@@ -67,36 +69,18 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
           />
         ))}
         <AttributionControl prefix={false} />
-        <Polygon
-          positions={inputCoords[0]}
-          color='blue'
-        />
+        {geometryType == 'polygon' ? (
+          <Polygon positions={inputCoords}>
+            <Tooltip>
+              <span>Tekst</span>
+            </Tooltip>
+          </Polygon>
+        ) : (
+          <div />
+        )}
       </MapContainer>
     </div>
   );
-}
-
-export function parseLocation(locationString: string | undefined): Location | undefined {
-  if (!locationString) {
-    return undefined;
-  }
-  const latLonArray = locationString.split(',');
-  if (latLonArray.length != 2) {
-    window.logErrorOnce(`Invalid location string: ${locationString}`);
-    return undefined;
-  }
-  const latString = latLonArray[0];
-  const lonString = latLonArray[1];
-  const lat = parseFloat(latString);
-  const lon = parseFloat(lonString);
-  if (isNaN(lat) || isNaN(lon)) {
-    window.logErrorOnce(`Invalid location string: ${locationString}`);
-    return undefined;
-  }
-  return {
-    latitude: lat,
-    longitude: lon,
-  } as Location;
 }
 
 function locationToTuple(location: Location | GeometryMapLocation): [number, number] {
@@ -155,7 +139,7 @@ function handleGeoJson(geojson: Geometry): [LatLngExpression[][], string] {
         });
         coordinates.push(polygonCoords);
       });
-      return [coordinates, 'multipolygon'];
+      return [coordinates, 'polygon'];
     }
     default:
       throw new Error(`Unsupported GeoJSON type: ${geojson.type}`);
