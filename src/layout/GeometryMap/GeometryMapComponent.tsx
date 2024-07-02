@@ -70,7 +70,7 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
         {geometryType == 'polygon' ? (
           <Polygon positions={inputCoords}>
             <Tooltip>
-              <span>{label}</span>
+              <span>{JSON.stringify(label)}</span>
             </Tooltip>
           </Polygon>
         ) : (
