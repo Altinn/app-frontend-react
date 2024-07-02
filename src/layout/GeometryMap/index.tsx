@@ -30,6 +30,11 @@ export class GeometryMap extends GeometryMapDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'GeometryMap'>): string[] {
-    return this.validateDataModelBindingsSimple(ctx);
+    const errors: string[] = [
+      ...(this.validateDataModelBindingsAny(ctx, 'coordinates', ['string'])[0] || []),
+      ...(this.validateDataModelBindingsAny(ctx, 'label', ['string'])[0] || []),
+    ];
+
+    return errors;
   }
 }

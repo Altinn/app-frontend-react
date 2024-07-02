@@ -6,7 +6,7 @@ import type { Location, MapLayer } from '@altinn/altinn-design-system';
 import type { Geometry } from 'geojson';
 import type { LatLngExpression, Map as LeafletMap } from 'leaflet';
 
-import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { FD } from 'src/features/formData/FormDataWrite';
 import classes from 'src/layout/GeometryMap/GeometryMapComponent.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GeometryMapLocation } from 'src/layout/GeometryMap/config.generated';
@@ -27,11 +27,8 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
     },
   ];
 
-  const { formData, setValue } = useDataModelBindings(dataModelBindings);
+  const formData = FD.useFreshBindings(dataModelBindings, 'raw');
   const { coordinates, label } = formData;
-  console.log(coordinates);
-
-  console.log(label);
 
   const [inputCoords, geometryType] = findCoordinates(coordinates);
 
