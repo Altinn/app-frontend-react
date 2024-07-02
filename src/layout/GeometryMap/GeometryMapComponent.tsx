@@ -6,7 +6,7 @@ import type { Location, MapLayer } from '@altinn/altinn-design-system';
 import type { Geometry } from 'geojson';
 import type { LatLngExpression, Map as LeafletMap } from 'leaflet';
 
-import { FD } from 'src/features/formData/FormDataWrite';
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import classes from 'src/layout/GeometryMap/GeometryMapComponent.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GeometryMapLocation } from 'src/layout/GeometryMap/config.generated';
@@ -27,8 +27,11 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
     },
   ];
 
-  const formData = FD.useFreshBindings(dataModelBindings, 'raw');
+  const { formData, setValue } = useDataModelBindings(dataModelBindings);
   const { coordinates, label } = formData;
+  console.log(coordinates);
+
+  console.log(label);
 
   const [inputCoords, geometryType] = findCoordinates(coordinates);
 
@@ -69,9 +72,7 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
         <AttributionControl prefix={false} />
         {geometryType == 'polygon' ? (
           <Polygon positions={inputCoords}>
-            <Tooltip>
-              <span>{JSON.stringify(label)}</span>
-            </Tooltip>
+            <Tooltip>{label != undefined ? <span>{JSON.stringify(label)}</span> : <div></div>}</Tooltip>
           </Polygon>
         ) : (
           <div />
