@@ -32,18 +32,29 @@ export enum SearchParams {
 }
 
 export const useNavigationParams = () => {
-  const instanceMatch = useMatch('/instance/:partyId/:instanceGuid');
-  const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
-  const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey/*');
-  const statelessMatch = useMatch('/:pageKey');
   const queryKeys = useLocation().search ?? '';
 
-  const partyId = pageKeyMatch?.params.partyId ?? taskIdMatch?.params.partyId ?? instanceMatch?.params.partyId;
-  const instanceGuid =
-    pageKeyMatch?.params.instanceGuid ?? taskIdMatch?.params.instanceGuid ?? instanceMatch?.params.instanceGuid;
-  const taskId = pageKeyMatch?.params.taskId ?? taskIdMatch?.params.taskId;
-  const _pageKey = pageKeyMatch?.params.pageKey ?? statelessMatch?.params.pageKey;
+  const matches = [
+    useMatch('/instance/:partyId/:instanceGuid'),
+    useMatch('/instance/:partyId/:instanceGuid/:taskId'),
+    useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey'),
+    useMatch('/:pageKey'), // Stateless
+
+    // Temporary: Sub form routing (should be moved into the component/index.tsx)
+    useMatch('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId'),
+    useMatch('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId/:dataElementId'),
+    useMatch('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId/:dataElementId/:pageKey'),
+  ];
+
+  const partyId = matches.reduce((acc, match) => acc ?? match?.params['partyId'], undefined);
+  const instanceGuid = matches.reduce((acc, match) => acc ?? match?.params['instanceGuid'], undefined);
+  const taskId = matches.reduce((acc, match) => acc ?? match?.params['taskId'], undefined);
+  const componentId = matches.reduce((acc, match) => acc ?? match?.params['componentId'], undefined);
+  const dataElementId = matches.reduce((acc, match) => acc ?? match?.params['dataElementId'], undefined);
+  const _pageKey = matches.reduce((acc, match) => acc ?? match?.params['pageKey'], undefined);
+  const _mainPageKey = matches.reduce((acc, match) => acc ?? match?.params['mainPageKey'], undefined);
   const pageKey = _pageKey === undefined ? undefined : decodeURIComponent(_pageKey);
+  const mainPageKey = _mainPageKey === undefined ? undefined : decodeURIComponent(_mainPageKey);
 
   return {
     partyId,
@@ -51,6 +62,9 @@ export const useNavigationParams = () => {
     taskId,
     pageKey,
     queryKeys,
+    componentId,
+    dataElementId,
+    mainPageKey,
   };
 };
 
@@ -95,7 +109,8 @@ export const useNavigatePage = () => {
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
   const navigate = useNavigate();
 
-  const { partyId, instanceGuid, taskId, pageKey, queryKeys } = useNavigationParams();
+  const { partyId, instanceGuid, taskId, pageKey, queryKeys, componentId, dataElementId, mainPageKey } =
+    useNavigationParams();
   const { autoSaveBehavior } = usePageSettings();
 
   const taskType = useTaskType(taskId);
@@ -157,10 +172,28 @@ export const useNavigatePage = () => {
         return navigate(`/${page}${queryKeys}`, { replace }, () => focusMainContent(options));
       }
 
+      // Subform
+      if (mainPageKey && componentId && dataElementId) {
+        const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}/${queryKeys}`;
+        return navigate(url, { replace }, () => focusMainContent(options));
+      }
+
       const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}${queryKeys}`;
       navigate(url, { replace }, () => focusMainContent(options));
     },
-    [instanceGuid, isStatelessApp, maybeSaveOnPageChange, navigate, order, partyId, queryKeys, taskId],
+    [
+      componentId,
+      dataElementId,
+      instanceGuid,
+      isStatelessApp,
+      mainPageKey,
+      maybeSaveOnPageChange,
+      navigate,
+      order,
+      partyId,
+      queryKeys,
+      taskId,
+    ],
   );
 
   const navigateToTask = useCallback(

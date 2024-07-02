@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import type { ReactNode } from 'react';
 
 import { Button } from '@digdir/designsystemet-react';
@@ -7,7 +7,6 @@ import Grid from '@material-ui/core/Grid';
 
 import { Form, FormFirstPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
-import { SubForm } from 'src/components/SubForm';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
@@ -23,6 +22,7 @@ import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { TaskKeys, useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
+import { useNodes } from 'src/utils/layout/NodesContext';
 
 interface NavigationErrorProps {
   label: ReactNode;
@@ -154,8 +154,8 @@ export const ProcessWrapper = () => {
         <LayoutValidationProvider>
           <Routes>
             <Route
-              path=':pageKey/:subformId'
-              element={<SubForm />}
+              path=':pageKey/:componentId/*'
+              element={<ComponentRouting />}
             />
             <Route
               path=':pageKey'
@@ -178,4 +178,17 @@ export const ProcessWrapper = () => {
   }
 
   throw new Error(`Unknown task type: ${taskType}`);
+};
+
+export const ComponentRouting = () => {
+  const componentId = useParams().componentId;
+  const nodes = useNodes();
+  const node = componentId ? nodes.findById(componentId) : undefined;
+  const subRouting = node?.def.subRouting(node as any);
+
+  if (!subRouting) {
+    throw new Error(`Component ${componentId} does not have subRouting`);
+  }
+
+  return subRouting;
 };

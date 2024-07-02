@@ -8,7 +8,6 @@ import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { SubFormTable } from 'src/components/SubFormTable';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useExpandedWidthLayouts } from 'src/features/form/layout/LayoutsContext';
@@ -31,6 +30,11 @@ interface FormState {
 
 export function Form() {
   const currentPageId = useCurrentView();
+
+  return <FormPage currentPageId={currentPageId} />;
+}
+
+export function FormPage({ currentPageId }: { currentPageId: string | undefined }) {
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const [formState, setFormState] = useState<FormState>({
     hasRequired: false,
@@ -85,7 +89,6 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
-        <SubFormTable />
         {mainIds.map((id) => (
           <GenericComponentById
             key={id}
@@ -227,10 +230,13 @@ function HandleNavigationFocusComponent() {
   const focusNode = useResolvedNode(componentId);
   const navigateTo = useNavigateToNode();
 
+  const haveFocusComponentId = searchParams.get(SearchParams.FocusComponentId);
   React.useEffect(() => {
-    searchParams.delete(SearchParams.FocusComponentId);
-    setSearchParams(searchParams, { replace: true, preventScrollReset: true });
-  }, [searchParams, setSearchParams]);
+    if (haveFocusComponentId) {
+      searchParams.delete(SearchParams.FocusComponentId);
+      setSearchParams(searchParams, { replace: true, preventScrollReset: true });
+    }
+  }, [haveFocusComponentId, searchParams, setSearchParams]);
 
   React.useEffect(() => {
     if (focusNode != null) {
