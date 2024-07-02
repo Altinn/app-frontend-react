@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import Grid from '@material-ui/core/Grid';
@@ -19,7 +20,7 @@ import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
-import { useNavigationEffectStore, useNavigationParams } from 'src/hooks/useNavigatePage';
+import { useNavigationEffectStore } from 'src/hooks/useNavigatePage';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
 import type { PresentationType } from 'src/types';
@@ -42,8 +43,6 @@ export const PresentationComponent = ({
   const instance = useLaxInstanceData();
   const userParty = useProfile()?.party;
   const { expandedWidth } = useUiConfigContext();
-  const { pageKey } = useNavigationParams();
-  const navigationEffect = useNavigationEffectStore((state) => state.callback);
 
   const realHeader = header || (type === ProcessTaskType.Archived ? <Lang id={'receipt.receipt'} /> : undefined);
 
@@ -53,12 +52,14 @@ export const PresentationComponent = ({
     : AltinnAppTheme.altinnPalette.primary.greyLight;
   document.body.style.background = backgroundColor;
 
+  const navigationEffect = useNavigationEffectStore((state) => state.callback);
+  const location = useLocation();
   useEffect(() => {
     if (!runNavigationEffect) {
       return;
     }
     navigationEffect?.();
-  }, [pageKey, navigationEffect, runNavigationEffect]);
+  }, [location, navigationEffect, runNavigationEffect]);
 
   return (
     <RenderStart>

@@ -5,9 +5,11 @@ import { create } from 'zustand';
 interface TaskState {
   overriddenTaskId?: string;
   overriddenDataModelType?: string;
+  overriddenDataModelUuid?: string;
   overriddenLayoutSetId?: string;
   setOverriddenLayoutSetId?: (layoutSetId: string) => void;
-  setOverriddenDataModelId?: (taskId: string) => void;
+  setOverriddenDataModelType?: (dataModelId: string) => void;
+  setOverriddenDataModelUuid?: (dataModelUuid: string) => void;
   setTaskId?: (taskId: string) => void;
   setDepth?: (depth: number) => void;
   clearTaskId?: () => void;
@@ -18,11 +20,13 @@ export const createTaskIdStore = () =>
   create<TaskState>((set) => ({
     overriddenTaskId: '',
     overriddenDataModelType: '',
+    overriddenDataModelUuid: '',
     overriddenLayoutSetId: '',
     depth: 1,
     setTaskId: (overriddenTaskId: string) => set({ overriddenTaskId }),
     setOverriddenLayoutSetId: (overriddenLayoutSetId: string) => set({ overriddenLayoutSetId }),
-    setOverriddenDataModelId: (overriddenDataModelType: string) => set({ overriddenDataModelType }),
+    setOverriddenDataModelType: (overriddenDataModelType: string) => set({ overriddenDataModelType }),
+    setOverriddenDataModelUuid: (overriddenDataModelUuid: string) => set({ overriddenDataModelUuid }),
     clearTaskId: () => set({ overriddenTaskId: '' }),
     setDepth: (depth: number) => set({ depth }),
   }));

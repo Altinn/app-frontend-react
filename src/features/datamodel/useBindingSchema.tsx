@@ -41,8 +41,13 @@ export function useCurrentDataModelUrl(includeRowIds: boolean) {
   const isAnonymous = useAllowAnonymous();
   const instance = useLaxInstanceData();
   const layoutSetId = useCurrentLayoutSetId();
-  const dataType = useDataTypeByLayoutSetId(layoutSetId);
-  const dataElementUuid = useCurrentDataModelGuid();
+  const _dataType = useDataTypeByLayoutSetId(layoutSetId);
+  const _dataElementUuid = useCurrentDataModelGuid();
+  const { overriddenDataModelType, overriddenDataModelUuid } = useTaskStore(
+    ({ overriddenDataModelType, overriddenDataModelUuid }) => ({ overriddenDataModelType, overriddenDataModelUuid }),
+  );
+  const dataType = overriddenDataModelType ?? _dataType;
+  const dataElementUuid = overriddenDataModelUuid ?? _dataElementUuid;
   const isStateless = useIsStatelessApp();
 
   if (isStateless && isAnonymous && dataType) {
