@@ -13,7 +13,6 @@ export const Config = new CG.component({
     renderInCardsMedia: false,
   },
 })
-  .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional())
   .addProperty(
     new CG.prop(
       'layers',
@@ -59,4 +58,9 @@ export const Config = new CG.component({
         .setDescription('Center location of the geometry-map'),
     ),
   )
-  .addProperty(new CG.prop('zoom', new CG.num().optional()));
+  .addProperty(new CG.prop('zoom', new CG.num().optional()))
+  .addDataModelBinding(
+    new CG.obj(new CG.prop('coordinates', new CG.str()), new CG.prop('label', new CG.str())).exportAs(
+      'IDataModelBindingsForGeometryMap',
+    ),
+  );

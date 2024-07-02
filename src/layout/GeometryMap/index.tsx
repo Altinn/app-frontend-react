@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 
 import { GeometryMapDef } from 'src/layout/GeometryMap/config.def.generated';
 import { GeometryMapComponent } from 'src/layout/GeometryMap/GeometryMapComponent';
-import { GeometryMapComponentSummary } from 'src/layout/GeometryMap/GeometryMapComponentSummary';
+// import { GeometryMapComponentSummary } from 'src/layout/GeometryMap/GeometryMapComponentSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -18,15 +18,15 @@ export class GeometryMap extends GeometryMapDef {
   );
 
   getDisplayData(node: LayoutNode<'GeometryMap'>, { formDataSelector }: DisplayDataProps): string {
-    if (!node.item.dataModelBindings?.simpleBinding) {
+    if (!node.item.dataModelBindings?.coordinates) {
       return '';
     }
 
-    return node.getFormData(formDataSelector).simpleBinding ?? '';
+    return node.getFormData(formDataSelector).coordinates ?? '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'GeometryMap'>): JSX.Element | null {
-    return <GeometryMapComponentSummary targetNode={targetNode} />;
+    return null;
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'GeometryMap'>): string[] {
