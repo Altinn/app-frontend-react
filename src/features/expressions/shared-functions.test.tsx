@@ -57,6 +57,11 @@ describe('Expressions shared function tests', () => {
   beforeAll(() => {
     jest.spyOn(window, 'logError').mockImplementation(() => {});
   });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   afterAll(() => {
     jest.restoreAllMocks();
   });
@@ -157,17 +162,15 @@ describe('Expressions shared function tests', () => {
       });
 
       const errorMock = window.logError as jest.Mock;
+      const result = JSON.parse((await screen.findByTestId('expr-result')).textContent!);
 
       if (expectsFailure) {
         expect(errorMock).toHaveBeenCalledWith(expect.stringContaining(expectsFailure));
       } else {
-        ExprValidation.throwIfInvalidNorScalar(expression);
-        const result = JSON.parse((await screen.findByTestId('expr-result')).textContent!);
-        expect(result).toEqual(expects);
         expect(errorMock).not.toHaveBeenCalled();
+        ExprValidation.throwIfInvalidNorScalar(expression);
+        expect(result).toEqual(expects);
       }
-
-      errorMock.mockClear();
     });
   });
 });
