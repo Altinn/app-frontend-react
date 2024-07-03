@@ -1,13 +1,7 @@
 import { argTypeAt, ExprFunctions, ExprTypes } from 'src/features/expressions';
 import { prettyErrors } from 'src/features/expressions/prettyErrors';
 import { ExprVal } from 'src/features/expressions/types';
-import type {
-  Expression,
-  ExprFunction,
-  ExprValToActual,
-  ExprValToActualOrExpr,
-  FuncDef,
-} from 'src/features/expressions/types';
+import type { Expression, ExprFunction, ExprValToActualOrExpr, FuncDef } from 'src/features/expressions/types';
 
 enum ValidationErrorMessage {
   InvalidType = 'Invalid type "%s"',
@@ -276,20 +270,6 @@ function isValidOrScalar(obj: unknown, type?: ExprVal, errorText?: string): bool
   return isScalar(obj, type) || isValidExpr(obj, errorText);
 }
 
-function isNotValid<EV extends ExprVal>(
-  obj: ExprValToActualOrExpr<EV>,
-  type: EV,
-  errorText?: string,
-): obj is ExprValToActual<EV>;
-function isNotValid(
-  obj: ExprValToActualOrExpr<ExprVal.Any>,
-  type?: undefined,
-  errorText?: string,
-): obj is ExprValToActual<ExprVal.Any>;
-function isNotValid(obj: unknown, type?: ExprVal, errorText?: string): obj is ExprValToActual<ExprVal.Any> {
-  return !isValidExpr(obj, errorText) && isScalar(obj, type);
-}
-
 function throwIfInvalidNorScalar<EV extends ExprVal>(obj: unknown, type: EV, errorText?: string): void;
 function throwIfInvalidNorScalar(obj: unknown, type?: undefined, errorText?: string): void;
 function throwIfInvalidNorScalar(obj: unknown, type?: ExprVal, errorText?: string): void {
@@ -310,16 +290,8 @@ export const ExprValidation = {
    * Checks an input object and only returns true if it is an expression, and that expression is valid.
    */
   isValid(obj: unknown, errorText?: string): obj is Expression {
-    return isValidExpr(obj, errorText);
+    return Array.isArray(obj) && isValidExpr(obj, errorText);
   },
-
-  /**
-   * Utility that achieves the same as the above, but is more useful to narrow ExprValToActualOrExpr to actual valid
-   * types (string, number, etc). If you just call isValidExpr() on such a type, in the case that it's not a valid
-   * expression it may also be an array containing an invalid expression (which is possible). Since invalid expressions
-   * should not be evaluated, you should combine this with a call to isValidExpr() as well.
-   */
-  isNotValid,
 
   /**
    * The same as the above, but just throws an error if the expression fails. Useful for tests, etc.

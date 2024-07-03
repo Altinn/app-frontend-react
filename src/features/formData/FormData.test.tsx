@@ -18,6 +18,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
 import { InitialFormDataProvider } from 'src/features/formData/InitialFormData';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
 import { makeFormDataMethodProxies, renderWithMinimalProviders } from 'src/test/renderWithProviders';
 
 interface DataModelFlat {
@@ -68,15 +69,15 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
           <Routes>
             <Route
               path={'/'}
-              element={<>{children}</>}
+              element={<AppRoutingProvider>{children}</AppRoutingProvider>}
             />
             <Route
               path={'/different'}
               element={
-                <>
+                <AppRoutingProvider>
                   <div>something different</div>
                   <NavigateBackButton />
-                </>
+                </AppRoutingProvider>
               }
             />
           </Routes>

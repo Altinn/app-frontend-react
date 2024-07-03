@@ -1,11 +1,11 @@
 import { evalExpr } from 'src/features/expressions';
-import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
+import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IOptionSource } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -68,28 +68,28 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
 
         output.push({
           value: String(formDataSelector(valuePath)),
-          label:
-            label && ExprValidation.isNotValid(label, ExprVal.String)
-              ? langTools.langAsStringUsingPathInDataModel(label, path)
-              : ExprValidation.isValid(label)
-                ? evalExpr(label, node, modifiedDataSources)
-                : undefined,
-          description:
-            description && ExprValidation.isNotValid(description, ExprVal.String)
-              ? langTools.langAsStringUsingPathInDataModel(description, path)
-              : ExprValidation.isValid(description)
-                ? evalExpr(description, node, modifiedDataSources)
-                : undefined,
-          helpText:
-            helpText && ExprValidation.isNotValid(helpText, ExprVal.String)
-              ? langTools.langAsStringUsingPathInDataModel(helpText, path)
-              : ExprValidation.isValid(helpText)
-                ? evalExpr(helpText, node, modifiedDataSources)
-                : undefined,
+          label: resolveText(label, node, modifiedDataSources, path) as string,
+          description: resolveText(description, node, modifiedDataSources, path),
+          helpText: resolveText(helpText, node, modifiedDataSources, path),
         });
       }
     }
   }
 
   return output;
+}
+
+function resolveText(
+  text: ExprValToActualOrExpr<ExprVal.String> | undefined,
+  node: LayoutNode,
+  dataSources: ExpressionDataSources,
+  path: string,
+): string | undefined {
+  if (text && ExprValidation.isValid(text)) {
+    return evalExpr(text, node, dataSources);
+  }
+  if (text) {
+    return dataSources.langToolsSelector(node).langAsStringUsingPathInDataModel(text as string, path);
+  }
+  return undefined;
 }
