@@ -219,7 +219,7 @@ function DefaultRouter({ children }: PropsWithChildren) {
       <Routes>
         <Route
           path={'/'}
-          element={<AppRoutingProvider>{children}</AppRoutingProvider>}
+          element={children}
         />
         <Route
           path={'*'}
@@ -244,11 +244,11 @@ export function InstanceRouter({
       <Routes>
         <Route
           path={'instance/:partyId/:instanceGuid/:taskId/:pageId'}
-          element={<AppRoutingProvider>{children}</AppRoutingProvider>}
+          element={children}
         />
         <Route
           path={'instance/:partyId/:instanceGuid/:taskId'}
-          element={<AppRoutingProvider>{children}</AppRoutingProvider>}
+          element={children}
         />
         <Route
           path={'*'}
@@ -333,7 +333,9 @@ function MinimalProviders({ children, queries, queryClient, Router = DefaultRout
       queryClient={queryClient}
     >
       <LangToolsStoreProvider>
-        <Router>{children}</Router>
+        <Router>
+          <AppRoutingProvider>{children}</AppRoutingProvider>
+        </Router>
       </LangToolsStoreProvider>
     </AppQueriesProvider>
   );
