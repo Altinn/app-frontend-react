@@ -528,8 +528,8 @@ export const ExprFunctions = {
     returns: ExprVal.String,
   }),
   linkToComponent: defineFunc({
-    impl(linkText, componentId) {
-      if (componentId == null) {
+    impl(linkText, id) {
+      if (id == null) {
         window.logWarn('Component id was empty but must be set for linkToComponent to work');
         return null;
       }
@@ -537,10 +537,37 @@ export const ExprFunctions = {
         window.logWarn('Link text was empty but must be set for linkToComponent to work');
         return null;
       }
-      const [_url, queryParams] = window.location.hash.split('#')?.[1]?.split('?') ?? [];
-      const searchParams = new URLSearchParams(queryParams);
-      searchParams.set(SearchParams.FocusComponentId, componentId);
-      const newUrl = `${_url}?${searchParams.toString()}`;
+
+      const node = this.failWithoutNode();
+      const closest = this.dataSources.nodeTraversal(
+        (t) =>
+          t.with(node).closest((c) => c.type === 'node' && (c.layout.id === id || c.layout.baseComponentId === id)),
+        [node, id],
+      );
+
+      if (closest === ContextNotProvided) {
+        // Expressions will run before the layout is fully loaded, so we might not have all the components available
+        // yet. If that's the case, silently ignore this expression.
+        return null;
+      }
+
+      if (!closest) {
+        throw new ExprRuntimeError(this, `Unable to find component with identifier ${id}`);
+      }
+
+      const taskId = this.dataSources.process?.currentTask?.elementId;
+      const instanceId = this.dataSources.instanceDataSources?.instanceId;
+
+      let url = '';
+      if (taskId && instanceId) {
+        url = `/instance/${instanceId}/${taskId}/${closest.pageKey}`;
+      } else {
+        url = `/${closest.pageKey}`;
+      }
+
+      const searchParams = new URLSearchParams();
+      searchParams.set(SearchParams.FocusComponentId, closest.id);
+      const newUrl = `${url}?${searchParams.toString()}`;
       return `<a href="${newUrl}" data-link-type="LinkToPotentialNode">${linkText}</a>`;
     },
     args: [ExprVal.String, ExprVal.String] as const,
