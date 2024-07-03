@@ -4,7 +4,7 @@ import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Presentation,
-  rendersWithLabel: false,
+  rendersWithLabel: true,
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: false,
@@ -14,13 +14,7 @@ export const Config = new CG.component({
     renderInCardsMedia: false,
   },
 })
-  .addTextResource(
-    new CG.trb({
-      name: 'title',
-      title: 'Title',
-      description: 'The title of the value',
-    }),
-  )
+  .extendTextResources(CG.common('TRBLabel'))
   .addProperty(new CG.prop('formatting', CG.common('IFormatting').optional()))
   .addProperty(new CG.prop('value', new CG.expr(ExprVal.Number)))
   .addProperty(new CG.prop('direction', new CG.enum('horizontal', 'vertical').optional({ default: 'horizontal' })))
