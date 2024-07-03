@@ -102,7 +102,11 @@ describe('Expressions shared function tests', () => {
                 i.data = [...i.data, ...instanceDataElements];
               })
             : hasInstance
-              ? getInstanceDataMock()
+              ? getInstanceDataMock((i) => {
+                  for (const key of Object.keys(_instance || {})) {
+                    i[key] = _instance![key];
+                  }
+                })
               : undefined;
 
       const process = _process
