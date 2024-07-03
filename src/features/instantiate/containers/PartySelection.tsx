@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMatch } from 'react-router-dom';
+import { useMatch, useNavigate } from 'react-router-dom';
 
 import { LegacyCheckbox } from '@digdir/design-system-react';
 import { Button, Textfield } from '@digdir/designsystemet-react';
@@ -17,7 +17,6 @@ import {
   useSetCurrentParty,
   useSetHasSelectedParty,
 } from 'src/features/party/PartiesProvider';
-import { AppRouter } from 'src/index';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { HttpStatusCodes } from 'src/utils/network/networking';
@@ -96,11 +95,12 @@ export const PartySelection = () => {
   const [numberOfPartiesShown, setNumberOfPartiesShown] = React.useState(4);
   const [showSubUnits, setShowSubUnits] = React.useState(true);
   const [showDeleted, setShowDeleted] = React.useState(false);
+  const navigate = useNavigate();
 
   const onSelectParty = async (party: IParty) => {
     await selectParty(party);
     setUserHasSelectedParty(true);
-    AppRouter.navigate('/');
+    navigate('/');
   };
 
   function renderParties() {

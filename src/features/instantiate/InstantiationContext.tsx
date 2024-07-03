@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useMutation } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
-import { AppRouter } from 'src/index';
 import type { IInstance } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -62,20 +62,21 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
   const instantiateWithPrefill = useInstantiateWithPrefillMutation();
   const [busyWithId, setBusyWithId] = useState<string | undefined>(undefined);
   const isInstantiatingRef = useRef(false);
+  const navigate = useNavigate();
 
   // Redirect to the instance page when instantiation completes
   useEffect(() => {
     if (instantiate.data?.id) {
-      AppRouter.navigate(`/instance/${instantiate.data.id}`);
+      navigate(`/instance/${instantiate.data.id}`);
       setBusyWithId(undefined);
       isInstantiatingRef.current = false;
     }
     if (instantiateWithPrefill.data?.id) {
-      AppRouter.navigate(`/instance/${instantiateWithPrefill.data.id}`);
+      navigate(`/instance/${instantiateWithPrefill.data.id}`);
       setBusyWithId(undefined);
       isInstantiatingRef.current = false;
     }
-  }, [instantiate.data?.id, instantiateWithPrefill.data?.id]);
+  }, [instantiate.data?.id, instantiateWithPrefill.data?.id, navigate]);
 
   return (
     <Provider

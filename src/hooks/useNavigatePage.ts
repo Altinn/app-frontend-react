@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import { useNavigate as useReactRouterNavigate } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -13,7 +14,6 @@ import {
   useQueryKeysAsStringAsRef,
   useSetNavigationEffect,
 } from 'src/features/routing/AppRoutingContext';
-import { AppRouter } from 'src/index';
 import { ProcessTaskType } from 'src/types';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
@@ -45,6 +45,7 @@ const useNavigate = () => {
   const storeCallback = useSetNavigationEffect();
   const setReturnToView = useSetReturnToView();
   const setSummaryNodeOfOrigin = useSetSummaryNodeOfOrigin();
+  const navigate = useReactRouterNavigate();
 
   return useCallback(
     (path: string, options?: NavigateOptions, cb?: NavigationEffectCb) => {
@@ -53,9 +54,9 @@ const useNavigate = () => {
       if (cb) {
         storeCallback(cb);
       }
-      AppRouter.navigate(path, options);
+      navigate(path, options);
     },
-    [setReturnToView, storeCallback, setSummaryNodeOfOrigin],
+    [setReturnToView, storeCallback, setSummaryNodeOfOrigin, navigate],
   );
 };
 
