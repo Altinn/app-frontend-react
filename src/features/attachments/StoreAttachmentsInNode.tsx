@@ -112,19 +112,18 @@ function mapAttachments(
 
     if (simpleValue && simpleValue === data.id) {
       attachments.push(data);
-      break;
+      continue;
     }
 
     if (listValue && Array.isArray(listValue) && listValue.some((binding) => binding === data.id)) {
       attachments.push(data);
-      break;
+      continue;
     }
 
     const nodeIsInRepeatingGroup = node.id !== node.baseId;
     if (!simpleValue && !listValue && !nodeIsInRepeatingGroup) {
       // We can safely assume the attachment belongs to this node.
       attachments.push(data);
-      break;
     }
   }
 

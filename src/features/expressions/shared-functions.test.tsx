@@ -112,6 +112,20 @@ describe('Expressions shared function tests', () => {
             ? getProcessDataMock()
             : undefined;
 
+      const applicationMetadata = getApplicationMetadataMock(instance ? {} : { onEntry: { show: 'stateless' } });
+      if (instanceDataElements) {
+        for (const element of instanceDataElements) {
+          if (!applicationMetadata.dataTypes!.find((dt) => dt.id === element.dataType)) {
+            applicationMetadata.dataTypes!.push({
+              id: element.dataType,
+              allowedContentTypes: null,
+              minCount: 0,
+              maxCount: 5,
+            });
+          }
+        }
+      }
+
       const profile = getProfileMock();
       if (profileSettings?.language) {
         profile.profileSettingPreference.language = profileSettings.language;
@@ -128,8 +142,7 @@ describe('Expressions shared function tests', () => {
         ),
         inInstance: !!instance,
         queries: {
-          fetchApplicationMetadata: async () =>
-            getApplicationMetadataMock(instance ? {} : { onEntry: { show: 'stateless' } }),
+          fetchApplicationMetadata: async () => applicationMetadata,
           fetchLayouts: async () => layouts ?? getDefaultLayouts(),
           fetchFormData: async () => dataModel ?? {},
           ...(instance ? { fetchInstanceData: async () => instance } : {}),
