@@ -32,7 +32,7 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
 
   const [inputCoords, geometryType] = findCoordinates(coordinates);
 
-  const polyCenter = findPolygonCenter(inputCoords[0]);
+  const polyCenter = findPolygonCenter(inputCoords[0][0]);
 
   const DefaultCenterLocation: Location = {
     latitude: 64.888996,
@@ -67,12 +67,18 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
           />
         ))}
         <AttributionControl prefix={false} />
-        {geometryType == 'polygon' ? (
-          <Polygon positions={inputCoords}>
-            <Tooltip>{label != undefined ? <span>{JSON.stringify(label)}</span> : <div></div>}</Tooltip>
-          </Polygon>
-        ) : (
-          <div />
+
+        {inputCoords.map((coords, i) =>
+          geometryType[i] === 'polygon' ? (
+            <Polygon
+              key={i}
+              positions={coords}
+            >
+              <Tooltip>{label !== undefined ? <span>{JSON.stringify(label)}</span> : <div></div>}</Tooltip>
+            </Polygon>
+          ) : (
+            <div key={i} />
+          ),
         )}
       </MapContainer>
     </div>
@@ -121,8 +127,23 @@ function findPolygonCenter(polygonCoords: LatLngExpression[]): [number, number] 
   return [avgLng, avgLat];
 }
 
-function findCoordinates(inputString): [LatLngExpression[][], string] {
-  return handleGeoJson(parseWKTtoGeoJSON(inputString));
+function findCoordinates(inputString): [LatLngExpression[][][], string[]] {
+  const coordinatesArray: LatLngExpression[][][] = [];
+  const labelsArray: string[] = [];
+
+  if (Array.isArray(inputString)) {
+    inputString.forEach((input) => {
+      const [coordinates, label] = handleGeoJson(parseWKTtoGeoJSON(input));
+      coordinatesArray.push(coordinates);
+      labelsArray.push(label);
+    });
+  } else {
+    const [coordinates, label] = handleGeoJson(parseWKTtoGeoJSON(inputString));
+    coordinatesArray.push(coordinates);
+    labelsArray.push(label);
+  }
+
+  return [coordinatesArray, labelsArray];
 }
 
 function parseWKTtoGeoJSON(wktString): Geometry {
