@@ -56,6 +56,8 @@ export const useNavigationParams = () => {
   const pageKey = _pageKey === undefined ? undefined : decodeURIComponent(_pageKey);
   const mainPageKey = _mainPageKey === undefined ? undefined : decodeURIComponent(_mainPageKey);
 
+  const isSubFormPage = !!mainPageKey;
+
   return {
     partyId,
     instanceGuid,
@@ -65,6 +67,7 @@ export const useNavigationParams = () => {
     componentId,
     dataElementId,
     mainPageKey,
+    isSubFormPage,
   };
 };
 

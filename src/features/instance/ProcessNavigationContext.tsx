@@ -156,9 +156,9 @@ export function ProcessNavigationProvider({ children }: React.PropsWithChildren)
 }
 
 export const useProcessNavigation = () => {
-  const { mainPageKey } = useNavigationParams();
-  if (mainPageKey) {
-    throw new Error('Kan ikke navigere i prosessen i en underskjema');
+  const { isSubFormPage } = useNavigationParams();
+  if (isSubFormPage) {
+    throw new Error('Cannot use process navigation in a SubForm');
   }
 
   return useCtx();
