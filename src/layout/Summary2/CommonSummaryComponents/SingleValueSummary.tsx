@@ -15,6 +15,7 @@ type SingleValueSummaryProps = {
   componentNode: LayoutNode;
   displayData?: string;
   hideEditButton?: boolean;
+  multiline?: boolean;
   compact?: boolean;
 };
 
@@ -24,6 +25,7 @@ export const SingleValueSummary = ({
   componentNode,
   displayData,
   hideEditButton,
+  multiline,
   compact,
 }: SingleValueSummaryProps) => (
   <div className={classes.inputSummaryItem}>
