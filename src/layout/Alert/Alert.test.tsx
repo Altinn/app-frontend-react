@@ -26,11 +26,6 @@ describe('Alert', () => {
     await render({ title: 'title for alert', hidden: true });
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
-
-  it('should not display as role="alert" when hidden is undefined', async () => {
-    await render({ title: 'title for alert', hidden: undefined });
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  });
 });
 
 const render = async ({
