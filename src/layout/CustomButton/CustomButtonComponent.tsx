@@ -41,7 +41,12 @@ export type ActionResult = {
 
 type UseHandleClientActions = {
   handleClientActions: (actions: CBTypes.ClientAction[]) => Promise<void>;
+  handleSubFormAction: (action: CBTypes.SubFormAction) => Promise<void>;
   handleDataModelUpdate: (lockTools: FormDataLockTools, result: ActionResult) => Promise<void>;
+};
+
+type SubFormActionHandlers = {
+  saveAndClose: () => Promise<void>;
 };
 
 /**
@@ -52,15 +57,25 @@ const isClientAction = (action: CBTypes.CustomAction): action is CBTypes.ClientA
  * A type guard to check if the action is an action that requires a server side call
  */
 const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerAction => action.type === 'ServerAction';
+/**
+ * A type guard to check if the action is a sub-form action
+ */
+const isSubFormAction = (action: CBTypes.CustomAction): action is CBTypes.SubFormAction =>
+  action.type === 'SubFormAction';
 
 function useHandleClientActions(): UseHandleClientActions {
   const currentDataModelGuid = useCurrentDataModelGuid();
-  const { navigateToPage, navigateToNextPage, navigateToPreviousPage } = useNavigatePage();
+  const { navigateToPage, navigateToNextPage, navigateToPreviousPage, exitSubForm } = useNavigatePage();
+  const { isSubFormPage, mainPageKey } = useNavigationParams();
 
   const frontendActions: ClientActionHandlers = {
     nextPage: promisify(navigateToNextPage),
     previousPage: promisify(navigateToPreviousPage),
     navigateToPage: promisify<ClientActionHandlers['navigateToPage']>(async ({ page }) => navigateToPage(page)),
+  };
+
+  const subFormActions: SubFormActionHandlers = {
+    saveAndClose: promisify(exitSubForm),
   };
 
   const handleClientAction = async (action: CBTypes.ClientAction) => {
@@ -79,6 +94,14 @@ function useHandleClientActions(): UseHandleClientActions {
       for (const action of actions) {
         await handleClientAction(action);
       }
+    },
+    handleSubFormAction: async (action) => {
+      if (!isSubFormPage || !mainPageKey) {
+        throw new Error('SubFormAction is only applicable for sub-forms');
+      }
+
+      // TODO: Focus on sub-form component?
+      await subFormActions[action.id]();
     },
     handleDataModelUpdate: async (lockTools, result) => {
       const newDataModel =
@@ -165,7 +188,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, actions, id, buttonStyle = 'secondary' } = node.item;
   const lockTools = FD.useLocking(node.item.id);
   const { isAuthorized } = useActionAuthorization();
-  const { handleClientActions } = useHandleClientActions();
+  const { handleClientActions, handleSubFormAction } = useHandleClientActions();
   const { handleServerAction, mutation } = useHandleServerActionMutation(lockTools);
 
   const isPermittedToPerformActions = actions
@@ -183,6 +206,9 @@ export const CustomButtonComponent = ({ node }: Props) => {
       }
       if (isServerAction(action)) {
         await handleServerAction({ action, buttonId: id });
+      }
+      if (isSubFormAction(action)) {
+        await handleSubFormAction(action);
       }
     }
   };

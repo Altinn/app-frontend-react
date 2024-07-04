@@ -20,6 +20,7 @@ type NavigateToPageOptions = {
   replace?: boolean;
   skipAutoSave?: boolean;
   shouldFocusComponent?: boolean;
+  exitSubForm?: boolean;
 };
 
 export enum TaskKeys {
@@ -40,7 +41,7 @@ export const useNavigationParams = () => {
     useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey'),
     useMatch('/:pageKey'), // Stateless
 
-    // Temporary: Sub form routing (should be moved into the component/index.tsx)
+    // Temporary: Sub-form routing (should be moved into the component/index.tsx)
     useMatch('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId'),
     useMatch('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId/:dataElementId'),
     useMatch('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId/:dataElementId/:pageKey'),
@@ -112,7 +113,7 @@ export const useNavigatePage = () => {
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
   const navigate = useNavigate();
 
-  const { partyId, instanceGuid, taskId, pageKey, queryKeys, componentId, dataElementId, mainPageKey } =
+  const { partyId, instanceGuid, taskId, pageKey, queryKeys, componentId, dataElementId, mainPageKey, isSubFormPage } =
     useNavigationParams();
   const { autoSaveBehavior } = usePageSettings();
 
@@ -162,7 +163,7 @@ export const useNavigatePage = () => {
         window.logWarn('navigateToPage called without page');
         return;
       }
-      if (!order.includes(page)) {
+      if (!order.includes(page) && options?.exitSubForm !== true) {
         window.logWarn('navigateToPage called with invalid page:', `"${page}"`);
         return;
       }
@@ -176,7 +177,7 @@ export const useNavigatePage = () => {
       }
 
       // Subform
-      if (mainPageKey && componentId && dataElementId) {
+      if (mainPageKey && componentId && dataElementId && options?.exitSubForm !== true) {
         const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}/${queryKeys}`;
         return navigate(url, { replace }, () => focusMainContent(options));
       }
@@ -309,6 +310,14 @@ export const useNavigatePage = () => {
     navigateToPage(previousPage);
   };
 
+  const exitSubForm = () => {
+    if (!isSubFormPage || !mainPageKey) {
+      window.logWarn('Tried to close sub-form page while not in a sub-form.');
+      return;
+    }
+    navigateToPage(mainPageKey, { exitSubForm: true });
+  };
+
   return {
     navigateToPage,
     navigateToTask,
@@ -327,6 +336,7 @@ export const useNavigatePage = () => {
     navigateToNextPage,
     navigateToPreviousPage,
     maybeSaveOnPageChange,
+    exitSubForm,
   };
 };
 

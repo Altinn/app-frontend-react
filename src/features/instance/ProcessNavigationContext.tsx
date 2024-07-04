@@ -158,7 +158,7 @@ export function ProcessNavigationProvider({ children }: React.PropsWithChildren)
 export const useProcessNavigation = () => {
   const { isSubFormPage } = useNavigationParams();
   if (isSubFormPage) {
-    throw new Error('Cannot use process navigation in a SubForm');
+    throw new Error('Cannot use process navigation in a sub-form');
   }
 
   return useCtx();
