@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import type { IAttachmentsMap, UploadedAttachment } from 'src/features/attachments';
 import type { Expression } from 'src/features/expressions/types';
 import type { IRawTextResource } from 'src/features/language/textResources';
-import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
+import type { ILayoutCollection } from 'src/layout/layout';
 import type { IApplicationSettings, IData, IInstance, IProcess, ITask } from 'src/types/shared';
 
 export interface SharedTest {
@@ -88,15 +88,6 @@ export function getSharedTests<Folder extends keyof TestFolders>(
   });
 
   return out;
-}
-
-export function convertLayouts(input: ILayoutCollection | undefined): ILayouts {
-  const _layouts: ILayouts = {};
-  for (const key of Object.keys(input || {})) {
-    _layouts[key] = (input || {})[key]?.data.layout;
-  }
-
-  return _layouts;
 }
 
 export function convertInstanceDataToAttachments(

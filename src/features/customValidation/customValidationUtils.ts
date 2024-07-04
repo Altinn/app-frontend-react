@@ -115,7 +115,7 @@ function resolveExpressionValidation(
 }
 
 /**
- * Takes an expression validation config and returnes an object with the field validation definitions resolved.
+ * Takes an expression validation config and returns an object with the field validation definitions resolved.
  */
 export function resolveExpressionValidationConfig(config: IExpressionValidationConfig): IExpressionValidations {
   const resolvedDefinitions: { [name: string]: IExpressionValidationRefResolved } = {};
