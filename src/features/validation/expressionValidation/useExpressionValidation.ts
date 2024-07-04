@@ -5,8 +5,8 @@ import { evalExpr } from 'src/features/expressions';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { type FieldValidations, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getKeyWithoutIndex } from 'src/utils/databindings';
-import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import { useNodeTraversalSilent } from 'src/utils/layout/useNodeTraversal';
 import type { Expression } from 'src/features/expressions/types';
 

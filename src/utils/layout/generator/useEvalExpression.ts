@@ -3,8 +3,8 @@ import { useMemo } from 'react';
 import { evalExpr } from 'src/features/expressions';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
-import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { ExprConfig, ExprVal, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 

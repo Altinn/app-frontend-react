@@ -1,7 +1,6 @@
 import { getExpressionDataSourcesMock } from 'src/__mocks__/getExpressionDataSourcesMock';
 import { getComponentDef } from 'src/layout';
 import { ensureAppsDirIsSet, getAllLayoutSets } from 'src/test/allApps';
-import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { ILayouts } from 'src/layout/layout';
 
 // TODO: Also add assertions for layout validation (i.e. data model validation, layout schema validation)

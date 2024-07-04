@@ -4,9 +4,8 @@ import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettin
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
-import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
-import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { Hidden, useNodes } from 'src/utils/layout/NodesContext';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import { useNodeTraversal, useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { IPdfFormat } from 'src/features/pdf/types';

@@ -3,7 +3,7 @@ import { ExprValidation } from 'src/features/expressions/validation';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
-import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';

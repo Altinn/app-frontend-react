@@ -10,33 +10,12 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
 import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
-import { getComponentDef } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
-import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import { useNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
-import type { ILayouts } from 'src/layout/layout';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-
-/**
- * This will generate an entire layout hierarchy, iterate each
- * component/group in the layout and resolve all expressions for them.
- * TODO: Remove this when no longer in use
- */
-function resolvedNodesInLayouts(
-  layouts: ILayouts | null,
-  currentView: string | undefined,
-  dataSources: ExpressionDataSources,
-) {
-  // A full copy is needed here because formLayout comes from the redux store, and in production code (not the
-  // development server!) the properties are not mutable (but we have to mutate them below).
-  const layoutsCopy: ILayouts = layouts ? structuredClone(layouts) : {};
-  const unresolved = generateEntireHierarchy(layoutsCopy, currentView, dataSources, getComponentDef);
-  return unresolved as unknown as LayoutPages;
-}
 
 export function useExpressionDataSources(): ExpressionDataSources {
   const instanceDataSources = useLaxInstanceDataSources();
@@ -98,10 +77,3 @@ export function useExpressionDataSources(): ExpressionDataSources {
     ],
   );
 }
-
-/**
- * Exported only for testing. Please do not use!
- */
-export const _private = {
-  resolvedNodesInLayouts,
-};
