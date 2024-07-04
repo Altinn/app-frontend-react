@@ -58,7 +58,7 @@ export function FileTable({
             className={pdfModeActive ? classes.grayUnderline : classes.blueUnderline}
             id='altinn-file-list-row-header'
           >
-            <th style={{ width: '40%' }}>
+            <th style={{ width: mobileView ? '80%' : '40%' }}>
               <Lang id={'form_filler.file_uploader_list_header_name'} />
             </th>
             {!mobileView && (
@@ -66,12 +66,12 @@ export function FileTable({
                 <Lang id={'form_filler.file_uploader_list_header_file_size'} />
               </th>
             )}
-            {hasTag && (
+            {hasTag && !mobileView && (
               <th>
                 <Lang id={tagTitle} />
               </th>
             )}
-            {!(hasTag && mobileView) && !pdfModeActive && (
+            {!(hasTag && mobileView) && !pdfModeActive && !mobileView && (
               <th>
                 <Lang id={'form_filler.file_uploader_list_header_status'} />
               </th>

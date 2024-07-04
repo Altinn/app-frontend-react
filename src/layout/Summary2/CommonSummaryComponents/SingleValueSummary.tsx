@@ -41,6 +41,7 @@ export const SingleValueSummary = ({
           [classes.error]: errors && errors?.length > 0,
           [classes.emptyValue]: !displayData,
           [classes.formValue]: displayData,
+          [classes.multiline]: multiline,
         })}
       >
         <span>
