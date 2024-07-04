@@ -64,6 +64,11 @@
     "copyInstanceSettings": {
       "$ref": "#/definitions/copyInstanceSettings"
     },
+    "disallowUserInstantiation": {
+      "type": "boolean",
+      "title": "Disallow user instantiation",
+      "description": "Disallows instantiation by users. When this value is true, only organisations/system users can can instantiate in production."
+    },
     "validTo": {
       "type": "string",
       "title": "Valid to",
