@@ -15,6 +15,7 @@ type SingleValueSummaryProps = {
   componentNode: LayoutNode;
   displayData?: string;
   hideEditButton?: boolean;
+  compact?: boolean;
 };
 
 export const SingleValueSummary = ({
@@ -23,10 +24,17 @@ export const SingleValueSummary = ({
   componentNode,
   displayData,
   hideEditButton,
+  compact,
 }: SingleValueSummaryProps) => (
   <div className={classes.inputSummaryItem}>
-    <div className={classes.labelValueWrapper}>
-      <Label weight={'regular'}>{title}</Label>
+    <div className={cn(classes.labelValueWrapper, compact && classes.compact)}>
+      <Label
+        weight={'regular'}
+        className={classes.formLabel}
+      >
+        {title}
+        {!!title?.toString()?.length && compact && ':'}
+      </Label>
       <Paragraph
         asChild
         className={cn({

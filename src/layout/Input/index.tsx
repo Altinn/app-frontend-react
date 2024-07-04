@@ -46,12 +46,16 @@ export class Input extends InputDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(componentNode: LayoutNode<'Input'>, summaryOverrides?: InputSummaryOverrideProps): JSX.Element | null {
+  renderSummary2(
+    componentNode: LayoutNode<'Input'>,
+    summaryOverrides?: InputSummaryOverrideProps,
+    compact?: boolean,
+  ): JSX.Element | null {
     return (
       <InputSummary
         componentNode={componentNode}
-        summaryOverrides={summaryOverrides}
         displayData={this.useDisplayData(componentNode)}
+        compact={compact}
       />
     );
   }
