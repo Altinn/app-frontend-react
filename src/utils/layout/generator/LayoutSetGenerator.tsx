@@ -55,8 +55,8 @@ export function LayoutSetGenerator() {
   const layouts = useLayouts();
   const pages = useMemo(() => new LayoutPages(), []);
 
-  return (
-    <div style={style}>
+  const children = (
+    <>
       <SaveFinishedNodesToStore pages={pages} />
       <ExportStores />
       {GeneratorDebug.displayState && <h1>Node generator</h1>}
@@ -78,8 +78,10 @@ export function LayoutSetGenerator() {
             </GeneratorErrorBoundary>
           );
         })}
-    </div>
+    </>
   );
+
+  return GeneratorDebug.displayState ? <div style={style}>{children}</div> : children;
 }
 
 function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
@@ -485,10 +487,16 @@ function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
   }, [def, claim, layout, childClaims]);
 
   if (!def) {
+    window.logError(`No component definition found for type '${layout.type}'`);
     return null;
   }
 
   const Generator = def.renderNodeGenerator;
+
+  if (!GeneratorDebug.displayState) {
+    return <Generator {...(props as any)} />;
+  }
+
   return (
     <div
       style={{
@@ -496,14 +504,11 @@ function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
         paddingLeft: '5px',
       }}
     >
-      {GeneratorDebug.displayState && (
-        <h3>
-          {layout.id} ({layout.type})
-        </h3>
-      )}
-      {GeneratorDebug.displayState && (
-        <span>{childClaims ? `Children: ${Object.keys(childClaims).join(', ')}` : 'No children'}</span>
-      )}
+      <h3>
+        {layout.id} ({layout.type})
+      </h3>
+
+      <span>{childClaims ? `Children: ${Object.keys(childClaims).join(', ')}` : 'No children'}</span>
       <Generator {...(props as any)} />
     </div>
   );

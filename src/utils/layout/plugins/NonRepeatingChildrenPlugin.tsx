@@ -7,7 +7,9 @@ import type { TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
+  DefPluginExtraInItem,
   DefPluginState,
+  DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
@@ -108,6 +110,14 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
       from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
     return `<${GenerateNodeChildren} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
+  }
+
+  itemFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>) {
+    // Components with children may also have _zero_ children, but the internal prop has to contain an array still.
+    return {
+      [this.settings.externalProp]: undefined,
+      [this.settings.internalProp]: [],
+    } as DefPluginExtraInItem<ToInternal<E>>;
   }
 
   claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<ToInternal<E>>): void {
