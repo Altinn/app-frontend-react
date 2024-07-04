@@ -245,21 +245,6 @@ function isScalar(val: unknown, type: ExprVal | undefined) {
   return typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean';
 }
 
-export function throwIfInvalid(obj: unknown, errorText = 'Invalid expression'): asserts obj is Expression {
-  const ctx: ValidationContext = { errors: {} };
-  validateRecursively(obj, ctx, []);
-
-  if (Object.keys(ctx.errors).length) {
-    const pretty = prettyErrors({
-      input: obj,
-      errors: ctx.errors,
-      indentation: 1,
-    });
-    const fullMessage = `${errorText}:\n${pretty}`;
-    throw new InvalidExpression(fullMessage);
-  }
-}
-
 function isValidOrScalar<EV extends ExprVal>(
   obj: unknown,
   type: EV,
@@ -270,11 +255,22 @@ function isValidOrScalar(obj: unknown, type?: ExprVal, errorText?: string): bool
   return isScalar(obj, type) || isValidExpr(obj, errorText);
 }
 
-function throwIfInvalidNorScalar<EV extends ExprVal>(obj: unknown, type: EV, errorText?: string): void;
-function throwIfInvalidNorScalar(obj: unknown, type?: undefined, errorText?: string): void;
-function throwIfInvalidNorScalar(obj: unknown, type?: ExprVal, errorText?: string): void {
-  if (!isScalar(obj, type)) {
-    throwIfInvalid(obj, errorText);
+function throwIfInvalid<EV extends ExprVal>(obj: unknown, type: EV, errorText?: string): void;
+function throwIfInvalid(obj: unknown, type?: undefined, errorText?: string): void;
+function throwIfInvalid(obj: unknown, type?: ExprVal, errorText?: string): void {
+  if (Array.isArray(obj) && !isScalar(obj, type)) {
+    const ctx: ValidationContext = { errors: {} };
+    validateRecursively(obj, ctx, []);
+
+    if (Object.keys(ctx.errors).length) {
+      const pretty = prettyErrors({
+        input: obj,
+        errors: ctx.errors,
+        indentation: 1,
+      });
+      const fullMessage = `${errorText}:\n${pretty}`;
+      throw new InvalidExpression(fullMessage);
+    }
   }
 }
 
@@ -296,5 +292,5 @@ export const ExprValidation = {
   /**
    * The same as the above, but just throws an error if the expression fails. Useful for tests, etc.
    */
-  throwIfInvalidNorScalar,
+  throwIfInvalid,
 };

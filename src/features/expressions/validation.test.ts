@@ -29,7 +29,7 @@ describe('Expression validation', () => {
   describe('Shared tests for invalid expressions', () => {
     const invalidSharedTests = getSharedTests('invalid');
     it.each(invalidSharedTests.content)('$name', (invalid) => {
-      expect(() => ExprValidation.throwIfInvalidNorScalar(invalid.expression)).toThrow(invalid.expectsFailure);
+      expect(() => ExprValidation.throwIfInvalid(invalid.expression)).toThrow(invalid.expectsFailure);
     });
   });
 
@@ -46,7 +46,7 @@ describe('Expression validation', () => {
       { expr: 'hello world' },
       { expr: '5 == 5', and: 'other property' },
     ])('should validate %p as an invalid expression (non-throwing)', (maybeExpr) => {
-      expect(ExprValidation.throwIfInvalidNorScalar(maybeExpr)).toBeUndefined();
+      expect(ExprValidation.throwIfInvalid(maybeExpr)).toBeUndefined();
     });
   });
 });

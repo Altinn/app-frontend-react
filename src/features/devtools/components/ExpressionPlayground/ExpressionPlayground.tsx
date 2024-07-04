@@ -104,7 +104,7 @@ export const ExpressionPlayground = () => {
         defaultValue: null,
       };
 
-      ExprValidation.throwIfInvalidNorScalar(maybeExpression);
+      ExprValidation.throwIfInvalid(maybeExpression);
 
       let evalContext: LayoutPage | LayoutNode | undefined = traversalSelector(
         (t) => t.findPage(currentPageId),

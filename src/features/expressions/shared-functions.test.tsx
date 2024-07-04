@@ -172,7 +172,7 @@ describe('Expressions shared function tests', () => {
         expect(errorMock).toHaveBeenCalledWith(expect.stringContaining(expectsFailure));
       } else {
         expect(errorMock).not.toHaveBeenCalled();
-        ExprValidation.throwIfInvalidNorScalar(expression);
+        ExprValidation.throwIfInvalid(expression);
         expect(result).toEqual(expects);
       }
     });
