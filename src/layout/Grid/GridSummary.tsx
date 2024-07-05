@@ -161,8 +161,8 @@ export function GridRowRenderer(props: GridRowProps) {
           {...props}
         />
       ))}
-      {row.header && !isSmall && <Table.HeaderCell />}
-      {!row.header && !isSmall && (
+      {!pdfModeActive && row.header && !isSmall && <Table.HeaderCell />}
+      {!pdfModeActive && !row.header && !isSmall && (
         <Table.Cell align='right'>
           {firstComponentNode && !row.readOnly && (
             <EditButton

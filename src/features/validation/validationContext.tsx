@@ -8,7 +8,7 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
 import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
+import { useShouldValidateInitial } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useBackendValidation } from 'src/features/validation/backendValidation/useBackendValidation';
 import { useExpressionValidation } from 'src/features/validation/expressionValidation/useExpressionValidation';
 import { useInvalidDataValidation } from 'src/features/validation/invalidDataValidation/useInvalidDataValidation';
@@ -20,8 +20,6 @@ import {
   selectValidations,
 } from 'src/features/validation/utils';
 import { useAsRef } from 'src/hooks/useAsRef';
-import { useIsPdf } from 'src/hooks/useIsPdf';
-import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type {
   BackendValidationIssueGroups,
@@ -108,20 +106,12 @@ const { Provider, useSelector, useLaxSelector, useSelectorAsRef, useStore, useLa
     initialCreateStore,
   });
 
-interface InternalProps {
-  shouldLoadValidations: boolean;
-}
-
 export function ValidationProvider({ children }: PropsWithChildren) {
-  const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
-  const isPDF = useIsPdf();
-  const shouldLoadValidations = !isCustomReceipt && !isPDF;
-
   return (
     <Provider>
-      <UpdateValidations shouldLoadValidations={shouldLoadValidations} />
+      <UpdateValidations />
       <ManageShowAllErrors />
-      <LoadingBlocker shouldLoadValidations={shouldLoadValidations}>{children}</LoadingBlocker>
+      <LoadingBlocker>{children}</LoadingBlocker>
     </Provider>
   );
 }
@@ -160,25 +150,28 @@ export function ProvideWaitForValidation() {
 
 export function LoadingBlockerWaitForValidation({ children }: PropsWithChildren) {
   const validating = useSelector((state) => state.validating);
-  if (!validating) {
+  const shouldValidateInitial = useShouldValidateInitial();
+  if (!validating && shouldValidateInitial) {
     return <Loader reason='validation-awaiter' />;
   }
 
   return <>{children}</>;
 }
 
-function LoadingBlocker({ children, shouldLoadValidations }: PropsWithChildren<InternalProps>) {
+function LoadingBlocker({ children }: PropsWithChildren) {
   const isLoading = useSelector((state) => state.isLoading);
-  if (isLoading && shouldLoadValidations) {
+  const shouldValidateInitial = useShouldValidateInitial();
+
+  if (isLoading && shouldValidateInitial) {
     return <Loader reason='validation' />;
   }
 
   return <>{children}</>;
 }
 
-function UpdateValidations({ shouldLoadValidations }: InternalProps) {
+function UpdateValidations() {
   const updateValidations = useSelector((state) => state.updateValidations);
-  const backendValidation = useBackendValidation({ enabled: shouldLoadValidations });
+  const backendValidation = useBackendValidation();
 
   useEffect(() => {
     const { validations: backendValidations, processedLast, initialValidationDone } = backendValidation;
