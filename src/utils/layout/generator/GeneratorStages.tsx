@@ -590,6 +590,14 @@ export function GeneratorCondition({ stage, mustBeAdded, children }: PropsWithCh
     isNew = true;
   }
 
+  // Unregister the component when it is removed
+  useEffect(
+    () => () => {
+      delete registry.current[stage].components[id];
+    },
+    [id, registry, stage],
+  );
+
   const shouldRender = useShouldRenderOrRun(stage, isNew, 'component');
   if (!shouldRender) {
     return null;
@@ -686,9 +694,7 @@ function makeHooks(stage: Stage) {
     React.useEffect(() => {
       const reg = registry.current[stage];
       return () => {
-        if (reg.hooks[uniqueId].finished) {
-          delete reg.hooks[uniqueId];
-        }
+        delete reg.hooks[uniqueId];
       };
     }, [uniqueId, registry]);
 

@@ -1,8 +1,8 @@
 const debugAll = false;
 export const GeneratorDebug = {
   displayState: debugAll,
-  logStages: debugAll || true,
-  logCommits: debugAll || true,
+  logStages: debugAll,
+  logCommits: debugAll,
 };
 
 export const generatorLog = (logType: keyof typeof GeneratorDebug, ...messages: unknown[]) => {
