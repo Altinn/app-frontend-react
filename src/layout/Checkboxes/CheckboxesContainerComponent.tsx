@@ -1,16 +1,15 @@
 import React from 'react';
 
-import { Checkbox, HelpText } from '@digdir/designsystemet-react';
+import { Checkbox } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
-import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import classes from 'src/layout/Checkboxes/CheckboxesContainerComponent.module.css';
 import { WrappedCheckbox } from 'src/layout/Checkboxes/WrappedCheckbox';
+import { LabelContent } from 'src/layout/LabelContent';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -33,21 +32,14 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
   });
 
   const labelTextGroup = (
-    <span className={classes.checkboxLabelContainer}>
-      <span className={classes.labelContent}>
-        <Lang id={node.item.textResourceBindings?.title} />
-        <RequiredIndicator required={required} />
-        <OptionalIndicator
-          labelSettings={labelSettings}
-          required={required}
-        />
-      </span>
-      {textResourceBindings?.help && (
-        <HelpText title={langAsString(textResourceBindings?.help)}>
-          <Lang id={textResourceBindings?.help} />
-        </HelpText>
-      )}
-    </span>
+    <LabelContent
+      label={node.item.textResourceBindings?.title}
+      description={node.item.textResourceBindings?.description}
+      readOnly={readOnly}
+      required={required}
+      helpText={node.item.textResourceBindings?.help}
+      labelSettings={labelSettings}
+    />
   );
 
   const horizontal = shouldUseRowLayout({

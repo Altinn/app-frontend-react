@@ -3,11 +3,10 @@ import React from 'react';
 import { HelpText, Radio } from '@digdir/designsystemet-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RadioButton } from 'src/components/form/RadioButton';
-import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { LabelContent } from 'src/layout/LabelContent';
 import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { shouldUseRowLayout } from 'src/utils/layout';
@@ -39,11 +38,13 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const labelText = (
     <span className={classes.labelContent}>
       {getLabelPrefixForLikert()}
-      <Lang id={textResourceBindings?.title} />
-      <RequiredIndicator required={required} />
-      <OptionalIndicator
-        labelSettings={labelSettings}
+      <LabelContent
+        label={textResourceBindings?.title}
+        description={textResourceBindings?.description}
+        helpText={textResourceBindings?.help}
         required={required}
+        readOnly={readOnly}
+        labelSettings={labelSettings}
       />
     </span>
   );

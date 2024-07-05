@@ -13,8 +13,6 @@ import { hasValidationErrors } from 'src/features/validation/utils';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
-import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/GenericComponentUtils';
-import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useIsHiddenComponent, useNode } from 'src/utils/layout/NodesContext';
@@ -219,15 +217,15 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         )}
         alignItems='baseline'
       >
-        {shouldComponentRenderLabel(node.item.type) && overrideDisplay?.renderLabel !== false && (
+        {/*{shouldComponentRenderLabel(node.item.type) && overrideDisplay?.renderLabel !== false && (
           <Grid
             item={true}
-            {...gridBreakpoints(item.grid?.labelGrid)}
+            {...gridBreakpoints(node.item.grid?.labelGrid)}
           >
             <GenericComponentLabel />
             <GenericComponentDescription />
           </Grid>
-        )}
+        )}*/}
         <Grid
           key={`form-content-${id}`}
           item={true}

@@ -17,6 +17,8 @@ export type IInputProps = PropsFromGenericComponent<'Input'>;
 
 import type { TextfieldProps } from '@digdir/designsystemet-react/dist/types/components/form/Textfield/Textfield';
 
+import { LabelContent } from 'src/layout/LabelContent';
+
 interface InputComponentProps extends Omit<TextfieldProps, 'prefix' | 'suffix'> {
   textOnly?: boolean;
   prefixText?: string;
@@ -94,11 +96,23 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
   const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;
   const prefixText = textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined;
   const suffixText = textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined;
+  const label = textResourceBindings?.title ? langAsString(textResourceBindings.title) : undefined;
+  const help = textResourceBindings?.help ? langAsString(textResourceBindings.help) : undefined;
+  const description = textResourceBindings?.description ? langAsString(textResourceBindings.description) : undefined;
+
   const characterLimit = useCharacterLimit(maxLength);
 
   const commonProps = {
     'aria-label': ariaLabel,
     'aria-describedby': textResourceBindings?.description ? `description-${id}` : undefined,
+    label: (
+      <LabelContent
+        label={label}
+        helpText={help}
+        readOnly={readOnly}
+        required={required}
+      />
+    ),
     autoComplete: autocomplete,
     characterLimit: !readOnly ? characterLimit : undefined,
     role: 'textbox',
@@ -109,6 +123,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     required,
     onBlur: debounce,
     textOnly: overrideDisplay?.rowReadOnly && readOnly,
+    description,
     prefixText,
     suffixText,
   };
