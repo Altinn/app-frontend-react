@@ -1,40 +1,111 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { Table } from '@digdir/designsystemet-react';
+import { Button, Table } from '@digdir/designsystemet-react';
+import { Grid } from '@material-ui/core';
+import { Add as AddIcon, Delete as DeleteIcon } from '@navikt/ds-icons';
 
+import { Caption } from 'src/components/form/Caption';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
+import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
+import classes from 'src/layout/SubForm/SubFormComponent.module.css';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>): React.JSX.Element | null {
-  const dataType = node.item.dataType;
+  const { dataType, id, textResourceBindings, showAddButton = true, showDeleteButton = true } = node.item;
   const dataElements = useStrictInstanceData().data.filter((d) => d.dataType === dataType);
+  const { langAsString } = useLanguage();
+
+  const addEntry = async () => {
+    console.log('Add method goes here');
+  };
 
   return (
-    <>
-      <h1>Here we are in the SubForm component</h1>
-      <Table>
-        <Table.Row>
-          {dataElements.map((dataElement) => (
-            <SubFormElement
+    <Grid
+      container={true}
+      item={true}
+      data-componentid={node.item.id}
+      data-componentbaseid={node.item.baseComponentId || node.item.id}
+    >
+      <Table
+        id={`subform-${id}-table`}
+        className={classes.repeatingGroupTable}
+      >
+        <Caption
+          id={`subform-${id}-caption`}
+          title={<Lang id={textResourceBindings?.title} />}
+          description={textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
+        />
+        <Table.Head id={`subform-${id}-table-body`}>
+          <Table.Row>
+            <Table.HeaderCell className={classes.tableCellFormatting}>
+              <Lang id={'Oppføringer'} />
+            </Table.HeaderCell>
+            {showDeleteButton && (
+              <Table.HeaderCell>
+                <span className={classes.visuallyHidden}>
+                  <Lang id={'general.delete'} />
+                </span>
+              </Table.HeaderCell>
+            )}
+          </Table.Row>
+        </Table.Head>
+        <Table.Body>
+          {dataElements.map((dataElement, index) => (
+            <SubFormTableRow
               key={dataElement.id}
               id={dataElement.id}
               node={node}
+              rowNumber={index}
+              showDeleteButton={showDeleteButton}
             />
           ))}
-        </Table.Row>
+        </Table.Body>
       </Table>
-    </>
+      {showAddButton && (
+        <Button
+          id={`subform-${id}-add-button`}
+          onClick={async () => await addEntry()}
+          onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
+            const allowedKeys = ['enter', ' ', 'spacebar'];
+            if (allowedKeys.includes(event.key.toLowerCase())) {
+              await addEntry();
+            }
+          }}
+          variant='secondary'
+          fullWidth
+        >
+          <AddIcon
+            fontSize='1.5rem'
+            aria-hidden='true'
+          />
+          {`${langAsString('general.add_new')} ${langAsString(textResourceBindings?.addButton)}`}
+        </Button>
+      )}
+    </Grid>
   );
 }
 
-function SubFormElement({ id, node }: { id: string; node: LayoutNode<'SubForm'> }) {
+function SubFormTableRow({
+  id,
+  node,
+  rowNumber,
+  showDeleteButton,
+}: {
+  id: string;
+  node: LayoutNode<'SubForm'>;
+  rowNumber: number;
+  showDeleteButton: boolean;
+}) {
   const instance = useStrictInstanceData();
   const url = getDataModelUrl(instance.id, id, true);
   const { isFetching, data, error } = useFormDataQuery(url);
+  const { langAsString } = useLanguage();
+  const deleteButtonText = langAsString('general.delete');
 
   if (isFetching) {
     // TODO: Spinner
@@ -42,9 +113,39 @@ function SubFormElement({ id, node }: { id: string; node: LayoutNode<'SubForm'> 
   }
   // <span>{dot.pick('Path.Inside.DataModel', data)}</span>
 
+  const deleteEntry = async () => {
+    console.log('Delete method goes here');
+  };
+
   return (
-    <Table.Cell key={id}>
-      <Link to={`${node.item.id}/${id}`}>{id}</Link>
-    </Table.Cell>
+    <Table.Row
+      key={`repeating-group-row-${id}`}
+      data-row-num={rowNumber}
+    >
+      <Table.Cell key={id}>
+        <Link to={`${node.item.id}/${id}`}>{id}</Link>
+      </Table.Cell>
+      {showDeleteButton && (
+        <Table.Cell className={classes.buttonCell}>
+          <div className={classes.buttonInCellWrapper}>
+            <Button
+              variant='tertiary'
+              color='danger'
+              size='small'
+              onClick={async () => await deleteEntry()}
+              aria-label={deleteButtonText}
+              data-testid='delete-button'
+              className={classes.tableButton}
+            >
+              {deleteButtonText}
+              <DeleteIcon
+                fontSize='1rem'
+                aria-hidden='true'
+              />
+            </Button>
+          </div>
+        </Table.Cell>
+      )}
+    </Table.Row>
   );
 }

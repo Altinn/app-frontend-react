@@ -25,7 +25,29 @@ export const Config = new CG.component({
       new CG.str().setTitle('Data (model) type').setDescription('Which data model should be used for these sub-forms'),
     ),
   )
-  .addProperty(new CG.prop('showAddButton', new CG.bool().optional({ default: true })));
+  .addProperty(new CG.prop('showAddButton', new CG.bool().optional({ default: true })))
+  .addProperty(new CG.prop('showDeleteButton', new CG.bool().optional({ default: true })))
+  .addTextResource(
+    new CG.trb({
+      name: 'title',
+      title: 'Title',
+      description: 'The title of the sub-form component',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'description',
+      title: 'Description',
+      description: 'The description text shown underneath the title',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'addButton',
+      title: 'Add button (suffix)',
+      description: 'The text for the "Add" button (used as a suffix after the default button text)',
+    }),
+  );
 
 /**
    * {
