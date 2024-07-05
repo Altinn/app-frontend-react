@@ -185,7 +185,7 @@ export const buttonStyles: { [style in CBTypes.CustomButtonStyle]: { color: Butt
 };
 
 export const CustomButtonComponent = ({ node }: Props) => {
-  const { textResourceBindings, actions, id, buttonStyle = 'secondary' } = node.item;
+  const { textResourceBindings, actions, id, buttonStyle } = node.item;
   const lockTools = FD.useLocking(node.item.id);
   const { isAuthorized } = useActionAuthorization();
   const { handleClientActions, handleSubFormAction } = useHandleClientActions();
@@ -195,6 +195,18 @@ export const CustomButtonComponent = ({ node }: Props) => {
     .filter((action) => action.type === 'ServerAction')
     .reduce((acc, action) => acc && isAuthorized(action.id), true);
   const disabled = !isPermittedToPerformActions || mutation.isPending;
+
+  const isSubFormButton = actions.filter((action) => action.type === 'SubFormAction').length > 0;
+  let interceptedButtonStyle = buttonStyle ?? 'secondary';
+
+  if (isSubFormButton && !buttonStyle) {
+    interceptedButtonStyle = 'primary';
+  }
+
+  let buttonText = textResourceBindings?.title;
+  if (isSubFormButton && !buttonText) {
+    buttonText = 'general.add';
+  }
 
   const onClick = async () => {
     if (disabled) {
@@ -213,7 +225,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
     }
   };
 
-  const { color, variant } = buttonStyles[buttonStyle];
+  const { color, variant } = buttonStyles[interceptedButtonStyle];
 
   return (
     <Button
@@ -224,7 +236,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
       variant={variant}
       aria-busy={mutation.isPending}
     >
-      <Lang id={textResourceBindings?.title} />
+      <Lang id={buttonText} />
     </Button>
   );
 };
