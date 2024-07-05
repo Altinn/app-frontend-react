@@ -64,10 +64,6 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
   );
 
   it.each(filteredSets)('$appName/$setName', async ({ set }) => {
-    // TODO: We should generate some sensible form data for repeating groups (and their nodes) to work, so that
-    // we can test those as well. It could be as simple as analyzing the layout and generating a form data object
-    // with one entry for each repeating group.
-
     window.location.hash = set.simulateValidUrlHash();
     await renderWithInstanceAndLayout({
       renderer: () => <TestApp />,
@@ -76,6 +72,7 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
         fetchLayouts: async () => set.getLayouts(),
         fetchLayoutSettings: async () => set.getSettings(),
         fetchApplicationMetadata: async () => set.app.getAppMetadata(),
+        fetchFormData: async () => set.simulateDataModel(),
         fetchDataModelSchema: async () => set.getModelSchema(),
         fetchInstanceData: async () => set.simulateInstance(),
         fetchProcessState: async () => set.simulateProcess(),
@@ -84,8 +81,16 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
       alwaysRouteToChildren: true,
     });
 
-    const errors = JSON.parse((await screen.findByTestId('errors')).textContent!);
-    expect(typeof errors).toBe('object');
+    // If errors are not found in the DOM, but there are errors in the loggers, output those instead
+    let errors: any = {};
+    let alwaysFail = false;
+    try {
+      const nodeErrors = (await screen.findByTestId('errors')).textContent;
+      errors = JSON.parse(nodeErrors!);
+      expect(typeof errors).toBe('object');
+    } catch (err) {
+      alwaysFail = err;
+    }
 
     // Inject errors from console/window.logError into the full error list for this layout-set
     const devToolsLoggers = windowLoggers.map((func) => window[func] as jest.Mock);
@@ -99,6 +104,7 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     }
 
     expect(errors).toEqual({});
+    expect(alwaysFail).toBe(false);
   });
 });
 

@@ -586,7 +586,7 @@ export const FD = {
       }
 
       const rawRows = dot.pick(binding, s.currentData);
-      if (!Array.isArray(rawRows)) {
+      if (!Array.isArray(rawRows) || !rawRows.length) {
         return emptyArray;
       }
 

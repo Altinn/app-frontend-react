@@ -2,11 +2,13 @@ import dotenv from 'dotenv';
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
+import { v4 as uuidv4 } from 'uuid';
 import type { JSONSchema7 } from 'json-schema';
 
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutFile, ILayoutSet, ILayoutSets, ILayoutSettings } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
@@ -222,6 +224,48 @@ export class ExternalAppLayoutSet {
     const instance = getInstanceDataMock();
     const firstPage = this.getSettings().pages.order[0];
     return `#/instance/${instance.instanceOwner.partyId}/${instance.id}/Task_1/${firstPage}`;
+  }
+
+  simulateDataModel(): any {
+    const dataModel = {};
+    const layouts = this.getLayouts();
+    const groupsNeeded: string[] = [];
+    for (const page of Object.keys(layouts)) {
+      for (const comp of layouts[page].data.layout) {
+        if (comp.type === 'RepeatingGroup' && comp.dataModelBindings?.group) {
+          groupsNeeded.push(comp.dataModelBindings.group);
+        }
+        if (comp.type === 'Likert' && comp.dataModelBindings?.questions) {
+          groupsNeeded.push(comp.dataModelBindings.questions);
+        }
+      }
+    }
+
+    // Sort groupsNeeded by length to make sure the upper repeating groups are added before the lower/inner levels
+    groupsNeeded.sort((a, b) => a.length - b.length);
+
+    // Add one row per repeating group
+    for (const binding of groupsNeeded) {
+      const parts = binding.split('.');
+      let current = dataModel;
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        if (i === parts.length - 1) {
+          if (!current[part]) {
+            current[part] = [{ [ALTINN_ROW_ID]: uuidv4() }];
+          }
+        } else if (current[part] && Array.isArray(current[part])) {
+          current = current[part][0];
+        } else {
+          if (!current[part]) {
+            current[part] = {};
+          }
+          current = current[part];
+        }
+      }
+    }
+
+    return dataModel;
   }
 }
 
