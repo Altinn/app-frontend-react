@@ -48,10 +48,7 @@ function getDisplayType(
   if (compact || !showAsList) {
     return 'inline';
   }
-  if (!compact && showAsList) {
-    return 'list';
-  }
-  return null;
+  return 'list';
 }
 
 export const MultipleValueSummary = ({ title, componentNode, showAsList, compact }: MultipleValueSummaryProps) => {
