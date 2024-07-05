@@ -94,9 +94,7 @@ const InnerInstanceProvider = ({
   const [data, setData] = useStateDeepEqual<IInstance | undefined>(undefined);
   const [error, setError] = useState<AxiosError | undefined>(undefined);
   const dataSources = useMemo(() => buildInstanceDataSources(data), [data]);
-
   const instantiation = useInstantiation();
-
   const fetchQuery = useGetInstanceDataQuery(partyId, instanceGuid);
 
   const changeData: ChangeInstanceData = useCallback(
@@ -120,7 +118,6 @@ const InnerInstanceProvider = ({
   useEffect(() => {
     if (fetchQuery.data) {
       changeData(() => fetchQuery.data);
-      setForceFetching(false);
     }
   }, [changeData, fetchQuery.data, fetchQuery.error]);
 
@@ -134,8 +131,12 @@ const InnerInstanceProvider = ({
     return <DisplayError error={error} />;
   }
 
-  if (!data || forceFetching) {
+  if (fetchQuery.isLoading) {
     return <Loader reason='instance' />;
+  }
+
+  if (!data) {
+    return false;
   }
 
   return (
