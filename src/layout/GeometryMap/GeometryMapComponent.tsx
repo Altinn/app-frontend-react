@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AttributionControl, MapContainer, Polygon, TileLayer, Tooltip } from 'react-leaflet';
 
+import dot from 'dot-object';
 import WKT from 'terraformer-wkt-parser';
 import type { Location, MapLayer } from '@altinn/altinn-design-system';
 import type { Geometry } from 'geojson';
@@ -27,8 +28,22 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
     },
   ];
 
+  const coordinates: any = [];
+  const labels: any = [];
+
   const formData = FD.useFreshBindings(dataModelBindings, 'raw');
-  const { coordinates, label } = formData;
+  if (Array.isArray(formData['array'])) {
+    for (const obj of formData['array']) {
+      const arrayBinding = dataModelBindings['array'];
+      const textBinding = dataModelBindings.label.replace(`${arrayBinding}.`, '');
+      const wktStringBinding = dataModelBindings.wkt.replace(`${arrayBinding}.`, '');
+      coordinates.push(dot.pick(wktStringBinding, obj));
+      labels.push(dot.pick(textBinding, obj));
+    }
+  } else {
+    coordinates.push(formData['wkt']);
+    labels.push(formData['label']);
+  }
 
   const [inputCoords, geometryType] = findCoordinates(coordinates);
 
@@ -74,7 +89,7 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
               key={i}
               positions={coords}
             >
-              <Tooltip>{label !== undefined ? <span>{JSON.stringify(label)}</span> : <div></div>}</Tooltip>
+              <Tooltip>{labels !== undefined ? <span>{JSON.stringify(labels[0])}</span> : <div></div>}</Tooltip>
             </Polygon>
           ) : (
             <div key={i} />
@@ -127,7 +142,7 @@ function findPolygonCenter(polygonCoords: LatLngExpression[]): [number, number] 
   return [avgLng, avgLat];
 }
 
-function findCoordinates(inputString): [LatLngExpression[][][], string[]] {
+function findCoordinates(inputString: string | string[]): [LatLngExpression[][][], string[]] {
   const coordinatesArray: LatLngExpression[][][] = [];
   const labelsArray: string[] = [];
 

@@ -60,7 +60,9 @@ export const Config = new CG.component({
   )
   .addProperty(new CG.prop('zoom', new CG.num().optional()))
   .addDataModelBinding(
-    new CG.obj(new CG.prop('coordinates', new CG.str()), new CG.prop('label', new CG.str())).exportAs(
-      'IDataModelBindingsForGeometryMap',
-    ),
+    new CG.obj(
+      new CG.prop('array', new CG.str().optional()),
+      new CG.prop('wkt', new CG.str()),
+      new CG.prop('label', new CG.str()),
+    ).exportAs('IDataModelBindingsForGeometryMap'),
   );
