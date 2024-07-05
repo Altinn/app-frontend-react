@@ -205,7 +205,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
 
   let buttonText = textResourceBindings?.title;
   if (isSubFormButton && !buttonText) {
-    buttonText = 'general.add';
+    buttonText = 'general.done';
   }
 
   const onClick = async () => {
