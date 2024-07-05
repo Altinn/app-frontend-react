@@ -10,6 +10,7 @@ import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { ILayoutFile, ILayoutSet, ILayoutSets, ILayoutSettings } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { IInstance, IProcess } from 'src/types/shared';
@@ -76,6 +77,22 @@ export class ExternalApp {
     return this.fileExists(`/App/ui/${setId}/Settings.json`);
   }
 
+  isValidDataModel(dataType: string): boolean {
+    if (!this.fileExists(`/App/models/${dataType}.schema.json`)) {
+      return false;
+    }
+    if (!this.fileExists(`/App/models/${dataType}.cs`)) {
+      return false;
+    }
+
+    const metadata = this.getAppMetadata();
+    const data = metadata.dataTypes.find((dt) => dt.id === dataType);
+    if (!data) {
+      return false;
+    }
+    return !!data.appLogic?.classRef;
+  }
+
   /**
    * Enabling this will overwrite some of the application config in order to allow tests to run this app without
    * having to deal with intricacies like:
@@ -107,6 +124,22 @@ export class ExternalApp {
       appMetaData.onEntry = undefined;
     }
     return appMetaData;
+  }
+
+  getTextResources(): ITextResourceResult[] {
+    const textRoot = '/App/config/texts';
+    const out: ITextResourceResult[] = [];
+    if (!this.dirExists(textRoot)) {
+      return out;
+    }
+
+    for (const file of this.readDir(textRoot)) {
+      if (file.match(/^resource\.\w+\.json$/)) {
+        out.push(this.readJson<ITextResourceResult>(`${textRoot}/${file}`));
+      }
+    }
+
+    return out;
   }
 
   getRawLayoutSets(): ILayoutSets {
@@ -151,6 +184,29 @@ export class ExternalApp {
     }
 
     return this.readJson<ILayoutSettings>(settingsFile);
+  }
+
+  getDataModelsFromFolder(): ExternalAppDataModel[] {
+    const out: ExternalAppDataModel[] = [];
+
+    for (const file of this.readDir('/App/models')) {
+      if (file.match(/\.schema\.json$/)) {
+        const trimmedName = file.replace('.schema.json', '');
+        out.push(new ExternalAppDataModel(this, trimmedName));
+      }
+    }
+
+    return out;
+  }
+
+  getDataModelsFromLayoutSets(): ExternalAppDataModel[] {
+    const out: ExternalAppDataModel[] = [];
+    for (const layoutSet of this.getLayoutSets()) {
+      if (layoutSet.isValid()) {
+        out.push(layoutSet.getModel());
+      }
+    }
+    return out;
   }
 
   getModelSchema(dataType: string): JSONSchema7 {
@@ -205,8 +261,8 @@ export class ExternalAppLayoutSet {
     return this.app.getLayoutSetSettings(this.id);
   }
 
-  getModelSchema() {
-    return this.app.getModelSchema(this.config.dataType);
+  getModel() {
+    return new ExternalAppDataModel(this.app, this.config.dataType, this);
   }
 
   simulateInstance(): IInstance {
@@ -225,10 +281,39 @@ export class ExternalAppLayoutSet {
     const firstPage = this.getSettings().pages.order[0];
     return `#/instance/${instance.instanceOwner.partyId}/${instance.id}/Task_1/${firstPage}`;
   }
+}
 
-  simulateDataModel(): any {
+export class ExternalAppDataModel {
+  constructor(
+    public readonly app: ExternalApp,
+    private dataType: string,
+    public readonly layoutSet?: ExternalAppLayoutSet,
+  ) {}
+
+  getName(): string {
+    return this.dataType;
+  }
+
+  isValid(): boolean {
+    return this.app.isValidDataModel(this.dataType);
+  }
+
+  getSchema() {
+    return this.app.getModelSchema(this.dataType);
+  }
+
+  getDataDef() {
+    const metadata = this.app.getAppMetadata();
+    return metadata.dataTypes.find((dt) => dt.id === this.dataType)!;
+  }
+
+  simulateDataModel(_layouts?: ILayoutCollection): any {
     const dataModel = {};
-    const layouts = this.getLayouts();
+    const layouts = _layouts ?? this.layoutSet?.getLayouts();
+    if (!layouts) {
+      throw new Error('No layouts provided');
+    }
+
     const groupsNeeded: string[] = [];
     for (const page of Object.keys(layouts)) {
       for (const comp of layouts[page].data.layout) {
@@ -312,7 +397,7 @@ export function ensureAppsDirIsSet(runVoidTest = true) {
 /**
  * Parse JSON that may contain comments, trailing commas, etc.
  */
-export function parseJsonTolerantly<T = any>(content: string): T {
+function parseJsonTolerantly<T = any>(content: string): T {
   // Remove multiline comments
   content = content.replace(/\/\*([\s\S]*?)\*\//g, '$1');
 

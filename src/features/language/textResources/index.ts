@@ -1,9 +1,5 @@
 import type { ITextResource } from 'src/types/shared';
 
-export interface ITextResourcesState {
-  resourceMap: TextResourceMap;
-}
-
 export interface TextResourceMap {
   [key: string]: ITextResource | undefined;
 }
