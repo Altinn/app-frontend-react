@@ -408,9 +408,10 @@ function SetTickFunc() {
   }, [currentStageRef, registry, goToNextStage, commit]);
 
   const tick = React.useCallback(() => {
-    if (!tickTimeout.current) {
-      tickTimeout.current = setTimeout(tickFunc, 4);
+    if (tickTimeout.current) {
+      clearTimeout(tickTimeout.current);
     }
+    tickTimeout.current = setTimeout(tickFunc, 10);
   }, [tickFunc]);
 
   useEffect(() => {

@@ -69,6 +69,7 @@ interface InstanceRouterProps {
   initialPage?: string;
   taskId?: string;
   instanceId?: string;
+  alwaysRouteToChildren?: boolean;
 }
 
 interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, InstanceRouterProps {}
@@ -235,6 +236,7 @@ export function InstanceRouter({
   instanceId = exampleInstanceId,
   taskId = 'Task_1',
   initialPage = 'FormLayout',
+  alwaysRouteToChildren = false,
 }: PropsWithChildren<InstanceRouterProps>) {
   return (
     <MemoryRouter
@@ -252,7 +254,7 @@ export function InstanceRouter({
         />
         <Route
           path={'*'}
-          element={<NotFound />}
+          element={alwaysRouteToChildren ? children : <NotFound />}
         />
       </Routes>
     </MemoryRouter>
@@ -528,6 +530,7 @@ export const renderWithInstanceAndLayout = async ({
   renderer,
   instanceId,
   taskId,
+  alwaysRouteToChildren,
   initialPage = 'FormLayout',
   ...renderOptions
 }: ExtendedRenderOptionsWithInstance) => {
@@ -559,6 +562,7 @@ export const renderWithInstanceAndLayout = async ({
           instanceId={instanceId}
           taskId={taskId}
           initialPage={initialPage}
+          alwaysRouteToChildren={alwaysRouteToChildren}
         >
           {children}
         </InstanceRouter>

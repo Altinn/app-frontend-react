@@ -670,6 +670,28 @@ export const NodesInternal = {
     return isReady;
   },
 
+  useFullErrorList() {
+    return Store.useSelector((s) => {
+      const errors: { [pageOrNode: string]: string[] } = {};
+
+      for (const pageKey in s.pagesData.pages) {
+        const page = s.pagesData.pages[pageKey];
+        if (page.errors) {
+          errors[`page/${pageKey}`] = Object.keys(page.errors);
+        }
+      }
+
+      for (const nodeId in s.nodeData) {
+        const node = s.nodeData[nodeId];
+        if (node.errors) {
+          errors[`node/${nodeId}`] = Object.keys(node.errors);
+        }
+      }
+
+      return errors;
+    });
+  },
+
   useNodeData<N extends LayoutNode | undefined, Out>(node: N, selector: (state: NodeDataFromNode<N>) => Out) {
     return Conditionally.useMemoSelector((s) =>
       node && s.nodeData[node.id] ? selector(s.nodeData[node.id] as NodeDataFromNode<N>) : undefined,

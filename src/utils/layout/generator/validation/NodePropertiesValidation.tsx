@@ -5,7 +5,6 @@ import { formatLayoutSchemaValidationError } from 'src/features/devtools/utils/l
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
 import { GeneratorValidation } from 'src/utils/layout/generator/validation/GenerationValidationContext';
-import { useIsJest } from 'src/utils/layout/generator/validation/useIsJest';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -32,11 +31,10 @@ export function NodePropertiesValidation(props: NodeValidationProps) {
 function DataModelValidation({ node, intermediateItem }: NodeValidationProps) {
   const addError = NodesInternal.useAddError();
   const schemaLookup = useCurrentDataModelSchemaLookup();
-  const isJest = useIsJest();
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
 
   const errors = useMemo(() => {
-    if (isJest) {
+    if (window.forceNodePropertiesValidation === 'off') {
       return [];
     }
 
@@ -51,7 +49,7 @@ function DataModelValidation({ node, intermediateItem }: NodeValidationProps) {
     }
 
     return [];
-  }, [intermediateItem, node, schemaLookup, isJest, nodeDataSelector]);
+  }, [intermediateItem, node, schemaLookup, nodeDataSelector]);
 
   // Must run after nodes have been added for the errors to actually be added
   GeneratorStages.MarkHidden.useEffect(() => {

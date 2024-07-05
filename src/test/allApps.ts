@@ -1,172 +1,242 @@
 import dotenv from 'dotenv';
+import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
+import type { JSONSchema7 } from 'json-schema';
 
-import { cleanLayout } from 'src/features/form/layout/cleanLayout';
+import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
+import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
+import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { ILayoutFile, ILayoutSet, ILayoutSets } from 'src/layout/common.generated';
+import type { ILayoutFile, ILayoutSet, ILayoutSets, ILayoutSettings } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
-import type { IDataType } from 'src/types/shared';
+import type { IInstance, IProcess } from 'src/types/shared';
 
-interface AppLayoutSet {
-  appName: string;
-  appRoot: string;
-  setName: string;
-  set: ILayoutSet | undefined;
-  layouts: ILayoutCollection;
-  entireFiles: { [key: string]: unknown };
-}
+export class ExternalApp {
+  private compat = false;
+  constructor(private rootDir: string) {}
 
-interface AppLayoutSetWithDataModelSchema extends AppLayoutSet {
-  modelPath: string;
-  dataType: string;
-  appMetadata: IApplicationMetadata;
-  dataTypeDef: IDataType | undefined;
-}
+  getName() {
+    return path.basename(this.rootDir);
+  }
 
-interface InternalSet {
-  folder: string;
-  plain: boolean;
-  actualSet?: ILayoutSet;
-}
+  private readFile(path: string) {
+    return fs.readFileSync(this.rootDir + path, 'utf-8').toString();
+  }
 
-/**
- * Get all layout sets from all apps
- * This expects to be pointed to a directory containing all known apps, in a structure like that
- * created from:
- * @see https://github.com/olemartinorg/altinn-fetch-apps
- */
-export function getAllLayoutSets(dir: string): AppLayoutSet[] {
-  const out: AppLayoutSet[] = [];
-  const apps = getAllApps(dir);
-  for (const app of apps) {
-    const sets: InternalSet[] = [{ folder: 'layouts', plain: true }];
-    const layoutSetsPath = path.join(dir, app, 'App/ui/layout-sets.json');
-    if (fs.existsSync(layoutSetsPath)) {
-      const content = fs.readFileSync(layoutSetsPath);
-      const layoutSets = parseJsonTolerantly<ILayoutSets>(content.toString());
-      sets.pop();
+  private readJson<T>(path: string) {
+    return parseJsonTolerantly<T>(this.readFile(path));
+  }
 
-      for (const set of layoutSets.sets) {
-        sets.push({ folder: set.id, plain: false, actualSet: set });
+  private fileExists(path: string) {
+    try {
+      fs.accessSync(this.rootDir + path, fs.constants.R_OK);
+      return true;
+    } catch (_err) {
+      return false;
+    }
+  }
+
+  private dirExists(path: string) {
+    try {
+      return fs.statSync(this.rootDir + path).isDirectory();
+    } catch (_err) {
+      return false;
+    }
+  }
+
+  private readDir(path: string) {
+    return fs.readdirSync(this.rootDir + path);
+  }
+
+  isValid(): boolean {
+    if (!this.dirExists('/App')) {
+      return false;
+    }
+    if (!this.fileExists('/App/config/applicationmetadata.json')) {
+      return false;
+    }
+    if (!this.fileExists('/App/views/Home/Index.cshtml')) {
+      return false;
+    }
+    if (!this.fileExists('/App/ui/layout-sets.json')) {
+      return false;
+    }
+
+    const indexFile = this.readFile('/App/views/Home/Index.cshtml');
+    return !!indexFile.match(/altinn-app-frontend\/4.*?\/altinn-app-frontend\.js/);
+  }
+
+  isValidLayoutSet(setId: string): boolean {
+    if (!this.dirExists(`/App/ui/${setId}/layouts`)) {
+      return false;
+    }
+    return this.fileExists(`/App/ui/${setId}/Settings.json`);
+  }
+
+  /**
+   * Enabling this will overwrite some of the application config in order to allow tests to run this app without
+   * having to deal with intricacies like:
+   *  1. No stateless support, all layout-sets assume you have an instance. Unless the layout-set
+   *     specifies something else, the process data will be at Task_1.
+   *  2. All party types are allowed, no party selection
+   *  3. No instance selection on entry
+   */
+  enableCompatibilityMode() {
+    this.compat = true;
+    return this;
+  }
+
+  getAppMetadata(): IApplicationMetadata {
+    const appMetaData = this.readJson<IApplicationMetadata>('/App/config/applicationmetadata.json');
+    if (this.compat) {
+      appMetaData.altinnNugetVersion = MINIMUM_APPLICATION_VERSION.build;
+      appMetaData.partyTypesAllowed = {
+        subUnit: true,
+        person: true,
+        bankruptcyEstate: true,
+        organisation: true,
+      };
+
+      // We delete this for multiple reasons:
+      // 1. When testing, we don't want to end up in instance selection
+      // 2. We pretend stateless isn't a thing. If apps are considered stateless, we can end up with useNavigatePage()
+      //    redirecting us to a page we didn't want.
+      appMetaData.onEntry = undefined;
+    }
+    return appMetaData;
+  }
+
+  getRawLayoutSets(): ILayoutSets {
+    const layoutSets = this.readJson<ILayoutSets>('/App/ui/layout-sets.json');
+
+    if (this.compat) {
+      for (const set of Object.values(layoutSets.sets)) {
+        set.tasks = ['Task_1'];
       }
     }
 
-    for (const set of sets) {
-      const setPath = [dir, app, 'App/ui', set.folder, set.plain ? '' : 'layouts'];
-      const layoutRoot = path.join(...setPath);
-      const layoutFiles: string[] = [];
-      if (fs.existsSync(layoutRoot)) {
-        layoutFiles.push(...fs.readdirSync(layoutRoot));
-      } else if (set.plain && fs.existsSync(path.join(...setPath, '../FormLayout.json'))) {
-        layoutFiles.push('../FormLayout.json');
-      } else {
+    return layoutSets;
+  }
+
+  getLayoutSets(): ExternalAppLayoutSet[] {
+    const raw = this.getRawLayoutSets();
+    return raw.sets.map((set) => new ExternalAppLayoutSet(this, set.id, set));
+  }
+
+  getLayoutSet(setId: string): ILayoutCollection {
+    const layoutsDir = `/App/ui/${setId}/layouts`;
+    if (!this.dirExists(layoutsDir)) {
+      throw new Error(`Layout set '${setId}' folder not found`);
+    }
+
+    const collection: ILayoutCollection = {};
+    for (const file of this.readDir(layoutsDir)) {
+      if (!file.endsWith('.json')) {
         continue;
       }
 
-      const layouts: ILayoutCollection = {};
-      const entireFiles: { [key: string]: unknown } = {};
-      for (const layoutFile of layoutFiles.filter((s) => s.endsWith('.json'))) {
-        const basename = path.basename(layoutFile).replace('.json', '');
-        const fileContent = fs.readFileSync(path.join(...setPath, layoutFile));
-        const layoutContent = parseJsonTolerantly<ILayoutFile>(fileContent.toString().trim());
-        layouts[basename] = {
-          ...layoutContent,
-          data: {
-            ...layoutContent.data,
-            layout: cleanLayout(layoutContent.data.layout),
-          },
-        };
-        entireFiles[basename] = layoutContent;
-      }
-
-      out.push({
-        appName: app,
-        appRoot: path.join(dir, app),
-        setName: set.folder,
-        set: set.actualSet,
-        layouts,
-        entireFiles,
-      });
+      collection[file.replace('.json', '')] = this.readJson<ILayoutFile>(`${layoutsDir}/${file}`);
     }
+
+    return collection;
   }
 
-  return out;
-}
-
-export function getAllLayoutSetsWithDataModelSchema(dir: string): {
-  out: AppLayoutSetWithDataModelSchema[];
-  notFound: string[];
-} {
-  const out: AppLayoutSetWithDataModelSchema[] = [];
-  const notFound: string[] = [];
-  const allLayoutSets = getAllLayoutSets(dir);
-  for (const idx in allLayoutSets) {
-    const item = allLayoutSets[idx];
-    const appRoot = item.appRoot;
-    const set = item.set;
-    const appMetadata = getApplicationMetaData(appRoot);
-    const allDataTypes = appMetadata.dataTypes.filter((dt) => dt.appLogic?.classRef);
-
-    let dataType = set?.dataType;
-    if (!dataType && set?.tasks?.length === 1) {
-      const task = set.tasks[0];
-      dataType = allDataTypes.find((dt) => dt.taskId === task)?.id;
-    }
-    if (!dataType && allDataTypes.length === 1) {
-      dataType = allDataTypes[0].id;
+  getLayoutSetSettings(setId: string): ILayoutSettings {
+    const settingsFile = `/App/ui/${setId}/Settings.json`;
+    if (!this.fileExists(settingsFile)) {
+      throw new Error(`Layout set '${setId}' settings file not found`);
     }
 
-    const modelsDir = `${appRoot}/App/models`;
-    if (!fs.existsSync(modelsDir)) {
-      notFound.push(`${item.appName}/${item.setName} (no models dir)`);
-      continue;
-    }
-
-    const modelsDirFiles = fs.readdirSync(modelsDir);
-    const allDataTypesWithSchemaFiles = allDataTypes.filter((dt) => modelsDirFiles.includes(`${dt.id}.schema.json`));
-
-    if (!dataType && allDataTypesWithSchemaFiles.length === 1) {
-      dataType = allDataTypes[0].id;
-    }
-
-    if (!dataType) {
-      notFound.push(`${item.appName}/${item.setName} (no data type)`);
-      continue;
-    }
-
-    const dataTypeDef = appMetadata.dataTypes.find((dt) => dt.id === dataType);
-    const modelPath = modelsDirFiles.includes(`${dataType}.schema.json`)
-      ? `${appRoot}/App/models/${dataType}.schema.json`
-      : undefined;
-    if (!modelPath) {
-      notFound.push(`${item.appName}/${item.setName} (no model schema)`);
-      continue;
-    }
-
-    out.push({ ...item, modelPath, dataType, dataTypeDef, appMetadata });
+    return this.readJson<ILayoutSettings>(settingsFile);
   }
 
-  return { out, notFound };
+  getModelSchema(dataType: string): JSONSchema7 {
+    const schemaFile = `/App/models/${dataType}.schema.json`;
+    if (!this.fileExists(schemaFile)) {
+      throw new Error(`Model schema '${dataType}' file not found`);
+    }
+
+    return this.readJson<JSONSchema7>(schemaFile);
+  }
 }
 
-function getApplicationMetaData(appRoot: string) {
-  const appJson = fs.readFileSync(path.join(appRoot, 'App/config/applicationmetadata.json'), 'utf-8');
-  return parseJsonTolerantly<IApplicationMetadata>(appJson);
+export class ExternalAppLayoutSet {
+  constructor(
+    public readonly app: ExternalApp,
+    private id: string,
+    private config: ILayoutSet,
+  ) {}
+
+  getName() {
+    return this.id;
+  }
+
+  isValid(): boolean {
+    // A layout-set must have a dataType to be valid, and that dataType must be in applicationmetadata
+    if (!this.config.dataType) {
+      return false;
+    }
+
+    if (!this.app.isValidLayoutSet(this.id)) {
+      return false;
+    }
+
+    const metadata = this.app.getAppMetadata();
+    return !!metadata?.dataTypes.find((element) => element.id === this.config.dataType);
+  }
+
+  /**
+   * Returns the same as getRawLayoutSets() on the app, but pretends this layout-set is the only one
+   */
+  getLayoutSetsAsOnlySet(): ILayoutSets {
+    const full = this.app.getRawLayoutSets();
+    full.sets = [this.config];
+    return full;
+  }
+
+  getLayouts() {
+    return this.app.getLayoutSet(this.id);
+  }
+
+  getSettings() {
+    return this.app.getLayoutSetSettings(this.id);
+  }
+
+  getModelSchema() {
+    return this.app.getModelSchema(this.config.dataType);
+  }
+
+  simulateInstance(): IInstance {
+    return getInstanceDataMock((i) => {
+      assert(i.data[0].dataType === 'test-data-model');
+      i.data[0].dataType = this.config.dataType;
+    });
+  }
+
+  simulateProcess(): IProcess {
+    return getProcessDataMock();
+  }
+
+  simulateValidUrlHash(): string {
+    const instance = getInstanceDataMock();
+    const firstPage = this.getSettings().pages.order[0];
+    return `#/instance/${instance.instanceOwner.partyId}/${instance.id}/Task_1/${firstPage}`;
+  }
 }
 
 /**
  * Get all apps, as a list of paths
  */
-export function getAllApps(dir: string): string[] {
-  const out: string[] = [];
+export function getAllApps(dir: string): ExternalApp[] {
+  const out: ExternalApp[] = [];
   const apps = fs.readdirSync(dir);
   for (const app of apps) {
     if (app.startsWith('.')) {
       continue;
     }
 
-    out.push(app);
+    out.push(new ExternalApp(path.join(dir, app)));
   }
 
   return out;

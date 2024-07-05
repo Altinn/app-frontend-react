@@ -40,6 +40,9 @@ declare global {
     // Used to indicate that we are running in a unit test. Do not check this unless you really need to.
     inUnitTest?: boolean;
 
+    // Allows forcing node properties validation always-on or always-off (defaults to auto-detection)
+    forceNodePropertiesValidation: undefined | 'on' | 'off';
+
     conditionalRuleHandlerObject: IRuleObject;
     ruleHandlerObject: IRuleObject;
 
