@@ -5,6 +5,7 @@ import { DROPDOWN_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Dropdown/config';
 import { INPUT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Input/config';
 import { MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/MultipleSelect/config';
 import { RADIO_SUMMARY_OVERRIDE_PROPS } from 'src/layout/RadioButtons/config';
+import { REPEATING_GROUP_SUMMARY_OVERRIDE_PROPS } from 'src/layout/RepeatingGroup/config';
 export const Config = new CG.component({
   category: CompCategory.Container,
   rendersWithLabel: false,
@@ -50,6 +51,7 @@ export const Config = new CG.component({
           RADIO_SUMMARY_OVERRIDE_PROPS,
           DROPDOWN_SUMMARY_OVERRIDE_PROPS,
           MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS,
+          REPEATING_GROUP_SUMMARY_OVERRIDE_PROPS,
         ),
       ).optional(),
     ),

@@ -2,6 +2,13 @@ import { CG, Variant } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
+export const REPEATING_GROUP_SUMMARY_OVERRIDE_PROPS = new CG.obj()
+  .extends(CG.common('ISummaryOverridesCommon'))
+  .optional()
+  .setTitle('Summary properties')
+  .setDescription('Properties for how to display the summary of the component')
+  .exportAs('RepeatingGroupSummaryOverrideProps');
+
 export const Config = new CG.component({
   category: CompCategory.Container,
   rendersWithLabel: false,

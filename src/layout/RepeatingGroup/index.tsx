@@ -13,6 +13,7 @@ import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/Summary
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { RepeatingGroupSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -51,6 +52,13 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
         overrides={overrides}
       />
     );
+  }
+
+  renderSummary2(
+    componentNode: LayoutNode<'RepeatingGroup'>,
+    summaryOverrides?: RepeatingGroupSummaryOverrideProps,
+  ): JSX.Element | null {
+    return <div>tjobing</div>;
   }
 
   renderSummaryBoilerplate(): boolean {
