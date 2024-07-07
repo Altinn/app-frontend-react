@@ -11,12 +11,15 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
-import classes from 'src/layout/RepeatingGroup/RepeatingGroupContainer.module.css';
-import { useRepeatingGroup, useRepeatingGroupSelector } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
-import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
-import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/RepeatingGroupPagination';
-import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
-import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
+import classes from 'src/layout/RepeatingGroup/RepeatingGroupContainer/RepeatingGroupContainer.module.css';
+import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupEditContainer/RepeatingGroupsEditContainer';
+import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/RepeatingGroupPagination/RepeatingGroupPagination';
+import {
+  useRepeatingGroup,
+  useRepeatingGroupSelector,
+} from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
+import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupFocusContext';
+import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HTMLDivElement>): JSX.Element | null => {
