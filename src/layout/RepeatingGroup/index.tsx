@@ -10,6 +10,7 @@ import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGrou
 import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
 import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupFocusContext';
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
+import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -58,7 +59,12 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     componentNode: LayoutNode<'RepeatingGroup'>,
     summaryOverrides?: RepeatingGroupSummaryOverrideProps,
   ): JSX.Element | null {
-    return <div>tjobing</div>;
+    return (
+      <RepeatingGroupSummary
+        componentNode={componentNode}
+        summaryOverrides={summaryOverrides}
+      />
+    );
   }
 
   renderSummaryBoilerplate(): boolean {
