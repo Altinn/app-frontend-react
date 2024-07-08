@@ -92,7 +92,7 @@ export function TaskSummaryWrapper({
 }: React.PropsWithChildren<TaskSummaryProps>) {
   const { setTaskId, setOverriddenDataModelId, setOverriddenLayoutSetId, overriddenTaskId } = useTaskStore((state) => ({
     setTaskId: state.setTaskId,
-    setOverriddenDataModelId: state.setOverriddenDataModelId,
+    setOverriddenDataModelId: state.setOverriddenDataModelType,
     setOverriddenLayoutSetId: state.setOverriddenLayoutSetId,
     overriddenTaskId: state.overriddenTaskId,
   }));

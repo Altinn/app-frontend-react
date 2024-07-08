@@ -12,7 +12,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { mapValidationIssueToFieldValidation } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { Validation } from 'src/features/validation/validationContext';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
 import type { BackendValidationIssue } from 'src/features/validation';
 import type { IActionType, IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -155,4 +155,11 @@ export function ProcessNavigationProvider({ children }: React.PropsWithChildren)
   );
 }
 
-export const useProcessNavigation = () => useCtx();
+export const useProcessNavigation = () => {
+  const { isSubFormPage } = useNavigationParams();
+  if (isSubFormPage) {
+    throw new Error('Cannot use process navigation in a sub-form');
+  }
+
+  return useCtx();
+};

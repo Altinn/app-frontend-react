@@ -30,6 +30,11 @@ interface FormState {
 
 export function Form() {
   const currentPageId = useCurrentView();
+
+  return <FormPage currentPageId={currentPageId} />;
+}
+
+export function FormPage({ currentPageId }: { currentPageId: string | undefined }) {
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const [formState, setFormState] = useState<FormState>({
     hasRequired: false,
@@ -225,10 +230,13 @@ function HandleNavigationFocusComponent() {
   const focusNode = useResolvedNode(componentId);
   const navigateTo = useNavigateToNode();
 
+  const haveFocusComponentId = searchParams.get(SearchParams.FocusComponentId);
   React.useEffect(() => {
-    searchParams.delete(SearchParams.FocusComponentId);
-    setSearchParams(searchParams, { replace: true, preventScrollReset: true });
-  }, [searchParams, setSearchParams]);
+    if (haveFocusComponentId) {
+      searchParams.delete(SearchParams.FocusComponentId);
+      setSearchParams(searchParams, { replace: true, preventScrollReset: true });
+    }
+  }, [haveFocusComponentId, searchParams, setSearchParams]);
 
   React.useEffect(() => {
     if (focusNode != null) {

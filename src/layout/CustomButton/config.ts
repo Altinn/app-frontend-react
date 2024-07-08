@@ -36,6 +36,12 @@ export const Config = new CG.component({
           new CG.obj(new CG.prop('id', new CG.str()), new CG.prop('type', new CG.const('ServerAction'))).exportAs(
             'ServerAction',
           ),
+          new CG.union(
+            new CG.obj(
+              new CG.prop('id', new CG.const('saveAndClose')),
+              new CG.prop('type', new CG.const('SubFormAction')),
+            ).exportAs('SubFormSaveAction'),
+          ).exportAs('SubFormAction'),
         ).exportAs('CustomAction'),
       ),
     ),
