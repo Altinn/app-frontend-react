@@ -4,8 +4,6 @@ export type IFormDynamics = {
   conditionalRendering: IConditionalRenderingRules | null;
 };
 
-export type IFormDynamicState = IFormDynamics;
-
 export interface IRuleConnection {
   inputParams: IParameters;
   outParams: {

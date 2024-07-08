@@ -127,7 +127,7 @@ export type NodesContext = {
   removeNodes: (requests: RemoveNodeRequest[]) => void;
   setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
   addError: (error: string, node: LayoutPage | LayoutNode) => void;
-  markHiddenViaRule: (nodeId: string, hidden: boolean) => void;
+  markHiddenViaRule: (hiddenFields: { [nodeId: string]: true }) => void;
 
   addPage: (pageKey: string) => void;
   removePage: (pageKey: string) => void;
@@ -157,14 +157,9 @@ export function createNodesDataStore() {
     nodeData: {},
 
     hiddenViaRules: {},
-    markHiddenViaRule: (nodeId, hidden) =>
+    markHiddenViaRule: (newState) =>
       set((state) => {
-        const newState = { ...state.hiddenViaRules };
-        if (hidden && !newState[nodeId]) {
-          newState[nodeId] = true;
-        } else if (!hidden && newState[nodeId]) {
-          delete newState[nodeId];
-        } else {
+        if (deepEqual(state.hiddenViaRules, newState)) {
           return {};
         }
 
