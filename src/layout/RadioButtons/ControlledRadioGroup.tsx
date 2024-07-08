@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { HelpText, Radio } from '@digdir/designsystemet-react';
+import { Radio } from '@digdir/designsystemet-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { RadioButton } from 'src/components/form/RadioButton';
@@ -34,13 +34,12 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
     }
     return null;
   };
-
+  console.log(node, textResourceBindings);
   const labelText = (
     <span className={classes.labelContent}>
       {getLabelPrefixForLikert()}
       <LabelContent
         label={textResourceBindings?.title}
-        description={textResourceBindings?.description}
         helpText={textResourceBindings?.help}
         required={required}
         readOnly={readOnly}
@@ -66,16 +65,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   return (
     <div id={id}>
       <Radio.Group
-        legend={
-          <span className={classes.label}>
-            {labelText}
-            {textResourceBindings?.help && (
-              <HelpText title={langAsString(textResourceBindings.help)}>
-                <Lang id={textResourceBindings.help} />
-              </HelpText>
-            )}
-          </span>
-        }
+        legend={labelText}
         hideLegend={overrideDisplay?.renderLegend === false}
         description={<Lang id={textResourceBindings?.description} />}
         error={!isValid}

@@ -1,10 +1,11 @@
-.checkboxLabelContainer {
+.labelContainer {
   display: flex;
-  gap: var(--fds-spacing-1);
+  gap: var(--fds-spacing-2);
   align-items: center;
 }
 
 .labelContent {
   font-size: 1rem;
   word-break: break-word;
+  font-weight: 500;
 }

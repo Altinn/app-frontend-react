@@ -1,11 +1,13 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 
+import classes from 'src/layout/ComponentWithLabel.module.css';
 import { LabelContent } from 'src/layout/LabelContent';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
 export interface ComponentWithLabelProps {
-  renderLabelAs?: 'legend' | 'span';
+  renderLabelAs?: 'legend' | 'span' | 'label';
+  id: string;
   label?: string;
   helpText?: string;
   description?: string;
@@ -17,6 +19,7 @@ export interface ComponentWithLabelProps {
 
 export const ComponentWithLabel: React.FunctionComponent<ComponentWithLabelProps> = ({
   renderLabelAs,
+  id,
   label,
   description,
   required,
@@ -24,10 +27,9 @@ export const ComponentWithLabel: React.FunctionComponent<ComponentWithLabelProps
   helpText,
   labelSettings,
   children,
-}) => (
-  <div>
+}) => {
+  const labelContent = (
     <LabelContent
-      renderLabelAs={renderLabelAs}
       label={label}
       description={description}
       required={required}
@@ -35,6 +37,29 @@ export const ComponentWithLabel: React.FunctionComponent<ComponentWithLabelProps
       helpText={helpText}
       labelSettings={labelSettings}
     />
-    {children}
-  </div>
-);
+  );
+
+  if (renderLabelAs === 'label') {
+    return (
+      <div className={classes.fieldWrapper}>
+        <label htmlFor={id}>{labelContent}</label>
+        {children}
+      </div>
+    );
+  }
+  if (renderLabelAs === 'legend') {
+    return (
+      <fieldset className={classes.fieldWrapper}>
+        <legend>{labelContent}</legend>
+        {children}
+      </fieldset>
+    );
+  }
+
+  return (
+    <div className={classes.fieldWrapper}>
+      <span className='label'>{labelContent}</span>
+      {children}
+    </div>
+  );
+};

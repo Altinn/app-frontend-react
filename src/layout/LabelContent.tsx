@@ -34,10 +34,10 @@ export const LabelContent: React.FunctionComponent<ComponentWithLabelProps> = ({
   if (overrideDisplay?.renderLabel === false) {
     return null;
   }
-
+  console.log(langAsString(label), required);
   return (
-    <div>
-      <span className={classes.checkboxLabelContainer}>
+    <>
+      <span className={classes.labelContainer}>
         <span className={classes.labelContent}>
           <Lang id={label} />
           <RequiredIndicator
@@ -61,6 +61,6 @@ export const LabelContent: React.FunctionComponent<ComponentWithLabelProps> = ({
         description={description}
         id={id}
       />
-    </div>
+    </>
   );
 };

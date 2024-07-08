@@ -11,6 +11,7 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useIsMobile';
+import { ComponentWithLabel } from 'src/layout/ComponentWithLabel';
 import { getDateConstraint, getDateFormat, getDateString } from 'src/utils/dateHelpers';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -117,6 +118,7 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
     id,
     textResourceBindings,
     dataModelBindings,
+    labelSettings,
   } = node.item;
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
@@ -148,7 +150,16 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
     : {};
 
   return (
-    <>
+    <ComponentWithLabel
+      renderLabelAs='label'
+      id={id}
+      label={textResourceBindings?.title}
+      description={textResourceBindings?.description}
+      helpText={textResourceBindings?.help}
+      readOnly={readOnly}
+      required={required}
+      labelSettings={labelSettings}
+    >
       <MuiPickersUtilsProvider utils={AltinnMomentUtils}>
         <Grid
           container
@@ -226,6 +237,6 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
           />
         </Grid>
       </MuiPickersUtilsProvider>
-    </>
+    </ComponentWithLabel>
   );
 }
