@@ -10,6 +10,7 @@ import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subFormData/useSubFormMutations';
 import classes from 'src/layout/SubForm/SubFormComponent.module.css';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -19,9 +20,16 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
   const { dataType, id, textResourceBindings, showAddButton = true, showDeleteButton = true } = node.item;
   const dataElements = useStrictInstanceData().data.filter((d) => d.dataType === dataType);
   const { langAsString } = useLanguage();
+  const addEntryMutation = useAddEntryMutation();
 
   const addEntry = async () => {
-    console.log('Add method goes here');
+    try {
+      await addEntryMutation.mutateAsync({
+        /* TODO: data */
+      });
+    } catch (error) {
+      console.error('Error adding entry:', error);
+    }
   };
 
   return (
@@ -105,6 +113,8 @@ function SubFormTableRow({
   const url = getDataModelUrl(instance.id, id, true);
   const { isFetching, data, error } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
+
+  const deleteEntryMutation = useDeleteEntryMutation(id); // TODO: this should be the id of the sub form
   const deleteButtonText = langAsString('general.delete');
 
   if (isFetching) {
@@ -114,7 +124,11 @@ function SubFormTableRow({
   // <span>{dot.pick('Path.Inside.DataModel', data)}</span>
 
   const deleteEntry = async () => {
-    console.log('Delete method goes here');
+    try {
+      await deleteEntryMutation.mutateAsync();
+    } catch (error) {
+      console.error('Error deleting entry:', error);
+    }
   };
 
   return (
