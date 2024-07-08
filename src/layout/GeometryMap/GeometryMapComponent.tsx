@@ -89,7 +89,7 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
               key={i}
               positions={coords}
             >
-              <Tooltip>{labels !== undefined ? <span>{JSON.stringify(labels[0])}</span> : <div></div>}</Tooltip>
+              <Tooltip>{labels !== undefined ? <span>{JSON.stringify(labels[i])}</span> : <div></div>}</Tooltip>
             </Polygon>
           ) : (
             <div key={i} />
@@ -168,14 +168,6 @@ function parseWKTtoGeoJSON(wktString): Geometry {
 function handleGeoJson(geojson: Geometry): [LatLngExpression[][], string] {
   const coordinates: LatLngExpression[][] = [];
   switch (geojson.type) {
-    case 'LineString': {
-      const linestringCoords: LatLngExpression[] = [];
-      geojson.coordinates.forEach((pos) => {
-        linestringCoords.push([pos[1], pos[0]]);
-      });
-      coordinates.push(linestringCoords);
-      return [coordinates, 'linestring'];
-    }
     case 'Polygon': {
       const polygonCoords: LatLngExpression[] = [];
       geojson.coordinates[0].forEach((pos) => {

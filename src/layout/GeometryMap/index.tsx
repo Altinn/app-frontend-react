@@ -29,11 +29,9 @@ export class GeometryMap extends GeometryMapDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'GeometryMap'>): string[] {
-    const errors: string[] = [
-      // ...(this.validateDataModelBindingsAny(ctx, 'wkt', ['string'])[0] || []),
-      // ...(this.validateDataModelBindingsAny(ctx, 'label', ['string'])[0] || []),
+    return [
+      // ...(this.validateDataModelBindingsList(ctx, 'wkt', ['string', 'array'])[0] || []),
+      // ...(this.validateDataModelBindingsAny(ctx, 'label', ['string', 'array'])[0] || []),
     ];
-
-    return errors;
   }
 }
