@@ -151,6 +151,23 @@ export const doAttachmentRemove = async (instanceId: string, dataGuid: string, l
   return response.data;
 };
 
+export const doSubFormEntryAdd = async (data: any): Promise<any> => {
+  // Replace with the actual endpoint and request payload
+  const response = await httpPost('/api/addSubForm', undefined, data);
+  if (response.status !== 200) {
+    throw new Error('Failed to add sub form');
+  }
+  return response.data;
+};
+
+export const doSubFormEntryDelete = async (id: string): Promise<void> => {
+  // Replace with the actual endpoint
+  const response = await httpDelete(`/api/deleteSubForm/${id}`);
+  if (response.status !== 200) {
+    throw new Error('Failed to delete sub form');
+  }
+};
+
 // When saving data for normal/stateful apps
 export const doPatchFormData = (url: string, data: IDataModelPatchRequest): Promise<IDataModelPatchResponse> =>
   httpPatch(url, data);
