@@ -10,12 +10,13 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
+import { ComponentWithLabel } from 'src/layout/ComponentWithLabel';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
 export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMultipleSelectProps) {
-  const { id, readOnly, textResourceBindings, alertOnChange } = node.item;
+  const { id, readOnly, required, textResourceBindings, alertOnChange, labelSettings } = node.item;
   const debounce = FD.useDebounceImmediately();
   const { options, isFetching, selectedValues, setData } = useGetOptions({
     ...node.item,
@@ -65,40 +66,51 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
         </DeleteWarningPopover>
       )}
     >
-      <Combobox
-        multiple
-        hideLabel
+      <ComponentWithLabel
         id={id}
-        size='sm'
-        value={selectedValues}
+        renderLabelAs='label'
+        label={textResourceBindings?.title}
+        helpText={textResourceBindings?.help}
+        description={textResourceBindings?.description}
         readOnly={readOnly}
-        onValueChange={handleChange}
-        onBlur={debounce}
-        error={!isValid}
-        clearButtonLabel={langAsString('form_filler.clear_selection')}
-        aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
-        className={comboboxClasses.container}
+        required={required}
+        labelSettings={labelSettings}
       >
-        <Combobox.Empty>
-          <Lang id={'form_filler.no_options_found'} />
-        </Combobox.Empty>
-        {options.map((option) => (
-          <Combobox.Option
-            key={option.value}
-            value={option.value}
-            description={option.description ? langAsString(option.description) : undefined}
-            displayValue={langAsString(option.label) || '\u200b'} // Workaround to prevent component from crashing due to empty string
-          >
-            <span>
-              <wbr />
-              <Lang
-                id={option.label}
-                node={node}
-              />
-            </span>
-          </Combobox.Option>
-        ))}
-      </Combobox>
+        <Combobox
+          multiple
+          hideLabel
+          id={id}
+          size='sm'
+          value={selectedValues}
+          readOnly={readOnly}
+          onValueChange={handleChange}
+          onBlur={debounce}
+          error={!isValid}
+          clearButtonLabel={langAsString('form_filler.clear_selection')}
+          aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+          className={comboboxClasses.container}
+        >
+          <Combobox.Empty>
+            <Lang id={'form_filler.no_options_found'} />
+          </Combobox.Empty>
+          {options.map((option) => (
+            <Combobox.Option
+              key={option.value}
+              value={option.value}
+              description={option.description ? langAsString(option.description) : undefined}
+              displayValue={langAsString(option.label) || '\u200b'} // Workaround to prevent component from crashing due to empty string
+            >
+              <span>
+                <wbr />
+                <Lang
+                  id={option.label}
+                  node={node}
+                />
+              </span>
+            </Combobox.Option>
+          ))}
+        </Combobox>
+      </ComponentWithLabel>
     </ConditionalWrapper>
   );
 }

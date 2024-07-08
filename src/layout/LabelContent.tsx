@@ -34,7 +34,7 @@ export const LabelContent: React.FunctionComponent<ComponentWithLabelProps> = ({
   if (overrideDisplay?.renderLabel === false) {
     return null;
   }
-  console.log(langAsString(label), required);
+
   return (
     <>
       <span className={classes.labelContainer}>
