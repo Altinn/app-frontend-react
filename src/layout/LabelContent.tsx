@@ -56,11 +56,13 @@ export const LabelContent: React.FunctionComponent<ComponentWithLabelProps> = ({
           </HelpText>
         )}
       </span>
-      <Description
-        key={`description-${id}`}
-        description={description}
-        id={id}
-      />
+      {description && (
+        <Description
+          key={`description-${id}`}
+          description={description}
+          id={id}
+        />
+      )}
     </>
   );
 };

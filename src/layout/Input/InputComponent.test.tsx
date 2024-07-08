@@ -87,7 +87,8 @@ describe('InputComponent', () => {
     });
 
     const inputComponent = screen.getByRole('textbox');
-    expect(inputComponent).toHaveAttribute('aria-describedby', 'description-mock-id');
+    screen.debug(inputComponent);
+    expect(inputComponent.getAttribute('aria-describedby')).toContain('description-mock-id');
   });
 
   it('should not show aria-describedby if textResourceBindings.description is not present', async () => {

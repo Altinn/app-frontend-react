@@ -314,11 +314,8 @@ describe('FileUploadWithTagComponent', () => {
         component: { maxNumberOfAttachments: 3 },
         attachments: (dataType) => getDataElements({ count: 2, dataType }),
       });
-
       expect(
-        screen.getByRole('presentation', {
-          name: 'Dra og slipp eller let etter fil Tillatte filformater er: alle',
-        }),
+        screen.getByRole('presentation', { name: 'Dra og slipp eller let etter fil Tillatte filformater er: alle' }),
       ).toBeInTheDocument();
     });
 

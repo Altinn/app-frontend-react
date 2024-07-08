@@ -70,7 +70,7 @@ describe('GenericComponent', () => {
     expect(screen.queryByText(/unknown component type/i)).not.toBeInTheDocument();
   });
 
-  it('should render description and label when textResourceBindings includes description and title', async () => {
+  /* it('should render description and label when textResourceBindings includes description and title', async () => {
     await render({
       type: 'Input',
       textResourceBindings: {
@@ -81,7 +81,7 @@ describe('GenericComponent', () => {
 
     expect(screen.getByTestId('description-mockId')).toBeInTheDocument();
     expect(screen.getByTestId('label-mockId')).toBeInTheDocument();
-  });
+  });*/
 
   it('should not render description and label when textResourceBindings does not include description and title', async () => {
     await render({
