@@ -57,8 +57,8 @@ export function en() {
     form_filler: {
       alert_confirm: 'Confirm',
       checkbox_alert: 'Are you sure you want to uncheck?',
-      multi_select_alert: 'Are you sure you want to delete **{0}**?',
-      dropdown_alert: 'Are you sure you want to change to **{0}**?',
+      multi_select_alert: 'Are you sure you want to delete <b>{0}</b>?',
+      dropdown_alert: 'Are you sure you want to change to <b>{0}</b>?',
       back_to_summary: 'Return to summary',
       error_report_header: 'These need to be corrected before continuing',
       error_required: 'You have to fill out {0}',
@@ -93,7 +93,6 @@ export function en() {
       placeholder_receipt_header: 'The form has been submitted',
       placeholder_user: 'OLA PRIVATPERSON',
       radiobutton_alert_label: 'Are you sure you want to change from {0}?',
-      radiobutton_alert: 'Are you sure you want to change?',
       required_description: 'Required fields are marked with *',
       required_label: '*',
       summary_item_change: 'Change',

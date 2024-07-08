@@ -30,6 +30,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 const defaultGenerator = new SimpleComponentHierarchyGenerator();
+
 export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Given properties from GenericComponent, render this layout component
@@ -38,6 +39,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
     | ReturnType<typeof React.forwardRef<HTMLElement, PropsFromGenericComponent<Type>>>
     | ((props: PropsFromGenericComponent<Type>) => JSX.Element | null);
 
+  renderSummary2?(componentNode: LayoutNode<Type>): JSX.Element | null;
   /**
    * Given a node, a list of the node's data, for display in the devtools node inspector
    */
@@ -84,6 +86,13 @@ export abstract class AnyComponent<Type extends CompTypes> {
   abstract canRenderInAccordionGroup(): boolean;
 
   /**
+   * Return true to allow this component to be rendered in a Tabs
+   */
+  canRenderInTabs(): boolean {
+    return true;
+  }
+
+  /**
    * Should GenericComponent render validation messages for simpleBinding outside of this component?
    * This has no effect if:
    *  - Your component renders directly, using directRender()
@@ -119,10 +128,10 @@ export abstract class AnyComponent<Type extends CompTypes> {
    */
   validateLayoutConfing(
     component: CompExternalExact<Type>,
-    validatate: (pointer: string | null, data: unknown) => ErrorObject[] | undefined,
+    validate: (pointer: string | null, data: unknown) => ErrorObject[] | undefined,
   ): ErrorObject[] | undefined {
     const schemaPointer = '#/definitions/AnyComponent';
-    return validatate(schemaPointer, component);
+    return validate(schemaPointer, component);
   }
 }
 

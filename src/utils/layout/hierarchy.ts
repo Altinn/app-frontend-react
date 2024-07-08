@@ -52,6 +52,7 @@ function resolvedNodesInLayouts(
       delete input['rowsAfter'];
       delete input['rowsBefore'];
       delete input['cardsInternal'];
+      delete input['tabsInternal'];
 
       const resolvedItem = evalExprInObj({
         input,
@@ -209,6 +210,7 @@ function useResolvedExpressions(isHidden: ReturnType<typeof useIsHiddenComponent
     () => resolvedNodesInLayouts(layouts, currentView, dataSources, previousNodesRef.current),
     [layouts, currentView, dataSources],
   );
+
   previousNodesRef.current = nodes;
 
   return nodes;
