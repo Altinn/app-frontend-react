@@ -75,6 +75,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
         value={selectedValues}
         readOnly={readOnly}
         onValueChange={handleChange}
+        placeholder={langAsString(textResourceBindings?.placeholder)}
         onBlur={debounce}
         error={!isValid}
         aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}

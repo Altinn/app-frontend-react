@@ -234,6 +234,10 @@ const common = {
         title: 'Help text',
         description: 'Help text shown in a tooltip when clicking the help button',
       },
+      placeholder: {
+        title: 'Placeholder',
+        description: 'Placeholder text shown in the input field when no value has been entered',
+      },
     }),
 
   // Options/code lists:
