@@ -31,13 +31,4 @@ export const Config = new CG.component({
         .setDescription('Boolean value indicating if the component should alert on change'),
     ),
   )
-  .addProperty(
-    new CG.prop(
-      'placeholder',
-      new CG.expr(ExprVal.String)
-        .optional({ default: 'lol as' })
-        .setTitle('Alert on change')
-        .setDescription('Boolean value indicating if the component should alert on change'),
-    ),
-  )
   .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple'));
