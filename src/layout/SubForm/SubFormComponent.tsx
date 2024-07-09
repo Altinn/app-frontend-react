@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Button, Table } from '@digdir/designsystemet-react';
@@ -14,19 +14,25 @@ import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subFor
 import classes from 'src/layout/SubForm/SubFormComponent.module.css';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>): React.JSX.Element | null {
   const { dataType, id, textResourceBindings, showAddButton = true, showDeleteButton = true } = node.item;
-  const dataElements = useStrictInstanceData().data.filter((d) => d.dataType === dataType);
   const { langAsString } = useLanguage();
-  const addEntryMutation = useAddEntryMutation();
+  const addEntryMutation = useAddEntryMutation(dataType);
+  const instanceData = useStrictInstanceData();
+
+  const dataElements = instanceData.data.filter((d) => d.dataType === dataType) ?? [];
+  const [subFormEntries, updateSubFormEntries] = useState(dataElements);
 
   const addEntry = async () => {
     try {
-      await addEntryMutation.mutateAsync({
+      const result = await addEntryMutation.mutateAsync({
         /* TODO: data */
       });
+      const items = [...subFormEntries, result];
+      updateSubFormEntries(items);
     } catch (error) {
       console.error('Error adding entry:', error);
     }
@@ -63,13 +69,17 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
           </Table.Row>
         </Table.Head>
         <Table.Body>
-          {dataElements.map((dataElement, index) => (
+          {subFormEntries.map((dataElement, index) => (
             <SubFormTableRow
               key={dataElement.id}
-              id={dataElement.id}
+              dataElement={dataElement}
               node={node}
               rowNumber={index}
               showDeleteButton={showDeleteButton}
+              deleteEntryCallback={(d) => {
+                const items = subFormEntries.filter((x) => x.id != d.id);
+                updateSubFormEntries([...items]);
+              }}
             />
           ))}
         </Table.Body>
@@ -99,22 +109,25 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
 }
 
 function SubFormTableRow({
-  id,
+  dataElement,
   node,
   rowNumber,
   showDeleteButton,
+  deleteEntryCallback,
 }: {
-  id: string;
+  dataElement: IData;
   node: LayoutNode<'SubForm'>;
   rowNumber: number;
   showDeleteButton: boolean;
+  deleteEntryCallback: (dataElement: IData) => void;
 }) {
+  const id = dataElement.id;
   const instance = useStrictInstanceData();
   const url = getDataModelUrl(instance.id, id, true);
   const { isFetching, data, error } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
 
-  const deleteEntryMutation = useDeleteEntryMutation(id); // TODO: this should be the id of the sub form
+  const deleteEntryMutation = useDeleteEntryMutation(id);
   const deleteButtonText = langAsString('general.delete');
 
   if (isFetching) {
@@ -126,6 +139,7 @@ function SubFormTableRow({
   const deleteEntry = async () => {
     try {
       await deleteEntryMutation.mutateAsync();
+      deleteEntryCallback(dataElement);
     } catch (error) {
       console.error('Error deleting entry:', error);
     }

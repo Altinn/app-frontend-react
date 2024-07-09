@@ -119,6 +119,8 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   doProcessNext: makeMock('doProcessNext'),
   doInstantiateWithPrefill: makeMock('doInstantiateWithPrefill'),
   doPerformAction: makeMock('doPerformAction'),
+  doSubFormEntryAdd: makeMock('doSubFormEntryAdd'),
+  doSubFormEntryDelete: makeMock('doSubFormEntryDelete'),
 });
 
 const defaultQueryMocks: AppQueries = {
