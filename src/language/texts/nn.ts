@@ -351,10 +351,6 @@ export function nn(): FixedLanguageList {
       selectedLocation: 'Valt lokasjon: {0}° nord, {1}° øst',
       noSelectedLocation: 'Ingen lokasjon valt',
     },
-    geometry_map_component: {
-      selectedLocation: 'Valt lokasjon: {0}° nord, {1}° øst',
-      noSelectedLocation: 'Ingen lokasjon valt',
-    },
     multiple_select_component: {
       no_options: 'Ingen valg tilgjengelig',
       placeholder: 'Velg...',

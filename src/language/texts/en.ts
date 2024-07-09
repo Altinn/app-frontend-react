@@ -350,10 +350,6 @@ export function en() {
       selectedLocation: 'Selected location: {0}° north, {1}° east',
       noSelectedLocation: 'No selected location',
     },
-    geometry_map_component: {
-      selectedLocation: 'Selected location: {0}° north, {1}° east',
-      noSelectedLocation: 'No selected location',
-    },
     multiple_select_component: {
       no_options: 'No options available',
       placeholder: 'Select...',

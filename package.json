@@ -143,7 +143,6 @@
     "immer": "^10.0.3",
     "jsonpointer": "5.0.1",
     "leaflet": "^1.9.4",
-    "leaflet-omnivore": "^0.3.4",
     "lru-cache": "^10.2.0",
     "marked": "10.0.0",
     "marked-mangle": "^1.0.1",
@@ -160,7 +159,6 @@
     "terraformer-wkt-parser": "^1.2.1",
     "typescript": "5.4.5",
     "uuid": "9.0.1",
-    "wkt": "^0.1.1",
     "zustand": "^4.4.7"
   },
   "packageManager": "yarn@4.2.2",
