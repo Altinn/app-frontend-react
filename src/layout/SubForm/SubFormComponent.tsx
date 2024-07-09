@@ -28,7 +28,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
 
   const addEntry = async () => {
     try {
-      const result = await addEntryMutation.mutateAsync({ dataType });
+      const result = await addEntryMutation.mutateAsync({});
       updateSubFormEntries([...subFormEntries, result]);
     } catch (error) {
       console.error('Error adding entry:', error);
