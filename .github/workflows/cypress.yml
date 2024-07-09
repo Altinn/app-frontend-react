@@ -9,6 +9,7 @@ on:
       - 'yarn.lock'
       - '.github/workflows/cypress.yml'
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - 'src/**'
       - 'test/**'
@@ -18,8 +19,18 @@ on:
   workflow_dispatch:
 
 jobs:
+
+  # Makes it impossible to merge this PR without re-running jobs
+  fail_if_pull_request_is_draft:
+    if: github.event.pull_request.draft == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dummy
+        run: exit 1
+
   internal:
     if: |
+      github.event.pull_request.draft == false &&
       github.repository_owner == 'Altinn' &&
       (github.event_name != 'pull_request' && github.event.repository.fork == false) ||
       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
@@ -80,7 +91,7 @@ jobs:
             --group altinn-app-frontend
             --browser chrome
             --ci-build-id $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT'
-        "
+          "
 
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -90,8 +101,9 @@ jobs:
 
   external:
     if: |
-     github.repository_owner == 'Altinn' &&
-     (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true)
+      github.event.pull_request.draft == false &&
+      github.repository_owner == 'Altinn' &&
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true)
 
     runs-on: ubuntu-latest
     name: External
@@ -133,7 +145,7 @@ jobs:
               --spec \'test/e2e/integration/*/*.ts\'
               --config watchForFileChanges=false
               --env environment=tt02'
-        "
+          "
 
       - uses: actions/upload-artifact@v4
         if: failure()
