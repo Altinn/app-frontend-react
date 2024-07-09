@@ -4,12 +4,12 @@ import { Checkbox } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { LabelContent } from 'src/features/label/LabelContext/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import classes from 'src/layout/Checkboxes/CheckboxesContainerComponent.module.css';
 import { WrappedCheckbox } from 'src/layout/Checkboxes/WrappedCheckbox';
-import { LabelContent } from 'src/layout/LabelContent';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import type { PropsFromGenericComponent } from 'src/layout';
 

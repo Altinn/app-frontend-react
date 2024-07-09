@@ -6,11 +6,11 @@ import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { FD } from 'src/features/formData/FormDataWrite';
+import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
-import { ComponentWithLabel } from 'src/layout/ComponentWithLabel';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
