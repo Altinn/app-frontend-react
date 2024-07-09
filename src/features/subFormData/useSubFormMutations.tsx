@@ -30,7 +30,6 @@ export const useAddEntryMutation = (dataType: string) => {
       });
     },
     onError: (error) => {
-      // TODO: where are the language keys defined?
       console.error('Failed to add sub-form entry:', error);
       toast(langAsString('form_filler.error_add_sub_form'), { type: 'error' });
     },
@@ -62,7 +61,6 @@ export const useDeleteEntryMutation = (id: string) => {
       }
     },
     onError: () => {
-      // TODO: where are the language keys defined?
       toast(langAsString('form_filler.error_delete_sub_form'), { type: 'error' });
     },
   });
