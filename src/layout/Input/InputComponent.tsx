@@ -107,6 +107,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     readOnly,
     error: !isValid,
     required,
+    placeholder: langAsString(textResourceBindings?.placeholder),
     onBlur: debounce,
     textOnly: overrideDisplay?.rowReadOnly && readOnly,
     prefixText,
