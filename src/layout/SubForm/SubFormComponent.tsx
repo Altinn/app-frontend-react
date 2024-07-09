@@ -28,11 +28,8 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
 
   const addEntry = async () => {
     try {
-      const result = await addEntryMutation.mutateAsync({
-        /* TODO: data */
-      });
-      const items = [...subFormEntries, result];
-      updateSubFormEntries(items);
+      const result = await addEntryMutation.mutateAsync({ dataType });
+      updateSubFormEntries([...subFormEntries, result]);
     } catch (error) {
       console.error('Error adding entry:', error);
     }
@@ -124,7 +121,7 @@ function SubFormTableRow({
   const id = dataElement.id;
   const instance = useStrictInstanceData();
   const url = getDataModelUrl(instance.id, id, true);
-  const { isFetching, data, error } = useFormDataQuery(url);
+  const { isFetching } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
 
   const deleteEntryMutation = useDeleteEntryMutation(id);
