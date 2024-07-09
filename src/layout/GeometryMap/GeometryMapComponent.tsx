@@ -68,7 +68,7 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
         className={classes.map}
         center={center}
         ref={setMap}
-        zoom={polyCenter ? 12 : 8}
+        zoom={polyCenter ? 4 : 16}
         dragging={!readOnly}
         attributionControl={false}
       >
@@ -83,17 +83,16 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
         ))}
         <AttributionControl prefix={false} />
 
-        {inputCoords.map((coords, i) =>
-          geometryType[i] === 'polygon' ? (
-            <Polygon
-              key={i}
-              positions={coords}
-            >
-              <Tooltip>{labels !== undefined ? <span>{JSON.stringify(labels[i])}</span> : <div></div>}</Tooltip>
-            </Polygon>
-          ) : (
-            <div key={i} />
-          ),
+        {inputCoords.map(
+          (coords, i) =>
+            geometryType[i] === 'polygon' ?? (
+              <Polygon
+                key={i}
+                positions={coords}
+              >
+                <Tooltip>{labels !== undefined ? <span>{JSON.stringify(labels[i])}</span> : <div></div>}</Tooltip>
+              </Polygon>
+            ),
         )}
       </MapContainer>
     </div>
