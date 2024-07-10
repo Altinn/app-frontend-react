@@ -20,6 +20,7 @@ import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -123,11 +124,12 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
 }
 
 function PdfForNode({ node }: { node: LayoutNode }) {
-  if (node.item.type === 'Summary2' && node.item.target?.taskId) {
+  const target = useNodeItem(node, (i) => (i.type === 'Summary2' ? i.target : undefined));
+  if (node.isType('Summary2') && target?.taskId) {
     return (
       <SummaryComponent2
-        key={node.item.id}
-        summaryNode={node as BaseLayoutNode<CompSummary2Internal, 'Summary2'>}
+        key={node.id}
+        summaryNode={node}
       />
     );
   }
