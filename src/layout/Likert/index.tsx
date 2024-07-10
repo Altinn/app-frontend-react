@@ -17,22 +17,8 @@ export class Likert extends LikertDef {
     },
   );
 
-  renderSummary({
-    onChangeClick,
-    changeText,
-    summaryNode,
-    targetNode,
-    overrides,
-  }: SummaryRendererProps<'Likert'>): JSX.Element | null {
-    return (
-      <LikertSummary
-        onChangeClick={onChangeClick}
-        changeText={changeText}
-        summaryNode={summaryNode}
-        targetNode={targetNode}
-        overrides={overrides}
-      />
-    );
+  renderSummary(props: SummaryRendererProps<'Likert'>): JSX.Element | null {
+    return <LikertSummary {...props} />;
   }
 
   renderSummaryBoilerplate(): boolean {

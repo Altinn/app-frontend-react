@@ -2,14 +2,13 @@ import React from 'react';
 
 import cn from 'classnames';
 
-import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import classes from 'src/layout/Summary/SummaryContent.module.css';
-import { useNodeFormDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompTypes } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
@@ -45,8 +44,6 @@ export function SummaryContent({
   const summaryTitleTrb =
     textBindings && 'summaryTitle' in textBindings ? (textBindings.summaryTitle as string) : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
-  const formDataSelector = FD.useDebouncedSelector();
-  const nodeFormDataSelector = useNodeFormDataSelector();
 
   return (
     <div className={classes.container}>
@@ -70,8 +67,6 @@ export function SummaryContent({
           summaryNode={summaryNode}
           targetNode={targetNode}
           overrides={overrides}
-          formDataSelector={formDataSelector}
-          nodeFormDataSelector={nodeFormDataSelector}
         />
       </span>
       {displaySummaryBoilerPlate && shouldShowChangeButton && (

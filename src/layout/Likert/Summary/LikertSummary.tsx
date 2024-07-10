@@ -3,7 +3,6 @@ import React from 'react';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
@@ -14,27 +13,23 @@ import classes from 'src/layout/Likert/Summary/LikertSummary.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { Hidden } from 'src/utils/layout/NodesContext';
-import { useNodeFormDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
-import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface ILikertSummary {
-  changeText: string | null;
-  onChangeClick: () => void;
-  summaryNode: LayoutNode<'Summary'>;
-  targetNode: LayoutNode<'Likert'>;
-  overrides?: ISummaryComponent['overrides'];
-}
-
-export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNode, overrides }: ILikertSummary) {
+export function LikertSummary({
+  onChangeClick,
+  changeText,
+  summaryNode,
+  targetNode,
+  overrides,
+}: SummaryRendererProps<'Likert'>) {
   const targetItem = useNodeItem(targetNode);
   const summaryItem = useNodeItem(summaryNode);
   const excludedChildren = summaryItem.excludedChildren;
   const display = overrides?.display || summaryItem.display;
   const { lang, langAsString } = useLanguage();
-  const formDataSelector = FD.useDebouncedSelector();
-  const nodeFormDataSelector = useNodeFormDataSelector();
   const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
@@ -131,9 +126,6 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
                     key={row.itemNode.id}
                     targetNode={row.itemNode as any}
                     summaryNode={summaryNode}
-                    overrides={{}}
-                    formDataSelector={formDataSelector}
-                    nodeFormDataSelector={nodeFormDataSelector}
                   />
                 </div>
               );

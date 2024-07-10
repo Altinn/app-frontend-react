@@ -37,7 +37,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { BaseRow, NodeData, StateFactoryProps } from 'src/utils/layout/types';
-import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface BasicNodeGeneratorProps {
@@ -206,10 +205,8 @@ export abstract class PresentationComponent<Type extends CompTypes> extends AnyC
 }
 
 export interface SummaryRendererProps<Type extends CompTypes> {
-  summaryNode: LayoutNode<'Summary'>;
+  summaryNode: LayoutNode<'Summary'> | undefined;
   targetNode: LayoutNode<Type>;
-  formDataSelector: FormDataSelector;
-  nodeFormDataSelector: NodeFormDataSelector;
   onChangeClick: () => void;
   changeText: string | null;
   overrides?: ISummaryComponent['overrides'];

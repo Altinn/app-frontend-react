@@ -44,10 +44,6 @@ interface IPartyTypesAllowed {
   subUnit: boolean;
 }
 
-export interface IGetApplicationMetadataFulfilled {
-  applicationMetadata: IApplicationMetadata;
-}
-
 export interface IBackendFeaturesState {
   jsonObjectInDataResponse: boolean; // Extended attachment validation
 }

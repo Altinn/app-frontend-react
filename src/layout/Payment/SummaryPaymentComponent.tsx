@@ -12,18 +12,9 @@ import classes from 'src/layout/Payment/PaymentComponent.module.css';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
-interface ISummaryPaymentComponentProps {
-  changeText: string | null;
-  onChangeClick: () => void;
-  summaryNode: LayoutNode<'Summary'>;
-  targetNode: LayoutNode<'Payment'>;
-  overrides?: ISummaryComponent['overrides'];
-}
-
-export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponentProps) => {
+export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Payment'>) => {
   const textResourceBindings = useNodeItem(targetNode, (i) => i.textResourceBindings);
   const selectedLanguage = useCurrentLanguage();
   const paymentInfo = usePaymentInformation();

@@ -70,22 +70,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return { groupExpressions } as RepGroupRowExtras;
   }
 
-  renderSummary({
-    onChangeClick,
-    changeText,
-    summaryNode,
-    targetNode,
-    overrides,
-  }: SummaryRendererProps<'RepeatingGroup'>): JSX.Element | null {
-    return (
-      <SummaryRepeatingGroup
-        onChangeClick={onChangeClick}
-        changeText={changeText}
-        summaryNode={summaryNode}
-        targetNode={targetNode}
-        overrides={overrides}
-      />
-    );
+  renderSummary(props: SummaryRendererProps<'RepeatingGroup'>): JSX.Element | null {
+    return <SummaryRepeatingGroup {...props} />;
   }
 
   renderSummaryBoilerplate(): boolean {

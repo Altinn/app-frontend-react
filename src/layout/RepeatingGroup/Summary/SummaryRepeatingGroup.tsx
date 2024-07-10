@@ -3,7 +3,6 @@ import React from 'react';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
@@ -14,22 +13,13 @@ import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.mod
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { Hidden } from 'src/utils/layout/NodesContext';
-import { useNodeFormDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
-import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface ISummaryRepeatingGroup {
-  changeText: string | null;
-  onChangeClick: () => void;
-  summaryNode: LayoutNode<'Summary'>;
-  targetNode: LayoutNode<'RepeatingGroup'>;
-  overrides?: ISummaryComponent['overrides'];
-}
-
-interface FullProps extends ISummaryRepeatingGroup {
+interface FullProps extends SummaryRendererProps<'RepeatingGroup'> {
   rows: RepGroupRow[];
   inExcludedChildren: (n: LayoutNode) => boolean;
 }
@@ -38,10 +28,9 @@ interface FullRowProps extends Omit<FullProps, 'rows'> {
   row: RepGroupRow;
 }
 
-export function SummaryRepeatingGroup(props: ISummaryRepeatingGroup) {
+export function SummaryRepeatingGroup(props: SummaryRendererProps<'RepeatingGroup'>) {
   const { excludedChildren, largeGroup } = useNodeItem(props.summaryNode);
   const { rows: _rows } = useNodeItem(props.targetNode);
-  const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
     excludedChildren ? excludedChildren.includes(n.id) || excludedChildren.includes(n.baseId) : false;
@@ -160,8 +149,6 @@ function RegularRepeatingGroupRow({
   summaryNode,
 }: FullRowProps) {
   const isHidden = Hidden.useIsHiddenSelector();
-  const formDataSelector = FD.useDebouncedSelector();
-  const nodeDataSelector = useNodeFormDataSelector();
   const children = useNodeTraversal((t) => t.children(undefined, { onlyInRowUuid: row.uuid }), targetNode);
 
   const childSummaryComponents = children
@@ -181,8 +168,6 @@ function RegularRepeatingGroupRow({
           targetNode={child}
           summaryNode={summaryNode}
           overrides={{}}
-          formDataSelector={formDataSelector}
-          nodeFormDataSelector={nodeDataSelector}
         />
       );
     });

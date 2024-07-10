@@ -17,29 +17,52 @@ import { SummaryContent } from 'src/layout/Summary/SummaryContent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { IGrid } from 'src/layout/common.generated';
+import type { ExprResolved } from 'src/features/expressions/types';
+import type { IGrid, IPageBreak } from 'src/layout/common.generated';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
+interface SummaryOverrides {
+  targetNode: LayoutNode;
+  grid?: IGrid;
+  largeGroup?: boolean;
+  display?: SummaryDisplayProperties;
+  pageBreak?: ExprResolved<IPageBreak>;
+}
+
 export interface ISummaryComponent {
-  summaryNode: LayoutNode<'Summary'>;
-  overrides?: {
-    targetNode?: LayoutNode;
-    grid?: IGrid;
-    largeGroup?: boolean;
-    display?: SummaryDisplayProperties;
-  };
+  summaryNode: LayoutNode<'Summary'> | undefined;
+  overrides?: Partial<SummaryOverrides>;
 }
 
 function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: React.Ref<HTMLDivElement>) {
   const summaryItem = useNodeItem(summaryNode);
-  const display = overrides?.display || summaryItem.display;
-  const { id, grid } = summaryItem;
+  const _targetNode = useNode(summaryItem.componentRef);
+  const display = overrides?.display ?? summaryItem.display;
+  const targetNode = overrides?.targetNode ?? _targetNode;
+  const grid = overrides?.grid ?? summaryItem.grid;
 
+  return (
+    <SummaryComponentRaw
+      ref={ref}
+      overrides={{
+        ...overrides,
+        display,
+        targetNode,
+        grid,
+      }}
+      summaryNode={summaryNode}
+    />
+  );
+}
+
+export const SummaryComponent = React.forwardRef(_SummaryComponent);
+
+function _SummaryComponentRaw({ summaryNode, overrides }: ISummaryComponent, ref: React.Ref<HTMLDivElement>) {
+  const { display, grid, targetNode, pageBreak } = overrides ?? {};
   const { langAsString } = useLanguage();
   const currentPageId = useNavigationParam('pageKey');
 
-  const targetNode = useNode(overrides?.targetNode || summaryItem.componentRef || id);
   const targetItem = useNodeItem(targetNode);
   const targetView = targetNode?.pageKey;
   const targetIsHidden = Hidden.useIsHidden(targetNode);
@@ -58,7 +81,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
 
     navigateTo(targetNode, true);
     setReturnToView?.(currentPageId);
-    setNodeOfOrigin?.(id);
+    setNodeOfOrigin?.(summaryNode?.id ?? targetNode?.id);
   };
 
   if (!targetNode || !targetItem || targetIsHidden || targetItem.type === 'Summary') {
@@ -66,9 +89,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
     return null;
   }
 
-  const displayGrid =
-    display && display.useComponentGrid ? overrides?.grid || targetItem?.grid : overrides?.grid || grid;
-
+  const displayGrid = display && display.useComponentGrid ? grid ?? targetItem?.grid : grid;
   const component = targetNode.def;
   const RenderSummary = 'renderSummary' in component ? component.renderSummary.bind(component) : null;
   const shouldShowBorder =
@@ -83,10 +104,10 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
       md={displayGrid?.md || false}
       lg={displayGrid?.lg || false}
       xl={displayGrid?.xl || false}
-      data-testid={`summary-${overrides?.targetNode?.id || id}`}
-      data-componentid={summaryItem.id}
-      data-componentbaseid={summaryItem.baseComponentId || summaryItem.id}
-      className={cn(pageBreakStyles(summaryItem.pageBreak ?? targetItem?.pageBreak))}
+      data-testid={`summary-${targetNode?.id ?? summaryNode?.id ?? 'unknown'}`}
+      data-componentid={summaryNode?.id ?? `summary-${targetNode?.id}`}
+      data-componentbaseid={summaryNode?.baseId ?? `summary-${targetNode.id}`}
+      className={cn(pageBreakStyles(pageBreak ?? targetItem?.pageBreak))}
     >
       <Grid
         container={true}
@@ -145,4 +166,4 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
   );
 }
 
-export const SummaryComponent = React.forwardRef(_SummaryComponent);
+export const SummaryComponentRaw = React.forwardRef(_SummaryComponentRaw);

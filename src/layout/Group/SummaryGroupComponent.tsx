@@ -3,7 +3,6 @@ import React, { useCallback } from 'react';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
@@ -14,20 +13,11 @@ import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { Hidden } from 'src/utils/layout/NodesContext';
-import { useNodeFormDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
-import type { ITextResourceBindings } from 'src/layout/layout';
+import type { CompTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-
-export interface ISummaryGroupComponent {
-  changeText: string | null;
-  onChangeClick: () => void;
-  summaryNode: LayoutNode<'Summary'>;
-  targetNode: LayoutNode<'Group'>;
-  overrides?: ISummaryComponent['overrides'];
-}
 
 export function SummaryGroupComponent({
   onChangeClick,
@@ -35,14 +25,12 @@ export function SummaryGroupComponent({
   summaryNode,
   targetNode,
   overrides,
-}: ISummaryGroupComponent) {
+}: SummaryRendererProps<'Group'>) {
   const summaryItem = useNodeItem(summaryNode);
   const targetItem = useNodeItem(targetNode);
   const excludedChildren = summaryItem.excludedChildren;
   const display = overrides?.display || summaryItem.display;
   const { langAsString } = useLanguage();
-  const formDataSelector = FD.useDebouncedSelector();
-  const nodeFormDataSelector = useNodeFormDataSelector();
   const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = useCallback(
@@ -98,8 +86,6 @@ export function SummaryGroupComponent({
         targetNode={child}
         summaryNode={summaryNode}
         overrides={{}}
-        formDataSelector={formDataSelector}
-        nodeFormDataSelector={nodeFormDataSelector}
       />
     );
   });
@@ -150,11 +136,9 @@ export function SummaryGroupComponent({
   );
 }
 
-interface SummaryComponentFromRefProps {
-  targetNode: LayoutNode;
-  summaryNode: LayoutNode<'Summary'>;
+interface SummaryComponentFromRefProps
+  extends Pick<SummaryRendererProps<CompTypes>, 'targetNode' | 'summaryNode' | 'overrides'> {
   inExcludedChildren: (node: LayoutNode) => boolean;
-  overrides?: ISummaryComponent['overrides'];
 }
 
 function SummaryComponentFromNode({

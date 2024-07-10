@@ -27,22 +27,8 @@ export class Group extends GroupDef {
     },
   );
 
-  renderSummary({
-    onChangeClick,
-    changeText,
-    summaryNode,
-    targetNode,
-    overrides,
-  }: SummaryRendererProps<'Group'>): JSX.Element | null {
-    return (
-      <SummaryGroupComponent
-        onChangeClick={onChangeClick}
-        changeText={changeText}
-        summaryNode={summaryNode}
-        targetNode={targetNode}
-        overrides={overrides}
-      />
-    );
+  renderSummary(props: SummaryRendererProps<'Group'>): JSX.Element | null {
+    return <SummaryGroupComponent {...props} />;
   }
 
   renderSummary2(props: Summary2Props<'Group'>): JSX.Element | null {
