@@ -5,14 +5,14 @@ describe('Navigation', () => {
     cy.goto('changename');
 
     cy.url().should('satisfy', (url) => url.endsWith('/Task_2/form'));
-    cy.findByLabelText(/Nytt fornavn/).should('exist');
+    cy.findByTestId('label-newFirstName').findByText('Nytt fornavn').should('exist');
 
     cy.url().then((url) => {
       cy.visit(url.replace('/Task_2/form', ''));
     });
 
     cy.url().should('satisfy', (url) => url.endsWith('/Task_2/form'));
-    cy.findByLabelText(/Nytt fornavn/).should('exist');
+    cy.findByTestId('label-newFirstName').findByText('Nytt fornavn').should('exist');
   });
 
   it('Should scroll to top whenever navigating to a new page', () => {

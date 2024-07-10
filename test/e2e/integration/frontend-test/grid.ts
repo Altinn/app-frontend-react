@@ -41,7 +41,7 @@ describe('Grid component', () => {
     cy.get(appFrontend.grid.grid).find('tr').eq(2).find(appFrontend.grid.studie.percent).type('10');
     cy.get(appFrontend.grid.grid).find('tr').eq(3).find(appFrontend.grid.kredittkort.percent).type('5');
     cy.get(appFrontend.grid.grid).find('tr').eq(4).find(appFrontend.grid.totalPercent).should('have.text', '85 %');
-    cy.get(appFrontend.grid.bolig.percentComponent).should('not.contain.text', 'Prosentandel av gjeld i boliglån');
+    cy.get(appFrontend.grid.bolig.percentComponent).should('contain.text', 'Prosentandel av gjeld i boliglån');
     cy.get(appFrontend.errorReport).should('not.exist');
 
     // Validation error should be displayed in the error report and along with the totalAmount field
