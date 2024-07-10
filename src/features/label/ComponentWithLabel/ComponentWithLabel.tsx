@@ -42,7 +42,14 @@ export const ComponentWithLabel: React.FunctionComponent<ComponentWithLabelProps
   if (renderLabelAs === 'label') {
     return (
       <div className={classes.fieldWrapper}>
-        {label && <label htmlFor={id}>{labelContent}</label>}
+        {label && (
+          <label
+            htmlFor={id}
+            className={classes.label}
+          >
+            {labelContent}
+          </label>
+        )}
         {children}
       </div>
     );
@@ -50,7 +57,7 @@ export const ComponentWithLabel: React.FunctionComponent<ComponentWithLabelProps
   if (renderLabelAs === 'legend') {
     return (
       <fieldset className={classes.fieldWrapper}>
-        {label && <legend>{labelContent}</legend>}
+        {label && <legend className={classes.label}>{labelContent}</legend>}
         {children}
       </fieldset>
     );
@@ -58,7 +65,7 @@ export const ComponentWithLabel: React.FunctionComponent<ComponentWithLabelProps
 
   return (
     <div className={classes.fieldWrapper}>
-      {label && <span className='label'>{labelContent}</span>}
+      {label && <span className={classes.label}>{labelContent}</span>}
       {children}
     </div>
   );

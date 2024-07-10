@@ -101,11 +101,10 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
   const description = textResourceBindings?.description ? langAsString(textResourceBindings.description) : undefined;
 
   const characterLimit = useCharacterLimit(maxLength);
-
   const commonProps = {
     'aria-label': ariaLabel,
     'aria-describedby': textResourceBindings?.description ? `description-${id}` : undefined,
-    label: (
+    label: label ? (
       <LabelContent
         label={label}
         helpText={help}
@@ -113,7 +112,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
         required={required}
         description={description}
       />
-    ),
+    ) : undefined,
     autoComplete: autocomplete,
     characterLimit: !readOnly ? characterLimit : undefined,
     role: 'textbox',

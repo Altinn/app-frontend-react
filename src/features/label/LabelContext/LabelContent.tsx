@@ -36,7 +36,10 @@ export const LabelContent: React.FunctionComponent<ComponentWithLabelProps> = ({
   }
 
   return (
-    <>
+    <span
+      data-testid={`label-${id}`}
+      id={`label-${id}`}
+    >
       <span className={classes.labelContainer}>
         <span className={classes.labelContent}>
           <Lang id={label} />
@@ -63,6 +66,6 @@ export const LabelContent: React.FunctionComponent<ComponentWithLabelProps> = ({
           id={id}
         />
       )}
-    </>
+    </span>
   );
 };
