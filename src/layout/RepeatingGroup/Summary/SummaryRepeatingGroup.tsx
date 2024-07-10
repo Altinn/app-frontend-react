@@ -29,7 +29,7 @@ interface FullRowProps extends Omit<FullProps, 'rows'> {
 }
 
 export function SummaryRepeatingGroup(props: SummaryRendererProps<'RepeatingGroup'>) {
-  const { excludedChildren, largeGroup } = useNodeItem(props.summaryNode);
+  const { excludedChildren, largeGroup } = useNodeItem(props.summaryNode) ?? {};
   const { rows: _rows } = useNodeItem(props.targetNode);
 
   const inExcludedChildren = (n: LayoutNode) =>
@@ -65,7 +65,7 @@ export function SummaryRepeatingGroup(props: SummaryRendererProps<'RepeatingGrou
 function RegularRepeatingGroup(props: FullProps) {
   const { onChangeClick, changeText, summaryNode, targetNode, overrides, rows } = props;
 
-  const { display: summaryDisplay } = useNodeItem(summaryNode);
+  const { display: summaryDisplay } = useNodeItem(summaryNode) ?? {};
   const { textResourceBindings: trb } = useNodeItem(targetNode);
 
   const display = overrides?.display || summaryDisplay;

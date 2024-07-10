@@ -28,8 +28,8 @@ export function SummaryGroupComponent({
 }: SummaryRendererProps<'Group'>) {
   const summaryItem = useNodeItem(summaryNode);
   const targetItem = useNodeItem(targetNode);
-  const excludedChildren = summaryItem.excludedChildren;
-  const display = overrides?.display || summaryItem.display;
+  const excludedChildren = summaryItem?.excludedChildren;
+  const display = overrides?.display || summaryItem?.display;
   const { langAsString } = useLanguage();
   const isHidden = Hidden.useIsHiddenSelector();
 
@@ -50,7 +50,8 @@ export function SummaryGroupComponent({
   const ariaLabel = langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb);
   const children = useNodeTraversal((t) => t.children().filter((n) => !inExcludedChildren(n)), targetNode);
 
-  if (summaryItem.largeGroup && overrides?.largeGroup !== false) {
+  const largeGroup = overrides?.largeGroup ?? summaryItem?.largeGroup ?? false;
+  if (largeGroup) {
     return (
       <>
         {

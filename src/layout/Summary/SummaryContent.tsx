@@ -28,7 +28,7 @@ export function SummaryContent({
   const { langAsString } = useLanguage(targetNode);
   const summaryItem = useNodeItem(summaryNode);
   const targetItem = useNodeItem(targetNode);
-  const display = overrides?.display || summaryItem.display;
+  const display = overrides?.display || summaryItem?.display;
   const readOnlyComponent = 'readOnly' in targetItem && targetItem.readOnly === true;
   const validations = useUnifiedValidationsForNode(targetNode);
   const hasErrors = hasValidationErrors(validations);

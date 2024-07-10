@@ -1,22 +1,17 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import { MultipleSelectSummary } from 'src/layout/MultipleSelect/MultipleSelectSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { IUseLanguage } from 'src/features/language/useLanguage';
-import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 
 export class MultipleSelect extends MultipleSelectDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'MultipleSelect'>>(
@@ -27,11 +22,9 @@ export class MultipleSelect extends MultipleSelectDef {
 
   private getSummaryData(
     node: LayoutNode<'MultipleSelect'>,
-    langTools: IUseLanguage,
-    optionsSelector: NodeOptionsSelector,
-    nodeDataSelector: NodeFormDataSelector,
+    { nodeFormDataSelector, optionsSelector, langTools }: DisplayDataProps,
   ): { [key: string]: string } {
-    const data = nodeDataSelector(node);
+    const data = nodeFormDataSelector(node);
     if (!data.simpleBinding) {
       return {};
     }
@@ -41,18 +34,12 @@ export class MultipleSelect extends MultipleSelectDef {
     return getCommaSeparatedOptionsToText(value, options, langTools);
   }
 
-  getDisplayData(
-    node: LayoutNode<'MultipleSelect'>,
-    { langTools, optionsSelector, nodeFormDataSelector }: DisplayDataProps,
-  ): string {
-    return Object.values(this.getSummaryData(node, langTools, optionsSelector, nodeFormDataSelector)).join(', ');
+  getDisplayData(node: LayoutNode<'MultipleSelect'>, props: DisplayDataProps): string {
+    return Object.values(this.getSummaryData(node, props)).join(', ');
   }
 
-  renderSummary({ targetNode, nodeFormDataSelector }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
-    const langTools = useLanguage();
-    const options = useNodeOptionsSelector();
-    const summaryData = this.getSummaryData(targetNode, langTools, options, nodeFormDataSelector);
-    return <MultipleChoiceSummary formData={summaryData} />;
+  renderSummary({ targetNode }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
+    return <MultipleChoiceSummary getFormData={(props) => this.getSummaryData(targetNode, props)} />;
   }
 
   renderSummary2(props: Summary2Props<'MultipleSelect'>): JSX.Element | null {

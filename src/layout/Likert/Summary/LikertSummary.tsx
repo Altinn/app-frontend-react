@@ -27,8 +27,8 @@ export function LikertSummary({
 }: SummaryRendererProps<'Likert'>) {
   const targetItem = useNodeItem(targetNode);
   const summaryItem = useNodeItem(summaryNode);
-  const excludedChildren = summaryItem.excludedChildren;
-  const display = overrides?.display || summaryItem.display;
+  const excludedChildren = summaryItem?.excludedChildren;
+  const display = overrides?.display || summaryItem?.display;
   const { lang, langAsString } = useLanguage();
   const isHidden = Hidden.useIsHiddenSelector();
 
@@ -47,8 +47,8 @@ export function LikertSummary({
   const ariaLabel = langAsString(summaryTitleTrb ?? summaryAccessibleTitleTrb ?? titleTrb);
 
   const rows = targetItem.rows;
-
-  if (summaryItem.largeGroup && overrides?.largeGroup !== false && rows.length) {
+  const largeGroup = overrides?.largeGroup ?? summaryItem?.largeGroup ?? false;
+  if (largeGroup && rows.length) {
     return (
       <>
         {rows.map((row) => (

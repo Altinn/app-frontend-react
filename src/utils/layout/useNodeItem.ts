@@ -18,8 +18,11 @@ import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 export function useNodeItem<N extends LayoutNode | undefined, Out>(
   node: N,
   selector: (item: NodeItemFromNode<N>) => Out,
-): Out;
-export function useNodeItem<N extends LayoutNode | undefined>(node: N, selector?: undefined): NodeItemFromNode<N>;
+): N extends undefined ? undefined : Out;
+export function useNodeItem<N extends LayoutNode | undefined>(
+  node: N,
+  selector?: undefined,
+): N extends undefined ? undefined : NodeItemFromNode<N>;
 export function useNodeItem(node: never, selector: never): never {
   return NodesInternal.useNodeData(node, (data: NodeData) => (selector ? (selector as any)(data.item) : data.item));
 }

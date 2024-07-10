@@ -37,33 +37,24 @@ export interface ISummaryComponent {
 
 function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: React.Ref<HTMLDivElement>) {
   const summaryItem = useNodeItem(summaryNode);
-  const _targetNode = useNode(summaryItem.componentRef);
-  const display = overrides?.display ?? summaryItem.display;
+  const _targetNode = useNode(summaryItem?.componentRef);
   const targetNode = overrides?.targetNode ?? _targetNode;
-  const grid = overrides?.grid ?? summaryItem.grid;
+  const targetItem = useNodeItem(targetNode);
 
-  return (
-    <SummaryComponentRaw
-      ref={ref}
-      overrides={{
-        ...overrides,
-        display,
-        targetNode,
-        grid,
-      }}
-      summaryNode={summaryNode}
-    />
-  );
-}
+  if (!targetNode) {
+    throw new Error(
+      `No target found for Summary '${summaryNode?.id}'. ` +
+        `Check the 'componentRef' property and make sure the target component exists.`,
+    );
+  }
 
-export const SummaryComponent = React.forwardRef(_SummaryComponent);
+  const display = overrides?.display ?? summaryItem?.display;
+  const grid = overrides?.grid ?? summaryItem?.grid ?? targetItem?.grid;
+  const pageBreak = overrides?.pageBreak ?? summaryItem?.pageBreak ?? targetItem?.pageBreak;
 
-function _SummaryComponentRaw({ summaryNode, overrides }: ISummaryComponent, ref: React.Ref<HTMLDivElement>) {
-  const { display, grid, targetNode, pageBreak } = overrides ?? {};
   const { langAsString } = useLanguage();
   const currentPageId = useNavigationParam('pageKey');
 
-  const targetItem = useNodeItem(targetNode);
   const targetView = targetNode?.pageKey;
   const targetIsHidden = Hidden.useIsHidden(targetNode);
 
@@ -107,7 +98,7 @@ function _SummaryComponentRaw({ summaryNode, overrides }: ISummaryComponent, ref
       data-testid={`summary-${targetNode?.id ?? summaryNode?.id ?? 'unknown'}`}
       data-componentid={summaryNode?.id ?? `summary-${targetNode?.id}`}
       data-componentbaseid={summaryNode?.baseId ?? `summary-${targetNode.id}`}
-      className={cn(pageBreakStyles(pageBreak ?? targetItem?.pageBreak))}
+      className={cn(pageBreakStyles(pageBreak))}
     >
       <Grid
         container={true}
@@ -166,4 +157,4 @@ function _SummaryComponentRaw({ summaryNode, overrides }: ISummaryComponent, ref
   );
 }
 
-export const SummaryComponentRaw = React.forwardRef(_SummaryComponentRaw);
+export const SummaryComponent = React.forwardRef(_SummaryComponent);

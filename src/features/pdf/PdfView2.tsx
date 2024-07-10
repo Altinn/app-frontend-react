@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
+import { Grid } from '@material-ui/core';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
@@ -12,6 +13,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsPayment } from 'src/features/payment/utils';
 import classes from 'src/features/pdf/PDFView.module.css';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
+import { getFeature } from 'src/features/toggles';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -59,18 +61,20 @@ export const PDFView2 = () => {
           {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
         </Heading>
       </ConditionalWrapper>
-      <InstanceInformation
-        elements={{
-          dateSent: true,
-          sender: true,
-          receiver: true,
-          referenceNumber: true,
-        }}
-      />
+
+      <div className={classes.instanceInfo}>
+        <InstanceInformation
+          elements={{
+            dateSent: true,
+            sender: true,
+            receiver: true,
+            referenceNumber: true,
+          }}
+        />
+      </div>
 
       {pagesToRender
-        ?.filter((pageKey) => (!pdfLayoutName ? pageKey : pageKey === pdfLayoutName))
-        .filter((pageKey) => !isHiddenPage(pageKey))
+        ?.filter((pageKey) => !isHiddenPage(pageKey))
         .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
         .map((pageKey) => (
           <PdfForPage
@@ -85,6 +89,7 @@ export const PDFView2 = () => {
 };
 
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
+  const isHiddenSelector = Hidden.useIsHiddenSelector();
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
   const children = useNodeTraversal((t) => {
     const page = t.findPage(pageKey);
@@ -92,6 +97,7 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
       ? t
           .with(page)
           .children()
+          .filter((node) => !isHiddenSelector(node))
           .filter((node) => !pdfSettings?.excludedComponents.includes(node.id))
           .filter((node) => node.def.shouldRenderInAutomaticPDF(node as any, nodeDataSelector))
       : [];
@@ -99,32 +105,38 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
 
   return (
     <div className={classes.page}>
-      {children.map((node) => (
-        <PdfForNode
-          key={node.id}
-          node={node}
-        />
-      ))}
+      <Grid
+        container={true}
+        spacing={3}
+        alignItems='flex-start'
+      >
+        {children.map((node) => (
+          <PdfForNode
+            key={node.id}
+            node={node}
+          />
+        ))}
+      </Grid>
     </div>
   );
 }
 
 function PdfForNode({ node }: { node: LayoutNode }) {
-  if (node.def.renderSummary2) {
-    return (
-      <ComponentSummary
-        key={node.id}
-        componentNode={node}
-      />
-    );
+  const betaEnabled = getFeature('betaPDFenabled');
+  if (betaEnabled.value && node.def.renderSummary2) {
+    return <ComponentSummary componentNode={node} />;
   }
 
   return (
     <SummaryComponent
-      key={node.id}
-      summaryNode={node as LayoutNode<'Summary'>}
+      summaryNode={undefined}
       overrides={{
-        display: { hideChangeButton: true, hideValidationMessages: true },
+        targetNode: node,
+        largeGroup: node.isType('Group'),
+        display: {
+          hideChangeButton: true,
+          hideValidationMessages: true,
+        },
       }}
     />
   );

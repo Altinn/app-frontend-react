@@ -90,11 +90,10 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   overrideItemProps,
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
-  let item = useNodeItem(node);
-  const id = node.id;
+  let item = useNodeItem(node) as CompInternal<Type>;
 
   if (!item || !node) {
-    throw new Error(`Node with id '${id ?? node?.id ?? 'unknown'}' not found`);
+    throw new Error(`Node with id '${node?.id ?? 'unknown'}' not found`);
   }
 
   if (overrideItemProps) {
@@ -104,6 +103,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     };
   }
 
+  const id = item.id;
   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
   const isHidden = Hidden.useIsHidden(node);
 
@@ -174,8 +174,11 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
 
     return (
       <SummaryComponent
-        summaryNode={node as LayoutNode<'Summary'>}
-        overrides={{ display: { hideChangeButton: true, hideValidationMessages: true } }}
+        summaryNode={undefined}
+        overrides={{
+          targetNode: node,
+          display: { hideChangeButton: true, hideValidationMessages: true },
+        }}
       />
     );
   }
