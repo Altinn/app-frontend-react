@@ -96,7 +96,12 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
   const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;
   const prefixText = textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined;
   const suffixText = textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined;
-  const label = textResourceBindings?.title ? langAsString(textResourceBindings.title) : undefined;
+  const label =
+    overrideDisplay?.renderLabel !== false
+      ? textResourceBindings?.title
+        ? langAsString(textResourceBindings.title)
+        : undefined
+      : undefined;
   const help = textResourceBindings?.help ? langAsString(textResourceBindings.help) : undefined;
   const description = textResourceBindings?.description ? langAsString(textResourceBindings.description) : undefined;
 
