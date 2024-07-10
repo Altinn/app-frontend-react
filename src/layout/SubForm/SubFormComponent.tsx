@@ -29,7 +29,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
   const addEntry = async () => {
     try {
       const result = await addEntryMutation.mutateAsync({});
-      updateSubFormEntries([...subFormEntries, result]);
+      updateSubFormEntries([...subFormEntries, result.reply]);
     } catch (error) {
       console.error('Error adding entry:', error);
     }
@@ -135,7 +135,7 @@ function SubFormTableRow({
 
   const deleteEntry = async () => {
     try {
-      await deleteEntryMutation.mutateAsync();
+      await deleteEntryMutation.mutateAsync(id);
       deleteEntryCallback(dataElement);
     } catch (error) {
       console.error('Error deleting entry:', error);
