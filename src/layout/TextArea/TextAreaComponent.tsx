@@ -3,7 +3,7 @@ import React from 'react';
 import { Textarea } from '@digdir/designsystemet-react';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { LabelContent } from 'src/features/label/LabelContext/LabelContent';
+import { LabelContent } from 'src/features/label/LabelContent/LabelContent';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import type { PropsFromGenericComponent } from 'src/layout';

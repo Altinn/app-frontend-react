@@ -5,7 +5,7 @@ import { HelpText } from '@digdir/designsystemet-react';
 import { Description } from 'src/components/form/Description';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
-import classes from 'src/features/label/LabelContext/LabelContent.module.css';
+import classes from 'src/features/label/LabelContent/LabelContent.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useFormComponentCtxStrict } from 'src/layout/FormComponentContext';

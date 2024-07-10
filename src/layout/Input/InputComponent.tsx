@@ -17,7 +17,7 @@ export type IInputProps = PropsFromGenericComponent<'Input'>;
 
 import type { TextfieldProps } from '@digdir/designsystemet-react/dist/types/components/form/Textfield/Textfield';
 
-import { LabelContent } from 'src/features/label/LabelContext/LabelContent';
+import { LabelContent } from 'src/features/label/LabelContent/LabelContent';
 
 interface InputComponentProps extends Omit<TextfieldProps, 'prefix' | 'suffix'> {
   textOnly?: boolean;

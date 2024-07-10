@@ -2,7 +2,7 @@ import React from 'react';
 import type { ReactNode } from 'react';
 
 import classes from 'src/features/label/ComponentWithLabel/ComponentWithLabel.module.css';
-import { LabelContent } from 'src/features/label/LabelContext/LabelContent';
+import { LabelContent } from 'src/features/label/LabelContent/LabelContent';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
 export interface ComponentWithLabelProps {
