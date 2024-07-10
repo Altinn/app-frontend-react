@@ -18,6 +18,7 @@ import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { IPdfFormat } from 'src/features/pdf/types';
@@ -122,6 +123,15 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
 }
 
 function PdfForNode({ node }: { node: LayoutNode }) {
+  if (node.item.type === 'Summary2' && node.item.target?.taskId) {
+    return (
+      <SummaryComponent2
+        key={node.item.id}
+        summaryNode={node as BaseLayoutNode<CompSummary2Internal, 'Summary2'>}
+      />
+    );
+  }
+
   const betaEnabled = getFeature('betaPDFenabled');
   if (betaEnabled.value && node.def.renderSummary2) {
     return <ComponentSummary componentNode={node} />;

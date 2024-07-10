@@ -23,7 +23,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const isValid = useIsValid(node);
   const item = useNodeItem(node);
   const parentItem = useNodeItem(node.parent instanceof BaseLayoutNode ? node.parent : undefined);
-  const { id, layout, readOnly, textResourceBindings, required } = item;
+  const { id, layout, readOnly, textResourceBindings, required, showLabelsInTable } = item;
   const showAsCard = 'showAsCard' in item ? item.showAsCard : false;
   const { selectedValues, handleChange, fetchingOptions, calculatedOptions } = useRadioButtons(props);
   const alertOnChange = 'alertOnChange' in item ? item.alertOnChange && !!selectedValues[0] : undefined;
@@ -55,7 +55,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
     </span>
   );
 
-  const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1;
+  const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1 && !showLabelsInTable;
   const shouldDisplayHorizontally = shouldUseRowLayout({
     layout,
     optionsCount: calculatedOptions.length,

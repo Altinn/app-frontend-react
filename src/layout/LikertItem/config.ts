@@ -41,5 +41,14 @@ export const Config = new CG.component({
       description: 'Help text of the Likert component/row',
     }),
   )
+  .addProperty(
+    new CG.prop(
+      'showLabelsInTable',
+      new CG.bool()
+        .optional({ default: false })
+        .setTitle('Show label when single option in table')
+        .setDescription('Boolean value indicating if the label should be visible when only one option exists in table'),
+    ),
+  )
   .addPlugin(new OptionsPlugin({ supportsPreselection: true, type: 'single' }))
   .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()));

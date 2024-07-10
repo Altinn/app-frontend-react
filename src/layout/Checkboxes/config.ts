@@ -38,6 +38,15 @@ export const Config = new CG.component({
   .addPlugin(new OptionsPlugin({ supportsPreselection: true, type: 'multi' }))
   .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple'))
   .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()))
+  .addProperty(
+    new CG.prop(
+      'showLabelsInTable',
+      new CG.bool()
+        .optional({ default: false })
+        .setTitle('Show label when single option in table')
+        .setDescription('Boolean value indicating if the label should be visible when only one option exists in table'),
+    ),
+  )
   .addPlugin(
     new AlertOnChangePlugin({
       propName: 'alertOnChange',
