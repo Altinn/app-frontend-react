@@ -111,6 +111,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
         helpText={help}
         readOnly={readOnly}
         required={required}
+        description={description}
       />
     ),
     autoComplete: autocomplete,
@@ -123,7 +124,6 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     required,
     onBlur: debounce,
     textOnly: overrideDisplay?.rowReadOnly && readOnly,
-    description,
     prefixText,
     suffixText,
   };
