@@ -176,7 +176,7 @@ export const fetchProcessState = (instanceId: string): Promise<IProcess> => http
 
 export const fetchProcessNextSteps = (instanceId: string): Promise<string[]> => httpGet(getProcessNextUrl(instanceId));
 
-export const fetchApplicationMetadata = (): Promise<IncomingApplicationMetadata> => httpGet(applicationMetadataApiUrl);
+export const fetchApplicationMetadata = () => httpGet<IncomingApplicationMetadata>(applicationMetadataApiUrl);
 
 export const fetchApplicationSettings = (): Promise<IApplicationSettings> => httpGet(applicationSettingsApiUrl);
 

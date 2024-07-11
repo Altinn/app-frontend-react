@@ -23,7 +23,7 @@ export function getApplicationMetadataQueryDef() {
   return {
     queryKey: ['fetchApplicationMetadata'],
     queryFn: fetchApplicationMetadata,
-    select: (data: IncomingApplicationMetadata): ApplicationMetadata => {
+    select: (data) => {
       const onEntry = data.onEntry ?? { show: 'new-instance' };
 
       return {
@@ -39,7 +39,7 @@ export function getApplicationMetadataQueryDef() {
         logoOptions: data.logo,
       };
     },
-  } satisfies UseQueryOptions;
+  } satisfies UseQueryOptions<IncomingApplicationMetadata, Error, ApplicationMetadata>;
 }
 
 const useApplicationMetadataQuery = () => {
@@ -81,5 +81,5 @@ function isStatelessApp(show: ApplicationMetadata['onEntry']['show']) {
   const match = window.location.href.match(expr); // This should probably be reconsidered when changing router.
 
   // App can be setup as stateless but then go over to a stateful process task
-  return match ? false : !onEntryValuesThatHaveState.includes(show);
+  return match ? false : !!show && !onEntryValuesThatHaveState.includes(show);
 }

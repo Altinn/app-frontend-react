@@ -18,7 +18,6 @@ import {
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { PresentationType } from 'src/types';
-import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { ShowTypes } from 'src/features/applicationMetadata/types';
 
 const RenderStateless = () => (
@@ -43,7 +42,7 @@ const RenderStateless = () => (
 );
 
 const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
 
   if (isStateless) {
     return <RenderStateless />;
@@ -70,10 +69,10 @@ const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
 export const Entrypoint = () => {
   const applicationMetadata = useApplicationMetadata();
   const show: ShowTypes = applicationMetadata.onEntry.show;
+  const isStateless = applicationMetadata.isStatelessApp;
   const validParties = useValidParties();
   const profile = useProfile();
   const partyIsValid = useCurrentPartyIsValid();
-  const isStateless = useIsStatelessApp();
   const party = useCurrentParty();
   const allowAnonymous = useAllowAnonymousIs(true);
   const userHasSelectedParty = useHasSelectedParty();
