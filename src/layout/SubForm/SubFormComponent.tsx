@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Button, Table } from '@digdir/designsystemet-react';
+import { Button, Spinner, Table } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
+import dot from 'dot-object';
 
 import { Caption } from 'src/components/form/Caption';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
@@ -18,7 +19,7 @@ import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>): React.JSX.Element | null {
-  const { dataType, id, textResourceBindings, showAddButton = true, showDeleteButton = true } = node.item;
+  const { dataType, id, textResourceBindings, tableColumns, showAddButton = true, showDeleteButton = true } = node.item;
   const { langAsString } = useLanguage();
   const addEntryMutation = useAddEntryMutation(dataType);
   const instanceData = useStrictInstanceData();
@@ -49,9 +50,14 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
         />
         <Table.Head id={`subform-${id}-table-body`}>
           <Table.Row>
-            <Table.HeaderCell className={classes.tableCellFormatting}>
-              <Lang id={'Oppføringer'} />
-            </Table.HeaderCell>
+            {tableColumns.map((entry, index) => (
+              <Table.HeaderCell
+                className={classes.tableCellFormatting}
+                key={index}
+              >
+                <Lang id={entry.headerContent ?? langAsString(entry.cellContent)} />
+              </Table.HeaderCell>
+            ))}
             <Table.HeaderCell>
               <span className={classes.visuallyHidden}>
                 <Lang id={'general.edit'} />
@@ -120,9 +126,10 @@ function SubFormTableRow({
   deleteEntryCallback: (dataElement: IData) => void;
 }) {
   const id = dataElement.id;
+  const { tableColumns } = node.item;
   const instance = useStrictInstanceData();
   const url = getDataModelUrl(instance.id, id, true);
-  const { isFetching } = useFormDataQuery(url);
+  const { isFetching, data } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
   const navigate = useNavigate();
 
@@ -131,10 +138,16 @@ function SubFormTableRow({
   const editButtonText = langAsString('general.edit');
 
   if (isFetching) {
-    // TODO: Spinner
-    return null;
+    const numColumns = tableColumns.length;
+    const actualColumns = showDeleteButton ? numColumns + 1 : numColumns;
+    return (
+      <Table.Row>
+        <Table.Cell colSpan={actualColumns}>
+          <Spinner title={langAsString('general.loading')} />
+        </Table.Cell>
+      </Table.Row>
+    );
   }
-  // <span>{dot.pick('Path.Inside.DataModel', data)}</span>
 
   const deleteEntry = async () => {
     await deleteEntryMutation.mutateAsync(id);
@@ -146,7 +159,10 @@ function SubFormTableRow({
       key={`repeating-group-row-${id}`}
       data-row-num={rowNumber}
     >
-      <Table.Cell key={id}>{id}</Table.Cell>
+      {tableColumns.map((entry) => {
+        const content = dot.pick(entry.cellContent, data) ?? langAsString(entry.cellContent);
+        return <Table.Cell key={id}>{String(content)}</Table.Cell>;
+      })}
       <Table.Cell className={classes.buttonCell}>
         <div className={classes.buttonInCellWrapper}>
           <Button
