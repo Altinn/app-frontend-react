@@ -1,6 +1,6 @@
 import texts from 'test/e2e/fixtures/texts.json';
-import { changeToLang } from 'test/e2e/integration/frontend-test/formatting';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+import { changeToLang } from 'test/e2e/support/lang';
 
 import type { CompExternal } from 'src/layout/layout';
 
