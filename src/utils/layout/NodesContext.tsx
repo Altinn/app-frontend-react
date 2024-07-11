@@ -92,6 +92,7 @@ export interface AddNodeRequest<T extends CompTypes = CompTypes> {
   node: LayoutNode<T>;
   targetState: NodeData<T>;
   claim: ChildClaim;
+  then: () => void;
 }
 
 export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeData<T>> {
@@ -109,6 +110,7 @@ export interface SetPagePropRequest<K extends keyof PageData> {
 
 export interface RemoveNodeRequest<T extends CompTypes = CompTypes> {
   node: LayoutNode<T>;
+  then: () => void;
 }
 
 export type NodesContext = {
@@ -171,7 +173,7 @@ export function createNodesDataStore() {
     addNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        for (const { node, targetState, claim } of requests) {
+        for (const { node, targetState, claim, then } of requests) {
           nodeData[node.id] = targetState;
 
           if (node.parent instanceof BaseLayoutNode) {
@@ -181,14 +183,17 @@ export function createNodesDataStore() {
               ...(additionalParentState as any),
             };
           }
+
+          then();
         }
         return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
       }),
     removeNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        for (const { node } of requests) {
+        for (const { node, then } of requests) {
           delete nodeData[node.id];
+          then();
         }
         return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
       }),

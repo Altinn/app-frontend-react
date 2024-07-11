@@ -141,14 +141,24 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: A
   const pageRef = useAsRef(page);
 
   GeneratorStages.AddNodes.useEffect(() => {
-    const defaultState = nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any);
-    addNode({ node: nodeRef.current, targetState: defaultState, claim });
-  }, [addNode, nodeRef, stateFactoryPropsRef, claim]);
+    addNode({
+      node: nodeRef.current,
+      targetState: nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any),
+      claim,
+      then: () => {
+        pageRef.current._addChild(node);
+      },
+    });
+  }, [addNode, nodeRef, stateFactoryPropsRef, claim, pageRef]);
 
   GeneratorStages.AddNodes.useEffect(
     () => () => {
-      pageRef.current._removeChild(nodeRef.current);
-      removeNode({ node: nodeRef.current });
+      removeNode({
+        node: nodeRef.current,
+        then: () => {
+          pageRef.current._removeChild(nodeRef.current);
+        },
+      });
     },
     [nodeRef, pageRef, removeNode],
   );
@@ -333,18 +343,14 @@ function useIntermediateItem<T extends CompTypes = CompTypes>(item: CompExternal
  * Creates a new node instance for a component item, and adds that to the parent node and the store.
  */
 function useNewNode<T extends CompTypes>(item: CompIntermediate<T>): LayoutNode<T> {
-  const page = GeneratorInternal.usePage();
   const parent = GeneratorInternal.useParent();
   const row = GeneratorInternal.useRow();
   const LNode = useNodeConstructor(item.type);
 
   return useMemo(() => {
     const newNodeProps: LayoutNodeProps<T> = { item, parent, row };
-    const node = new LNode(newNodeProps as any) as LayoutNode<T>;
-    page._addChild(node);
-
-    return node;
-  }, [LNode, item, page, parent, row]);
+    return new LNode(newNodeProps as any) as LayoutNode<T>;
+  }, [LNode, item, parent, row]);
 }
 
 function isFormItem(item: CompIntermediate): item is CompIntermediate & FormComponentProps {

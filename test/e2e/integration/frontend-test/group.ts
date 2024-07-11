@@ -828,4 +828,17 @@ describe('Group', () => {
     cy.gotoNavPage('summary');
     cy.get('[data-testid="summary-repeating-row"]').should('have.length', 2);
   });
+
+  it('Adding new nodes while nodes are already being generated', () => {
+    // When rewriting the nodes generator, this would reliably fail. That happened because the node generation process
+    // starts as soon as the data is saved, and when you at that point immediately click a new checkbox, that triggers
+    // a new node generation process - before the first one has finished.
+    cy.goto('group');
+    cy.get(appFrontend.group.prefill.liten).check();
+    cy.waitUntilSaved();
+    cy.get(appFrontend.group.prefill.middels).check();
+    cy.gotoNavPage('repeating');
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 2);
+  });
 });
