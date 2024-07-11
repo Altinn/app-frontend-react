@@ -98,7 +98,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
             fontSize='1.5rem'
             aria-hidden='true'
           />
-          {`${langAsString('general.add_new')} ${langAsString(textResourceBindings?.addButton)}`}
+          {langAsString(textResourceBindings?.addButton)}
         </Button>
       )}
     </Grid>
