@@ -39,6 +39,10 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             }
 
             const thisNode = nodeData[node.id];
+            if (!thisNode) {
+              continue;
+            }
+
             const existingRows = thisNode.item && (thisNode.item[internalProp] as RepChildrenRow[] | undefined);
             const existingRowIndex = existingRows?.findIndex((r) => r.uuid === row.uuid);
             const existingRow =

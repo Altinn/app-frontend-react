@@ -289,10 +289,12 @@ function AddRemovePage({ layoutSet, page, name }: CommonProps) {
   const addPage = NodesInternal.useAddPage();
   const removePage = NodesInternal.useRemovePage();
 
-  addPage(name);
-  if (!page.isRegisteredInCollection(layoutSet)) {
-    page.registerCollection(name, layoutSet);
-  }
+  GeneratorStages.AddNodes.useEffect(() => {
+    addPage(name);
+    if (!page.isRegisteredInCollection(layoutSet)) {
+      page.registerCollection(name, layoutSet);
+    }
+  }, [addPage, page, name, layoutSet]);
 
   // Removes the page from the store when is removed from the React tree
   GeneratorStages.AddNodes.useEffect(

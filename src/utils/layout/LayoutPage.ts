@@ -116,27 +116,27 @@ export class LayoutPage implements LayoutObject {
     }
 
     const baseId = splitDashedKey(id).baseComponentId;
-    const out: LayoutNode[] = [];
+    const out: Set<LayoutNode> = new Set();
     if (this.allChildren.has(id)) {
-      out.push(this.allChildren.get(id) as LayoutNode);
+      out.add(this.allChildren.get(id) as LayoutNode);
     }
     if (this.allChildren.has(baseId)) {
-      out.push(this.allChildren.get(baseId) as LayoutNode);
+      out.add(this.allChildren.get(baseId) as LayoutNode);
     }
 
     for (const key of this.allChildren.keys()) {
       if (key.startsWith(`${baseId}-`)) {
-        out.push(this.allChildren.get(key) as LayoutNode);
+        out.add(this.allChildren.get(key) as LayoutNode);
       }
     }
 
     if (traversePages && this.layoutSet) {
       for (const item of this.layoutSet.findAllById(task, id, this.pageKey)) {
-        out.push(item);
+        out.add(item);
       }
     }
 
-    return out;
+    return [...out.values()];
   }
 
   public isRegisteredInCollection(layoutSet: LayoutPages): boolean {

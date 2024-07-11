@@ -14,6 +14,7 @@ import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStor
 import { UpdateAttachmentsForCypress } from 'src/features/attachments/UpdateAttachmentsForCypress';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { HiddenComponentsProvider } from 'src/features/form/dynamics/HiddenComponentsProvider';
+import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
 import {
@@ -358,23 +359,35 @@ const Conditionally = {
   },
 };
 
-export const NodesProvider = ({ children }: React.PropsWithChildren) => (
-  <Store.Provider>
-    <GeneratorStagesProvider>
-      <GeneratorValidationProvider>
-        <LayoutSetGenerator />
-      </GeneratorValidationProvider>
-      <MarkAsReady />
-    </GeneratorStagesProvider>
-    {window.Cypress && <UpdateAttachmentsForCypress />}
-    <BlockUntilLoaded>
-      <HiddenComponentsProvider />
-      <ProvideWaitForValidation />
-      <UpdateExpressionValidation />
-      <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
-    </BlockUntilLoaded>
-  </Store.Provider>
-);
+export const NodesProvider = ({ children }: React.PropsWithChildren) => {
+  const layouts = useLayouts();
+  const lastLayouts = useRef(layouts);
+  const counter = useRef(0);
+
+  if (lastLayouts.current !== layouts) {
+    // Resets the entire node state when the layout changes (either via Studio, our own DevTools, or Cypress tests)
+    counter.current += 1;
+    lastLayouts.current = layouts;
+  }
+
+  return (
+    <Store.Provider key={counter.current}>
+      <GeneratorStagesProvider>
+        <GeneratorValidationProvider>
+          <LayoutSetGenerator />
+        </GeneratorValidationProvider>
+        <MarkAsReady />
+      </GeneratorStagesProvider>
+      {window.Cypress && <UpdateAttachmentsForCypress />}
+      <BlockUntilLoaded>
+        <HiddenComponentsProvider />
+        <ProvideWaitForValidation />
+        <UpdateExpressionValidation />
+        <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
+      </BlockUntilLoaded>
+    </Store.Provider>
+  );
+};
 
 /**
  * Some selectors (like NodeTraversal) only re-runs when the data store is 'ready', and when nodes start being added
@@ -697,7 +710,7 @@ export const NodesInternal = {
     selector: (state: NodeDataFromNode<N>) => Out,
   ): React.MutableRefObject<N extends undefined ? Out | undefined : Out> {
     return Store.useSelectorAsRef((s) =>
-      node ? selector(s.nodeData[node.id] as NodeDataFromNode<N>) : undefined,
+      node && s.nodeData[node.id] ? selector(s.nodeData[node.id] as NodeDataFromNode<N>) : undefined,
     ) as any;
   },
   useWaitForNodeData<RetVal, N extends LayoutNode | undefined, Out>(

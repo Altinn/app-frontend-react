@@ -44,7 +44,7 @@ export interface IGenericComponentByIdProps<Type extends CompTypes> extends Over
 export function GenericComponentById<Type extends CompTypes = CompTypes>(props: IGenericComponentByIdProps<Type>) {
   const node = useNode(props.id);
   if (!node) {
-    throw new Error(`Node with id '${props.id}' not found`);
+    return false;
   }
 
   return (
@@ -61,6 +61,7 @@ function _GenericComponent<Type extends CompTypes = CompTypes>({
   overrideItemProps,
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
+  const itemExists = useNodeItem(node, (i) => !!i);
   const generatorErrors = NodesInternal.useNodeData(node, (node) => node.errors);
   if (generatorErrors && Object.keys(generatorErrors).length > 0) {
     return (
@@ -69,6 +70,10 @@ function _GenericComponent<Type extends CompTypes = CompTypes>({
         errors={Object.keys(generatorErrors)}
       />
     );
+  }
+
+  if (!node || !itemExists) {
+    return false;
   }
 
   return (
