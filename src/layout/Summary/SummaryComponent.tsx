@@ -95,7 +95,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
       md={displayGrid?.md || false}
       lg={displayGrid?.lg || false}
       xl={displayGrid?.xl || false}
-      data-testid={`summary-${targetNode?.id ?? summaryNode?.id ?? 'unknown'}`}
+      data-testid={`summary-${summaryNode?.id ?? targetNode?.id ?? 'unknown'}`}
       data-componentid={summaryNode?.id ?? `summary-${targetNode?.id}`}
       data-componentbaseid={summaryNode?.baseId ?? `summary-${targetNode.id}`}
       className={cn(pageBreakStyles(pageBreak))}
