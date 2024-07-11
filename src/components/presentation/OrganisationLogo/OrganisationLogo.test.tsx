@@ -5,13 +5,13 @@ import { screen } from '@testing-library/react';
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 
-const render = async (logo: IApplicationMetadata['logo']) =>
+const render = async (logo: ApplicationMetadata['logoOptions']) =>
   await renderWithInstanceAndLayout({
     renderer: () => <OrganisationLogo />,
     queries: {
-      fetchApplicationMetadata: () => Promise.resolve(getApplicationMetadataMock({ logo })),
+      fetchApplicationMetadata: () => Promise.resolve(getApplicationMetadataMock({ logoOptions: logo })),
     },
   });
 

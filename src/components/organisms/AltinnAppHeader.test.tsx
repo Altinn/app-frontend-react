@@ -9,7 +9,7 @@ import { LogoColor } from 'src/components/logo/AltinnLogo';
 import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { PartyType } from 'src/types/shared';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IParty } from 'src/types/shared';
 
 describe('organisms/AltinnAppHeader', () => {
@@ -32,7 +32,7 @@ describe('organisms/AltinnAppHeader', () => {
   interface IRenderComponentProps {
     party: IParty;
     user?: IParty;
-    logo?: IApplicationMetadata['logo'];
+    logo?: ApplicationMetadata['logoOptions'];
   }
   const render = async ({ party, user = partyPerson, logo }: IRenderComponentProps) =>
     await renderWithInstanceAndLayout({
@@ -45,7 +45,7 @@ describe('organisms/AltinnAppHeader', () => {
         />
       ),
       queries: {
-        fetchApplicationMetadata: () => Promise.resolve(getApplicationMetadataMock({ logo })),
+        fetchApplicationMetadata: () => Promise.resolve(getApplicationMetadataMock({ logoOptions: logo })),
       },
     });
 

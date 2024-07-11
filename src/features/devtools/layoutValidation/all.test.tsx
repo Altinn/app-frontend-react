@@ -6,14 +6,13 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import {
   LayoutValidationProvider,
   useLayoutValidation,
 } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { ensureAppsDirIsSet, getAllLayoutSets } from 'src/test/allApps';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import type { ShowTypes } from 'src/features/applicationMetadata';
+import type { ShowTypes } from 'src/features/applicationMetadata/types';
 
 describe('All known apps should work with layout validation', () => {
   const dir = ensureAppsDirIsSet();
@@ -49,7 +48,7 @@ describe('All known apps should work with layout validation', () => {
 
 function DummyValidateApp() {
   const application = useApplicationMetadata();
-  if (!isStatelessApp(application)) {
+  if (!application.isStatelessApp) {
     throw new Error('Should be considered a stateless app - check the mocks if this is not working');
   }
 

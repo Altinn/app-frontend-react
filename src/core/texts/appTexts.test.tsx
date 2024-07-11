@@ -5,7 +5,7 @@ import { screen } from '@testing-library/react';
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IRawTextResource } from 'src/features/language/textResources';
 import type { IAltinnOrg, IAltinnOrgs } from 'src/types/shared';
 
@@ -22,7 +22,7 @@ function AppTextsRenderer() {
 
 interface RenderProps {
   textResources?: IRawTextResource[];
-  applicationMetadata?: IApplicationMetadata;
+  applicationMetadata?: ApplicationMetadata;
   orgs?: IAltinnOrgs;
 }
 

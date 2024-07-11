@@ -2,12 +2,16 @@ import React, { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
+import { onEntryValuesThatHaveState } from 'src/features/applicationMetadata/appMetadataUtils';
 import { OldVersionError } from 'src/features/applicationMetadata/OldVersionError';
+import { fetchApplicationMetadata } from 'src/queries/queries';
+import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
+import type { ApplicationMetadata, IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 
 export const MINIMUM_APPLICATION_VERSION = {
   build: '8.0.0.108',
@@ -15,22 +19,37 @@ export const MINIMUM_APPLICATION_VERSION = {
 };
 
 // Also used for prefetching @see appPrefetcher.ts
-export function useApplicationMetadataQueryDef() {
-  const { fetchApplicationMetadata } = useAppQueries();
+export function getApplicationMetadataQueryDef() {
   return {
     queryKey: ['fetchApplicationMetadata'],
     queryFn: fetchApplicationMetadata,
-  };
+    select: (data: IncomingApplicationMetadata): ApplicationMetadata => {
+      const onEntry = data.onEntry ?? { show: 'new-instance' };
+
+      return {
+        ...data,
+        isValidVersion:
+          !!data.altinnNugetVersion &&
+          isAtLeastVersion({
+            actualVersion: data.altinnNugetVersion,
+            minimumVersion: MINIMUM_APPLICATION_VERSION.build,
+          }),
+        onEntry,
+        isStatelessApp: isStatelessApp(onEntry.show),
+        logoOptions: data.logo,
+      };
+    },
+  } satisfies UseQueryOptions;
 }
 
 const useApplicationMetadataQuery = () => {
-  const utils = useQuery(useApplicationMetadataQueryDef());
+  const query = useQuery(getApplicationMetadataQueryDef());
 
   useEffect(() => {
-    utils.error && window.logError('Fetching application metadata failed:\n', utils.error);
-  }, [utils.error]);
+    query.error && window.logError('Fetching application metadata failed:\n', query.error);
+  }, [query.error]);
 
-  return utils;
+  return query;
 };
 
 const { Provider, useCtx, useLaxCtx, useHasProvider } = delayedContext(() =>
@@ -42,19 +61,8 @@ const { Provider, useCtx, useLaxCtx, useHasProvider } = delayedContext(() =>
 );
 
 function VerifyMinimumVersion({ children }: PropsWithChildren) {
-  const { altinnNugetVersion } = useApplicationMetadata();
-  if (
-    !altinnNugetVersion ||
-    !isAtLeastVersion({
-      actualVersion: altinnNugetVersion,
-      minimumVersion: MINIMUM_APPLICATION_VERSION.build,
-      allowZeroInLast: true,
-    })
-  ) {
-    return <OldVersionError minVer={MINIMUM_APPLICATION_VERSION.name} />;
-  }
-
-  return children;
+  const { isValidVersion } = useApplicationMetadata();
+  return isValidVersion ? children : <OldVersionError minVer={MINIMUM_APPLICATION_VERSION.name} />;
 }
 
 export function ApplicationMetadataProvider({ children }: PropsWithChildren) {
@@ -67,3 +75,11 @@ export function ApplicationMetadataProvider({ children }: PropsWithChildren) {
 export const useApplicationMetadata = () => useCtx();
 export const useLaxApplicationMetadata = () => useLaxCtx();
 export const useHasApplicationMetadata = () => useHasProvider();
+
+function isStatelessApp(show: ApplicationMetadata['onEntry']['show']) {
+  const expr = getInstanceIdRegExp({ prefix: '/instance' });
+  const match = window.location.href.match(expr); // This should probably be reconsidered when changing router.
+
+  // App can be setup as stateless but then go over to a stateful process task
+  return match ? false : !onEntryValuesThatHaveState.includes(show);
+}

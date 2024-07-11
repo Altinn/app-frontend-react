@@ -1,7 +1,6 @@
 interface VersionCompareProps {
   actualVersion: string;
   minimumVersion: string;
-  allowZeroInLast?: boolean;
 }
 
 /**
@@ -11,7 +10,7 @@ interface VersionCompareProps {
  * The allowZeroInLast parameter is used to allow the last part of the version to be zero. This is useful
  * when running the backend with project references, as the build number is set to zero in that case.
  */
-export function isAtLeastVersion({ actualVersion, minimumVersion, allowZeroInLast }: VersionCompareProps): boolean {
+export function isAtLeastVersion({ actualVersion, minimumVersion }: VersionCompareProps): boolean {
   const parts = actualVersion.split('.');
   const expectedParts = minimumVersion.split('.');
   if (parts.length !== expectedParts.length) {
@@ -21,13 +20,11 @@ export function isAtLeastVersion({ actualVersion, minimumVersion, allowZeroInLas
     const expected = parseInt(expectedParts[i], 10);
     const actual = parseInt(parts[i], 10);
     const isLast = parseInt(i) === expectedParts.length - 1;
-    if (isLast && allowZeroInLast && actual === 0) {
+    if (isLast && actual === 0) {
       return true;
-    }
-    if (actual > expected) {
+    } else if (actual > expected) {
       return true;
-    }
-    if (actual < expected) {
+    } else if (actual < expected) {
       return false;
     }
   }

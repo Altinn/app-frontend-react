@@ -4,9 +4,8 @@ import {
   getCurrentDataTypeForApplication,
   getCurrentTaskDataElementId,
   getLayoutSetIdForApplication,
-  isStatelessApp,
 } from 'src/features/applicationMetadata/appMetadataUtils';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata/index';
+import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { ILayoutSets } from 'src/layout/common.generated';
 import type { IData } from 'src/types/shared';
 
@@ -106,7 +105,7 @@ describe('appMetadata.ts', () => {
     });
 
     it('should return correct data type if we have a stateless app', () => {
-      const statelessApplication: IApplicationMetadata = {
+      const statelessApplication: ApplicationMetadata = {
         ...application,
         onEntry: { show: 'stateless' },
       };
@@ -120,7 +119,7 @@ describe('appMetadata.ts', () => {
     });
 
     it('should return correct data type if instance not set', () => {
-      const statelessApplication: IApplicationMetadata = {
+      const statelessApplication: ApplicationMetadata = {
         ...application,
         onEntry: { show: 'stateless' },
       };
@@ -142,7 +141,7 @@ describe('appMetadata.ts', () => {
     });
 
     it('should return correct layout set id if we have a stateless app', () => {
-      const statelessApplication: IApplicationMetadata = {
+      const statelessApplication: ApplicationMetadata = {
         ...application,
         onEntry: { show: 'stateless' },
       };
@@ -158,22 +157,22 @@ describe('appMetadata.ts', () => {
 
   describe('isStatelessApp', () => {
     it('should return true if enEntry with layout set is specified', () => {
-      const statelessApplication: IApplicationMetadata = {
+      const statelessApplication: ApplicationMetadata = {
         ...application,
         onEntry: { show: 'stateless' },
       };
-      const result = isStatelessApp(statelessApplication);
+      const result = statelessApplication.isStatelessApp;
       expect(result).toBeTruthy();
     });
 
     it('should return false if onEntry is not specified', () => {
-      const result = isStatelessApp(application);
+      const result = application.isStatelessApp;
       expect(result).toBeFalsy();
     });
 
     it('should return false if routed to an instance', () => {
       window.location.replace('#/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc');
-      const result = isStatelessApp(application);
+      const result = application.isStatelessApp;
       expect(result).toBeFalsy();
     });
   });

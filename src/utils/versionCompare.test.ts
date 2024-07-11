@@ -28,7 +28,6 @@ describe('versionCompare', () => {
   });
 
   test('should allow zero in last part', () => {
-    expect(isAtLeastVersion({ actualVersion: '1.2.0', minimumVersion: '1.2.3', allowZeroInLast: false })).toBe(false);
-    expect(isAtLeastVersion({ actualVersion: '1.2.0', minimumVersion: '1.2.3', allowZeroInLast: true })).toBe(true);
+    expect(isAtLeastVersion({ actualVersion: '1.2.0', minimumVersion: '1.2.3' })).toBe(true);
   });
 });

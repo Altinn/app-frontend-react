@@ -19,7 +19,7 @@ import { useProfile } from 'src/features/profile/ProfileProvider';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { PresentationType } from 'src/types';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
-import type { ShowTypes } from 'src/features/applicationMetadata';
+import type { ShowTypes } from 'src/features/applicationMetadata/types';
 
 const RenderStateless = () => (
   <FormProvider>
@@ -69,7 +69,7 @@ const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
 
 export const Entrypoint = () => {
   const applicationMetadata = useApplicationMetadata();
-  const show: ShowTypes = applicationMetadata.onEntry?.show ?? 'new-instance';
+  const show: ShowTypes = applicationMetadata.onEntry.show;
   const validParties = useValidParties();
   const profile = useProfile();
   const partyIsValid = useCurrentPartyIsValid();

@@ -1,6 +1,5 @@
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 
 export function useIsStatelessApp() {
   const application = useLaxApplicationMetadata();
@@ -8,5 +7,5 @@ export function useIsStatelessApp() {
     return false;
   }
 
-  return isStatelessApp(application);
+  return application.isStatelessApp;
 }
