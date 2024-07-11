@@ -34,7 +34,6 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
     }
     return null;
   };
-  console.log(node, textResourceBindings);
   const labelText = (
     <span className={classes.labelContent}>
       {getLabelPrefixForLikert()}
