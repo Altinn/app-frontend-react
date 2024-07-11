@@ -60,7 +60,8 @@ export const useDeleteEntryMutation = (id: string) => {
         });
       }
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Failed to delete sub-form:', error);
       toast(langAsString('form_filler.error_delete_sub_form'), { type: 'error' });
     },
   });

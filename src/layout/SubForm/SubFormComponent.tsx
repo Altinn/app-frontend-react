@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Button, Table } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
-import { Add as AddIcon, Delete as DeleteIcon } from '@navikt/ds-icons';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
 
 import { Caption } from 'src/components/form/Caption';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
@@ -27,12 +27,8 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
   const [subFormEntries, updateSubFormEntries] = useState(dataElements);
 
   const addEntry = async () => {
-    try {
-      const result = await addEntryMutation.mutateAsync({});
-      updateSubFormEntries([...subFormEntries, result.reply]);
-    } catch (error) {
-      console.error('Error adding entry:', error);
-    }
+    const result = await addEntryMutation.mutateAsync({});
+    updateSubFormEntries([...subFormEntries, result.reply]);
   };
 
   return (
@@ -55,6 +51,11 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
           <Table.Row>
             <Table.HeaderCell className={classes.tableCellFormatting}>
               <Lang id={'Oppføringer'} />
+            </Table.HeaderCell>
+            <Table.HeaderCell>
+              <span className={classes.visuallyHidden}>
+                <Lang id={'general.edit'} />
+              </span>
             </Table.HeaderCell>
             {showDeleteButton && (
               <Table.HeaderCell>
@@ -123,9 +124,11 @@ function SubFormTableRow({
   const url = getDataModelUrl(instance.id, id, true);
   const { isFetching } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
+  const navigate = useNavigate();
 
   const deleteEntryMutation = useDeleteEntryMutation(id);
   const deleteButtonText = langAsString('general.delete');
+  const editButtonText = langAsString('general.edit');
 
   if (isFetching) {
     // TODO: Spinner
@@ -134,12 +137,8 @@ function SubFormTableRow({
   // <span>{dot.pick('Path.Inside.DataModel', data)}</span>
 
   const deleteEntry = async () => {
-    try {
-      await deleteEntryMutation.mutateAsync(id);
-      deleteEntryCallback(dataElement);
-    } catch (error) {
-      console.error('Error deleting entry:', error);
-    }
+    await deleteEntryMutation.mutateAsync(id);
+    deleteEntryCallback(dataElement);
   };
 
   return (
@@ -147,8 +146,25 @@ function SubFormTableRow({
       key={`repeating-group-row-${id}`}
       data-row-num={rowNumber}
     >
-      <Table.Cell key={id}>
-        <Link to={`${node.item.id}/${id}`}>{id}</Link>
+      <Table.Cell key={id}>{id}</Table.Cell>
+      <Table.Cell className={classes.buttonCell}>
+        <div className={classes.buttonInCellWrapper}>
+          <Button
+            variant='tertiary'
+            color='second'
+            size='small'
+            onClick={async () => navigate(`${node.item.id}/${id}`)}
+            aria-label={editButtonText}
+            data-testid='edit-button'
+            className={classes.tableButton}
+          >
+            {editButtonText}
+            <EditIcon
+              fontSize='1rem'
+              aria-hidden='true'
+            />
+          </Button>
+        </div>
       </Table.Cell>
       {showDeleteButton && (
         <Table.Cell className={classes.buttonCell}>

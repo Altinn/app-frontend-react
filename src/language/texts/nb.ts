@@ -55,7 +55,8 @@ export function nb(): FixedLanguageList {
       body: 'Vi venter på verifikasjon, når den er på plass blir du videresendt.',
     },
     form_filler: {
-      error_add_sub_form: 'Feil ved opprettelse av underskjema',
+      error_add_sub_form: 'Det oppstod en feil ved opprettelse av underskjema, vennligst prøv igjen',
+      error_delete_sub_form: 'Noe gikk galt ved sletting av underskjema, vennligst prøv igjen.',
       back_to_summary: 'Tilbake til oppsummering',
       alert_confirm: 'Bekreft',
       checkbox_alert: 'Er du sikker på at du vil fjerne avkrysningen?',
