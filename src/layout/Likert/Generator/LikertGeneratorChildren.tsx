@@ -3,7 +3,12 @@ import React, { useMemo, useRef } from 'react';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { getLikertStartStopIndex } from 'src/utils/formLayout';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
-import { GeneratorCondition, GeneratorStages, StageAddNodes } from 'src/utils/layout/generator/GeneratorStages';
+import {
+  GeneratorCondition,
+  GeneratorRunProvider,
+  GeneratorStages,
+  StageAddNodes,
+} from 'src/utils/layout/generator/GeneratorStages';
 import { GenerateNodeChildrenWithStaticLayout } from 'src/utils/layout/generator/LayoutSetGenerator';
 import {
   mutateComponentId,
@@ -42,11 +47,12 @@ function PerformWork() {
   return (
     <>
       {filteredRows.map((row) => (
-        <GenerateRow
-          key={row.uuid}
-          row={row}
-          questionsBinding={questionsBinding}
-        />
+        <GeneratorRunProvider key={row.uuid}>
+          <GenerateRow
+            row={row}
+            questionsBinding={questionsBinding}
+          />
+        </GeneratorRunProvider>
       ))}
     </>
   );

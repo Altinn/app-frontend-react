@@ -9,6 +9,7 @@ import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
 import {
   GeneratorCondition,
+  GeneratorRunProvider,
   GeneratorStages,
   NodesStateQueue,
   StageAddNodes,
@@ -59,15 +60,16 @@ function PerformWork({ claims, binding, multiPageSupport, externalProp, internal
   return (
     <>
       {rows.map((row) => (
-        <GenerateRow
-          key={row.uuid}
-          row={row}
-          groupBinding={groupBinding}
-          claims={claims}
-          multiPageMapping={multiPageMapping}
-          internalProp={internalProp}
-          pluginKey={pluginKey}
-        />
+        <GeneratorRunProvider key={row.uuid}>
+          <GenerateRow
+            row={row}
+            groupBinding={groupBinding}
+            claims={claims}
+            multiPageMapping={multiPageMapping}
+            internalProp={internalProp}
+            pluginKey={pluginKey}
+          />
+        </GeneratorRunProvider>
       ))}
     </>
   );

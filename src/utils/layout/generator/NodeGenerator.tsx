@@ -11,6 +11,7 @@ import { GeneratorInternal, GeneratorProvider } from 'src/utils/layout/generator
 import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
 import {
   GeneratorCondition,
+  GeneratorRunProvider,
   GeneratorStages,
   NodesStateQueue,
   StageAddNodes,
@@ -58,7 +59,7 @@ export function NodeGenerator({ children, claim, externalItem }: PropsWithChildr
   const commonProps: CommonProps<CompTypes> = { node, externalItem, intermediateItem };
 
   return (
-    <>
+    <GeneratorRunProvider>
       <GeneratorCondition
         stage={StageAddNodes}
         mustBeAdded='parent'
@@ -93,7 +94,7 @@ export function NodeGenerator({ children, claim, externalItem }: PropsWithChildr
         </GeneratorCondition>
         {children}
       </GeneratorProvider>
-    </>
+    </GeneratorRunProvider>
   );
 }
 

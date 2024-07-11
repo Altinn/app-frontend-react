@@ -35,6 +35,8 @@ const SecondToLast = List[List.length - 2];
 type StageList = typeof List;
 type Stage = StageList[number];
 
+const TICK_TIMEOUT = 10;
+
 type OnStageDone = () => void;
 interface Context {
   currentStage: Stage;
@@ -142,6 +144,11 @@ const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider
             );
 
             if (nextStage === StageFinished && registry.current.restartAfter) {
+              registry.current.restartAfter = false;
+
+              // This has the advantage of skipping the 'finished' stage, and thus not reaching the nodes 'ready' state
+              // before the next run finishes. This may happen if you end up trying to generate more nodes before the
+              // last run finished properly, and thus a new cycle will start right afterwards.
               performanceMark('end', state.runNum);
               generatorLog(
                 'logStages',
@@ -427,7 +434,7 @@ function SetTickFunc() {
     if (tickTimeout.current) {
       clearTimeout(tickTimeout.current);
     }
-    tickTimeout.current = setTimeout(tickFunc, 10);
+    tickTimeout.current = setTimeout(tickFunc, TICK_TIMEOUT);
   }, [tickFunc]);
 
   useEffect(() => {
@@ -453,10 +460,11 @@ function CatchEmptyStages() {
     setTimeout(() => {
       const numHooks = Object.keys(registry.current.stages[currentStage].hooks).length;
       const numComponents = Object.keys(registry.current.stages[currentStage].components).length;
-      if (numHooks === 0 && numComponents === 0) {
+      const shouldFinish = isStageDone(currentStage, registry.current);
+      if ((numHooks === 0 && numComponents === 0) || shouldFinish) {
         tick && tick();
       }
-    }, 4);
+    }, TICK_TIMEOUT);
   }, [currentStage, registry, tick]);
 
   return null;
@@ -682,22 +690,21 @@ function makeHooks(stage: Stage) {
     const tick = useSelector((state) => state.tick!);
     const runNum = useInitialRunNum();
 
-    let canRun = true;
     let isNew = false;
     const reg = registry.current.stages[stage];
-    if (!reg.hooks[uniqueId] && reg.finished && !registry.current.stages[SecondToLast].finished) {
-      // Whoops! We're trying to add a new hook after the generator has proceeded beyond the AddNodes stage. We need
-      // to restart the generator when we're done, so that the next run can pick up the new hooks.
-      reg.hooks[uniqueId] = { finished: false, initialRunNum: runNum + 1 };
-      isNew = false;
-      canRun = false;
-      registry.current.restartAfter = true;
-    } else if (!reg.hooks[uniqueId]) {
+    if (!reg.hooks[uniqueId]) {
       reg.hooks[uniqueId] = { finished: false, initialRunNum: runNum };
       isNew = true;
     }
 
-    const shouldRun = useShouldRenderOrRun(stage, isNew, 'hook') && canRun;
+    if (isNew && reg.finished && !registry.current.stages[SecondToLast].finished) {
+      throw new Error(
+        'Cannot add new hooks after the AddNodes stage has finished. ' +
+          'Make sure this is wrapped in GeneratorRunProvider.',
+      );
+    }
+
+    const shouldRun = useShouldRenderOrRun(stage, isNew, 'hook');
 
     // Unregister the hook when it is removed
     React.useEffect(() => {
@@ -745,4 +752,45 @@ function makeHooks(stage: Stage) {
       return useMemoSelector((state) => state.currentStage === stage);
     },
   };
+}
+
+const canProceedWhenIn = [StageFinished, StageAddNodes];
+function useIsReadyToRun() {
+  const targetRunNumberRef = useSelectorAsRef((state) => {
+    // New nodes are only allowed to be added after the last run has finished, or when the AddNodes
+    // stage is in progress. All others will have to wait for the next run.
+    if (canProceedWhenIn.includes(state.currentStage)) {
+      return state.runNum;
+    }
+    return state.runNum + 1;
+  });
+
+  // Just like useInitialRunNum, this is intentionally not reactive
+  const myRunNum = useRef(targetRunNumberRef.current);
+
+  return useSelector((state) => {
+    if (canProceedWhenIn.includes(state.currentStage)) {
+      return true;
+    }
+
+    return myRunNum.current <= state.runNum;
+  });
+}
+
+/**
+ * Wrapping your components in this will block them from being able to render
+ * until the node generator is idle again
+ */
+export function GeneratorRunProvider({ children }: PropsWithChildren) {
+  const ready = useIsReadyToRun();
+  const registry = useSelector((state) => state.registry);
+
+  if (!ready) {
+    // Something has stopped here and is not proceeding before the next run. By setting this we notify the
+    // tick function to proceed to the next run immediately when the current one finishes.
+    registry.current.restartAfter = true;
+    return null;
+  }
+
+  return children;
 }
