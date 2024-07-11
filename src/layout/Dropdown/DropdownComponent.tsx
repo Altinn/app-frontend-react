@@ -52,6 +52,24 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
     return <AltinnSpinner />;
   }
 
+  const withLabel = (Component) =>
+    overrideDisplay?.renderedInTable !== true ? (
+      <ComponentWithLabel
+        id={id}
+        renderLabelAs='label'
+        label={textResourceBindings?.title}
+        helpText={textResourceBindings?.help}
+        description={textResourceBindings?.description}
+        readOnly={readOnly}
+        required={required}
+        labelSettings={labelSettings}
+      >
+        {Component}
+      </ComponentWithLabel>
+    ) : (
+      Component
+    );
+
   return (
     <ConditionalWrapper
       condition={Boolean(alertOnChange)}
@@ -68,16 +86,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
         </DeleteWarningPopover>
       )}
     >
-      <ComponentWithLabel
-        id={id}
-        renderLabelAs='label'
-        label={textResourceBindings?.title}
-        helpText={textResourceBindings?.help}
-        description={textResourceBindings?.description}
-        readOnly={readOnly}
-        required={required}
-        labelSettings={labelSettings}
-      >
+      {withLabel(
         <Combobox
           id={id}
           size='sm'
@@ -110,8 +119,8 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
               </span>
             </Combobox.Option>
           ))}
-        </Combobox>
-      </ComponentWithLabel>
+        </Combobox>,
+      )}
     </ConditionalWrapper>
   );
 }
