@@ -38,9 +38,8 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
 
   const addEntry = async () => {
     setIsAdding(true);
-    const result = await addEntryMutation.mutateAsync({});
 
-    // TODO: This triggers a full reload of all sub forms. Use cache?
+    const result = await addEntryMutation.mutateAsync({});
     updateSubFormEntries([...subFormEntries, result.reply]);
 
     setIsAdding(false);
@@ -174,6 +173,7 @@ function SubFormTableRow({
 
   const deleteEntry = async () => {
     setIsDeleting(true);
+
     await deleteEntryMutation.mutateAsync(id);
     deleteEntryCallback(dataElement);
   };
