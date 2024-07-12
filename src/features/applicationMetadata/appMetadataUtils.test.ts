@@ -1,72 +1,81 @@
-import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import {
   getCurrentDataTypeForApplication,
   getCurrentTaskDataElementId,
   getLayoutSetIdForApplication,
+  isStatelessApp,
 } from 'src/features/applicationMetadata/appMetadataUtils';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { ILayoutSets } from 'src/layout/common.generated';
 import type { IData } from 'src/types/shared';
 
 describe('appMetadata.ts', () => {
-  const application = getApplicationMetadataMock();
-  application.dataTypes = [
-    {
-      id: 'ref-data-as-pdf',
-      allowedContentTypes: ['application/pdf'],
-      maxCount: 0,
-      minCount: 0,
-    },
-    {
-      id: 'Datamodel',
-      allowedContentTypes: ['application/xml'],
-      appLogic: {
-        autoCreate: true,
-        classRef: 'Altinn.App.Models.StatelessV1',
+  const incomingAppMetadata = getIncomingApplicationMetadataMock({
+    dataTypes: [
+      {
+        id: 'ref-data-as-pdf',
+        allowedContentTypes: ['application/pdf'],
+        maxCount: 0,
+        minCount: 0,
       },
-      taskId: 'Task_1',
-      maxCount: 1,
-      minCount: 1,
-    },
-    {
-      id: 'Datamodel-for-confirm',
-      allowedContentTypes: ['application/xml'],
-      appLogic: {
-        autoCreate: true,
-        classRef: 'Altinn.App.Models.Confirm',
+      {
+        id: 'Datamodel',
+        allowedContentTypes: ['application/xml'],
+        appLogic: {
+          autoCreate: true,
+          classRef: 'Altinn.App.Models.StatelessV1',
+        },
+        taskId: 'Task_1',
+        maxCount: 1,
+        minCount: 1,
       },
-      taskId: 'Task_1',
-      maxCount: 1,
-      minCount: 1,
-    },
-    {
-      id: 'Datamodel-for-custom-receipt',
-      allowedContentTypes: ['application/xml'],
-      appLogic: {
-        autoCreate: true,
-        classRef: 'Altinn.App.Models.Confirm',
+      {
+        id: 'Datamodel-for-confirm',
+        allowedContentTypes: ['application/xml'],
+        appLogic: {
+          autoCreate: true,
+          classRef: 'Altinn.App.Models.Confirm',
+        },
+        taskId: 'Task_1',
+        maxCount: 1,
+        minCount: 1,
       },
-      taskId: 'Task_1',
-      maxCount: 1,
-      minCount: 1,
-    },
-    {
-      id: 'type-with-no-classRef',
-      allowedContentTypes: ['application/xml'],
-      appLogic: {},
-      taskId: 'Task_1',
-      maxCount: 1,
-      minCount: 1,
-    },
-    {
-      id: 'Stateless',
-      allowedContentTypes: ['application/xml'],
-      appLogic: {},
-      maxCount: 1,
-      minCount: 1,
-    },
-  ];
+      {
+        id: 'Datamodel-for-custom-receipt',
+        allowedContentTypes: ['application/xml'],
+        appLogic: {
+          autoCreate: true,
+          classRef: 'Altinn.App.Models.Confirm',
+        },
+        taskId: 'Task_1',
+        maxCount: 1,
+        minCount: 1,
+      },
+      {
+        id: 'type-with-no-classRef',
+        allowedContentTypes: ['application/xml'],
+        appLogic: {},
+        taskId: 'Task_1',
+        maxCount: 1,
+        minCount: 1,
+      },
+      {
+        id: 'Stateless',
+        allowedContentTypes: ['application/xml'],
+        appLogic: {},
+        maxCount: 1,
+        minCount: 1,
+      },
+    ],
+  });
+  const appMetadata: ApplicationMetadata = {
+    ...incomingAppMetadata,
+    isStatelessApp: false,
+    isValidVersion: true,
+    logoOptions: incomingAppMetadata.logo,
+    onEntry: { show: 'new-instance' },
+  };
 
   const instance = getInstanceDataMock();
   instance.data = [
@@ -96,7 +105,7 @@ describe('appMetadata.ts', () => {
   describe('getCurrentDataTypeForApplication', () => {
     it('should return correct data type if we have an instance', () => {
       const result = getCurrentDataTypeForApplication({
-        application,
+        application: appMetadata,
         layoutSets,
         taskId: 'Task_1',
       });
@@ -105,12 +114,8 @@ describe('appMetadata.ts', () => {
     });
 
     it('should return correct data type if we have a stateless app', () => {
-      const statelessApplication: ApplicationMetadata = {
-        ...application,
-        onEntry: { show: 'stateless' },
-      };
       const result = getCurrentDataTypeForApplication({
-        application: statelessApplication,
+        application: { ...appMetadata, isStatelessApp: true, onEntry: { show: 'stateless' } },
         layoutSets,
         taskId: undefined,
       });
@@ -119,12 +124,8 @@ describe('appMetadata.ts', () => {
     });
 
     it('should return correct data type if instance not set', () => {
-      const statelessApplication: ApplicationMetadata = {
-        ...application,
-        onEntry: { show: 'stateless' },
-      };
       const result = getCurrentDataTypeForApplication({
-        application: statelessApplication,
+        application: { ...appMetadata, isStatelessApp: true, onEntry: { show: 'stateless' } },
         layoutSets,
         taskId: undefined,
       });
@@ -135,18 +136,14 @@ describe('appMetadata.ts', () => {
 
   describe('getLayoutSetIdForApplication', () => {
     it('should return correct layout set id if we have an instance', () => {
-      const result = getLayoutSetIdForApplication({ application, layoutSets, taskId: 'Task_1' });
+      const result = getLayoutSetIdForApplication({ application: appMetadata, layoutSets, taskId: 'Task_1' });
       const expected = 'datamodel';
       expect(result).toEqual(expected);
     });
 
     it('should return correct layout set id if we have a stateless app', () => {
-      const statelessApplication: ApplicationMetadata = {
-        ...application,
-        onEntry: { show: 'stateless' },
-      };
       const result = getLayoutSetIdForApplication({
-        application: statelessApplication,
+        application: { ...appMetadata, isStatelessApp: true, onEntry: { show: 'stateless' } },
         layoutSets,
         taskId: undefined,
       });
@@ -157,22 +154,19 @@ describe('appMetadata.ts', () => {
 
   describe('isStatelessApp', () => {
     it('should return true if enEntry with layout set is specified', () => {
-      const statelessApplication: ApplicationMetadata = {
-        ...application,
-        onEntry: { show: 'stateless' },
-      };
-      const result = statelessApplication.isStatelessApp;
+      const result = isStatelessApp('stateless');
       expect(result).toBeTruthy();
     });
 
+    // TODO: should mock useQuery instead
     it('should return false if onEntry is not specified', () => {
-      const result = application.isStatelessApp;
+      const result = isStatelessApp('new-instance');
       expect(result).toBeFalsy();
     });
 
     it('should return false if routed to an instance', () => {
       window.location.replace('#/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc');
-      const result = application.isStatelessApp;
+      const result = isStatelessApp('new-instance');
       expect(result).toBeFalsy();
     });
   });
@@ -180,7 +174,12 @@ describe('appMetadata.ts', () => {
   describe('getCurrentTaskDataElementId', () => {
     const layoutSets: ILayoutSets = { sets: [] };
     it('should return current task data element id', () => {
-      const result = getCurrentTaskDataElementId({ application, instance, layoutSets, taskId: 'Task_1' });
+      const result = getCurrentTaskDataElementId({
+        application: appMetadata,
+        instance,
+        layoutSets,
+        taskId: 'Task_1',
+      });
       expect(result).toEqual('datamodel-data-guid');
     });
   });
@@ -188,7 +187,11 @@ describe('appMetadata.ts', () => {
   describe('getCurrentDataTypeId', () => {
     it('should return connected dataTypeId in app metadata if no layout set is configured', () => {
       const layoutSets: ILayoutSets = { sets: [] };
-      const result = getCurrentDataTypeForApplication({ application, layoutSets, taskId: 'Task_1' });
+      const result = getCurrentDataTypeForApplication({
+        application: appMetadata,
+        layoutSets,
+        taskId: 'Task_1',
+      });
       const expected = 'Datamodel';
       expect(result).toEqual(expected);
     });
@@ -205,7 +208,7 @@ describe('appMetadata.ts', () => {
       };
 
       const result = getCurrentDataTypeForApplication({
-        application,
+        application: appMetadata,
         layoutSets,
         taskId: 'Task_2',
       });
@@ -230,7 +233,7 @@ describe('appMetadata.ts', () => {
       };
 
       const result = getCurrentDataTypeForApplication({
-        application,
+        application: appMetadata,
         layoutSets,
         taskId: 'CustomReceipt',
       });

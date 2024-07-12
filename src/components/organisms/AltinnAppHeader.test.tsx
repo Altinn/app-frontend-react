@@ -1,12 +1,15 @@
 import React from 'react';
 
+import { expect } from '@jest/globals';
 import { act, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import type { jest } from '@jest/globals';
 
-import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getLogoMock } from 'src/__mocks__/getLogoMock';
 import { LogoColor } from 'src/components/logo/AltinnLogo';
 import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
+import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { PartyType } from 'src/types/shared';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
@@ -34,8 +37,12 @@ describe('organisms/AltinnAppHeader', () => {
     user?: IParty;
     logo?: ApplicationMetadata['logoOptions'];
   }
-  const render = async ({ party, user = partyPerson, logo }: IRenderComponentProps) =>
-    await renderWithInstanceAndLayout({
+  const render = async ({ party, user = partyPerson, logo }: IRenderComponentProps) => {
+    (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementation(() =>
+      Promise.resolve(getIncomingApplicationMetadataMock({ logo })),
+    );
+
+    return await renderWithInstanceAndLayout({
       renderer: () => (
         <AltinnAppHeader
           party={party}
@@ -44,10 +51,8 @@ describe('organisms/AltinnAppHeader', () => {
           headerBackgroundColor={headerBackgroundColor}
         />
       ),
-      queries: {
-        fetchApplicationMetadata: () => Promise.resolve(getApplicationMetadataMock({ logoOptions: logo })),
-      },
     });
+  };
 
   it('should render menu with logout option when clicking profile icon', async () => {
     await render({ party: partyOrg });

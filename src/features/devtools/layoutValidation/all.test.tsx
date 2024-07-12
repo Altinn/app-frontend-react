@@ -1,18 +1,20 @@
 import React from 'react';
 
+import { expect } from '@jest/globals';
 import { screen, waitFor } from '@testing-library/react';
 import fs from 'node:fs';
+import type { jest } from '@jest/globals';
 import type { JSONSchema7 } from 'json-schema';
 
-import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import {
   LayoutValidationProvider,
   useLayoutValidation,
 } from 'src/features/devtools/layoutValidation/useLayoutValidation';
+import { fetchApplicationMetadata } from 'src/queries/queries';
 import { ensureAppsDirIsSet, getAllLayoutSets } from 'src/test/allApps';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import type { ShowTypes } from 'src/features/applicationMetadata/types';
 
 describe('All known apps should work with layout validation', () => {
   const dir = ensureAppsDirIsSet();
@@ -24,18 +26,22 @@ describe('All known apps should work with layout validation', () => {
 
   const allLayoutSets = getAllLayoutSets(dir);
   it.each(allLayoutSets)('$appName/$setName', async ({ layouts, setName }) => {
+    (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementation(() =>
+      Promise.resolve(
+        getIncomingApplicationMetadataMock((a) => {
+          a.onEntry = {
+            show: setName,
+          };
+        }),
+      ),
+    );
+
     // TODO: Make sure devTools panel is open in tests
     await renderWithInstanceAndLayout({
       renderer: () => <DummyValidateApp />,
       queries: {
         fetchLayouts: async () => layouts,
         fetchLayoutSchema: async () => layoutSchema,
-        fetchApplicationMetadata: async () =>
-          getApplicationMetadataMock((a) => {
-            a.onEntry = {
-              show: setName as ShowTypes,
-            };
-          }),
       },
     });
 
