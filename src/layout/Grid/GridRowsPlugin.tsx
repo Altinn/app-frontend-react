@@ -162,7 +162,7 @@ export class GridRowsPlugin<E extends ExternalConfig>
     _restriction?: TraversalRestriction | undefined,
   ): LayoutNode[] {
     const out: LayoutNode[] = [];
-    const rows = (state.item?.[this.settings.externalProp] || []) as GridRowsInternal;
+    const rows = (state.item?.[this.settings.internalProp] || []) as GridRowsInternal;
     for (const row of rows) {
       for (const cell of row.cells) {
         if (cell && 'node' in cell && cell.node) {
