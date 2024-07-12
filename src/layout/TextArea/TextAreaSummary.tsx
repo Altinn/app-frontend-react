@@ -9,11 +9,11 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type TextAreaComponentSummaryProps = {
   componentNode: LayoutNode<'TextArea'>;
-  displayData: string;
   summaryOverrides?: CompTextAreaInternal['summaryProps'];
 };
 
-export const TextAreaSummary = ({ componentNode, displayData }: TextAreaComponentSummaryProps) => {
+export const TextAreaSummary = ({ componentNode }: TextAreaComponentSummaryProps) => {
+  const displayData = componentNode.def.useDisplayData(componentNode);
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = componentNode.item.textResourceBindings?.title;

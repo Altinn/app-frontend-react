@@ -9,13 +9,13 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type InputComponentSummaryProps = {
   componentNode: LayoutNode<'Input'>;
-  displayData: string;
   summaryOverrides?: InputSummaryOverrideProps;
 };
-export const InputSummary = ({ componentNode, displayData }: InputComponentSummaryProps) => {
+export const InputSummary = ({ componentNode }: InputComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = componentNode.item.textResourceBindings?.title;
+  const displayData = componentNode.def.useDisplayData(componentNode);
 
   return (
     <SingleValueSummary

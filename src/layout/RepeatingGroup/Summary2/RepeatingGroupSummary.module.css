@@ -1,0 +1,9 @@
+.repeatingGroupRow {
+  border-bottom: solid 1px var(--fds-semantic-border-neutral-default);
+}
+
+.repeatingGroupSummaryWrapper {
+  display: flex;
+  gap: var(--fds-spacing-4);
+  flex-direction: column;
+}

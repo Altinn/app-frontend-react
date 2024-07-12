@@ -60,10 +60,14 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     summaryOverrides?: RepeatingGroupSummaryOverrideProps,
   ): JSX.Element | null {
     return (
-      <RepeatingGroupSummary
-        componentNode={componentNode}
-        summaryOverrides={summaryOverrides}
-      />
+      <RepeatingGroupProvider node={componentNode}>
+        <RepeatingGroupsFocusProvider>
+          <RepeatingGroupSummary
+            componentNode={componentNode}
+            summaryOverrides={summaryOverrides}
+          />
+        </RepeatingGroupsFocusProvider>
+      </RepeatingGroupProvider>
     );
   }
 

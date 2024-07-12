@@ -9,11 +9,11 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type RadioButtonsSummaryProps = {
   componentNode: LayoutNode<'RadioButtons'>;
-  displayData: string;
   summaryOverrides?: RadioSummaryOverrideProps;
 };
 
-export const RadioButtonsSummary = ({ componentNode, displayData }: RadioButtonsSummaryProps) => {
+export const RadioButtonsSummary = ({ componentNode }: RadioButtonsSummaryProps) => {
+  const displayData = componentNode.def.useDisplayData(componentNode);
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = componentNode.item.textResourceBindings?.title;

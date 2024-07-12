@@ -51,7 +51,6 @@ export class Input extends InputDef {
       <InputSummary
         componentNode={componentNode}
         summaryOverrides={summaryOverrides}
-        displayData={this.useDisplayData(componentNode)}
       />
     );
   }
