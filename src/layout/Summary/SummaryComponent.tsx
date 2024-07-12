@@ -86,6 +86,11 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
   const shouldShowBorder =
     RenderSummary && 'renderSummaryBoilerplate' in component && component?.renderSummaryBoilerplate();
 
+  // This logic is needlessly complex, but our tests depends on it being this way as of now.
+  const summaryTestId = overrides?.targetNode
+    ? overrides.targetNode.id
+    : summaryNode?.id ?? targetNode?.id ?? 'unknown';
+
   return (
     <Grid
       ref={ref}
@@ -95,7 +100,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
       md={displayGrid?.md || false}
       lg={displayGrid?.lg || false}
       xl={displayGrid?.xl || false}
-      data-testid={`summary-${summaryNode?.id ?? targetNode?.id ?? 'unknown'}`}
+      data-testid={`summary-${summaryTestId}`}
       data-componentid={summaryNode?.id ?? `summary-${targetNode?.id}`}
       data-componentbaseid={summaryNode?.baseId ?? `summary-${targetNode.id}`}
       className={cn(pageBreakStyles(pageBreak))}
