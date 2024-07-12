@@ -19,13 +19,21 @@ import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>): React.JSX.Element | null {
-  const { dataType, id, textResourceBindings, tableColumns, showAddButton = true, showDeleteButton = true } = node.item;
+  const {
+    dataType,
+    id,
+    textResourceBindings,
+    tableColumns = [],
+    showAddButton = true,
+    showDeleteButton = true,
+  } = node.item;
   const { langAsString } = useLanguage();
   const addEntryMutation = useAddEntryMutation(dataType);
   const instanceData = useStrictInstanceData();
 
   const dataElements = instanceData.data.filter((d) => d.dataType === dataType) ?? [];
   const [subFormEntries, updateSubFormEntries] = useState(dataElements);
+  const haveTableColumns = tableColumns.length > 0;
 
   const addEntry = async () => {
     const result = await addEntryMutation.mutateAsync({});
@@ -50,14 +58,20 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
         />
         <Table.Head id={`subform-${id}-table-body`}>
           <Table.Row>
-            {tableColumns.map((entry, index) => (
-              <Table.HeaderCell
-                className={classes.tableCellFormatting}
-                key={index}
-              >
-                <Lang id={entry.headerContent ?? langAsString(entry.cellContent)} />
+            {haveTableColumns &&
+              tableColumns.map((entry, index) => (
+                <Table.HeaderCell
+                  className={classes.tableCellFormatting}
+                  key={index}
+                >
+                  <Lang id={entry.headerContent} />
+                </Table.HeaderCell>
+              ))}
+            {!haveTableColumns && (
+              <Table.HeaderCell className={classes.tableCellFormatting}>
+                <Lang id={langAsString('form_filler.sub_form_default_header')} />
               </Table.HeaderCell>
-            ))}
+            )}
             <Table.HeaderCell>
               <span className={classes.visuallyHidden}>
                 <Lang id={'general.edit'} />
@@ -126,7 +140,7 @@ function SubFormTableRow({
   deleteEntryCallback: (dataElement: IData) => void;
 }) {
   const id = dataElement.id;
-  const { tableColumns } = node.item;
+  const { tableColumns = [] } = node.item;
   const instance = useStrictInstanceData();
   const url = getDataModelUrl(instance.id, id, true);
   const { isFetching, data } = useFormDataQuery(url);
@@ -136,6 +150,7 @@ function SubFormTableRow({
   const deleteEntryMutation = useDeleteEntryMutation(id);
   const deleteButtonText = langAsString('general.delete');
   const editButtonText = langAsString('general.edit');
+  const haveTableColumns = tableColumns.length > 0;
 
   if (isFetching) {
     const numColumns = tableColumns.length;
@@ -159,10 +174,12 @@ function SubFormTableRow({
       key={`repeating-group-row-${id}`}
       data-row-num={rowNumber}
     >
-      {tableColumns.map((entry) => {
-        const content = dot.pick(entry.cellContent, data) ?? langAsString(entry.cellContent);
-        return <Table.Cell key={id}>{String(content)}</Table.Cell>;
-      })}
+      {haveTableColumns &&
+        tableColumns.map((entry) => {
+          const content = dot.pick(entry.cellContent, data) ?? langAsString(entry.cellContent);
+          return <Table.Cell key={id}>{String(content)}</Table.Cell>;
+        })}
+      {!haveTableColumns && <Table.Cell key={id}>{String(id)}</Table.Cell>}
       <Table.Cell className={classes.buttonCell}>
         <div className={classes.buttonInCellWrapper}>
           <Button

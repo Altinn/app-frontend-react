@@ -57,6 +57,7 @@ export function en() {
     form_filler: {
       error_add_sub_form: 'Failed to add sub-form entry, please try again.',
       error_delete_sub_form: 'An error occurred while deleting the sub-form entry, please try again.',
+      sub_form_default_header: 'Items',
       alert_confirm: 'Confirm',
       checkbox_alert: 'Are you sure you want to uncheck?',
       multi_select_alert: 'Are you sure you want to delete <b>{0}</b>?',

@@ -57,6 +57,7 @@ export function nb(): FixedLanguageList {
     form_filler: {
       error_add_sub_form: 'Det oppstod en feil ved opprettelse av underskjema, vennligst prøv igjen',
       error_delete_sub_form: 'Noe gikk galt ved sletting av underskjema, vennligst prøv igjen.',
+      sub_form_default_header: 'Oppføringer',
       back_to_summary: 'Tilbake til oppsummering',
       alert_confirm: 'Bekreft',
       checkbox_alert: 'Er du sikker på at du vil fjerne avkrysningen?',
