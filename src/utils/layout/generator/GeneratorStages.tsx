@@ -6,13 +6,9 @@ import { createStore } from 'zustand';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type {
-  AddNodeRequest,
-  RemoveNodeRequest,
-  SetNodePropRequest,
-  SetPagePropRequest,
-} from 'src/utils/layout/NodesContext';
+import type { AddNodeRequest, SetNodePropRequest, SetPagePropRequest } from 'src/utils/layout/NodesContext';
 import type { SetRowExtrasRequest } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 
 export const StageAddNodes = Symbol('AddNodes');
@@ -51,7 +47,6 @@ interface Context {
     setNodeProps: SetNodePropRequest<any, any>[];
     setRowExtras: SetRowExtrasRequest[];
     setPageProps: SetPagePropRequest<any>[];
-    removeNodes: RemoveNodeRequest[];
   };
 }
 
@@ -65,6 +60,7 @@ type Registry = {
         [id: string]: {
           initialRunNum: number;
           finished: boolean;
+          conditions: string;
         };
       };
       hooks: {
@@ -194,28 +190,28 @@ const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider
         setNodeProps: [],
         setRowExtras: [],
         setPageProps: [],
-        removeNodes: [],
       },
     }));
   },
 });
 
-function registryStats(stage: Stage, registry: Registry) {
-  const numHooks = Object.keys(registry.stages[stage].hooks).length;
-  const doneHooks = Object.values(registry.stages[stage].hooks).filter((h) => h.finished).length;
-  const numComponents = Object.keys(registry.stages[stage].components).length;
-  const doneComponents = Object.values(registry.stages[stage].components).filter((c) => c.finished).length;
+function registryStats(stage: Stage, registry: Registry, runNum: number) {
+  const s = registry.stages[stage];
+  const numHooks = Object.values(s.hooks).filter((h) => h.initialRunNum === runNum).length;
+  const doneHooks = Object.values(s.hooks).filter((h) => h.finished && h.initialRunNum === runNum).length;
+  const numComponents = Object.values(s.components).filter((c) => c.initialRunNum === runNum).length;
+  const doneComponents = Object.values(s.components).filter((c) => c.finished && c.initialRunNum === runNum).length;
 
   return { numHooks, doneHooks, numComponents, doneComponents };
 }
 
-function isStageDone(stage: Stage, registry: Registry) {
-  const { numHooks, doneHooks, numComponents, doneComponents } = registryStats(stage, registry);
+function isStageDone(stage: Stage, registry: Registry, runNum: number) {
+  const { numHooks, doneHooks, numComponents, doneComponents } = registryStats(stage, registry, runNum);
   return numHooks === doneHooks && numComponents === doneComponents;
 }
 
-function shouldCommit(stage: Stage, registry: Registry) {
-  const { numHooks, doneHooks } = registryStats(stage, registry);
+function shouldCommit(stage: Stage, registry: Registry, runNum: number) {
+  const { numHooks, doneHooks } = registryStats(stage, registry, runNum);
   return numHooks === doneHooks;
 }
 
@@ -260,7 +256,6 @@ function useCommit() {
   const setNodeProps = NodesInternal.useSetNodeProps();
   const setPageProps = NodesInternal.useSetPageProps();
   const setRowExtras = NodesInternal.useSetRowExtras();
-  const removeNodes = NodesInternal.useRemoveNodes();
   const toCommit = useSelector((state) => state.toCommit);
 
   return useCallback(() => {
@@ -268,13 +263,6 @@ function useCommit() {
       generatorLog('logCommits', 'Committing', toCommit.addNodes.length, 'addNodes requests');
       addNodes(toCommit.addNodes);
       toCommit.addNodes.length = 0; // This truncates the array, but keeps the reference
-      return true;
-    }
-
-    if (toCommit.removeNodes.length) {
-      generatorLog('logCommits', 'Committing', toCommit.removeNodes.length, 'removeNodes requests');
-      removeNodes(toCommit.removeNodes);
-      toCommit.removeNodes.length = 0;
       return true;
     }
 
@@ -309,7 +297,7 @@ function useCommit() {
     }
 
     return changes;
-  }, [addNodes, setNodeProps, setRowExtras, toCommit, setPageProps, removeNodes]);
+  }, [addNodes, setNodeProps, setRowExtras, toCommit, setPageProps]);
 }
 
 /**
@@ -363,16 +351,6 @@ export const NodesStateQueue = {
       [setPagePropRequestsRef],
     );
   },
-  useRemoveNode() {
-    const removeNodeRequestsRef = useSelector((state) => state.toCommit.removeNodes);
-
-    return useCallback(
-      (request: RemoveNodeRequest) => {
-        removeNodeRequestsRef.push(request);
-      },
-      [removeNodeRequestsRef],
-    );
-  },
 };
 
 /**
@@ -396,6 +374,7 @@ function useCommitWhenFinished() {
 
 function SetTickFunc() {
   const currentStageRef = useSelectorAsRef((state) => state.currentStage);
+  const currentRunRef = useSelectorAsRef((state) => state.runNum);
   const goToNextStage = useSelector((state) => state.nextStage);
   const setTick = useSelector((state) => state.setTick);
   const registry = useSelector((state) => state.registry);
@@ -406,8 +385,9 @@ function SetTickFunc() {
     tickTimeout.current = null;
 
     const stage = currentStageRef.current;
-    if (!isStageDone(stage, registry.current)) {
-      if (shouldCommit(stage, registry.current)) {
+    const runNum = currentRunRef.current;
+    if (!isStageDone(stage, registry.current, runNum)) {
+      if (shouldCommit(stage, registry.current, runNum)) {
         commit();
       }
       return;
@@ -428,7 +408,7 @@ function SetTickFunc() {
     registry.current.stages[stage].finished = true;
 
     goToNextStage();
-  }, [currentStageRef, registry, goToNextStage, commit]);
+  }, [currentStageRef, currentRunRef, registry, commit, goToNextStage]);
 
   const tick = React.useCallback(() => {
     if (tickTimeout.current) {
@@ -451,6 +431,7 @@ function SetTickFunc() {
 
 function CatchEmptyStages() {
   const currentStage = useSelector((state) => state.currentStage);
+  const currentRun = useSelector((state) => state.runNum);
   const registry = useSelector((state) => state.registry);
   const tick = useSelector((state) => state.tick);
 
@@ -458,20 +439,25 @@ function CatchEmptyStages() {
     // If, after a render we don't have any registered hooks or callbacks for the current stage, we should just proceed
     // to the next stage (using the tick function).
     setTimeout(() => {
-      const numHooks = Object.keys(registry.current.stages[currentStage].hooks).length;
-      const numComponents = Object.keys(registry.current.stages[currentStage].components).length;
-      const shouldFinish = isStageDone(currentStage, registry.current);
+      const numHooks = Object.values(registry.current.stages[currentStage].hooks).filter(
+        (h) => h.initialRunNum === currentRun,
+      ).length;
+      const numComponents = Object.values(registry.current.stages[currentStage].components).filter(
+        (c) => c.initialRunNum === currentRun,
+      ).length;
+      const shouldFinish = isStageDone(currentStage, registry.current, currentRun);
       if ((numHooks === 0 && numComponents === 0) || shouldFinish) {
         tick && tick();
       }
-    }, TICK_TIMEOUT);
-  }, [currentStage, registry, tick]);
+    }, TICK_TIMEOUT * 100);
+  }, [currentRun, currentStage, registry, tick]);
 
   return null;
 }
 
 function LogSlowStages() {
   const currentStageRef = useSelectorAsRef((state) => state.currentStage);
+  const currentRun = useSelector((state) => state.runNum);
   const registry = useSelector((state) => state.registry);
   useEffect(() => {
     let lastReportedStage: Stage | undefined;
@@ -488,7 +474,11 @@ function LogSlowStages() {
       }
       lastReportedStage = current;
 
-      const { numHooks, doneHooks, numComponents, doneComponents } = registryStats(current, registry.current);
+      const { numHooks, doneHooks, numComponents, doneComponents } = registryStats(
+        current,
+        registry.current,
+        currentRun,
+      );
       generatorLog(
         'logStages',
         `Still on stage ${current.description}`,
@@ -496,19 +486,20 @@ function LogSlowStages() {
       );
 
       // If we're stuck on the same stage for a while, log a list of hooks that are still pending
-      const pendingHooks = Object.entries(registry.current.stages[current].hooks)
-        .filter(([, hook]) => !hook.finished)
+      const stage = registry.current.stages[current];
+      const pendingHooks = Object.entries(stage.hooks)
+        .filter(([, hook]) => !hook.finished && hook.initialRunNum === currentRun)
         .map(([id]) => id)
         .join('\n - ');
       generatorLog('logStages', `Pending hooks:\n - ${pendingHooks}`);
 
-      const pendingComponents = Object.entries(registry.current.stages[current].components)
-        .filter(([, component]) => !component.finished)
-        .map(([id]) => id)
+      const pendingComponents = Object.entries(stage.components)
+        .filter(([, component]) => !component.finished && component.initialRunNum === currentRun)
+        .map(([id, component]) => `${id} (conditions: ${component.conditions})`)
         .join('\n - ');
       generatorLog('logStages', `Pending components:\n - ${pendingComponents}`);
     }, 2500);
-  }, [currentStageRef, registry]);
+  }, [currentRun, currentStageRef, registry]);
 
   return null;
 }
@@ -603,10 +594,15 @@ export function GeneratorCondition({ stage, mustBeAdded, children }: PropsWithCh
   const id = useUniqueId();
   const registry = useSelector((state) => state.registry);
   const initialRunNum = useInitialRunNum();
+  const registryRef = useRef<Registry['stages'][Stage]['components'][string]>({
+    finished: false,
+    initialRunNum,
+    conditions: mustBeAdded ? `${mustBeAdded} must be added` : 'none',
+  });
 
   let isNew = false;
   if (!registry.current.stages[stage].components[id]) {
-    registry.current.stages[stage].components[id] = { finished: false, initialRunNum };
+    registry.current.stages[stage].components[id] = registryRef.current;
     isNew = true;
   }
 
@@ -623,7 +619,7 @@ export function GeneratorCondition({ stage, mustBeAdded, children }: PropsWithCh
     return null;
   }
 
-  const props: WhenProps = { id, stage };
+  const props: WhenProps = { id, stage, registryRef };
 
   if (mustBeAdded === 'parent') {
     return <WhenParentAdded {...props}>{children}</WhenParentAdded>;
@@ -643,22 +639,29 @@ export function GeneratorCondition({ stage, mustBeAdded, children }: PropsWithCh
 interface WhenProps extends PropsWithChildren {
   id: string;
   stage: Stage;
+  registryRef: MutableRefObject<Registry['stages'][Stage]['components'][string]>;
 }
 
-function WhenParentAdded({ id, stage, children }: WhenProps) {
+function WhenParentAdded({ id, stage, registryRef, children }: WhenProps) {
   const parent = GeneratorInternal.useParent();
   const ready = NodesInternal.useIsAdded(parent);
   useMarkFinished(id, stage, ready);
+  registryRef.current.conditions =
+    parent instanceof BaseLayoutNode ? `node ${parent.id} must be added` : `page ${parent.pageKey} must be added`;
 
   return ready ? <>{children}</> : null;
 }
 
-function WhenAllAdded({ id, stage, children }: WhenProps) {
+function WhenAllAdded({ id, stage, registryRef, children }: WhenProps) {
   const parent = GeneratorInternal.useParent();
   const allAdded = GeneratorStages.AddNodes.useIsDone();
   const parentAdded = NodesInternal.useIsAdded(parent);
   const ready = allAdded && parentAdded;
   useMarkFinished(id, stage, ready);
+  registryRef.current.conditions =
+    parent instanceof BaseLayoutNode
+      ? `node ${parent.id} and all others are added`
+      : `page ${parent.pageKey} and all others are added`;
 
   return ready ? <>{children}</> : null;
 }

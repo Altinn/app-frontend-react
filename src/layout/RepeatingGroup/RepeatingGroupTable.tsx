@@ -138,7 +138,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
           {rowsToDisplay.map((row) => {
             const isEditingRow = isEditing(row.uuid) && edit?.mode !== 'onlyTable';
             return (
-              <React.Fragment key={row.uuid}>
+              <React.Fragment key={`${row.uuid}-${row.index}`}>
                 <RepeatingGroupTableRow
                   className={cn({
                     [classes.editingRow]: isEditingRow,

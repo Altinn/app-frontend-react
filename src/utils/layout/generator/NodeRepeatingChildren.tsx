@@ -60,7 +60,7 @@ function PerformWork({ claims, binding, multiPageSupport, externalProp, internal
   return (
     <>
       {rows.map((row) => (
-        <GeneratorRunProvider key={row.uuid}>
+        <GeneratorRunProvider key={`${row.uuid}-${row.index}`}>
           <GenerateRow
             row={row}
             groupBinding={groupBinding}
@@ -85,7 +85,8 @@ export function useReusedRows(freshRows: BaseRow[], prevRows: MutableRefObject<B
 
   for (const row of freshRows) {
     const prevRow = prevRowsMap.get(row.uuid);
-    if (prevRow) {
+    // We only re-use a row if the index is the same, otherwise it would not be possible to sort rows on the backend
+    if (prevRow && prevRow.index === row.index) {
       out.push(prevRow);
     } else {
       out.push(row);

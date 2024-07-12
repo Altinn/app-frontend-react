@@ -26,6 +26,7 @@ import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePl
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
+import { GeneratorDebug } from 'src/utils/layout/generator/debug';
 import { GeneratorStages, GeneratorStagesProvider } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
@@ -92,7 +93,6 @@ export interface AddNodeRequest<T extends CompTypes = CompTypes> {
   node: LayoutNode<T>;
   targetState: NodeData<T>;
   claim: ChildClaim;
-  then: () => void;
 }
 
 export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeData<T>> {
@@ -106,11 +106,6 @@ export interface SetPagePropRequest<K extends keyof PageData> {
   pageKey: string;
   prop: K;
   value: PageData[K];
-}
-
-export interface RemoveNodeRequest<T extends CompTypes = CompTypes> {
-  node: LayoutNode<T>;
-  then: () => void;
 }
 
 export type NodesContext = {
@@ -127,7 +122,6 @@ export type NodesContext = {
 
   setNodes: (nodes: LayoutPages) => void;
   addNodes: (requests: AddNodeRequest[]) => void;
-  removeNodes: (requests: RemoveNodeRequest[]) => void;
   setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
   addError: (error: string, node: LayoutPage | LayoutNode) => void;
   markHiddenViaRule: (hiddenFields: { [nodeId: string]: true }) => void;
@@ -173,7 +167,14 @@ export function createNodesDataStore() {
     addNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        for (const { node, targetState, claim, then } of requests) {
+        for (const { node, targetState, claim } of requests) {
+          if (nodeData[node.id]) {
+            throw new Error(
+              `Cannot add node '${node.id}', it already exists. ` +
+                `Maybe the layout-set has one or more components with duplicate IDs?`,
+            );
+          }
+
           nodeData[node.id] = targetState;
 
           if (node.parent instanceof BaseLayoutNode) {
@@ -184,16 +185,7 @@ export function createNodesDataStore() {
             };
           }
 
-          then();
-        }
-        return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
-      }),
-    removeNodes: (requests) =>
-      set((state) => {
-        const nodeData = { ...state.nodeData };
-        for (const { node, then } of requests) {
-          delete nodeData[node.id];
-          then();
+          node.page._addChild(node);
         }
         return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
       }),
@@ -390,9 +382,44 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => {
         <UpdateExpressionValidation />
         <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
       </BlockUntilLoaded>
+      <IndicateReadyState />
     </Store.Provider>
   );
 };
+
+function IndicateReadyState() {
+  const isReady = Store.useSelector((s) => s.ready);
+  document.body.setAttribute('data-nodes-ready', isReady.toString());
+
+  useEffect(() => {
+    document.body.setAttribute('data-nodes-ready', isReady.toString());
+    return () => {
+      document.body.removeAttribute('data-nodes-ready');
+    };
+  }, [isReady]);
+
+  if (!GeneratorDebug.displayReadyState) {
+    return null;
+  }
+
+  return (
+    <div
+      role='status'
+      style={{
+        position: 'fixed',
+        left: 0,
+        bottom: 0,
+        width: 'fit-content',
+        padding: 5,
+        backgroundColor: isReady ? 'lightgreen' : 'lightsalmon',
+        fontWeight: 'bold',
+        color: 'black',
+      }}
+    >
+      {isReady ? 'READY' : 'NOT READY'}
+    </div>
+  );
+}
 
 /**
  * Some selectors (like NodeTraversal) only re-runs when the data store is 'ready', and when nodes start being added
@@ -765,7 +792,6 @@ export const NodesInternal = {
   useSetPageProps: () => Store.useSelector((s) => s.setPageProps),
   useRemovePage: () => Store.useSelector((s) => s.removePage),
   useAddNodes: () => Store.useSelector((s) => s.addNodes),
-  useRemoveNodes: () => Store.useSelector((s) => s.removeNodes),
   useAddError: () => Store.useSelector((s) => s.addError),
   useMarkHiddenViaRule: () => Store.useSelector((s) => s.markHiddenViaRule),
 

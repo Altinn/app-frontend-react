@@ -64,7 +64,7 @@ export function NodeGenerator({ children, claim, externalItem }: PropsWithChildr
         stage={StageAddNodes}
         mustBeAdded='parent'
       >
-        <AddRemoveNode
+        <AddNode
           {...commonProps}
           claim={claim}
         />
@@ -126,43 +126,24 @@ function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T
   return null;
 }
 
-interface AddRemoveNodeProps<T extends CompTypes> extends CommonProps<T> {
+interface AddNodeProps<T extends CompTypes> extends CommonProps<T> {
   claim: ChildClaim;
 }
 
-function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: AddRemoveNodeProps<T>) {
+function AddNode<T extends CompTypes>({ node, intermediateItem, claim }: AddNodeProps<T>) {
   const parent = GeneratorInternal.useParent();
   const row = GeneratorInternal.useRow();
   const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item: intermediateItem, parent, row });
   const addNode = NodesStateQueue.useAddNode();
-
-  const page = GeneratorInternal.usePage();
-  const removeNode = NodesStateQueue.useRemoveNode();
   const nodeRef = useAsRef(node);
-  const pageRef = useAsRef(page);
 
   GeneratorStages.AddNodes.useEffect(() => {
     addNode({
       node: nodeRef.current,
       targetState: nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any),
       claim,
-      then: () => {
-        pageRef.current._addChild(node);
-      },
     });
-  }, [addNode, nodeRef, stateFactoryPropsRef, claim, pageRef]);
-
-  GeneratorStages.AddNodes.useEffect(
-    () => () => {
-      removeNode({
-        node: nodeRef.current,
-        then: () => {
-          pageRef.current._removeChild(nodeRef.current);
-        },
-      });
-    },
-    [nodeRef, pageRef, removeNode],
-  );
+  }, [addNode, nodeRef, stateFactoryPropsRef, claim]);
 
   return null;
 }

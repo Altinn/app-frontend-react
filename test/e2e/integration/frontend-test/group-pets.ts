@@ -28,6 +28,11 @@ function addPet({ species, name, age }: PetProps) {
 }
 
 function assertPetOrder(pets: PetProps[], editingIndex?: number) {
+  cy.log('--------------------');
+  cy.log('Verifying that pet order is', structuredClone(pets));
+  cy.waitUntilSaved();
+  cy.waitUntilNodesReady();
+
   const visibleLength = pets.filter((pet) => pet.visible === true || pet.visible === undefined).length;
   cy.get(appFrontend.pets.group.tableRows).should(
     'have.length',

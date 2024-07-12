@@ -214,7 +214,6 @@ function newStore({ editMode, pagination, rowsRef, freshRowsRef }: NewStoreProps
     editingAll: editMode === 'showAll',
     editingNone: editMode === 'onlyTable',
     isFirstRender: true,
-    editingIndex: undefined,
     editingId: undefined,
     deletingIds: [],
     addingIds: [],
@@ -538,12 +537,15 @@ function EffectSelectFreshRows({ freshRowsRef }: { freshRowsRef: MutableRefObjec
   return null;
 }
 
+/**
+ * This function filters out rows that are about to be deleted from the rows state
+ */
 function filterByFreshRows(rows: RepGroupRow[], freshRows: BaseRow[] | undefined): RepGroupRow[] {
   if (!freshRows) {
     return rows;
   }
-  const freshRowIds = new Set(freshRows.map((row) => row.uuid));
-  return rows.filter((row) => freshRowIds.has(row.uuid));
+  const freshRowIds = new Set(freshRows.map((row) => `${row.uuid}-${row.index}`));
+  return rows.filter((row) => freshRowIds.has(`${row.uuid}-${row.index}`));
 }
 
 function ProvideTheRest({ node, children }: PropsWithChildren<Props>) {

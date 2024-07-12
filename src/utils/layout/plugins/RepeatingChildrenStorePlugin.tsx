@@ -78,11 +78,17 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           if (existingRowIndex === -1) {
             return {};
           }
+          const rowToRemove = existingRows[existingRowIndex];
+          for (const n of rowToRemove.items) {
+            delete nodeData[n.id];
+            n.page._removeChild(n);
+          }
+
           const newRows = [...existingRows];
           newRows.splice(existingRowIndex, 1);
           nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
 
-          return { nodeData, ready: false };
+          return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
         });
       },
     };

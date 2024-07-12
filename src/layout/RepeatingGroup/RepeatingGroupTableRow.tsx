@@ -131,7 +131,6 @@ function _RepeatingGroupTableRow({
 
   return (
     <Table.Row
-      key={`repeating-group-row-${uuid}`}
       className={cn(
         {
           [classes.tableRowError]: rowHasErrors,
