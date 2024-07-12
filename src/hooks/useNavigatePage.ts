@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useNavigate as useReactRouterNavigate } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -9,6 +8,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useGetTaskType, useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
 import {
   useAllNavigationParamsAsRef,
+  useNavigate as useCtxNavigate,
   useNavigationParam,
   useQueryKeysAsString,
   useQueryKeysAsStringAsRef,
@@ -19,11 +19,12 @@ import { Hidden } from 'src/utils/layout/NodesContext';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
 
-type NavigateToPageOptions = {
+export interface NavigateToPageOptions {
   replace?: boolean;
   skipAutoSave?: boolean;
   shouldFocusComponent?: boolean;
-};
+  resetReturnToView?: boolean;
+}
 
 export enum TaskKeys {
   ProcessEnd = 'ProcessEnd',
@@ -45,16 +46,19 @@ const useNavigate = () => {
   const storeCallback = useSetNavigationEffect();
   const setReturnToView = useSetReturnToView();
   const setSummaryNodeOfOrigin = useSetSummaryNodeOfOrigin();
-  const navigate = useReactRouterNavigate();
+  const navigate = useCtxNavigate();
 
   return useCallback(
-    (path: string, options?: NavigateOptions, cb?: NavigationEffectCb) => {
-      setReturnToView?.(undefined);
-      setSummaryNodeOfOrigin?.(undefined);
+    (path: string, ourOptions?: NavigateToPageOptions, theirOptions?: NavigateOptions, cb?: NavigationEffectCb) => {
+      const resetReturnToView = ourOptions?.resetReturnToView ?? true;
+      if (resetReturnToView) {
+        setReturnToView?.(undefined);
+        setSummaryNodeOfOrigin?.(undefined);
+      }
       if (cb) {
         storeCallback(cb);
       }
-      navigate(path, options);
+      navigate(path, theirOptions);
     },
     [setReturnToView, storeCallback, setSummaryNodeOfOrigin, navigate],
   );
@@ -190,12 +194,12 @@ export const useNavigatePage = () => {
       }
 
       if (isStatelessApp) {
-        return navigate(`/${page}${queryKeysRef.current}`, { replace }, () => focusMainContent(options));
+        return navigate(`/${page}${queryKeysRef.current}`, options, { replace }, () => focusMainContent(options));
       }
 
       const { partyId, instanceGuid, taskId } = navParams.current;
       const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}${queryKeysRef.current}`;
-      navigate(url, { replace }, () => focusMainContent(options));
+      navigate(url, options, { replace }, () => focusMainContent(options));
     },
     [isStatelessApp, maybeSaveOnPageChange, navParams, navigate, order, queryKeysRef],
   );
@@ -208,7 +212,7 @@ export const useNavigatePage = () => {
         return;
       }
       const url = `/instance/${partyId}/${instanceGuid}/${newTaskId ?? lastTaskId}${queryKeysRef.current}`;
-      navigate(url, options, runEffect ? () => focusMainContent(options) : undefined);
+      navigate(url, undefined, options, runEffect ? () => focusMainContent(options) : undefined);
     },
     [lastTaskId, navParams, navigate, queryKeysRef],
   );

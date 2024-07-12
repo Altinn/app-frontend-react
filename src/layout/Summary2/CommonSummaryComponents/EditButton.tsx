@@ -46,7 +46,12 @@ export function EditButton({ componentNode, summaryComponentId, className }: Edi
       return;
     }
 
-    await navigateTo(componentNode, true);
+    await navigateTo(componentNode, {
+      shouldFocus: true,
+      pageNavOptions: {
+        resetReturnToView: false,
+      },
+    });
     setReturnToView?.(currentPageId);
     setNodeOfOrigin?.(summaryComponentId);
   };

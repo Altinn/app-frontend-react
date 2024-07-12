@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { useLocation, useMatch } from 'react-router-dom';
-import type { PropsWithChildren } from 'react';
+import { useLocation, useMatch, useNavigate as useNativeNavigate } from 'react-router-dom';
+import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
 
@@ -21,6 +21,7 @@ interface Context {
   updateQueryKeys: (queryKeys: Context['queryKeys']) => void;
   effectCallback: NavigationEffectCb | null;
   setEffectCallback: (cb: NavigationEffectCb | null) => void;
+  navigateRef: MutableRefObject<ReturnType<typeof useNativeNavigate>>;
 }
 
 function newStore() {
@@ -31,6 +32,7 @@ function newStore() {
     updateQueryKeys: (queryKeys) => set({ queryKeys }),
     effectCallback: null,
     setEffectCallback: (effectCallback: NavigationEffectCb) => set({ effectCallback }),
+    navigateRef: { current: undefined as any },
   }));
 }
 
@@ -45,6 +47,7 @@ export function AppRoutingProvider({ children }: PropsWithChildren) {
     <Provider>
       <UpdateParams />
       <UpdateQueryKeys />
+      <UpdateNavigate />
       {children}
     </Provider>
   );
@@ -57,6 +60,9 @@ export const useSetNavigationEffect = () => useSelector((ctx) => ctx.setEffectCa
 export const useQueryKeysAsString = () => useSelector((ctx) => queryKeysToString(ctx.queryKeys));
 export const useQueryKeysAsStringAsRef = () => useSelectorAsRef((ctx) => queryKeysToString(ctx.queryKeys));
 export const useQueryKey = (key: string) => useSelector((ctx) => ctx.queryKeys[key]);
+
+// Use this instead of the native one to avoid re-rendering whenever the route changes
+export const useNavigate = () => useSelector((ctx) => ctx.navigateRef).current;
 
 const useNavigationParams = (): Context['params'] => {
   const instanceMatch = useMatch('/instance/:partyId/:instanceGuid');
@@ -98,6 +104,13 @@ function UpdateQueryKeys() {
     const map = Object.fromEntries(new URLSearchParams(queryKeys).entries());
     updateQueryKeys(map);
   }, [queryKeys, updateQueryKeys]);
+
+  return null;
+}
+
+function UpdateNavigate() {
+  const navigateRef = useSelector((ctx) => ctx.navigateRef);
+  navigateRef.current = useNativeNavigate();
 
   return null;
 }

@@ -70,9 +70,14 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
       return;
     }
 
-    navigateTo(targetNode, true);
     setReturnToView?.(currentPageId);
     setNodeOfOrigin?.(summaryNode?.id ?? targetNode?.id);
+    await navigateTo(targetNode, {
+      shouldFocus: true,
+      pageNavOptions: {
+        resetReturnToView: false,
+      },
+    });
   };
 
   if (!targetNode || !targetItem || targetIsHidden || targetItem.type === 'Summary') {

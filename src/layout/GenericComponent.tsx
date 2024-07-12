@@ -122,7 +122,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     [item.baseComponentId, item.grid, id, node],
   );
 
-  useFinishNodeNavigation(async (targetNode, shouldFocus, onHit) => {
+  useFinishNodeNavigation(async (targetNode, options, onHit) => {
     if (targetNode.id !== id) {
       return undefined;
     }
@@ -137,6 +137,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     }
     requestAnimationFrame(() => containerDivRef.current?.scrollIntoView());
 
+    const shouldFocus = options?.shouldFocus ?? false;
     if (!shouldFocus) {
       // Hooray, we've arrived at the component, but we don't need to focus it.
       return NavigationResult.SuccessfulNoFocus;

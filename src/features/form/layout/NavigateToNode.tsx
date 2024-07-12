@@ -3,12 +3,13 @@ import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 import { Hidden } from 'src/utils/layout/NodesContext';
+import type { NavigateToPageOptions } from 'src/hooks/useNavigatePage';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type NavigationHandler = (node: LayoutNode) => Promise<boolean>;
+type NavigationHandler = (node: LayoutNode, options: NavigateToNodeOptions | undefined) => Promise<boolean>;
 type FinishNavigationHandler = (
   node: LayoutNode,
-  shouldFocus: boolean,
+  options: NavigateToNodeOptions | undefined,
   whenHit: () => void,
 ) => Promise<NavigationResult | void>;
 
@@ -20,13 +21,18 @@ export enum NavigationResult {
   SuccessfulWithFocus = 'successfulWithFocus',
 }
 
+export interface NavigateToNodeOptions {
+  shouldFocus?: boolean;
+  pageNavOptions?: NavigateToPageOptions;
+}
+
 interface NodeNavigationContext {
   /**
    * Start navigating to the given node. If the node is not found, or is hidden, the navigation will be cancelled.
    * If no navigation handler are registered to handle navigating to the node, the navigation will also be cancelled
    * after a short delay.
    */
-  navigateTo: (node: LayoutNode, shouldFocus?: boolean) => Promise<NavigationResult>;
+  navigateTo: (node: LayoutNode, options?: NavigateToNodeOptions) => Promise<NavigationResult>;
 
   /**
    * Registers a function that tries to change some internal state in its own context in order to help navigate
@@ -60,7 +66,7 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
   const isHidden = Hidden.useIsHiddenSelector();
 
   const navigateTo = useCallback(
-    async (node: LayoutNode, shouldFocus = true) =>
+    async (node: LayoutNode, options?: NavigateToNodeOptions) =>
       new Promise<NavigationResult>((resolve) => {
         if (isHidden(node)) {
           resolve(NavigationResult.NodeIsHidden);
@@ -75,7 +81,7 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
             if (finished) {
               return;
             }
-            if (await handler(node)) {
+            if (await handler(node, options)) {
               lastTick = Date.now();
             }
           };
@@ -83,7 +89,7 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
             if (finished) {
               return;
             }
-            const result = await handler(node, shouldFocus, () => {
+            const result = await handler(node, options, () => {
               // Mark as finished as soon as the component has been hit (i.e. rendered in GenericComponent), even if
               // we haven't actually focused it yet. The focussing requires a ref to the actual rendered element, and
               // it may take some time to reach that stage, and it may even fail if something downstream is hidden.

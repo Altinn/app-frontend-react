@@ -1,5 +1,5 @@
 import React from 'react';
-import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { act, screen, waitFor } from '@testing-library/react';
@@ -18,7 +18,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
 import { InitialFormDataProvider } from 'src/features/formData/InitialFormData';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
+import { AppRoutingProvider, useNavigate } from 'src/features/routing/AppRoutingContext';
 import { makeFormDataMethodProxies, renderWithMinimalProviders } from 'src/test/renderWithProviders';
 
 interface DataModelFlat {
