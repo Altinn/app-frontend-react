@@ -30,14 +30,20 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
   const { langAsString } = useLanguage();
   const addEntryMutation = useAddEntryMutation(dataType);
   const instanceData = useStrictInstanceData();
+  const [isAdding, setIsAdding] = useState(false);
 
   const dataElements = instanceData.data.filter((d) => d.dataType === dataType) ?? [];
   const [subFormEntries, updateSubFormEntries] = useState(dataElements);
   const haveTableColumns = tableColumns.length > 0;
 
   const addEntry = async () => {
+    setIsAdding(true);
     const result = await addEntryMutation.mutateAsync({});
+
+    // TODO: This triggers a full reload of all sub forms. Use cache?
     updateSubFormEntries([...subFormEntries, result.reply]);
+
+    setIsAdding(false);
   };
 
   return (
@@ -104,6 +110,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
       </Table>
       {showAddButton && (
         <Button
+          disabled={isAdding}
           id={`subform-${id}-add-button`}
           onClick={async () => await addEntry()}
           onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
