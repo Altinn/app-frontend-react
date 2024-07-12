@@ -49,7 +49,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
     >
       <Table
         id={`subform-${id}-table`}
-        className={classes.repeatingGroupTable}
+        className={classes.subFormTable}
       >
         <Caption
           id={`subform-${id}-caption`}
@@ -146,6 +146,7 @@ function SubFormTableRow({
   const { isFetching, data } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
   const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const deleteEntryMutation = useDeleteEntryMutation(id);
   const deleteButtonText = langAsString('general.delete');
@@ -165,24 +166,27 @@ function SubFormTableRow({
   }
 
   const deleteEntry = async () => {
+    setIsDeleting(true);
     await deleteEntryMutation.mutateAsync(id);
     deleteEntryCallback(dataElement);
   };
 
   return (
     <Table.Row
-      key={`repeating-group-row-${id}`}
+      key={`subform-row-${id}`}
       data-row-num={rowNumber}
+      className={isDeleting ? classes.disabledRow : ''}
     >
       {haveTableColumns &&
-        tableColumns.map((entry) => {
+        tableColumns.map((entry, index) => {
           const content = dot.pick(entry.cellContent, data) ?? langAsString(entry.cellContent);
-          return <Table.Cell key={id}>{String(content)}</Table.Cell>;
+          return <Table.Cell key={`subform-cell-${id}-${index}`}>{String(content)}</Table.Cell>;
         })}
-      {!haveTableColumns && <Table.Cell key={id}>{String(id)}</Table.Cell>}
+      {!haveTableColumns && <Table.Cell key={`subform-cell-${id}-0`}>{String(id)}</Table.Cell>}
       <Table.Cell className={classes.buttonCell}>
         <div className={classes.buttonInCellWrapper}>
           <Button
+            disabled={isDeleting}
             variant='tertiary'
             color='second'
             size='small'
@@ -203,6 +207,7 @@ function SubFormTableRow({
         <Table.Cell className={classes.buttonCell}>
           <div className={classes.buttonInCellWrapper}>
             <Button
+              disabled={isDeleting}
               variant='tertiary'
               color='danger'
               size='small'
