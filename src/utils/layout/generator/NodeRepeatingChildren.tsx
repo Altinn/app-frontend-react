@@ -172,30 +172,6 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
   return null;
 }
 
-// TODO: Mark rows as hidden. This should be different from the hiddenRow expression/property, and should mark a row
-// as hidden if:
-// - Every node/component inside is hidden
-
-// TODO: Use the hidden state in a repeating group row to:
-// - Mark every node inside the row as hidden
-// - Replicate the code below:
-
-//   const myBaseId = this.minimalItem.baseComponentId || this.minimalItem.id;
-//   const groupMode = this.parent.minimalItem.edit?.mode;
-//   const tableColSetup = this.parent.minimalItem.tableColumns && this.parent.minimalItem.tableColumns[myBaseId];
-//
-//   // This specific configuration hides the component fully, without having set hidden=true on the component itself.
-//   // It's most likely done by mistake, but we still need to respect it when checking if the component is hidden,
-//   // because it doesn't make sense to validate a component that is hidden in the UI and the
-//   // user cannot interact with.
-//   let hiddenImplicitly =
-//     tableColSetup?.showInExpandedEdit === false && !tableColSetup?.editInTable && groupMode !== 'onlyTable';
-//
-//   if (groupMode === 'onlyTable' && tableColSetup?.editInTable === false) {
-//     // This is also a way to hide a component implicitly
-//     hiddenImplicitly = true;
-//   }
-
 interface MultiPageMapping {
   [childId: string]: number;
 }

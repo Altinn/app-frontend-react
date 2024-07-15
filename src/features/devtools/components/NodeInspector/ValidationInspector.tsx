@@ -29,8 +29,8 @@ const categories = [
 ] as const;
 
 export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
-  const validations = NodesInternal.useValidations(node);
-  const nodeVisibility = NodesInternal.useValidationVisibility(node);
+  const validations = NodesInternal.useRawValidations(node);
+  const nodeVisibility = NodesInternal.useRawValidationVisibility(node);
   const { dataModelBindings, type } = useNodeItem(node);
   const attachments = useAttachmentsFor(node as FileUploaderNode);
 

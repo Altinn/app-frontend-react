@@ -155,4 +155,8 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
       item: { ...state.item, [this.settings.internalProp]: newState, ...overwriteLayout },
     } as unknown as Partial<DefPluginState<ToInternal<E>>>;
   }
+
+  isChildHidden(_state: DefPluginState<ToInternal<E>>, _childNode: LayoutNode): boolean {
+    return false;
+  }
 }

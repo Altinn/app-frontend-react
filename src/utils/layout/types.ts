@@ -37,6 +37,5 @@ export interface BaseNodeData<T extends CompTypes> {
 
 export type NodeData<Type extends CompTypes = CompTypes> = ReturnType<CompDef<Type>['stateFactory']>;
 
-// TODO: Make sure that when the input type N here can be undefined, we also return possibly undefined data/item
 export type NodeDataFromNode<N extends LayoutNode | undefined> = NodeData<TypeFromNode<Exclude<N, undefined>>>;
 export type NodeItemFromNode<N extends LayoutNode | undefined> = CompInternal<TypeFromNode<Exclude<N, undefined>>>;

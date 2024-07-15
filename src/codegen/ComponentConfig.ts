@@ -423,6 +423,10 @@ export class ComponentConfig {
         (plugin) => `...${pluginRef(plugin)}.pickDirectChildren(state as any, restriction)`,
       );
 
+      const isChildHiddenBody = childrenPlugins.map(
+        (plugin) => `${pluginRef(plugin)}.isChildHidden(state as any, childNode)`,
+      );
+
       additionalMethods.push(
         `claimChildren(props: ${ChildClaimerProps}<'${this.type}', unknown>) {
           ${claimChildrenBody.join('\n')}
@@ -432,6 +436,9 @@ export class ComponentConfig {
         }`,
         `addChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}, { pluginKey, metadata }: ${ChildClaim}) {
           return this.plugins[pluginKey!].addChild(state as any, childNode, metadata) as Partial<${NodeData}<'${this.type}'>>;
+        }`,
+        `isChildHidden(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}) {
+          return [${isChildHiddenBody.join(', ')}].some((h) => h);
         }`,
       );
     }

@@ -135,4 +135,8 @@ export class CardsPlugin<Type extends CompTypes>
 
     return { item: { ...state.item, cardsInternal } } as Partial<DefPluginState<Config<Type>>>;
   }
+
+  isChildHidden(_state: DefPluginState<Config<Type>>, _childNode: LayoutNode): boolean {
+    return false;
+  }
 }

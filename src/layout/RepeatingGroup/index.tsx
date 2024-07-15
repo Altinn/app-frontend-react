@@ -15,6 +15,7 @@ import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutCompon
 import type { GroupExpressions, RepGroupInternal, RepGroupRowExtras } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
+import type { NodeData } from 'src/utils/layout/types';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
   render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>(
@@ -153,5 +154,30 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     }
 
     return [];
+  }
+
+  isChildHidden(state: NodeData<'RepeatingGroup'>, childNode: LayoutNode): boolean {
+    const hiddenByPlugins = super.isChildHidden(state, childNode);
+    if (hiddenByPlugins) {
+      return true;
+    }
+
+    const baseId = childNode.baseId;
+    const tableColSetup = state.item?.tableColumns?.[baseId];
+    const mode = state.item?.edit?.mode;
+
+    // This specific configuration hides the component fully, without having set hidden=true on the component itself.
+    // It's most likely done by mistake, but we still need to respect it when checking if the component is hidden,
+    // because it doesn't make sense to validate a component that is hidden in the UI and the
+    // user cannot interact with.
+    let hiddenImplicitly =
+      tableColSetup?.showInExpandedEdit === false && !tableColSetup?.editInTable && mode !== 'onlyTable';
+
+    if (mode === 'onlyTable' && tableColSetup?.editInTable === false) {
+      // This is also a way to hide a component implicitly
+      hiddenImplicitly = true;
+    }
+
+    return hiddenImplicitly;
   }
 }

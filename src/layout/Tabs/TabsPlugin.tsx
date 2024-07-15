@@ -131,4 +131,8 @@ export class TabsPlugin<Type extends CompTypes>
     tabsInternal[metadata.tabIdx] = { ...tabsInternal[metadata.tabIdx], children };
     return { item: { ...state.item, tabs: undefined, tabsInternal } } as Partial<DefPluginState<Config<Type>>>;
   }
+
+  isChildHidden(_state: DefPluginState<Config<Type>>, _childNode: LayoutNode): boolean {
+    return false;
+  }
 }

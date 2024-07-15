@@ -197,4 +197,10 @@ export class GridRowsPlugin<E extends ExternalConfig>
       },
     } as Partial<DefPluginState<ToInternal<E>>>;
   }
+
+  isChildHidden(_state: DefPluginState<ToInternal<E>>, _childNode: LayoutNode): boolean {
+    // There are no specific rules for hiding components in a Grid (yet). This should be implemented if we
+    // add support for hiding a row or a cell (which should also hide the component inside)
+    return false;
+  }
 }

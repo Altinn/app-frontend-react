@@ -1,18 +1,5 @@
 import { getSharedTests } from 'src/features/expressions/shared';
 import { ExprValidation } from 'src/features/expressions/validation';
-import type { ILayoutCollection } from 'src/layout/layout';
-
-// TODO: Remove this function when no longer in use
-function evalAllExpressions(_layouts: ILayoutCollection) {
-  throw new Error('Not implemented');
-  // const dataSources = getExpressionDataSourcesMock();
-  // const nodes = generateEntireHierarchy(convertLayouts(layouts), Object.keys(layouts)[0], dataSources, getComponentDef);
-  // for (const page of Object.values(nodes.all())) {
-  //   for (const _node of page.flat()) {
-  //     // ... Here we used to evaluate expressions in the node
-  //   }
-  // }
-}
 
 describe('Expression validation', () => {
   let originalLogError: typeof window.logError;

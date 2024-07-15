@@ -27,7 +27,7 @@ export function useTaskErrors(): {
     }
 
     const formErrors: NodeValidation<AnyValidation<'error'>>[] = [];
-    const allNodes = traversalSelector((t) => t?.allNodes(), []);
+    const allNodes = traversalSelector((t) => t.allNodes(), []);
     for (const node of allNodes ?? emptyArray) {
       const validations = nodeValidationsSelector(node, 'visible', 'error') as AnyValidation<'error'>[];
       formErrors.push(...validations.map((v) => ({ ...v, node })));

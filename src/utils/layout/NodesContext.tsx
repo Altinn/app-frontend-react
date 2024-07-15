@@ -528,10 +528,17 @@ export interface IsHiddenOptions {
    * Default = false. Set this to true to consider pages hidden from the page order as actually hidden.
    */
   respectTracks?: boolean;
+
+  /**
+   * Default = false. Set this to true to force all hidden components to be visible (used by our DevTools).
+   */
+  forcedVisibleByDevTools?: boolean;
 }
 
-function isHiddenHere(hidden: HiddenState, forcedVisibleByDevTools: boolean, options?: IsHiddenOptions) {
-  const { respectDevTools = true, respectTracks = false } = options ?? {};
+type AccessibleIsHiddenOptions = Omit<IsHiddenOptions, 'forcedVisibleByDevTools'>;
+
+function isHiddenHere(hidden: HiddenState, options?: IsHiddenOptions) {
+  const { respectDevTools = true, respectTracks = false, forcedVisibleByDevTools = false } = options ?? {};
   if (forcedVisibleByDevTools && respectDevTools) {
     return true;
   }
@@ -539,12 +546,7 @@ function isHiddenHere(hidden: HiddenState, forcedVisibleByDevTools: boolean, opt
   return hidden.hiddenByRules || hidden.hiddenByExpression || (respectTracks && hidden.hiddenByTracks);
 }
 
-function isHiddenPage(
-  state: NodesContext,
-  page: LayoutPage | string | undefined,
-  forcedVisibleByDevTools: boolean,
-  options?: IsHiddenOptions,
-) {
+function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined, options?: IsHiddenOptions) {
   if (!page) {
     return true;
   }
@@ -555,15 +557,10 @@ function isHiddenPage(
     return true;
   }
 
-  return isHiddenHere(hiddenState, forcedVisibleByDevTools, options);
+  return isHiddenHere(hiddenState, options);
 }
 
-function isHidden(
-  state: NodesContext,
-  node: LayoutNode | LayoutPage | undefined,
-  forcedVisibleByDevTools: boolean,
-  options?: IsHiddenOptions,
-) {
+function isHidden(state: NodesContext, node: LayoutNode | LayoutPage | undefined, options?: IsHiddenOptions) {
   if (!node) {
     return true;
   }
@@ -575,41 +572,56 @@ function isHidden(
     return true;
   }
 
-  const hiddenHere = isHiddenHere(hiddenState, forcedVisibleByDevTools, options);
+  const hiddenHere = isHiddenHere(hiddenState, options);
   if (hiddenHere) {
     return true;
   }
 
   if (node instanceof BaseLayoutNode) {
     const parent = node.parent;
-    return isHidden(state, parent, forcedVisibleByDevTools, options);
+    if (parent instanceof BaseLayoutNode && 'isChildHidden' in parent.def && state.nodeData[parent.id]) {
+      const childHidden = parent.def.isChildHidden(state.nodeData[parent.id] as any, node);
+      if (childHidden) {
+        return true;
+      }
+    }
+
+    return isHidden(state, parent, options);
   }
 
   return false;
 }
 
+function makeOptions(forcedVisibleByDevTools: boolean, options?: AccessibleIsHiddenOptions): IsHiddenOptions {
+  return {
+    ...options,
+    forcedVisibleByDevTools,
+  };
+}
+
 export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
-  useIsHidden(node: LayoutNode | LayoutPage | undefined, options?: IsHiddenOptions) {
+  useIsHidden(node: LayoutNode | LayoutPage | undefined, options?: AccessibleIsHiddenOptions) {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return WhenReady.useMemoSelector((s) => isHidden(s, node, forcedVisibleByDevTools, options));
+    return WhenReady.useMemoSelector((s) => isHidden(s, node, makeOptions(forcedVisibleByDevTools, options)));
   },
-  useIsHiddenPage(page: LayoutPage | string | undefined, options?: IsHiddenOptions) {
+  useIsHiddenPage(page: LayoutPage | string | undefined, options?: AccessibleIsHiddenOptions) {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return WhenReady.useMemoSelector((s) => isHiddenPage(s, page, forcedVisibleByDevTools, options));
+    return WhenReady.useMemoSelector((s) => isHiddenPage(s, page, makeOptions(forcedVisibleByDevTools, options)));
   },
   useIsHiddenPageSelector() {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     return Store.useDelayedSelector({
       mode: 'simple',
-      selector: (page: LayoutPage | string) => (state) => isHiddenPage(state, page, forcedVisibleByDevTools),
+      selector: (page: LayoutPage | string) => (state) =>
+        isHiddenPage(state, page, makeOptions(forcedVisibleByDevTools)),
     });
   },
   useHiddenPages(): Set<string> {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     const hiddenPages = WhenReady.useLaxMemoSelector((s) =>
       Object.keys(s.pagesData.pages).filter((key) =>
-        isHiddenHere(s.pagesData.pages[key].hidden, forcedVisibleByDevTools),
+        isHiddenHere(s.pagesData.pages[key].hidden, makeOptions(forcedVisibleByDevTools)),
       ),
     );
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
@@ -619,7 +631,7 @@ export const Hidden = {
     return Store.useDelayedSelector({
       mode: 'simple',
       selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
-        isHidden(state, node, forcedVisibleByDevTools, options),
+        isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
     });
   },
 

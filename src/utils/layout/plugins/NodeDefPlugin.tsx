@@ -253,6 +253,7 @@ export interface NodeDefChildrenPlugin<Config extends DefPluginConfig> {
     childNode: LayoutNode,
     metadata: DefPluginClaimMetadata<Config>,
   ): Partial<DefPluginState<Config>>;
+  isChildHidden(state: DefPluginState<Config>, childNode: LayoutNode): boolean;
 }
 
 export function isNodeDefChildrenPlugin(plugin: any): plugin is NodeDefChildrenPlugin<any> {

@@ -225,4 +225,10 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
       },
     } as Partial<DefPluginState<ToInternal<E>>>;
   }
+
+  isChildHidden(_state: DefPluginState<ToInternal<E>>, _childNode: LayoutNode): boolean {
+    // Repeating children plugins do not have any specific logic here, but beware that
+    // the RepeatingGroup component does.
+    return false;
+  }
 }

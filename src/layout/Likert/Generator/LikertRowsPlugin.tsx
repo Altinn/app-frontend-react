@@ -86,4 +86,8 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
       },
     } as Partial<DefPluginState<Config>>;
   }
+
+  isChildHidden(_state: DefPluginState<Config>, _childNode: LayoutNode): boolean {
+    return false;
+  }
 }
