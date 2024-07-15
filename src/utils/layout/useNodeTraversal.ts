@@ -40,7 +40,7 @@ export class TraversalTask {
    */
   public getData<T extends Node>(target: T): DataFrom<T> {
     if (target instanceof LayoutPage) {
-      return this.state.pagesData[target.pageKey] as DataFrom<T>;
+      return this.state.pagesData.pages[target.pageKey] as DataFrom<T>;
     }
 
     if (target instanceof LayoutPages) {
