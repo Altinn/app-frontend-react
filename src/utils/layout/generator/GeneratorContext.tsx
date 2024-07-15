@@ -129,8 +129,6 @@ export function GeneratorRowProvider({
       recursiveMutators: parent.recursiveMutators
         ? [...parent.recursiveMutators, ...(recursiveMutators ?? [])]
         : recursiveMutators,
-
-      // TODO: Support hidden rows
     }),
     [parent, directMutators, recursiveMutators, row],
   );
