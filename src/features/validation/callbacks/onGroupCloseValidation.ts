@@ -23,12 +23,24 @@ export function useOnGroupCloseValidation() {
     const mask = getVisibilityMask(masks);
 
     const nodesWithErrors = traversalSelector(
-      (t) =>
-        t
-          .with(node)
-          .flat(undefined, { onlyInRowUuid: rowUuid })
-          .filter((n) => n !== node) // Exclude self, only check children
-          .filter((n) => nodeValidationSelector(n, mask, 'error').length > 0),
+      (t) => {
+        const inRow = t.with(node).children(undefined, { onlyInRowUuid: rowUuid });
+        const out: LayoutNode[] = [];
+
+        for (const child of inRow) {
+          if (nodeValidationSelector(child, mask, 'error').length > 0) {
+            out.push(child);
+          }
+          out.push(
+            ...t
+              .with(child)
+              .flat()
+              .filter((n) => nodeValidationSelector(n, mask, 'error').length > 0),
+          );
+        }
+
+        return out;
+      },
       [node, rowUuid, mask],
     );
 
