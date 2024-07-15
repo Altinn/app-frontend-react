@@ -31,7 +31,7 @@ const SecondToLast = List[List.length - 2];
 type StageList = typeof List;
 type Stage = StageList[number];
 
-const TICK_TIMEOUT = 10;
+export const NODES_TICK_TIMEOUT = 10;
 
 type OnStageDone = () => void;
 interface Context {
@@ -213,6 +213,19 @@ function isStageDone(stage: Stage, registry: Registry, runNum: number) {
 function shouldCommit(stage: Stage, registry: Registry, runNum: number) {
   const { numHooks, doneHooks } = registryStats(stage, registry, runNum);
   return numHooks === doneHooks;
+}
+
+export function useGetAwaitingCommits() {
+  const toCommit = useSelector((state) => state.toCommit);
+
+  return useCallback(
+    () =>
+      toCommit.addNodes.length +
+      toCommit.setNodeProps.length +
+      toCommit.setRowExtras.length +
+      toCommit.setPageProps.length,
+    [toCommit],
+  );
 }
 
 /**
@@ -414,7 +427,7 @@ function SetTickFunc() {
     if (tickTimeout.current) {
       clearTimeout(tickTimeout.current);
     }
-    tickTimeout.current = setTimeout(tickFunc, TICK_TIMEOUT);
+    tickTimeout.current = setTimeout(tickFunc, NODES_TICK_TIMEOUT);
   }, [tickFunc]);
 
   useEffect(() => {
@@ -449,7 +462,7 @@ function CatchEmptyStages() {
       if ((numHooks === 0 && numComponents === 0) || shouldFinish) {
         tick && tick();
       }
-    }, TICK_TIMEOUT * 100);
+    }, NODES_TICK_TIMEOUT * 2);
   }, [currentRun, currentStage, registry, tick]);
 
   return null;

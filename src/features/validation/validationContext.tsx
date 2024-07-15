@@ -21,6 +21,7 @@ import {
 } from 'src/features/validation/utils';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type {
   BackendValidationIssueGroups,
   BaseValidation,
@@ -117,6 +118,7 @@ export function ValidationProvider({ children }: PropsWithChildren) {
 }
 
 function useWaitForValidation(): WaitForValidation {
+  const waitForNodesReady = NodesInternal.useWaitUntilReady();
   const waitForSave = FD.useWaitForSave();
   const waitForState = useWaitForState<never, ValidationContext & Internals>(useStore());
   const hasPendingAttachments = useHasPendingAttachments();
@@ -131,9 +133,10 @@ function useWaitForValidation(): WaitForValidation {
 
       // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
       const validationsFromSave = await waitForSave(forceSave);
+      await waitForNodesReady();
       await waitForState((state) => state.issueGroupsProcessedLast === validationsFromSave);
     },
-    [waitForAttachments, waitForSave, waitForState],
+    [waitForAttachments, waitForSave, waitForState, waitForNodesReady],
   );
 }
 

@@ -16,6 +16,7 @@ import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { HiddenComponentsProvider } from 'src/features/form/dynamics/HiddenComponentsProvider';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
 import {
   LoadingBlockerWaitForValidation,
@@ -27,7 +28,12 @@ import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelecto
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { GeneratorDebug } from 'src/utils/layout/generator/debug';
-import { GeneratorStages, GeneratorStagesProvider } from 'src/utils/layout/generator/GeneratorStages';
+import {
+  GeneratorStages,
+  GeneratorStagesProvider,
+  NODES_TICK_TIMEOUT,
+  useGetAwaitingCommits,
+} from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -129,7 +135,7 @@ export type NodesContext = {
   addPage: (pageKey: string) => void;
   removePage: (pageKey: string) => void;
   setPageProps: (requests: SetPagePropRequest<any>[]) => void;
-  markReady: () => void;
+  markReady: (ready?: boolean) => void;
 } & ExtraFunctions;
 
 /**
@@ -274,7 +280,7 @@ export function createNodesDataStore() {
         }
         return { pagesData: { type: 'pages', pages: pageData } };
       }),
-    markReady: () => set(() => ({ ready: true })),
+    markReady: (ready = true) => set(() => ({ ready })),
 
     ...(Object.values(StorePlugins)
       .map((plugin) => plugin.extraFunctions(set))
@@ -434,13 +440,54 @@ function MarkAsReady() {
   const isReady = Store.useSelector((s) => s.ready);
   const hasNodes = Store.useSelector((state) => !!state.nodes);
   const stagesFinished = GeneratorStages.useIsFinished();
-  const shouldMarkAsReady = hasNodes && !isReady && stagesFinished;
 
+  const hasUnsaved = FD.useHasUnsavedChanges();
+  const prevUnsaved = useRef(hasUnsaved);
+  const savingJustFinished = prevUnsaved.current === true && hasUnsaved === false;
+  prevUnsaved.current = hasUnsaved;
+
+  // Even though the getAwaitingCommits() function works on refs in the GeneratorStages context, the effects of such
+  // commits always changes the NodesContext. Thus our useSelector() re-runs and re-renders this components when
+  // commits are done.
+  const getAwaitingCommits = useGetAwaitingCommits();
+  const waitingForCommits = Store.useSelector(() => getAwaitingCommits() > 0);
+
+  const maybeReady = hasNodes && !isReady && stagesFinished && !savingJustFinished;
+  const shouldMarkAsReady = maybeReady && !waitingForCommits;
   useEffect(() => {
     if (shouldMarkAsReady) {
       markReady();
     }
   }, [shouldMarkAsReady, markReady]);
+
+  /**
+   * This is needed for validations, and specifically the 'wait for validation' function needs to wait until our
+   * StoreValidationsInNode effects have run to completion in order for the full validation picture to be complete.
+   */
+  useEffect(() => {
+    if (savingJustFinished) {
+      markReady(false);
+    }
+  }, [markReady, savingJustFinished]);
+
+  const fallbackToInterval = maybeReady && !shouldMarkAsReady;
+  const store = Store.useStore();
+  useEffect(() => {
+    if (fallbackToInterval) {
+      // Commits can happen where state is not really changed, and in those cases our useSelector() won't run, and we
+      // won't notice that we could mark the state as ready again. For these cases we run intervals while the state
+      // isn't ready.
+      const interval = setInterval(() => {
+        if (getAwaitingCommits() === 0 && prevUnsaved.current === false) {
+          store.getState().markReady();
+          clearInterval(interval);
+        }
+      }, NODES_TICK_TIMEOUT);
+      return () => clearInterval(interval);
+    }
+
+    return () => undefined;
+  }, [fallbackToInterval, getAwaitingCommits, store]);
 
   return null;
 }
@@ -720,6 +767,13 @@ export const NodesInternal = {
       return true;
     }
     return isReady;
+  },
+  useWaitUntilReady() {
+    const waitForState = useWaitForState<undefined, NodesContext | typeof ContextNotProvided>(Store.useLaxStore());
+    return useCallback(
+      () => waitForState((state) => (state === ContextNotProvided ? true : state.ready)),
+      [waitForState],
+    );
   },
 
   useFullErrorList() {
