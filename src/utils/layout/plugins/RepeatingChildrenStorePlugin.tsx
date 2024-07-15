@@ -1,12 +1,13 @@
 import deepEqual from 'fast-deep-equal';
 
+import { getComponentDef } from 'src/layout';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepChildrenRow } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
-import type { BaseRow } from 'src/utils/layout/types';
+import type { BaseRow, NodeData } from 'src/utils/layout/types';
 
 export interface SetRowExtrasRequest<T extends CompTypes = CompTypes> {
   node: LayoutNode<T>;
@@ -80,7 +81,8 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           }
           const rowToRemove = existingRows[existingRowIndex];
           const items = Array.isArray(rowToRemove[itemProp]) ? rowToRemove[itemProp] : [rowToRemove[itemProp]] ?? [];
-          for (const n of items) {
+          const recursiveChildren = recursivelyFindChildren(items, nodeData);
+          for (const n of recursiveChildren) {
             delete nodeData[n.id];
             n.page._removeChild(n);
           }
@@ -101,4 +103,20 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
       useRemoveRow: () => store.useSelector((state) => state.removeRow),
     };
   }
+}
+
+function recursivelyFindChildren(nodes: LayoutNode[], nodeData: { [key: string]: NodeData }): LayoutNode[] {
+  const children: LayoutNode[] = [];
+
+  for (const node of nodes) {
+    const data = nodeData[node.id];
+    if (!data) {
+      continue;
+    }
+    const def = getComponentDef(data.layout.type);
+    const directChildren = def.pickDirectChildren(data as any);
+    children.push(...recursivelyFindChildren(directChildren, nodeData));
+  }
+
+  return [...nodes, ...children];
 }
