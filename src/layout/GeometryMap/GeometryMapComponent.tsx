@@ -68,7 +68,7 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
         className={classes.map}
         center={center}
         ref={setMap}
-        zoom={polyCenter ? 4 : 16}
+        zoom={zoom ? zoom : polyCenter ? 4 : 16}
         dragging={!readOnly}
         attributionControl={false}
       >
