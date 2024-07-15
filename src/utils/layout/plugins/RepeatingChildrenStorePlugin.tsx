@@ -18,7 +18,7 @@ export interface SetRowExtrasRequest<T extends CompTypes = CompTypes> {
 export interface RepeatingChildrenStorePluginConfig {
   extraFunctions: {
     setRowExtras: (requests: SetRowExtrasRequest[]) => void;
-    removeRow: (node: LayoutNode, row: BaseRow, internalProp: string) => void;
+    removeRow: (node: LayoutNode, row: BaseRow, internalProp: string, itemProp: string) => void;
   };
   extraHooks: {
     useSetRowExtras: () => RepeatingChildrenStorePluginConfig['extraFunctions']['setRowExtras'];
@@ -63,7 +63,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           return changes ? { nodeData } : {};
         });
       },
-      removeRow: (node, row, internalProp) => {
+      removeRow: (node, row, internalProp, itemProp) => {
         set((state) => {
           const nodeData = { ...state.nodeData };
           const thisNode = nodeData[node.id];
@@ -79,7 +79,8 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             return {};
           }
           const rowToRemove = existingRows[existingRowIndex];
-          for (const n of rowToRemove.items) {
+          const items = Array.isArray(rowToRemove[itemProp]) ? rowToRemove[itemProp] : [rowToRemove[itemProp]] ?? [];
+          for (const n of items) {
             delete nodeData[n.id];
             n.page._removeChild(n);
           }

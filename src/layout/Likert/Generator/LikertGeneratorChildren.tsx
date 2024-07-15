@@ -122,7 +122,7 @@ function _GenerateRow({ row, questionsBinding }: GenerateRowProps) {
 
   GeneratorStages.AddNodes.useEffect(
     () => () => {
-      removeRow(node, row, 'rows');
+      removeRow(node, row, 'rows', 'itemNode');
     },
     [node, row, removeRow],
   );

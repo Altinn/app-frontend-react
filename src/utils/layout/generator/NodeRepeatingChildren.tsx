@@ -119,7 +119,7 @@ function _GenerateRow({ row, claims, groupBinding, multiPageMapping, internalPro
 
   GeneratorStages.AddNodes.useEffect(
     () => () => {
-      removeRow(node, row, internalProp);
+      removeRow(node, row, internalProp, 'items');
     },
     [node, row, internalProp, removeRow],
   );
