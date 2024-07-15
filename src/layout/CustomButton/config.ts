@@ -32,16 +32,20 @@ export const Config = new CG.component({
               new CG.prop('type', new CG.const('ClientAction')),
               new CG.prop('metadata', new CG.obj(new CG.prop('page', new CG.str()))),
             ).exportAs('NavigateToPageAction'),
+            new CG.union(
+              new CG.obj(
+                new CG.prop('id', new CG.const('closeSubForm')),
+                new CG.prop('type', new CG.const('ClientAction')),
+              ).exportAs('CloseSubFormAction'),
+              new CG.obj(
+                new CG.prop('id', new CG.const('validateSubForm')),
+                new CG.prop('type', new CG.const('ClientAction')),
+              ).exportAs('ValidateSubFormAction'),
+            ).exportAs('SubFormAction'),
           ).exportAs('ClientAction'),
           new CG.obj(new CG.prop('id', new CG.str()), new CG.prop('type', new CG.const('ServerAction'))).exportAs(
             'ServerAction',
           ),
-          new CG.union(
-            new CG.obj(
-              new CG.prop('id', new CG.const('saveAndClose')),
-              new CG.prop('type', new CG.const('SubFormAction')),
-            ).exportAs('SubFormSaveAction'),
-          ).exportAs('SubFormAction'),
         ).exportAs('CustomAction'),
       ),
     ),

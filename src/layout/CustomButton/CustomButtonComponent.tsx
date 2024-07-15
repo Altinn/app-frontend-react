@@ -41,13 +41,15 @@ export type ActionResult = {
 
 type UseHandleClientActions = {
   handleClientActions: (actions: CBTypes.ClientAction[]) => Promise<void>;
-  handleSubFormAction: (action: CBTypes.SubFormAction) => Promise<void>;
   handleDataModelUpdate: (lockTools: FormDataLockTools, result: ActionResult) => Promise<void>;
 };
 
-type SubFormActionHandlers = {
-  saveAndClose: () => Promise<void>;
-};
+class NotYetImplementedError extends Error {
+  constructor(message = '', ...args) {
+    super(message, ...args);
+    this.message = message;
+  }
+}
 
 /**
  * A type guard to check if the action is an action that can be run entirely on the client
@@ -57,25 +59,21 @@ const isClientAction = (action: CBTypes.CustomAction): action is CBTypes.ClientA
  * A type guard to check if the action is an action that requires a server side call
  */
 const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerAction => action.type === 'ServerAction';
-/**
- * A type guard to check if the action is a sub-form action
- */
-const isSubFormAction = (action: CBTypes.CustomAction): action is CBTypes.SubFormAction =>
-  action.type === 'SubFormAction';
 
 function useHandleClientActions(): UseHandleClientActions {
   const currentDataModelGuid = useCurrentDataModelGuid();
   const { navigateToPage, navigateToNextPage, navigateToPreviousPage, exitSubForm } = useNavigatePage();
   const { isSubFormPage, mainPageKey } = useNavigationParams();
 
+  const subFormActions = ['closeSubForm', 'validateSubForm'];
   const frontendActions: ClientActionHandlers = {
     nextPage: promisify(navigateToNextPage),
     previousPage: promisify(navigateToPreviousPage),
     navigateToPage: promisify<ClientActionHandlers['navigateToPage']>(async ({ page }) => navigateToPage(page)),
-  };
-
-  const subFormActions: SubFormActionHandlers = {
-    saveAndClose: promisify(exitSubForm),
+    closeSubForm: promisify(exitSubForm),
+    validateSubForm: promisify(() => {
+      throw new NotYetImplementedError();
+    }),
   };
 
   const handleClientAction = async (action: CBTypes.ClientAction) => {
@@ -86,6 +84,11 @@ function useHandleClientActions(): UseHandleClientActions {
     if (isSpecificClientAction('navigateToPage', action)) {
       return await frontendActions[action.id](action.metadata);
     }
+
+    if ((!isSubFormPage || !mainPageKey) && subFormActions.includes(action.id)) {
+      throw new Error('SubFormAction is only applicable for sub-forms');
+    }
+
     await frontendActions[action.id]();
   };
 
@@ -94,14 +97,6 @@ function useHandleClientActions(): UseHandleClientActions {
       for (const action of actions) {
         await handleClientAction(action);
       }
-    },
-    handleSubFormAction: async (action) => {
-      if (!isSubFormPage || !mainPageKey) {
-        throw new Error('SubFormAction is only applicable for sub-forms');
-      }
-
-      // TODO: Focus on sub-form component?
-      await subFormActions[action.id]();
     },
     handleDataModelUpdate: async (lockTools, result) => {
       const newDataModel =
@@ -188,7 +183,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, actions, id, buttonStyle } = node.item;
   const lockTools = FD.useLocking(node.item.id);
   const { isAuthorized } = useActionAuthorization();
-  const { handleClientActions, handleSubFormAction } = useHandleClientActions();
+  const { handleClientActions } = useHandleClientActions();
   const { handleServerAction, mutation } = useHandleServerActionMutation(lockTools);
 
   const isPermittedToPerformActions = actions
@@ -196,15 +191,15 @@ export const CustomButtonComponent = ({ node }: Props) => {
     .reduce((acc, action) => acc && isAuthorized(action.id), true);
   const disabled = !isPermittedToPerformActions || mutation.isPending;
 
-  const isSubFormButton = actions.filter((action) => action.type === 'SubFormAction').length > 0;
+  const isSubFormCloseButton = actions.filter((action) => action.id === 'closeSubForm').length > 0;
   let interceptedButtonStyle = buttonStyle ?? 'secondary';
 
-  if (isSubFormButton && !buttonStyle) {
+  if (isSubFormCloseButton && !buttonStyle) {
     interceptedButtonStyle = 'primary';
   }
 
   let buttonText = textResourceBindings?.title;
-  if (isSubFormButton && !buttonText) {
+  if (isSubFormCloseButton && !buttonText) {
     buttonText = 'general.done';
   }
 
@@ -215,12 +210,8 @@ export const CustomButtonComponent = ({ node }: Props) => {
     for (const action of actions) {
       if (isClientAction(action)) {
         await handleClientActions([action]);
-      }
-      if (isServerAction(action)) {
+      } else if (isServerAction(action)) {
         await handleServerAction({ action, buttonId: id });
-      }
-      if (isSubFormAction(action)) {
-        await handleSubFormAction(action);
       }
     }
   };

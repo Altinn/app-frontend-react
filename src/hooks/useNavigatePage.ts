@@ -310,6 +310,7 @@ export const useNavigatePage = () => {
     navigateToPage(previousPage);
   };
 
+  // TODO: Focus on sub-form table component?
   const exitSubForm = () => {
     if (!isSubFormPage || !mainPageKey) {
       window.logWarn('Tried to close sub-form page while not in a sub-form.');
