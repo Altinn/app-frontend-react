@@ -9,18 +9,19 @@ import type {
   ValidationSeverity,
 } from 'src/features/validation/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesStoreFull } from 'src/utils/layout/NodesContext';
+import type { IsHiddenOptions, NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 
 export type ValidationsSelector = (
   node: LayoutNode,
   mask: ValidationMask | 'visible',
   severity?: ValidationSeverity,
+  includeHidden?: boolean, // Defaults to false
 ) => AnyValidation[];
 
 export interface ValidationStorePluginConfig {
   extraFunctions: {
-    setNodeVisibility: (nodes: LayoutNode[], newVisibility: number, rowIndex?: number) => void;
+    setNodeVisibility: (nodes: LayoutNode[], newVisibility: number) => void;
     setAttachmentVisibility: (attachmentId: string, node: LayoutNode, newVisibility: number) => void;
   };
   extraHooks: {
@@ -38,11 +39,12 @@ export interface ValidationStorePluginConfig {
 }
 
 const emptyArray: never[] = [];
+const hiddenOptions: IsHiddenOptions = { respectTracks: true };
 
 export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginConfig> {
   extraFunctions(set: NodeDataPluginSetState) {
     const out: ValidationStorePluginConfig['extraFunctions'] = {
-      setNodeVisibility: (nodes, newVisibility, _rowIndex) => {
+      setNodeVisibility: (nodes, newVisibility) => {
         set(
           nodesProduce((state) => {
             for (const node of nodes) {
@@ -73,21 +75,26 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
   }
 
   extraHooks(store: NodesStoreFull) {
-    const selectorArg = (
+    const selectorArgs = (
       hiddenSelector: ReturnType<(typeof Hidden)['useIsHiddenSelector']>,
-    ): Parameters<(typeof store)['useDelayedSelector']>[0] => ({
-      mode: 'simple',
-      selector: (node: LayoutNode, mask: ValidationMask | 'visible', severity?: ValidationSeverity) => (state) => {
-        const nodeData = state.nodeData[node.id];
-        if (!nodeData || hiddenSelector(node)) {
-          return emptyArray;
-        }
-        const visibility = 'validationVisibility' in nodeData ? nodeData.validationVisibility : 0;
-        return 'validations' in nodeData
-          ? selectValidations(nodeData.validations, mask === 'visible' ? visibility : mask, severity)
-          : emptyArray;
+    ): Parameters<(typeof store)['useDelayedSelector']> => [
+      {
+        mode: 'simple',
+        selector:
+          (node: LayoutNode, mask: ValidationMask | 'visible', severity?: ValidationSeverity, includeHidden = false) =>
+          (state) => {
+            const nodeData = state.nodeData[node.id];
+            if (!nodeData || (!includeHidden && hiddenSelector(node, hiddenOptions))) {
+              return emptyArray;
+            }
+            const visibility = 'validationVisibility' in nodeData ? nodeData.validationVisibility : 0;
+            return 'validations' in nodeData
+              ? selectValidations(nodeData.validations, mask === 'visible' ? visibility : mask, severity)
+              : emptyArray;
+          },
       },
-    });
+      [hiddenSelector],
+    ];
 
     const out: ValidationStorePluginConfig['extraHooks'] = {
       useSetNodeVisibility: () => store.useSelector((state) => state.setNodeVisibility),
@@ -134,11 +141,11 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
       },
       useValidationsSelector: () => {
         const hiddenSelector = Hidden.useIsHiddenSelector();
-        return store.useDelayedSelector(selectorArg(hiddenSelector)) as unknown as ValidationsSelector;
+        return store.useDelayedSelector(...selectorArgs(hiddenSelector)) as unknown as ValidationsSelector;
       },
       useLaxValidationsSelector: () => {
         const hiddenSelector = Hidden.useIsHiddenSelector();
-        return store.useLaxDelayedSelector(selectorArg(hiddenSelector)) as unknown as ValidationsSelector;
+        return store.useLaxDelayedSelector(...selectorArgs(hiddenSelector)) as unknown as ValidationsSelector;
       },
     };
 

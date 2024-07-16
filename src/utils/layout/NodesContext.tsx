@@ -27,7 +27,7 @@ import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePl
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import { GeneratorDebug } from 'src/utils/layout/generator/debug';
+import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import {
   GeneratorStages,
   GeneratorStagesProvider,
@@ -452,10 +452,11 @@ function MarkAsReady() {
   const getAwaitingCommits = useGetAwaitingCommits();
   const waitingForCommits = Store.useSelector(() => getAwaitingCommits() > 0);
 
-  const maybeReady = hasNodes && !isReady && stagesFinished && !savingJustFinished;
-  const shouldMarkAsReady = maybeReady && !waitingForCommits;
+  const maybeReady = hasNodes && !isReady && stagesFinished;
+  const shouldMarkAsReady = maybeReady && !waitingForCommits && !savingJustFinished;
   useEffect(() => {
     if (shouldMarkAsReady) {
+      generatorLog('logReadyState', 'Marking state as ready');
       markReady();
     }
   }, [shouldMarkAsReady, markReady]);
@@ -466,6 +467,7 @@ function MarkAsReady() {
    */
   useEffect(() => {
     if (savingJustFinished) {
+      generatorLog('logReadyState', 'Marking state as not ready because of recent form data save');
       markReady(false);
     }
   }, [markReady, savingJustFinished]);
@@ -479,6 +481,7 @@ function MarkAsReady() {
       // isn't ready.
       const interval = setInterval(() => {
         if (getAwaitingCommits() === 0 && prevUnsaved.current === false) {
+          generatorLog('logReadyState', 'Marking state as ready via interval fallback');
           store.getState().markReady();
           clearInterval(interval);
         }

@@ -9,11 +9,9 @@ import {
   NodesStateQueue,
   StageFormValidation,
 } from 'src/utils/layout/generator/GeneratorStages';
-import { Hidden } from 'src/utils/layout/NodesContext';
 import type { CompCategory } from 'src/layout/common';
 import type { TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IsHiddenOptions } from 'src/utils/layout/NodesContext';
 
 export function StoreValidationsInNode() {
   return (
@@ -26,23 +24,20 @@ export function StoreValidationsInNode() {
   );
 }
 
-const isHiddenOptions: IsHiddenOptions = { respectTracks: true };
-
 function PerformWork() {
   const item = GeneratorInternal.useIntermediateItem();
   const node = GeneratorInternal.useParent() as LayoutNode<
     TypesFromCategory<CompCategory.Form | CompCategory.Container>
   >;
   const setNodeProp = NodesStateQueue.useSetNodeProp();
-  const isHidden = Hidden.useIsHiddenSelector();
 
   const shouldValidate = useMemo(
-    () =>
-      item !== undefined && !isHidden(node, isHiddenOptions) && !('renderAsSummary' in item && item.renderAsSummary),
-    [isHidden, item, node],
+    () => item !== undefined && !('renderAsSummary' in item && item.renderAsSummary),
+    [item],
   );
 
   const validations = useNodeValidation(node, shouldValidate);
+
   GeneratorStages.FormValidation.useEffect(() => {
     setNodeProp({ node, prop: 'validations', value: validations });
   }, [node, setNodeProp, validations]);

@@ -333,35 +333,38 @@ export const NodesStateQueue = {
   },
   useSetNodeProp() {
     const setNodePropRequestsRef = useSelector((state) => state.toCommit.setNodeProps);
-    useCommitWhenFinished();
+    const maybeCommit = useCommitWhenFinished();
 
     return useCallback(
       (request: SetNodePropRequest<any, any>) => {
         setNodePropRequestsRef.push(request);
+        maybeCommit();
       },
-      [setNodePropRequestsRef],
+      [setNodePropRequestsRef, maybeCommit],
     );
   },
   useSetRowExtras() {
     const setRowExtrasRequestsRef = useSelector((state) => state.toCommit.setRowExtras);
-    useCommitWhenFinished();
+    const maybeCommit = useCommitWhenFinished();
 
     return useCallback(
       (request: SetRowExtrasRequest) => {
         setRowExtrasRequestsRef.push(request);
+        maybeCommit();
       },
-      [setRowExtrasRequestsRef],
+      [setRowExtrasRequestsRef, maybeCommit],
     );
   },
   useSetPageProp() {
     const setPagePropRequestsRef = useSelector((state) => state.toCommit.setPageProps);
-    useCommitWhenFinished();
+    const maybeCommit = useCommitWhenFinished();
 
     return useCallback(
       (request: SetPagePropRequest<any>) => {
         setPagePropRequestsRef.push(request);
+        maybeCommit();
       },
-      [setPagePropRequestsRef],
+      [setPagePropRequestsRef, maybeCommit],
     );
   },
 };
@@ -375,14 +378,16 @@ export const NodesStateQueue = {
 let commitTimeout: NodeJS.Timeout | null = null;
 function useCommitWhenFinished() {
   const commit = useCommit();
-  useSelector((state) => {
-    if (state.currentStage === StageFinished && !commitTimeout) {
+  const stateRef = useSelectorAsRef((s) => s);
+
+  return useCallback(() => {
+    if (stateRef.current.currentStage === StageFinished && !commitTimeout) {
       commitTimeout = setTimeout(() => {
         commit();
         commitTimeout = null;
       }, 4);
     }
-  });
+  }, [stateRef, commit]);
 }
 
 function SetTickFunc() {

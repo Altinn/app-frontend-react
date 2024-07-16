@@ -40,12 +40,7 @@ export function useTaskErrors(): {
     const taskErrors: BaseValidation<'error'>[] = [];
 
     const taskValidations = selector((state) => state.state.task, []);
-    const allShown = selector((state) => {
-      if (state.showAllErrors) {
-        return { fields: state.state.fields };
-      }
-      return undefined;
-    }, []);
+    const allShown = selector((state) => (state.showAllErrors ? { fields: state.state.fields } : undefined), []);
     if (allShown) {
       const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
       for (const field of Object.values(allShown.fields)) {
