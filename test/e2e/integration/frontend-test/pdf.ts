@@ -103,6 +103,7 @@ describe('PDF', () => {
     cy.get(appFrontend.group.editContainer).should('be.visible');
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).first().click();
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.back).should('be.visible');
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).comments).type('Dette er en kommentar');
     cy.get(appFrontend.group.edit).first().click();
     cy.get(appFrontend.group.editContainer).should('not.exist');
 
