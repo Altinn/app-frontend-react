@@ -202,7 +202,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   return (
     <FormComponentContextProvider value={formComponentContext}>
       <Grid
-        data-componentbaseid={item.baseComponentId || item.id}
+        data-componentbaseid={item.baseComponentId ?? item.id}
         data-componentid={item.id}
         data-componenttype={item.type}
         ref={containerDivRef}

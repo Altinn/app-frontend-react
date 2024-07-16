@@ -11,23 +11,16 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useFormComponentCtxStrict } from 'src/layout/FormComponentContext';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
-export interface ComponentWithLabelProps {
+export type LabelContentProps = {
   label?: string;
   description?: string;
   required?: boolean;
   readOnly?: boolean;
   helpText?: string;
   labelSettings?: ILabelSettings;
-}
+};
 
-export const LabelContent: React.FunctionComponent<ComponentWithLabelProps> = ({
-  label,
-  description,
-  required,
-  readOnly,
-  helpText,
-  labelSettings,
-}) => {
+export function LabelContent({ label, description, required, readOnly, helpText, labelSettings }: LabelContentProps) {
   const { overrideDisplay, id } = useFormComponentCtxStrict();
   const { langAsString } = useLanguage();
 
@@ -68,4 +61,4 @@ export const LabelContent: React.FunctionComponent<ComponentWithLabelProps> = ({
       )}
     </span>
   );
-};
+}

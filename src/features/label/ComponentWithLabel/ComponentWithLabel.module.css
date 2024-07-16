@@ -2,8 +2,3 @@
   display: grid;
   gap: var(--fds-spacing-2);
 }
-.label {
-  font-weight: 500;
-  margin-bottom: 0.75rem;
-  display: inline-block;
-}
