@@ -495,16 +495,16 @@ function InnerMarkAsReady({ savingJustFinishedRef }: { savingJustFinishedRef: Mu
 }
 
 function RegisterOnSaveFinished({ savingJustFinishedRef }: { savingJustFinishedRef: MutableRefObject<boolean> }) {
-  const onSaveFinishedRef = FD.useOnSaveFinishedRef();
+  const setOnSaveFinished = FD.useSetOnSaveFinished();
   const markReady = Store.useSelector((s) => s.markReady);
 
   useEffect(() => {
-    onSaveFinishedRef.current = () => {
+    setOnSaveFinished(() => {
       generatorLog('logReadyState', 'Marking state as not ready because of recent form data save');
       savingJustFinishedRef.current = true;
       markReady(false);
-    };
-  }, [savingJustFinishedRef, markReady, onSaveFinishedRef]);
+    });
+  }, [setOnSaveFinished, markReady, savingJustFinishedRef]);
 
   return null;
 }

@@ -76,7 +76,7 @@ function useFormDataSaveMutation() {
   const debounce = useSelector((s) => s.debounce);
   const waitFor = useWaitForState<{ prev: object; next: object }, FormDataContext>(useStore());
   const useIsSavingRef = useAsRef(useIsSaving());
-  const onSaveFinishedRef = useSelector((s) => s.onSaveFinishedRef);
+  const onSaveFinishedRef = useSelectorAsRef((s) => s.onSaveFinished);
 
   return useMutation({
     mutationKey: ['saveFormData', dataModelUrl],
@@ -660,9 +660,9 @@ export const FD = {
   useLastSaveValidationIssues: () => useSelector((s) => s.validationIssues),
 
   /**
-   * This gets you a ref that can be set to a function that will be called as soon as the saving operation finishes.
+   * This lets you set to a function that will be called as soon as the saving operation finishes.
    * Beware that this is not a subscription service, so you can easily overwrite an existing callback here. This
    * is only meant to be used in NodesContext.
    */
-  useOnSaveFinishedRef: () => useSelector((s) => s.onSaveFinishedRef),
+  useSetOnSaveFinished: () => useSelector((s) => s.setOnSaveFinished),
 };
