@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
@@ -135,6 +135,8 @@ export type NodesContext = {
   addPage: (pageKey: string) => void;
   setPageProps: (requests: SetPagePropRequest<any>[]) => void;
   markReady: (ready?: boolean) => void;
+
+  reset: () => void;
 } & ExtraFunctions;
 
 /**
@@ -147,18 +149,22 @@ export function nodesProduce(fn: (draft: NodesContext) => void) {
 
 export type NodesContextStore = StoreApi<NodesContext>;
 export function createNodesDataStore() {
-  return createStore<NodesContext>((set) => ({
+  const defaultState = {
     ready: false,
     addRemoveCounter: 0,
     hasErrors: false,
     nodes: undefined,
     pagesData: {
-      type: 'pages',
+      type: 'pages' as const,
       pages: {},
     },
     nodeData: {},
-
     hiddenViaRules: {},
+  };
+
+  return createStore<NodesContext>((set) => ({
+    ...defaultState,
+
     markHiddenViaRule: (newState) =>
       set((state) => {
         if (deepEqual(state.hiddenViaRules, newState)) {
@@ -273,6 +279,8 @@ export function createNodesDataStore() {
       }),
     markReady: (ready = true) => set(() => ({ ready })),
 
+    reset: () => set(() => ({ ...structuredClone(defaultState) })),
+
     ...(Object.values(StorePlugins)
       .map((plugin) => plugin.extraFunctions(set))
       .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraFunctions),
@@ -359,30 +367,53 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => {
   const counter = useRef(0);
 
   if (lastLayouts.current !== layouts) {
-    // Resets the entire node state when the layout changes (either via Studio, our own DevTools, or Cypress tests)
+    // Resets the entire node state when the layout changes (either via Studio, our own DevTools, or Cypress tests).
+    // We could just re-render Store.Provider here by passing counter as a key to it, but that would create an entirely
+    // new store, which would break the reference in ProvideWaitForValidation (which would take a few render cycles to
+    // properly update, which may break those already awaiting validation).
     counter.current += 1;
     lastLayouts.current = layouts;
   }
 
   return (
-    <Store.Provider key={counter.current}>
-      <GeneratorStagesProvider>
-        <GeneratorValidationProvider>
-          <LayoutSetGenerator />
-        </GeneratorValidationProvider>
-        <MarkAsReady />
-      </GeneratorStagesProvider>
-      {window.Cypress && <UpdateAttachmentsForCypress />}
-      <BlockUntilLoaded>
-        <HiddenComponentsProvider />
-        <ProvideWaitForValidation />
-        <UpdateExpressionValidation />
-        <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
-      </BlockUntilLoaded>
-      <IndicateReadyState />
+    <Store.Provider>
+      <ResetStore counter={counter.current}>
+        <GeneratorStagesProvider>
+          <GeneratorValidationProvider>
+            <LayoutSetGenerator />
+          </GeneratorValidationProvider>
+          <MarkAsReady />
+        </GeneratorStagesProvider>
+        {window.Cypress && <UpdateAttachmentsForCypress />}
+        <BlockUntilLoaded>
+          <HiddenComponentsProvider />
+          <ProvideWaitForValidation />
+          <UpdateExpressionValidation />
+          <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
+        </BlockUntilLoaded>
+        <IndicateReadyState />
+      </ResetStore>
     </Store.Provider>
   );
 };
+
+function ResetStore({ counter, children }: PropsWithChildren<{ counter: number }>) {
+  const reset = Store.useSelector((s) => s.reset);
+  const [lastSeenCounter, setLastSeenCounter] = useState(0);
+
+  useEffect(() => {
+    if (counter > 0) {
+      reset();
+      setLastSeenCounter(counter);
+    }
+  }, [counter, reset]);
+
+  if (counter !== lastSeenCounter) {
+    return <NodesLoader />;
+  }
+
+  return <Fragment key={counter}>{children}</Fragment>;
+}
 
 function IndicateReadyState() {
   const isReady = Store.useSelector((s) => s.ready);
@@ -777,7 +808,8 @@ export const NodesInternal = {
     return isReady;
   },
   useWaitUntilReady() {
-    const waitForState = useWaitForState<undefined, NodesContext | typeof ContextNotProvided>(Store.useLaxStore());
+    const store = Store.useLaxStore();
+    const waitForState = useWaitForState<undefined, NodesContext | typeof ContextNotProvided>(store);
     return useCallback(
       () => waitForState((state) => (state === ContextNotProvided ? true : state.ready)),
       [waitForState],
