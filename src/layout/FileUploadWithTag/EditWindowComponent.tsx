@@ -28,9 +28,16 @@ export interface EditWindowProps {
   attachment: IAttachment;
   mobileView: boolean;
   options?: IOptionInternal[];
+  isFetching: boolean;
 }
 
-export function EditWindowComponent({ attachment, mobileView, node, options }: EditWindowProps): React.JSX.Element {
+export function EditWindowComponent({
+  attachment,
+  mobileView,
+  node,
+  options,
+  isFetching,
+}: EditWindowProps): React.JSX.Element {
   const { textResourceBindings, readOnly } = useNodeItem(node);
   const { langAsString } = useLanguage(node);
   const { setEditIndex } = useFileTableRow();
@@ -142,74 +149,85 @@ export function EditWindowComponent({ attachment, mobileView, node, options }: E
             <Lang id={textResourceBindings?.tagTitle} />
           </label>
         )}
-        <Grid
-          container
-          direction='row'
-          wrap='wrap'
-          className={classes.gap}
-        >
+        {isFetching ? (
+          <AltinnLoader
+            id={`attachment-loader-update-${uniqueId}`}
+            srContent={langAsString('general.loading')}
+            style={{
+              height: '30px',
+              padding: '7px 34px 5px 28px',
+            }}
+          />
+        ) : (
           <Grid
-            item={true}
-            style={{ minWidth: '150px' }}
-            xs
+            container
+            direction='row'
+            wrap='wrap'
+            className={classes.gap}
           >
-            <Combobox
-              id={`attachment-tag-dropdown-${uniqueId}`}
-              size='sm'
-              hideLabel={true}
-              label={langAsString('general.choose')}
-              value={chosenTags}
-              disabled={saveIsDisabled}
-              onValueChange={setChosenTags}
-              error={hasErrors}
-              className={comboboxClasses.container}
+            <Grid
+              item={true}
+              style={{ minWidth: '150px' }}
+              xs
             >
-              <Combobox.Empty>
-                <Lang id={'form_filler.no_options_found'} />
-              </Combobox.Empty>
-              {options?.map((option) => (
-                <Combobox.Option
-                  key={option.value}
-                  value={option.value}
-                  description={option.description ? langAsString(option.description) : undefined}
-                  displayValue={langAsString(option.label) || '\u200b'} // Workaround to prevent component from crashing due to empty string
-                >
-                  <span>
-                    <wbr />
-                    <Lang
-                      id={option.label}
-                      node={node}
-                    />
-                  </span>
-                </Combobox.Option>
-              ))}
-            </Combobox>
-          </Grid>
-          <Grid
-            item={true}
-            xs='auto'
-          >
-            {attachment.updating ? (
-              <AltinnLoader
-                id={`attachment-loader-update-${uniqueId}`}
-                srContent={langAsString('general.loading')}
-                style={{
-                  height: '30px',
-                  padding: '7px 34px 5px 28px',
-                }}
-              />
-            ) : (
-              <Button
-                size='small'
-                onClick={handleSave}
-                id={`attachment-save-tag-button-${uniqueId}`}
+              <Combobox
+                id={`attachment-tag-dropdown-${uniqueId}`}
+                size='sm'
+                hideLabel={true}
+                label={langAsString('general.choose')}
+                value={chosenTags}
                 disabled={saveIsDisabled}
+                onValueChange={setChosenTags}
+                error={hasErrors}
+                className={comboboxClasses.container}
               >
-                <Lang id={'general.save'} />
-              </Button>
-            )}
+                <Combobox.Empty>
+                  <Lang id={'form_filler.no_options_found'} />
+                </Combobox.Empty>
+                {options?.map((option) => (
+                  <Combobox.Option
+                    key={option.value}
+                    value={option.value}
+                    description={option.description ? langAsString(option.description) : undefined}
+                    displayValue={langAsString(option.label) || '\u200b'} // Workaround to prevent component from crashing due to empty string
+                  >
+                    <span>
+                      <wbr />
+                      <Lang
+                        id={option.label}
+                        node={node}
+                      />
+                    </span>
+                  </Combobox.Option>
+                ))}
+              </Combobox>
+            </Grid>
+            <Grid
+              item={true}
+              xs='auto'
+            >
+              {attachment.updating ? (
+                <AltinnLoader
+                  id={`attachment-loader-update-${uniqueId}`}
+                  srContent={langAsString('general.loading')}
+                  style={{
+                    height: '30px',
+                    padding: '7px 34px 5px 28px',
+                  }}
+                />
+              ) : (
+                <Button
+                  size='small'
+                  onClick={handleSave}
+                  id={`attachment-save-tag-button-${uniqueId}`}
+                  disabled={saveIsDisabled}
+                >
+                  <Lang id={'general.save'} />
+                </Button>
+              )}
+            </Grid>
           </Grid>
-        </Grid>
+        )}
       </Grid>
       {hasErrors ? (
         <div

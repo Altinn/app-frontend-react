@@ -47,7 +47,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   const validations = useUnifiedValidationsForNode(node).filter((v) => !('attachmentId' in v) || !v.attachmentId);
   const langTools = useLanguage();
 
-  const { options } = useGetOptions(node as LayoutNode<'FileUploadWithTag'>, 'single');
+  const { options, isFetching } = useGetOptions(node as LayoutNode<'FileUploadWithTag'>, 'single');
 
   const shouldShowFileUpload =
     !(attachments.length >= maxNumberOfAttachments) &&
@@ -145,6 +145,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
           mobileView={mobileView}
           attachments={attachments}
           options={options}
+          isFetching={isFetching}
         />
 
         {!shouldShowFileUpload && (

@@ -252,6 +252,14 @@ export function GeneratorStagesProvider({ children }: PropsWithChildren) {
     ),
   } as Registry);
 
+  document.body.setAttribute('data-commits-pending', 'false');
+  useEffect(
+    () => () => {
+      document.body.removeAttribute('data-commits-pending');
+    },
+    [],
+  );
+
   return (
     <Provider registry={registry}>
       <SetTickFunc />
@@ -276,6 +284,7 @@ function useCommit() {
       generatorLog('logCommits', 'Committing', toCommit.addNodes.length, 'addNodes requests');
       addNodes(toCommit.addNodes);
       toCommit.addNodes.length = 0; // This truncates the array, but keeps the reference
+      updateCommitsPendingInBody(toCommit);
       return true;
     }
 
@@ -309,6 +318,7 @@ function useCommit() {
       changes = true;
     }
 
+    updateCommitsPendingInBody(toCommit);
     return changes;
   }, [addNodes, setNodeProps, setRowExtras, toCommit, setPageProps]);
 }
@@ -322,49 +332,53 @@ function useCommit() {
  */
 export const NodesStateQueue = {
   useAddNode() {
-    const addNodeRequestsRef = useSelector((state) => state.toCommit.addNodes);
+    const toCommit = useSelector((state) => state.toCommit);
 
     return useCallback(
       (request: AddNodeRequest) => {
-        addNodeRequestsRef.push(request);
+        toCommit.addNodes.push(request);
+        updateCommitsPendingInBody(toCommit);
       },
-      [addNodeRequestsRef],
+      [toCommit],
     );
   },
   useSetNodeProp() {
-    const setNodePropRequestsRef = useSelector((state) => state.toCommit.setNodeProps);
+    const toCommit = useSelector((state) => state.toCommit);
     const maybeCommit = useCommitWhenFinished();
 
     return useCallback(
       (request: SetNodePropRequest<any, any>) => {
-        setNodePropRequestsRef.push(request);
+        toCommit.setNodeProps.push(request);
+        updateCommitsPendingInBody(toCommit);
         maybeCommit();
       },
-      [setNodePropRequestsRef, maybeCommit],
+      [maybeCommit, toCommit],
     );
   },
   useSetRowExtras() {
-    const setRowExtrasRequestsRef = useSelector((state) => state.toCommit.setRowExtras);
+    const toCommit = useSelector((state) => state.toCommit);
     const maybeCommit = useCommitWhenFinished();
 
     return useCallback(
       (request: SetRowExtrasRequest) => {
-        setRowExtrasRequestsRef.push(request);
+        toCommit.setRowExtras.push(request);
+        updateCommitsPendingInBody(toCommit);
         maybeCommit();
       },
-      [setRowExtrasRequestsRef, maybeCommit],
+      [maybeCommit, toCommit],
     );
   },
   useSetPageProp() {
-    const setPagePropRequestsRef = useSelector((state) => state.toCommit.setPageProps);
+    const toCommit = useSelector((state) => state.toCommit);
     const maybeCommit = useCommitWhenFinished();
 
     return useCallback(
       (request: SetPagePropRequest<any>) => {
-        setPagePropRequestsRef.push(request);
+        toCommit.setPageProps.push(request);
+        updateCommitsPendingInBody(toCommit);
         maybeCommit();
       },
-      [setPagePropRequestsRef, maybeCommit],
+      [maybeCommit, toCommit],
     );
   },
 };
@@ -388,6 +402,17 @@ function useCommitWhenFinished() {
       }, 4);
     }
   }, [stateRef, commit]);
+}
+
+function updateCommitsPendingInBody(toCommit: Context['toCommit']) {
+  const anyPendingCommits = Object.values(toCommit).some((arr) => arr.length > 0);
+  if (anyPendingCommits) {
+    document.body.setAttribute('data-commits-pending', 'true');
+  } else {
+    setTimeout(() => {
+      document.body.setAttribute('data-commits-pending', 'false');
+    }, NODES_TICK_TIMEOUT + 1);
+  }
 }
 
 function SetTickFunc() {

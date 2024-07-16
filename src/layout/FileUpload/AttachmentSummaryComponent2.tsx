@@ -18,7 +18,7 @@ export interface IAttachmentSummaryComponent {
 export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryComponent) {
   const attachments = useUploaderSummaryData(targetNode);
   const hasTag = targetNode.isType('FileUploadWithTag');
-  const options = useNodeOptions(targetNode as LayoutNode<'FileUploadWithTag'>).options;
+  const { options, isFetching } = useNodeOptions(targetNode as LayoutNode<'FileUploadWithTag'>);
   const mappingTools = useAttachmentsMappedToFormData(targetNode);
   const mobileView = useIsMobileOrTablet();
   const pdfModeActive = usePdfModeActive();
@@ -39,6 +39,7 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
         })}
         options={options}
         isSummary={true}
+        isFetching={isFetching}
       />
     </AttachmentsMappedToFormDataProvider>
   );

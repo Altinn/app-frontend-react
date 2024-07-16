@@ -144,7 +144,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
         return store.useDelayedSelector(...selectorArgs(hiddenSelector)) as unknown as ValidationsSelector;
       },
       useLaxValidationsSelector: () => {
-        const hiddenSelector = Hidden.useIsHiddenSelector();
+        const hiddenSelector = Hidden.useLaxIsHiddenSelector();
         return store.useLaxDelayedSelector(...selectorArgs(hiddenSelector)) as unknown as ValidationsSelector;
       },
     };

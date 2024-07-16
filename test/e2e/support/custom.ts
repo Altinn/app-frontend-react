@@ -45,12 +45,14 @@ Cypress.Commands.add('waitUntilSaved', () => {
 
 Cypress.Commands.add('waitUntilNodesReady', () => {
   cy.get('body').should('not.have.attr', 'data-nodes-ready', 'false');
+  cy.get('body').should('not.have.attr', 'data-commits-pending', 'true');
 });
 
 Cypress.Commands.add('dsSelect', (selector, value) => {
   cy.log(`Selecting ${value} in ${selector}`);
   // In case the option is dynamic, wait for save and progressbars to go away, otherwise the component could rerender after opening, causing it to close again
   cy.waitUntilSaved();
+  cy.waitUntilNodesReady();
   cy.findByRole('progressbar').should('not.exist');
 
   cy.get(selector).should('not.be.disabled');

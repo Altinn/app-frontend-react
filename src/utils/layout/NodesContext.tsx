@@ -720,6 +720,14 @@ export const Hidden = {
         isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
     });
   },
+  useLaxIsHiddenSelector() {
+    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
+    return Store.useLaxDelayedSelector({
+      mode: 'simple',
+      selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
+        isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
+    });
+  },
 
   /**
    * The next ones are primarily for internal use:

@@ -19,6 +19,7 @@ export interface FileTableProps {
   attachments: IAttachment[];
   mobileView: boolean;
   options?: IOptionInternal[];
+  isFetching: boolean;
   isSummary?: boolean;
 }
 
@@ -28,6 +29,7 @@ export function FileTable({
   node,
   options,
   isSummary,
+  isFetching,
 }: FileTableProps): React.JSX.Element | null {
   const { textResourceBindings, type } = useNodeItem(node);
   const hasTag = type === 'FileUploadWithTag';
@@ -129,6 +131,7 @@ export function FileTable({
                     attachment={attachment}
                     mobileView={mobileView}
                     options={options}
+                    isFetching={isFetching}
                   />
                 </td>
               </tr>
