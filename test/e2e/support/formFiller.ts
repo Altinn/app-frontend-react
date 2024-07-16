@@ -93,7 +93,9 @@ function fillOutGroup() {
     mkFile('attachment-in-nested.pdf'),
     { force: true },
   );
-  cy.waitForNetworkIdle(100);
+  cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector!).should(
+    'not.be.disabled',
+  );
   cy.dsSelect(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector!, 'Altinn');
   cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSave!).click();
   cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector!).should('not.exist');
