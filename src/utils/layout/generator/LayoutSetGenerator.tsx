@@ -244,7 +244,7 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
 
   return (
     <>
-      <AddRemovePage
+      <AddPage
         layoutSet={layoutSet}
         page={page}
         name={name}
@@ -285,9 +285,8 @@ interface CommonProps {
   name: string;
 }
 
-function AddRemovePage({ layoutSet, page, name }: CommonProps) {
+function AddPage({ layoutSet, page, name }: CommonProps) {
   const addPage = NodesInternal.useAddPage();
-  const removePage = NodesInternal.useRemovePage();
 
   GeneratorStages.AddNodes.useEffect(() => {
     addPage(name);
@@ -295,15 +294,6 @@ function AddRemovePage({ layoutSet, page, name }: CommonProps) {
       page.registerCollection(name, layoutSet);
     }
   }, [addPage, page, name, layoutSet]);
-
-  // Removes the page from the store when is removed from the React tree
-  GeneratorStages.AddNodes.useEffect(
-    () => () => {
-      removePage(page.pageKey);
-      page.unregisterCollection();
-    },
-    [page, removePage],
-  );
 
   return null;
 }

@@ -133,7 +133,6 @@ export type NodesContext = {
   markHiddenViaRule: (hiddenFields: { [nodeId: string]: true }) => void;
 
   addPage: (pageKey: string) => void;
-  removePage: (pageKey: string) => void;
   setPageProps: (requests: SetPagePropRequest<any>[]) => void;
   markReady: (ready?: boolean) => void;
 } & ExtraFunctions;
@@ -255,14 +254,6 @@ export function createNodesDataStore() {
             },
             errors: undefined,
           };
-          state.ready = false;
-          state.addRemoveCounter += 1;
-        }),
-      ),
-    removePage: (pageKey) =>
-      set(
-        nodesProduce((state) => {
-          delete state.pagesData.pages[pageKey];
           state.ready = false;
           state.addRemoveCounter += 1;
         }),
@@ -873,7 +864,6 @@ export const NodesInternal = {
   useSetNodes: () => Store.useSelector((s) => s.setNodes),
   useAddPage: () => Store.useSelector((s) => s.addPage),
   useSetPageProps: () => Store.useSelector((s) => s.setPageProps),
-  useRemovePage: () => Store.useSelector((s) => s.removePage),
   useAddNodes: () => Store.useSelector((s) => s.addNodes),
   useAddError: () => Store.useSelector((s) => s.addError),
   useMarkHiddenViaRule: () => Store.useSelector((s) => s.markHiddenViaRule),

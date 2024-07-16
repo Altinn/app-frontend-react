@@ -148,10 +148,4 @@ export class LayoutPage implements LayoutObject {
     this.layoutSet = layoutSet;
     layoutSet.replacePage(this);
   }
-
-  public unregisterCollection() {
-    if (this.pageKey !== undefined && this.layoutSet) {
-      this.layoutSet.removePage(this.pageKey);
-    }
-  }
 }
