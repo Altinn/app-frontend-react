@@ -482,6 +482,7 @@ Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
       }
     }
   });
+  cy.waitUntilNodesReady();
 });
 
 Cypress.Commands.add('interceptLayoutSetsUiSettings', (uiSettings) => {
@@ -511,6 +512,7 @@ Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
   cy.get('body').click();
 
   // Wait for network to be idle before calling reload
+  cy.waitUntilSaved();
   cy.waitForNetworkIdle('*', '*', 500);
 
   // Visit the PDF page and reload

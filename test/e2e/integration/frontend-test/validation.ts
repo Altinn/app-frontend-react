@@ -1,10 +1,12 @@
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
+import { Datalist } from 'test/e2e/pageobjects/datalist';
 
 import type { IDataModelPatchResponse } from 'src/features/formData/types';
 
 const appFrontend = new AppFrontend();
+const dataListPage = new Datalist();
 const mui = new Common();
 
 describe('Validation', () => {
@@ -122,9 +124,6 @@ describe('Validation', () => {
       .should('contain.text', texts.requiredFieldDateFrom)
       .should('contain.text', texts.next);
     cy.navPage('form').should('have.attr', 'aria-current', 'page');
-    // Make sure all the buttons in the form are now inside errorReport, not outside of it.
-    // - 4 of the button roles belong to each of the errors in the report
-    // - 2 of the button roles belong to the buttons on the bottom of the form (print, next)
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 4);
     cy.get(appFrontend.errorReport)
       .findAllByRole('button')
@@ -316,6 +315,7 @@ describe('Validation', () => {
 
   it('List component: validation messages should only show up once', () => {
     cy.goto('datalist');
+    cy.get(dataListPage.tableBody).first().first().contains('Caroline');
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.errorReport)
       .should('be.inViewport')
@@ -374,6 +374,7 @@ describe('Validation', () => {
     // Validation message should now have changed, since we filled out currentValue and saved
     cy.get(appFrontend.errorReport).findByText('Du må fylle ut 2. endre verdi 123 til').should('be.visible');
     cy.get(appFrontend.group.row(2).deleteBtn).click();
+    cy.waitUntilNodesReady();
 
     // Check that nested group with multipage gets focus
     cy.get(appFrontend.group.row(0).editBtn).click();
@@ -485,6 +486,7 @@ describe('Validation', () => {
     // Delete the row, start over, and observe that the currentValue now exists as a field in the table and
     // produces a validation message if not filled out. We need to use the 'next' button to trigger validation.
     cy.get(appFrontend.group.row(2).deleteBtn).click();
+    cy.waitUntilNodesReady();
     cy.get(appFrontend.group.row(2).currentValue).should('not.exist');
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.row(2).currentValue).should('exist');
@@ -542,17 +544,13 @@ describe('Validation', () => {
       }
     });
 
-    // Go back to the first page and then here again to reset the repeating group after the change above
-    cy.gotoNavPage('prefill');
-    cy.gotoNavPage('repeating');
-
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.editContainer).should('be.visible');
     cy.get(appFrontend.group.row(3).newValue).should('exist');
     cy.get(appFrontend.group.row(3).currentValue).should('not.exist');
-    cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
     cy.get(appFrontend.errorReport).findAllByText('Du må fylle ut 2. endre verdi til').eq(0).click();
 

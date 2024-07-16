@@ -454,6 +454,7 @@ describe('Repeating group attachments', () => {
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     cy.get(appFrontend.group.row(0).deleteBtn).click();
+    cy.waitUntilNodesReady();
 
     verifyPreview(true);
     waitForFormDataSave();
