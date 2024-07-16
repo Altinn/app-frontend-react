@@ -217,15 +217,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         )}
         alignItems='baseline'
       >
-        {/*{shouldComponentRenderLabel(node.item.type) && overrideDisplay?.renderLabel !== false && (
-          <Grid
-            item={true}
-            {...gridBreakpoints(node.item.grid?.labelGrid)}
-          >
-            <GenericComponentLabel />
-            <GenericComponentDescription />
-          </Grid>
-        )}*/}
         <Grid
           key={`form-content-${id}`}
           item={true}

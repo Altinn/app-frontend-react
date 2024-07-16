@@ -8,11 +8,13 @@ import type { PropsFromGenericComponent } from '..';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useParties } from 'src/features/party/PartiesProvider';
 import { getDateFormat } from 'src/utils/dateHelpers';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
+import type { ComponentWithLabelProps } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CompInstanceInformationInternal } from 'src/layout/InstanceInformation/config.generated';
 import type { IInstance, IParty } from 'src/types/shared';
@@ -107,5 +109,18 @@ export function InstanceInformation({ elements }: CompInstanceInformationInterna
 }
 
 export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
-  return <InstanceInformation {...node.item} />;
+  const labelProps = {
+    id: node.item.id,
+    label: node.item.textResourceBindings?.title,
+    description: node.item.textResourceBindings?.description,
+    helpText: node.item.textResourceBindings?.help,
+    labelSettings: node.item.labelSettings,
+    renderLabelAs: 'legend',
+  } satisfies ComponentWithLabelProps;
+
+  return (
+    <ComponentWithLabel {...labelProps}>
+      <InstanceInformation {...node.item} />
+    </ComponentWithLabel>
+  );
 }

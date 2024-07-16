@@ -18,7 +18,6 @@ export type IInputProps = PropsFromGenericComponent<'Input'>;
 import type { TextfieldProps } from '@digdir/designsystemet-react/dist/types/components/form/Textfield/Textfield';
 
 import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
-import { LabelContent } from 'src/features/label/LabelContent/LabelContent';
 
 interface InputComponentProps extends Omit<TextfieldProps, 'prefix' | 'suffix'> {
   textOnly?: boolean;
@@ -101,25 +100,14 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
   const label =
     overrideDisplay?.renderLabel !== false
       ? textResourceBindings?.title
-        ? langAsString(textResourceBindings.title)
+        ? textResourceBindings.title
         : undefined
       : undefined;
-  const help = textResourceBindings?.help ? langAsString(textResourceBindings.help) : undefined;
-  const description = textResourceBindings?.description ? langAsString(textResourceBindings.description) : undefined;
 
   const characterLimit = useCharacterLimit(maxLength);
   const commonProps = {
     'aria-label': ariaLabel,
     'aria-describedby': textResourceBindings?.description ? `description-${id}` : undefined,
-    label: label ? (
-      <LabelContent
-        label={label}
-        helpText={help}
-        readOnly={readOnly}
-        required={required}
-        description={description}
-      />
-    ) : undefined,
     autoComplete: autocomplete,
     characterLimit: !readOnly ? characterLimit : undefined,
     role: 'textbox',
@@ -134,18 +122,9 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     suffixText,
   };
 
-  if (variant === 'search') {
-    return (
-      <ComponentWithLabel
-        id={id}
-        label={label}
-        helpText={help}
-        readOnly={readOnly}
-        required={required}
-        description={description}
-        labelSettings={labelSettings}
-        renderLabelAs='label'
-      >
+  const renderSpecificInputVariant = () => {
+    if (variant === 'search') {
+      return (
         <SearchField
           id={id}
           value={formValue}
@@ -156,64 +135,81 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
           data-testid={`${id}-${variant}`}
           onBlur={debounce}
         />
-      </ComponentWithLabel>
-    );
-  }
+      );
+    }
 
-  if (!reactNumberFormatConfig?.number) {
-    return (
-      <TextfieldWrapped
-        value={formValue}
-        onChange={(event) => {
-          setValue('simpleBinding', event.target.value);
-        }}
-        data-testid={`${id}-${variant}`}
-        {...commonProps}
-      />
-    );
-  }
+    if (!reactNumberFormatConfig?.number) {
+      return (
+        <TextfieldWrapped
+          value={formValue}
+          onChange={(event) => {
+            setValue('simpleBinding', event.target.value);
+          }}
+          data-testid={`${id}-${variant}`}
+          {...commonProps}
+        />
+      );
+    }
 
-  if (isPatternFormat(reactNumberFormatConfig.number)) {
-    return (
-      <PatternFormat
-        value={formValue}
-        onValueChange={(values) => {
-          setValue('simpleBinding', values.value);
-        }}
-        customInput={TextfieldWrapped as React.ComponentType}
-        data-testid={`${id}-formatted-number-${variant}`}
-        {...reactNumberFormatConfig.number}
-        {...commonProps}
-      />
-    );
-  }
+    if (isPatternFormat(reactNumberFormatConfig.number)) {
+      return (
+        <PatternFormat
+          value={formValue}
+          onValueChange={(values) => {
+            setValue('simpleBinding', values.value);
+          }}
+          customInput={TextfieldWrapped as React.ComponentType}
+          data-testid={`${id}-formatted-number-${variant}`}
+          {...reactNumberFormatConfig.number}
+          {...commonProps}
+        />
+      );
+    }
 
-  if (isNumericFormat(reactNumberFormatConfig.number)) {
-    return (
-      <NumericFormat
-        value={formValue}
-        onValueChange={(values) => {
-          setValue('simpleBinding', values.value);
-        }}
-        onPaste={(event) => {
-          /* This is a workaround for a react-number-format bug that
-           * removes the decimal on paste.
-           * We should be able to remove it when this issue gets fixed:
-           * https://github.com/s-yadav/react-number-format/issues/349
-           *  */
-          event.preventDefault();
-          const pastedText = event.clipboardData.getData('Text');
-          if (pastedText.indexOf(',') !== -1) {
-            setValue('simpleBinding', pastedText.replace(',', '.'));
-          } else {
-            setValue('simpleBinding', pastedText);
-          }
-        }}
-        customInput={TextfieldWrapped as React.ComponentType}
-        data-testid={`${id}-formatted-number-${variant}`}
-        {...reactNumberFormatConfig.number}
-        {...commonProps}
-      />
-    );
-  }
+    if (isNumericFormat(reactNumberFormatConfig.number)) {
+      return (
+        <NumericFormat
+          value={formValue}
+          onValueChange={(values) => {
+            setValue('simpleBinding', values.value);
+          }}
+          onPaste={(event) => {
+            /* This is a workaround for a react-number-format bug that
+             * removes the decimal on paste.
+             * We should be able to remove it when this issue gets fixed:
+             * https://github.com/s-yadav/react-number-format/issues/349
+             *  */
+            event.preventDefault();
+            const pastedText = event.clipboardData.getData('Text');
+            if (pastedText.indexOf(',') !== -1) {
+              setValue('simpleBinding', pastedText.replace(',', '.'));
+            } else {
+              setValue('simpleBinding', pastedText);
+            }
+          }}
+          customInput={TextfieldWrapped as React.ComponentType}
+          data-testid={`${id}-formatted-number-${variant}`}
+          {...reactNumberFormatConfig.number}
+          {...commonProps}
+        />
+      );
+    }
+
+    return <></>;
+  };
+
+  return (
+    <ComponentWithLabel
+      id={id}
+      label={label}
+      renderLabelAs='label'
+      helpText={textResourceBindings?.help}
+      description={textResourceBindings?.description}
+      labelSettings={labelSettings}
+      readOnly={readOnly}
+      required={required}
+    >
+      {renderSpecificInputVariant()}
+    </ComponentWithLabel>
+  );
 };

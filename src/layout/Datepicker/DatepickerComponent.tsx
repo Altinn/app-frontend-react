@@ -151,8 +151,8 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
 
   return (
     <ComponentWithLabel
-      renderLabelAs='label'
       id={id}
+      renderLabelAs='label'
       label={textResourceBindings?.title}
       description={textResourceBindings?.description}
       helpText={textResourceBindings?.help}

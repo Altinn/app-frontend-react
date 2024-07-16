@@ -129,7 +129,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
 
   return (
     <ComponentWithLabel
-      id={`label-${id}`}
+      id={id}
       renderLabelAs='label'
       label={textResourceBindings?.title}
       description={textResourceBindings?.description}
