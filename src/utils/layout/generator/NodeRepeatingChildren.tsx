@@ -220,7 +220,8 @@ export function mutateDataModelBindings(row: BaseRow, groupBinding: string | und
 export function mutateMapping(row: BaseRow, depth: number): ChildMutator {
   return (item) => {
     if ('mapping' in item && item.mapping) {
-      const depthMarker = depth - 1;
+      // Pages start at 1, top-level nodes at 2, so for nodes inside repeating groups to start at 0 we subtract 2.
+      const depthMarker = depth - 2;
       for (const key of Object.keys(item.mapping)) {
         const value = item.mapping[key];
         const newKey = key.replace(`[{${depthMarker}}]`, `[${row.index}]`);
