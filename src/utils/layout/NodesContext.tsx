@@ -427,6 +427,17 @@ function IndicateReadyState() {
   );
 }
 
+function MarkAsReady() {
+  const savingJustFinishedRef = useRef(false);
+
+  return (
+    <>
+      <InnerMarkAsReady savingJustFinishedRef={savingJustFinishedRef} />
+      <RegisterOnSaveFinished savingJustFinishedRef={savingJustFinishedRef} />
+    </>
+  );
+}
+
 /**
  * Some selectors (like NodeTraversal) only re-runs when the data store is 'ready', and when nodes start being added
  * or removed, the store is marked as not ready. This component will mark the store as ready when all nodes are added,
@@ -435,16 +446,12 @@ function IndicateReadyState() {
  * This causes the node traversal selectors to re-run only when all nodes in a new repeating group row (and similar)
  * have been added.
  */
-function MarkAsReady() {
+function InnerMarkAsReady({ savingJustFinishedRef }: { savingJustFinishedRef: MutableRefObject<boolean> }) {
   const markReady = Store.useSelector((s) => s.markReady);
   const isReady = Store.useSelector((s) => s.ready);
   const hasNodes = Store.useSelector((state) => !!state.nodes);
   const stagesFinished = GeneratorStages.useIsFinished();
-
-  const hasUnsaved = FD.useHasUnsavedChanges();
-  const prevUnsaved = useRef(hasUnsaved);
-  const savingJustFinished = prevUnsaved.current === true && hasUnsaved === false;
-  prevUnsaved.current = hasUnsaved;
+  const hasUnsavedChangesRef = FD.useHasUnsavedChangesRef();
 
   // Even though the getAwaitingCommits() function works on refs in the GeneratorStages context, the effects of such
   // commits always changes the NodesContext. Thus our useSelector() re-runs and re-renders this components when
@@ -453,7 +460,10 @@ function MarkAsReady() {
   const waitingForCommits = Store.useSelector(() => getAwaitingCommits() > 0);
 
   const maybeReady = hasNodes && !isReady && stagesFinished;
-  const shouldMarkAsReady = maybeReady && !waitingForCommits && !savingJustFinished;
+  const shouldMarkAsReady = maybeReady && !waitingForCommits && !savingJustFinishedRef.current;
+  const fallbackToInterval = maybeReady && !shouldMarkAsReady;
+
+  savingJustFinishedRef.current = false;
   useEffect(() => {
     if (shouldMarkAsReady) {
       generatorLog('logReadyState', 'Marking state as ready');
@@ -461,18 +471,6 @@ function MarkAsReady() {
     }
   }, [shouldMarkAsReady, markReady]);
 
-  /**
-   * This is needed for validations, and specifically the 'wait for validation' function needs to wait until our
-   * StoreValidationsInNode effects have run to completion in order for the full validation picture to be complete.
-   */
-  useEffect(() => {
-    if (savingJustFinished) {
-      generatorLog('logReadyState', 'Marking state as not ready because of recent form data save');
-      markReady(false);
-    }
-  }, [markReady, savingJustFinished]);
-
-  const fallbackToInterval = maybeReady && !shouldMarkAsReady;
   const store = Store.useStore();
   useEffect(() => {
     if (fallbackToInterval) {
@@ -480,7 +478,8 @@ function MarkAsReady() {
       // won't notice that we could mark the state as ready again. For these cases we run intervals while the state
       // isn't ready.
       const interval = setInterval(() => {
-        if (getAwaitingCommits() === 0 && prevUnsaved.current === false) {
+        const awaiting = getAwaitingCommits();
+        if (awaiting === 0 && !hasUnsavedChangesRef.current) {
           generatorLog('logReadyState', 'Marking state as ready via interval fallback');
           store.getState().markReady();
           clearInterval(interval);
@@ -490,7 +489,22 @@ function MarkAsReady() {
     }
 
     return () => undefined;
-  }, [fallbackToInterval, getAwaitingCommits, store]);
+  }, [fallbackToInterval, getAwaitingCommits, hasUnsavedChangesRef, store]);
+
+  return null;
+}
+
+function RegisterOnSaveFinished({ savingJustFinishedRef }: { savingJustFinishedRef: MutableRefObject<boolean> }) {
+  const onSaveFinishedRef = FD.useOnSaveFinishedRef();
+  const markReady = Store.useSelector((s) => s.markReady);
+
+  useEffect(() => {
+    onSaveFinishedRef.current = () => {
+      generatorLog('logReadyState', 'Marking state as not ready because of recent form data save');
+      savingJustFinishedRef.current = true;
+      markReady(false);
+    };
+  }, [savingJustFinishedRef, markReady, onSaveFinishedRef]);
 
   return null;
 }

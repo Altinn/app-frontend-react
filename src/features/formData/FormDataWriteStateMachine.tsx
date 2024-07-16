@@ -1,3 +1,5 @@
+import type { MutableRefObject } from 'react';
+
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
 import { applyPatch } from 'fast-json-patch';
@@ -47,6 +49,10 @@ export interface FormDataState {
 
   // This contains the validation issues we receive from the server last time we saved the data model.
   validationIssues: BackendValidationIssueGroups | undefined;
+
+  // This is a ref that may contain a callback function that will be called whenever the save finishes.
+  // Should only be set from NodesContext.
+  onSaveFinishedRef: MutableRefObject<(() => void) | undefined>;
 
   // Control state is used to control the behavior of form data.
   controlState: {
@@ -413,6 +419,7 @@ export const createFormDataWriteStore = (
         lastSavedData: initialData,
         hasUnsavedChanges: false,
         validationIssues: undefined,
+        onSaveFinishedRef: { current: undefined },
         controlState: {
           autoSaving,
           manualSaveRequested: false,

@@ -1,5 +1,4 @@
-/* eslint-disable no-console */
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useIsMutating, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -48,7 +47,6 @@ const {
   useMemoSelector,
   useSelectorAsRef,
   useLaxMemoSelector,
-  useLaxSelectorAsRef,
   useLaxDelayedSelector,
   useDelayedSelector,
   useLaxSelector,
@@ -78,6 +76,7 @@ function useFormDataSaveMutation() {
   const debounce = useSelector((s) => s.debounce);
   const waitFor = useWaitForState<{ prev: object; next: object }, FormDataContext>(useStore());
   const useIsSavingRef = useAsRef(useIsSaving());
+  const onSaveFinishedRef = useSelector((s) => s.onSaveFinishedRef);
 
   return useMutation({
     mutationKey: ['saveFormData', dataModelUrl],
@@ -107,6 +106,7 @@ function useFormDataSaveMutation() {
 
       if (isStateless) {
         const newDataModel = await doPostStatelessFormData(urlWithLanguage, next);
+        onSaveFinishedRef.current?.();
         return { newDataModel, savedData: next, validationIssues: undefined };
       } else {
         const patch = createPatch({ prev, next });
@@ -118,6 +118,7 @@ function useFormDataSaveMutation() {
           patch,
           ignoredValidators: [],
         });
+        onSaveFinishedRef.current?.();
         return { ...result, patch, savedData: next };
       }
     },
@@ -138,26 +139,6 @@ function useIsSaving() {
       mutationKey: ['saveFormData', dataModelUrl === ContextNotProvided ? '__never__' : dataModelUrl],
     }) > 0
   );
-}
-
-function useIsSavingAsRef() {
-  const dataModelUrl = useLaxSelector((s) => s.controlState.saveUrl);
-  const ref = useRef(false);
-  const mutationCache = useQueryClient().getMutationCache();
-
-  useEffect(
-    () =>
-      mutationCache.subscribe(() => {
-        ref.current =
-          mutationCache.findAll({
-            status: 'pending',
-            mutationKey: ['saveFormData', dataModelUrl === ContextNotProvided ? '__never__' : dataModelUrl],
-          }).length > 0;
-      }),
-    [dataModelUrl, mutationCache],
-  );
-
-  return ref;
 }
 
 interface FormDataWriterProps extends PropsWithChildren {
@@ -202,6 +183,7 @@ function FormDataEffects() {
   const debounce = useDebounceImmediately();
   const hasUnsavedChanges = useHasUnsavedChanges();
   const hasUnsavedChangesRef = useHasUnsavedChangesRef();
+  const isSavingNow = useIsSavingNow();
 
   // If errors occur, we want to throw them so that the user can see them, and they
   // can be handled by the error boundary.
@@ -247,11 +229,11 @@ function FormDataEffects() {
   // to trigger when the user is typing, which is not what we want.
   useEffect(
     () => () => {
-      if (hasUnsavedChangesRef.current) {
+      if (hasUnsavedChangesRef.current && !isSavingNow()) {
         performSave();
       }
     },
-    [hasUnsavedChangesRef, performSave],
+    [hasUnsavedChangesRef, isSavingNow, performSave],
   );
 
   // Sets the debounced data in the window object, so that Cypress tests can access it.
@@ -302,8 +284,36 @@ const useHasUnsavedChanges = () => {
 };
 
 const useHasUnsavedChangesRef = () => {
-  const isSavingRef = useIsSavingAsRef();
-  return useLaxSelectorAsRef((state) => hasUnsavedChanges(state) || isSavingRef.current);
+  const store = useStore();
+  const isSavingNow = useIsSavingNow();
+
+  return useMemo(
+    () =>
+      new (class {
+        get current() {
+          if (hasUnsavedChanges(store.getState())) {
+            return true;
+          }
+
+          return isSavingNow();
+        }
+      })(),
+    [store, isSavingNow],
+  );
+};
+
+const useIsSavingNow = () => {
+  const dataModelUrl = useLaxSelector((s) => s.controlState.saveUrl);
+  const queryClient = useQueryClient();
+
+  return useCallback(() => {
+    const numRequests = queryClient.getMutationCache().findAll({
+      status: 'pending',
+      mutationKey: ['saveFormData', dataModelUrl === ContextNotProvided ? '__never__' : dataModelUrl],
+    }).length;
+
+    return numRequests > 0;
+  }, [queryClient, dataModelUrl]);
 };
 
 const useWaitForSave = () => {
@@ -617,6 +627,11 @@ export const FD = {
   useHasUnsavedChanges,
 
   /**
+   * Same as the above, but returns a non-reactive ref instead
+   */
+  useHasUnsavedChangesRef,
+
+  /**
    * Returns a function to append a value to a list. It checks if the value is already in the list, and if not,
    * it will append it. If the value is already in the list, it will not be appended.
    */
@@ -643,4 +658,11 @@ export const FD = {
    * Returns the latest validation issues from the backend, from the last time the form data was saved.
    */
   useLastSaveValidationIssues: () => useSelector((s) => s.validationIssues),
+
+  /**
+   * This gets you a ref that can be set to a function that will be called as soon as the saving operation finishes.
+   * Beware that this is not a subscription service, so you can easily overwrite an existing callback here. This
+   * is only meant to be used in NodesContext.
+   */
+  useOnSaveFinishedRef: () => useSelector((s) => s.onSaveFinishedRef),
 };
