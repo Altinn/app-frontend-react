@@ -87,7 +87,6 @@ describe('InputComponent', () => {
     });
 
     const inputComponent = screen.getByRole('textbox');
-    screen.debug(inputComponent);
     expect(inputComponent.getAttribute('aria-describedby')).toContain('description-mock-id');
   });
 

@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 
 import { Textfield } from '@digdir/designsystemet-react';
 
+import { Label } from 'src/components/label/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { Label } from 'src/features/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';

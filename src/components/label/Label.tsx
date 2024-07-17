@@ -3,9 +3,9 @@ import type { PropsWithChildren } from 'react';
 
 import { Fieldset, Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
 
-import classes from 'src/features/label/Label.module.css';
-import { LabelContent } from 'src/features/label/LabelContent';
-import type { LabelContentProps } from 'src/features/label/LabelContent';
+import classes from 'src/components/label/Label.module.css';
+import { LabelContent } from 'src/components/label/LabelContent';
+import type { LabelContentProps } from 'src/components/label/LabelContent';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
 type LabelProps = PropsWithChildren<{

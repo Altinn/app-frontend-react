@@ -9,9 +9,9 @@ import type {
   SortDirection,
 } from '@digdir/design-system-react/dist/types/components/legacy/LegacyTable/utils';
 
+import { Label } from 'src/components/label/Label';
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { Label } from 'src/features/label/Label';
 import { useLanguage } from 'src/features/language/useLanguage';
 import type { Filter } from 'src/features/dataLists/useDataListQuery';
 import type { PropsFromGenericComponent } from 'src/layout';

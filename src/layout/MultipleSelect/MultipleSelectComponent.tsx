@@ -4,9 +4,9 @@ import { Combobox } from '@digdir/designsystemet-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { Label } from 'src/components/label/Label';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { Label } from 'src/features/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';

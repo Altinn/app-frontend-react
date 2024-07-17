@@ -5,10 +5,10 @@ import Moment from 'moment';
 
 import type { PropsFromGenericComponent } from '..';
 
+import { Label } from 'src/components/label/Label';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { Label } from 'src/features/label/Label';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useParties } from 'src/features/party/PartiesProvider';

@@ -4,7 +4,7 @@ import { Grid } from '@material-ui/core';
 
 import type { PropsFromGenericComponent } from '..';
 
-import { Label } from 'src/features/label/Label';
+import { Label } from 'src/components/label/Label';
 import classes from 'src/layout/ButtonGroup/ButtonGroupComponent.module.css';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

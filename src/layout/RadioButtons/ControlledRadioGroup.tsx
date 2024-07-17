@@ -4,7 +4,7 @@ import { Radio } from '@digdir/designsystemet-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { RadioButton } from 'src/components/form/RadioButton';
-import { LabelContent } from 'src/features/label/LabelContent';
+import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';

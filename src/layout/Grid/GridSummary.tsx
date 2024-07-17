@@ -4,8 +4,8 @@ import type { JSX, PropsWithChildren } from 'react';
 import { ErrorMessage, Paragraph, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
+import { LabelContent } from 'src/components/label/LabelContent';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
-import { LabelContent } from 'src/features/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';

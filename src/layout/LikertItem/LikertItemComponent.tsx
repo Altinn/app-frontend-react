@@ -3,7 +3,7 @@ import React, { forwardRef } from 'react';
 import { Radio, Table } from '@digdir/designsystemet-react';
 import { Typography } from '@material-ui/core';
 
-import { Label } from 'src/features/label/Label';
+import { Label } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';

@@ -3,12 +3,12 @@ import { toast } from 'react-toastify';
 import type { JSX } from 'react';
 import type { FileRejection } from 'react-dropzone';
 
+import { Label } from 'src/components/label/Label';
 import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/AttachmentsContext';
 import {
   AttachmentsMappedToFormDataProvider,
   useAttachmentsMappedToFormData,
 } from 'src/features/attachments/useAttachmentsMappedToFormData';
-import { Label } from 'src/features/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';

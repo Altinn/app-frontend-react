@@ -2,8 +2,8 @@ import React from 'react';
 
 import { Textarea } from '@digdir/designsystemet-react';
 
+import { Label } from 'src/components/label/Label';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { Label } from 'src/features/label/Label';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
