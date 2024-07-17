@@ -12,6 +12,7 @@ import { useFormComponentCtxStrict } from 'src/layout/FormComponentContext';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
 export type LabelContentProps = {
+  id?: string;
   label?: string;
   description?: string;
   required?: boolean;
@@ -20,8 +21,16 @@ export type LabelContentProps = {
   labelSettings?: ILabelSettings;
 };
 
-export function LabelContent({ label, description, required, readOnly, helpText, labelSettings }: LabelContentProps) {
-  const { overrideDisplay, id } = useFormComponentCtxStrict();
+export function LabelContent({
+  id,
+  label,
+  description,
+  required,
+  readOnly,
+  helpText,
+  labelSettings,
+}: LabelContentProps) {
+  const { overrideDisplay } = useFormComponentCtxStrict();
   const { langAsString } = useLanguage();
 
   if (overrideDisplay?.renderLabel === false) {
@@ -29,10 +38,7 @@ export function LabelContent({ label, description, required, readOnly, helpText,
   }
 
   return (
-    <span
-      data-testid={`label-${id}`}
-      id={`label-${id}`}
-    >
+    <span id={id}>
       <span className={classes.labelContainer}>
         <span className={classes.labelContent}>
           <Lang id={label} />

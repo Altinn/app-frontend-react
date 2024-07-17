@@ -19,13 +19,20 @@ export function ComponentWithLabel({ id, renderLabelAs, children, ...labelProps 
     return <>{children}</>;
   }
 
+  const labelId = `label-${id}`;
+
   switch (renderLabelAs) {
     case 'legend': {
       return (
         <Fieldset
           size='small'
           className={classes.fieldWrapper}
-          legend={<LabelContent {...labelProps} />}
+          legend={
+            <LabelContent
+              id={labelId}
+              {...labelProps}
+            />
+          }
         >
           {children}
         </Fieldset>
@@ -34,7 +41,10 @@ export function ComponentWithLabel({ id, renderLabelAs, children, ...labelProps 
     case 'label':
       return (
         <div className={classes.fieldWrapper}>
-          <Label htmlFor={id}>
+          <Label
+            id={labelId}
+            htmlFor={id}
+          >
             <LabelContent {...labelProps} />
           </Label>
           {children}
@@ -48,7 +58,10 @@ export function ComponentWithLabel({ id, renderLabelAs, children, ...labelProps 
           {/* we want this "label" to be rendered as a <span> and not a <label>,
            because it does not belong to an input element */}
           <Label asChild>
-            <LabelContent {...labelProps} />
+            <LabelContent
+              id={labelId}
+              {...labelProps}
+            />
           </Label>
           {children}
         </div>
