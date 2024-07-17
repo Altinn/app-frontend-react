@@ -86,12 +86,13 @@ export function useOnFormSubmitValidation() {
   });
 
   return useCallback(async () => {
-    if (validation.current === ContextNotProvided) {
+    const validating = validation.current === ContextNotProvided ? undefined : validation.current?.validating;
+    if (!validating) {
       // If the validation context is not provided, we cannot validate
       return false;
     }
 
-    await validation.current.validating!();
+    await validating();
     return callback();
   }, [callback, validation]);
 }
