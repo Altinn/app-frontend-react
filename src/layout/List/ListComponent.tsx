@@ -11,7 +11,7 @@ import type {
 
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
+import { Label } from 'src/features/label/Label';
 import { useLanguage } from 'src/features/language/useLanguage';
 import type { Filter } from 'src/features/dataLists/useDataListQuery';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -119,13 +119,13 @@ export const ListComponent = ({ node }: IListProps) => {
   };
 
   return (
-    <ComponentWithLabel
+    <Label
       {...node.item}
       renderLabelAs='legend'
     >
       <div style={{ overflow: 'auto' }}>
         <LegacyResponsiveTable config={config} />
       </div>
-    </ComponentWithLabel>
+    </Label>
   );
 };

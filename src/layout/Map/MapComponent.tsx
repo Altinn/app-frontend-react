@@ -5,7 +5,7 @@ import { makeStyles, Typography } from '@material-ui/core';
 import type { Location } from '@altinn/altinn-design-system';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
+import { Label } from 'src/features/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { markerIcon } from 'src/layout/Map/MapIcons';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -31,7 +31,7 @@ export function MapComponent({ isValid, node }: IMapComponentProps) {
   };
 
   return (
-    <ComponentWithLabel
+    <Label
       {...node.item}
       renderLabelAs='span'
     >
@@ -56,7 +56,7 @@ export function MapComponent({ isValid, node }: IMapComponentProps) {
           )}
         </Typography>
       </div>
-    </ComponentWithLabel>
+    </Label>
   );
 }
 

@@ -8,7 +8,7 @@ import {
   AttachmentsMappedToFormDataProvider,
   useAttachmentsMappedToFormData,
 } from 'src/features/attachments/useAttachmentsMappedToFormData';
-import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
+import { Label } from 'src/features/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
@@ -126,7 +126,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   );
 
   return (
-    <ComponentWithLabel
+    <Label
       {...node.item}
       renderLabelAs='label'
     >
@@ -176,6 +176,6 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
           {renderAddMoreAttachmentsButton()}
         </div>
       </AttachmentsMappedToFormDataProvider>
-    </ComponentWithLabel>
+    </Label>
   );
 }

@@ -8,7 +8,7 @@ import moment from 'moment';
 import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
+import { Label } from 'src/features/label/Label';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useIsMobile';
@@ -149,7 +149,7 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
     : {};
 
   return (
-    <ComponentWithLabel
+    <Label
       {...node.item}
       renderLabelAs='label'
     >
@@ -230,6 +230,6 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
           />
         </Grid>
       </MuiPickersUtilsProvider>
-    </ComponentWithLabel>
+    </Label>
   );
 }

@@ -3,7 +3,7 @@ import React from 'react';
 import { Textarea } from '@digdir/designsystemet-react';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
+import { Label } from 'src/features/label/Label';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -23,7 +23,7 @@ export function TextAreaComponent({ node, overrideDisplay, isValid }: ITextAreaP
   } = useDataModelBindings(dataModelBindings, saveWhileTyping);
 
   return (
-    <ComponentWithLabel
+    <Label
       {...node.item}
       renderLabelAs='label'
     >
@@ -45,6 +45,6 @@ export function TextAreaComponent({ node, overrideDisplay, isValid }: ITextAreaP
         autoComplete={autocomplete}
         style={{ height: '150px' }}
       />
-    </ComponentWithLabel>
+    </Label>
   );
 }

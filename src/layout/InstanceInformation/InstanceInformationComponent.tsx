@@ -8,7 +8,7 @@ import type { PropsFromGenericComponent } from '..';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
+import { Label } from 'src/features/label/Label';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useParties } from 'src/features/party/PartiesProvider';
@@ -109,11 +109,11 @@ export function InstanceInformation({ elements }: CompInstanceInformationInterna
 
 export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
   return (
-    <ComponentWithLabel
+    <Label
       {...node.item}
       renderLabelAs='legend'
     >
       <InstanceInformation {...node.item} />
-    </ComponentWithLabel>
+    </Label>
   );
 }

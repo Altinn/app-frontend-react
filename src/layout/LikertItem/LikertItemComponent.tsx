@@ -3,7 +3,7 @@ import React, { forwardRef } from 'react';
 import { Radio, Table } from '@digdir/designsystemet-react';
 import { Typography } from '@material-ui/core';
 
-import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
+import { Label } from 'src/features/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
@@ -55,7 +55,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
     >
       <Table.Cell id={rowLabelId}>
         <Typography component={'div'}>
-          <ComponentWithLabel
+          <Label
             {...node.item}
             renderLabelAs='legend'
           >
@@ -63,7 +63,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
               validations={validations}
               node={node}
             />
-          </ComponentWithLabel>
+          </Label>
         </Typography>
       </Table.Cell>
       {calculatedOptions?.map((option) => {

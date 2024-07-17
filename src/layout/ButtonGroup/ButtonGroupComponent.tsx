@@ -4,7 +4,7 @@ import { Grid } from '@material-ui/core';
 
 import type { PropsFromGenericComponent } from '..';
 
-import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
+import { Label } from 'src/features/label/Label';
 import classes from 'src/layout/ButtonGroup/ButtonGroupComponent.module.css';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -13,7 +13,7 @@ export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'Button
   const childNodes = node.item.childComponents;
 
   return (
-    <ComponentWithLabel
+    <Label
       {...node.item}
       renderLabelAs='legend'
     >
@@ -36,6 +36,6 @@ export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'Button
           </div>
         ))}
       </Grid>
-    </ComponentWithLabel>
+    </Label>
   );
 }

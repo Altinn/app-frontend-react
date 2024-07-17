@@ -6,7 +6,7 @@ import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
+import { Label } from 'src/features/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
@@ -66,7 +66,7 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
         </DeleteWarningPopover>
       )}
     >
-      <ComponentWithLabel
+      <Label
         {...node.item}
         renderLabelAs='label'
       >
@@ -104,7 +104,7 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
             </Combobox.Option>
           ))}
         </Combobox>
-      </ComponentWithLabel>
+      </Label>
     </ConditionalWrapper>
   );
 }

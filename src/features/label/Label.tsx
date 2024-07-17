@@ -1,14 +1,14 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { Fieldset, Label } from '@digdir/designsystemet-react';
+import { Fieldset, Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
 
-import classes from 'src/features/label/ComponentWithLabel/ComponentWithLabel.module.css';
-import { LabelContent } from 'src/features/label/LabelContent/LabelContent';
-import type { LabelContentProps } from 'src/features/label/LabelContent/LabelContent';
+import classes from 'src/features/label/Label.module.css';
+import { LabelContent } from 'src/features/label/LabelContent';
+import type { LabelContentProps } from 'src/features/label/LabelContent';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
-type ComponentWithLabelProps = PropsWithChildren<{
+type LabelProps = PropsWithChildren<{
   id: string;
   renderLabelAs: 'legend' | 'span' | 'label';
   required?: boolean;
@@ -21,7 +21,7 @@ type ComponentWithLabelProps = PropsWithChildren<{
   };
 }>;
 
-export function ComponentWithLabel({
+export function Label({
   id,
   renderLabelAs,
   children,
@@ -29,7 +29,7 @@ export function ComponentWithLabel({
   required,
   readOnly,
   labelSettings,
-}: ComponentWithLabelProps) {
+}: LabelProps) {
   if (!textResourceBindings?.title) {
     return <>{children}</>;
   }
@@ -64,12 +64,12 @@ export function ComponentWithLabel({
     case 'label':
       return (
         <div className={classes.fieldWrapper}>
-          <Label
+          <DesignsystemetLabel
             id={labelId}
             htmlFor={id}
           >
             <LabelContent {...labelContentProps} />
-          </Label>
+          </DesignsystemetLabel>
           {children}
         </div>
       );
@@ -80,12 +80,12 @@ export function ComponentWithLabel({
         <div className={classes.fieldWrapper}>
           {/* we want this "label" to be rendered as a <span> and not a <label>,
            because it does not belong to an input element */}
-          <Label asChild>
+          <DesignsystemetLabel asChild>
             <LabelContent
               id={labelId}
               {...labelContentProps}
             />
-          </Label>
+          </DesignsystemetLabel>
           {children}
         </div>
       );
