@@ -1,6 +1,7 @@
 import deepEqual from 'fast-deep-equal';
 
 import { getComponentDef } from 'src/layout';
+import { NodesReadiness } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -91,7 +92,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           newRows.splice(existingRowIndex, 1);
           nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
 
-          return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
+          return { nodeData, readiness: NodesReadiness.NotReady, addRemoveCounter: state.addRemoveCounter + 1 };
         });
       },
     };

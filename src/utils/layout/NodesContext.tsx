@@ -114,8 +114,14 @@ export interface SetPagePropRequest<K extends keyof PageData> {
   value: PageData[K];
 }
 
+export enum NodesReadiness {
+  Ready = 'READY',
+  NotReady = 'NOT READY',
+  WaitingUntilLastSaveHasProcessed = 'WAIT FOR SAVE',
+}
+
 export type NodesContext = {
-  ready: boolean;
+  readiness: NodesReadiness;
 
   // Counter to prevent re-rendering of NodeTraversal when expressions/options/validations change
   addRemoveCounter: number;
@@ -134,7 +140,7 @@ export type NodesContext = {
 
   addPage: (pageKey: string) => void;
   setPageProps: (requests: SetPagePropRequest<any>[]) => void;
-  markReady: (ready?: boolean) => void;
+  markReady: (readiness?: NodesReadiness) => void;
 
   reset: () => void;
 } & ExtraFunctions;
@@ -150,7 +156,7 @@ export function nodesProduce(fn: (draft: NodesContext) => void) {
 export type NodesContextStore = StoreApi<NodesContext>;
 export function createNodesDataStore() {
   const defaultState = {
-    ready: false,
+    readiness: NodesReadiness.NotReady,
     addRemoveCounter: 0,
     hasErrors: false,
     nodes: undefined,
@@ -198,7 +204,7 @@ export function createNodesDataStore() {
 
           node.page._addChild(node);
         }
-        return { nodeData, ready: false, addRemoveCounter: state.addRemoveCounter + 1 };
+        return { nodeData, readiness: NodesReadiness.NotReady, addRemoveCounter: state.addRemoveCounter + 1 };
       }),
     setNodeProps: (requests) =>
       set((state) => {
@@ -238,7 +244,7 @@ export function createNodesDataStore() {
 
           // We need to mark the data as not ready as soon as an error is added, because GeneratorErrorBoundary
           // may need to remove the failing node from the tree before any more node traversal can happen safely.
-          state.ready = false;
+          state.readiness = NodesReadiness.NotReady;
 
           state.hasErrors = true;
         }),
@@ -260,7 +266,7 @@ export function createNodesDataStore() {
             },
             errors: undefined,
           };
-          state.ready = false;
+          state.readiness = NodesReadiness.NotReady;
           state.addRemoveCounter += 1;
         }),
       ),
@@ -277,7 +283,7 @@ export function createNodesDataStore() {
         }
         return { pagesData: { type: 'pages', pages: pageData } };
       }),
-    markReady: (ready = true) => set(() => ({ ready })),
+    markReady: (readiness = NodesReadiness.Ready) => set(() => ({ readiness })),
 
     reset: () => set(() => ({ ...structuredClone(defaultState) })),
 
@@ -324,7 +330,7 @@ function whenReadySelector<T>(
   selector: (state: NodesContext) => T,
   prevValue: MutableRefObject<T | typeof NeverInitialized>,
 ) {
-  if (state.ready || prevValue.current === NeverInitialized) {
+  if (state.readiness === NodesReadiness.Ready || prevValue.current === NeverInitialized) {
     const value = selector(state);
     prevValue.current = value;
     return value;
@@ -377,27 +383,13 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => {
 
   return (
     <Store.Provider>
-      <ResetStore counter={counter.current}>
-        <GeneratorStagesProvider>
-          <GeneratorValidationProvider>
-            <LayoutSetGenerator />
-          </GeneratorValidationProvider>
-          <MarkAsReady />
-        </GeneratorStagesProvider>
-        {window.Cypress && <UpdateAttachmentsForCypress />}
-        <BlockUntilLoaded>
-          <HiddenComponentsProvider />
-          <ProvideWaitForValidation />
-          <UpdateExpressionValidation />
-          <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
-        </BlockUntilLoaded>
-        <IndicateReadyState />
-      </ResetStore>
+      <ResettableStore counter={counter.current}>{children}</ResettableStore>
     </Store.Provider>
   );
 };
 
-function ResetStore({ counter, children }: PropsWithChildren<{ counter: number }>) {
+function ResettableStore({ counter, children }: PropsWithChildren<{ counter: number }>) {
+  const markReady = Store.useSelector((s) => s.markReady);
   const reset = Store.useSelector((s) => s.reset);
   const [lastSeenCounter, setLastSeenCounter] = useState(0);
 
@@ -412,21 +404,38 @@ function ResetStore({ counter, children }: PropsWithChildren<{ counter: number }
     return <NodesLoader />;
   }
 
-  return <Fragment key={counter}>{children}</Fragment>;
+  return (
+    <Fragment key={counter}>
+      <GeneratorStagesProvider markReady={markReady}>
+        <GeneratorValidationProvider>
+          <LayoutSetGenerator />
+        </GeneratorValidationProvider>
+        <MarkAsReady />
+      </GeneratorStagesProvider>
+      {window.Cypress && <UpdateAttachmentsForCypress />}
+      <BlockUntilLoaded>
+        <HiddenComponentsProvider />
+        <ProvideWaitForValidation />
+        <UpdateExpressionValidation />
+        <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
+      </BlockUntilLoaded>
+      <IndicateReadiness />
+    </Fragment>
+  );
 }
 
-function IndicateReadyState() {
-  const isReady = Store.useSelector((s) => s.ready);
-  document.body.setAttribute('data-nodes-ready', isReady.toString());
+function IndicateReadiness() {
+  const readiness = Store.useSelector((s) => s.readiness);
+  document.body.setAttribute('data-nodes-ready', (readiness === NodesReadiness.Ready).toString());
 
   useEffect(() => {
-    document.body.setAttribute('data-nodes-ready', isReady.toString());
+    document.body.setAttribute('data-nodes-ready', (readiness === NodesReadiness.Ready).toString());
     return () => {
       document.body.removeAttribute('data-nodes-ready');
     };
-  }, [isReady]);
+  }, [readiness]);
 
-  if (!GeneratorDebug.displayReadyState) {
+  if (!GeneratorDebug.displayReadiness) {
     return null;
   }
 
@@ -439,23 +448,21 @@ function IndicateReadyState() {
         bottom: 0,
         width: 'fit-content',
         padding: 5,
-        backgroundColor: isReady ? 'lightgreen' : 'lightsalmon',
+        backgroundColor: readiness === NodesReadiness.Ready ? 'lightgreen' : 'lightsalmon',
         fontWeight: 'bold',
         color: 'black',
       }}
     >
-      {isReady ? 'READY' : 'NOT READY'}
+      {readiness}
     </div>
   );
 }
 
 function MarkAsReady() {
-  const savingJustFinishedRef = useRef(false);
-
   return (
     <>
-      <InnerMarkAsReady savingJustFinishedRef={savingJustFinishedRef} />
-      <RegisterOnSaveFinished savingJustFinishedRef={savingJustFinishedRef} />
+      <InnerMarkAsReady />
+      <RegisterOnSaveFinished />
     </>
   );
 }
@@ -468,11 +475,12 @@ function MarkAsReady() {
  * This causes the node traversal selectors to re-run only when all nodes in a new repeating group row (and similar)
  * have been added.
  */
-function InnerMarkAsReady({ savingJustFinishedRef }: { savingJustFinishedRef: MutableRefObject<boolean> }) {
+function InnerMarkAsReady() {
   const markReady = Store.useSelector((s) => s.markReady);
-  const isReady = Store.useSelector((s) => s.ready);
+  const readiness = Store.useSelector((s) => s.readiness);
   const hasNodes = Store.useSelector((state) => !!state.nodes);
   const stagesFinished = GeneratorStages.useIsFinished();
+  const hasUnsavedChanges = FD.useHasUnsavedChanges();
 
   // Even though the getAwaitingCommits() function works on refs in the GeneratorStages context, the effects of such
   // commits always changes the NodesContext. Thus our useSelector() re-runs and re-renders this components when
@@ -480,52 +488,52 @@ function InnerMarkAsReady({ savingJustFinishedRef }: { savingJustFinishedRef: Mu
   const getAwaitingCommits = useGetAwaitingCommits();
   const waitingForCommits = Store.useSelector(() => getAwaitingCommits() > 0);
 
-  const maybeReady = hasNodes && !isReady && stagesFinished;
-  const shouldMarkAsReady = maybeReady && !waitingForCommits && !savingJustFinishedRef.current;
+  const savingOk = readiness === NodesReadiness.WaitingUntilLastSaveHasProcessed ? !hasUnsavedChanges : true;
+  const maybeReady = hasNodes && stagesFinished && savingOk;
+  const shouldMarkAsReady = maybeReady && !waitingForCommits;
   const fallbackToInterval = maybeReady && !shouldMarkAsReady;
 
-  savingJustFinishedRef.current = false;
   useEffect(() => {
     if (shouldMarkAsReady) {
-      generatorLog('logReadyState', 'Marking state as ready');
+      generatorLog('logReadiness', 'Marking state as ready');
       markReady();
     }
   }, [shouldMarkAsReady, markReady]);
 
-  const store = Store.useStore();
   useEffect(() => {
     if (fallbackToInterval) {
       // Commits can happen where state is not really changed, and in those cases our useSelector() won't run, and we
       // won't notice that we could mark the state as ready again. For these cases we run intervals while the state
       // isn't ready.
-      const interval = setInterval(() => {
+      const runDuringInterval = () => {
         const awaiting = getAwaitingCommits();
-        if (awaiting === 0 && !savingJustFinishedRef.current) {
-          generatorLog('logReadyState', 'Marking state as ready via interval fallback');
-          store.getState().markReady();
+        if (awaiting === 0) {
+          generatorLog('logReadiness', 'Marking state as ready via interval fallback');
+          markReady();
           clearInterval(interval);
         }
-      }, NODES_TICK_TIMEOUT);
+      };
+      const interval = setInterval(runDuringInterval, NODES_TICK_TIMEOUT);
+      runDuringInterval();
       return () => clearInterval(interval);
     }
 
     return () => undefined;
-  }, [fallbackToInterval, getAwaitingCommits, savingJustFinishedRef, store]);
+  }, [fallbackToInterval, getAwaitingCommits, markReady]);
 
   return null;
 }
 
-function RegisterOnSaveFinished({ savingJustFinishedRef }: { savingJustFinishedRef: MutableRefObject<boolean> }) {
+function RegisterOnSaveFinished() {
   const setOnSaveFinished = FD.useSetOnSaveFinished();
   const markReady = Store.useSelector((s) => s.markReady);
 
   useEffect(() => {
     setOnSaveFinished(() => {
-      generatorLog('logReadyState', 'Marking state as not ready because of recent form data save');
-      savingJustFinishedRef.current = true;
-      markReady(false);
+      generatorLog('logReadiness', 'Marking state as not ready because of recent form data save');
+      markReady(NodesReadiness.WaitingUntilLastSaveHasProcessed);
     });
-  }, [setOnSaveFinished, markReady, savingJustFinishedRef]);
+  }, [setOnSaveFinished, markReady]);
 
   return null;
 }
@@ -533,7 +541,7 @@ function RegisterOnSaveFinished({ savingJustFinishedRef }: { savingJustFinishedR
 function BlockUntilLoaded({ children }: PropsWithChildren) {
   const hasBeenReady = useRef(false);
   const ready = Store.useSelector((state) => {
-    if (state.nodes && state.ready) {
+    if (state.nodes && state.readiness === NodesReadiness.Ready) {
       hasBeenReady.current = true;
       return true;
     }
@@ -792,7 +800,7 @@ export const NodesInternal = {
       store: Store.useLaxStore(),
       strictness: SelectorStrictness.returnWhenNotProvided,
       onlyReRenderWhen: ((state, lastValue, setNewValue) => {
-        if (!state.ready) {
+        if (state.readiness !== NodesReadiness.Ready) {
           return false;
         }
         if (lastValue !== state.addRemoveCounter) {
@@ -808,7 +816,7 @@ export const NodesInternal = {
     });
   },
   useIsReady() {
-    const isReady = Store.useLaxSelector((s) => s.ready);
+    const isReady = Store.useLaxSelector((s) => s.readiness === NodesReadiness.Ready);
     if (isReady === ContextNotProvided) {
       return true;
     }
@@ -818,7 +826,7 @@ export const NodesInternal = {
     const store = Store.useLaxStore();
     const waitForState = useWaitForState<undefined, NodesContext | typeof ContextNotProvided>(store);
     return useCallback(
-      () => waitForState((state) => (state === ContextNotProvided ? true : state.ready)),
+      () => waitForState((state) => (state === ContextNotProvided ? true : state.readiness === NodesReadiness.Ready)),
       [waitForState],
     );
   },
@@ -866,7 +874,7 @@ export const NodesInternal = {
     return useCallback(
       (callback) =>
         waitForState((state, setReturnValue) => {
-          if (!state.ready) {
+          if (state.readiness !== NodesReadiness.Ready) {
             return false;
           }
 

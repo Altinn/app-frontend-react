@@ -7,7 +7,7 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { NodesInternal, NodesReadiness } from 'src/utils/layout/NodesContext';
 import type { AddNodeRequest, SetNodePropRequest, SetPagePropRequest } from 'src/utils/layout/NodesContext';
 import type { SetRowExtrasRequest } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 
@@ -75,6 +75,7 @@ type Registry = {
 
 interface CreateStoreProps {
   registry: MutableRefObject<Registry>;
+  markReady: (ready?: NodesReadiness) => void;
 }
 
 function performanceMark(action: 'start' | 'end', runNum: number, stage?: Stage) {
@@ -103,7 +104,7 @@ function formatDuration(runNum: number, stage?: Stage) {
 const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider } = createZustandContext({
   name: 'GeneratorStages',
   required: true,
-  initialCreateStore: ({ registry }: CreateStoreProps) => {
+  initialCreateStore: ({ registry, markReady }: CreateStoreProps) => {
     generatorLog('logStages', `Initial node generation started`);
     performanceMark('start', 1, List[0]);
     performanceMark('start', 1);
@@ -177,6 +178,8 @@ const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider
               registry.current.stages[stage].finished = false;
             }
 
+            generatorLog('logReadiness', 'Marking state as not ready when starting new run');
+            markReady(NodesReadiness.NotReady);
             return { currentStage: List[0], runNum };
           }
 
@@ -228,6 +231,10 @@ export function useGetAwaitingCommits() {
   );
 }
 
+interface StagesProps {
+  markReady: (ready?: NodesReadiness) => void;
+}
+
 /**
  * Generator stages provide useEffect() hooks that are called at different stages of the node generation process. This
  * is useful for separating logic into different stages that rely on earlier stages being completed before the
@@ -236,7 +243,7 @@ export function useGetAwaitingCommits() {
  *
  * Wrapping hooks this way ensures that the order of execution of the hooks is guaranteed.
  */
-export function GeneratorStagesProvider({ children }: PropsWithChildren) {
+export function GeneratorStagesProvider({ children, markReady }: PropsWithChildren<StagesProps>) {
   const registry = React.useRef<Registry>({
     restartAfter: false,
     stages: Object.fromEntries(
@@ -261,7 +268,10 @@ export function GeneratorStagesProvider({ children }: PropsWithChildren) {
   );
 
   return (
-    <Provider registry={registry}>
+    <Provider
+      registry={registry}
+      markReady={markReady}
+    >
       <SetTickFunc />
       {GeneratorDebug.logStages && <LogSlowStages />}
       <WhenTickIsSet>
