@@ -21,7 +21,7 @@ describe('PDF', () => {
 
     cy.findByRole('textbox', { name: /nytt fornavn/i }).type('Ola');
     cy.findByRole('textbox', { name: /nytt mellomnavn/i }).type('"Big G"');
-    cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
+    cy.findByRole('textbox', { name: /nytt etternavn/i }).click();
     cy.findByRole('textbox', { name: /nytt etternavn/i }).type('Nordmann');
     cy.findByRole('checkbox', { name: /ja, jeg bekrefter/i }).check();
     cy.findByRole('radio', { name: /adoptivforelders/i }).check();

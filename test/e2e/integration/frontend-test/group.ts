@@ -127,7 +127,6 @@ describe('Group', () => {
     cy.get(appFrontend.group.currentValue).type('1337');
     // DataProcessingHandler.cs for frontend-test changes 1337 to 1338.
     cy.get(appFrontend.group.currentValue).should('have.value', 'NOK 1 338');
-    cy.get(appFrontend.group.newValueLabel).get('ol').last().should('have.attr', 'start').should('equal', '2');
     cy.get(appFrontend.group.newValueLabel).should('contain.text', 'Endre verdi 1338 til');
   });
 

@@ -307,13 +307,13 @@ describe('UI Components', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('Per');
     cy.get(appFrontend.changeOfName.newFirstName).blur();
-    cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
+    cy.findByRole('textbox', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
     cy.get(appFrontend.changeOfName.newLastName).blur();
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
 
-    cy.findByRole('tab', { name: /Nytt mellomnavn/i }).click();
+    cy.findByRole('textbox', { name: /nytt mellomnavn/i }).click();
     cy.get(appFrontend.changeOfName.newMiddleName).type('checkbox_readOnly');
     cy.get(appFrontend.changeOfName.newMiddleName).blur();
 
@@ -348,7 +348,8 @@ describe('UI Components', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('Per');
     cy.get(appFrontend.changeOfName.newFirstName).blur();
-    cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
+    cy.findByRole('textbox', { name: /nytt etternavn/i }).click();
+
     cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
     cy.get(appFrontend.changeOfName.newLastName).blur();
 
@@ -504,12 +505,12 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.newFirstName).type('Per');
     cy.get(appFrontend.changeOfName.newFirstName).blur();
 
-    cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
+    cy.findByRole('textbox', { name: /nytt etternavn/i }).click();
 
     cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
     cy.get(appFrontend.changeOfName.newLastName).blur();
 
-    cy.findByRole('tab', { name: /Nytt mellomnavn/i }).click();
+    cy.findByRole('textbox', { name: /nytt mellomnavn/i }).click();
 
     cy.get(appFrontend.changeOfName.newMiddleName).type('Larsen');
     cy.get(appFrontend.changeOfName.newMiddleName).blur();
@@ -528,7 +529,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.newFirstName).type('Per');
     cy.get(appFrontend.changeOfName.newFirstName).blur();
 
-    cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
+    cy.findByRole('textbox', { name: /nytt etternavn/i }).click();
 
     cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
     cy.get(appFrontend.changeOfName.newLastName).blur();
@@ -589,7 +590,7 @@ describe('UI Components', () => {
     cy.reloadAndWait();
 
     cy.get(appFrontend.changeOfName.newFirstName).should('have.value', 'a');
-    cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
+    cy.findByRole('textbox', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.changeOfName.newLastName).should('have.value', 'a');
     cy.get(appFrontend.changeOfName.confirmChangeName).find('input').should('be.checked');
     cy.get(appFrontend.changeOfName.reasonRelationship).should('have.value', 'test');

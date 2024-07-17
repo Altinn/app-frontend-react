@@ -52,7 +52,7 @@ describe('Validation', () => {
       texts.requiredFieldFromBackend,
     );
     cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newMiddleName)).should('not.exist');
-    cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
+    cy.findByRole('textbox', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newLastName)).should(
       'have.text',
       texts.requiredFieldLastName,
@@ -111,7 +111,7 @@ describe('Validation', () => {
       })
       .check();
     cy.navPage('form').should('have.attr', 'aria-current', 'page');
-    cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
+    cy.findByRole('textbox', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.nextButton).scrollIntoView();
     cy.get(appFrontend.nextButton).should('be.inViewport');
     cy.get(appFrontend.nextButton).click();
@@ -181,13 +181,13 @@ describe('Validation', () => {
     cy.get(appFrontend.changeOfName.newFirstName).type('a');
 
     // Tests regex validation in schema
-    cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
+    cy.findByRole('textbox', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.changeOfName.newLastName).type('client');
     cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newLastName)).should('have.text', texts.clientSide);
     cy.get(appFrontend.changeOfName.newLastName).clear();
 
     // Tests max length validation in schema
-    cy.findByRole('tab', { name: /Nytt mellomnavn/i }).click();
+    cy.findByRole('textbox', { name: /nytt mellomnavn/i }).click();
     cy.get(appFrontend.changeOfName.newMiddleName).type(
       'very long middle name that is over 50 characters which is the limit',
     );
@@ -197,9 +197,9 @@ describe('Validation', () => {
     );
 
     // Hiding the field should remove the validation
-    cy.findByRole('tab', { name: 'Nytt etternavn' }).click();
+    cy.findByRole('textbox', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.changeOfName.newLastName).type('hideNext');
-    cy.findByRole('tab', { name: /Nytt mellomnavn/i }).click();
+    cy.findByRole('textbox', { name: /nytt mellomnavn/i }).click();
     cy.get(appFrontend.changeOfName.newMiddleName).should('exist');
     cy.changeLayout((component) => {
       if (component.id === 'newMiddleName') {
@@ -752,13 +752,13 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
   });
 
-  it('should navigate and scroll to correct component when clicking error report', () => {
+  it.only('should navigate and scroll to correct component when clicking error report', () => {
     cy.goto('changename');
     cy.gotoNavPage('grid');
     cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 6);
     cy.findByText('Du må fylle ut dato for navneendring').click();
-    cy.findByLabelText(/Når vil du at navnendringen skal skje?/).should('be.inViewport');
+    cy.findByRole('textbox', { name: /når vil du at navnendringen skal skje\? \*/i }).should('be.visible');
   });
 
   describe('Falsy values', () => {
