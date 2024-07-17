@@ -106,16 +106,16 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       }
     }
 
-    navigateToPage(next, { skipAutoSave: true });
+    await navigateToPage(next, { skipAutoSave: true });
   };
 
-  const onClickBackToSummary = () => {
+  const onClickBackToSummary = async () => {
     if (!returnToView) {
       return;
     }
 
     maybeSaveOnPageChange();
-    navigateToPage(returnToView, { skipAutoSave: true });
+    await navigateToPage(returnToView, { skipAutoSave: true });
   };
 
   /**

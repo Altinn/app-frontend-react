@@ -264,13 +264,13 @@ export const useNavigatePage = () => {
    * invocation and then navigates to the next page. This is
    * to be able to chain multiple ClientActions together.
    */
-  const navigateToNextPage = useCallback(() => {
+  const navigateToNextPage = useCallback(async () => {
     const nextPage = getNextPage();
     if (!nextPage) {
       window.logWarn('Tried to navigate to next page when standing on the last page.');
       return;
     }
-    navigateToPage(nextPage);
+    await navigateToPage(nextPage);
   }, [getNextPage, navigateToPage]);
 
   /**
@@ -279,14 +279,14 @@ export const useNavigatePage = () => {
    * page. This is to be able to chain multiple ClientActions
    * together.
    */
-  const navigateToPreviousPage = useCallback(() => {
+  const navigateToPreviousPage = useCallback(async () => {
     const previousPage = getPreviousPage();
 
     if (!previousPage) {
       window.logWarn('Tried to navigate to previous page when standing on the first page.');
       return;
     }
-    navigateToPage(previousPage);
+    await navigateToPage(previousPage);
   }, [getPreviousPage, navigateToPage]);
 
   return {

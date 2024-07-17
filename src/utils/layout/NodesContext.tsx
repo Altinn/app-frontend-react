@@ -473,7 +473,6 @@ function InnerMarkAsReady({ savingJustFinishedRef }: { savingJustFinishedRef: Mu
   const isReady = Store.useSelector((s) => s.ready);
   const hasNodes = Store.useSelector((state) => !!state.nodes);
   const stagesFinished = GeneratorStages.useIsFinished();
-  const hasUnsavedChangesRef = FD.useHasUnsavedChangesRef();
 
   // Even though the getAwaitingCommits() function works on refs in the GeneratorStages context, the effects of such
   // commits always changes the NodesContext. Thus our useSelector() re-runs and re-renders this components when
@@ -501,7 +500,7 @@ function InnerMarkAsReady({ savingJustFinishedRef }: { savingJustFinishedRef: Mu
       // isn't ready.
       const interval = setInterval(() => {
         const awaiting = getAwaitingCommits();
-        if (awaiting === 0 && !hasUnsavedChangesRef.current) {
+        if (awaiting === 0 && !savingJustFinishedRef.current) {
           generatorLog('logReadyState', 'Marking state as ready via interval fallback');
           store.getState().markReady();
           clearInterval(interval);
@@ -511,7 +510,7 @@ function InnerMarkAsReady({ savingJustFinishedRef }: { savingJustFinishedRef: Mu
     }
 
     return () => undefined;
-  }, [fallbackToInterval, getAwaitingCommits, hasUnsavedChangesRef, store]);
+  }, [fallbackToInterval, getAwaitingCommits, savingJustFinishedRef, store]);
 
   return null;
 }
