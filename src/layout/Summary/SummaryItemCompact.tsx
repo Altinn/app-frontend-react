@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Summary/SummaryItemCompact.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -16,18 +17,11 @@ export function SummaryItemCompact({ targetNode, displayData }: ICompactSummaryI
   const summaryTitleTrb =
     textBindings && 'summaryTitle' in textBindings ? (textBindings.summaryTitle as string) : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
+  const { langAsString } = useLanguage(targetNode);
 
   return (
     <div data-testid={'summary-item-compact'}>
-      {(summaryTitleTrb ?? titleTrb) && (
-        <span>
-          <Lang
-            id={summaryTitleTrb ?? titleTrb}
-            node={targetNode}
-          />
-          {' : '}
-        </span>
-      )}
+      {(summaryTitleTrb ?? titleTrb) && <span>{`${langAsString(summaryTitleTrb ?? titleTrb).trim()} : `}</span>}
       {displayData ? (
         <span className={classes.data}>{displayData}</span>
       ) : (

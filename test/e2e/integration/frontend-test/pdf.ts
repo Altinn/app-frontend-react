@@ -121,13 +121,13 @@ describe('PDF', () => {
       cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
 
       cy.getSummary('Group summary title').should('contain.text', 'Endre fra : NOK 1');
-      cy.getSummary('Group summary title').should('contain.text', 'Endre verdi 1 til  : NOK 5');
+      cy.getSummary('Group summary title').should('contain.text', 'Endre verdi 1 til : NOK 5');
 
       cy.getSummary('Group summary title').should('contain.text', 'Endre fra : NOK 120');
-      cy.getSummary('Group summary title').should('contain.text', 'Endre verdi 120 til  : NOK 350');
+      cy.getSummary('Group summary title').should('contain.text', 'Endre verdi 120 til : NOK 350');
 
       cy.getSummary('Group summary title').should('contain.text', 'Endre fra : NOK 1 233');
-      cy.getSummary('Group summary title').should('contain.text', 'Endre verdi 1233 til  : NOK 3 488');
+      cy.getSummary('Group summary title').should('contain.text', 'Endre verdi 1233 til : NOK 3 488');
     });
   });
 
