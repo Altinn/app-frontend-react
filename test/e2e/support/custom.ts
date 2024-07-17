@@ -48,16 +48,20 @@ Cypress.Commands.add('waitUntilNodesReady', () => {
   cy.get('body').should('not.have.attr', 'data-commits-pending', 'true');
 });
 
-Cypress.Commands.add('dsSelect', (selector, value) => {
-  cy.log(`Selecting ${value} in ${selector}`);
-  // In case the option is dynamic, wait for save and progressbars to go away, otherwise the component could rerender after opening, causing it to close again
+Cypress.Commands.add('dsReady', (selector) => {
+  // In case the option is dynamic, wait for save and progress bars to go away, otherwise the component could
+  // rerender after opening, causing it to close again
   cy.findByRole('progressbar').should('not.exist');
 
   cy.get(selector).should('not.be.disabled');
-  cy.get(selector).click();
-
   cy.waitUntilSaved();
   cy.waitUntilNodesReady();
+});
+
+Cypress.Commands.add('dsSelect', (selector, value) => {
+  cy.log(`Selecting ${value} in ${selector}`);
+  cy.dsReady(selector);
+  cy.get(selector).click();
 
   // It is tempting to just use findByRole('option', { name: value }) here, but that's flakier than using findByText()
   // as it never retries if the element re-renders. More information here:

@@ -161,6 +161,11 @@ declare global {
       dsUncheck(): Chainable<null>;
 
       /**
+       * Waits until a design system element (Combobox, etc) is ready to be clicked.
+       */
+      dsReady(selector: string): Chainable<null>;
+
+      /**
        * Select from a dropdown in the design system
        */
       dsSelect(selector: string, value: string): Chainable<null>;

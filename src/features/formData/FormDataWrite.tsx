@@ -215,7 +215,13 @@ function FormDataEffects() {
   // Marking the document as having unsaved changes. The data attribute is used in tests, while the beforeunload
   // event is used to warn the user when they try to navigate away from the page with unsaved changes.
   useEffect(() => {
-    document.body.setAttribute('data-unsaved-changes', hasUnsavedChanges.toString());
+    if (hasUnsavedChanges) {
+      document.body.setAttribute('data-unsaved-changes', 'true');
+    } else {
+      setTimeout(() => {
+        document.body.setAttribute('data-unsaved-changes', 'false');
+      }, 10);
+    }
     window.onbeforeunload = hasUnsavedChanges ? () => true : null;
 
     return () => {
