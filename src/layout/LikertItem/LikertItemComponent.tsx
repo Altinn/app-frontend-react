@@ -3,11 +3,11 @@ import React, { forwardRef } from 'react';
 import { Radio, Table } from '@digdir/designsystemet-react';
 import { Typography } from '@material-ui/core';
 
+import { ComponentWithLabel } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { LayoutStyle } from 'src/layout/common.generated';
-import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
 import classes from 'src/layout/LikertItem/LikertItemComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
@@ -55,11 +55,15 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
     >
       <Table.Cell id={rowLabelId}>
         <Typography component={'div'}>
-          <GenericComponentLegend />
-          <ComponentValidations
-            validations={validations}
-            node={node}
-          />
+          <ComponentWithLabel
+            {...node.item}
+            renderLabelAs='legend'
+          >
+            <ComponentValidations
+              validations={validations}
+              node={node}
+            />
+          </ComponentWithLabel>
         </Typography>
       </Table.Cell>
       {calculatedOptions?.map((option) => {
