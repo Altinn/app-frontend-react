@@ -4,8 +4,8 @@ import type { JSX, PropsWithChildren } from 'react';
 import { ErrorMessage, Paragraph, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
-import { Label } from 'src/components/form/Label';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
+import { LabelContent } from 'src/features/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
@@ -402,14 +402,11 @@ function CellWithLabel({
       data-header-title={isSmall ? headerTitle : ''}
     >
       {componentId && (
-        <span className={classes.textLabel}>
-          <Label
-            key={`label-${componentId}`}
-            label={<Lang id={title} />}
-            id={componentId}
-            required={required}
-          />
-        </span>
+        <LabelContent
+          id={`label-${componentId}`}
+          label={title}
+          required={required}
+        />
       )}
     </CellComponent>
   );
