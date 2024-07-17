@@ -17,7 +17,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
 
 export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownProps) {
-  const { id, readOnly, required, textResourceBindings, alertOnChange, labelSettings } = node.item;
+  const { id, readOnly, textResourceBindings, alertOnChange } = node.item;
   const { langAsString, lang } = useLanguage(node);
 
   const debounce = FD.useDebounceImmediately();
@@ -55,14 +55,8 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
   const withLabel = (Component) =>
     overrideDisplay?.renderedInTable !== true ? (
       <ComponentWithLabel
-        id={id}
+        {...node.item}
         renderLabelAs='label'
-        label={textResourceBindings?.title}
-        helpText={textResourceBindings?.help}
-        description={textResourceBindings?.description}
-        readOnly={readOnly}
-        required={required}
-        labelSettings={labelSettings}
       >
         {Component}
       </ComponentWithLabel>

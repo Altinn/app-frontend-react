@@ -14,7 +14,6 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useParties } from 'src/features/party/PartiesProvider';
 import { getDateFormat } from 'src/utils/dateHelpers';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
-import type { ComponentWithLabelProps } from 'src/features/label/ComponentWithLabel/ComponentWithLabel';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CompInstanceInformationInternal } from 'src/layout/InstanceInformation/config.generated';
 import type { IInstance, IParty } from 'src/types/shared';
@@ -109,17 +108,11 @@ export function InstanceInformation({ elements }: CompInstanceInformationInterna
 }
 
 export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
-  const labelProps = {
-    id: node.item.id,
-    label: node.item.textResourceBindings?.title,
-    description: node.item.textResourceBindings?.description,
-    helpText: node.item.textResourceBindings?.help,
-    labelSettings: node.item.labelSettings,
-    renderLabelAs: 'legend',
-  } satisfies ComponentWithLabelProps;
-
   return (
-    <ComponentWithLabel {...labelProps}>
+    <ComponentWithLabel
+      {...node.item}
+      renderLabelAs='legend'
+    >
       <InstanceInformation {...node.item} />
     </ComponentWithLabel>
   );

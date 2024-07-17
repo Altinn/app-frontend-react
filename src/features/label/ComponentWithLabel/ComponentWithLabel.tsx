@@ -6,20 +6,43 @@ import { Fieldset, Label } from '@digdir/designsystemet-react';
 import classes from 'src/features/label/ComponentWithLabel/ComponentWithLabel.module.css';
 import { LabelContent } from 'src/features/label/LabelContent/LabelContent';
 import type { LabelContentProps } from 'src/features/label/LabelContent/LabelContent';
+import type { ILabelSettings } from 'src/layout/common.generated';
 
-export type ComponentWithLabelProps = PropsWithChildren<
-  LabelContentProps & {
-    id: string;
-    renderLabelAs: 'legend' | 'span' | 'label';
-  }
->;
+type ComponentWithLabelProps = PropsWithChildren<{
+  id: string;
+  renderLabelAs: 'legend' | 'span' | 'label';
+  required?: boolean;
+  readOnly?: boolean;
+  labelSettings?: ILabelSettings;
+  textResourceBindings?: {
+    title?: string;
+    description?: string;
+    helpText?: string;
+  };
+}>;
 
-export function ComponentWithLabel({ id, renderLabelAs, children, ...labelProps }: ComponentWithLabelProps) {
-  if (!labelProps.label) {
+export function ComponentWithLabel({
+  id,
+  renderLabelAs,
+  children,
+  textResourceBindings,
+  required,
+  readOnly,
+  labelSettings,
+}: ComponentWithLabelProps) {
+  if (!textResourceBindings?.title) {
     return <>{children}</>;
   }
 
   const labelId = `label-${id}`;
+  const labelContentProps: Omit<LabelContentProps, 'id'> = {
+    label: textResourceBindings.title,
+    description: textResourceBindings.description,
+    helpText: textResourceBindings.helpText,
+    required,
+    readOnly,
+    labelSettings,
+  };
 
   switch (renderLabelAs) {
     case 'legend': {
@@ -30,7 +53,7 @@ export function ComponentWithLabel({ id, renderLabelAs, children, ...labelProps 
           legend={
             <LabelContent
               id={labelId}
-              {...labelProps}
+              {...labelContentProps}
             />
           }
         >
@@ -45,7 +68,7 @@ export function ComponentWithLabel({ id, renderLabelAs, children, ...labelProps 
             id={labelId}
             htmlFor={id}
           >
-            <LabelContent {...labelProps} />
+            <LabelContent {...labelContentProps} />
           </Label>
           {children}
         </div>
@@ -60,7 +83,7 @@ export function ComponentWithLabel({ id, renderLabelAs, children, ...labelProps 
           <Label asChild>
             <LabelContent
               id={labelId}
-              {...labelProps}
+              {...labelContentProps}
             />
           </Label>
           {children}

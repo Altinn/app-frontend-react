@@ -118,7 +118,6 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
     id,
     textResourceBindings,
     dataModelBindings,
-    labelSettings,
   } = node.item;
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
@@ -151,14 +150,8 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
 
   return (
     <ComponentWithLabel
-      id={id}
+      {...node.item}
       renderLabelAs='label'
-      label={textResourceBindings?.title}
-      description={textResourceBindings?.description}
-      helpText={textResourceBindings?.help}
-      readOnly={readOnly}
-      required={required}
-      labelSettings={labelSettings}
     >
       <MuiPickersUtilsProvider utils={AltinnMomentUtils}>
         <Grid

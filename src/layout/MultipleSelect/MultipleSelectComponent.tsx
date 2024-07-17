@@ -16,7 +16,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
 export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMultipleSelectProps) {
-  const { id, readOnly, required, textResourceBindings, alertOnChange, labelSettings } = node.item;
+  const { id, readOnly, textResourceBindings, alertOnChange } = node.item;
   const debounce = FD.useDebounceImmediately();
   const { options, isFetching, selectedValues, setData } = useGetOptions({
     ...node.item,
@@ -67,14 +67,8 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
       )}
     >
       <ComponentWithLabel
-        id={id}
+        {...node.item}
         renderLabelAs='label'
-        label={textResourceBindings?.title}
-        helpText={textResourceBindings?.help}
-        description={textResourceBindings?.description}
-        readOnly={readOnly}
-        required={required}
-        labelSettings={labelSettings}
       >
         <Combobox
           multiple

@@ -29,7 +29,6 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   const {
     id,
     maxFileSizeInMB,
-    required,
     readOnly,
     displayMode,
     maxNumberOfAttachments,
@@ -37,7 +36,6 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
     hasCustomFileEndings,
     validFileEndings,
     textResourceBindings,
-    labelSettings,
   } = node.item;
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
@@ -129,14 +127,8 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
 
   return (
     <ComponentWithLabel
-      id={id}
+      {...node.item}
       renderLabelAs='label'
-      label={textResourceBindings?.title}
-      description={textResourceBindings?.description}
-      helpText={textResourceBindings?.help}
-      required={required}
-      readOnly={readOnly}
-      labelSettings={labelSettings}
     >
       <AttachmentsMappedToFormDataProvider mappingTools={mappingTools}>
         <div

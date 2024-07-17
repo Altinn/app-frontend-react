@@ -79,7 +79,6 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     saveWhileTyping,
     autocomplete,
     maxLength,
-    labelSettings,
   } = node.item;
 
   const {
@@ -97,12 +96,6 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
   const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;
   const prefixText = textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined;
   const suffixText = textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined;
-  const label =
-    overrideDisplay?.renderLabel !== false
-      ? textResourceBindings?.title
-        ? textResourceBindings.title
-        : undefined
-      : undefined;
 
   const characterLimit = useCharacterLimit(maxLength);
   const commonProps = {
@@ -200,14 +193,14 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
 
   return (
     <ComponentWithLabel
-      id={id}
-      label={label}
+      {...{
+        ...node.item,
+        textResourceBindings: {
+          ...node.item.textResourceBindings,
+          title: overrideDisplay?.renderLabel !== false ? textResourceBindings?.title : undefined,
+        },
+      }}
       renderLabelAs='label'
-      helpText={textResourceBindings?.help}
-      description={textResourceBindings?.description}
-      labelSettings={labelSettings}
-      readOnly={readOnly}
-      required={required}
     >
       {renderSpecificInputVariant()}
     </ComponentWithLabel>
