@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 import deepEqual from 'fast-deep-equal';
@@ -14,7 +14,12 @@ import { useExpandedWidthLayouts } from 'src/features/form/layout/LayoutsContext
 import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import {
+  useNavigate,
+  useNavigationParam,
+  useQueryKey,
+  useQueryKeysAsStringAsRef,
+} from 'src/features/routing/AppRoutingContext';
 import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { SearchParams, useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
@@ -46,7 +51,7 @@ export function Form() {
   useSetExpandedWidth();
 
   useRegisterNodeNavigationHandler(async (targetNode, options) => {
-    const targetView = targetNode?.page.pageKey;
+    const targetView = targetNode?.pageKey;
     if (targetView && targetView !== currentPageId) {
       await navigateToPage(targetView, {
         ...options?.pageNavOptions,
@@ -236,22 +241,24 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
 }
 
 function HandleNavigationFocusComponent() {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const componentId = searchParams.get(SearchParams.FocusComponentId);
+  const searchStringRef = useQueryKeysAsStringAsRef();
+  const componentId = useQueryKey(SearchParams.FocusComponentId);
   const focusNode = useNode(componentId ?? undefined);
   const navigateTo = useNavigateToNode();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
-    searchParams.delete(SearchParams.FocusComponentId);
-    setSearchParams(searchParams, { replace: true, preventScrollReset: true });
-  }, [searchParams, setSearchParams]);
-
-  React.useEffect(() => {
-    if (focusNode != null) {
-      navigateTo(focusNode);
-    }
-  }, [navigateTo, focusNode]);
+    (async () => {
+      if (focusNode) {
+        await navigateTo(focusNode, { shouldFocus: true });
+        const location = new URLSearchParams(searchStringRef.current);
+        location.delete(SearchParams.FocusComponentId);
+        const baseHash = window.location.hash.slice(1).split('?')[0];
+        const nextLocation = location.size > 0 ? `${baseHash}?${location.toString()}` : baseHash;
+        navigate(nextLocation, { replace: true });
+      }
+    })();
+  }, [navigateTo, focusNode, navigate, searchStringRef]);
 
   return null;
 }
