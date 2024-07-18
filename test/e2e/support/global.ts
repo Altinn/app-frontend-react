@@ -1,7 +1,7 @@
 import type { CyUser } from 'test/e2e/support/auth';
 
 import type { ILayoutSets } from 'src/layout/common.generated';
-import type { CompOrGroupExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
+import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
 
 export type FrontendTestTask = 'message' | 'changename' | 'group' | 'likert' | 'datalist' | 'confirm';
 export type FillableFrontendTasks = Exclude<FrontendTestTask, 'message' | 'confirm'>;
@@ -22,6 +22,7 @@ export type StartAppInstanceOptions = {
 };
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
     interface Chainable {
       /**
@@ -114,7 +115,7 @@ declare global {
        */
       interceptLayout(
         taskName: FrontendTestTask | string,
-        mutator?: (component: CompOrGroupExternal) => void,
+        mutator?: (component: CompExternal) => void,
         wholeLayoutMutator?: (layoutSet: ILayoutCollection) => void,
       ): Chainable<null>;
 
@@ -124,7 +125,7 @@ declare global {
        * fetched. This performs the same actions as changing properties in the layout via the developer tools.
        */
       changeLayout(
-        mutator?: (component: CompOrGroupExternal) => void,
+        mutator?: (component: CompExternal) => void,
         allLayoutsMutator?: (layouts: ILayouts) => void,
       ): Chainable<null>;
 
@@ -214,8 +215,15 @@ declare global {
       clearSelectionAndWait(viewport?: 'desktop' | 'tablet' | 'mobile'): Chainable<null>;
 
       getSummary(label: string): Chainable<Element>;
-      testPdf(callback: () => void, returnToForm: boolean = false): Chainable<null>;
+      testPdf(callback: () => void, returnToForm?: boolean): Chainable<null>;
       getCurrentPageId(): Chainable<string>;
+
+      /**
+       * All tests will check to make sure things didn't fail horribly after the test is done. This is useful for
+       * catching errors that might not be caught by the test itself. Some tests however will explicitly test failure
+       * scenarios, and in those cases we don't want to fail the test if the test fails.
+       */
+      allowFailureOnEnd(): Chainable<null>;
     }
   }
 }

@@ -574,3 +574,7 @@ Cypress.Commands.add(
       });
     }),
 );
+
+Cypress.Commands.add('allowFailureOnEnd', function () {
+  (this.test as any).__allowFailureOnEnd = true;
+});
