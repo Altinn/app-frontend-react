@@ -252,7 +252,7 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
   }
 
   return (
-    <>
+    <Table.Body>
       {rows.map((row, index) => (
         <GridRowRenderer
           key={`grid${where}-${index}`}
@@ -262,6 +262,6 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
           node={node}
         />
       ))}
-    </>
+    </Table.Body>
   );
 }

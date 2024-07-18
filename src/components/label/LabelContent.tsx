@@ -53,7 +53,12 @@ export function LabelContent({
           />
         </span>
         {helpText && (
-          <HelpText title={langAsString(helpText)}>
+          <HelpText
+            id={`${id}-helptext`}
+            title={
+              label ? `${langAsString('helptext.button_title_prefix')} ${label}` : langAsString('helptext.button_title')
+            }
+          >
             <Lang id={helpText} />
           </HelpText>
         )}
