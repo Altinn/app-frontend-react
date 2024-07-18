@@ -180,7 +180,11 @@ function usePreselectedOptionIndex(props: EffectProps) {
 function useRemoveStaleValues(props: EffectProps) {
   useEffect(() => {
     const { options, unsafeSelectedValues, setValue } = props;
-    const itemsToRemove = unsafeSelectedValues.filter((v) => !options?.find((option) => option.value === v));
+    if (!options) {
+      return;
+    }
+
+    const itemsToRemove = unsafeSelectedValues.filter((v) => !options.find((option) => option.value === v));
     if (itemsToRemove.length > 0) {
       setValue(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
     }
