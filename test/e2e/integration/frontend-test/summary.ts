@@ -310,7 +310,7 @@ describe('Summary', () => {
     cy.get('#summary-mainGroup-5 [data-testid=summary-source-5] > div')
       .children()
       .last()
-      .should('contain.text', texts.emptySummary);
+      .should('contain.text', 'Altinn');
     cy.get('#summary-mainGroup-5 [data-testid=summary-reference-5] > div')
       .children()
       .last()
