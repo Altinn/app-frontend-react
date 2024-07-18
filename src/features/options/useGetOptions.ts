@@ -45,6 +45,10 @@ export interface SetOptionsResult {
   // The values are guaranteed to be stringy even if the underlying options JSON and/or data model contains numbers, booleans, etc.
   selectedValues: string[];
 
+  // This is the raw value(s) from the data model. It is not guaranteed to be valid, and may
+  // contain values that do not exist in the options list.
+  unsafeSelectedValues: string[];
+
   rawData: string;
 
   setData: (values: string[]) => void;
@@ -57,7 +61,7 @@ export interface SetOptionsResult {
 interface EffectProps {
   options: IOptionInternal[] | undefined;
   preselectedOption: IOptionInternal | undefined;
-  selectedValues: string[];
+  unsafeSelectedValues: string[];
   setValue: (values: string[]) => void;
 }
 
@@ -145,6 +149,7 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
     key,
     rawData: value,
     selectedValues,
+    unsafeSelectedValues: currentValues,
     setData,
   };
 }
@@ -155,7 +160,7 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
 function usePreselectedOptionIndex(props: EffectProps) {
   const { setValue, preselectedOption } = props;
   const hasSelectedInitial = useRef(false);
-  const hasValue = props.selectedValues.length > 0;
+  const hasValue = props.unsafeSelectedValues.length > 0;
   const shouldSelectOptionAutomatically = !hasValue && !hasSelectedInitial.current && preselectedOption !== undefined;
 
   useEffect(() => {
@@ -174,10 +179,10 @@ function usePreselectedOptionIndex(props: EffectProps) {
  */
 function useRemoveStaleValues(props: EffectProps) {
   useEffect(() => {
-    const { options, selectedValues, setValue } = props;
-    const itemsToRemove = selectedValues.filter((v) => !options?.find((option) => option.value === v));
+    const { options, unsafeSelectedValues, setValue } = props;
+    const itemsToRemove = unsafeSelectedValues.filter((v) => !options?.find((option) => option.value === v));
     if (itemsToRemove.length > 0) {
-      setValue(selectedValues.filter((v) => !itemsToRemove.includes(v)));
+      setValue(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
     }
   }, [props]);
 }
@@ -244,7 +249,7 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
   }, [isError, mapping, node, optionsId, queryParameters, secure]);
 
   const alwaysOptions = calculatedOptions || defaultOptions;
-  const { selectedValues, setData } = useSetOptions(
+  const { unsafeSelectedValues, setData } = useSetOptions(
     { valueType, dataModelBindings: dataModelBindings as any },
     alwaysOptions,
   );
@@ -262,10 +267,10 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
       options: calculatedOptions,
       valueType,
       preselectedOption,
-      selectedValues,
+      unsafeSelectedValues,
       setValue: setData,
     }),
-    [calculatedOptions, selectedValues, preselectedOption, setData, valueType],
+    [calculatedOptions, unsafeSelectedValues, preselectedOption, setData, valueType],
   );
 
   usePreselectedOptionIndex(effectProps);
