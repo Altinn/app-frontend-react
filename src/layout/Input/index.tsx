@@ -11,14 +11,13 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
-import type { PropsFromGenericComponent, ValidationFilter, ValidationFilterFunction } from 'src/layout';
+import type { PropsFromGenericComponent } from 'src/layout';
 import type { IInputFormatting, PatternFormatProps } from 'src/layout/Input/config.generated';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
-export class Input extends InputDef implements ValidationFilter {
+export class Input extends InputDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Input'>>(
     function LayoutComponentInputRender(props, _): JSX.Element | null {
       return <InputComponent {...props} />;
@@ -103,17 +102,5 @@ export class Input extends InputDef implements ValidationFilter {
     }
 
     return out;
-  }
-
-  getValidationFilters(node: LayoutNode<'Input'>, nodeDataSelector: NodeDataSelector): ValidationFilterFunction[] {
-    const maxLength = nodeDataSelector((picker) => picker(node)?.item?.maxLength, [node]);
-    if (maxLength === undefined) {
-      return [];
-    }
-
-    return [
-      (validation) =>
-        !(validation.message.key === 'validation_errors.maxLength' && validation.message.params?.at(0) === maxLength),
-    ];
   }
 }

@@ -8,6 +8,7 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { AlertBaseComponent } from 'src/layout/Alert/AlertBaseComponent';
 import { useCurrentNode } from 'src/layout/FormComponentContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
 import type { BaseValidation, NodeValidation } from 'src/features/validation';
 import type { AlertSeverity } from 'src/layout/Alert/config.generated';
@@ -27,14 +28,31 @@ export function AllComponentValidations() {
 export function ComponentValidations({ validations, node: _node }: Props) {
   const currentNode = useCurrentNode();
   const node = _node ?? currentNode;
+  const inputMaxLength = useNodeItem(node, (i) =>
+    i.type === 'Input' || i.type === 'TextArea' ? i.maxLength : undefined,
+  );
   if (!validations || validations.length === 0 || !node) {
     return null;
   }
 
-  const errors = validationsOfSeverity(validations, 'error');
-  const warnings = validationsOfSeverity(validations, 'warning');
-  const info = validationsOfSeverity(validations, 'info');
-  const success = validationsOfSeverity(validations, 'success');
+  // If maxLength is set in both schema and component, don't display the schema error message here.
+  // TODO: This should preferably be implemented in the Input component, via ValidationFilter, but that causes
+  // cypress tests in `components.ts` to fail.
+  // @see https://github.com/Altinn/app-frontend-react/issues/1263
+  const filteredValidations = inputMaxLength
+    ? validations.filter(
+        (validation) =>
+          !(
+            validation.message.key === 'validation_errors.maxLength' &&
+            validation.message.params?.at(0) === inputMaxLength
+          ),
+      )
+    : validations;
+
+  const errors = validationsOfSeverity(filteredValidations, 'error');
+  const warnings = validationsOfSeverity(filteredValidations, 'warning');
+  const info = validationsOfSeverity(filteredValidations, 'info');
+  const success = validationsOfSeverity(filteredValidations, 'success');
 
   return (
     <div data-validation={node.id}>
