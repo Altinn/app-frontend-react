@@ -72,6 +72,7 @@ describe('Repeating group attachments', () => {
 
     const attachment = item.attachments(idx);
     if (attachment.tagSelector !== undefined && attachment.tagSave !== undefined) {
+      cy.waitForNetworkIdle(100); // Wait for attachment to be uploaded before trying to click
       cy.dsSelect(attachment.tagSelector, 'Altinn');
       cy.get(attachment.tagSave).click();
     }
