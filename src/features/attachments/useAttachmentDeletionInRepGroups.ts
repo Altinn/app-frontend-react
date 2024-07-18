@@ -4,6 +4,7 @@ import { AttachmentsPlugin } from 'src/features/attachments/AttachmentsPlugin';
 import { useAttachmentsAwaiter, useAttachmentsRemover, useAttachmentsSelector } from 'src/features/attachments/hooks';
 import { isAttachmentUploaded } from 'src/features/attachments/index';
 import { useAsRef } from 'src/hooks/useAsRef';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -25,6 +26,7 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNode<'RepeatingGrou
   const nodeRef = useAsRef(node);
   const attachmentsSelector = useAttachmentsSelector();
   const traversalSelector = useNodeTraversalSelector();
+  const nodeItemSelector = NodesInternal.useNodeDataSelector();
 
   return useCallback(
     async (uuid: string): Promise<boolean> => {
@@ -46,6 +48,7 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNode<'RepeatingGrou
             const result = await remove.current({
               attachment: file,
               node: uploader,
+              dataModelBindings: nodeItemSelector((picker) => picker(uploader)?.layout.dataModelBindings, [uploader]),
             });
             if (!result) {
               return false;
@@ -61,6 +64,7 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNode<'RepeatingGrou
                   data: uploaded,
                 },
                 node: uploader,
+                dataModelBindings: nodeItemSelector((picker) => picker(uploader)?.layout.dataModelBindings, [uploader]),
               });
               if (!result) {
                 return false;
@@ -75,6 +79,6 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNode<'RepeatingGrou
 
       return true;
     },
-    [traversalSelector, nodeRef, attachmentsSelector, remove, awaiter],
+    [traversalSelector, nodeRef, attachmentsSelector, remove, nodeItemSelector, awaiter],
   );
 }
