@@ -640,6 +640,7 @@ describe('Group', () => {
         c.textResourceBindings.save_and_next_button = '';
       }
     });
+    cy.get(appFrontend.group.row(3).editBtn).click();
     cy.get(appFrontend.group.editContainer).findAllByRole('button').eq(1).should('have.text', 'Lagre og åpne neste');
     cy.get(appFrontend.group.editContainer).findAllByRole('button').eq(2).should('have.text', 'Lagre og lukk');
   });
