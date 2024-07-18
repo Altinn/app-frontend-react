@@ -8,7 +8,6 @@ import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPo
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { useAttachmentsRemover } from 'src/features/attachments/hooks';
-import { useAttachmentsMappedToFormDataProvider } from 'src/features/attachments/useAttachmentsMappedToFormData';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
@@ -25,13 +24,12 @@ interface IFileTableButtonsProps {
 }
 
 export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpen }: IFileTableButtonsProps) {
-  const { alertOnDelete, type } = useNodeItem(node);
+  const { alertOnDelete, type, dataModelBindings } = useNodeItem(node);
   const hasTag = type === 'FileUploadWithTag';
   const showEditButton = hasTag && !editWindowIsOpen;
   const { langAsString } = useLanguage();
   const { index, setEditIndex, editIndex } = useFileTableRow();
   const removeAttachment = useAttachmentsRemover();
-  const mappingTools = useAttachmentsMappedToFormDataProvider();
 
   // Edit button
   const handleEdit = (index: number) => {
@@ -42,14 +40,12 @@ export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpe
     }
   };
 
-  const handleDeleteFile = () => {
+  const handleDeleteFile = async () => {
     if (!isAttachmentUploaded(attachment)) {
       return;
     }
 
-    removeAttachment({ attachment, node }).then(() => {
-      mappingTools.removeAttachment(attachment.data.id);
-    });
+    await removeAttachment({ attachment, node, dataModelBindings });
     editWindowIsOpen && setEditIndex(-1);
   };
 

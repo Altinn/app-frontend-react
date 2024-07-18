@@ -10,6 +10,7 @@ import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { isAttachmentUploaded } from 'src/features/attachments/index';
 import { sortAttachmentsByName } from 'src/features/attachments/sortAttachments';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -27,6 +28,7 @@ import type {
 } from 'src/features/attachments/index';
 import type { BackendValidationIssue } from 'src/features/validation';
 import type { DSMode } from 'src/hooks/delayedSelectors';
+import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -38,6 +40,7 @@ export interface AttachmentActionUpload {
   temporaryId: string;
   file: File;
   node: FileUploaderNode;
+  dataModelBindings: IDataModelBindingsSimple | IDataModelBindingsList | undefined;
 }
 
 export interface AttachmentActionUpdate {
@@ -49,6 +52,7 @@ export interface AttachmentActionUpdate {
 export interface AttachmentActionRemove {
   node: FileUploaderNode;
   attachment: UploadedAttachment;
+  dataModelBindings: IDataModelBindingsSimple | IDataModelBindingsList | undefined;
 }
 
 export type AttachmentsSelector = (node: FileUploaderNode) => IAttachment[];
@@ -229,6 +233,8 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         const { mutateAsync } = useAttachmentsUploadMutation();
         const backendFeatures = useApplicationMetadata().features || {};
         const { langAsString, lang } = useLanguage();
+        const setLeafValue = FD.useSetLeafValue();
+        const appendToListUnique = FD.useAppendToListUnique();
 
         return useCallback(
           async (action: Omit<AttachmentActionUpload, 'temporaryId'>) => {
@@ -243,6 +249,17 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               });
               if (!reply || !reply.blobStoragePath) {
                 throw new Error('Failed to upload attachment');
+              }
+              if (action.dataModelBindings && 'list' in action.dataModelBindings) {
+                appendToListUnique({
+                  path: action.dataModelBindings.list,
+                  newValue: reply.id,
+                });
+              } else if (action.dataModelBindings && 'simpleBinding' in action.dataModelBindings) {
+                setLeafValue({
+                  path: action.dataModelBindings.simpleBinding,
+                  newValue: reply.id,
+                });
               }
               fulfill(fullAction, reply);
 
@@ -277,6 +294,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             }
           },
           [
+            appendToListUnique,
             backendFeatures.jsonObjectInDataResponse,
             changeInstanceData,
             fulfill,
@@ -284,6 +302,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             langAsString,
             mutateAsync,
             reject,
+            setLeafValue,
             upload,
           ],
         );
@@ -353,12 +372,26 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         const remove = store.useSelector((state) => state.attachmentRemove);
         const fulfill = store.useSelector((state) => state.attachmentRemoveFulfilled);
         const reject = store.useSelector((state) => state.attachmentRemoveRejected);
+        const setLeafValue = FD.useSetLeafValue();
+        const removeValueFromList = FD.useRemoveValueFromList();
 
         return useCallback(
           async (action: AttachmentActionRemove) => {
             remove(action);
             try {
               await removeAttachment(action.attachment.data.id);
+              if (action.dataModelBindings && 'list' in action.dataModelBindings) {
+                removeValueFromList({
+                  path: action.dataModelBindings.list,
+                  value: action.attachment.data.id,
+                });
+              } else if (action.dataModelBindings && 'simpleBinding' in action.dataModelBindings) {
+                setLeafValue({
+                  path: action.dataModelBindings.simpleBinding,
+                  newValue: undefined,
+                });
+              }
+
               fulfill(action);
 
               changeInstanceData &&
@@ -378,7 +411,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               return false;
             }
           },
-          [changeInstanceData, fulfill, lang, reject, remove, removeAttachment],
+          [changeInstanceData, fulfill, lang, reject, remove, removeAttachment, removeValueFromList, setLeafValue],
         );
       },
       useAttachments(node) {

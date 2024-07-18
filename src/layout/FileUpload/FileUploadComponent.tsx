@@ -3,10 +3,6 @@ import { toast } from 'react-toastify';
 import type { FileRejection } from 'react-dropzone';
 
 import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/hooks';
-import {
-  AttachmentsMappedToFormDataProvider,
-  useAttachmentsMappedToFormData,
-} from 'src/features/attachments/useAttachmentsMappedToFormData';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
@@ -37,12 +33,12 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
     hasCustomFileEndings,
     validFileEndings,
     textResourceBindings,
+    dataModelBindings,
   } = item;
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
   const attachments = useAttachmentsFor(node);
   const uploadAttachment = useAttachmentsUploader();
-  const mappingTools = useAttachmentsMappedToFormData(node);
 
   const validations = useUnifiedValidationsForNode(node).filter((v) => !('attachmentId' in v) || !v.attachmentId);
   const langTools = useLanguage();
@@ -88,10 +84,8 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
       return;
     }
     // we should upload all files, if any rejected files we should display an error
-    acceptedFiles.forEach((file: File) => {
-      uploadAttachment({ file, node }).then((id) => {
-        id && mappingTools.addAttachment(id);
-      });
+    acceptedFiles.forEach(async (file: File) => {
+      await uploadAttachment({ file, node, dataModelBindings });
     });
 
     if (acceptedFiles.length > 0) {
@@ -116,46 +110,44 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   );
 
   return (
-    <AttachmentsMappedToFormDataProvider mappingTools={mappingTools}>
-      <div
-        id={`altinn-fileuploader-${id}`}
-        style={{ padding: '0px' }}
-      >
-        {shouldShowFileUpload && (
-          <>
-            <DropzoneComponent
-              id={id}
-              isMobile={mobileView}
-              maxFileSizeInMB={maxFileSizeInMB}
-              readOnly={!!readOnly}
-              onClick={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-              hasValidationMessages={hasValidationErrors(validations)}
-              hasCustomFileEndings={hasCustomFileEndings}
-              validFileEndings={validFileEndings}
-              textResourceBindings={textResourceBindings}
-            />
-            {attachmentsCounter}
-            <ComponentValidations validations={validations} />
-          </>
-        )}
+    <div
+      id={`altinn-fileuploader-${id}`}
+      style={{ padding: '0px' }}
+    >
+      {shouldShowFileUpload && (
+        <>
+          <DropzoneComponent
+            id={id}
+            isMobile={mobileView}
+            maxFileSizeInMB={maxFileSizeInMB}
+            readOnly={!!readOnly}
+            onClick={(e) => e.preventDefault()}
+            onDrop={handleDrop}
+            hasValidationMessages={hasValidationErrors(validations)}
+            hasCustomFileEndings={hasCustomFileEndings}
+            validFileEndings={validFileEndings}
+            textResourceBindings={textResourceBindings}
+          />
+          {attachmentsCounter}
+          <ComponentValidations validations={validations} />
+        </>
+      )}
 
-        <FileTable
-          node={node}
-          mobileView={mobileView}
-          attachments={attachments}
-          options={options}
-          isFetching={isFetching}
-        />
+      <FileTable
+        node={node}
+        mobileView={mobileView}
+        attachments={attachments}
+        options={options}
+        isFetching={isFetching}
+      />
 
-        {!shouldShowFileUpload && (
-          <>
-            {attachmentsCounter}
-            <ComponentValidations validations={validations} />
-          </>
-        )}
-        {renderAddMoreAttachmentsButton()}
-      </div>
-    </AttachmentsMappedToFormDataProvider>
+      {!shouldShowFileUpload && (
+        <>
+          {attachmentsCounter}
+          <ComponentValidations validations={validations} />
+        </>
+      )}
+      {renderAddMoreAttachmentsButton()}
+    </div>
   );
 }
