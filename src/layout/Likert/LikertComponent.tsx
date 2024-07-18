@@ -109,10 +109,9 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
       ) : (
         <Table
           id={id}
-          aria-labelledby={(hasTitle && titleId) || undefined}
-          aria-describedby={(hasDescription && descriptionId) || undefined}
+          aria-labelledby={hasTitle ? titleId : undefined}
+          aria-describedby={hasDescription ? descriptionId : undefined}
           className={classes.likertTable}
-          role='group'
         >
           <Table.Head
             id={`likert-table-header-${id}`}
