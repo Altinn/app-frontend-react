@@ -24,6 +24,7 @@ afterEach(function () {
   cy.waitUntilNodesReady();
 
   if (this.currentTest && (this.currentTest as any).__allowFailureOnEnd === undefined) {
+    cy.log('Making sure no errors happened after the test run. Call cy.allowFailureOnEnd() to disable this check.');
     cy.get(appFrontend.instanceErrorCode).should('not.exist');
   }
 
