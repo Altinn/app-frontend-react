@@ -314,6 +314,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.newMiddleName).type('checkbox_readOnly');
     cy.get(appFrontend.changeOfName.newMiddleName).blur();
 
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('input').should('have.attr', 'readonly');
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click(); // No effect
 
     // Assert the last click had no effect
@@ -324,6 +325,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.newMiddleName).clear();
     cy.get(appFrontend.changeOfName.newMiddleName).type('radio_readOnly');
     cy.get(appFrontend.changeOfName.newMiddleName).blur();
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('input').should('not.have.attr', 'readonly');
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
     cy.get(appFrontend.changeOfName.reasons).should('not.exist');
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
