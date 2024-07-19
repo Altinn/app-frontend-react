@@ -27,9 +27,9 @@ import type {
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type GridSummaryProps = {
+type GridSummaryProps = Readonly<{
   componentNode: LayoutNode<'Grid'>;
-};
+}>;
 
 export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   const { rows, textResourceBindings } = componentNode.item;

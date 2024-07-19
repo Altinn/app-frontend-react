@@ -93,12 +93,12 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   );
 }
 
-interface GridRowProps {
+type GridRowProps = Readonly<{
   row: GridRowInternal;
   isNested: boolean;
   mutableColumnSettings: ITableColumnFormatting;
   node: LayoutNode;
-}
+}>;
 
 export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: GridRowProps) {
   if (isGridRowHidden(row)) {

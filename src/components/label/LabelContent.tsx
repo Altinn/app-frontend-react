@@ -11,7 +11,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useFormComponentCtxStrict } from 'src/layout/FormComponentContext';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
-export type LabelContentProps = {
+export type LabelContentProps = Readonly<{
   id?: string;
   label?: string;
   description?: string;
@@ -19,7 +19,7 @@ export type LabelContentProps = {
   readOnly?: boolean;
   helpText?: string;
   labelSettings?: ILabelSettings;
-};
+}>;
 
 export function LabelContent({
   id,

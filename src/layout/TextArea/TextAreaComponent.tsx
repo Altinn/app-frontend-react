@@ -10,7 +10,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/styles/shared.css';
 
-export type ITextAreaProps = PropsFromGenericComponent<'TextArea'>;
+export type ITextAreaProps = Readonly<PropsFromGenericComponent<'TextArea'>>;
 
 export function TextAreaComponent({ node, overrideDisplay, isValid }: ITextAreaProps) {
   const { langAsString } = useLanguage();
