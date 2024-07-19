@@ -20,7 +20,7 @@ describe('Validation', () => {
       'have.text',
       texts.requiredFieldFromBackend,
     );
-    cy.get(appFrontend.changeOfName.newFirstName).type('Some value');
+    cy.get(appFrontend.changeOfName.newFirstName).type('Per'); // Has to be less than 5 characters
     cy.get(appFrontend.changeOfName.newFirstName).blur();
     cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should('not.exist');
     cy.get(appFrontend.changeOfName.newFirstName).clear();

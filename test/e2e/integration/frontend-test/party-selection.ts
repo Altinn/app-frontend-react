@@ -215,6 +215,7 @@ describe('Party selection', () => {
     cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.get('[data-testid=StatusCode').should('exist');
+    cy.allowFailureOnEnd();
   });
 
   it('List of parties should show correct icon and org nr or ssn', () => {
