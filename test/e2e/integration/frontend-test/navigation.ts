@@ -2,10 +2,16 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 
 describe('Navigation', () => {
   it('Should redirect to the current task and the first page of that task when navigating directly to the instance', () => {
+    cy.intercept('PATCH', '**/data/**').as('saveFormData');
     cy.goto('changename');
 
-    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_2/form'));
     cy.findByLabelText(/Nytt fornavn/).should('exist');
+    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_2/form'));
+
+    // When the form loads, some values are set automatically. We need to wait for this saving to be done before
+    // we try to navigate, otherwise this will fail hard.
+    cy.wait('@saveFormData');
+    cy.waitUntilSaved();
 
     cy.url().then((url) => {
       cy.visit(url.replace('/Task_2/form', ''));
@@ -13,6 +19,7 @@ describe('Navigation', () => {
 
     cy.url().should('satisfy', (url: string) => url.endsWith('/Task_2/form'));
     cy.findByLabelText(/Nytt fornavn/).should('exist');
+    cy.waitUntilSaved();
   });
 
   it('Should scroll to top whenever navigating to a new page', () => {

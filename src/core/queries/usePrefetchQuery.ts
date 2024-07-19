@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import type { QueryFunction, QueryKey, SkipToken } from '@tanstack/react-query';
+import type { QueryFunction, QueryKey, SkipToken, UseQueryOptions } from '@tanstack/react-query';
 
 export type QueryDefinition<T> = {
   queryKey: QueryKey;
   queryFn: QueryFunction<T> | SkipToken;
   enabled?: boolean;
-  gcTime?: number;
+  gcTime?: UseQueryOptions<any>['gcTime'];
+  staleTime?: UseQueryOptions<any>['staleTime'];
+  refetchInterval?: UseQueryOptions<any>['refetchInterval'];
 };
 
 // @see https://tanstack.com/query/v5/docs/framework/react/guides/prefetching
