@@ -83,16 +83,17 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
         ))}
         <AttributionControl prefix={false} />
 
-        {inputCoords.map(
-          (coords, i) =>
-            geometryType[i] === 'polygon' ?? (
-              <Polygon
-                key={i}
-                positions={coords}
-              >
-                <Tooltip>{labels !== undefined ? <span>{JSON.stringify(labels[i])}</span> : <div></div>}</Tooltip>
-              </Polygon>
-            ),
+        {inputCoords.map((coords, i) =>
+          geometryType[i] == 'polygon' ? (
+            <Polygon
+              key={i}
+              positions={coords}
+            >
+              <Tooltip>{labels !== undefined ? <span>{JSON.stringify(labels[i])}</span> : <div></div>}</Tooltip>
+            </Polygon>
+          ) : (
+            <div key={i} />
+          ),
         )}
       </MapContainer>
     </div>
