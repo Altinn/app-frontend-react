@@ -17,14 +17,14 @@ describe('Alert', () => {
     expect(screen.getByText(/body for alert/i)).toBeInTheDocument();
   });
 
-  it('should display as role="alert" when hidden is false', async () => {
-    await render({ title: 'title for alert', hidden: false });
+  it('should display as role="alert" when hidden is an expression', async () => {
+    await render({ title: 'title for alert', hidden: ['equals', 1, 2] });
     expect(screen.getByRole('alert', { name: /title for alert/i })).toBeInTheDocument();
   });
 
-  it('should not display as role="alert" when hidden is true', async () => {
-    await render({ title: 'title for alert', hidden: true });
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  it('should not display as role="alert" when hidden is not set', async () => {
+    await render({ title: 'title for alert' });
+    expect(screen.queryByRole('alert', { name: /title for alert/i })).not.toBeInTheDocument();
   });
 });
 
