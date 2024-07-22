@@ -471,6 +471,9 @@ describe('openByDefault', () => {
           ],
         },
         mutations,
+        expectedWarning: expect.stringContaining(
+          "openByDefault for repeating group 'myGroup' returned 'addedAndHidden'",
+        ),
       });
     },
   );
