@@ -3,7 +3,6 @@ import type { MutableRefObject } from 'react';
 
 import dot from 'dot-object';
 
-import { ContextNotProvided } from 'src/core/contexts/context';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
@@ -17,7 +16,7 @@ import {
 } from 'src/utils/layout/generator/GeneratorStages';
 import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { useDef, useExpressionResolverProps } from 'src/utils/layout/generator/NodeGenerator';
-import { NodesInternal, useNodeLax } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
 import type { CompDef } from 'src/layout';
 import type { CompExternal } from 'src/layout/layout';
@@ -155,8 +154,7 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
   const parent = GeneratorInternal.useParent() as LayoutNode;
   const row = GeneratorInternal.useRow() as BaseRow;
   const nodeChildren = useNodeDirectChildren(parent as LayoutNode, { onlyInRowUuid: row!.uuid });
-  const firstChildRaw = useNodeLax(nodeChildren?.[0]);
-  const firstChild = firstChildRaw === ContextNotProvided ? undefined : firstChildRaw;
+  const firstChild = nodeChildren ? nodeChildren[0] : undefined;
 
   const item = GeneratorInternal.useIntermediateItem();
   const props = useExpressionResolverProps(firstChild, item as CompExternal, row);

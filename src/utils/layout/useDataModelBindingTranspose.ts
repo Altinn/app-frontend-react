@@ -2,11 +2,10 @@ import { useCallback } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LaxNodeDataSelector } from 'src/utils/layout/NodesContext';
-import type { NodeTraversalFromAny } from 'src/utils/layout/useNodeTraversal';
 
 export type DataModelTransposeSelector = ReturnType<typeof useDataModelBindingTranspose>;
 
@@ -27,22 +26,15 @@ export type DataModelTransposeSelector = ReturnType<typeof useDataModelBindingTr
  */
 export function useDataModelBindingTranspose() {
   const nodeSelector = NodesInternal.useLaxNodeDataSelector();
-  const traversal = useNodeTraversalSelectorLax();
 
   return useCallback(
     (node: LayoutNode, subject: string, rowIndex?: number) => {
-      const result = traversal((t) => firstDataModelBinding(t.with(node), nodeSelector), [node]);
-
-      if (result === ContextNotProvided) {
-        return subject;
-      }
-
-      const [currentLocation, currentLocationIsRepGroup] = result;
+      const [currentLocation, currentLocationIsRepGroup] = firstDataModelBinding(node, nodeSelector);
       return currentLocation
         ? transposeDataBinding({ subject, currentLocation, rowIndex, currentLocationIsRepGroup })
         : subject;
     },
-    [nodeSelector, traversal],
+    [nodeSelector],
   );
 }
 
@@ -50,15 +42,7 @@ export function useDataModelBindingTranspose() {
  * Finds the first component with a data model binding (and the first binding) in the current component's hierarchy.
  * Starts at a node and then moves up the hierarchy until it finds a node with a data model binding.
  */
-function firstDataModelBinding(
-  traversal: NodeTraversalFromAny,
-  nodeSelector: LaxNodeDataSelector,
-): [string | undefined, boolean] {
-  if (!traversal.targetIsNode()) {
-    return [undefined, false];
-  }
-
-  const node = traversal.target;
+function firstDataModelBinding(node: LayoutNode, nodeSelector: LaxNodeDataSelector): [string | undefined, boolean] {
   const dataModelBindings = nodeSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
   if (dataModelBindings === ContextNotProvided) {
     return [undefined, false];
@@ -69,9 +53,9 @@ function firstDataModelBinding(
     return [dataModelBindings[firstBinding], node.isType('RepeatingGroup')];
   }
 
-  const parent = traversal.parents()[0];
-  if (!parent) {
+  const parent = node.parent;
+  if (!parent || !(parent instanceof BaseLayoutNode)) {
     return [undefined, false];
   }
-  return firstDataModelBinding(traversal.with(parent), nodeSelector);
+  return firstDataModelBinding(parent, nodeSelector);
 }
