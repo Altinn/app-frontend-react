@@ -5,9 +5,9 @@ export type QueryDefinition<T> = {
   queryKey: QueryKey;
   queryFn: QueryFunction<T> | SkipToken;
   enabled?: boolean;
-  gcTime?: UseQueryOptions<any>['gcTime'];
-  staleTime?: UseQueryOptions<any>['staleTime'];
-  refetchInterval?: UseQueryOptions<any>['refetchInterval'];
+  gcTime?: UseQueryOptions<T>['gcTime'];
+  staleTime?: UseQueryOptions<T>['staleTime'];
+  refetchInterval?: UseQueryOptions<T>['refetchInterval'];
 };
 
 // @see https://tanstack.com/query/v5/docs/framework/react/guides/prefetching

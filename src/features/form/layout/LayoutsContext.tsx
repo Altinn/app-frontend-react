@@ -15,6 +15,7 @@ import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IExpandedWidthLayouts, IHiddenLayoutsExternal } from 'src/types';
+
 export interface LayoutContextValue {
   layouts: ILayouts;
   hiddenLayoutsExpressions: IHiddenLayoutsExternal;

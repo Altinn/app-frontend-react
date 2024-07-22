@@ -110,8 +110,13 @@ export const useStartUrl = (forcedTaskId?: string) => {
   const instanceGuid = useNavigationParam('instanceGuid');
   const taskId = useNavigationParam('taskId');
   const taskType = useTaskType(taskId);
+  const isStateless = useIsStatelessApp();
 
   return useMemo(() => {
+    const firstPage = order?.[0];
+    if (isStateless && firstPage) {
+      return `/${firstPage}${queryKeys}`;
+    }
     if (typeof forcedTaskId === 'string') {
       return `/instance/${partyId}/${instanceGuid}/${forcedTaskId}${queryKeys}`;
     }
@@ -121,7 +126,6 @@ export const useStartUrl = (forcedTaskId?: string) => {
     if (taskType !== ProcessTaskType.Data && taskId !== undefined) {
       return `/instance/${partyId}/${instanceGuid}/${taskId}${queryKeys}`;
     }
-    const firstPage = order?.[0];
     if (taskId && firstPage) {
       return `/instance/${partyId}/${instanceGuid}/${taskId}/${firstPage}${queryKeys}`;
     }
@@ -129,7 +133,7 @@ export const useStartUrl = (forcedTaskId?: string) => {
       return `/instance/${partyId}/${instanceGuid}/${taskId}${queryKeys}`;
     }
     return `/instance/${partyId}/${instanceGuid}${queryKeys}`;
-  }, [forcedTaskId, instanceGuid, order, partyId, queryKeys, taskId, taskType]);
+  }, [forcedTaskId, instanceGuid, isStateless, order, partyId, queryKeys, taskId, taskType]);
 };
 
 export const useNavigatePage = () => {
