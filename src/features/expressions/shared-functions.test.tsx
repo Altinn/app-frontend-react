@@ -140,6 +140,9 @@ describe('Expressions shared function tests', () => {
         profile.profileSettingPreference.language = profileSettings.language;
       }
 
+      // Clear localstorage, because LanguageProvider uses it to cache selected languages
+      localStorage.clear();
+
       const nodeId = nodeIdFromContext(context);
       await renderWithNode({
         nodeId,
