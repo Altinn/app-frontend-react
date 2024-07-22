@@ -69,10 +69,10 @@ describe('Repeating group attachments', () => {
     });
     cy.get(item.dropZoneContainer).should('be.visible');
     cy.get(item.dropZone).selectFile(makeTestFile(fileName), { force: true });
+    cy.wait('@upload');
 
     const attachment = item.attachments(idx);
     if (attachment.tagSelector !== undefined && attachment.tagSave !== undefined) {
-      cy.waitForNetworkIdle(100); // Wait for attachment to be uploaded before trying to click
       cy.dsSelect(attachment.tagSelector, 'Altinn');
       cy.get(attachment.tagSave).click();
     }
@@ -81,6 +81,7 @@ describe('Repeating group attachments', () => {
     cy.get(attachment.name).should('contain.text', fileName);
 
     if (verifyTableRow) {
+      cy.waitUntilSaved();
       cy.get(tableRow.editBtn).click();
       verifyTableRowPreview(item, fileName);
       cy.get(tableRow.editBtn).click();
@@ -161,6 +162,8 @@ describe('Repeating group attachments', () => {
   };
 
   it('Works when uploading attachments to repeating groups, supports deleting attachments and entire rows', () => {
+    cy.intercept('POST', '**/instances/**/data?dataType=*').as('upload');
+
     const filenames = [
       {
         single: 'singleFileInFirstRow.pdf',
