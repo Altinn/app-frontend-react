@@ -99,29 +99,6 @@ export function GeometryMapComponent({ isValid, node }: IGeometryMapComponentPro
   );
 }
 
-export function parseLocation(locationString: string | undefined): Location | undefined {
-  if (!locationString) {
-    return undefined;
-  }
-  const latLonArray = locationString.split(',');
-  if (latLonArray.length != 2) {
-    window.logErrorOnce(`Invalid location string: ${locationString}`);
-    return undefined;
-  }
-  const latString = latLonArray[0];
-  const lonString = latLonArray[1];
-  const lat = parseFloat(latString);
-  const lon = parseFloat(lonString);
-  if (isNaN(lat) || isNaN(lon)) {
-    window.logErrorOnce(`Invalid location string: ${locationString}`);
-    return undefined;
-  }
-  return {
-    latitude: lat,
-    longitude: lon,
-  } as Location;
-}
-
 function locationToTuple(location: Location | GeometryMapLocation): [number, number] {
   return [location.latitude, location.longitude];
 }
