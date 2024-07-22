@@ -25,7 +25,7 @@
             "dataModelBindings": {
               "group": "Dyr"
             },
-            "children": ["art", "navn"]
+            "children": ["art", "dyr-navn"]
           },
           {
             "id": "art",
@@ -35,7 +35,7 @@
             }
           },
           {
-            "id": "navn",
+            "id": "dyr-navn",
             "type": "Input",
             "dataModelBindings": {
               "simpleBinding": "Dyr.Navn"
@@ -54,10 +54,10 @@
             "dataModelBindings": {
               "group": "Mennesker"
             },
-            "children": ["navn", "alder", "favoritt-dyr"]
+            "children": ["person-navn", "alder", "favoritt-dyr"]
           },
           {
-            "id": "navn",
+            "id": "person-navn",
             "type": "Input",
             "dataModelBindings": {
               "simpleBinding": "Mennesker.Navn"
