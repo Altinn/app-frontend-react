@@ -4,6 +4,7 @@ import { Pagination, Table, usePagination } from '@digdir/designsystemet-react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMini, useIsMobile, useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import {
@@ -51,35 +52,17 @@ function _RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationP
     [node],
   );
 
-  // Should never be true, but leaving it for type inference
-  if (!hasPagination) {
-    return null;
-  }
-
   /**
    * The last page can have fewer items than the other pages,
    * navigating to or from the last page will cause everything to move.
    * This resets the scroll position so that the buttons are in the same place.
    */
-  const resetScrollPosition = (prevScrollPosition: number | undefined) => {
-    if (prevScrollPosition === undefined) {
-      return;
-    }
-    let attemptsLeft = 10;
-    const check = () => {
-      attemptsLeft--;
-      if (attemptsLeft <= 0) {
-        return;
-      }
-      const newScrollPosition = getScrollPosition();
-      if (newScrollPosition !== undefined && newScrollPosition !== prevScrollPosition) {
-        window.scrollBy({ top: newScrollPosition - prevScrollPosition });
-      } else {
-        requestAnimationFrame(check);
-      }
-    };
-    requestAnimationFrame(check);
-  };
+  const resetScrollPosition = useResetScrollPosition(getScrollPosition);
+
+  // Should never be true, but leaving it for type inference
+  if (!hasPagination) {
+    return null;
+  }
 
   const onChange = async (pageNumber: number) => {
     const prevScrollPosition = getScrollPosition();
