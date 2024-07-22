@@ -255,8 +255,10 @@ export const useNavigatePage = () => {
     [processTasks],
   );
 
+  const trimSingleTrailingSlash = (str: string) => (str.endsWith('/') ? str.slice(0, -1) : str);
+
   const getCurrentPageIndex = () => {
-    const location = window.location.href;
+    const location = trimSingleTrailingSlash(window.location.href);
     const _currentPageId = location.split('/').slice(-1)[0];
     return order?.indexOf(_currentPageId) ?? undefined;
   };
