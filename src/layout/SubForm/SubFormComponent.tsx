@@ -30,6 +30,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
   const { langAsString } = useLanguage();
   const addEntryMutation = useAddEntryMutation(dataType);
   const instanceData = useStrictInstanceData();
+  const navigate = useNavigate();
   const [isAdding, setIsAdding] = useState(false);
 
   const dataElements = instanceData.data.filter((d) => d.dataType === dataType) ?? [];
@@ -39,10 +40,13 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
   const addEntry = async () => {
     setIsAdding(true);
 
-    const result = await addEntryMutation.mutateAsync({});
-    updateSubFormEntries([...subFormEntries, result.reply]);
-
-    setIsAdding(false);
+    try {
+      const result = await addEntryMutation.mutateAsync({});
+      navigate(`${node.item.id}/${result.id}`);
+      // updateSubFormEntries([...subFormEntries, result]); // TODO: This is probably not required anymore
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
@@ -174,8 +178,12 @@ function SubFormTableRow({
   const deleteEntry = async () => {
     setIsDeleting(true);
 
-    await deleteEntryMutation.mutateAsync(id);
-    deleteEntryCallback(dataElement);
+    try {
+      await deleteEntryMutation.mutateAsync(id);
+      deleteEntryCallback(dataElement);
+    } catch {
+      setIsDeleting(false);
+    }
   };
 
   return (
