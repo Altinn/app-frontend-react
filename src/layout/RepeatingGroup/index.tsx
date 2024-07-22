@@ -156,7 +156,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       return true;
     }
 
-    const rowHidden = state.item?.rows.find((r) => r.uuid === childNode.row?.uuid)?.groupExpressions.hiddenRow;
+    const rowHidden = state.item?.rows.find((r) => r.uuid === childNode.row?.uuid)?.groupExpressions?.hiddenRow;
     if (rowHidden) {
       return true;
     }
