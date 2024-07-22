@@ -186,7 +186,7 @@ function SubFormTableRow({
     >
       {haveTableColumns &&
         tableColumns.map((entry, index) => {
-          const content = dot.pick(entry.cellContent, data) ?? langAsString(entry.cellContent);
+          const content = dot.pick(entry.cellContent, data);
           return <Table.Cell key={`subform-cell-${id}-${index}`}>{String(content)}</Table.Cell>;
         })}
       {!haveTableColumns && <Table.Cell key={`subform-cell-${id}-0`}>{String(id)}</Table.Cell>}
