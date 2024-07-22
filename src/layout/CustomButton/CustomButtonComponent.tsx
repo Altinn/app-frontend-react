@@ -180,7 +180,7 @@ export const buttonStyles: { [style in CBTypes.CustomButtonStyle]: { color: Butt
 };
 
 export const CustomButtonComponent = ({ node }: Props) => {
-  const { textResourceBindings, actions, id, buttonStyle } = node.item;
+  const { textResourceBindings, actions, id, buttonStyle, buttonColor, buttonSize } = node.item;
   const lockTools = FD.useLocking(node.item.id);
   const { isAuthorized } = useActionAuthorization();
   const { handleClientActions } = useHandleClientActions();
@@ -216,15 +216,16 @@ export const CustomButtonComponent = ({ node }: Props) => {
     }
   };
 
-  const { color, variant } = buttonStyles[interceptedButtonStyle];
+  const style = buttonStyles[interceptedButtonStyle];
 
   return (
     <Button
       id={`custom-button-${id}`}
       disabled={disabled}
       onClick={onClick}
-      color={color}
-      variant={variant}
+      size={buttonSize}
+      color={buttonColor ?? style.color}
+      variant={style.variant}
       aria-busy={mutation.isPending}
     >
       <Lang id={buttonText} />

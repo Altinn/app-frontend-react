@@ -7,6 +7,7 @@ import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
 
+// TODO: Remove this
 const DebugRouter = ({ children }: { children: any }) => {
   const location = useLocation();
   if (process.env.NODE_ENV === 'development') {

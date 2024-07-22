@@ -47,6 +47,8 @@ export const getStatelessDataModelUrl = (dataType: string, includeRowIds: boolea
   `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
 export const getDataModelUrl = (instanceId: string, dataGuid: string, includeRowIds: boolean) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}?includeRowId=${includeRowIds.toString()}`;
+
+// TODO: Rename this to something less ... bad.
 export const getDataModelUrl2 = (instanceId: string, dataGuid: string | undefined, dataType: string | undefined) =>
   dataGuid
     ? `${appPath}/instances/${instanceId}/data/${dataGuid}`

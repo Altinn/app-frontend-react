@@ -59,4 +59,22 @@ export const Config = new CG.component({
         .exportAs('CustomButtonStyle'),
     ),
   )
+  .addProperty(
+    new CG.prop(
+      'buttonColor',
+      new CG.enum('first', 'second', 'success', 'danger')
+        .setTitle('Button color override')
+        .setDescription('The color scheme of the button.')
+        .exportAs('CustomButtonColor'),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'buttonSize',
+      new CG.enum('sm', 'md', 'lg', 'small', 'medium', 'large')
+        .setTitle('Button size override')
+        .setDescription('The size of the button.')
+        .exportAs('CustomButtonSize'),
+    ),
+  )
   .addTextResource(new CG.trb({ name: 'title', title: 'Title', description: 'The title/text on the button' }));
