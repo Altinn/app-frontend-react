@@ -7,7 +7,6 @@ import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponentHighlighter';
-import { GridRows } from 'src/layout/common.generated';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -34,7 +33,7 @@ interface IGridRowsRenderer extends Common {
   text: string;
 }
 
-const GridRows = ({ rows, onClick, text, selected }: IGridRowsRenderer) => (
+const GridRowList = ({ rows, onClick, text, selected }: IGridRowsRenderer) => (
   <>
     {rows.map((row, idx) => {
       const nodes = nodesFromGridRow(row);
@@ -129,7 +128,7 @@ function RepeatingGroupExtensions({ node, selected, onClick }: INodeHierarchyIte
   return (
     <>
       {nodeItem.rowsBeforeInternal && (
-        <GridRows
+        <GridRowList
           rows={nodeItem.rowsBeforeInternal}
           text='rowsBefore'
           selected={selected}
@@ -152,7 +151,7 @@ function RepeatingGroupExtensions({ node, selected, onClick }: INodeHierarchyIte
         </li>
       ))}
       {nodeItem.rowsAfterInternal && (
-        <GridRows
+        <GridRowList
           rows={nodeItem.rowsAfterInternal}
           text='rowsAfter'
           selected={selected}
