@@ -125,8 +125,8 @@ describe('RepeatingGroupTable', () => {
     it('should remove row on delete-button click', async () => {
       const { formDataMethods } = await render();
 
-      expect(screen.getByText('test row 0')).toBeInTheDocument();
-      expect(screen.getByText('test row 1')).toBeInTheDocument();
+      await screen.findByText('test row 0');
+      await screen.findByText('test row 1');
       await userEvent.click(screen.getAllByRole('button', { name: /slett/i })[0]);
 
       expect(formDataMethods.removeFromListCallback).toBeCalledTimes(1);
@@ -137,7 +137,7 @@ describe('RepeatingGroupTable', () => {
       });
 
       await waitFor(() => expect(screen.queryByText('test row 0')).not.toBeInTheDocument());
-      expect(screen.getByText('test row 1')).toBeInTheDocument();
+      await screen.findByText('test row 1');
     });
 
     it('should open first row for editing when clicking edit button', async () => {

@@ -157,7 +157,7 @@ describe('DropdownComponent', () => {
     await userEvent.type(screen.getByTestId('my-input'), 'test');
 
     await waitFor(() => expect(fetchOptions.mock).toHaveBeenCalledTimes(2));
-    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
+    await screen.findByTestId('altinn-spinner');
 
     fetchOptions.resolve({
       data: [
