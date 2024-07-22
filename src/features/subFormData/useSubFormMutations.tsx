@@ -14,11 +14,8 @@ export const useAddEntryMutation = (dataType: string) => {
 
   return useMutation({
     mutationKey: ['addSubForm', dataType],
-    mutationFn: async (data: any) => {
-      const reply = await doSubFormEntryAdd(instanceContext.instanceId, dataType, data);
-      return { reply };
-    },
-    onSuccess: ({ reply }) => {
+    mutationFn: async (data: any) => await doSubFormEntryAdd(instanceContext.instanceId, dataType, data),
+    onSuccess: (reply) => {
       instanceContext?.changeData((instance: IInstance | undefined) => {
         if (!instance || !instance.data) {
           return instance;
