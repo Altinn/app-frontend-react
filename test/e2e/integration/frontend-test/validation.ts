@@ -405,12 +405,7 @@ describe('Validation', () => {
     cy.get(appFrontend.prevButton).click();
 
     cy.changeLayout((component) => {
-      if (
-        component.type === 'RepeatingGroup' &&
-        component.id === 'mainGroup' &&
-        'tableColumns' in component &&
-        component.tableColumns
-      ) {
+      if (component.type === 'RepeatingGroup' && component.id === 'mainGroup' && component.tableColumns) {
         // As the component is hidden in edit mode, and not shown in the table for editing, it should not be
         // showing any validation messages.
         component.tableColumns.currentValue.showInExpandedEdit = false;
@@ -441,12 +436,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('not.exist');
 
     cy.changeLayout((component) => {
-      if (
-        component.type === 'RepeatingGroup' &&
-        component.id === 'mainGroup' &&
-        'edit' in component &&
-        component.edit
-      ) {
+      if (component.type === 'RepeatingGroup' && component.id === 'mainGroup' && component.edit) {
         // In the 'onlyTable' mode, there is no option to edit a row, so we should not open the row in edit mode
         // to focus a component either.
         component.edit.mode = 'onlyTable';
@@ -462,12 +452,7 @@ describe('Validation', () => {
     cy.get(appFrontend.group.editContainer).should('not.exist');
 
     cy.changeLayout((component) => {
-      if (
-        component.type === 'RepeatingGroup' &&
-        component.id === 'mainGroup' &&
-        'tableColumns' in component &&
-        component.tableColumns
-      ) {
+      if (component.type === 'RepeatingGroup' && component.id === 'mainGroup' && component.tableColumns) {
         component.tableColumns.currentValue.editInTable = undefined;
         component.tableColumns.newValue.editInTable = true;
       }
@@ -504,12 +489,7 @@ describe('Validation', () => {
     cy.get(appFrontend.group.editContainer).should('not.exist');
 
     cy.changeLayout((component) => {
-      if (
-        component.type === 'RepeatingGroup' &&
-        component.id === 'mainGroup' &&
-        'tableColumns' in component &&
-        component.tableColumns
-      ) {
+      if (component.type === 'RepeatingGroup' && component.id === 'mainGroup' && component.tableColumns) {
         // Components that are not editable in the table, when using the 'onlyTable' mode, are implicitly hidden
         component.tableColumns.currentValue.editInTable = false;
       }
@@ -530,9 +510,7 @@ describe('Validation', () => {
       if (
         component.type === 'RepeatingGroup' &&
         component.id === 'mainGroup' &&
-        'edit' in component &&
         component.edit &&
-        'tableColumns' in component &&
         component.tableColumns
       ) {
         // In regular mode, if the edit button is hidden, we should not open the row in edit mode to focus a component
@@ -547,28 +525,12 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.group.addNewItem).click();
-    cy.get(appFrontend.group.editContainer).should('be.visible');
-    cy.get(appFrontend.group.row(3).newValue).should('exist');
+    cy.get(appFrontend.group.row(3).newValue).should('not.exist');
     cy.get(appFrontend.group.row(3).currentValue).should('not.exist');
+    cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
-    cy.get(appFrontend.errorReport).findAllByText('Du må fylle ut 2. endre verdi til').eq(0).click();
-
-    // We have no way to focus this field, because this component is hidden when the edit container is no longer
-    // visible for this row. It's not technically a fully hidden component since it can still be edited when the
-    // edit container was first opened, but by removing the edit button, we've made it impossible to reach the
-    // component to focus it.
-    //
-    // Note that we're testing expected functionality here, but if you're actually implementing this in an app, you
-    // should trigger validation before saving and closing the group row, so that the user cannot reach this state
-    // (although they still could if refreshing the page, so it's not the best idea).
-    // eslint-disable-next-line cypress/unsafe-to-chain-command
-    cy.focused().should('have.text', 'Du må fylle ut 2. endre verdi til');
-
-    // Clicking the next validation message should focus the component already open in editing mode
-    cy.get(appFrontend.group.editContainer).find(appFrontend.group.row(3).newValue).should('not.be.focused');
-    cy.get(appFrontend.errorReport).findAllByText('Du må fylle ut 2. endre verdi til').eq(1).click();
-    cy.get(appFrontend.group.editContainer).find(appFrontend.group.row(3).newValue).should('be.focused');
+    cy.get(appFrontend.errorReport).should('not.exist');
+    cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
   });
 
   it('Validates mime type on attachment', () => {

@@ -156,7 +156,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       return true;
     }
 
-    const rowHidden = state.item?.rows.find((r) => r.uuid === childNode.row?.uuid)?.groupExpressions?.hiddenRow;
+    const row = state.item?.rows.find((r) => r.uuid === childNode.row?.uuid);
+    const rowHidden = row?.groupExpressions?.hiddenRow;
     if (rowHidden) {
       return true;
     }
@@ -170,11 +171,20 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     // because it doesn't make sense to validate a component that is hidden in the UI and the
     // user cannot interact with.
     let hiddenImplicitly =
-      tableColSetup?.showInExpandedEdit === false && !tableColSetup?.editInTable && mode !== 'onlyTable';
+      tableColSetup?.showInExpandedEdit === false &&
+      !tableColSetup?.editInTable &&
+      mode !== 'onlyTable' &&
+      mode !== 'showAll';
 
     if (mode === 'onlyTable' && tableColSetup?.editInTable === false) {
       // This is also a way to hide a component implicitly
       hiddenImplicitly = true;
+    }
+
+    if (row?.groupExpressions?.edit?.editButton === false && mode !== 'showAll' && mode !== 'onlyTable') {
+      // If the edit button is hidden for this row, it is not possible to open the editContainer. The component
+      // will effectively be hidden unless it is editable in the table.
+      return !tableColSetup?.editInTable;
     }
 
     return hiddenImplicitly;

@@ -20,12 +20,14 @@ before(() => {
 });
 
 afterEach(function () {
-  cy.waitUntilSaved();
-  cy.waitUntilNodesReady();
+  if (this.currentTest?.state !== 'failed') {
+    cy.waitUntilSaved();
+    cy.waitUntilNodesReady();
 
-  if (this.currentTest && (this.currentTest as any).__allowFailureOnEnd === undefined) {
-    cy.log('Making sure no errors happened after the test run. Call cy.allowFailureOnEnd() to disable this check.');
-    cy.get(appFrontend.instanceErrorCode).should('not.exist');
+    if (this.currentTest && (this.currentTest as any).__allowFailureOnEnd === undefined) {
+      cy.log('Making sure no errors happened after the test run. Call cy.allowFailureOnEnd() to disable this check.');
+      cy.get(appFrontend.instanceErrorCode).should('not.exist');
+    }
   }
 
   const testName = this.currentTest?.fullTitle();
