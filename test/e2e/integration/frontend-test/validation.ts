@@ -168,7 +168,7 @@ describe('Validation', () => {
     cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.wait('@upload');
     cy.waitUntilNodesReady();
-    cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).should('not.be.disabled');
+    cy.dsReady(appFrontend.changeOfName.uploadWithTag.saveTag);
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.get(appFrontend.changeOfName.uploadWithTag.error).should(
       'not.contain.text',
