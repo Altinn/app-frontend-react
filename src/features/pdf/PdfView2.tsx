@@ -1,4 +1,5 @@
 import React from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
@@ -15,6 +16,7 @@ import classes from 'src/features/pdf/PDFView.module.css';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { getFeature } from 'src/features/toggles';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
@@ -29,17 +31,54 @@ export const PDFView2 = () => {
   const order = usePageOrder();
   const { data: pdfSettings, isFetching: pdfFormatIsLoading } = usePdfFormatQuery(true);
   const pdfLayoutName = useLayoutSettings().pages.pdfLayoutName;
-  const enableOrgLogo = Boolean(useApplicationMetadata().logo);
-  const appOwner = useAppOwner();
-  const appName = useAppName();
-  const { langAsString } = useLanguage();
-  const pagesToRender = pdfLayoutName ? [pdfLayoutName] : order;
-  const isPayment = useIsPayment();
   const isHiddenPage = Hidden.useIsHiddenPageSelector();
 
   if (pdfFormatIsLoading) {
     return null;
   }
+
+  if (pdfLayoutName) {
+    // Render all components directly if given a separate PDF layout
+    return (
+      <PdfWrapping>
+        <PlainPage pageKey={pdfLayoutName} />
+      </PdfWrapping>
+    );
+  }
+
+  return (
+    <PdfWrapping>
+      <div className={classes.instanceInfo}>
+        <InstanceInformation
+          elements={{
+            dateSent: true,
+            sender: true,
+            receiver: true,
+            referenceNumber: true,
+          }}
+        />
+      </div>
+
+      {order
+        ?.filter((pageKey) => !isHiddenPage(pageKey))
+        .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
+        .map((pageKey) => (
+          <PdfForPage
+            key={pageKey}
+            pageKey={pageKey}
+            pdfSettings={pdfSettings}
+          />
+        ))}
+    </PdfWrapping>
+  );
+};
+
+function PdfWrapping({ children }: PropsWithChildren) {
+  const enableOrgLogo = Boolean(useApplicationMetadata().logo);
+  const appOwner = useAppOwner();
+  const appName = useAppName();
+  const { langAsString } = useLanguage();
+  const isPayment = useIsPayment();
 
   return (
     <div
@@ -63,32 +102,35 @@ export const PDFView2 = () => {
           {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
         </Heading>
       </ConditionalWrapper>
-
-      <div className={classes.instanceInfo}>
-        <InstanceInformation
-          elements={{
-            dateSent: true,
-            sender: true,
-            receiver: true,
-            referenceNumber: true,
-          }}
-        />
-      </div>
-
-      {pagesToRender
-        ?.filter((pageKey) => !isHiddenPage(pageKey))
-        .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
-        .map((pageKey) => (
-          <PdfForPage
-            key={pageKey}
-            pageKey={pageKey}
-            pdfSettings={pdfSettings}
-          />
-        ))}
+      {children}
       <ReadyForPrint />
     </div>
   );
-};
+}
+
+function PlainPage({ pageKey }: { pageKey: string }) {
+  const children = useNodeTraversal((t) => {
+    const page = t.findPage(pageKey);
+    return page ? t.with(page).children() : [];
+  });
+
+  return (
+    <div className={classes.page}>
+      <Grid
+        container={true}
+        spacing={3}
+        alignItems='flex-start'
+      >
+        {children.map((node) => (
+          <GenericComponent
+            key={node.id}
+            node={node}
+          />
+        ))}
+      </Grid>
+    </div>
+  );
+}
 
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
   const isHiddenSelector = Hidden.useIsHiddenSelector();
