@@ -4,7 +4,6 @@ import deepEqual from 'fast-deep-equal';
 
 import type { BackendFieldValidatorGroups, BackendValidationIssueGroups } from '..';
 
-import { createContext } from 'src/core/contexts/context';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import {
@@ -13,8 +12,13 @@ import {
 } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { Validation } from 'src/features/validation/validationContext';
 
-function IndividualBackendValidation({ dataType }: { dataType: string }) {
-  const setGroups = useSetGroups();
+function IndividualBackendValidation({
+  dataType,
+  setGroups,
+}: {
+  dataType: string;
+  setGroups: (groups: BackendValidationIssueGroups, savedDataType: string) => void;
+}) {
   const lastSaveValidations = FD.useLastSaveValidationIssues(dataType);
 
   useEffect(() => {
@@ -25,15 +29,6 @@ function IndividualBackendValidation({ dataType }: { dataType: string }) {
 
   return null;
 }
-
-type ValidatorGroupMethods = {
-  setGroups: (groups: BackendValidationIssueGroups, savedDataType: string) => void;
-};
-
-const { Provider, useCtx } = createContext<ValidatorGroupMethods>({
-  name: 'ValidatorGroupsContext',
-  required: true,
-});
 
 export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
   const updateBackendValidations = Validation.useUpdateBackendValidations();
@@ -86,15 +81,14 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
   );
 
   return (
-    <Provider value={{ setGroups }}>
+    <>
       {dataTypes.map((dataType) => (
         <IndividualBackendValidation
           key={dataType}
           dataType={dataType}
+          setGroups={setGroups}
         />
       ))}
-    </Provider>
+    </>
   );
 }
-
-const useSetGroups = () => useCtx().setGroups;

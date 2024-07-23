@@ -67,7 +67,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     }
 
     // Validate missing tags
-    for (const attachment of attachments || []) {
+    for (const attachment of attachments ?? []) {
       if (
         isAttachmentUploaded(attachment) &&
         (attachment.data.tags === undefined || attachment.data.tags.length === 0)

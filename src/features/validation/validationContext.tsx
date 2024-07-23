@@ -183,6 +183,8 @@ const {
   },
 });
 
+const _neverValidating = () => Promise.resolve();
+
 export function ValidationProvider({ children }: PropsWithChildren) {
   const writableDataTypes = DataModels.useWritableDataTypes();
   const waitForSave = FD.useWaitForSave();
@@ -209,9 +211,8 @@ export function ValidationProvider({ children }: PropsWithChildren) {
     [waitForAttachments, waitForSave],
   );
 
-  const neverValidating = useCallback(() => Promise.resolve(), []);
   if (isPDF || !writableDataTypes.length) {
-    return <Provider validating={neverValidating}>{children}</Provider>;
+    return <Provider validating={_neverValidating}>{children}</Provider>;
   }
 
   return (

@@ -9,7 +9,7 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useLayoutSchemaValidation } from 'src/features/devtools/layoutValidation/useLayoutSchemaValidation';
-import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
+import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useCurrentView } from 'src/hooks/useNavigatePage';

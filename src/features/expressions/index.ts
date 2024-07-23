@@ -549,7 +549,7 @@ export const ExprFunctions = {
       }
 
       const dataType = maybeDataType ?? this.dataSources.currentLayoutSet?.dataType;
-      if (dataType == null) {
+      if (!dataType) {
         throw new ExprRuntimeError(this, `Cannot lookup dataType undefined`);
       }
 
@@ -773,7 +773,7 @@ export const ExprFunctions = {
       }
 
       const dataType = this.dataSources.currentLayoutSet?.dataType;
-      if (dataType == null) {
+      if (!dataType) {
         throw new ExprRuntimeError(this, `Cannot lookup dataType undefined`);
       }
       const array = this.dataSources.formDataSelector({ field: path, dataType });

@@ -165,7 +165,7 @@ const mutateDataModelBindings: (props: ChildFactoryProps<'RepeatingGroup'>, rowI
     const groupBindingDataType = isDataModelReference(groupBinding) ? groupBinding.dataType : defaultDataType;
 
     if (groupBindingProperty) {
-      const bindings = item.dataModelBindings || {};
+      const bindings = item.dataModelBindings ?? {};
       for (const key of Object.keys(bindings)) {
         // Work for both string and IDataModelReference
         if (typeof bindings[key] === 'string' && groupBindingDataType === defaultDataType) {

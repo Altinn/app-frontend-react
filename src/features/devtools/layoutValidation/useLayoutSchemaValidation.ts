@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createLayoutValidator, validateLayoutSet } from 'src/features/devtools/utils/layoutSchemaValidation';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
-import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
+import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
 
 export function useLayoutSchemaValidation(enabled: boolean): LayoutValidationErrors | undefined {
