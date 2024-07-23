@@ -16,7 +16,7 @@ import { useIsMobile } from 'src/hooks/useIsMobile';
 import { implementsDisplayData } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
-import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import { useIsRowFresh, useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
@@ -34,6 +34,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export interface IRepeatingGroupTableRowProps {
   className?: string;
   uuid: string;
+  index: number;
   mobileView: boolean;
   displayEditColumn: boolean;
   displayDeleteColumn: boolean;
@@ -73,6 +74,7 @@ function getEditButtonText(
 function _RepeatingGroupTableRow({
   className,
   uuid,
+  index,
   mobileView,
   displayEditColumn,
   displayDeleteColumn,
@@ -85,7 +87,8 @@ function _RepeatingGroupTableRow({
   const { langAsString } = langTools;
   const id = node.id;
   const group = useNodeItem(node);
-  const row = group.rows.find((r) => r.uuid === uuid);
+  const row = group.rows.find((r) => r.uuid === uuid && r.index === index);
+  const rowIsFresh = useIsRowFresh(row);
   const rowExpressions = row?.groupExpressions;
   const editForRow = rowExpressions?.edit;
   const editForGroup = group.edit;
@@ -125,7 +128,7 @@ function _RepeatingGroupTableRow({
 
   const deleteButtonText = langAsString('general.delete');
 
-  if (!row) {
+  if (!row || !rowIsFresh) {
     return null;
   }
 
@@ -137,7 +140,8 @@ function _RepeatingGroupTableRow({
         },
         className,
       )}
-      data-row-num={row.index}
+      data-row-num={index}
+      data-row-uuid={uuid}
     >
       {!mobileView ? (
         tableNodes.map((n, idx) =>
@@ -146,7 +150,7 @@ function _RepeatingGroupTableRow({
               key={n.id}
               className={classes.tableCell}
             >
-              <div ref={(ref) => refSetter && refSetter(row.index, `component-${n.id}`, ref)}>
+              <div ref={(ref) => refSetter && refSetter(index, `component-${n.id}`, ref)}>
                 <GenericComponent
                   node={n}
                   overrideDisplay={{
@@ -185,7 +189,7 @@ function _RepeatingGroupTableRow({
                     container={true}
                     item={true}
                     key={n.id}
-                    ref={(ref) => refSetter && refSetter(row.index, `component-${n.id}`, ref)}
+                    ref={(ref) => refSetter && refSetter(index, `component-${n.id}`, ref)}
                   >
                     <GenericComponent
                       node={n}

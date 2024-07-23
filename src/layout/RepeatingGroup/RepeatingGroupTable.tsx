@@ -145,6 +145,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                     [classes.editRowOnTopOfStickyHeader]: isEditingRow && stickyHeader,
                   })}
                   uuid={row.uuid}
+                  index={row.index}
                   mobileView={mobileView}
                   displayDeleteColumn={displayDeleteColumn}
                   displayEditColumn={displayEditColumn}
