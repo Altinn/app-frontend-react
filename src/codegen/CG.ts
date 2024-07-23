@@ -70,7 +70,7 @@ export const CG = {
   obj: GenerateObject,
   prop: GenerateProperty,
   trb: GenerateTextResourceBinding,
-  dmb: GenerateDataModelBinding,
+  dataModelBinding: GenerateDataModelBinding,
 
   // Known values that we have types for elsewhere, or other imported types
   common: generateCommonImport,

@@ -52,32 +52,32 @@ export const Config = new CG.component({
     new CG.obj(
       new CG.prop(
         'address',
-        new CG.dmb()
+        new CG.dataModelBinding()
           .setTitle('Data model binding for address')
           .setDescription('Describes the location in the data model where the component should store the address.'),
       ),
       new CG.prop(
         'zipCode',
-        new CG.dmb()
+        new CG.dataModelBinding()
           .setTitle('Data model binding for zip code')
           .setDescription('Describes the location in the data model where the component should store the zip code.'),
       ),
       new CG.prop(
         'postPlace',
-        new CG.dmb()
+        new CG.dataModelBinding()
           .setTitle('Data model binding for post place')
           .setDescription('Describes the location in the data model where the component should store the post place.'),
       ),
       new CG.prop(
         'careOf',
-        new CG.dmb()
+        new CG.dataModelBinding()
           .setTitle('Data model binding for care of')
           .setDescription('Describes the location in the data model where the component should store care of.')
           .optional(),
       ),
       new CG.prop(
         'houseNumber',
-        new CG.dmb()
+        new CG.dataModelBinding()
           .setTitle('Data model binding for house number')
           .setDescription('Describes the location in the data model where the component should store the house number.')
           .optional(),

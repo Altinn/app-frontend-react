@@ -2,8 +2,8 @@ import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadata
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import {
   getCurrentDataTypeForApplication,
+  getCurrentLayoutSet,
   getCurrentTaskDataElementId,
-  getLayoutSetForApplication,
   isStatelessApp,
 } from 'src/features/applicationMetadata/appMetadataUtils';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata/index';
@@ -134,9 +134,9 @@ describe('appMetadata.ts', () => {
     });
   });
 
-  describe('getLayoutSetForApplication', () => {
+  describe('getCurrentLayoutSet', () => {
     it('should return correct layout set id if we have an instance', () => {
-      const result = getLayoutSetForApplication({ application, layoutSets, taskId: 'Task_1' });
+      const result = getCurrentLayoutSet({ application, layoutSets, taskId: 'Task_1' });
       const expected = 'datamodel';
       expect(result?.id).toEqual(expected);
     });
@@ -146,7 +146,7 @@ describe('appMetadata.ts', () => {
         ...application,
         onEntry: { show: 'stateless' },
       };
-      const result = getLayoutSetForApplication({
+      const result = getCurrentLayoutSet({
         application: statelessApplication,
         layoutSets,
         taskId: undefined,

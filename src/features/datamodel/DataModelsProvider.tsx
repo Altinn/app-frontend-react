@@ -269,7 +269,7 @@ function LoadInitialData({ dataType }: LoaderProps) {
   const setError = useSelector((state) => state.setError);
   const url = useDataModelUrl(true, dataType);
   const instance = useLaxInstanceData();
-  const dataElementId = (instance && getFirstDataElementId(instance, dataType)) ?? null;
+  const dataElementId = getFirstDataElementId(instance, dataType) ?? null;
   const { data, error } = useFormDataQuery(getUrlWithLanguage(url, useCurrentLanguage()));
 
   useEffect(() => {

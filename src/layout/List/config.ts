@@ -14,7 +14,9 @@ export const Config = new CG.component({
   },
 })
   .addTextResourcesForLabel()
-  .addDataModelBinding(new CG.obj().optional().additionalProperties(new CG.dmb()).exportAs('IDataModelBindingsForList'))
+  .addDataModelBinding(
+    new CG.obj().optional().additionalProperties(new CG.dataModelBinding()).exportAs('IDataModelBindingsForList'),
+  )
   .addProperty(
     new CG.prop(
       'tableHeaders',

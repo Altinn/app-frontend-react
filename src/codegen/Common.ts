@@ -146,7 +146,7 @@ const common = {
     new CG.obj(
       new CG.prop(
         'simpleBinding',
-        new CG.dmb()
+        new CG.dataModelBinding()
           .setTitle('Data model binding')
           .setDescription(
             'Describes the location in the data model where the component should store its value(s). ' +
@@ -158,20 +158,20 @@ const common = {
     new CG.obj(
       new CG.prop(
         'simpleBinding',
-        new CG.dmb()
+        new CG.dataModelBinding()
           .setTitle('Data model binding for value')
           .setDescription('Describes the location in the data model where the component should store its values.'),
       ),
       new CG.prop(
         'label',
-        new CG.dmb()
+        new CG.dataModelBinding()
           .setTitle('Data model binding for label')
           .setDescription('Describes the location in the data model where the component should store its labels')
           .optional(),
       ),
       new CG.prop(
         'metadata',
-        new CG.dmb()
+        new CG.dataModelBinding()
           .setTitle('Data model binding for metadata')
           .setDescription('Describes the location in the data model where the component should store its metadata')
           .optional(),
@@ -181,7 +181,7 @@ const common = {
     new CG.obj(
       new CG.prop(
         'answer',
-        new CG.dmb()
+        new CG.dataModelBinding()
           .setTitle('Data model binding for answer')
           .setDescription(
             'Dot notation location for the answers. This must point to a property of the objects inside the ' +
@@ -192,7 +192,7 @@ const common = {
       ),
       new CG.prop(
         'questions',
-        new CG.dmb()
+        new CG.dataModelBinding()
           .setTitle('Data model binding for questions')
           .setDescription('Dot notation location for a likert structure (array of objects), where the data is stored'),
       ),
@@ -201,7 +201,7 @@ const common = {
     new CG.obj(
       new CG.prop(
         'list',
-        new CG.dmb()
+        new CG.dataModelBinding()
           .setTitle('Data model binding for values')
           .setDescription(
             'Describes the location in the data model where the component should store its values. A list binding ' +

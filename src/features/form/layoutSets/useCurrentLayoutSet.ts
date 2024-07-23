@@ -1,6 +1,6 @@
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { getLayoutSetForApplication } from 'src/features/applicationMetadata/appMetadataUtils';
+import { getCurrentLayoutSet } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useLaxLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
@@ -24,7 +24,7 @@ export function useCurrentLayoutSet() {
     return layoutSets.sets.find((set) => set.id === overriddenLayoutSetId);
   }
 
-  return getLayoutSetForApplication({ application, layoutSets, taskId });
+  return getCurrentLayoutSet({ application, layoutSets, taskId });
 }
 
 export function useGetLayoutSetById(layoutSetId: string): ILayoutSet | undefined {
