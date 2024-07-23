@@ -152,9 +152,14 @@ export function mapValidatorGroupsToDataModelValidations(
   // Map validator groups to validations per data type and field
   for (const group of Object.values(validators)) {
     for (const validation of group) {
+      if (!backendValidations[validation.dataType]) {
+        backendValidations[validation.dataType] = {};
+      }
+
       if (!backendValidations[validation.dataType][validation.field]) {
         backendValidations[validation.dataType][validation.field] = [];
       }
+
       backendValidations[validation.dataType][validation.field].push(validation);
     }
   }

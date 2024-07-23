@@ -165,7 +165,11 @@ export function FormDataWriteProvider({ children }: PropsWithChildren) {
     DataModels.useFullState();
   const autoSaveBehaviour = usePageSettings().autoSaveBehavior;
 
-  const initialDataModels = allDataTypes!.reduce((dm, dt) => {
+  if (!writableDataTypes || !allDataTypes) {
+    throw new Error('FormDataWriteProvider failed because data types have not been loaded, see DataModelsProvider.');
+  }
+
+  const initialDataModels = allDataTypes.reduce((dm, dt) => {
     const emptyInvalidData = {};
     dm[dt] = {
       currentData: initialData[dt],
@@ -179,7 +183,7 @@ export function FormDataWriteProvider({ children }: PropsWithChildren) {
       saveUrl: urls[dt],
       dataElementId: dataElementIds[dt],
       manualSaveRequested: false,
-      readonly: !writableDataTypes!.includes(dt),
+      readonly: !writableDataTypes.includes(dt),
     };
     return dm;
   }, {});
@@ -329,9 +333,15 @@ const useDebounceImmediately = () => {
 };
 
 function dataTypeHasUnsavedChanges(state: FormDataContext, dataType: string) {
+  if (!state.dataModels[dataType]) {
+    // The data type does not exist
+    return false;
+  }
+
   if (state.dataModels[dataType].currentData !== state.dataModels[dataType].lastSavedData) {
     return true;
   }
+
   return state.dataModels[dataType].debouncedCurrentData !== state.dataModels[dataType].lastSavedData;
 }
 
