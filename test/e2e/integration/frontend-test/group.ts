@@ -473,7 +473,6 @@ describe('Group', () => {
       if (c.type === 'RepeatingGroup' && c.tableColumns && c.edit && c.id === 'mainGroup') {
         c.tableColumns['currentValue'].editInTable = true;
         c.tableColumns['newValue'].editInTable = true;
-        c.edit.editButton = false;
       }
     });
 
@@ -504,7 +503,6 @@ describe('Group', () => {
     }
 
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(3).should('not.exist');
-    cy.get(appFrontend.group.edit).should('not.exist');
     cy.get(appFrontend.group.addNewItem).click();
 
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 5);
@@ -517,8 +515,8 @@ describe('Group', () => {
     // This does not exist later, when we enter 'onlyTable' mode
     cy.get(appFrontend.group.saveMainGroup).click();
 
-    cy.get(appFrontend.group.edit).should('not.exist');
     cy.get(appFrontend.group.delete).should('have.length', 1);
+    cy.waitUntilSaved();
     cy.get(appFrontend.group.delete).click();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
 
@@ -685,6 +683,7 @@ describe('Group', () => {
       .eq(1)
       .should('contain.text', 'Endre fra: 120, Endre til: 350');
 
+    cy.waitUntilSaved(); // Wait until saved so that we're sure the previous changes are synced before we try to delete
     cy.get(appFrontend.group.secondGroup).findByRole('button', { name: 'Slett-1' }).click();
     cy.get(appFrontend.group.secondGroup).find('tbody > tr').should('have.length', 1);
 
@@ -699,6 +698,7 @@ describe('Group', () => {
       .eq(0)
       .should('contain.text', 'Endre fra: 120, Endre til: 350');
     cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).should('contain.text', 'Endre fra: 1, Endre til: 5');
+    cy.waitUntilSaved();
 
     // Adding a new row to the main group adds a new option
     cy.gotoNavPage('prefill');

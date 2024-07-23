@@ -437,12 +437,29 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     });
     let foundRow: RepGroupRow | undefined;
     await waitForItem((item) => {
-      foundRow = item?.rows.find((row) => row.uuid === uuid);
+      foundRow = item?.rows.find((row) => row.uuid === uuid && row.groupExpressions);
       return !!foundRow;
     });
     endAddingRow(uuid);
+
+    // It may take some time until effects run and the row is put into either the visibleRows or hiddenRows state in
+    // the ref, so we'll loop this a few times until we find the row.
+    let attempts = 5;
+    let foundVisible: boolean | undefined;
+    while (foundVisible === undefined && attempts > 0) {
+      foundVisible = rowStateRef.current.visibleRows.find((row) => row.uuid === uuid)
+        ? true
+        : rowStateRef.current.hiddenRows.find((row) => row.uuid === uuid)
+          ? false
+          : undefined;
+      if (foundVisible === undefined && attempts > 0) {
+        attempts--;
+        await new Promise((resolve) => setTimeout(resolve, 4));
+      }
+    }
+
     const index = foundRow?.index ?? -1;
-    if (rowStateRef.current.visibleRows.some((row) => row.uuid === uuid)) {
+    if (foundVisible) {
       await openForEditing(uuid);
       return { result: 'addedAndOpened', uuid, index };
     }

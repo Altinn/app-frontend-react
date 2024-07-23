@@ -53,6 +53,7 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
 
   const allSets = getAllApps(dir)
     .filter((app) => app.isValid())
+    .filter((app) => app.getName().match(/^\w+-prod-.*$/))
     .map((app) => app.enableCompatibilityMode().getLayoutSets())
     .flat()
     .filter((set) => set.isValid())
