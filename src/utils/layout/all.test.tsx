@@ -65,6 +65,10 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
 
   it.each(filteredSets)('$appName/$setName', async ({ set }) => {
     window.location.hash = set.simulateValidUrlHash();
+    const [org, app] = set.app.getOrgApp();
+    window.org = org;
+    window.app = app;
+
     await renderWithInstanceAndLayout({
       renderer: () => <TestApp />,
       queries: {

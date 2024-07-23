@@ -23,6 +23,10 @@ export class ExternalApp {
     return path.basename(this.rootDir);
   }
 
+  getOrgApp(): [string, string] {
+    return this.getAppMetadata().id.split('/') as [string, string];
+  }
+
   private readFile(path: string) {
     return fs.readFileSync(this.rootDir + path, 'utf-8').toString();
   }

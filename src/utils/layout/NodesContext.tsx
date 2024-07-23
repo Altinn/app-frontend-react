@@ -186,10 +186,11 @@ export function createNodesDataStore() {
         const nodeData = { ...state.nodeData };
         for (const { node, targetState, claim } of requests) {
           if (nodeData[node.id]) {
-            throw new Error(
+            const errorMsg =
               `Cannot add node '${node.id}', it already exists. ` +
-                `Maybe the layout-set has one or more components with duplicate IDs?`,
-            );
+              `Maybe the layout-set has one or more components with duplicate IDs?`;
+            window.logError(errorMsg);
+            throw new Error(errorMsg);
           }
 
           nodeData[node.id] = targetState;

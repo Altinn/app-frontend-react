@@ -6,6 +6,7 @@ import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
+import { applyLayoutQuirks } from 'src/features/form/layout/quirks';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useHasInstance } from 'src/features/instance/InstanceContext';
@@ -27,7 +28,9 @@ export function useLayoutQueryDef(enabled: boolean, layoutSetId?: string): Query
   const { fetchLayouts } = useAppQueries();
   return {
     queryKey: ['formLayouts', layoutSetId, enabled],
-    queryFn: layoutSetId ? () => fetchLayouts(layoutSetId).then(processLayouts) : skipToken,
+    queryFn: layoutSetId
+      ? () => fetchLayouts(layoutSetId).then((layouts) => processLayouts(layouts, layoutSetId))
+      : skipToken,
     enabled: enabled && !!layoutSetId,
   };
 }
@@ -77,7 +80,7 @@ export const useHiddenLayoutsExpressions = () => useCtx().hiddenLayoutsExpressio
 
 export const useExpandedWidthLayouts = () => useCtx().expandedWidthLayouts;
 
-function processLayouts(input: ILayoutCollection): LayoutContextValue {
+function processLayouts(input: ILayoutCollection, layoutSetId: string): LayoutContextValue {
   const layouts: ILayouts = {};
   const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
   const expandedWidthLayouts: IExpandedWidthLayouts = {};
@@ -87,6 +90,8 @@ function processLayouts(input: ILayoutCollection): LayoutContextValue {
     hiddenLayoutsExpressions[key] = file.data.hidden;
     expandedWidthLayouts[key] = file.data.expandedWidth;
   }
+
+  applyLayoutQuirks(layouts, layoutSetId);
 
   return {
     layouts,
