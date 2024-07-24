@@ -65,6 +65,7 @@ export const Config = new CG.component({
       new CG.enum('first', 'second', 'success', 'danger')
         .setTitle('Button color override')
         .setDescription('The color scheme of the button.')
+        .optional({ default: undefined })
         .exportAs('CustomButtonColor'),
     ),
   )
@@ -74,6 +75,7 @@ export const Config = new CG.component({
       new CG.enum('sm', 'md', 'lg', 'small', 'medium', 'large')
         .setTitle('Button size override')
         .setDescription('The size of the button.')
+        .optional({ default: undefined })
         .exportAs('CustomButtonSize'),
     ),
   )
