@@ -1,6 +1,7 @@
 import { toast } from 'react-toastify';
 
 import { useMutation } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
@@ -28,7 +29,12 @@ export const useAddEntryMutation = (dataType: string) => {
     },
     onError: (error) => {
       console.error('Failed to add sub-form entry:', error);
-      toast(langAsString('form_filler.error_add_sub_form'), { type: 'error' });
+
+      if (isAxiosError(error) && error.response?.status === 409) {
+        toast(langAsString('form_filler.error_max_count_reached_sub_form', [dataType]), { type: 'error' });
+      } else {
+        toast(langAsString('form_filler.error_add_sub_form'), { type: 'error' });
+      }
     },
   });
 };

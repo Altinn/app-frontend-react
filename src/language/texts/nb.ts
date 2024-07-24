@@ -56,7 +56,8 @@ export function nb(): FixedLanguageList {
     },
     form_filler: {
       error_add_sub_form: 'Det oppstod en feil ved opprettelse av underskjema, vennligst prøv igjen',
-      error_delete_sub_form: 'Noe gikk galt ved sletting av underskjema, vennligst prøv igjen.',
+      error_delete_sub_form: 'Noe gikk galt ved sletting av underskjema, vennligst prøv igjen',
+      error_max_count_reached_sub_form: 'Maks antall {0} oppføringer har blitt nådd',
       sub_form_default_header: 'Oppføringer',
       back_to_summary: 'Tilbake til oppsummering',
       alert_confirm: 'Bekreft',

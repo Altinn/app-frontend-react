@@ -44,6 +44,8 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
       const result = await addEntryMutation.mutateAsync({});
       navigate(`${node.item.id}/${result.id}`);
       // updateSubFormEntries([...subFormEntries, result]); // TODO: This is probably not required anymore
+    } catch {
+      // NOTE: Handled by useAddEntryMutation
     } finally {
       setIsAdding(false);
     }
