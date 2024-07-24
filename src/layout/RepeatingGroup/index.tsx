@@ -181,11 +181,16 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       hiddenImplicitly = true;
     }
 
-    if (row?.groupExpressions?.edit?.editButton === false && mode !== 'showAll' && mode !== 'onlyTable') {
-      // If the edit button is hidden for this row, it is not possible to open the editContainer. The component
-      // will effectively be hidden unless it is editable in the table.
-      return !tableColSetup?.editInTable;
-    }
+    // TODO: Comment this in. It will be a breaking change, and may break some
+    // apps (for example the PDF view in ssb/ra0760-01) which rely on this.
+    // Usually, implementing the following issue will solve the cases where this is misused:
+    // https://github.com/Altinn/app-frontend-react/issues/1494
+
+    // if (row?.groupExpressions?.edit?.editButton === false && mode !== 'showAll' && mode !== 'onlyTable') {
+    //   // If the edit button is hidden for this row, it is not possible to open the editContainer. The component
+    //   // will effectively be hidden unless it is editable in the table.
+    //   return !tableColSetup?.editInTable;
+    // }
 
     return hiddenImplicitly;
   }
