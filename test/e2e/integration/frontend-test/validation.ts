@@ -565,10 +565,10 @@ describe('Validation', () => {
     cy.get(appFrontend.grid.bolig.percent).numberFormatClear();
 
     cy.get(appFrontend.grid.kredittkort.percent).numberFormatClear();
-    cy.get(appFrontend.grid.kredittkort.percent).type('44');
+    cy.get(appFrontend.grid.kredittkort.percent).type('{moveToStart}{del}44');
 
     cy.get(appFrontend.grid.studie.percent).numberFormatClear();
-    cy.get(appFrontend.grid.studie.percent).type('56');
+    cy.get(appFrontend.grid.studie.percent).type('{moveToStart}{del}56');
 
     // When filling out the credit card field with 44%, there is a special validation that triggers and is added to
     // a field on a hidden page. Even though this should not happen, we should still not be able to continue, as
