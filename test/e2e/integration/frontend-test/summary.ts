@@ -459,7 +459,7 @@ describe('Summary', () => {
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
       cy.navPage('summary').click();
       assertErrorReport();
-      cy.get(exampleSummary).find('button').click();
+      cy.get(`${exampleSummary} button`).click();
       assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).click();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
