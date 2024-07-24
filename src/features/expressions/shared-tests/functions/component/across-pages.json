@@ -2,7 +2,7 @@
   "name": "Lookup across pages",
   "expression": ["component", "page1-input"],
   "context": {
-    "component": "art",
+    "component": "art2",
     "rowIndices": [0, 1],
     "currentLayout": "Mennesker"
   },
@@ -25,10 +25,10 @@
             "dataModelBindings": {
               "group": "Dyr"
             },
-            "children": ["art", "dyr-navn"]
+            "children": ["art1", "dyr-navn"]
           },
           {
-            "id": "art",
+            "id": "art1",
             "type": "Input",
             "dataModelBindings": {
               "simpleBinding": "Dyr.Art"
@@ -76,10 +76,10 @@
             "dataModelBindings": {
               "group": "Mennesker.FavorittDyr"
             },
-            "children": ["art"]
+            "children": ["art2"]
           },
           {
-            "id": "art",
+            "id": "art2",
             "type": "Input",
             "dataModelBindings": {
               "simpleBinding": "Mennesker.FavorittDyr.Art"
