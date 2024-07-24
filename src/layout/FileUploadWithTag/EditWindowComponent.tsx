@@ -63,7 +63,7 @@ export function EditWindowComponent({
       await setAttachmentTag(chosenTags);
     }
     setEditIndex(-1);
-    onAttachmentSave(node, uploadedAttachment.data.id);
+    await onAttachmentSave(node, uploadedAttachment.data.id);
   };
 
   const setAttachmentTag = async (tags: string[]) => {
@@ -78,7 +78,7 @@ export function EditWindowComponent({
     });
   };
 
-  const saveIsDisabled = attachment.updating || !attachment.uploaded || readOnly;
+  const saveIsDisabled = attachment.updating || !attachment.uploaded || readOnly || isFetching;
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
 
   return (
