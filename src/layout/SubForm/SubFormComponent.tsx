@@ -65,52 +65,57 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
           title={<Lang id={textResourceBindings?.title} />}
           description={textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
         />
-        <Table.Head id={`subform-${id}-table-body`}>
-          <Table.Row>
-            {haveTableColumns &&
-              tableColumns.map((entry, index) => (
-                <Table.HeaderCell
-                  className={classes.tableCellFormatting}
-                  key={index}
-                >
-                  <Lang id={entry.headerContent} />
+        {subFormEntries.length > 0 && (
+          <>
+            <Table.Head id={`subform-${id}-table-body`}>
+              <Table.Row>
+                {haveTableColumns &&
+                  tableColumns.map((entry, index) => (
+                    <Table.HeaderCell
+                      className={classes.tableCellFormatting}
+                      key={index}
+                    >
+                      <Lang id={entry.headerContent} />
+                    </Table.HeaderCell>
+                  ))}
+                {!haveTableColumns && (
+                  <Table.HeaderCell className={classes.tableCellFormatting}>
+                    <Lang id={langAsString('form_filler.sub_form_default_header')} />
+                  </Table.HeaderCell>
+                )}
+                <Table.HeaderCell>
+                  <span className={classes.visuallyHidden}>
+                    <Lang id={'general.edit'} />
+                  </span>
                 </Table.HeaderCell>
+                {showDeleteButton && (
+                  <Table.HeaderCell>
+                    <span className={classes.visuallyHidden}>
+                      <Lang id={'general.delete'} />
+                    </span>
+                  </Table.HeaderCell>
+                )}
+              </Table.Row>
+            </Table.Head>
+            <Table.Body>
+              {subFormEntries.map((dataElement, index) => (
+                <SubFormTableRow
+                  key={dataElement.id}
+                  dataElement={dataElement}
+                  node={node}
+                  rowNumber={index}
+                  showDeleteButton={showDeleteButton}
+                  deleteEntryCallback={(d) => {
+                    const items = subFormEntries.filter((x) => x.id != d.id);
+                    updateSubFormEntries([...items]);
+                  }}
+                />
               ))}
-            {!haveTableColumns && (
-              <Table.HeaderCell className={classes.tableCellFormatting}>
-                <Lang id={langAsString('form_filler.sub_form_default_header')} />
-              </Table.HeaderCell>
-            )}
-            <Table.HeaderCell>
-              <span className={classes.visuallyHidden}>
-                <Lang id={'general.edit'} />
-              </span>
-            </Table.HeaderCell>
-            {showDeleteButton && (
-              <Table.HeaderCell>
-                <span className={classes.visuallyHidden}>
-                  <Lang id={'general.delete'} />
-                </span>
-              </Table.HeaderCell>
-            )}
-          </Table.Row>
-        </Table.Head>
-        <Table.Body>
-          {subFormEntries.map((dataElement, index) => (
-            <SubFormTableRow
-              key={dataElement.id}
-              dataElement={dataElement}
-              node={node}
-              rowNumber={index}
-              showDeleteButton={showDeleteButton}
-              deleteEntryCallback={(d) => {
-                const items = subFormEntries.filter((x) => x.id != d.id);
-                updateSubFormEntries([...items]);
-              }}
-            />
-          ))}
-        </Table.Body>
+            </Table.Body>
+          </>
+        )}
       </Table>
+
       {showAddButton && (
         <Button
           disabled={isAdding}
