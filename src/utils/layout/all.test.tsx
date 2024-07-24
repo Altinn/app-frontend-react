@@ -2,16 +2,46 @@
 import React from 'react';
 
 import { screen } from '@testing-library/react';
+import dotenv from 'dotenv';
 import layoutSchema from 'schemas/json/layout/layout.schema.v1.json';
 import type { JSONSchema7 } from 'json-schema';
 
+import { quirks } from 'src/features/form/layout/quirks';
 import { ensureAppsDirIsSet, getAllApps } from 'src/test/allApps';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { ExternalAppLayoutSet } from 'src/test/allApps';
+
+const env = dotenv.config();
+const ENV: 'prod' | 'all' = env.parsed?.ALTINN_ALL_APPS_ENV === 'prod' ? 'prod' : 'all';
+const MODE: 'critical' | 'all' = env.parsed?.ALTINN_ALL_APPS_MODE === 'critical' ? 'critical' : 'all';
+
+const ignoreLogAndErrors = [
+  'DEPRECATED: option jsPropertySyntax',
+  'Warning: findDOMNode is deprecated and will be removed in the next major release',
+  'The above error occurred in the',
+  'Layout quirk(s) applied',
+  ...(MODE === 'critical'
+    ? [
+        'er ikke tillatt i `textResourceBindings`',
+        'Egenskapen `pageRef` er ikke tillatt',
+        'samsvarer ikke med mønsteret `^[0-9a-zA-Z][',
+      ]
+    : []),
+];
 
 function TestApp() {
   const errors = NodesInternal.useFullErrorList();
-  return <div data-testid='errors'>{JSON.stringify(errors)}</div>;
+  const filteredErrors: any = {};
+
+  for (const key in errors) {
+    const filtered = errors[key].filter((err: any) => !ignoreLogAndErrors.some((ignore) => err.includes(ignore)));
+    if (filtered.length) {
+      filteredErrors[key] = filtered;
+    }
+  }
+
+  return <div data-testid='errors'>{JSON.stringify(filteredErrors)}</div>;
 }
 
 const windowLoggers = ['logError', 'logErrorOnce', 'logWarn', 'logWarnOnce', 'logInfo', 'logInfoOnce'];
@@ -53,6 +83,7 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
 
   const allSets = getAllApps(dir)
     .filter((app) => app.isValid())
+    .filter((app) => (ENV === 'prod' ? app.getName().match(/^\w+-prod-.*$/) : true))
     .map((app) => app.enableCompatibilityMode().getLayoutSets())
     .flat()
     .filter((set) => set.isValid())
@@ -63,7 +94,7 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     ({ set }) => !appsToSkip.map((app) => set.app.getName().includes(app)).some((x) => x),
   );
 
-  it.each(filteredSets)('$appName/$setName', async ({ set }) => {
+  async function testSet(set: ExternalAppLayoutSet) {
     window.location.hash = set.simulateValidUrlHash();
     const [org, app] = set.app.getOrgApp();
     window.org = org;
@@ -109,14 +140,25 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
 
     expect(errors).toEqual({});
     expect(alwaysFail).toBe(false);
-  });
+  }
+
+  it.each(filteredSets)('$appName/$setName', async ({ set }) => testSet(set));
+
+  if (env.parsed?.ALTINN_ALL_APPS_TEST_FOR_LAST_QUIRK === 'true') {
+    it(`last quirk`, async () => {
+      const lastQuirk = Object.keys(quirks).at(-1);
+      const found = filteredSets.find(({ set }) => {
+        const [org, app] = set.app.getOrgApp();
+        return `${org}/${app}/${set.getName()}` === lastQuirk;
+      });
+
+      if (found) {
+        await testSet(found.set);
+      }
+    });
+  }
 });
 
-const ignoreLogCalls = [
-  'DEPRECATED: option jsPropertySyntax',
-  'Warning: findDOMNode is deprecated and will be removed in the next major release',
-  'The above error occurred in the',
-];
 function filterAndCleanMockCalls(mock: jest.Mock): string[] {
   return mock.mock.calls
     .map((_call) => {
@@ -128,7 +170,7 @@ function filterAndCleanMockCalls(mock: jest.Mock): string[] {
           continue;
         }
         if (typeof arg === 'string') {
-          shouldIgnore = ignoreLogCalls.some((remove) => arg.includes(remove));
+          shouldIgnore = ignoreLogAndErrors.some((remove) => arg.includes(remove));
           if (shouldIgnore) {
             continue;
           }

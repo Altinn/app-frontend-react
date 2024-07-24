@@ -91,11 +91,68 @@ function processLayouts(input: ILayoutCollection, layoutSetId: string): LayoutCo
     expandedWidthLayouts[key] = file.data.expandedWidth;
   }
 
-  applyLayoutQuirks(layouts, layoutSetId);
+  const withQuirksFixed = applyLayoutQuirks(layouts, layoutSetId);
+  removeDuplicateComponentIds(withQuirksFixed, layoutSetId);
 
   return {
-    layouts,
+    layouts: withQuirksFixed,
     hiddenLayoutsExpressions,
     expandedWidthLayouts,
   };
+}
+
+function removeDuplicateComponentIds(layouts: ILayouts, layoutSetId: string) {
+  const seenIds = new Map<string, { pageKey: string; idx: number }>();
+  const quirksCode = {
+    verifyAndApplyEarly: new Set<string>(),
+    verifyAndApplyLate: new Set<string>(),
+    logMessages: new Set<string>(),
+  };
+
+  for (const pageKey of Object.keys(layouts)) {
+    const page = layouts[pageKey] || [];
+    const toRemove: number[] = [];
+    for (const [idx, comp] of page.entries()) {
+      const prev = seenIds.get(comp.id);
+      if (prev) {
+        window.logError(
+          `Removed duplicate component id '${comp.id}' from page '${pageKey}' at index ${idx} ` +
+            `(first found on page '${prev.pageKey})' at index ${prev.idx})`,
+        );
+        toRemove.push(idx);
+
+        quirksCode.verifyAndApplyEarly.add(`assert(layouts['${prev.pageKey}']![${prev.idx}].id === '${comp.id}');`);
+        quirksCode.verifyAndApplyEarly.add(`assert(layouts['${pageKey}']![${idx}].id === '${comp.id}');`);
+        quirksCode.verifyAndApplyLate.add(`layouts['${pageKey}']![${idx}].id = '${comp.id}Duplicate';`);
+        quirksCode.logMessages.add(
+          `\`Renamed component id '${comp.id}' to '${comp.id}Duplicate' on page '${pageKey}'\``,
+        );
+
+        continue;
+      }
+      seenIds.set(comp.id, { pageKey, idx });
+    }
+    toRemove.reverse(); // Remove from the end to avoid changing the indexes
+    for (const idx of toRemove) {
+      page.splice(idx, 1);
+    }
+  }
+
+  if (quirksCode.verifyAndApplyEarly.size) {
+    const code: string[] = [];
+    code.push('{');
+    code.push('  verifyAndApply: (layouts) => {');
+    code.push(`    ${[...quirksCode.verifyAndApplyEarly.values()].join('\n    ')}`);
+    code.push('');
+    code.push(`    ${[...quirksCode.verifyAndApplyLate.values()].join('\n    ')}`);
+    code.push('  },');
+    code.push('  logMessages: [');
+    code.push(`    ${[...quirksCode.logMessages.values()].join(',\n    ')}`);
+    code.push('  ],');
+    code.push('}');
+    const fullKey = `${window.org}/${window.app}/${layoutSetId}`;
+    const _fullCode = `'${fullKey}': ${code.join('\n')},`;
+    // Uncomment the next line to get the generated quirks code
+    // debugger;
+  }
 }
