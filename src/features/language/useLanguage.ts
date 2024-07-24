@@ -16,7 +16,10 @@ import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { smartLowerCaseFirst } from 'src/utils/formComponentUtils';
 import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import type { useDataModelReaders } from 'src/features/formData/FormDataReaders';
-import type { LimitedTextResourceVariablesDataSources } from 'src/features/language/LangDataSourcesProvider';
+import type {
+  LangDataSources,
+  LimitedTextResourceVariablesDataSources,
+} from 'src/features/language/LangDataSourcesProvider';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList, NestedTexts } from 'src/language/languages';
 import type { FormDataSelector } from 'src/layout';
@@ -129,10 +132,12 @@ export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
 
 // Exactly the same as above, but returns a function accepting a node
 export function useLanguageWithForcedNodeSelector() {
-  const { textResources, language, selectedLanguage, ...dataSources } = useLangToolsDataSources() || {};
+  const all = useLangToolsDataSources();
+  const { textResources, language, selectedLanguage, ...dataSources } = all || ({} as LangDataSources);
   const layoutSetId = useCurrentLayoutSetId();
   const currentDataModelName = useDataTypeByLayoutSetId(layoutSetId);
   const currentDataModel = FD.useLaxDebouncedSelector();
+  const transposeSelector = useDataModelBindingTranspose();
 
   return useCallback(
     (node: LayoutNode | undefined) => {
@@ -141,16 +146,14 @@ export function useLanguageWithForcedNodeSelector() {
       }
 
       return staticUseLanguage(textResources, language, selectedLanguage, {
-        ...(dataSources as Omit<
-          TextResourceVariablesDataSources,
-          'node' | 'currentDataModel' | 'currentDataModelName'
-        >),
+        ...dataSources,
         node,
         currentDataModel,
         currentDataModelName,
+        transposeSelector,
       });
     },
-    [currentDataModel, currentDataModelName, dataSources, language, selectedLanguage, textResources],
+    [currentDataModel, currentDataModelName, dataSources, language, selectedLanguage, textResources, transposeSelector],
   );
 }
 
