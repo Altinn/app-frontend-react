@@ -532,6 +532,8 @@ describe('Validation', () => {
     cy.get(appFrontend.group.row(3).newValue).should('not.exist');
     cy.get(appFrontend.group.row(3).currentValue).should('not.exist');
     cy.get(appFrontend.group.editContainer).should('not.exist');
+
+    cy.waitUntilSaved();
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.errorReport).should('not.exist');
     cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
