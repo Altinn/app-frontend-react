@@ -132,6 +132,7 @@ function useWaitForValidation(): WaitForValidation {
       await waitForAttachments((state) => !state);
 
       // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
+      await waitForNodesReady();
       const validationsFromSave = await waitForSave(forceSave);
       await waitForNodesReady();
       await waitForState((state) => state.issueGroupsProcessedLast === validationsFromSave);

@@ -347,6 +347,7 @@ describe('Validation', () => {
 
     cy.get(appFrontend.group.prefill.liten).check();
     cy.get(appFrontend.group.prefill.stor).check();
+    cy.get(appFrontend.group.prefill.stor).blur();
     cy.get(appFrontend.nextButton).clickAndGone();
     cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
 
@@ -532,11 +533,12 @@ describe('Validation', () => {
     cy.get(appFrontend.group.row(3).newValue).should('not.exist');
     cy.get(appFrontend.group.row(3).currentValue).should('not.exist');
     cy.get(appFrontend.group.editContainer).should('not.exist');
-
-    cy.waitUntilSaved();
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.errorReport).should('not.exist');
-    cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
+
+    // The validations still show up, because technically these are not hidden, but they're unreachable.
+    // See the TODO in RepeatingGroup/index.tsx for why fixing this is a breaking change.
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
+    cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
   });
 
   it('Validates mime type on attachment', () => {

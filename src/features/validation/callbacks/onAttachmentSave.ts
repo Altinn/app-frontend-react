@@ -18,7 +18,6 @@ export function useOnAttachmentSave() {
 
       // Making sure the validations are available before we try to mark them visible
       await validating();
-      await new Promise((resolve) => setTimeout(resolve, 10));
 
       setAttachmentVisibility(attachmentId, node, mask);
     },

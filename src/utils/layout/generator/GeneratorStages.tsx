@@ -278,6 +278,7 @@ export function GeneratorStagesProvider({ children, markReady }: PropsWithChildr
         <CatchEmptyStages />
         {children}
       </WhenTickIsSet>
+      <SetWaitForCommits />
     </Provider>
   );
 }
@@ -331,6 +332,30 @@ function useCommit() {
     updateCommitsPendingInBody(toCommit);
     return changes;
   }, [addNodes, setNodeProps, setRowExtras, toCommit, setPageProps]);
+}
+
+function SetWaitForCommits() {
+  const setWaitForCommits = NodesInternal.useSetWaitForCommits();
+  const toCommit = useSelector((s) => s.toCommit);
+
+  const waitForCommits = useCallback(async () => {
+    let didWait = false;
+    while (Object.values(toCommit).some((arr) => arr.length > 0)) {
+      await new Promise((resolve) => setTimeout(resolve, 4));
+      didWait = true;
+    }
+
+    // If we did wait, wait some more (until the commits have been stored)
+    if (didWait) {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+  }, [toCommit]);
+
+  useEffect(() => {
+    setWaitForCommits(waitForCommits);
+  }, [setWaitForCommits, waitForCommits]);
+
+  return null;
 }
 
 /**

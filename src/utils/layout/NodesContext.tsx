@@ -143,6 +143,9 @@ export type NodesContext = {
   markReady: (readiness?: NodesReadiness) => void;
 
   reset: () => void;
+
+  waitForCommits: undefined | (() => Promise<void>);
+  setWaitForCommits: (waitForCommits: () => Promise<void>) => void;
 } & ExtraFunctions;
 
 /**
@@ -287,6 +290,9 @@ export function createNodesDataStore() {
     markReady: (readiness = NodesReadiness.Ready) => set(() => ({ readiness })),
 
     reset: () => set(() => ({ ...structuredClone(defaultState) })),
+
+    waitForCommits: undefined,
+    setWaitForCommits: (waitForCommits) => set(() => ({ waitForCommits })),
 
     ...(Object.values(StorePlugins)
       .map((plugin) => plugin.extraFunctions(set))
@@ -826,10 +832,13 @@ export const NodesInternal = {
   useWaitUntilReady() {
     const store = Store.useLaxStore();
     const waitForState = useWaitForState<undefined, NodesContext | typeof ContextNotProvided>(store);
-    return useCallback(
-      () => waitForState((state) => (state === ContextNotProvided ? true : state.readiness === NodesReadiness.Ready)),
-      [waitForState],
-    );
+    const waitForCommits = Store.useSelector((s) => s.waitForCommits);
+    return useCallback(async () => {
+      await waitForState((state) => (state === ContextNotProvided ? true : state.readiness === NodesReadiness.Ready));
+      if (waitForCommits) {
+        await waitForCommits();
+      }
+    }, [waitForState, waitForCommits]);
   },
 
   useFullErrorList() {
@@ -915,6 +924,7 @@ export const NodesInternal = {
   useAddNodes: () => Store.useSelector((s) => s.addNodes),
   useAddError: () => Store.useSelector((s) => s.addError),
   useMarkHiddenViaRule: () => Store.useSelector((s) => s.markHiddenViaRule),
+  useSetWaitForCommits: () => Store.useSelector((s) => s.setWaitForCommits),
 
   ...(Object.values(StorePlugins)
     .map((plugin) => plugin.extraHooks(Store))
