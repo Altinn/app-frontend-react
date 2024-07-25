@@ -5,7 +5,6 @@ import { Textfield } from '@digdir/designsystemet-react';
 import { Label } from 'src/components/label/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
@@ -176,14 +175,12 @@ export function AddressComponent({ node }: IAddressProps) {
               renderLabelAs='label'
               textResourceBindings={{
                 title: textResourceBindings?.houseNumberTitle ?? 'address_component.house_number',
+                helpText: 'address_component.house_number_helper',
               }}
               readOnly={readOnly}
               required={required}
               labelSettings={labelSettings}
             >
-              <p>
-                <Lang id={'address_component.house_number_helper'} />
-              </p>
               <div className={classes.addressComponentSmallInputs}>
                 <Textfield
                   id={`address_house_number_${id}`}
