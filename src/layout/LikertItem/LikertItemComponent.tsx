@@ -18,9 +18,9 @@ export const LikertItemComponent = forwardRef<HTMLTableRowElement, PropsFromGene
   (props, ref) => {
     const nodeLayout = props.node.item.layout;
     const overriddenLayout = props.overrideItemProps?.layout;
-    const actualLayout = overriddenLayout || nodeLayout;
+    const layout = overriddenLayout ?? nodeLayout;
 
-    if (actualLayout === LayoutStyle.Table) {
+    if (layout === LayoutStyle.Table) {
       return (
         <RadioGroupTableRow
           {...props}
@@ -88,4 +88,5 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
     </Table.Row>
   );
 });
+
 RadioGroupTableRow.displayName = 'RadioGroupTableRow';

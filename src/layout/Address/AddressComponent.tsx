@@ -13,6 +13,7 @@ import { hasValidationErrors } from 'src/features/validation/utils';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import classes from 'src/layout/Address/AddressComponent.module.css';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsForAddress } from 'src/layout/Address/config.generated';
 
@@ -47,166 +48,168 @@ export function AddressComponent({ node }: IAddressProps) {
   useEffect(() => updatePostPlace(postPlaceQueryData), [postPlaceQueryData, updatePostPlace]);
 
   return (
-    <div
-      className={classes.addressComponent}
-      key={`address_component_${id}`}
-    >
-      <div>
-        <Label
-          id={`address_address_${id}`}
-          renderLabelAs='label'
-          textResourceBindings={{ title: textResourceBindings?.title ?? 'address_component.address' }}
-          readOnly={readOnly}
-          required={required}
-          labelSettings={labelSettings}
-        >
-          <Textfield
-            id={`address_address_${id}`}
-            data-bindingkey={bindingKeys.address}
-            error={hasValidationErrors(bindingValidations?.address)}
-            size={'small'}
-            value={address}
-            onChange={(ev) => setValue('address', ev.target.value)}
-            onBlur={debounce}
-            readOnly={readOnly}
-            required={required}
-            autoComplete={simplified ? 'street-address' : 'address-line1'}
-          />
-        </Label>
-        <ComponentValidations
-          validations={bindingValidations?.address}
-          node={node}
-        />
-      </div>
-
-      {!simplified && (
+    <ComponentStructureWrapper node={node}>
+      <div
+        className={classes.addressComponent}
+        key={`address_component_${id}`}
+      >
         <div>
           <Label
-            id={`address_care_of_${id}`}
+            id={`address_address_${id}`}
             renderLabelAs='label'
-            textResourceBindings={{ title: textResourceBindings?.careOfTitle ?? 'address_component.care_of' }}
+            textResourceBindings={{ title: textResourceBindings?.title ?? 'address_component.address' }}
             readOnly={readOnly}
             required={required}
             labelSettings={labelSettings}
           >
             <Textfield
-              id={`address_care_of_${id}`}
-              data-bindingkey={bindingKeys.careOf}
-              error={hasValidationErrors(bindingValidations?.careOf)}
+              id={`address_address_${id}`}
+              data-bindingkey={bindingKeys.address}
+              error={hasValidationErrors(bindingValidations?.address)}
               size={'small'}
-              value={careOf}
-              onChange={(ev) => setValue('careOf', ev.target.value)}
+              value={address}
+              onChange={(ev) => setValue('address', ev.target.value)}
               onBlur={debounce}
               readOnly={readOnly}
-              autoComplete='address-line2'
+              required={required}
+              autoComplete={simplified ? 'street-address' : 'address-line1'}
             />
           </Label>
           <ComponentValidations
-            validations={bindingValidations?.careOf}
+            validations={bindingValidations?.address}
             node={node}
           />
         </div>
-      )}
 
-      <div className={classes.addressComponentPostplaceZipCode}>
-        <div className={classes.addressComponentZipCode}>
-          <Label
-            id={`address_zip_code_${id}`}
-            renderLabelAs='label'
-            textResourceBindings={{ title: textResourceBindings?.zipCodeTitle ?? 'address_component.zip_code' }}
-            readOnly={readOnly}
-            required={required}
-            labelSettings={labelSettings}
-          >
-            <div className={classes.addressComponentSmallInputs}>
+        {!simplified && (
+          <div>
+            <Label
+              id={`address_care_of_${id}`}
+              renderLabelAs='label'
+              textResourceBindings={{ title: textResourceBindings?.careOfTitle ?? 'address_component.care_of' }}
+              readOnly={readOnly}
+              required={required}
+              labelSettings={labelSettings}
+            >
               <Textfield
-                id={`address_zip_code_${id}`}
-                data-bindingkey={bindingKeys.zipCode}
-                error={hasValidationErrors(bindingValidations?.zipCode)}
+                id={`address_care_of_${id}`}
+                data-bindingkey={bindingKeys.careOf}
+                error={hasValidationErrors(bindingValidations?.careOf)}
                 size={'small'}
-                value={zipCode}
-                onChange={(ev) => setValue('zipCode', ev.target.value)}
+                value={careOf}
+                onChange={(ev) => setValue('careOf', ev.target.value)}
                 onBlur={debounce}
                 readOnly={readOnly}
-                required={required}
-                inputMode='numeric'
-                autoComplete='postal-code'
+                autoComplete='address-line2'
               />
-            </div>
-          </Label>
+            </Label>
+            <ComponentValidations
+              validations={bindingValidations?.careOf}
+              node={node}
+            />
+          </div>
+        )}
+
+        <div className={classes.addressComponentPostplaceZipCode}>
+          <div className={classes.addressComponentZipCode}>
+            <Label
+              id={`address_zip_code_${id}`}
+              renderLabelAs='label'
+              textResourceBindings={{ title: textResourceBindings?.zipCodeTitle ?? 'address_component.zip_code' }}
+              readOnly={readOnly}
+              required={required}
+              labelSettings={labelSettings}
+            >
+              <div className={classes.addressComponentSmallInputs}>
+                <Textfield
+                  id={`address_zip_code_${id}`}
+                  data-bindingkey={bindingKeys.zipCode}
+                  error={hasValidationErrors(bindingValidations?.zipCode)}
+                  size={'small'}
+                  value={zipCode}
+                  onChange={(ev) => setValue('zipCode', ev.target.value)}
+                  onBlur={debounce}
+                  readOnly={readOnly}
+                  required={required}
+                  inputMode='numeric'
+                  autoComplete='postal-code'
+                />
+              </div>
+            </Label>
+          </div>
+
+          <div className={classes.addressComponentPostplace}>
+            <Label
+              id={`address_post_place_${id}`}
+              renderLabelAs='label'
+              textResourceBindings={{ title: textResourceBindings?.postPlaceTitle ?? 'address_component.post_place' }}
+              readOnly={readOnly}
+              required={required}
+              labelSettings={labelSettings}
+            >
+              <Textfield
+                id={`address_post_place_${id}`}
+                data-bindingkey={bindingKeys.postPlace}
+                error={hasValidationErrors(bindingValidations?.postPlace)}
+                size={'small'}
+                value={postPlace}
+                readOnly={true}
+                required={required}
+                autoComplete='address-level1'
+              />
+            </Label>
+          </div>
+          <ComponentValidations
+            validations={bindingValidations?.zipCode}
+            node={node}
+          />
+          <ComponentValidations
+            validations={bindingValidations?.postPlace}
+            node={node}
+          />
         </div>
 
-        <div className={classes.addressComponentPostplace}>
-          <Label
-            id={`address_post_place_${id}`}
-            renderLabelAs='label'
-            textResourceBindings={{ title: textResourceBindings?.postPlaceTitle ?? 'address_component.post_place' }}
-            readOnly={readOnly}
-            required={required}
-            labelSettings={labelSettings}
-          >
-            <Textfield
-              id={`address_post_place_${id}`}
-              data-bindingkey={bindingKeys.postPlace}
-              error={hasValidationErrors(bindingValidations?.postPlace)}
-              size={'small'}
-              value={postPlace}
-              readOnly={true}
+        {!simplified && (
+          <div>
+            <Label
+              id={`address_house_number_${id}`}
+              renderLabelAs='label'
+              textResourceBindings={{
+                title: textResourceBindings?.houseNumberTitle ?? 'address_component.house_number',
+              }}
+              readOnly={readOnly}
               required={required}
-              autoComplete='address-level1'
+              labelSettings={labelSettings}
+            >
+              <p>
+                <Lang id={'address_component.house_number_helper'} />
+              </p>
+              <div className={classes.addressComponentSmallInputs}>
+                <Textfield
+                  id={`address_house_number_${id}`}
+                  data-bindingkey={bindingKeys.houseNumber}
+                  error={hasValidationErrors(bindingValidations?.houseNumber)}
+                  size={'small'}
+                  value={houseNumber}
+                  onChange={(ev) => setValue('houseNumber', ev.target.value)}
+                  onBlur={debounce}
+                  readOnly={readOnly}
+                  autoComplete='address-line3'
+                />
+              </div>
+            </Label>
+            <ComponentValidations
+              validations={bindingValidations?.houseNumber}
+              node={node}
             />
-          </Label>
-        </div>
+          </div>
+        )}
+
         <ComponentValidations
-          validations={bindingValidations?.zipCode}
-          node={node}
-        />
-        <ComponentValidations
-          validations={bindingValidations?.postPlace}
+          validations={componentValidations}
           node={node}
         />
       </div>
-
-      {!simplified && (
-        <div>
-          <Label
-            id={`address_house_number_${id}`}
-            renderLabelAs='label'
-            textResourceBindings={{
-              title: textResourceBindings?.houseNumberTitle ?? 'address_component.house_number',
-            }}
-            readOnly={readOnly}
-            required={required}
-            labelSettings={labelSettings}
-          >
-            <p>
-              <Lang id={'address_component.house_number_helper'} />
-            </p>
-            <div className={classes.addressComponentSmallInputs}>
-              <Textfield
-                id={`address_house_number_${id}`}
-                data-bindingkey={bindingKeys.houseNumber}
-                error={hasValidationErrors(bindingValidations?.houseNumber)}
-                size={'small'}
-                value={houseNumber}
-                onChange={(ev) => setValue('houseNumber', ev.target.value)}
-                onBlur={debounce}
-                readOnly={readOnly}
-                autoComplete='address-line3'
-              />
-            </div>
-          </Label>
-          <ComponentValidations
-            validations={bindingValidations?.houseNumber}
-            node={node}
-          />
-        </div>
-      )}
-
-      <ComponentValidations
-        validations={componentValidations}
-        node={node}
-      />
-    </div>
+    </ComponentStructureWrapper>
   );
 }

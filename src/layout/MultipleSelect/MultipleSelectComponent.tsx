@@ -4,13 +4,13 @@ import { Combobox } from '@digdir/designsystemet-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { Label } from 'src/components/label/Label';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -66,9 +66,9 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
         </DeleteWarningPopover>
       )}
     >
-      <Label
-        {...node.item}
-        renderLabelAs='label'
+      <ComponentStructureWrapper
+        node={node}
+        label={{ ...node.item, renderLabelAs: 'label' }}
       >
         <Combobox
           multiple
@@ -104,7 +104,7 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
             </Combobox.Option>
           ))}
         </Combobox>
-      </Label>
+      </ComponentStructureWrapper>
     </ConditionalWrapper>
   );
 }

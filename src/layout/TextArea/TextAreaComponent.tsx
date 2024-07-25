@@ -2,9 +2,9 @@ import React from 'react';
 
 import { Textarea } from '@digdir/designsystemet-react';
 
-import { Label } from 'src/components/label/Label';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -23,9 +23,9 @@ export function TextAreaComponent({ node, overrideDisplay, isValid }: ITextAreaP
   } = useDataModelBindings(dataModelBindings, saveWhileTyping);
 
   return (
-    <Label
-      {...node.item}
-      renderLabelAs='label'
+    <ComponentStructureWrapper
+      node={node}
+      label={{ ...node.item, renderLabelAs: 'label' }}
     >
       <Textarea
         id={id}
@@ -45,6 +45,6 @@ export function TextAreaComponent({ node, overrideDisplay, isValid }: ITextAreaP
         autoComplete={autocomplete}
         style={{ height: '150px' }}
       />
-    </Label>
+    </ComponentStructureWrapper>
   );
 }

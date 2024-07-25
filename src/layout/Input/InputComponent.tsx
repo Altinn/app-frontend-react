@@ -17,7 +17,7 @@ export type IInputProps = PropsFromGenericComponent<'Input'>;
 
 import type { TextfieldProps } from '@digdir/designsystemet-react/dist/types/components/form/Textfield/Textfield';
 
-import { Label } from 'src/components/label/Label';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 
 interface InputComponentProps extends Omit<TextfieldProps, 'prefix' | 'suffix'> {
   textOnly?: boolean;
@@ -192,17 +192,18 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
   };
 
   return (
-    <Label
-      {...{
+    <ComponentStructureWrapper
+      node={node}
+      label={{
         ...node.item,
         textResourceBindings: {
           ...node.item.textResourceBindings,
           title: overrideDisplay?.renderLabel !== false ? textResourceBindings?.title : undefined,
         },
+        renderLabelAs: 'label',
       }}
-      renderLabelAs='label'
     >
       {renderSpecificInputVariant()}
-    </Label>
+    </ComponentStructureWrapper>
   );
 };

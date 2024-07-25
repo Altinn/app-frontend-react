@@ -9,10 +9,10 @@ import type {
   SortDirection,
 } from '@digdir/design-system-react/dist/types/components/legacy/LegacyTable/utils';
 
-import { Label } from 'src/components/label/Label';
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import type { Filter } from 'src/features/dataLists/useDataListQuery';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
@@ -119,13 +119,13 @@ export const ListComponent = ({ node }: IListProps) => {
   };
 
   return (
-    <Label
-      {...node.item}
-      renderLabelAs='legend'
+    <ComponentStructureWrapper
+      node={node}
+      label={{ ...node.item, renderLabelAs: 'legend' }}
     >
       <div style={{ overflow: 'auto' }}>
         <LegacyResponsiveTable config={config} />
       </div>
-    </Label>
+    </ComponentStructureWrapper>
   );
 };

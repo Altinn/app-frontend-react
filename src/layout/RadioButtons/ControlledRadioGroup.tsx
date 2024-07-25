@@ -7,12 +7,13 @@ import { RadioButton } from 'src/components/form/RadioButton';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { shouldUseRowLayout } from 'src/utils/layout';
-import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
+import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IControlledRadioGroupProps = IRadioButtonsContainerProps;
+export type IControlledRadioGroupProps = PropsFromGenericComponent<'RadioButtons' | 'LikertItem'>;
 
 export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const { node, isValid, overrideDisplay } = props;
@@ -63,36 +64,38 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   }
 
   return (
-    <div id={id}>
-      <Radio.Group
-        legend={labelText}
-        hideLegend={overrideDisplay?.renderLegend === false}
-        description={<Lang id={textResourceBindings?.description} />}
-        error={!isValid}
-        readOnly={readOnly}
-        inline={shouldDisplayHorizontally}
-        role='radiogroup'
-      >
-        {calculatedOptions.map((option) => (
-          <RadioButton
-            {...option}
-            label={langAsString(option.label)}
-            description={option.description && <Lang id={option.description} />}
-            helpText={option.helpText && <Lang id={option.helpText} />}
-            name={id}
-            key={option.value}
-            checked={option.value === selectedValues[0]}
-            showAsCard={showAsCard}
-            readOnly={readOnly}
-            onChange={handleChange}
-            hideLabel={hideLabel}
-            size='small'
-            alertOnChange={alertOnChange}
-            alertText={alertText}
-            confirmChangeText={confirmChangeText}
-          />
-        ))}
-      </Radio.Group>
-    </div>
+    <ComponentStructureWrapper node={node}>
+      <div id={id}>
+        <Radio.Group
+          legend={labelText}
+          hideLegend={overrideDisplay?.renderLegend === false}
+          description={<Lang id={textResourceBindings?.description} />}
+          error={!isValid}
+          readOnly={readOnly}
+          inline={shouldDisplayHorizontally}
+          role='radiogroup'
+        >
+          {calculatedOptions.map((option) => (
+            <RadioButton
+              {...option}
+              label={langAsString(option.label)}
+              description={option.description && <Lang id={option.description} />}
+              helpText={option.helpText && <Lang id={option.helpText} />}
+              name={id}
+              key={option.value}
+              checked={option.value === selectedValues[0]}
+              showAsCard={showAsCard}
+              readOnly={readOnly}
+              onChange={handleChange}
+              hideLabel={hideLabel}
+              size='small'
+              alertOnChange={alertOnChange}
+              alertText={alertText}
+              confirmChangeText={confirmChangeText}
+            />
+          ))}
+        </Radio.Group>
+      </div>
+    </ComponentStructureWrapper>
   );
 };

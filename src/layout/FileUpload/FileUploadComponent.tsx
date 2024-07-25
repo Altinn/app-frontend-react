@@ -3,7 +3,6 @@ import { toast } from 'react-toastify';
 import type { JSX } from 'react';
 import type { FileRejection } from 'react-dropzone';
 
-import { Label } from 'src/components/label/Label';
 import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/AttachmentsContext';
 import {
   AttachmentsMappedToFormDataProvider,
@@ -16,6 +15,7 @@ import { ComponentValidations } from 'src/features/validation/ComponentValidatio
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { AttachmentsCounter } from 'src/layout/FileUpload/AttachmentsCounter';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
@@ -126,9 +126,9 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   );
 
   return (
-    <Label
-      {...node.item}
-      renderLabelAs='label'
+    <ComponentStructureWrapper
+      node={node}
+      label={{ ...node.item, renderLabelAs: 'label' }}
     >
       <AttachmentsMappedToFormDataProvider mappingTools={mappingTools}>
         <div
@@ -176,6 +176,6 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
           {renderAddMoreAttachmentsButton()}
         </div>
       </AttachmentsMappedToFormDataProvider>
-    </Label>
+    </ComponentStructureWrapper>
   );
 }

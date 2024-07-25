@@ -7,7 +7,6 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLayoutValidationForNode } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
-import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useIsDev } from 'src/hooks/useIsDev';
@@ -73,29 +72,13 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   overrideItemProps,
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
-  let item = node.item;
-  const id = item.id;
-
-  if (overrideItemProps) {
-    item = {
-      ...item,
-      ...overrideItemProps,
-    };
-  }
+  const id = node.item.id;
+  const item = overrideItemProps ? { ...node.item, ...overrideItemProps } : { ...node.item };
 
   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
   const validations = useUnifiedValidationsForNode(node);
   const isValid = !hasValidationErrors(validations);
   const isHidden = useIsHiddenComponent();
-
-  // If maxLength is set in both schema and component, don't display the schema error message
-  const maxLength = 'maxLength' in node.item && node.item.maxLength;
-  const filteredValidationErrors = maxLength
-    ? validations.filter(
-        (validation) =>
-          !(validation.message.key === 'validation_errors.maxLength' && validation.message.params?.at(0) === maxLength),
-      )
-    : validations;
 
   const formComponentContext = useMemo<IFormComponentContext>(
     () => ({
@@ -171,8 +154,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     overrideDisplay,
   };
 
-  const showValidationMessages = layoutComponent.renderDefaultValidations();
-
   if ('renderAsSummary' in node.item && node.item.renderAsSummary) {
     const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
 
@@ -217,20 +198,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         )}
         alignItems='baseline'
       >
-        <Grid
-          key={`form-content-${id}`}
-          item={true}
-          id={`form-content-${id}`}
-          {...gridBreakpoints(item.grid?.innerGrid)}
-        >
-          <RenderComponent {...componentProps} />
-          {showValidationMessages && (
-            <ComponentValidations
-              validations={filteredValidationErrors}
-              node={node}
-            />
-          )}
-        </Grid>
+        <RenderComponent {...componentProps} />
       </Grid>
     </FormComponentContextProvider>
   );

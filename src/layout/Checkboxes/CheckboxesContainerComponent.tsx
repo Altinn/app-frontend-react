@@ -10,6 +10,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import classes from 'src/layout/Checkboxes/CheckboxesContainerComponent.module.css';
 import { WrappedCheckbox } from 'src/layout/Checkboxes/WrappedCheckbox';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -50,41 +51,45 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
   const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1 && !showLabelsInTable;
   const ariaLabel = overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined;
 
-  return isFetching ? (
-    <AltinnSpinner />
-  ) : (
-    <div
-      id={id}
-      key={`checkboxes_group_${id}`}
-    >
-      <Checkbox.Group
-        className={cn({ [classes.horizontal]: horizontal }, classes.checkboxGroup)}
-        legend={labelTextGroup}
-        description={textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
-        readOnly={readOnly}
-        hideLegend={overrideDisplay?.renderLegend === false}
-        error={!isValid}
-        aria-label={ariaLabel}
-        value={selectedValues}
-        data-testid='checkboxes-fieldset'
-      >
-        {calculatedOptions.map((option) => (
-          <WrappedCheckbox
-            key={option.value}
-            id={id}
-            option={option}
-            hideLabel={hideLabel}
-            alertOnChange={alertOnChange}
-            checked={selectedValues.includes(option.value)}
-            setChecked={(isChecked) => {
-              const newData = isChecked
-                ? [...selectedValues, option.value]
-                : selectedValues.filter((o) => o !== option.value);
-              setData(newData);
-            }}
-          />
-        ))}
-      </Checkbox.Group>
-    </div>
+  return (
+    <ComponentStructureWrapper node={node}>
+      {isFetching ? (
+        <AltinnSpinner />
+      ) : (
+        <div
+          id={id}
+          key={`checkboxes_group_${id}`}
+        >
+          <Checkbox.Group
+            className={cn({ [classes.horizontal]: horizontal }, classes.checkboxGroup)}
+            legend={labelTextGroup}
+            description={textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
+            readOnly={readOnly}
+            hideLegend={overrideDisplay?.renderLegend === false}
+            error={!isValid}
+            aria-label={ariaLabel}
+            value={selectedValues}
+            data-testid='checkboxes-fieldset'
+          >
+            {calculatedOptions.map((option) => (
+              <WrappedCheckbox
+                key={option.value}
+                id={id}
+                option={option}
+                hideLabel={hideLabel}
+                alertOnChange={alertOnChange}
+                checked={selectedValues.includes(option.value)}
+                setChecked={(isChecked) => {
+                  const newData = isChecked
+                    ? [...selectedValues, option.value]
+                    : selectedValues.filter((o) => o !== option.value);
+                  setData(newData);
+                }}
+              />
+            ))}
+          </Checkbox.Group>
+        </div>
+      )}
+    </ComponentStructureWrapper>
   );
 };

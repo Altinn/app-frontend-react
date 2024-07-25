@@ -4,9 +4,9 @@ import { Map } from '@altinn/altinn-design-system';
 import { makeStyles, Typography } from '@material-ui/core';
 import type { Location } from '@altinn/altinn-design-system';
 
-import { Label } from 'src/components/label/Label';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { markerIcon } from 'src/layout/Map/MapIcons';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -31,9 +31,12 @@ export function MapComponent({ isValid, node }: IMapComponentProps) {
   };
 
   return (
-    <Label
-      {...node.item}
-      renderLabelAs='span'
+    <ComponentStructureWrapper
+      node={node}
+      label={{
+        ...node.item,
+        renderLabelAs: 'span',
+      }}
     >
       <div className={`map-component${isValid ? '' : ' validation-error'}`}>
         <Map
@@ -56,7 +59,7 @@ export function MapComponent({ isValid, node }: IMapComponentProps) {
           )}
         </Typography>
       </div>
-    </Label>
+    </ComponentStructureWrapper>
   );
 }
 

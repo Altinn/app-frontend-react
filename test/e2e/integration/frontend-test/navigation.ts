@@ -166,7 +166,9 @@ describe('Navigation', () => {
     cy.findByRole('link', { name: 'Klikk på meg' }).click();
 
     cy.url().should('satisfy', (url) => url.endsWith('/Task_3/repeating'));
-    cy.findByLabelText('Hvilket tall må "Endre fra" være større enn for å skjule rader?').should('be.focused');
+    cy.findByRole('textbox', { name: /hvilket tall må "endre fra" være større enn for å skjule rader\?/i }).should(
+      'be.focused',
+    );
   });
 
   it('should navigate back to previous page when using browser back after navigating to a component', () => {
@@ -189,7 +191,9 @@ describe('Navigation', () => {
     cy.findByRole('link', { name: 'Klikk på meg' }).click();
 
     cy.url().should('satisfy', (url) => url.endsWith('/Task_3/repeating'));
-    cy.findByLabelText('Hvilket tall må "Endre fra" være større enn for å skjule rader?').should('be.focused');
+    cy.findByRole('textbox', { name: /hvilket tall må "endre fra" være større enn for å skjule rader\?/i }).should(
+      'be.focused',
+    );
     cy.go('back');
     cy.url().should('satisfy', (url) => url.endsWith('/Task_3/prefill'));
   });
