@@ -752,7 +752,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
   });
 
-  it.only('should navigate and scroll to correct component when clicking error report', () => {
+  it('should navigate and scroll to correct component when clicking error report', () => {
     cy.goto('changename');
     cy.gotoNavPage('grid');
     cy.get(appFrontend.sendinButton).click();
