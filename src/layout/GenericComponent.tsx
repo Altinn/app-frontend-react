@@ -187,8 +187,8 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         data-componentid={item.id}
         data-componenttype={item.type}
         ref={containerDivRef}
-        item={true}
-        container={true}
+        item
+        container
         {...gridBreakpoints(item.grid)}
         key={`grid-${id}`}
         className={classNames(

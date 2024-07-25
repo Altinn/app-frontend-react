@@ -43,8 +43,8 @@ export function LabelContent({
         <span className={classes.labelContent}>
           <Lang id={label} />
           <RequiredIndicator
-            required={required}
             readOnly={readOnly}
+            required={required}
           />
           <OptionalIndicator
             labelSettings={labelSettings}
@@ -66,7 +66,7 @@ export function LabelContent({
       {description && (
         <Description
           key={`description-${id}`}
-          description={description}
+          description={<Lang id={description} />}
           id={id}
         />
       )}

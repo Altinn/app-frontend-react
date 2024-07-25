@@ -22,6 +22,7 @@ export type LabelProps = PropsWithChildren<{
   textResourceBindings?: {
     title?: string;
     description?: string;
+    help?: string;
     helpText?: string;
   };
 }>;
@@ -44,7 +45,7 @@ export function Label({
   const labelContentProps: Omit<LabelContentProps, 'id'> = {
     label: textResourceBindings.title,
     description: textResourceBindings.description,
-    helpText: textResourceBindings.helpText,
+    helpText: textResourceBindings.help ?? textResourceBindings.helpText,
     required,
     readOnly,
     labelSettings,
@@ -57,12 +58,12 @@ export function Label({
           size='small'
           className={classes.fieldWrapper}
           legend={
-            <Grid {...gridBreakpoints(grid?.labelGrid)}>
+            <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
               <LabelContent
                 id={labelId}
                 {...labelContentProps}
               />
-            </Grid>
+            </LabelGridItemWrapper>
           }
         >
           {children}
@@ -77,9 +78,9 @@ export function Label({
           style={{ width: '100%' }}
         >
           <Grid container>
-            <Grid {...gridBreakpoints(grid?.labelGrid)}>
+            <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
               <LabelContent {...labelContentProps} />
-            </Grid>
+            </LabelGridItemWrapper>
             {children}
           </Grid>
         </DesignsystemetLabel>
@@ -88,19 +89,31 @@ export function Label({
     case 'span':
     default:
       return (
-        <Grid container>
+        <>
           {/* we want this "label" not to be rendered as a <label>,
            because it does not belong to an input element */}
-          <Grid {...gridBreakpoints(grid?.labelGrid)}>
+          <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
             <DesignsystemetLabel asChild>
               <LabelContent
                 id={labelId}
                 {...labelContentProps}
               />
             </DesignsystemetLabel>
-          </Grid>
+          </LabelGridItemWrapper>
           {children}
-        </Grid>
+        </>
       );
   }
+}
+
+function LabelGridItemWrapper({ children, labelGrid }: PropsWithChildren<{ labelGrid?: IGridStyling }>) {
+  return (
+    <Grid
+      item
+      {...gridBreakpoints(labelGrid)}
+      className={classes.gridItemWrapper}
+    >
+      {children}
+    </Grid>
+  );
 }

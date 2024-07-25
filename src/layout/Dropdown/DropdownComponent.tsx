@@ -53,24 +53,24 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
   }
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      label={{ ...node.item, renderLabelAs: 'label' }}
+    <ConditionalWrapper
+      condition={Boolean(alertOnChange)}
+      wrapper={(children) => (
+        <DeleteWarningPopover
+          onPopoverDeleteClick={confirmChange}
+          onCancelClick={cancelChange}
+          deleteButtonText={langAsString('form_filler.alert_confirm')}
+          messageText={alertMessage}
+          open={alertOpen}
+          setOpen={setAlertOpen}
+        >
+          {children}
+        </DeleteWarningPopover>
+      )}
     >
-      <ConditionalWrapper
-        condition={Boolean(alertOnChange)}
-        wrapper={(children) => (
-          <DeleteWarningPopover
-            onPopoverDeleteClick={confirmChange}
-            onCancelClick={cancelChange}
-            deleteButtonText={langAsString('form_filler.alert_confirm')}
-            messageText={alertMessage}
-            open={alertOpen}
-            setOpen={setAlertOpen}
-          >
-            {children}
-          </DeleteWarningPopover>
-        )}
+      <ComponentStructureWrapper
+        node={node}
+        label={overrideDisplay?.renderedInTable !== true ? { ...node.item, renderLabelAs: 'label' } : undefined}
       >
         <Combobox
           id={id}
@@ -106,7 +106,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
             </Combobox.Option>
           ))}
         </Combobox>
-      </ConditionalWrapper>
-    </ComponentStructureWrapper>
+      </ComponentStructureWrapper>
+    </ConditionalWrapper>
   );
 }

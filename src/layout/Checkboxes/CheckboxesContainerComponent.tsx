@@ -36,7 +36,6 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
     <LabelContent
       id={`label-${id}`}
       label={node.item.textResourceBindings?.title}
-      description={node.item.textResourceBindings?.description}
       readOnly={readOnly}
       required={required}
       helpText={node.item.textResourceBindings?.help}
