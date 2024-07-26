@@ -4,7 +4,7 @@ import { Radio, Table } from '@digdir/designsystemet-react';
 import { Typography } from '@material-ui/core';
 
 import { Label } from 'src/components/label/Label';
-import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { LayoutStyle } from 'src/layout/common.generated';
@@ -36,6 +36,7 @@ LikertItemComponent.displayName = 'LikertItemComponent';
 
 const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroupProps>((props, ref) => {
   const { node } = props;
+  const { langAsString } = useLanguage();
   const { selectedValues, handleChange, calculatedOptions, fetchingOptions } = useRadioButtons(props);
   const validations = useUnifiedValidationsForNode(node);
 
@@ -77,11 +78,8 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
               value={option.value}
               className={classes.likertRadioButton}
               name={rowLabelId}
-            >
-              <span className='sr-only'>
-                <Lang id={option.label} />
-              </span>
-            </Radio>
+              aria-label={langAsString(option.label)}
+            />
           </Table.Cell>
         );
       })}
