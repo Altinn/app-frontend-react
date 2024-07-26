@@ -473,6 +473,7 @@ describe('Group', () => {
       if (c.type === 'RepeatingGroup' && c.tableColumns && c.edit && c.id === 'mainGroup') {
         c.tableColumns['currentValue'].editInTable = true;
         c.tableColumns['newValue'].editInTable = true;
+        c.edit.editButton = false;
       }
     });
 
@@ -503,6 +504,15 @@ describe('Group', () => {
     }
 
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(3).should('not.exist');
+
+    cy.changeLayout((c) => {
+      if (c.type === 'RepeatingGroup' && c.tableColumns && c.edit && c.id === 'mainGroup') {
+        // We need to show this button to make sure the edit container shows up. The edit container will never show up
+        // if the table row is not editable.
+        c.edit.editButton = true;
+      }
+    });
+
     cy.get(appFrontend.group.addNewItem).click();
 
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 5);
