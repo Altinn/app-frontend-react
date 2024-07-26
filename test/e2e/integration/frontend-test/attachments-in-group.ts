@@ -303,6 +303,10 @@ describe('Repeating group attachments', () => {
 
     interceptFormDataSave();
 
+    // We haven't filled in anything in the first form inputs, so these labels will be the same. The options will be
+    // deduplicated so two rows becomes one option.
+    cy.get('#reduxOptions-expressions-radiobuttons').findAllByRole('radio').should('have.length', 1);
+
     cy.snapshot('attachments-in-group');
 
     // Now that all attachments described above have been uploaded and verified, start deleting the middle attachment
