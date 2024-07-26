@@ -49,7 +49,6 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
   }
 
   const display = overrides?.display ?? summaryItem?.display;
-  const grid = overrides?.grid ?? summaryItem?.grid ?? targetItem?.grid;
   const pageBreak = overrides?.pageBreak ?? summaryItem?.pageBreak ?? targetItem?.pageBreak;
 
   const { langAsString } = useLanguage();
@@ -85,7 +84,8 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
     return null;
   }
 
-  const displayGrid = display && display.useComponentGrid ? grid ?? targetItem?.grid : grid;
+  const displayGrid =
+    display && display.useComponentGrid ? overrides?.grid || targetItem?.grid : overrides?.grid || summaryItem?.grid;
   const component = targetNode.def;
   const RenderSummary = 'renderSummary' in component ? component.renderSummary.bind(component) : null;
   const shouldShowBorder =
