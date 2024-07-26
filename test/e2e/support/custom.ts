@@ -488,6 +488,8 @@ Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
       }
     }
   });
+  cy.get('#readyForPrint').should('exist');
+  cy.findByRole('progressbar').should('not.exist');
   cy.waitUntilNodesReady();
 });
 
