@@ -7,7 +7,9 @@ import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
+  DefPluginExtraInItem,
   DefPluginState,
+  DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
@@ -60,7 +62,7 @@ export class CardsPlugin<Type extends CompTypes>
   }
 
   claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<Config<Type>>): void {
-    for (const [cardIdx, card] of item.cards.entries()) {
+    for (const [cardIdx, card] of (item.cards || []).entries()) {
       if (card.media) {
         const proto = getProto(card.media);
         if (!proto) {
@@ -99,6 +101,21 @@ export class CardsPlugin<Type extends CompTypes>
       from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
     return `<${GenerateNodeChildren} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
+  }
+
+  itemFactory({ item }: DefPluginStateFactoryProps<Config<Type>>) {
+    const cardsInternal = structuredClone((item as any).cards || []) as CardInternal[];
+
+    // Remove all children, as they will be added as nodes later:
+    for (const card of cardsInternal) {
+      card.children = [];
+      card.media = undefined;
+    }
+
+    return {
+      cards: undefined,
+      cardsInternal,
+    } as DefPluginExtraInItem<Config<Type>>;
   }
 
   pickDirectChildren(
