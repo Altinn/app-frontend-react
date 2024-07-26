@@ -118,25 +118,27 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
       </Table>
 
       {showAddButton && (
-        <Button
-          disabled={isAdding}
-          id={`subform-${id}-add-button`}
-          onClick={async () => await addEntry()}
-          onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
-            const allowedKeys = ['enter', ' ', 'spacebar'];
-            if (allowedKeys.includes(event.key.toLowerCase())) {
-              await addEntry();
-            }
-          }}
-          variant='secondary'
-          fullWidth
-        >
-          <AddIcon
-            fontSize='1.5rem'
-            aria-hidden='true'
-          />
-          {langAsString(textResourceBindings?.addButton)}
-        </Button>
+        <div className={classes.addButton}>
+          <Button
+            disabled={isAdding}
+            id={`subform-${id}-add-button`}
+            onClick={async () => await addEntry()}
+            onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
+              const allowedKeys = ['enter', ' ', 'spacebar'];
+              if (allowedKeys.includes(event.key.toLowerCase())) {
+                await addEntry();
+              }
+            }}
+            variant='secondary'
+            fullWidth
+          >
+            <AddIcon
+              fontSize='1.5rem'
+              aria-hidden='true'
+            />
+            {langAsString(textResourceBindings?.addButton)}
+          </Button>
+        </div>
       )}
     </Grid>
   );

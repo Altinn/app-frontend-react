@@ -31,7 +31,7 @@ export const useAddEntryMutation = (dataType: string) => {
       console.error('Failed to add sub-form entry:', error);
 
       if (isAxiosError(error) && error.response?.status === 409) {
-        toast(langAsString('form_filler.error_max_count_reached_sub_form', [dataType]), { type: 'error' });
+        toast(langAsString('form_filler.error_max_count_reached_sub_form_server', [dataType]), { type: 'error' });
       } else {
         toast(langAsString('form_filler.error_add_sub_form'), { type: 'error' });
       }

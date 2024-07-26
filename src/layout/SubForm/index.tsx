@@ -73,13 +73,13 @@ export class SubForm extends SubFormDef implements ValidateComponent {
 
     if (minCount > 0 && numDataElements < minCount) {
       valiationMessage = {
-        key: 'Too few {0} entries. The minimum required number is {1}, you have {2}',
-        params: [targetType, minCount, numDataElements],
+        key: 'form_filler.error_min_count_not_reached_sub_form',
+        params: [minCount, targetType],
       };
     } else if (maxCount > 0 && numDataElements > maxCount) {
       valiationMessage = {
-        key: 'Too many {0} entries. The maximum allowed number is {1}, you have {2}',
-        params: [targetType, minCount, numDataElements],
+        key: 'form_fillers.error_max_count_reached_sub_form_local',
+        params: [targetType, maxCount],
       };
     }
 

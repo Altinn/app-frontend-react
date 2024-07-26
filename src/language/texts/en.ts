@@ -57,7 +57,9 @@ export function en() {
     form_filler: {
       error_add_sub_form: 'Failed to add sub-form entry, please try again.',
       error_delete_sub_form: 'An error occurred while deleting the sub-form entry, please try again.',
-      error_max_count_reached_sub_form: 'The maximum number of {0} entries has been reached',
+      error_max_count_reached_sub_form_server: 'The maximum number of {0} entries has been reached',
+      error_max_count_reached_sub_form_local: 'The maximum number of {0} entries has been reached ({1})',
+      error_min_count_not_reached_sub_form: 'At least {0} {1} entry is required',
       sub_form_default_header: 'Items',
       alert_confirm: 'Confirm',
       checkbox_alert: 'Are you sure you want to uncheck?',

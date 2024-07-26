@@ -57,7 +57,9 @@ export function nn(): FixedLanguageList {
     form_filler: {
       error_add_sub_form: 'Det oppstod ein feil ved oppretting av underskjema, ver vennleg og prøv igjen.',
       error_delete_sub_form: 'Noko gjekk gale ved sletting av underskjema, ver venleg og prøv igjen',
-      error_max_count_reached_sub_form: 'Maksimalt tal på {0} oppføringar er nådd',
+      error_max_count_reached_sub_form_server: 'Maksimalt tal på {0} oppføringar er nådd',
+      error_max_count_reached_sub_form_local: 'Maksimalt tal på {0} oppføringar er nådd ({1})',
+      error_min_count_not_reached_sub_form: 'Minst {0} {1} oppføring er påkravd',
       sub_form_default_header: 'Oppføringer',
       alert_confirm: 'Bekreft',
       checkbox_alert: 'Er du sikker på at du vil fjerne avkrysningen?',
