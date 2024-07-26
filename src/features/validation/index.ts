@@ -1,7 +1,9 @@
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IAttachments } from 'src/features/attachments';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { Visibility } from 'src/features/validation/visibility/visibilityUtils';
+import type { IInstance } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
@@ -159,6 +161,8 @@ export type ValidationDataSources = {
   invalidData: object;
   attachments: IAttachments;
   nodes: LayoutPages;
+  applicationMetadata: IApplicationMetadata;
+  instance?: IInstance;
 };
 
 /**

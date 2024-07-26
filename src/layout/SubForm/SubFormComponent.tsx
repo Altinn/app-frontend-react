@@ -32,7 +32,6 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
   const instanceData = useStrictInstanceData();
   const navigate = useNavigate();
   const [isAdding, setIsAdding] = useState(false);
-
   const dataElements = instanceData.data.filter((d) => d.dataType === dataType) ?? [];
   const [subFormEntries, updateSubFormEntries] = useState(dataElements);
   const haveTableColumns = tableColumns.length > 0;

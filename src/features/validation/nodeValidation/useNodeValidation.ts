@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { implementsAnyValidation, implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
 import { useNodes } from 'src/utils/layout/NodesContext';
@@ -73,6 +75,8 @@ export function useValidationDataSources(): ValidationDataSources {
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
   const nodes = useNodes();
+  const applicationMetadata = useApplicationMetadata();
+  const instance = useLaxInstanceData();
 
   return useMemo(
     () => ({
@@ -81,7 +85,9 @@ export function useValidationDataSources(): ValidationDataSources {
       attachments,
       currentLanguage,
       nodes,
+      applicationMetadata,
+      instance,
     }),
-    [attachments, currentLanguage, formData, invalidData, nodes],
+    [attachments, currentLanguage, formData, invalidData, nodes, applicationMetadata, instance],
   );
 }
