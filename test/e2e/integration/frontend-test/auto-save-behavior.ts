@@ -16,7 +16,6 @@ describe('Auto save behavior', () => {
         formDataReqCounter++;
       }).as('saveFormData');
       cy.get(appFrontend.group.prefill.liten).check();
-      cy.waitUntilSaved();
       cy.wait('@saveFormData').then(() => {
         expect(formDataReqCounter).to.be.eq(1);
       });
@@ -29,8 +28,7 @@ describe('Auto save behavior', () => {
       cy.waitForNetworkIdle(100);
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(100).then(() => {
-        // Auto-selected values for the group has now been added
-        expect(formDataReqCounter).to.be.eq(2);
+        expect(formDataReqCounter).to.be.eq(1);
       });
     });
   });
@@ -56,15 +54,9 @@ describe('Auto save behavior', () => {
         expect(formDataReqCounter).to.be.eq(1);
       });
 
-      // Clicking the back button previously did not save anything, because we didn't
-      // change anything in the form data worth saving, but now the hierarchy generator will
-      // find a preselectedOptionIndex deep inside the (visually hidden) part of the repeating group
-      // and change that. So now when we click the button something still saves.
-      cy.waitUntilNodesReady();
+      // Clicking the back button does not save anything, because we didn't
+      // change anything in the form data worth saving
       cy.get(appFrontend.backButton).clickAndGone();
-      cy.wait('@saveFormData').then(() => {
-        expect(formDataReqCounter).to.be.eq(2);
-      });
 
       cy.navPage('prefill').should('have.attr', 'aria-current', 'page');
       cy.get(appFrontend.group.prefill.liten).should('be.visible');
@@ -74,21 +66,21 @@ describe('Auto save behavior', () => {
       cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
       cy.get(appFrontend.backButton).clickAndGone();
       cy.wait('@saveFormData').then(() => {
-        expect(formDataReqCounter).to.be.eq(3);
+        expect(formDataReqCounter).to.be.eq(2);
       });
 
       // NavigationBar
       cy.get(appFrontend.group.prefill.middels).check();
       cy.get(appFrontend.navMenu).findByRole('button', { name: '2. repeating' }).click();
       cy.wait('@saveFormData').then(() => {
-        expect(formDataReqCounter).to.be.eq(4);
+        expect(formDataReqCounter).to.be.eq(3);
       });
 
       // Icon previous button
       cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).uncheck();
       cy.get(appFrontend.prevButton).clickAndGone();
       cy.wait('@saveFormData').then(() => {
-        expect(formDataReqCounter).to.be.eq(5);
+        expect(formDataReqCounter).to.be.eq(4);
       });
     });
   });
