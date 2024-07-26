@@ -239,8 +239,14 @@ function makeActions(
   function setValue(props: { path: string; newValue: FDLeafValue; state: FormDataState & FormDataMethods }) {
     const { path, newValue, state } = props;
     if (newValue === '' || newValue === null || newValue === undefined) {
-      dot.delete(path, state.currentData);
-      dot.delete(path, state.invalidCurrentData);
+      const prevValue = dot.pick(path, state.currentData);
+
+      // We conflate null and undefined, so no need to set to null or undefined if the value is
+      // already null or undefined
+      if (prevValue !== null && prevValue !== undefined) {
+        dot.delete(path, state.currentData);
+        dot.delete(path, state.invalidCurrentData);
+      }
     } else {
       const schema = schemaLookup.getSchemaForPath(path)[0];
       const { newValue: convertedValue, error } = convertData(newValue, schema);

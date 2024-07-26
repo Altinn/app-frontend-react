@@ -7,6 +7,7 @@ import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings'
 import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
+import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { filterDuplicateOptions, verifyOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -63,6 +64,8 @@ interface EffectProps {
   preselectedOption: IOptionInternal | undefined;
   unsafeSelectedValues: string[];
   setValue: (values: string[]) => void;
+  isNodeHidden: boolean | undefined;
+  isNodesReady: boolean;
 }
 
 const getLabelsForActiveOptions = (selectedOptions: string[], allOptions: IOptionInternal[]): string[] =>
@@ -158,10 +161,15 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
  * as options are ready. The code is complex to guard against overwriting data that has been set by the user.
  */
 function usePreselectedOptionIndex(props: EffectProps) {
-  const { setValue, preselectedOption } = props;
+  const { setValue, preselectedOption, isNodeHidden, isNodesReady } = props;
   const hasSelectedInitial = useRef(false);
   const hasValue = props.unsafeSelectedValues.length > 0;
-  const shouldSelectOptionAutomatically = !hasValue && !hasSelectedInitial.current && preselectedOption !== undefined;
+  const shouldSelectOptionAutomatically =
+    !hasValue &&
+    !hasSelectedInitial.current &&
+    preselectedOption !== undefined &&
+    isNodesReady &&
+    isNodeHidden !== true;
 
   useEffect(() => {
     if (shouldSelectOptionAutomatically) {
@@ -201,6 +209,8 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
   const { data: fetchedOptions, isFetching, isError } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
+  const isNodeHidden = Hidden.useIsHidden(node);
+  const isNodesReady = NodesInternal.useIsReady();
 
   const [calculatedOptions, preselectedOption] = useMemo(() => {
     let draft = sourceOptions || fetchedOptions?.data || staticOptions;
@@ -273,8 +283,10 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
       preselectedOption,
       unsafeSelectedValues,
       setValue: setData,
+      isNodeHidden,
+      isNodesReady,
     }),
-    [calculatedOptions, unsafeSelectedValues, preselectedOption, setData, valueType],
+    [calculatedOptions, unsafeSelectedValues, preselectedOption, setData, valueType, isNodeHidden, isNodesReady],
   );
 
   usePreselectedOptionIndex(effectProps);

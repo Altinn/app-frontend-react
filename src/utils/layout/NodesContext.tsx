@@ -131,6 +131,7 @@ export type NodesContext = {
   pagesData: PagesData;
   nodeData: { [key: string]: NodeData };
   hiddenViaRules: { [key: string]: true | undefined };
+  hiddenViaRulesRan: boolean;
 
   setNodes: (nodes: LayoutPages) => void;
   addNodes: (requests: AddNodeRequest[]) => void;
@@ -169,6 +170,7 @@ export function createNodesDataStore() {
     },
     nodeData: {},
     hiddenViaRules: {},
+    hiddenViaRulesRan: false,
   };
 
   return createStore<NodesContext>((set) => ({
@@ -177,10 +179,10 @@ export function createNodesDataStore() {
     markHiddenViaRule: (newState) =>
       set((state) => {
         if (deepEqual(state.hiddenViaRules, newState)) {
-          return {};
+          return { hiddenViaRulesRan: true };
         }
 
-        return { hiddenViaRules: newState };
+        return { hiddenViaRules: newState, hiddenViaRulesRan: true };
       }),
 
     setNodes: (nodes) => set({ nodes }),
@@ -420,8 +422,10 @@ function ResettableStore({ counter, children }: PropsWithChildren<{ counter: num
         <MarkAsReady />
       </GeneratorStagesProvider>
       {window.Cypress && <UpdateAttachmentsForCypress />}
-      <BlockUntilLoaded>
+      <BlockUntilAlmostReady>
         <HiddenComponentsProvider />
+      </BlockUntilAlmostReady>
+      <BlockUntilLoaded>
         <ProvideWaitForValidation />
         <UpdateExpressionValidation />
         <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
@@ -432,15 +436,16 @@ function ResettableStore({ counter, children }: PropsWithChildren<{ counter: num
 }
 
 function IndicateReadiness() {
-  const readiness = Store.useSelector((s) => s.readiness);
-  document.body.setAttribute('data-nodes-ready', (readiness === NodesReadiness.Ready).toString());
+  const [readiness, hiddenViaRulesRan] = Store.useSelector((s) => [s.readiness, s.hiddenViaRulesRan]);
+  const ready = readiness === NodesReadiness.Ready && hiddenViaRulesRan;
+  document.body.setAttribute('data-nodes-ready', ready.toString());
 
   useEffect(() => {
-    document.body.setAttribute('data-nodes-ready', (readiness === NodesReadiness.Ready).toString());
+    document.body.setAttribute('data-nodes-ready', ready.toString());
     return () => {
       document.body.removeAttribute('data-nodes-ready');
     };
-  }, [readiness]);
+  }, [ready]);
 
   if (!GeneratorDebug.displayReadiness) {
     return null;
@@ -460,7 +465,7 @@ function IndicateReadiness() {
         color: 'black',
       }}
     >
-      {readiness}
+      {readiness === NodesReadiness.Ready && !hiddenViaRulesRan ? 'WAIT FOR RULES' : readiness}
     </div>
   );
 }
@@ -485,6 +490,7 @@ function MarkAsReady() {
 function InnerMarkAsReady() {
   const markReady = Store.useSelector((s) => s.markReady);
   const readiness = Store.useSelector((s) => s.readiness);
+  const hiddenViaRulesRan = Store.useSelector((s) => s.hiddenViaRulesRan);
   const hasNodes = Store.useSelector((state) => !!state.nodes);
   const stagesFinished = GeneratorStages.useIsFinished();
   const hasUnsavedChanges = FD.useHasUnsavedChanges();
@@ -496,7 +502,7 @@ function InnerMarkAsReady() {
   const waitingForCommits = Store.useSelector(() => getAwaitingCommits() > 0);
 
   const savingOk = readiness === NodesReadiness.WaitingUntilLastSaveHasProcessed ? !hasUnsavedChanges : true;
-  const maybeReady = hasNodes && stagesFinished && savingOk;
+  const maybeReady = hasNodes && stagesFinished && savingOk && hiddenViaRulesRan;
   const shouldMarkAsReady = maybeReady && !waitingForCommits;
   const fallbackToInterval = maybeReady && !shouldMarkAsReady;
 
@@ -543,6 +549,15 @@ function RegisterOnSaveFinished() {
   }, [setOnSaveFinished, markReady]);
 
   return null;
+}
+
+function BlockUntilAlmostReady({ children }: PropsWithChildren) {
+  const ready = Store.useSelector((state) => state.nodes !== undefined);
+  if (!ready) {
+    return null;
+  }
+
+  return <>{children}</>;
 }
 
 function BlockUntilLoaded({ children }: PropsWithChildren) {
@@ -823,7 +838,7 @@ export const NodesInternal = {
     });
   },
   useIsReady() {
-    const isReady = Store.useLaxSelector((s) => s.readiness === NodesReadiness.Ready);
+    const isReady = Store.useLaxSelector((s) => s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan);
     if (isReady === ContextNotProvided) {
       return true;
     }
@@ -834,7 +849,9 @@ export const NodesInternal = {
     const waitForState = useWaitForState<undefined, NodesContext | typeof ContextNotProvided>(store);
     const waitForCommits = Store.useSelector((s) => s.waitForCommits);
     return useCallback(async () => {
-      await waitForState((state) => (state === ContextNotProvided ? true : state.readiness === NodesReadiness.Ready));
+      await waitForState((state) =>
+        state === ContextNotProvided ? true : state.readiness === NodesReadiness.Ready && state.hiddenViaRulesRan,
+      );
       if (waitForCommits) {
         await waitForCommits();
       }
