@@ -14,6 +14,7 @@ import { ComponentValidations } from 'src/features/validation/ComponentValidatio
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
+import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { AttachmentsCounter } from 'src/layout/FileUpload/AttachmentsCounter';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
@@ -35,6 +36,11 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
     validFileEndings,
     textResourceBindings,
   } = node.item;
+  const { isSubFormPage } = useNavigationParams();
+  if (isSubFormPage) {
+    throw new Error('Cannot use FileUpload components in a sub-form, because sub-forms cannot contain attachments');
+  }
+
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
   const attachments = useAttachmentsFor(node);
