@@ -23,7 +23,6 @@ export type LabelProps = PropsWithChildren<{
     title?: string;
     description?: string;
     help?: string;
-    helpText?: string;
   };
 }>;
 
@@ -45,7 +44,7 @@ export function Label({
   const labelContentProps: Omit<LabelContentProps, 'id'> = {
     label: textResourceBindings.title,
     description: textResourceBindings.description,
-    helpText: textResourceBindings.help ?? textResourceBindings.helpText,
+    help: textResourceBindings.help,
     required,
     readOnly,
     labelSettings,

@@ -90,8 +90,7 @@ describe('PDF', () => {
     });
   });
 
-  // FIXME: Not working in main and needs bigger fix?
-  it.skip('should generate PDF for group step', () => {
+  it('should generate PDF for group step', () => {
     cy.goto('group');
     cy.findByRole('checkbox', { name: /liten/i }).check();
     cy.findByRole('checkbox', { name: /middels/i }).check();

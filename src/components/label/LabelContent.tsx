@@ -17,19 +17,11 @@ export type LabelContentProps = Readonly<{
   description?: string;
   required?: boolean;
   readOnly?: boolean;
-  helpText?: string;
+  help?: string;
   labelSettings?: ILabelSettings;
 }>;
 
-export function LabelContent({
-  id,
-  label,
-  description,
-  required,
-  readOnly,
-  helpText,
-  labelSettings,
-}: LabelContentProps) {
+export function LabelContent({ id, label, description, required, readOnly, help, labelSettings }: LabelContentProps) {
   const { overrideDisplay } = useFormComponentCtxStrict();
   const { langAsString } = useLanguage();
 
@@ -52,14 +44,14 @@ export function LabelContent({
             required={required}
           />
         </span>
-        {helpText && (
+        {help && (
           <HelpText
             id={`${id}-helptext`}
             title={
               label ? `${langAsString('helptext.button_title_prefix')} ${label}` : langAsString('helptext.button_title')
             }
           >
-            <Lang id={helpText} />
+            <Lang id={help} />
           </HelpText>
         )}
       </span>

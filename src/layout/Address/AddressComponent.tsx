@@ -193,7 +193,7 @@ export function AddressComponent({ node }: IAddressProps) {
             renderLabelAs='label'
             textResourceBindings={{
               title: textResourceBindings?.houseNumberTitle ?? 'address_component.house_number',
-              helpText: 'address_component.house_number_helper',
+              help: 'address_component.house_number_helper',
             }}
             readOnly={readOnly}
             required={required}

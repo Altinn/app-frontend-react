@@ -40,7 +40,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
       <LabelContent
         id={`label-${id}`}
         label={[getLabelPrefixForLikert(), langAsString(textResourceBindings?.title)].join(' ')}
-        helpText={textResourceBindings?.help}
+        help={textResourceBindings?.help}
         required={required}
         readOnly={readOnly}
         labelSettings={labelSettings}

@@ -277,7 +277,7 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent, isHe
           id={`label-${componentId}`}
           label={title}
           required={required}
-          helpText={help}
+          help={help}
           description={description}
         />
       )}

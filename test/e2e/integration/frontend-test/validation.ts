@@ -760,7 +760,7 @@ describe('Validation', () => {
     cy.findByRole('textbox', { name: /når vil du at navnendringen skal skje\? \*/i }).should('be.visible');
   });
 
-  describe.skip('Falsy values', () => {
+  describe('Falsy values', () => {
     it('should validate boolean fields as set in the data model even when they are set to false', () => {
       cy.interceptLayout('message', (component) => {
         if (component.id === 'falsyRadioButton') {
