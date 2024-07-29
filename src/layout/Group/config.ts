@@ -3,10 +3,10 @@ import { CompCategory } from 'src/layout/common';
 
 export const GROUP_SUMMARY_PROPS = new CG.obj(
   new CG.prop(
-    'compact',
+    'isCompact',
     new CG.bool()
       .optional()
-      .setTitle('Compact')
+      .setTitle('Compact summary')
       .setDescription('Boolean value indicating if the summary should be compact'),
   ),
 )

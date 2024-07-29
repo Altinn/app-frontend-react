@@ -19,7 +19,7 @@ type MultipleValueSummaryProps = {
   title: React.ReactNode;
   componentNode: LayoutNode;
   showAsList?: boolean;
-  compact?: boolean;
+  isCompact?: boolean;
 };
 
 function getSummaryData(
@@ -51,7 +51,7 @@ function getDisplayType(
   return 'list';
 }
 
-export const MultipleValueSummary = ({ title, componentNode, showAsList, compact }: MultipleValueSummaryProps) => {
+export const MultipleValueSummary = ({ title, componentNode, showAsList, isCompact }: MultipleValueSummaryProps) => {
   const formDataSelector = FD.useDebouncedSelector();
 
   const langTools = useLanguage();
@@ -62,12 +62,12 @@ export const MultipleValueSummary = ({ title, componentNode, showAsList, compact
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
 
-  const displayType = getDisplayType(displayValues, showAsList, compact);
+  const displayType = getDisplayType(displayValues, showAsList, isCompact);
 
   return (
     <div className={classes.checkboxSummaryItem}>
       <div
-        className={cn(classes.labelValueWrapper, { [classes.error]: errors.length > 0, [classes.compact]: compact })}
+        className={cn(classes.labelValueWrapper, { [classes.error]: errors.length > 0, [classes.compact]: isCompact })}
       >
         <Label weight={'regular'}>{title}</Label>
         {displayType === 'list' && (

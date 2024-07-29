@@ -52,7 +52,7 @@ export class Checkboxes extends CheckboxesDef {
   renderSummary2(
     componentNode: LayoutNode<'Checkboxes'>,
     summaryOverrides?: CheckboxSummaryOverrideProps,
-    compact?: boolean,
+    isCompact?: boolean,
   ): JSX.Element | null {
     const displayData = this.useDisplayData(componentNode);
     const maxStringLength = 75;
@@ -65,7 +65,7 @@ export class Checkboxes extends CheckboxesDef {
         title={<Lang id={title} />}
         componentNode={componentNode}
         showAsList={showAsList}
-        compact={compact}
+        isCompact={isCompact}
       />
     );
   }

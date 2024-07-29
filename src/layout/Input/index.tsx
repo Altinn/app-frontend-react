@@ -48,14 +48,14 @@ export class Input extends InputDef {
 
   renderSummary2(
     componentNode: LayoutNode<'Input'>,
-    summaryOverrides?: InputSummaryOverrideProps,
-    compact?: boolean,
+    _?: InputSummaryOverrideProps,
+    isCompact?: boolean,
   ): JSX.Element | null {
     return (
       <InputSummary
         componentNode={componentNode}
         displayData={this.useDisplayData(componentNode)}
-        compact={compact}
+        isCompact={isCompact}
       />
     );
   }

@@ -7,11 +7,11 @@ import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type InputComponentSummaryProps = {
-  compact?: boolean;
+  isCompact?: boolean;
   componentNode: LayoutNode<'Input'>;
   displayData: string;
 };
-export const InputSummary = ({ componentNode, displayData, compact }: InputComponentSummaryProps) => {
+export const InputSummary = ({ componentNode, displayData, isCompact }: InputComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = componentNode.item.textResourceBindings?.title;
@@ -22,7 +22,7 @@ export const InputSummary = ({ componentNode, displayData, compact }: InputCompo
       displayData={displayData}
       errors={errors}
       componentNode={componentNode}
-      compact={compact}
+      isCompact={isCompact}
     />
   );
 };

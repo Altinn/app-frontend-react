@@ -55,7 +55,7 @@ const RenderChildComponents = ({ componentNode, hierarchyLevel, summaryOverrides
           >
             <ComponentSummary
               componentNode={child}
-              compact={isCompact}
+              isCompact={isCompact}
             />
           </div>
         );
