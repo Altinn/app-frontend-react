@@ -47,7 +47,7 @@ const RenderChildComponents = ({ componentNode, hierarchyLevel, summaryOverrides
           />
         );
       } else {
-        const isCompact = summaryOverrides?.['compact'];
+        const isCompact = summaryOverrides?.['isCompact'];
         return (
           <div
             key={child?.item?.id}
