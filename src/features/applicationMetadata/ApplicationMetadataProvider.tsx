@@ -6,10 +6,11 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
-import { isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
+import { onEntryValuesThatHaveState } from 'src/features/applicationMetadata/appMetadataUtils';
 import { InstantiationErrorPage } from 'src/features/instantiate/containers/InstantiationErrorPage';
 import { Lang } from 'src/features/language/Lang';
 import { fetchApplicationMetadata } from 'src/queries/queries';
+import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata, IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 
@@ -81,6 +82,14 @@ function VerifyMinimumVersion({ children }: PropsWithChildren) {
       }
     />
   );
+}
+
+function isStatelessApp(show: ApplicationMetadata['onEntry']['show']) {
+  const expr = getInstanceIdRegExp({ prefix: '/instance' });
+  const match = window.location.href.match(expr); // This should probably be reconsidered when changing router.
+
+  // App can be setup as stateless but then go over to a stateful process task
+  return match ? false : !!show && !onEntryValuesThatHaveState.includes(show);
 }
 
 export function ApplicationMetadataProvider({ children }: PropsWithChildren) {

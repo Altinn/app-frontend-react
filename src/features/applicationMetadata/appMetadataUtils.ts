@@ -1,7 +1,6 @@
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import { getLayoutSetForDataElement } from 'src/utils/layout';
 import type { ApplicationMetadata, ShowTypes } from 'src/features/applicationMetadata/types';
 import type { ILayoutSets } from 'src/layout/common.generated';
@@ -121,12 +120,4 @@ export const getCurrentTaskDataElementId = (props: GetCurrentTaskDataElementIdPr
 export function getFirstDataElementId(instance: IInstance, dataType: string) {
   const currentTaskDataElement = (instance.data || []).find((element) => element.dataType === dataType);
   return currentTaskDataElement?.id;
-}
-
-export function isStatelessApp(show: ApplicationMetadata['onEntry']['show']) {
-  const expr = getInstanceIdRegExp({ prefix: '/instance' });
-  const match = window.location.href.match(expr); // This should probably be reconsidered when changing router.
-
-  // App can be setup as stateless but then go over to a stateful process task
-  return match ? false : !!show && !onEntryValuesThatHaveState.includes(show);
 }

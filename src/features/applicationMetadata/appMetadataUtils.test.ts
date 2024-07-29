@@ -4,7 +4,6 @@ import {
   getCurrentDataTypeForApplication,
   getCurrentTaskDataElementId,
   getLayoutSetIdForApplication,
-  isStatelessApp,
 } from 'src/features/applicationMetadata/appMetadataUtils';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { ILayoutSets } from 'src/layout/common.generated';
@@ -149,25 +148,6 @@ describe('appMetadata.ts', () => {
       });
       const expected = 'stateless';
       expect(result).toEqual(expected);
-    });
-  });
-
-  describe('isStatelessApp', () => {
-    it('should return true if enEntry with layout set is specified', () => {
-      const result = isStatelessApp('stateless');
-      expect(result).toBeTruthy();
-    });
-
-    // TODO: should mock useQuery instead
-    it('should return false if onEntry is not specified', () => {
-      const result = isStatelessApp('new-instance');
-      expect(result).toBeFalsy();
-    });
-
-    it('should return false if routed to an instance', () => {
-      window.location.replace('#/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc');
-      const result = isStatelessApp('new-instance');
-      expect(result).toBeFalsy();
     });
   });
 
