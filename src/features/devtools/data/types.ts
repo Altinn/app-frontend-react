@@ -46,6 +46,7 @@ export enum DevToolsTab {
   Layout = 'Layout',
   Components = 'Komponenter',
   Expressions = 'Uttrykk',
+  DataModel = 'Datamodell',
   FeatureToggles = 'Beta-funksjonalitet',
   Logs = 'Logger',
 }

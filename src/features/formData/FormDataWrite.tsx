@@ -347,6 +347,14 @@ export const FD = {
     return useSelector((v) => v.debouncedCurrentData);
   },
 
+  useCurrent(): object {
+    return useSelector((v) => v.currentData);
+  },
+
+  useLastSaved(): object {
+    return useSelector((v) => v.lastSavedData);
+  },
+
   /**
    * This is the same as useDebouncedSelector(), but will return ContextNotProvided immediately if the context
    * provider is not present.

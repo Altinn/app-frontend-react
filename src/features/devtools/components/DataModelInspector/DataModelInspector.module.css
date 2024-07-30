@@ -1,0 +1,24 @@
+.container {
+  height: 100%;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.container > * {
+  padding: 0.5rem !important;
+}
+
+.container dl {
+  padding: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem;
+}
+
+.container dd {
+  margin-left: 0;
+}
+
+.container pre {
+  margin: 0;
+}

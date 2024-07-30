@@ -3,6 +3,7 @@ import React from 'react';
 import { Tabs } from '@digdir/designsystemet-react';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
+import { DataModelInspector } from 'src/features/devtools/components/DataModelInspector/DataModelInspector';
 import { DevHiddenFunctionality } from 'src/features/devtools/components/DevHiddenFunctionality/DevHiddenFunctionality';
 import { DevLanguageSelector } from 'src/features/devtools/components/DevLanguageSelector/DevLanguageSelector';
 import { DevNavigationButtons } from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons';
@@ -49,6 +50,7 @@ export const DevToolsControls = () => {
             <ComponentSelector type='node' />
           </Tabs.Tab>
         )}
+        {isInForm && <Tabs.Tab value={DevToolsTab.DataModel}>{DevToolsTab.DataModel}</Tabs.Tab>}
         {isInForm && <Tabs.Tab value={DevToolsTab.Expressions}>{DevToolsTab.Expressions}</Tabs.Tab>}
         {/* <Tabs.Tab value={DevToolsTab.FeatureToggles}>{DevToolsTab.FeatureToggles}</Tabs.Tab> */}
       </Tabs.List>
@@ -75,6 +77,11 @@ export const DevToolsControls = () => {
       {isInForm && (
         <Tabs.Content value={DevToolsTab.Components}>
           <NodeInspector />
+        </Tabs.Content>
+      )}
+      {isInForm && (
+        <Tabs.Content value={DevToolsTab.DataModel}>
+          <DataModelInspector />
         </Tabs.Content>
       )}
       {isInForm && (
