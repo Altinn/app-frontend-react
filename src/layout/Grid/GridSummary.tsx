@@ -24,20 +24,20 @@ import type {
   ITableColumnProperties,
 } from 'src/layout/common.generated';
 import type { ITextResourceBindings } from 'src/layout/layout';
+import type { GridSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type GridSummaryProps = {
   componentNode: LayoutNode<'Grid'>;
+  summaryOverrides?: GridSummaryOverrideProps;
 };
 
 export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   const { rows, textResourceBindings } = componentNode.item;
   const { title } = textResourceBindings ?? {};
-
   const columnSettings: ITableColumnFormatting = {};
   const isMobile = useIsMobile();
   const pdfModeActive = usePdfModeActive();
-
   const isSmall = isMobile && !pdfModeActive;
 
   const tableSections: JSX.Element[] = [];
@@ -156,7 +156,6 @@ export function GridRowRenderer({ row, mutableColumnSettings, node, currentHeade
   const pdfModeActive = usePdfModeActive();
 
   const isSmall = isMobile && !pdfModeActive;
-
   const firstComponentCell = row.cells.find((cell) => cell && 'node' in cell);
   const firstComponentNode =
     firstComponentCell &&

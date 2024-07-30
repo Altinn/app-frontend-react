@@ -11,6 +11,7 @@ import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { GridSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -27,8 +28,13 @@ export class Grid extends GridDef {
     return <GridSummaryComponent {...props} />;
   }
 
-  renderSummary2(componentNode: LayoutNode<'Grid'>): JSX.Element | null {
-    return <GridSummary componentNode={componentNode} />;
+  renderSummary2(componentNode: LayoutNode<'Grid'>, summaryOverrides?: GridSummaryOverrideProps): JSX.Element | null {
+    return (
+      <GridSummary
+        componentNode={componentNode}
+        summaryOverrides={summaryOverrides}
+      />
+    );
   }
 
   renderSummaryBoilerplate(): boolean {

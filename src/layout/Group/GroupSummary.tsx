@@ -6,14 +6,13 @@ import type { HeadingProps } from '@digdir/designsystemet-react';
 
 import classes from 'src/layout/Group/GroupSummary.module.css';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
-import type { CompGroupInternal } from 'src/layout/Group/config.generated';
-import type { CompSummary2Internal } from 'src/layout/Summary2/config.generated';
+import type { GroupSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type GroupComponentSummaryProps = {
   componentNode: LayoutNode<'Group'>;
   hierarchyLevel?: number;
-  summaryOverrides?: CompGroupInternal['summaryProps'] | CompSummary2Internal['overrides'];
+  summaryOverrides?: GroupSummaryOverrideProps;
 };
 
 type HeadingLevel = HeadingProps['level'];
@@ -43,7 +42,7 @@ const RenderChildComponents = ({ componentNode, hierarchyLevel, summaryOverrides
             componentNode={child as LayoutNode<'Group'>}
             hierarchyLevel={hierarchyLevel ? hierarchyLevel + 1 : 1}
             key={componentNode.item.id}
-            summaryOverrides={summaryOverrides as CompGroupInternal['summaryProps']}
+            summaryOverrides={summaryOverrides as GroupSummaryOverrideProps}
           />
         );
       } else {
