@@ -9,6 +9,7 @@ import cn from 'classnames';
 import dot from 'dot-object';
 import diff from 'fast-diff';
 
+import { useLaxCurrentDataModelSchemaLookup } from 'src/features/datamodel/DataModelSchemaProvider';
 import classes from 'src/features/devtools/components/DataModelInspector/DataModelInspector.module.css';
 import reusedClasses from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
@@ -22,6 +23,7 @@ export function DataModelInspector() {
   const focusNodeInspector = useDevToolsStore((state) => state.actions.focusNodeInspector);
 
   const nodes = useNodes();
+  const lookup = useLaxCurrentDataModelSchemaLookup();
 
   const currentData = FD.useCurrent();
   const debouncedData = FD.useDebounced();
@@ -35,13 +37,18 @@ export function DataModelInspector() {
     }
   }, [combinedData, selectedDataModelBinding, setSelected]);
 
-  const currentDataModelBinding = getDataModelBindingFromId(combinedData, selectedPath);
+  const selectedBinding = getDataModelBindingFromId(combinedData, selectedPath);
+  const selectedSchema = selectedBinding && lookup?.getSchemaForPath(selectedBinding);
+  const selectedCurrentData = selectedBinding && dot.pick(selectedBinding, currentData);
+  const selectedDeboucedData = selectedBinding && dot.pick(selectedBinding, debouncedData);
+  const selectedLastSavedData = selectedBinding && dot.pick(selectedBinding, lastSavedData);
+
   const matchingNodes = nodes
     .allNodes()
     .filter(
       (n) =>
         n.item.dataModelBindings &&
-        Object.values(n.item.dataModelBindings).some((binding) => currentDataModelBinding === binding),
+        Object.values(n.item.dataModelBindings).some((binding) => selectedBinding === binding),
     );
 
   const NodeLink = ({ nodeId }: { nodeId: string }) => (
@@ -76,11 +83,11 @@ export function DataModelInspector() {
           ))}
         </dl>
       </div>
-      {selectedPath && currentDataModelBinding && (
-        <>
+      {selectedPath && selectedBinding && (
+        <div className={reusedClasses.properties}>
           <div className={reusedClasses.header}>
-            <h3>{currentDataModelBinding}</h3>
-            <div className={classes.headerLink}>
+            <h3 style={{ wordBreak: 'break-all' }}>{selectedBinding}</h3>
+            <div className={reusedClasses.headerLink}>
               {matchingNodes.length === 0 && 'Ingen tilknyttede komponenter funnet'}
               {matchingNodes.map((node) => (
                 <NodeLink
@@ -103,7 +110,17 @@ export function DataModelInspector() {
               />
             </Button>
           </div>
-        </>
+          {selectedSchema?.[0] && (
+            <>
+              <h4>Datamodell</h4>
+              <div className={classes.json}>{JSON.stringify(selectedSchema[0], null, 2)}</div>
+            </>
+          )}
+          <h4>Verdi</h4>
+          <div className={classes.json}>{JSON.stringify(selectedCurrentData, null, 2)}</div>
+          <div className={classes.json}>{JSON.stringify(selectedDeboucedData, null, 2)}</div>
+          <div className={classes.json}>{JSON.stringify(selectedLastSavedData, null, 2)}</div>
+        </div>
       )}
     </SplitView>
   );
