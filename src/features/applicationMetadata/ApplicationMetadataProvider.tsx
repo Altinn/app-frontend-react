@@ -86,7 +86,7 @@ function VerifyMinimumVersion({ children }: PropsWithChildren) {
 
 function isStatelessApp(show: ApplicationMetadata['onEntry']['show']) {
   const expr = getInstanceIdRegExp({ prefix: '/instance' });
-  const match = window.location.href.match(expr); // This should probably be reconsidered when changing router.
+  const match = RegExp(expr).exec(window.location.href); // This should probably be reconsidered when changing router.
 
   // App can be setup as stateless but then go over to a stateful process task
   return match ? false : !!show && !onEntryValuesThatHaveState.includes(show);
@@ -99,6 +99,7 @@ export function ApplicationMetadataProvider({ children }: PropsWithChildren) {
     </Provider>
   );
 }
+
 export const useApplicationMetadata = () => useCtx();
 export const useLaxApplicationMetadata = () => useLaxCtx();
 export const useHasApplicationMetadata = () => useHasProvider();
