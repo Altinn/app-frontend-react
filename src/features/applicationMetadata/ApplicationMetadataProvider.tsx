@@ -7,8 +7,7 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { onEntryValuesThatHaveState } from 'src/features/applicationMetadata/appMetadataUtils';
-import { InstantiationErrorPage } from 'src/features/instantiate/containers/InstantiationErrorPage';
-import { Lang } from 'src/features/language/Lang';
+import { VersionErrorOrChildren } from 'src/features/applicationMetadata/VersionErrorOrChildren';
 import { fetchApplicationMetadata } from 'src/queries/queries';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
@@ -54,35 +53,12 @@ const useApplicationMetadataQuery = () => {
 };
 
 const { Provider, useCtx, useLaxCtx, useHasProvider } = delayedContext(() =>
-  createQueryContext({
+  createQueryContext<ApplicationMetadata, true>({
     name: 'ApplicationMetadata',
     required: true,
     query: useApplicationMetadataQuery,
   }),
 );
-
-function VerifyMinimumVersion({ children }: PropsWithChildren) {
-  const { isValidVersion } = useApplicationMetadata();
-
-  return isValidVersion ? (
-    children
-  ) : (
-    <InstantiationErrorPage
-      title={<Lang id='version_error.version_mismatch' />}
-      content={
-        <>
-          <Lang id='version_error.version_mismatch_message' />
-          <br />
-          <br />
-          <Lang
-            id='version_error.min_backend_version'
-            params={[MINIMUM_APPLICATION_VERSION.name]}
-          />
-        </>
-      }
-    />
-  );
-}
 
 function isStatelessApp(show: ApplicationMetadata['onEntry']['show']) {
   const expr = getInstanceIdRegExp({ prefix: '/instance' });
@@ -95,7 +71,7 @@ function isStatelessApp(show: ApplicationMetadata['onEntry']['show']) {
 export function ApplicationMetadataProvider({ children }: PropsWithChildren) {
   return (
     <Provider>
-      <VerifyMinimumVersion>{children}</VerifyMinimumVersion>
+      <VersionErrorOrChildren>{children}</VersionErrorOrChildren>
     </Provider>
   );
 }

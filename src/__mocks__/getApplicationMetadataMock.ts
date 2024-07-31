@@ -85,7 +85,7 @@ export const getIncomingApplicationMetadataMock = (
 };
 
 export const getApplicationMetadataMock = (
-  overrides: Partial<IncomingApplicationMetadata> | ((application: IncomingApplicationMetadata) => void) = {},
+  overrides: Partial<ApplicationMetadata> | ((application: ApplicationMetadata) => void) = {},
 ): ApplicationMetadata => {
   const incomingAppMetadata = getIncomingApplicationMetadataMock();
   return {
