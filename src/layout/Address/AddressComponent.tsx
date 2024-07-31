@@ -80,7 +80,7 @@ export function AddressComponent({ node }: IAddressProps) {
             labelSettings={labelSettings}
           />
           <Textfield
-            id={`address_care_of_${id}`}
+            id={`address_careOf_${id}`}
             error={hasValidationErrors(bindingValidations?.careOf)}
             size={'small'}
             value={careOf}
@@ -108,7 +108,7 @@ export function AddressComponent({ node }: IAddressProps) {
           />
           <div className={classes.addressComponentSmallInputs}>
             <Textfield
-              id={`address_zip_code_${id}`}
+              id={`address_zipCode_${id}`}
               error={hasValidationErrors(bindingValidations?.zipCode)}
               size={'small'}
               value={zipCode}
@@ -132,7 +132,7 @@ export function AddressComponent({ node }: IAddressProps) {
             labelSettings={labelSettings}
           />
           <Textfield
-            id={`address_post_place_${id}`}
+            id={`address_postPlace_${id}`}
             error={hasValidationErrors(bindingValidations?.postPlace)}
             size={'small'}
             value={postPlace}
@@ -166,7 +166,7 @@ export function AddressComponent({ node }: IAddressProps) {
           </p>
           <div className={classes.addressComponentSmallInputs}>
             <Textfield
-              id={`address_house_number_${id}`}
+              id={`address_houseNumber_${id}`}
               error={hasValidationErrors(bindingValidations?.houseNumber)}
               size={'small'}
               value={houseNumber}
