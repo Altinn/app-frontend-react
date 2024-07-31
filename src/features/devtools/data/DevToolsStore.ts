@@ -21,6 +21,10 @@ export const DevToolsStore = createStore<Store>((set) => ({
   nodeInspector: {
     selectedNodeId: undefined,
   },
+  dataModelInspector: {
+    selectedDataModelBinding: undefined,
+    selectedPath: undefined,
+  },
   exprPlayground: {
     expression: undefined,
     forPage: undefined,
@@ -40,6 +44,11 @@ export const DevToolsStore = createStore<Store>((set) => ({
       set({ activeTab: DevToolsTab.Layout, layoutInspector: { selectedComponentId: componentId } }),
     focusNodeInspector: (nodeId: string) =>
       set({ activeTab: DevToolsTab.Components, nodeInspector: { selectedNodeId: nodeId } }),
+    focusDataModelInspector: (dataModelBinding: string) =>
+      set({
+        activeTab: DevToolsTab.DataModel,
+        dataModelInspector: { selectedPath: undefined, selectedDataModelBinding: dataModelBinding },
+      }),
     setPdfPreview: (preview: boolean) => set({ pdfPreview: preview }),
     setShowHiddenComponents: (value: DevToolsHiddenComponents) => set({ hiddenComponents: value }),
     exprPlaygroundSetExpression: (expression: string | undefined) =>
@@ -48,6 +57,8 @@ export const DevToolsStore = createStore<Store>((set) => ({
       set((state) => ({ exprPlayground: { ...state.exprPlayground, forPage, forComponentId } })),
     layoutInspectorSet: (selectedComponentId: string | undefined) => set({ layoutInspector: { selectedComponentId } }),
     nodeInspectorSet: (selectedNodeId: string | undefined) => set({ nodeInspector: { selectedNodeId } }),
+    dataModelInspectorSet: (selectedPath: string | undefined) =>
+      set({ dataModelInspector: { selectedDataModelBinding: undefined, selectedPath } }),
     postLogs: (newLogs: IDevToolsLog[]) => set(({ logs }) => ({ logs: [...logs, ...newLogs] })),
     logsClear: () => set({ logs: [] }),
   },

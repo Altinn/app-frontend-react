@@ -24,7 +24,7 @@ export const NodeInspector = () => {
   return (
     <SplitView
       direction='row'
-      sizes={[300]}
+      sizes={[400]}
     >
       <div className={reusedClasses.container}>
         <NodeHierarchy

@@ -1,8 +1,10 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
 
 import { useBindingSchema } from 'src/features/datamodel/useBindingSchema';
 import classes from 'src/features/devtools/components/NodeInspector/NodeInspector.module.css';
 import { Value } from 'src/features/devtools/components/NodeInspector/NodeInspectorDataField';
+import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { FD } from 'src/features/formData/FormDataWrite';
 import type { IDataModelBindings } from 'src/layout/layout';
 
@@ -14,6 +16,21 @@ export function NodeInspectorDataModelBindings({ dataModelBindings }: Props) {
   const schema = useBindingSchema(dataModelBindings);
   const bindings = dataModelBindings || {};
   const results = FD.useFreshBindings(bindings, 'raw');
+  const focusDataModelInspector = useDevToolsStore((state) => state.actions.focusDataModelInspector);
+
+  const DataModelBindingLink = ({ binding }: { binding: string }) => (
+    <div>
+      <a
+        href='#'
+        onClick={(e) => {
+          e.preventDefault();
+          focusDataModelInspector(binding);
+        }}
+      >
+        {binding}
+      </a>
+    </div>
+  );
 
   return (
     <Value
@@ -29,7 +46,7 @@ export function NodeInspectorDataModelBindings({ dataModelBindings }: Props) {
             className={classes.typeLongString}
           >
             <em>Råverdi: </em>
-            {bindings[key]}
+            <DataModelBindingLink binding={bindings[key]} />
             <br />
             <em>Resultat: </em>
             <div className={classes.json}>{JSON.stringify(results[key], null, 2)}</div>

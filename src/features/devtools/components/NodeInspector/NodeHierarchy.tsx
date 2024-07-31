@@ -7,6 +7,7 @@ import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponentHighlighter';
+import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import type { GridRowsInternal } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -55,6 +56,7 @@ const GridRows = ({ rows, onClick, text, selected }: IGridRowsRenderer) => (
 );
 
 export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyItemProps) => {
+  const navigateTo = useNavigateToNode();
   const { onMouseEnter, onMouseLeave } = useComponentHighlighter(node.item.id, false);
   const hasChildren = node.children().length > 0;
   const isRepGroup = node.isType('RepeatingGroup');
@@ -62,9 +64,10 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
   const el = useRef<HTMLLIElement>(null);
   useEffect(() => {
     if (node.item.id === selected && el.current) {
+      navigateTo(node, false);
       el.current.scrollIntoView({ block: 'nearest' });
     }
-  }, [node.item.id, selected]);
+  }, [navigateTo, node, node.item.id, selected]);
 
   return (
     <>

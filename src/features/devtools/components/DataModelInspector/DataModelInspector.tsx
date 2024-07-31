@@ -1,38 +1,121 @@
-import React from 'react';
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import React, { useEffect, useRef } from 'react';
 
+import { Button } from '@digdir/designsystemet-react';
+import { Close } from '@navikt/ds-icons';
+import cn from 'classnames';
 import dot from 'dot-object';
 import diff from 'fast-diff';
 
 import classes from 'src/features/devtools/components/DataModelInspector/DataModelInspector.module.css';
+import reusedClasses from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
+import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
+import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { FD } from 'src/features/formData/FormDataWrite';
+import { useNodes } from 'src/utils/layout/NodesContext';
 
 export function DataModelInspector() {
+  const { selectedPath, selectedDataModelBinding } = useDevToolsStore((state) => state.dataModelInspector);
+  const setSelected = useDevToolsStore((state) => state.actions.dataModelInspectorSet);
+  const focusNodeInspector = useDevToolsStore((state) => state.actions.focusNodeInspector);
+
+  const nodes = useNodes();
+
   const currentData = FD.useCurrent();
   const debouncedData = FD.useDebounced();
   const lastSavedData = FD.useLastSaved();
-
   const combinedData = combineModels(currentData, debouncedData, lastSavedData);
 
-  return (
-    <div className={classes.container}>
-      <dl>
-        {Object.entries(combinedData).map(([k, v]) => (
-          <DataField
-            key={k}
-            property={k}
-            value={v}
-          />
-        ))}
-      </dl>
+  useEffect(() => {
+    if (selectedDataModelBinding) {
+      const id = getIdFromDataModelBinding(combinedData, selectedDataModelBinding);
+      setSelected(id ?? undefined);
+    }
+  }, [combinedData, selectedDataModelBinding, setSelected]);
+
+  const currentDataModelBinding = getDataModelBindingFromId(combinedData, selectedPath);
+  const matchingNodes = nodes
+    .allNodes()
+    .filter(
+      (n) =>
+        n.item.dataModelBindings &&
+        Object.values(n.item.dataModelBindings).some((binding) => currentDataModelBinding === binding),
+    );
+
+  const NodeLink = ({ nodeId }: { nodeId: string }) => (
+    <div>
+      <a
+        href='#'
+        onClick={(e) => {
+          e.preventDefault();
+          focusNodeInspector(nodeId);
+        }}
+      >
+        Utforsk {nodeId} i komponenter-fanen
+      </a>
     </div>
+  );
+
+  return (
+    <SplitView
+      direction='row'
+      sizes={[400]}
+    >
+      <div className={classes.container}>
+        <dl>
+          {Object.entries(combinedData).map(([k, v]) => (
+            <DataField
+              key={k}
+              property={k}
+              value={v}
+              path={k}
+              id={k}
+            />
+          ))}
+        </dl>
+      </div>
+      {selectedPath && currentDataModelBinding && (
+        <>
+          <div className={reusedClasses.header}>
+            <h3>{currentDataModelBinding}</h3>
+            <div className={classes.headerLink}>
+              {matchingNodes.length === 0 && 'Ingen tilknyttede komponenter funnet'}
+              {matchingNodes.map((node) => (
+                <NodeLink
+                  key={node.item.id}
+                  nodeId={node.item.id}
+                />
+              ))}
+            </div>
+            <Button
+              onClick={() => setSelected(undefined)}
+              variant='tertiary'
+              color='second'
+              size='small'
+              aria-label={'close'}
+              icon={true}
+            >
+              <Close
+                fontSize='1rem'
+                aria-hidden
+              />
+            </Button>
+          </div>
+        </>
+      )}
+    </SplitView>
   );
 }
 
 type DataFieldProps = {
   property: string;
   value: any;
+  path: string;
+  id: string;
 };
-function DataField({ property, value }: DataFieldProps) {
+function DataField({ property, value, path, id }: DataFieldProps) {
   if (isValueEmpty(value)) {
     value = null;
   }
@@ -42,6 +125,8 @@ function DataField({ property, value }: DataFieldProps) {
       <LeafValue
         property={property}
         value={value}
+        path={path}
+        id={id}
       />
     );
   }
@@ -51,6 +136,8 @@ function DataField({ property, value }: DataFieldProps) {
       <LeafObject
         property={property}
         value={value}
+        path={path}
+        id={id}
       />
     );
   }
@@ -60,6 +147,8 @@ function DataField({ property, value }: DataFieldProps) {
       <UniqueListValue
         property={property}
         value={value}
+        path={path}
+        id={id}
       />
     );
   }
@@ -69,6 +158,8 @@ function DataField({ property, value }: DataFieldProps) {
       <RepeatingGroupValue
         property={property}
         value={value}
+        path={path}
+        id={id}
       />
     );
   }
@@ -78,6 +169,8 @@ function DataField({ property, value }: DataFieldProps) {
       <ArrayValue
         property={property}
         value={value}
+        path={path}
+        id={id}
       />
     );
   }
@@ -87,6 +180,8 @@ function DataField({ property, value }: DataFieldProps) {
       <ObjectValue
         property={property}
         value={value}
+        path={path}
+        id={id}
       />
     );
   }
@@ -97,8 +192,25 @@ function DataField({ property, value }: DataFieldProps) {
 type LeafObjectProps = {
   property: string;
   value: LeafValueTriplet;
+  path: string;
+  id: string;
 };
-function LeafObject({ property, value }: LeafObjectProps) {
+function LeafObject({ property, value, path, id }: LeafObjectProps) {
+  const selectedPath = useDevToolsStore((state) => state.dataModelInspector.selectedPath);
+  const setSelected = useDevToolsStore((state) => state.actions.dataModelInspectorSet);
+  const el = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (selectedPath === id && el.current) {
+      el.current.scrollIntoView({ block: 'nearest' });
+    }
+  }, [id, selectedPath]);
+
+  // Maybe we should make it an option to hide row ids?
+  if (property === 'altinnRowId') {
+    return null;
+  }
+
   const stable = value.current === value.debounced && value.debounced === value.lastSaved;
   const writing = value.current !== value.debounced;
   const saving = value.current === value.debounced && value.debounced !== value.lastSaved;
@@ -111,15 +223,26 @@ function LeafObject({ property, value }: LeafObjectProps) {
 
   return (
     <>
-      <dt>{property}</dt>
+      <dt
+        ref={el}
+        title={path}
+        onClick={() => setSelected(id)}
+        className={cn({ [classes.active]: selectedPath === id })}
+      >
+        {property}
+      </dt>
       {stable && (
         <dd>
-          <pre>{currentValue}</pre>
+          <pre className={cn({ [classes.showAsString]: typeof value.current === 'string' })}>{currentValue}</pre>
         </dd>
       )}
       {writing && (
         <dd>
-          <pre>
+          <pre
+            className={cn({
+              [classes.showAsString]: typeof value.current === 'string' || typeof value.debounced === 'string',
+            })}
+          >
             {diff(debouncedStringy, currentStringy).map(([edit, text]) => (
               <span
                 key={`${edit}-${text}`}
@@ -136,7 +259,11 @@ function LeafObject({ property, value }: LeafObjectProps) {
       )}
       {saving && (
         <dd>
-          <pre>
+          <pre
+            className={cn({
+              [classes.showAsString]: typeof value.lastSaved === 'string' || typeof value.debounced === 'string',
+            })}
+          >
             {diff(lastSavedStringy, debouncedStringy).map(([edit, text]) => (
               <span
                 key={`${edit}-${text}`}
@@ -158,11 +285,35 @@ function LeafObject({ property, value }: LeafObjectProps) {
 type LeafValueProps = {
   property: string;
   value: string | number | boolean | null;
+  path: string;
+  id: string;
 };
-function LeafValue({ property, value }: LeafValueProps) {
+function LeafValue({ property, value, path, id }: LeafValueProps) {
+  const selectedPath = useDevToolsStore((state) => state.dataModelInspector.selectedPath);
+  const setSelected = useDevToolsStore((state) => state.actions.dataModelInspectorSet);
+  const el = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (selectedPath === id && el.current) {
+      el.current.scrollIntoView({ block: 'nearest' });
+    }
+  }, [id, selectedPath]);
+
+  // Maybe we should make it an option to hide row ids?
+  if (property === 'altinnRowId') {
+    return null;
+  }
+
   return (
     <>
-      <dt>{property}</dt>
+      <dt
+        ref={el}
+        title={path}
+        onClick={() => setSelected(id)}
+        className={cn({ [classes.active]: selectedPath === id })}
+      >
+        {property}
+      </dt>
       <dd>{String(value)}</dd>
     </>
   );
@@ -171,14 +322,18 @@ function LeafValue({ property, value }: LeafValueProps) {
 type RepeatingGroupValueProps = {
   property: string;
   value: RepeatingGroupObject;
+  path: string;
+  id: string;
 };
-function RepeatingGroupValue({ property, value }: RepeatingGroupValueProps) {
+function RepeatingGroupValue({ property, value, path, id }: RepeatingGroupValueProps) {
   const repeatingGroupArray: unknown[] = [];
+  const rowIds: (string | null)[] = [];
   for (const v of Object.values(value)) {
-    const { altinnRowIndex, altinnRowId: _, ...row } = v;
+    const { altinnRowIndex, ...row } = v;
     const index = altinnRowIndex.lastSaved ?? altinnRowIndex.debounced ?? altinnRowIndex.current;
     if (typeof index === 'number') {
       repeatingGroupArray[index] = row;
+      rowIds[index] = row.altinnRowId.lastSaved ?? row.altinnRowId.debounced ?? row.altinnRowId.current ?? null;
     }
   }
 
@@ -186,6 +341,9 @@ function RepeatingGroupValue({ property, value }: RepeatingGroupValueProps) {
     <ArrayValue
       property={property}
       value={repeatingGroupArray}
+      path={path}
+      id={id}
+      rowIds={rowIds}
     />
   );
 }
@@ -193,14 +351,19 @@ function RepeatingGroupValue({ property, value }: RepeatingGroupValueProps) {
 type UniqueListValueProps = {
   property: string;
   value: UniqueListValueObject;
+  path: string;
+  id: string;
 };
-function UniqueListValue({ property, value }: UniqueListValueProps) {
+function UniqueListValue({ property, value, path, id }: UniqueListValueProps) {
   const uniqueListValue: unknown[] = [];
+  const rowIds: (string | null)[] = [];
   for (const v of Object.values(value)) {
     const { value, index } = v;
     const i = index.lastSaved ?? index.debounced ?? index.current;
     if (typeof i === 'number') {
       uniqueListValue[i] = value;
+      const rowId = value.lastSaved ?? value.debounced ?? value.current ?? null;
+      rowIds[i] = rowId ? String(rowId) : null;
     }
   }
 
@@ -208,6 +371,9 @@ function UniqueListValue({ property, value }: UniqueListValueProps) {
     <ArrayValue
       property={property}
       value={uniqueListValue}
+      path={path}
+      id={id}
+      rowIds={rowIds}
     />
   );
 }
@@ -215,11 +381,30 @@ function UniqueListValue({ property, value }: UniqueListValueProps) {
 type ObjectValueProps = {
   property: string;
   value: Record<string, unknown>;
+  path: string;
+  id: string;
 };
-function ObjectValue({ property, value }: ObjectValueProps) {
+function ObjectValue({ property, value, path, id }: ObjectValueProps) {
+  const selectedPath = useDevToolsStore((state) => state.dataModelInspector.selectedPath);
+  const setSelected = useDevToolsStore((state) => state.actions.dataModelInspectorSet);
+  const el = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (selectedPath === id && el.current) {
+      el.current.scrollIntoView({ block: 'nearest' });
+    }
+  }, [id, selectedPath]);
+
   return (
     <>
-      <dt>{property}</dt>
+      <dt
+        ref={el}
+        title={path}
+        onClick={() => setSelected(id)}
+        className={cn({ [classes.active]: selectedPath === id })}
+      >
+        {property}
+      </dt>
       <dd>
         <dl>
           {Object.entries(value).map(([k, v]) => (
@@ -227,6 +412,8 @@ function ObjectValue({ property, value }: ObjectValueProps) {
               key={k}
               property={k}
               value={v}
+              path={`${path}.${k}`}
+              id={`${id}.${k}`}
             />
           ))}
         </dl>
@@ -238,18 +425,40 @@ function ObjectValue({ property, value }: ObjectValueProps) {
 type ArrayValueProps = {
   property: string;
   value: unknown[];
+  path: string;
+  id: string;
+  rowIds?: (string | null)[];
 };
-function ArrayValue({ property, value }: ArrayValueProps) {
+function ArrayValue({ property, value, path, id, rowIds }: ArrayValueProps) {
+  const selectedPath = useDevToolsStore((state) => state.dataModelInspector.selectedPath);
+  const setSelected = useDevToolsStore((state) => state.actions.dataModelInspectorSet);
+  const el = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (selectedPath === id && el.current) {
+      el.current.scrollIntoView({ block: 'nearest' });
+    }
+  }, [id, selectedPath]);
+
   return (
     <>
-      <dt>{property}</dt>
+      <dt
+        ref={el}
+        title={path}
+        onClick={() => setSelected(id)}
+        className={cn({ [classes.active]: selectedPath === id })}
+      >
+        {property}
+      </dt>
       <dd>
         <dl>
           {value.map((v, i) => (
             <DataField
-              key={v?.['altinnRowId'] ?? i}
+              key={rowIds?.[i] ?? i}
               property={`[${i}]`}
               value={v}
+              path={`${path}[${i}]`}
+              id={rowIds?.[i] ? `${id}.${rowIds[i]}` : `${id}[${i}]`}
             />
           ))}
         </dl>
@@ -311,12 +520,12 @@ function replaceIndicesWithRowIdsRecursive(key: string, parent: object) {
   if (isValueEmpty(parent[key])) {
     parent[key] = null;
   }
+  let data = parent[key];
 
   // If leaf value, stop recursion
   if (isLeafValue(parent[key])) {
     return;
   }
-  let data = parent[key];
 
   // If repeating group (all rows have altinnRowId), replace with object
   if (typeof data === 'object' && Array.isArray(data) && data.every((row) => row?.['altinnRowId'])) {
@@ -407,4 +616,140 @@ function isLeafValue(value: unknown) {
 
 function isValueEmpty(value: unknown) {
   return value != null && typeof value === 'object' && !Object.keys(value).length;
+}
+
+function parseKeyPart(keyPart: string): [string | null, string | null] {
+  if (!keyPart.endsWith(']')) {
+    return [keyPart, null];
+  }
+
+  const match = /^([^\s]+)\[(\d+)\]$/.exec(keyPart);
+  if (match) {
+    return [match[1], match[2]];
+  }
+
+  return [null, null];
+}
+
+function getIdFromDataModelBinding(model: unknown, dataModelBinding: string | undefined): string | null {
+  if (!dataModelBinding) {
+    return null;
+  }
+
+  const keyParts = dataModelBinding.split('.');
+  let id = '';
+  let currentModel = model;
+
+  for (const keyPart of keyParts) {
+    const [key, index] = parseKeyPart(keyPart);
+
+    if (!currentModel || !key) {
+      return null;
+    }
+
+    currentModel = currentModel[key];
+
+    // If repeating group use the index instead
+    if (isRepeatingGroupObject(currentModel) && index != null) {
+      const rowId = Object.entries(currentModel).reduce((result, [rowId, row]) => {
+        const rowIndexTriplet = row.altinnRowIndex;
+        const rowIndex = rowIndexTriplet.lastSaved ?? rowIndexTriplet.debounced ?? rowIndexTriplet.current;
+        if (index === String(rowIndex)) {
+          return rowId;
+        }
+        return result;
+      }, null);
+
+      if (!rowId) {
+        return null;
+      }
+
+      id += `.${key}.${rowId}`;
+      currentModel = currentModel[rowId];
+      continue;
+    }
+
+    // If unique list use index instead
+    if (isUniqueListValueObject(currentModel) && index != null) {
+      const rowId = Object.entries(currentModel).reduce((result, [rowId, row]) => {
+        const rowIndexTriplet = row.index;
+        const rowIndex = rowIndexTriplet.lastSaved ?? rowIndexTriplet.debounced ?? rowIndexTriplet.current;
+        if (index === String(rowIndex)) {
+          return rowId;
+        }
+        return result;
+      }, null);
+
+      if (!rowId) {
+        return null;
+      }
+
+      id += `.${key}.${rowId}`;
+      currentModel = currentModel[rowId];
+      continue;
+    }
+
+    // Default
+    id += `.${keyPart}`;
+    if (currentModel && index != null) {
+      currentModel = currentModel[Number(index)];
+    }
+  }
+
+  return id.slice(1);
+}
+
+function getDataModelBindingFromId(model: unknown, id: string | undefined): string | null {
+  if (!id) {
+    return null;
+  }
+
+  const keyParts = id.split('.');
+  let binding = '';
+  let currentModel = model;
+
+  for (const keyPart of keyParts) {
+    const [key, index] = parseKeyPart(keyPart);
+
+    if (!currentModel || !key) {
+      return null;
+    }
+
+    // If repeating group use the index instead
+    if (isRepeatingGroupObject(currentModel)) {
+      const row = currentModel[keyPart];
+      const rowIndexTriplet = row?.altinnRowIndex;
+      const rowIndex = rowIndexTriplet.lastSaved ?? rowIndexTriplet.debounced ?? rowIndexTriplet.current;
+      if (rowIndex == null) {
+        return null;
+      }
+
+      binding += `[${rowIndex}]`;
+      currentModel = row;
+      continue;
+    }
+
+    // If unique list use index instead
+    if (isUniqueListValueObject(currentModel)) {
+      const row = currentModel[keyPart];
+      const rowIndexTriplet = row?.index;
+      const rowIndex = rowIndexTriplet.lastSaved ?? rowIndexTriplet.debounced ?? rowIndexTriplet.current;
+      if (rowIndex == null) {
+        return null;
+      }
+
+      binding += `[${rowIndex}]`;
+      currentModel = row;
+      continue;
+    }
+
+    // Default
+    binding += `.${keyPart}`;
+    currentModel = currentModel[key];
+    if (currentModel && index != null) {
+      currentModel = currentModel[Number(index)];
+    }
+  }
+
+  return binding.slice(1);
 }

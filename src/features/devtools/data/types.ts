@@ -11,6 +11,10 @@ export type IDevToolsState = {
   nodeInspector: {
     selectedNodeId: string | undefined;
   };
+  dataModelInspector: {
+    selectedDataModelBinding: string | undefined;
+    selectedPath: string | undefined;
+  };
   exprPlayground: {
     expression: string | undefined;
     forPage: string | undefined;
@@ -25,12 +29,14 @@ export type IDevToolsActions = {
   setActiveTab: (tabName: DevToolsTab) => void;
   focusLayoutInspector: (componentId: string) => void;
   focusNodeInspector: (nodeId: string) => void;
+  focusDataModelInspector: (dataModelBinding: string) => void;
   setPdfPreview: (preview: boolean) => void;
   setShowHiddenComponents: (value: DevToolsHiddenComponents) => void;
   exprPlaygroundSetExpression: (expression: string | undefined) => void;
   exprPlaygroundSetContext: (forPage: string | undefined, forComponentId: string | undefined) => void;
   layoutInspectorSet: (selectedComponentId: string | undefined) => void;
   nodeInspectorSet: (selectedNodeId: string | undefined) => void;
+  dataModelInspectorSet: (selectedPath: string | undefined) => void;
   postLogs: (logs: IDevToolsLog[]) => void;
   logsClear: () => void;
 };

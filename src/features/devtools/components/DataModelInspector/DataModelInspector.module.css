@@ -4,7 +4,7 @@
   width: 100%;
 }
 
-.container > * {
+.container > dl {
   padding: 0.5rem !important;
 }
 
@@ -20,6 +20,18 @@
   padding: 2px 4px;
   border-radius: 2px;
   align-self: center;
+}
+
+.showAsString::before {
+  content: '"';
+}
+
+.showAsString::after {
+  content: '"';
+}
+
+.active {
+  background-color: #ddd;
 }
 
 .container dt::after {
