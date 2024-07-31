@@ -11,12 +11,29 @@
 .container dl {
   padding: 0;
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.5rem;
+  grid-template-columns: max-content auto;
+  row-gap: 0.5rem;
+}
+
+.container dt {
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 2px;
+  align-self: center;
+}
+
+.container dt::after {
+  content: ':';
+}
+
+.container dt:hover {
+  background-color: #ccc;
 }
 
 .container dd {
-  margin-left: 0;
+  border-left: 2px solid #ccc;
+  padding-left: 0.5rem;
+  margin-left: 1rem;
 }
 
 .container pre {

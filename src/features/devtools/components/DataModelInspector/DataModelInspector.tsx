@@ -276,7 +276,14 @@ function combineModels(current: object, debounced: object, lastSaved: object) {
   Object.assign(combined, debouncedExtended);
   Object.assign(combined, lastSavedExtended);
 
-  return dot.object(combined);
+  const ordered = Object.keys(combined)
+    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+    .reduce((obj, key) => {
+      obj[key] = combined[key];
+      return obj;
+    }, {});
+
+  return dot.object(ordered);
 }
 
 function appendDataModelKey(
