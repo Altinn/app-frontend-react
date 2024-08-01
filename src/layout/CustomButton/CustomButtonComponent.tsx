@@ -10,6 +10,7 @@ import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
+import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { promisify } from 'src/utils/promisify';
@@ -174,7 +175,7 @@ export function useActionAuthorization() {
   };
 }
 
-export const buttonStyles: { [style in CBTypes.CustomButtonStyle]: { color: ButtonColor; variant: ButtonVariant } } = {
+export const buttonStyles: { [style in CBTypes.ButtonStyle]: { color: ButtonColor; variant: ButtonVariant } } = {
   primary: { variant: 'primary', color: 'success' },
   secondary: { variant: 'secondary', color: 'first' },
 };
@@ -185,6 +186,12 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const { isAuthorized } = useActionAuthorization();
   const { handleClientActions } = useHandleClientActions();
   const { handleServerAction, mutation } = useHandleServerActionMutation(lockTools);
+  const onPageNavigationValidation = useOnPageNavigationValidation();
+
+  const getScrollPosition = React.useCallback(
+    () => document.querySelector(`[data-componentid="${id}"]`)?.getClientRects().item(0)?.y,
+    [id],
+  );
 
   const isPermittedToPerformActions = actions
     .filter((action) => action.type === 'ServerAction')
@@ -203,11 +210,44 @@ export const CustomButtonComponent = ({ node }: Props) => {
     buttonText = 'general.done';
   }
 
+  /**
+   * This is borrowed from NavigationButtonsComponent, but doesn't seem to scroll quite far enough
+   */
+  // TODO: Investigate more and possibly fix the scroll offset
+  const resetScrollPosition = (prevScrollPosition: number | undefined) => {
+    if (prevScrollPosition === undefined) {
+      return;
+    }
+    let attemptsLeft = 10;
+    const check = () => {
+      attemptsLeft--;
+      if (attemptsLeft <= 0) {
+        return;
+      }
+      const newScrollPosition = getScrollPosition();
+      if (newScrollPosition !== undefined && newScrollPosition !== prevScrollPosition) {
+        window.scrollBy({ top: newScrollPosition - prevScrollPosition });
+      } else {
+        requestAnimationFrame(check);
+      }
+    };
+    requestAnimationFrame(check);
+  };
+
   const onClick = async () => {
     if (disabled) {
       return;
     }
     for (const action of actions) {
+      if (action.validation) {
+        const prevScrollPosition = getScrollPosition();
+        const hasErrors = await onPageNavigationValidation(node.top, action.validation);
+        if (hasErrors) {
+          resetScrollPosition(prevScrollPosition);
+          return;
+        }
+      }
+
       if (isClientAction(action)) {
         await handleClientActions([action]);
       } else if (isServerAction(action)) {
