@@ -33,6 +33,10 @@ module.exports = {
             loader: 'css-loader',
             options: {
               url: false,
+              modules: {
+                auto: true,
+                namedExport: false,
+              },
             },
           },
         ],
