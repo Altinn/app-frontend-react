@@ -244,7 +244,7 @@ function LeafObject({ property, value, path, id }: LeafObjectProps) {
         ref={el}
         title={path}
         onClick={() => setSelected(id)}
-        className={cn({ [classes.active]: selectedPath === id })}
+        className={cn({ [classes.active]: selectedPath?.startsWith(id) })}
       >
         <span className={cn({ [classes.colon]: !schemaType })}>{property}</span>
         {schemaType && <span className={classes.type}>{schemaType}</span>}
@@ -329,7 +329,7 @@ function LeafValue({ property, value, path, id }: LeafValueProps) {
         ref={el}
         title={path}
         onClick={() => setSelected(id)}
-        className={cn({ [classes.active]: selectedPath === id })}
+        className={cn({ [classes.active]: selectedPath?.startsWith(id) })}
       >
         <span className={cn({ [classes.colon]: !schemaType })}>{property}</span>
         {schemaType && <span className={classes.type}>{schemaType}</span>}
@@ -422,7 +422,7 @@ function ObjectValue({ property, value, path, id }: ObjectValueProps) {
         ref={el}
         title={path}
         onClick={() => setSelected(id)}
-        className={cn({ [classes.active]: selectedPath === id })}
+        className={cn({ [classes.active]: selectedPath?.startsWith(id) })}
       >
         <span className={cn({ [classes.colon]: !schemaType })}>{property}</span>
         {schemaType && <span className={classes.type}>{schemaType}</span>}
@@ -469,7 +469,7 @@ function ArrayValue({ property, value, path, id, rowIds }: ArrayValueProps) {
         ref={el}
         title={path}
         onClick={() => setSelected(id)}
-        className={cn({ [classes.active]: selectedPath === id })}
+        className={cn({ [classes.active]: selectedPath?.startsWith(id) })}
       >
         <span className={cn({ [classes.colon]: !schemaType })}>{property}</span>
         {schemaType && <span className={classes.type}>{schemaType}</span>}
