@@ -11,11 +11,14 @@
 .container dl {
   padding: 0;
   display: grid;
-  grid-template-columns: max-content auto;
+  grid-template-columns: max-content max-content auto;
   row-gap: 0.5rem;
 }
 
 .container dt {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / span 2;
   cursor: pointer;
   padding: 2px 4px;
   border-radius: 2px;
@@ -34,7 +37,7 @@
   background-color: #ddd;
 }
 
-.container dt::after {
+.colon::after {
   content: ':';
 }
 
@@ -45,11 +48,22 @@
 .container dd {
   border-left: 2px solid #ccc;
   padding-left: 0.5rem;
-  margin-left: 1rem;
+  margin-left: 0.5rem;
 }
 
 .container pre {
   margin: 0;
+}
+
+.type {
+  font-size: 0.8rem;
+  background-color: #333;
+  color: white;
+  padding: 2px 4px;
+  border-radius: 2px;
+  margin-right: 2px;
+  margin-left: 4px;
+  justify-self: end;
 }
 
 .json {

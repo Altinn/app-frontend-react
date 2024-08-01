@@ -40,7 +40,6 @@ export function DataModelInspector() {
   const selectedBinding = getDataModelBindingFromId(combinedData, selectedPath);
   const selectedSchema = selectedBinding && lookup?.getSchemaForPath(selectedBinding);
   const selectedCurrentData = selectedBinding && dot.pick(selectedBinding, currentData);
-  const selectedDeboucedData = selectedBinding && dot.pick(selectedBinding, debouncedData);
   const selectedLastSavedData = selectedBinding && dot.pick(selectedBinding, lastSavedData);
 
   const matchingNodes = nodes
@@ -118,7 +117,7 @@ export function DataModelInspector() {
           )}
           <h4>Verdi</h4>
           <div className={classes.json}>{JSON.stringify(selectedCurrentData, null, 2)}</div>
-          <div className={classes.json}>{JSON.stringify(selectedDeboucedData, null, 2)}</div>
+          <h4>Lagret verdi</h4>
           <div className={classes.json}>{JSON.stringify(selectedLastSavedData, null, 2)}</div>
         </div>
       )}
@@ -213,6 +212,7 @@ type LeafObjectProps = {
   id: string;
 };
 function LeafObject({ property, value, path, id }: LeafObjectProps) {
+  const schemaType = useBindingSchemaType(path);
   const selectedPath = useDevToolsStore((state) => state.dataModelInspector.selectedPath);
   const setSelected = useDevToolsStore((state) => state.actions.dataModelInspectorSet);
   const el = useRef<HTMLElement>(null);
@@ -246,7 +246,8 @@ function LeafObject({ property, value, path, id }: LeafObjectProps) {
         onClick={() => setSelected(id)}
         className={cn({ [classes.active]: selectedPath === id })}
       >
-        {property}
+        <span className={cn({ [classes.colon]: !schemaType })}>{property}</span>
+        {schemaType && <span className={classes.type}>{schemaType}</span>}
       </dt>
       {stable && (
         <dd>
@@ -306,6 +307,7 @@ type LeafValueProps = {
   id: string;
 };
 function LeafValue({ property, value, path, id }: LeafValueProps) {
+  const schemaType = useBindingSchemaType(path);
   const selectedPath = useDevToolsStore((state) => state.dataModelInspector.selectedPath);
   const setSelected = useDevToolsStore((state) => state.actions.dataModelInspectorSet);
   const el = useRef<HTMLElement>(null);
@@ -329,7 +331,8 @@ function LeafValue({ property, value, path, id }: LeafValueProps) {
         onClick={() => setSelected(id)}
         className={cn({ [classes.active]: selectedPath === id })}
       >
-        {property}
+        <span className={cn({ [classes.colon]: !schemaType })}>{property}</span>
+        {schemaType && <span className={classes.type}>{schemaType}</span>}
       </dt>
       <dd>{String(value)}</dd>
     </>
@@ -402,6 +405,7 @@ type ObjectValueProps = {
   id: string;
 };
 function ObjectValue({ property, value, path, id }: ObjectValueProps) {
+  const schemaType = useBindingSchemaType(path);
   const selectedPath = useDevToolsStore((state) => state.dataModelInspector.selectedPath);
   const setSelected = useDevToolsStore((state) => state.actions.dataModelInspectorSet);
   const el = useRef<HTMLElement>(null);
@@ -420,7 +424,8 @@ function ObjectValue({ property, value, path, id }: ObjectValueProps) {
         onClick={() => setSelected(id)}
         className={cn({ [classes.active]: selectedPath === id })}
       >
-        {property}
+        <span className={cn({ [classes.colon]: !schemaType })}>{property}</span>
+        {schemaType && <span className={classes.type}>{schemaType}</span>}
       </dt>
       <dd>
         <dl>
@@ -447,6 +452,7 @@ type ArrayValueProps = {
   rowIds?: (string | null)[];
 };
 function ArrayValue({ property, value, path, id, rowIds }: ArrayValueProps) {
+  const schemaType = useBindingSchemaType(path);
   const selectedPath = useDevToolsStore((state) => state.dataModelInspector.selectedPath);
   const setSelected = useDevToolsStore((state) => state.actions.dataModelInspectorSet);
   const el = useRef<HTMLElement>(null);
@@ -465,7 +471,8 @@ function ArrayValue({ property, value, path, id, rowIds }: ArrayValueProps) {
         onClick={() => setSelected(id)}
         className={cn({ [classes.active]: selectedPath === id })}
       >
-        {property}
+        <span className={cn({ [classes.colon]: !schemaType })}>{property}</span>
+        {schemaType && <span className={classes.type}>{schemaType}</span>}
       </dt>
       <dd>
         <dl>
@@ -646,6 +653,12 @@ function parseKeyPart(keyPart: string): [string | null, string | null] {
   }
 
   return [null, null];
+}
+
+function useBindingSchemaType(path: string): string | null {
+  const lookup = useLaxCurrentDataModelSchemaLookup();
+  const type = lookup?.getSchemaForPath(path)?.[0]?.type;
+  return type ? String(type) : null;
 }
 
 function getIdFromDataModelBinding(model: unknown, dataModelBinding: string | undefined): string | null {
