@@ -781,7 +781,7 @@ function getDataModelBindingFromId(model: unknown, id: string | undefined): stri
     if (isRepeatingGroupObject(currentModel)) {
       const row = currentModel[keyPart];
       const rowIndexTriplet = row?.altinnRowIndex;
-      const rowIndex = rowIndexTriplet.lastSaved ?? rowIndexTriplet.debounced ?? rowIndexTriplet.current;
+      const rowIndex = rowIndexTriplet?.lastSaved ?? rowIndexTriplet?.debounced ?? rowIndexTriplet?.current;
       if (rowIndex == null) {
         return null;
       }
@@ -795,7 +795,7 @@ function getDataModelBindingFromId(model: unknown, id: string | undefined): stri
     if (isUniqueListValueObject(currentModel)) {
       const row = currentModel[keyPart];
       const rowIndexTriplet = row?.index;
-      const rowIndex = rowIndexTriplet.lastSaved ?? rowIndexTriplet.debounced ?? rowIndexTriplet.current;
+      const rowIndex = rowIndexTriplet?.lastSaved ?? rowIndexTriplet?.debounced ?? rowIndexTriplet?.current;
       if (rowIndex == null) {
         return null;
       }
