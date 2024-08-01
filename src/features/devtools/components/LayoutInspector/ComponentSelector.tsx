@@ -1,19 +1,28 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 import { Button } from '@digdir/designsystemet-react';
 import { FingerButtonIcon } from '@navikt/aksel-icons';
 
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { setHighlightStyle } from 'src/features/devtools/hooks/useComponentHighlighter';
+import type { SelectionMode } from 'src/features/devtools/data/types';
 
 type ComponentSelectorProps = {
-  type: 'component' | 'node';
+  type: SelectionMode;
+};
+
+const selectors: { [type in SelectionMode]: string } = {
+  component: 'data-componentbaseid',
+  node: 'data-componentid',
+  dataModel: 'data-datamodelbinding',
 };
 
 export function ComponentSelector({ type }: ComponentSelectorProps) {
-  const [active, setActive] = useState(false);
+  const active = useDevToolsStore((state) => state.activeSelectionMode === type);
+  const setActive = useDevToolsStore((state) => state.actions.setActiveSelectionMode);
   const selectNode = useDevToolsStore((state) => state.actions.focusNodeInspector);
   const selectComponent = useDevToolsStore((state) => state.actions.focusLayoutInspector);
+  const selectDataModelBinding = useDevToolsStore((state) => state.actions.focusDataModelInspector);
 
   const selected = useRef<string | null>(null);
   const listenersRef = useRef<{ eventType: string; listener: EventListener }[]>([]);
@@ -23,11 +32,20 @@ export function ComponentSelector({ type }: ComponentSelectorProps) {
   function toggle(e: React.MouseEvent) {
     e.stopPropagation();
     if (!active) {
-      activate();
+      setActive(type);
     } else {
-      deactivate();
+      setActive(undefined);
     }
   }
+
+  useEffect(() => {
+    if (active) {
+      activate();
+    } else {
+      cleanup();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
 
   function activate() {
     cleanup();
@@ -51,7 +69,7 @@ export function ComponentSelector({ type }: ComponentSelectorProps) {
       }
 
       for (const element of elementsToCheck) {
-        const id = element.getAttribute(type === 'node' ? 'data-componentid' : 'data-componentbaseid');
+        const id = element.getAttribute(selectors[type]);
         if (id) {
           newElement = element;
           newId = id;
@@ -80,16 +98,18 @@ export function ComponentSelector({ type }: ComponentSelectorProps) {
       if (selected.current) {
         if (type === 'node') {
           selectNode(selected.current);
-        } else {
+        } else if (type === 'component') {
           selectComponent(selected.current);
+        } else if (type === 'dataModel') {
+          selectDataModelBinding(selected.current);
         }
-        deactivate();
+        setActive(undefined);
       }
     };
 
     const escapeListener = function (event: KeyboardEvent) {
       if (event.key === 'Escape') {
-        deactivate();
+        setActive(undefined);
       }
     };
 
@@ -100,12 +120,6 @@ export function ComponentSelector({ type }: ComponentSelectorProps) {
     for (const { eventType, listener } of listenersRef.current) {
       window.addEventListener(eventType, listener);
     }
-    setActive(true);
-  }
-
-  function deactivate() {
-    cleanup();
-    setActive(false);
   }
 
   const cleanup = useCallback(() => {

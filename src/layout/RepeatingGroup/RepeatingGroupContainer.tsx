@@ -26,7 +26,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
   }));
   const isEditingAnyRow = editingId !== undefined;
 
-  const { textResourceBindings, edit, type } = node.item;
+  const { textResourceBindings, edit, type, dataModelBindings } = node.item;
   const { title, description } = textResourceBindings || {};
 
   const numRows = rowsToDisplay.length;
@@ -45,6 +45,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
       item={true}
       data-componentid={node.item.id}
       data-componentbaseid={node.item.baseComponentId || node.item.id}
+      data-datamodelbinding={dataModelBindings.group}
       ref={ref}
     >
       {(!edit?.mode ||

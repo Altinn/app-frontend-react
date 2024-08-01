@@ -20,7 +20,7 @@ export type IAddressProps = PropsFromGenericComponent<'Address'>;
 export function AddressComponent({ node }: IAddressProps) {
   const { id, required, readOnly, labelSettings, simplified, saveWhileTyping } = node.item;
 
-  const { textResourceBindings } = node.item;
+  const { textResourceBindings, dataModelBindings } = node.item;
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
 
@@ -43,7 +43,7 @@ export function AddressComponent({ node }: IAddressProps) {
       className={classes.addressComponent}
       key={`address_component_${id}`}
     >
-      <div>
+      <div data-datamodelbinding={dataModelBindings.address}>
         <Label
           label={<Lang id={textResourceBindings?.title || 'address_component.address'} />}
           helpText={undefined}
@@ -70,7 +70,7 @@ export function AddressComponent({ node }: IAddressProps) {
       </div>
 
       {!simplified && (
-        <div>
+        <div data-datamodelbinding={dataModelBindings.careOf}>
           <Label
             label={<Lang id={textResourceBindings?.careOfTitle || 'address_component.care_of'} />}
             helpText={undefined}
@@ -97,7 +97,10 @@ export function AddressComponent({ node }: IAddressProps) {
       )}
 
       <div className={classes.addressComponentPostplaceZipCode}>
-        <div className={classes.addressComponentZipCode}>
+        <div
+          data-datamodelbinding={dataModelBindings.zipCode}
+          className={classes.addressComponentZipCode}
+        >
           <Label
             label={<Lang id={textResourceBindings?.zipCodeTitle || 'address_component.zip_code'} />}
             helpText={undefined}
@@ -122,7 +125,10 @@ export function AddressComponent({ node }: IAddressProps) {
           </div>
         </div>
 
-        <div className={classes.addressComponentPostplace}>
+        <div
+          data-datamodelbinding={dataModelBindings.postPlace}
+          className={classes.addressComponentPostplace}
+        >
           <Label
             label={<Lang id={textResourceBindings?.postPlaceTitle || 'address_component.post_place'} />}
             helpText={undefined}
@@ -152,7 +158,7 @@ export function AddressComponent({ node }: IAddressProps) {
       </div>
 
       {!simplified && (
-        <div>
+        <div data-datamodelbinding={dataModelBindings.houseNumber}>
           <Label
             label={<Lang id={textResourceBindings?.houseNumberTitle || 'address_component.house_number'} />}
             helpText={undefined}

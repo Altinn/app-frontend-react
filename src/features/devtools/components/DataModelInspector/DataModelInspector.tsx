@@ -1,7 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { toast } from 'react-toastify';
 
 import { Button } from '@digdir/designsystemet-react';
 import { Close } from '@navikt/ds-icons';
@@ -28,12 +29,33 @@ export function DataModelInspector() {
   const currentData = FD.useCurrent();
   const debouncedData = FD.useDebounced();
   const lastSavedData = FD.useLastSaved();
-  const combinedData = combineModels(currentData, debouncedData, lastSavedData);
+  const combinedData = useMemo(
+    () => combineModels(currentData, debouncedData, lastSavedData),
+    [currentData, debouncedData, lastSavedData],
+  );
 
   useEffect(() => {
     if (selectedDataModelBinding) {
       const id = getIdFromDataModelBinding(combinedData, selectedDataModelBinding);
       setSelected(id ?? undefined);
+
+      if (!id) {
+        toast(
+          <span>
+            Fant ikke{' '}
+            <code style={{ backgroundColor: '#333', color: 'white', fontSize: '0.8rem', padding: '0 4px' }}>
+              {selectedDataModelBinding}
+            </code>{' '}
+            i datamodellen
+          </span>,
+          {
+            toastId: 'dataModelBindingNotFound',
+            type: 'default',
+            autoClose: 3000,
+            position: 'bottom-center',
+          },
+        );
+      }
     }
   }, [combinedData, selectedDataModelBinding, setSelected]);
 
@@ -244,7 +266,7 @@ function LeafObject({ property, value, path, id }: LeafObjectProps) {
         ref={el}
         title={path}
         onClick={() => setSelected(id)}
-        className={cn({ [classes.active]: selectedPath?.startsWith(id) })}
+        className={cn({ [classes.active]: isSubPath(selectedPath, id) })}
       >
         <span className={cn({ [classes.colon]: !schemaType })}>{property}</span>
         {schemaType && <span className={classes.type}>{schemaType}</span>}
@@ -329,7 +351,7 @@ function LeafValue({ property, value, path, id }: LeafValueProps) {
         ref={el}
         title={path}
         onClick={() => setSelected(id)}
-        className={cn({ [classes.active]: selectedPath?.startsWith(id) })}
+        className={cn({ [classes.active]: isSubPath(selectedPath, id) })}
       >
         <span className={cn({ [classes.colon]: !schemaType })}>{property}</span>
         {schemaType && <span className={classes.type}>{schemaType}</span>}
@@ -422,7 +444,7 @@ function ObjectValue({ property, value, path, id }: ObjectValueProps) {
         ref={el}
         title={path}
         onClick={() => setSelected(id)}
-        className={cn({ [classes.active]: selectedPath?.startsWith(id) })}
+        className={cn({ [classes.active]: isSubPath(selectedPath, id) })}
       >
         <span className={cn({ [classes.colon]: !schemaType })}>{property}</span>
         {schemaType && <span className={classes.type}>{schemaType}</span>}
@@ -469,7 +491,7 @@ function ArrayValue({ property, value, path, id, rowIds }: ArrayValueProps) {
         ref={el}
         title={path}
         onClick={() => setSelected(id)}
-        className={cn({ [classes.active]: selectedPath?.startsWith(id) })}
+        className={cn({ [classes.active]: isSubPath(selectedPath, id) })}
       >
         <span className={cn({ [classes.colon]: !schemaType })}>{property}</span>
         {schemaType && <span className={classes.type}>{schemaType}</span>}
@@ -653,6 +675,16 @@ function parseKeyPart(keyPart: string): [string | null, string | null] {
   }
 
   return [null, null];
+}
+
+function isSubPath(selectedPath: string | undefined, target: string) {
+  if (!selectedPath) {
+    return false;
+  }
+
+  const selectedKeyParts = selectedPath.split('.');
+  const targetKeyParts = target.split('.');
+  return targetKeyParts.every((part, index) => part === selectedKeyParts.at(index));
 }
 
 function useBindingSchemaType(path: string): string | null {

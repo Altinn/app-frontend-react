@@ -5,6 +5,7 @@ export type IDevToolsState = {
   pdfPreview: boolean;
   hiddenComponents: DevToolsHiddenComponents;
   activeTab: DevToolsTab;
+  activeSelectionMode: SelectionMode | undefined;
   layoutInspector: {
     selectedComponentId: string | undefined;
   };
@@ -27,6 +28,7 @@ export type IDevToolsActions = {
   open: () => void;
   close: () => void;
   setActiveTab: (tabName: DevToolsTab) => void;
+  setActiveSelectionMode: (mode: SelectionMode | undefined) => void;
   focusLayoutInspector: (componentId: string) => void;
   focusNodeInspector: (nodeId: string) => void;
   focusDataModelInspector: (dataModelBinding: string) => void;
@@ -56,3 +58,5 @@ export enum DevToolsTab {
   FeatureToggles = 'Beta-funksjonalitet',
   Logs = 'Logger',
 }
+
+export type SelectionMode = 'component' | 'node' | 'dataModel';

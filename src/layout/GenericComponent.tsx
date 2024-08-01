@@ -189,6 +189,11 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         data-componentbaseid={item.baseComponentId || item.id}
         data-componentid={item.id}
         data-componenttype={item.type}
+        data-datamodelbinding={
+          item.dataModelBindings && 'simpleBinding' in item.dataModelBindings
+            ? item.dataModelBindings.simpleBinding
+            : undefined
+        }
         ref={containerDivRef}
         item={true}
         container={true}

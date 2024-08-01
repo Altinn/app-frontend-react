@@ -33,6 +33,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
     minNumberOfAttachments,
     hasCustomFileEndings,
     validFileEndings,
+    dataModelBindings,
     textResourceBindings,
   } = node.item;
   const [showFileUpload, setShowFileUpload] = React.useState(false);
@@ -124,6 +125,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
     <AttachmentsMappedToFormDataProvider mappingTools={mappingTools}>
       <div
         id={`altinn-fileuploader-${id}`}
+        data-datamodelbinding={dataModelBindings && 'list' in dataModelBindings ? dataModelBindings.list : undefined}
         style={{ padding: '0px' }}
       >
         {shouldShowFileUpload && (

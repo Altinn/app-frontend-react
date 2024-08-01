@@ -15,6 +15,7 @@ export const DevToolsStore = createStore<Store>((set) => ({
   pdfPreview: false,
   hiddenComponents: 'hide',
   activeTab: DevToolsTab.General,
+  activeSelectionMode: undefined,
   layoutInspector: {
     selectedComponentId: undefined,
   },
@@ -40,6 +41,7 @@ export const DevToolsStore = createStore<Store>((set) => ({
         layoutInspector: { selectedComponentId: undefined },
         nodeInspector: { selectedNodeId: undefined },
       }),
+    setActiveSelectionMode: (mode) => set({ activeSelectionMode: mode }),
     focusLayoutInspector: (componentId: string) =>
       set({ activeTab: DevToolsTab.Layout, layoutInspector: { selectedComponentId: componentId } }),
     focusNodeInspector: (nodeId: string) =>

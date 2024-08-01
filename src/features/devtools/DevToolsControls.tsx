@@ -50,7 +50,12 @@ export const DevToolsControls = () => {
             <ComponentSelector type='node' />
           </Tabs.Tab>
         )}
-        {isInForm && <Tabs.Tab value={DevToolsTab.DataModel}>{DevToolsTab.DataModel}</Tabs.Tab>}
+        {isInForm && (
+          <Tabs.Tab value={DevToolsTab.DataModel}>
+            {DevToolsTab.DataModel}
+            <ComponentSelector type='dataModel' />
+          </Tabs.Tab>
+        )}
         {isInForm && <Tabs.Tab value={DevToolsTab.Expressions}>{DevToolsTab.Expressions}</Tabs.Tab>}
         {/* <Tabs.Tab value={DevToolsTab.FeatureToggles}>{DevToolsTab.FeatureToggles}</Tabs.Tab> */}
       </Tabs.List>

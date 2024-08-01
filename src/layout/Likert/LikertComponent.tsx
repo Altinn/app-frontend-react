@@ -31,6 +31,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
   const { lang } = useLanguage();
 
   const id = node.item.id;
+  const dataModelBindings = node.item.dataModelBindings;
   const hasDescription = !!node?.item.textResourceBindings?.description;
   const hasTitle = !!node?.item.textResourceBindings?.title;
   const titleId = `likert-title-${id}`;
@@ -70,6 +71,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
         container
         data-componentid={node.item.id}
         data-componentbaseid={node.item.baseComponentId || node.item.id}
+        data-datamodelbinding={dataModelBindings.questions}
       >
         <Header />
         <div
@@ -102,6 +104,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
       container
       data-componentid={node.item.id}
       data-componentbaseid={node.item.baseComponentId || node.item.id}
+      data-datamodelbinding={dataModelBindings.questions}
     >
       <Header />
       {isFetching ? (
