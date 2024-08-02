@@ -34,9 +34,9 @@ module.exports = {
             options: {
               url: false,
               modules: {
-                auto: true,
                 namedExport: false,
-                exportLocalsConvention: 'as-is',
+                auto: true,
+                exportLocalsConvention: 'camel-case',
               },
             },
           },
