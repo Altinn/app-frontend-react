@@ -34,7 +34,6 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
   const [isAdding, setIsAdding] = useState(false);
   const dataElements = instanceData.data.filter((d) => d.dataType === dataType) ?? [];
   const [subFormEntries, updateSubFormEntries] = useState(dataElements);
-  const haveTableColumns = tableColumns.length > 0;
 
   const addEntry = async () => {
     setIsAdding(true);
@@ -70,7 +69,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
           <>
             <Table.Head id={`subform-${id}-table-body`}>
               <Table.Row>
-                {haveTableColumns &&
+                {tableColumns.length ? (
                   tableColumns.map((entry, index) => (
                     <Table.HeaderCell
                       className={classes.tableCellFormatting}
@@ -78,8 +77,8 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
                     >
                       <Lang id={entry.headerContent} />
                     </Table.HeaderCell>
-                  ))}
-                {!haveTableColumns && (
+                  ))
+                ) : (
                   <Table.HeaderCell className={classes.tableCellFormatting}>
                     <Lang id={langAsString('form_filler.sub_form_default_header')} />
                   </Table.HeaderCell>
@@ -169,7 +168,6 @@ function SubFormTableRow({
   const deleteEntryMutation = useDeleteEntryMutation(id);
   const deleteButtonText = langAsString('general.delete');
   const editButtonText = langAsString('general.edit');
-  const haveTableColumns = tableColumns.length > 0;
 
   if (isFetching) {
     const numColumns = tableColumns.length;
@@ -200,12 +198,14 @@ function SubFormTableRow({
       data-row-num={rowNumber}
       className={isDeleting ? classes.disabledRow : ''}
     >
-      {haveTableColumns &&
+      {tableColumns.length ? (
         tableColumns.map((entry, index) => {
           const content = dot.pick(entry.cellContent, data);
           return <Table.Cell key={`subform-cell-${id}-${index}`}>{String(content)}</Table.Cell>;
-        })}
-      {!haveTableColumns && <Table.Cell key={`subform-cell-${id}-0`}>{String(id)}</Table.Cell>}
+        })
+      ) : (
+        <Table.Cell key={`subform-cell-${id}-0`}>{String(id)}</Table.Cell>
+      )}
       <Table.Cell className={classes.buttonCell}>
         <div className={classes.buttonInCellWrapper}>
           <Button

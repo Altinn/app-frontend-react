@@ -10,6 +10,7 @@ import {
 } from 'src/features/validation';
 import { SubFormDef } from 'src/layout/SubForm/config.def.generated';
 import { SubFormComponent } from 'src/layout/SubForm/SubFormComponent';
+import { SubFormSummaryComponent } from 'src/layout/SubForm/SubFormSummaryComponent';
 import {
   RedirectBackToMainForm,
   SubFormFirstPage,
@@ -19,6 +20,7 @@ import {
 import { TaskIdStoreProvider } from 'src/layout/Summary2/taskIdStore';
 import type { TextReference } from 'src/features/language/useLanguage';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class SubForm extends SubFormDef implements ValidateComponent {
@@ -55,6 +57,18 @@ export class SubForm extends SubFormDef implements ValidateComponent {
         </Routes>
       </TaskIdStoreProvider>
     );
+  }
+
+  renderSummaryBoilerplate(): boolean {
+    return true;
+  }
+
+  renderSummary({ targetNode }: SummaryRendererProps<'SubForm'>): JSX.Element | null {
+    return <SubFormSummaryComponent targetNode={targetNode} />;
+  }
+
+  renderSummary2(componentNode: LayoutNode<'SubForm'>): JSX.Element | null {
+    return <SubFormSummaryComponent targetNode={componentNode} />;
   }
 
   runComponentValidation(
