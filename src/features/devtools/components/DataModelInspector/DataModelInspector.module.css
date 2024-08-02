@@ -9,13 +9,18 @@
   padding: 0.5rem !important;
   width: max-content;
   margin: 0;
+  font-size: 0.8rem;
 }
 
 .container dl {
-  padding: 0;
+  padding: 2px 0;
   display: grid;
   grid-template-columns: max-content max-content auto;
-  row-gap: 0.5rem;
+  row-gap: 4px;
+}
+
+.container dd > dl {
+  margin-left: -4px;
 }
 
 .container dt {
@@ -23,9 +28,10 @@
   grid-template-columns: subgrid;
   grid-column: 1 / span 2;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 2px 2px 2px 4px;
   border-radius: 2px;
   align-self: center;
+  font-weight: bold;
 }
 
 .showAsString::before {
@@ -67,20 +73,24 @@
   border-top: 2px solid #bbb;
   position: absolute;
   top: 50%;
-  left: -8px;
+  left: -10px;
 }
 
 .container pre {
   margin: 0;
+  background-color: #fff;
+  width: max-content;
+  padding: 2px 4px;
+  border-radius: 2px;
 }
 
 .type {
-  font-size: 0.8rem;
+  font-weight: normal;
   background-color: #333;
   color: white;
   padding: 2px 4px;
   border-radius: 2px;
-  margin-left: 6px;
+  margin: -2px -2px -2px 6px;
   justify-self: end;
   height: min-content;
 }
