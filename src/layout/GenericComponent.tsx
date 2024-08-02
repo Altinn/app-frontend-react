@@ -146,7 +146,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
             didBreak = true;
             break;
           }
-          q;
         }
 
         if (didBreak) {
