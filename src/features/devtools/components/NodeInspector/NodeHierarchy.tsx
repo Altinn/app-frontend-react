@@ -64,10 +64,9 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
   const el = useRef<HTMLLIElement>(null);
   useEffect(() => {
     if (node.item.id === selected && el.current) {
-      navigateTo(node, false);
       el.current.scrollIntoView({ block: 'nearest' });
     }
-  }, [navigateTo, node, node.item.id, selected]);
+  }, [node, node.item.id, selected]);
 
   return (
     <>
@@ -80,6 +79,7 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onClick={() => onClick(node.item.id)}
+        onDoubleClick={() => navigateTo(node, false)}
       >
         <span className={classes.componentType}>{node.item.type}</span>
         <span className={classes.componentId}>
