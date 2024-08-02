@@ -532,13 +532,33 @@ function combineModels(current: object, debounced: object, lastSaved: object) {
   Object.assign(combined, lastSavedExtended);
 
   const ordered = Object.keys(combined)
-    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+    .sort(keySorter)
     .reduce((obj, key) => {
       obj[key] = combined[key];
       return obj;
     }, {});
 
   return dot.object(ordered);
+}
+
+function keySorter(a: string, b: string) {
+  let countA = 0;
+  let countB = 0;
+
+  for (let i = 0; i < a.length; i++) {
+    countA += Number(a[i] === '.' || a[i] === '[');
+  }
+  for (let i = 0; i < b.length; i++) {
+    countB += Number(b[i] === '.' || b[i] === '[');
+  }
+
+  if (countA > countB) {
+    return 1;
+  }
+  if (countA < countB) {
+    return -1;
+  }
+  return a.toLowerCase().localeCompare(b.toLowerCase());
 }
 
 function appendDataModelKey(
