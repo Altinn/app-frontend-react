@@ -63,7 +63,7 @@ describe('Navigation', () => {
     cy.intercept('**/applicationmetadata', (req) => {
       req.on('response', (res) => {
         const body = res.body as IncomingApplicationMetadata;
-        // body.onEntry = undefined;
+        body.onEntry = undefined;
         res.send(body);
       });
     });
