@@ -47,7 +47,7 @@ describe('Payment', () => {
     });
   });
 
-  describe.only('Failed payment', () => {
+  describe('Failed payment', () => {
     beforeEach(() => {
       cy.findByRole('button', { name: /Til betaling/ }).click();
     });
