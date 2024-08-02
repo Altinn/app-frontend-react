@@ -8,6 +8,7 @@ import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
+import { useCurrentLayoutSet } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
@@ -153,6 +154,7 @@ const emptyObject = {};
 export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHiddenComponent>): HierarchyDataSources {
   const instanceDataSources = useLaxInstanceDataSources();
   const formDataSelector = FD.useDebouncedSelector();
+  const invalidDataSelector = FD.useInvalidDebouncedSelector();
   const layoutSettings = useLayoutSettings();
   const attachments = useAttachments();
   const options = useAllOptionsSelector(true);
@@ -164,10 +166,12 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
   const currentLanguage = useCurrentLanguage();
   const pageNavigationConfig = usePageNavigationConfig();
   const authContext = useMemo(() => buildAuthContext(process?.currentTask), [process?.currentTask]);
+  const currentLayoutSet = useCurrentLayoutSet() ?? null;
 
   return useMemo(
     () => ({
       formDataSelector,
+      invalidDataSelector,
       attachments: attachments || emptyObject,
       layoutSettings,
       pageNavigationConfig,
@@ -181,9 +185,11 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
       devToolsHiddenComponents,
       langToolsSelector,
       currentLanguage,
+      currentLayoutSet,
     }),
     [
       formDataSelector,
+      invalidDataSelector,
       attachments,
       layoutSettings,
       pageNavigationConfig,
@@ -197,6 +203,7 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
       devToolsHiddenComponents,
       langToolsSelector,
       currentLanguage,
+      currentLayoutSet,
     ],
   );
 }

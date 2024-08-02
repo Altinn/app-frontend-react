@@ -54,12 +54,12 @@ export function useFormDataQuery(url: string | undefined) {
   //    and then navigate to Task_2, the form data fetched during Task_1 may still be used in Task_2 unless evicted
   //    from the cache by using a different query key.
   const options = useFormDataQueryOptions();
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const currentProcessTaskId = useLaxProcessData()?.currentTask?.elementId;
   const cacheKeyUrl = getFormDataCacheKeyUrl(url);
 
   // We dont want to refetch if only the language changes
   // const utils = useQuery({
-  const utils = useQuery(useFormDataQueryDef(cacheKeyUrl, currentTaskId, url, options));
+  const utils = useQuery(useFormDataQueryDef(cacheKeyUrl, currentProcessTaskId, url, options));
 
   useEffect(() => {
     if (utils.error && isAxiosError(utils.error)) {

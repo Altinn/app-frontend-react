@@ -11,12 +11,12 @@ import type {
   ITableColumnProperties,
 } from 'src/layout/common.generated';
 import type { CompInternal, CompTypes, IDataModelBindings, ITextResourceBindings } from 'src/layout/layout';
-import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
+import type { IDataModelBindingsForListInternal } from 'src/layout/List/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type BindingToValues<B extends IDataModelBindings | undefined> = B extends undefined
   ? { [key: string]: undefined }
-  : B extends IDataModelBindingsForList
+  : B extends IDataModelBindingsForListInternal
     ? { list: string[] | undefined }
     : { [key in keyof B]: string | undefined };
 

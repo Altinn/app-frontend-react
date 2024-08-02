@@ -5,6 +5,7 @@ import { userEvent } from '@testing-library/user-event';
 import { v4 as uuidv4 } from 'uuid';
 
 import { getFormLayoutRepeatingGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
+import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
@@ -220,6 +221,7 @@ describe('RepeatingGroupContainer', () => {
         {
           customTextKey: 'Feltet er feil',
           field: 'Group[0].prop1',
+          dataElementId: defaultMockDataElementId,
           severity: BackendValidationSeverity.Error,
           source: 'custom',
         } as BackendValidationIssue,
@@ -247,6 +249,7 @@ describe('RepeatingGroupContainer', () => {
         {
           customTextKey: 'Feltet er feil',
           field: 'Group[0].prop1',
+          dataElementId: defaultMockDataElementId,
           severity: BackendValidationSeverity.Error,
           source: 'custom',
         } as BackendValidationIssue,

@@ -14,7 +14,7 @@ import type { TextResourceVariablesDataSources } from 'src/features/language/use
 import type { ILanguage } from 'src/types/shared';
 
 export interface LangDataSources
-  extends Omit<TextResourceVariablesDataSources, 'node' | 'currentDataModel' | 'currentDataModelName'> {
+  extends Omit<TextResourceVariablesDataSources, 'node' | 'defaultDataType' | 'formDataTypes' | 'formDataSelector'> {
   textResources: TextResourceMap;
   selectedLanguage: string;
   language: ILanguage;

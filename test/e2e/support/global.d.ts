@@ -1,5 +1,6 @@
 import type { CyUser } from 'test/e2e/support/auth';
 
+import type { BackendValidationIssue, BackendValidationIssueGroups } from 'src/features/validation';
 import type { ILayoutSets } from 'src/layout/common.generated';
 import type { CompOrGroupExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
 
@@ -206,6 +207,43 @@ declare global {
       getSummary(label: string): Chainable<Element>;
       testPdf(callback: () => void, returnToForm: boolean = false): Chainable<null>;
       getCurrentPageId(): Chainable<string>;
+
+      /**
+       * Will intercept patch requests to set ignoredValidators to an empty array, causing the backend to run all validations
+       */
+      runAllBackendValidations(): Chainable<null>;
+
+      /**
+       * Returns a result containing the validation issues for the next patch request
+       */
+      getNextPatchValidations(resultContainer: BackendValidationResult): Chaniable<null>;
+
+      /**
+       * Convenient way to check for the presence of a validation in a resultContainer
+       */
+      expectValidationToExist(
+        resultContainer: BackendValidationResult,
+        validatorGroup: string,
+        predicate: BackendValdiationPredicate,
+      );
+
+      /**
+       * Convenient way to check for the absense of a validation in a resultContainer
+       */
+      expectValidationNotToExist(
+        resultContainer: BackendValidationResult,
+        validatorGroup: string,
+        predicate: BackendValdiationPredicate,
+      );
     }
   }
 }
+
+export type BackendValidationResult = {
+  validations: BackendValidationIssueGroups | null;
+  dataElementId: string | null;
+};
+export type BackendValdiationPredicate = (
+  validationIssue: BackendValidationIssue,
+  dataElementId: string,
+) => boolean | null | undefined;

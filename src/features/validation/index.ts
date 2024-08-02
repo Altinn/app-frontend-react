@@ -2,8 +2,9 @@ import type { IAttachments } from 'src/features/attachments';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { Visibility } from 'src/features/validation/visibility/visibilityUtils';
+import type { CompTypes } from 'src/layout/layout';
+import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export enum FrontendValidationSource {
   EmptyField = '__empty_field__',
@@ -83,12 +84,21 @@ export type ValidationContext = {
 
 export type ValidationState = {
   task: BaseValidation[];
-  fields: FieldValidations;
+  dataModels: DataModelValidations;
   components: ComponentValidations;
+};
+
+export type DataModelValidations = {
+  [dataType: string]: FieldValidations;
 };
 
 export type FieldValidations = {
   [field: string]: FieldValidation[];
+};
+
+export type LastValidationInfo = {
+  dataType: string;
+  processedLast: BackendValidationIssueGroups;
 };
 
 /**
@@ -103,6 +113,10 @@ export type BackendValidationIssueGroups = {
  */
 export type BackendValidatorGroups = {
   [validator: string]: (BaseValidation | FieldValidation)[];
+};
+
+export type BackendFieldValidatorGroups = {
+  [validator: string]: FieldValidation[];
 };
 
 /**
@@ -128,6 +142,7 @@ export type BaseValidation<Severity extends ValidationSeverity = ValidationSever
  */
 export type FieldValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
   field: string;
+  dataType: string;
 };
 
 /**
@@ -153,12 +168,11 @@ export type NodeValidation<Severity extends ValidationSeverity = ValidationSever
 /**
  * Contains all the necessary elements from the store to run frontend validations.
  */
-export type ValidationDataSources = {
+export type ValidationDataSources<T extends CompTypes> = {
   currentLanguage: string;
-  formData: object;
-  invalidData: object;
-  attachments: IAttachments;
-  nodes: LayoutPages;
+  formData: IComponentFormData<T>;
+  invalidData: IComponentFormData<T>;
+  attachments: IAttachments[string];
 };
 
 /**

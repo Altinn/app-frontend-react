@@ -16,11 +16,17 @@ export interface Layouts {
   };
 }
 
+export type DataModelAndElement = {
+  dataElement: IData;
+  data: any;
+};
+
 export interface SharedTest {
   name: string;
   disabledFrontend?: boolean;
   layouts?: Layouts;
   dataModel?: any;
+  dataModels?: DataModelAndElement[];
   instance?: IInstance;
   process?: IProcess;
   instanceDataElements?: IData[];

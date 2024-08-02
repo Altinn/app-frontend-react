@@ -3,6 +3,7 @@ import React from 'react';
 import { screen, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
+import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { Form } from 'src/components/form/Form';
 import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
@@ -141,6 +142,7 @@ describe('Form', () => {
       {
         customTextKey: 'some error message',
         field: 'Group.prop1',
+        dataElementId: defaultMockDataElementId,
         source: 'custom',
         severity: BackendValidationSeverity.Error,
         showImmediately: true,
@@ -166,6 +168,7 @@ describe('Form', () => {
         {
           code: 'some unmapped error message',
           field: 'Group[0].prop1',
+          dataElementId: defaultMockDataElementId,
           severity: BackendValidationSeverity.Error,
           source: 'custom',
         } as BackendValidationIssue,
@@ -191,6 +194,7 @@ describe('Form', () => {
         {
           customTextKey: 'some error message',
           field: 'Group.prop1',
+          dataElementId: defaultMockDataElementId,
           source: 'custom',
           severity: BackendValidationSeverity.Error,
           showImmediately: true,

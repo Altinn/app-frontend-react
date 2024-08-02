@@ -5,6 +5,7 @@ import type { HierarchyDataSources } from 'src/layout/layout';
 export function getHierarchyDataSourcesMock(): HierarchyDataSources {
   return {
     formDataSelector: () => null,
+    invalidDataSelector: () => null,
     attachments: {},
     layoutSettings: { pages: { order: [] } },
     pageNavigationConfig: { isHiddenPage: () => false, hiddenExpr: {} },
@@ -17,5 +18,6 @@ export function getHierarchyDataSourcesMock(): HierarchyDataSources {
     devToolsHiddenComponents: 'hide',
     langToolsSelector: () => staticUseLanguageForTests(),
     currentLanguage: 'nb',
+    currentLayoutSet: { id: 'form', dataType: 'data', tasks: ['task1'] },
   };
 }

@@ -6,7 +6,6 @@ import { useMutation } from '@tanstack/react-query';
 import type { UseMutationResult } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
-import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
@@ -54,8 +53,8 @@ const isClientAction = (action: CBTypes.CustomAction): action is CBTypes.ClientA
 const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerAction => action.type === 'ServerAction';
 
 function useHandleClientActions(): UseHandleClientActions {
-  const currentDataModelGuid = useCurrentDataModelGuid();
   const { navigateToPage, navigateToNextPage, navigateToPreviousPage } = useNavigatePage();
+  const getDataTypeForElementId = FD.useGetDataTypeForElementId();
 
   const frontendActions: ClientActionHandlers = {
     nextPage: promisify(navigateToNextPage),
@@ -81,21 +80,31 @@ function useHandleClientActions(): UseHandleClientActions {
       }
     },
     handleDataModelUpdate: async (lockTools, result) => {
-      const newDataModel =
-        currentDataModelGuid && result.updatedDataModels ? result.updatedDataModels[currentDataModelGuid] : undefined;
-      const validationIssues =
-        currentDataModelGuid && result.updatedValidationIssues
-          ? result.updatedValidationIssues[currentDataModelGuid]
-          : undefined;
+      const _updatedDataModels = result.updatedDataModels;
+      const _updatedValidationIssues = result.updatedValidationIssues;
 
-      if (newDataModel && validationIssues) {
-        lockTools.unlock({
-          newDataModel,
-          validationIssues,
-        });
-      } else {
-        lockTools.unlock();
-      }
+      // The backend returns the objects in terms of dataElementId, we must therefore find and map to the corresponding dataTypes
+
+      const updatedDataModels = _updatedDataModels
+        ? Object.fromEntries(
+            Object.entries(_updatedDataModels)
+              .filter(([elementId]) => getDataTypeForElementId(elementId))
+              .map(([elementId, dataModel]) => [getDataTypeForElementId(elementId), dataModel]),
+          )
+        : undefined;
+
+      const updatedValidationIssues = _updatedValidationIssues
+        ? Object.fromEntries(
+            Object.entries(_updatedValidationIssues)
+              .filter(([elementId]) => getDataTypeForElementId(elementId))
+              .map(([elementId, validationIssues]) => [getDataTypeForElementId(elementId), validationIssues]),
+          )
+        : undefined;
+
+      lockTools.unlock({
+        updatedDataModels,
+        updatedValidationIssues,
+      });
     },
   };
 }

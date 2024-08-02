@@ -10,8 +10,7 @@ import { filterDuplicateOptions, verifyOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type {
-  IDataModelBindingsOptionsSimple,
-  IDataModelBindingsSimple,
+  IDataModelBindingsOptionsSimpleInternal,
   IMapping,
   IOptionSourceExternal,
   IRawOption,
@@ -40,7 +39,7 @@ interface Props {
   removeDuplicates?: boolean;
   preselectedOptionIndex?: number;
 
-  dataModelBindings?: IDataModelBindingsOptionsSimple | IDataModelBindingsSimple;
+  dataModelBindings?: IDataModelBindingsOptionsSimpleInternal;
 
   // Simple options, static and pre-defined
   options?: IRawOption[];
@@ -62,6 +61,8 @@ export interface OptionsResult {
   selectedValues: string[];
 
   setData: (values: string[]) => void;
+
+  debounce: () => void;
 
   // The final list of options deduced from the component settings. This will be an array of objects, where each object
   // has a string-typed 'value' property, regardless of the underlying options configuration.
@@ -116,7 +117,7 @@ export function useGetOptions(props: Props): OptionsResult {
     dataModelBindings,
     preselectedOptionIndex,
   } = props;
-  const { formData, setValue } = useDataModelBindings(dataModelBindings);
+  const { formData, setValue, debounce } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding ?? '';
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
@@ -197,7 +198,7 @@ export function useGetOptions(props: Props): OptionsResult {
   const labelsHaveChanged = useHasChanged(translatedLabels.join(','));
 
   useEffect(() => {
-    if (!(dataModelBindings as IDataModelBindingsOptionsSimple)?.label) {
+    if (!(dataModelBindings as IDataModelBindingsOptionsSimpleInternal)?.label) {
       return;
     }
 
@@ -243,6 +244,7 @@ export function useGetOptions(props: Props): OptionsResult {
     key,
     selectedValues,
     setData,
+    debounce,
     options: alwaysOptions,
     isFetching: isFetching || !calculatedOptions,
     isError,

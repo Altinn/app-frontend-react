@@ -1,6 +1,5 @@
 import React, { forwardRef } from 'react';
 
-import dot from 'dot-object';
 import moment from 'moment';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
@@ -21,7 +20,7 @@ import type {
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Datepicker extends DatepickerDef implements ValidateComponent, ValidationFilter {
+export class Datepicker extends DatepickerDef implements ValidateComponent<'Datepicker'>, ValidationFilter {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Datepicker'>>(
     function LayoutComponentDatepickerRender(props, _): JSX.Element | null {
       return <DatepickerComponent {...props} />;
@@ -50,10 +49,9 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
 
   runComponentValidation(
     node: LayoutNode<'Datepicker'>,
-    { formData, currentLanguage }: ValidationDataSources,
+    { formData, currentLanguage }: ValidationDataSources<'Datepicker'>,
   ): ComponentValidation[] {
-    const field = node.item.dataModelBindings?.simpleBinding;
-    const data = field ? dot.pick(field, formData) : undefined;
+    const data = formData.simpleBinding;
     const dataAsString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
 
     if (!dataAsString) {

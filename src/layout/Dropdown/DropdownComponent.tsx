@@ -5,7 +5,6 @@ import { Combobox } from '@digdir/designsystemet-react';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
@@ -19,9 +18,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
   const { id, readOnly, textResourceBindings, alertOnChange } = node.item;
   const { langAsString, lang } = useLanguage(node);
 
-  const debounce = FD.useDebounceImmediately();
-
-  const { options, isFetching, selectedValues, setData, key } = useGetOptions({
+  const { options, isFetching, selectedValues, setData, key, debounce } = useGetOptions({
     ...node.item,
     valueType: 'single',
     node,

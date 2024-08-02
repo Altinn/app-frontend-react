@@ -6,17 +6,17 @@ import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { statelessDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaProvider';
+import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
-import { FD } from 'src/features/formData/FormDataWrite';
+import { FD, FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
-import { InitialFormDataProvider } from 'src/features/formData/InitialFormData';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { makeFormDataMethodProxies, renderWithMinimalProviders } from 'src/test/renderWithProviders';
 
@@ -87,19 +87,19 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
           <GlobalFormDataReadersProvider>
             <LayoutSetsProvider>
               <LayoutsProvider>
-                <LayoutSettingsProvider>
-                  <DynamicsProvider>
-                    <RulesProvider>
-                      <DataModelSchemaProvider>
+                <DataModelsProvider>
+                  <LayoutSettingsProvider>
+                    <DynamicsProvider>
+                      <RulesProvider>
                         <FormDataWriteProxyProvider value={formDataProxies}>
-                          <InitialFormDataProvider>
+                          <FormDataWriteProvider>
                             {props.renderer && typeof props.renderer === 'function' ? props.renderer() : props.renderer}
-                          </InitialFormDataProvider>
+                          </FormDataWriteProvider>
                         </FormDataWriteProxyProvider>
-                      </DataModelSchemaProvider>
-                    </RulesProvider>
-                  </DynamicsProvider>
-                </LayoutSettingsProvider>
+                      </RulesProvider>
+                    </DynamicsProvider>
+                  </LayoutSettingsProvider>
+                </DataModelsProvider>
               </LayoutsProvider>
             </LayoutSetsProvider>
           </GlobalFormDataReadersProvider>
@@ -151,7 +151,7 @@ describe('FormData', () => {
       const {
         formData: { simpleBinding: value },
       } = useDataModelBindings({
-        simpleBinding: path,
+        simpleBinding: { field: path, dataType: statelessDataTypeMock },
       });
 
       return <div data-testid={`reader-${path}`}>{value}</div>;
@@ -163,7 +163,7 @@ describe('FormData', () => {
         formData: { simpleBinding: value },
         setValue,
       } = useDataModelBindings({
-        simpleBinding: path,
+        simpleBinding: { field: path, dataType: statelessDataTypeMock },
       });
 
       return (
@@ -259,7 +259,7 @@ describe('FormData', () => {
       await userEvent.type(screen.getByTestId('writer-obj1.prop1'), 'a');
       expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        path: 'obj1.prop1',
+        reference: { field: 'obj1.prop1', dataType: statelessDataTypeMock },
         newValue: 'value1a',
       });
 
@@ -276,7 +276,7 @@ describe('FormData', () => {
       formData: { simpleBinding: value },
       setValue,
     } = useDataModelBindings({
-      simpleBinding: path,
+      simpleBinding: { field: path, dataType: statelessDataTypeMock },
     });
 
     return (
@@ -305,8 +305,8 @@ describe('FormData', () => {
               if (isLocked) {
                 // Unlock with some pretend updated form data
                 unlock({
-                  newDataModel: { obj1: { prop1: 'new value' } },
-                  validationIssues: { obj1: [] },
+                  updatedDataModels: { [statelessDataTypeMock]: { obj1: { prop1: 'new value' } } },
+                  updatedValidationIssues: { [statelessDataTypeMock]: { obj1: [] } },
                 });
               } else {
                 await lock();

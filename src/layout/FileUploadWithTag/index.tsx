@@ -14,7 +14,7 @@ import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent {
+export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent<'FileUploadWithTag'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUploadWithTag'>>(
     function LayoutComponentFileUploadWithTagRender(props, _): JSX.Element | null {
       return <FileUploadComponent {...props} />;
@@ -44,14 +44,14 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
   runComponentValidation(
     node: LayoutNode<'FileUploadWithTag'>,
-    { attachments }: ValidationDataSources,
+    { attachments }: ValidationDataSources<'FileUploadWithTag'>,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
     // Validate minNumberOfAttachments
     if (
       node.item.minNumberOfAttachments > 0 &&
-      (!attachments[node.item.id] || attachments[node.item.id]!.length < node.item.minNumberOfAttachments)
+      (!attachments || attachments.length < node.item.minNumberOfAttachments)
     ) {
       validations.push({
         message: {
@@ -67,7 +67,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     }
 
     // Validate missing tags
-    for (const attachment of attachments[node.item.id] || []) {
+    for (const attachment of attachments ?? []) {
       if (
         isAttachmentUploaded(attachment) &&
         (attachment.data.tags === undefined || attachment.data.tags.length === 0)

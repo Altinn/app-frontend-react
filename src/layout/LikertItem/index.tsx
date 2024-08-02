@@ -48,23 +48,17 @@ export class LikertItem extends LikertItemDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'LikertItem'>): string[] {
-    const [answerErr, answer] = this.validateDataModelBindingsAny(ctx, 'simpleBinding', [
-      'string',
-      'number',
-      'boolean',
-    ]);
-    const errors: string[] = [...(answerErr || [])];
+    const [answerErr] = this.validateDataModelBindingsAny(ctx, 'simpleBinding', ['string', 'number', 'boolean']);
+    const errors: string[] = [...(answerErr ?? [])];
 
     const parentBindings = ctx.node.parent?.item.dataModelBindings as IDataModelBindingsLikertInternal | undefined;
     const bindings = ctx.node.item.dataModelBindings;
-    if (
-      answer &&
-      bindings &&
-      bindings.simpleBinding &&
-      parentBindings &&
-      parentBindings.questions &&
-      bindings.simpleBinding.startsWith(`${parentBindings.questions}.`)
-    ) {
+
+    if (parentBindings?.questions.dataType && bindings.simpleBinding.dataType !== parentBindings.questions.dataType) {
+      errors.push('answer-datamodellbindingen må peke på samme datatype som questions-datamodellbindingen');
+    }
+
+    if (parentBindings?.questions && !bindings.simpleBinding.field.startsWith(`${parentBindings.questions.field}[`)) {
       errors.push(`answer-datamodellbindingen må peke på en egenskap inne i questions-datamodellbindingen`);
     }
 

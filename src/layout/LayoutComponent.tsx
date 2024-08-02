@@ -1,6 +1,5 @@
 import React from 'react';
 
-import dot from 'dot-object';
 import type { ErrorObject } from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -10,12 +9,14 @@ import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { CompCategory } from 'src/layout/common';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
+import { resolveDataModelBindings } from 'src/utils/databindings';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternalExact,
@@ -25,7 +26,7 @@ import type {
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { ComponentHierarchyGenerator, UnprocessedItem } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -110,14 +111,24 @@ export abstract class AnyComponent<Type extends CompTypes> {
     return defaultGenerator;
   }
 
+  /**
+   * Resolves unprocessed item into internal item (does not resolve expressions)
+   */
+  private resolveItem(unprocessedItem: UnprocessedItem<Type>, dataSources: HierarchyDataSources): CompInternal<Type> {
+    const item = structuredClone(unprocessedItem);
+    resolveDataModelBindings(item, dataSources.currentLayoutSet);
+    return item as unknown as CompInternal<Type>;
+  }
+
   makeNode(
-    item: CompInternal<Type>,
+    unprocessedItem: UnprocessedItem<Type>,
     parent: LayoutNode | LayoutPage,
     top: LayoutPage,
     dataSources: HierarchyDataSources,
     rowIndex?: number,
     rowId?: string,
   ): LayoutNode<Type> {
+    const item = this.resolveItem(unprocessedItem, dataSources);
     return new BaseLayoutNode(item, parent, top, dataSources, rowIndex, rowId) as LayoutNode<Type>;
   }
 
@@ -211,7 +222,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
     name = key,
   ): [string[], undefined] | [undefined, JSONSchema7] {
     const { node, lookupBinding } = ctx;
-    const value = ((node.item.dataModelBindings as any) || {})[key] || '';
+    const value: IDataModelReference | undefined = ((node.item.dataModelBindings as any) || {})[key] ?? undefined;
 
     if (!value) {
       if (isRequired) {
@@ -292,12 +303,15 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
   }
 }
 
-export abstract class FormComponent<Type extends CompTypes> extends _FormComponent<Type> implements ValidateEmptyField {
+export abstract class FormComponent<Type extends CompTypes>
+  extends _FormComponent<Type>
+  implements ValidateEmptyField<Type>
+{
   readonly type = CompCategory.Form;
 
   runEmptyFieldValidation(
     node: LayoutNode<Type>,
-    { formData, invalidData }: ValidationDataSources,
+    { formData, invalidData }: ValidationDataSources<Type>,
   ): ComponentValidation[] {
     if (!('required' in node.item) || !node.item.required || !node.item.dataModelBindings) {
       return [];
@@ -305,8 +319,8 @@ export abstract class FormComponent<Type extends CompTypes> extends _FormCompone
 
     const validations: ComponentValidation[] = [];
 
-    for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings) as [string, string][]) {
-      const data = dot.pick(field, formData) ?? dot.pick(field, invalidData);
+    for (const bindingKey of Object.keys(node.item.dataModelBindings)) {
+      const data = formData[bindingKey] || invalidData[bindingKey];
       const asString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
       const trb: ITextResourceBindings = 'textResourceBindings' in node.item ? node.item.textResourceBindings : {};
