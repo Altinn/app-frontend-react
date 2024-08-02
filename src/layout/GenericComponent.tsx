@@ -140,11 +140,13 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
       if (targetHtmlNodes.length > 1) {
         let didBreak = false;
         for (const node of Array.from(targetHtmlNodes)) {
-          if (error?.bindingKey && node.id.includes(error.bindingKey)) {
-            (node as HTMLInputElement).focus();
+          const element = node as HTMLInputElement;
+          if (element?.dataset?.bindingkey === error?.bindingKey) {
+            element.focus();
             didBreak = true;
-            break; // Exits the loop early
+            break;
           }
+          q;
         }
 
         if (didBreak) {
