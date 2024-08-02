@@ -64,6 +64,13 @@ export function DataModelInspector() {
   const selectedCurrentData = selectedBinding && dot.pick(selectedBinding, currentData);
   const selectedLastSavedData = selectedBinding && dot.pick(selectedBinding, lastSavedData);
 
+  useEffect(() => {
+    // Selected field no longer exists, so set it to no longer be selected
+    if (selectedPath && !selectedBinding) {
+      setSelected(undefined);
+    }
+  }, [selectedBinding, selectedPath, setSelected]);
+
   const matchingNodes = nodes
     .allNodes()
     .filter(
