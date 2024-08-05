@@ -58,7 +58,7 @@ export function GroupComponent({
   const isIndented = container.groupingIndicator === 'indented';
   const headingLevel = container.headingLevel ?? (Math.min(Math.max(depth + 1, 2), 6) as HeadingLevel);
   const headingSize = headingSizes[headingLevel];
-  const legend = isSummary ? summaryTitle ?? title : title;
+  const legend = isSummary ? (summaryTitle ?? title) : title;
 
   return (
     <ConditionalWrapper

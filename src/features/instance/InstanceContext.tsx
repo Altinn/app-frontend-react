@@ -112,11 +112,11 @@ const InnerInstanceProvider = ({
 
   // Update data
   useEffect(() => {
-    changeData((prev) => (instantiation.error ? undefined : instantiation.lastResult ?? prev));
+    changeData((prev) => (instantiation.error ? undefined : (instantiation.lastResult ?? prev)));
   }, [changeData, instantiation.lastResult, instantiation.error]);
 
   useEffect(() => {
-    if (fetchQuery.data) {
+    if (fetchQuery.data && !fetchQuery.error) {
       changeData(() => fetchQuery.data);
     }
   }, [changeData, fetchQuery.data, fetchQuery.error]);

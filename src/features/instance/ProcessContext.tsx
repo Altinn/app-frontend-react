@@ -156,7 +156,8 @@ export function useGetTaskType() {
   return useCallback(
     (taskId: string | undefined) => {
       const task =
-        processData?.processTasks?.find((t) => t.elementId === taskId) ?? processData?.currentTask?.elementId === taskId
+        (processData?.processTasks?.find((t) => t.elementId === taskId) ??
+        processData?.currentTask?.elementId === taskId)
           ? processData?.currentTask
           : undefined;
 
