@@ -1,0 +1,9 @@
+.map {
+  position: relative;
+  height: 50rem;
+  width: 100%;
+}
+
+.footer {
+  padding-top: 12px;
+}
