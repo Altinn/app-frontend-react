@@ -17,7 +17,6 @@ import {
 } from 'src/features/routing/AppRoutingContext';
 import { ProcessTaskType } from 'src/types';
 import { Hidden } from 'src/utils/layout/NodesContext';
-import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
 
 export interface NavigateToPageOptions {
@@ -111,7 +110,7 @@ export const useStartUrl = (forcedTaskId?: string) => {
   const instanceGuid = useNavigationParam('instanceGuid');
   const taskId = useNavigationParam('taskId');
   const taskType = useTaskType(taskId);
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
 
   return useMemo(() => {
     const firstPage = order?.[0];
@@ -139,7 +138,6 @@ export const useStartUrl = (forcedTaskId?: string) => {
 
 export const useNavigatePage = () => {
   const isStatelessApp = useApplicationMetadata().isStatelessApp;
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const processTasks = useLaxProcessData()?.processTasks;
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
   const navigate = useNavigate();

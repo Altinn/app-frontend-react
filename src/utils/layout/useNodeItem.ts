@@ -19,10 +19,12 @@ export function useNodeItem<N extends LayoutNode | undefined, Out>(
   node: N,
   selector: (item: NodeItemFromNode<N>) => Out,
 ): N extends undefined ? undefined : Out;
+// eslint-disable-next-line no-redeclare
 export function useNodeItem<N extends LayoutNode | undefined>(
   node: N,
   selector?: undefined,
 ): N extends undefined ? undefined : NodeItemFromNode<N>;
+// eslint-disable-next-line no-redeclare
 export function useNodeItem(node: never, selector: never): never {
   return NodesInternal.useNodeData(node, (data: NodeData) => (selector ? (selector as any)(data.item) : data.item));
 }
@@ -31,10 +33,12 @@ export function useNodeItemRef<N extends LayoutNode | undefined, Out>(
   node: N,
   selector: (item: NodeItemFromNode<N>) => Out,
 ): MutableRefObject<Out>;
+// eslint-disable-next-line no-redeclare
 export function useNodeItemRef<N extends LayoutNode | undefined>(
   node: N,
   selector?: undefined,
 ): MutableRefObject<NodeItemFromNode<N>>;
+// eslint-disable-next-line no-redeclare
 export function useNodeItemRef(node: never, selector: never): never {
   return NodesInternal.useNodeDataRef(node, (node: NodeData) =>
     selector ? (selector as any)(node.item) : node.item,

@@ -1,5 +1,5 @@
 import React, { Component, useEffect } from 'react';
-import type { MutableRefObject } from 'react';
+import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -11,10 +11,8 @@ interface IErrorBoundary {
   nodeRef: MutableRefObject<LayoutPage | LayoutNode | undefined>;
 }
 
-interface Props extends React.PropsWithChildren {}
-
-export class GeneratorErrorBoundary extends Component<Props, IErrorBoundary> {
-  constructor(props: Props) {
+export class GeneratorErrorBoundary extends Component<PropsWithChildren, IErrorBoundary> {
+  constructor(props: PropsWithChildren) {
     super(props);
     this.state = {
       lastError: undefined,

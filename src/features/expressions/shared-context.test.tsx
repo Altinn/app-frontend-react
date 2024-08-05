@@ -1,4 +1,3 @@
-/* eslint-disable testing-library/no-node-access */
 import React from 'react';
 
 import { screen } from '@testing-library/react';
@@ -6,6 +5,7 @@ import { screen } from '@testing-library/react';
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getSharedTests } from 'src/features/expressions/shared';
+import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
@@ -109,10 +109,11 @@ describe('Expressions shared context tests', () => {
           }
         }
 
+        (fetchApplicationMetadata as any).mockImplementation(() => Promise.resolve(applicationMetadata));
+
         await renderWithInstanceAndLayout({
           renderer: () => <TestContexts />,
           queries: {
-            fetchApplicationMetadata: async () => applicationMetadata,
             fetchLayouts: async () => layouts!,
             fetchFormData: async () => dataModel ?? {},
             ...(instance ? { fetchInstanceData: async () => instance } : {}),

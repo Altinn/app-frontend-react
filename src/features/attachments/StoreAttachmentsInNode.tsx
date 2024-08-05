@@ -12,7 +12,7 @@ import {
   StageEvaluateExpressions,
 } from 'src/utils/layout/generator/GeneratorStages';
 import { useNodeFormData } from 'src/utils/layout/useNodeItem';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IAttachment } from 'src/features/attachments/index';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
@@ -77,7 +77,7 @@ function useNodeAttachments(): Record<string, IAttachment> {
 function mapAttachments(
   node: LayoutNode,
   dataElements: IData[],
-  application: IApplicationMetadata,
+  application: ApplicationMetadata,
   currentTask: string | undefined,
   formData: IComponentFormData<CompWithBehavior<'canHaveAttachments'>>,
 ): IData[] {

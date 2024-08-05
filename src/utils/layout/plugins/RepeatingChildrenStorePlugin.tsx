@@ -81,7 +81,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             return {};
           }
           const rowToRemove = existingRows[existingRowIndex];
-          const items = Array.isArray(rowToRemove[itemProp]) ? rowToRemove[itemProp] : [rowToRemove[itemProp]] ?? [];
+          const items = Array.isArray(rowToRemove[itemProp]) ? rowToRemove[itemProp] : [rowToRemove[itemProp] ?? []];
           const recursiveChildren = recursivelyFindChildren(items, nodeData);
           for (const n of recursiveChildren) {
             delete nodeData[n.id];

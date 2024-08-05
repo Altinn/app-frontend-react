@@ -7,6 +7,7 @@ import layoutSchema from 'schemas/json/layout/layout.schema.v1.json';
 import type { JSONSchema7 } from 'json-schema';
 
 import { quirks } from 'src/features/form/layout/quirks';
+import { fetchApplicationMetadata } from 'src/queries/queries';
 import { ensureAppsDirIsSet, getAllApps } from 'src/test/allApps';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -100,13 +101,13 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     window.org = org;
     window.app = app;
 
+    (fetchApplicationMetadata as any).mockImplementation(() => Promise.resolve(set.app.getAppMetadata()));
     await renderWithInstanceAndLayout({
       renderer: () => <TestApp />,
       queries: {
         fetchLayoutSets: async () => set.getLayoutSetsAsOnlySet(),
         fetchLayouts: async () => set.getLayouts(),
         fetchLayoutSettings: async () => set.getSettings(),
-        fetchApplicationMetadata: async () => set.app.getAppMetadata(),
         fetchFormData: async () => set.getModel().simulateDataModel(),
         fetchDataModelSchema: async () => set.getModel().getSchema(),
         fetchInstanceData: async () => set.simulateInstance(),

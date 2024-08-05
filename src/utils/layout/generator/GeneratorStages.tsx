@@ -424,7 +424,7 @@ export const NodesStateQueue = {
  * up (setTimeout is slow, at least when debugging), we'll set a timeout once if this selector find out the generator
  * has finished.
  */
-let commitTimeout: NodeJS.Timeout | null = null;
+let commitTimeout: ReturnType<typeof setTimeout> | null = null;
 function useCommitWhenFinished() {
   const commit = useCommit();
   const stateRef = useSelectorAsRef((s) => s);
@@ -458,7 +458,7 @@ function SetTickFunc() {
   const registry = useSelector((state) => state.registry);
   const commit = useCommit();
 
-  const tickTimeout = React.useRef<NodeJS.Timeout | null>(null);
+  const tickTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const tickFunc = useCallback(() => {
     tickTimeout.current = null;
 

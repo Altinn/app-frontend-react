@@ -2,13 +2,14 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
-import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getSharedTests } from 'src/features/expressions/shared';
 import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
+import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
 import type { SharedTestFunctionContext } from 'src/features/expressions/shared';
@@ -121,7 +122,9 @@ describe('Expressions shared function tests', () => {
             ? getProcessDataMock()
             : undefined;
 
-      const applicationMetadata = getApplicationMetadataMock(instance ? {} : { onEntry: { show: 'stateless' } });
+      const applicationMetadata = getIncomingApplicationMetadataMock(
+        instance ? {} : { onEntry: { show: 'stateless' } },
+      );
       if (instanceDataElements) {
         for (const element of instanceDataElements) {
           if (!applicationMetadata.dataTypes!.find((dt) => dt.id === element.dataType)) {
@@ -143,6 +146,8 @@ describe('Expressions shared function tests', () => {
       // Clear localstorage, because LanguageProvider uses it to cache selected languages
       localStorage.clear();
 
+      (fetchApplicationMetadata as any).mockImplementation(() => Promise.resolve(applicationMetadata));
+
       const nodeId = nodeIdFromContext(context);
       await renderWithNode({
         nodeId,
@@ -154,7 +159,6 @@ describe('Expressions shared function tests', () => {
         ),
         inInstance: !!instance,
         queries: {
-          fetchApplicationMetadata: async () => applicationMetadata,
           fetchLayouts: async () => layouts ?? getDefaultLayouts(),
           fetchFormData: async () => dataModel ?? {},
           ...(instance ? { fetchInstanceData: async () => instance } : {}),

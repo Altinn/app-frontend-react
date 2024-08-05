@@ -328,64 +328,79 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
 export function useNodeTraversalLax<Out>(
   selector: (traverser: NodeTraversalFromRoot | typeof ContextNotProvided) => Out,
 ): Out;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversalLax<N extends LayoutPage, Out>(
   selector: (traverser: NodeTraversalFromPage | typeof ContextNotProvided) => Out,
   node: N,
 ): Out;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversalLax<N extends LayoutPage, Out>(
   selector: (traverser: NodeTraversalFromPage | NodeTraversalFromRoot | typeof ContextNotProvided) => Out,
   node: N | undefined,
 ): Out;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversalLax<N extends LayoutNode, Out>(
   selector: (traverser: NodeTraversalFromNode<N> | typeof ContextNotProvided) => Out,
   node: N,
 ): Out;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversalLax<N extends LayoutNode, Out>(
   selector: (traverser: NodeTraversalFromNode<N> | NodeTraversalFromRoot | typeof ContextNotProvided) => Out,
   node: N | undefined,
 ): Out;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversalLax<Out>(selector: (traverser: never) => Out, node?: never): Out {
   return useNodeTraversalProto(selector, node, Strictness.returnContextNotProvided);
 }
 
 export function useNodeTraversal<Out>(selector: (traverser: NodeTraversalFromRoot) => Out): Out;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversal<N extends LayoutPage, Out>(
   selector: (traverser: NodeTraversalFromPage) => Out,
   node: N,
 ): Out;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversal<N extends LayoutPage, Out>(
   selector: (traverser: NodeTraversalFromPage | NodeTraversalFromRoot) => Out,
   node: N | undefined,
 ): Out;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversal<N extends LayoutNode, Out>(
   selector: (traverser: NodeTraversalFromNode<N>) => Out,
   node: N,
 ): Out;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversal<N extends LayoutNode, Out>(
   selector: (traverser: NodeTraversalFromNode<N> | NodeTraversalFromRoot) => Out,
   node: N | undefined,
 ): Out;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversal<Out>(selector: (traverser: never) => Out, node?: never): Out {
   return useNodeTraversalProto(selector, node, Strictness.throwError);
 }
 
 export function useNodeTraversalSilent<Out>(selector: (traverser: NodeTraversalFromRoot) => Out): Out | undefined;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversalSilent<N extends LayoutPage, Out>(
   selector: (traverser: NodeTraversalFromPage) => Out,
   node: N,
 ): Out | undefined;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversalSilent<N extends LayoutPage, Out>(
   selector: (traverser: NodeTraversalFromPage | NodeTraversalFromRoot) => Out,
   node: N | undefined,
 ): Out | undefined;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversalSilent<N extends LayoutNode, Out>(
   selector: (traverser: NodeTraversalFromNode<N>) => Out,
   node: N,
 ): Out | undefined;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversalSilent<N extends LayoutNode, Out>(
   selector: (traverser: NodeTraversalFromNode<N> | NodeTraversalFromRoot) => Out,
   node: N | undefined,
 ): Out | undefined;
+// eslint-disable-next-line no-redeclare
 export function useNodeTraversalSilent<Out>(selector: (traverser: never) => Out, node?: never): Out | undefined {
   return useNodeTraversalProto(selector, node, Strictness.returnUndefined);
 }
