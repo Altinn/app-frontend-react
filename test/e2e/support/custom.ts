@@ -10,6 +10,7 @@ import { breakpoints } from 'src/hooks/useIsMobile';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
+import type { ILayoutFile } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
 
@@ -453,7 +454,7 @@ Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator) 
       const set = JSON.parse(res.body);
       if (mutator) {
         for (const layout of Object.values(set)) {
-          (layout as any).data.layout.map(mutator);
+          (layout as ILayoutFile).data.layout.map(mutator);
         }
       }
       if (wholeLayoutMutator) {
@@ -465,6 +466,7 @@ Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator) 
 });
 
 Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
+  cy.log('Changing current layout');
   cy.window().then((win) => {
     const activeData = win.queryClient.getQueryCache().findAll({ type: 'active' });
     for (const query of activeData) {
@@ -487,6 +489,12 @@ Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
       }
     }
   });
+
+  // To make sure we actually wait for the layout change to become effective, we first wait for the loader to appear,
+  // and then wait for it to disappear.
+  cy.get('[data-testid="loader"]').should('exist');
+  cy.get('[data-testid="loader"]').should('not.exist');
+
   cy.get('#readyForPrint').should('exist');
   cy.findByRole('progressbar').should('not.exist');
   cy.waitUntilNodesReady();

@@ -527,6 +527,7 @@ describe('Validation', () => {
       }
     });
 
+    cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.group.addNewItem).click();
@@ -745,7 +746,7 @@ describe('Validation', () => {
       cy.findByText('Nåværende navn').should('exist');
     });
 
-    it.only('should validate number fields as set in the data model when a falsy value is input', () => {
+    it('should validate number fields as set in the data model when a falsy value is input', () => {
       cy.interceptLayout('message', (component) => {
         if (component.id === 'falsyInput') {
           component.hidden = false;
