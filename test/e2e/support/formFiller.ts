@@ -53,7 +53,7 @@ function fillOutChangeName() {
     cy.get(appFrontend.changeOfName.reasonRelationship).type('test');
     cy.get(appFrontend.changeOfName.dateOfEffect).siblings().children(mui.buttonIcon).click();
     cy.get(mui.selectedDate).click();
-    cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf');
+    cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
 
     cy.navPage('grid').click();
   });
@@ -76,22 +76,25 @@ function fillOutGroup() {
   cy.addItemToGroup(1, 2, 'automation');
   cy.get(appFrontend.group.row(0).editBtn).click();
   cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
-  cy.get(appFrontend.group.row(0).uploadSingle.dropZone).selectFile(mkFile('attachment-in-single.pdf'));
+  cy.get(appFrontend.group.row(0).uploadSingle.dropZone).selectFile(mkFile('attachment-in-single.pdf'), {
+    force: true,
+  });
   cy.wait('@upload');
   cy.waitUntilNodesReady();
   cy.get(appFrontend.group.row(0).uploadSingle.attachments(0).name).should('have.text', 'attachment-in-single.pdf');
-  cy.get(appFrontend.group.row(0).uploadMulti.dropZone).selectFile(mkFile('attachment-in-multi1.pdf'));
+  cy.get(appFrontend.group.row(0).uploadMulti.dropZone).selectFile(mkFile('attachment-in-multi1.pdf'), { force: true });
   cy.wait('@upload');
   cy.waitUntilNodesReady();
   cy.get(appFrontend.group.row(0).uploadMulti.attachments(0).name).should('have.text', 'attachment-in-multi1.pdf');
   cy.get(appFrontend.group.row(0).uploadMulti.addMoreBtn).click();
-  cy.get(appFrontend.group.row(0).uploadMulti.dropZone).selectFile(mkFile('attachment-in-multi2.pdf'));
+  cy.get(appFrontend.group.row(0).uploadMulti.dropZone).selectFile(mkFile('attachment-in-multi2.pdf'), { force: true });
   cy.wait('@upload');
   cy.waitUntilNodesReady();
   cy.get(appFrontend.group.row(0).uploadMulti.attachments(1).name).should('have.text', 'attachment-in-multi2.pdf');
   cy.get(appFrontend.group.row(0).nestedGroup.row(0).editBtn).click();
   cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.dropZone).selectFile(
     mkFile('attachment-in-nested.pdf'),
+    { force: true },
   );
   cy.wait('@upload');
   cy.waitUntilNodesReady();
