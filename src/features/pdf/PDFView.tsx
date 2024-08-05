@@ -63,7 +63,7 @@ export const PDFView = () => {
   const { langAsString } = useLanguage();
 
   const isPayment = useIsPayment();
-  const enableOrgLogo = Boolean(useApplicationMetadata().logo);
+  const enableOrgLogo = Boolean(useApplicationMetadata().logoOptions);
 
   if (!pdfPage) {
     return null;
@@ -72,7 +72,7 @@ export const PDFView = () => {
   return (
     <div
       id='pdfView'
-      className={classes['pdf-wrapper']}
+      className={classes.pdfWrapper}
     >
       {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
 

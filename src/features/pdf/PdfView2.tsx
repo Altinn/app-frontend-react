@@ -16,15 +16,17 @@ import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
 import { useNodes } from 'src/utils/layout/NodesContext';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { CompSummary2Internal } from 'src/layout/Summary2/config.generated';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const PDFView2 = () => {
   const nodes = useNodes();
   const pageNavigationConfig = usePageNavigationConfig();
   const { data: pdfSettings, isFetching: pdfFormatIsLoading } = usePdfFormatQuery(true);
   const pdfLayoutName = useLayoutSettings().pages.pdfLayoutName;
-  const enableOrgLogo = Boolean(useApplicationMetadata().logo);
+  const enableOrgLogo = Boolean(useApplicationMetadata().logoOptions);
   const appOwner = useAppOwner();
   const appName = useAppName();
   const { langAsString } = useLanguage();
@@ -38,7 +40,7 @@ export const PDFView2 = () => {
   return (
     <div
       id={'pdfView'}
-      className={classes['pdf-wrapper']}
+      className={classes.pdfWrapper}
     >
       {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
 
@@ -84,6 +86,15 @@ export const PDFView2 = () => {
             .filter((node) => !pdfSettings?.excludedComponents.includes(node.item.id))
             .filter((node) => node.def.shouldRenderInAutomaticPDF(node as any))
             .map((node) => {
+              if (node.item.type === 'Summary2' && node.item.target?.taskId) {
+                return (
+                  <SummaryComponent2
+                    key={node.item.id}
+                    summaryNode={node as BaseLayoutNode<CompSummary2Internal, 'Summary2'>}
+                  />
+                );
+              }
+
               if (node.def.renderSummary2) {
                 return (
                   <ComponentSummary

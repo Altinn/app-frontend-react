@@ -1,5 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
+import type { JSX } from 'react';
 import type { FileRejection } from 'react-dropzone';
 
 import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/AttachmentsContext';
@@ -54,9 +55,12 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
     dataModelBindings: undefined,
   });
 
+  const canUploadMoreAttachments = attachments.length < maxNumberOfAttachments;
+  const isComplexMode = displayMode !== 'simple';
+  const isSimpleModeWithNoAttachments = displayMode === 'simple' && attachments.length === 0;
+
   const shouldShowFileUpload =
-    !(attachments.length >= maxNumberOfAttachments) &&
-    (displayMode !== 'simple' || attachments.length === 0 || showFileUpload);
+    canUploadMoreAttachments && (isComplexMode || isSimpleModeWithNoAttachments || showFileUpload);
 
   const renderAddMoreAttachmentsButton = (): JSX.Element | null => {
     const canShowButton =
