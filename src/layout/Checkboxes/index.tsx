@@ -51,11 +51,13 @@ export class Checkboxes extends CheckboxesDef {
   renderSummary2(
     componentNode: LayoutNode<'Checkboxes'>,
     summaryOverrides?: CheckboxSummaryOverrideProps,
+    isCompact?: boolean,
   ): JSX.Element | null {
     return (
       <CheckboxesSummary
-        componentNode={componentNode}
         summaryOverrides={summaryOverrides}
+        componentNode={componentNode}
+        isCompact={isCompact}
       />
     );
   }

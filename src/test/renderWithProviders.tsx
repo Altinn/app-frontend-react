@@ -2,6 +2,7 @@ import React from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
+import { jest } from '@jest/globals';
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { QueryClient } from '@tanstack/react-query';
 import { act, render as rtlRender, waitFor } from '@testing-library/react';
@@ -10,7 +11,6 @@ import type { RenderOptions, waitForOptions } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
-import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getLogoMock } from 'src/__mocks__/getLogoMock';
@@ -25,7 +25,6 @@ import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { RenderStart } from 'src/core/ui/RenderStart';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
-import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { FormProvider } from 'src/features/form/FormContext';
 import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
@@ -123,7 +122,6 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
 
 const defaultQueryMocks: AppQueries = {
   fetchLogo: async () => getLogoMock(),
-  fetchApplicationMetadata: async () => getApplicationMetadataMock(),
   fetchActiveInstances: async () => [],
   fetchCurrentParty: async () => getPartyMock(),
   fetchApplicationSettings: async () => ({}),
@@ -284,9 +282,7 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
                             <ProfileProvider>
                               <PartyProvider>
                                 <TextResourcesProvider>
-                                  <FooterLayoutProvider>
-                                    <InstantiationProvider>{children}</InstantiationProvider>
-                                  </FooterLayoutProvider>
+                                  <InstantiationProvider>{children}</InstantiationProvider>
                                 </TextResourcesProvider>
                               </PartyProvider>
                             </ProfileProvider>
