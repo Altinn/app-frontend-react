@@ -36,7 +36,6 @@ function getSummaryData(
   return getCommaSeparatedOptionsToText(value, options, langTools);
 }
 
-// TODO: Check out this new func after merge from main
 function getDisplayType(
   displayValues: string[],
   showAsList?: boolean,
