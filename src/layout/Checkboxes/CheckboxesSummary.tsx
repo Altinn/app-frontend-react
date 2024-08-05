@@ -11,10 +11,12 @@ export function CheckboxesSummary({
   componentNode,
   summaryOverrides,
   displayData,
+  isCompact,
 }: {
   componentNode: LayoutNode<'Checkboxes'>;
   summaryOverrides?: CompInternal<'Summary2'>['overrides'];
   displayData: string;
+  isCompact?: boolean;
 }) {
   const maxStringLength = 75;
   const overrides = summaryOverrides?.find((override) => override.componentId === componentNode.baseId) as
@@ -29,6 +31,7 @@ export function CheckboxesSummary({
       title={<Lang id={title} />}
       componentNode={componentNode}
       showAsList={showAsList}
+      isCompact={isCompact}
     />
   );
 }

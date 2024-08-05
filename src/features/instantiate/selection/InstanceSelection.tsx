@@ -47,7 +47,7 @@ export const InstanceSelectionWrapper = () => (
 function InstanceSelection() {
   const _instances = useActiveInstances();
   const applicationMetadata = useApplicationMetadata();
-  const instanceSelectionOptions = applicationMetadata?.onEntry?.instanceSelection;
+  const instanceSelectionOptions = applicationMetadata?.onEntry.instanceSelection;
   const selectedIndex = instanceSelectionOptions?.defaultSelectedOption;
   const { langAsString, language } = useLanguage();
   const mobileView = useIsMobileOrTablet();
@@ -268,6 +268,7 @@ function InstanceSelection() {
 const openInTab = (url: string, originalEvent: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
   const link = document.createElement('a');
   link.href = url;
+  // eslint-disable-next-line no-undef
   const options: MouseEventInit = {
     button: originalEvent.button,
     buttons: originalEvent.buttons,

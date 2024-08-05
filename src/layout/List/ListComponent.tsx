@@ -42,6 +42,7 @@ export const ListComponent = ({ node }: IListProps) => {
     [pageNumber, pageSize, sortColumn, sortDirection],
   );
   const { data } = useDataListQuery(filter, dataListId, secure, mapping);
+
   const calculatedDataList = (data && data.listItems) || defaultDataList;
 
   const bindings = item.dataModelBindings || defaultBindings;

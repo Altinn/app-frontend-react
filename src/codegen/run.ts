@@ -65,7 +65,7 @@ async function getComponentList() {
     const tsPathDef = `src/layout/${key}/config.def.generated.tsx`;
 
     const content = await CodeGeneratorContext.generateTypeScript(tsPathConfig, () => {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const config = require(`src/layout/${key}/config`).Config;
       config.setType(componentList[key], key);
       configMap[key] = config;

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -137,7 +138,8 @@ export const useStartUrl = (forcedTaskId?: string) => {
 };
 
 export const useNavigatePage = () => {
-  const isStatelessApp = useIsStatelessApp();
+  const isStatelessApp = useApplicationMetadata().isStatelessApp;
+  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const processTasks = useLaxProcessData()?.processTasks;
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
   const navigate = useNavigate();

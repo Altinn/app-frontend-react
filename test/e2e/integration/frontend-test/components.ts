@@ -113,9 +113,7 @@ describe('UI Components', () => {
     cy.intercept('POST', '**/tags').as('saveTags');
     cy.intercept('POST', '**/instances/**/data?dataType=*').as('upload');
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
-    cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
-      force: true,
-    });
+    cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf');
     cy.wait('@upload');
     cy.waitUntilNodesReady();
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');

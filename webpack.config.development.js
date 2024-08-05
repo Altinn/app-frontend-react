@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 const env = require('dotenv').config().parsed ?? {};
 const path = require('path');
 const fs = require('fs');
@@ -72,7 +72,21 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                namedExport: false,
+                auto: true,
+                exportLocalsConvention: 'camel-case',
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.png$/,

@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals';
+
 import { getSharedTests } from 'src/features/expressions/shared';
 import { ExprValidation } from 'src/features/expressions/validation';
 

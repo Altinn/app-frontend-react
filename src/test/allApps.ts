@@ -9,7 +9,7 @@ import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { ILayoutFile, ILayoutSet, ILayoutSets, ILayoutSettings } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
@@ -110,8 +110,8 @@ export class ExternalApp {
     return this;
   }
 
-  getAppMetadata(): IApplicationMetadata {
-    const appMetaData = this.readJson<IApplicationMetadata>('/App/config/applicationmetadata.json');
+  getAppMetadata(): IncomingApplicationMetadata {
+    const appMetaData = this.readJson<IncomingApplicationMetadata>('/App/config/applicationmetadata.json');
     if (this.compat) {
       appMetaData.altinnNugetVersion = MINIMUM_APPLICATION_VERSION.build;
       appMetaData.partyTypesAllowed = {

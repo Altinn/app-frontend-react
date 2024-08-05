@@ -42,9 +42,11 @@ const ChildComponents = ({ componentNode, hierarchyLevel, summaryOverrides }: Gr
             componentNode={child}
             hierarchyLevel={hierarchyLevel ? hierarchyLevel + 1 : 1}
             key={componentNode.id}
+            summaryOverrides={summaryOverrides}
           />
         );
       } else {
+        const isCompact = summaryOverrides?.['isCompact'];
         return (
           <div
             key={child?.id}
@@ -53,6 +55,7 @@ const ChildComponents = ({ componentNode, hierarchyLevel, summaryOverrides }: Gr
             <ComponentSummary
               componentNode={child}
               summaryOverrides={summaryOverrides}
+              isCompact={isCompact}
             />
           </div>
         );

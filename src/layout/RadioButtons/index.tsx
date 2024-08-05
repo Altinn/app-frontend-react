@@ -34,6 +34,7 @@ export class RadioButtons extends RadioButtonsDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
+  // TODO: Props changed from main
   renderSummary2(props: Summary2Props<'RadioButtons'>): JSX.Element | null {
     const displayData = this.useDisplayData(props.target);
     return (
@@ -41,6 +42,7 @@ export class RadioButtons extends RadioButtonsDef {
         componentNode={props.target}
         summaryOverrides={props.overrides}
         displayData={displayData}
+        isCompact={props.isCompact}
       />
     );
   }

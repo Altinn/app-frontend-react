@@ -44,6 +44,7 @@ export class Checkboxes extends CheckboxesDef {
         componentNode={props.target}
         displayData={displayData}
         summaryOverrides={props.overrides}
+        isCompact={props.isCompact}
       />
     );
   }

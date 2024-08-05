@@ -22,7 +22,6 @@ import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { WindowTitleProvider } from 'src/core/ui/WindowTitleProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
-import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
@@ -88,22 +87,20 @@ function Root() {
               <TextResourcesProvider>
                 <OrgsProvider>
                   <ApplicationSettingsProvider>
-                    <FooterLayoutProvider>
-                      <PartyProvider>
-                        <KeepAliveProvider>
-                          <WindowTitleProvider>
-                            <App />
-                            <ToastContainer
-                              position='top-center'
-                              theme='colored'
-                              transition={Slide}
-                              draggable={false}
-                            />
-                            <ScrollRestoration />
-                          </WindowTitleProvider>
-                        </KeepAliveProvider>
-                      </PartyProvider>
-                    </FooterLayoutProvider>
+                    <PartyProvider>
+                      <KeepAliveProvider>
+                        <WindowTitleProvider>
+                          <App />
+                          <ToastContainer
+                            position='top-center'
+                            theme='colored'
+                            transition={Slide}
+                            draggable={false}
+                          />
+                          <ScrollRestoration />
+                        </WindowTitleProvider>
+                      </KeepAliveProvider>
+                    </PartyProvider>
                   </ApplicationSettingsProvider>
                 </OrgsProvider>
               </TextResourcesProvider>

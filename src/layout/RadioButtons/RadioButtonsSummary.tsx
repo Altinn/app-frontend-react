@@ -9,12 +9,13 @@ import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type RadioButtonsSummaryProps = {
+  isCompact?: boolean;
   componentNode: LayoutNode<'RadioButtons'>;
   displayData: string;
   summaryOverrides?: CompInternal<'Summary2'>['overrides'];
 };
 
-export const RadioButtonsSummary = ({ componentNode, displayData }: RadioButtonsSummaryProps) => {
+export const RadioButtonsSummary = ({ componentNode, displayData, isCompact }: RadioButtonsSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
@@ -24,6 +25,7 @@ export const RadioButtonsSummary = ({ componentNode, displayData }: RadioButtons
       displayData={displayData}
       errors={errors}
       componentNode={componentNode}
+      isCompact={isCompact}
     />
   );
 };

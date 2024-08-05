@@ -74,7 +74,7 @@ export const PDFView2 = () => {
 };
 
 function PdfWrapping({ children }: PropsWithChildren) {
-  const enableOrgLogo = Boolean(useApplicationMetadata().logo);
+  const enableOrgLogo = Boolean(useApplicationMetadata().logoOptions);
   const appOwner = useAppOwner();
   const appName = useAppName();
   const { langAsString } = useLanguage();
@@ -83,7 +83,7 @@ function PdfWrapping({ children }: PropsWithChildren) {
   return (
     <div
       id={'pdfView'}
-      className={classes['pdf-wrapper']}
+      className={classes.pdfWrapper}
     >
       {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
 

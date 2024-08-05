@@ -5,11 +5,11 @@ import type { AxiosRequestConfig } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { type QueryDefinition } from 'src/core/queries/usePrefetchQuery';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
-import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 
 export function useFormDataQueryDef(
   cacheKeyUrl?: string,
@@ -30,7 +30,7 @@ export function useFormDataQueryDef(
 
 export function useFormDataQueryOptions() {
   const currentPartyId = useCurrentParty()?.partyId;
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
   const options: AxiosRequestConfig = {};
   if (isStateless && currentPartyId !== undefined) {
     options.headers = {

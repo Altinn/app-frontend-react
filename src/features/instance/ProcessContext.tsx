@@ -6,13 +6,13 @@ import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { TaskKeys, useNavigatePage } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IInstance, IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -150,7 +150,7 @@ export function useTaskType(taskId: string | undefined) {
 
 export function useGetTaskType() {
   const processData = useLaxProcessData();
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
   const layoutSets = useLayoutSets();
 
   return useCallback(
@@ -162,7 +162,7 @@ export function useGetTaskType() {
 
       if (isStateless) {
         // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,
-        // useIsStatelessApp() will return false and we'll proceed as normal.
+        // applicationMetadata.isStatelessApp will return false and we'll proceed as normal.
         return ProcessTaskType.Data;
       }
 
@@ -189,13 +189,13 @@ export function useGetTaskType() {
 }
 
 export function useRealTaskTypeById(taskId: string | undefined) {
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
   const taskType = useTaskTypeFromBackend();
   const layoutSets = useLayoutSets();
 
   if (isStateless) {
     // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,
-    // useIsStatelessApp() will return false and we'll proceed as normal.
+    // applicationMetadata.isStatelessApp will return false and we'll proceed as normal.
     return ProcessTaskType.Data;
   }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 import { useNodesFromGrid } from 'src/layout/Grid/tools';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';

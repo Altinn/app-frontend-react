@@ -7,24 +7,26 @@ import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.mod
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { CompExternal, CompInternal } from 'src/layout/layout';
+import type { CompExternal, CompInternal, CompTypes } from 'src/layout/layout';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface ComponentSummaryProps {
   componentNode: LayoutNode;
   summaryOverrides?: CompInternal<'Summary2'>['overrides'];
+  isCompact?: boolean;
 }
 
-export function ComponentSummary({ componentNode, summaryOverrides }: ComponentSummaryProps) {
+export function ComponentSummary({ componentNode, summaryOverrides, isCompact }: ComponentSummaryProps) {
   const { pageBreak, grid } = useNodeItem(componentNode, (i) => ({ pageBreak: i.pageBreak, grid: i.grid }));
   const overrides = summaryOverrides?.find((override) => override.componentId === componentNode.baseId);
-  const props: Summary2Props<any> = {
+  const props: Summary2Props<CompTypes> = {
     target: componentNode,
     overrides: summaryOverrides,
+    isCompact,
   };
 
-  const renderedComponent = componentNode.def.renderSummary2 ? componentNode.def.renderSummary2(props as any) : null;
+  const renderedComponent = componentNode.def.renderSummary2 ? componentNode.def.renderSummary2(props) : null;
   if (!renderedComponent) {
     return null;
   }
