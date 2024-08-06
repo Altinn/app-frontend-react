@@ -52,6 +52,17 @@ export const Config = new CG.component({
       ),
     ),
   )
+  .addProperty(
+    new CG.prop(
+      'summaryDelimiter',
+      new CG.str()
+        .setTitle('The summary view cell delimiter')
+        .setDescription(
+          'The value used to separate cells/elements in a summary view where rich layout is not available. Typically a comma, dash or similar.',
+        )
+        .optional({ default: ' — ' }),
+    ),
+  )
   .addTextResource(
     new CG.trb({
       name: 'title',

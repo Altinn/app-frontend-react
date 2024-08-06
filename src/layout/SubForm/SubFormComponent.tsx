@@ -65,7 +65,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
           title={<Lang id={textResourceBindings?.title} />}
           description={textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
         />
-        {subFormEntries.length > 0 && (
+        {subFormEntries.length && (
           <>
             <Table.Head id={`subform-${id}-table-body`}>
               <Table.Row>
@@ -80,7 +80,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
                   ))
                 ) : (
                   <Table.HeaderCell className={classes.tableCellFormatting}>
-                    <Lang id={langAsString('form_filler.sub_form_default_header')} />
+                    <Lang id={'form_filler.sub_form_default_header'} />
                   </Table.HeaderCell>
                 )}
                 <Table.HeaderCell>

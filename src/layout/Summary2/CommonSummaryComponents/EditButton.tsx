@@ -11,14 +11,21 @@ import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
+import type { NavigationResult } from 'src/features/form/layout/NavigateToNode';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type EditButtonProps = {
   componentNode: LayoutNode;
   summaryComponentId: string;
+  navigationOverride?: (() => Promise<NavigationResult> | void) | null;
 } & React.HTMLAttributes<HTMLButtonElement>;
 
-export function EditButton({ componentNode, summaryComponentId, className }: EditButtonProps) {
+export function EditButton({
+  componentNode,
+  summaryComponentId,
+  className,
+  navigationOverride = null,
+}: EditButtonProps) {
   const navigateTo = useNavigateToNode();
   const { langAsString } = useLanguage();
   const setReturnToView = useSetReturnToView();
@@ -44,7 +51,12 @@ export function EditButton({ componentNode, summaryComponentId, className }: Edi
       return;
     }
 
-    navigateTo(componentNode, true);
+    if (navigationOverride) {
+      navigationOverride();
+    } else {
+      navigateTo(componentNode, true);
+    }
+
     setReturnToView?.(currentPageId);
     setNodeOfOrigin?.(summaryComponentId);
   };

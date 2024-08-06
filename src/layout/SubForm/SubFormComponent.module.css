@@ -81,3 +81,9 @@ Altinn, and making sure they are consistent. */
   width: 100%;
   margin-bottom: var(--fds-spacing-2);
 }
+
+.emptyField {
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.6875;
+}
