@@ -116,11 +116,15 @@ function UpdateNavigate() {
 }
 
 function queryKeysToString(qc: Context['queryKeys']): string {
-  const keys = Object.keys(qc);
-  if (keys.length === 0) {
+  const qcFiltered = Object.fromEntries(Object.entries(qc).filter(filterUndefined));
+  if (Object.keys(qcFiltered).length === 0) {
     return '';
   }
 
-  const keysAndValues = keys.map((key) => `${key}=${encodeURIComponent(qc[key]!)}`);
-  return `?${keysAndValues.join('&')}`;
+  const searchParams = new URLSearchParams(qcFiltered);
+  return `?${searchParams.toString()}`;
+}
+
+function filterUndefined(obj: [string, string | undefined]): obj is [string, string] {
+  return obj[1] !== undefined;
 }
