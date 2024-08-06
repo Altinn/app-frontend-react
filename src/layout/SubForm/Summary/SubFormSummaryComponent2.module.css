@@ -1,7 +1,3 @@
-.formValue {
-  font-weight: 500;
-}
-
 .emptyField {
   font-style: italic;
   font-size: 1rem;
@@ -39,7 +35,6 @@
   overflow: hidden;
   font-weight: 400;
   font-size: 1rem;
-  /* border-bottom: 1px dotted var(--border-color-primary); */
   color: #000;
 }
 .editButton {
@@ -65,12 +60,9 @@
   padding: 4px 4px 4px 6px;
 }
 
-tr.blueUnderlineDotted td {
-  border-bottom: 1px dotted #1eadf7;
-}
-
-tr.grayUnderline td {
-  border-bottom: 1px solid var(--fds-semantic-border-neutral-default);
+tr.noRowSpacing td {
+  padding: inherit;
+  padding-left: 6px;
 }
 
 .marginLeftAuto {

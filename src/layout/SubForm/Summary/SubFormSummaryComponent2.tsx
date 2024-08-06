@@ -28,10 +28,7 @@ export function SubFormSummaryComponent2({ targetNode }: ISubFormSummaryComponen
 
   return (
     <>
-      <Label
-        weight={'regular'}
-        className={classes.formLabel}
-      >
+      <Label weight={'regular'}>
         <Lang id={textResourceBindings?.title} />
       </Label>
       {dataElements.length === 0 ? (
@@ -107,7 +104,7 @@ function SubFormSummaryTableRow({
 
   if (isFetching) {
     return (
-      <tr>
+      <tr className={classes.noRowSpacing}>
         <td colSpan={tableColumns.length}>
           <Spinner
             title={langAsString('general.loading')}
@@ -123,6 +120,7 @@ function SubFormSummaryTableRow({
     <tr
       key={`subform-summary-row-${id}`}
       data-row-num={rowNumber}
+      className={classes.noRowSpacing}
     >
       {tableColumns.length ? (
         tableColumns.map((entry, index) => {
