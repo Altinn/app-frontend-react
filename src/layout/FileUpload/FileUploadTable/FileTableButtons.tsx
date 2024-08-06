@@ -24,9 +24,9 @@ interface IFileTableButtonsProps {
 }
 
 export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpen }: IFileTableButtonsProps) {
-  const { alertOnDelete, type, dataModelBindings } = useNodeItem(node);
+  const { alertOnDelete, type, dataModelBindings, readOnly } = useNodeItem(node);
   const hasTag = type === 'FileUploadWithTag';
-  const showEditButton = hasTag && !editWindowIsOpen;
+  const showEditButton = hasTag && !editWindowIsOpen && !readOnly;
   const { langAsString } = useLanguage();
   const { index, setEditIndex, editIndex } = useFileTableRow();
   const removeAttachment = useAttachmentsRemover();
