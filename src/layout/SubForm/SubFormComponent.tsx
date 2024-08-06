@@ -65,7 +65,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
           title={<Lang id={textResourceBindings?.title} />}
           description={textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
         />
-        {subFormEntries.length && (
+        {subFormEntries.length > 0 && (
           <>
             <Table.Head id={`subform-${id}-table-body`}>
               <Table.Row>

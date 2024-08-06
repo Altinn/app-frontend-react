@@ -127,7 +127,7 @@ function SubFormSummaryTableRow({
       {tableColumns.length ? (
         tableColumns.map((entry, index) => {
           const content = dot.pick(entry.cellContent, data);
-          return <td key={`${rowkey}-${index}`}>{content}</td>;
+          return <td key={`${rowkey}-${index}`}>{String(content)}</td>;
         })
       ) : (
         <Table.Cell key={`${rowkey}-0`}>{String(id)}</Table.Cell>
