@@ -94,7 +94,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
   // This logic is needlessly complex, but our tests depends on it being this way as of now.
   const summaryTestId = overrides?.targetNode
     ? overrides.targetNode.id
-    : summaryNode?.id ?? targetNode?.id ?? 'unknown';
+    : (summaryNode?.id ?? targetNode?.id ?? 'unknown');
 
   return (
     <Grid
