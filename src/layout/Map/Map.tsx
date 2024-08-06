@@ -64,19 +64,19 @@ export function Map({ mapNode, isSummary, markerLocation, setMarkerLocation, cla
   const layers = customLayers ?? DefaultMapLayers;
   const centerLocation = customCenterLocation ?? DefaultCenterLocation;
   const zoom = customZoom ?? DefaultZoom;
-  const locationIsValid = isLocationValid(markerLocation);
+  const markerLocationIsValid = isLocationValid(markerLocation);
 
   useEffect(() => {
-    if (!isSummary && locationIsValid && map) {
+    if (!isSummary && markerLocationIsValid && map) {
       map.flyTo({ lat: markerLocation.latitude, lng: markerLocation.longitude }, DefaultFlyToZoomLevel);
     }
-  }, [isSummary, locationIsValid, map, markerLocation]);
+  }, [isSummary, markerLocationIsValid, map, markerLocation]);
 
   return (
     <MapContainer
       className={cn(classes.map, { [classes.mapSummary]: isSummary }, className)}
-      center={locationToTuple(locationIsValid ? markerLocation : centerLocation)}
-      zoom={locationIsValid ? 16 : zoom}
+      center={locationToTuple(markerLocationIsValid ? markerLocation : centerLocation)}
+      zoom={markerLocationIsValid ? 16 : zoom}
       zoomControl={isInteractive}
       dragging={isInteractive}
       touchZoom={isInteractive}
@@ -101,7 +101,7 @@ export function Map({ mapNode, isSummary, markerLocation, setMarkerLocation, cla
         />
       ))}
       <AttributionControl prefix={false} />
-      {locationIsValid ? (
+      {markerLocationIsValid ? (
         <Marker
           position={locationToTuple(markerLocation)}
           icon={markerIcon}
