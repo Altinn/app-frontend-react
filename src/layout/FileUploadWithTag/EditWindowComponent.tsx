@@ -38,7 +38,7 @@ export function EditWindowComponent({
   options,
   isFetching,
 }: EditWindowProps): React.JSX.Element {
-  const { textResourceBindings, readOnly } = useNodeItem(node);
+  const { textResourceBindings } = useNodeItem(node);
   const { langAsString } = useLanguage(node);
   const { setEditIndex } = useFileTableRow();
   const uploadedAttachment = isAttachmentUploaded(attachment) ? attachment : undefined;
@@ -78,7 +78,7 @@ export function EditWindowComponent({
     });
   };
 
-  const saveIsDisabled = attachment.updating || !attachment.uploaded || readOnly || isFetching;
+  const isLoading = attachment.updating || !attachment.uploaded || isFetching || options?.length === 0;
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
 
   return (
@@ -149,7 +149,7 @@ export function EditWindowComponent({
             <Lang id={textResourceBindings?.tagTitle} />
           </label>
         )}
-        {isFetching ? (
+        {isLoading ? (
           <AltinnLoader
             id={`attachment-loader-update-${uniqueId}`}
             srContent={langAsString('general.loading')}
@@ -176,7 +176,6 @@ export function EditWindowComponent({
                 hideLabel={true}
                 label={langAsString('general.choose')}
                 value={chosenTags}
-                disabled={saveIsDisabled}
                 onValueChange={setChosenTags}
                 error={hasErrors}
                 className={comboboxClasses.container}
@@ -220,7 +219,6 @@ export function EditWindowComponent({
                   size='small'
                   onClick={handleSave}
                   id={`attachment-save-tag-button-${uniqueId}`}
-                  disabled={saveIsDisabled}
                 >
                   <Lang id={'general.save'} />
                 </Button>

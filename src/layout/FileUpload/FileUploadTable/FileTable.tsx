@@ -31,7 +31,7 @@ export function FileTable({
   isSummary,
   isFetching,
 }: FileTableProps): React.JSX.Element | null {
-  const { textResourceBindings, type } = useNodeItem(node);
+  const { textResourceBindings, type, readOnly } = useNodeItem(node);
   const hasTag = type === 'FileUploadWithTag';
   const pdfModeActive = usePdfModeActive();
   const [editIndex, setEditIndex] = React.useState<number>(-1);
@@ -92,9 +92,10 @@ export function FileTable({
       )}
       <tbody className={classes.tableBody}>
         {attachments.map((attachment, index: number) => {
-          const canRenderRow = isAttachmentUploaded(attachment)
-            ? !hasTag || (attachment.data.tags !== undefined && attachment.data.tags.length > 0 && editIndex !== index)
-            : false;
+          const isMissingTag = hasTag && isAttachmentUploaded(attachment) && !attachment.data.tags?.length;
+          const showSimpleRow = isAttachmentUploaded(attachment)
+            ? !hasTag || readOnly || (hasTag && !isMissingTag && editIndex !== index)
+            : true;
 
           const ctx: FileTableRowContext = {
             setEditIndex,
@@ -102,11 +103,10 @@ export function FileTable({
             index,
           };
 
-          // Check if filter is applied and includes specified index.
-          return canRenderRow && isAttachmentUploaded(attachment) ? (
+          return showSimpleRow ? (
             <FileTableRowProvider
               value={ctx}
-              key={`altinn-file-list-row-${attachment.data.id}`}
+              key={`altinn-file-list-row-${isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId}`}
             >
               <FileTableRow
                 node={node}
