@@ -30,7 +30,10 @@ export function LabelContent({ id, label, description, required, readOnly, help,
   }
 
   return (
-    <span id={id}>
+    <span
+      id={id}
+      className={classes.labelWrapper}
+    >
       <span className={classes.labelContainer}>
         <span className={classes.labelContent}>
           <Lang id={label} />
