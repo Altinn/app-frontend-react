@@ -13,6 +13,10 @@
   border-spacing: 0;
 }
 
+.summaryTableMargin {
+  margin-top: 0.6rem;
+}
+
 .tableMobile tbody tr td {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -29,7 +33,6 @@
   overflow: hidden;
   font-weight: 400;
   font-size: 1rem;
-  border-bottom: 1px dotted var(--border-color-primary);
   color: #000;
 }
 .editButton {

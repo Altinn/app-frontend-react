@@ -38,10 +38,19 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
     ? langAsString('form_filler.file_uploader_list_status_done')
     : langAsString('general.loading');
 
+  let rowStyle: string;
+  if (isSummary) {
+    rowStyle = classes.noRowSpacing;
+  } else if (pdfModeActive) {
+    rowStyle = classes.grayUnderline;
+  } else {
+    rowStyle = classes.blueUnderlineDotted;
+  }
+
   return (
     <tr
       key={uniqueId}
-      className={pdfModeActive ? classes.grayUnderline : classes.blueUnderlineDotted}
+      className={rowStyle}
       id={`altinn-file-list-row-${uniqueId}`}
       tabIndex={0}
     >
