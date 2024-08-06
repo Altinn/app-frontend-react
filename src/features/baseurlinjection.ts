@@ -9,7 +9,9 @@ const heads = document.getElementsByTagName('head');
 if (heads && heads.length > 0) {
   const head = heads[0];
   const base = document.createElement('base');
-  base.href = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+  base.href = window.location.protocol + '//' +
+    window.location.hostname +
+    (window.location.port ? ':' + window.location.port : '');
   base.href += `${window.org}/${window.app}/`;
   head.appendChild(base);
 }
