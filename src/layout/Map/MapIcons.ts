@@ -1,10 +1,9 @@
 import Marker from 'leaflet/dist/images/marker-icon.png';
 import RetinaMarker from 'leaflet/dist/images/marker-icon-2x.png';
 import MarkerShadow from 'leaflet/dist/images/marker-shadow.png';
-import type { Map } from '@altinn/altinn-design-system';
+import type { IconOptions } from 'leaflet';
 
-type MapProps = Parameters<typeof Map>[0];
-export const markerIcon: MapProps['markerIcon'] = {
+export const markerIcon: IconOptions = {
   iconUrl: Marker,
   iconRetinaUrl: RetinaMarker,
   shadowUrl: MarkerShadow,

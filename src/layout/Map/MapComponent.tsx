@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { AttributionControl, MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
 
+import { Paragraph } from '@digdir/designsystemet-react';
 import { icon, type Map as LeafletMap } from 'leaflet';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
@@ -12,7 +13,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type IMapComponentProps = PropsFromGenericComponent<'Map'>;
 
 // Default is center of Norway
-const DefaultCenterLocation: Location = {
+export const DefaultCenterLocation: Location = {
   latitude: 64.888996,
   longitude: 12.8186054,
 };
@@ -114,7 +115,10 @@ export function MapComponent({ isValid, node }: IMapComponentProps) {
           onClick={handleMapClicked}
         />
       </MapContainer>
-      <p className={classes.footer}>
+      <Paragraph
+        size='sm'
+        className={classes.footer}
+      >
         {location ? (
           <Lang
             id={'map_component.selectedLocation'}
@@ -123,7 +127,7 @@ export function MapComponent({ isValid, node }: IMapComponentProps) {
         ) : (
           <Lang id={'map_component.noSelectedLocation'} />
         )}
-      </p>
+      </Paragraph>
     </div>
   );
 }
@@ -151,7 +155,7 @@ export function parseLocation(locationString: string | undefined): Location | un
   } as Location;
 }
 
-function locationToTuple(location: Location): [number, number] {
+export function locationToTuple(location: Location): [number, number] {
   return [location.latitude, location.longitude];
 }
 
