@@ -3,7 +3,3 @@
   gap: var(--fds-spacing-2);
   width: 100%;
 }
-
-.gridItemWrapper {
-  padding-bottom: var(--fds-spacing-3);
-}

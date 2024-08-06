@@ -24,6 +24,8 @@ export type LabelProps = PropsWithChildren<{
     description?: string;
     help?: string;
   };
+  className?: string;
+  addBottomPadding?: boolean;
 }>;
 
 export function Label({
@@ -35,6 +37,8 @@ export function Label({
   grid,
   textResourceBindings,
   children,
+  className,
+  addBottomPadding,
 }: LabelProps) {
   if (!textResourceBindings?.title) {
     return <>{children}</>;
@@ -48,6 +52,7 @@ export function Label({
     required,
     readOnly,
     labelSettings,
+    addBottomPadding,
   };
 
   switch (renderLabelAs) {
@@ -75,6 +80,7 @@ export function Label({
           id={labelId}
           htmlFor={id}
           style={{ width: '100%' }}
+          className={[classes.fieldWrapper, className].join(' ')}
         >
           <Grid container>
             <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
@@ -88,7 +94,7 @@ export function Label({
     case 'span':
     default:
       return (
-        <>
+        <span className={[classes.fieldWrapper, className].join(' ')}>
           {/* we want this "label" not to be rendered as a <label>,
            because it does not belong to an input element */}
           <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
@@ -100,7 +106,7 @@ export function Label({
             </DesignsystemetLabel>
           </LabelGridItemWrapper>
           {children}
-        </>
+        </span>
       );
   }
 }
@@ -110,7 +116,6 @@ function LabelGridItemWrapper({ children, labelGrid }: PropsWithChildren<{ label
     <Grid
       item
       {...gridBreakpoints(labelGrid)}
-      className={classes.gridItemWrapper}
     >
       {children}
     </Grid>

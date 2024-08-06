@@ -8,7 +8,6 @@ import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -36,16 +35,15 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
     return null;
   };
   const labelText = (
-    <span className={classes.labelContent}>
-      <LabelContent
-        id={`label-${id}`}
-        label={[getLabelPrefixForLikert(), langAsString(textResourceBindings?.title)].join(' ')}
-        help={textResourceBindings?.help}
-        required={required}
-        readOnly={readOnly}
-        labelSettings={labelSettings}
-      />
-    </span>
+    <LabelContent
+      id={`label-${id}`}
+      label={[getLabelPrefixForLikert(), langAsString(textResourceBindings?.title)].join(' ')}
+      help={textResourceBindings?.help}
+      required={required}
+      readOnly={readOnly}
+      labelSettings={labelSettings}
+      addBottomPadding={false}
+    />
   );
 
   const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1 && !showLabelsInTable;

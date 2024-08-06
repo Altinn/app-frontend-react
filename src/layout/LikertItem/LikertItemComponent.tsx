@@ -1,7 +1,6 @@
 import React, { forwardRef } from 'react';
 
 import { Radio, Table } from '@digdir/designsystemet-react';
-import { Typography } from '@material-ui/core';
 
 import { Label } from 'src/components/label/Label';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -55,17 +54,16 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
       ref={ref}
     >
       <Table.Cell id={rowLabelId}>
-        <Typography component={'div'}>
-          <Label
-            {...node.item}
-            renderLabelAs='legend'
-          >
-            <ComponentValidations
-              validations={validations}
-              node={node}
-            />
-          </Label>
-        </Typography>
+        <Label
+          {...node.item}
+          renderLabelAs='legend'
+          addBottomPadding={false}
+        >
+          <ComponentValidations
+            validations={validations}
+            node={node}
+          />
+        </Label>
       </Table.Cell>
       {calculatedOptions?.map((option) => {
         const isChecked = selectedValues[0] === option.value;
