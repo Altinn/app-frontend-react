@@ -4,6 +4,12 @@
   width: 100%;
 }
 
+.map-error {
+  border-color: var(--fds-semantic-border-danger-default);
+  border-width: 2px;
+  border-style: solid;
+}
+
 .footer {
   padding-top: 12px;
 }
