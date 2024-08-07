@@ -4,6 +4,12 @@
 
 .repeatingGroupSummaryWrapper {
   display: flex;
-  gap: var(--fds-spacing-4);
+  gap: var(--fds-spacing-6);
   flex-direction: column;
+}
+
+.nestedRepeatingGroupWrapper {
+  border: dashed 1px var(--fds-semantic-border-neutral-default);
+  padding: var(--fds-spacing-5) var(--fds-spacing-4);
+  border-radius: 4px;
 }
