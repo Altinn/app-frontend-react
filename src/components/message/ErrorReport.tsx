@@ -44,7 +44,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
       return;
     }
 
-    await navigateTo(node, { shouldFocus: true });
+    await navigateTo(node, { shouldFocus: true, error });
   };
 
   return (

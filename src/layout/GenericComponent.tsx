@@ -143,16 +143,33 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
       return NavigationResult.SuccessfulNoFocus;
     }
 
-    const maybeInput = containerDivRef.current?.querySelector('input,textarea,select,p') as
-      | HTMLSelectElement
-      | HTMLInputElement
-      | HTMLTextAreaElement;
+    const targetHtmlNodes = containerDivRef.current?.querySelectorAll('input,textarea,select,p');
 
-    if (maybeInput) {
-      maybeInput.focus();
+    if (targetHtmlNodes) {
+      if (targetHtmlNodes.length === 1) {
+        (targetHtmlNodes[0] as HTMLElement).focus();
+        return NavigationResult.SuccessfulWithFocus;
+      }
+
+      if (targetHtmlNodes.length > 1) {
+        let didBreak = false;
+        for (const node of Array.from(targetHtmlNodes)) {
+          const element = node as HTMLInputElement;
+          if (element?.dataset?.bindingkey === options?.error?.bindingKey) {
+            element.focus();
+            didBreak = true;
+            break;
+          }
+        }
+
+        if (didBreak) {
+          return NavigationResult.SuccessfulWithFocus;
+        } else {
+          (targetHtmlNodes[0] as HTMLElement).focus();
+          return NavigationResult.SuccessfulWithFocus;
+        }
+      }
     }
-
-    return NavigationResult.SuccessfulWithFocus;
   });
 
   if (isHidden) {
