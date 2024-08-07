@@ -10,6 +10,13 @@
   border-style: solid;
 }
 
+/* We do not want the map to look faded in PDF, so using @media only screen */
+@media only screen {
+  .tile-read-only {
+    opacity: 0.5;
+  }
+}
+
 .footer {
   padding-top: 12px;
 }

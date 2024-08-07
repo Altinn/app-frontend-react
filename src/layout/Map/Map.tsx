@@ -106,7 +106,7 @@ export function Map({ mapNode, isSummary, markerLocation, setMarkerLocation, cla
           url={layer.url}
           attribution={layer.attribution}
           subdomains={layer.subdomains ? layer.subdomains : []}
-          opacity={isInteractive ? 1.0 : 0.5}
+          className={cn({ [classes.tileReadOnly]: !isInteractive })}
         />
       ))}
       <AttributionControl prefix={false} />
