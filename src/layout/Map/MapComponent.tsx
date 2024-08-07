@@ -28,7 +28,10 @@ export function MapComponent({ node, isValid }: IMapComponentProps) {
 
   return (
     <>
-      <div className={cn({ [classes.mapError]: !isValid })}>
+      <div
+        data-testid={`map-container-${node.item.id}`}
+        className={cn({ [classes.mapError]: !isValid })}
+      >
         <Map
           mapNode={node}
           markerLocation={markerLocation}
