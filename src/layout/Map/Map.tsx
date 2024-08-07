@@ -77,6 +77,15 @@ export function Map({ mapNode, isSummary, markerLocation, setMarkerLocation, cla
       className={cn(classes.map, { [classes.mapSummary]: isSummary }, className)}
       center={locationToTuple(markerLocationIsValid ? markerLocation : centerLocation)}
       zoom={markerLocationIsValid ? 16 : zoom}
+      // Not having a map for outside mainland Norway is confusing,
+      // so setting some bounds on where the user can drag so they
+      // do not get lost
+      minZoom={4}
+      maxBounds={[
+        [55, 2],
+        [73, 34],
+      ]}
+      fadeAnimation={isInteractive}
       zoomControl={isInteractive}
       dragging={isInteractive}
       touchZoom={isInteractive}
