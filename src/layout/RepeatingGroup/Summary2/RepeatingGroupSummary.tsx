@@ -31,16 +31,13 @@ export const RepeatingGroupSummary = ({ componentNode }: RepeatingGroupComponent
         {rows.map((row, index) => (
           <div
             key={row.uuid}
-            className={cn(classes.repeatingGroupSummaryWrapper, {
+            className={cn(classes.repeatingGroupSummaryRow, {
               [classes.repeatingGroupRow]: index < rows.length - 1,
             })}
           >
             {row.items &&
               row.items.map((layoutItem) => (
-                <div
-                  key={layoutItem.item.id}
-                  className={cn(classes.repeatingGroupSummaryWrapper)}
-                >
+                <div key={layoutItem.item.id}>
                   {layoutItem.def.renderSummary2 && layoutItem.def.renderSummary2(layoutItem as LayoutNode<any>)}
                 </div>
               ))}
