@@ -70,7 +70,13 @@ function SubFormSummaryRow({
     );
   }
 
-  const content = tableColumns.map((entry) => String(dot.pick(entry.cellContent, data)));
+  const content = tableColumns.map((entry) => {
+    let result = dot.pick(entry.cellContent.query, data);
+    if (!result && entry.cellContent.default != undefined) {
+      result = langAsString(entry.cellContent.default);
+    }
+    return String(result);
+  });
   if (content.length === 0) {
     content.push(id);
   }

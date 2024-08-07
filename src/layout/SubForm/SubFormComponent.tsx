@@ -200,7 +200,10 @@ function SubFormTableRow({
     >
       {tableColumns.length ? (
         tableColumns.map((entry, index) => {
-          const content = dot.pick(entry.cellContent, data);
+          let content = dot.pick(entry.cellContent.query, data);
+          if (!content && entry.cellContent.default != undefined) {
+            content = langAsString(entry.cellContent.default);
+          }
           return <Table.Cell key={`subform-cell-${id}-${index}`}>{String(content)}</Table.Cell>;
         })
       ) : (

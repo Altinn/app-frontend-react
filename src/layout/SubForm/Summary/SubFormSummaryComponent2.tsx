@@ -124,7 +124,11 @@ function SubFormSummaryTableRow({
     >
       {tableColumns.length ? (
         tableColumns.map((entry, index) => {
-          const content = dot.pick(entry.cellContent, data);
+          let content = dot.pick(entry.cellContent.query, data);
+          if (!content && entry.cellContent.default != undefined) {
+            const textLookup = langAsString(entry.cellContent.default);
+            content = textLookup ? textLookup : entry.cellContent.default;
+          }
           return <td key={`${rowkey}-${index}`}>{String(content)}</td>;
         })
       ) : (

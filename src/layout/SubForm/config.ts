@@ -42,11 +42,21 @@ export const Config = new CG.component({
           ),
           new CG.prop(
             'cellContent',
-            new CG.str()
-              .setTitle('The column cell value')
-              .setDescription(
-                'The value to display for each cell/row in this column. May contain text resource bindings and data model lookups (dot notation).',
+            new CG.obj(
+              new CG.prop(
+                'query',
+                new CG.str()
+                  .setTitle('The cell value via data model lookup')
+                  .setDescription('The cell value to display from a data model lookup (dot notation).'),
               ),
+              new CG.prop(
+                'default',
+                new CG.str()
+                  .optional()
+                  .setTitle('The default cell value')
+                  .setDescription('The cell value to display if `query` returns no result.'),
+              ),
+            ),
           ),
         ),
       ),
