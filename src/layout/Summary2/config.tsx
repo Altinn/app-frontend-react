@@ -1,6 +1,7 @@
 import { CG } from 'src/codegen/CG';
 import { CHECKBOX_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Checkboxes/config';
 import { CompCategory } from 'src/layout/common';
+import { DATEPICKER_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Datepicker/config';
 import { DROPDOWN_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Dropdown/config';
 import { INPUT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Input/config';
 import { MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/MultipleSelect/config';
@@ -52,6 +53,7 @@ export const Config = new CG.component({
           DROPDOWN_SUMMARY_OVERRIDE_PROPS,
           MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS,
           REPEATING_GROUP_SUMMARY_OVERRIDE_PROPS,
+          DATEPICKER_SUMMARY_OVERRIDE_PROPS,
         ),
       ).optional(),
     ),
