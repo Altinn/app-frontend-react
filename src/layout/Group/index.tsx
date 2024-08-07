@@ -10,8 +10,8 @@ import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
-import type { CompGroupInternal } from 'src/layout/Group/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { GroupSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -57,10 +57,7 @@ export class Group extends GroupDef implements ValidateComponent {
     );
   }
 
-  renderSummary2(
-    componentNode: LayoutNode<'Group'>,
-    summaryOverrides?: CompGroupInternal['summaryProps'],
-  ): JSX.Element | null {
+  renderSummary2(componentNode: LayoutNode<'Group'>, summaryOverrides?: GroupSummaryOverrideProps): JSX.Element | null {
     return (
       <GroupSummary
         componentNode={componentNode}
