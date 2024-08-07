@@ -25,14 +25,14 @@ export const RepeatingGroupSummary = ({ componentNode }: RepeatingGroupComponent
   const isNested = componentNode.parent instanceof BaseLayoutNode;
 
   return (
-    <div className={cn(classes.repeatingGroupSummaryWrapper)}>
+    <div className={cn({ [classes.nestedRepeatingGroupSummaryWrapper]: isNested })}>
       <Label weight={'medium'}>{<Lang id={title} />}</Label>
-      <div className={cn({ [classes.nestedRepeatingGroupWrapper]: isNested })}>
+      <div className={cn({ [classes.nestedRepeatingGroupContentWrapper]: isNested })}>
         {rows.map((row, index) => (
           <div
             key={row.uuid}
             className={cn(classes.repeatingGroupSummaryRow, {
-              [classes.repeatingGroupRow]: index < rows.length - 1,
+              [classes.repeatingGroupRowDivider]: index < rows.length - 1,
             })}
           >
             {row.items &&

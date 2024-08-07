@@ -1,22 +1,22 @@
-.repeatingGroupRow {
+.repeatingGroupRowDivider {
   border-bottom: solid 1px var(--fds-semantic-border-neutral-default);
-}
-
-.repeatingGroupSummaryWrapper {
-  display: flex;
-  gap: var(--fds-spacing-4);
-  flex-direction: column;
 }
 
 .repeatingGroupSummaryRow {
   display: flex;
-  gap: var(--fds-spacing-6);
+  gap: var(--fds-spacing-8);
   flex-direction: column;
-  padding: var(--fds-spacing-3) 0;
+  padding: var(--fds-spacing-5) 0;
 }
 
-.nestedRepeatingGroupWrapper {
+.nestedRepeatingGroupSummaryWrapper {
+  display: flex;
+  gap: var(--fds-spacing-3);
+  flex-direction: column;
+}
+
+.nestedRepeatingGroupContentWrapper {
   border: dashed 1px var(--fds-semantic-border-neutral-default);
   padding: var(--fds-spacing-2) var(--fds-spacing-4);
-  border-radius: 6px;
+  border-radius: var(--fds-border_radius-medium);
 }
