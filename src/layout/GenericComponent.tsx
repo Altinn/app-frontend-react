@@ -155,7 +155,11 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         let didBreak = false;
         for (const node of Array.from(targetHtmlNodes)) {
           const element = node as HTMLInputElement;
-          if (element?.dataset?.bindingkey === options?.error?.bindingKey) {
+          if (
+            options?.error &&
+            'bindingKey' in options.error &&
+            element?.dataset?.bindingkey === options.error.bindingKey
+          ) {
             element.focus();
             didBreak = true;
             break;

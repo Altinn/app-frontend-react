@@ -3,6 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 import { Hidden } from 'src/utils/layout/NodesContext';
+import type { NodeValidation } from 'src/features/validation';
 import type { NavigateToPageOptions } from 'src/hooks/useNavigatePage';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -24,6 +25,7 @@ export enum NavigationResult {
 export interface NavigateToNodeOptions {
   shouldFocus?: boolean;
   pageNavOptions?: NavigateToPageOptions;
+  error?: NodeValidation;
 }
 
 interface NodeNavigationContext {
