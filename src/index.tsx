@@ -41,7 +41,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
 import '@digdir/designsystemet-theme/brand/altinn/tokens.css';
 
-const AppRouter = createHashRouter([
+const router = createHashRouter([
   {
     path: '*',
     element: (
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <LangToolsStoreProvider>
               <ThemeWrapper>
                 <UiConfigProvider>
-                  <RouterProvider router={AppRouter} />
+                  <RouterProvider router={router} />
                 </UiConfigProvider>
               </ThemeWrapper>
             </LangToolsStoreProvider>
