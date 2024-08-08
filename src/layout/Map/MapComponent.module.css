@@ -21,12 +21,6 @@
   padding-top: 12px;
 }
 
-/* The marker has role=button, and will therefore be hidden from PDF by default */
-/* This makes sure it is visible after all */
-.map-summary :global(img.leaflet-marker-icon) {
-  display: block !important;
-}
-
 .empty-field {
   font-style: italic;
   font-size: 1rem;

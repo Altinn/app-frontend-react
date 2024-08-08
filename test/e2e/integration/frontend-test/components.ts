@@ -1,7 +1,7 @@
 import path from 'path';
 
 import texts from 'test/e2e/fixtures/texts.json';
-import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+import { AppFrontend, component } from 'test/e2e/pageobjects/app-frontend';
 
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { CompExternal } from 'src/layout/layout';
@@ -723,5 +723,33 @@ describe('UI Components', () => {
         }
       }
     }
+  });
+
+  it('Map component with simpleBinding', () => {
+    cy.intercept('GET', 'https://cache.kartverket.no/**/*.png', { fixture: 'map-tile.png' });
+
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('123');
+    cy.get('#choose-extra').findByText('Kart').click();
+
+    cy.gotoNavPage('map');
+    cy.get(component('map')).should('contain.text', 'Ingen lokasjon valgt');
+    cy.get(component('mapSummary')).should('contain.text', 'Du har ikke lagt inn informasjon her');
+
+    cy.findByTestId(/^map-container/).click();
+
+    cy.get(component('map')).findByAltText('Marker').should('be.visible');
+    cy.get(component('map'))
+      .findByText(/Valgt lokasjon: 59\.\d{6}° nord, 10\.\d{6}° øst/)
+      .should('be.visible');
+
+    cy.get(component('mapSummary')).findByAltText('Marker').should('be.visible');
+    cy.get(component('mapSummary'))
+      .findByText(/Valgt lokasjon: 59\.\d{6}° nord, 10\.\d{6}° øst/)
+      .should('be.visible');
+
+    cy.get(component('mapValue'))
+      .findByText(/59\.\d{6}, 10\.\d{6}/)
+      .should('be.visible');
   });
 });

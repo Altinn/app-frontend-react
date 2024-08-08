@@ -496,7 +496,7 @@ Cypress.Commands.add('getSummary', (label) => {
 });
 
 const DEFAULT_COMMAND_TIMEOUT = Cypress.config().defaultCommandTimeout;
-Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
+Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) => {
   cy.log('Testing PDF');
 
   // Make sure instantiation is completed before we get the url
@@ -521,23 +521,31 @@ Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
     // the current task as a PDF.
     cy.visit(visitUrl);
   });
-  cy.reload();
 
-  // Wait for readyForPrint, after this everything should be rendered so using timeout: 0
-  cy.get('#pdfView > #readyForPrint')
-    .should('exist')
-    .then(() => {
-      Cypress.config('defaultCommandTimeout', 0);
+  cy.readFile('test/percy.css').then((percyCSS) => {
+    cy.reload();
 
-      // Verify that generic elements that should be hidden are not present
-      cy.findAllByRole('button').should('not.exist');
-      // Run tests from callback
-      callback();
+    // Wait for readyForPrint, after this everything should be rendered so using timeout: 0
+    cy.get('#pdfView > #readyForPrint')
+      .should('exist')
+      .then(() => {
+        Cypress.config('defaultCommandTimeout', 0);
 
-      cy.then(() => {
-        Cypress.config('defaultCommandTimeout', DEFAULT_COMMAND_TIMEOUT);
+        // Verify that generic elements that should be hidden are not present
+        cy.findAllByRole('button').should('not.exist');
+        // Run tests from callback
+        callback();
+
+        cy.then(() => {
+          Cypress.config('defaultCommandTimeout', DEFAULT_COMMAND_TIMEOUT);
+        });
+
+        if (snapshotName) {
+          // Take snapshot of PDF
+          cy.percySnapshot(`${snapshotName} (PDF)`, { percyCSS });
+        }
       });
-    });
+  });
 
   if (returnToForm) {
     cy.location('href').then((href) => {

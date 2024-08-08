@@ -84,8 +84,8 @@ export function Map({ mapNode, isSummary, markerLocation, setMarkerLocation, cla
       // do not get lost
       minZoom={4}
       maxBounds={[
-        [55, 2],
-        [73, 34],
+        [53, 0],
+        [75, 38],
       ]}
       fadeAnimation={isInteractive}
       zoomControl={isInteractive}
@@ -116,6 +116,20 @@ export function Map({ mapNode, isSummary, markerLocation, setMarkerLocation, cla
         <Marker
           position={locationToTuple(markerLocation)}
           icon={markerIcon}
+          eventHandlers={
+            isInteractive && setMarkerLocation
+              ? {
+                  click: () => {},
+                  dragend: (e) => {
+                    const { lat, lng } = e.target._latlng;
+                    setMarkerLocation({ latitude: lat, longitude: lng });
+                  },
+                }
+              : undefined
+          }
+          interactive={isInteractive}
+          draggable={isInteractive}
+          keyboard={isInteractive}
         />
       ) : null}
     </MapContainer>
