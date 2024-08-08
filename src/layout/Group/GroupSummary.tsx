@@ -9,12 +9,14 @@ import classes from 'src/layout/Group/GroupSummary.module.css';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
+import type { GroupSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type GroupComponentSummaryProps = {
   componentNode: LayoutNode<'Group'>;
   hierarchyLevel?: number;
   summaryOverrides?: CompInternal<'Summary2'>['overrides'];
+  parentId?: string;
 };
 
 type HeadingLevel = HeadingProps['level'];
@@ -31,7 +33,7 @@ function getHeadingLevel(hierarchyLevel: number): HeadingLevel {
   }
 }
 
-const ChildComponents = ({ componentNode, hierarchyLevel, summaryOverrides }: GroupComponentSummaryProps) => {
+const ChildComponents = ({ componentNode, hierarchyLevel, summaryOverrides, parentId }: GroupComponentSummaryProps) => {
   const childComponents = useNodeItem(componentNode, (i) => i.childComponents);
   return (
     childComponents.length &&
@@ -46,7 +48,12 @@ const ChildComponents = ({ componentNode, hierarchyLevel, summaryOverrides }: Gr
           />
         );
       } else {
-        const isCompact = summaryOverrides?.['isCompact'];
+        const isCompact = (
+          summaryOverrides?.find((override) => override.componentId === parentId) as
+            | GroupSummaryOverrideProps
+            | undefined
+        )?.isCompact;
+
         return (
           <div
             key={child?.id}
@@ -86,6 +93,7 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrid
         componentNode={componentNode}
         hierarchyLevel={hierarchyLevel}
         summaryOverrides={summaryOverrides}
+        parentId={componentNode.baseId}
       />
     </section>
   );
