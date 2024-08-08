@@ -11,7 +11,6 @@ export const REPEATING_GROUP_SUMMARY_OVERRIDE_PROPS = new CG.obj()
 
 export const Config = new CG.component({
   category: CompCategory.Container,
-  rendersWithLabel: false,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
