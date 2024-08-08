@@ -727,6 +727,7 @@ describe('UI Components', () => {
 
   it('Map component with simpleBinding', () => {
     cy.intercept('GET', 'https://cache.kartverket.no/**/*.png', { fixture: 'map-tile.png' });
+    cy.intercept('GET', 'https://tile.openstreetmap.org/**/*.png', { fixture: 'map-tile.png' });
 
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('123');

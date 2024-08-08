@@ -4,17 +4,17 @@
   width: 100%;
 }
 
+/* We do not want the map to look faded in PDF, so using @media only screen */
+@media only screen {
+  .map-read-only :global(.leaflet-tile-pane) {
+    opacity: 0.5;
+  }
+}
+
 .map-error {
   border-color: var(--fds-semantic-border-danger-default);
   border-width: 2px;
   border-style: solid;
-}
-
-/* We do not want the map to look faded in PDF, so using @media only screen */
-@media only screen {
-  .tile-read-only {
-    opacity: 0.5;
-  }
 }
 
 .footer {

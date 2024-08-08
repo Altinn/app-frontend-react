@@ -23,6 +23,10 @@ const DefaultFlyToZoomLevel = 16;
 // Default map layers from Kartverket
 const DefaultMapLayers: MapLayer[] = [
   {
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+  },
+  {
     url: 'https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png',
     attribution: '&copy; <a href="http://www.kartverket.no/">Kartverket</a>',
   },
@@ -76,16 +80,13 @@ export function Map({ mapNode, isSummary, markerLocation, setMarkerLocation, cla
 
   return (
     <MapContainer
-      className={cn(classes.map, { [classes.mapSummary]: isSummary }, className)}
+      className={cn(classes.map, { [classes.mapReadOnly]: !isInteractive }, className)}
       center={locationToTuple(markerLocationIsValid ? markerLocation : centerLocation)}
       zoom={markerLocationIsValid ? 16 : zoom}
-      // Not having a map for outside mainland Norway is confusing,
-      // so setting some bounds on where the user can drag so they
-      // do not get lost
-      minZoom={4}
+      minZoom={3}
       maxBounds={[
-        [53, 0],
-        [75, 38],
+        [-90, -200],
+        [90, 200],
       ]}
       fadeAnimation={isInteractive}
       zoomControl={isInteractive}
@@ -108,7 +109,6 @@ export function Map({ mapNode, isSummary, markerLocation, setMarkerLocation, cla
           url={layer.url}
           attribution={layer.attribution}
           subdomains={layer.subdomains ? layer.subdomains : []}
-          className={cn({ [classes.tileReadOnly]: !isInteractive })}
         />
       ))}
       <AttributionControl prefix={false} />

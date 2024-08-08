@@ -74,6 +74,7 @@ describe('PDF', () => {
 
     // Add a delay to simulate slow loading map tiles
     cy.intercept('GET', 'https://cache.kartverket.no/**/*.png', { fixture: 'map-tile.png', delay: 50 });
+    cy.intercept('GET', 'https://tile.openstreetmap.org/**/*.png', { fixture: 'map-tile.png', delay: 50 });
     cy.get('#choose-extra').findByText('Kart').click();
     cy.gotoNavPage('map');
     cy.findByTestId(/^map-container/).click();
