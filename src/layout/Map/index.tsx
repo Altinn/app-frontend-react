@@ -37,6 +37,6 @@ export class Map extends MapDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Map'>): string[] {
-    return this.validateDataModelBindingsSimple(ctx);
+    return this.validateDataModelBindingsSimple(ctx, false);
   }
 }

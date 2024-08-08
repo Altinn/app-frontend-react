@@ -13,7 +13,9 @@ export const Config = new CG.component({
     renderInCardsMedia: false,
   },
 })
-  .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional())
+  .addDataModelBinding(
+    new CG.obj(new CG.prop('simpleBinding', new CG.str().optional())).exportAs('IDataModelBindingsForMap'),
+  )
   .addProperty(
     new CG.prop(
       'layers',

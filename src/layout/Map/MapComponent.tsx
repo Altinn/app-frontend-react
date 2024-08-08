@@ -15,7 +15,9 @@ export type IMapComponentProps = PropsFromGenericComponent<'Map'>;
 
 export function MapComponent({ node, isValid }: IMapComponentProps) {
   const { formData, setValue } = useDataModelBindings(node.item.dataModelBindings);
-  const markerLocation = parseLocation(formData.simpleBinding);
+
+  const markerBinding = formData.simpleBinding;
+  const markerLocation = markerBinding ? parseLocation(markerBinding) : undefined;
   const markerLocationIsValid = isLocationValid(markerLocation);
 
   const setMarkerLocation = useCallback(
@@ -35,20 +37,24 @@ export function MapComponent({ node, isValid }: IMapComponentProps) {
         <Map
           mapNode={node}
           markerLocation={markerLocation}
-          setMarkerLocation={setMarkerLocation}
+          setMarkerLocation={markerBinding ? setMarkerLocation : undefined}
         />
       </div>
       <Paragraph
         size='sm'
         className={classes.footer}
       >
-        {markerLocationIsValid ? (
-          <Lang
-            id={'map_component.selectedLocation'}
-            params={[markerLocation.latitude, markerLocation.longitude]}
-          />
-        ) : (
-          <Lang id={'map_component.noSelectedLocation'} />
+        {markerBinding && (
+          <>
+            {markerLocationIsValid ? (
+              <Lang
+                id={'map_component.selectedLocation'}
+                params={[markerLocation.latitude, markerLocation.longitude]}
+              />
+            ) : (
+              <Lang id={'map_component.noSelectedLocation'} />
+            )}
+          </>
         )}
       </Paragraph>
     </>
