@@ -3,10 +3,11 @@ import React from 'react';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useGetPage } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
+import type { CompInternal } from 'src/layout/layout';
 
 interface PageSummaryProps {
   pageId: string;
-  summaryOverrides: any;
+  summaryOverrides: CompInternal<'Summary2'>['overrides'];
 }
 
 export function PageSummary({ pageId, summaryOverrides }: PageSummaryProps) {
