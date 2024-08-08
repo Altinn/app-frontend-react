@@ -67,8 +67,10 @@ export function Map({ mapNode, isSummary, markerLocation, setMarkerLocation, cla
   const markerLocationIsValid = isLocationValid(markerLocation);
 
   useEffect(() => {
-    if (!isSummary && markerLocationIsValid && map) {
-      map.flyTo({ lat: markerLocation.latitude, lng: markerLocation.longitude }, DefaultFlyToZoomLevel);
+    if (markerLocationIsValid && map) {
+      map.flyTo({ lat: markerLocation.latitude, lng: markerLocation.longitude }, DefaultFlyToZoomLevel, {
+        animate: !isSummary,
+      });
     }
   }, [isSummary, markerLocationIsValid, map, markerLocation]);
 
