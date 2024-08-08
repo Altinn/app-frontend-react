@@ -12,6 +12,7 @@ export interface ISummaryComponent2 {
 }
 
 export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
+  // console.log('summaryNode', summaryNode.item.hideEmptyFields);
   if (!summaryNode.item.target) {
     return <LayoutSetSummary />;
   }

@@ -3,6 +3,7 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useNode } from 'src/utils/layout/NodesContext';
@@ -21,6 +22,12 @@ interface ResolveComponentProps {
 }
 export function ComponentSummary({ componentNode, summaryOverrides, isCompact }: ComponentSummaryProps) {
   const override = summaryOverrides?.find((override) => override.componentId === componentNode.item.id);
+
+  // console.log('componentNode.item.dataModelBindings?.simpleBinding', componentNode.item.dataModelBindings);
+
+  const { formData } = useDataModelBindings(componentNode.item.dataModelBindings);
+  console.log('formData', formData);
+  // console.log('binding', binding);
 
   const renderedComponent = componentNode.def.renderSummary2
     ? componentNode.def.renderSummary2(componentNode as LayoutNode<any>, override, isCompact)
@@ -50,7 +57,7 @@ export function ResolveComponent({ summaryProps, summaryOverrides }: ResolveComp
     window.logError('Tried to render component without component ID, please add id property to target.');
     throw new Error();
   }
-
+  // summaryProps.hideEmptyFields
   const resolvedComponent = useNode(summaryProps.target.id);
   if (!resolvedComponent) {
     return null;
