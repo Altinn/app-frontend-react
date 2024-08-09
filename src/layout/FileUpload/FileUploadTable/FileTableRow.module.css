@@ -22,6 +22,11 @@ tr.grayUnderline td {
   border-bottom: 1px solid var(--fds-semantic-border-neutral-default);
 }
 
+tr.blueUnderlineDotted:last-child td,
+tr.grayUnderline:last-child td {
+  border-bottom: none;
+}
+
 .altinnLoader {
   margin-bottom: 1rem;
   margin-right: 0.8125rem;

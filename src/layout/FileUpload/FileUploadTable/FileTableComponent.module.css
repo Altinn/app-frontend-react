@@ -7,14 +7,14 @@
 .tableMobile {
   width: 100%;
   table-layout: fixed;
-  margin-top: 1.5rem;
   margin-bottom: 12px;
   box-shadow: none;
   border-spacing: 0;
-}
 
-.summaryTableMargin {
-  margin-top: 0.6rem;
+  /* Note: This property has been moved to
+    FileUploadComponent.module.css->betweenTableAndDropMargin
+  */
+  /* margin-top: 1.5rem; */
 }
 
 .tableMobile tbody tr td {

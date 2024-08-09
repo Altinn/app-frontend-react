@@ -1,7 +1,5 @@
 import React from 'react';
 
-import classNames from 'classnames';
-
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { Lang } from 'src/features/language/Lang';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
@@ -50,10 +48,7 @@ export function FileTable({
 
   return (
     <table
-      className={classNames(
-        !mobileView ? classes.table : classes.tableMobile,
-        isSummary ? classes.summaryTableMargin : '',
-      )}
+      className={!mobileView ? classes.table : classes.tableMobile}
       data-testid={hasTag ? 'tagFile' : 'file-upload-table'}
       id={hasTag ? 'tagFile' : 'file-upload-table'}
     >
