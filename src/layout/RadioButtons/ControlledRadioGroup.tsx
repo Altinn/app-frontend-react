@@ -49,7 +49,6 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
       required={required}
       readOnly={readOnly}
       labelSettings={labelSettings}
-      addBottomPadding={false}
     />
   );
 

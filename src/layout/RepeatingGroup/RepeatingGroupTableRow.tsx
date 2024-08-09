@@ -180,7 +180,7 @@ function _RepeatingGroupTableRow({
         <Table.Cell className={classes.mobileTableCell}>
           <Grid
             container={true}
-            spacing={3}
+            spacing={6}
           >
             {tableNodes.map(
               (n, i, { length }) =>

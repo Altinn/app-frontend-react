@@ -73,6 +73,7 @@ const ChildComponents = ({ componentNode, hierarchyLevel, summaryOverrides, pare
 
 export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrides }: GroupComponentSummaryProps) => {
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
+  const summaryTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.summaryTitle);
   const description = useNodeItem(componentNode, (i) => i.textResourceBindings?.description);
   const headingLevel = getHeadingLevel(hierarchyLevel);
   const isNestedGroup = hierarchyLevel > 0;
@@ -83,7 +84,7 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrid
           size={isNestedGroup ? 'xsmall' : 'small'}
           level={headingLevel}
         >
-          <Lang id={title} />
+          <Lang id={summaryTitle ?? title} />
         </Heading>
         <Paragraph className={cn(classes.description)}>
           <Lang id={description} />

@@ -58,7 +58,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
           <Grid
             container={true}
             item={true}
-            spacing={3}
+            spacing={6}
             alignItems='flex-start'
           >
             <Grid
