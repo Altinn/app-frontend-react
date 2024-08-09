@@ -19,8 +19,9 @@ interface Props {
   node?: LayoutNode;
 }
 
-export function AllComponentValidations() {
-  const node = useCurrentNode();
+export function AllComponentValidations({ node: _node }: { node?: LayoutNode }) {
+  const currentNode = useCurrentNode();
+  const node = _node ?? currentNode;
   const validations = useUnifiedValidationsForNode(node);
   return <ComponentValidations validations={validations} />;
 }

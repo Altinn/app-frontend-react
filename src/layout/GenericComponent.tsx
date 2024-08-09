@@ -84,8 +84,9 @@ function _GenericComponent<Type extends CompTypes = CompTypes>({
   );
 }
 
-export const GenericComponent = React.memo(_GenericComponent);
-GenericComponent.displayName = 'GenericComponent';
+const MemoGenericComponent = React.memo(_GenericComponent);
+MemoGenericComponent.displayName = 'GenericComponent';
+export const GenericComponent = MemoGenericComponent as typeof _GenericComponent;
 
 function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   node,
@@ -108,17 +109,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   const id = item.id;
   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
   const isHidden = Hidden.useIsHidden(node);
-
-  // TODO: Fix after merge from main. Both this branch and the label-rewrite removed this code.
-  //  Make sure it's not duplicated somewhere else now.
-  // // If maxLength is set in both schema and component, don't display the schema error message
-  // const maxLength = 'maxLength' in node.item && node.item.maxLength;
-  // const filteredValidationErrors = maxLength
-  //   ? validations.filter(
-  //       (validation) =>
-  //         !(validation.message.key === 'validation_errors.maxLength' && validation.message.params?.at(0) === maxLength),
-  //     )
-  //   : validations;
 
   const formComponentContext = useMemo<IFormComponentContext>(
     () => ({

@@ -4,8 +4,7 @@ import type { PropsWithChildren } from 'react';
 import { Grid } from '@material-ui/core';
 
 import { Label } from 'src/components/label/Label';
-import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
+import { AllComponentValidations } from 'src/features/validation/ComponentValidations';
 import { gridBreakpoints } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LabelProps } from 'src/components/label/Label';
@@ -23,20 +22,9 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   children,
   label,
 }: PropsWithChildren<ComponentStructureWrapperProps<Type>>) {
-  const item = useNodeItem(node);
-  const id = item.id;
+  const id = node.id;
+  const innerGrid = useNodeItem(node, (i) => i.grid?.innerGrid);
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;
-
-  const validations = useUnifiedValidationsForNode(node);
-
-  // If maxLength is set in both schema and component, don't display the schema error message
-  const maxLength = 'maxLength' in node.item && node.item.maxLength;
-  const filteredValidationErrors = maxLength
-    ? validations.filter(
-        (validation) =>
-          !(validation.message.key === 'validation_errors.maxLength' && validation.message.params?.at(0) === maxLength),
-      )
-    : validations;
 
   const showValidationMessages = layoutComponent.renderDefaultValidations();
 
@@ -44,15 +32,10 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
     <Grid
       item
       id={`form-content-${id}`}
-      {...gridBreakpoints(node.item.grid?.innerGrid)}
+      {...gridBreakpoints(innerGrid)}
     >
       {children}
-      {showValidationMessages && (
-        <ComponentValidations
-          validations={filteredValidationErrors}
-          node={node}
-        />
-      )}
+      {showValidationMessages && <AllComponentValidations node={node} />}
     </Grid>
   );
 

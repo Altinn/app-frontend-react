@@ -67,7 +67,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
     >
       <ComponentStructureWrapper
         node={node}
-        label={{ ...node.item, renderLabelAs: 'label' }}
+        label={{ node, renderLabelAs: 'label' }}
       >
         <Combobox
           multiple

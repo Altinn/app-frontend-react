@@ -20,15 +20,21 @@ export type LabelProps = PropsWithChildren<{
   renderLabelAs: LabelType;
   className?: string;
   addBottomPadding?: boolean;
+
+  id?: string;
+  textResourceBindings?: ExprResolved<TRBLabel>;
 }>;
 
-export function Label({ node, renderLabelAs, children, className, addBottomPadding }: LabelProps) {
+export function Label({ node, renderLabelAs, children, className, addBottomPadding, ...rest }: LabelProps) {
   const item = useNodeItem(node);
-  const { id, grid, textResourceBindings: _trb } = item;
-  const textResourceBindings = _trb as ExprResolved<TRBLabel> | undefined;
+  const { id: nodeId, grid, textResourceBindings: _trb } = item;
   const required = 'required' in item && item.required;
   const readOnly = 'readOnly' in item && item.readOnly;
   const labelSettings = 'labelSettings' in item ? item.labelSettings : undefined;
+
+  // These can be overridden by props, but are otherwise retrieved from the node item
+  const id = rest.id ?? nodeId;
+  const textResourceBindings = (rest.textResourceBindings ?? _trb) as ExprResolved<TRBLabel> | undefined;
 
   if (!textResourceBindings?.title) {
     return <>{children}</>;

@@ -154,7 +154,7 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
   return (
     <ComponentStructureWrapper
       node={node}
-      label={{ ...node.item, renderLabelAs: 'label' }}
+      label={{ node, renderLabelAs: 'label' }}
     >
       <MuiPickersUtilsProvider utils={AltinnMomentUtils}>
         <Grid

@@ -69,7 +69,7 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
     >
       <ComponentStructureWrapper
         node={node}
-        label={overrideDisplay?.renderedInTable !== true ? { ...node.item, renderLabelAs: 'label' } : undefined}
+        label={overrideDisplay?.renderedInTable !== true ? { node, renderLabelAs: 'label' } : undefined}
       >
         <Combobox
           id={id}

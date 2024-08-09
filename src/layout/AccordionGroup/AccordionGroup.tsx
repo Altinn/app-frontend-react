@@ -12,7 +12,6 @@ type IAccordionGroupProps = PropsFromGenericComponent<'AccordionGroup'>;
 export const AccordionGroup = ({ node }: IAccordionGroupProps) => {
   const { childComponents } = useNodeItem(node);
 
-  // TODO: Clean this up after merge from main (do we need two providers?)
   return (
     <AccordionGroupProvider>
       <ComponentStructureWrapper node={node}>
@@ -20,9 +19,6 @@ export const AccordionGroup = ({ node }: IAccordionGroupProps) => {
           <GenericComponent<'Accordion'>
             key={n.id}
             node={n}
-            overrideItemProps={{
-              renderAsAccordionItem: true,
-            }}
           />
         ))}
       </ComponentStructureWrapper>

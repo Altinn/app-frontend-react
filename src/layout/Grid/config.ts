@@ -16,9 +16,7 @@ export const Config = new CG.component({
   functionality: {
     customExpressions: false,
   },
-}).addPlugin(new GridRowsPlugin());
-
-// We don't render the label in GenericComponent, but we still need the
-// text resource bindings for rendering them on our own
-//Config.addTextResourcesForLabel().inner.extends(CG.common('LabeledComponentProps'));
-// TODO: Fix this after merge from main. The performance branch removed it, maybe the label PR needed it?
+})
+  .addPlugin(new GridRowsPlugin())
+  .extends(CG.common('LabeledComponentProps'))
+  .extendTextResources(CG.common('TRBLabel'));

@@ -1,29 +1,7 @@
 import type { CompCategory } from 'src/layout/common';
 
-export enum LabelRendering {
-  /** Turns off label rendering */
-  Off = 'off',
-
-  /**
-   * Turns off label rendering (sets no text resource bindings for you), but enables labelSettings
-   * @see ILabelSettings
-   */
-  OnlySettings = 'onlySettings',
-
-  /**
-   * Renders the label automatically outside the component (from GenericComponent.tsx)
-   * @see GenericComponentLabel
-   * @see shouldRenderLabelInGenericComponent
-   */
-  FromGenericComponent = 'fromGenericComponent',
-
-  /** Lets you render the label yourself, inside the component code */
-  InSelf = 'inSelf',
-}
-
 export interface RequiredComponentConfig {
   category: CompCategory;
-  rendersWithLabel: LabelRendering;
   directRendering?: boolean;
   capabilities: CompCapabilities;
   functionality: FunctionalityConfig;

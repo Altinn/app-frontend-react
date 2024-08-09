@@ -27,6 +27,4 @@ export const Config = asUploaderComponent(
       description: 'The title to show when selecting a tag for each uploaded file',
     }),
   )
-  .addPlugin(new OptionsPlugin({ supportsPreselection: false, type: 'single' }))
-  .extends(CG.common('LabeledComponentProps'))
-  .extendTextResources(CG.common('TRBLabel'));
+  .addPlugin(new OptionsPlugin({ supportsPreselection: false, type: 'single' }));

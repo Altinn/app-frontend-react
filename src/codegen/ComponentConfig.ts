@@ -1,7 +1,6 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/Config';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
@@ -265,14 +264,6 @@ export class ComponentConfig {
     const symbol = this.typeSymbol;
     const category = this.config.category;
     const categorySymbol = CategoryImports[category].toTypeScript();
-
-    if (this.config.directRendering && this.config.rendersWithLabel === LabelRendering.FromGenericComponent) {
-      throw new Error(
-        `Component ${symbol} is set to directRendering, but also rendersWithLabel: LabelRendering.FromGenericComponent. ` +
-          `This is not allowed, as the label cannot be rendered outside the component when it is set ` +
-          `up to render directly.`,
-      );
-    }
 
     const StateFactoryProps = new CG.import({
       import: 'StateFactoryProps',

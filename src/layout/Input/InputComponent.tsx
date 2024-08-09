@@ -193,9 +193,9 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
     <ComponentStructureWrapper
       node={node}
       label={{
-        ...node.item,
+        node,
         textResourceBindings: {
-          ...node.item.textResourceBindings,
+          ...textResourceBindings,
           title: overrideDisplay?.renderLabel !== false ? textResourceBindings?.title : undefined,
         },
         renderLabelAs: 'label',

@@ -37,7 +37,7 @@ export function MapComponent({ node }: IMapComponentProps) {
     <ComponentStructureWrapper
       node={node}
       label={{
-        ...node.item,
+        node,
         renderLabelAs: 'span',
       }}
     >

@@ -29,7 +29,7 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
   return (
     <ComponentStructureWrapper
       node={node}
-      label={{ ...node.item, renderLabelAs: 'label' }}
+      label={{ node, renderLabelAs: 'label' }}
     >
       <Textarea
         id={id}

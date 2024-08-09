@@ -59,7 +59,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
     >
       <Table.Cell id={rowLabelId}>
         <Label
-          {...node.item}
+          node={node}
           renderLabelAs='legend'
           addBottomPadding={false}
         >

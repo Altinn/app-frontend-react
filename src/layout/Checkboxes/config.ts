@@ -51,7 +51,6 @@ export const Config = new CG.component({
       title: 'Alert on change',
       description: 'Boolean value indicating if the component should alert on change',
     }),
-  );
-
-// TODO: Fix after merge from main. I removed it, but the label rewrite required it?
-// Config.addTextResourcesForLabel().inner.extends(CG.common('LabeledComponentProps'));
+  )
+  .extends(CG.common('LabeledComponentProps'))
+  .extendTextResources(CG.common('TRBLabel'));

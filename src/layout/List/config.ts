@@ -16,6 +16,8 @@ export const Config = new CG.component({
     customExpressions: false,
   },
 })
+  .extends(CG.common('LabeledComponentProps'))
+  .extendTextResources(CG.common('TRBLabel'))
   .addDataModelBinding(new CG.obj().optional().additionalProperties(new CG.str()).exportAs('IDataModelBindingsForList'))
   .addProperty(
     new CG.prop(

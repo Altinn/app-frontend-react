@@ -3,7 +3,7 @@ import { CompCategory } from 'src/layout/common';
 import { NonRepeatingChildrenPlugin } from 'src/utils/layout/plugins/NonRepeatingChildrenPlugin';
 
 export const Config = new CG.component({
-  category: CompCategory.Presentation,
+  category: CompCategory.Container,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,

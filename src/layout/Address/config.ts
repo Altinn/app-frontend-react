@@ -69,4 +69,5 @@ export const Config = new CG.component({
         .setTitle('Simplified')
         .setDescription('Whether to use the simplified address input or not'),
     ),
-  );
+  )
+  .extends(CG.common('LabeledComponentProps'));

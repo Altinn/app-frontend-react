@@ -123,7 +123,7 @@ export const ListComponent = ({ node }: IListProps) => {
   return (
     <ComponentStructureWrapper
       node={node}
-      label={{ ...node.item, renderLabelAs: 'legend' }}
+      label={{ node, renderLabelAs: 'legend' }}
     >
       <div style={{ overflow: 'auto' }}>
         <LegacyResponsiveTable config={config} />

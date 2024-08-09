@@ -1,6 +1,5 @@
 import type { MutableRefObject } from 'react';
 
-import { LabelRendering } from 'src/codegen/Config';
 import { getComponentConfigs } from 'src/layout/components.generated';
 import type { CompBehaviors } from 'src/codegen/Config';
 import type { DisplayData } from 'src/features/displayData';
@@ -63,11 +62,6 @@ export function getComponentBehavior<T extends CompTypes, K extends keyof CompBe
   behavior: K,
 ): ComponentConfigs[T]['behaviors'][K] {
   return getComponentConfigs()[type].behaviors[behavior];
-}
-
-// TODO: Remove this after merge from main made it obsolete?
-export function shouldRenderLabelInGenericComponent<T extends CompTypes>(type: T): boolean {
-  return getComponentConfigs()[type].rendersWithLabel === LabelRendering.FromGenericComponent;
 }
 
 type TypeFromDef<Def extends CompDef> = Def extends CompDef<infer T> ? T : CompTypes;

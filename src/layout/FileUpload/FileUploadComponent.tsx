@@ -115,7 +115,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   return (
     <ComponentStructureWrapper
       node={node}
-      label={{ ...node.item, renderLabelAs: 'label' }}
+      label={{ node, renderLabelAs: 'label' }}
     >
       <div
         id={`altinn-fileuploader-${id}`}

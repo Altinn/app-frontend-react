@@ -113,7 +113,7 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
   return (
     <ComponentStructureWrapper
       node={node}
-      label={{ ...node.item, renderLabelAs: 'legend' }}
+      label={{ node, renderLabelAs: 'legend' }}
     >
       <InstanceInformation elements={elements} />
     </ComponentStructureWrapper>

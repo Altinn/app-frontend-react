@@ -28,16 +28,8 @@ const bindingKeys: IDataModelBindingsForAddress = {
 };
 
 export function AddressComponent({ node }: IAddressProps) {
-  const {
-    id,
-    required,
-    readOnly,
-    labelSettings,
-    simplified,
-    saveWhileTyping,
-    textResourceBindings,
-    dataModelBindings,
-  } = useNodeItem(node);
+  const { id, required, readOnly, simplified, saveWhileTyping, textResourceBindings, dataModelBindings } =
+    useNodeItem(node);
 
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
@@ -62,12 +54,10 @@ export function AddressComponent({ node }: IAddressProps) {
     >
       <div>
         <Label
+          node={node}
           id={`address_address_${id}`}
           renderLabelAs='label'
           textResourceBindings={{ title: textResourceBindings?.title ?? 'address_component.address' }}
-          readOnly={readOnly}
-          required={required}
-          labelSettings={labelSettings}
         >
           <Grid
             item
@@ -94,12 +84,9 @@ export function AddressComponent({ node }: IAddressProps) {
       {!simplified && (
         <div>
           <Label
-            id={`address_care_of_${id}`}
+            node={node}
             renderLabelAs='label'
             textResourceBindings={{ title: textResourceBindings?.careOfTitle ?? 'address_component.care_of' }}
-            readOnly={readOnly}
-            required={required}
-            labelSettings={labelSettings}
           >
             <Grid
               item
@@ -132,12 +119,10 @@ export function AddressComponent({ node }: IAddressProps) {
           className={`${classes.addressComponentZipCode} ${classes.addressComponentSmallInputs}`}
         >
           <Label
+            node={node}
             id={`address_zip_code_${id}`}
             renderLabelAs='label'
             textResourceBindings={{ title: textResourceBindings?.zipCodeTitle ?? 'address_component.zip_code' }}
-            readOnly={readOnly}
-            required={required}
-            labelSettings={labelSettings}
           >
             <Textfield
               id={`address_zip_code_${id}`}
@@ -159,12 +144,10 @@ export function AddressComponent({ node }: IAddressProps) {
           className={classes.addressComponentPostplace}
         >
           <Label
+            node={node}
             id={`address_post_place_${id}`}
             renderLabelAs='label'
             textResourceBindings={{ title: textResourceBindings?.postPlaceTitle ?? 'address_component.post_place' }}
-            readOnly={readOnly}
-            required={required}
-            labelSettings={labelSettings}
           >
             <Textfield
               id={`address_post_place_${id}`}
@@ -186,15 +169,13 @@ export function AddressComponent({ node }: IAddressProps) {
       {!simplified && (
         <div>
           <Label
+            node={node}
             id={`address_house_number_${id}`}
             renderLabelAs='label'
             textResourceBindings={{
               title: textResourceBindings?.houseNumberTitle ?? 'address_component.house_number',
               help: 'address_component.house_number_helper',
             }}
-            readOnly={readOnly}
-            required={required}
-            labelSettings={labelSettings}
           >
             <div className={classes.addressComponentSmallInputs}>
               <Textfield

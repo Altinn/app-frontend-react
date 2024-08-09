@@ -52,4 +52,6 @@ export const Config = new CG.component({
         .setTitle('Show as card')
         .setDescription('Boolean value indicating if the options should be displayed as cards. Defaults to false.'),
     ),
-  );
+  )
+  .extends(CG.common('LabeledComponentProps'))
+  .extendTextResources(CG.common('TRBLabel'));
