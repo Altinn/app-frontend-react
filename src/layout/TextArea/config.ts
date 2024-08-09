@@ -1,5 +1,4 @@
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/Config';
 import { CompCategory } from 'src/layout/common';
 
 export const TEXTAREA_SUMMARY_PROPS = new CG.obj()
@@ -11,7 +10,6 @@ export const TEXTAREA_SUMMARY_PROPS = new CG.obj()
 
 export const Config = new CG.component({
   category: CompCategory.Form,
-  rendersWithLabel: LabelRendering.FromGenericComponent,
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: false,
@@ -38,4 +36,6 @@ export const Config = new CG.component({
           'Max length of the input field. Will add a counter to let the user know how many characters are left.',
         ),
     ),
-  );
+  )
+  .extends(CG.common('LabeledComponentProps'))
+  .extendTextResources(CG.common('TRBLabel'));

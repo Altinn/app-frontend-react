@@ -1,12 +1,10 @@
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/Config';
 import { OptionsPlugin } from 'src/features/options/OptionsPlugin';
 import { CompCategory } from 'src/layout/common';
 import { LikertRowsPlugin } from 'src/layout/Likert/Generator/LikertRowsPlugin';
 
 export const Config = new CG.component({
   category: CompCategory.Form,
-  rendersWithLabel: LabelRendering.Off,
   directRendering: true,
   capabilities: {
     renderInTable: false,

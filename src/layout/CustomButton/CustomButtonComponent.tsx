@@ -11,6 +11,7 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { promisify } from 'src/utils/promisify';
@@ -211,15 +212,17 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const { color, variant } = buttonStyles[buttonStyle];
 
   return (
-    <Button
-      id={`custom-button-${id}`}
-      disabled={disabled}
-      onClick={onClick}
-      color={color}
-      variant={variant}
-      aria-busy={isPending}
-    >
-      <Lang id={textResourceBindings?.title} />
-    </Button>
+    <ComponentStructureWrapper node={node}>
+      <Button
+        id={`custom-button-${id}`}
+        disabled={disabled}
+        onClick={onClick}
+        color={color}
+        variant={variant}
+        aria-busy={isPending}
+      >
+        <Lang id={textResourceBindings?.title} />
+      </Button>
+    </ComponentStructureWrapper>
   );
 };

@@ -1,11 +1,9 @@
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/Config';
 import { CardsPlugin } from 'src/layout/Cards/CardsPlugin';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Container,
-  rendersWithLabel: LabelRendering.Off,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,

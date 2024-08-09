@@ -12,6 +12,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { useIsMobile } from 'src/hooks/useIsMobile';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { getDateConstraint, getDateFormat, getDateString } from 'src/utils/dateHelpers';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -151,7 +152,10 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
     : {};
 
   return (
-    <>
+    <ComponentStructureWrapper
+      node={node}
+      label={{ ...node.item, renderLabelAs: 'label' }}
+    >
       <MuiPickersUtilsProvider utils={AltinnMomentUtils}>
         <Grid
           container
@@ -229,6 +233,6 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
           />
         </Grid>
       </MuiPickersUtilsProvider>
-    </>
+    </ComponentStructureWrapper>
   );
 }

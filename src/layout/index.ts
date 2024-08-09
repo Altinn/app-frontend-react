@@ -65,6 +65,7 @@ export function getComponentBehavior<T extends CompTypes, K extends keyof CompBe
   return getComponentConfigs()[type].behaviors[behavior];
 }
 
+// TODO: Remove this after merge from main made it obsolete?
 export function shouldRenderLabelInGenericComponent<T extends CompTypes>(type: T): boolean {
   return getComponentConfigs()[type].rendersWithLabel === LabelRendering.FromGenericComponent;
 }

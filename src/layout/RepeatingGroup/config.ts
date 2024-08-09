@@ -1,5 +1,4 @@
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/Config';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 import { GridRowsPlugin } from 'src/layout/Grid/GridRowsPlugin';
@@ -7,7 +6,6 @@ import { RepeatingChildrenPlugin } from 'src/utils/layout/plugins/RepeatingChild
 
 export const Config = new CG.component({
   category: CompCategory.Container,
-  rendersWithLabel: LabelRendering.Off,
   directRendering: true,
   capabilities: {
     renderInTable: false,

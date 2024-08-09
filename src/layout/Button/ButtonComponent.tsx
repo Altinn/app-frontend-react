@@ -7,6 +7,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { ProcessTaskType } from 'src/types';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -64,16 +65,18 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     }
   };
   return (
-    <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
-      <SubmitButton
-        nodeId={node.id}
-        onClick={submitTask}
-        busyWithId={busyWithId}
-        disabled={disabled}
-        message={attachmentsPending ? langAsString('general.wait_for_attachments') : undefined}
-      >
-        <Lang id={item.textResourceBindings?.title} />
-      </SubmitButton>
-    </div>
+    <ComponentStructureWrapper node={node}>
+      <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
+        <SubmitButton
+          nodeId={node.id}
+          onClick={submitTask}
+          busyWithId={busyWithId}
+          disabled={disabled}
+          message={attachmentsPending ? langAsString('general.wait_for_attachments') : undefined}
+        >
+          <Lang id={item.textResourceBindings?.title} />
+        </SubmitButton>
+      </div>
+    </ComponentStructureWrapper>
   );
 };

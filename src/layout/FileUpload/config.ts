@@ -1,5 +1,4 @@
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/Config';
 import { AlertOnChangePlugin } from 'src/features/alertOnChange/AlertOnChangePlugin';
 import { AttachmentsPlugin } from 'src/features/attachments/AttachmentsPlugin';
 import { CompCategory } from 'src/layout/common';
@@ -8,7 +7,6 @@ import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 export const Config = asUploaderComponent(
   new CG.component({
     category: CompCategory.Form,
-    rendersWithLabel: LabelRendering.FromGenericComponent,
     capabilities: {
       renderInTable: false,
       renderInButtonGroup: false,
@@ -78,5 +76,7 @@ export function asUploaderComponent(config: ComponentConfig) {
         description:
           'Boolean value indicating if warning popup should be displayed when attempting to delete an element',
       }),
-    );
+    )
+    .extends(CG.common('LabeledComponentProps'))
+    .extendTextResources(CG.common('TRBLabel'));
 }

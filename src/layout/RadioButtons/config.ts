@@ -1,5 +1,4 @@
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/Config';
 import { AlertOnChangePlugin } from 'src/features/alertOnChange/AlertOnChangePlugin';
 import { OptionsPlugin } from 'src/features/options/OptionsPlugin';
 import { CompCategory } from 'src/layout/common';
@@ -13,7 +12,6 @@ export const RADIO_SUMMARY_OVERRIDE_PROPS = new CG.obj()
 
 export const Config = new CG.component({
   category: CompCategory.Form,
-  rendersWithLabel: LabelRendering.InSelf,
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: false,

@@ -1,11 +1,9 @@
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/Config';
 import { CompCategory } from 'src/layout/common';
 import { GridRowsPlugin } from 'src/layout/Grid/GridRowsPlugin';
 
 export const Config = new CG.component({
   category: CompCategory.Container,
-  rendersWithLabel: LabelRendering.InSelf,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
@@ -19,3 +17,8 @@ export const Config = new CG.component({
     customExpressions: false,
   },
 }).addPlugin(new GridRowsPlugin());
+
+// We don't render the label in GenericComponent, but we still need the
+// text resource bindings for rendering them on our own
+//Config.addTextResourcesForLabel().inner.extends(CG.common('LabeledComponentProps'));
+// TODO: Fix this after merge from main. The performance branch removed it, maybe the label PR needed it?

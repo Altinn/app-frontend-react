@@ -1,7 +1,5 @@
 import React from 'react';
 
-import cn from 'classnames';
-
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -15,6 +13,7 @@ import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
+import { typedBoolean } from 'src/utils/typing';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -86,15 +85,12 @@ function RegularRepeatingGroup(props: FullProps) {
         style={{ width: '100%' }}
       >
         <div className={classes.container}>
-          <span
-            className={cn(classes.label, groupHasErrors && !display?.hideValidationMessages && classes.labelWithError)}
-          >
+          <span className={classes.label}>
             <Lang
               id={summaryTitleTrb ?? titleTrb}
               node={targetNode}
             />
           </span>
-
           {!display?.hideChangeButton ? (
             <EditButton
               onClick={onChangeClick}
@@ -154,23 +150,11 @@ function RegularRepeatingGroupRow({
   const childSummaryComponents = children
     .filter((n) => !inExcludedChildren(n))
     .map((child) => {
-      if (isHidden(child) || !child.isCategory(CompCategory.Form)) {
-        return;
+      if (!isHidden(child) && child.isCategory(CompCategory.Form)) {
+        return { component: child.def.renderCompactSummary.bind(child.def), child };
       }
-      const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<
-        SummaryRendererProps<any>
-      >;
-      return (
-        <RenderCompactSummary
-          onChangeClick={onChangeClick}
-          changeText={changeText}
-          key={child.id}
-          targetNode={child}
-          summaryNode={summaryNode}
-          overrides={{}}
-        />
-      );
-    });
+    })
+    .filter(typedBoolean);
 
   return (
     <div
@@ -178,7 +162,16 @@ function RegularRepeatingGroupRow({
       key={`row-${row.uuid}`}
       className={classes.border}
     >
-      {childSummaryComponents}
+      {childSummaryComponents.map(({ component: RenderCompactSummary, child }) => (
+        <RenderCompactSummary
+          onChangeClick={onChangeClick}
+          changeText={changeText}
+          key={child.id}
+          targetNode={child as never} // FIXME: Never type
+          summaryNode={summaryNode}
+          overrides={{}}
+        />
+      ))}
     </div>
   );
 }

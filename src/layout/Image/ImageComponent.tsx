@@ -7,6 +7,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useParentCard } from 'src/layout/Cards/CardContext';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -52,33 +53,35 @@ export function ImageComponent({ node }: IImageProps) {
   }
 
   return (
-    <Grid
-      container
-      direction='row'
-      justifyContent={align}
-      spacing={1}
-    >
-      <Grid item={true}>
-        <InnerImage
-          id={id}
-          renderSvg={renderSvg}
-          altText={altText}
-          imgSrc={imgSrc}
-          width={width}
-        />
-      </Grid>
-      {textResourceBindings?.help && (
-        <Grid
-          item={true}
-          className={classes.spacing}
-        >
-          <HelpTextContainer
-            helpText={<Lang id={textResourceBindings.help} />}
-            title={altText}
+    <ComponentStructureWrapper node={node}>
+      <Grid
+        container
+        direction='row'
+        justifyContent={align}
+        spacing={1}
+      >
+        <Grid item={true}>
+          <InnerImage
+            id={id}
+            renderSvg={renderSvg}
+            altText={altText}
+            imgSrc={imgSrc}
+            width={width}
           />
         </Grid>
-      )}
-    </Grid>
+        {textResourceBindings?.help && (
+          <Grid
+            item={true}
+            className={classes.spacing}
+          >
+            <HelpTextContainer
+              helpText={<Lang id={textResourceBindings.help} />}
+              title={altText}
+            />
+          </Grid>
+        )}
+      </Grid>
+    </ComponentStructureWrapper>
   );
 }
 

@@ -1,11 +1,9 @@
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/Config';
 import { CompCategory } from 'src/layout/common';
 import { TabsPlugin } from 'src/layout/Tabs/TabsPlugin';
 
 export const Config = new CG.component({
   category: CompCategory.Container,
-  rendersWithLabel: LabelRendering.Off,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,

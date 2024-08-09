@@ -4,7 +4,7 @@ import type { JSX, PropsWithChildren } from 'react';
 import { ErrorMessage, Paragraph, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
-import { Label } from 'src/components/form/Label';
+import { LabelContent } from 'src/components/label/LabelContent';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -19,6 +19,7 @@ import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButt
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { typedBoolean } from 'src/utils/typing';
 import type {
   GridCellLabelFrom,
   GridCellText,
@@ -29,9 +30,9 @@ import type { GridCellInternal, GridCellNode, GridRowInternal } from 'src/layout
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type GridSummaryProps = {
+type GridSummaryProps = Readonly<{
   componentNode: LayoutNode<'Grid'>;
-};
+}>;
 
 export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   const { rowsInternal, textResourceBindings } = useNodeItem(componentNode);
@@ -147,12 +148,13 @@ export function GridRowRenderer(props: GridRowProps) {
     firstComponentCell.node.isCategory(CompCategory.Form) &&
     firstComponentCell.node;
 
-  return isGridRowHidden(row, isHiddenSelector) ? null : (
-    <InternalRow
-      header={row.header}
-      readOnly={row.readOnly}
-    >
-      {row.cells.map((cell, cellIdx) => (
+  if (isGridRowHidden(row, isHiddenSelector)) {
+    return null;
+  }
+
+  return (
+    <InternalRow readOnly={row.readOnly}>
+      {row.cells.filter(typedBoolean).map((cell, cellIdx) => (
         <Cell
           key={cellIdx}
           cell={cell}
@@ -391,14 +393,11 @@ function CellWithLabel({ cell, columnStyleOptions, isHeader = false, headerTitle
       data-header-title={isSmall ? headerTitle : ''}
     >
       {componentId && (
-        <span className={classes.textLabel}>
-          <Label
-            key={`label-${componentId}`}
-            label={<Lang id={title} />}
-            id={componentId}
-            required={required}
-          />
-        </span>
+        <LabelContent
+          id={`label-${componentId}`}
+          label={title}
+          required={required}
+        />
       )}
     </CellComponent>
   );

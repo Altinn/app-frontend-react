@@ -11,6 +11,7 @@ import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useParties } from 'src/features/party/PartiesProvider';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { getDateFormat } from 'src/utils/dateHelpers';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
@@ -109,5 +110,12 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
 
 export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
   const elements = useNodeItem(node, (i) => i.elements);
-  return <InstanceInformation elements={elements} />;
+  return (
+    <ComponentStructureWrapper
+      node={node}
+      label={{ ...node.item, renderLabelAs: 'legend' }}
+    >
+      <InstanceInformation elements={elements} />
+    </ComponentStructureWrapper>
+  );
 }

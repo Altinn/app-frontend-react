@@ -5,12 +5,9 @@ import classNames from 'classnames';
 
 import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
-import { AllComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
-import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/GenericComponentUtils';
-import { shouldRenderLabelInGenericComponent } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { ComponentErrorBoundary } from 'src/utils/layout/ComponentErrorBoundary';
@@ -112,6 +109,17 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
   const isHidden = Hidden.useIsHidden(node);
 
+  // TODO: Fix after merge from main. Both this branch and the label-rewrite removed this code.
+  //  Make sure it's not duplicated somewhere else now.
+  // // If maxLength is set in both schema and component, don't display the schema error message
+  // const maxLength = 'maxLength' in node.item && node.item.maxLength;
+  // const filteredValidationErrors = maxLength
+  //   ? validations.filter(
+  //       (validation) =>
+  //         !(validation.message.key === 'validation_errors.maxLength' && validation.message.params?.at(0) === maxLength),
+  //     )
+  //   : validations;
+
   const formComponentContext = useMemo<IFormComponentContext>(
     () => ({
       grid: item.grid,
@@ -190,8 +198,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     overrideDisplay,
   };
 
-  const showValidationMessages = layoutComponent.renderDefaultValidations();
-
   if ('renderAsSummary' in item && item.renderAsSummary) {
     const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
 
@@ -228,8 +234,8 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         data-componentid={node.id}
         data-componenttype={node.type}
         ref={containerDivRef}
-        item={true}
-        container={true}
+        item
+        container
         {...gridBreakpoints(item.grid)}
         key={`grid-${id}`}
         className={classNames(
@@ -239,24 +245,26 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         )}
         alignItems='baseline'
       >
-        {shouldRenderLabelInGenericComponent(node.type) && overrideDisplay?.renderLabel !== false && (
-          <Grid
-            item={true}
-            {...gridBreakpoints(item.grid?.labelGrid)}
-          >
-            <GenericComponentLabel />
-            <GenericComponentDescription />
-          </Grid>
-        )}
-        <Grid
-          key={`form-content-${id}`}
-          item={true}
-          id={`form-content-${id}`}
-          {...gridBreakpoints(item.grid?.innerGrid)}
-        >
-          <RenderComponent {...componentProps} />
-          {showValidationMessages && <AllComponentValidations />}
-        </Grid>
+        {/*TODO: Fix after merge from main. The code was: */}
+        {/*{shouldRenderLabelInGenericComponent(node.type) && overrideDisplay?.renderLabel !== false && (*/}
+        {/*  <Grid*/}
+        {/*    item={true}*/}
+        {/*    {...gridBreakpoints(item.grid?.labelGrid)}*/}
+        {/*  >*/}
+        {/*    <GenericComponentLabel />*/}
+        {/*    <GenericComponentDescription />*/}
+        {/*  </Grid>*/}
+        {/*)}*/}
+        {/*<Grid*/}
+        {/*  key={`form-content-${id}`}*/}
+        {/*  item={true}*/}
+        {/*  id={`form-content-${id}`}*/}
+        {/*  {...gridBreakpoints(item.grid?.innerGrid)}*/}
+        {/*>*/}
+        {/*  <RenderComponent {...componentProps} />*/}
+        {/*  {showValidationMessages && <AllComponentValidations />}*/}
+        {/*</Grid>*/}
+        <RenderComponent {...componentProps} />
       </Grid>
     </FormComponentContextProvider>
   );

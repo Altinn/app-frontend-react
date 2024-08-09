@@ -94,7 +94,7 @@ export type ValidLanguageKey = ObjectToDotNotation<FixedLanguageList>;
  */
 export function useLanguage(node?: LayoutNode) {
   const componentCtx = useFormComponentCtx();
-  const nearestNode = node || componentCtx?.node;
+  const nearestNode = node ?? componentCtx?.node;
 
   return useLanguageWithForcedNode(nearestNode);
 }

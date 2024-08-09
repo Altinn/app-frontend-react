@@ -1,5 +1,4 @@
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/Config';
 import { CHECKBOX_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Checkboxes/config';
 import { CompCategory } from 'src/layout/common';
 import { DROPDOWN_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Dropdown/config';
@@ -11,7 +10,6 @@ import { TEXTAREA_SUMMARY_PROPS } from 'src/layout/TextArea/config';
 
 export const Config = new CG.component({
   category: CompCategory.Presentation,
-  rendersWithLabel: LabelRendering.Off,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,

@@ -6,24 +6,24 @@ import type { CompInternal } from 'src/layout/layout';
 
 interface LayoutSetSummaryProps {
   layoutSetId?: string;
-  summaryOverrides?: CompInternal<'Summary2'>['overrides'];
+  summaryOverrides?: CompInternal<'Summary2'>['overrides']; // TODO: Remove this after merge from main? It was removed there
 }
 
-export function LayoutSetSummary({ layoutSetId, summaryOverrides }: LayoutSetSummaryProps) {
+export function LayoutSetSummary({ layoutSetId }: LayoutSetSummaryProps) {
   const pageOrder = usePageOrder();
 
-  return pageOrder
-    .filter((layoutId) => {
-      if (!layoutSetId) {
-        return layoutId;
-      }
-      return layoutId === layoutSetId;
-    })
-    .map((layoutId) => (
-      <PageSummary
-        pageId={layoutId}
-        key={layoutId}
-        summaryOverrides={summaryOverrides}
-      />
-    ));
+  const filteredPages = pageOrder.filter((layoutId) => {
+    if (!layoutSetId) {
+      return layoutId;
+    }
+    return layoutId === layoutSetId;
+  });
+
+  return filteredPages.map((layoutId) => (
+    <PageSummary
+      pageId={layoutId}
+      key={layoutId}
+      summaryOverrides={undefined} // FIXME: should have overrides? From where?
+    />
+  ));
 }

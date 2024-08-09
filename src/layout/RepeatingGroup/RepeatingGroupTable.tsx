@@ -109,7 +109,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
         />
         {showTableHeader && !mobileView && (
           <Table.Head id={`group-${id}-table-header`}>
-            <Table.Row className={classes.repeatingGroupRow}>
+            <Table.Row>
               {tableNodes?.map((n) => (
                 <TitleCell
                   key={n.id}
@@ -230,15 +230,22 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
 
   return (
     <>
-      {rows.map((row, index) => (
-        <GridRowRenderer
-          key={`grid${where}-${index}`}
-          row={{ ...row, cells: [...row.cells, ...extraCells] }}
-          isNested={isNested}
-          mutableColumnSettings={columnSettings}
-          node={node}
-        />
-      ))}
+      {rows.map((row, index) => {
+        const gridRow = (
+          <GridRowRenderer
+            key={`grid${where}-${index}`}
+            row={{ ...row, cells: [...row.cells, ...extraCells] }}
+            isNested={isNested}
+            mutableColumnSettings={columnSettings}
+            node={node}
+          />
+        );
+        if (row.header) {
+          return <Table.Head key={`grid${where}-${index}`}>{gridRow}</Table.Head>;
+        }
+
+        return <Table.Body key={`grid${where}-${index}`}>{gridRow}</Table.Body>;
+      })}
     </>
   );
 }

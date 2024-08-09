@@ -73,16 +73,17 @@ export class ComponentConfig {
       this.addPlugin(new ValidationPlugin());
     }
 
-    if (
-      config.rendersWithLabel === LabelRendering.FromGenericComponent ||
-      config.rendersWithLabel === LabelRendering.InSelf
-    ) {
-      this.inner.extends(CG.common('LabeledComponentProps'));
-      this.extendTextResources(CG.common('TRBLabel'));
-      this.behaviors.canHaveLabel = true;
-    } else if (config.rendersWithLabel === LabelRendering.OnlySettings) {
-      this.inner.extends(CG.common('LabeledComponentProps'));
-    }
+    // TODO: After merge from main, verify that this behaviour is preserved in some way
+    // if (
+    //   config.rendersWithLabel === LabelRendering.FromGenericComponent ||
+    //   config.rendersWithLabel === LabelRendering.InSelf
+    // ) {
+    //   this.inner.extends(CG.common('LabeledComponentProps'));
+    //   this.extendTextResources(CG.common('TRBLabel'));
+    //   this.behaviors.canHaveLabel = true;
+    // } else if (config.rendersWithLabel === LabelRendering.OnlySettings) {
+    //   this.inner.extends(CG.common('LabeledComponentProps'));
+    // }
   }
 
   public setType(type: string, symbol?: string): this {
@@ -221,11 +222,6 @@ export class ComponentConfig {
       from: `./index`,
     });
 
-    const labelRendering = new CG.import({
-      import: 'LabelRendering',
-      from: `src/codegen/Config`,
-    });
-
     const nodeObj = this.layoutNodeType.toTypeScript();
     const nodeSuffix = this.layoutNodeType === baseLayoutNode ? `<'${this.type}'>` : '';
 
@@ -249,7 +245,6 @@ export class ComponentConfig {
       `export function getConfig() {
          return {
            def: new ${impl.toTypeScript()}(),
-           rendersWithLabel: ${labelRendering.toTypeScript()}.${ucFirst(this.config.rendersWithLabel)} as const,
            nodeConstructor: ${nodeObj},
            capabilities: ${JSON.stringify(this.config.capabilities, null, 2)} as const,
            behaviors: ${JSON.stringify(this.behaviors, null, 2)} as const,

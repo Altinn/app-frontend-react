@@ -17,21 +17,42 @@ export function SummaryItemCompact({ targetNode, displayData }: ICompactSummaryI
   const summaryTitleTrb =
     textBindings && 'summaryTitle' in textBindings ? (textBindings.summaryTitle as string) : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
-  const { langAsString } = useLanguage(targetNode);
 
   return (
     <div data-testid={'summary-item-compact'}>
-      {(summaryTitleTrb ?? titleTrb) && <span>{`${langAsString(summaryTitleTrb ?? titleTrb).trim()} : `}</span>}
-      {displayData ? (
-        <span className={classes.data}>{displayData}</span>
-      ) : (
-        <span className={classes.emptyField}>
-          <Lang
-            id={'general.empty_summary'}
-            node={targetNode}
-          />
-        </span>
-      )}
+      {/* FIXME: is data-testid actually necessary? Can we get it in tests in other ways? */}
+      <SummaryTitle
+        title={summaryTitleTrb ?? titleTrb}
+        targetNode={targetNode}
+      />
+      <DisplayData
+        displayData={displayData}
+        targetNode={targetNode}
+      />
     </div>
   );
 }
+
+const SummaryTitle = ({ title, targetNode }: { title: string | undefined; targetNode: LayoutNode }) => {
+  const { langAsString } = useLanguage(targetNode);
+  if (!title) {
+    return null;
+  }
+  return (
+    <span>
+      <span>{`${langAsString(title).trim()} : `}</span>
+    </span>
+  );
+};
+
+const DisplayData = ({ displayData, targetNode }: { displayData: string; targetNode: LayoutNode }) =>
+  displayData ? (
+    <span className={classes.data}>{displayData}</span>
+  ) : (
+    <span className={classes.emptyField}>
+      <Lang
+        id={'general.empty_summary'}
+        node={targetNode}
+      />
+    </span>
+  );

@@ -1,5 +1,4 @@
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/Config';
 import { AlertOnChangePlugin } from 'src/features/alertOnChange/AlertOnChangePlugin';
 import { OptionsPlugin } from 'src/features/options/OptionsPlugin';
 import { CompCategory } from 'src/layout/common';
@@ -21,7 +20,6 @@ export const CHECKBOX_SUMMARY_OVERRIDE_PROPS = new CG.obj(
 
 export const Config = new CG.component({
   category: CompCategory.Form,
-  rendersWithLabel: LabelRendering.InSelf,
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: false,
@@ -54,3 +52,6 @@ export const Config = new CG.component({
       description: 'Boolean value indicating if the component should alert on change',
     }),
   );
+
+// TODO: Fix after merge from main. I removed it, but the label rewrite required it?
+// Config.addTextResourcesForLabel().inner.extends(CG.common('LabeledComponentProps'));
