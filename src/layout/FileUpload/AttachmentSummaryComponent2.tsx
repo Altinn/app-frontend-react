@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { Label } from '@digdir/designsystemet-react';
-
+import { Label } from 'src/components/form/Label';
 import {
   AttachmentsMappedToFormDataProvider,
   useAttachmentsMappedToFormData,
@@ -31,9 +30,11 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
 
   return (
     <AttachmentsMappedToFormDataProvider mappingTools={mappingTools}>
-      <Label weight={'regular'}>
-        <Lang id={targetNode.item.textResourceBindings?.title} />
-      </Label>
+      <Label
+        label={<Lang id={targetNode.item.textResourceBindings?.title} />}
+        id={`attachment_summary2_${targetNode.item.id}`}
+        readOnly={true}
+      />
       <FileTable
         node={targetNode}
         mobileView={isSmall}
