@@ -1,9 +1,12 @@
 import React from 'react';
 
+import { Label } from '@digdir/designsystemet-react';
+
 import {
   AttachmentsMappedToFormDataProvider,
   useAttachmentsMappedToFormData,
 } from 'src/features/attachments/useAttachmentsMappedToFormData';
+import { Lang } from 'src/features/language/Lang';
 import { useAllOptions } from 'src/features/options/useAllOptions';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
@@ -28,6 +31,9 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
 
   return (
     <AttachmentsMappedToFormDataProvider mappingTools={mappingTools}>
+      <Label weight={'regular'}>
+        <Lang id={targetNode.item.textResourceBindings?.title} />
+      </Label>
       <FileTable
         node={targetNode}
         mobileView={isSmall}
