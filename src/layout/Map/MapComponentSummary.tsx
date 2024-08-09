@@ -6,7 +6,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { Map } from 'src/layout/Map/Map';
 import classes from 'src/layout/Map/MapComponent.module.css';
-import { parseLocation } from 'src/layout/Map/utils';
+import { isLocationValid, parseLocation } from 'src/layout/Map/utils';
 import type { RawGeometry } from 'src/layout/Map/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -15,38 +15,40 @@ export interface IMapComponentSummary {
 }
 
 export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
+  const { simpleBinding: markerBinding } = targetNode.item.dataModelBindings;
   const formDataSelector = FD.useDebouncedSelector();
   const formData = targetNode.getFormData(formDataSelector);
   const markerLocation = parseLocation(formData.simpleBinding);
+  const markerLocationIsValid = isLocationValid(markerLocation);
   const geometries = formData.geometries as RawGeometry[] | undefined;
 
-  if (markerLocation) {
+  if (markerBinding && !markerLocationIsValid) {
     return (
-      <>
-        <Map
-          mapNode={targetNode}
-          markerLocation={markerLocation}
-          geometries={geometries}
-          isSummary={true}
-        />
-        <Typography className={classes.footer}>
-          {markerLocation && (
-            <Lang
-              id={'map_component.selectedLocation'}
-              params={[markerLocation.latitude, markerLocation.longitude]}
-            />
-          )}
-        </Typography>
-      </>
+      <Typography
+        variant='body1'
+        className={classes.emptyField}
+      >
+        <Lang id={'general.empty_summary'} />
+      </Typography>
     );
   }
 
   return (
-    <Typography
-      variant='body1'
-      className={classes.emptyField}
-    >
-      <Lang id={'general.empty_summary'} />
-    </Typography>
+    <>
+      <Map
+        mapNode={targetNode}
+        markerLocation={markerLocation}
+        geometries={geometries}
+        isSummary={true}
+      />
+      {markerLocation && (
+        <Typography className={classes.footer}>
+          <Lang
+            id={'map_component.selectedLocation'}
+            params={[markerLocation.latitude, markerLocation.longitude]}
+          />
+        </Typography>
+      )}
+    </>
   );
 }

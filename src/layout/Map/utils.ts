@@ -1,4 +1,5 @@
 import { type GeoJSON } from 'geojson';
+import { geoJson, LatLngBounds } from 'leaflet';
 import WKT from 'terraformer-wkt-parser';
 
 import type { IGeometryType, Location } from 'src/layout/Map/config.generated';
@@ -62,4 +63,27 @@ export function parseGeometries(
   }
 
   return out;
+}
+
+export function calculateBounds(geometries: Geometry[] | undefined): LatLngBounds | undefined {
+  if (!geometries?.length) {
+    return undefined;
+  }
+
+  const bounds: [[number, number], [number, number]] = geometries.reduce(
+    (currentBounds, { data }) => {
+      const bounds = geoJson(data).getBounds();
+      currentBounds[0][0] = Math.min(bounds.getSouth(), currentBounds[0][0]);
+      currentBounds[0][1] = Math.min(bounds.getWest(), currentBounds[0][1]);
+      currentBounds[1][0] = Math.max(bounds.getNorth(), currentBounds[1][0]);
+      currentBounds[1][1] = Math.max(bounds.getEast(), currentBounds[1][1]);
+      return currentBounds;
+    },
+    [
+      [90, 180],
+      [-90, -180],
+    ],
+  );
+
+  return new LatLngBounds(bounds);
 }

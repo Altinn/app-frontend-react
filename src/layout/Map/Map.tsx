@@ -8,7 +8,7 @@ import RetinaIcon from 'leaflet/dist/images/marker-icon-2x.png';
 import IconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 import classes from 'src/layout/Map/MapComponent.module.css';
-import { isLocationValid, locationToTuple, parseGeometries } from 'src/layout/Map/utils';
+import { calculateBounds, isLocationValid, locationToTuple, parseGeometries } from 'src/layout/Map/utils';
 import type { Location, MapLayer } from 'src/layout/Map/config.generated';
 import type { RawGeometry } from 'src/layout/Map/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -43,11 +43,13 @@ export const markerIcon = icon({
 
 function MapClickHandler({ onClick }: { map: LeafletMap; onClick: (location: Location) => void }) {
   useMapEvent('click', (event) => {
-    const location = event.latlng.wrap();
-    onClick({
-      latitude: location.lat,
-      longitude: location.lng,
-    });
+    if (!event.originalEvent.defaultPrevented) {
+      const location = event.latlng.wrap();
+      onClick({
+        latitude: location.lat,
+        longitude: location.lng,
+      });
+    }
   });
 
   return null;
@@ -81,11 +83,9 @@ export function Map({
   } = mapNode.item;
   const isInteractive = !readOnly && !isSummary;
   const layers = customLayers ?? DefaultMapLayers;
-  const centerLocation = customCenterLocation ?? DefaultCenterLocation;
-  const zoom = customZoom ?? DefaultZoom;
   const markerLocationIsValid = isLocationValid(markerLocation);
-
   const geometries = useMemo(() => parseGeometries(rawGeometries, geometryType), [geometryType, rawGeometries]);
+  const geometryBounds = useMemo(() => calculateBounds(geometries), [geometries]);
 
   useEffect(() => {
     if (markerLocationIsValid && map) {
@@ -95,11 +95,27 @@ export function Map({
     }
   }, [isSummary, markerLocationIsValid, map, markerLocation]);
 
+  // center & zoom / bounds controls the starting view of the map
+  // 1. If a marker is set, center on that with high zoom
+  // 2. If custom center and/or zoom is set, use that
+  // 3. If neither, but there are geometries present, use bounds to center on those
+  // 4. Use default center and zoom
+  const center = markerLocationIsValid
+    ? locationToTuple(markerLocation)
+    : customCenterLocation
+      ? locationToTuple(customCenterLocation)
+      : geometryBounds
+        ? undefined
+        : locationToTuple(DefaultCenterLocation);
+  const zoom = markerLocationIsValid ? 16 : customZoom ? customZoom : geometryBounds ? undefined : DefaultZoom;
+  const bounds = markerLocationIsValid || customCenterLocation || customZoom ? undefined : geometryBounds;
+
   return (
     <MapContainer
       className={cn(classes.map, { [classes.mapReadOnly]: !isInteractive }, className)}
-      center={locationToTuple(markerLocationIsValid ? markerLocation : centerLocation)}
-      zoom={markerLocationIsValid ? 16 : zoom}
+      center={center}
+      zoom={zoom}
+      bounds={bounds}
       minZoom={3}
       maxBounds={[
         [-90, -200],
@@ -132,8 +148,20 @@ export function Map({
         <GeoJSON
           key={`${i}-${label}`}
           data={data}
+          interactive={false}
         >
-          {label && <Tooltip>{label}</Tooltip>}
+          {label && (
+            <Tooltip
+              permanent={true}
+              interactive={true}
+              direction='top'
+              eventHandlers={{
+                click: (e) => e.originalEvent.preventDefault(),
+              }}
+            >
+              {label}
+            </Tooltip>
+          )}
         </GeoJSON>
       ))}
       {markerLocationIsValid ? (
