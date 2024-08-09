@@ -38,11 +38,7 @@ const SummaryTitle = ({ title, targetNode }: { title: string | undefined; target
   if (!title) {
     return null;
   }
-  return (
-    <span>
-      <span>{`${langAsString(title).trim()} : `}</span>
-    </span>
-  );
+  return <span>{`${langAsString(title).trim()} : `}</span>;
 };
 
 const DisplayData = ({ displayData, targetNode }: { displayData: string; targetNode: LayoutNode }) =>

@@ -85,6 +85,7 @@ export function AddressComponent({ node }: IAddressProps) {
         <div>
           <Label
             node={node}
+            id={`address_care_of_${id}`}
             renderLabelAs='label'
             textResourceBindings={{ title: textResourceBindings?.careOfTitle ?? 'address_component.care_of' }}
           >
