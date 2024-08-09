@@ -40,7 +40,6 @@ export class TextArea extends TextAreaDef {
       <TextAreaSummary
         componentNode={componentNode}
         summaryOverrides={summaryOverrides}
-        displayData={this.useDisplayData(componentNode)}
       />
     );
   }

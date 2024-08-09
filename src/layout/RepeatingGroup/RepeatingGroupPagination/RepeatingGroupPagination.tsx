@@ -10,8 +10,8 @@ import { getValidationsForNode, hasValidationErrors, shouldValidateNode } from '
 import { Validation } from 'src/features/validation/validationContext';
 import { getVisibilityForNode } from 'src/features/validation/visibility/visibilityUtils';
 import { useIsMini, useIsMobile, useIsMobileOrTablet } from 'src/hooks/useIsMobile';
-import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
-import classes from 'src/layout/RepeatingGroup/RepeatingGroupPagination.module.css';
+import classes from 'src/layout/RepeatingGroup/RepeatingGroupPagination/RepeatingGroupPagination.module.css';
+import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
 import type { CompRepeatingGroupInternal, HRepGroupRow } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 

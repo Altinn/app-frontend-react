@@ -9,12 +9,12 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 type InputComponentSummaryProps = {
   isCompact?: boolean;
   componentNode: LayoutNode<'Input'>;
-  displayData: string;
 };
-export const InputSummary = ({ componentNode, displayData, isCompact }: InputComponentSummaryProps) => {
+export const InputSummary = ({ componentNode, isCompact }: InputComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = componentNode.item.textResourceBindings?.title;
+  const displayData = componentNode.def.useDisplayData(componentNode);
 
   return (
     <SingleValueSummary

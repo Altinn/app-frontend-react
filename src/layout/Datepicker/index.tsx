@@ -7,6 +7,7 @@ import moment from 'moment';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { DatepickerDef } from 'src/layout/Datepicker/config.def.generated';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
+import { DatepickerSummary } from 'src/layout/Datepicker/DatepickerSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
@@ -20,6 +21,7 @@ import type {
   ValidationFilterFunction,
 } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { DatepickerSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Datepicker extends DatepickerDef implements ValidateComponent, ValidationFilter {
@@ -45,6 +47,19 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
       <SummaryItemSimple
         formDataAsString={displayData}
         hideFromVisualTesting={true}
+      />
+    );
+  }
+
+  renderSummary2(
+    componentNode: LayoutNode<'Datepicker'>,
+    _?: DatepickerSummaryOverrideProps,
+    isCompact?: boolean,
+  ): JSX.Element | null {
+    return (
+      <DatepickerSummary
+        componentNode={componentNode}
+        isCompact={isCompact}
       />
     );
   }

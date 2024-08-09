@@ -46,7 +46,6 @@ export class Dropdown extends DropdownDef {
       <DropdownSummary
         componentNode={componentNode}
         summaryOverrides={summaryOverrides}
-        displayData={this.useDisplayData(componentNode)}
       />
     );
   }

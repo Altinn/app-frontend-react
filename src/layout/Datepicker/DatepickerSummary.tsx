@@ -4,20 +4,18 @@ import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import type { RadioSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type RadioButtonsSummaryProps = {
+type DatepickerComponentSummaryProps = {
   isCompact?: boolean;
-  componentNode: LayoutNode<'RadioButtons'>;
-  summaryOverrides?: RadioSummaryOverrideProps;
+  componentNode: LayoutNode<'Datepicker'>;
 };
-
-export const RadioButtonsSummary = ({ componentNode, isCompact }: RadioButtonsSummaryProps) => {
-  const displayData = componentNode.def.useDisplayData(componentNode);
+export const DatepickerSummary = ({ componentNode, isCompact }: DatepickerComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = componentNode.item.textResourceBindings?.title;
+  const displayData = componentNode.def.useDisplayData(componentNode);
+
   return (
     <SingleValueSummary
       title={title && <Lang id={title} />}

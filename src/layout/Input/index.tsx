@@ -54,7 +54,6 @@ export class Input extends InputDef {
     return (
       <InputSummary
         componentNode={componentNode}
-        displayData={this.useDisplayData(componentNode)}
         isCompact={isCompact}
       />
     );

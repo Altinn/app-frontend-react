@@ -6,13 +6,15 @@ import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, Va
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 import { GroupHierarchyGenerator } from 'src/layout/RepeatingGroup/hierarchy';
-import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
-import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
-import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
+import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer/RepeatingGroupContainer';
+import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
+import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupFocusContext';
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
+import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { RepeatingGroupSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -50,6 +52,22 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
         targetNode={targetNode}
         overrides={overrides}
       />
+    );
+  }
+
+  renderSummary2(
+    componentNode: LayoutNode<'RepeatingGroup'>,
+    summaryOverrides?: RepeatingGroupSummaryOverrideProps,
+  ): JSX.Element | null {
+    return (
+      <RepeatingGroupProvider node={componentNode}>
+        <RepeatingGroupsFocusProvider>
+          <RepeatingGroupSummary
+            componentNode={componentNode}
+            summaryOverrides={summaryOverrides}
+          />
+        </RepeatingGroupsFocusProvider>
+      </RepeatingGroupProvider>
     );
   }
 

@@ -9,11 +9,11 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type DropdownComponentSummaryProps = {
   componentNode: LayoutNode<'Dropdown'>;
-  displayData: string;
   summaryOverrides?: DropdownSummaryOverrideProps;
 };
 
-export const DropdownSummary = ({ componentNode, displayData }: DropdownComponentSummaryProps) => {
+export const DropdownSummary = ({ componentNode }: DropdownComponentSummaryProps) => {
+  const displayData = componentNode.def.useDisplayData(componentNode);
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = componentNode.item.textResourceBindings?.title;

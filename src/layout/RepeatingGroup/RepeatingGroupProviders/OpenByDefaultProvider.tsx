@@ -2,7 +2,10 @@ import React, { useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useAsRef } from 'src/hooks/useAsRef';
-import { useRepeatingGroup, useRepeatingGroupSelector } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import {
+  useRepeatingGroup,
+  useRepeatingGroupSelector,
+} from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
 import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 

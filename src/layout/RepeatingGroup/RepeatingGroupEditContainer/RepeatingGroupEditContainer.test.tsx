@@ -5,12 +5,12 @@ import { userEvent } from '@testing-library/user-event';
 
 import { getMultiPageGroupMock } from 'src/__mocks__/getMultiPageGroupMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
+import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupEditContainer/RepeatingGroupsEditContainer';
 import {
   RepeatingGroupProvider,
   useRepeatingGroup,
   useRepeatingGroupSelector,
-} from 'src/layout/RepeatingGroup/RepeatingGroupContext';
-import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
+} from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IRawOption } from 'src/layout/common.generated';
