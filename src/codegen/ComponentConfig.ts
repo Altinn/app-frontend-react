@@ -475,7 +475,3 @@ export class ComponentConfig {
     return this.inner.toJsonSchema();
   }
 }
-
-function ucFirst(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}

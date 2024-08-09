@@ -55,7 +55,7 @@ interface NodeNavigationContext {
 const { Provider, useCtx } = createContext<NodeNavigationContext>({ name: 'PageNavigationContext', required: true });
 
 interface NavigationRequest {
-  onHandlerAdded: (handler: NavigationHandler) => void;
+  onHandlerAdded: (handler: NavigationHandler) => Promise<void>;
   onFinishedHandlerAdded: (handler: FinishNavigationHandler) => Promise<void>;
 }
 
