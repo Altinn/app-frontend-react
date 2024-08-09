@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { AttributionControl, MapContainer, Marker, TileLayer, useMapEvent } from 'react-leaflet';
+import React, { useEffect, useMemo, useState } from 'react';
+import { AttributionControl, GeoJSON, MapContainer, Marker, TileLayer, Tooltip, useMapEvent } from 'react-leaflet';
 
 import cn from 'classnames';
 import { icon, type Map as LeafletMap } from 'leaflet';
@@ -8,8 +8,9 @@ import RetinaIcon from 'leaflet/dist/images/marker-icon-2x.png';
 import IconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 import classes from 'src/layout/Map/MapComponent.module.css';
-import { isLocationValid, locationToTuple } from 'src/layout/Map/utils';
+import { isLocationValid, locationToTuple, parseGeometries } from 'src/layout/Map/utils';
 import type { Location, MapLayer } from 'src/layout/Map/config.generated';
+import type { RawGeometry } from 'src/layout/Map/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 // Default is center of Norway
@@ -56,19 +57,35 @@ type MapProps = {
   mapNode: LayoutNode<'Map'>;
   markerLocation?: Location;
   setMarkerLocation?: (location: Location) => void;
+  geometries?: RawGeometry[];
   isSummary?: boolean;
   className?: string;
 };
 
-export function Map({ mapNode, isSummary, markerLocation, setMarkerLocation, className }: MapProps) {
+export function Map({
+  mapNode,
+  isSummary,
+  markerLocation,
+  setMarkerLocation,
+  geometries: rawGeometries,
+  className,
+}: MapProps) {
   const [map, setMap] = useState<LeafletMap | null>(null);
 
-  const { readOnly, layers: customLayers, centerLocation: customCenterLocation, zoom: customZoom } = mapNode.item;
+  const {
+    readOnly,
+    layers: customLayers,
+    centerLocation: customCenterLocation,
+    zoom: customZoom,
+    geometryType,
+  } = mapNode.item;
   const isInteractive = !readOnly && !isSummary;
   const layers = customLayers ?? DefaultMapLayers;
   const centerLocation = customCenterLocation ?? DefaultCenterLocation;
   const zoom = customZoom ?? DefaultZoom;
   const markerLocationIsValid = isLocationValid(markerLocation);
+
+  const geometries = useMemo(() => parseGeometries(rawGeometries, geometryType), [geometryType, rawGeometries]);
 
   useEffect(() => {
     if (markerLocationIsValid && map) {
@@ -111,7 +128,14 @@ export function Map({ mapNode, isSummary, markerLocation, setMarkerLocation, cla
           subdomains={layer.subdomains ? layer.subdomains : []}
         />
       ))}
-      <AttributionControl prefix={false} />
+      {geometries?.map(({ data, label }, i) => (
+        <GeoJSON
+          key={`${i}-${label}`}
+          data={data}
+        >
+          {label && <Tooltip>{label}</Tooltip>}
+        </GeoJSON>
+      ))}
       {markerLocationIsValid ? (
         <Marker
           position={locationToTuple(markerLocation)}
@@ -132,6 +156,7 @@ export function Map({ mapNode, isSummary, markerLocation, setMarkerLocation, cla
           keyboard={isInteractive}
         />
       ) : null}
+      <AttributionControl prefix={false} />
     </MapContainer>
   );
 }

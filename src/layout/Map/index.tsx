@@ -37,6 +37,28 @@ export class Map extends MapDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Map'>): string[] {
-    return this.validateDataModelBindingsSimple(ctx, false);
+    const errors: string[] = [];
+
+    const [simpleBindingErrors] = this.validateDataModelBindingsAny(ctx, 'simpleBinding', ['string'], false);
+    simpleBindingErrors && errors.push(...simpleBindingErrors);
+
+    const [geometriesErrors, geometriesResult] = this.validateDataModelBindingsAny(ctx, 'geometries', ['array'], false);
+    geometriesErrors && errors.push(...geometriesErrors);
+
+    if (
+      geometriesResult &&
+      (!geometriesResult.items ||
+        typeof geometriesResult.items !== 'object' ||
+        Array.isArray(geometriesResult.items) ||
+        geometriesResult.items?.type !== 'object' ||
+        typeof geometriesResult.items.properties?.data !== 'object' ||
+        geometriesResult.items.properties?.data?.type !== 'string' ||
+        typeof geometriesResult.items.properties?.label !== 'object' ||
+        geometriesResult.items.properties?.label?.type !== 'string')
+    ) {
+      errors.push(`geometry-datamodellbindingen peker mot en ukjent type i datamodellen`);
+    }
+
+    return errors;
   }
 }

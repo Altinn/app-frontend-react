@@ -3,6 +3,7 @@ import React, { useCallback } from 'react';
 import { Paragraph } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
+import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -11,15 +12,18 @@ import classes from 'src/layout/Map/MapComponent.module.css';
 import { isLocationValid, parseLocation } from 'src/layout/Map/utils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { Location } from 'src/layout/Map/config.generated';
+import type { RawGeometry } from 'src/layout/Map/types';
 
 export type IMapComponentProps = PropsFromGenericComponent<'Map'>;
 
 export function MapComponent({ node, isValid }: IMapComponentProps) {
-  const { formData, setValue } = useDataModelBindings(node.item.dataModelBindings);
+  const { simpleBinding: markerBinding } = node.item.dataModelBindings;
+  const { formData, setValue } = useDataModelBindings(node.item.dataModelBindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
 
-  const markerBinding = formData.simpleBinding;
-  const markerLocation = markerBinding ? parseLocation(markerBinding) : undefined;
+  const markerLocation = parseLocation(formData.simpleBinding as string | undefined);
   const markerLocationIsValid = isLocationValid(markerLocation);
+
+  const geometries = formData.geometries as RawGeometry[] | undefined;
 
   const setMarkerLocation = useCallback(
     ({ latitude, longitude }: Location) => {
@@ -45,6 +49,7 @@ export function MapComponent({ node, isValid }: IMapComponentProps) {
           mapNode={node}
           markerLocation={markerLocation}
           setMarkerLocation={markerBinding ? setMarkerLocation : undefined}
+          geometries={geometries}
         />
       </div>
       <Paragraph

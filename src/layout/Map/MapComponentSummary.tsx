@@ -6,6 +6,8 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { Map } from 'src/layout/Map/Map';
 import classes from 'src/layout/Map/MapComponent.module.css';
+import { parseLocation } from 'src/layout/Map/utils';
+import type { RawGeometry } from 'src/layout/Map/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IMapComponentSummary {
@@ -14,7 +16,9 @@ export interface IMapComponentSummary {
 
 export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
   const formDataSelector = FD.useDebouncedSelector();
-  const markerLocation = targetNode.def.getMarkerLocation(targetNode, formDataSelector);
+  const formData = targetNode.getFormData(formDataSelector);
+  const markerLocation = parseLocation(formData.simpleBinding);
+  const geometries = formData.geometries as RawGeometry[] | undefined;
 
   if (markerLocation) {
     return (
@@ -22,6 +26,7 @@ export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
         <Map
           mapNode={targetNode}
           markerLocation={markerLocation}
+          geometries={geometries}
           isSummary={true}
         />
         <Typography className={classes.footer}>

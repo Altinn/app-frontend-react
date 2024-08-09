@@ -1,4 +1,8 @@
-import type { Location } from 'src/layout/Map/config.generated';
+import { type GeoJSON } from 'geojson';
+import WKT from 'terraformer-wkt-parser';
+
+import type { IGeometryType, Location } from 'src/layout/Map/config.generated';
+import type { Geometry, RawGeometry } from 'src/layout/Map/types';
 
 export function parseLocation(locationString: string | undefined): Location | undefined {
   if (!locationString) {
@@ -29,4 +33,33 @@ export function locationToTuple(location: Location): [number, number] {
 
 export function isLocationValid(location: Location | undefined): location is Location {
   return typeof location?.latitude === 'number' && typeof location?.longitude === 'number';
+}
+
+export function parseGeometries(
+  geometries: RawGeometry[] | undefined,
+  geometryType?: IGeometryType,
+): Geometry[] | undefined {
+  if (!geometries) {
+    return undefined;
+  }
+
+  const out: Geometry[] = [];
+
+  for (const { data: rawData, label } of geometries) {
+    if (geometryType === 'WKT') {
+      const data = WKT.parse(rawData);
+      out.push({
+        data,
+        label,
+      });
+    } else {
+      const data = JSON.parse(rawData) as GeoJSON;
+      out.push({
+        data,
+        label,
+      });
+    }
+  }
+
+  return out;
 }
