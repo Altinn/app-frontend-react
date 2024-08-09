@@ -2,6 +2,8 @@ import React, { createContext, useContext } from 'react';
 
 import { create } from 'zustand';
 
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+
 interface TaskState {
   overriddenTaskId?: string;
   overriddenDataModelType?: string;
@@ -12,9 +14,10 @@ interface TaskState {
   setDepth?: (depth: number) => void;
   clearTaskId?: () => void;
   depth?: number;
+  summaryNode: LayoutNode<'Summary2'>;
 }
 
-export const createSummaryStore = () =>
+export const createSummaryStore = (summaryNode: LayoutNode<'Summary2'>) =>
   create<TaskState>((set) => ({
     overriddenTaskId: '',
     overriddenDataModelType: '',
@@ -25,12 +28,17 @@ export const createSummaryStore = () =>
     setOverriddenDataModelId: (overriddenDataModelType: string) => set({ overriddenDataModelType }),
     clearTaskId: () => set({ overriddenTaskId: '' }),
     setDepth: (depth: number) => set({ depth }),
+    summaryNode,
   }));
 
 const StoreContext = createContext<ReturnType<typeof createSummaryStore> | null>(null);
 
-export function Summary2StoreProvider({ children }: React.PropsWithChildren) {
-  const store = createSummaryStore();
+interface Summary2StoreProviderProps extends React.PropsWithChildren {
+  summaryNode: LayoutNode<'Summary2'>;
+}
+
+export function Summary2StoreProvider({ children, summaryNode }: Summary2StoreProviderProps) {
+  const store = createSummaryStore(summaryNode);
 
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }

@@ -84,14 +84,7 @@ export function TaskSummary({ pageId, componentId, summaryOverrides, showAccordi
     </div>
   );
 }
-export function TaskSummaryWrapper({
-  taskId,
-  pageId,
-  componentId,
-  summaryOverrides,
-  showAccordion,
-  children,
-}: React.PropsWithChildren<TaskSummaryProps>) {
+export function TaskSummaryWrapper({ taskId, children }: React.PropsWithChildren<TaskSummaryProps>) {
   const { setTaskId, setOverriddenDataModelId, setOverriddenLayoutSetId, overriddenTaskId } = useTaskStore((state) => ({
     setTaskId: state.setTaskId,
     setOverriddenDataModelId: state.setOverriddenDataModelId,
