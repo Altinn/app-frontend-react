@@ -25,7 +25,7 @@ export type LabelProps = PropsWithChildren<{
   textResourceBindings?: ExprResolved<TRBLabel>;
 }>;
 
-export function Label({ node, renderLabelAs, children, className, addBottomPadding, ...rest }: LabelProps) {
+export function Label({ node, renderLabelAs, children, className, ...rest }: LabelProps) {
   const item = useNodeItem(node);
   const { id: nodeId, grid, textResourceBindings: _trb } = item;
   const required = 'required' in item && item.required;
