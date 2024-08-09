@@ -2,18 +2,25 @@ import React, { useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useAsRef } from 'src/hooks/useAsRef';
-import { useRepeatingGroup, useRepeatingGroupSelector } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
-import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import {
+  useRepeatingGroup,
+  useRepeatingGroupRowState,
+  useRepeatingGroupSelector,
+} from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface Props {
-  node: BaseLayoutNode<CompRepeatingGroupInternal>;
+  node: LayoutNode<'RepeatingGroup'>;
 }
 
 export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Props>) {
-  const groupId = node.item.id;
-  const openByDefault = node.item.edit?.openByDefault;
-  const { addRow, openForEditing, visibleRows, isFirstRender } = useRepeatingGroup();
+  const groupId = node.id;
+  const item = useNodeItem(node);
+  const openByDefault = item.edit?.openByDefault;
+  const isFirstRender = useRef(true);
+  const { addRow, openForEditing } = useRepeatingGroup();
+  const { visibleRows } = useRepeatingGroupRowState();
   const state = useRepeatingGroupSelector((state) => ({
     editingId: state.editingId,
     addingIds: state.addingIds,
@@ -26,7 +33,7 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
     lastId: hasNoRows ? undefined : visibleRows[visibleRows.length - 1].uuid,
     addRow,
     openForEditing,
-    canAddRows: node.item.edit?.addButton ?? true,
+    canAddRows: item.edit?.addButton ?? true,
   });
 
   // When this is true, the group won't try to add more rows using openByDefault. This will reset again
@@ -43,7 +50,7 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
       // Add new row if openByDefault is true and no (visible) rows exist. This also makes sure to add a row
       // immediately after the last one has been deleted.
       const { canAddRows } = stateRef.current;
-      if (isFirstRender && openByDefault && hasNoRows && canAddRows) {
+      if (isFirstRender.current && openByDefault && hasNoRows && canAddRows) {
         hasAddedRow.current = true;
         const { result } = await addRow();
         if (result !== 'addedAndOpened') {
@@ -60,7 +67,7 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
       // Open the first or last row for editing, if openByDefault is set to 'first' or 'last'
       const { editingId, firstId, lastId, openForEditing } = stateRef.current;
       if (
-        isFirstRender &&
+        isFirstRender.current &&
         openByDefault &&
         typeof openByDefault === 'string' &&
         ['first', 'last'].includes(openByDefault) &&
@@ -69,8 +76,12 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
         const uuid = openByDefault === 'last' ? lastId : firstId;
         uuid !== undefined && openForEditing(uuid);
       }
+
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+      }
     })();
-  }, [openByDefault, stateRef, addRow, groupId, hasNoRows, isFirstRender]);
+  }, [openByDefault, stateRef, addRow, groupId, hasNoRows]);
 
   return <>{children}</>;
 }

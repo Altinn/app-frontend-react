@@ -1,13 +1,18 @@
+import type { NumericFormatProps, PatternFormatProps } from 'react-number-format';
+
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { formatNumber } from 'src/utils/formattingUtils';
-import type { IInputFormattingInternal } from 'src/layout/Input/config.generated';
+import type { CompInternal } from 'src/layout/layout';
 import type { CurrencyFormattingOptions, UnitFormattingOptions } from 'src/utils/formattingUtils';
 
-export const useMapToReactNumberConfig = (
-  formatting: IInputFormattingInternal | undefined,
-  value = '',
-): IInputFormattingInternal => {
+type Formatting = Exclude<CompInternal<'Input'>['formatting'], undefined>;
+
+interface Output {
+  number?: NumericFormatProps | PatternFormatProps;
+}
+
+export const useMapToReactNumberConfig = (formatting: Formatting | undefined, value = '') => {
   const selectedLanguage = useCurrentLanguage();
   return useMemoDeepEqual(
     () => getMapToReactNumberConfig(formatting, value, selectedLanguage),
@@ -16,15 +21,15 @@ export const useMapToReactNumberConfig = (
 };
 
 export const getMapToReactNumberConfig = (
-  formatting: IInputFormattingInternal | undefined,
+  formatting: Formatting | undefined,
   value = '',
   selectedLanguage: string,
-): IInputFormattingInternal => {
+): Output => {
   if (!formatting?.currency && !formatting?.unit) {
     return formatting ?? {};
   }
 
-  const createOptions = (config: IInputFormattingInternal) => {
+  const createOptions = (config: Formatting) => {
     if (config.currency) {
       return { style: 'currency', currency: config.currency } as CurrencyFormattingOptions;
     }
