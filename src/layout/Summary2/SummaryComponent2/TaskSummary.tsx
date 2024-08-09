@@ -13,7 +13,7 @@ import { useNodes } from 'src/utils/layout/NodesContext';
 import type { CompSummary2External } from 'src/layout/Summary2/config.generated';
 
 interface TaskSummaryProps {
-  taskId: string;
+  taskId?: string;
   pageId?: string;
   componentId?: string;
   summaryOverrides: CompSummary2External['overrides'];
@@ -41,7 +41,7 @@ function TaskSummaryAccordion({ pageKey, children }: React.PropsWithChildren<{ p
   );
 }
 
-function TaskSummary({ pageId, componentId, summaryOverrides, showAccordion }: TaskSummaryProps) {
+export function TaskSummary({ pageId, componentId, summaryOverrides, showAccordion }: TaskSummaryProps) {
   const nodes = useNodes();
   if (componentId) {
     const nodeToRender = nodes.findById(componentId);
@@ -90,6 +90,7 @@ export function TaskSummaryWrapper({
   componentId,
   summaryOverrides,
   showAccordion,
+  children,
 }: React.PropsWithChildren<TaskSummaryProps>) {
   const { setTaskId, setOverriddenDataModelId, setOverriddenLayoutSetId, overriddenTaskId } = useTaskStore((state) => ({
     setTaskId: state.setTaskId,
@@ -99,26 +100,20 @@ export function TaskSummaryWrapper({
   }));
 
   const layoutSets = useLayoutSets();
-  const layoutSetForTask = layoutSets.sets.find((set) => set.tasks?.includes(taskId));
+
   useEffect(() => {
-    if (layoutSetForTask) {
+    if (taskId) {
+      const layoutSetForTask = layoutSets.sets.find((set) => set.tasks?.includes(taskId));
       setTaskId && setTaskId(taskId);
-      setOverriddenDataModelId && setOverriddenDataModelId(layoutSetForTask.dataType);
-      setOverriddenLayoutSetId && setOverriddenLayoutSetId(layoutSetForTask.id);
+      if (layoutSetForTask) {
+        setOverriddenDataModelId && setOverriddenDataModelId(layoutSetForTask.dataType);
+        setOverriddenLayoutSetId && setOverriddenLayoutSetId(layoutSetForTask.id);
+      }
     }
-  }, [layoutSetForTask, setOverriddenDataModelId, setOverriddenLayoutSetId, setTaskId, taskId]);
+  }, [layoutSets.sets, setOverriddenDataModelId, setOverriddenLayoutSetId, setTaskId, taskId]);
 
   if (overriddenTaskId) {
-    return (
-      <FormProvider>
-        <TaskSummary
-          taskId={taskId}
-          pageId={pageId}
-          componentId={componentId}
-          summaryOverrides={summaryOverrides}
-          showAccordion={showAccordion}
-        />
-      </FormProvider>
-    );
+    return <FormProvider>{children}</FormProvider>;
   }
+  return <>{children}</>;
 }

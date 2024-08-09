@@ -14,7 +14,7 @@ interface TaskState {
   depth?: number;
 }
 
-export const createTaskIdStore = () =>
+export const createSummaryStore = () =>
   create<TaskState>((set) => ({
     overriddenTaskId: '',
     overriddenDataModelType: '',
@@ -27,10 +27,10 @@ export const createTaskIdStore = () =>
     setDepth: (depth: number) => set({ depth }),
   }));
 
-const StoreContext = createContext<ReturnType<typeof createTaskIdStore> | null>(null);
+const StoreContext = createContext<ReturnType<typeof createSummaryStore> | null>(null);
 
-export function TaskIdStoreProvider({ children }: React.PropsWithChildren) {
-  const store = createTaskIdStore();
+export function Summary2StoreProvider({ children }: React.PropsWithChildren) {
+  const store = createSummaryStore();
 
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
