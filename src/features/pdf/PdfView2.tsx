@@ -118,7 +118,7 @@ function PlainPage({ pageKey }: { pageKey: string }) {
     <div className={classes.page}>
       <Grid
         container={true}
-        spacing={3}
+        spacing={6}
         alignItems='flex-start'
       >
         {children.map((node) => (
@@ -151,7 +151,7 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
     <div className={classes.page}>
       <Grid
         container={true}
-        spacing={3}
+        spacing={6}
         alignItems='flex-start'
       >
         {children.map((node) => (
