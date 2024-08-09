@@ -5,6 +5,7 @@ import cn from 'classnames';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { Map } from 'src/layout/Map/Map';
 import classes from 'src/layout/Map/MapComponent.module.css';
 import { isLocationValid, parseLocation } from 'src/layout/Map/utils';
@@ -29,7 +30,13 @@ export function MapComponent({ node, isValid }: IMapComponentProps) {
   );
 
   return (
-    <>
+    <ComponentStructureWrapper
+      node={node}
+      label={{
+        ...node.item,
+        renderLabelAs: 'span',
+      }}
+    >
       <div
         data-testid={`map-container-${node.item.id}`}
         className={cn({ [classes.mapError]: !isValid })}
@@ -57,6 +64,6 @@ export function MapComponent({ node, isValid }: IMapComponentProps) {
           </>
         )}
       </Paragraph>
-    </>
+    </ComponentStructureWrapper>
   );
 }

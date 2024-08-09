@@ -3,7 +3,6 @@ import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Form,
-  rendersWithLabel: true,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
