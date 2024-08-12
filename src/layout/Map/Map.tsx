@@ -8,32 +8,20 @@ import RetinaIcon from 'leaflet/dist/images/marker-icon-2x.png';
 import IconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 import classes from 'src/layout/Map/MapComponent.module.css';
-import { calculateBounds, isLocationValid, locationToTuple, parseGeometries } from 'src/layout/Map/utils';
-import type { Location, MapLayer } from 'src/layout/Map/config.generated';
+import {
+  calculateBounds,
+  DefaultFlyToZoomLevel,
+  DefaultMapLayers,
+  getMapStartingView,
+  isLocationValid,
+  locationToTuple,
+  parseGeometries,
+} from 'src/layout/Map/utils';
+import type { Location } from 'src/layout/Map/config.generated';
 import type { RawGeometry } from 'src/layout/Map/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-// Default is center of Norway
-const DefaultCenterLocation: Location = {
-  latitude: 64.888996,
-  longitude: 12.8186054,
-};
-const DefaultZoom = 4;
-// Default zoom level that should be used when when flying to new markerLocation
-const DefaultFlyToZoomLevel = 16;
-// Default map layers from Kartverket
-const DefaultMapLayers: MapLayer[] = [
-  {
-    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
-  },
-  {
-    url: 'https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png',
-    attribution: '&copy; <a href="http://www.kartverket.no/">Kartverket</a>',
-  },
-];
-
-export const markerIcon = icon({
+const markerIcon = icon({
   iconUrl: Icon,
   iconRetinaUrl: RetinaIcon,
   shadowUrl: IconShadow,
@@ -87,6 +75,8 @@ export function Map({
   const geometries = useMemo(() => parseGeometries(rawGeometries, geometryType), [geometryType, rawGeometries]);
   const geometryBounds = useMemo(() => calculateBounds(geometries), [geometries]);
 
+  const { center, zoom, bounds } = getMapStartingView(markerLocation, customCenterLocation, customZoom, geometryBounds);
+
   useEffect(() => {
     if (markerLocationIsValid && map) {
       map.flyTo({ lat: markerLocation.latitude, lng: markerLocation.longitude }, DefaultFlyToZoomLevel, {
@@ -94,21 +84,6 @@ export function Map({
       });
     }
   }, [isSummary, markerLocationIsValid, map, markerLocation]);
-
-  // center & zoom / bounds controls the starting view of the map
-  // 1. If a marker is set, center on that with high zoom
-  // 2. If custom center and/or zoom is set, use that
-  // 3. If neither, but there are geometries present, use bounds to center on those
-  // 4. Use default center and zoom
-  const center = markerLocationIsValid
-    ? locationToTuple(markerLocation)
-    : customCenterLocation
-      ? locationToTuple(customCenterLocation)
-      : geometryBounds
-        ? undefined
-        : locationToTuple(DefaultCenterLocation);
-  const zoom = markerLocationIsValid ? 16 : customZoom ? customZoom : geometryBounds ? undefined : DefaultZoom;
-  const bounds = markerLocationIsValid || customCenterLocation || customZoom ? undefined : geometryBounds;
 
   return (
     <MapContainer

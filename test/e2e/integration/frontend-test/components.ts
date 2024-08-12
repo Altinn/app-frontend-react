@@ -750,8 +750,8 @@ describe('UI Components', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('123');
     cy.get('#choose-extra').findByText('Kart').click();
-
     cy.gotoNavPage('map');
+
     cy.get(component('map')).should('contain.text', 'Ingen lokasjon valgt');
     cy.get(component('mapSummary')).should('contain.text', 'Du har ikke lagt inn informasjon her');
 
@@ -770,5 +770,50 @@ describe('UI Components', () => {
     cy.get(component('mapValue'))
       .findByText(/59\.\d{6}, 10\.\d{6}/)
       .should('be.visible');
+
+    // Force the map component to remount to skip the zoom animation
+    cy.gotoNavPage('form');
+    cy.gotoNavPage('map');
+
+    cy.snapshot('components:map-simpleBinding');
+  });
+
+  it('Map component with geometries should center the map around the geometries', () => {
+    cy.intercept('GET', 'https://cache.kartverket.no/**/*.png', { fixture: 'map-tile.png' });
+    cy.intercept('GET', 'https://tile.openstreetmap.org/**/*.png', { fixture: 'map-tile.png' });
+    cy.interceptLayout('changename', (comp) => {
+      if (comp.id === 'map' && comp.type === 'Map') {
+        delete comp.dataModelBindings.simpleBinding;
+        delete comp.centerLocation;
+        delete comp.zoom;
+      }
+    });
+
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('123');
+    cy.get('#choose-extra').findByText('Kart').click();
+    cy.gotoNavPage('map');
+
+    // prettier-ignore
+    {
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 1/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 2/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 3/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 4/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 5/i }).should('be.visible');
+    }
+
+    cy.get(component('mapSummary')).should('not.contain.text', 'Du har ikke lagt inn informasjon her');
+
+    // prettier-ignore
+    {
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 1/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 2/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 3/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 4/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 5/i }).should('be.visible');
+    }
+
+    cy.snapshot('components:map-geometries');
   });
 });
