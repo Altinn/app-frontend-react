@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { Label } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
-import { Lang } from 'src/features/language/Lang';
+import { Label } from 'src/components/label/Label';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
+import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { BaseLayoutNode, type LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { InputSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 
@@ -24,9 +24,22 @@ export const RepeatingGroupSummary = ({ componentNode }: RepeatingGroupComponent
   const rows = componentNode.item.rows.filter((row) => rowsToDisplaySet.has(row.uuid));
   const isNested = componentNode.parent instanceof BaseLayoutNode;
 
+  if (rows.length === 0) {
+    return (
+      <SingleValueSummary
+        componentNode={componentNode}
+        title={title}
+      />
+    );
+  }
+
   return (
     <div className={cn({ [classes.nestedRepeatingGroupSummaryWrapper]: isNested })}>
-      <Label weight={'medium'}>{<Lang id={title} />}</Label>
+      <Label
+        id={componentNode.item.id}
+        renderLabelAs='span'
+        textResourceBindings={{ title }}
+      />
       <div className={cn({ [classes.nestedRepeatingGroupContentWrapper]: isNested })}>
         {rows.map((row, index) => (
           <div
