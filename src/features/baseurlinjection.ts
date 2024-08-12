@@ -4,9 +4,7 @@
 //   folder of the app.
 // The `base` element in the HTML head will make relative references resolve from `base.href`.
 // Bugreport: https://github.com/Altinn/app-frontend-react/issues/2257
-const heads = document.getElementsByTagName('head');
-if (heads && heads.length > 0) {
-  const head = heads[0];
+(() => {
   const base = document.createElement('base');
   const { protocol, hostname, port: _port } = window.location;
   const { org, app } = window;
@@ -15,5 +13,5 @@ if (heads && heads.length > 0) {
   const isDefaultPort = isDefaultHttpsPort || isDefaultHttpPort;
   const port = _port && !isDefaultPort ? `:${_port}` : '';
   base.href = `${protocol}//${hostname}${port}/${org}/${app}/`;
-  head.appendChild(base);
-}
+  document.head.appendChild(base);
+})();
