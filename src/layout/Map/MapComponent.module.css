@@ -1,7 +1,10 @@
+.label {
+  width: 100%;
+}
+
 .map {
   position: relative;
   height: 40rem;
-  width: 100%;
 }
 
 /* We do not want the map to look faded in PDF, so using @media only screen */

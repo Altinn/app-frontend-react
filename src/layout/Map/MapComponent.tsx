@@ -39,6 +39,7 @@ export function MapComponent({ node, isValid }: IMapComponentProps) {
       label={{
         ...node.item,
         renderLabelAs: 'span',
+        className: classes.label,
       }}
     >
       <div
