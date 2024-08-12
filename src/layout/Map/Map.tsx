@@ -116,6 +116,7 @@ export function Map({
       center={center}
       zoom={zoom}
       bounds={bounds}
+      boundsOptions={{ padding: [50, 50] }}
       minZoom={3}
       maxBounds={[
         [-90, -200],
