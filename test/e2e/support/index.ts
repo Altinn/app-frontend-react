@@ -15,6 +15,16 @@ before(() => {
   chai.use(chaiExtensions);
 });
 
+// Clear media emulation before each test
+beforeEach(() => {
+  cy.then(() =>
+    Cypress.automation('remote:debugger:protocol', {
+      command: 'Emulation.setEmulatedMedia',
+      params: {},
+    }),
+  );
+});
+
 afterEach(function () {
   const testName = this.currentTest?.fullTitle();
   const title = this.currentTest?.title.replace(/\s+/g, '-').replace(/[^a-zA-Z\-0-9_]/g, '');

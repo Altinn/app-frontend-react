@@ -522,6 +522,14 @@ Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) =
     cy.visit(visitUrl);
   });
 
+  // Enable print media emulation
+  cy.then(() =>
+    Cypress.automation('remote:debugger:protocol', {
+      command: 'Emulation.setEmulatedMedia',
+      params: { media: 'print' },
+    }),
+  );
+
   cy.readFile('test/percy.css').then((percyCSS) => {
     cy.reload();
 
@@ -548,6 +556,14 @@ Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) =
   });
 
   if (returnToForm) {
+    // Disable media emulation
+    cy.then(() =>
+      Cypress.automation('remote:debugger:protocol', {
+        command: 'Emulation.setEmulatedMedia',
+        params: {},
+      }),
+    );
+
     cy.location('href').then((href) => {
       cy.visit(href.replace('?pdf=1', ''));
     });
