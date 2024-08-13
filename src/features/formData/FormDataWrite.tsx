@@ -24,7 +24,7 @@ import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import type { FDSaveFinished, FDSaveResult, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
-import type { FormDataSelector } from 'src/layout';
+import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 import type { BaseRow } from 'src/utils/layout/types';
@@ -376,7 +376,26 @@ export const FD = {
   },
 
   /**
-   * Same as above, but for invalid data.
+   * The same as useDebouncedSelector(), but will return BaseRow[] instead of the raw data. This is useful if you
+   * just want to fetch the number of rows, and the indexes/uuids of those rows, without fetching the actual data
+   * inside them (and re-render if that data changes).
+   */
+  useDebouncedRowsSelector(): FormDataRowsSelector {
+    return useDelayedSelector({
+      mode: 'simple',
+      selector: (path: string) => (state) => {
+        const rawRows = dot.pick(path, state.debouncedCurrentData);
+        if (!Array.isArray(rawRows) || !rawRows.length) {
+          return emptyArray;
+        }
+
+        return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
+      },
+    });
+  },
+
+  /**
+   * Same as useDebouncedSelector(), but for invalid data.
    */
   useInvalidDebouncedSelector(): FormDataSelector {
     return useDelayedSelector({

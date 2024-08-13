@@ -20,6 +20,7 @@ import type { ExpressionDataSources } from 'src/features/expressions/ExprContext
 export function useExpressionDataSources(): ExpressionDataSources {
   const instanceDataSources = useLaxInstanceDataSources();
   const formDataSelector = FD.useDebouncedSelector();
+  const formDataRowsSelector = FD.useDebouncedRowsSelector();
   const layoutSettings = useLayoutSettings();
   const attachmentsSelector = useAttachmentsSelector();
   const optionsSelector = useNodeOptionsSelector();
@@ -39,6 +40,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
   return useMemo(
     () => ({
       formDataSelector,
+      formDataRowsSelector,
       attachmentsSelector,
       layoutSettings,
       process,
@@ -58,6 +60,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
     }),
     [
       formDataSelector,
+      formDataRowsSelector,
       attachmentsSelector,
       layoutSettings,
       optionsSelector,

@@ -8,6 +8,7 @@ import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
+import type { BaseRow } from 'src/utils/layout/types';
 
 type ComponentConfigs = ReturnType<typeof getComponentConfigs>;
 
@@ -103,6 +104,7 @@ export interface ValidationFilter {
 }
 
 export type FormDataSelector = (path: string) => unknown;
+export type FormDataRowsSelector = (path: string) => BaseRow[];
 
 export function implementsDisplayData<Def extends CompDef>(def: Def): def is Def & DisplayData<TypeFromDef<Def>> {
   return 'getDisplayData' in def && 'useDisplayData' in def;

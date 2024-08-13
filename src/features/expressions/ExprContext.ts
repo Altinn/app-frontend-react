@@ -8,7 +8,7 @@ import type { EvalExprOptions } from 'src/features/expressions/index';
 import type { ExprConfig, Expression, ExprPositionalArgs } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
-import type { FormDataSelector } from 'src/layout';
+import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { ILayoutSettings } from 'src/layout/common.generated';
 import type { IApplicationSettings, IAuthContext, IInstanceDataSources, IProcess } from 'src/types/shared';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -23,6 +23,7 @@ export interface ExpressionDataSources {
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
   formDataSelector: FormDataSelector;
+  formDataRowsSelector: FormDataRowsSelector;
   attachmentsSelector: AttachmentsSelector;
   layoutSettings: ILayoutSettings;
   optionsSelector: NodeOptionsSelector;
