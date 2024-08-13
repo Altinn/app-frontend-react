@@ -12,6 +12,7 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { promisify } from 'src/utils/promisify';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
@@ -259,16 +260,18 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const style = buttonStyles[interceptedButtonStyle];
 
   return (
-    <Button
-      id={`custom-button-${id}`}
-      disabled={disabled}
-      onClick={onClick}
-      size={buttonSize}
-      color={buttonColor ?? style.color}
-      variant={style.variant}
-      aria-busy={mutation.isPending}
-    >
-      <Lang id={buttonText} />
-    </Button>
+    <ComponentStructureWrapper node={node}>
+      <Button
+        id={`custom-button-${id}`}
+        disabled={disabled}
+        onClick={onClick}
+        size={buttonSize}
+        color={buttonColor ?? style.color}
+        variant={style.variant}
+        aria-busy={mutation.isPending}
+      >
+        <Lang id={buttonText} />
+      </Button>
+    </ComponentStructureWrapper>
   );
 };

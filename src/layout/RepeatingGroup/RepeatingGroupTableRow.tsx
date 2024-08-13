@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 import { Button, Table } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
@@ -179,7 +180,7 @@ export function RepeatingGroupTableRow({
         <Table.Cell className={classes.mobileTableCell}>
           <Grid
             container={true}
-            spacing={3}
+            spacing={6}
           >
             {tableNodes.map(
               (n, i, { length }) =>

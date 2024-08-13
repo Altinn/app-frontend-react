@@ -1,4 +1,4 @@
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IAttachments } from 'src/features/attachments';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
@@ -161,7 +161,7 @@ export type ValidationDataSources = {
   invalidData: object;
   attachments: IAttachments;
   nodes: LayoutPages;
-  applicationMetadata: IApplicationMetadata;
+  applicationMetadata: ApplicationMetadata;
   instance?: IInstance;
 };
 

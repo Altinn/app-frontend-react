@@ -9,8 +9,6 @@
     "id",
     "title",
     "org",
-    "created",
-    "createdBy",
     "partyTypesAllowed",
     "dataTypes"
   ],
@@ -65,6 +63,11 @@
     },
     "copyInstanceSettings": {
       "$ref": "#/definitions/copyInstanceSettings"
+    },
+    "disallowUserInstantiation": {
+      "type": "boolean",
+      "title": "Disallow user instantiation",
+      "description": "Disallows instantiation by users. When this value is true, only organisations/system users can can instantiate in production. Users can still copy their own instances (if copying is enabled in the app). This configuration only applies to the production environment."
     },
     "validTo": {
       "type": "string",
@@ -385,6 +388,14 @@
           "type": "array",
           "title": "Enabled file validators",
           "description": "A list of enabled file validators this data type should be validated against.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowedKeysForUserDefinedMetadata":{
+          "type":"array",
+          "title": "Allowed keys for UserDefinedMetadata",
+          "description": "A list of allowed keys for UserDefinedMetadata key-value array. If not set, any key can be used.",
           "items": {
             "type": "string"
           }
