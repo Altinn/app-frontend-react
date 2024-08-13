@@ -171,6 +171,42 @@ describe('SummaryComponent', () => {
     expect(screen.getByTestId('summary-single-value-component')).toBeInTheDocument();
   });
 
+  test('should hide all empty components if hideEmptyFields=true and the component is not required', async () => {
+    await render({
+      layout: {
+        FormLayout: {
+          data: {
+            layout: [
+              {
+                id: 'Input',
+                type: 'Input',
+                dataModelBindings: { simpleBinding: 'field' },
+                required: false,
+              },
+              {
+                id: 'Input2',
+                type: 'Input',
+                dataModelBindings: { simpleBinding: 'field2' },
+                required: false,
+              },
+            ],
+          },
+        },
+      },
+      summary2Config: {
+        type: 'Summary2',
+        hideEmptyFields: true,
+        id: 'Summary2',
+        target: {
+          id: 'Input',
+          type: 'component',
+        },
+      },
+    });
+    const element = screen.queryByTestId('summary-single-value-component');
+    expect(element).not.toBeInTheDocument();
+  });
+
   type IRenderProps = {
     currentPageId?: string;
     layout?: ILayoutCollection;

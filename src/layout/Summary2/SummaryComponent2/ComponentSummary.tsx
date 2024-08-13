@@ -26,7 +26,7 @@ export function ComponentSummary({ componentNode, summaryOverrides, isCompact }:
 
   const summaryNode = useTaskStore((state) => state.summaryNode);
 
-  const isRequired = 'required' in componentNode.item;
+  const isRequired = 'required' in componentNode.item && componentNode.item['required'] === true;
 
   const { formData } = useDataModelBindings(componentNode.item.dataModelBindings);
 
