@@ -18,11 +18,16 @@ tr.blueUnderlineDotted td {
   border-bottom: 1px dotted var(--border-color-primary);
 }
 
+tr.grayUnderlineDotted td {
+  border-bottom: 1px dotted var(--fds-semantic-border-neutral-default);
+}
+
 tr.grayUnderline td {
   border-bottom: 1px solid var(--fds-semantic-border-neutral-default);
 }
 
 tr.blueUnderlineDotted:last-child td,
+tr.grayUnderlineDotted:last-child td,
 tr.grayUnderline:last-child td {
   border-bottom: none;
 }
