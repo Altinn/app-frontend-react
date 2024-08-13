@@ -78,7 +78,10 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrid
   const headingLevel = getHeadingLevel(hierarchyLevel);
   const isNestedGroup = hierarchyLevel > 0;
   return (
-    <section className={isNestedGroup ? cn(classes.groupContainer, classes.nested) : cn(classes.groupContainer)}>
+    <section
+      className={isNestedGroup ? cn(classes.groupContainer, classes.nested) : cn(classes.groupContainer)}
+      data-testid={'summary-group-component'}
+    >
       <div className={cn(classes.groupHeading)}>
         <Heading
           size={isNestedGroup ? 'xsmall' : 'small'}

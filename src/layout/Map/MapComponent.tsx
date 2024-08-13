@@ -18,6 +18,9 @@ export const useStyles = makeStyles(() => ({
   footer: {
     paddingTop: '12px',
   },
+  container: {
+    width: '100%',
+  },
 }));
 
 export function MapComponent({ node }: IMapComponentProps) {
@@ -39,6 +42,7 @@ export function MapComponent({ node }: IMapComponentProps) {
       label={{
         node,
         renderLabelAs: 'span',
+        className: classes.container,
       }}
     >
       <div className={`map-component${isValid ? '' : ' validation-error'}`}>

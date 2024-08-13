@@ -3,7 +3,9 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
+import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -30,12 +32,24 @@ export function ComponentSummary<T extends CompTypes>({
     isCompact,
   };
 
+  const summaryNode = useTaskStore((state) => state.summaryNode);
+
+  const isRequired = 'required' in componentNode.item && componentNode.item['required'] === true;
+
+  const { formData } = useDataModelBindings(componentNode.item.dataModelBindings);
+
+  const noUserInput = Object.values(formData).every((value) => value?.length < 1);
+
   const renderedComponent = componentNode.def.renderSummary2 ? (componentNode.def as any).renderSummary2(props) : null;
   if (!renderedComponent) {
     return null;
   }
 
   if (overrides?.hidden) {
+    return null;
+  }
+
+  if (noUserInput && summaryNode.item.hideEmptyFields && !isRequired && !componentNode.item.forceShowInSummary) {
     return null;
   }
 
