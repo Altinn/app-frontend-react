@@ -37,6 +37,7 @@ const { Provider, useCtx } = createContext<InstantiationContext>({ name: 'Instan
 
 function useInstantiateMutation() {
   const { doInstantiate } = useAppMutations();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -44,7 +45,8 @@ function useInstantiateMutation() {
     onError: (error: HttpClientError) => {
       window.logError('Instantiation failed:\n', error);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      navigate(`/instance/${data.id}`);
       queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
     },
   });
@@ -52,6 +54,7 @@ function useInstantiateMutation() {
 
 function useInstantiateWithPrefillMutation() {
   const { doInstantiateWithPrefill } = useAppMutations();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -59,14 +62,14 @@ function useInstantiateWithPrefillMutation() {
     onError: (error: HttpClientError) => {
       window.logError('Instantiation with prefill failed:\n', error);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      navigate(`/instance/${data.id}`);
       queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
     },
   });
 }
 
 export function InstantiationProvider({ children }: React.PropsWithChildren) {
-  const navigate = useNavigate();
   const instantiate = useInstantiateMutation();
   const instantiateWithPrefill = useInstantiateWithPrefillMutation();
   const [busyWithId, setBusyWithId] = useState<string | undefined>(undefined);
@@ -75,16 +78,14 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
   // Redirect to the instance page when instantiation completes
   useEffect(() => {
     if (instantiate.data?.id) {
-      navigate(`/instance/${instantiate.data.id}`);
       setBusyWithId(undefined);
       isInstantiatingRef.current = false;
     }
     if (instantiateWithPrefill.data?.id) {
-      navigate(`/instance/${instantiateWithPrefill.data.id}`);
       setBusyWithId(undefined);
       isInstantiatingRef.current = false;
     }
-  }, [instantiate.data?.id, instantiateWithPrefill.data?.id, navigate]);
+  }, [instantiate.data?.id, instantiateWithPrefill.data?.id]);
 
   return (
     <Provider
