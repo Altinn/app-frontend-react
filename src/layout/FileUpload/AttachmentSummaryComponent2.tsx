@@ -1,15 +1,15 @@
 import React from 'react';
 
-import { Label } from 'src/components/form/Label';
+import { Label } from 'src/components/label/Label';
 import {
   AttachmentsMappedToFormDataProvider,
   useAttachmentsMappedToFormData,
 } from 'src/features/attachments/useAttachmentsMappedToFormData';
-import { Lang } from 'src/features/language/Lang';
 import { useAllOptions } from 'src/features/options/useAllOptions';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
+import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -31,9 +31,11 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
   return (
     <AttachmentsMappedToFormDataProvider mappingTools={mappingTools}>
       <Label
-        label={<Lang id={targetNode.item.textResourceBindings?.title} />}
         id={`attachment_summary2_${targetNode.item.id}`}
-        readOnly={true}
+        textResourceBindings={targetNode.item.textResourceBindings}
+        renderLabelAs='span'
+        className={classes.summaryLabelMargin}
+        weight={'regular'}
       />
       <FileTable
         node={targetNode}

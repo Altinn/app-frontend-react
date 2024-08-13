@@ -12,6 +12,7 @@ import type { LabelContentProps } from 'src/components/label/LabelContent';
 import type { IGridStyling, ILabelSettings } from 'src/layout/common.generated';
 
 type LabelType = 'legend' | 'span' | 'label';
+type FontWeights = 'regular' | 'medium' | 'semibold';
 
 export type LabelProps = PropsWithChildren<{
   id: string;
@@ -26,6 +27,7 @@ export type LabelProps = PropsWithChildren<{
     help?: string;
   };
   className?: string;
+  weight?: FontWeights | undefined;
 }>;
 
 export function Label({
@@ -38,6 +40,7 @@ export function Label({
   textResourceBindings,
   children,
   className,
+  weight,
 }: LabelProps) {
   if (!textResourceBindings?.title) {
     return <>{children}</>;
@@ -79,6 +82,7 @@ export function Label({
           htmlFor={id}
           style={{ width: '100%' }}
           className={className}
+          weight={weight}
         >
           <Grid
             container
@@ -99,7 +103,10 @@ export function Label({
           {/* we want this "label" not to be rendered as a <label>,
            because it does not belong to an input element */}
           <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
-            <DesignsystemetLabel asChild>
+            <DesignsystemetLabel
+              asChild
+              weight={weight}
+            >
               <LabelContent
                 id={labelId}
                 {...labelContentProps}
