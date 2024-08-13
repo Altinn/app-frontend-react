@@ -10,6 +10,7 @@ import IconShadow from 'leaflet/dist/images/marker-shadow.png';
 import classes from 'src/layout/Map/MapComponent.module.css';
 import {
   calculateBounds,
+  DefaultBoundsPadding,
   DefaultFlyToZoomLevel,
   DefaultMapLayers,
   getMapStartingView,
@@ -85,13 +86,19 @@ export function Map({
     }
   }, [isSummary, markerLocationIsValid, map, markerLocation]);
 
+  useEffect(() => {
+    if (bounds && map) {
+      map.fitBounds(bounds, { padding: DefaultBoundsPadding, animate: !isSummary });
+    }
+  }, [bounds, isSummary, map]);
+
   return (
     <MapContainer
       className={cn(classes.map, { [classes.mapReadOnly]: !isInteractive }, className)}
       center={center}
       zoom={zoom}
       bounds={bounds}
-      boundsOptions={{ padding: [50, 50] }}
+      boundsOptions={{ padding: DefaultBoundsPadding }}
       minZoom={3}
       maxBounds={[
         [-90, -200],

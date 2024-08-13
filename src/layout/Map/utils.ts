@@ -1,7 +1,7 @@
 import { type GeoJSON } from 'geojson';
 import { geoJson, LatLngBounds } from 'leaflet';
 import WKT from 'terraformer-wkt-parser';
-import type { LatLngExpression } from 'leaflet';
+import type { LatLngExpression, PointExpression } from 'leaflet';
 
 import type { IGeometryType, Location, MapLayer } from 'src/layout/Map/config.generated';
 import type { Geometry, RawGeometry } from 'src/layout/Map/types';
@@ -14,7 +14,6 @@ export const DefaultCenterLocation: Location = {
 export const DefaultZoom = 4;
 // Default zoom level that should be used when when flying to new markerLocation
 export const DefaultFlyToZoomLevel = 16;
-// Default map layers from Kartverket
 export const DefaultMapLayers: MapLayer[] = [
   {
     url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -25,6 +24,7 @@ export const DefaultMapLayers: MapLayer[] = [
     attribution: '&copy; <a href="http://www.kartverket.no/">Kartverket</a>',
   },
 ];
+export const DefaultBoundsPadding: PointExpression = [50, 50];
 
 export function parseLocation(locationString: string | undefined): Location | undefined {
   if (!locationString) {
