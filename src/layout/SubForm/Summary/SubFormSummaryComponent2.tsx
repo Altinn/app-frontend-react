@@ -1,9 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Label, Spinner, Table } from '@digdir/designsystemet-react';
+import { Spinner, Table } from '@digdir/designsystemet-react';
 import dot from 'dot-object';
 
+import { Label } from 'src/components/label/Label';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
@@ -28,9 +29,11 @@ export function SubFormSummaryComponent2({ targetNode }: ISubFormSummaryComponen
 
   return (
     <>
-      <Label weight={'regular'}>
-        <Lang id={textResourceBindings?.title} />
-      </Label>
+      <Label
+        id={`subform_summary_${id}`}
+        renderLabelAs='label'
+        textResourceBindings={{ title: textResourceBindings?.title }}
+      />
       {dataElements.length === 0 ? (
         <div className={classes.emptyField}>
           <Lang id={'general.empty_summary'} />

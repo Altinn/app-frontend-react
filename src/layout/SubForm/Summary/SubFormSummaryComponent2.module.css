@@ -13,8 +13,8 @@
 .tableMobile {
   width: 100%;
   table-layout: fixed;
-  margin-top: 0.6rem;
-  margin-bottom: 12px;
+  margin-top: var(--fds-spacing-2);
+  margin-bottom: var(--fds-spacing-2);
   box-shadow: none;
   border-spacing: 0;
 }
