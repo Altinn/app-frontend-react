@@ -44,9 +44,7 @@ export const Config = new CG.component({
       'hideEmptyFields',
       new CG.bool()
         .optional()
-        .setDescription(
-          "Set this to true if you don't want to show fields that have not been filled out.',
-        ),
+        .setDescription("Set this to true if you don't want to show fields that have not been filled out."),
     ),
   )
   .addProperty(
