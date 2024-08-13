@@ -100,13 +100,14 @@ export function useLanguage(node?: LayoutNode) {
 }
 
 export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
-  const { textResources, language, selectedLanguage, ...dataSources } = useLangToolsDataSources() || {};
+  const sources = useLangToolsDataSources();
   const layoutSetId = useCurrentLayoutSetId();
   const currentDataModelName = useDataTypeByLayoutSetId(layoutSetId);
   const currentDataModel = FD.useLaxDebouncedSelector();
   const transposeSelector = useDataModelBindingTranspose();
 
   return useMemo(() => {
+    const { textResources, language, selectedLanguage, ...dataSources } = sources || {};
     if (!textResources || !language || !selectedLanguage) {
       throw new Error('useLanguage must be used inside a LangToolsStoreProvider');
     }
@@ -118,22 +119,12 @@ export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
       currentDataModelName,
       transposeSelector,
     });
-  }, [
-    currentDataModel,
-    currentDataModelName,
-    dataSources,
-    language,
-    node,
-    selectedLanguage,
-    textResources,
-    transposeSelector,
-  ]);
+  }, [currentDataModel, currentDataModelName, node, transposeSelector, sources]);
 }
 
 // Exactly the same as above, but returns a function accepting a node
 export function useLanguageWithForcedNodeSelector() {
-  const all = useLangToolsDataSources();
-  const { textResources, language, selectedLanguage, ...dataSources } = all || ({} as LangDataSources);
+  const sources = useLangToolsDataSources();
   const layoutSetId = useCurrentLayoutSetId();
   const currentDataModelName = useDataTypeByLayoutSetId(layoutSetId);
   const currentDataModel = FD.useLaxDebouncedSelector();
@@ -141,6 +132,7 @@ export function useLanguageWithForcedNodeSelector() {
 
   return useCallback(
     (node: LayoutNode | undefined) => {
+      const { textResources, language, selectedLanguage, ...dataSources } = sources || ({} as LangDataSources);
       if (!textResources || !language || !selectedLanguage) {
         throw new Error('useLanguage must be used inside a LangToolsStoreProvider');
       }
@@ -153,7 +145,7 @@ export function useLanguageWithForcedNodeSelector() {
         transposeSelector,
       });
     },
-    [currentDataModel, currentDataModelName, dataSources, language, selectedLanguage, textResources, transposeSelector],
+    [currentDataModel, currentDataModelName, sources, transposeSelector],
   );
 }
 
