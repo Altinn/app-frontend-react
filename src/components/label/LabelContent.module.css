@@ -1,0 +1,16 @@
+.labelContainer {
+  display: flex;
+  gap: var(--fds-spacing-2);
+  align-items: center;
+}
+
+.labelContent {
+  word-break: break-word;
+}
+
+.labelWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fds-spacing-1);
+  align-items: flex-start;
+}

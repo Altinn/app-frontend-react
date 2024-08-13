@@ -8,7 +8,7 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { getFirstDataElementId, isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
+import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useCustomValidationConfigQuery } from 'src/features/customValidation/useCustomValidationQuery';
 import { useCurrentDataModelName, useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSchemaQuery';
@@ -30,7 +30,6 @@ import { useIsPdf } from 'src/hooks/useIsPdf';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
-import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
 import type { BackendValidationIssue, IExpressionValidations } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
@@ -147,7 +146,7 @@ function DataModelsLoader() {
   const writableDataTypes = useSelector((state) => state.writableDataTypes);
   const layouts = useLayouts();
   const defaultDataType = useCurrentDataModelName();
-  const isStateless = isStatelessApp(applicationMetadata);
+  const isStateless = useApplicationMetadata().isStatelessApp;
   const instance = useLaxInstanceData();
 
   // Find all data types referenced in dataModelBindings in the layout
@@ -289,7 +288,7 @@ function LoadInitialValidations() {
   const setInitialValidations = useSelector((state) => state.setInitialValidations);
   const setError = useSelector((state) => state.setError);
   // No need to load validations in PDF or stateless apps
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
   const enabled = useShouldValidateInitial();
   const { data, error } = useBackendValidationQuery(enabled);
 

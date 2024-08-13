@@ -21,7 +21,6 @@ import {
   getDataModelUrl,
   getStatelessDataModelUrl,
 } from 'src/utils/urls/appUrlHelper';
-import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
@@ -44,7 +43,7 @@ export function useCurrentDataModelUrl(includeRowIds: boolean) {
   const layoutSetId = useCurrentLayoutSetId();
   const dataType = useDataTypeByLayoutSetId(layoutSetId);
   const dataElementUuid = useCurrentDataModelGuid();
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
 
   if (isStateless && isAnonymous && dataType) {
     return getAnonymousStatelessDataModelUrl(dataType, includeRowIds);
@@ -64,7 +63,7 @@ export function useCurrentDataModelUrl(includeRowIds: boolean) {
 // We assume that the first data element of the correct type is the one we should use, same as isDataTypeWritable
 export function useDataModelUrl(includeRowIds: boolean, dataType: string | undefined) {
   const isAnonymous = useAllowAnonymous();
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
   const instance = useLaxInstanceData();
 
   if (isStateless && isAnonymous && dataType) {

@@ -7,17 +7,15 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLayoutValidationForNode } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
-import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
-import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/GenericComponentUtils';
-import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useIsHiddenComponent, useNode } from 'src/utils/layout/NodesContext';
+import type { NodeValidation } from 'src/features/validation';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
 import type { PropsFromGenericComponent } from 'src/layout/index';
@@ -74,29 +72,13 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   overrideItemProps,
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
-  let item = node.item;
-  const id = item.id;
-
-  if (overrideItemProps) {
-    item = {
-      ...item,
-      ...overrideItemProps,
-    };
-  }
+  const id = node.item.id;
+  const item = overrideItemProps ? { ...node.item, ...overrideItemProps } : { ...node.item };
 
   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
   const validations = useUnifiedValidationsForNode(node);
   const isValid = !hasValidationErrors(validations);
   const isHidden = useIsHiddenComponent();
-
-  // If maxLength is set in both schema and component, don't display the schema error message
-  const maxLength = 'maxLength' in node.item && node.item.maxLength;
-  const filteredValidationErrors = maxLength
-    ? validations.filter(
-        (validation) =>
-          !(validation.message.key === 'validation_errors.maxLength' && validation.message.params?.at(0) === maxLength),
-      )
-    : validations;
 
   const formComponentContext = useMemo<IFormComponentContext>(
     () => ({
@@ -108,7 +90,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     [item.baseComponentId, item.grid, id, node],
   );
 
-  useFinishNodeNavigation(async (targetNode, shouldFocus, onHit) => {
+  useFinishNodeNavigation(async (targetNode, shouldFocus, onHit, error?: NodeValidation<'error'>) => {
     if (targetNode.item.id !== id) {
       return undefined;
     }
@@ -128,16 +110,33 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
       return NavigationResult.SuccessfulNoFocus;
     }
 
-    const maybeInput = containerDivRef.current?.querySelector('input,textarea,select,p') as
-      | HTMLSelectElement
-      | HTMLInputElement
-      | HTMLTextAreaElement;
+    const targetHtmlNodes = containerDivRef.current?.querySelectorAll('input,textarea,select,p');
 
-    if (maybeInput) {
-      maybeInput.focus();
+    if (targetHtmlNodes) {
+      if (targetHtmlNodes.length === 1) {
+        (targetHtmlNodes[0] as HTMLElement).focus();
+        return NavigationResult.SuccessfulWithFocus;
+      }
+
+      if (targetHtmlNodes.length > 1) {
+        let didBreak = false;
+        for (const node of Array.from(targetHtmlNodes)) {
+          const element = node as HTMLInputElement;
+          if (element?.dataset?.bindingkey === error?.bindingKey) {
+            element.focus();
+            didBreak = true;
+            break;
+          }
+        }
+
+        if (didBreak) {
+          return NavigationResult.SuccessfulWithFocus;
+        } else {
+          (targetHtmlNodes[0] as HTMLElement).focus();
+          return NavigationResult.SuccessfulWithFocus;
+        }
+      }
     }
-
-    return NavigationResult.SuccessfulWithFocus;
   });
 
   if (isHidden(node.item.id) || (node.item.baseComponentId && isHidden(node.item.baseComponentId))) {
@@ -154,8 +153,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     overrideItemProps,
     overrideDisplay,
   };
-
-  const showValidationMessages = layoutComponent.renderDefaultValidations();
 
   if ('renderAsSummary' in node.item && node.item.renderAsSummary) {
     const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
@@ -186,12 +183,12 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   return (
     <FormComponentContextProvider value={formComponentContext}>
       <Grid
-        data-componentbaseid={item.baseComponentId || item.id}
+        data-componentbaseid={item.baseComponentId ?? item.id}
         data-componentid={item.id}
         data-componenttype={item.type}
         ref={containerDivRef}
-        item={true}
-        container={true}
+        item
+        container
         {...gridBreakpoints(item.grid)}
         key={`grid-${id}`}
         className={classNames(
@@ -201,29 +198,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         )}
         alignItems='baseline'
       >
-        {shouldComponentRenderLabel(node.item.type) && overrideDisplay?.renderLabel !== false && (
-          <Grid
-            item={true}
-            {...gridBreakpoints(item.grid?.labelGrid)}
-          >
-            <GenericComponentLabel />
-            <GenericComponentDescription />
-          </Grid>
-        )}
-        <Grid
-          key={`form-content-${id}`}
-          item={true}
-          id={`form-content-${id}`}
-          {...gridBreakpoints(item.grid?.innerGrid)}
-        >
-          <RenderComponent {...componentProps} />
-          {showValidationMessages && (
-            <ComponentValidations
-              validations={filteredValidationErrors}
-              node={node}
-            />
-          )}
-        </Grid>
+        <RenderComponent {...componentProps} />
       </Grid>
     </FormComponentContextProvider>
   );

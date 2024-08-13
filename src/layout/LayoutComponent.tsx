@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 import type { ErrorObject } from 'ajv';
 import type { JSONSchema7 } from 'json-schema';

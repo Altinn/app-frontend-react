@@ -2,10 +2,11 @@ import React from 'react';
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
+import { afterAll, beforeAll, expect, jest } from '@jest/globals';
 import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
-import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { statelessDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
@@ -18,6 +19,7 @@ import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataRea
 import { FD, FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { fetchApplicationMetadata } from 'src/queries/queries';
 import { makeFormDataMethodProxies, renderWithMinimalProviders } from 'src/test/renderWithProviders';
 
 interface DataModelFlat {
@@ -56,6 +58,15 @@ function NavigateBackButton() {
 }
 
 async function genericRender(props: Partial<Parameters<typeof renderWithMinimalProviders>[0]> = {}) {
+  (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementationOnce(() =>
+    Promise.resolve(
+      getIncomingApplicationMetadataMock({
+        onEntry: {
+          show: 'stateless',
+        },
+      }),
+    ),
+  );
   const initialRenderRef = { current: true };
   const { mocks: formDataMethods, proxies: formDataProxies } = makeFormDataMethodProxies(initialRenderRef);
   return {
@@ -130,12 +141,6 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
             },
           },
         }),
-        fetchApplicationMetadata: async () =>
-          getApplicationMetadataMock({
-            onEntry: {
-              show: 'stateless',
-            },
-          }),
         fetchFormData: async () => ({}),
         fetchLayouts: async () => ({}),
         ...props.queries,

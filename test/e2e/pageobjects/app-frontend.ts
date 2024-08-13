@@ -20,6 +20,9 @@ export class AppFrontend {
     /** @see https://dev.altinn.studio/repos/ttd/payment-test */
     paymentTest: 'payment-test',
 
+    /** @see https://altinn.studio/repos/ttd/component-library.git */
+    componentLibrary: 'component-library',
+
     /** @see https://dev.altinn.studio/repos/ttd/multiple-datamodels-test */
     multipleDatamodelsTest: 'multiple-datamodels-test',
   };

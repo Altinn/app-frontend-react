@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
 import { RadioButtonsDef } from 'src/layout/RadioButtons/config.def.generated';
-import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
+import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { RadioButtonsSummary } from 'src/layout/RadioButtons/RadioButtonsSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -16,7 +16,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export class RadioButtons extends RadioButtonsDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'RadioButtons'>>(
     function LayoutComponentRadioButtonsRender(props, _): JSX.Element | null {
-      return <RadioButtonContainerComponent {...props} />;
+      return <ControlledRadioGroup {...props} />;
     },
   );
 
@@ -37,6 +37,7 @@ export class RadioButtons extends RadioButtonsDef {
   renderSummary2(
     componentNode: LayoutNode<'RadioButtons'>,
     summaryOverrides?: RadioSummaryOverrideProps,
+    isCompact?: boolean,
   ): JSX.Element | null {
     const displayData = this.useDisplayData(componentNode);
     return (
@@ -44,6 +45,7 @@ export class RadioButtons extends RadioButtonsDef {
         componentNode={componentNode}
         summaryOverrides={summaryOverrides}
         displayData={displayData}
+        isCompact={isCompact}
       />
     );
   }

@@ -6,7 +6,7 @@ import type { AxiosResponse } from 'axios';
 
 import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepGroup';
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
-import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
+import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -35,7 +35,7 @@ interface Props extends Partial<RenderGenericComponentTestProps<'RadioButtons'>>
 const render = async ({ component, options, formData, groupData = getFormDataMockForRepGroup() }: Props = {}) =>
   await renderGenericComponentTest({
     type: 'RadioButtons',
-    renderer: (props) => <RadioButtonContainerComponent {...props} />,
+    renderer: (props) => <ControlledRadioGroup {...props} />,
     component: {
       optionsId: 'countries',
       preselectedOptionIndex: undefined,
@@ -141,7 +141,6 @@ describe('RadioButtonsContainerComponent', () => {
 
     await waitFor(() => expect(getRadio({ name: 'Denmark' })).toBeInTheDocument());
 
-    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       fireEvent.focus(getRadio({ name: 'Denmark' }));
       fireEvent.blur(getRadio({ name: 'Denmark' }));

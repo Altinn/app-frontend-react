@@ -26,7 +26,7 @@ export const PDFView2 = () => {
   const pageNavigationConfig = usePageNavigationConfig();
   const { data: pdfSettings, isFetching: pdfFormatIsLoading } = usePdfFormatQuery(true);
   const pdfLayoutName = useLayoutSettings().pages.pdfLayoutName;
-  const enableOrgLogo = Boolean(useApplicationMetadata().logo);
+  const enableOrgLogo = Boolean(useApplicationMetadata().logoOptions);
   const appOwner = useAppOwner();
   const appName = useAppName();
   const { langAsString } = useLanguage();
@@ -40,7 +40,7 @@ export const PDFView2 = () => {
   return (
     <div
       id={'pdfView'}
-      className={classes['pdf-wrapper']}
+      className={classes.pdfWrapper}
     >
       {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
 

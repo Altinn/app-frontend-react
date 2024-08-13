@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { expect } from '@jest/globals';
 import { screen, within } from '@testing-library/react';
 import { v4 as uuidv4 } from 'uuid';
 import type { AxiosResponse } from 'axios';
@@ -184,7 +185,7 @@ export const validateTableLayout = async (
   options: IRawOption[],
   validateRadioLayoutOptions: ValidateRadioLayoutOptions,
 ) => {
-  screen.getByRole('group');
+  screen.getByRole('table');
 
   for (const option of defaultMockOptions) {
     const allAlternatives = await screen.findAllByRole('radio', {

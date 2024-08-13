@@ -1,10 +1,10 @@
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { BackendValidationSeverity, BuiltInValidationIssueSources, ValidationMask } from 'src/features/validation';
 import { validationTexts } from 'src/features/validation/backendValidation/validationTexts';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
-import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { TextReference } from 'src/features/language/useLanguage';
 import type {
   BackendFieldValidatorGroups,
@@ -28,7 +28,7 @@ const severityMap: { [s in BackendValidationSeverity]: ValidationSeverity } = {
 export function useShouldValidateInitial(): boolean {
   const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
   const isPDF = useIsPdf();
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
   const writableDataTypes = DataModels.useWritableDataTypes();
   return !isCustomReceipt && !isPDF && !isStateless && !!writableDataTypes?.length;
 }

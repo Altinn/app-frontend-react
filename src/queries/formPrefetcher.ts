@@ -1,4 +1,5 @@
 import { usePrefetchQuery } from 'src/core/queries/usePrefetchQuery';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useCustomValidationConfigQueryDef } from 'src/features/customValidation/useCustomValidationQuery';
 import {
   useCurrentDataModelGuid,
@@ -28,7 +29,6 @@ import { useBackendValidationQueryDef } from 'src/features/validation/backendVal
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
-import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 
 /**
  * Prefetches requests happening in the FormProvider
@@ -37,7 +37,7 @@ export function FormPrefetcher() {
   const layoutSetId = useLayoutSetId();
   const isPDF = useIsPdf();
   const currentProcessTaskId = useLaxProcessData()?.currentTask?.elementId;
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
   const instance = useLaxInstance();
 
   // Prefetch layouts

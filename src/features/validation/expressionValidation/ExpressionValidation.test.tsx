@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { render } from '@testing-library/react';
 import dot from 'dot-object';
 import fs from 'node:fs';
@@ -90,7 +91,7 @@ describe('Expression validation shared tests', () => {
 
     // Mock updateDataModelValidations
     let result: FieldValidations = {};
-    const updateDataModelValidations = jest.fn((_key, _dataType, validations) => {
+    const updateDataModelValidations = jest.fn((_key, _dataType, validations: FieldValidations) => {
       result = validations;
     });
     jest.spyOn(Validation, 'useUpdateDataModelValidations').mockImplementation(() => updateDataModelValidations);
