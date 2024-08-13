@@ -24,7 +24,13 @@ export function ComponentSummary<T extends CompTypes>({
   summaryOverrides,
   isCompact,
 }: ComponentSummaryProps<T>) {
-  const { pageBreak, grid } = useNodeItem(componentNode, (i) => ({ pageBreak: i.pageBreak, grid: i.grid }));
+  const { pageBreak, grid, required, dataModelBindings, forceShowInSummary } = useNodeItem(componentNode, (i) => ({
+    pageBreak: i.pageBreak,
+    grid: i.grid,
+    required: 'required' in i ? i.required : false,
+    dataModelBindings: i.dataModelBindings,
+    forceShowInSummary: i.forceShowInSummary,
+  }));
   const overrides = summaryOverrides?.find((override) => override.componentId === componentNode.baseId);
   const props: Summary2Props<T> = {
     target: componentNode,
@@ -33,10 +39,9 @@ export function ComponentSummary<T extends CompTypes>({
   };
 
   const summaryNode = useTaskStore((state) => state.summaryNode);
+  const hideEmptyFields = useNodeItem(summaryNode, (i) => i.hideEmptyFields);
 
-  const isRequired = 'required' in componentNode.item && componentNode.item['required'] === true;
-
-  const { formData } = useDataModelBindings(componentNode.item.dataModelBindings);
+  const { formData } = useDataModelBindings(dataModelBindings);
 
   const noUserInput = Object.values(formData).every((value) => value?.length < 1);
 
@@ -49,7 +54,7 @@ export function ComponentSummary<T extends CompTypes>({
     return null;
   }
 
-  if (noUserInput && summaryNode.item.hideEmptyFields && !isRequired && !componentNode.item.forceShowInSummary) {
+  if (noUserInput && hideEmptyFields && !required && !forceShowInSummary) {
     return null;
   }
 

@@ -53,14 +53,20 @@ function SummaryBody({ summaryNode }: ISummaryComponent2) {
 }
 
 export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
+  const { target, showPageInAccordion, overrides } = useNodeItem(summaryNode, (i) => ({
+    target: i.target,
+    showPageInAccordion: i.showPageInAccordion,
+    overrides: i.overrides,
+  }));
+
   return (
     <Summary2StoreProvider summaryNode={summaryNode}>
       <TaskSummaryWrapper
-        taskId={summaryNode.item.target?.taskId}
-        pageId={summaryNode.item.target?.type === 'page' ? summaryNode.item.target.id : undefined}
-        componentId={summaryNode.item.target?.type === 'component' ? summaryNode.item.target.id : undefined}
-        summaryOverrides={summaryNode.item.overrides}
-        showAccordion={summaryNode.item.showPageInAccordion}
+        taskId={target?.taskId}
+        pageId={target?.type === 'page' ? target.id : undefined}
+        componentId={target?.type === 'component' ? target.id : undefined}
+        summaryOverrides={overrides}
+        showAccordion={showPageInAccordion}
       >
         <SummaryBody summaryNode={summaryNode} />
       </TaskSummaryWrapper>
