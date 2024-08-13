@@ -6,6 +6,7 @@ import type { Location } from '@altinn/altinn-design-system';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { markerIcon } from 'src/layout/Map/MapIcons';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -14,6 +15,9 @@ export type IMapComponentProps = PropsFromGenericComponent<'Map'>;
 export const useStyles = makeStyles(() => ({
   footer: {
     paddingTop: '12px',
+  },
+  container: {
+    width: '100%',
   },
 }));
 
@@ -30,27 +34,36 @@ export function MapComponent({ isValid, node }: IMapComponentProps) {
   };
 
   return (
-    <div className={`map-component${isValid ? '' : ' validation-error'}`}>
-      <Map
-        layers={layers}
-        centerLocation={location || centerLocation}
-        zoom={location ? 16 : zoom}
-        markerLocation={location}
-        readOnly={readOnly}
-        onClick={handleMapClicked}
-        markerIcon={markerIcon}
-      />
-      <Typography className={classes.footer}>
-        {location ? (
-          <Lang
-            id={'map_component.selectedLocation'}
-            params={[location.latitude, location.longitude]}
-          />
-        ) : (
-          <Lang id={'map_component.noSelectedLocation'} />
-        )}
-      </Typography>
-    </div>
+    <ComponentStructureWrapper
+      node={node}
+      label={{
+        ...node.item,
+        renderLabelAs: 'span',
+        className: classes.container,
+      }}
+    >
+      <div className={`map-component${isValid ? '' : ' validation-error'}`}>
+        <Map
+          layers={layers}
+          centerLocation={location ?? centerLocation}
+          zoom={location ? 16 : zoom}
+          markerLocation={location}
+          readOnly={readOnly}
+          onClick={handleMapClicked}
+          markerIcon={markerIcon}
+        />
+        <Typography className={classes.footer}>
+          {location ? (
+            <Lang
+              id={'map_component.selectedLocation'}
+              params={[location.latitude, location.longitude]}
+            />
+          ) : (
+            <Lang id={'map_component.noSelectedLocation'} />
+          )}
+        </Typography>
+      </div>
+    </ComponentStructureWrapper>
   );
 }
 

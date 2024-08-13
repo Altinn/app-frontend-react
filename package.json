@@ -56,7 +56,7 @@
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
     "@types/react-router-dom": "5.3.3",
-    "@types/uuid": "9.0.8",
+    "@types/uuid": "10.0.0",
     "@typescript-eslint/eslint-plugin": "8.0.0",
     "@typescript-eslint/parser": "8.0.0",
     "axe-core": "4.10.0",
@@ -100,7 +100,7 @@
     "jest-preview": "^0.3.1",
     "js-levenshtein": "^1.1.6",
     "jsdom": "24.1.1",
-    "lint-staged": "15.2.7",
+    "lint-staged": "15.2.8",
     "mime": "4.0.4",
     "mini-css-extract-plugin": "2.9.0",
     "postcss-modules": "^6.0.0",
@@ -122,7 +122,7 @@
     "webpack-dev-server": "5.0.4"
   },
   "dependencies": {
-    "@altinn/altinn-design-system": "0.30.0",
+    "@altinn/altinn-design-system": "0.30.2",
     "@babel/polyfill": "7.12.1",
     "@date-io/moment": "1.3.13",
     "@digdir/design-system-react": "0.54.0",
@@ -146,7 +146,7 @@
     "html-react-parser": "5.1.12",
     "immer": "^10.0.3",
     "jsonpointer": "5.0.1",
-    "lru-cache": "^10.2.0",
+    "lru-cache": "^11.0.0",
     "marked": "10.0.0",
     "marked-mangle": "^1.0.1",
     "moment": "2.30.1",
@@ -161,10 +161,10 @@
     "react-toastify": "^10.0.0",
     "typescript": "5.5.4",
     "typescript-eslint": "^8.0.0",
-    "uuid": "9.0.1",
+    "uuid": "10.0.0",
     "zustand": "^4.4.7"
   },
-  "packageManager": "yarn@4.3.1",
+  "packageManager": "yarn@4.4.0",
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       ".husky/pre-commit-check-for-skipped-tests",
