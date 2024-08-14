@@ -1,7 +1,5 @@
 import React from 'react';
 
-import cn from 'classnames';
-
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -88,11 +86,7 @@ export function LikertSummary({
         style={{ width: '100%' }}
       >
         <div className={classes.container}>
-          <span
-            className={cn(classes.label, groupHasErrors && !display?.hideValidationMessages && classes.labelWithError)}
-          >
-            {title}
-          </span>
+          <span className={classes.label}>{title}</span>
 
           {!display?.hideChangeButton ? (
             <EditButton

@@ -324,7 +324,6 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
         orderDetails={paymentInfo?.orderDetails}
         tableTitle={textResourceBindings?.title}
         description={textResourceBindings?.description}
-        className={classes.container}
       />
     </div>
   );

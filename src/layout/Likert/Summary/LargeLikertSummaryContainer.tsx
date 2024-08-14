@@ -70,7 +70,6 @@ export function LargeLikertSummaryContainer({
         ref={divRef}
         id={id || container.id}
         data-testid='display-group-container'
-        className={classes.groupContainer}
       >
         {children.map((n) => renderLayoutNode(n))}
       </div>

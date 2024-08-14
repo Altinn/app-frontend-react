@@ -191,7 +191,7 @@ export const ExpressionPlayground = () => {
                   setActiveOutputTab(outputName);
                 }}
               >
-                <Tabs.List className={classes.tablist}>
+                <Tabs.List>
                   {outputs.map((output, i) => {
                     const { key, value } = getTabKeyAndValue(i, output);
                     return (
