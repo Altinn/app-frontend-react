@@ -248,8 +248,11 @@ export function useExpressionResolverProps<T extends CompTypes>(
             },
           }
         : {}),
+      ...(rest.forceShowInSummary !== undefined
+        ? { forceShowInSummary: evalBool(rest.forceShowInSummary, false) }
+        : {}),
     };
-  }, [evalStr, item]);
+  }, [evalStr, item, evalBool]);
 
   const evalFormProps = useCallback<ExprResolver<T>['evalFormProps']>(() => {
     const out: any = {};
