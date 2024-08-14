@@ -133,7 +133,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
         >
           {shouldShowFileUpload && (
             <>
-              <Label {...{ ...node.item, renderLabelAs: 'span' }}>
+              <Label {...{ ...node.item, renderLabelAs: 'plainLabel' }}>
                 <DropzoneComponent
                   id={id}
                   isMobile={mobileView}

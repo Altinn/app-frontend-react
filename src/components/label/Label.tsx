@@ -11,7 +11,7 @@ import { gridBreakpoints } from 'src/utils/formComponentUtils';
 import type { LabelContentProps } from 'src/components/label/LabelContent';
 import type { IGridStyling, ILabelSettings } from 'src/layout/common.generated';
 
-type LabelType = 'legend' | 'span' | 'label';
+type LabelType = 'legend' | 'span' | 'label' | 'plainLabel';
 
 export type LabelProps = PropsWithChildren<{
   id: string;
@@ -89,6 +89,20 @@ export function Label({
             </LabelGridItemWrapper>
             {children}
           </Grid>
+        </DesignsystemetLabel>
+      );
+
+    case 'plainLabel':
+      return (
+        <DesignsystemetLabel
+          id={labelId}
+          htmlFor={id}
+          style={{ width: '100%' }}
+          className={className}
+        >
+          <LabelContent {...labelContentProps} />
+
+          {children}
         </DesignsystemetLabel>
       );
 
