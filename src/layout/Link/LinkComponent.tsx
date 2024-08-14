@@ -20,7 +20,7 @@ export const buttonStyles: {
 
 export type ILinkComponent = PropsFromGenericComponent<'Link'>;
 
-export function LinkComponent({ node, overrideItemProps }: ILinkComponent) {
+export function LinkComponent({ node }: ILinkComponent) {
   const { id, style: linkStyle, openInNewTab, textResourceBindings } = node.item;
   const { langAsString } = useLanguage();
   const parentIsPage = node.parent instanceof LayoutPage;
@@ -53,10 +53,7 @@ export function LinkComponent({ node, overrideItemProps }: ILinkComponent) {
   );
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       {linkStyle === 'link' ? <Link /> : <LinkButton />}
     </ComponentStructureWrapper>
   );

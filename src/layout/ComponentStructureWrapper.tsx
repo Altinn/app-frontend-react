@@ -3,11 +3,10 @@ import type { PropsWithChildren } from 'react';
 
 import { Grid } from '@material-ui/core';
 
-import type { PropsFromGenericComponent } from '.';
-
 import { Label } from 'src/components/label/Label';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
+import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import { gridBreakpoints } from 'src/utils/formComponentUtils';
 import type { LabelProps } from 'src/components/label/Label';
 import type { CompTypes } from 'src/layout/layout';
@@ -16,7 +15,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ComponentStructureWrapperProps<Type extends CompTypes> = {
   node: LayoutNode<Type>;
-  overrideItemProps: PropsFromGenericComponent['overrideItemProps'];
   label?: LabelProps;
 };
 
@@ -24,8 +22,9 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   node,
   children,
   label,
-  overrideItemProps,
 }: PropsWithChildren<ComponentStructureWrapperProps<Type>>) {
+  const overrideItemProps = useFormComponentCtx()?.overrideItemProps;
+
   const item = overrideItemProps ? { ...node.item, ...overrideItemProps } : { ...node.item };
   const labelProps = label && overrideItemProps ? ({ ...label, ...overrideItemProps } as LabelProps) : label;
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;

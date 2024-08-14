@@ -8,17 +8,14 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type AlertProps = PropsFromGenericComponent<'Alert'>;
 
-export const Alert = ({ node, overrideItemProps }: AlertProps) => {
+export const Alert = ({ node }: AlertProps) => {
   const { severity, textResourceBindings, hidden } = node.item;
   const { langAsString } = useLanguage();
 
   const shouldAlertScreenReaders = hidden === false;
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       <AlertBaseComponent
         severity={severity}
         useAsAlert={shouldAlertScreenReaders}

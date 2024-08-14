@@ -21,7 +21,6 @@ export type IPassedOnProps = Omit<PropsFromGenericComponent<'Custom'>, 'node' | 
 
 export function CustomWebComponent({
   node,
-  overrideItemProps,
   componentValidations,
   ...passThroughPropsFromGenericComponent
 }: ICustomComponentProps) {
@@ -86,10 +85,7 @@ export function CustomWebComponent({
   });
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       <HtmlTag
         ref={wcRef}
         data-testid={tagName}

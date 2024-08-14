@@ -109,7 +109,7 @@ const NavigationButton = React.forwardRef(
 
 NavigationButton.displayName = 'NavigationButton';
 
-export const NavigationBarComponent = ({ node, overrideItemProps }: INavigationBar) => {
+export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const { compact, validateOnForward, validateOnBackward } = node.item;
   const classes = useStyles();
   const [showMenu, setShowMenu] = React.useState(false);
@@ -165,10 +165,7 @@ export const NavigationBarComponent = ({ node, overrideItemProps }: INavigationB
   }
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       <Grid container>
         <Grid
           data-testid='NavigationBar'

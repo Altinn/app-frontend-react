@@ -18,7 +18,7 @@ const useStyles = makeStyles({
   },
 });
 
-export function ImageComponent({ node, overrideItemProps }: IImageProps) {
+export function ImageComponent({ node }: IImageProps) {
   const { langAsString } = useLanguage();
   const { id, image, textResourceBindings } = node.item;
   const classes = useStyles();
@@ -52,10 +52,7 @@ export function ImageComponent({ node, overrideItemProps }: IImageProps) {
   }
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       <Grid
         container
         direction='row'

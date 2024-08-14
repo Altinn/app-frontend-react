@@ -9,13 +9,12 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { GenericComponent } from 'src/layout/GenericComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function ButtonGroupComponent({ node, overrideItemProps }: PropsFromGenericComponent<'ButtonGroup'>) {
+export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'ButtonGroup'>) {
   const childNodes = node.item.childComponents;
 
   return (
     <ComponentStructureWrapper
       node={node}
-      overrideItemProps={overrideItemProps}
       label={{ ...node.item, renderLabelAs: 'legend' }}
     >
       <Grid

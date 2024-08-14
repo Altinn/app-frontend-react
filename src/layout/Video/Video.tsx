@@ -8,7 +8,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IVideoProps = PropsFromGenericComponent<'Video'>;
 
-export function VideoComponent({ node, overrideItemProps }: IVideoProps) {
+export function VideoComponent({ node }: IVideoProps) {
   const { langAsString } = useLanguage();
   const { id, video, textResourceBindings } = node.item;
   const languageKey = useCurrentLanguage();
@@ -18,10 +18,7 @@ export function VideoComponent({ node, overrideItemProps }: IVideoProps) {
   const cardMediaHeight = useParentCard()?.minMediaHeight;
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       <video
         controls
         id={id}

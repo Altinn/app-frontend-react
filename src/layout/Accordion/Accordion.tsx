@@ -12,7 +12,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 type IAccordionProps = PropsFromGenericComponent<'Accordion'>;
 
-export const Accordion = ({ node, overrideItemProps }: IAccordionProps) => {
+export const Accordion = ({ node }: IAccordionProps) => {
   const { textResourceBindings, renderAsAccordionItem, headingLevel } = node.item;
   const { langAsString } = useLanguage();
 
@@ -41,10 +41,7 @@ export const Accordion = ({ node, overrideItemProps }: IAccordionProps) => {
   );
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       {renderAsAccordionItem ? (
         <AccordionItem className={classes.container} />
       ) : (

@@ -15,7 +15,7 @@ import classes from 'src/layout/Payment/PaymentComponent.module.css';
 import { SkeletonLoader } from 'src/layout/Payment/SkeletonLoader';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 
-export const PaymentComponent = ({ node, overrideItemProps }: PropsFromGenericComponent<'Payment'>) => {
+export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>) => {
   const { partyId, instanceGuid } = useInstanceIdParams();
   const { next, busy } = useProcessNavigation() || {};
   const paymentInfo = usePaymentInformation();
@@ -49,10 +49,7 @@ export const PaymentComponent = ({ node, overrideItemProps }: PropsFromGenericCo
   }
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       <PaymentDetailsTable
         orderDetails={paymentInfo?.orderDetails}
         tableTitle={title}

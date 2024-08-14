@@ -18,7 +18,7 @@ function parseSize(size: string | undefined, defaultValue: string): string {
   return size && /^[0-9]+$/.test(size) ? `${size}px` : (size ?? defaultValue);
 }
 
-export const Cards = ({ node, overrideItemProps }: ICardsProps) => {
+export const Cards = ({ node }: ICardsProps) => {
   const { cardsInternal, minMediaHeight, minWidth, color, mediaPosition: _mediaPosition } = node.item;
   const processedMinWidth = parseSize(minWidth, '250px');
   const processedMinMediaHeight = parseSize(minMediaHeight, '150px');
@@ -31,10 +31,7 @@ export const Cards = ({ node, overrideItemProps }: ICardsProps) => {
   };
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       <div style={cardContainer}>
         {cardsInternal.map((card, idx) => (
           <Card

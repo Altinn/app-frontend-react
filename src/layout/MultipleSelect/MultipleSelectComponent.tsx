@@ -15,7 +15,7 @@ import comboboxClasses from 'src/styles/combobox.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
-export function MultipleSelectComponent({ node, isValid, overrideDisplay, overrideItemProps }: IMultipleSelectProps) {
+export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMultipleSelectProps) {
   const { id, readOnly, textResourceBindings, alertOnChange } = node.item;
   const debounce = FD.useDebounceImmediately();
   const { options, isFetching, selectedValues, setData } = useGetOptions({
@@ -69,7 +69,6 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay, overri
       <ComponentStructureWrapper
         node={node}
         label={{ ...node.item, renderLabelAs: 'label' }}
-        overrideItemProps={overrideItemProps}
       >
         <Combobox
           multiple

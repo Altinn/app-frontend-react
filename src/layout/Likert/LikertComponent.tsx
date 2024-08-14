@@ -19,7 +19,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type LikertComponentProps = PropsFromGenericComponent<'Likert'>;
 
-export const LikertComponent = ({ node, overrideItemProps }: LikertComponentProps) => {
+export const LikertComponent = ({ node }: LikertComponentProps) => {
   const firstLikertChild = node?.children((item) => item.type === 'LikertItem') as LayoutNode<'LikertItem'> | undefined;
   const mobileView = useIsMobileOrTablet();
   const { options: calculatedOptions, isFetching } = useGetOptions({
@@ -65,10 +65,7 @@ export const LikertComponent = ({ node, overrideItemProps }: LikertComponentProp
 
   if (mobileView) {
     return (
-      <ComponentStructureWrapper
-        node={node}
-        overrideItemProps={overrideItemProps}
-      >
+      <ComponentStructureWrapper node={node}>
         <Grid
           item
           container
@@ -102,10 +99,7 @@ export const LikertComponent = ({ node, overrideItemProps }: LikertComponentProp
   }
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       <Grid
         item
         container

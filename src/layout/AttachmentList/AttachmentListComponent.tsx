@@ -14,7 +14,7 @@ export type IAttachmentListProps = PropsFromGenericComponent<'AttachmentList'>;
 const emptyDataArray: IData[] = [];
 const emptyDataTypeArray: IDataType[] = [];
 
-export function AttachmentListComponent({ node, overrideItemProps }: IAttachmentListProps) {
+export function AttachmentListComponent({ node }: IAttachmentListProps) {
   const instanceData = useLaxInstanceData()?.data ?? emptyDataArray;
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const dataTypes = useApplicationMetadata().dataTypes ?? emptyDataTypeArray;
@@ -56,10 +56,7 @@ export function AttachmentListComponent({ node, overrideItemProps }: IAttachment
   }, [currentTaskId, dataTypes, instanceData, node.item.dataTypeIds]);
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       <AltinnAttachment
         attachments={attachments}
         title={node.item.textResourceBindings?.title}

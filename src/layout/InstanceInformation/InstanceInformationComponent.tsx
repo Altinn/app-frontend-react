@@ -107,15 +107,11 @@ export function InstanceInformation({ elements }: CompInstanceInformationInterna
   );
 }
 
-export function InstanceInformationComponent({
-  node,
-  overrideItemProps,
-}: PropsFromGenericComponent<'InstanceInformation'>) {
+export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
   return (
     <ComponentStructureWrapper
       node={node}
       label={{ ...node.item, renderLabelAs: 'legend' }}
-      overrideItemProps={overrideItemProps}
     >
       <InstanceInformation {...node.item} />
     </ComponentStructureWrapper>

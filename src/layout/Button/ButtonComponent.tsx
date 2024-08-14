@@ -18,7 +18,7 @@ export type IButtonProvidedProps =
   | (PropsFromGenericComponent<'Button'> & CompInternal<'Button'>)
   | (PropsFromGenericComponent<'InstantiationButton'> & CompInternal<'InstantiationButton'>);
 
-export const ButtonComponent = ({ node, overrideItemProps, ...componentProps }: IButtonReceivedProps) => {
+export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProps) => {
   const { mode } = node.item;
   const { langAsString } = useLanguage();
   const props: IButtonProvidedProps = { ...componentProps, ...node.item, node };
@@ -63,10 +63,7 @@ export const ButtonComponent = ({ node, overrideItemProps, ...componentProps }: 
     }
   };
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
         <SubmitButton
           nodeId={node.item.id}

@@ -8,15 +8,12 @@ import { Lang } from 'src/features/language/Lang';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 
-export const PrintButtonComponent = ({ node, overrideItemProps }: PropsFromGenericComponent<'PrintButton'>) => {
+export const PrintButtonComponent = ({ node }: PropsFromGenericComponent<'PrintButton'>) => {
   const { textResourceBindings } = node.item;
   const parentIsPage = node.parent instanceof LayoutPage;
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       <Button
         style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
         variant='secondary'

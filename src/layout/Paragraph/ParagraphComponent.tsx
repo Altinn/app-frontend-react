@@ -12,7 +12,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IParagraphProps = PropsFromGenericComponent<'Paragraph'>;
 
-export function ParagraphComponent({ node, overrideItemProps }: IParagraphProps) {
+export function ParagraphComponent({ node }: IParagraphProps) {
   const { id, textResourceBindings } = node.item;
   const { lang, elementAsString } = useLanguage();
   const text = lang(textResourceBindings?.title);
@@ -22,10 +22,7 @@ export function ParagraphComponent({ node, overrideItemProps }: IParagraphProps)
   const hasInlineContent = text && typeof text === 'object' && 'type' in text && text.type === 'span';
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      overrideItemProps={overrideItemProps}
-    >
+    <ComponentStructureWrapper node={node}>
       <div className={classes.paragraphWrapper}>
         <div
           id={id}

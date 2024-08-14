@@ -22,7 +22,7 @@ export type IListProps = PropsFromGenericComponent<'List'>;
 const defaultDataList: any[] = [];
 const defaultBindings: IDataModelBindingsForList = {};
 
-export const ListComponent = ({ node, overrideItemProps }: IListProps) => {
+export const ListComponent = ({ node }: IListProps) => {
   const { tableHeaders, pagination, sortableColumns, tableHeadersMobile, mapping, secure, dataListId } = node.item;
   const { langAsString, language, lang } = useLanguage();
   const [pageSize, setPageSize] = useState<number>(pagination?.default || 0);
@@ -121,7 +121,6 @@ export const ListComponent = ({ node, overrideItemProps }: IListProps) => {
   return (
     <ComponentStructureWrapper
       node={node}
-      overrideItemProps={overrideItemProps}
       label={{ ...node.item, renderLabelAs: 'legend' }}
     >
       <div style={{ overflow: 'auto' }}>
