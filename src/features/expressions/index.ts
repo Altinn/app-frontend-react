@@ -7,7 +7,12 @@ import {
   UnknownSourceType,
   UnknownTargetType,
 } from 'src/features/expressions/errors';
-import { ExprContext } from 'src/features/expressions/ExprContext';
+import {
+  ensureNode,
+  getExpressionValue,
+  prettyError,
+  traceExpressionError,
+} from 'src/features/expressions/ExprContext';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
 import { SearchParams } from 'src/hooks/useNavigatePage';
@@ -46,6 +51,15 @@ export type SimpleEval<T extends ExprVal> = (
   dataSources?: Partial<ExpressionDataSources>,
 ) => ExprValToActual<T>;
 
+export type EvaluateExpressionParams = {
+  expr: Expression;
+  path: string[];
+  callbacks: Pick<EvalExprOptions, 'onBeforeFunctionCall' | 'onAfterFunctionCall'>;
+  node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext;
+  dataSources: ExpressionDataSources;
+  positionalArguments?: ExprPositionalArgs;
+};
+
 /**
  * Simple (non-validating) check to make sure an input is an expression.
  * @see ExprValidation
@@ -72,19 +86,23 @@ export function evalExpr(
   if (!isExpression(expr)) {
     return expr;
   }
-  let ctx = ExprContext.withBlankPath(
+
+  const callbacks: Pick<EvalExprOptions, 'onBeforeFunctionCall' | 'onAfterFunctionCall'> = {
+    onBeforeFunctionCall: options?.onBeforeFunctionCall,
+    onAfterFunctionCall: options?.onAfterFunctionCall,
+  };
+  const ctx: EvaluateExpressionParams = {
     expr,
+    path: [],
+    callbacks,
     node,
     dataSources,
-    {
-      onBeforeFunctionCall: options?.onBeforeFunctionCall,
-      onAfterFunctionCall: options?.onAfterFunctionCall,
-    },
-    options?.positionalArguments,
-  );
+    positionalArguments: options?.positionalArguments,
+  };
+
   try {
     const result = innerEvalExpr(ctx);
-    if ((result === null || result === undefined) && options && options.config) {
+    if ((result === null || result === undefined) && options?.config) {
       return options.config.defaultValue;
     }
 
@@ -101,14 +119,12 @@ export function evalExpr(
 
     return result;
   } catch (err) {
-    if (err instanceof ExprRuntimeError) {
-      ctx = err.context;
-    } else {
-      throw err;
-    }
+    const { expr: errorExpr, path: errorPath } =
+      err instanceof ExprRuntimeError ? { expr: err.expression, path: err.path } : { expr: ctx.expr, path: ctx.path };
+
     if (options && options.config) {
       // When we know of a default value, we can safely print it as an error to the console and safely recover
-      ctx.trace(err, {
+      traceExpressionError(err, errorExpr, errorPath, {
         config: options.config,
         ...(options.errorIntroText ? { introText: options.errorIntroText } : {}),
       });
@@ -116,7 +132,7 @@ export function evalExpr(
     } else {
       // We cannot possibly know the expected default value here, so there are no safe ways to fail here except
       // throwing the exception to let everyone know we failed.
-      throw new Error(ctx.prettyError(err));
+      throw new Error(prettyError(err, errorExpr, errorPath));
     }
   }
 }
@@ -136,33 +152,34 @@ export function argTypeAt(func: ExprFunction, argIndex: number): ExprVal | undef
   return undefined;
 }
 
-function innerEvalExpr(context: ExprContext) {
-  const [func, ...args] = context.getExpr();
+function innerEvalExpr(ctx: EvaluateExpressionParams): any {
+  const { expr, path } = ctx;
+  const [func, ...args] = getExpressionValue(expr, path);
 
   const returnType = ExprFunctions[func].returns;
 
-  const computedArgs = args.map((arg, idx) => {
+  const computedArgs = args.map((arg: unknown, idx: number) => {
     const realIdx = idx + 1;
-    const argContext = ExprContext.withPath(context, [...context.path, `[${realIdx}]`]);
 
-    const argValue = Array.isArray(arg) ? innerEvalExpr(argContext) : arg;
+    const ctxWithNewPath = { ...ctx, path: [...path, `[${realIdx}]`] };
+    const argValue = Array.isArray(arg) ? innerEvalExpr(ctxWithNewPath) : arg;
     const argType = argTypeAt(func, idx);
-    return castValue(argValue, argType, argContext);
+    return castValue(argValue, argType, ctxWithNewPath);
   });
 
-  const { onBeforeFunctionCall, onAfterFunctionCall } = context.callbacks;
+  const { onBeforeFunctionCall, onAfterFunctionCall } = ctx.callbacks;
 
-  const actualFunc: (...args: any) => any = ExprFunctions[func].impl;
+  const actualFunc = ExprFunctions[func].impl;
 
-  onBeforeFunctionCall && onBeforeFunctionCall(context.path, func, computedArgs);
-  const returnValue = actualFunc.apply(context, computedArgs);
-  const returnValueCasted = castValue(returnValue, returnType, context);
-  onAfterFunctionCall && onAfterFunctionCall(context.path, func, computedArgs, returnValueCasted);
+  onBeforeFunctionCall?.(path, func, computedArgs);
+  const returnValue = actualFunc.apply(ctx, computedArgs);
+  const returnValueCasted = castValue(returnValue, returnType, ctx);
+  onAfterFunctionCall?.(path, func, computedArgs, returnValueCasted);
 
   return returnValueCasted;
 }
 
-function valueToExprValueType(value: any): ExprVal {
+function valueToExprValueType(value: unknown): ExprVal {
   if (typeof value === 'number' || typeof value === 'bigint') {
     return ExprVal.Number;
   }
@@ -172,11 +189,12 @@ function valueToExprValueType(value: any): ExprVal {
   if (typeof value === 'boolean') {
     return ExprVal.Boolean;
   }
+
   return ExprVal.Any;
 }
 
-function isLikeNull(arg: any) {
-  return arg === 'null' || arg === null || typeof arg === 'undefined';
+function isLikeNull(arg: unknown) {
+  return arg === 'null' || arg === null || arg === undefined;
 }
 
 /**
@@ -184,12 +202,12 @@ function isLikeNull(arg: any) {
  * through a function call.
  */
 function castValue<T extends ExprVal>(
-  value: any,
+  value: unknown,
   toType: T | undefined,
-  context: ExprContext,
+  context: EvaluateExpressionParams,
 ): ExprValToActual<T> | null {
   if (!toType || !(toType in ExprTypes)) {
-    throw new UnknownTargetType(context, toType ? toType : typeof toType);
+    throw new UnknownTargetType(context.expr, context.path, toType ? toType : typeof toType);
   }
 
   const typeObj = ExprTypes[toType];
@@ -201,7 +219,7 @@ function castValue<T extends ExprVal>(
   const valueType = valueToExprValueType(value);
   if (!typeObj.accepts.includes(valueType)) {
     const supported = [...typeObj.accepts, ...(typeObj.nullable ? ['null'] : [])].join(', ');
-    throw new UnknownSourceType(context, typeof value, supported);
+    throw new UnknownSourceType(context.expr, context.path, typeof value, supported);
   }
 
   return typeObj.impl.apply(context, [value]);
@@ -248,11 +266,11 @@ export const ExprFunctions = {
   argv: defineFunc({
     impl(idx) {
       if (!this.positionalArguments?.length) {
-        throw new ExprRuntimeError(this, 'No positional arguments available');
+        throw new ExprRuntimeError(this.expr, this.path, 'No positional arguments available');
       }
 
       if (typeof idx !== 'number' || idx < 0 || idx >= this.positionalArguments.length) {
-        throw new ExprRuntimeError(this, 'Invalid argv index');
+        throw new ExprRuntimeError(this.expr, this.path, 'Invalid argv index');
       }
 
       return this.positionalArguments[idx];
@@ -365,7 +383,7 @@ export const ExprFunctions = {
   instanceContext: defineFunc({
     impl(key): string | null {
       if (key === null || instanceDataSourcesKeys[key] !== true) {
-        throw new ExprRuntimeError(this, `Unknown Instance context property ${key}`);
+        throw new ExprRuntimeError(this.expr, this.path, `Unknown Instance context property ${key}`);
       }
 
       return (this.dataSources.instanceDataSources && this.dataSources.instanceDataSources[key]) || null;
@@ -376,7 +394,7 @@ export const ExprFunctions = {
   frontendSettings: defineFunc({
     impl(key): any {
       if (key === null) {
-        throw new ExprRuntimeError(this, `Value cannot be null. (Parameter 'key')`);
+        throw new ExprRuntimeError(this.expr, this.path, `Value cannot be null. (Parameter 'key')`);
       }
 
       return (this.dataSources.applicationSettings && this.dataSources.applicationSettings[key]) || null;
@@ -387,7 +405,7 @@ export const ExprFunctions = {
   authContext: defineFunc({
     impl(key): boolean | null {
       if (key === null || authContextKeys[key] !== true) {
-        throw new ExprRuntimeError(this, `Unknown auth context property ${key}`);
+        throw new ExprRuntimeError(this.expr, this.path, `Unknown auth context property ${key}`);
       }
 
       return Boolean(this.dataSources.authContext?.[key]);
@@ -398,10 +416,10 @@ export const ExprFunctions = {
   component: defineFunc({
     impl(id): any {
       if (id === null) {
-        throw new ExprRuntimeError(this, `Cannot lookup component null`);
+        throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup component null`);
       }
 
-      const node = this.failWithoutNode();
+      const node = ensureNode(this.node);
       const closest = this.dataSources.nodeTraversal(
         (t) =>
           t.with(node).closest((c) => c.type === 'node' && (c.layout.id === id || c.layout.baseComponentId === id)),
@@ -432,7 +450,8 @@ export const ExprFunctions = {
       // results. We should note this in the error message, so we know the reason we couldn't find the component.
       const hasAllLayouts = node instanceof LayoutPage ? !!node.layoutSet : !!node.page.layoutSet;
       throw new ExprRuntimeError(
-        this,
+        this.expr,
+        this.path,
         hasAllLayouts
           ? `Unable to find component with identifier ${id} or it does not have a simpleBinding`
           : `Unable to find component with identifier ${id} in the current layout or it does not have a simpleBinding`,
@@ -444,12 +463,12 @@ export const ExprFunctions = {
   dataModel: defineFunc({
     impl(path): any {
       if (path === null) {
-        throw new ExprRuntimeError(this, `Cannot lookup dataModel null`);
+        throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataModel null`);
       }
 
-      const maybeNode = this.failWithoutNode();
-      if (maybeNode instanceof BaseLayoutNode) {
-        const newPath = this.dataSources.transposeSelector(maybeNode as LayoutNode, path);
+      const node = ensureNode(this.node);
+      if (node instanceof BaseLayoutNode) {
+        const newPath = this.dataSources.transposeSelector(node as LayoutNode, path);
         return pickSimpleValue(newPath, this.dataSources.formDataSelector);
       }
 
@@ -463,10 +482,10 @@ export const ExprFunctions = {
   displayValue: defineFunc({
     impl(id): any {
       if (id === null) {
-        throw new ExprRuntimeError(this, `Cannot lookup component null`);
+        throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup component null`);
       }
 
-      const node = this.failWithoutNode();
+      const node = ensureNode(this.node);
       const targetNode = this.dataSources.nodeTraversal(
         (t) => t.with(node).closest((c) => c.type === 'node' && (c.item?.id === id || c.item?.baseComponentId === id)),
         [node, id],
@@ -479,12 +498,16 @@ export const ExprFunctions = {
       }
 
       if (!targetNode) {
-        throw new ExprRuntimeError(this, `Unable to find component with identifier ${id}`);
+        throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
       }
 
       const def = targetNode.def;
       if (!implementsDisplayData(def)) {
-        throw new ExprRuntimeError(this, `Component with identifier ${id} does not have a displayValue`);
+        throw new ExprRuntimeError(
+          this.expr,
+          this.path,
+          `Component with identifier ${id} does not have a displayValue`,
+        );
       }
 
       if (this.dataSources.isHiddenSelector(targetNode)) {
@@ -549,7 +572,7 @@ export const ExprFunctions = {
         return null;
       }
 
-      const node = this.failWithoutNode();
+      const node = ensureNode(this.node);
       const closest = this.dataSources.nodeTraversal(
         (t) =>
           t.with(node).closest((c) => c.type === 'node' && (c.layout.id === id || c.layout.baseComponentId === id)),
@@ -563,7 +586,7 @@ export const ExprFunctions = {
       }
 
       if (!closest) {
-        throw new ExprRuntimeError(this, `Unable to find component with identifier ${id}`);
+        throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
       }
 
       const taskId = this.dataSources.process?.currentTask?.elementId;
@@ -700,7 +723,7 @@ export const ExprFunctions = {
     args: [ExprVal.String, ExprVal.String, ExprVal.String, ExprVal.String, ExprVal.Boolean] as const,
     impl(path, propertyToSelect, prepend, append, appendToLastElement = true) {
       if (path === null || propertyToSelect == null) {
-        throw new ExprRuntimeError(this, `Cannot lookup dataModel null`);
+        throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataModel null`);
       }
       const array = this.dataSources.formDataSelector(path);
       if (typeof array != 'object' || !Array.isArray(array)) {
@@ -741,7 +764,7 @@ export const ExprTypes: {
   [Type in ExprVal]: {
     nullable: boolean;
     accepts: ExprVal[];
-    impl: (this: ExprContext, arg: any) => ExprValToActual<Type> | null;
+    impl: (this: EvaluateExpressionParams, arg: any) => ExprValToActual<Type> | null;
   };
 } = {
   [ExprVal.Boolean]: {
@@ -770,7 +793,7 @@ export const ExprTypes: {
         }
       }
 
-      throw new UnexpectedType(this, 'boolean', arg);
+      throw new UnexpectedType(this.expr, this.path, 'boolean', arg);
     },
   },
   [ExprVal.String]: {
@@ -809,7 +832,7 @@ export const ExprTypes: {
         }
       }
 
-      throw new UnexpectedType(this, 'number', arg);
+      throw new UnexpectedType(this.expr, this.path, 'number', arg);
     },
   },
   [ExprVal.Any]: {

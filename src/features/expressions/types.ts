@@ -1,7 +1,6 @@
 import type { PickByValue } from 'utility-types';
 
-import type { ExprFunctions } from 'src/features/expressions';
-import type { ExprContext } from 'src/features/expressions/ExprContext';
+import type { EvaluateExpressionParams, ExprFunctions } from 'src/features/expressions';
 import type { ValidationContext } from 'src/features/expressions/validation';
 
 type Functions = typeof ExprFunctions;
@@ -50,7 +49,7 @@ type ArgsToActualOrNull<T extends readonly ExprVal[]> = {
 };
 
 export interface FuncDef<Args extends readonly ExprVal[], Ret extends ExprVal> {
-  impl: (this: ExprContext, ...params: ArgsToActualOrNull<Args>) => ExprValToActual<Ret> | null;
+  impl: (this: EvaluateExpressionParams, ...params: ArgsToActualOrNull<Args>) => ExprValToActual<Ret> | null;
   args: Args;
   minArguments?: number;
   returns: Ret;
