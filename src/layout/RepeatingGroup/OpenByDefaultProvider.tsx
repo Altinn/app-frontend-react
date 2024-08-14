@@ -22,7 +22,7 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
   const { addRow, openForEditing } = useRepeatingGroup();
   const { visibleRows } = useRepeatingGroupRowState();
   const state = useRepeatingGroupSelector((state) => ({
-    editingRow: state.editingRow,
+    editingId: state.editingId,
     addingIds: state.addingIds,
   }));
 
@@ -65,13 +65,13 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
       }
 
       // Open the first or last row for editing, if openByDefault is set to 'first' or 'last'
-      const { editingRow, firstRow, lastRow, openForEditing } = stateRef.current;
+      const { editingId, firstRow, lastRow, openForEditing } = stateRef.current;
       if (
         isFirstRender.current &&
         openByDefault &&
         typeof openByDefault === 'string' &&
         ['first', 'last'].includes(openByDefault) &&
-        editingRow === undefined
+        editingId === undefined
       ) {
         const row = openByDefault === 'last' ? lastRow : firstRow;
         row !== undefined && openForEditing(row);

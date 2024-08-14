@@ -30,10 +30,10 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HTMLDivElement>): JSX.Element | null => {
   const { node } = useRepeatingGroup();
   const { rowsToDisplay } = useRepeatingGroupPagination();
-  const { editingRow } = useRepeatingGroupSelector((state) => ({
-    editingRow: state.editingRow,
+  const { editingId } = useRepeatingGroupSelector((state) => ({
+    editingId: state.editingId,
   }));
-  const isEditingAnyRow = editingRow !== undefined;
+  const isEditingAnyRow = editingId !== undefined;
 
   const { textResourceBindings, edit, type } = useNodeItem(node);
   const { title, description } = textResourceBindings || {};
@@ -67,8 +67,8 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
         wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
       >
         <>
-          {isEditingAnyRow && editingRow !== undefined && edit?.mode === 'hideTable' && (
-            <RepeatingGroupsEditContainer editId={editingRow.uuid} />
+          {isEditingAnyRow && editingId !== undefined && edit?.mode === 'hideTable' && (
+            <RepeatingGroupsEditContainer editId={editingId} />
           )}
           {edit?.mode === 'showAll' && (
             <>
@@ -117,13 +117,12 @@ function AddButton() {
   const { triggerFocus } = useRepeatingGroupsFocusContext();
   const { node, addRow } = useRepeatingGroup();
   const { visibleRows } = useRepeatingGroupRowState();
-  const { editingAll, editingNone, editingRow, currentlyAddingRow } = useRepeatingGroupSelector((state) => ({
+  const { editingAll, editingNone, isEditingAnyRow, currentlyAddingRow } = useRepeatingGroupSelector((state) => ({
     editingAll: state.editingAll,
     editingNone: state.editingNone,
-    editingRow: state.editingRow,
+    isEditingAnyRow: state.editingId !== undefined,
     currentlyAddingRow: state.addingIds.length > 0,
   }));
-  const isEditingAnyRow = editingRow !== undefined;
 
   const item = useNodeItem(node);
   const { textResourceBindings, id, edit } = item;

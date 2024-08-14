@@ -32,7 +32,7 @@ jest.mock('uuid', () => ({
 describe('openByDefault', () => {
   function RenderTest() {
     const state = useRepeatingGroupSelector((state) => ({
-      editingId: state.editingRow?.uuid,
+      editingId: state.editingId,
       addingIds: state.addingIds,
     }));
     const { deleteRow } = useRepeatingGroup();
