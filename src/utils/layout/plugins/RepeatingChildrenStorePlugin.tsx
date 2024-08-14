@@ -52,11 +52,6 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
               continue;
             }
 
-            console.log('debug, setting row extras', {
-              existingRow: existingRow?.uuid,
-              nextRow: row.uuid,
-              index: row.index,
-            });
             if (row.index !== undefined) {
               changes = true;
               const newRows = [...(existingRows || [])];
