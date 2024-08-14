@@ -27,6 +27,7 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   overrideItemProps,
 }: PropsWithChildren<ComponentStructureWrapperProps<Type>>) {
   const item = overrideItemProps ? { ...node.item, ...overrideItemProps } : { ...node.item };
+  const labelProps = label && overrideItemProps ? ({ ...label, ...overrideItemProps } as LabelProps) : label;
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;
 
   const validations = useUnifiedValidationsForNode(node);
@@ -58,5 +59,5 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
     </Grid>
   );
 
-  return label ? <Label {...label}>{componentWithValidations}</Label> : componentWithValidations;
+  return labelProps ? <Label {...labelProps}>{componentWithValidations}</Label> : componentWithValidations;
 }
