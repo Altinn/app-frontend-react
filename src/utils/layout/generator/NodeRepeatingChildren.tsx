@@ -139,7 +139,7 @@ interface ResolveRowProps {
 function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
   const parent = GeneratorInternal.useParent() as LayoutNode;
   const row = GeneratorInternal.useRow() as BaseRow;
-  const nodeChildren = useNodeDirectChildren(parent as LayoutNode, { onlyInRowUuid: row!.uuid });
+  const nodeChildren = useNodeDirectChildren(parent as LayoutNode, row!.index);
   const firstChild = nodeChildren ? nodeChildren[0] : undefined;
 
   const item = GeneratorInternal.useIntermediateItem();

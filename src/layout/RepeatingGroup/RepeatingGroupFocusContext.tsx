@@ -71,7 +71,7 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
     // If pagination is used, navigate to the correct page
     if (nodeItem.current.pagination) {
       if (row) {
-        await changePageToRow(row.uuid);
+        await changePageToRow(row);
       } else {
         return false;
       }
@@ -93,7 +93,7 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
     }
 
     if (row) {
-      openForEditing(row.uuid);
+      openForEditing(row);
       return true;
     }
 

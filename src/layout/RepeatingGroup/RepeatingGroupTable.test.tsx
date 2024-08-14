@@ -206,7 +206,7 @@ describe('RepeatingGroupTable', () => {
 });
 
 function LeakEditIndex() {
-  const editingId = useRepeatingGroupSelector((state) => state.editingId);
+  const editingId = useRepeatingGroupSelector((state) => state.editingRow?.uuid);
   const { visibleRows } = useRepeatingGroupRowState();
   const editingIndex = visibleRows.find((r) => r.uuid === editingId)?.index;
   return <div data-testid='editIndex'>{editingIndex === undefined ? 'undefined' : editingIndex}</div>;

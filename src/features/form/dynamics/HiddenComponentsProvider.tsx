@@ -65,7 +65,7 @@ function useLegacyHiddenComponents() {
               (t) =>
                 t
                   .with(node)
-                  .flat(undefined, { onlyInRowIndex: rowIndex })
+                  .flat(undefined, rowIndex)
                   .find((n) => n.id === childId),
               [node, rowIndex, childId],
             );

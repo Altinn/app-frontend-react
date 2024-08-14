@@ -22,15 +22,15 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
   const { addRow, openForEditing } = useRepeatingGroup();
   const { visibleRows } = useRepeatingGroupRowState();
   const state = useRepeatingGroupSelector((state) => ({
-    editingId: state.editingId,
+    editingRow: state.editingRow,
     addingIds: state.addingIds,
   }));
 
   const hasNoRows = visibleRows.length === 0;
   const stateRef = useAsRef({
     ...state,
-    firstId: hasNoRows ? undefined : visibleRows[0].uuid,
-    lastId: hasNoRows ? undefined : visibleRows[visibleRows.length - 1].uuid,
+    firstRow: hasNoRows ? undefined : visibleRows[0],
+    lastRow: hasNoRows ? undefined : visibleRows[visibleRows.length - 1],
     addRow,
     openForEditing,
     canAddRows: item.edit?.addButton ?? true,
@@ -65,16 +65,16 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
       }
 
       // Open the first or last row for editing, if openByDefault is set to 'first' or 'last'
-      const { editingId, firstId, lastId, openForEditing } = stateRef.current;
+      const { editingRow, firstRow, lastRow, openForEditing } = stateRef.current;
       if (
         isFirstRender.current &&
         openByDefault &&
         typeof openByDefault === 'string' &&
         ['first', 'last'].includes(openByDefault) &&
-        editingId === undefined
+        editingRow === undefined
       ) {
-        const uuid = openByDefault === 'last' ? lastId : firstId;
-        uuid !== undefined && openForEditing(uuid);
+        const row = openByDefault === 'last' ? lastRow : firstRow;
+        row !== undefined && openForEditing(row);
       }
 
       if (isFirstRender.current) {

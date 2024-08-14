@@ -133,7 +133,7 @@ describe('RepeatingGroupsEditContainer', () => {
 });
 
 function TestRenderer() {
-  const editingId = useRepeatingGroupSelector((state) => state.editingId);
+  const editingId = useRepeatingGroupSelector((state) => state.editingRow?.uuid);
   const { visibleRows } = useRepeatingGroupRowState();
   const editingIndex = visibleRows.find((r) => r.uuid === editingId)?.index;
   const { openForEditing } = useRepeatingGroup();
@@ -142,7 +142,7 @@ function TestRenderer() {
     return (
       <>
         <div data-testid='editingIndex'>undefined</div>
-        <button onClick={() => openForEditing(visibleRows[0].uuid)}>Open first row</button>
+        <button onClick={() => openForEditing(visibleRows[0])}>Open first row</button>
       </>
     );
   }

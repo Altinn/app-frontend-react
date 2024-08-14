@@ -54,7 +54,7 @@ export function LikertSummary({
             key={`summary-${targetNode.id}-${row.uuid}`}
             id={`summary-${targetNode.id}-${row.index}`}
             groupNode={targetNode}
-            onlyInRowUuid={row.uuid}
+            restriction={row.index}
             renderLayoutNode={(n) => {
               if (inExcludedChildren(n) || isHidden(n)) {
                 return null;

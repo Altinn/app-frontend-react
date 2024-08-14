@@ -30,10 +30,10 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HTMLDivElement>): JSX.Element | null => {
   const { node } = useRepeatingGroup();
   const { rowsToDisplay } = useRepeatingGroupPagination();
-  const { editingId } = useRepeatingGroupSelector((state) => ({
-    editingId: state.editingId,
+  const { editingRow } = useRepeatingGroupSelector((state) => ({
+    editingRow: state.editingRow,
   }));
-  const isEditingAnyRow = editingId !== undefined;
+  const isEditingAnyRow = editingRow !== undefined;
 
   const { textResourceBindings, edit, type } = useNodeItem(node);
   const { title, description } = textResourceBindings || {};
@@ -67,8 +67,8 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
         wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
       >
         <>
-          {isEditingAnyRow && editingId !== undefined && edit?.mode === 'hideTable' && (
-            <RepeatingGroupsEditContainer editId={editingId} />
+          {isEditingAnyRow && editingRow !== undefined && edit?.mode === 'hideTable' && (
+            <RepeatingGroupsEditContainer editId={editingRow.uuid} />
           )}
           {edit?.mode === 'showAll' && (
             <>
@@ -117,13 +117,13 @@ function AddButton() {
   const { triggerFocus } = useRepeatingGroupsFocusContext();
   const { node, addRow } = useRepeatingGroup();
   const { visibleRows } = useRepeatingGroupRowState();
-  const { editingAll, editingNone, editingId, currentlyAddingRow } = useRepeatingGroupSelector((state) => ({
+  const { editingAll, editingNone, editingRow, currentlyAddingRow } = useRepeatingGroupSelector((state) => ({
     editingAll: state.editingAll,
     editingNone: state.editingNone,
-    editingId: state.editingId,
+    editingRow: state.editingRow,
     currentlyAddingRow: state.addingIds.length > 0,
   }));
-  const isEditingAnyRow = editingId !== undefined;
+  const isEditingAnyRow = editingRow !== undefined;
 
   const item = useNodeItem(node);
   const { textResourceBindings, id, edit } = item;

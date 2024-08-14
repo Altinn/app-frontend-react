@@ -13,11 +13,12 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface IDisplayRepAsLargeGroup {
   groupNode: LayoutNode<'RepeatingGroup'>;
   id?: string;
-  onlyInRowUuid?: string | undefined;
+  restriction?: TraversalRestriction;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
 
@@ -29,16 +30,10 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
   [6]: 'xsmall',
 };
 
-export function LargeGroupSummaryContainer({
-  groupNode,
-  id,
-  onlyInRowUuid,
-  renderLayoutNode,
-}: IDisplayRepAsLargeGroup) {
+export function LargeGroupSummaryContainer({ groupNode, id, restriction, renderLayoutNode }: IDisplayRepAsLargeGroup) {
   const item = useNodeItem(groupNode);
   const isHidden = Hidden.useIsHidden(groupNode);
   const depth = useNodeTraversal((t) => t.parents().length, groupNode);
-  const restriction = typeof onlyInRowUuid === 'string' ? { onlyInRowUuid } : undefined;
   const children = useNodeTraversal((t) => t.children(undefined, restriction), groupNode);
   if (isHidden) {
     return null;

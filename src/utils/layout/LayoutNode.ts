@@ -64,8 +64,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
       return this as LayoutNode;
     }
 
-    const restriction = typeof this.rowIndex !== 'undefined' ? { onlyInRowIndex: this.rowIndex } : undefined;
-    const sibling = this.parent.firstChild(task.addRestriction(restriction));
+    const sibling = this.parent.firstChild(task.addRestriction(this.rowIndex));
     if (sibling) {
       return sibling as LayoutNode;
     }

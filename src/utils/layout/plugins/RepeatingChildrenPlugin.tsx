@@ -185,10 +185,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     }
 
     for (const row of rows) {
-      if (restriction && 'onlyInRowUuid' in restriction && row.uuid !== restriction.onlyInRowUuid) {
-        continue;
-      }
-      if (restriction && 'onlyInRowIndex' in restriction && row.index !== restriction.onlyInRowIndex) {
+      if (restriction !== undefined && row.index !== restriction) {
         continue;
       }
 

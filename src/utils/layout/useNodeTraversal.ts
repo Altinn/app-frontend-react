@@ -14,15 +14,7 @@ type AnyData = PagesData | PageData | NodeData;
 type Node = BaseLayoutNode | LayoutPage | LayoutPages;
 type DataFrom<T extends Node> = T extends LayoutPage ? PageData : T extends LayoutPages ? PagesData : NodeData;
 
-export interface TraversalRowIndexRestriction {
-  onlyInRowIndex: number;
-}
-
-export interface TraversalRowUuidRestriction {
-  onlyInRowUuid: string;
-}
-
-export type TraversalRestriction = TraversalRowUuidRestriction | TraversalRowIndexRestriction;
+export type TraversalRestriction = number | undefined;
 export type TraversalMatcher = (state: AnyData) => boolean | undefined;
 
 const emptyArray: never[] = [];
@@ -76,12 +68,8 @@ export class TraversalTask {
    * Filter a node based on the restriction
    */
   public passesRestriction(node: Node): boolean {
-    if (this.restriction && 'onlyInRowIndex' in this.restriction && node instanceof BaseLayoutNode) {
-      return node.rowIndex === this.restriction.onlyInRowIndex;
-    }
-
-    if (this.restriction && 'onlyInRowUuid' in this.restriction && node instanceof BaseLayoutNode) {
-      return node.rowUuid === this.restriction.onlyInRowUuid;
+    if (this.restriction !== undefined && node instanceof BaseLayoutNode) {
+      return node.rowIndex === this.restriction;
     }
 
     return true;

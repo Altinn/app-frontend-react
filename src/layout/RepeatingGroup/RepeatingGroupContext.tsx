@@ -22,25 +22,25 @@ interface Store {
   freshRowsRef: MutableRefObject<BaseRow[] | undefined>;
   editingAll: boolean;
   editingNone: boolean;
-  editingId: string | undefined;
+  editingRow: BaseRow | undefined;
   deletingIds: string[];
   addingIds: string[];
   currentPage: number | undefined;
 }
 
 interface ZustandHiddenMethods {
-  startAddingRow: (uuid: string) => void;
-  endAddingRow: (uuid: string) => void;
-  startDeletingRow: (uuid: string) => void;
-  endDeletingRow: (uuid: string, successful: boolean) => void;
+  startAddingRow: (row: BaseRow) => void;
+  endAddingRow: (row: BaseRow) => void;
+  startDeletingRow: (row: BaseRow) => void;
+  endDeletingRow: (row: BaseRow, successful: boolean) => void;
 }
 
 interface ExtendedState {
   // Methods for getting/setting state about which rows are in edit mode
-  toggleEditing: (uuid: string) => void;
-  openForEditing: (uuid: string) => void;
+  toggleEditing: (row: BaseRow) => void;
+  openForEditing: (row: BaseRow) => void;
   openNextForEditing: () => void;
-  closeForEditing: (uuid: string) => void;
+  closeForEditing: (row: BaseRow) => void;
   changePage: (page: number) => void;
 }
 
@@ -51,11 +51,11 @@ type AddRowResult =
 
 interface ContextMethods extends ExtendedState {
   addRow: () => Promise<AddRowResult>;
-  deleteRow: (uuid: string) => Promise<boolean>;
+  deleteRow: (row: BaseRow) => Promise<boolean>;
   isEditing: (uuid: string) => boolean;
   isDeleting: (uuid: string) => boolean;
   changePage: (page: number) => Promise<void>;
-  changePageToRow: (uuid: string) => Promise<void>;
+  changePageToRow: (row: BaseRow) => Promise<void>;
 }
 
 type ZustandState = Store & ZustandHiddenMethods & Omit<ExtendedState, 'toggleEditing'>;
@@ -175,11 +175,11 @@ function producePaginationState(
  * Gets the pagination page for a given row
  * Will return undefined if pagination is not used or the row is not visible
  */
-function getPageForRow(rowId: string, paginationState: PaginationState, visibleRows: BaseRow[]): number | undefined {
+function getPageForRow(row: BaseRow, paginationState: PaginationState, visibleRows: BaseRow[]): number | undefined {
   if (!paginationState.hasPagination) {
     return undefined;
   }
-  const index = visibleRows.findIndex((row) => row.uuid == rowId);
+  const index = visibleRows.findIndex((r) => r.uuid == row.uuid);
   if (index < 0) {
     return undefined;
   }
@@ -193,11 +193,11 @@ function getPageForRow(rowId: string, paginationState: PaginationState, visibleR
  * If the repeating group does not use pagination this will have no effect
  */
 function gotoPageForRow(
-  rowId: string,
+  row: BaseRow,
   paginationState: PaginationState,
   visibleRows: BaseRow[],
 ): { currentPage: number } | undefined {
-  const newPage = getPageForRow(rowId, paginationState, visibleRows);
+  const newPage = getPageForRow(row, paginationState, visibleRows);
   return newPage != null ? { currentPage: newPage } : undefined;
 }
 
@@ -214,31 +214,31 @@ function newStore({ editMode, pagination, rowsRef, freshRowsRef }: NewStoreProps
     editingAll: editMode === 'showAll',
     editingNone: editMode === 'onlyTable',
     isFirstRender: true,
-    editingId: undefined,
+    editingRow: undefined,
     deletingIds: [],
     addingIds: [],
     currentPage: pagination ? 0 : undefined,
 
-    closeForEditing: (uuid) => {
+    closeForEditing: (row) => {
       set((state) => {
-        if (state.editingId === uuid) {
-          return { editingId: undefined };
+        if (state.editingRow?.uuid === row.uuid) {
+          return { editingRow: undefined };
         }
         return state;
       });
     },
 
-    openForEditing: (uuid) => {
+    openForEditing: (row) => {
       set((state) => {
-        if (state.editingId === uuid || state.editingAll || state.editingNone) {
+        if (state.editingRow?.uuid === row.uuid || state.editingAll || state.editingNone) {
           return state;
         }
         const { editableRows, visibleRows } = produceStateFromRows(rowsRef.current);
-        if (!editableRows.some((row) => row.uuid === uuid)) {
+        if (!editableRows.some((row) => row.uuid === row.uuid)) {
           return state;
         }
         const paginationState = producePaginationState(state.currentPage, pagination, visibleRows);
-        return { editingId: uuid, ...gotoPageForRow(uuid, paginationState, visibleRows) };
+        return { editingRow: row, ...gotoPageForRow(row, paginationState, visibleRows) };
       });
     },
 
@@ -249,32 +249,32 @@ function newStore({ editMode, pagination, rowsRef, freshRowsRef }: NewStoreProps
         }
         const { editableRows, visibleRows } = produceStateFromRows(rowsRef.current);
         const paginationState = producePaginationState(state.currentPage, pagination, visibleRows);
-        if (state.editingId === undefined) {
+        if (state.editingRow === undefined) {
           const firstRow = editableRows[0];
-          return { editingId: firstRow.uuid, ...gotoPageForRow(firstRow.uuid, paginationState, visibleRows) };
+          return { editingRow: firstRow, ...gotoPageForRow(firstRow, paginationState, visibleRows) };
         }
-        const isLast = state.editingId === editableRows[editableRows.length - 1].uuid;
+        const isLast = state.editingRow.uuid === editableRows[editableRows.length - 1].uuid;
         if (isLast) {
-          return { editingId: undefined };
+          return { editingRow: undefined };
         }
-        const currentIndex = editableRows.findIndex((row) => row.uuid === state.editingId);
+        const currentIndex = editableRows.findIndex((row) => row.uuid === state.editingRow?.uuid);
         const nextRow = editableRows[currentIndex + 1];
-        return { editingId: nextRow.uuid, ...gotoPageForRow(nextRow.uuid, paginationState, visibleRows) };
+        return { editingRow: nextRow, ...gotoPageForRow(nextRow, paginationState, visibleRows) };
       });
     },
 
-    startAddingRow: (uuid) => {
+    startAddingRow: (row) => {
       set((state) => {
-        if (state.addingIds.includes(uuid)) {
+        if (state.addingIds.includes(row.uuid)) {
           return state;
         }
-        return { addingIds: [...state.addingIds, uuid], editingId: undefined };
+        return { addingIds: [...state.addingIds, row.uuid], editingRow: undefined };
       });
     },
 
-    endAddingRow: (uuid) => {
+    endAddingRow: (row) => {
       set((state) => {
-        const i = state.addingIds.indexOf(uuid);
+        const i = state.addingIds.indexOf(row.uuid);
         if (i === -1) {
           return state;
         }
@@ -282,19 +282,19 @@ function newStore({ editMode, pagination, rowsRef, freshRowsRef }: NewStoreProps
       });
     },
 
-    startDeletingRow: (uuid) => {
+    startDeletingRow: (row) => {
       set((state) => {
-        if (state.deletingIds.includes(uuid)) {
+        if (state.deletingIds.includes(row.uuid)) {
           return state;
         }
-        return { deletingIds: [...state.deletingIds, uuid] };
+        return { deletingIds: [...state.deletingIds, row.uuid] };
       });
     },
 
-    endDeletingRow: (uuid, successful) => {
+    endDeletingRow: (row, successful) => {
       set((state) => {
-        const isEditing = state.editingId === uuid;
-        const i = state.deletingIds.indexOf(uuid);
+        const isEditing = state.editingRow?.uuid === row.uuid;
+        const i = state.deletingIds.indexOf(row.uuid);
         if (i === -1 && !isEditing) {
           return state;
         }
@@ -304,12 +304,12 @@ function newStore({ editMode, pagination, rowsRef, freshRowsRef }: NewStoreProps
         }
         return {
           deletingIds,
-          editingId: isEditing && successful ? undefined : state.editingId,
+          editingRow: isEditing && successful ? undefined : state.editingRow,
         };
       });
     },
 
-    changePage: (page) => set((state) => ({ currentPage: page, ...(state.editingId && { editingId: undefined }) })),
+    changePage: (page) => set(() => ({ currentPage: page, editingRow: undefined })),
   }));
 }
 
@@ -332,19 +332,19 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   });
 
   const maybeValidateRow = useCallback(() => {
-    const { editingAll, editingId, editingNone } = stateRef.current;
-    if (!validateOnSaveRow || editingAll || editingNone || editingId === undefined) {
+    const { editingAll, editingRow, editingNone } = stateRef.current;
+    if (!validateOnSaveRow || editingAll || editingNone || editingRow === undefined) {
       return Promise.resolve(false);
     }
-    return onGroupCloseValidation(node, editingId, validateOnSaveRow);
+    return onGroupCloseValidation(node, editingRow.index, validateOnSaveRow);
   }, [node, onGroupCloseValidation, stateRef, validateOnSaveRow]);
 
   const openForEditing = useCallback(
-    async (uuid: string) => {
+    async (row: BaseRow) => {
       if (await maybeValidateRow()) {
         return;
       }
-      stateRef.current.openForEditing(uuid);
+      stateRef.current.openForEditing(row);
     },
     [maybeValidateRow, stateRef],
   );
@@ -357,25 +357,25 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   }, [maybeValidateRow, stateRef]);
 
   const closeForEditing = useCallback(
-    async (uuid: string) => {
+    async (row: BaseRow) => {
       if (await maybeValidateRow()) {
         return;
       }
-      stateRef.current.closeForEditing(uuid);
+      stateRef.current.closeForEditing(row);
     },
     [maybeValidateRow, stateRef],
   );
 
   const toggleEditing = useCallback(
-    async (uuid: string) => {
+    async (row: BaseRow) => {
       if (await maybeValidateRow()) {
         return;
       }
-      const { editingId, closeForEditing, openForEditing } = stateRef.current;
-      if (editingId === uuid) {
-        closeForEditing(uuid);
+      const { editingRow, closeForEditing, openForEditing } = stateRef.current;
+      if (editingRow?.uuid === row.uuid) {
+        closeForEditing(row);
       } else {
-        openForEditing(uuid);
+        openForEditing(row);
       }
     },
     [maybeValidateRow, stateRef],
@@ -392,12 +392,12 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   );
 
   const changePageToRow = useCallback(
-    async (uuid: string) => {
+    async (row: BaseRow) => {
       if (await maybeValidateRow()) {
         return;
       }
 
-      const page = getPageForRow(uuid, paginationStateRef.current, rowStateRef.current.visibleRows);
+      const page = getPageForRow(row, paginationStateRef.current, rowStateRef.current.visibleRows);
       if (page == null) {
         return;
       }
@@ -409,14 +409,14 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
 
   const isEditing = useCallback(
     (uuid: string) => {
-      const { editingAll, editingId, editingNone } = stateRef.current;
+      const { editingAll, editingRow, editingNone } = stateRef.current;
       if (editingAll) {
         return true;
       }
       if (editingNone) {
         return false;
       }
-      return editingId === uuid;
+      return editingRow?.uuid === uuid;
     },
     [stateRef],
   );
@@ -430,17 +430,24 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       return { result: 'stoppedByValidation', uuid: undefined, index: undefined };
     }
     const uuid = uuidv4();
-    startAddingRow(uuid);
-    appendToList({
-      path: groupBinding,
-      newValue: { [ALTINN_ROW_ID]: uuid },
-    });
+    let addingIndex: number | undefined;
+    appendToList(
+      {
+        path: groupBinding,
+        newValue: { [ALTINN_ROW_ID]: uuid },
+      },
+      (idx) => {
+        addingIndex = idx;
+      },
+    );
+    const row: BaseRow = { uuid, index: addingIndex! };
+    startAddingRow(row);
     let foundRow: RepGroupRow | undefined;
     await waitForItem((item) => {
       foundRow = item?.rows.find((row) => row.uuid === uuid && row.groupExpressions);
       return !!foundRow;
     });
-    endAddingRow(uuid);
+    endAddingRow(row);
 
     // It may take some time until effects run and the row is put into either the visibleRows or hiddenRows state in
     // the ref, so we'll loop this a few times until we find the row.
@@ -460,7 +467,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
 
     const index = foundRow?.index ?? -1;
     if (foundVisible) {
-      await openForEditing(uuid);
+      await openForEditing(row);
       return { result: 'addedAndOpened', uuid, index };
     }
 
@@ -468,28 +475,28 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   }, [appendToList, groupBinding, maybeValidateRow, rowStateRef, openForEditing, stateRef, waitForItem]);
 
   const deleteRow = useCallback(
-    async (uuid: string) => {
+    async (row: BaseRow) => {
       const { deletableRows } = rowStateRef.current;
       const { startDeletingRow, endDeletingRow } = stateRef.current;
-      const row = deletableRows.find((row) => row.uuid === uuid);
-      if (!row) {
+      const deletableRow = deletableRows.find((r) => r.uuid === row.uuid && r.index === row.index);
+      if (!deletableRow) {
         return false;
       }
 
-      startDeletingRow(uuid);
-      const attachmentDeletionSuccessful = await onBeforeRowDeletion(uuid);
+      startDeletingRow(row);
+      const attachmentDeletionSuccessful = await onBeforeRowDeletion(row.index);
       if (attachmentDeletionSuccessful && groupBinding) {
         removeFromList({
           path: groupBinding,
           startAtIndex: row.index,
-          callback: (item) => item[ALTINN_ROW_ID] === uuid,
+          callback: (item) => item[ALTINN_ROW_ID] === row.uuid,
         });
 
-        endDeletingRow(uuid, true);
+        endDeletingRow(row, true);
         return true;
       }
 
-      endDeletingRow(uuid, false);
+      endDeletingRow(row, false);
       return false;
     },
     [groupBinding, rowStateRef, onBeforeRowDeletion, removeFromList, stateRef],
@@ -513,15 +520,16 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
 }
 
 function EffectCloseEditing() {
-  const editingId = ZStore.useSelector((state) => state.editingId);
+  const editingRow = ZStore.useSelector((state) => state.editingRow);
   const closeForEditing = ZStore.useSelector((state) => state.closeForEditing);
   const nodeState = useRepeatingGroupRowState();
-  const editingIsHidden = editingId !== undefined && !nodeState.visibleRows.some((row) => row.uuid === editingId);
+  const editingIsHidden =
+    editingRow !== undefined && !nodeState.visibleRows.some((row) => row.uuid === editingRow.uuid);
   useEffect(() => {
-    if (editingId !== undefined && editingIsHidden) {
-      closeForEditing(editingId);
+    if (editingRow !== undefined && editingIsHidden) {
+      closeForEditing(editingRow);
     }
-  }, [closeForEditing, editingId, editingIsHidden]);
+  }, [closeForEditing, editingRow, editingIsHidden]);
 
   return null;
 }

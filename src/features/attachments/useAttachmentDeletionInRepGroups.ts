@@ -7,6 +7,7 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 type UploaderNode = LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
 
@@ -29,14 +30,14 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNode<'RepeatingGrou
   const nodeItemSelector = NodesInternal.useNodeDataSelector();
 
   return useCallback(
-    async (uuid: string): Promise<boolean> => {
+    async (restriction: TraversalRestriction): Promise<boolean> => {
       const uploaders = traversalSelector(
         (t) =>
           t
             .with(nodeRef.current)
-            .flat(undefined, { onlyInRowUuid: uuid })
+            .flat(undefined, restriction)
             .filter((n) => n.def.hasPlugin(AttachmentsPlugin)),
-        [nodeRef.current, uuid],
+        [nodeRef.current, restriction],
       ) as UploaderNode[];
 
       // This code is intentionally not parallelized, as especially LocalTest can't handle parallel requests to

@@ -37,7 +37,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
 
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
 
-  const tableNodes = useTableNodes(node, { onlyInRowIndex: 0 });
+  const tableNodes = useTableNodes(node, 0);
 
   const numRows = rowsToDisplay.length;
   const firstRowId = numRows >= 1 ? rowsToDisplay[0].uuid : undefined;

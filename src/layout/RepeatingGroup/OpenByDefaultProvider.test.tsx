@@ -32,7 +32,7 @@ jest.mock('uuid', () => ({
 describe('openByDefault', () => {
   function RenderTest() {
     const state = useRepeatingGroupSelector((state) => ({
-      editingId: state.editingId,
+      editingId: state.editingRow?.uuid,
       addingIds: state.addingIds,
     }));
     const { deleteRow } = useRepeatingGroup();
@@ -51,7 +51,7 @@ describe('openByDefault', () => {
         </div>
         <button
           onClick={() => {
-            deleteRow(visibleRows[visibleRows.length - 1].uuid);
+            deleteRow(visibleRows[visibleRows.length - 1]);
           }}
         >
           Delete last visible row

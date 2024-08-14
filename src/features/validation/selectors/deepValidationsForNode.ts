@@ -5,6 +5,7 @@ import type { NodeValidation } from '..';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 const emptyArray: NodeValidation[] = [];
 
@@ -14,7 +15,7 @@ const emptyArray: NodeValidation[] = [];
 export function useDeepValidationsForNode(
   node: LayoutNode | undefined,
   onlyChildren: boolean = false,
-  onlyInRowUuid?: string,
+  restriction?: TraversalRestriction,
 ): NodeValidation[] {
   const validationsSelector = NodesInternal.useValidationsSelector();
   const nodesToValidate = useNodeTraversal((t) => {
@@ -23,13 +24,10 @@ export function useDeepValidationsForNode(
     }
 
     if (onlyChildren) {
-      return onlyInRowUuid ? t.children(undefined, { onlyInRowUuid }) : t.children();
-    }
-    if (!onlyInRowUuid) {
-      return t.flat();
+      return t.children(undefined, restriction);
     }
 
-    return t.flat(undefined, { onlyInRowUuid });
+    return t.flat(undefined, restriction);
   }, node);
 
   return useMemo(() => {

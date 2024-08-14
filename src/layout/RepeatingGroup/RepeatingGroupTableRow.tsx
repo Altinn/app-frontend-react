@@ -31,6 +31,7 @@ import type { CompInternal, ITextResourceBindings } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { GroupExpressions } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseRow } from 'src/utils/layout/types';
 
 export interface IRepeatingGroupTableRowProps {
   className?: string;
@@ -98,7 +99,7 @@ function _RepeatingGroupTableRow({
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
-  const tableNodes = useTableNodes(node, { onlyInRowUuid: uuid });
+  const tableNodes = useTableNodes(node, index);
   const displayDataProps = useDisplayDataProps();
   const displayData = tableNodes.map((node) => {
     const def = node.def;
@@ -117,7 +118,7 @@ function _RepeatingGroupTableRow({
   const tableEditingNodeIds = tableNodes
     .filter((n) => shouldEditInTable(editForGroup, n, columnSettings))
     .map((n) => n.id);
-  const rowValidations = useDeepValidationsForNode(node, true, uuid);
+  const rowValidations = useDeepValidationsForNode(node, true, index);
   const rowHasErrors = rowValidations.some(
     (validation) => validation.severity === 'error' && !tableEditingNodeIds.includes(validation.node.id),
   );
@@ -243,7 +244,7 @@ function _RepeatingGroupTableRow({
                   variant='tertiary'
                   color='second'
                   size='small'
-                  onClick={() => toggleEditing(uuid)}
+                  onClick={() => toggleEditing({ index: row.index, uuid: row.uuid })}
                   aria-label={`${editButtonText} ${firstCellData}`}
                   data-testid='edit-button'
                   className={classes.tableButton}
@@ -272,6 +273,7 @@ function _RepeatingGroupTableRow({
             >
               <div className={classes.buttonInCellWrapper}>
                 <DeleteElement
+                  index={index}
                   uuid={uuid}
                   isDeletingRow={isDeletingRow}
                   editForRow={editForRow}
@@ -300,7 +302,7 @@ function _RepeatingGroupTableRow({
                 color='second'
                 size='small'
                 icon={!isEditingRow && mobileViewSmall}
-                onClick={() => toggleEditing(uuid)}
+                onClick={() => toggleEditing({ index, uuid })}
                 aria-label={`${editButtonText} ${firstCellData}`}
                 data-testid='edit-button'
                 className={classes.tableButton}
@@ -323,6 +325,7 @@ function _RepeatingGroupTableRow({
               <>
                 <div style={{ height: 8 }} />
                 <DeleteElement
+                  index={index}
                   uuid={uuid}
                   isDeletingRow={isDeletingRow}
                   editForRow={editForRow}
@@ -363,6 +366,7 @@ export function shouldEditInTable(
 }
 
 function DeleteElement({
+  index,
   uuid,
   isDeletingRow,
   editForRow,
@@ -372,13 +376,14 @@ function DeleteElement({
   alertOnDeleteProps: { alertOpen, setAlertOpen, confirmChange, cancelChange, handleChange: handleDelete },
   children,
 }: {
+  index: number;
   uuid: string;
   isDeletingRow: boolean;
   editForRow: GroupExpressions['edit'];
   deleteButtonText: string;
   firstCellData: string | undefined;
   langAsString: (key: string) => string;
-  alertOnDeleteProps: AlertOnChange<(uuid: string) => void>;
+  alertOnDeleteProps: AlertOnChange<(row: BaseRow) => void>;
   children: React.ReactNode;
 }) {
   return (
@@ -403,7 +408,7 @@ function DeleteElement({
         color='danger'
         size='small'
         disabled={isDeletingRow}
-        onClick={() => handleDelete(uuid)}
+        onClick={() => handleDelete({ index, uuid })}
         aria-label={`${deleteButtonText}-${firstCellData}`}
         data-testid='delete-button'
         icon={!children}

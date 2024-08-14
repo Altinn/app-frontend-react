@@ -15,12 +15,13 @@ import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface IGroupComponent {
   groupNode: LayoutNode<'Group'>;
   containerDivRef?: React.Ref<HTMLDivElement>;
   id?: string;
-  onlyInRowUuid?: string;
+  restriction?: TraversalRestriction;
   isSummary?: boolean;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
@@ -37,7 +38,7 @@ export function GroupComponent({
   groupNode,
   containerDivRef,
   id,
-  onlyInRowUuid,
+  restriction,
   isSummary,
   renderLayoutNode,
 }: IGroupComponent) {
@@ -45,7 +46,6 @@ export function GroupComponent({
   const { title, summaryTitle, description } = container.textResourceBindings ?? {};
   const isHidden = Hidden.useIsHidden(groupNode);
 
-  const restriction = typeof onlyInRowUuid === 'string' ? { onlyInRowUuid } : undefined;
   const children = useNodeDirectChildren(groupNode, restriction);
   const depth = useNodeTraversal((traverser) => traverser.with(groupNode).parents().length);
 

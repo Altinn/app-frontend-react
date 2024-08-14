@@ -11,12 +11,13 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface IDisplayLikertContainer {
   groupNode: LayoutNode<'Likert'>;
   divRef?: React.Ref<HTMLDivElement>;
   id?: string;
-  onlyInRowUuid?: string | undefined;
+  restriction?: TraversalRestriction;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
 
@@ -32,14 +33,13 @@ export function LargeLikertSummaryContainer({
   divRef,
   groupNode,
   id,
-  onlyInRowUuid,
+  restriction,
   renderLayoutNode,
 }: IDisplayLikertContainer) {
   const container = useNodeItem(groupNode);
   const { title, summaryTitle } = container.textResourceBindings ?? {};
   const isHidden = Hidden.useIsHidden(groupNode);
   const depth = useNodeTraversal((t) => t.parents().length, groupNode);
-  const restriction = typeof onlyInRowUuid === 'string' ? { onlyInRowUuid } : undefined;
   const children = useNodeTraversal((t) => t.children(undefined, restriction), groupNode);
 
   if (isHidden) {

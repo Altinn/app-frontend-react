@@ -145,7 +145,7 @@ function RegularRepeatingGroupRow({
   summaryNode,
 }: FullRowProps) {
   const isHidden = Hidden.useIsHiddenSelector();
-  const children = useNodeTraversal((t) => t.children(undefined, { onlyInRowUuid: row.uuid }), targetNode);
+  const children = useNodeTraversal((t) => t.children(undefined, row.index), targetNode);
 
   const childSummaryComponents = children
     .filter((n) => !inExcludedChildren(n))
@@ -186,7 +186,7 @@ function LargeRepeatingGroup({ targetNode, summaryNode, overrides, inExcludedChi
           key={`summary-${targetNode.id}-${row.uuid}`}
           id={`summary-${targetNode.id}-${row.index}`}
           groupNode={targetNode}
-          onlyInRowUuid={row.uuid}
+          restriction={row.index}
           renderLayoutNode={(n) => {
             if (inExcludedChildren(n) || isHidden(n)) {
               return null;

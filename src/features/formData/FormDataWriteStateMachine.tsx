@@ -141,7 +141,7 @@ export interface FormDataMethods {
   setLeafValue: (change: FDNewValue) => void;
   setMultiLeafValues: (changes: FDNewValues) => void;
   appendToListUnique: (change: FDAppendToListUnique) => void;
-  appendToList: (change: FDAppendToList) => void;
+  appendToList: (change: FDAppendToList, callback: (idx: number) => void) => void;
   removeIndexFromList: (change: FDRemoveIndexFromList) => void;
   removeValueFromList: (change: FDRemoveValueFromList) => void;
   removeFromListCallback: (change: FDRemoveFromListCallback) => void;
@@ -302,14 +302,16 @@ function makeActions(
           dot.str(path, [newValue], state.currentData);
         }
       }),
-    appendToList: ({ path, newValue }) =>
+    appendToList: ({ path, newValue }, callback) =>
       set((state) => {
         const existingValue = dot.pick(path, state.currentData);
 
         if (Array.isArray(existingValue)) {
           existingValue.push(newValue);
+          callback(existingValue.length - 1);
         } else {
           dot.str(path, [newValue], state.currentData);
+          callback(0);
         }
       }),
     removeIndexFromList: ({ path, index }) =>
