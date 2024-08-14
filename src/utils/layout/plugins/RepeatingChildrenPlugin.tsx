@@ -189,7 +189,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
         continue;
       }
 
-      for (const child of row.items) {
+      for (const child of row.items || []) {
         child && out.push(child);
       }
     }
