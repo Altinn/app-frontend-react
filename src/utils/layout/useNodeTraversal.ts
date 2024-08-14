@@ -77,11 +77,11 @@ export class TraversalTask {
    */
   public passesRestriction(node: Node): boolean {
     if (this.restriction && 'onlyInRowIndex' in this.restriction && node instanceof BaseLayoutNode) {
-      return node.row?.index === this.restriction.onlyInRowIndex;
+      return node.rowIndex === this.restriction.onlyInRowIndex;
     }
 
     if (this.restriction && 'onlyInRowUuid' in this.restriction && node instanceof BaseLayoutNode) {
-      return node.row?.uuid === this.restriction.onlyInRowUuid;
+      return node.rowUuid === this.restriction.onlyInRowUuid;
     }
 
     return true;

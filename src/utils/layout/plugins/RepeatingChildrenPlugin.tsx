@@ -201,21 +201,16 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
   }
 
   addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode): Partial<DefPluginState<ToInternal<E>>> {
-    const row = childNode.row;
-    if (!row) {
-      throw new Error(`Child node of repeating component missing 'row' property`);
+    const rowIndex = childNode.rowIndex;
+    if (rowIndex === undefined) {
+      throw new Error(`Child node of repeating component missing 'rowIndex' property`);
     }
     const item = state.item as any;
     const rows = (item && this.settings.internalProp in item ? [...item[this.settings.internalProp]] : []) as Row<E>[];
-    const existingRowIndex = rows.findIndex((r) => r.uuid === row.uuid);
-    const items = [...(rows[existingRowIndex]?.items || [])];
+    const items = [...(rows[rowIndex]?.items || [])];
     items.push(childNode);
 
-    if (existingRowIndex === -1) {
-      rows.push({ ...(rows[existingRowIndex] || {}), ...row, items });
-    } else {
-      rows[existingRowIndex] = { ...(rows[existingRowIndex] || {}), ...row, items };
-    }
+    rows[rowIndex] = { ...(rows[rowIndex] || {}), items };
 
     return {
       item: {

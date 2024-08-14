@@ -17,7 +17,7 @@ import { useIsMobile } from 'src/hooks/useIsMobile';
 import { implementsDisplayData } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
-import { useIsRowFresh, useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
@@ -89,7 +89,6 @@ function _RepeatingGroupTableRow({
   const id = node.id;
   const group = useNodeItem(node);
   const row = group.rows.find((r) => r.uuid === uuid && r.index === index);
-  const rowIsFresh = useIsRowFresh(row);
   const rowExpressions = row?.groupExpressions;
   const editForRow = rowExpressions?.edit;
   const editForGroup = group.edit;
@@ -129,7 +128,7 @@ function _RepeatingGroupTableRow({
 
   const deleteButtonText = langAsString('general.delete');
 
-  if (!row || !rowIsFresh) {
+  if (!row) {
     return null;
   }
 

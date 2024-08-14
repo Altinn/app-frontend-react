@@ -59,15 +59,15 @@ function useLegacyHiddenComponents() {
         for (const firstChild of firstChildren ?? []) {
           runConditionalRenderingRule(rule, firstChild, ...props);
           if (rule.repeatingGroup.childGroupId) {
-            const row = firstChild.row!;
-            const childId = `${rule.repeatingGroup.childGroupId}-${row.index}`;
+            const rowIndex = firstChild.rowIndex!;
+            const childId = `${rule.repeatingGroup.childGroupId}-${rowIndex}`;
             const childNode = traversalSelector(
               (t) =>
                 t
                   .with(node)
-                  .flat(undefined, { onlyInRowUuid: row.uuid })
+                  .flat(undefined, { onlyInRowIndex: rowIndex })
                   .find((n) => n.id === childId),
-              [node, row.uuid, childId],
+              [node, rowIndex, childId],
             );
             if (childNode && childNode.isType('RepeatingGroup')) {
               const nestedChildren = nodeDataSelector(

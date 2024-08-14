@@ -66,10 +66,6 @@ export class LayoutPages implements LayoutObject<LayoutPage> {
     return Object.values(this.objects).flatMap((layout) => layout.flat(task));
   }
 
-  public allPageKeys(_task: TraversalTask): string[] {
-    return Object.keys(this.objects);
-  }
-
   public closest(task: TraversalTask, passedFrom?: LayoutPage | LayoutNode | LayoutPages): LayoutNode | undefined {
     return this.flat(task)
       .filter((n) => n.page !== passedFrom)
@@ -91,10 +87,6 @@ export class LayoutPages implements LayoutObject<LayoutPage> {
 
   public replacePage(page: LayoutPage) {
     this.objects[page.pageKey as keyof Collection] = page;
-  }
-
-  public removePage(pageKey: string) {
-    delete this.objects[pageKey];
   }
 
   public isPageRegistered(pageKey: string, page: LayoutPage): boolean {

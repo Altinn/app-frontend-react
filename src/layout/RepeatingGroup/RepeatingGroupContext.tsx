@@ -607,15 +607,6 @@ export const useRepeatingGroupRowState = () => {
   return useNodeItem(node, (i) => produceStateFromRows(filterByFreshRows(i.rows, freshRowsRef.current)));
 };
 
-/**
- * Returns true if the row is up-to-date with the data model. During a short time after rows have changed order by
- * the backend, this might return false (but it will become true again during a later render).
- */
-export const useIsRowFresh = (row: BaseRow | undefined) => {
-  const freshRowsRef = ZStore.useSelector((state) => state.freshRowsRef);
-  return freshRowsRef.current?.some((r) => r.uuid === row?.uuid && r.index === row?.index);
-};
-
 export const useRepeatingGroupPagination = () => {
   const node = useRepeatingGroupNode();
   const nodeState = useRepeatingGroupRowState();

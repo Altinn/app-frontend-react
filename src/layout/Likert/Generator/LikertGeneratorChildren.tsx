@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { getLikertStartStopIndex } from 'src/utils/formLayout';
@@ -14,7 +14,6 @@ import {
   mutateComponentId,
   mutateDataModelBindings,
   mutateMapping,
-  useReusedRows,
 } from 'src/utils/layout/generator/NodeRepeatingChildren';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { CompExternalExact, CompIntermediate } from 'src/layout/layout';
@@ -36,9 +35,7 @@ export function LikertGeneratorChildren() {
 function PerformWork() {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<'Likert'>;
   const questionsBinding = item?.dataModelBindings?.questions;
-  const freshRows = FD.useFreshRows(questionsBinding);
-  const prevRows = useRef<BaseRow[]>(freshRows);
-  const rows = useReusedRows(freshRows, prevRows);
+  const rows = FD.useFreshRows(questionsBinding);
 
   const lastIndex = rows.length - 1;
   const { startIndex, stopIndex } = getLikertStartStopIndex(lastIndex, item.filter);
@@ -47,9 +44,10 @@ function PerformWork() {
   return (
     <>
       {filteredRows.map((row) => (
-        <GeneratorRunProvider key={row.uuid}>
+        <GeneratorRunProvider key={row.index}>
           <GenerateRow
-            row={row}
+            rowIndex={row.index}
+            rowUuid={row.uuid}
             questionsBinding={questionsBinding}
           />
         </GeneratorRunProvider>
@@ -59,15 +57,17 @@ function PerformWork() {
 }
 
 interface GenerateRowProps {
-  row: BaseRow;
+  rowIndex: number;
+  rowUuid: string;
   questionsBinding: string;
 }
 
-function _GenerateRow({ row, questionsBinding }: GenerateRowProps) {
+function _GenerateRow({ rowIndex, rowUuid, questionsBinding }: GenerateRowProps) {
   const parentItem = GeneratorInternal.useIntermediateItem() as CompIntermediate<'Likert'>;
   const node = GeneratorInternal.useParent() as LayoutNode<'Likert'>;
   const removeRow = NodesInternal.useRemoveRow();
   const depth = GeneratorInternal.useDepth();
+  const row: BaseRow = useMemo(() => ({ index: rowIndex, uuid: rowUuid }), [rowIndex, rowUuid]);
 
   const childId = `${parentItem.id}-item`;
 
@@ -122,9 +122,9 @@ function _GenerateRow({ row, questionsBinding }: GenerateRowProps) {
 
   GeneratorStages.AddNodes.useEffect(
     () => () => {
-      removeRow(node, row, 'rows', 'itemNode');
+      removeRow(node, rowIndex, 'rows', 'itemNode');
     },
-    [node, row, removeRow],
+    [node, rowIndex, removeRow],
   );
 
   return (

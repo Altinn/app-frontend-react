@@ -1,5 +1,4 @@
-import React, { useMemo, useRef } from 'react';
-import type { MutableRefObject } from 'react';
+import React, { useMemo } from 'react';
 
 import dot from 'dot-object';
 
@@ -47,9 +46,7 @@ export function NodeRepeatingChildren(props: Props) {
 function PerformWork({ claims, binding, multiPageSupport, externalProp, internalProp, pluginKey }: Props) {
   const item = GeneratorInternal.useIntermediateItem();
   const groupBinding = item?.dataModelBindings?.[binding];
-  const freshRows = FD.useFreshRows(groupBinding);
-  const prevRows = useRef<BaseRow[]>(freshRows);
-  const rows = useReusedRows(freshRows, prevRows);
+  const rows = FD.useFreshRows(groupBinding);
   const multiPage = multiPageSupport !== false && dot.pick(multiPageSupport, item) === true;
   const multiPageMapping = useMemo(
     () => (multiPage ? makeMultiPageMapping(dot.pick(externalProp, item)) : undefined),
@@ -59,9 +56,10 @@ function PerformWork({ claims, binding, multiPageSupport, externalProp, internal
   return (
     <>
       {rows.map((row) => (
-        <GeneratorRunProvider key={`${row.uuid}-${row.index}`}>
+        <GeneratorRunProvider key={row.index}>
           <GenerateRow
-            row={row}
+            rowIndex={row.index}
+            rowUuid={row.uuid}
             groupBinding={groupBinding}
             claims={claims}
             multiPageMapping={multiPageMapping}
@@ -74,30 +72,9 @@ function PerformWork({ claims, binding, multiPageSupport, externalProp, internal
   );
 }
 
-/**
- * Re-uses the existing row objects from previous runs whenever row uuids match.
- * This causes props to not change for the row components, which is important for performance.
- */
-export function useReusedRows(freshRows: BaseRow[], prevRows: MutableRefObject<BaseRow[]>): BaseRow[] {
-  const out: BaseRow[] = [];
-  const prevRowsMap = new Map(prevRows.current.map((r) => [r.uuid, r]));
-
-  for (const row of freshRows) {
-    const prevRow = prevRowsMap.get(row.uuid);
-    // We only re-use a row if the index is the same, otherwise it would not be possible to sort rows on the backend
-    if (prevRow && prevRow.index === row.index) {
-      out.push(prevRow);
-    } else {
-      out.push(row);
-    }
-  }
-
-  prevRows.current = out;
-  return out;
-}
-
 interface GenerateRowProps {
-  row: BaseRow;
+  rowIndex: number;
+  rowUuid: string;
   claims: ChildClaims;
   groupBinding: string | undefined;
   multiPageMapping: MultiPageMapping | undefined;
@@ -105,11 +82,20 @@ interface GenerateRowProps {
   pluginKey: string;
 }
 
-function _GenerateRow({ row, claims, groupBinding, multiPageMapping, internalProp, pluginKey }: GenerateRowProps) {
+function _GenerateRow({
+  rowIndex,
+  rowUuid,
+  claims,
+  groupBinding,
+  multiPageMapping,
+  internalProp,
+  pluginKey,
+}: GenerateRowProps) {
   const node = GeneratorInternal.useParent() as LayoutNode;
   const removeRow = NodesInternal.useRemoveRow();
   const depth = GeneratorInternal.useDepth();
   const directMutators = useMemo(() => [mutateMultiPageIndex(multiPageMapping)], [multiPageMapping]);
+  const row: BaseRow = useMemo(() => ({ index: rowIndex, uuid: rowUuid }), [rowIndex, rowUuid]);
 
   const recursiveMutators = useMemo(
     () => [mutateComponentId(row), mutateDataModelBindings(row, groupBinding), mutateMapping(row, depth)],
@@ -118,9 +104,9 @@ function _GenerateRow({ row, claims, groupBinding, multiPageMapping, internalPro
 
   GeneratorStages.AddNodes.useEffect(
     () => () => {
-      removeRow(node, row, internalProp, 'items');
+      removeRow(node, rowIndex, internalProp, 'items');
     },
-    [node, row, internalProp, removeRow],
+    [node, rowIndex, internalProp, removeRow],
   );
 
   return (

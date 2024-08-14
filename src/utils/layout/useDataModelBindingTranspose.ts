@@ -6,7 +6,6 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LaxNodeDataSelector } from 'src/utils/layout/NodesContext';
-import type { BaseRow } from 'src/utils/layout/types';
 
 export type DataModelTransposeSelector = ReturnType<typeof useDataModelBindingTranspose>;
 
@@ -47,7 +46,7 @@ export function useDataModelBindingTranspose() {
 function firstDataModelBinding(
   node: LayoutNode,
   nodeSelector: LaxNodeDataSelector,
-  row?: BaseRow,
+  rowIndex?: number,
 ): { currentLocation: string | undefined; currentLocationIsRepGroup: boolean; foundRowIndex: number | undefined } {
   const dataModelBindings = nodeSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
   if (dataModelBindings === ContextNotProvided) {
@@ -62,7 +61,7 @@ function firstDataModelBinding(
   if (firstBinding && dataModelBindings) {
     return {
       currentLocation: dataModelBindings[firstBinding],
-      foundRowIndex: row?.index,
+      foundRowIndex: rowIndex,
       currentLocationIsRepGroup: node.isType('RepeatingGroup'),
     };
   }
@@ -75,5 +74,5 @@ function firstDataModelBinding(
       foundRowIndex: undefined,
     };
   }
-  return firstDataModelBinding(parent, nodeSelector, node.row);
+  return firstDataModelBinding(parent, nodeSelector, node.rowIndex);
 }

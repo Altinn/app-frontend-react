@@ -3,15 +3,14 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { CompClassMap, CompDef } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
-import type { CompIntermediate, CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
+import type { CompIntermediate, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
-import type { BaseRow } from 'src/utils/layout/types';
 import type { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 
 export interface LayoutNodeProps<Type extends CompTypes> {
   item: CompIntermediate<Type>;
   parent: ParentNode;
-  row?: BaseRow;
+  rowIndex?: number;
 }
 
 /**
@@ -21,7 +20,6 @@ export interface LayoutNodeProps<Type extends CompTypes> {
 export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements LayoutObject {
   public readonly parent: ParentNode;
   public readonly page: LayoutPage;
-  public readonly row?: BaseRow;
   public readonly def: CompClassMap[Type];
 
   // These may be overwritten if the state in NodesContext changes. They are only kept
@@ -32,20 +30,25 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   public pageKey: string;
   public type: Type;
 
-  public constructor({ item, parent, row }: LayoutNodeProps<Type>) {
-    this.updateCommonProps(item as CompInternal<Type>);
-    this.page = parent instanceof LayoutPage ? parent : parent.page;
-    this.pageKey = this.page.pageKey;
-    this.def = getComponentDef(this.type);
-    this.parent = parent;
-    this.row = row;
-  }
+  // These properties may be set if the node belongs to a repeating group, or otherwise is a repeating child.
+  // The row index will never update, but the UUID may change if rows are re-ordered.
+  public rowIndex?: number;
+  public rowUuid?: string;
 
-  public updateCommonProps(item: CompInternal<Type>) {
+  public constructor({ item, parent, rowIndex }: LayoutNodeProps<Type>) {
     this.id = item.id;
     this.baseId = item.baseComponentId ?? item.id;
     this.type = item.type as Type;
     this.multiPageIndex = item.multiPageIndex;
+    this.page = parent instanceof LayoutPage ? parent : parent.page;
+    this.pageKey = this.page.pageKey;
+    this.def = getComponentDef(this.type);
+    this.parent = parent;
+    this.rowIndex = rowIndex;
+  }
+
+  public updateRowUuid(uuid: string | undefined) {
+    this.rowUuid = uuid;
   }
 
   public isType<T extends CompTypes>(type: T): this is LayoutNode<T> {
@@ -61,7 +64,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
       return this as LayoutNode;
     }
 
-    const restriction = typeof this.row?.uuid !== 'undefined' ? { onlyInRowUuid: this.row.uuid } : undefined;
+    const restriction = typeof this.rowIndex !== 'undefined' ? { onlyInRowIndex: this.rowIndex } : undefined;
     const sibling = this.parent.firstChild(task.addRestriction(restriction));
     if (sibling) {
       return sibling as LayoutNode;

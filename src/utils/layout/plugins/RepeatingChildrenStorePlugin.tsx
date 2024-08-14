@@ -20,7 +20,7 @@ export interface SetRowExtrasRequest<T extends CompTypes = CompTypes> {
 export interface RepeatingChildrenStorePluginConfig {
   extraFunctions: {
     setRowExtras: (requests: SetRowExtrasRequest[]) => void;
-    removeRow: (node: LayoutNode, row: BaseRow, internalProp: string, itemProp: string) => void;
+    removeRow: (node: LayoutNode, rowIndex: number, internalProp: string, itemProp: string) => void;
   };
   extraHooks: {
     useSetRowExtras: () => RepeatingChildrenStorePluginConfig['extraFunctions']['setRowExtras'];
@@ -46,18 +46,16 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             }
 
             const existingRows = thisNode.item && (thisNode.item[internalProp] as RepChildrenRow[] | undefined);
-            const existingRowIndex = existingRows?.findIndex((r) => r.uuid === row.uuid);
-            const existingRow =
-              existingRows && existingRowIndex !== undefined ? existingRows[existingRowIndex] : undefined;
-            const nextRow = { ...existingRow, ...extras } as RepChildrenRow;
+            const existingRow = existingRows ? existingRows[row.index] : undefined;
+            const nextRow = { ...existingRow, ...extras, ...row } as RepChildrenRow;
             if (existingRows && existingRow && deepEqual(existingRow, nextRow)) {
               continue;
             }
 
-            if (existingRowIndex !== undefined) {
+            if (row.index !== undefined) {
               changes = true;
               const newRows = [...(existingRows || [])];
-              newRows[existingRowIndex] = nextRow;
+              newRows[row.index] = nextRow;
               nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
             }
           }
@@ -65,7 +63,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           return changes ? { nodeData } : {};
         });
       },
-      removeRow: (node, row, internalProp, itemProp) => {
+      removeRow: (node, rowIndex, internalProp, itemProp) => {
         set((state) => {
           const nodeData = { ...state.nodeData };
           const thisNode = nodeData[node.id];
@@ -76,11 +74,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           if (!existingRows) {
             return {};
           }
-          const existingRowIndex = existingRows.findIndex((r) => r.uuid === row.uuid);
-          if (existingRowIndex === -1) {
-            return {};
-          }
-          const rowToRemove = existingRows[existingRowIndex];
+          const rowToRemove = existingRows[rowIndex];
           const items = Array.isArray(rowToRemove[itemProp]) ? rowToRemove[itemProp] : [rowToRemove[itemProp] ?? []];
           const recursiveChildren = recursivelyFindChildren(items, nodeData);
           for (const n of recursiveChildren) {
@@ -89,7 +83,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           }
 
           const newRows = [...existingRows];
-          newRows.splice(existingRowIndex, 1);
+          newRows.splice(rowIndex, 1);
           nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
 
           return { nodeData, readiness: NodesReadiness.NotReady, addRemoveCounter: state.addRemoveCounter + 1 };

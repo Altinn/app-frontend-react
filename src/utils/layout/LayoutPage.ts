@@ -9,7 +9,6 @@ import type { TraversalTask } from 'src/utils/layout/useNodeTraversal';
  * allows for fast/indexed searching, i.e. looking up an exact node in constant time.
  */
 export class LayoutPage implements LayoutObject {
-  public item: Record<string, undefined> = {};
   public parent: this;
   public layoutSet: LayoutPages;
   public pageKey: string;

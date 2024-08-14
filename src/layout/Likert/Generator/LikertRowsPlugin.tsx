@@ -65,19 +65,14 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
       throw new Error(`Child node of Likert component must be of type 'LikertItem'`);
     }
 
-    const row = childNode.row;
-    if (!row) {
+    const rowIndex = childNode.rowIndex;
+    if (rowIndex === undefined) {
       throw new Error(`Child node of Likert component missing 'row' property`);
     }
     const i = state.item as any;
     const rows = (i && 'rows' in i ? [...i.rows] : []) as LikertRow[];
-    const existingRowIndex = rows.findIndex((r) => r.uuid === row.uuid);
 
-    if (existingRowIndex === -1) {
-      rows.push({ ...(rows[existingRowIndex] || {}), ...row, itemNode: childNode });
-    } else {
-      rows[existingRowIndex] = { ...(rows[existingRowIndex] || {}), ...row, itemNode: childNode };
-    }
+    rows[rowIndex] = { ...(rows[rowIndex] || {}), itemNode: childNode };
 
     return {
       item: {
