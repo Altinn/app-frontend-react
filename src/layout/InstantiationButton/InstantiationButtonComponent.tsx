@@ -11,7 +11,11 @@ import type { IButtonProvidedProps } from 'src/layout/Button/ButtonComponent';
 export type IInstantiationButtonComponentReceivedProps = PropsFromGenericComponent<'InstantiationButton'>;
 export type IInstantiationButtonComponentProvidedProps = IButtonProvidedProps;
 
-export function InstantiationButtonComponent({ node, ...componentProps }: IInstantiationButtonComponentReceivedProps) {
+export function InstantiationButtonComponent({
+  node,
+  overrideItemProps,
+  ...componentProps
+}: IInstantiationButtonComponentReceivedProps) {
   const props: IInstantiationButtonComponentProvidedProps = { ...componentProps, ...node.item, node };
 
   const parentIsPage = props.node.parent instanceof LayoutPage;
@@ -20,7 +24,10 @@ export function InstantiationButtonComponent({ node, ...componentProps }: IInsta
       className={classes.container}
       style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
     >
-      <ComponentStructureWrapper node={props.node}>
+      <ComponentStructureWrapper
+        node={props.node}
+        overrideItemProps={overrideItemProps}
+      >
         <InstantiationButton {...props}>
           <Lang id={node.item.textResourceBindings?.title} />
         </InstantiationButton>

@@ -7,8 +7,11 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type IAccordionGroupProps = PropsFromGenericComponent<'AccordionGroup'>;
 
-export const AccordionGroup = ({ node }: IAccordionGroupProps) => (
-  <ComponentStructureWrapper node={node}>
+export const AccordionGroup = ({ node, overrideItemProps }: IAccordionGroupProps) => (
+  <ComponentStructureWrapper
+    node={node}
+    overrideItemProps={overrideItemProps}
+  >
     {node.item.childComponents.map((n: LayoutNode<'Accordion'>) => (
       <GenericComponent<'Accordion'>
         key={n.item.id}

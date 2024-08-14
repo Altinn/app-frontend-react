@@ -3,6 +3,8 @@ import type { PropsWithChildren } from 'react';
 
 import { Grid } from '@material-ui/core';
 
+import type { PropsFromGenericComponent } from '.';
+
 import { Label } from 'src/components/label/Label';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
@@ -14,6 +16,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ComponentStructureWrapperProps<Type extends CompTypes> = {
   node: LayoutNode<Type>;
+  overrideItemProps: PropsFromGenericComponent['overrideItemProps'];
   label?: LabelProps;
 };
 
@@ -21,9 +24,9 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   node,
   children,
   label,
+  overrideItemProps,
 }: PropsWithChildren<ComponentStructureWrapperProps<Type>>) {
-  const item = node.item;
-  const id = item.id;
+  const item = overrideItemProps ? { ...node.item, ...overrideItemProps } : { ...node.item };
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;
 
   const validations = useUnifiedValidationsForNode(node);
@@ -42,8 +45,8 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   const componentWithValidations = (
     <Grid
       item
-      id={`form-content-${id}`}
-      {...gridBreakpoints(node.item.grid?.innerGrid)}
+      id={`form-content-${item.id}`}
+      {...gridBreakpoints(item.grid?.innerGrid)}
     >
       {children}
       {showValidationMessages && (

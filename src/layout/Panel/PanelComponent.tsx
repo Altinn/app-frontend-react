@@ -12,7 +12,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { PropsFromGenericComponent } from 'src/layout';
 type IPanelProps = PropsFromGenericComponent<'Panel'>;
 
-export const PanelComponent = ({ node }: IPanelProps) => {
+export const PanelComponent = ({ node, overrideItemProps }: IPanelProps) => {
   const { textResourceBindings, variant, showIcon } = node.item;
   const fullWidth = !node.item.grid && node.parent instanceof LayoutPage;
   const isOnBottom = node.parent.children().indexOf(node) === node.parent.children().length - 1;
@@ -23,7 +23,10 @@ export const PanelComponent = ({ node }: IPanelProps) => {
   }
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper
+      node={node}
+      overrideItemProps={overrideItemProps}
+    >
       <ConditionalWrapper
         condition={fullWidth}
         wrapper={(child) => (

@@ -43,11 +43,14 @@ function getHeaderProps(size?: string): HeadingProps {
   }
 }
 
-export const HeaderComponent = ({ node }: IHeaderProps) => {
+export const HeaderComponent = ({ node, overrideItemProps }: IHeaderProps) => {
   const { id, size, textResourceBindings } = node.item;
   const { langAsString } = useLanguage();
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper
+      node={node}
+      overrideItemProps={overrideItemProps}
+    >
       <Grid
         container={true}
         direction='row'

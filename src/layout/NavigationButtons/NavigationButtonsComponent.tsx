@@ -13,7 +13,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { PropsFromGenericComponent } from 'src/layout';
 export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
-export function NavigationButtonsComponent({ node }: INavigationButtons) {
+export function NavigationButtonsComponent({ node, overrideItemProps }: INavigationButtons) {
   const { id, showBackButton, textResourceBindings, validateOnNext, validateOnPrevious } = node.item;
   const { navigateToPage, next, previous, maybeSaveOnPageChange } = useNavigatePage();
   const returnToView = useReturnToView();
@@ -122,7 +122,10 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
    * will read Next before Previous, as this is the primary Button for the user.
    */
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper
+      node={node}
+      overrideItemProps={overrideItemProps}
+    >
       <div
         data-testid='NavigationButtons'
         className={classes.container}

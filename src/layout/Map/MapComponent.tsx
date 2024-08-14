@@ -21,7 +21,7 @@ export const useStyles = makeStyles(() => ({
   },
 }));
 
-export function MapComponent({ isValid, node }: IMapComponentProps) {
+export function MapComponent({ isValid, node, overrideItemProps }: IMapComponentProps) {
   const { readOnly, layers, centerLocation, zoom, dataModelBindings } = node.item;
   const classes = useStyles();
   const { formData, setValue } = useDataModelBindings(dataModelBindings);
@@ -36,6 +36,7 @@ export function MapComponent({ isValid, node }: IMapComponentProps) {
   return (
     <ComponentStructureWrapper
       node={node}
+      overrideItemProps={overrideItemProps}
       label={{
         ...node.item,
         renderLabelAs: 'span',

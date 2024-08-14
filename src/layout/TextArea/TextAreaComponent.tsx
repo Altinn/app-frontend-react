@@ -12,7 +12,7 @@ import 'src/styles/shared.css';
 
 export type ITextAreaProps = Readonly<PropsFromGenericComponent<'TextArea'>>;
 
-export function TextAreaComponent({ node, overrideDisplay, isValid }: ITextAreaProps) {
+export function TextAreaComponent({ node, overrideDisplay, isValid, overrideItemProps }: ITextAreaProps) {
   const { langAsString } = useLanguage();
   const { id, readOnly, textResourceBindings, dataModelBindings, saveWhileTyping, autocomplete, maxLength } = node.item;
   const characterLimit = useCharacterLimit(maxLength);
@@ -25,6 +25,7 @@ export function TextAreaComponent({ node, overrideDisplay, isValid }: ITextAreaP
   return (
     <ComponentStructureWrapper
       node={node}
+      overrideItemProps={overrideItemProps}
       label={{ ...node.item, renderLabelAs: 'label' }}
     >
       <Textarea

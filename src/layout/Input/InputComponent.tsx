@@ -67,7 +67,12 @@ const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) =
   );
 };
 
-export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isValid, overrideDisplay }) => {
+export const InputComponent: React.FunctionComponent<IInputProps> = ({
+  node,
+  isValid,
+  overrideDisplay,
+  overrideItemProps,
+}) => {
   const {
     id,
     readOnly,
@@ -194,6 +199,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
   return (
     <ComponentStructureWrapper
       node={node}
+      overrideItemProps={overrideItemProps}
       label={{
         ...node.item,
         textResourceBindings: {

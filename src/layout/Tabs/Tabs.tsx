@@ -10,7 +10,7 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
+export const Tabs = ({ node, overrideItemProps }: PropsFromGenericComponent<'Tabs'>) => {
   const [activeTab, setActiveTab] = useState<string | undefined>(
     node.item.defaultTab ?? node.item.tabsInternal.at(0)?.id,
   );
@@ -32,7 +32,10 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
 
   const tabs = node.item.tabsInternal;
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper
+      node={node}
+      overrideItemProps={overrideItemProps}
+    >
       <DesignsystemetTabs
         defaultValue={activeTab}
         value={activeTab}

@@ -20,7 +20,7 @@ export const buttonStyles: { [style in ActionButtonStyle]: { color: ButtonColor;
 
 export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
 
-export function ActionButtonComponent({ node }: IActionButton) {
+export function ActionButtonComponent({ node, overrideItemProps }: IActionButton) {
   const { busyWithId, busy, next } = useProcessNavigation() || {};
   const { isAuthorized } = useActionAuthorization();
 
@@ -40,7 +40,10 @@ export function ActionButtonComponent({ node }: IActionButton) {
   const { color, variant } = buttonStyles[buttonStyle];
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper
+      node={node}
+      overrideItemProps={overrideItemProps}
+    >
       <ButtonLoader
         isLoading={isLoadingHere}
         style={{

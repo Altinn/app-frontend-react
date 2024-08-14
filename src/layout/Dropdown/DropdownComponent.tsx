@@ -16,7 +16,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
 
-export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownProps) {
+export function DropdownComponent({ node, isValid, overrideDisplay, overrideItemProps }: IDropdownProps) {
   const { id, readOnly, textResourceBindings, alertOnChange } = node.item;
   const { langAsString, lang } = useLanguage(node);
 
@@ -70,6 +70,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
     >
       <ComponentStructureWrapper
         node={node}
+        overrideItemProps={overrideItemProps}
         label={overrideDisplay?.renderedInTable !== true ? { ...node.item, renderLabelAs: 'label' } : undefined}
       >
         <Combobox

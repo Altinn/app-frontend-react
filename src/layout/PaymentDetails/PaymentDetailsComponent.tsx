@@ -10,7 +10,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IPaymentDetailsProps = PropsFromGenericComponent<'PaymentDetails'>;
 
-export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
+export function PaymentDetailsComponent({ node, overrideItemProps }: IPaymentDetailsProps) {
   const orderDetails = useOrderDetails();
   const refetchOrderDetails = useRefetchOrderDetails();
   const { title, description } = node.item.textResourceBindings || {};
@@ -28,7 +28,10 @@ export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
   }, [hasUnsavedChanges, mappedValues, mapping, refetchOrderDetails]);
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper
+      node={node}
+      overrideItemProps={overrideItemProps}
+    >
       <PaymentDetailsTable
         orderDetails={orderDetails}
         tableTitle={title}

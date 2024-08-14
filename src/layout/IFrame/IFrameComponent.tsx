@@ -11,7 +11,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
 
-export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => {
+export const IFrameComponent = ({ node, overrideItemProps }: IFrameComponentProps): JSX.Element => {
   const { langAsNonProcessedString } = useLanguage();
   const { textResourceBindings, sandbox } = node.item;
 
@@ -39,7 +39,10 @@ export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => 
   };
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper
+      node={node}
+      overrideItemProps={overrideItemProps}
+    >
       <iframe
         scrolling='no'
         frameBorder={0}

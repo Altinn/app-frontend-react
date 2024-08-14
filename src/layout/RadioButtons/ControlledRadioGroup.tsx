@@ -60,7 +60,10 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   }
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper
+      node={node}
+      overrideItemProps={props.overrideItemProps}
+    >
       <div id={id}>
         <Radio.Group
           legend={labelText}

@@ -162,7 +162,7 @@ export const buttonStyles: { [style in CBTypes.CustomButtonStyle]: { color: Butt
   secondary: { variant: 'secondary', color: 'first' },
 };
 
-export const CustomButtonComponent = ({ node }: Props) => {
+export const CustomButtonComponent = ({ node, overrideItemProps }: Props) => {
   const { textResourceBindings, actions, id, buttonStyle = 'secondary' } = node.item;
   const lockTools = FD.useLocking(node.item.id);
   const { isAuthorized } = useActionAuthorization();
@@ -191,7 +191,10 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const { color, variant } = buttonStyles[buttonStyle];
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper
+      node={node}
+      overrideItemProps={overrideItemProps}
+    >
       <Button
         id={`custom-button-${id}`}
         disabled={disabled}

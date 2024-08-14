@@ -24,7 +24,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
 
-export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JSX.Element {
+export function FileUploadComponent({ node, overrideItemProps }: IFileUploadWithTagProps): React.JSX.Element {
   const {
     id,
     maxFileSizeInMB,
@@ -126,6 +126,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   return (
     <ComponentStructureWrapper
       node={node}
+      overrideItemProps={overrideItemProps}
       label={{ ...node.item, renderLabelAs: 'label' }}
     >
       <AttachmentsMappedToFormDataProvider mappingTools={mappingTools}>

@@ -8,7 +8,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IAudioProps = PropsFromGenericComponent<'Audio'>;
 
-export function AudioComponent({ node }: IAudioProps) {
+export function AudioComponent({ node, overrideItemProps }: IAudioProps) {
   const { langAsString } = useLanguage();
   const { id, audio, textResourceBindings } = node.item;
   const languageKey = useCurrentLanguage();
@@ -18,7 +18,10 @@ export function AudioComponent({ node }: IAudioProps) {
   const cardMediaHeight = useParentCard()?.minMediaHeight;
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper
+      node={node}
+      overrideItemProps={overrideItemProps}
+    >
       <audio
         controls
         id={id}

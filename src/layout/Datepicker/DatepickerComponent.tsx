@@ -104,7 +104,7 @@ class AltinnMomentUtils extends MomentUtils {
 // We dont use the built-in validation for the 3rd party component, so it is always empty string
 const emptyString = '';
 
-export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepickerProps) {
+export function DatepickerComponent({ node, isValid, overrideDisplay, overrideItemProps }: IDatepickerProps) {
   const classes = useStyles();
   const { langAsString } = useLanguage();
   const languageLocale = useCurrentLanguage();
@@ -151,6 +151,7 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
   return (
     <ComponentStructureWrapper
       node={node}
+      overrideItemProps={overrideItemProps}
       label={{ ...node.item, renderLabelAs: 'label' }}
     >
       <MuiPickersUtilsProvider utils={AltinnMomentUtils}>
