@@ -1,10 +1,10 @@
 const debugAll = false;
 export const GeneratorDebug = {
   displayState: debugAll,
-  displayReadiness: debugAll || true,
-  logReadiness: debugAll || true,
-  logStages: debugAll || true,
-  logCommits: debugAll || true,
+  displayReadiness: debugAll,
+  logReadiness: debugAll,
+  logStages: debugAll,
+  logCommits: debugAll,
 };
 
 export const generatorLog = (logType: keyof typeof GeneratorDebug, ...messages: unknown[]) => {
