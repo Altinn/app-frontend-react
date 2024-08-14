@@ -31,7 +31,7 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
   return (
     <AttachmentsMappedToFormDataProvider mappingTools={mappingTools}>
       <Label
-        id={`attachment_summary2_${targetNode.item.id}`}
+        id={`attachment-summary2-${targetNode.item.id}`}
         textResourceBindings={targetNode.item.textResourceBindings}
         renderLabelAs='span'
         className={classes.summaryLabelMargin}

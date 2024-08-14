@@ -30,21 +30,13 @@ export type LabelProps = PropsWithChildren<{
   weight?: FontWeights | undefined;
 }>;
 
-export function Label({
-  id,
-  renderLabelAs,
-  required,
-  readOnly,
-  labelSettings,
-  grid,
-  textResourceBindings,
-  children,
-  className,
-  weight,
-}: LabelProps) {
-  if (!textResourceBindings?.title) {
-    return <>{children}</>;
+export function Label(props: LabelProps) {
+  if (!props.textResourceBindings?.title) {
+    return <>{props.children}</>;
   }
+
+  const { children, ...propsWithoutChildren } = props;
+  const { id, renderLabelAs, required, readOnly, labelSettings, grid, textResourceBindings, className, weight } = props;
 
   const labelId = `label-${id}`;
   const labelContentProps: Omit<LabelContentProps, 'id'> = {
@@ -63,12 +55,10 @@ export function Label({
           size='small'
           className={cn(classes.fieldWrapper, classes.fullWidth)}
           legend={
-            <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
-              <LabelContent
-                id={labelId}
-                {...labelContentProps}
-              />
-            </LabelGridItemWrapper>
+            <Label
+              {...propsWithoutChildren}
+              renderLabelAs='span'
+            />
           }
         >
           {children}
