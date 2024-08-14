@@ -19,6 +19,7 @@ export interface LayoutNodeProps<Type extends CompTypes> {
  */
 export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements LayoutObject {
   public readonly parent: ParentNode;
+  public readonly rowIndex?: number;
   public readonly page: LayoutPage;
   public readonly def: CompClassMap[Type];
 
@@ -30,11 +31,6 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   public pageKey: string;
   public type: Type;
 
-  // These properties may be set if the node belongs to a repeating group, or otherwise is a repeating child.
-  // The row index will never update, but the UUID may change if rows are re-ordered.
-  public rowIndex?: number;
-  public rowUuid?: string;
-
   public constructor({ item, parent, rowIndex }: LayoutNodeProps<Type>) {
     this.id = item.id;
     this.baseId = item.baseComponentId ?? item.id;
@@ -45,10 +41,6 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
     this.def = getComponentDef(this.type);
     this.parent = parent;
     this.rowIndex = rowIndex;
-  }
-
-  public updateRowUuid(uuid: string | undefined) {
-    this.rowUuid = uuid;
   }
 
   public isType<T extends CompTypes>(type: T): this is LayoutNode<T> {

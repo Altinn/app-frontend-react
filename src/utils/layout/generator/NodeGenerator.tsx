@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
@@ -68,7 +68,6 @@ export function NodeGenerator({ children, claim, externalItem }: PropsWithChildr
           {...commonProps}
           claim={claim}
         />
-        <UpdateNodeRow {...commonProps} />
       </GeneratorCondition>
       <GeneratorCondition
         stage={StageMarkHidden}
@@ -166,17 +165,6 @@ function ResolveExpressions<T extends CompTypes>({ node, intermediateItem }: Com
   return (
     <>{GeneratorDebug.displayState && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolved, null, 2)}</pre>}</>
   );
-}
-
-function UpdateNodeRow<T extends CompTypes>({ node }: CommonProps<T>) {
-  const row = GeneratorInternal.useRow();
-  const uuid = row?.uuid;
-
-  useEffect(() => {
-    node.updateRowUuid(uuid);
-  }, [node, uuid]);
-
-  return null;
 }
 
 /**
