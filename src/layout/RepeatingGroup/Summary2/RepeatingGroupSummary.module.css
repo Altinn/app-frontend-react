@@ -20,3 +20,10 @@
   padding: var(--fds-spacing-2) var(--fds-spacing-4);
   border-radius: var(--fds-border_radius-medium);
 }
+
+.errorMessage {
+  display: flex;
+  flex-direction: row;
+  gap: var(--fds-spacing-2);
+  align-items: center;
+}

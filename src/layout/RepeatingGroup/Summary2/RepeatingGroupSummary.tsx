@@ -1,8 +1,11 @@
 import React from 'react';
 
+import { ErrorMessage } from '@digdir/designsystemet-react';
+import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { Label } from 'src/components/label/Label';
+import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
@@ -57,6 +60,21 @@ export const RepeatingGroupSummary = ({ componentNode }: RepeatingGroupComponent
           </div>
         ))}
       </div>
+      {errors &&
+        errors?.length > 0 &&
+        errors?.map(({ message }) => (
+          <ErrorMessage
+            key={message.key}
+            className={classes.errorMessage}
+          >
+            <ExclamationmarkTriangleIcon fontSize='1.5rem' />
+            <Lang
+              id={message.key}
+              params={message.params}
+              node={componentNode}
+            ></Lang>
+          </ErrorMessage>
+        ))}
     </div>
   );
 };
