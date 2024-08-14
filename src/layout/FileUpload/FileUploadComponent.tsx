@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import type { JSX } from 'react';
 import type { FileRejection } from 'react-dropzone';
 
+import { Label } from 'src/components/label/Label';
 import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/AttachmentsContext';
 import {
   AttachmentsMappedToFormDataProvider,
@@ -124,10 +125,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   );
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      label={{ ...node.item, renderLabelAs: 'label' }}
-    >
+    <ComponentStructureWrapper node={node}>
       <AttachmentsMappedToFormDataProvider mappingTools={mappingTools}>
         <div
           id={`altinn-fileuploader-${id}`}
@@ -135,18 +133,21 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
         >
           {shouldShowFileUpload && (
             <>
-              <DropzoneComponent
-                id={id}
-                isMobile={mobileView}
-                maxFileSizeInMB={maxFileSizeInMB}
-                readOnly={!!readOnly}
-                onClick={(e) => e.preventDefault()}
-                onDrop={handleDrop}
-                hasValidationMessages={hasValidationErrors(componentValidations)}
-                hasCustomFileEndings={hasCustomFileEndings}
-                validFileEndings={validFileEndings}
-                textResourceBindings={textResourceBindings}
-              />
+              <Label {...{ ...node.item, renderLabelAs: 'span' }}>
+                <DropzoneComponent
+                  id={id}
+                  isMobile={mobileView}
+                  maxFileSizeInMB={maxFileSizeInMB}
+                  readOnly={!!readOnly}
+                  onClick={(e) => e.preventDefault()}
+                  onDrop={handleDrop}
+                  hasValidationMessages={hasValidationErrors(componentValidations)}
+                  hasCustomFileEndings={hasCustomFileEndings}
+                  validFileEndings={validFileEndings}
+                  textResourceBindings={textResourceBindings}
+                />
+              </Label>
+
               <AttachmentsCounter />
               <ComponentValidations
                 validations={componentValidations}
