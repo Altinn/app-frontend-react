@@ -7,6 +7,7 @@ import cn from 'classnames';
 
 import classes from 'src/components/label/Label.module.css';
 import { LabelContent } from 'src/components/label/LabelContent';
+import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import { gridBreakpoints } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LabelContentProps } from 'src/components/label/LabelContent';
@@ -26,7 +27,9 @@ export type LabelProps = PropsWithChildren<{
 }>;
 
 export function Label({ node, renderLabelAs, children, className, ...rest }: LabelProps) {
-  const item = useNodeItem(node);
+  const overrideItemProps = useFormComponentCtx()?.overrideItemProps;
+  const _item = useNodeItem(node);
+  const item = { ..._item, ...overrideItemProps };
   const { id: nodeId, grid, textResourceBindings: _trb } = item;
   const required = 'required' in item && item.required;
   const readOnly = 'readOnly' in item && item.readOnly;

@@ -4,6 +4,8 @@ import { Table } from '@digdir/designsystemet-react';
 import { Grid, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
+import type { PropsFromGenericComponent } from '..';
+
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -15,11 +17,8 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/LikertItem/LikertItemComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-interface LikertComponentProps {
-  node: LayoutNode<'Likert'>;
-}
+type LikertComponentProps = PropsFromGenericComponent<'Likert'>;
 
 export const LikertComponent = ({ node }: LikertComponentProps) => {
   const { textResourceBindings, rows } = useNodeItem(node);

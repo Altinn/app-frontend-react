@@ -116,8 +116,10 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
       id,
       baseComponentId: item.baseComponentId,
       node,
+      overrideItemProps,
+      overrideDisplay,
     }),
-    [item.baseComponentId, item.grid, id, node],
+    [item.grid, item.baseComponentId, id, node, overrideItemProps, overrideDisplay],
   );
 
   useFinishNodeNavigation(async (targetNode, options, onHit) => {

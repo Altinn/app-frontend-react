@@ -22,7 +22,6 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   children,
   label,
 }: PropsWithChildren<ComponentStructureWrapperProps<Type>>) {
-  const id = node.id;
   const innerGrid = useNodeItem(node, (i) => i.grid?.innerGrid);
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;
 
@@ -31,7 +30,7 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   const componentWithValidations = (
     <Grid
       item
-      id={`form-content-${id}`}
+      id={`form-content-${node.id}`}
       {...gridBreakpoints(innerGrid)}
     >
       {children}
