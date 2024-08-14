@@ -29,7 +29,7 @@ export function ComponentSummary<T extends CompTypes>({
     grid: i.grid,
     required: 'required' in i ? i.required : false,
     dataModelBindings: i.dataModelBindings,
-    forceShowInSummary: i.forceShowInSummary,
+    forceShowInSummary: 'forceShowInSummary' in i ? i.forceShowInSummary : undefined,
   }));
   const overrides = summaryOverrides?.find((override) => override.componentId === componentNode.baseId);
   const props: Summary2Props<T> = {

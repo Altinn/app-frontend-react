@@ -248,19 +248,16 @@ export function useExpressionResolverProps<T extends CompTypes>(
             },
           }
         : {}),
-      ...(rest.forceShowInSummary !== undefined
-        ? { forceShowInSummary: evalBool(rest.forceShowInSummary, false) }
-        : {}),
     };
-  }, [evalStr, item, evalBool]);
+  }, [evalStr, item]);
 
   const evalFormProps = useCallback<ExprResolver<T>['evalFormProps']>(() => {
-    const out: any = {};
+    const out: ExprResolved<FormComponentProps> = {};
     if (isFormItem(item)) {
-      if (item.required !== undefined) {
+      if (Array.isArray(item.required)) {
         out.required = evalBool(item.required, false);
       }
-      if (item.readOnly !== undefined) {
+      if (Array.isArray(item.readOnly)) {
         out.readOnly = evalBool(item.readOnly, false);
       }
     }
@@ -269,9 +266,11 @@ export function useExpressionResolverProps<T extends CompTypes>(
   }, [evalBool, item]);
 
   const evalSummarizable = useCallback<ExprResolver<T>['evalSummarizable']>(() => {
-    const out: any = {};
-    if (isSummarizableItem(item) && item.renderAsSummary !== undefined) {
-      out.renderAsSummary = evalBool(item.renderAsSummary, false);
+    const out: ExprResolved<SummarizableComponentProps> = {};
+    if (isSummarizableItem(item)) {
+      if (Array.isArray(item.forceShowInSummary)) {
+        out.forceShowInSummary = evalBool(item.forceShowInSummary, false);
+      }
     }
 
     return out;

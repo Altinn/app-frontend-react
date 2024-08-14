@@ -428,15 +428,6 @@ const common = {
             'Boolean value or expression indicating if the component should be hidden. Defaults to false.',
           ),
       ),
-      new CG.prop(
-        'forceShowInSummary',
-        new CG.expr(ExprVal.Boolean)
-          .optional({ default: false })
-          .setTitle('Force show in summary')
-          .setDescription(
-            'Will force show the component in a summary even if hideEmptyFields is set to true in the summary component.',
-          ),
-      ),
       new CG.prop('grid', CG.common('IGrid').optional()),
       new CG.prop('pageBreak', CG.common('IPageBreak').optional()),
     ),
@@ -471,6 +462,15 @@ const common = {
           .setTitle('Render as summary')
           .setDescription(
             'Boolean value indicating if the component should be rendered as a summary. Defaults to false.',
+          ),
+      ),
+      new CG.prop(
+        'forceShowInSummary',
+        new CG.expr(ExprVal.Boolean)
+          .optional({ default: false })
+          .setTitle('Force show in summary')
+          .setDescription(
+            'Will force show the component in a summary even if hideEmptyFields is set to true in the summary component.',
           ),
       ),
     ),
