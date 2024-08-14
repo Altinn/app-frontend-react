@@ -16,6 +16,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/LikertItem/LikertItemComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { typedBoolean } from 'src/utils/typing';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 
 type LikertComponentProps = PropsFromGenericComponent<'Likert'>;
@@ -23,9 +24,9 @@ type LikertComponentProps = PropsFromGenericComponent<'Likert'>;
 export const LikertComponent = ({ node }: LikertComponentProps) => {
   const { textResourceBindings, rows } = useNodeItem(node);
   const mobileView = useIsMobileOrTablet();
-  const { options: calculatedOptions, isFetching } = useNodeOptions(rows[0].itemNode);
+  const { options: calculatedOptions, isFetching } = useNodeOptions(rows.find((row) => !!row)?.itemNode);
   const { lang } = useLanguage();
-  const rowNodes = rows.map((row) => row.itemNode);
+  const rowNodes = rows.filter(typedBoolean).map((row) => row.itemNode);
 
   const id = node.id;
   const hasDescription = !!textResourceBindings?.description;

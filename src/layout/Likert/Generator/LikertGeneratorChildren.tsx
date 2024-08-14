@@ -122,9 +122,9 @@ function _GenerateRow({ rowIndex, rowUuid, questionsBinding }: GenerateRowProps)
 
   GeneratorStages.AddNodes.useEffect(
     () => () => {
-      removeRow(node, rowIndex, 'rows', 'itemNode');
+      removeRow(node, row, 'rows', 'itemNode');
     },
-    [node, rowIndex, removeRow],
+    [node, row, removeRow],
   );
 
   return (

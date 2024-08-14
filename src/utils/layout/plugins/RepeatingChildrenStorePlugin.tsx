@@ -20,7 +20,7 @@ export interface SetRowExtrasRequest<T extends CompTypes = CompTypes> {
 export interface RepeatingChildrenStorePluginConfig {
   extraFunctions: {
     setRowExtras: (requests: SetRowExtrasRequest[]) => void;
-    removeRow: (node: LayoutNode, rowIndex: number, internalProp: string, itemProp: string) => void;
+    removeRow: (node: LayoutNode, row: BaseRow, internalProp: string, itemProp: string) => void;
   };
   extraHooks: {
     useSetRowExtras: () => RepeatingChildrenStorePluginConfig['extraFunctions']['setRowExtras'];
@@ -68,7 +68,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           return changes ? { nodeData, readiness: NodesReadiness.NotReady } : {};
         });
       },
-      removeRow: (node, rowIndex, internalProp, itemProp) => {
+      removeRow: (node, row, internalProp, itemProp) => {
         set((state) => {
           const nodeData = { ...state.nodeData };
           const thisNode = nodeData[node.id];
@@ -79,7 +79,11 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           if (!existingRows) {
             return {};
           }
-          const rowToRemove = existingRows[rowIndex];
+          const rowToRemove = existingRows[row.index];
+          if (!rowToRemove || rowToRemove.uuid !== row.uuid) {
+            return {};
+          }
+
           const items = Array.isArray(rowToRemove[itemProp]) ? rowToRemove[itemProp] : [rowToRemove[itemProp] ?? []];
           const recursiveChildren = recursivelyFindChildren(items, nodeData);
           for (const n of recursiveChildren) {
@@ -88,7 +92,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           }
 
           const newRows = [...existingRows];
-          newRows.splice(rowIndex, 1);
+          newRows.splice(row.index, 1);
           nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
 
           return { nodeData, readiness: NodesReadiness.NotReady, addRemoveCounter: state.addRemoveCounter + 1 };

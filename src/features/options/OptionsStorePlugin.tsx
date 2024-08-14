@@ -6,7 +6,7 @@ import type { NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
 
-export type NodeOptionsSelector = (node: LayoutNode<CompWithBehavior<'canHaveOptions'>>) => {
+export type NodeOptionsSelector = (node: LayoutNode<CompWithBehavior<'canHaveOptions'>> | undefined) => {
   isFetching: boolean;
   options: IOptionInternal[];
 };
@@ -40,14 +40,14 @@ export class OptionsStorePlugin extends NodeDataPlugin<OptionsStorePluginConfig>
     return {
       useNodeOptions: (node) =>
         store.useSelector((state) => {
-          const s = state.nodeData[node.id];
+          const s = node ? state.nodeData[node.id] : undefined;
           return { isFetching: nodeDataToIsFetching(s), options: nodeDataToOptions(s) };
         }),
       useNodeOptionsSelector: () =>
         store.useDelayedSelector({
           mode: 'simple',
-          selector: (node: LayoutNode<CompWithBehavior<'canHaveOptions'>>) => (state) => {
-            const store = state.nodeData[node.id];
+          selector: (node: LayoutNode<CompWithBehavior<'canHaveOptions'>> | undefined) => (state) => {
+            const store = node ? state.nodeData[node.id] : undefined;
             return { isFetching: nodeDataToIsFetching(store), options: nodeDataToOptions(store) };
           },
         }),

@@ -104,9 +104,9 @@ function _GenerateRow({
 
   GeneratorStages.AddNodes.useEffect(
     () => () => {
-      removeRow(node, rowIndex, internalProp, 'items');
+      removeRow(node, row, internalProp, 'items');
     },
-    [node, rowIndex, internalProp, removeRow],
+    [node, row, internalProp, removeRow],
   );
 
   return (
