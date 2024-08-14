@@ -235,25 +235,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         )}
         alignItems='baseline'
       >
-        {/*TODO: Fix after merge from main. The code was: */}
-        {/*{shouldRenderLabelInGenericComponent(node.type) && overrideDisplay?.renderLabel !== false && (*/}
-        {/*  <Grid*/}
-        {/*    item={true}*/}
-        {/*    {...gridBreakpoints(item.grid?.labelGrid)}*/}
-        {/*  >*/}
-        {/*    <GenericComponentLabel />*/}
-        {/*    <GenericComponentDescription />*/}
-        {/*  </Grid>*/}
-        {/*)}*/}
-        {/*<Grid*/}
-        {/*  key={`form-content-${id}`}*/}
-        {/*  item={true}*/}
-        {/*  id={`form-content-${id}`}*/}
-        {/*  {...gridBreakpoints(item.grid?.innerGrid)}*/}
-        {/*>*/}
-        {/*  <RenderComponent {...componentProps} />*/}
-        {/*  {showValidationMessages && <AllComponentValidations />}*/}
-        {/*</Grid>*/}
         <RenderComponent {...componentProps} />
       </Grid>
     </FormComponentContextProvider>
