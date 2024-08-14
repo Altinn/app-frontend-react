@@ -27,7 +27,7 @@ export type LabelProps = PropsWithChildren<{
     help?: string;
   };
   className?: string;
-  weight?: FontWeights | undefined;
+  weight?: FontWeights;
 }>;
 
 export function Label(props: LabelProps) {
