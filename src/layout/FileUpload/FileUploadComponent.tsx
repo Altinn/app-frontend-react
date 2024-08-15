@@ -80,7 +80,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
     }
     return (
       <button
-        className={`${classes.fileUploadButton} ${classes.blueUnderline}`}
+        className={classes.fileUploadButton}
         onClick={() => setShowFileUpload(true)}
       >
         <Lang id={'form_filler.file_uploader_add_attachment'} />
@@ -158,7 +158,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
                 validations={componentValidations}
                 node={node}
               />
-              <br />
+              {attachments && attachments.length > 0 && <div className={classes.betweenTableAndDropMargin}></div>}
             </>
           )}
 

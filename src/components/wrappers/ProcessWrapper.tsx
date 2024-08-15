@@ -36,7 +36,6 @@ function NavigationError({ label }: NavigationErrorProps) {
       item={true}
       xs={12}
       aria-live='polite'
-      className={classes.errorReport}
     >
       <div>{label}</div>
       <div className={classes.navigationError}>
