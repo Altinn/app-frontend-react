@@ -33,12 +33,12 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
 });
 
 export const parseAndCleanText = cachedFunction(
-  (text: string | undefined) => {
+  async (text: string | undefined) => {
     if (typeof text !== 'string') {
       return null;
     }
 
-    const dirty = marked.parse(text);
+    const dirty = await marked.parse(text);
     const clean = DOMPurify.sanitize(dirty);
     return parseHtmlToReact(clean.toString().trim(), parserOptions);
   },
