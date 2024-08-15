@@ -16,9 +16,9 @@ import type {
   ExprValToActual,
   ExprValToActualOrExpr,
 } from 'src/features/expressions/types';
-import type { ExpressionDataSources } from 'src/features/expressions/utils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 export interface EvalExprOptions {
   config?: ExprConfig;
