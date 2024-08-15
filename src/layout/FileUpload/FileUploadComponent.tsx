@@ -140,7 +140,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
               validations={validations}
               node={node}
             />
-            <br />
+            {attachments && attachments.length > 0 && <div className={classes.betweenTableAndDropMargin}></div>}
           </>
         )}
 

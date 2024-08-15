@@ -4,6 +4,7 @@ import type { PropsWithChildren } from 'react';
 import { Fieldset, Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
+import type { LabelProps as DesignsystemetLabelProps } from '@digdir/designsystemet-react';
 
 import classes from 'src/components/label/Label.module.css';
 import { LabelContent } from 'src/components/label/LabelContent';
@@ -24,9 +25,20 @@ export type LabelProps = PropsWithChildren<{
 
   id?: string;
   textResourceBindings?: ExprResolved<TRBLabel>;
-}>;
+}> &
+  DesignsystemetLabelProps;
 
-export function Label({ node, renderLabelAs, children, className, ...rest }: LabelProps) {
+export function Label(props: LabelProps) {
+  const { children, ...propsWithoutChildren } = props;
+  const {
+    node,
+    renderLabelAs,
+    className,
+    id: overriddenId,
+    textResourceBindings: overriddenTrb,
+    ...designsystemetLabelProps
+  } = props;
+
   const overrideItemProps = useFormComponentCtx()?.overrideItemProps;
   const _item = useNodeItem(node);
   const item = { ..._item, ...overrideItemProps };
@@ -36,8 +48,8 @@ export function Label({ node, renderLabelAs, children, className, ...rest }: Lab
   const labelSettings = 'labelSettings' in item ? item.labelSettings : undefined;
 
   // These can be overridden by props, but are otherwise retrieved from the node item
-  const id = rest.id ?? nodeId;
-  const textResourceBindings = (rest.textResourceBindings ?? _trb) as ExprResolved<TRBLabel> | undefined;
+  const id = overriddenId ?? nodeId;
+  const textResourceBindings = (overriddenTrb ?? _trb) as ExprResolved<TRBLabel> | undefined;
 
   if (!textResourceBindings?.title) {
     return <>{children}</>;
@@ -57,15 +69,12 @@ export function Label({ node, renderLabelAs, children, className, ...rest }: Lab
     case 'legend': {
       return (
         <Fieldset
-          size='small'
           className={cn(classes.fieldWrapper, classes.fullWidth)}
           legend={
-            <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
-              <LabelContent
-                id={labelId}
-                {...labelContentProps}
-              />
-            </LabelGridItemWrapper>
+            <Label
+              {...propsWithoutChildren}
+              renderLabelAs='span'
+            />
           }
         >
           {children}
@@ -79,6 +88,7 @@ export function Label({ node, renderLabelAs, children, className, ...rest }: Lab
           htmlFor={id}
           style={{ width: '100%' }}
           className={className}
+          {...designsystemetLabelProps}
         >
           <Grid
             container
@@ -99,7 +109,10 @@ export function Label({ node, renderLabelAs, children, className, ...rest }: Lab
           {/* we want this "label" not to be rendered as a <label>,
            because it does not belong to an input element */}
           <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
-            <DesignsystemetLabel asChild>
+            <DesignsystemetLabel
+              asChild
+              {...designsystemetLabelProps}
+            >
               <LabelContent
                 id={labelId}
                 {...labelContentProps}
