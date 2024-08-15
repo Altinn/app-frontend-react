@@ -99,11 +99,12 @@ export function Label(props: LabelProps) {
         <DesignsystemetLabel
           id={labelId}
           htmlFor={id}
-          style={{ width: '100%' }}
           className={className}
+          style={{ width: '100%' }}
         >
-          <LabelContent {...labelContentProps} />
-
+          <div style={{ marginBottom: '0.5rem' }}>
+            <LabelContent {...labelContentProps} />
+          </div>
           {children}
         </DesignsystemetLabel>
       );
