@@ -1,9 +1,8 @@
 import type { Mutable } from 'utility-types';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { ExprRuntimeError } from 'src/features/expressions/errors';
+import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { ExprVal } from 'src/features/expressions/types';
-import { ensureNode } from 'src/features/expressions/utils';
 import { addError } from 'src/features/expressions/validation';
 import { SearchParams } from 'src/hooks/useNavigatePage';
 import { implementsDisplayData } from 'src/layout';
@@ -562,4 +561,13 @@ function pickSimpleValue(path: string | undefined | null, selector: FormDataSele
     return value;
   }
   return null;
+}
+
+export function ensureNode(
+  node: LayoutNode | LayoutPage | BaseLayoutNode | NodeNotFoundWithoutContext,
+): LayoutNode | BaseLayoutNode | LayoutPage {
+  if (node instanceof NodeNotFoundWithoutContext) {
+    throw new NodeNotFound(node.getId());
+  }
+  return node;
 }

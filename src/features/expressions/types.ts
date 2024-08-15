@@ -26,16 +26,6 @@ export type ExprValToActual<T extends ExprVal = ExprVal> = T extends ExprVal.Str
         ? string | number | boolean | null
         : unknown;
 
-export type ActualToExprVal<T> = T extends string
-  ? ExprVal.String
-  : T extends number
-    ? ExprVal.Number
-    : T extends boolean
-      ? ExprVal.Boolean
-      : T extends null
-        ? ExprVal.Any
-        : never;
-
 /**
  * This type replaces ExprVal with the actual value type, or expression that returns that type.
  */

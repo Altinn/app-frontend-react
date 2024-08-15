@@ -1,12 +1,15 @@
+import dot from 'dot-object';
+
 import {
   ExprRuntimeError,
+  prettyError,
+  traceExpressionError,
   UnexpectedType,
   UnknownSourceType,
   UnknownTargetType,
 } from 'src/features/expressions/errors';
 import { ExprFunctions } from 'src/features/expressions/expression-functions';
 import { ExprVal } from 'src/features/expressions/types';
-import { getExpressionValue, prettyError, traceExpressionError } from 'src/features/expressions/utils';
 import type { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import type {
   ExprConfig,
@@ -20,11 +23,14 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
+type BeforeFuncCallback = (path: string[], func: ExprFunction, args: unknown[]) => void;
+type AfterFuncCallback = (path: string[], func: ExprFunction, args: unknown[], result: unknown) => void;
+
 export interface EvalExprOptions {
   config?: ExprConfig;
   errorIntroText?: string;
-  onBeforeFunctionCall?: (path: string[], func: ExprFunction, args: any[]) => void;
-  onAfterFunctionCall?: (path: string[], func: ExprFunction, args: any[], result: any) => void;
+  onBeforeFunctionCall?: BeforeFuncCallback;
+  onAfterFunctionCall?: AfterFuncCallback;
   positionalArguments?: ExprPositionalArgs;
 }
 
@@ -37,7 +43,7 @@ export type SimpleEval<T extends ExprVal> = (
 export type EvaluateExpressionParams = {
   expr: Expression;
   path: string[];
-  callbacks: Pick<EvalExprOptions, 'onBeforeFunctionCall' | 'onAfterFunctionCall'>;
+  callbacks: { onBeforeFunctionCall?: BeforeFuncCallback; onAfterFunctionCall?: AfterFuncCallback };
   node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext;
   dataSources: ExpressionDataSources;
   positionalArguments?: ExprPositionalArgs;
@@ -70,11 +76,11 @@ export function evalExpr(
     return expr;
   }
 
-  const callbacks: Pick<EvalExprOptions, 'onBeforeFunctionCall' | 'onAfterFunctionCall'> = {
+  const callbacks = {
     onBeforeFunctionCall: options?.onBeforeFunctionCall,
     onAfterFunctionCall: options?.onAfterFunctionCall,
   };
-  const ctx: EvaluateExpressionParams = {
+  const evalParams: EvaluateExpressionParams = {
     expr,
     path: [],
     callbacks,
@@ -84,26 +90,27 @@ export function evalExpr(
   };
 
   try {
-    const result = innerEvalExpr(ctx);
+    const result = innerEvalExpr(evalParams);
     if ((result === null || result === undefined) && options?.config) {
       return options.config.defaultValue;
     }
 
     if (
-      options &&
-      options.config &&
+      !!options?.config?.returnType &&
       options.config.returnType !== ExprVal.Any &&
       options.config.returnType !== valueToExprValueType(result)
     ) {
       // If you have an expression that expects (for example) a true|false return value, and the actual returned result
       // is "true" (as a string), it makes sense to finally cast the value to the proper return value type.
-      return castValue(result, options.config.returnType, ctx);
+      return castValue(result, options.config.returnType, evalParams);
     }
 
     return result;
   } catch (err) {
     const { expr: errorExpr, path: errorPath } =
-      err instanceof ExprRuntimeError ? { expr: err.expression, path: err.path } : { expr: ctx.expr, path: ctx.path };
+      err instanceof ExprRuntimeError
+        ? { expr: err.expression, path: err.path }
+        : { expr: evalParams.expr, path: evalParams.path };
 
     if (options && options.config) {
       // When we know of a default value, we can safely print it as an error to the console and safely recover
@@ -135,49 +142,56 @@ export function argTypeAt(func: ExprFunction, argIndex: number): ExprVal | undef
   return undefined;
 }
 
-function innerEvalExpr(ctx: EvaluateExpressionParams): any {
-  const { expr, path } = ctx;
-  const [func, ...args] = getExpressionValue(expr, path);
+function innerEvalExpr(params: EvaluateExpressionParams): any {
+  const { expr, path } = params;
+  const stringPath = stringifyPath(path);
 
+  const [func, ...args] = stringPath ? dot.pick(stringPath, expr, false) : expr;
   const returnType = ExprFunctions[func].returns;
 
   const computedArgs = args.map((arg: unknown, idx: number) => {
     const realIdx = idx + 1;
 
-    const ctxWithNewPath = { ...ctx, path: [...path, `[${realIdx}]`] };
-    const argValue = Array.isArray(arg) ? innerEvalExpr(ctxWithNewPath) : arg;
+    const paramsWithNewPath = { ...params, path: [...path, `[${realIdx}]`] };
+    const argValue = Array.isArray(arg) ? innerEvalExpr(paramsWithNewPath) : arg;
     const argType = argTypeAt(func, idx);
-    return castValue(argValue, argType, ctxWithNewPath);
+    return castValue(argValue, argType, paramsWithNewPath);
   });
 
-  const { onBeforeFunctionCall, onAfterFunctionCall } = ctx.callbacks;
+  const { onBeforeFunctionCall, onAfterFunctionCall } = params.callbacks;
 
   const actualFunc = ExprFunctions[func].impl;
 
   onBeforeFunctionCall?.(path, func, computedArgs);
-  const returnValue = actualFunc.apply(ctx, computedArgs);
-  const returnValueCasted = castValue(returnValue, returnType, ctx);
+  const returnValue = actualFunc.apply(params, computedArgs);
+  const returnValueCasted = castValue(returnValue, returnType, params);
   onAfterFunctionCall?.(path, func, computedArgs, returnValueCasted);
 
   return returnValueCasted;
 }
 
-function valueToExprValueType(value: unknown): ExprVal {
-  if (typeof value === 'number' || typeof value === 'bigint') {
-    return ExprVal.Number;
-  }
-  if (typeof value === 'string') {
-    return ExprVal.String;
-  }
-  if (typeof value === 'boolean') {
-    return ExprVal.Boolean;
+function stringifyPath(path: string[]): string | undefined {
+  if (path.length === 0) {
+    return undefined;
   }
 
-  return ExprVal.Any;
+  const [firstKey, ...restKeys] = path;
+  // For some reason dot.pick wants to use the format '0[1][2]' for arrays instead of '[0][1][2]', so we'll rewrite
+  return firstKey.replace('[', '').replace(']', '') + restKeys.join('');
 }
 
-function isLikeNull(arg: unknown) {
-  return arg === 'null' || arg === null || arg === undefined;
+function valueToExprValueType(value: unknown): ExprVal {
+  switch (typeof value) {
+    case 'number':
+    case 'bigint':
+      return ExprVal.Number;
+    case 'string':
+      return ExprVal.String;
+    case 'boolean':
+      return ExprVal.Boolean;
+    default:
+      return ExprVal.Any;
+  }
 }
 
 /**
@@ -195,7 +209,7 @@ function castValue<T extends ExprVal>(
 
   const typeObj = ExprTypes[toType];
 
-  if (typeObj.nullable && isLikeNull(value)) {
+  if (typeObj.nullable && (value === null || value === undefined || value === 'null')) {
     return null;
   }
 

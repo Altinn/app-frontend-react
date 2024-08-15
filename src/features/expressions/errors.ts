@@ -1,4 +1,5 @@
-import type { Expression } from 'src/features/expressions/types';
+import { prettyErrors } from 'src/features/expressions/prettyErrors';
+import type { ExprConfig, Expression } from 'src/features/expressions/types';
 
 export class ExprRuntimeError extends Error {
   public constructor(
@@ -41,4 +42,40 @@ export class NodeNotFoundWithoutContext {
   public getId() {
     return this.nodeId;
   }
+}
+
+export interface PrettyErrorsOptions {
+  config?: ExprConfig;
+  introText?: string;
+}
+
+/**
+ * Create a string representation of the full expression, using the path pointer to point out where the expression
+ * failed (with a message).
+ */
+export function traceExpressionError(err: Error, expr: Expression, path: string[], options?: PrettyErrorsOptions) {
+  if (!(err instanceof ExprRuntimeError)) {
+    window.logError(err);
+    return;
+  }
+
+  window.logError(prettyError(err, expr, path, options));
+}
+
+export function prettyError(err: Error, expr: Expression, path: string[], options?: PrettyErrorsOptions): string {
+  if (err instanceof ExprRuntimeError) {
+    const prettyPrinted = prettyErrors({
+      input: expr,
+      errors: { [path.join('')]: [err.message] },
+      indentation: 1,
+    });
+
+    const introText = options && 'introText' in options ? options.introText : 'Evaluated expression';
+
+    const extra = options && options.config ? ['Using default value instead:', `  ${options.config.defaultValue}`] : [];
+
+    return [`${introText}:`, prettyPrinted, ...extra].join('\n');
+  }
+
+  return err.message;
 }
