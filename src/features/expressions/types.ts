@@ -1,7 +1,6 @@
 import type { PickByValue } from 'utility-types';
 
-import type { EvaluateExpressionParams, ExprFunctions } from 'src/features/expressions';
-import type { ValidationContext } from 'src/features/expressions/validation';
+import type { ExprFunctions } from 'src/features/expressions/expression-functions';
 
 type Functions = typeof ExprFunctions;
 
@@ -43,31 +42,6 @@ export type ActualToExprVal<T> = T extends string
 export type ExprValToActualOrExpr<T extends ExprVal> =
   | ExprValToActual<T>
   | NonRecursiveExpression<FunctionsReturning<T>>;
-
-type ArgsToActualOrNull<T extends readonly ExprVal[]> = {
-  [Index in keyof T]: ExprValToActual<T[Index]> | null;
-};
-
-export interface FuncDef<Args extends readonly ExprVal[], Ret extends ExprVal> {
-  impl: (this: EvaluateExpressionParams, ...params: ArgsToActualOrNull<Args>) => ExprValToActual<Ret> | null;
-  args: Args;
-  minArguments?: number;
-  returns: Ret;
-
-  // Optional: Set this to true if the last argument type is considered a '...spread' argument, meaning
-  // all the rest of the arguments should be cast to the last type (and that the function allows any
-  // amount  of parameters).
-  lastArgSpreads?: true;
-
-  // Optional: Validator function which runs when the function is validated. This allows a function to add its own
-  // validation requirements. Use the addError() function if any errors are found.
-  validator?: (options: {
-    rawArgs: any[];
-    argTypes: (ExprVal | undefined)[];
-    ctx: ValidationContext;
-    path: string[];
-  }) => void;
-}
 
 type ArgsFor<F extends ExprFunction> = F extends ExprFunction ? Functions[F]['args'] : never;
 
