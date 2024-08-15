@@ -131,9 +131,9 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
           id={`altinn-fileuploader-${id}`}
           style={{ padding: '0px' }}
         >
-          {shouldShowFileUpload && (
-            <>
-              <Label {...{ ...node.item, renderLabelAs: 'plainLabel' }}>
+          <Label {...{ ...node.item, renderLabelAs: 'plainLabel' }}>
+            {shouldShowFileUpload && (
+              <>
                 <DropzoneComponent
                   id={id}
                   isMobile={mobileView}
@@ -146,23 +146,23 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
                   validFileEndings={validFileEndings}
                   textResourceBindings={textResourceBindings}
                 />
-              </Label>
 
-              <AttachmentsCounter />
-              <ComponentValidations
-                validations={componentValidations}
-                node={node}
-              />
-              {attachments && attachments.length > 0 && <div className={classes.betweenTableAndDropMargin}></div>}
-            </>
-          )}
+                <AttachmentsCounter />
+                <ComponentValidations
+                  validations={componentValidations}
+                  node={node}
+                />
+                {attachments && attachments.length > 0 && <div className={classes.betweenTableAndDropMargin}></div>}
+              </>
+            )}
 
-          <FileTable
-            node={node}
-            mobileView={mobileView}
-            attachments={attachments}
-            options={options}
-          />
+            <FileTable
+              node={node}
+              mobileView={mobileView}
+              attachments={attachments}
+              options={options}
+            />
+          </Label>
 
           {!shouldShowFileUpload && (
             <>
