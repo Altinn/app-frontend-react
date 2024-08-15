@@ -15,7 +15,7 @@ import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import { useNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
-import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
+import type { ExpressionDataSources } from 'src/features/expressions/utils';
 
 export function useExpressionDataSources(): ExpressionDataSources {
   const instanceDataSources = useLaxInstanceDataSources();

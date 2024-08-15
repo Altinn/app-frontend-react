@@ -7,13 +7,8 @@ import {
   UnknownSourceType,
   UnknownTargetType,
 } from 'src/features/expressions/errors';
-import {
-  ensureNode,
-  getExpressionValue,
-  prettyError,
-  traceExpressionError,
-} from 'src/features/expressions/ExprContext';
 import { ExprVal } from 'src/features/expressions/types';
+import { ensureNode, getExpressionValue, prettyError, traceExpressionError } from 'src/features/expressions/utils';
 import { addError } from 'src/features/expressions/validation';
 import { SearchParams } from 'src/hooks/useNavigatePage';
 import { implementsDisplayData } from 'src/layout';
@@ -23,7 +18,6 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { DisplayData } from 'src/features/displayData';
 import type { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
-import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type {
   ExprConfig,
   Expression,
@@ -33,6 +27,7 @@ import type {
   ExprValToActualOrExpr,
   FuncDef,
 } from 'src/features/expressions/types';
+import type { ExpressionDataSources } from 'src/features/expressions/utils';
 import type { FormDataSelector } from 'src/layout';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

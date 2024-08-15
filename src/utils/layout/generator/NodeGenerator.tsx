@@ -23,8 +23,8 @@ import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { SimpleEval } from 'src/features/expressions';
-import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
+import type { ExpressionDataSources } from 'src/features/expressions/utils';
 import type { CompDef } from 'src/layout';
 import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
 import type {

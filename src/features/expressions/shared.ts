@@ -6,7 +6,7 @@ import type { IRawTextResource } from 'src/features/language/textResources';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { IApplicationSettings, IData, IInstance, IProcess, ITask } from 'src/types/shared';
 
-export interface SharedTest {
+interface SharedTest {
   name: string;
   disabledFrontend?: boolean;
   layouts?: ILayoutCollection;

@@ -1,6 +1,6 @@
 import { getApplicationSettingsMock } from 'src/__mocks__/getApplicationSettingsMock';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
-import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
+import type { ExpressionDataSources } from 'src/features/expressions/utils';
 
 export function getExpressionDataSourcesMock(): ExpressionDataSources {
   return {
