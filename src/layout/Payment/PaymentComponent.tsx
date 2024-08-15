@@ -2,23 +2,26 @@ import React, { useEffect, useRef } from 'react';
 
 import { Alert, Button } from '@digdir/designsystemet-react';
 
+import type { PropsFromGenericComponent } from '..';
+
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { PaymentStatus } from 'src/features/payment/types';
 import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
 import { SkeletonLoader } from 'src/layout/Payment/SkeletonLoader';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 
-export const PaymentComponent = ({ node }) => {
+export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>) => {
   const { partyId, instanceGuid } = useInstanceIdParams();
   const { next, busy } = useProcessNavigation() || {};
   const paymentInfo = usePaymentInformation();
   const { mutate: performPayment } = usePerformPayActionMutation(partyId, instanceGuid);
   const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
-  const { title, description } = node.item.textResourceBindings;
+  const { title, description } = node.item.textResourceBindings ?? {};
   const actionCalled = useRef(false);
   const nextCalled = useRef(false);
 
@@ -46,16 +49,13 @@ export const PaymentComponent = ({ node }) => {
   }
 
   return (
-    <>
-      {
-        <PaymentDetailsTable
-          orderDetails={paymentInfo?.orderDetails}
-          tableTitle={title}
-          description={description}
-          className={classes.container}
-        />
-      }
-      <div className={classes.container}>
+    <ComponentStructureWrapper node={node}>
+      <PaymentDetailsTable
+        orderDetails={paymentInfo?.orderDetails}
+        tableTitle={title}
+        description={description}
+      />
+      <div>
         {paymentInfo?.status === PaymentStatus.Failed && (
           <Alert severity='warning'>
             <Lang id='payment.alert.failed' />
@@ -93,6 +93,6 @@ export const PaymentComponent = ({ node }) => {
           </Button>
         )}
       </div>
-    </>
+    </ComponentStructureWrapper>
   );
 };

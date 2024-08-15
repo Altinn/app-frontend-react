@@ -2,9 +2,15 @@ import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
+export const RADIO_SUMMARY_OVERRIDE_PROPS = new CG.obj()
+  .extends(CG.common('ISummaryOverridesCommon'))
+  .optional()
+  .setTitle('Summary properties')
+  .setDescription('Properties for how to display the summary of the component')
+  .exportAs('RadioSummaryOverrideProps');
+
 export const Config = new CG.component({
   category: CompCategory.Form,
-  rendersWithLabel: false,
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: false,
@@ -25,6 +31,15 @@ export const Config = new CG.component({
         .optional({ default: false })
         .setTitle('Alert on change')
         .setDescription('Boolean value indicating if the component should alert on change'),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'showLabelsInTable',
+      new CG.bool()
+        .optional({ default: false })
+        .setTitle('Show label when single option in table')
+        .setDescription('Boolean value indicating if the label should be visible when only one option exists in table'),
     ),
   )
   .addProperty(

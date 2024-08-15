@@ -10,6 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -17,16 +18,15 @@ export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
 
 export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownProps) {
   const { id, readOnly, textResourceBindings, alertOnChange } = node.item;
-  const { langAsString, lang } = useLanguage();
+  const { langAsString, lang } = useLanguage(node);
 
   const debounce = FD.useDebounceImmediately();
 
-  const { options, isFetching, selectedValues, setData, rawData } = useGetOptions({
+  const { options, isFetching, selectedValues, setData, key } = useGetOptions({
     ...node.item,
     valueType: 'single',
     node,
     removeDuplicates: true,
-    removeEmpty: true,
   });
 
   const changeMessageGenerator = useCallback(
@@ -68,36 +68,45 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
         </DeleteWarningPopover>
       )}
     >
-      <Combobox
-        id={id}
-        size='sm'
-        hideLabel={true}
-        key={rawData} // Workaround for clearing text input
-        value={selectedValues}
-        readOnly={readOnly}
-        onValueChange={handleChange}
-        onBlur={debounce}
-        error={!isValid}
-        aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
-        className={comboboxClasses.container}
+      <ComponentStructureWrapper
+        node={node}
+        label={overrideDisplay?.renderedInTable !== true ? { ...node.item, renderLabelAs: 'label' } : undefined}
       >
-        <Combobox.Empty>
-          <Lang id={'form_filler.no_options_found'} />
-        </Combobox.Empty>
-        {options.map((option) => (
-          <Combobox.Option
-            key={option.value}
-            value={option.value}
-            description={option.description ? langAsString(option.description) : undefined}
-            displayValue={langAsString(option.label)}
-          >
-            <Lang
-              id={option.label}
-              node={node}
-            />
-          </Combobox.Option>
-        ))}
-      </Combobox>
+        <Combobox
+          id={id}
+          size='sm'
+          hideLabel={true}
+          key={key} // Workaround for clearing text input
+          value={selectedValues}
+          readOnly={readOnly}
+          onValueChange={handleChange}
+          onBlur={debounce}
+          error={!isValid}
+          label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+          aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+          className={comboboxClasses.container}
+        >
+          <Combobox.Empty>
+            <Lang id={'form_filler.no_options_found'} />
+          </Combobox.Empty>
+          {options.map((option) => (
+            <Combobox.Option
+              key={option.value}
+              value={option.value}
+              description={option.description ? langAsString(option.description) : undefined}
+              displayValue={langAsString(option.label) || '\u200b'} // Workaround to prevent component from crashing due to empty string
+            >
+              <span>
+                <wbr />
+                <Lang
+                  id={option.label}
+                  node={node}
+                />
+              </span>
+            </Combobox.Option>
+          ))}
+        </Combobox>
+      </ComponentStructureWrapper>
     </ConditionalWrapper>
   );
 }

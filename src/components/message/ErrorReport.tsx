@@ -28,7 +28,6 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
   const navigateTo = useNavigateToNode();
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
-
   if (!hasErrors) {
     return null;
   }
@@ -43,8 +42,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
       // No point in trying to focus on a hidden component
       return;
     }
-
-    await navigateTo(componentNode, true);
+    await navigateTo(componentNode, true, error);
   };
 
   return (
@@ -58,7 +56,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
           <Grid
             container={true}
             item={true}
-            spacing={3}
+            spacing={6}
             alignItems='flex-start'
           >
             <Grid
