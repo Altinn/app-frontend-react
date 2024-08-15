@@ -5,6 +5,7 @@ import cn from 'classnames';
 
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Number/NumberComponent.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -33,9 +34,14 @@ export const NumberComponent = ({ node }: PropsFromGenericComponent<'Number'>) =
   }
 
   return (
-    <div
-      id={id}
-      className={cn(classes.descriptionList, direction === 'vertical' ? classes.vertical : classes.horizontal)}
+    <ComponentStructureWrapper
+      node={node}
+      label={{
+        textResourceBindings,
+        renderLabelAs: 'span',
+        id,
+        className: cn(classes.numberComponent, direction === 'vertical' ? classes.vertical : classes.horizontal),
+      }}
     >
       {!!icon && (
         <img
@@ -45,6 +51,6 @@ export const NumberComponent = ({ node }: PropsFromGenericComponent<'Number'>) =
         />
       )}
       <span>{getDisplaydata(value)}</span>
-    </div>
+    </ComponentStructureWrapper>
   );
 };

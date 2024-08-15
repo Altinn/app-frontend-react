@@ -4,7 +4,6 @@ import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Presentation,
-  rendersWithLabel: true,
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: false,
