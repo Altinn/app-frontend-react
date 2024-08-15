@@ -19,7 +19,6 @@ import type {
   FormComponent,
   PresentationComponent,
 } from 'src/layout/LayoutComponent';
-import type { NodeDefChildrenPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 
 const CategoryImports: { [Category in CompCategory]: GenerateImportedSymbol<any> } = {
   [CompCategory.Action]: new GenerateImportedSymbol<ActionComponent<CompTypes>>({
@@ -383,10 +382,7 @@ export class ComponentConfig {
       extraInEval && evalLines.push(extraInEval);
     }
 
-    const childrenPlugins = this.plugins.filter((plugin) =>
-      isNodeDefChildrenPlugin(plugin),
-    ) as unknown as (NodeDefChildrenPlugin<any> & NodeDefPlugin<any>)[];
-
+    const childrenPlugins = this.plugins.filter((plugin) => isNodeDefChildrenPlugin(plugin));
     if (childrenPlugins.length > 0) {
       const ChildClaimerProps = new CG.import({ import: 'ChildClaimerProps', from: 'src/layout/LayoutComponent' });
       const NodeData = new CG.import({ import: 'NodeData', from: 'src/utils/layout/types' });
