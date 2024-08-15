@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Spinner, Table } from '@digdir/designsystemet-react';
-import dot from 'dot-object';
 
 import { Label } from 'src/components/label/Label';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
@@ -11,6 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
+import { dataQueryWithDefaultValue } from 'src/layout/SubForm/SubFormComponent';
 import classes from 'src/layout/SubForm/Summary/SubFormSummaryComponent2.module.css';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
@@ -126,14 +126,16 @@ function SubFormSummaryTableRow({
       className={classes.noRowSpacing}
     >
       {tableColumns.length ? (
-        tableColumns.map((entry, index) => {
-          let content = dot.pick(entry.cellContent.query, data);
-          if (!content && entry.cellContent.default != undefined) {
-            const textLookup = langAsString(entry.cellContent.default);
-            content = textLookup ? textLookup : entry.cellContent.default;
-          }
-          return <td key={`${rowkey}-${index}`}>{String(content)}</td>;
-        })
+        tableColumns.map((entry, index) => (
+          <td key={`${rowkey}-${index}`}>
+            {dataQueryWithDefaultValue({
+              data,
+              languageProvider: { langAsString },
+              query: entry.cellContent.query,
+              defaultValue: entry.cellContent.default,
+            })}
+          </td>
+        ))
       ) : (
         <Table.Cell key={`${rowkey}-0`}>{String(id)}</Table.Cell>
       )}

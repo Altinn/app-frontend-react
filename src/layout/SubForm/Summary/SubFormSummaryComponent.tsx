@@ -1,12 +1,12 @@
 import React from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
-import dot from 'dot-object';
 
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { dataQueryWithDefaultValue } from 'src/layout/SubForm/SubFormComponent';
 import classes from 'src/layout/SubForm/Summary/SubFormSummaryComponent.module.css';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { IData } from 'src/types/shared';
@@ -30,12 +30,11 @@ export function SubFormSummaryComponent({ targetNode }: ISubFormSummaryComponent
           <Lang id={'general.empty_summary'} />
         </div>
       ) : (
-        dataElements.map((dataElement, index) => (
+        dataElements.map((dataElement) => (
           <SubFormSummaryRow
             key={dataElement.id}
             dataElement={dataElement}
             node={targetNode}
-            rowNumber={index}
           />
         ))
       )}
@@ -43,15 +42,7 @@ export function SubFormSummaryComponent({ targetNode }: ISubFormSummaryComponent
   );
 }
 
-function SubFormSummaryRow({
-  dataElement,
-  node,
-  rowNumber,
-}: {
-  dataElement: IData;
-  node: LayoutNode<'SubForm'>;
-  rowNumber: number;
-}) {
+function SubFormSummaryRow({ dataElement, node }: { dataElement: IData; node: LayoutNode<'SubForm'> }) {
   const id = dataElement.id;
   const { tableColumns = [], summaryDelimiter = ' — ' } = node.item;
   const instance = useStrictInstanceData();
@@ -70,13 +61,14 @@ function SubFormSummaryRow({
     );
   }
 
-  const content = tableColumns.map((entry) => {
-    let result = dot.pick(entry.cellContent.query, data);
-    if (!result && entry.cellContent.default != undefined) {
-      result = langAsString(entry.cellContent.default);
-    }
-    return String(result);
-  });
+  const content = tableColumns.map((entry) =>
+    dataQueryWithDefaultValue({
+      data,
+      languageProvider: { langAsString },
+      query: entry.cellContent.query,
+      defaultValue: entry.cellContent.default,
+    }),
+  );
   if (content.length === 0) {
     content.push(id);
   }

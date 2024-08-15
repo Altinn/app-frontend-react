@@ -14,6 +14,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subFormData/useSubFormMutations';
 import classes from 'src/layout/SubForm/SubFormComponent.module.css';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
+import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -199,13 +200,16 @@ function SubFormTableRow({
       className={isDeleting ? classes.disabledRow : ''}
     >
       {tableColumns.length ? (
-        tableColumns.map((entry, index) => {
-          let content = dot.pick(entry.cellContent.query, data);
-          if (!content && entry.cellContent.default != undefined) {
-            content = langAsString(entry.cellContent.default);
-          }
-          return <Table.Cell key={`subform-cell-${id}-${index}`}>{String(content)}</Table.Cell>;
-        })
+        tableColumns.map((entry, index) => (
+          <Table.Cell key={`subform-cell-${id}-${index}`}>
+            {dataQueryWithDefaultValue({
+              data,
+              languageProvider: { langAsString },
+              query: entry.cellContent.query,
+              defaultValue: entry.cellContent.default,
+            })}
+          </Table.Cell>
+        ))
       ) : (
         <Table.Cell key={`subform-cell-${id}-0`}>{String(id)}</Table.Cell>
       )}
@@ -253,4 +257,23 @@ function SubFormTableRow({
       )}
     </Table.Row>
   );
+}
+
+export interface DataQueryParams {
+  data: unknown;
+  query: string;
+  defaultValue?: string;
+  languageProvider: Pick<IUseLanguage, 'langAsString'>;
+}
+
+export function dataQueryWithDefaultValue(props: DataQueryParams) {
+  const { data, query, defaultValue, languageProvider } = props;
+  let content = dot.pick(query, data);
+
+  if (!content && defaultValue != undefined) {
+    const textLookup = languageProvider.langAsString(defaultValue);
+    content = textLookup ? textLookup : defaultValue;
+  }
+
+  return String(content);
 }
