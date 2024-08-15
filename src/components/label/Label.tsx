@@ -4,6 +4,7 @@ import type { PropsWithChildren } from 'react';
 import { Fieldset, Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
+import type { LabelProps as DesignsystemetLabelProps } from '@digdir/designsystemet-react';
 
 import classes from 'src/components/label/Label.module.css';
 import { LabelContent } from 'src/components/label/LabelContent';
@@ -12,7 +13,6 @@ import type { LabelContentProps } from 'src/components/label/LabelContent';
 import type { IGridStyling, ILabelSettings } from 'src/layout/common.generated';
 
 type LabelType = 'legend' | 'span' | 'label';
-type FontWeights = 'regular' | 'medium' | 'semibold';
 
 export type LabelProps = PropsWithChildren<{
   id: string;
@@ -27,8 +27,8 @@ export type LabelProps = PropsWithChildren<{
     help?: string;
   };
   className?: string;
-  weight?: FontWeights;
-}>;
+}> &
+  DesignsystemetLabelProps;
 
 export function Label(props: LabelProps) {
   if (!props.textResourceBindings?.title) {
@@ -36,7 +36,17 @@ export function Label(props: LabelProps) {
   }
 
   const { children, ...propsWithoutChildren } = props;
-  const { id, renderLabelAs, required, readOnly, labelSettings, grid, textResourceBindings, className, weight } = props;
+  const {
+    id,
+    renderLabelAs,
+    required,
+    readOnly,
+    labelSettings,
+    grid,
+    textResourceBindings,
+    className,
+    ...designsystemetLabelProps
+  } = props;
 
   const labelId = `label-${id}`;
   const labelContentProps: Omit<LabelContentProps, 'id'> = {
@@ -52,7 +62,6 @@ export function Label(props: LabelProps) {
     case 'legend': {
       return (
         <Fieldset
-          size='small'
           className={cn(classes.fieldWrapper, classes.fullWidth)}
           legend={
             <Label
@@ -72,7 +81,7 @@ export function Label(props: LabelProps) {
           htmlFor={id}
           style={{ width: '100%' }}
           className={className}
-          weight={weight}
+          {...designsystemetLabelProps}
         >
           <Grid
             container
@@ -95,7 +104,7 @@ export function Label(props: LabelProps) {
           <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
             <DesignsystemetLabel
               asChild
-              weight={weight}
+              {...designsystemetLabelProps}
             >
               <LabelContent
                 id={labelId}
