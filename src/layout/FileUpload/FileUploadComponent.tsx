@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import type { JSX } from 'react';
 import type { FileRejection } from 'react-dropzone';
 
+import { Label } from 'src/components/label/Label';
 import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/hooks';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -113,44 +114,47 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   );
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      label={{ node, renderLabelAs: 'label' }}
-    >
+    <ComponentStructureWrapper node={node}>
       <div
         id={`altinn-fileuploader-${id}`}
         style={{ padding: '0px' }}
       >
-        {shouldShowFileUpload && (
-          <>
-            <DropzoneComponent
-              id={id}
-              isMobile={mobileView}
-              maxFileSizeInMB={maxFileSizeInMB}
-              readOnly={!!readOnly}
-              onClick={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-              hasValidationMessages={hasValidationErrors(validations)}
-              hasCustomFileEndings={hasCustomFileEndings}
-              validFileEndings={validFileEndings}
-              textResourceBindings={textResourceBindings}
-            />
-            <AttachmentsCounter />
-            <ComponentValidations
-              validations={validations}
-              node={node}
-            />
-            {attachments && attachments.length > 0 && <div className={classes.betweenTableAndDropMargin}></div>}
-          </>
-        )}
-
-        <FileTable
+        <Label
           node={node}
-          mobileView={mobileView}
-          attachments={attachments}
-          options={options}
-          isFetching={isFetching}
-        />
+          renderLabelAs='plainLabel'
+        >
+          {shouldShowFileUpload && (
+            <>
+              <DropzoneComponent
+                id={id}
+                isMobile={mobileView}
+                maxFileSizeInMB={maxFileSizeInMB}
+                readOnly={!!readOnly}
+                onClick={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+                hasValidationMessages={hasValidationErrors(validations)}
+                hasCustomFileEndings={hasCustomFileEndings}
+                validFileEndings={validFileEndings}
+                textResourceBindings={textResourceBindings}
+              />
+
+              <AttachmentsCounter />
+              <ComponentValidations
+                validations={validations}
+                node={node}
+              />
+              {attachments && attachments.length > 0 && <div className={classes.betweenTableAndDropMargin}></div>}
+            </>
+          )}
+
+          <FileTable
+            node={node}
+            mobileView={mobileView}
+            attachments={attachments}
+            options={options}
+            isFetching={isFetching}
+          />
+        </Label>
 
         {!shouldShowFileUpload && (
           <>
