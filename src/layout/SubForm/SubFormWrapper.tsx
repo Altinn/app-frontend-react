@@ -4,10 +4,10 @@ import type { PropsWithChildren } from 'react';
 
 import { FormPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
+import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import { ProcessTaskType } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 

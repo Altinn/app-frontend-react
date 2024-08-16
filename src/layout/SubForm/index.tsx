@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import type { JSX } from 'react';
 
+import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import {
   type ComponentValidation,
   FrontendValidationSource,
@@ -18,7 +19,6 @@ import {
 } from 'src/layout/SubForm/SubFormWrapper';
 import { SubFormSummaryComponent } from 'src/layout/SubForm/Summary/SubFormSummaryComponent';
 import { SubFormSummaryComponent2 } from 'src/layout/SubForm/Summary/SubFormSummaryComponent2';
-import { TaskIdStoreProvider } from 'src/layout/Summary2/taskIdStore';
 import type { TextReference } from 'src/features/language/useLanguage';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -33,7 +33,7 @@ export class SubForm extends SubFormDef implements ValidateComponent {
 
   subRouting(node: LayoutNode<'SubForm'>): JSX.Element | null {
     return (
-      <TaskIdStoreProvider>
+      <TaskStoreProvider>
         <Routes>
           <Route
             path=':dataElementId/:subFormPage'
@@ -56,7 +56,7 @@ export class SubForm extends SubFormDef implements ValidateComponent {
             element={<RedirectBackToMainForm />}
           />
         </Routes>
-      </TaskIdStoreProvider>
+      </TaskStoreProvider>
     );
   }
 

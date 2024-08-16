@@ -30,8 +30,9 @@ export function SubFormSummaryComponent2({ targetNode }: ISubFormSummaryComponen
   return (
     <>
       <Label
-        id={`subform_summary_${id}`}
-        renderLabelAs='label'
+        id={`subform-summary2-${id}`}
+        renderLabelAs='span'
+        weight='regular'
         textResourceBindings={{ title: textResourceBindings?.title }}
       />
       {dataElements.length === 0 ? (

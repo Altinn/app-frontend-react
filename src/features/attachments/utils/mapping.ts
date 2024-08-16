@@ -1,10 +1,10 @@
 import { ContextNotProvided } from 'src/core/contexts/context';
+import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
-import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';

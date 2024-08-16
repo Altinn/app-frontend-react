@@ -5,6 +5,7 @@ import { skipToken, useQuery } from '@tanstack/react-query';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
+import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { preProcessItem } from 'src/features/expressions/validation';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
@@ -12,7 +13,6 @@ import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLa
 import { useHasInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
-import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
 import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
