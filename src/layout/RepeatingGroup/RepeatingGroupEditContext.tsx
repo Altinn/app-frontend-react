@@ -30,7 +30,7 @@ function useRepeatingGroupEditRowState(
   const { edit, rows } = useNodeItem(node);
   const multiPageEnabled = edit?.multiPage ?? false;
   const lastPage = useMemo(() => {
-    const row = rows.find((r) => r.uuid === editId);
+    const row = rows.find((r) => r && r.uuid === editId);
     let lastPage = 0;
     for (const childNode of row?.items ?? []) {
       lastPage = Math.max(lastPage, childNode.multiPageIndex ?? 0);

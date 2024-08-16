@@ -15,7 +15,7 @@ import type {
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface TabConfigInternal extends Omit<TabConfig, 'children'> {
-  children: LayoutNode[];
+  children: (LayoutNode | undefined)[];
 }
 
 interface ClaimMetadata {
@@ -128,6 +128,18 @@ export class TabsPlugin<Type extends CompTypes>
     }
     const children = [...tab.children];
     children[metadata.childIdx] = childNode;
+    tabsInternal[metadata.tabIdx] = { ...tabsInternal[metadata.tabIdx], children };
+    return { item: { ...state.item, tabs: undefined, tabsInternal } } as Partial<DefPluginState<Config<Type>>>;
+  }
+
+  removeChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode, metadata: ClaimMetadata) {
+    const tabsInternal = [...(state.item?.tabsInternal || [])];
+    const tab = tabsInternal[metadata.tabIdx];
+    if (!tab) {
+      throw new Error(`Tab with index ${metadata.tabIdx} not found`);
+    }
+    const children = [...tab.children];
+    children[metadata.childIdx] = undefined;
     tabsInternal[metadata.tabIdx] = { ...tabsInternal[metadata.tabIdx], children };
     return { item: { ...state.item, tabs: undefined, tabsInternal } } as Partial<DefPluginState<Config<Type>>>;
   }

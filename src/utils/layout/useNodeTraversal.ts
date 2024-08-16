@@ -43,21 +43,6 @@ export class TraversalTask {
   }
 
   /**
-   * Get a node object, given some node data
-   */
-  public getNode(lookup: AnyData): LayoutNode | LayoutPage | LayoutPages {
-    if (lookup.type === 'pages') {
-      return this.rootNode;
-    }
-
-    if (lookup.type === 'page') {
-      return this.rootNode.findLayout(this, lookup.pageKey)!;
-    }
-
-    return this.rootNode.findById(this, lookup.layout.id)!;
-  }
-
-  /**
    * Filter a node based on the matcher
    */
   public passesMatcher(node: Node): boolean {

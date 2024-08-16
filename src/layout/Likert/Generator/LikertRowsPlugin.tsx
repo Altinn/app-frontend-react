@@ -1,5 +1,6 @@
 import { CG } from 'src/codegen/CG';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
+import { typedBoolean } from 'src/utils/typing';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { IDataModelBindingsLikert } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -14,7 +15,7 @@ import type { BaseRow } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 interface LikertRow extends BaseRow {
-  itemNode: LayoutNode<'LikertItem'>;
+  itemNode: LayoutNode<'LikertItem'> | undefined;
 }
 
 interface Config {
@@ -23,7 +24,7 @@ interface Config {
     dataModelBindings: IDataModelBindingsLikert;
   };
   extraInItem: {
-    rows: LikertRow[];
+    rows: (LikertRow | undefined)[];
   };
 }
 
@@ -57,22 +58,50 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
   claimChildren(_props: DefPluginChildClaimerProps<Config>) {}
 
   pickDirectChildren(state: DefPluginState<Config>, _restriction?: TraversalRestriction | undefined): LayoutNode[] {
-    return state.item?.rows.map((row) => row.itemNode) || [];
+    return state.item?.rows.map((row) => row?.itemNode).filter(typedBoolean) ?? [];
   }
 
-  addChild(state: DefPluginState<Config>, childNode: LayoutNode): Partial<DefPluginState<Config>> {
+  addChild(
+    state: DefPluginState<Config>,
+    childNode: LayoutNode,
+    _metadata: undefined,
+    row: BaseRow | undefined,
+  ): Partial<DefPluginState<Config>> {
     if (!childNode.isType('LikertItem')) {
       throw new Error(`Child node of Likert component must be of type 'LikertItem'`);
     }
 
     const rowIndex = childNode.rowIndex;
-    if (rowIndex === undefined) {
+    if (rowIndex === undefined || rowIndex !== row?.index) {
       throw new Error(`Child node of Likert component missing 'row' property`);
     }
     const i = state.item as any;
     const rows = (i && 'rows' in i ? [...i.rows] : []) as LikertRow[];
 
-    rows[rowIndex] = { ...(rows[rowIndex] || {}), itemNode: childNode };
+    rows[rowIndex] = { ...(rows[rowIndex] || {}), ...row, itemNode: childNode };
+
+    return {
+      item: {
+        ...state.item,
+        rows,
+      },
+    } as Partial<DefPluginState<Config>>;
+  }
+
+  removeChild(
+    state: DefPluginState<Config>,
+    childNode: LayoutNode,
+    _metadata: undefined,
+    row: BaseRow | undefined,
+  ): Partial<DefPluginState<Config>> {
+    const rowIndex = childNode.rowIndex;
+    if (rowIndex === undefined || rowIndex !== row?.index) {
+      throw new Error(`Child node of Likert component missing 'row' property`);
+    }
+    const i = state.item as any;
+    const rows = (i && 'rows' in i ? [...i.rows] : []) as LikertRow[];
+
+    rows[rowIndex] = { ...(rows[rowIndex] || {}), ...row, itemNode: undefined };
 
     return {
       item: {

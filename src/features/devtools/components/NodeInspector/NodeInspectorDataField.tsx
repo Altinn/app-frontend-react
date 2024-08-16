@@ -144,7 +144,7 @@ export function NodeInspectorDataField({ path, property, value: inputValue }: No
   const { node } = useNodeInspectorContext();
   const firstRowExpr = useNodeItem(
     node,
-    (i) => i && i.type === 'RepeatingGroup' && i.rows && i.rows[0].groupExpressions,
+    (i) => i && i.type === 'RepeatingGroup' && i.rows && i.rows?.find((r) => !!r)?.groupExpressions,
   );
   const itemWithExpressions = NodesInternal.useNodeData(node, (s) => s.layout);
 

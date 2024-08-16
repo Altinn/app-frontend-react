@@ -20,7 +20,7 @@ import {
 } from 'src/utils/layout/generator/GeneratorStages';
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
@@ -64,7 +64,7 @@ export function NodeGenerator({ children, claim, externalItem }: PropsWithChildr
         stage={StageAddNodes}
         mustBeAdded='parent'
       >
-        <AddNode
+        <AddRemoveNode
           {...commonProps}
           claim={claim}
         />
@@ -130,20 +130,30 @@ interface AddNodeProps<T extends CompTypes> extends CommonProps<T> {
   claim: ChildClaim;
 }
 
-function AddNode<T extends CompTypes>({ node, intermediateItem, claim }: AddNodeProps<T>) {
+function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: AddNodeProps<T>) {
   const parent = GeneratorInternal.useParent();
   const row = GeneratorInternal.useRow();
   const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item: intermediateItem, parent, row });
   const addNode = NodesStateQueue.useAddNode();
+  const removeNode = NodesInternal.useRemoveNode();
   const nodeRef = useAsRef(node);
+  const rowRef = useAsRef(row);
 
   GeneratorStages.AddNodes.useEffect(() => {
     addNode({
       node: nodeRef.current,
       targetState: nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any),
       claim,
+      row: rowRef.current,
     });
-  }, [addNode, nodeRef, stateFactoryPropsRef, claim]);
+  }, [addNode, nodeRef, stateFactoryPropsRef, claim, rowRef]);
+
+  GeneratorStages.AddNodes.useEffect(
+    () => () => {
+      removeNode(nodeRef.current, claim, rowRef.current);
+    },
+    [removeNode, nodeRef, claim, rowRef],
+  );
 
   return null;
 }

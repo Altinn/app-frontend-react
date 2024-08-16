@@ -14,7 +14,7 @@ import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/OpenByDefaultPr
 import { useNodeItem, useNodeItemRef, useWaitForNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
 import type { IGroupEditProperties } from 'src/layout/RepeatingGroup/config.generated';
-import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
+import type { RepGroupRow, RepGroupRows } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { BaseRow } from 'src/utils/layout/types';
 
@@ -80,12 +80,15 @@ interface RowState {
   deletableRows: BaseRow[];
 }
 
-function produceStateFromRows(rows: RepGroupRow[]): RowState {
+function produceStateFromRows(rows: RepGroupRows): RowState {
   const hidden: BaseRow[] = [];
   const visible: BaseRow[] = [];
   const editable: BaseRow[] = [];
   const deletable: BaseRow[] = [];
   for (const row of rows) {
+    if (!row) {
+      continue;
+    }
     const rowObj: BaseRow = {
       index: row.index,
       uuid: row.uuid,
@@ -203,7 +206,7 @@ function gotoPageForRow(
 
 interface NewStoreProps {
   freshRowsRef: MutableRefObject<BaseRow[] | undefined>;
-  rowsRef: MutableRefObject<RepGroupRow[]>;
+  rowsRef: MutableRefObject<RepGroupRows>;
   editMode: IGroupEditProperties['mode'];
   pagination: CompInternal<'RepeatingGroup'>['pagination'];
 }
@@ -438,7 +441,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     startAddingRow(uuid);
     let foundRow: RepGroupRow | undefined;
     await waitForItem((item) => {
-      foundRow = item?.rows.find((row) => row.uuid === uuid && row.groupExpressions);
+      foundRow = item?.rows.find((row) => row?.uuid === uuid && row.groupExpressions);
       return !!foundRow;
     });
     endAddingRow(uuid);
@@ -559,12 +562,12 @@ function EffectSelectFreshRows({ freshRowsRef }: { freshRowsRef: MutableRefObjec
 /**
  * This function filters out rows that are about to be deleted from the rows state
  */
-function filterByFreshRows(rows: RepGroupRow[], freshRows: BaseRow[] | undefined): RepGroupRow[] {
+function filterByFreshRows(rows: RepGroupRows, freshRows: BaseRow[] | undefined): RepGroupRows {
   if (!freshRows) {
     return rows;
   }
   const freshRowIds = new Set(freshRows.map((row) => `${row.uuid}-${row.index}`));
-  return rows.filter((row) => freshRowIds.has(`${row.uuid}-${row.index}`));
+  return rows.filter((row) => !!row && freshRowIds.has(`${row.uuid}-${row.index}`));
 }
 
 function ProvideTheRest({ node, children }: PropsWithChildren<Props>) {

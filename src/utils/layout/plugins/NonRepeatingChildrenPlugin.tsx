@@ -156,6 +156,19 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     } as unknown as Partial<DefPluginState<ToInternal<E>>>;
   }
 
+  removeChild(
+    state: DefPluginState<ToInternal<E>>,
+    _childNode: LayoutNode,
+    metadata: ClaimMetadata,
+  ): Partial<DefPluginState<ToInternal<E>>> {
+    const newState: (LayoutNode | undefined)[] = [...(state.item?.[this.settings.internalProp] ?? [])];
+    newState[metadata.idx] = undefined;
+    const overwriteLayout = { [this.settings.externalProp]: undefined };
+    return {
+      item: { ...state.item, [this.settings.internalProp]: newState, ...overwriteLayout },
+    } as unknown as Partial<DefPluginState<ToInternal<E>>>;
+  }
+
   isChildHidden(_state: DefPluginState<ToInternal<E>>, _childNode: LayoutNode): boolean {
     return false;
   }

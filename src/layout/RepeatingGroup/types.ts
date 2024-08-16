@@ -37,7 +37,7 @@ type RepGroupBase = ExprResolved<
 export type RepGroupInternal = RepGroupBase & {
   textResourceBindings?: Omit<RepGroupTrb, PerRowTrb>;
   edit?: Omit<RepGroupEdit, PerRowEdit>;
-  rows: RepGroupRow[];
+  rows: RepGroupRows;
   rowsBefore: undefined;
   rowsAfter: undefined;
   rowsBeforeInternal?: GridRowsInternal;
@@ -45,7 +45,8 @@ export type RepGroupInternal = RepGroupBase & {
 };
 
 export interface RepGroupRowExtras {
-  groupExpressions: GroupExpressions;
+  groupExpressions: GroupExpressions | undefined;
 }
 
 export type RepGroupRow = RepChildrenRow & RepGroupRowExtras;
+export type RepGroupRows = (RepGroupRow | undefined)[];

@@ -12,6 +12,7 @@ import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { typedBoolean } from 'src/utils/typing';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -49,7 +50,7 @@ export function LikertSummary({
   if (largeGroup && rows.length) {
     return (
       <>
-        {rows.map((row) => (
+        {rows.filter(typedBoolean).map((row) => (
           <LargeLikertSummaryContainer
             key={`summary-${targetNode.id}-${row.uuid}`}
             id={`summary-${targetNode.id}-${row.index}`}
@@ -100,8 +101,8 @@ export function LikertSummary({
           {rows.length === 0 ? (
             <span className={classes.emptyField}>{lang('general.empty_summary')}</span>
           ) : (
-            rows.map((row) => {
-              if (inExcludedChildren(row.itemNode)) {
+            rows.filter(typedBoolean).map((row) => {
+              if (!row.itemNode || inExcludedChildren(row.itemNode)) {
                 return null;
               }
               if (isHidden(row.itemNode) || !row.itemNode.isCategory(CompCategory.Form)) {

@@ -1,6 +1,5 @@
 import deepEqual from 'fast-deep-equal';
 
-import { getComponentDef } from 'src/layout';
 import { NodesReadiness } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { CompTypes } from 'src/layout/layout';
@@ -8,7 +7,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepChildrenRow } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
-import type { BaseRow, NodeData } from 'src/utils/layout/types';
+import type { BaseRow } from 'src/utils/layout/types';
 
 export interface SetRowExtrasRequest<T extends CompTypes = CompTypes> {
   node: LayoutNode<T>;
@@ -20,7 +19,7 @@ export interface SetRowExtrasRequest<T extends CompTypes = CompTypes> {
 export interface RepeatingChildrenStorePluginConfig {
   extraFunctions: {
     setRowExtras: (requests: SetRowExtrasRequest[]) => void;
-    removeRow: (node: LayoutNode, row: BaseRow, internalProp: string, itemProp: string) => void;
+    removeRow: (node: LayoutNode, internalProp: string) => void;
   };
   extraHooks: {
     useSetRowExtras: () => RepeatingChildrenStorePluginConfig['extraFunctions']['setRowExtras'];
@@ -63,7 +62,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           return changes ? { nodeData, readiness: NodesReadiness.NotReady } : {};
         });
       },
-      removeRow: (node, row, internalProp, itemProp) => {
+      removeRow: (node, internalProp) => {
         set((state) => {
           const nodeData = { ...state.nodeData };
           const thisNode = nodeData[node.id];
@@ -74,20 +73,15 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           if (!existingRows) {
             return {};
           }
-          const rowToRemove = existingRows[row.index];
-          if (!rowToRemove || rowToRemove.uuid !== row.uuid) {
+          const lastRow = existingRows[existingRows.length - 1];
+          if (!lastRow) {
             return {};
           }
 
-          const items = Array.isArray(rowToRemove[itemProp]) ? rowToRemove[itemProp] : [rowToRemove[itemProp] ?? []];
-          const recursiveChildren = recursivelyFindChildren(items, nodeData);
-          for (const n of recursiveChildren) {
-            delete nodeData[n.id];
-            n.page._removeChild(n);
-          }
-
+          // When removing rows, we'll always remove the last one. There is no such thing as removing a row in the
+          // middle, as the indexes will always re-flow to the total number of rows left.
           const newRows = [...existingRows];
-          newRows.splice(row.index, 1);
+          const removedRow = newRows.pop();
           nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
 
           return { nodeData, readiness: NodesReadiness.NotReady, addRemoveCounter: state.addRemoveCounter + 1 };
@@ -102,20 +96,4 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
       useRemoveRow: () => store.useSelector((state) => state.removeRow),
     };
   }
-}
-
-function recursivelyFindChildren(nodes: LayoutNode[], nodeData: { [key: string]: NodeData }): LayoutNode[] {
-  const children: LayoutNode[] = [];
-
-  for (const node of nodes) {
-    const data = nodeData[node.id];
-    if (!data) {
-      continue;
-    }
-    const def = getComponentDef(data.layout.type);
-    const directChildren = def.pickDirectChildren(data as any);
-    children.push(...recursivelyFindChildren(directChildren, nodeData));
-  }
-
-  return [...nodes, ...children];
 }

@@ -9,6 +9,7 @@ import { CardProvider } from 'src/layout/Cards/CardContext';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { typedBoolean } from 'src/utils/typing';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CardInternal } from 'src/layout/Cards/CardsPlugin';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -74,7 +75,7 @@ export const Cards = ({ node }: ICardsProps) => {
                     node={node}
                     renderedInMedia={false}
                   >
-                    {card.children.map((childNode, idx) => (
+                    {card.children.filter(typedBoolean).map((childNode, idx) => (
                       <GenericComponent
                         key={idx}
                         node={childNode}

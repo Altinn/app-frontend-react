@@ -27,9 +27,9 @@ export interface IRepeatingGroupsEditContainer {
 export function RepeatingGroupsEditContainer({ editId, ...props }: IRepeatingGroupsEditContainer): JSX.Element | null {
   const { node } = useRepeatingGroup();
   const group = useNodeItem(node);
-  const row = group.rows.find((r) => r.uuid === editId);
+  const row = group.rows.find((r) => r && r.uuid === editId);
 
-  if (!row || row.groupExpressions.hiddenRow) {
+  if (!row || row.groupExpressions?.hiddenRow) {
     return null;
   }
 
@@ -70,10 +70,10 @@ function RepeatingGroupsEditContainerInternal({
   const { multiPageEnabled, multiPageIndex, nextMultiPage, prevMultiPage, hasNextMultiPage, hasPrevMultiPage } =
     useRepeatingGroupEdit();
   const id = node.id;
-  const textsForRow = row.groupExpressions.textResourceBindings;
-  const editForRow = row.groupExpressions.edit;
+  const textsForRow = row?.groupExpressions?.textResourceBindings;
+  const editForRow = row?.groupExpressions?.edit;
   const editForGroup = group.edit;
-  const rowItems = row.items;
+  const rowItems = row?.items;
   const { refSetter } = useRepeatingGroupsFocusContext();
   const texts = {
     ...group.textResourceBindings,
@@ -88,6 +88,10 @@ function RepeatingGroupsEditContainerInternal({
     !forceHideSaveButton && editForRow?.saveAndNextButton === true && moreVisibleRowsAfterEditIndex;
 
   const hideTable = editForGroup?.mode === 'hideTable' || editForGroup?.mode === 'showAll';
+
+  if (!row) {
+    return null;
+  }
 
   return (
     <div
@@ -136,7 +140,7 @@ function RepeatingGroupsEditContainerInternal({
           spacing={6}
           ref={(n) => refSetter && editingRowIndex !== undefined && refSetter(editingRowIndex, 'editContainer', n)}
         >
-          {rowItems.map((n) => {
+          {rowItems?.map((n) => {
             const isOnOtherMultiPage = multiPageEnabled && n.multiPageIndex !== multiPageIndex;
             if (isOnOtherMultiPage) {
               return null;

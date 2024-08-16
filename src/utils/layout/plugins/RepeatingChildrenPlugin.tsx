@@ -18,7 +18,7 @@ import type { BaseRow } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface RepChildrenRow extends BaseRow {
-  items: LayoutNode[];
+  items: LayoutNode[] | undefined;
 }
 
 interface Config<
@@ -32,7 +32,9 @@ interface Config<
   expectedFromExternal: {
     [key in ExternalProp]: string[];
   };
-  extraInItem: { [key in ExternalProp]: undefined } & { [key in InternalProp]: (RepChildrenRow & Extras)[] };
+  extraInItem: { [key in ExternalProp]: undefined } & {
+    [key in InternalProp]: ((RepChildrenRow & Extras) | undefined)[];
+  };
 }
 
 export interface ExternalConfig {
@@ -197,9 +199,14 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     return out;
   }
 
-  addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode): Partial<DefPluginState<ToInternal<E>>> {
+  addChild(
+    state: DefPluginState<ToInternal<E>>,
+    childNode: LayoutNode,
+    _metadata: undefined,
+    row: BaseRow | undefined,
+  ): Partial<DefPluginState<ToInternal<E>>> {
     const rowIndex = childNode.rowIndex;
-    if (rowIndex === undefined) {
+    if (rowIndex === undefined || rowIndex !== row?.index) {
       throw new Error(`Child node of repeating component missing 'rowIndex' property`);
     }
     const item = state.item as any;
@@ -207,7 +214,37 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     const items = [...(rows[rowIndex]?.items || [])];
     items.push(childNode);
 
-    rows[rowIndex] = { ...(rows[rowIndex] || {}), items };
+    rows[rowIndex] = { ...(rows[rowIndex] || {}), ...row, items };
+
+    return {
+      item: {
+        ...state.item,
+        [this.settings.internalProp]: rows,
+        [this.settings.externalProp]: undefined,
+      },
+    } as Partial<DefPluginState<ToInternal<E>>>;
+  }
+
+  removeChild(
+    state: DefPluginState<ToInternal<E>>,
+    childNode: LayoutNode,
+    _metadata: undefined,
+    row: BaseRow | undefined,
+  ): Partial<DefPluginState<ToInternal<E>>> {
+    const rowIndex = childNode.rowIndex;
+    if (rowIndex === undefined || rowIndex !== row?.index) {
+      throw new Error(`Child node of repeating component missing 'rowIndex' property`);
+    }
+    const item = state.item as any;
+    const rows = (item && this.settings.internalProp in item ? [...item[this.settings.internalProp]] : []) as Row<E>[];
+    const items = [...(rows[rowIndex]?.items || [])];
+    const idx = items.findIndex((item) => item === childNode);
+    if (idx < 0) {
+      return {};
+    }
+    items.splice(idx, 1);
+
+    rows[rowIndex] = { ...(rows[rowIndex] || {}), ...row, items };
 
     return {
       item: {

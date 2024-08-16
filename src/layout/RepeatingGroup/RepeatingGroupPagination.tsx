@@ -222,7 +222,7 @@ function usePagesWithErrors(rowsPerPage: number | undefined, node: LayoutNode<'R
 
     const visibleRows: RepGroupRow[] = [];
     for (const row of rows) {
-      if (!row.groupExpressions?.hiddenRow) {
+      if (row && !row.groupExpressions?.hiddenRow) {
         visibleRows.push(row);
       }
     }
@@ -235,8 +235,8 @@ function usePagesWithErrors(rowsPerPage: number | undefined, node: LayoutNode<'R
         continue;
       }
 
-      const deepNodes = visibleRows[i].items.flatMap((node) => traversalSelector((t) => t.with(node).flat(), [node]));
-      for (const node of deepNodes) {
+      const deepNodes = visibleRows[i].items?.flatMap((node) => traversalSelector((t) => t.with(node).flat(), [node]));
+      for (const node of deepNodes || []) {
         const validations = nodeValidationsSelector(node, 'visible', 'error');
         if (validations.length > 0) {
           pagesWithErrors.push(pageNumber);

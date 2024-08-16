@@ -15,7 +15,7 @@ import type {
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface CardInternal extends Omit<CardConfigExternal, 'children' | 'media'> {
-  children?: LayoutNode[];
+  children?: (LayoutNode | undefined)[];
   media?: LayoutNode;
 }
 
@@ -147,6 +147,24 @@ export class CardsPlugin<Type extends CompTypes>
     } else {
       const children = [...(card.children || [])];
       children[metadata.child] = childNode;
+      cardsInternal[metadata.cardIdx] = { ...card, children };
+    }
+
+    return { item: { ...state.item, cardsInternal } } as Partial<DefPluginState<Config<Type>>>;
+  }
+
+  removeChild(
+    state: DefPluginState<Config<Type>>,
+    _childNode: LayoutNode,
+    metadata: ClaimMetadata,
+  ): Partial<DefPluginState<Config<Type>>> {
+    const cardsInternal = [...(state.item?.cardsInternal || [])];
+    const card = cardsInternal[metadata.cardIdx] ?? {};
+    if (metadata.child === 'media') {
+      cardsInternal[metadata.cardIdx] = { ...card, media: undefined };
+    } else {
+      const children = [...(card.children || [])];
+      children[metadata.child] = undefined;
       cardsInternal[metadata.cardIdx] = { ...card, children };
     }
 

@@ -89,7 +89,7 @@ function _RepeatingGroupTableRow({
   const { langAsString } = langTools;
   const id = node.id;
   const group = useNodeItem(node);
-  const row = group.rows.find((r) => r.uuid === uuid && r.index === index);
+  const row = group.rows.find((r) => r && r.uuid === uuid && r.index === index);
   const rowExpressions = row?.groupExpressions;
   const editForRow = rowExpressions?.edit;
   const editForGroup = group.edit;

@@ -112,9 +112,30 @@ export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Adds a child node to the parent node. This must be implemented for every component type that can adopt children.
    */
-  public addChild(_state: NodeData<Type>, _childNode: LayoutNode, _claim: ChildClaim): Partial<NodeData<Type>> {
+  public addChild(
+    _state: NodeData<Type>,
+    _childNode: LayoutNode,
+    _claim: ChildClaim,
+    row: BaseRow | undefined,
+  ): Partial<NodeData<Type>> {
     throw new Error(
       `addChild() is not implemented yet for '${this.type}'. ` +
+        `You have to implement this if the component type supports children.`,
+    );
+  }
+
+  /**
+   * Removes a child node from the parent node. This must be implemented for every component type that
+   * can adopt children.
+   */
+  public removeChild(
+    _state: NodeData<Type>,
+    _childNode: LayoutNode,
+    _claim: ChildClaim,
+    row: BaseRow | undefined,
+  ): Partial<NodeData<Type>> {
+    throw new Error(
+      `removeChild() is not implemented yet for '${this.type}'. ` +
         `You have to implement this if the component type supports children.`,
     );
   }
@@ -430,7 +451,19 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
 
   abstract pickDirectChildren(state: NodeData<Type>, restriction?: TraversalRestriction): LayoutNode[];
 
-  abstract addChild(state: NodeData<Type>, childNode: LayoutNode, claim: ChildClaim): Partial<NodeData<Type>>;
+  abstract addChild(
+    state: NodeData<Type>,
+    childNode: LayoutNode,
+    claim: ChildClaim,
+    row: BaseRow | undefined,
+  ): Partial<NodeData<Type>>;
+
+  abstract removeChild(
+    state: NodeData<Type>,
+    childNode: LayoutNode,
+    claim: ChildClaim,
+    row: BaseRow | undefined,
+  ): Partial<NodeData<Type>>;
 }
 
 export type LayoutComponent<Type extends CompTypes = CompTypes> =

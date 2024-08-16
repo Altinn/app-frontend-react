@@ -66,7 +66,7 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
       return false;
     }
 
-    const row = nodeItem.current.rows.find((r) => r.items.some((n) => n === targetChild));
+    const row = nodeItem.current.rows.find((r) => r?.items?.some((n) => n === targetChild));
 
     // If pagination is used, navigate to the correct page
     if (nodeItem.current.pagination) {

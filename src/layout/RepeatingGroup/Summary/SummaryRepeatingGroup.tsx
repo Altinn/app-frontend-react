@@ -15,11 +15,11 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import { typedBoolean } from 'src/utils/typing';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
+import type { RepGroupRow, RepGroupRows } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface FullProps extends SummaryRendererProps<'RepeatingGroup'> {
-  rows: RepGroupRow[];
+  rows: RepGroupRows;
   inExcludedChildren: (n: LayoutNode) => boolean;
 }
 
@@ -105,7 +105,7 @@ function RegularRepeatingGroup(props: FullProps) {
               <Lang id={'general.empty_summary'} />
             </span>
           ) : (
-            rows.map((row) => (
+            rows.filter(typedBoolean).map((row) => (
               <RegularRepeatingGroupRow
                 key={`row-${row.uuid}`}
                 {...props}
@@ -181,7 +181,7 @@ function LargeRepeatingGroup({ targetNode, summaryNode, overrides, inExcludedChi
 
   return (
     <>
-      {rows.map((row) => (
+      {rows.filter(typedBoolean).map((row) => (
         <LargeGroupSummaryContainer
           key={`summary-${targetNode.id}-${row.uuid}`}
           id={`summary-${targetNode.id}-${row.index}`}

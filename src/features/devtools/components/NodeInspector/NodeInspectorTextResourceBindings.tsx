@@ -26,7 +26,7 @@ export function NodeInspectorTextResourceBindings({ node, textResourceBindings }
     // first row here, and inform the user.
     isRepGroup = true;
     const firstRow = item.rows[0];
-    if (firstRow && firstRow.groupExpressions.textResourceBindings) {
+    if (firstRow && firstRow.groupExpressions?.textResourceBindings) {
       actualTextResourceBindings = {
         ...actualTextResourceBindings,
         ...firstRow.groupExpressions.textResourceBindings,

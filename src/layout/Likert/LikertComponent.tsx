@@ -26,7 +26,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
   const mobileView = useIsMobileOrTablet();
   const { options: calculatedOptions, isFetching } = useNodeOptions(rows.find((row) => !!row)?.itemNode);
   const { lang } = useLanguage();
-  const rowNodes = rows.filter(typedBoolean).map((row) => row.itemNode);
+  const rowNodes = rows.map((row) => row?.itemNode).filter(typedBoolean);
 
   const id = node.id;
   const hasDescription = !!textResourceBindings?.description;

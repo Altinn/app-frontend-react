@@ -48,9 +48,9 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
   const showDeleteButtonColumns = new Set<boolean>();
   const showEditButtonColumns = new Set<boolean>();
   for (const row of rows) {
-    if (rowsToDisplay.some((r) => r.uuid === row.uuid)) {
-      showDeleteButtonColumns.add(row.groupExpressions.edit?.deleteButton !== false);
-      showEditButtonColumns.add(row.groupExpressions.edit?.editButton !== false);
+    if (row && rowsToDisplay.some((r) => r.uuid === row.uuid)) {
+      showDeleteButtonColumns.add(row.groupExpressions?.edit?.deleteButton !== false);
+      showEditButtonColumns.add(row.groupExpressions?.edit?.editButton !== false);
     }
   }
   const displayDeleteColumn = showDeleteButtonColumns.has(true) || !showDeleteButtonColumns.has(false);

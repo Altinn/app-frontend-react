@@ -9,6 +9,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
+import { typedBoolean } from 'src/utils/typing';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
@@ -60,7 +61,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
               backgroundColor: 'white',
             }}
           >
-            {tab.children.map((node) => (
+            {tab.children.filter(typedBoolean).map((node) => (
               <GenericComponent
                 key={node.id}
                 node={node}

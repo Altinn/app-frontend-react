@@ -55,10 +55,13 @@ function useLegacyHiddenComponents() {
       const groupId = rule.repeatingGroup.groupId;
       const node = traversalSelector((t) => t.findById(groupId), [groupId]);
       if (node?.isType('RepeatingGroup')) {
-        const firstChildren = nodeDataSelector((picker) => picker(node)?.item?.rows.map((row) => row.items[0]), [node]);
+        const firstChildren = nodeDataSelector(
+          (picker) => picker(node)?.item?.rows.map((row) => row?.items?.[0]),
+          [node],
+        );
         for (const firstChild of firstChildren ?? []) {
           runConditionalRenderingRule(rule, firstChild, ...props);
-          if (rule.repeatingGroup.childGroupId) {
+          if (rule.repeatingGroup.childGroupId && firstChild) {
             const rowIndex = firstChild.rowIndex!;
             const childId = `${rule.repeatingGroup.childGroupId}-${rowIndex}`;
             const childNode = traversalSelector(
@@ -71,7 +74,7 @@ function useLegacyHiddenComponents() {
             );
             if (childNode && childNode.isType('RepeatingGroup')) {
               const nestedChildren = nodeDataSelector(
-                (picker) => picker(childNode)?.item?.rows.map((row) => row.items[0]),
+                (picker) => picker(childNode)?.item?.rows.map((row) => row?.items?.[0]),
                 [childNode],
               );
               for (const firstNestedChild of nestedChildren ?? []) {
