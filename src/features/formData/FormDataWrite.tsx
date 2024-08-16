@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useIsMutating, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -207,6 +207,7 @@ function FormDataEffects() {
   const needsToSave = lastSavedData !== debouncedCurrentData;
   const canSaveNow = !isSaving && !lockedBy;
   const shouldSave = (needsToSave && canSaveNow && autoSaving) || manualSaveRequested;
+  const setUnsavedAttrTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     shouldSave && performSave();
@@ -215,11 +216,13 @@ function FormDataEffects() {
   // Marking the document as having unsaved changes. The data attribute is used in tests, while the beforeunload
   // event is used to warn the user when they try to navigate away from the page with unsaved changes.
   useEffect(() => {
+    clearTimeout(setUnsavedAttrTimeout.current);
     if (hasUnsavedChanges) {
       document.body.setAttribute('data-unsaved-changes', 'true');
     } else {
-      setTimeout(() => {
+      setUnsavedAttrTimeout.current = setTimeout(() => {
         document.body.setAttribute('data-unsaved-changes', 'false');
+        setUnsavedAttrTimeout.current = undefined;
       }, 10);
     }
     window.onbeforeunload = hasUnsavedChanges ? () => true : null;
