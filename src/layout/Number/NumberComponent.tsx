@@ -50,7 +50,7 @@ export const NumberComponent = ({ node }: PropsFromGenericComponent<'Number'>) =
           alt={textResourceBindings.title}
         />
       )}
-      <span>{getDisplaydata(value)}</span>
+      <span aria-labelledby={`label-${id}`}>{getDisplaydata(value)}</span>
     </ComponentStructureWrapper>
   );
 };

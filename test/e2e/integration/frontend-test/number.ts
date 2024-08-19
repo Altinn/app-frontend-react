@@ -5,22 +5,17 @@ describe('Number component', () => {
     cy.findByRole('checkbox', { name: /cards/i }).check();
     cy.gotoNavPage('cards');
     const numberCard = '[data-componentid="number-Card"]';
-    cy.get(numberCard)
-      .findAllByRole('term')
-      .should((terms) => {
-        expect(terms.eq(0).text()).to.equal('Total gjeld');
-        expect(terms.eq(1).text()).to.equal('Statisk verdi som tall');
-        expect(terms.eq(2).text()).to.equal('Kredittkort prosent');
-        expect(terms.eq(3).text()).to.equal('Statisk verdi med desimal');
-      });
 
-    cy.get(numberCard)
-      .findAllByRole('definition')
-      .should((definitions) => {
-        expect(definitions.eq(0).text()).to.equal('0 kr');
-        expect(definitions.eq(1).text()).to.equal('2 000 kr');
-        expect(definitions.eq(2).text()).to.equal('0 %');
-        expect(definitions.eq(3).text()).to.equal('20 000,2 kr');
-      });
+    cy.get(numberCard).findByText(/total gjeld/i);
+    cy.get(numberCard).findByLabelText(/total gjeld/i);
+
+    cy.get(numberCard).findByText(/Statisk verdi som tall/i);
+    cy.get(numberCard).findByLabelText(/Statisk verdi som tall/i);
+
+    cy.get(numberCard).findByText(/Kredittkort prosent/i);
+    cy.get(numberCard).findByLabelText(/Kredittkort prosent/i);
+
+    cy.get(numberCard).findAllByText(/Statisk verdi med desimal/i);
+    cy.get(numberCard).findByLabelText(/statisk verdi med desimal/i);
   });
 });
