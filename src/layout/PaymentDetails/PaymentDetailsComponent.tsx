@@ -22,8 +22,9 @@ export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
 
   // refetch data on mount by invalidating cache as the first fetch is done by the formPrefetcher
   useEffect(() => {
+    console.log('refetchOrderDetails');
     refetchOrderDetails();
-  });
+  }, [refetchOrderDetails]);
 
   useEffect(() => {
     if (!hasUnsavedChanges && mapping && !deepEqual(prevMappedValues.current, mappedValues)) {
