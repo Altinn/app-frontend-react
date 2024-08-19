@@ -5,6 +5,7 @@ import { Grid } from '@material-ui/core';
 
 import { Label } from 'src/components/label/Label';
 import { AllComponentValidations } from 'src/features/validation/ComponentValidations';
+import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import { gridBreakpoints } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LabelProps } from 'src/components/label/Label';
@@ -22,16 +23,17 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   children,
   label,
 }: PropsWithChildren<ComponentStructureWrapperProps<Type>>) {
-  const innerGrid = useNodeItem(node, (i) => i.grid?.innerGrid);
+  const overrideItemProps = useFormComponentCtx()?.overrideItemProps;
+  const _grid = useNodeItem(node, (i) => i.grid);
+  const grid = overrideItemProps?.grid ?? _grid;
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;
-
   const showValidationMessages = layoutComponent.renderDefaultValidations();
 
   const componentWithValidations = (
     <Grid
       item
       id={`form-content-${node.id}`}
-      {...gridBreakpoints(innerGrid)}
+      {...gridBreakpoints(grid?.innerGrid)}
     >
       {children}
       {showValidationMessages && <AllComponentValidations node={node} />}
