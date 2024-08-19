@@ -13,13 +13,8 @@ export const NumberComponent = ({ node }: PropsFromGenericComponent<'Number'>) =
   const { textResourceBindings, value, icon, direction, id } = node.item;
   const currentLanguage = useCurrentLanguage();
 
-  const getDisplaydata = (text) => {
-    const numberFormatting = getMapToReactNumberConfig(node.item.formatting, text, currentLanguage);
-    if (numberFormatting?.number) {
-      return formatNumericText(text.toString(), numberFormatting.number);
-    }
-    return text;
-  };
+  const numberFormatting = getMapToReactNumberConfig(node.item.formatting, value.toString(), currentLanguage);
+  const displayData = numberFormatting?.number ? formatNumericText(value.toString(), numberFormatting.number) : value;
 
   if (icon) {
     const imgType = icon.split('.').at(-1);
@@ -30,7 +25,7 @@ export const NumberComponent = ({ node }: PropsFromGenericComponent<'Number'>) =
   }
 
   if (!textResourceBindings?.title) {
-    return <span>{getDisplaydata(value)}</span>;
+    return <span>{displayData}</span>;
   }
 
   return (
@@ -50,7 +45,7 @@ export const NumberComponent = ({ node }: PropsFromGenericComponent<'Number'>) =
           alt={textResourceBindings.title}
         />
       )}
-      <span aria-labelledby={`label-${id}`}>{getDisplaydata(value)}</span>
+      <span aria-labelledby={`label-${id}`}>{displayData}</span>
     </ComponentStructureWrapper>
   );
 };
