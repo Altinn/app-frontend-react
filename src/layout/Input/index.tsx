@@ -48,7 +48,7 @@ export class Input extends InputDef {
 
   renderSummary2(
     componentNode: LayoutNode<'Input'>,
-    _?: InputSummaryOverrideProps,
+    overrides?: InputSummaryOverrideProps,
     isCompact?: boolean,
   ): JSX.Element | null {
     return (
@@ -56,6 +56,7 @@ export class Input extends InputDef {
         componentNode={componentNode}
         displayData={this.useDisplayData(componentNode)}
         isCompact={isCompact}
+        emptyFieldText={overrides?.emptyFieldText}
       />
     );
   }

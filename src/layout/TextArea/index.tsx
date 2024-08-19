@@ -41,6 +41,7 @@ export class TextArea extends TextAreaDef {
         componentNode={componentNode}
         summaryOverrides={summaryOverrides}
         displayData={this.useDisplayData(componentNode)}
+        emptyFieldText={summaryOverrides?.emptyFieldText}
       />
     );
   }

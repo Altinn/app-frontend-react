@@ -223,6 +223,9 @@ function UpdateValidations() {
   const componentValidations = useNodeValidation();
   const expressionValidations = useExpressionValidation();
   const schemaValidations = useSchemaValidation();
+
+  console.log(JSON.stringify(schemaValidations, null, 2));
+
   const invalidDataValidations = useInvalidDataValidation();
 
   useEffect(() => {

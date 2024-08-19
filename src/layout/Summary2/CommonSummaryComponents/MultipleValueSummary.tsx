@@ -20,6 +20,7 @@ type MultipleValueSummaryProps = {
   componentNode: LayoutNode;
   showAsList?: boolean;
   isCompact?: boolean;
+  emptyFieldText?: string;
 };
 
 function getSummaryData(
@@ -51,7 +52,13 @@ function getDisplayType(
   return 'list';
 }
 
-export const MultipleValueSummary = ({ title, componentNode, showAsList, isCompact }: MultipleValueSummaryProps) => {
+export const MultipleValueSummary = ({
+  title,
+  componentNode,
+  showAsList,
+  isCompact,
+  emptyFieldText,
+}: MultipleValueSummaryProps) => {
   const formDataSelector = FD.useDebouncedSelector();
 
   const langTools = useLanguage();
@@ -98,7 +105,7 @@ export const MultipleValueSummary = ({ title, componentNode, showAsList, isCompa
             className={classes.emptyValue}
           >
             <span>
-              <Lang id={'general.empty_summary'}></Lang>
+              <Lang id={emptyFieldText ?? 'general.empty_summary'}></Lang>
             </span>
           </Paragraph>
         )}

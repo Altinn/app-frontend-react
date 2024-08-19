@@ -14,7 +14,12 @@ type RadioButtonsSummaryProps = {
   summaryOverrides?: RadioSummaryOverrideProps;
 };
 
-export const RadioButtonsSummary = ({ componentNode, displayData, isCompact }: RadioButtonsSummaryProps) => {
+export const RadioButtonsSummary = ({
+  componentNode,
+  displayData,
+  isCompact,
+  summaryOverrides,
+}: RadioButtonsSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = componentNode.item.textResourceBindings?.title;
@@ -25,6 +30,7 @@ export const RadioButtonsSummary = ({ componentNode, displayData, isCompact }: R
       errors={errors}
       componentNode={componentNode}
       isCompact={isCompact}
+      emptyFieldText={summaryOverrides?.emptyFieldText}
     />
   );
 };

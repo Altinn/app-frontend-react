@@ -66,6 +66,7 @@ export class Checkboxes extends CheckboxesDef {
         componentNode={componentNode}
         showAsList={showAsList}
         isCompact={isCompact}
+        emptyFieldText={summaryOverrides?.emptyFieldText}
       />
     );
   }

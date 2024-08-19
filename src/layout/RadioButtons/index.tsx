@@ -40,6 +40,7 @@ export class RadioButtons extends RadioButtonsDef {
     isCompact?: boolean,
   ): JSX.Element | null {
     const displayData = this.useDisplayData(componentNode);
+
     return (
       <RadioButtonsSummary
         componentNode={componentNode}

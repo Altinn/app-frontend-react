@@ -17,6 +17,7 @@ type SingleValueSummaryProps = {
   hideEditButton?: boolean;
   multiline?: boolean;
   isCompact?: boolean;
+  emptyFieldText?: string;
 };
 
 export const SingleValueSummary = ({
@@ -27,6 +28,7 @@ export const SingleValueSummary = ({
   hideEditButton,
   multiline,
   isCompact,
+  emptyFieldText,
 }: SingleValueSummaryProps) => (
   <div
     className={classes.inputSummaryItem}
@@ -47,7 +49,7 @@ export const SingleValueSummary = ({
         })}
       >
         <span>
-          {!displayData && <Lang id={'general.empty_summary'} />}
+          {!displayData && <Lang id={emptyFieldText ?? 'general.empty_summary'} />}
           {displayData}
         </span>
       </Paragraph>

@@ -5,6 +5,17 @@ import { DROPDOWN_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Dropdown/config';
 import { INPUT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Input/config';
 import { MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/MultipleSelect/config';
 import { RADIO_SUMMARY_OVERRIDE_PROPS } from 'src/layout/RadioButtons/config';
+
+export const SUMMARY_OVERRIDE_PROPS = new CG.arr(
+  new CG.union(
+    INPUT_SUMMARY_OVERRIDE_PROPS,
+    CHECKBOX_SUMMARY_OVERRIDE_PROPS,
+    RADIO_SUMMARY_OVERRIDE_PROPS,
+    DROPDOWN_SUMMARY_OVERRIDE_PROPS,
+    MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS,
+  ),
+).optional();
+
 export const Config = new CG.component({
   category: CompCategory.Container,
   capabilities: {

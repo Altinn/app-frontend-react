@@ -68,6 +68,7 @@ export class MultipleSelect extends MultipleSelectDef {
         title={<Lang id={title} />}
         componentNode={componentNode}
         showAsList={showAsList}
+        emptyFieldText={summaryOverrides?.emptyFieldText}
       />
     );
   }
