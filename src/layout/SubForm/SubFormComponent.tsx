@@ -12,6 +12,7 @@ import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subFormData/useSubFormMutations';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/SubForm/SubFormComponent.module.css';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -51,96 +52,98 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
   };
 
   return (
-    <Grid
-      container={true}
-      item={true}
-      data-componentid={node.item.id}
-      data-componentbaseid={node.item.baseComponentId || node.item.id}
-    >
-      <Table
-        id={`subform-${id}-table`}
-        className={classes.subFormTable}
+    <ComponentStructureWrapper node={node}>
+      <Grid
+        container={true}
+        item={true}
+        data-componentid={node.item.id}
+        data-componentbaseid={node.item.baseComponentId || node.item.id}
       >
-        <Caption
-          id={`subform-${id}-caption`}
-          title={<Lang id={textResourceBindings?.title} />}
-          description={textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
-        />
-        {subFormEntries.length > 0 && (
-          <>
-            <Table.Head id={`subform-${id}-table-body`}>
-              <Table.Row>
-                {tableColumns.length ? (
-                  tableColumns.map((entry, index) => (
-                    <Table.HeaderCell
-                      className={classes.tableCellFormatting}
-                      key={index}
-                    >
-                      <Lang id={entry.headerContent} />
+        <Table
+          id={`subform-${id}-table`}
+          className={classes.subFormTable}
+        >
+          <Caption
+            id={`subform-${id}-caption`}
+            title={<Lang id={textResourceBindings?.title} />}
+            description={textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
+          />
+          {subFormEntries.length > 0 && (
+            <>
+              <Table.Head id={`subform-${id}-table-body`}>
+                <Table.Row>
+                  {tableColumns.length ? (
+                    tableColumns.map((entry, index) => (
+                      <Table.HeaderCell
+                        className={classes.tableCellFormatting}
+                        key={index}
+                      >
+                        <Lang id={entry.headerContent} />
+                      </Table.HeaderCell>
+                    ))
+                  ) : (
+                    <Table.HeaderCell className={classes.tableCellFormatting}>
+                      <Lang id={'form_filler.sub_form_default_header'} />
                     </Table.HeaderCell>
-                  ))
-                ) : (
-                  <Table.HeaderCell className={classes.tableCellFormatting}>
-                    <Lang id={'form_filler.sub_form_default_header'} />
-                  </Table.HeaderCell>
-                )}
-                <Table.HeaderCell>
-                  <span className={classes.visuallyHidden}>
-                    <Lang id={'general.edit'} />
-                  </span>
-                </Table.HeaderCell>
-                {showDeleteButton && (
+                  )}
                   <Table.HeaderCell>
                     <span className={classes.visuallyHidden}>
-                      <Lang id={'general.delete'} />
+                      <Lang id={'general.edit'} />
                     </span>
                   </Table.HeaderCell>
-                )}
-              </Table.Row>
-            </Table.Head>
-            <Table.Body>
-              {subFormEntries.map((dataElement, index) => (
-                <SubFormTableRow
-                  key={dataElement.id}
-                  dataElement={dataElement}
-                  node={node}
-                  rowNumber={index}
-                  showDeleteButton={showDeleteButton}
-                  deleteEntryCallback={(d) => {
-                    const items = subFormEntries.filter((x) => x.id != d.id);
-                    updateSubFormEntries([...items]);
-                  }}
-                />
-              ))}
-            </Table.Body>
-          </>
-        )}
-      </Table>
+                  {showDeleteButton && (
+                    <Table.HeaderCell>
+                      <span className={classes.visuallyHidden}>
+                        <Lang id={'general.delete'} />
+                      </span>
+                    </Table.HeaderCell>
+                  )}
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
+                {subFormEntries.map((dataElement, index) => (
+                  <SubFormTableRow
+                    key={dataElement.id}
+                    dataElement={dataElement}
+                    node={node}
+                    rowNumber={index}
+                    showDeleteButton={showDeleteButton}
+                    deleteEntryCallback={(d) => {
+                      const items = subFormEntries.filter((x) => x.id != d.id);
+                      updateSubFormEntries([...items]);
+                    }}
+                  />
+                ))}
+              </Table.Body>
+            </>
+          )}
+        </Table>
 
-      {showAddButton && (
-        <div className={classes.addButton}>
-          <Button
-            disabled={isAdding}
-            id={`subform-${id}-add-button`}
-            onClick={async () => await addEntry()}
-            onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
-              const allowedKeys = ['enter', ' ', 'spacebar'];
-              if (allowedKeys.includes(event.key.toLowerCase())) {
-                await addEntry();
-              }
-            }}
-            variant='secondary'
-            fullWidth
-          >
-            <AddIcon
-              fontSize='1.5rem'
-              aria-hidden='true'
-            />
-            {langAsString(textResourceBindings?.addButton)}
-          </Button>
-        </div>
-      )}
-    </Grid>
+        {showAddButton && (
+          <div className={classes.addButton}>
+            <Button
+              disabled={isAdding}
+              id={`subform-${id}-add-button`}
+              onClick={async () => await addEntry()}
+              onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
+                const allowedKeys = ['enter', ' ', 'spacebar'];
+                if (allowedKeys.includes(event.key.toLowerCase())) {
+                  await addEntry();
+                }
+              }}
+              variant='secondary'
+              fullWidth
+            >
+              <AddIcon
+                fontSize='1.5rem'
+                aria-hidden='true'
+              />
+              {langAsString(textResourceBindings?.addButton)}
+            </Button>
+          </div>
+        )}
+      </Grid>
+    </ComponentStructureWrapper>
   );
 }
 
