@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+import type { JSX } from 'react';
 
 import { formatNumericText } from '@digdir/design-system-react';
 
