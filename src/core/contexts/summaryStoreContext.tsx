@@ -1,27 +1,31 @@
 import React, { createContext, useContext } from 'react';
 
-import { createTaskStore } from 'src/core/contexts/taskStoreContext';
-import type { TaskState } from 'src/core/contexts/taskStoreContext';
+import { create } from 'zustand';
+
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-interface SummaryTaskState extends TaskState {
+interface SummaryTaskState {
   summaryNode: LayoutNode<'Summary2'>;
 }
 
-interface Summary2StoreProviderProps extends React.PropsWithChildren {
-  summaryNode: LayoutNode<'Summary2'>;
-}
+type Summary2StoreProviderProps = React.PropsWithChildren & SummaryTaskState;
 
-const SummaryStoreContext = createContext<ReturnType<typeof createTaskStore<SummaryTaskState>> | null>(null);
+const createSummary2Store = (summaryNode: LayoutNode<'Summary2'>) =>
+  create<SummaryTaskState>((set) => ({
+    summaryNode,
+    setSummaryNode: (summaryNode: LayoutNode<'Summary2'>) => set((state) => ({ ...state, summaryNode })),
+  }));
+
+const Summary2StoreContext = createContext<ReturnType<typeof createSummary2Store> | null>(null);
 
 export function Summary2StoreProvider({ children, summaryNode }: Summary2StoreProviderProps) {
-  const store = createTaskStore<SummaryTaskState>({ summaryNode });
+  const store = createSummary2Store(summaryNode);
 
-  return <SummaryStoreContext.Provider value={store}>{children}</SummaryStoreContext.Provider>;
+  return <Summary2StoreContext.Provider value={store}>{children}</Summary2StoreContext.Provider>;
 }
 
-export const useSummaryStore = <T,>(selector: (state: SummaryTaskState) => T): T => {
-  const store = useContext(SummaryStoreContext);
+export const useSummary2Store = <T,>(selector: (state: SummaryTaskState) => T): T => {
+  const store = useContext(Summary2StoreContext);
   if (!store) {
     return {} as T;
   }

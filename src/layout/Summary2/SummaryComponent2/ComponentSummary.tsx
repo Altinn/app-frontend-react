@@ -3,7 +3,7 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useSummaryStore } from 'src/core/contexts/summaryStoreContext';
+import { useSummary2Store } from 'src/core/contexts/summaryStoreContext';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
@@ -24,7 +24,7 @@ interface ResolveComponentProps {
 export function ComponentSummary({ componentNode, summaryOverrides, isCompact }: ComponentSummaryProps) {
   const override = summaryOverrides?.find((override) => override.componentId === componentNode.item.id);
 
-  const summaryNode = useSummaryStore((state) => state.summaryNode);
+  const summaryNode = useSummary2Store((state) => state.summaryNode);
 
   const isRequired = 'required' in componentNode.item && componentNode.item['required'] === true;
 

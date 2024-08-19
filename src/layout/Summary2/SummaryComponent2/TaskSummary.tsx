@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Accordion } from '@digdir/designsystemet-react';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { useSummaryStore } from 'src/core/contexts/summaryStoreContext';
+import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { Lang } from 'src/features/language/Lang';
@@ -85,14 +85,12 @@ export function TaskSummary({ pageId, componentId, summaryOverrides, showAccordi
   );
 }
 export function TaskSummaryWrapper({ taskId, children }: React.PropsWithChildren<TaskSummaryProps>) {
-  const { setTaskId, setOverriddenDataModelId, setOverriddenLayoutSetId, overriddenTaskId } = useSummaryStore(
-    (state) => ({
-      setTaskId: state.setTaskId,
-      setOverriddenDataModelId: state.setOverriddenDataModelType,
-      setOverriddenLayoutSetId: state.setOverriddenLayoutSetId,
-      overriddenTaskId: state.overriddenTaskId,
-    }),
-  );
+  const { setTaskId, setOverriddenDataModelId, setOverriddenLayoutSetId, overriddenTaskId } = useTaskStore((state) => ({
+    setTaskId: state.setTaskId,
+    setOverriddenDataModelId: state.setOverriddenDataModelType,
+    setOverriddenLayoutSetId: state.setOverriddenLayoutSetId,
+    overriddenTaskId: state.overriddenTaskId,
+  }));
 
   const layoutSets = useLayoutSets();
 

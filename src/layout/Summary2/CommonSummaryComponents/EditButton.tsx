@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@digdir/designsystemet-react';
 import { Edit } from '@navikt/ds-icons';
 
-import { useSummaryStore } from 'src/core/contexts/summaryStoreContext';
+import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
@@ -34,7 +34,7 @@ export function EditButton({
   const pdfModeActive = usePdfModeActive();
   const isMobile = useIsMobile();
 
-  const { overriddenTaskId } = useSummaryStore(({ overriddenTaskId }) => ({
+  const { overriddenTaskId } = useTaskStore(({ overriddenTaskId }) => ({
     overriddenTaskId,
   }));
 

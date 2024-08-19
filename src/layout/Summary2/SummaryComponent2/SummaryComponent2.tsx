@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Summary2StoreProvider } from 'src/core/contexts/summaryStoreContext';
+import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { ResolveComponent } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { LayoutSetSummary } from 'src/layout/Summary2/SummaryComponent2/LayoutSetSummary';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
@@ -49,17 +50,19 @@ function SummaryBody({ summaryNode }: ISummaryComponent2) {
 
 export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
   return (
-    <Summary2StoreProvider summaryNode={summaryNode}>
-      <TaskSummaryWrapper
-        taskId={summaryNode.item.target?.taskId}
-        pageId={summaryNode.item.target?.type === 'page' ? summaryNode.item.target.id : undefined}
-        componentId={summaryNode.item.target?.type === 'component' ? summaryNode.item.target.id : undefined}
-        summaryOverrides={summaryNode.item.overrides}
-        showAccordion={summaryNode.item.showPageInAccordion}
-      >
-        <SummaryBody summaryNode={summaryNode} />
-      </TaskSummaryWrapper>
-    </Summary2StoreProvider>
+    <TaskStoreProvider>
+      <Summary2StoreProvider summaryNode={summaryNode}>
+        <TaskSummaryWrapper
+          taskId={summaryNode.item.target?.taskId}
+          pageId={summaryNode.item.target?.type === 'page' ? summaryNode.item.target.id : undefined}
+          componentId={summaryNode.item.target?.type === 'component' ? summaryNode.item.target.id : undefined}
+          summaryOverrides={summaryNode.item.overrides}
+          showAccordion={summaryNode.item.showPageInAccordion}
+        >
+          <SummaryBody summaryNode={summaryNode} />
+        </TaskSummaryWrapper>
+      </Summary2StoreProvider>
+    </TaskStoreProvider>
   );
 }
 
