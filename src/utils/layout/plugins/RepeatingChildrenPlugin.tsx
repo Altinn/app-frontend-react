@@ -74,7 +74,7 @@ type ToInternal<E extends ExternalConfig> = Config<
   FromImport<Setting<E, 'extraRowState'>>
 >;
 
-type Row<E extends ExternalConfig> = RepChildrenRow & E['extraRowState'];
+type Row<E extends ExternalConfig> = (RepChildrenRow & E['extraRowState']) | undefined;
 
 export class RepeatingChildrenPlugin<E extends ExternalConfig>
   extends NodeDefPlugin<ToInternal<E>>
@@ -187,7 +187,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     }
 
     for (const row of rows) {
-      if (restriction !== undefined && row.index !== restriction) {
+      if (!row || (restriction !== undefined && row.index !== restriction)) {
         continue;
       }
 
