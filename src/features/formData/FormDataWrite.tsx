@@ -182,8 +182,7 @@ function FormDataEffects() {
   const isSaving = useIsSaving();
   const debounce = useDebounceImmediately();
   const hasUnsavedChanges = useHasUnsavedChanges();
-  const hasUnsavedChangesRef = useHasUnsavedChangesRef();
-  const isSavingNow = useIsSavingNow();
+  const hasUnsavedChangesNow = useHasUnsavedChangesNow();
 
   // If errors occur, we want to throw them so that the user can see them, and they
   // can be handled by the error boundary.
@@ -238,11 +237,11 @@ function FormDataEffects() {
   // to trigger when the user is typing, which is not what we want.
   useEffect(
     () => () => {
-      if (hasUnsavedChangesRef.current && !isSavingNow()) {
+      if (hasUnsavedChangesNow()) {
         performSave();
       }
     },
-    [hasUnsavedChangesRef, isSavingNow, performSave],
+    [hasUnsavedChangesNow, performSave],
   );
 
   // Sets the debounced data in the window object, so that Cypress tests can access it.
@@ -292,23 +291,17 @@ const useHasUnsavedChanges = () => {
   return result || isSaving;
 };
 
-const useHasUnsavedChangesRef = () => {
+const useHasUnsavedChangesNow = () => {
   const store = useStore();
   const isSavingNow = useIsSavingNow();
 
-  return useMemo(
-    () =>
-      new (class {
-        get current() {
-          if (hasUnsavedChanges(store.getState())) {
-            return true;
-          }
+  return useCallback(() => {
+    if (hasUnsavedChanges(store.getState())) {
+      return true;
+    }
 
-          return isSavingNow();
-        }
-      })(),
-    [store, isSavingNow],
-  );
+    return isSavingNow();
+  }, [store, isSavingNow]);
 };
 
 const useIsSavingNow = () => {
@@ -568,7 +561,7 @@ export const FD = {
     const isLockedByMe = lockedBy === lockId;
     const isLockedByMeRef = useAsRef(isLockedByMe);
 
-    const hasUnsavedChangesRef = useHasUnsavedChangesRef();
+    const hasUnsavedChangesNow = useHasUnsavedChangesNow();
     const waitForSave = useWaitForSave();
 
     const lock = useCallback(async () => {
@@ -581,13 +574,13 @@ export const FD = {
         return false;
       }
 
-      if (hasUnsavedChangesRef.current) {
+      if (hasUnsavedChangesNow()) {
         await waitForSave(true);
       }
 
       rawLock(lockId);
       return true;
-    }, [hasUnsavedChangesRef, isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawLock, waitForSave]);
+    }, [hasUnsavedChangesNow, isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawLock, waitForSave]);
 
     const unlock = useCallback(
       (saveResult?: FDSaveResult) => {
@@ -655,9 +648,9 @@ export const FD = {
   useHasUnsavedChanges,
 
   /**
-   * Same as the above, but returns a non-reactive ref instead
+   * Same as the above, but returns a non-reactive function you can call to check if there are unsaved changes.
    */
-  useHasUnsavedChangesRef,
+  useHasUnsavedChangesNow,
 
   /**
    * Returns a function to append a value to a list. It checks if the value is already in the list, and if not,
