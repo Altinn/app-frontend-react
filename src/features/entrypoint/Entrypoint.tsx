@@ -15,7 +15,7 @@ import {
   useHasSelectedParty,
   useValidParties,
 } from 'src/features/party/PartiesProvider';
-import { useProfile } from 'src/features/profile/ProfileProvider';
+import { useIsSelfIdentified, useProfile } from 'src/features/profile/ProfileProvider';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { PresentationType } from 'src/types';
 import type { ShowTypes } from 'src/features/applicationMetadata/types';
@@ -76,11 +76,18 @@ export const Entrypoint = () => {
   const party = useCurrentParty();
   const validParties = useValidParties();
   const partyIsValid = useCurrentPartyIsValid();
+  const isSelfIdentified = useIsSelfIdentified();
   const userHasSelectedParty = useHasSelectedParty();
   const allowAnonymous = useAllowAnonymousIs(true);
 
   if (isStateless && allowAnonymous && !party) {
     return <RenderStateless />;
+  }
+
+  if (isSelfIdentified) {
+    // Self identified users have no parties to select, and requests to fetch those parties will reliably fail hard.
+    // We'll just try to instantiate, and that goes wrong (blocked by policy), we'll fail then instead.
+    return <ShowOrInstantiate show={show} />;
   }
 
   if (!partyIsValid) {
