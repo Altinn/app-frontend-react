@@ -151,11 +151,11 @@ export interface IParty {
  * @see https://github.com/Altinn/altinn-platform/blob/main/Altinn.Platform.Models/src/Register/Enums/PartyType.cs
  */
 export enum PartyType {
-  Person = 1,
-  Organisation = 2,
-  SelfIdentified = 3,
-  SubUnit = 4,
-  BankruptcyEstate = 5,
+  Person = 'person',
+  Organisation = 'organisation',
+  SelfIdentified = 'selfIdentified',
+  SubUnit = 'subUnit',
+  BankruptcyEstate = 'bankruptcyEstate',
 }
 
 export interface IPerson {

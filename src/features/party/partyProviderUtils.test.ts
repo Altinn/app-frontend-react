@@ -42,7 +42,7 @@ describe('flattenParties', () => {
         name: 'Party2',
         onlyHierarchyElementWithNoAccess: false,
         partyId: 3,
-        partyTypeName: 1,
+        partyTypeName: PartyType.Person,
         ssn: null,
       },
       {
@@ -52,7 +52,7 @@ describe('flattenParties', () => {
             name: 'ChildParty1',
             onlyHierarchyElementWithNoAccess: false,
             partyId: 2,
-            partyTypeName: 4,
+            partyTypeName: PartyType.SubUnit,
             ssn: null,
           },
         ],
@@ -60,7 +60,7 @@ describe('flattenParties', () => {
         name: 'Party1',
         onlyHierarchyElementWithNoAccess: false,
         partyId: 1,
-        partyTypeName: 2,
+        partyTypeName: PartyType.Organisation,
         ssn: null,
       },
       {
@@ -68,7 +68,7 @@ describe('flattenParties', () => {
         name: 'ChildParty1',
         onlyHierarchyElementWithNoAccess: false,
         partyId: 2,
-        partyTypeName: 4,
+        partyTypeName: PartyType.SubUnit,
         ssn: null,
       },
     ];

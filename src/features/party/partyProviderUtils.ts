@@ -1,4 +1,4 @@
-import { type IParty, PartyType } from 'src/types/shared';
+import { type IParty } from 'src/types/shared';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 
 export const flattenParties = (parties: IParty[]): IParty[] => {
@@ -22,19 +22,12 @@ export const reduceToValidParties = (parties: IParty[], appMetadata: Application
   const allParties = flattenParties(parties);
   const { partyTypesAllowed } = appMetadata;
 
-  const partyTypeFilters = {
-    [PartyType.Organisation]: partyTypesAllowed.organisation,
-    [PartyType.SubUnit]: partyTypesAllowed.subUnit,
-    [PartyType.Person]: partyTypesAllowed.person,
-    [PartyType.BankruptcyEstate]: partyTypesAllowed.bankruptcyEstate,
-  };
-
   // Fun fact: If all party types are false then all are true
-  if (Object.values(partyTypeFilters).every((value) => !value)) {
+  if (Object.values(partyTypesAllowed).every((value) => !value)) {
     return allParties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
   }
 
   return allParties.filter(
-    (party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess && partyTypeFilters[party.partyTypeName],
+    (party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess && partyTypesAllowed[party.partyTypeName],
   );
 };

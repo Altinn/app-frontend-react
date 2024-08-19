@@ -78,7 +78,7 @@ const ExamplePerson2: IParty = {
 const InvalidParty: IParty = {
   partyId: 50085642,
   partyUuid: 'bb1aeb78-237e-47fb-b600-727803500985',
-  partyTypeName: 1,
+  partyTypeName: PartyType.Person,
   orgNumber: '',
   ssn: '23033600534',
   unitType: null,

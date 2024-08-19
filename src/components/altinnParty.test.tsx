@@ -7,6 +7,7 @@ import { userEvent } from '@testing-library/user-event';
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { AltinnParty } from 'src/components/altinnParty';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
+import { PartyType } from 'src/types/shared';
 import type { IAltinnPartyProps } from 'src/components/altinnParty';
 
 const user = userEvent.setup();
@@ -88,7 +89,7 @@ describe('altinnParty', () => {
         party: {
           ...getPartyMock(),
           orgNumber: '1000000',
-          partyTypeName: 2,
+          partyTypeName: PartyType.Organisation,
         },
       });
       expect(screen.getByTestId('org-icon')).toBeVisible();
