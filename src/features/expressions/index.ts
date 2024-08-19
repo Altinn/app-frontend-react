@@ -47,20 +47,31 @@ export type SimpleEval<T extends ExprVal> = (
 ) => ExprValToActual<T>;
 
 /**
- * Run/evaluate an expression. You have to provide your own context containing functions for looking up external
- * values. If you need a more concrete implementation:
- * @see evalExprInObj
+ * Simple (non-validating) check to make sure an input is an expression.
+ * @see ExprValidation
+ */
+function isExpression(input: unknown): input is Expression {
+  return (
+    !!input &&
+    Array.isArray(input) &&
+    input.length >= 1 &&
+    typeof input[0] === 'string' &&
+    Object.keys(ExprFunctions).includes(input[0])
+  );
+}
+
+/**
+ * Run/evaluate an expression. You have to provide your own context containing functions for looking up external values.
  */
 export function evalExpr(
-  _expr: Expression | ExprValToActual | undefined,
+  expr: Expression | ExprValToActual | undefined,
   node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext,
   dataSources: ExpressionDataSources,
   options?: EvalExprOptions,
 ) {
-  if (_expr === undefined || _expr === null || ['string', 'number', 'boolean'].includes(typeof _expr)) {
-    return _expr;
+  if (!isExpression(expr)) {
+    return expr;
   }
-  const expr = _expr as Expression;
   let ctx = ExprContext.withBlankPath(
     expr,
     node,
