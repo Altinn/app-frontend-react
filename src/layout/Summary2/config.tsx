@@ -1,4 +1,5 @@
 import { CG } from 'src/codegen/CG';
+import { ADDRESS_SUMMARY_PROPS } from 'src/layout/Address/config';
 import { CHECKBOX_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Checkboxes/config';
 import { CompCategory } from 'src/layout/common';
 import { DROPDOWN_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Dropdown/config';
@@ -13,6 +14,7 @@ export const SUMMARY_OVERRIDE_PROPS = new CG.arr(
     RADIO_SUMMARY_OVERRIDE_PROPS,
     DROPDOWN_SUMMARY_OVERRIDE_PROPS,
     MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS,
+    ADDRESS_SUMMARY_PROPS,
   ),
 ).optional();
 
@@ -68,6 +70,7 @@ export const Config = new CG.component({
           RADIO_SUMMARY_OVERRIDE_PROPS,
           DROPDOWN_SUMMARY_OVERRIDE_PROPS,
           MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS,
+          ADDRESS_SUMMARY_PROPS,
         ),
       ).optional(),
     ),

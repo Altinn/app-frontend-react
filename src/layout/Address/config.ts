@@ -1,6 +1,28 @@
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
+export const ADDRESS_SUMMARY_PROPS = new CG.obj(
+  new CG.prop('emptyFieldTextAddress', new CG.str().optional().setTitle('Override empty text for the address field')),
+  new CG.prop('emptyFieldTextCO', new CG.str().optional().setTitle('Override empty text for the co field')),
+  new CG.prop(
+    'emptyFieldTextPostPlace',
+    new CG.str().optional().setTitle('Override empty text for the postplace field'),
+  ),
+  new CG.prop(
+    'emptyFieldTextZipCode',
+    new CG.str().optional().setTitle('Override empty text for the house number field'),
+  ),
+  new CG.prop(
+    'emptyFieldTextHouseNumber',
+    new CG.str().optional().setTitle('Override empty text for the zip code field'),
+  ),
+)
+  .extends(CG.common('ISummaryOverridesCommon'))
+  .optional()
+  .setTitle('Summary properties')
+  .setDescription('Properties for how to display the summary of the component')
+  .exportAs('AddressSummaryOverrideProps');
+
 export const Config = new CG.component({
   category: CompCategory.Form,
   capabilities: {

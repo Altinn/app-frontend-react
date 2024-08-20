@@ -21,12 +21,9 @@ interface ResolveComponentProps {
   summaryProps: CompSummary2External;
   summaryOverrides?: CompSummary2Internal['overrides'];
 }
-export function ComponentSummary({ componentNode, summaryOverrides, isCompact }: ComponentSummaryProps) {
-  const override = summaryOverrides?.find((override) => override.componentId === componentNode.item.id);
-
-  // summaryOverrides[0].
-
+export function ComponentSummary({ componentNode, isCompact }: ComponentSummaryProps) {
   const summaryNode = useTaskStore((state) => state.summaryNode);
+  const override = summaryNode?.item.overrides?.find((override) => override.componentId === componentNode.item.id);
 
   const isRequired = 'required' in componentNode.item && componentNode.item['required'] === true;
 
