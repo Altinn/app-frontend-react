@@ -120,9 +120,13 @@ export class CardsPlugin<Type extends CompTypes>
 
   pickDirectChildren(
     state: DefPluginState<Config<Type>>,
-    _restriction?: TraversalRestriction | undefined,
+    restriction?: TraversalRestriction | undefined,
   ): LayoutNode[] {
     const out: LayoutNode[] = [];
+    if (restriction !== undefined) {
+      return out;
+    }
+
     for (const card of Object.values(state.item?.cardsInternal || [])) {
       if (card.media) {
         out.push(card.media);

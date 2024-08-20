@@ -104,9 +104,13 @@ export class TabsPlugin<Type extends CompTypes>
 
   pickDirectChildren(
     state: DefPluginState<Config<Type>>,
-    _restriction?: TraversalRestriction | undefined,
+    restriction?: TraversalRestriction | undefined,
   ): LayoutNode[] {
     const out: LayoutNode[] = [];
+    if (restriction !== undefined) {
+      return out;
+    }
+
     for (const tab of state.item?.tabsInternal || []) {
       for (const child of tab.children) {
         child && out.push(child);

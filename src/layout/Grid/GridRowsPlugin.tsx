@@ -159,9 +159,13 @@ export class GridRowsPlugin<E extends ExternalConfig>
 
   pickDirectChildren(
     state: DefPluginState<ToInternal<E>>,
-    _restriction?: TraversalRestriction | undefined,
+    restriction?: TraversalRestriction | undefined,
   ): LayoutNode[] {
     const out: LayoutNode[] = [];
+    if (restriction !== undefined) {
+      return out;
+    }
+
     const rows = (state.item?.[this.settings.internalProp] || []) as GridRowsInternal;
     for (const row of rows) {
       for (const cell of row.cells) {

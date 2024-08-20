@@ -57,7 +57,12 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
 
   claimChildren(_props: DefPluginChildClaimerProps<Config>) {}
 
-  pickDirectChildren(state: DefPluginState<Config>, _restriction?: TraversalRestriction | undefined): LayoutNode[] {
+  pickDirectChildren(state: DefPluginState<Config>, restriction?: TraversalRestriction | undefined): LayoutNode[] {
+    if (restriction !== undefined) {
+      const node = state.item?.rows[restriction]?.itemNode;
+      return node ? [node] : [];
+    }
+
     return state.item?.rows.map((row) => row?.itemNode).filter(typedBoolean) ?? [];
   }
 
