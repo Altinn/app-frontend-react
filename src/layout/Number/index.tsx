@@ -14,11 +14,12 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Number extends NumberDef {
   getDisplayData(node: LayoutNode<'Number'>, { currentLanguage, nodeDataSelector }: DisplayDataProps): string {
-    const text = nodeDataSelector((picker) => picker(node)?.item?.value, [node]);
-    if (!text) {
+    const number = nodeDataSelector((picker) => picker(node)?.item?.value, [node]);
+    if (number === undefined || isNaN(number)) {
       return '';
     }
 
+    const text = number.toString();
     const formatting = nodeDataSelector((picker) => picker(node)?.item?.formatting, [node]);
     const numberFormatting = getMapToReactNumberConfig(formatting, text, currentLanguage);
 
@@ -39,7 +40,7 @@ export class Number extends NumberDef {
     return {
       ...this.evalDefaultExpressions(props),
       formatting: evalFormatting(props),
-      value: props.evalStr(props.item.value, ''),
+      value: props.evalNum(props.item.value, NaN),
     };
   }
 }

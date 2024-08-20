@@ -25,6 +25,10 @@ export const NumberComponent = ({ node }: PropsFromGenericComponent<'Number'>) =
     }
   }
 
+  if (isNaN(value)) {
+    return null;
+  }
+
   if (!textResourceBindings?.title) {
     return <span>{displayData}</span>;
   }
