@@ -74,7 +74,7 @@ const petsFromCustomButton: PetProps[] = [
 describe('Group (Pets)', () => {
   // TODO: Fix this test. It fails because the Dropdown component somehow doesn't work when selecting the correct
   // species option the second time.
-  it.skip('should be possible to add new pets manually', () => {
+  it('should be possible to add new pets manually', () => {
     cy.goto('group');
     cy.gotoNavPage('Kjæledyr');
 
@@ -160,5 +160,45 @@ describe('Group (Pets)', () => {
 
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.errorReport).should('not.exist');
+  });
+
+  it('innerGrid should be ignored when editing in table', () => {
+    cy.interceptLayout('group', (comp) => {
+      if (comp.id === 'pets' && comp.type === 'RepeatingGroup') {
+        comp.tableColumns = {
+          ...comp.tableColumns,
+          'pet-name': {
+            editInTable: true,
+            showInExpandedEdit: true,
+          },
+        };
+      }
+      if (comp.id === 'pet-species' && comp.type === 'Dropdown') {
+        comp.grid = {
+          ...comp.grid,
+          innerGrid: {
+            xs: 1,
+          },
+        };
+      }
+      if (comp.id === 'pet-name' && comp.type === 'Input') {
+        comp.grid = {
+          ...comp.grid,
+          innerGrid: {
+            xs: 1,
+          },
+        };
+      }
+    });
+
+    cy.goto('group');
+    cy.gotoNavPage('Kjæledyr');
+
+    cy.get(appFrontend.pets.decisionPanel.autoPetsButton).click();
+
+    cy.findAllByRole('combobox', { name: /art/i }).first().invoke('outerWidth').should('be.gt', 150);
+    cy.findAllByRole('textbox', { name: /navn/i }).first().invoke('outerWidth').should('be.gt', 200);
+
+    cy.snapshot('pets:edit-in-table');
   });
 });

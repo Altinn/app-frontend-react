@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { expect } from '@jest/globals';
 import { screen, within } from '@testing-library/react';
 import { v4 as uuidv4 } from 'uuid';
 import type { AxiosResponse } from 'axios';
@@ -170,7 +171,12 @@ export function ContainerTester(props: { id: string }) {
     throw new Error(`Could not resolve node with id ${props.id}, or unexpected node type`);
   }
 
-  return <LikertComponent node={node} />;
+  return (
+    <LikertComponent
+      node={node}
+      containerDivRef={{ current: null }}
+    />
+  );
 }
 
 export const validateTableLayout = async (
@@ -178,7 +184,7 @@ export const validateTableLayout = async (
   options: IRawOption[],
   validateRadioLayoutOptions: ValidateRadioLayoutOptions,
 ) => {
-  screen.getByRole('group');
+  screen.getByRole('table');
 
   for (const option of defaultMockOptions) {
     const allAlternatives = await screen.findAllByRole('radio', {

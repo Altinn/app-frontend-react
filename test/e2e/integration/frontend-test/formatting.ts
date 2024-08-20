@@ -1,6 +1,6 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
-import type { IInputFormattingInternal } from 'src/layout/Input/config.generated';
+import type { IFormattingInternal } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
 
@@ -15,11 +15,8 @@ export const changeToLang = (option: 'en' | 'nb') => {
 describe('Formatting', () => {
   it('Number formatting', () => {
     cy.goto('changename');
-    cy.get('#form-content-newFirstName').siblings().should('have.class', 'MuiGrid-grid-md-6');
-    cy.get('#form-content-newFirstName')
-      .siblings()
-      .parent()
-      .should('have.css', 'border-bottom', '1px dashed rgb(148, 148, 148)');
+    cy.get('#form-content-newFirstName').should('have.class', 'MuiGrid-grid-md-6');
+    cy.get('[data-componentid=newFirstName]').should('have.css', 'border-bottom', '1px dashed rgb(148, 148, 148)');
     cy.get(appFrontend.changeOfName.mobilenummer).type('44444444');
     cy.get(appFrontend.changeOfName.mobilenummer).should('have.value', '+47 444 44 444');
     cy.fillOut('changename');
@@ -46,7 +43,7 @@ describe('Formatting', () => {
     cy.get(appFrontend.group.currentValue).numberFormatClear();
     cy.get(appFrontend.group.currentValue).type('10000');
 
-    const alternatives: { format: IInputFormattingInternal; expected: any }[] = [
+    const alternatives: { format: IFormattingInternal; expected: any }[] = [
       {
         format: { currency: 'NOK', number: { prefix: 'SEK ' } },
         expected: { nb: 'SEK 10 000', en: 'SEK 10,000' },

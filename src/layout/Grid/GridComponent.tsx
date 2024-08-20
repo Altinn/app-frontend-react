@@ -6,11 +6,10 @@ import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { Caption } from 'src/components/form/Caption';
-import { Description } from 'src/components/form/Description';
 import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
-import { Label } from 'src/components/form/Label';
+import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useIsMobile';
@@ -269,23 +268,13 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent, isHe
       style={columnStyles}
     >
       {componentId && (
-        <>
-          <span className={css.textLabel}>
-            <Label
-              key={`label-${componentId}`}
-              label={<Lang id={title} />}
-              id={componentId}
-              required={required}
-              helpText={help && <Lang id={help} />}
-            />
-          </span>
-          {description && (
-            <Description
-              id={componentId}
-              description={<Lang id={description} />}
-            />
-          )}
-        </>
+        <LabelContent
+          id={`label-${componentId}`}
+          label={title}
+          required={required}
+          help={help}
+          description={description}
+        />
       )}
     </CellComponent>
   );

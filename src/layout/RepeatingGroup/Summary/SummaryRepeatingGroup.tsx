@@ -1,7 +1,5 @@
 import React from 'react';
 
-import cn from 'classnames';
-
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
@@ -13,6 +11,7 @@ import { LargeGroupSummaryContainer } from 'src/layout/RepeatingGroup/Summary/La
 import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { typedBoolean } from 'src/utils/typing';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { HRepGroupRow } from 'src/layout/RepeatingGroup/config.generated';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -100,15 +99,12 @@ export function SummaryRepeatingGroup({
         style={{ width: '100%' }}
       >
         <div className={classes.container}>
-          <span
-            className={cn(classes.label, groupHasErrors && !display?.hideValidationMessages && classes.labelWithError)}
-          >
+          <span className={classes.label}>
             <Lang
               id={summaryTitleTrb ?? titleTrb}
               node={targetNode}
             />
           </span>
-
           {!display?.hideChangeButton ? (
             <EditButton
               onClick={onChangeClick}
@@ -132,22 +128,11 @@ export function SummaryRepeatingGroup({
                   .children(undefined, { onlyInRowUuid: row.uuid })
                   .filter((n) => !inExcludedChildren(n))
                   .map((child) => {
-                    if (child.isHidden() || !child.isCategory(CompCategory.Form)) {
-                      return;
+                    if (!child.isHidden() && child.isCategory(CompCategory.Form)) {
+                      return { component: child.def.renderCompactSummary.bind(child.def), child };
                     }
-                    const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def);
-                    return (
-                      <RenderCompactSummary
-                        onChangeClick={onChangeClick}
-                        changeText={changeText}
-                        key={child.item.id}
-                        targetNode={child as any}
-                        summaryNode={summaryNode}
-                        overrides={{}}
-                        formDataSelector={formDataSelector}
-                      />
-                    );
-                  });
+                  })
+                  .filter(typedBoolean);
 
                 return (
                   <div
@@ -155,7 +140,17 @@ export function SummaryRepeatingGroup({
                     key={`row-${row.uuid}`}
                     className={classes.border}
                   >
-                    {childSummaryComponents}
+                    {childSummaryComponents.map(({ component: RenderCompactSummary, child }) => (
+                      <RenderCompactSummary
+                        onChangeClick={onChangeClick}
+                        changeText={changeText}
+                        key={child.item.id}
+                        targetNode={child as any} // FIXME: Any type
+                        summaryNode={summaryNode}
+                        overrides={{}}
+                        formDataSelector={formDataSelector}
+                      />
+                    ))}
                   </div>
                 );
               })

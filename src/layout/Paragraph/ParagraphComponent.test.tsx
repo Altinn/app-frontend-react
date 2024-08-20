@@ -44,8 +44,9 @@ describe('ParagraphComponent', () => {
     const id = 'mock-id';
     await render({ component: { id, textResourceBindings: { title: '### Hello world' } } });
 
-    // eslint-disable-next-line testing-library/no-node-access
-    expect(screen.getByTestId(`paragraph-component-${id}`).children[0].tagName).toEqual('H3');
+    const paragraphBlockContainer = screen.getByTestId(`paragraph-component-${id}`).firstElementChild;
+
+    expect(paragraphBlockContainer?.children[0].tagName).toEqual('H3');
   });
 
   it('should render as a single <p> when text content contains inline elements', async () => {
@@ -65,10 +66,11 @@ describe('ParagraphComponent', () => {
           },
         },
       });
-      // eslint-disable-next-line testing-library/no-node-access
-      expect(screen.getByTestId(`paragraph-component-${id}`).children).toHaveLength(1);
-      // eslint-disable-next-line testing-library/no-node-access
-      expect(screen.getByTestId(`paragraph-component-${id}`).children[0].tagName).toEqual('P');
+
+      const paragraphInlineContainer = screen.getByTestId(`paragraph-component-${id}`);
+
+      expect(paragraphInlineContainer.children).toHaveLength(1);
+      expect(paragraphInlineContainer.children[0].tagName).toEqual('P');
     }
   });
 
@@ -89,14 +91,13 @@ describe('ParagraphComponent', () => {
           },
         },
       });
-      // eslint-disable-next-line testing-library/no-node-access
-      expect(screen.getByTestId(`paragraph-component-${id}`).children).toHaveLength(3);
-      // eslint-disable-next-line testing-library/no-node-access
-      expect(screen.getByTestId(`paragraph-component-${id}`).children[0].tagName).toEqual('P');
-      // eslint-disable-next-line testing-library/no-node-access
-      expect(screen.getByTestId(`paragraph-component-${id}`).children[1].tagName).toEqual(tag.toUpperCase());
-      // eslint-disable-next-line testing-library/no-node-access
-      expect(screen.getByTestId(`paragraph-component-${id}`).children[2].tagName).toEqual('P');
+
+      const paragraphBlockContainer = screen.getByTestId(`paragraph-component-${id}`).firstElementChild;
+
+      expect(paragraphBlockContainer?.children).toHaveLength(3);
+      expect(paragraphBlockContainer?.children[0].tagName).toEqual('P');
+      expect(paragraphBlockContainer?.children[1].tagName).toEqual(tag.toUpperCase());
+      expect(paragraphBlockContainer?.children[2].tagName).toEqual('P');
     }
   });
 });

@@ -11,11 +11,13 @@ import classes from 'src/layout/Input/InputComponent.module.css';
 import { isNumericFormat, isPatternFormat } from 'src/layout/Input/number-format-helpers';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IInputFormattingInternal } from 'src/layout/Input/config.generated';
+import type { IFormattingInternal } from 'src/layout/common.generated';
 
 export type IInputProps = PropsFromGenericComponent<'Input'>;
 
 import type { TextfieldProps } from '@digdir/designsystemet-react/dist/types/components/form/Textfield/Textfield';
+
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 
 interface InputComponentProps extends Omit<TextfieldProps, 'prefix' | 'suffix'> {
   textOnly?: boolean;
@@ -37,7 +39,7 @@ const TextOnly: React.FunctionComponent<TextfieldProps> = ({ className, id, valu
     <Paragraph
       id={id}
       size='small'
-      className={`${classes['text-padding']} ${classes['focusable']}  ${className}`}
+      className={`${classes.textPadding} ${classes.focusable}  ${className}`}
       tabIndex={0}
     >
       {value}
@@ -87,15 +89,12 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
 
   const { langAsString } = useLanguage();
 
-  const reactNumberFormatConfig = useMapToReactNumberConfig(
-    formatting as IInputFormattingInternal | undefined,
-    formValue,
-  );
+  const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IFormattingInternal | undefined, formValue);
   const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;
   const prefixText = textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined;
   const suffixText = textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined;
-  const characterLimit = useCharacterLimit(maxLength);
 
+  const characterLimit = useCharacterLimit(maxLength);
   const commonProps = {
     'aria-label': ariaLabel,
     'aria-describedby': textResourceBindings?.description ? `description-${id}` : undefined,
@@ -113,75 +112,95 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     suffixText,
   };
 
-  if (variant === 'search') {
-    return (
-      <SearchField
-        id={id}
-        value={formValue}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue('simpleBinding', e.target.value)}
-        disabled={readOnly}
-        aria-label={ariaLabel}
-        aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
-        data-testid={`${id}-${variant}`}
-        onBlur={debounce}
-      />
-    );
-  }
+  const renderSpecificInputVariant = () => {
+    if (variant === 'search') {
+      return (
+        <SearchField
+          id={id}
+          value={formValue}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue('simpleBinding', e.target.value)}
+          disabled={readOnly}
+          aria-label={ariaLabel}
+          aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
+          data-testid={`${id}-${variant}`}
+          onBlur={debounce}
+        />
+      );
+    }
 
-  if (!reactNumberFormatConfig?.number) {
-    return (
-      <TextfieldWrapped
-        value={formValue}
-        onChange={(event) => {
-          setValue('simpleBinding', event.target.value);
-        }}
-        data-testid={`${id}-${variant}`}
-        {...commonProps}
-      />
-    );
-  }
+    if (!reactNumberFormatConfig?.number) {
+      return (
+        <TextfieldWrapped
+          value={formValue}
+          onChange={(event) => {
+            setValue('simpleBinding', event.target.value);
+          }}
+          data-testid={`${id}-${variant}`}
+          {...commonProps}
+        />
+      );
+    }
 
-  if (isPatternFormat(reactNumberFormatConfig.number)) {
-    return (
-      <PatternFormat
-        value={formValue}
-        onValueChange={(values) => {
-          setValue('simpleBinding', values.value);
-        }}
-        customInput={TextfieldWrapped as React.ComponentType}
-        data-testid={`${id}-formatted-number-${variant}`}
-        {...reactNumberFormatConfig.number}
-        {...commonProps}
-      />
-    );
-  }
+    if (isPatternFormat(reactNumberFormatConfig.number)) {
+      return (
+        <PatternFormat
+          value={formValue}
+          onValueChange={(values) => {
+            setValue('simpleBinding', values.value);
+          }}
+          customInput={TextfieldWrapped as React.ComponentType}
+          data-testid={`${id}-formatted-number-${variant}`}
+          {...reactNumberFormatConfig.number}
+          {...commonProps}
+        />
+      );
+    }
 
-  if (isNumericFormat(reactNumberFormatConfig.number)) {
-    return (
-      <NumericFormat
-        value={formValue}
-        onValueChange={(values) => {
-          setValue('simpleBinding', values.value);
-        }}
-        onPaste={(event) => {
-          /* This is a workaround for a react-number-format bug that
-           * removes the decimal on paste.
-           * We should be able to remove it when this issue gets fixed:
-           * https://github.com/s-yadav/react-number-format/issues/349
-           *  */
-          event.preventDefault();
-          const pastedText = event.clipboardData.getData('Text');
-          if (pastedText.indexOf(',') !== -1) {
-            setValue('simpleBinding', pastedText.replace(',', '.'));
-          } else {
-            setValue('simpleBinding', pastedText);
-          }
-        }}
-        customInput={TextfieldWrapped as React.ComponentType}
-        data-testid={`${id}-formatted-number-${variant}`}
-        {...reactNumberFormatConfig.number}
-        {...commonProps}
-      />
-    );
-  }
+    if (isNumericFormat(reactNumberFormatConfig.number)) {
+      return (
+        <NumericFormat
+          value={formValue}
+          onValueChange={(values) => {
+            setValue('simpleBinding', values.value);
+          }}
+          onPaste={(event) => {
+            /* This is a workaround for a react-number-format bug that
+             * removes the decimal on paste.
+             * We should be able to remove it when this issue gets fixed:
+             * https://github.com/s-yadav/react-number-format/issues/349
+             *  */
+            event.preventDefault();
+            const pastedText = event.clipboardData.getData('Text');
+            if (pastedText.indexOf(',') !== -1) {
+              setValue('simpleBinding', pastedText.replace(',', '.'));
+            } else {
+              setValue('simpleBinding', pastedText);
+            }
+          }}
+          customInput={TextfieldWrapped as React.ComponentType}
+          data-testid={`${id}-formatted-number-${variant}`}
+          {...reactNumberFormatConfig.number}
+          {...commonProps}
+        />
+      );
+    }
+
+    return <></>;
+  };
+
+  return (
+    <ComponentStructureWrapper
+      node={node}
+      label={{
+        ...node.item,
+        textResourceBindings: {
+          ...node.item.textResourceBindings,
+          title: overrideDisplay?.renderLabel !== false ? textResourceBindings?.title : undefined,
+        },
+        renderLabelAs: 'label',
+      }}
+    >
+      {renderSpecificInputVariant()}
+    </ComponentStructureWrapper>
+  );
 };

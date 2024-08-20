@@ -2,10 +2,10 @@ import React from 'react';
 
 import { Paragraph } from '@digdir/designsystemet-react';
 
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Paragraph/ParagraphComponent.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -21,24 +21,29 @@ export function ParagraphComponent({ node }: IParagraphProps) {
   const hasInlineContent = text && typeof text === 'object' && 'type' in text && text.type === 'span';
 
   return (
-    <div className={classes.paragraphWrapper}>
-      <div
-        id={id}
-        data-testid={`paragraph-component-${id}`}
-      >
-        <ConditionalWrapper
-          condition={!!hasInlineContent}
-          wrapper={(child) => <Paragraph>{child}</Paragraph>}
+    <ComponentStructureWrapper node={node}>
+      <div className={classes.paragraphWrapper}>
+        <div
+          id={id}
+          data-testid={`paragraph-component-${id}`}
         >
-          <Lang id={textResourceBindings?.title} />
-        </ConditionalWrapper>
+          <Paragraph asChild={!hasInlineContent}>
+            {!hasInlineContent ? (
+              <div>
+                <Lang id={textResourceBindings?.title} />
+              </div>
+            ) : (
+              <Lang id={textResourceBindings?.title} />
+            )}
+          </Paragraph>
+        </div>
+        {textResourceBindings?.help && (
+          <HelpTextContainer
+            helpText={<Lang id={textResourceBindings?.help} />}
+            title={elementAsString(text)}
+          />
+        )}
       </div>
-      {textResourceBindings?.help && (
-        <HelpTextContainer
-          helpText={<Lang id={textResourceBindings?.help} />}
-          title={elementAsString(text)}
-        />
-      )}
-    </div>
+    </ComponentStructureWrapper>
   );
 }

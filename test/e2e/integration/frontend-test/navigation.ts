@@ -1,18 +1,18 @@
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 
 describe('Navigation', () => {
   it('Should redirect to the current task and the first page of that task when navigating directly to the instance', () => {
     cy.goto('changename');
 
     cy.url().should('satisfy', (url) => url.endsWith('/Task_2/form'));
-    cy.findByLabelText(/Nytt fornavn/).should('exist');
+    cy.findByRole('textbox', { name: /nytt fornavn/i }).should('exist');
 
     cy.url().then((url) => {
       cy.visit(url.replace('/Task_2/form', ''));
     });
 
     cy.url().should('satisfy', (url) => url.endsWith('/Task_2/form'));
-    cy.findByLabelText(/Nytt fornavn/).should('exist');
+    cy.findByRole('textbox', { name: /nytt fornavn/i }).should('exist');
   });
 
   it('Should scroll to top whenever navigating to a new page', () => {
@@ -62,7 +62,7 @@ describe('Navigation', () => {
   it('should not focus main-content when loading the page in the browser and there is no instance selector', () => {
     cy.intercept('**/applicationmetadata', (req) => {
       req.on('response', (res) => {
-        const body = res.body as IApplicationMetadata;
+        const body = res.body as IncomingApplicationMetadata;
         body.onEntry = undefined;
         res.send(body);
       });
@@ -166,7 +166,9 @@ describe('Navigation', () => {
     cy.findByRole('link', { name: 'Klikk på meg' }).click();
 
     cy.url().should('satisfy', (url) => url.endsWith('/Task_3/repeating'));
-    cy.findByLabelText('Hvilket tall må "Endre fra" være større enn for å skjule rader?').should('be.focused');
+    cy.findByRole('textbox', { name: /hvilket tall må "endre fra" være større enn for å skjule rader\?/i }).should(
+      'be.focused',
+    );
   });
 
   it('should navigate back to previous page when using browser back after navigating to a component', () => {
@@ -189,7 +191,9 @@ describe('Navigation', () => {
     cy.findByRole('link', { name: 'Klikk på meg' }).click();
 
     cy.url().should('satisfy', (url) => url.endsWith('/Task_3/repeating'));
-    cy.findByLabelText('Hvilket tall må "Endre fra" være større enn for å skjule rader?').should('be.focused');
+    cy.findByRole('textbox', { name: /hvilket tall må "endre fra" være større enn for å skjule rader\?/i }).should(
+      'be.focused',
+    );
     cy.go('back');
     cy.url().should('satisfy', (url) => url.endsWith('/Task_3/prefill'));
   });

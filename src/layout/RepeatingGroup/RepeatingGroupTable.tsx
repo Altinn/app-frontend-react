@@ -129,7 +129,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
         />
         {showTableHeader && !mobileView && (
           <Table.Head id={`group-${id}-table-header`}>
-            <Table.Row className={classes.repeatingGroupRow}>
+            <Table.Row>
               {tableNodes?.map((n) => (
                 <Table.HeaderCell
                   key={n.item.id}
