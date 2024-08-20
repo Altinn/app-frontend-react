@@ -131,38 +131,37 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
           id={`altinn-fileuploader-${id}`}
           style={{ padding: '0px' }}
         >
-          <Label {...{ ...node.item, renderLabelAs: 'plainLabel' }}>
-            {shouldShowFileUpload && (
-              <>
-                <DropzoneComponent
-                  id={id}
-                  isMobile={mobileView}
-                  maxFileSizeInMB={maxFileSizeInMB}
-                  readOnly={!!readOnly}
-                  onClick={(e) => e.preventDefault()}
-                  onDrop={handleDrop}
-                  hasValidationMessages={hasValidationErrors(componentValidations)}
-                  hasCustomFileEndings={hasCustomFileEndings}
-                  validFileEndings={validFileEndings}
-                  textResourceBindings={textResourceBindings}
-                />
+          <Label {...{ ...node.item, renderLabelAs: 'plainLabel' }} />
+          {shouldShowFileUpload && (
+            <>
+              <DropzoneComponent
+                id={id}
+                isMobile={mobileView}
+                maxFileSizeInMB={maxFileSizeInMB}
+                readOnly={!!readOnly}
+                onClick={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+                hasValidationMessages={hasValidationErrors(componentValidations)}
+                hasCustomFileEndings={hasCustomFileEndings}
+                validFileEndings={validFileEndings}
+                textResourceBindings={textResourceBindings}
+              />
 
-                <AttachmentsCounter />
-                <ComponentValidations
-                  validations={componentValidations}
-                  node={node}
-                />
-                {attachments && attachments.length > 0 && <div className={classes.betweenTableAndDropMargin}></div>}
-              </>
-            )}
+              <AttachmentsCounter />
+              <ComponentValidations
+                validations={componentValidations}
+                node={node}
+              />
+              {attachments && attachments.length > 0 && <div className={classes.betweenTableAndDropMargin}></div>}
+            </>
+          )}
 
-            <FileTable
-              node={node}
-              mobileView={mobileView}
-              attachments={attachments}
-              options={options}
-            />
-          </Label>
+          <FileTable
+            node={node}
+            mobileView={mobileView}
+            attachments={attachments}
+            options={options}
+          />
 
           {!shouldShowFileUpload && (
             <>
