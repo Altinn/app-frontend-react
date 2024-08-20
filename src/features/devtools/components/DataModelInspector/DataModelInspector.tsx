@@ -234,6 +234,83 @@ function DataField({ property, value, path, id }: DataFieldProps) {
   return null;
 }
 
+type SliceTuple = [{ p: number; c: number }, { p: number; c: number }];
+function simpleDiff(current: string, previous: string): diff.Diff[] {
+  const length = current.length + previous.length;
+  let longestSubstring: SliceTuple | null = null;
+
+  for (let i = 0; i < length; i++) {
+    // Find start index
+    const ps = Math.max(i - current.length, 0);
+    const cs = Math.max(current.length - i, 0);
+
+    // Find overlap length
+    const le = Math.min(Math.min(i, current.length), Math.min(length - i, previous.length));
+
+    // Slice two equal length strings
+    const prev = previous.slice(ps, ps + le);
+    const curr = current.slice(cs, cs + le);
+
+    const substrings: SliceTuple[] = [];
+    let eq = false;
+    let range: SliceTuple | null = null;
+    for (let j = 0; j < prev.length; j++) {
+      if (prev[j] === curr[j]) {
+        if (!eq) {
+          eq = true;
+          range = [
+            { p: j + ps, c: j + cs },
+            { p: j + ps + 1, c: j + cs + 1 },
+          ];
+          continue;
+        }
+        range![1] = { p: j + ps + 1, c: j + cs + 1 };
+      } else {
+        eq = false;
+        if (range) {
+          substrings.push(range);
+        }
+        range = null;
+      }
+    }
+    if (range) {
+      substrings.push(range);
+    }
+
+    for (const substring of substrings) {
+      if (!longestSubstring || substring[1].p - substring[0].p > longestSubstring[1].p - longestSubstring[0].p) {
+        longestSubstring = substring;
+      }
+    }
+  }
+
+  if (!longestSubstring) {
+    return [
+      [diff.DELETE, previous],
+      [diff.INSERT, current],
+    ];
+  } else {
+    const d: diff.Diff[] = [];
+    if (longestSubstring[0].p > 0) {
+      d.push([diff.DELETE, previous.slice(0, longestSubstring[0].p)]);
+    }
+    if (longestSubstring[0].c > 0) {
+      d.push([diff.INSERT, current.slice(0, longestSubstring[0].c)]);
+    }
+
+    d.push([diff.EQUAL, previous.slice(longestSubstring[0].p, longestSubstring[1].p)]);
+
+    if (previous.length > longestSubstring[1].p) {
+      d.push([diff.DELETE, previous.slice(longestSubstring[1].p, previous.length)]);
+    }
+    if (current.length > longestSubstring[1].c) {
+      d.push([diff.INSERT, current.slice(longestSubstring[1].c, current.length)]);
+    }
+
+    return d;
+  }
+}
+
 type LeafObjectProps = {
   property: string;
   value: LeafValueTriplet;
@@ -290,7 +367,7 @@ function LeafObject({ property, value, path, id }: LeafObjectProps) {
               [classes.showAsString]: typeof value.current === 'string' || typeof value.debounced === 'string',
             })}
           >
-            {diff(debouncedStringy, currentStringy).map(([edit, text]) => (
+            {simpleDiff(currentStringy, debouncedStringy).map(([edit, text]) => (
               <span
                 key={`${edit}-${text}`}
                 style={{
