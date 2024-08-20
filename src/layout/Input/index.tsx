@@ -5,14 +5,13 @@ import { formatNumericText } from '@digdir/design-system-react';
 
 import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { InputDef } from 'src/layout/Input/config.def.generated';
+import { evalFormatting } from 'src/layout/Input/formatting';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { InputSummary } from 'src/layout/Input/InputSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IInputFormatting, PatternFormatProps } from 'src/layout/Input/config.generated';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -66,42 +65,7 @@ export class Input extends InputDef {
   evalExpressions(props: ExprResolver<'Input'>) {
     return {
       ...this.evalDefaultExpressions(props),
-      formatting: this.evalFormatting(props),
+      formatting: evalFormatting(props),
     };
-  }
-
-  evalFormatting(props: ExprResolver<'Input'>) {
-    if (!props.item.formatting) {
-      return undefined;
-    }
-
-    const { evalStr, evalAny } = props;
-    const out = { ...props.item.formatting } as ExprResolved<IInputFormatting>;
-    if (out.number && 'format' in out.number) {
-      out.number = {
-        ...(out.number as PatternFormatProps),
-        format: evalStr(out.number.format, ''),
-      };
-    } else if (out.number) {
-      (out as any).number = { ...out.number };
-
-      if (out.number!.thousandSeparator) {
-        out.number.thousandSeparator = evalAny(out.number.thousandSeparator as ExprVal.Any, false) as
-          | string
-          | boolean
-          | undefined;
-      }
-      if (out.number.decimalSeparator) {
-        out.number.decimalSeparator = evalStr(out.number.decimalSeparator, '.');
-      }
-      if (out.number.suffix) {
-        out.number.suffix = evalStr(out.number.suffix, '');
-      }
-      if (out.number.prefix) {
-        out.number.prefix = evalStr(out.number.prefix, '');
-      }
-    }
-
-    return out;
   }
 }

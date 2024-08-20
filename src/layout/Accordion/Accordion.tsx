@@ -15,7 +15,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 type IAccordionProps = PropsFromGenericComponent<'Accordion'>;
 
 export const Accordion = ({ node }: IAccordionProps) => {
-  const { textResourceBindings, headingLevel, childComponents } = useNodeItem(node);
+  const { textResourceBindings, headingLevel, childComponents, openByDefault } = useNodeItem(node);
   const { langAsString } = useLanguage();
   const renderAsAccordionItem = useIsInAccordionGroup();
 
@@ -26,6 +26,7 @@ export const Accordion = ({ node }: IAccordionProps) => {
       title={title}
       className={className}
       headingLevel={headingLevel}
+      open={openByDefault}
     >
       <Grid
         item={true}

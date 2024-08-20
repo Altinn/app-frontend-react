@@ -1,7 +1,7 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { changeToLang } from 'test/e2e/support/lang';
 
-import type { IInputFormatting } from 'src/layout/Input/config.generated';
+import type { IFormatting } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
 
@@ -36,7 +36,7 @@ describe('Formatting', () => {
     cy.get(appFrontend.group.currentValue).numberFormatClear();
     cy.get(appFrontend.group.currentValue).type('10000');
 
-    const alternatives: { format: IInputFormatting; expected: any }[] = [
+    const alternatives: { format: IFormatting; expected: any }[] = [
       {
         format: { currency: 'NOK', number: { prefix: 'SEK ' } },
         expected: { nb: 'SEK 10 000', en: 'SEK 10,000' },
