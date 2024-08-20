@@ -1,3 +1,4 @@
+import dot from 'dot-object';
 import type { Mutable } from 'utility-types';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -284,6 +285,37 @@ export const ExprFunctions = {
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.Any,
+  }),
+  externalApi: defineFunc({
+    impl(externalApiId, path): string {
+      if (typeof externalApiId !== 'string' || typeof path !== 'string') {
+        throw new ExprRuntimeError(this.expr, this.path, `Expected string arguments`);
+      }
+
+      const externalApiData = this.dataSources.externalApis[externalApiId]?.data;
+
+      const res =
+        path && externalApiData && typeof externalApiData === 'object'
+          ? dot.pick(path, externalApiData)
+          : externalApiData;
+
+      if (!res) {
+        return ''; // Print error?
+      }
+
+      if (typeof res === 'object') {
+        return JSON.stringify(res);
+      }
+
+      return String(res);
+    },
+    args: [ExprVal.String, ExprVal.String] as const,
+    validator: ({ rawArgs, ctx, path }) => {
+      if (rawArgs.length !== 2) {
+        addError(ctx, path, 'Expected exactly 2 arguments, got %s', `${rawArgs.length}`);
+      }
+    },
+    returns: ExprVal.String,
   }),
   displayValue: defineFunc({
     impl(id): any {

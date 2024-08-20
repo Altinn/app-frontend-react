@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
 
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useAttachmentsSelector } from 'src/features/attachments/hooks';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
+import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
@@ -17,6 +19,7 @@ import { useNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
 import type { AttachmentsSelector } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { DevToolsHiddenComponents } from 'src/features/devtools/data/types';
+import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
 import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
@@ -47,6 +50,7 @@ export interface ExpressionDataSources {
   transposeSelector: DataModelTransposeSelector;
   devToolsIsOpen: boolean;
   devToolsHiddenComponents: DevToolsHiddenComponents;
+  externalApis: ExternalApisResult;
 }
 
 export function useExpressionDataSources(): ExpressionDataSources {
@@ -69,6 +73,9 @@ export function useExpressionDataSources(): ExpressionDataSources {
   const nodeTraversal = useNodeTraversalSelectorLax();
   const transposeSelector = useDataModelBindingTranspose();
 
+  const externalApiIds = useApplicationMetadata().externalApiIds ?? [];
+  const externalApis = useExternalApis(externalApiIds);
+
   return useMemo(
     () => ({
       formDataSelector,
@@ -89,14 +96,15 @@ export function useExpressionDataSources(): ExpressionDataSources {
       nodeDataSelector,
       nodeTraversal,
       transposeSelector,
+      externalApis,
     }),
     [
       formDataSelector,
       formDataRowsSelector,
       attachmentsSelector,
       layoutSettings,
-      optionsSelector,
       process,
+      optionsSelector,
       applicationSettings,
       instanceDataSources,
       authContext,
@@ -109,6 +117,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
       nodeDataSelector,
       nodeTraversal,
       transposeSelector,
+      externalApis,
     ],
   );
 }
