@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { Summary2StoreProvider } from 'src/core/contexts/summaryStoreContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { ResolveComponent } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { LayoutSetSummary } from 'src/layout/Summary2/SummaryComponent2/LayoutSetSummary';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
 import { TaskSummary, TaskSummaryWrapper } from 'src/layout/Summary2/SummaryComponent2/TaskSummary';
+import { Summary2StoreProvider } from 'src/layout/Summary2/summaryStoreContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface ISummaryComponent2 {

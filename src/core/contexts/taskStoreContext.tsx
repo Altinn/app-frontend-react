@@ -2,48 +2,45 @@ import React, { createContext, useContext } from 'react';
 
 import { create } from 'zustand';
 
-export interface TaskState {
+interface TaskState {
   overriddenTaskId?: string;
   overriddenDataModelType?: string;
   overriddenDataModelUuid?: string;
   overriddenLayoutSetId?: string;
+  depth?: number;
   setOverriddenLayoutSetId?: (layoutSetId: string) => void;
-  setOverriddenDataModelType?: (dataModelId: string) => void;
+  setOverriddenDataModelType?: (dataModelType: string) => void;
   setOverriddenDataModelUuid?: (dataModelUuid: string) => void;
   setTaskId?: (taskId: string) => void;
   setDepth?: (depth: number) => void;
   clearTaskId?: () => void;
-  depth?: number;
 }
 
-export const createTaskStore = <T extends TaskState>(initialState?: Partial<T>) =>
-  create<T>((set) => ({
-    overriddenTaskId: '',
-    overriddenDataModelType: '',
-    overriddenDataModelUuid: '',
-    overriddenLayoutSetId: '',
+export const createTaskStore = () =>
+  create<TaskState>((set) => ({
+    overriddenTaskId: undefined,
+    overriddenDataModelType: undefined,
+    overriddenDataModelUuid: undefined,
+    overriddenLayoutSetId: undefined,
     depth: 1,
-    ...(initialState as T),
-    setTaskId: (overriddenTaskId: string) => set((state) => ({ ...state, overriddenTaskId })),
-    setOverriddenLayoutSetId: (overriddenLayoutSetId: string) => set((state) => ({ ...state, overriddenLayoutSetId })),
-    setOverriddenDataModelType: (overriddenDataModelType: string) =>
-      set((state) => ({ ...state, overriddenDataModelType })),
-    setOverriddenDataModelUuid: (overriddenDataModelUuid: string) =>
-      set((state) => ({ ...state, overriddenDataModelUuid })),
-    clearTaskId: () => set((state) => ({ ...state, overriddenTaskId: '' })),
-    setDepth: (depth: number) => set((state) => ({ ...state, depth })),
+    setTaskId: (overriddenTaskId: string) => set({ overriddenTaskId }),
+    setOverriddenLayoutSetId: (overriddenLayoutSetId: string) => set({ overriddenLayoutSetId }),
+    setOverriddenDataModelType: (overriddenDataModelType: string) => set({ overriddenDataModelType }),
+    setOverriddenDataModelUuid: (overriddenDataModelUuid: string) => set({ overriddenDataModelUuid }),
+    clearTaskId: () => set({ overriddenTaskId: '' }),
+    setDepth: (depth: number) => set({ depth }),
   }));
 
-const TaskStoreContext = createContext<ReturnType<typeof createTaskStore<TaskState>> | null>(null);
+const StoreContext = createContext<ReturnType<typeof createTaskStore> | null>(null);
 
 export function TaskStoreProvider({ children }: React.PropsWithChildren) {
-  const store = createTaskStore<TaskState>();
+  const store = createTaskStore();
 
-  return <TaskStoreContext.Provider value={store}>{children}</TaskStoreContext.Provider>;
+  return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
 
 export const useTaskStore = <T,>(selector: (state: TaskState) => T): T => {
-  const store = useContext(TaskStoreContext);
+  const store = useContext(StoreContext);
   if (!store) {
     return {} as T;
   }

@@ -16,16 +16,16 @@ const createSummary2Store = (summaryNode: LayoutNode<'Summary2'>) =>
     setSummaryNode: (summaryNode: LayoutNode<'Summary2'>) => set((state) => ({ ...state, summaryNode })),
   }));
 
-const Summary2StoreContext = createContext<ReturnType<typeof createSummary2Store> | null>(null);
+const StoreContext = createContext<ReturnType<typeof createSummary2Store> | null>(null);
 
 export function Summary2StoreProvider({ children, summaryNode }: Summary2StoreProviderProps) {
   const store = createSummary2Store(summaryNode);
 
-  return <Summary2StoreContext.Provider value={store}>{children}</Summary2StoreContext.Provider>;
+  return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
 
 export const useSummary2Store = <T,>(selector: (state: SummaryTaskState) => T): T => {
-  const store = useContext(Summary2StoreContext);
+  const store = useContext(StoreContext);
   if (!store) {
     return {} as T;
   }

@@ -3,9 +3,9 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useSummary2Store } from 'src/core/contexts/summaryStoreContext';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
+import { useSummary2Store } from 'src/layout/Summary2/summaryStoreContext';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useNode } from 'src/utils/layout/NodesContext';
 import type { CompSummary2External, CompSummary2Internal } from 'src/layout/Summary2/config.generated';
