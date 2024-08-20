@@ -70,18 +70,6 @@ export class ComponentConfig {
       this.behaviors.isSummarizable = true;
       this.addPlugin(new ValidationPlugin());
     }
-
-    // TODO: After merge from main, verify that this behaviour is preserved in some way
-    // if (
-    //   config.rendersWithLabel === LabelRendering.FromGenericComponent ||
-    //   config.rendersWithLabel === LabelRendering.InSelf
-    // ) {
-    //   this.inner.extends(CG.common('LabeledComponentProps'));
-    //   this.extendTextResources(CG.common('TRBLabel'));
-    //   this.behaviors.canHaveLabel = true;
-    // } else if (config.rendersWithLabel === LabelRendering.OnlySettings) {
-    //   this.inner.extends(CG.common('LabeledComponentProps'));
-    // }
   }
 
   public setType(type: string, symbol?: string): this {

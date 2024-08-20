@@ -2,11 +2,9 @@ import React from 'react';
 
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
-import type { CompInternal } from 'src/layout/layout';
 
 interface LayoutSetSummaryProps {
   layoutSetId?: string;
-  summaryOverrides?: CompInternal<'Summary2'>['overrides']; // TODO: Remove this after merge from main? It was removed there
 }
 
 export function LayoutSetSummary({ layoutSetId }: LayoutSetSummaryProps) {
