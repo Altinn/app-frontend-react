@@ -7,15 +7,19 @@ import type { CompInternal } from 'src/layout/layout';
 import type { MultipleSelectSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
+interface MultipleSelectSummaryProps {
+  componentNode: LayoutNode<'MultipleSelect'>;
+  summaryOverrides?: CompInternal<'Summary2'>['overrides'];
+  displayData: string;
+  emptyFieldText?: string;
+}
+
 export function MultipleSelectSummary({
   componentNode,
   summaryOverrides,
   displayData,
-}: {
-  componentNode: LayoutNode<'MultipleSelect'>;
-  summaryOverrides?: CompInternal<'Summary2'>['overrides'];
-  displayData: string;
-}) {
+  emptyFieldText,
+}: MultipleSelectSummaryProps) {
   const maxStringLength = 75;
   const overrides = summaryOverrides?.find((override) => override.componentId === componentNode.baseId) as
     | MultipleSelectSummaryOverrideProps
@@ -24,11 +28,14 @@ export function MultipleSelectSummary({
     overrides?.displayType === 'list' || (!overrides?.displayType && displayData?.length >= maxStringLength);
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
 
+  console.log('emptyFieldText', emptyFieldText);
+
   return (
     <MultipleValueSummary
       title={<Lang id={title} />}
       componentNode={componentNode}
       showAsList={showAsList}
+      emptyFieldText={emptyFieldText}
     />
   );
 }
