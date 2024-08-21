@@ -6,6 +6,7 @@ import { DROPDOWN_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Dropdown/config';
 import { INPUT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Input/config';
 import { MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/MultipleSelect/config';
 import { RADIO_SUMMARY_OVERRIDE_PROPS } from 'src/layout/RadioButtons/config';
+import { TEXTAREA_SUMMARY_PROPS } from 'src/layout/TextArea/config';
 
 export const SUMMARY_OVERRIDE_PROPS = new CG.arr(
   new CG.union(
@@ -71,6 +72,7 @@ export const Config = new CG.component({
           DROPDOWN_SUMMARY_OVERRIDE_PROPS,
           MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS,
           ADDRESS_SUMMARY_PROPS,
+          TEXTAREA_SUMMARY_PROPS,
         ),
       ).optional(),
     ),

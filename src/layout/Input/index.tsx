@@ -51,6 +51,7 @@ export class Input extends InputDef {
     overrides?: InputSummaryOverrideProps,
     isCompact?: boolean,
   ): JSX.Element | null {
+    console.log('overrides?.emptyFieldText', overrides?.emptyFieldText);
     return (
       <InputSummary
         componentNode={componentNode}

@@ -9,7 +9,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CompTextAreaInternal } from 'src/layout/TextArea/config.generated';
+import type { TextareaOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class TextArea extends TextAreaDef {
@@ -32,10 +32,7 @@ export class TextArea extends TextAreaDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(
-    componentNode: LayoutNode<'TextArea'>,
-    summaryOverrides?: CompTextAreaInternal['summaryProps'],
-  ): JSX.Element | null {
+  renderSummary2(componentNode: LayoutNode<'TextArea'>, summaryOverrides?: TextareaOverrideProps): JSX.Element | null {
     return (
       <TextAreaSummary
         componentNode={componentNode}

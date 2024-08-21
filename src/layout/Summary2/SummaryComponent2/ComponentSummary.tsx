@@ -24,7 +24,6 @@ interface ResolveComponentProps {
 export function ComponentSummary({ componentNode, isCompact }: ComponentSummaryProps) {
   const summaryNode = useTaskStore((state) => state.summaryNode);
   const override = summaryNode?.item.overrides?.find((override) => override.componentId === componentNode.item.id);
-
   const isRequired = 'required' in componentNode.item && componentNode.item['required'] === true;
 
   const { formData } = useDataModelBindings(componentNode.item.dataModelBindings);

@@ -4,13 +4,13 @@ import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import type { CompTextAreaInternal } from 'src/layout/TextArea/config.generated';
+import type { TextareaOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type TextAreaComponentSummaryProps = {
   componentNode: LayoutNode<'TextArea'>;
   displayData: string;
-  summaryOverrides?: CompTextAreaInternal['summaryProps'];
+  summaryOverrides?: TextareaOverrideProps;
   emptyFieldText?: string;
 };
 
