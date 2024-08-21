@@ -30,6 +30,7 @@ export function SubFormSummaryComponent2({ targetNode }: ISubFormSummaryComponen
   return (
     <>
       <Label
+        node={targetNode}
         id={`subform-summary2-${id}`}
         renderLabelAs='span'
         weight='regular'

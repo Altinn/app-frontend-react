@@ -2,18 +2,18 @@ import React from 'react';
 
 import { Paragraph } from '@digdir/designsystemet-react';
 
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Paragraph/ParagraphComponent.module.css';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IParagraphProps = PropsFromGenericComponent<'Paragraph'>;
 
 export function ParagraphComponent({ node }: IParagraphProps) {
-  const { id, textResourceBindings } = node.item;
+  const { id, textResourceBindings } = useNodeItem(node);
   const { lang, elementAsString } = useLanguage();
   const text = lang(textResourceBindings?.title);
 
@@ -28,12 +28,15 @@ export function ParagraphComponent({ node }: IParagraphProps) {
           id={id}
           data-testid={`paragraph-component-${id}`}
         >
-          <ConditionalWrapper
-            condition={!!hasInlineContent}
-            wrapper={(child) => <Paragraph>{child}</Paragraph>}
-          >
-            <Lang id={textResourceBindings?.title} />
-          </ConditionalWrapper>
+          <Paragraph asChild={!hasInlineContent}>
+            {!hasInlineContent ? (
+              <div>
+                <Lang id={textResourceBindings?.title} />
+              </div>
+            ) : (
+              <Lang id={textResourceBindings?.title} />
+            )}
+          </Paragraph>
         </div>
         {textResourceBindings?.help && (
           <HelpTextContainer
