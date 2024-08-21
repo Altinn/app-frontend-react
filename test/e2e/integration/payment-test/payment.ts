@@ -77,4 +77,17 @@ describe('Payment', () => {
       });
     });
   });
+
+  describe('PaymentInformation component', () => {
+    it('should display the payment information', () => {
+      // hiding the payment details component on the page where the orderlines are created in order to test the
+      // payment information component fetching order details on first render
+      cy.interceptLayout('05GoodsAndServices', (component) => {
+        if (component.id === 'paymentDetails' && component.type === 'PaymentDetails') {
+          component.hidden = true;
+        }
+      });
+      cy.findByRole('row', { name: /1 - test 1 1000 NOK/ }).should('exist');
+    });
+  });
 });
