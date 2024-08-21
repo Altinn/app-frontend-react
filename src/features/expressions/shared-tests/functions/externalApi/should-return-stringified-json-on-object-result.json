@@ -1,0 +1,6 @@
+{
+  "name": "Should return stringified JSON on object result",
+  "expression": ["externalApi", "testId", "results[0]"],
+  "expects": "{\"id\":\"1\"}",
+  "externalApis": { "testId": { "data": { "results": [{ "id": "1" }] } } }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Should return empty string on undefined result",
+  "expression": ["externalApi", "testId", "non.existent.path"],
+  "expects": "",
+  "externalApis": { "testId": { "data": { "results": [{ "id": 1 }] } } }
+}
