@@ -105,8 +105,8 @@ function Root() {
                   </ApplicationSettingsProvider>
                 </OrgsProvider>
               </TextResourcesProvider>
-              <PartyPrefetcher />
             </ProfileProvider>
+            <PartyPrefetcher />
           </LayoutSetsProvider>
         </GlobalFormDataReadersProvider>
       </ApplicationMetadataProvider>

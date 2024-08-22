@@ -12,8 +12,8 @@ import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { reduceToValidParties } from 'src/features/party/partyProviderUtils';
-import { useProfile, useShouldFetchParties, useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
-import { type IParty, PartyType } from 'src/types/shared';
+import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
+import { type IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
@@ -159,9 +159,8 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
 
 export function PartyProvider({ children }: PropsWithChildren) {
   const shouldFetchProfile = useShouldFetchProfile();
-  const shouldFetchParties = useShouldFetchParties();
 
-  if (!shouldFetchProfile || !shouldFetchParties) {
+  if (!shouldFetchProfile) {
     return <>{children}</>;
   }
 
@@ -179,23 +178,7 @@ export const useParties = () => usePartiesCtx();
  * Please note that the current party might not be allowed to instantiate, so you should
  * check the `canInstantiate` property as well.
  */
-export const useCurrentParty = () => {
-  const user = useProfile();
-  const fetchedParty = useCurrentPartyCtx().party;
-
-  if (fetchedParty) {
-    return fetchedParty;
-  }
-
-  if (user?.party?.partyTypeName === PartyType.SelfIdentified) {
-    // In some cases (like self-identified users), we cannot fetch the party in CurrentPartyProvider, but we can still
-    // find the current party via the profile/user.
-    return user.party;
-  }
-
-  return undefined;
-};
-
+export const useCurrentParty = () => useCurrentPartyCtx().party;
 export const useCurrentPartyIsValid = () => useCurrentPartyCtx().currentIsValid;
 export const useSetCurrentParty = () => useCurrentPartyCtx().setParty;
 

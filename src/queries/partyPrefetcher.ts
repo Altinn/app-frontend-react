@@ -1,17 +1,15 @@
 import { usePrefetchQuery } from 'src/core/queries/usePrefetchQuery';
 import { useCurrentPartyQueryDef, usePartiesQueryDef } from 'src/features/party/PartiesProvider';
-import { useShouldFetchParties, useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
+import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
 
 /**
  * Prefetches parties and current party if applicable
  */
 export function PartyPrefetcher() {
-  const shouldFetchProfile = useShouldFetchProfile();
-  const shouldFetchParties = useShouldFetchParties();
-  const enabled = shouldFetchProfile && shouldFetchParties;
+  const enabled = useShouldFetchProfile();
 
-  usePrefetchQuery(usePartiesQueryDef(enabled), enabled);
-  usePrefetchQuery(useCurrentPartyQueryDef(enabled), enabled);
+  usePrefetchQuery(usePartiesQueryDef(true), enabled);
+  usePrefetchQuery(useCurrentPartyQueryDef(true), enabled);
 
   return null;
 }

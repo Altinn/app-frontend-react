@@ -7,6 +7,7 @@ import { useLayoutSetsQueryDef } from 'src/features/form/layoutSets/LayoutSetsPr
 import { useInstanceDataQueryDef } from 'src/features/instance/InstanceContext';
 import { useProcessQueryDef } from 'src/features/instance/ProcessContext';
 import { useOrgsQueryDef } from 'src/features/orgs/OrgsProvider';
+import { useCurrentPartyQueryDef, usePartiesQueryDef } from 'src/features/party/PartiesProvider';
 import { useProfileQueryDef } from 'src/features/profile/ProfileProvider';
 
 /**
@@ -24,6 +25,8 @@ export function AppPrefetcher() {
   usePrefetchQuery(useProfileQueryDef(true), Boolean(partyId));
   usePrefetchQuery(useOrgsQueryDef());
   usePrefetchQuery(useApplicationSettingsQueryDef());
+  usePrefetchQuery(usePartiesQueryDef(true), Boolean(partyId));
+  usePrefetchQuery(useCurrentPartyQueryDef(true), Boolean(partyId));
 
   usePrefetchQuery(useInstanceDataQueryDef(partyId, instanceGuid));
   usePrefetchQuery(useProcessQueryDef(instanceId));

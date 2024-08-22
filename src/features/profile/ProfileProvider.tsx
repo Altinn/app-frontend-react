@@ -7,7 +7,6 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useSetCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
-import { PartyType } from 'src/types/shared';
 import type { IProfile } from 'src/types/shared';
 
 // Also used for prefetching @see appPrefetcher.ts
@@ -54,14 +53,3 @@ const { Provider, useCtx } = delayedContext(() =>
 export const ProfileProvider = Provider;
 export const useProfile = () => useCtx();
 export const useShouldFetchProfile = () => useAllowAnonymousIs(false);
-
-export const useIsSelfIdentified = () => {
-  const party = useCtx()?.party;
-  return Boolean(party && party.partyTypeName === PartyType.SelfIdentified);
-};
-
-export const useShouldFetchParties = () => {
-  const hasParty = Boolean(useCtx()?.party);
-  const isSelfIdentified = useIsSelfIdentified();
-  return hasParty && !isSelfIdentified;
-};
