@@ -80,6 +80,11 @@ type FormDataState = {
   // only when the user navigates to another page.
   autoSaving: boolean;
 
+  // This may contain a callback function that will be called whenever the save finishes.
+  // Should only be set from NodesContext.
+  onSaveFinished: (() => void) | undefined;
+  setOnSaveFinished: (callback: () => void) => void;
+
   // This is used to track which component is currently blocking the auto-saving feature. If this is set to a string
   // value, auto-saving will be disabled, even if the autoSaving flag is set to true. This is useful when you want
   // to temporarily disable auto-saving, for example when clicking a CustomButton and waiting for the server to
@@ -264,8 +269,14 @@ function makeActions(
   function setValue(props: { reference: IDataModelReference; newValue: FDLeafValue; state: FormDataContext }) {
     const { reference, newValue, state } = props;
     if (newValue === '' || newValue === null || newValue === undefined) {
-      dot.delete(reference.field, state.dataModels[reference.dataType].currentData);
-      dot.delete(reference.field, state.dataModels[reference.dataType].invalidCurrentData);
+      const prevValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
+
+      // We conflate null and undefined, so no need to set to null or undefined if the value is
+      // already null or undefined
+      if (prevValue !== null && prevValue !== undefined) {
+        dot.delete(reference.field, state.dataModels[reference.dataType].currentData);
+        dot.delete(reference.field, state.dataModels[reference.dataType].invalidCurrentData);
+      }
     } else {
       const schema = schemaLookup[reference.dataType].getSchemaForPath(reference.field)[0];
       const { newValue: convertedValue, error } = convertData(newValue, schema);
@@ -486,6 +497,11 @@ export const createFormDataWriteStore = (
         dataModels: initialDataModels,
         autoSaving,
         lockedBy: undefined,
+        onSaveFinished: undefined,
+        setOnSaveFinished: (callback) =>
+          set((state) => {
+            state.onSaveFinished = callback;
+          }),
         ...actions,
       };
     }),

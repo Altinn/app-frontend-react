@@ -13,6 +13,7 @@ import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { Filter } from 'src/features/dataLists/useDataListQuery';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsForListInternal } from 'src/layout/List/config.generated';
@@ -23,6 +24,7 @@ const defaultDataList: any[] = [];
 const defaultBindings: IDataModelBindingsForListInternal = {};
 
 export const ListComponent = ({ node }: IListProps) => {
+  const item = useNodeItem(node);
   const {
     tableHeaders,
     pagination,
@@ -32,7 +34,7 @@ export const ListComponent = ({ node }: IListProps) => {
     queryParameters,
     secure,
     dataListId,
-  } = node.item;
+  } = item;
   const { langAsString, language, lang } = useLanguage();
   const [pageSize, setPageSize] = useState<number>(pagination?.default || 0);
   const [pageNumber, setPageNumber] = useState<number>(0);
@@ -51,7 +53,7 @@ export const ListComponent = ({ node }: IListProps) => {
   const { data } = useDataListQuery(filter, dataListId, secure, mapping, queryParameters);
   const calculatedDataList = (data && data.listItems) || defaultDataList;
 
-  const bindings = node.item.dataModelBindings || defaultBindings;
+  const bindings = item.dataModelBindings || defaultBindings;
   const { formData, setValues } = useDataModelBindings(bindings);
 
   const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
@@ -87,7 +89,7 @@ export const ListComponent = ({ node }: IListProps) => {
   const renderPagination = () =>
     pagination && (
       <Pagination
-        numberOfRows={data?._metaData.totaltItemsCount}
+        numberOfRows={data?._metaData.totaltItemsCount ?? 0}
         rowsPerPageOptions={pagination?.alternatives ? pagination?.alternatives : []}
         rowsPerPage={pageSize}
         onRowsPerPageChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -129,7 +131,7 @@ export const ListComponent = ({ node }: IListProps) => {
   return (
     <ComponentStructureWrapper
       node={node}
-      label={{ ...node.item, renderLabelAs: 'legend' }}
+      label={{ node, renderLabelAs: 'legend' }}
     >
       <div style={{ overflow: 'auto' }}>
         <LegacyResponsiveTable config={config} />

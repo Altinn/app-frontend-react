@@ -1,19 +1,11 @@
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 
-import deepEqual from 'fast-deep-equal';
+import type { AnyValidation, BaseValidation, NodeValidation } from '..';
 
-import type { BaseValidation, NodeValidation } from '..';
-
-import {
-  getValidationsForNode,
-  getVisibilityMask,
-  selectValidations,
-  shouldValidateNode,
-  validationsOfSeverity,
-} from 'src/features/validation/utils';
+import { getVisibilityMask, selectValidations, validationsOfSeverity } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
-import { getVisibilityForNode } from 'src/features/validation/visibility/visibilityUtils';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
 
 const emptyArray: [] = [];
 
@@ -22,38 +14,36 @@ const emptyArray: [] = [];
  * This includes unmapped/task errors as well
  */
 export function useTaskErrors(): {
-  formErrors: NodeValidation<'error'>[];
+  formErrors: NodeValidation<AnyValidation<'error'>>[];
   taskErrors: BaseValidation<'error'>[];
 } {
   const selector = Validation.useSelector();
-  const visibilitySelector = Validation.useVisibilitySelector();
-  const visibleNodes = useVisibleNodes();
+  const nodeValidationsSelector = NodesInternal.useValidationsSelector();
+  const traversalSelector = useNodeTraversalSelectorSilent();
 
   const formErrors = useMemo(() => {
-    if (!visibleNodes) {
+    if (!traversalSelector) {
       return emptyArray;
     }
 
-    const formErrors: NodeValidation<'error'>[] = [];
-    for (const node of visibleNodes) {
-      formErrors.push(
-        ...getValidationsForNode(node, selector, getVisibilityForNode(node, visibilitySelector), 'error'),
-      );
+    const formErrors: NodeValidation<AnyValidation<'error'>>[] = [];
+    const allNodes = traversalSelector((t) => t.allNodes(), []);
+    for (const node of allNodes ?? emptyArray) {
+      const validations = nodeValidationsSelector(node, 'visible', 'error') as AnyValidation<'error'>[];
+      formErrors.push(...validations.map((v) => ({ ...v, node })));
     }
 
     return formErrors;
-  }, [visibleNodes, selector, visibilitySelector]);
+  }, [nodeValidationsSelector, traversalSelector]);
 
   const taskErrors = useMemo(() => {
     const taskErrors: BaseValidation<'error'>[] = [];
 
-    const taskValidations = selector('taskValidations', (state) => state.state.task);
-    const allShown = selector('allFieldsIfShown', (state) => {
-      if (state.showAllErrors) {
-        return { dataModels: state.state.dataModels };
-      }
-      return undefined;
-    });
+    const taskValidations = selector((state) => state.state.task, []);
+    const allShown = selector(
+      (state) => (state.showAllErrors ? { dataModels: state.state.dataModels } : undefined),
+      [],
+    );
     if (allShown) {
       const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
       for (const fields of Object.values(allShown.dataModels)) {
@@ -71,26 +61,4 @@ export function useTaskErrors(): {
   }, [selector]);
 
   return useMemo(() => ({ formErrors, taskErrors }), [formErrors, taskErrors]);
-}
-
-/**
- * Utility hook for preventing rerendering unless visible nodes actually change
- */
-function useVisibleNodes() {
-  const nodes = useNodes();
-  const visibleNodes = useMemo(() => nodes.allNodes().filter(shouldValidateNode), [nodes]);
-  const visibleNodesRef = useRef(visibleNodes);
-
-  if (
-    visibleNodes === visibleNodesRef.current ||
-    deepEqual(
-      visibleNodes.map((n) => n.item.id),
-      visibleNodesRef.current.map((n) => n.item.id),
-    )
-  ) {
-    return visibleNodesRef.current;
-  } else {
-    visibleNodesRef.current = visibleNodes;
-    return visibleNodes;
-  }
 }

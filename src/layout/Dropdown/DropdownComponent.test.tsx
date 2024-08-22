@@ -46,7 +46,7 @@ function MySuperSimpleInput() {
   );
 }
 
-const render = async ({ component, genericProps, options, ...rest }: Props = {}) => {
+const render = async ({ component, options, ...rest }: Props = {}) => {
   const fetchOptions = queryPromiseMock('fetchOptions');
   const utils = await renderGenericComponentTest({
     type: 'Dropdown',
@@ -63,10 +63,6 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
         simpleBinding: 'myDropdown',
       },
       ...component,
-    },
-    genericProps: {
-      isValid: true,
-      ...genericProps,
     },
     ...rest,
     queries: {
@@ -171,7 +167,7 @@ describe('DropdownComponent', () => {
     await userEvent.type(screen.getByTestId('my-input'), 'test');
 
     await waitFor(() => expect(fetchOptions.mock).toHaveBeenCalledTimes(2));
-    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
+    await screen.findByTestId('altinn-spinner');
 
     fetchOptions.resolve({
       data: [

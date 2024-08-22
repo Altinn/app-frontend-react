@@ -1,39 +1,55 @@
 import React from 'react';
 
 import { jest } from '@jest/globals';
-import { render } from '@testing-library/react';
-import dot from 'dot-object';
 import fs from 'node:fs';
 
-import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
-import { resolveExpressionValidationConfig } from 'src/features/customValidation/customValidationUtils';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
-import { convertLayouts } from 'src/features/expressions/shared';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import { Validation } from 'src/features/validation/validationContext';
-import { buildAuthContext } from 'src/utils/authContext';
-import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
-import { _private } from 'src/utils/layout/hierarchy';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import * as NodesContext from 'src/utils/layout/NodesContext';
-import type { Layouts } from 'src/features/expressions/shared';
 import type { FieldValidations, IExpressionValidationConfig } from 'src/features/validation';
-import type { HierarchyDataSources } from 'src/layout/layout';
-const { resolvedNodesInLayouts } = _private;
+import type { ILayoutCollection } from 'src/layout/layout';
+
+interface SimpleValidation {
+  message: string;
+  severity: string;
+  field: string;
+}
 
 type ExpressionValidationTest = {
   name: string;
-  expects: {
-    message: string;
-    severity: string;
-    field: string;
-    componentId: string;
-  }[];
+  expects: SimpleValidation[];
   validationConfig: IExpressionValidationConfig;
   formData: object;
-  layouts: Layouts;
+  layouts: ILayoutCollection;
 };
+
+function sortValidations(validations: SimpleValidation[]) {
+  // Sort by message, then by severity, then by field
+  return validations.sort((a, b) => {
+    if (a.message && b.message && a.message < b.message) {
+      return -1;
+    }
+    if (a.message && b.message && a.message > b.message) {
+      return 1;
+    }
+    if (a.severity < b.severity) {
+      return -1;
+    }
+    if (a.severity > b.severity) {
+      return 1;
+    }
+    if (a.field < b.field) {
+      return -1;
+    }
+    if (a.field > b.field) {
+      return 1;
+    }
+    return 0;
+  });
+}
 
 function getSharedTests() {
   const fullPath = `${__dirname}/shared-expression-validation-tests`;
@@ -59,36 +75,7 @@ describe('Expression validation shared tests', () => {
   });
 
   const sharedTests = getSharedTests();
-  it.each(sharedTests)('$name', ({ name: _, expects, validationConfig, formData, layouts }) => {
-    const langTools = staticUseLanguageForTests();
-
-    const hiddenFields = new Set<string>(
-      Object.values(layouts)
-        .filter((l) => l.data.hidden)
-        .flatMap((l) => l.data.layout)
-        .map((c) => c.id),
-    );
-
-    const dataSources: HierarchyDataSources = {
-      ...getHierarchyDataSourcesMock(),
-      formDataSelector: ({ field }) => dot.pick(field, formData),
-      instanceDataSources: buildInstanceDataSources(),
-      authContext: buildAuthContext(undefined),
-      isHidden: (nodeId: string) => hiddenFields.has(nodeId),
-      langToolsSelector: () => langTools,
-    };
-
-    const dataType = dataSources.currentLayoutSet!.dataType;
-
-    const customValidation = resolveExpressionValidationConfig(validationConfig);
-
-    const _layouts = convertLayouts(layouts);
-    const rootCollection = resolvedNodesInLayouts(_layouts, '', dataSources);
-
-    jest.spyOn(FD, 'useDebounced').mockReturnValue(formData);
-    jest.spyOn(DataModels, 'useExpressionValidationConfig').mockReturnValue(customValidation);
-    jest.spyOn(NodesContext, 'useNodes').mockReturnValue(rootCollection);
-
+  it.each(sharedTests)('$name', async ({ name: _, expects, validationConfig, formData, layouts }) => {
     // Mock updateDataModelValidations
     let result: FieldValidations = {};
     const updateDataModelValidations = jest.fn((_key, _dataType, validations: FieldValidations) => {
@@ -96,25 +83,34 @@ describe('Expression validation shared tests', () => {
     });
     jest.spyOn(Validation, 'useUpdateDataModelValidations').mockImplementation(() => updateDataModelValidations);
 
-    render(<ExpressionValidation dataType={dataType}></ExpressionValidation>);
+    await renderWithInstanceAndLayout({
+      renderer: () => <ExpressionValidation dataType={'data'} />,
+      queries: {
+        fetchLayouts: async () => layouts,
+        fetchCustomValidationConfig: async () => validationConfig,
+        fetchFormData: async () => formData,
+      },
+    });
 
-    expect(updateDataModelValidations).toHaveBeenCalledWith('expression', dataType, expect.objectContaining({}));
+    expect(updateDataModelValidations).toHaveBeenCalledWith('expression', 'data', expect.objectContaining({}));
 
     // Format results in a way that makes it easier to compare
     const validations = JSON.stringify(
-      Object.entries(result).flatMap(([field, V]) =>
-        V.map(({ message, severity }) => ({
-          message: message.key,
-          severity,
-          field,
-        })),
+      sortValidations(
+        Object.entries(result).flatMap(([field, V]) =>
+          V.map(({ message, severity }) => ({
+            message: message.key!,
+            severity,
+            field,
+          })),
+        ) satisfies SimpleValidation[],
       ),
       null,
       2,
     );
 
     const expectedValidations = JSON.stringify(
-      expects.map(({ message, severity, field }) => ({ message, severity, field })),
+      sortValidations(expects.map(({ message, severity, field }) => ({ message, severity, field }))),
       null,
       2,
     );

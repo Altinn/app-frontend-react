@@ -1,17 +1,18 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
-import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
+import { Loader } from 'src/core/loading/Loader';
+import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { BackendValidation } from 'src/features/validation/backendValidation/BackendValidation';
+import { useShouldValidateInitial } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
-import { NodeValidation } from 'src/features/validation/nodeValidation/NodeValidation';
 import { SchemaValidation } from 'src/features/validation/schemaValidation/SchemaValidation';
 import {
   getVisibilityMask,
@@ -19,37 +20,23 @@ import {
   mergeFieldValidations,
   selectValidations,
 } from 'src/features/validation/utils';
-import { useVisibility } from 'src/features/validation/visibility/useVisibility';
-import {
-  onBeforeRowDelete,
-  setVisibilityForAttachment,
-  setVisibilityForNode,
-} from 'src/features/validation/visibility/visibilityUtils';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useWaitForState } from 'src/hooks/useWaitForState';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type {
   BackendValidationIssueGroups,
   BaseValidation,
-  ComponentValidations,
   DataModelValidations,
-  FieldValidation,
   FieldValidations,
   LastValidationInfo,
   ValidationContext,
   WaitForValidation,
 } from 'src/features/validation';
-import type { Visibility } from 'src/features/validation/visibility/visibilityUtils';
-import type { WaitForState } from 'src/hooks/useWaitForState';
-import type { IDataModelReference } from 'src/layout/common.generated';
-
-interface NewStoreProps {
-  validating: WaitForValidation;
-}
 
 interface Internals {
   isLoading: boolean;
-  individualFieldValidations: {
+  individualValidations: {
     backend: DataModelValidations;
     expression: DataModelValidations;
     schema: DataModelValidations;
@@ -57,13 +44,12 @@ interface Internals {
   };
   issueGroupsProcessedLast: { [dataType: string]: BackendValidationIssueGroups | undefined };
   updateTaskValidations: (validations: BaseValidation[]) => void;
-  updateComponentValidations: (componentId: string, validations: ComponentValidations[string]) => void;
   /**
    * updateDataModelValidations
    * if validations is undefined, nothing will be changed
    */
   updateDataModelValidations: (
-    key: Exclude<keyof Internals['individualFieldValidations'], 'backend'>,
+    key: Exclude<keyof Internals['individualValidations'], 'backend'>,
     dataType: string,
     validations?: FieldValidations,
   ) => void;
@@ -71,11 +57,10 @@ interface Internals {
     backendValidations: { [dataType: string]: FieldValidations },
     validationInfo?: LastValidationInfo,
   ) => void;
-  updateVisibility: (mutator: (visibility: Visibility) => void) => void;
   updateValidating: (validating: WaitForValidation) => void;
 }
 
-function initialCreateStore({ validating }: NewStoreProps) {
+function initialCreateStore() {
   return createStore<ValidationContext & Internals>()(
     immer((set) => ({
       // =======
@@ -83,36 +68,18 @@ function initialCreateStore({ validating }: NewStoreProps) {
       state: {
         task: [],
         dataModels: {},
-        components: {},
       },
-      visibility: {
-        mask: 0,
-        children: {},
-        items: [],
-      },
-      removeRowVisibilityOnDelete: (node, rowIndex) =>
-        set((state) => {
-          onBeforeRowDelete(node, rowIndex, state.visibility);
-        }),
-      setNodeVisibility: (nodes, newVisibility, rowIndex) =>
-        set((state) => {
-          nodes.forEach((node) => setVisibilityForNode(node, state.visibility, newVisibility, rowIndex));
-        }),
-      setAttachmentVisibility: (attachmentId, node, newVisibility) =>
-        set((state) => {
-          setVisibilityForAttachment(attachmentId, node, state.visibility, newVisibility);
-        }),
       setShowAllErrors: (newValue) =>
         set((state) => {
           state.showAllErrors = newValue;
         }),
       showAllErrors: false,
-      validating,
+      validating: undefined,
 
       // =======
       // Internal state
       isLoading: true,
-      individualFieldValidations: {
+      individualValidations: {
         backend: {},
         expression: {},
         schema: {},
@@ -123,19 +90,15 @@ function initialCreateStore({ validating }: NewStoreProps) {
         set((state) => {
           state.state.task = validations;
         }),
-      updateComponentValidations: (componentId, validations) =>
-        set((state) => {
-          state.state.components[componentId] = validations;
-        }),
       updateDataModelValidations: (key, dataType, validations) =>
         set((state) => {
           if (validations) {
-            state.individualFieldValidations[key][dataType] = validations;
+            state.individualValidations[key][dataType] = validations;
             state.state.dataModels[dataType] = mergeFieldValidations(
-              state.individualFieldValidations.backend[dataType],
-              state.individualFieldValidations.invalidData[dataType],
-              state.individualFieldValidations.schema[dataType],
-              state.individualFieldValidations.expression[dataType],
+              state.individualValidations.backend[dataType],
+              state.individualValidations.invalidData[dataType],
+              state.individualValidations.schema[dataType],
+              state.individualValidations.expression[dataType],
             );
           }
         }),
@@ -145,18 +108,14 @@ function initialCreateStore({ validating }: NewStoreProps) {
             state.issueGroupsProcessedLast[validationInfo.dataType] = validationInfo.processedLast;
           }
           for (const [dataType, validations] of Object.entries(backendValidations)) {
-            state.individualFieldValidations.backend[dataType] = validations;
+            state.individualValidations.backend[dataType] = validations;
             state.state.dataModels[dataType] = mergeFieldValidations(
-              state.individualFieldValidations.backend[dataType],
-              state.individualFieldValidations.invalidData[dataType],
-              state.individualFieldValidations.schema[dataType],
-              state.individualFieldValidations.expression[dataType],
+              state.individualValidations.backend[dataType],
+              state.individualValidations.invalidData[dataType],
+              state.individualValidations.schema[dataType],
+              state.individualValidations.expression[dataType],
             );
           }
-        }),
-      updateVisibility: (mutator) =>
-        set((state) => {
-          mutator(state.visibility);
         }),
       updateValidating: (newValidating) =>
         set((state) => {
@@ -166,115 +125,122 @@ function initialCreateStore({ validating }: NewStoreProps) {
   );
 }
 
-const {
-  Provider,
-  useSelector,
-  useLaxSelector,
-  useDelayedMemoSelector,
-  useSelectorAsRef,
-  useStore,
-  useLaxSelectorAsRef,
-} = createZustandContext({
-  name: 'Validation',
-  required: true,
-  initialCreateStore,
-  onReRender: (store, { validating }) => {
-    store.getState().updateValidating(validating);
-  },
-});
-
-const _neverValidating = () => Promise.resolve();
+const { Provider, useSelector, useLaxSelector, useSelectorAsRef, useStore, useLaxSelectorAsRef, useDelayedSelector } =
+  createZustandContext({
+    name: 'Validation',
+    required: true,
+    initialCreateStore,
+  });
 
 export function ValidationProvider({ children }: PropsWithChildren) {
   const writableDataTypes = DataModels.useWritableDataTypes();
+  return (
+    <Provider>
+      {writableDataTypes.map((dataType) => (
+        <>
+          <SchemaValidation dataType={dataType} />
+          <ExpressionValidation dataType={dataType} />
+          <InvalidDataValidation dataType={dataType} />
+        </>
+      ))}
+      <BackendValidation dataTypes={writableDataTypes} />
+      <ManageShowAllErrors />
+      <LoadingBlocker>{children}</LoadingBlocker>
+    </Provider>
+  );
+}
+
+function useWaitForValidation(): WaitForValidation {
+  const waitForNodesReady = NodesInternal.useWaitUntilReady();
   const waitForSave = FD.useWaitForSave();
-  const waitForStateRef = useRef<WaitForState<ValidationContext & Internals, unknown>>();
+  const waitForState = useWaitForState<never, ValidationContext & Internals>(useStore());
   const hasPendingAttachments = useHasPendingAttachments();
-  const isPDF = useIsPdf();
 
   // Provide a promise that resolves when all pending validations have been completed
   const pendingAttachmentsRef = useAsRef(hasPendingAttachments);
   const waitForAttachments = useWaitForState(pendingAttachmentsRef);
 
-  const validating: WaitForValidation = useCallback(
+  const hasWritableDataTypes = !!DataModels.useWritableDataTypes()?.length;
+  const isPDF = useIsPdf();
+
+  return useCallback(
     async (forceSave = true) => {
+      if (isPDF || !hasWritableDataTypes) {
+        return;
+      }
+
       await waitForAttachments((state) => !state);
 
       // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
+      await waitForNodesReady();
       const validationsFromSave = await waitForSave(forceSave);
-      await waitForStateRef.current!((state) =>
+      await waitForNodesReady();
+      await waitForState((state) =>
         Object.keys(state.issueGroupsProcessedLast).every(
           (dataType) => state.issueGroupsProcessedLast[dataType] === validationsFromSave?.[dataType],
         ),
       );
     },
-    [waitForAttachments, waitForSave],
-  );
-
-  if (isPDF || !writableDataTypes.length) {
-    return <Provider validating={_neverValidating}>{children}</Provider>;
-  }
-
-  return (
-    <Provider validating={validating}>
-      <MakeWaitForState waitForStateRef={waitForStateRef} />
-      <NodeValidation />
-      {writableDataTypes.map((dataType) => (
-        <DataModelValidations
-          key={dataType}
-          dataType={dataType}
-        />
-      ))}
-      <BackendValidation dataTypes={writableDataTypes} />
-      <ManageVisibility />
-      {children}
-    </Provider>
+    [isPDF, hasWritableDataTypes, waitForAttachments, waitForNodesReady, waitForSave, waitForState],
   );
 }
 
-function DataModelValidations({ dataType }: { dataType: string }) {
-  return (
-    <>
-      <SchemaValidation dataType={dataType} />
-      <ExpressionValidation dataType={dataType} />
-      <InvalidDataValidation dataType={dataType} />
-    </>
-  );
-}
+export function ProvideWaitForValidation() {
+  const validate = useWaitForValidation();
+  const updateValidating = useSelector((state) => state.updateValidating);
 
-function MakeWaitForState({
-  waitForStateRef,
-}: {
-  waitForStateRef: React.MutableRefObject<WaitForState<ValidationContext & Internals, unknown> | undefined>;
-}) {
-  waitForStateRef.current = useWaitForState(useStore());
+  useEffect(() => {
+    updateValidating(validate);
+  }, [updateValidating, validate]);
+
   return null;
 }
 
-function ManageVisibility() {
-  const validations = useSelector((state) => state.state);
-  const setVisibility = useSelector((state) => state.updateVisibility);
-  const showAllErrors = useSelector((state) => state.showAllErrors);
-  const setShowAllErrors = useSelector((state) => state.setShowAllErrors);
+export function LoadingBlockerWaitForValidation({ children }: PropsWithChildren) {
+  const validating = useSelector((state) => state.validating);
+  const shouldValidateInitial = useShouldValidateInitial();
+  if (!validating && shouldValidateInitial) {
+    return <Loader reason='validation-awaiter' />;
+  }
 
-  useVisibility(validations, setVisibility);
+  return <>{children}</>;
+}
+
+function LoadingBlocker({ children }: PropsWithChildren) {
+  const isLoading = useSelector((state) => state.isLoading);
+  const shouldValidateInitial = useShouldValidateInitial();
+
+  if (isLoading && shouldValidateInitial) {
+    return <Loader reason='validation' />;
+  }
+
+  return <>{children}</>;
+}
+
+function ManageShowAllErrors() {
+  const showAllErrors = useSelector((state) => state.showAllErrors);
+  return showAllErrors ? <UpdateShowAllErrors /> : null;
+}
+
+function UpdateShowAllErrors() {
+  const taskValidations = useSelector((state) => state.state.task);
+  const dataModelValidations = useSelector((state) => state.state.dataModels);
+  const setShowAllErrors = useSelector((state) => state.setShowAllErrors);
 
   /**
    * Hide unbound errors as soon as possible.
    */
   useEffect(() => {
-    if (showAllErrors) {
-      const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
-      const hasFieldErrors =
-        Object.values(validations.dataModels)
-          .flatMap((fields) => Object.values(fields))
-          .flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
+    const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
+    const hasFieldErrors =
+      Object.values(dataModelValidations)
+        .flatMap((fields) => Object.values(fields))
+        .flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
 
-      if (!hasFieldErrors && !hasValidationErrors(validations.task)) {
-        setShowAllErrors(false);
-      }
+    if (!hasFieldErrors && !hasValidationErrors(taskValidations)) {
+      setShowAllErrors(false);
     }
-  }, [setShowAllErrors, showAllErrors, validations.dataModels, validations.task]);
+  }, [dataModelValidations, setShowAllErrors, taskValidations]);
 
   return null;
 }
@@ -283,72 +249,29 @@ function ManageVisibility() {
  * This hook returns a function that lets you select one or more fields from the validation state. The hook will
  * only force a re-render if the selected fields have changed.
  */
-function useDelayedSelector<U>(
-  outerSelector: (state: ValidationContext) => U,
-): <U2>(cacheKey: string, innerSelector: (state: U) => U2) => U2 {
-  const selector = useDelayedMemoSelector();
-  const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
-
-  useEffect(() => {
-    callbacks.current = {};
-  }, [selector]);
-
-  return useCallback(
-    (cacheKey, innerSelector) => {
-      if (!callbacks.current[cacheKey]) {
-        callbacks.current[cacheKey] = (state) => innerSelector(outerSelector(state));
-      }
-      return selector(callbacks.current[cacheKey]) as any;
-    },
-    // The outer selector is not expected to change, so we don't need to include it in the dependencies
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selector],
-  );
+function useDS<U>(outerSelector: (state: ValidationContext) => U) {
+  return useDelayedSelector({
+    mode: 'innerSelector',
+    makeArgs: (state) => [outerSelector(state)],
+  });
 }
 
-function useDataModelSelector(): (reference: IDataModelReference) => FieldValidation[] {
-  const selector = useDelayedMemoSelector();
-  const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
-
-  useEffect(() => {
-    callbacks.current = {};
-  }, [selector]);
-
-  return useCallback(
-    (reference: IDataModelReference) => {
-      const cacheKey = `${reference.dataType}/${reference.field}`;
-      if (!callbacks.current[cacheKey]) {
-        callbacks.current[cacheKey] = (state) => state.state.dataModels[reference.dataType]?.[reference.field];
-      }
-      return selector(callbacks.current[cacheKey]) as any;
-    },
-    [selector],
-  );
-}
-
-export type ValidationSelector = ReturnType<typeof useDelayedSelector<ValidationContext>>;
-export type ValidationFieldSelector = ReturnType<typeof useDelayedSelector<FieldValidations>>;
-export type ValidationComponentSelector = ReturnType<typeof useDelayedSelector<ComponentValidations>>;
-export type ValidationVisibilitySelector = ReturnType<typeof useDelayedSelector<Visibility>>;
+export type ValidationSelector = ReturnType<typeof Validation.useSelector>;
+export type ValidationDataModelSelector = ReturnType<typeof Validation.useDataModelSelector>;
 
 export const Validation = {
   useFullStateRef: () => useSelectorAsRef((state) => state.state),
 
   // Selectors. These are memoized, so they won't cause a re-render unless the selected fields change.
-  useSelector: () => useDelayedSelector((state) => state),
-  useDataModelSelector,
-  useComponentSelector: () => useDelayedSelector((state) => state.state.components),
-  useVisibilitySelector: () => useDelayedSelector((state) => state.visibility),
+  useSelector: () => useDS((state) => state),
+  useDataModelSelector: () => useDS((state) => state.state.dataModels),
 
-  useOnDeleteGroupRow: () => useSelector((state) => state.removeRowVisibilityOnDelete),
-  useSetAttachmentVisibility: () => useSelector((state) => state.setAttachmentVisibility),
-  useSetNodeVisibility: () => useSelector((state) => state.setNodeVisibility),
   useSetShowAllErrors: () => useSelector((state) => state.setShowAllErrors),
-  useValidating: () => useSelector((state) => state.validating),
+  useValidating: () => useSelector((state) => state.validating!),
   useUpdateTaskValidations: () => useLaxSelector((state) => state.updateTaskValidations),
-  useUpdateComponentValidations: () => useSelector((state) => state.updateComponentValidations),
   useUpdateDataModelValidations: () => useSelector((state) => state.updateDataModelValidations),
   useUpdateBackendValidations: () => useSelector((state) => state.updateBackendValidations),
 
+  useRef: () => useSelectorAsRef((state) => state),
   useLaxRef: () => useLaxSelectorAsRef((state) => state),
 };

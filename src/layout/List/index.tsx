@@ -20,15 +20,17 @@ export class List extends ListDef {
     },
   );
 
-  getDisplayData(node: LayoutNode<'List'>, { formDataSelector }: DisplayDataProps): string {
-    const formData = node.getFormData(formDataSelector);
-    const dmBindings = node.item.dataModelBindings;
+  getDisplayData(node: LayoutNode<'List'>, { nodeFormDataSelector, nodeDataSelector }: DisplayDataProps): string {
+    const formData = nodeFormDataSelector(node);
+    const dmBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
+    const summaryBinding = nodeDataSelector((picker) => picker(node)?.item?.summaryBinding, [node]);
+    const legacySummaryBinding = nodeDataSelector((picker) => picker(node)?.item?.bindingToShowInSummary, [node]);
 
-    if (node.item.summaryBinding && dmBindings) {
-      return formData[node.item.summaryBinding] ?? '';
-    } else if (node.item.bindingToShowInSummary && dmBindings) {
+    if (summaryBinding && dmBindings) {
+      return formData[summaryBinding] ?? '';
+    } else if (legacySummaryBinding && dmBindings) {
       for (const [key, binding] of Object.entries(dmBindings)) {
-        if (binding.field === node.item.bindingToShowInSummary) {
+        if (binding.field === legacySummaryBinding) {
           return formData[key] ?? '';
         }
       }
@@ -44,20 +46,27 @@ export class List extends ListDef {
 
   runEmptyFieldValidation(
     node: LayoutNode<'List'>,
-    { formData, invalidData }: ValidationDataSources<'List'>,
+    { formDataSelector, invalidDataSelector, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    if (!node.item.required || !node.item.dataModelBindings) {
+    const required = nodeDataSelector(
+      (picker) => {
+        const item = picker(node)?.item;
+        return item && 'required' in item ? item.required : false;
+      },
+      [node],
+    );
+    const dataModelBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
+    if (!required || !dataModelBindings) {
       return [];
     }
 
+    const references = Object.values(dataModelBindings);
     const validations: ComponentValidation[] = [];
-
-    const textResourceBindings = node.item.textResourceBindings;
+    const textResourceBindings = nodeDataSelector((picker) => picker(node)?.item?.textResourceBindings, [node]);
 
     let listHasErrors = false;
-
-    for (const bindingKey of Object.keys(node.item.dataModelBindings)) {
-      const data = formData[bindingKey] || invalidData[bindingKey];
+    for (const reference of references) {
+      const data = formDataSelector(reference) ?? invalidDataSelector(reference);
       const dataAsString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : undefined;
 
@@ -71,7 +80,7 @@ export class List extends ListDef {
         : 'form_filler.error_required';
 
       const fieldNameReference = {
-        key: getFieldNameKey(node.item.textResourceBindings, undefined),
+        key: getFieldNameKey(textResourceBindings, undefined),
         makeLowerCase: true,
       };
 
@@ -81,7 +90,6 @@ export class List extends ListDef {
           params: [fieldNameReference],
         },
         severity: 'error',
-        componentId: node.item.id,
         source: FrontendValidationSource.EmptyField,
         category: ValidationMask.Required,
       });
@@ -90,10 +98,10 @@ export class List extends ListDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
-    const possibleBindings = Object.keys(ctx.node.item.tableHeaders ?? {});
+    const possibleBindings = Object.keys(ctx.item.tableHeaders ?? {});
 
     const errors: string[] = [];
-    for (const binding of Object.keys(ctx.node.item.dataModelBindings ?? {})) {
+    for (const binding of Object.keys(ctx.item.dataModelBindings ?? {})) {
       if (possibleBindings.includes(binding)) {
         const [newErrors] = this.validateDataModelBindingsAny(
           ctx,

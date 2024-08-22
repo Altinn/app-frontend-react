@@ -20,6 +20,7 @@ import type {
 } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 export class Datepicker extends DatepickerDef implements ValidateComponent<'Datepicker'>, ValidationFilter {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Datepicker'>>(
@@ -28,13 +29,17 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     },
   );
 
-  getDisplayData(node: LayoutNode<'Datepicker'>, { currentLanguage, formDataSelector }: DisplayDataProps): string {
-    if (!node.item.dataModelBindings?.simpleBinding) {
+  getDisplayData(
+    node: LayoutNode<'Datepicker'>,
+    { currentLanguage, nodeFormDataSelector, nodeDataSelector }: DisplayDataProps,
+  ): string {
+    const data = nodeFormDataSelector(node).simpleBinding ?? '';
+    if (!data) {
       return '';
     }
 
-    const dateFormat = getDateFormat(node.item.format, currentLanguage);
-    const data = node.getFormData(formDataSelector).simpleBinding ?? '';
+    const format = nodeDataSelector((picker) => picker(node)?.item?.format, [node]);
+    const dateFormat = getDateFormat(format, currentLanguage);
     return formatISOString(data, dateFormat) ?? data;
   }
 
@@ -50,18 +55,28 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
 
   runComponentValidation(
     node: LayoutNode<'Datepicker'>,
-    { formData, currentLanguage }: ValidationDataSources<'Datepicker'>,
+    { formDataSelector, currentLanguage, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    const data = formData.simpleBinding;
+    const field = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings?.simpleBinding, [node]);
+    const data = field ? formDataSelector(field) : undefined;
     const dataAsString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
 
     if (!dataAsString) {
       return [];
     }
 
-    const minDate = getDateConstraint(node.item.minDate, 'min');
-    const maxDate = getDateConstraint(node.item.maxDate, 'max');
-    const format = getDateFormat(node.item.format, currentLanguage);
+    const minDate = getDateConstraint(
+      nodeDataSelector((picker) => picker(node)?.item?.minDate, [node]),
+      'min',
+    );
+    const maxDate = getDateConstraint(
+      nodeDataSelector((picker) => picker(node)?.item?.maxDate, [node]),
+      'max',
+    );
+    const format = getDateFormat(
+      nodeDataSelector((picker) => picker(node)?.item?.format, [node]),
+      currentLanguage,
+    );
 
     const validations: ComponentValidation[] = [];
 
@@ -71,7 +86,6 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
       validations.push({
         message: { key: 'date_picker.invalid_date_message', params: [format] },
         severity: 'error',
-        componentId: node.item.id,
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });
@@ -81,7 +95,6 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
       validations.push({
         message: { key: 'date_picker.min_date_exeeded' },
         severity: 'error',
-        componentId: node.item.id,
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });
@@ -89,7 +102,6 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
       validations.push({
         message: { key: 'date_picker.max_date_exeeded' },
         severity: 'error',
-        componentId: node.item.id,
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });
@@ -108,7 +120,10 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     );
   }
 
-  getValidationFilters(_node: LayoutNode): ValidationFilterFunction[] {
+  getValidationFilters(
+    _node: LayoutNode<'Datepicker'>,
+    _nodeDataSelector: NodeDataSelector,
+  ): ValidationFilterFunction[] {
     return [this.schemaFormatFilter];
   }
 

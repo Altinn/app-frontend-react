@@ -8,6 +8,7 @@ import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 import type { doPatchFormData } from 'src/queries/queries';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -55,10 +56,11 @@ const countries = [
 
 function RenderCounter({ node }: { node: LayoutNode<'List'> }) {
   const renderCount = React.useRef(0);
+  const dataModelBindings = useNodeItem(node).dataModelBindings;
 
   // This simulates the List component data model fetching. It will trigger a re-render of the component once every
   // time any of the data model bindings change.
-  useDataModelBindings(node.item.dataModelBindings);
+  useDataModelBindings(dataModelBindings);
 
   renderCount.current++;
 

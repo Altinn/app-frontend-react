@@ -10,8 +10,8 @@ import { breakpoints } from 'src/hooks/useIsMobile';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
-
 import type { BackendValidationIssue } from 'src/features/validation';
+import type { ILayoutFile } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
 
@@ -45,13 +45,24 @@ Cypress.Commands.add('waitUntilSaved', () => {
   cy.get('body').should('not.have.attr', 'data-unsaved-changes', 'true');
 });
 
-Cypress.Commands.add('dsSelect', (selector, value) => {
-  cy.log(`Selecting ${value} in ${selector}`);
-  // In case the option is dynamic, wait for save and progressbars to go away, otherwise the component could rerender after opening, causing it to close again
-  cy.waitUntilSaved();
+Cypress.Commands.add('waitUntilNodesReady', () => {
+  cy.get('body').should('not.have.attr', 'data-nodes-ready', 'false');
+  cy.get('body').should('not.have.attr', 'data-commits-pending', 'true');
+});
+
+Cypress.Commands.add('dsReady', (selector) => {
+  // In case the option is dynamic, wait for save and progress bars to go away, otherwise the component could
+  // rerender after opening, causing it to close again
   cy.findByRole('progressbar').should('not.exist');
 
   cy.get(selector).should('not.be.disabled');
+  cy.waitUntilSaved();
+  cy.waitUntilNodesReady();
+});
+
+Cypress.Commands.add('dsSelect', (selector, value) => {
+  cy.log(`Selecting ${value} in ${selector}`);
+  cy.dsReady(selector);
   cy.get(selector).click();
 
   // It is tempting to just use findByRole('option', { name: value }) here, but that's flakier than using findByText()
@@ -97,7 +108,7 @@ Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQuer
   // react-number-format messes with our cursor position here as well.
   const moveToStart = new Array(5).fill('{moveToStart}').join('');
 
-  cy.wrap(subject).type(`${moveToStart}${del}`);
+  cy.get(subject.selector!).type(`${moveToStart}${del}`);
 });
 
 interface KnownViolation extends Pick<axe.Result, 'id'> {
@@ -264,7 +275,6 @@ Cypress.Commands.add('getCurrentPageId', () => cy.location('hash').then((hash) =
 Cypress.Commands.add('snapshot', (name: string) => {
   cy.clearSelectionAndWait();
   cy.waitUntilSaved();
-  cy.waitForNetworkIdle(100);
 
   // Running wcag tests before taking snapshot, because the resizing of the viewport can cause some elements to
   // re-render and go slightly out of sync with the proper state of the application. One example is the Dropdown
@@ -445,7 +455,7 @@ Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator) 
       const set = JSON.parse(res.body);
       if (mutator) {
         for (const layout of Object.values(set)) {
-          (layout as any).data.layout.map(mutator);
+          (layout as ILayoutFile).data.layout.map(mutator);
         }
       }
       if (wholeLayoutMutator) {
@@ -457,6 +467,7 @@ Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator) 
 });
 
 Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
+  cy.log('Changing current layout');
   cy.window().then((win) => {
     const activeData = win.queryClient.getQueryCache().findAll({ type: 'active' });
     for (const query of activeData) {
@@ -479,6 +490,15 @@ Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
       }
     }
   });
+
+  // To make sure we actually wait for the layout change to become effective, we first wait for the loader to appear,
+  // and then wait for it to disappear.
+  cy.get('[data-testid="loader"]').should('exist');
+  cy.get('[data-testid="loader"]').should('not.exist');
+
+  cy.get('#readyForPrint').should('exist');
+  cy.findByRole('progressbar').should('not.exist');
+  cy.waitUntilNodesReady();
 });
 
 Cypress.Commands.add('interceptLayoutSetsUiSettings', (uiSettings) => {
@@ -508,6 +528,7 @@ Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
   cy.get('body').click();
 
   // Wait for network to be idle before calling reload
+  cy.waitUntilSaved();
   cy.waitForNetworkIdle('*', '*', 500);
 
   // Visit the PDF page and reload
@@ -633,4 +654,8 @@ Cypress.Commands.add('expectValidationNotToExist', (result, group, predicate) =>
       ).not.to.exist;
     }
   });
+});
+
+Cypress.Commands.add('allowFailureOnEnd', function () {
+  (this.test as any).__allowFailureOnEnd = true;
 });

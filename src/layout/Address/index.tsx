@@ -11,6 +11,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Address extends AddressDef implements ValidateComponent<'Address'> {
@@ -20,8 +21,8 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     },
   );
 
-  getDisplayData(node: LayoutNode<'Address'>, { formDataSelector }: DisplayDataProps): string {
-    const data = node.getFormData(formDataSelector);
+  getDisplayData(node: LayoutNode<'Address'>, { nodeFormDataSelector }: DisplayDataProps): string {
+    const data = nodeFormDataSelector(node);
     return Object.values(data).join(' ');
   }
 
@@ -30,8 +31,8 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     return <SummaryItemSimple formDataAsString={data} />;
   }
 
-  renderSummary2(componentNode: LayoutNode<'Address'>): JSX.Element | null {
-    return <AddressSummary componentNode={componentNode} />;
+  renderSummary2(props: Summary2Props<'Address'>): JSX.Element | null {
+    return <AddressSummary componentNode={props.target} />;
   }
 
   renderDefaultValidations(): boolean {
@@ -40,15 +41,16 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
 
   runComponentValidation(
     node: LayoutNode<'Address'>,
-    { formData }: ValidationDataSources<'Address'>,
+    { formDataSelector, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    if (!node.item.dataModelBindings) {
+    const dataModelBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
+    if (!dataModelBindings) {
       return [];
     }
     const validations: ComponentValidation[] = [];
 
-    const { zipCode, houseNumber } = formData;
-
+    const zipCodeField = dataModelBindings.zipCode;
+    const zipCode = zipCodeField ? formDataSelector(zipCodeField) : undefined;
     const zipCodeAsString = typeof zipCode === 'string' || typeof zipCode === 'number' ? String(zipCode) : undefined;
 
     // TODO(Validation): Add better message for the special case of 0000 or add better validation for zipCodes that the API says are invalid
@@ -57,12 +59,13 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
         message: { key: 'address_component.validation_error_zipcode' },
         severity: 'error',
         bindingKey: 'zipCode',
-        componentId: node.item.id,
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });
     }
 
+    const houseNumberField = dataModelBindings.houseNumber;
+    const houseNumber = houseNumberField ? formDataSelector(houseNumberField) : undefined;
     const houseNumberAsString =
       typeof houseNumber === 'string' || typeof houseNumber === 'number' ? String(houseNumber) : undefined;
 
@@ -71,7 +74,6 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
         message: { key: 'address_component.validation_error_house_number' },
         severity: 'error',
         bindingKey: 'houseNumber',
-        componentId: node.item.id,
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });
@@ -87,12 +89,12 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
       ...(this.validateDataModelBindingsAny(ctx, 'postPlace', ['string'])[0] || []),
     ];
 
-    if (ctx.node.item.simplified === false) {
+    if (ctx.item.simplified === false) {
       errors.push(...(this.validateDataModelBindingsAny(ctx, 'careOf', ['string'])[0] || []));
       errors.push(...(this.validateDataModelBindingsAny(ctx, 'houseNumber', ['string', 'number', 'integer'])[0] || []));
     } else {
-      const hasCareOf = ctx.node.item.dataModelBindings?.careOf;
-      const hasHouseNumber = ctx.node.item.dataModelBindings?.houseNumber;
+      const hasCareOf = ctx.item.dataModelBindings?.careOf;
+      const hasHouseNumber = ctx.item.dataModelBindings?.houseNumber;
       if (hasCareOf) {
         errors.push(`Datamodellbindingen 'careOf' støttes ikke for en forenklet adresse-komponent`);
       }

@@ -7,10 +7,10 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useGetOptionsQueryDef } from 'src/features/options/useGetOptionsQuery';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
-import type { ISelectionComponentExternal } from 'src/layout/common.generated';
+import type { ISelectionComponent } from 'src/layout/common.generated';
 import type { ParamValue } from 'src/utils/urls/appUrlHelper';
 
-type O = ISelectionComponentExternal;
+type O = ISelectionComponent;
 
 export function StaticOptionPrefetcher() {
   const layouts = useLayouts();

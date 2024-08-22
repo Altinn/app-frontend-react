@@ -5,31 +5,21 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { GroupSummary } from 'src/layout/Group/GroupSummary';
-import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompGroupInternal } from 'src/layout/Group/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Group extends GroupDef {
-  private _hierarchyGenerator = new GroupHierarchyGenerator();
-
-  directRender(): boolean {
-    return true;
-  }
-
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Group'>>(
     function LayoutComponentGroupRender(props, _): JSX.Element | null {
       return (
         <GroupComponent
           groupNode={props.node}
-          renderLayoutNode={(n) => (
+          renderLayoutNode={(node) => (
             <GenericComponent
-              key={n.item.id}
-              node={n}
+              key={node.id}
+              node={node}
             />
           )}
         />
@@ -37,65 +27,20 @@ export class Group extends GroupDef {
     },
   );
 
-  renderSummary({
-    onChangeClick,
-    changeText,
-    summaryNode,
-    targetNode,
-    overrides,
-  }: SummaryRendererProps<'Group'>): JSX.Element | null {
-    return (
-      <SummaryGroupComponent
-        onChangeClick={onChangeClick}
-        changeText={changeText}
-        summaryNode={summaryNode}
-        targetNode={targetNode}
-        overrides={overrides}
-      />
-    );
+  renderSummary(props: SummaryRendererProps<'Group'>): JSX.Element | null {
+    return <SummaryGroupComponent {...props} />;
   }
 
-  renderSummary2(
-    componentNode: LayoutNode<'Group'>,
-    summaryOverrides?: CompGroupInternal['summaryProps'],
-  ): JSX.Element | null {
+  renderSummary2(props: Summary2Props<'Group'>): JSX.Element | null {
     return (
       <GroupSummary
-        componentNode={componentNode}
-        summaryOverrides={summaryOverrides}
+        componentNode={props.target}
+        summaryOverrides={props.overrides}
       />
     );
   }
 
   renderSummaryBoilerplate(): boolean {
     return false;
-  }
-
-  getDisplayData(): string {
-    return '';
-  }
-
-  hierarchyGenerator(): ComponentHierarchyGenerator<'Group'> {
-    return this._hierarchyGenerator;
-  }
-
-  isDataModelBindingsRequired(): boolean {
-    return false;
-  }
-
-  validateDataModelBindings(ctx: LayoutValidationCtx<'Group'>): string[] {
-    const [errors, result] = this.validateDataModelBindingsAny(ctx, 'group', ['array']);
-    if (errors) {
-      return errors;
-    }
-
-    if (result) {
-      const innerType = Array.isArray(result.items) ? result.items[0] : result.items;
-      if (!innerType || typeof innerType !== 'object' || !innerType.type || innerType.type !== 'object') {
-        return [`group-datamodellbindingen peker mot en ukjent type i datamodellen`];
-      }
-    }
-
-    return [];
   }
 }

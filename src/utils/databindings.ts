@@ -1,5 +1,4 @@
 import type { IDataModelReference, ILayoutSet } from 'src/layout/common.generated';
-import type { IDataModelBindings } from 'src/layout/layout';
 import type { UnprocessedItem } from 'src/utils/layout/HierarchyGenerator';
 
 export const GLOBAL_INDEX_KEY_INDICATOR_REGEX = /\[{\d+}]/g;
@@ -11,21 +10,6 @@ export function getKeyWithoutIndex(keyWithIndex: string): string {
 
   return getKeyWithoutIndex(
     keyWithIndex.substring(0, keyWithIndex.indexOf('[')) + keyWithIndex.substring(keyWithIndex.indexOf(']') + 1),
-  );
-}
-
-export function getBaseDataModelBindings(
-  dataModelBindings: IDataModelBindings | undefined,
-): IDataModelBindings | undefined {
-  if (typeof dataModelBindings === 'undefined') {
-    return undefined;
-  }
-
-  return Object.fromEntries(
-    Object.entries(dataModelBindings).map(([bindingKey, { dataType, field }]: [string, IDataModelReference]) => [
-      bindingKey,
-      { dataType, field: getKeyWithoutIndex(field) },
-    ]),
   );
 }
 
