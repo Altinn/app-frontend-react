@@ -148,31 +148,6 @@ export const quirks: { [key: string]: QuirkDef } = {
       `Removed child that does not exist from 'incident-group'`,
     ],
   },
-  'dsb/elvirksomhet/form': {
-    verifyAndApply(layouts) {
-      assert(layouts['02ContactInfo']!.at(-1)!.id === 'navButtons');
-      assert(layouts['03EntityInfo']!.at(-1)!.id === 'navButtons');
-      assert(layouts['04Tasks']!.at(-1)!.id === 'navButtons');
-      assert(layouts['05ProfessionalResponsibles']!.at(-1)!.id === 'navButtons');
-      assert(layouts['06FacilityAndEquipmentTypes']!.at(-1)!.id === 'navButtons');
-
-      assert(layouts['07Summary']!.at(21)!.id === 'tasks-group');
-      assert((layouts['07Summary']!.at(21) as any).children[1] === 'tasksOptionsDLE-summary');
-      assert(layouts['07Summary']!.find((c) => c.id === 'tasksOptionsDLE-summary') === undefined);
-
-      layouts['02ContactInfo']!.at(-1)!.id = 'navButtons2';
-      layouts['03EntityInfo']!.at(-1)!.id = 'navButtons3';
-      layouts['04Tasks']!.at(-1)!.id = 'navButtons4';
-      layouts['05ProfessionalResponsibles']!.at(-1)!.id = 'navButtons5';
-      layouts['06FacilityAndEquipmentTypes']!.at(-1)!.id = 'navButtons6';
-
-      (layouts['07Summary']!.at(21) as any).children.splice(1, 1);
-    },
-    logMessages: [
-      'Renamed duplicate IDs for NavigationButtons on page 2-6',
-      `In 'tasks-group', removed reference to 'tasksOptionsDLE-summary' which does not exist`,
-    ],
-  },
   'dsb/meldeplikt-forbrukertjenester/form': {
     verifyAndApply(layouts) {
       assert(layouts['01Introduction']!.at(-1)!.id === 'navButtons');
@@ -258,14 +233,6 @@ export const quirks: { [key: string]: QuirkDef } = {
     ],
   },
   'dsb/siv-1005-svar-rek/form': {
-    verifyAndApply(layouts) {
-      removeChildThatDoesNotExist(layouts, 'statementForApplicationPdfReceipt', 'pdf-personalia-group', 'Group');
-    },
-    logMessages: [
-      `Removed child 'statementForApplicationPdfReceipt' from component 'pdf-personalia-group' which does not exist`,
-    ],
-  },
-  'dsb/siv-1013-svar-kurs/form': {
     verifyAndApply(layouts) {
       removeChildThatDoesNotExist(layouts, 'statementForApplicationPdfReceipt', 'pdf-personalia-group', 'Group');
     },
@@ -739,54 +706,6 @@ export const quirks: { [key: string]: QuirkDef } = {
       `Renamed component id 'summary-deceased-municipality-hidden' to 'summary-deceased-municipality-hiddenDuplicate' on page 'summary'`,
       `Renamed component id 'summary-Paragraph-mottakere' to 'summary-Paragraph-mottakereDuplicate' on page 'summary'`,
     ],
-  },
-  'dsb/siv-1004-naeringsbidrag/form': {
-    verifyAndApply: (layouts) => {
-      assert(layouts['99Summary']![2].id === 'summaryPrefillInfo');
-      assert(layouts['pdfReceipt']![2].id === 'summaryPrefillInfo');
-      assert(layouts['99Summary']![3].id === 'summaryGroupService');
-      assert(layouts['pdfReceipt']![3].id === 'summaryGroupService');
-      assert(layouts['99Summary']![4].id === 'summaryGroupOrganzation');
-      assert(layouts['pdfReceipt']![4].id === 'summaryGroupOrganzation');
-      assert(layouts['99Summary']![5].id === 'summaryGroupOrgForm');
-      assert(layouts['pdfReceipt']![5].id === 'summaryGroupOrgForm');
-      assert(layouts['99Summary']![6].id === 'summaryGroupApplicationBackground');
-      assert(layouts['pdfReceipt']![6].id === 'summaryGroupApplicationBackground');
-      assert(layouts['99Summary']![7].id === 'summarySalaryFromEmployer');
-      assert(layouts['pdfReceipt']![7].id === 'summarySalaryFromEmployer');
-      assert(layouts['99Summary']![8].id === 'summarySalaryFromEmployerAmount');
-      assert(layouts['pdfReceipt']![8].id === 'summarySalaryFromEmployerAmount');
-      assert(layouts['99Summary']![9].id === 'summaryAppliedBefore');
-      assert(layouts['pdfReceipt']![9].id === 'summaryAppliedBefore');
-
-      layouts['pdfReceipt']![2].id = 'summaryPrefillInfoDuplicate';
-      layouts['pdfReceipt']![3].id = 'summaryGroupServiceDuplicate';
-      layouts['pdfReceipt']![4].id = 'summaryGroupOrganzationDuplicate';
-      layouts['pdfReceipt']![5].id = 'summaryGroupOrgFormDuplicate';
-      layouts['pdfReceipt']![6].id = 'summaryGroupApplicationBackgroundDuplicate';
-      layouts['pdfReceipt']![7].id = 'summarySalaryFromEmployerDuplicate';
-      layouts['pdfReceipt']![8].id = 'summarySalaryFromEmployerAmountDuplicate';
-      layouts['pdfReceipt']![9].id = 'summaryAppliedBeforeDuplicate';
-    },
-    logMessages: [
-      `Renamed component id 'summaryPrefillInfo' to 'summaryPrefillInfoDuplicate' on page 'pdfReceipt'`,
-      `Renamed component id 'summaryGroupService' to 'summaryGroupServiceDuplicate' on page 'pdfReceipt'`,
-      `Renamed component id 'summaryGroupOrganzation' to 'summaryGroupOrganzationDuplicate' on page 'pdfReceipt'`,
-      `Renamed component id 'summaryGroupOrgForm' to 'summaryGroupOrgFormDuplicate' on page 'pdfReceipt'`,
-      `Renamed component id 'summaryGroupApplicationBackground' to 'summaryGroupApplicationBackgroundDuplicate' on page 'pdfReceipt'`,
-      `Renamed component id 'summarySalaryFromEmployer' to 'summarySalaryFromEmployerDuplicate' on page 'pdfReceipt'`,
-      `Renamed component id 'summarySalaryFromEmployerAmount' to 'summarySalaryFromEmployerAmountDuplicate' on page 'pdfReceipt'`,
-      `Renamed component id 'summaryAppliedBefore' to 'summaryAppliedBeforeDuplicate' on page 'pdfReceipt'`,
-    ],
-  },
-  'dsb/siv-1011-stoette/form': {
-    verifyAndApply: (layouts) => {
-      assert(layouts['01Introduction']![3].id === 'navButtons1');
-      assert(layouts['02PersonalInformation']![16].id === 'navButtons1');
-
-      layouts['02PersonalInformation']![16].id = 'navButtons1Duplicate';
-    },
-    logMessages: [`Renamed component id 'navButtons1' to 'navButtons1Duplicate' on page '02PersonalInformation'`],
   },
   'krt/krt-3010a-1/form': {
     verifyAndApply: (layouts) => {
