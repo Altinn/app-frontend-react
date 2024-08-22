@@ -205,7 +205,7 @@ export const buttonStyles: { [style in CBTypes.ButtonStyle]: { color: ButtonColo
 };
 
 export const CustomButtonComponent = ({ node }: Props) => {
-  const { textResourceBindings, actions, id, buttonColor, buttonSize, buttonStyle = 'secondary' } = useNodeItem(node);
+  const { textResourceBindings, actions, id, buttonColor, buttonSize, buttonStyle } = useNodeItem(node);
   const lockTools = FD.useLocking(id);
   const { isAuthorized } = useActionAuthorization();
   const { handleClientActions } = useHandleClientActions();

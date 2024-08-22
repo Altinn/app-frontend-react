@@ -66,6 +66,7 @@ export const Config = new CG.component({
       new CG.enum('primary', 'secondary')
         .setTitle('Button style')
         .setDescription('The style/color scheme of the button.')
+        .optional({ default: 'secondary' })
         .exportAs('ButtonStyle'),
     ),
   )
