@@ -2,9 +2,6 @@ import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
-  // TODO: Does this have consequences?
-  // category: CompCategory.Presentation,
-
   category: CompCategory.Form,
   capabilities: {
     renderInTable: false,
