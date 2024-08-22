@@ -1,6 +1,6 @@
 {
-  "name": "Should return empty string on undefined result",
+  "name": "Should return null on undefined result",
   "expression": ["externalApi", "testId", "results[0].id"],
-  "expects": "",
-  "externalApis": { "testId": {} }
+  "expects": null,
+  "externalApis": { "data": { "testId": {} } }
 }

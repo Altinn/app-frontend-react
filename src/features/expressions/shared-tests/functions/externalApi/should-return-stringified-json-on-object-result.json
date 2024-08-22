@@ -1,6 +1,6 @@
 {
-  "name": "Should return stringified JSON on object result",
+  "name": "Should return null on object result",
   "expression": ["externalApi", "testId", "results[0]"],
-  "expects": "{\"id\":\"1\"}",
-  "externalApis": { "testId": { "data": { "results": [{ "id": "1" }] } } }
+  "expects": null,
+  "externalApis": { "data": { "testId": { "cars": [{ "brand": "BMW" }, { "brand": "Lada" }] } } }
 }

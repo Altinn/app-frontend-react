@@ -287,24 +287,20 @@ export const ExprFunctions = {
     returns: ExprVal.Any,
   }),
   externalApi: defineFunc({
-    impl(externalApiId, path): string {
+    impl(externalApiId, path): string | null {
       if (typeof externalApiId !== 'string' || typeof path !== 'string') {
         throw new ExprRuntimeError(this.expr, this.path, `Expected string arguments`);
       }
 
-      const externalApiData = this.dataSources.externalApis[externalApiId]?.data;
+      const externalApiData: unknown = this.dataSources.externalApis.data[externalApiId];
 
       const res =
         path && externalApiData && typeof externalApiData === 'object'
           ? dot.pick(path, externalApiData)
           : externalApiData;
 
-      if (!res) {
-        return ''; // Print error?
-      }
-
-      if (typeof res === 'object') {
-        return JSON.stringify(res);
+      if (!res || typeof res === 'object') {
+        return null; // Print error?
       }
 
       return String(res);

@@ -1,6 +1,6 @@
 {
-  "name": "Should return whole result with empty path param",
+  "name": "Should return null with empty path param",
   "expression": ["externalApi", "testId", ""],
-  "expects": "{\"results\":[{\"id\":\"1\"}]}",
-  "externalApis": { "testId": { "data": { "results": [{ "id": "1" }] } } }
+  "expects": null,
+  "externalApis": { "data": { "testId": { "cars": [{ "brand": "BMW" }, { "brand": "Lada" }] } } }
 }
