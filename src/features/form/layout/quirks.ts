@@ -77,145 +77,6 @@ export const quirks: { [key: string]: QuirkDef } = {
       `Renamed duplicate ID 'knappNavigasjonForside' components.`,
     ],
   },
-  'dsb/bekymring-forbrukertjenester/form': {
-    verifyAndApply(layouts) {
-      assert(layouts['01Introduction']!.at(-1)!.id === 'navButtons');
-      assert(layouts['02ContactInfo']!.at(-1)!.id === 'navButtons');
-      assert(layouts['03ProductInformation']!.at(-1)!.id === 'navButtons');
-      assert(layouts['04Incident']!.at(-1)!.id === 'navButtons');
-      assert(layouts['05Remarks']!.at(-1)!.id === 'navButtons');
-      assert(layouts['06Attachments']!.at(-1)!.id === 'navButtons');
-      const sequenceOfIds = [
-        'contactInfo-group',
-        'contactInfoFirstName-summary',
-        'contactInfoLastName-summary',
-        'contactInfoPhone-summary',
-        'contactInfoEmail-summary',
-        'productInfo-group',
-        'productInfoCategory-summary',
-        'productInfoCategoryDescription-summary',
-        'productInfoProvider-summary',
-        'productInfoLocation-summary',
-        'productInfoOtherInformation-summary',
-        'productInfoOtherInformationRequired-summary',
-        'incident-group',
-        'incidentLocation-summary',
-        'incidentDate-summary',
-        'incidentInformation-summary',
-        'incidentCause-summary',
-        'incidentPersonInjury-summary',
-        'incidentPersonInjuryConsequence-summary',
-        'incidentDescription-summary',
-        'incidentDescriptionRequired-summary',
-        'incidentVictimGroup-summary',
-        'remarks-group',
-        'remarks-summary',
-        'attachmentsHeader-summary',
-        'attachmentsUpload-summary',
-      ];
-      assertSequenceOfIds(layouts, '99Summary', sequenceOfIds, 2);
-      assertSequenceOfIds(layouts, 'pdfReceipt', sequenceOfIds, 1);
-
-      // Remove children that does not exist ('incidentVictimGroupHeader-summary')
-      assert(layouts['99Summary']!.at(14)!.id === 'incident-group');
-      assert((layouts['99Summary']!.at(14) as any).children[6] === 'incidentVictimGroupHeader-summary');
-      assert(layouts['pdfReceipt']!.at(13)!.id === 'incident-group');
-      assert((layouts['pdfReceipt']!.at(13) as any).children[6] === 'incidentVictimGroupHeader-summary');
-      (layouts['99Summary']!.at(14) as any)!.children.splice(6, 1);
-      (layouts['pdfReceipt']!.at(13) as any)!.children.splice(6, 1);
-
-      layouts['01Introduction']!.at(-1)!.id = 'navButtons1';
-      layouts['02ContactInfo']!.at(-1)!.id = 'navButtons2';
-      layouts['03ProductInformation']!.at(-1)!.id = 'navButtons3';
-      layouts['04Incident']!.at(-1)!.id = 'navButtons4';
-      layouts['05Remarks']!.at(-1)!.id = 'navButtons5';
-      layouts['06Attachments']!.at(-1)!.id = 'navButtons6';
-
-      for (const idx of sequenceOfIds.keys()) {
-        const comp = layouts['99Summary']![2 + idx];
-        comp.id += 'SummaryPage';
-        if (sequenceOfIds[idx].endsWith('-group') && comp.type === 'Group') {
-          // Update child references as well
-          for (const childIdx of comp.children!.keys()) {
-            comp.children![childIdx] += 'SummaryPage';
-          }
-        }
-      }
-    },
-    logMessages: [
-      'Renamed duplicate IDs for NavigationButtons on page 1-6',
-      'Renamed components copy-pasted between Summary and pdfReceipt pages',
-      `Removed child that does not exist from 'incident-group'`,
-    ],
-  },
-  'dsb/meldeplikt-forbrukertjenester/form': {
-    verifyAndApply(layouts) {
-      assert(layouts['01Introduction']!.at(-1)!.id === 'navButtons');
-      assert(layouts['02EntityInfo']!.at(-1)!.id === 'navButtons');
-      assert(layouts['03ProductInformation']!.at(-1)!.id === 'navButtons');
-      assert(layouts['04Risk']!.at(-1)!.id === 'navButtons');
-      assert(layouts['05Measures']!.at(-1)!.id === 'navButtons');
-      assert(layouts['06Attachments']!.at(-1)!.id === 'navButtons');
-
-      const copyPastedIds = [
-        'entityInfo-group',
-        'entityInfoOrganizationName-summary',
-        'entityInfoOrganizationNumber-summary',
-        'entityInfoAdress-summary',
-        'entityInfoAdressPostalCode-summary',
-        'entityInfoAdressPostalCity-summary',
-        'entityInfoContactHeader-summary',
-        'entityInfoFirstName-summary',
-        'entityInfoLastName-summary',
-        'entityInfoPhone-summary',
-        'entityInfoEmail-summary',
-        'productInfo-group',
-        'productInfoCategory-summary',
-        'productInfoCategoryDescription-summary',
-        'productInfoHowLong-summary',
-        'productInfoHowMany-summary',
-        'productInfoLocation-summary',
-        'productInfoOtherInformation-summary',
-        'risk-group',
-        'riskRisks-summary',
-        'riskKnowledge-summary',
-        'riskIncidentCount-summary',
-        'riskDescription-summary',
-        'riskKnowledgeDescription-summary',
-        'riskLevel-summary',
-        'measures-group',
-        'measuresMeasures-summary',
-        'measuresDescription-summary',
-        'attachmentsHeader-summary',
-        'attachmentsUpload-summary',
-      ];
-
-      assertSequenceOfIds(layouts, '07Summary', copyPastedIds, 2);
-      assertSequenceOfIds(layouts, 'pdfReceipt', copyPastedIds, 1);
-
-      layouts['01Introduction']!.at(-1)!.id = 'navButtons1';
-      layouts['02EntityInfo']!.at(-1)!.id = 'navButtons2';
-      layouts['03ProductInformation']!.at(-1)!.id = 'navButtons3';
-      layouts['04Risk']!.at(-1)!.id = 'navButtons4';
-      layouts['05Measures']!.at(-1)!.id = 'navButtons5';
-      layouts['06Attachments']!.at(-1)!.id = 'navButtons6';
-
-      for (const idx of copyPastedIds.keys()) {
-        const comp = layouts['07Summary']![2 + idx];
-        comp.id += 'SummaryPage';
-        if (copyPastedIds[idx].endsWith('-group') && comp.type === 'Group') {
-          // Update child references as well
-          for (const childIdx of comp.children!.keys()) {
-            comp.children![childIdx] += 'SummaryPage';
-          }
-        }
-      }
-    },
-    logMessages: [
-      'Renamed duplicate IDs for NavigationButtons on page 1-6',
-      'Renamed components copy-pasted between Summary and pdfReceipt pages',
-    ],
-  },
   'dsb/melding-om-sikkerhetsraadgiver/form': {
     verifyAndApply(layouts) {
       assert(layouts['99Summary']!.at(4)!.id === 'safetyAdvisersSummary');
@@ -230,22 +91,6 @@ export const quirks: { [key: string]: QuirkDef } = {
     logMessages: [
       `Renamed duplicate ID 'safetyAdvisersSummary' in '99Summary' layout to 'safetyAdvisersSummarySummaryPage'`,
       `Renamed duplicate ID 'termsSummary' in '99Summary' layout to 'termsSummarySummaryPage'`,
-    ],
-  },
-  'dsb/siv-1005-svar-rek/form': {
-    verifyAndApply(layouts) {
-      removeChildThatDoesNotExist(layouts, 'statementForApplicationPdfReceipt', 'pdf-personalia-group', 'Group');
-    },
-    logMessages: [
-      `Removed child 'statementForApplicationPdfReceipt' from component 'pdf-personalia-group' which does not exist`,
-    ],
-  },
-  'dsb/siv-1016-svar-oevelse/form': {
-    verifyAndApply(layouts) {
-      removeChildThatDoesNotExist(layouts, 'statementForApplicationPdfReceipt', 'pdf-personalia-group', 'Group');
-    },
-    logMessages: [
-      `Removed child 'statementForApplicationPdfReceipt' from component 'pdf-personalia-group' which does not exist`,
     ],
   },
   'krt/krt-1177a-1/form': {
@@ -1227,12 +1072,6 @@ export const quirks: { [key: string]: QuirkDef } = {
       `Renamed component id 'NavigationBar-summary' to 'NavigationBar-summaryDuplicate' on page 'pdfLayout'`,
       `Renamed component id 'submit' to 'submitDuplicate' on page 'pdfLayout'`,
     ],
-  },
-  'dsb/siv-1015-kvittering-tjplikt/form': {
-    verifyAndApply(layouts) {
-      removeChildThatDoesNotExist(layouts, 'attachmentInfo', 'prefillGroup', 'Group');
-    },
-    logMessages: [`Removed child 'attachmentInfo' from component 'prefillGroup' which does not exist'`],
   },
   'pat/correspondence/form': {
     verifyAndApply(layouts) {
