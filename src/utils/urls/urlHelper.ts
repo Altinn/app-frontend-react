@@ -101,7 +101,7 @@ export const makeUrlRelativeIfSameDomain = (url: string, location: Location = wi
     if (parsed.hostname === location.hostname) {
       return parsed.pathname + parsed.search + parsed.hash;
     }
-  } catch (e) {
+  } catch (_err) {
     //ignore invalid (or dummy) urls
   }
   return url;

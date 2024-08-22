@@ -177,6 +177,7 @@ export const getOptionsUrl = ({ optionsId, queryParameters, language, secure, in
 };
 export interface IGetDataListsUrlParams {
   dataListId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mappedData?: Record<string, any>;
   language?: string;
   secure?: boolean;

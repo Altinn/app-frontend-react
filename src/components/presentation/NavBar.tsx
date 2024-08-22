@@ -49,15 +49,9 @@ export const NavBar = ({ type }: INavBarProps) => {
     }
 
     if (queryParameterReturnUrl) {
-      httpGet<string>(getRedirectUrl(queryParameterReturnUrl))
-        .then((response) => response)
-        .catch(() => messageBoxUrl)
-        .then((returnUrl) => {
-          if (returnUrl == null) {
-            return;
-          }
-          window.location.assign(returnUrl);
-        });
+      httpGet<string>(getRedirectUrl(queryParameterReturnUrl)).then((returnUrl) => {
+        returnUrl && window.location.assign(returnUrl);
+      });
     }
   };
 

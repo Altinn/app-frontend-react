@@ -190,7 +190,9 @@ export interface IProcess {
 export interface IProfile {
   userId: number;
   userName: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   phoneNumber?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   email?: any;
   partyId: number;
   party?: IParty;
