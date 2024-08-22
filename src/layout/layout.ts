@@ -155,3 +155,8 @@ export type CompWithCap<Capability extends keyof CompCapabilities> = {
 export type CompWithBehavior<Behavior extends keyof CompBehaviors> = {
   [Type in CompTypes]: ComponentConfigs[Type]['behaviors'][Behavior] extends true ? Type : never;
 }[CompTypes];
+
+export interface NodeValidationProps<T extends CompTypes> {
+  node: LayoutNode<T>;
+  intermediateItem: CompIntermediate<T>;
+}
