@@ -10,6 +10,10 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
     renderInCards: false,
     renderInCardsMedia: false,
+    renderInTabs: false,
+  },
+  functionality: {
+    customExpressions: false,
   },
 })
   .addProperty(

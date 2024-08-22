@@ -265,7 +265,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
     for (const action of actions) {
       if (action.validation) {
         const prevScrollPosition = getScrollPosition();
-        const hasErrors = await onPageNavigationValidation(node.top, action.validation);
+        const hasErrors = await onPageNavigationValidation(node.page, action.validation);
         if (hasErrors) {
           resetScrollPosition(prevScrollPosition);
           return;

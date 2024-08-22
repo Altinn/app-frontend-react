@@ -9,10 +9,11 @@ import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { useLaxInstance, useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { mapValidationIssueToFieldValidation } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { Validation } from 'src/features/validation/validationContext';
-import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import type { BackendValidationIssue } from 'src/features/validation';
 import type { IActionType, IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -156,7 +157,8 @@ export function ProcessNavigationProvider({ children }: React.PropsWithChildren)
 }
 
 export const useProcessNavigation = () => {
-  const { isSubFormPage } = useNavigationParams();
+  // const { isSubFormPage } = useNavigationParams();
+  const isSubFormPage = useNavigationParam('isSubFormPage');
   if (isSubFormPage) {
     throw new Error('Cannot use process navigation in a sub-form');
   }

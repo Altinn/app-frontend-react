@@ -22,9 +22,10 @@ import { SubFormSummaryComponent2 } from 'src/layout/SubForm/Summary/SubFormSumm
 import type { TextReference } from 'src/features/language/useLanguage';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class SubForm extends SubFormDef implements ValidateComponent {
+export class SubForm extends SubFormDef implements ValidateComponent<'SubForm'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'SubForm'>>(
     function LayoutComponentSubformRender(props, _): JSX.Element | null {
       return <SubFormComponent {...props} />;
@@ -68,15 +69,15 @@ export class SubForm extends SubFormDef implements ValidateComponent {
     return <SubFormSummaryComponent targetNode={targetNode} />;
   }
 
-  renderSummary2(componentNode: LayoutNode<'SubForm'>): JSX.Element | null {
-    return <SubFormSummaryComponent2 targetNode={componentNode} />;
+  renderSummary2(props: Summary2Props<'SubForm'>): JSX.Element | null {
+    return <SubFormSummaryComponent2 targetNode={props.target} />;
   }
 
   runComponentValidation(
     node: LayoutNode<'SubForm'>,
-    { applicationMetadata, instance }: ValidationDataSources,
+    { applicationMetadata, instance, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    const targetType = node.item.dataType;
+    const targetType = nodeDataSelector((picker) => picker(node)?.layout.dataType, [node]);
     const dataTypeDefinition = applicationMetadata.dataTypes.find((x) => x.id === targetType);
     if (dataTypeDefinition === undefined) {
       return [];
@@ -104,7 +105,6 @@ export class SubForm extends SubFormDef implements ValidateComponent {
             message: valiationMessage,
             severity: 'error',
             source: FrontendValidationSource.Component,
-            componentId: node.item.id,
             category: ValidationMask.Required,
           },
         ]

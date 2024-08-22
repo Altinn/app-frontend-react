@@ -14,6 +14,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subFormData/useSubFormMutations';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/SubForm/SubFormComponent.module.css';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -28,7 +29,8 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
     tableColumns = [],
     showAddButton = true,
     showDeleteButton = true,
-  } = node.item;
+  } = useNodeItem(node);
+
   const { langAsString } = useLanguage();
   const addEntryMutation = useAddEntryMutation(dataType);
   const instanceData = useStrictInstanceData();
@@ -42,7 +44,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
 
     try {
       const result = await addEntryMutation.mutateAsync({});
-      navigate(`${node.item.id}/${result.id}`);
+      navigate(`${node.id}/${result.id}`);
       // updateSubFormEntries([...subFormEntries, result]); // TODO: This is probably not required anymore
     } catch {
       // NOTE: Handled by useAddEntryMutation
@@ -56,8 +58,8 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
       <Grid
         container={true}
         item={true}
-        data-componentid={node.item.id}
-        data-componentbaseid={node.item.baseComponentId || node.item.id}
+        data-componentid={node.id}
+        data-componentbaseid={node.baseId}
       >
         <Table
           id={`subform-${id}-table`}
@@ -161,10 +163,10 @@ function SubFormTableRow({
   deleteEntryCallback: (dataElement: IData) => void;
 }) {
   const id = dataElement.id;
-  const { tableColumns = [] } = node.item;
+  const { tableColumns = [] } = useNodeItem(node);
   const instance = useStrictInstanceData();
   const url = getDataModelUrl(instance.id, id, true);
-  const { isFetching, data } = useFormDataQuery(url);
+  const { isFetching, data, error } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -172,6 +174,8 @@ function SubFormTableRow({
   const deleteEntryMutation = useDeleteEntryMutation(id);
   const deleteButtonText = langAsString('general.delete');
   const editButtonText = langAsString('general.edit');
+
+  // TODO: Use `error`. Refetch?
 
   if (isFetching) {
     const numColumns = tableColumns.length;
@@ -223,7 +227,7 @@ function SubFormTableRow({
             variant='tertiary'
             color='second'
             size='small'
-            onClick={async () => navigate(`${node.item.id}/${id}`)}
+            onClick={async () => navigate(`${node.id}/${id}`)}
             aria-label={editButtonText}
             data-testid='edit-button'
             className={classes.tableButton}
@@ -269,6 +273,7 @@ export interface DataQueryParams {
   languageProvider: Pick<IUseLanguage, 'langAsString'>;
 }
 
+// TODO: Make this a component?
 export function dataQueryWithDefaultValue(props: DataQueryParams) {
   const { data, query, defaultValue, languageProvider } = props;
   let content = dot.pick(query, data);

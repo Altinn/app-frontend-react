@@ -7,8 +7,10 @@ import { PresentationComponent } from 'src/components/presentation/Presentation'
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const SubFormWrapper = ({ node, children }: PropsWithChildren<{ node: LayoutNode<'SubForm'> }>) => {
@@ -32,11 +34,12 @@ export const SubFormFirstPage = () => {
 };
 
 export const RedirectBackToMainForm = () => {
-  const { currentPageId, navigateToPage } = useNavigatePage();
+  const mainPageKey = useNavigationParam('mainPageKey');
+  const { navigateToPage } = useNavigatePage();
 
   useEffect(() => {
-    navigateToPage(currentPageId);
-  }, [navigateToPage, currentPageId]);
+    navigateToPage(mainPageKey);
+  }, [navigateToPage, mainPageKey]);
 
   return null;
 };
@@ -48,24 +51,25 @@ export const SubFormForm = () => {
 
 const useDoOverride = (node: LayoutNode<'SubForm'>) => {
   const { dataElementId } = useParams();
+  const { dataType, layoutSet } = useNodeItem(node);
   const setOverriddenLayoutSetId = useTaskStore((state) => state.setOverriddenLayoutSetId);
   const setOverriddenDataModelType = useTaskStore((state) => state.setOverriddenDataModelType);
   const setOverriddenDataModelUuid = useTaskStore((state) => state.setOverriddenDataModelUuid);
   const isDone = useTaskStore(
     (s) =>
-      s.overriddenDataModelType === node.item.dataType &&
+      s.overriddenDataModelType === dataType &&
       s.overriddenDataModelUuid === dataElementId &&
-      s.overriddenLayoutSetId === node.item.layoutSet,
+      s.overriddenLayoutSetId === layoutSet,
   );
 
   useEffect(() => {
-    setOverriddenLayoutSetId?.(node.item.layoutSet);
-    setOverriddenDataModelType?.(node.item.dataType);
+    setOverriddenLayoutSetId?.(layoutSet);
+    setOverriddenDataModelType?.(dataType);
     setOverriddenDataModelUuid?.(dataElementId!);
   }, [
     dataElementId,
-    node.item.dataType,
-    node.item.layoutSet,
+    dataType,
+    layoutSet,
     setOverriddenDataModelType,
     setOverriddenDataModelUuid,
     setOverriddenLayoutSetId,

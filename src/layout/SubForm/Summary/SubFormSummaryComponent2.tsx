@@ -13,6 +13,7 @@ import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { dataQueryWithDefaultValue } from 'src/layout/SubForm/SubFormComponent';
 import classes from 'src/layout/SubForm/Summary/SubFormSummaryComponent2.module.css';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -22,7 +23,7 @@ export interface ISubFormSummaryComponent {
 }
 
 export function SubFormSummaryComponent2({ targetNode }: ISubFormSummaryComponent): React.JSX.Element | null {
-  const { dataType, id, textResourceBindings, tableColumns = [] } = targetNode.item;
+  const { dataType, id, textResourceBindings, tableColumns = [] } = useNodeItem(targetNode);
   const dataElements = useStrictInstanceData().data.filter((d) => d.dataType === dataType) ?? [];
   const mobileView = useIsMobileOrTablet();
   const pdfModeActive = usePdfModeActive();
@@ -99,7 +100,7 @@ function SubFormSummaryTableRow({
   pdfModeActive: boolean;
 }) {
   const id = dataElement.id;
-  const { tableColumns = [] } = node.item;
+  const { tableColumns = [] } = useNodeItem(node);
   const navigate = useNavigate();
   const instance = useStrictInstanceData();
   const url = getDataModelUrl(instance.id, id, true);
@@ -147,7 +148,7 @@ function SubFormSummaryTableRow({
             className={classes.marginLeftAuto}
             componentNode={node}
             summaryComponentId={''}
-            navigationOverride={() => navigate(`${node.item.id}/${id}`)}
+            navigationOverride={() => navigate(`${node.id}/${id}`)}
           />
         </td>
       )}

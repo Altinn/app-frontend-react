@@ -8,6 +8,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { dataQueryWithDefaultValue } from 'src/layout/SubForm/SubFormComponent';
 import classes from 'src/layout/SubForm/Summary/SubFormSummaryComponent.module.css';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -17,7 +18,7 @@ export interface ISubFormSummaryComponent {
 }
 
 export function SubFormSummaryComponent({ targetNode }: ISubFormSummaryComponent): React.JSX.Element | null {
-  const { dataType, id } = targetNode.item;
+  const { dataType, id } = useNodeItem(targetNode);
   const dataElements = useStrictInstanceData().data.filter((d) => d.dataType === dataType) ?? [];
 
   return (
@@ -44,12 +45,12 @@ export function SubFormSummaryComponent({ targetNode }: ISubFormSummaryComponent
 
 function SubFormSummaryRow({ dataElement, node }: { dataElement: IData; node: LayoutNode<'SubForm'> }) {
   const id = dataElement.id;
-  const { tableColumns = [], summaryDelimiter = ' — ' } = node.item;
+  const { tableColumns = [], summaryDelimiter = ' — ' } = useNodeItem(node);
   const instance = useStrictInstanceData();
   const url = getDataModelUrl(instance.id, id, true);
   const { isFetching, data } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
-  const rowkey = `subform-summary-${node.item.id}-${id}`;
+  const rowkey = `subform-summary-${node.id}-${id}`;
 
   if (isFetching) {
     return (

@@ -22,7 +22,7 @@ import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { TaskKeys, useIsCurrentTask, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { useNode } from 'src/utils/layout/NodesContext';
 
 interface NavigationErrorProps {
   label: ReactNode;
@@ -157,28 +157,26 @@ export const ProcessWrapper = () => {
   if (taskType === ProcessTaskType.Data) {
     return (
       <FormProvider>
-        <LayoutValidationProvider>
-          <Routes>
-            <Route
-              path=':pageKey/:componentId/*'
-              element={<ComponentRouting />}
-            />
-            <Route
-              path=':pageKey'
-              element={
-                <PDFWrapper>
-                  <PresentationComponent type={realTaskType}>
-                    <Form />
-                  </PresentationComponent>
-                </PDFWrapper>
-              }
-            />
-            <Route
-              path='*'
-              element={<FormFirstPage />}
-            />
-          </Routes>
-        </LayoutValidationProvider>
+        <Routes>
+          <Route
+            path=':pageKey/:componentId/*'
+            element={<ComponentRouting />}
+          />
+          <Route
+            path=':pageKey'
+            element={
+              <PDFWrapper>
+                <PresentationComponent type={realTaskType}>
+                  <Form />
+                </PresentationComponent>
+              </PDFWrapper>
+            }
+          />
+          <Route
+            path='*'
+            element={<FormFirstPage />}
+          />
+        </Routes>
       </FormProvider>
     );
   }
@@ -188,8 +186,8 @@ export const ProcessWrapper = () => {
 
 export const ComponentRouting = () => {
   const componentId = useParams().componentId;
-  const nodes = useNodes();
-  const node = componentId ? nodes.findById(componentId) : undefined;
+  const node = useNode(componentId);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const subRouting = node?.def.subRouting(node as any);
 
   if (!subRouting) {
