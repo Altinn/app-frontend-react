@@ -11,6 +11,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
+import type { IDataModelReference } from 'src/layout/common.generated';
 
 type ReaderMap = { [name: string]: DataModelReader };
 
@@ -35,11 +36,11 @@ export class DataModelReader {
     protected status: Status = 'loading',
   ) {}
 
-  getAsString(path: string): string | undefined {
-    if (!this.model) {
+  getAsString(reference: IDataModelReference): string | undefined {
+    if (!this.model || this.name !== reference.dataType) {
       return undefined;
     }
-    const realValue = dot.pick(path, this.model);
+    const realValue = dot.pick(reference.field, this.model);
     if (typeof realValue === 'string' || typeof realValue === 'number' || typeof realValue === 'boolean') {
       return realValue.toString();
     }

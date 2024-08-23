@@ -449,15 +449,16 @@ export const ExprFunctions = {
         throw new ExprRuntimeError(this, `Cannot lookup dataType undefined`);
       }
 
+      const reference: IDataModelReference = { dataType, field: propertyPath };
       const maybeNode = this.failWithoutNode();
       if (maybeNode instanceof BaseLayoutNode) {
-        const newPath = this.dataSources.transposeSelector(maybeNode as LayoutNode, propertyPath);
-        return pickSimpleValue({ field: newPath, dataType }, this.dataSources.formDataSelector);
+        const newReference = this.dataSources.transposeSelector(maybeNode as LayoutNode, reference);
+        return pickSimpleValue(newReference, this.dataSources.formDataSelector);
       }
 
       // No need to transpose the data model according to the location inside a repeating group when the context is
       // a LayoutPage (i.e., when we're resolving an expression directly on the layout definition).
-      return pickSimpleValue({ field: propertyPath, dataType }, this.dataSources.formDataSelector);
+      return pickSimpleValue(reference, this.dataSources.formDataSelector);
     },
     args: [ExprVal.String, ExprVal.String] as const,
     minArguments: 1,

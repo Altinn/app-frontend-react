@@ -16,12 +16,12 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { Filter } from 'src/features/dataLists/useDataListQuery';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IDataModelBindingsForListInternal } from 'src/layout/List/config.generated';
+import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 
 export type IListProps = PropsFromGenericComponent<'List'>;
 
 const defaultDataList: any[] = [];
-const defaultBindings: IDataModelBindingsForListInternal = {};
+const defaultBindings: IDataModelBindingsForList = {};
 
 export const ListComponent = ({ node }: IListProps) => {
   const item = useNodeItem(node);

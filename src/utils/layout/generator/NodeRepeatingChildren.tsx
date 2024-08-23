@@ -195,9 +195,14 @@ export function mutateDataModelBindings(row: BaseRow, groupBinding: IDataModelRe
   return (item) => {
     const bindings = item.dataModelBindings || {};
     for (const key of Object.keys(bindings)) {
-      if (groupBinding && bindings[key]) {
-        bindings[key] = bindings[key].replace(groupBinding, `${groupBinding}[${row.index}]`);
+      const binding = bindings[key] as IDataModelReference | undefined;
+      if (!binding || !groupBinding || groupBinding.dataType !== binding.dataType) {
+        continue;
       }
+      bindings[key] = {
+        dataType: binding.dataType,
+        field: binding.field.replace(groupBinding.field, `${groupBinding.field}[${row.index}]`),
+      };
     }
   };
 }

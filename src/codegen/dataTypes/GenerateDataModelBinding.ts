@@ -1,34 +1,23 @@
-import { CG, Variant } from 'src/codegen/CG';
+import type { JSONSchema7 } from 'json-schema';
+
+import { CG } from 'src/codegen/CG';
 import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
-import type { Optionality } from 'src/codegen/CodeGenerator';
 
 /**
  * Generates a data model binding property. This is just a regular property, but this class is used as a
- * helper to make sure you always provide a description and title, and never specify the inner type yourself.
+ * helper to make sure you always provide a description and title.
  */
-export class GenerateDataModelBinding extends GenerateCommonImport<'IDataModelBinding'> {
-  private readonly internalProp: GenerateCommonImport<'IDataModelReference'>;
+export class GenerateDataModelBinding extends GenerateCommonImport<'IDataModelReference'> {
+  private rawBinding = CG.common('IRawDataModelBinding');
 
   constructor() {
-    super('IDataModelBinding');
-    this.internalProp = CG.common('IDataModelReference');
+    super('IDataModelReference');
   }
 
-  optional(optionality?: Optionality<any>): this {
-    super.optional(optionality);
-    this.internalProp.optional(optionality);
-    return this;
-  }
-
-  containsVariationDifferences(): boolean {
-    return true;
-  }
-
-  transformTo(variant: Variant): GenerateCommonImport<any> {
-    if (variant === Variant.External) {
-      return super.transformTo(variant);
-    }
-
-    return this.internalProp.transformTo(variant);
+  toJsonSchema(): JSONSchema7 {
+    // This tricks the schema to output a union of either string or object, although the typescript types are only
+    // objects. We rewrite incoming layouts to always be objects in LayoutsContext, so in practice this is always
+    // an object internally.
+    return this.rawBinding.toJsonSchema();
   }
 }

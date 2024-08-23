@@ -15,11 +15,11 @@ import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import classes from 'src/layout/Address/AddressComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IDataModelBindingsForAddressInternal } from 'src/layout/Address/config.generated';
+import type { IDataModelBindingsForAddress } from 'src/layout/Address/config.generated';
 
 export type IAddressProps = PropsFromGenericComponent<'Address'>;
 
-const bindingKeys: { [k in keyof IDataModelBindingsForAddressInternal]: k } = {
+const bindingKeys: { [k in keyof IDataModelBindingsForAddress]: k } = {
   address: 'address',
   postPlace: 'postPlace',
   zipCode: 'zipCode',

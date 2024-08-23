@@ -22,6 +22,7 @@ import type {
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList, NestedTexts } from 'src/language/languages';
 import type { FormDataSelector } from 'src/layout';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
@@ -43,13 +44,13 @@ export interface IUseLanguage {
   langAsString(key: ValidLanguageKey | string | undefined, params?: ValidLangParam[], makeLowerCase?: boolean): string;
   langAsStringUsingPathInDataModel(
     key: ValidLanguageKey | string | undefined,
-    dataModelPath: string,
+    dataModelPath: IDataModelReference,
     params?: ValidLangParam[],
   ): string;
   langAsNonProcessedString(key: ValidLanguageKey | string | undefined, params?: ValidLangParam[]): string;
   langAsNonProcessedStringUsingPathInDataModel(
     key: ValidLanguageKey | string | undefined,
-    dataModelPath: string,
+    dataModelPath: IDataModelReference,
     params?: ValidLangParam[],
   ): string;
   elementAsString(element: ReactNode): string;
@@ -59,7 +60,7 @@ export interface TextResourceVariablesDataSources {
   node: LayoutNode | undefined;
   applicationSettings: IApplicationSettings | null;
   instanceDataSources: IInstanceDataSources | null;
-  dataModelPath?: string;
+  dataModelPath?: IDataModelReference;
   dataModels: ReturnType<typeof useDataModelReaders>;
   defaultDataType: string | undefined | typeof ContextNotProvided;
   formDataTypes: string[] | typeof ContextNotProvided;
@@ -329,28 +330,23 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
     if (variable.dataSource.startsWith('dataModel')) {
       const dataModelName = variable.dataSource.split('.')[1];
       const cleanPath = getKeyWithoutIndexIndicators(value);
-      const transposedPath = dataModelPath
-        ? transposeDataBinding({ subject: cleanPath, currentLocation: dataModelPath })
+      const rawReference: IDataModelReference = { dataType: dataModelName, field: cleanPath };
+      const transposed = dataModelPath
+        ? transposeDataBinding({ subject: rawReference, currentLocation: dataModelPath })
         : node
-          ? transposeSelector(node, cleanPath)
-          : value;
-      if (transposedPath) {
+          ? transposeSelector(node, rawReference)
+          : { dataType: dataModelName, field: value };
+      if (transposed) {
         let readValue: unknown = undefined;
         let modelReader: DataModelReader | undefined = undefined;
 
-        const dataFromDataModel = tryReadFromDataModel(
-          transposedPath,
-          dataModelName,
-          defaultDataType,
-          formDataTypes,
-          formDataSelector,
-        );
+        const dataFromDataModel = tryReadFromDataModel(transposed, defaultDataType, formDataTypes, formDataSelector);
 
         if (dataFromDataModel !== dataModelNotReadable) {
           readValue = dataFromDataModel;
         } else {
           modelReader = dataModels.getReader(dataModelName);
-          readValue = modelReader.getAsString(transposedPath);
+          readValue = modelReader.getAsString(transposed);
         }
 
         const stringValue =
@@ -402,12 +398,12 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
 
 const dataModelNotReadable = Symbol('dataModelNotReadable');
 function tryReadFromDataModel(
-  path: string,
-  dataModelName: string,
+  reference: IDataModelReference,
   defaultDataType: string | undefined | typeof ContextNotProvided,
   formDataTypes: string[] | typeof ContextNotProvided,
   formDataSelector: FormDataSelector | typeof ContextNotProvided,
 ): unknown | typeof dataModelNotReadable {
+  const { dataType: dataModelName, field: path } = reference;
   if (formDataSelector === ContextNotProvided || formDataTypes === ContextNotProvided) {
     return dataModelNotReadable;
   }

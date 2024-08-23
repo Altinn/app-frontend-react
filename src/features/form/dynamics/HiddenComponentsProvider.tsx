@@ -8,6 +8,7 @@ import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { IConditionalRenderingRule } from 'src/features/form/dynamics/index';
 import type { FormDataSelector } from 'src/layout';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
 
@@ -105,7 +106,8 @@ function runConditionalRenderingRule(
   const inputObj = {} as Record<string, string | number | boolean | null>;
   for (const key of inputKeys) {
     const param = rule.inputParams[key].replace(/{\d+}/g, '');
-    const transposed = (node ? transposeSelector(node, param) : undefined) ?? param;
+    const binding: IDataModelReference = { dataType: 'TODO', field: param }; // TODO: Get the actual data type
+    const transposed = (node ? transposeSelector(node, binding) : undefined) ?? binding;
     const value = formDataSelector(transposed);
 
     if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {

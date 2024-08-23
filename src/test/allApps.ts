@@ -176,6 +176,7 @@ export class ExternalApp {
       }
 
       collection[file.replace('.json', '')] = this.readJson<ILayoutFile>(`${layoutsDir}/${file}`);
+      // TODO: Rewrite data model bindings
     }
 
     return collection;
@@ -322,10 +323,10 @@ export class ExternalAppDataModel {
     for (const page of Object.keys(layouts)) {
       for (const comp of layouts[page].data.layout) {
         if (comp.type === 'RepeatingGroup' && comp.dataModelBindings?.group) {
-          groupsNeeded.push(comp.dataModelBindings.group);
+          groupsNeeded.push(comp.dataModelBindings.group.field);
         }
         if (comp.type === 'Likert' && comp.dataModelBindings?.questions) {
-          groupsNeeded.push(comp.dataModelBindings.questions);
+          groupsNeeded.push(comp.dataModelBindings.questions.field);
         }
       }
     }
