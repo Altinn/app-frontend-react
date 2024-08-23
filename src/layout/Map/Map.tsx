@@ -18,6 +18,7 @@ import {
   locationToTuple,
   parseGeometries,
 } from 'src/layout/Map/utils';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { Location } from 'src/layout/Map/config.generated';
 import type { RawGeometry } from 'src/layout/Map/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -69,7 +70,8 @@ export function Map({
     centerLocation: customCenterLocation,
     zoom: customZoom,
     geometryType,
-  } = mapNode.item;
+  } = useNodeItem(mapNode);
+
   const isInteractive = !readOnly && !isSummary;
   const layers = customLayers ?? DefaultMapLayers;
   const markerLocationIsValid = isLocationValid(markerLocation);

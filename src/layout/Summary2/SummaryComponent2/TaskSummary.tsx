@@ -6,14 +6,15 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { Lang } from 'src/features/language/Lang';
+import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
 import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { useNode } from 'src/utils/layout/NodesContext';
 import type { CompSummary2External } from 'src/layout/Summary2/config.generated';
 
 interface TaskSummaryProps {
-  taskId: string;
+  taskId?: string;
   pageId?: string;
   componentId?: string;
   summaryOverrides: CompSummary2External['overrides'];
@@ -41,26 +42,55 @@ function TaskSummaryAccordion({ pageKey, children }: React.PropsWithChildren<{ p
   );
 }
 
-function TaskSummary({ pageId, componentId, summaryOverrides, showAccordion }: TaskSummaryProps) {
-  const nodes = useNodes();
-  if (componentId) {
-    const nodeToRender = nodes.findById(componentId);
-    return (
-      nodeToRender && (
-        <ComponentSummary
-          componentNode={nodeToRender}
-          summaryOverrides={summaryOverrides}
-        />
-      )
-    );
+export function TaskSummary(props: TaskSummaryProps) {
+  if (props.componentId) {
+    return <TaskSummaryForComponent {...props} />;
   }
 
-  let pageKeys = nodes.allPageKeys();
-
-  if (pageId) {
-    pageKeys = pageKeys.filter((key) => key === pageId);
+  if (props.pageId) {
+    return <TaskSummaryForPage {...props} />;
   }
 
+  return <TaskSummaryForAllPages {...props} />;
+}
+
+function TaskSummaryForComponent({ componentId, summaryOverrides }: TaskSummaryProps) {
+  const nodeToRender = useNode(componentId);
+  return (
+    nodeToRender && (
+      <ComponentSummary
+        componentNode={nodeToRender}
+        summaryOverrides={summaryOverrides}
+      />
+    )
+  );
+}
+
+function TaskSummaryForPage({ pageId, summaryOverrides, showAccordion }: TaskSummaryProps) {
+  const showAccordionWrapper = !!showAccordion;
+
+  return (
+    <div style={{ width: '100%' }}>
+      <div
+        style={{ marginBottom: '10px' }}
+        key={pageId}
+      >
+        <ConditionalWrapper
+          condition={showAccordionWrapper}
+          wrapper={(child) => <TaskSummaryAccordion pageKey={pageId!}>{child}</TaskSummaryAccordion>}
+        >
+          <PageSummary
+            pageId={pageId!}
+            summaryOverrides={summaryOverrides}
+          />
+        </ConditionalWrapper>
+      </div>
+    </div>
+  );
+}
+
+function TaskSummaryForAllPages({ summaryOverrides, showAccordion }: TaskSummaryProps) {
+  const pageKeys = usePageOrder();
   const showAccordionWrapper = !!showAccordion;
 
   return (
@@ -84,13 +114,8 @@ function TaskSummary({ pageId, componentId, summaryOverrides, showAccordion }: T
     </div>
   );
 }
-export function TaskSummaryWrapper({
-  taskId,
-  pageId,
-  componentId,
-  summaryOverrides,
-  showAccordion,
-}: React.PropsWithChildren<TaskSummaryProps>) {
+
+export function TaskSummaryWrapper({ taskId, children }: React.PropsWithChildren<TaskSummaryProps>) {
   const { setTaskId, setOverriddenDataModelId, setOverriddenLayoutSetId, overriddenTaskId } = useTaskStore((state) => ({
     setTaskId: state.setTaskId,
     setOverriddenDataModelId: state.setOverriddenDataModelId,
@@ -99,26 +124,20 @@ export function TaskSummaryWrapper({
   }));
 
   const layoutSets = useLayoutSets();
-  const layoutSetForTask = layoutSets.sets.find((set) => set.tasks?.includes(taskId));
+
   useEffect(() => {
-    if (layoutSetForTask) {
+    if (taskId) {
+      const layoutSetForTask = layoutSets.sets.find((set) => set.tasks?.includes(taskId));
       setTaskId && setTaskId(taskId);
-      setOverriddenDataModelId && setOverriddenDataModelId(layoutSetForTask.dataType);
-      setOverriddenLayoutSetId && setOverriddenLayoutSetId(layoutSetForTask.id);
+      if (layoutSetForTask) {
+        setOverriddenDataModelId && setOverriddenDataModelId(layoutSetForTask.dataType);
+        setOverriddenLayoutSetId && setOverriddenLayoutSetId(layoutSetForTask.id);
+      }
     }
-  }, [layoutSetForTask, setOverriddenDataModelId, setOverriddenLayoutSetId, setTaskId, taskId]);
+  }, [layoutSets.sets, setOverriddenDataModelId, setOverriddenLayoutSetId, setTaskId, taskId]);
 
   if (overriddenTaskId) {
-    return (
-      <FormProvider>
-        <TaskSummary
-          taskId={taskId}
-          pageId={pageId}
-          componentId={componentId}
-          summaryOverrides={summaryOverrides}
-          showAccordion={showAccordion}
-        />
-      </FormProvider>
-    );
+    return <FormProvider>{children}</FormProvider>;
   }
+  return <>{children}</>;
 }

@@ -1,5 +1,7 @@
 import React from 'react';
 
+import classNames from 'classnames';
+
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { Lang } from 'src/features/language/Lang';
@@ -26,7 +28,7 @@ export const bytesInOneMB = 1048576;
 
 export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary }: IFileUploadTableRowProps) {
   const { langAsString } = useLanguage();
-  const hasTag = node.item.type === 'FileUploadWithTag';
+  const hasTag = node.isType('FileUploadWithTag');
   const pdfModeActive = usePdfModeActive();
   const readableSize = `${(attachment.data.size / bytesInOneMB).toFixed(2)} ${langAsString(
     'form_filler.file_uploader_mb',
@@ -38,10 +40,15 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
     ? langAsString('form_filler.file_uploader_list_status_done')
     : langAsString('general.loading');
 
+  const rowStyle =
+    isSummary || pdfModeActive
+      ? classNames(classes.noRowSpacing, classes.grayUnderlineDotted)
+      : classes.blueUnderlineDotted;
+
   return (
     <tr
       key={uniqueId}
-      className={pdfModeActive ? classes.grayUnderline : classes.blueUnderlineDotted}
+      className={rowStyle}
       id={`altinn-file-list-row-${uniqueId}`}
       tabIndex={0}
     >
@@ -153,12 +160,7 @@ const FileTypeCell = ({ tagLabel }: { tagLabel: string | undefined }) => {
 const StatusCellContent = ({ uploaded, mobileView, status }) => (
   <td>
     {uploaded ? (
-      <div
-        className={classes.fileStatus}
-        data-testid='status-success'
-      >
-        {mobileView ? null : status}
-      </div>
+      <div data-testid='status-success'>{mobileView ? null : status}</div>
     ) : (
       <AltinnLoader
         id='loader-upload'

@@ -22,10 +22,6 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
       },
       ...component,
     },
-    genericProps: {
-      isValid: true,
-      ...rest.genericProps,
-    },
     ...rest,
   });
 
@@ -63,26 +59,6 @@ describe('MapComponent', () => {
 
     expect(screen.queryByText('Ingen lokasjon valgt')).not.toBeInTheDocument();
     expect(screen.getByText('Valgt lokasjon: 59.2641592° nord, 10.4036248° øst')).toBeInTheDocument();
-  });
-
-  it('should mark map component with validation error when validation fails', async () => {
-    await render({
-      genericProps: {
-        isValid: false,
-      },
-    });
-
-    expect(screen.getByTestId(/^map-container-.*/)).toHaveClass('mapError');
-  });
-
-  it('should not mark map component with validation error when validation succeeds', async () => {
-    await render({
-      genericProps: {
-        isValid: true,
-      },
-    });
-
-    expect(screen.getByTestId(/^map-container-.*/)).not.toHaveClass('mapError');
   });
 
   it('should show marker when marker is set', async () => {

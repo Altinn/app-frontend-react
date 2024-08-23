@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Grid } from '@material-ui/core';
-import Moment from 'moment';
+import moment from 'moment-timezone';
 
 import type { PropsFromGenericComponent } from '..';
 
@@ -12,10 +12,11 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useParties } from 'src/features/party/PartiesProvider';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { getDateFormat } from 'src/utils/dateHelpers';
+import { getDateFormat, PrettyDateAndTime } from 'src/utils/dateHelpers';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
-import type { CompInstanceInformationInternal } from 'src/layout/InstanceInformation/config.generated';
+import type { CompInternal } from 'src/layout/layout';
 import type { IInstance, IParty } from 'src/types/shared';
 
 export const returnInstanceMetaDataObject = (
@@ -59,7 +60,7 @@ export const returnInstanceMetaDataObject = (
 
 export const getInstanceReferenceNumber = (instance: IInstance): string => instance.id.split('/')[1].split('-')[4];
 
-export function InstanceInformation({ elements }: CompInstanceInformationInternal) {
+export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInformation'>, 'elements'>) {
   const { dateSent, sender, receiver, referenceNumber } = elements || {};
 
   const langTools = useLanguage();
@@ -73,7 +74,8 @@ export function InstanceInformation({ elements }: CompInstanceInformationInterna
     instance && parties?.find((party: IParty) => party.partyId.toString() === instance.instanceOwner.partyId);
 
   const instanceDateSent =
-    dateSent !== false && Moment(instance?.lastChanged).format(getDateFormat(undefined, selectedLanguage));
+    dateSent !== false &&
+    moment(instance?.lastChanged).tz('Europe/Oslo').format(getDateFormat(PrettyDateAndTime, selectedLanguage));
 
   const instanceSender =
     sender !== false &&
@@ -108,12 +110,13 @@ export function InstanceInformation({ elements }: CompInstanceInformationInterna
 }
 
 export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
+  const elements = useNodeItem(node, (i) => i.elements);
   return (
     <ComponentStructureWrapper
       node={node}
-      label={{ ...node.item, renderLabelAs: 'legend' }}
+      label={{ node, renderLabelAs: 'legend' }}
     >
-      <InstanceInformation {...node.item} />
+      <InstanceInformation elements={elements} />
     </ComponentStructureWrapper>
   );
 }

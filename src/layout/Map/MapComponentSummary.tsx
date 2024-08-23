@@ -2,11 +2,11 @@ import React from 'react';
 
 import { Typography } from '@material-ui/core';
 
-import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { Map } from 'src/layout/Map/Map';
 import classes from 'src/layout/Map/MapComponent.module.css';
 import { isLocationValid, parseLocation } from 'src/layout/Map/utils';
+import { useNodeFormData, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { RawGeometry } from 'src/layout/Map/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -15,9 +15,8 @@ export interface IMapComponentSummary {
 }
 
 export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
-  const { simpleBinding: markerBinding } = targetNode.item.dataModelBindings;
-  const formDataSelector = FD.useDebouncedSelector();
-  const formData = targetNode.getFormData(formDataSelector);
+  const markerBinding = useNodeItem(targetNode, (item) => item.dataModelBindings.simpleBinding);
+  const formData = useNodeFormData(targetNode);
   const markerLocation = parseLocation(formData.simpleBinding);
   const markerLocationIsValid = isLocationValid(markerLocation);
   const geometries = formData.geometries as RawGeometry[] | undefined;

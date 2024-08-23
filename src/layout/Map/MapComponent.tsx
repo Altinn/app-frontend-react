@@ -6,19 +6,24 @@ import cn from 'classnames';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
+import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { Map } from 'src/layout/Map/Map';
 import classes from 'src/layout/Map/MapComponent.module.css';
 import { isLocationValid, parseLocation } from 'src/layout/Map/utils';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { Location } from 'src/layout/Map/config.generated';
 import type { RawGeometry } from 'src/layout/Map/types';
 
 export type IMapComponentProps = PropsFromGenericComponent<'Map'>;
 
-export function MapComponent({ node, isValid }: IMapComponentProps) {
-  const { simpleBinding: markerBinding } = node.item.dataModelBindings;
-  const { formData, setValue } = useDataModelBindings(node.item.dataModelBindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
+export function MapComponent({ node }: IMapComponentProps) {
+  const isValid = useIsValid(node);
+  const dataModelBindings = useNodeItem(node, (item) => item.dataModelBindings);
+  const markerBinding = dataModelBindings.simpleBinding;
+
+  const { formData, setValue } = useDataModelBindings(dataModelBindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
 
   const markerLocation = parseLocation(formData.simpleBinding as string | undefined);
   const markerLocationIsValid = isLocationValid(markerLocation);
@@ -37,13 +42,13 @@ export function MapComponent({ node, isValid }: IMapComponentProps) {
     <ComponentStructureWrapper
       node={node}
       label={{
-        ...node.item,
+        node,
         renderLabelAs: 'span',
         className: classes.label,
       }}
     >
       <div
-        data-testid={`map-container-${node.item.id}`}
+        data-testid={`map-container-${node.id}`}
         className={cn({ [classes.mapError]: !isValid })}
       >
         <Map
