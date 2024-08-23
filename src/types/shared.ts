@@ -162,7 +162,7 @@ export interface IPerson {
   ssn: string;
   name: string;
   firstName: string;
-  middleName: string;
+  middleName: string | null;
   lastName: string;
   telephoneNumber: string;
   mobileNumber: string;

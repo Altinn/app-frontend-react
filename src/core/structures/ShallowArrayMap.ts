@@ -93,10 +93,6 @@ export class ShallowArrayMap<T> {
     return this.entries().map(([, value]) => value);
   }
 
-  public keys(): unknown[][] {
-    return this.entries().map(([key]) => key);
-  }
-
   public entries(): [unknown[], T][] {
     const out: [unknown[], T][] = [];
     for (const map of this.data) {
