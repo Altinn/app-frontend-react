@@ -107,39 +107,30 @@ export function getMapStartingView(
 export function parseGeometries(
   geometries: RawGeometry[] | undefined,
   geometryType?: IGeometryType,
-): [Geometry[] | null, string[] | null] {
+): Geometry[] | null {
   if (!geometries) {
-    return [null, null];
+    return null;
   }
 
   const out: Geometry[] = [];
-  const errors: string[] = [];
 
   for (const { data: rawData, label } of geometries) {
     if (geometryType === 'WKT') {
-      try {
-        const data = WKT.parse(rawData);
-        out.push({
-          data,
-          label,
-        });
-      } catch {
-        errors.push(`Failed to parse geometry as WKT:\n  ${rawData}`);
-      }
+      const data = WKT.parse(rawData);
+      out.push({
+        data,
+        label,
+      });
     } else {
-      try {
-        const data = JSON.parse(rawData) as GeoJSON;
-        out.push({
-          data,
-          label,
-        });
-      } catch {
-        errors.push(`Failed to parse geometry as GeoJSON:\n  ${rawData}`);
-      }
+      const data = JSON.parse(rawData) as GeoJSON;
+      out.push({
+        data,
+        label,
+      });
     }
   }
 
-  return !errors.length ? [out, null] : [null, errors];
+  return out;
 }
 
 export function calculateBounds(geometries: Geometry[] | null): LatLngBounds | undefined {

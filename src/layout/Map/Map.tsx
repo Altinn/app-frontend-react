@@ -79,14 +79,15 @@ export function Map({
   const markerLocationIsValid = isLocationValid(markerLocation);
 
   const geometries = useMemo(() => {
-    const [geometries, errors] = parseGeometries(rawGeometries, geometryType);
-    if (errors?.length) {
-      window.logErrorOnce(
-        `Map component "${mapNode.id}" failed to show geometries with the following errors:\n- ${errors.join('- \n')}`,
+    try {
+      const geometries = parseGeometries(rawGeometries, geometryType);
+      return geometries;
+    } catch {
+      throw new Error(
+        `Failed to parse geometry data as ${geometryType}:\n- ${rawGeometries?.map((g) => JSON.stringify(g)).join('\n- ')}`,
       );
     }
-    return geometries;
-  }, [mapNode, geometryType, rawGeometries]);
+  }, [geometryType, rawGeometries]);
 
   const geometryBounds = useMemo(() => calculateBounds(geometries), [geometries]);
 
