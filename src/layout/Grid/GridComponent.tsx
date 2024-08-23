@@ -25,9 +25,8 @@ import {
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
 import type { GridRowInternal } from 'src/layout/Grid/types';
@@ -263,7 +262,7 @@ function CellWithText({ children, className, columnStyleOptions, help, isHeader 
 
 function CellWithLabel({ className, columnStyleOptions, labelFrom, node, isHeader = false }: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
-  const labelFromNode = useNodeTraversal((t) => t.flat().find((n) => n.baseId === labelFrom), node);
+  const labelFromNode = useNode(labelFrom);
   const refItem = useNodeItem(labelFromNode);
   const trb = (refItem && 'textResourceBindings' in refItem ? refItem.textResourceBindings : {}) as
     | ITextResourceBindings

@@ -57,12 +57,12 @@ export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
   >;
 }
 
-export function useNodeDirectChildren(
-  parent: LayoutNode,
-  restriction?: TraversalRestriction,
-): LayoutNode[] | undefined {
-  return NodesInternal.useNodeData(parent, (store) =>
-    parent.def.pickDirectChildren(store as any, restriction).filter(typedBoolean),
+const emptyArray: LayoutNode[] = [];
+export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): LayoutNode[] {
+  return (
+    NodesInternal.useNodeData(parent, (store) =>
+      parent.def.pickDirectChildren(store as any, restriction).filter(typedBoolean),
+    ) ?? emptyArray
   );
 }
 

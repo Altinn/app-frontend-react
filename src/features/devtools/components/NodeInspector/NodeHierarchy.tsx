@@ -62,7 +62,7 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
   const nodeType = node.type;
   const nodeMultiPageIndex = node.multiPageIndex;
   const { onMouseEnter, onMouseLeave } = useComponentHighlighter(nodeId, false);
-  const children = useNodeDirectChildren(node) || [];
+  const children = useNodeDirectChildren(node);
   const hasChildren = children.length > 0;
   const isHidden = Hidden.useIsHidden(node, { respectDevTools: false });
 
