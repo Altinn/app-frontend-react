@@ -3,6 +3,7 @@ import type { MutableRefObject } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { typedBoolean } from 'src/utils/typing';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
@@ -60,7 +61,9 @@ export function useNodeDirectChildren(
   parent: LayoutNode,
   restriction?: TraversalRestriction,
 ): LayoutNode[] | undefined {
-  return NodesInternal.useNodeData(parent, (store) => parent.def.pickDirectChildren(store as any, restriction));
+  return NodesInternal.useNodeData(parent, (store) =>
+    parent.def.pickDirectChildren(store as any, restriction).filter(typedBoolean),
+  );
 }
 
 type NodeFormData<N extends LayoutNode | undefined> = N extends undefined
