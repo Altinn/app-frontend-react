@@ -7,7 +7,7 @@ import type { IAttachment } from 'src/features/attachments';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type {
-  IDataModelBindingsListInternal,
+  IDataModelBindingsList,
   IGridStyling,
   IPageBreak,
   ITableColumnFormatting,
@@ -18,7 +18,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type BindingToValues<B extends IDataModelBindings | undefined> = B extends undefined
   ? { [key: string]: undefined }
-  : B extends IDataModelBindingsListInternal
+  : B extends IDataModelBindingsList
     ? { list: string[] | undefined }
     : { [key in keyof B]: string | undefined };
 

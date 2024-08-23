@@ -1,5 +1,4 @@
 import type { IDataModelReference, ILayoutSet } from 'src/layout/common.generated';
-import type { UnprocessedItem } from 'src/utils/layout/HierarchyGenerator';
 
 export const GLOBAL_INDEX_KEY_INDICATOR_REGEX = /\[{\d+}]/g;
 
@@ -44,11 +43,9 @@ export function isDataModelReference(binding: unknown): binding is IDataModelRef
 
 /**
  * Mutates the data model bindings to convert from string representation with implicit data type to object with explicit data type
+ * TODO(Datamodels): what are the types now and where should this happen?
  */
-export function resolveDataModelBindings<Item extends UnprocessedItem = UnprocessedItem>(
-  item: Item,
-  currentLayoutSet: ILayoutSet | null,
-) {
+export function resolveDataModelBindings<Item extends object>(item: Item, currentLayoutSet: ILayoutSet | null) {
   if (!currentLayoutSet) {
     window.logErrorOnce('Failed to resolve dataModelBindings, layout set not found');
     return;

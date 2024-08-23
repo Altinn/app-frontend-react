@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { useCurrentDataModelSchemaLookup } from 'src/features/datamodel/DataModelSchemaProvider';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { formatLayoutSchemaValidationError } from 'src/features/devtools/utils/layoutSchemaValidation';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
@@ -30,11 +30,11 @@ export function NodePropertiesValidation(props: NodeValidationProps) {
 
 function DataModelValidation({ node, intermediateItem }: NodeValidationProps) {
   const addError = NodesInternal.useAddError();
-  const schemaLookup = useCurrentDataModelSchemaLookup();
+  const lookupBinding = DataModels.useLookupBinding();
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
 
   const errors = useMemo(() => {
-    if (window.forceNodePropertiesValidation === 'off') {
+    if (!lookupBinding || window.forceNodePropertiesValidation === 'off') {
       return [];
     }
 
@@ -43,13 +43,13 @@ function DataModelValidation({ node, intermediateItem }: NodeValidationProps) {
         node: node as LayoutNode<any>,
         item: intermediateItem as CompIntermediate<any>,
         nodeDataSelector,
-        lookupBinding: (binding: string) => schemaLookup.getSchemaForPath(binding),
+        lookupBinding,
       };
       return node.def.validateDataModelBindings(ctx as any);
     }
 
     return [];
-  }, [intermediateItem, node, schemaLookup, nodeDataSelector]);
+  }, [intermediateItem, node, lookupBinding, nodeDataSelector]);
 
   // Must run after nodes have been added for the errors to actually be added
   GeneratorStages.MarkHidden.useEffect(() => {

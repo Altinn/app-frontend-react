@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import { FrontendValidationSource, ValidationMask } from '..';
 
@@ -14,7 +14,22 @@ import type { ExpressionDataSources } from 'src/features/expressions/ExprContext
 import type { Expression } from 'src/features/expressions/types';
 import type { IDataModelReference, ILayoutSet } from 'src/layout/common.generated';
 
-export function ExpressionValidation({ dataType }: { dataType: string }) {
+export function ExpressionValidation() {
+  const writableDataTypes = DataModels.useWritableDataTypes();
+
+  return (
+    <>
+      {writableDataTypes.map((dataType) => (
+        <IndividualExpressionValidation
+          key={dataType}
+          dataType={dataType}
+        />
+      ))}
+    </>
+  );
+}
+
+function IndividualExpressionValidation({ dataType }: { dataType: string }) {
   const updateDataModelValidations = Validation.useUpdateDataModelValidations();
   const formData = FD.useDebounced(dataType);
   const expressionValidationConfig = DataModels.useExpressionValidationConfig(dataType);

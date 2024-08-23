@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { Fragment, useCallback, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -11,7 +11,6 @@ import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { BackendValidation } from 'src/features/validation/backendValidation/BackendValidation';
 import { useShouldValidateInitial } from 'src/features/validation/backendValidation/backendValidationUtils';
-import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
 import { SchemaValidation } from 'src/features/validation/schemaValidation/SchemaValidation';
 import {
@@ -137,11 +136,10 @@ export function ValidationProvider({ children }: PropsWithChildren) {
   return (
     <Provider>
       {writableDataTypes.map((dataType) => (
-        <>
+        <Fragment key={dataType}>
           <SchemaValidation dataType={dataType} />
-          <ExpressionValidation dataType={dataType} />
           <InvalidDataValidation dataType={dataType} />
-        </>
+        </Fragment>
       ))}
       <BackendValidation dataTypes={writableDataTypes} />
       <ManageShowAllErrors />
