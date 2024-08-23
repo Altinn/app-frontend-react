@@ -2,6 +2,7 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { MapComponent } from 'src/layout/Map/MapComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -15,7 +16,7 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
       required: false,
       textResourceBindings: {},
       dataModelBindings: {
-        simpleBinding: 'myCoords',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'myCoords' },
       },
       ...component,
     },

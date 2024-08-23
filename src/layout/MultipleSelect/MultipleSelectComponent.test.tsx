@@ -20,7 +20,7 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
       </>
     ),
     component: {
-      dataModelBindings: { simpleBinding: 'someField' },
+      dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'someField' } },
       options: [
         { value: 'value1', label: 'label1' },
         { value: 'value2', label: 'label2' },

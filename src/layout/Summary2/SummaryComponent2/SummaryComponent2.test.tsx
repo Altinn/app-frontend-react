@@ -2,6 +2,7 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { type BackendValidationIssue } from 'src/features/validation';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
 import { renderWithNode } from 'src/test/renderWithProviders';
@@ -21,7 +22,8 @@ describe('SummaryComponent', () => {
               ({
                 id: t,
                 type: t,
-                dataModelBindings: t === 'Input' ? { simpleBinding: 'field' } : {},
+                dataModelBindings:
+                  t === 'Input' ? { simpleBinding: { dataType: defaultDataTypeMock, field: 'field' } } : {},
                 textResourceBindings: {},
                 children: [],
                 maxCount: 10,
@@ -87,7 +89,7 @@ describe('SummaryComponent', () => {
               {
                 id: 'Input',
                 type: 'Input',
-                dataModelBindings: { simpleBinding: 'field' },
+                dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'field' } },
                 required: true,
               },
             ],
@@ -116,7 +118,7 @@ describe('SummaryComponent', () => {
               {
                 id: 'Input',
                 type: 'Input',
-                dataModelBindings: { simpleBinding: 'field' },
+                dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'field' } },
                 forceShowInSummary: true,
               },
             ],
@@ -145,13 +147,13 @@ describe('SummaryComponent', () => {
               {
                 id: 'Input',
                 type: 'Input',
-                dataModelBindings: { simpleBinding: 'field' },
+                dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'field' } },
                 required: true,
               },
               {
                 id: 'Input2',
                 type: 'Input',
-                dataModelBindings: { simpleBinding: 'field2' },
+                dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'field2' } },
                 required: true,
               },
             ],
@@ -180,13 +182,13 @@ describe('SummaryComponent', () => {
               {
                 id: 'Input',
                 type: 'Input',
-                dataModelBindings: { simpleBinding: 'field' },
+                dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'field' } },
                 required: false,
               },
               {
                 id: 'Input2',
                 type: 'Input',
-                dataModelBindings: { simpleBinding: 'field2' },
+                dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'field2' } },
                 required: false,
               },
             ],

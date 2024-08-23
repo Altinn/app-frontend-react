@@ -79,7 +79,7 @@ describe('openByDefault', () => {
         id: 'myGroup',
         type: 'RepeatingGroup',
         dataModelBindings: {
-          group: 'MyGroup',
+          group: { dataType: defaultDataTypeMock, field: 'MyGroup' },
         },
         children: ['name'],
         edit: {
@@ -91,7 +91,7 @@ describe('openByDefault', () => {
         id: 'name',
         type: 'Input',
         dataModelBindings: {
-          simpleBinding: 'MyGroup.name',
+          simpleBinding: { dataType: defaultDataTypeMock, field: 'MyGroup.name' },
         },
         showValidations: [],
       },

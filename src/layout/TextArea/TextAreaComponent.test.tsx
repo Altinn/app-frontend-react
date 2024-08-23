@@ -103,7 +103,7 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
     renderer: (props) => <TextAreaComponent {...props} />,
     component: {
       dataModelBindings: {
-        simpleBinding: 'myTextArea',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'myTextArea' },
       },
       ...component,
     },

@@ -85,9 +85,9 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
         FlagLink: 'FlagLink',
       },
       dataModelBindings: {
-        Name: 'CountryName',
-        Population: 'CountryPopulation',
-        HighestMountain: 'CountryHighestMountain',
+        Name: { dataType: defaultDataTypeMock, field: 'CountryName' },
+        Population: { dataType: defaultDataTypeMock, field: 'CountryPopulation' },
+        HighestMountain: { dataType: defaultDataTypeMock, field: 'CountryHighestMountain' },
       },
       sortableColumns: ['population', 'highestMountain'],
       pagination: paginationData,

@@ -42,7 +42,7 @@ describe('RepeatingGroupTable', () => {
       id: 'field1',
       type: 'Input',
       dataModelBindings: {
-        simpleBinding: 'some-group.prop1',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'some-group.prop1' },
       },
       showValidations: [],
       textResourceBindings: {
@@ -55,7 +55,7 @@ describe('RepeatingGroupTable', () => {
       id: 'field2',
       type: 'Input',
       dataModelBindings: {
-        simpleBinding: 'some-group.prop2',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'some-group.prop2' },
       },
       showValidations: [],
       textResourceBindings: {
@@ -68,7 +68,7 @@ describe('RepeatingGroupTable', () => {
       id: 'field3',
       type: 'Input',
       dataModelBindings: {
-        simpleBinding: 'some-group.prop3',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'some-group.prop3' },
       },
       showValidations: [],
       textResourceBindings: {
@@ -81,7 +81,7 @@ describe('RepeatingGroupTable', () => {
       id: 'field4',
       type: 'Checkboxes',
       dataModelBindings: {
-        simpleBinding: 'some-group.checkboxBinding',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'some-group.checkboxBinding' },
       },
       showValidations: [],
       textResourceBindings: {

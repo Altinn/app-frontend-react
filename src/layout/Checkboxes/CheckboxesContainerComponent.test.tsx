@@ -44,7 +44,7 @@ const render = async ({ component, options, formData, groupData = getFormDataMoc
     component: {
       optionsId: 'countries',
       dataModelBindings: {
-        simpleBinding: 'selectedValues',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'selectedValues' },
       },
       ...component,
     },

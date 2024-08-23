@@ -1,3 +1,4 @@
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import type { ILayout } from 'src/layout/layout';
 
 export function getFormLayoutMock(): ILayout {
@@ -6,7 +7,7 @@ export function getFormLayoutMock(): ILayout {
       id: 'field1',
       type: 'Input',
       dataModelBindings: {
-        simpleBinding: 'Group.prop1',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'Group.prop1' },
       },
       textResourceBindings: {
         title: 'Title',
@@ -18,7 +19,7 @@ export function getFormLayoutMock(): ILayout {
       id: 'field2',
       type: 'Input',
       dataModelBindings: {
-        simpleBinding: 'Group.prop2',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'Group.prop2' },
       },
       textResourceBindings: {
         title: 'Title',
@@ -30,7 +31,7 @@ export function getFormLayoutMock(): ILayout {
       id: 'field3',
       type: 'Input',
       dataModelBindings: {
-        simpleBinding: 'Group.prop3',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'Group.prop3' },
       },
       textResourceBindings: {
         title: 'Title',

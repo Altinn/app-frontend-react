@@ -84,7 +84,7 @@ describe('Expression validation shared tests', () => {
     jest.spyOn(Validation, 'useUpdateDataModelValidations').mockImplementation(() => updateDataModelValidations);
 
     await renderWithInstanceAndLayout({
-      renderer: () => <ExpressionValidation dataType={'data'} />,
+      renderer: () => <ExpressionValidation />,
       queries: {
         fetchLayouts: async () => layouts,
         fetchCustomValidationConfig: async () => validationConfig,

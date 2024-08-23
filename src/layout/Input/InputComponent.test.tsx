@@ -158,7 +158,7 @@ describe('InputComponent', () => {
         readOnly: false,
         required: false,
         dataModelBindings: {
-          simpleBinding: 'some.field',
+          simpleBinding: { dataType: defaultDataTypeMock, field: 'some.field' },
         },
         ...component,
       },

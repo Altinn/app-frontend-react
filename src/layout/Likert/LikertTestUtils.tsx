@@ -82,8 +82,8 @@ const createLikertLayout = (props: Partial<CompLikertExternal> | undefined): Com
     questions: 'likert-questions',
   },
   dataModelBindings: {
-    answer: `${groupBinding}.${answerBinding}`,
-    questions: groupBinding,
+    answer: { dataType: defaultDataTypeMock, field: `${groupBinding}.${answerBinding}` },
+    questions: { dataType: defaultDataTypeMock, field: groupBinding },
   },
   optionsId: 'option-test',
   readOnly: false,

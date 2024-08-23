@@ -67,7 +67,7 @@ async function render(props: RenderProps) {
                 type: props.type === 'single' ? 'Dropdown' : 'MultipleSelect',
                 id: 'myComponent',
                 dataModelBindings: {
-                  simpleBinding: 'result',
+                  simpleBinding: { dataType: defaultDataTypeMock, field: 'result' },
                 },
                 textResourceBindings: {
                   title: 'mockTitle',

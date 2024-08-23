@@ -60,7 +60,7 @@ const render = async ({ component, options, ...rest }: Props = {}) => {
       optionsId: 'countries',
       readOnly: false,
       dataModelBindings: {
-        simpleBinding: 'myDropdown',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'myDropdown' },
       },
       ...component,
     },
