@@ -36,12 +36,13 @@ import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 export function FormPrefetcher() {
   const layoutSetId = useLayoutSetId();
   const isPDF = useIsPdf();
+  const dataTypeId = useCurrentDataModelName() ?? 'unknown';
   const currentProcessTaskId = useLaxProcessData()?.currentTask?.elementId;
   const isStateless = useApplicationMetadata().isStatelessApp;
   const instance = useLaxInstance();
 
   // Prefetch layouts
-  usePrefetchQuery(useLayoutQueryDef(true, layoutSetId));
+  usePrefetchQuery(useLayoutQueryDef(true, dataTypeId, layoutSetId));
 
   // Prefetch default data model
   const url = getUrlWithLanguage(useCurrentDataModelUrl(true), useCurrentLanguage());
@@ -52,7 +53,6 @@ export function FormPrefetcher() {
   // Prefetch validations for default data model, as long as its writable
   const currentLanguage = useCurrentLanguage();
   const dataGuid = useCurrentDataModelGuid();
-  const dataTypeId = useCurrentDataModelName();
   const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
 
   // No need to load validations in PDF mode

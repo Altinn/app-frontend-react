@@ -8,6 +8,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
+import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { ITextResourceResult } from 'src/features/language/textResources';
@@ -168,6 +169,7 @@ export class ExternalApp {
     if (!this.dirExists(layoutsDir)) {
       throw new Error(`Layout set '${setId}' folder not found`);
     }
+    const set = this.getRawLayoutSets().sets.find((s) => s.id === setId);
 
     const collection: ILayoutCollection = {};
     for (const file of this.readDir(layoutsDir)) {
@@ -175,8 +177,11 @@ export class ExternalApp {
         continue;
       }
 
-      collection[file.replace('.json', '')] = this.readJson<ILayoutFile>(`${layoutsDir}/${file}`);
-      // TODO: Rewrite data model bindings
+      const pageKey = file.replace('.json', '');
+      collection[pageKey] = this.readJson<ILayoutFile>(`${layoutsDir}/${file}`);
+
+      const cleaned = cleanLayout(collection[pageKey].data.layout, set?.dataType ?? 'unknown');
+      collection[pageKey].data.layout = cleaned;
     }
 
     return collection;
