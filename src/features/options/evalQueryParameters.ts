@@ -1,10 +1,10 @@
 import { evalExpr } from 'src/features/expressions';
 import { type ExprResolved, ExprVal } from 'src/features/expressions/types';
-import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { IQueryParameters } from 'src/layout/common.generated';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 export function evalQueryParameters(props: ExprResolver<'List'>) {
   if (!props.item.queryParameters) {
