@@ -278,34 +278,6 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
   return out;
 }
 
-export function useNodeTraversalLax<Out>(
-  selector: (traverser: NodeTraversalFromRoot | typeof ContextNotProvided) => Out,
-): Out;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalLax<N extends LayoutPage, Out>(
-  selector: (traverser: NodeTraversalFromPage | typeof ContextNotProvided) => Out,
-  node: N,
-): Out;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalLax<N extends LayoutPage, Out>(
-  selector: (traverser: NodeTraversalFromPage | NodeTraversalFromRoot | typeof ContextNotProvided) => Out,
-  node: N | undefined,
-): Out;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalLax<N extends LayoutNode, Out>(
-  selector: (traverser: NodeTraversalFromNode<N> | typeof ContextNotProvided) => Out,
-  node: N,
-): Out;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalLax<N extends LayoutNode, Out>(
-  selector: (traverser: NodeTraversalFromNode<N> | NodeTraversalFromRoot | typeof ContextNotProvided) => Out,
-  node: N | undefined,
-): Out;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalLax<Out>(selector: (traverser: never) => Out, node?: never): Out {
-  return useNodeTraversalProto(selector, node, Strictness.returnContextNotProvided);
-}
-
 export function useNodeTraversal<Out>(selector: (traverser: NodeTraversalFromRoot) => Out): Out;
 // eslint-disable-next-line no-redeclare
 export function useNodeTraversal<N extends LayoutPage, Out>(
@@ -412,10 +384,4 @@ export function useNodeTraversalSelectorSilent() {
   return useNodeTraversalSelectorProto(Strictness.returnUndefined);
 }
 
-export type NodeTraversalSelector = ReturnType<typeof useNodeTraversalSelector>;
 export type NodeTraversalSelectorLax = ReturnType<typeof useNodeTraversalSelectorLax>;
-export type NodeTraversalSelectorSilent = ReturnType<typeof useNodeTraversalSelectorSilent>;
-
-export function nodeTraversalSelectorForTests(nodes: LayoutPages): NodeTraversalSelector {
-  return (selector: (traverser: NodeTraversalFromRoot) => any) => selector(new NodeTraversal({} as any, nodes, nodes));
-}
