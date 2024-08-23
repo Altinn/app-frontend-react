@@ -46,6 +46,7 @@ export function ComponentSummary<T extends CompTypes>({
   const noUserInput = Object.values(formData).every((value) => value?.length < 1);
 
   const renderedComponent = componentNode.def.renderSummary2 ? (componentNode.def as any).renderSummary2(props) : null;
+
   if (!renderedComponent) {
     return null;
   }
