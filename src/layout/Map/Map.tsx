@@ -7,6 +7,7 @@ import Icon from 'leaflet/dist/images/marker-icon.png';
 import RetinaIcon from 'leaflet/dist/images/marker-icon-2x.png';
 import IconShadow from 'leaflet/dist/images/marker-shadow.png';
 
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import classes from 'src/layout/Map/MapComponent.module.css';
 import {
   calculateBounds,
@@ -72,6 +73,7 @@ export function Map({
     geometryType,
   } = useNodeItem(mapNode);
 
+  const isPdf = useIsPdf();
   const isInteractive = !readOnly && !isSummary;
   const layers = customLayers ?? DefaultMapLayers;
   const markerLocationIsValid = isLocationValid(markerLocation);
@@ -96,7 +98,7 @@ export function Map({
 
   return (
     <MapContainer
-      className={cn(classes.map, { [classes.mapReadOnly]: !isInteractive }, className)}
+      className={cn(classes.map, { [classes.mapReadOnly]: !isInteractive, [classes.printHack]: isPdf }, className)}
       center={center}
       zoom={zoom}
       bounds={bounds}

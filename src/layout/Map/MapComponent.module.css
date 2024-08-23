@@ -7,6 +7,21 @@
   height: 40rem;
 }
 
+/**
+* This will give the map a square aspect ratio when loading the print page
+* Since it has @media only screen it will still scale to fit the page,
+* but the initial fitBounds will not depend on the PDF-service's browser viewport
+* Ideally, the browser's viewport would match the pages aspect ratio, as
+* geometries could still be cut off for extremely narrow pages, and would have a lot of
+* space on the right side for a landscape print, but for all "normal" portrait page formats
+* this should work well.
+**/
+@media only screen {
+  .print-hack {
+    width: 40rem;
+  }
+}
+
 /* We do not want the map to look faded in PDF, so using @media only screen */
 @media only screen {
   .map-read-only :global(.leaflet-tile-pane) {
