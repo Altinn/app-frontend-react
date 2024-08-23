@@ -180,23 +180,6 @@ export class NodeTraversal<T extends Node = LayoutPages> {
   }
 
   /**
-   * Find all nodes with a specific ID
-   */
-  findAllById(id: string | undefined): LayoutNode[] {
-    if ((this.target as any) instanceof BaseLayoutNode) {
-      throw new Error('Cannot call findAllById() on a LayoutNode object');
-    }
-
-    if (!id) {
-      return emptyArray;
-    }
-    return (this.target as LayoutPage | LayoutPages).findAllById(
-      new TraversalTask(this.state, this.rootNode, undefined, undefined),
-      id,
-    );
-  }
-
-  /**
    * Find a node (never a page) by the given ID
    */
   findById(id: string | undefined): LayoutNode | undefined {
@@ -238,10 +221,7 @@ export type NodeTraversalFrom<N extends Node> = N extends LayoutPages
 export type NodeTraversalFromAny = NodeTraversalFromRoot | NodeTraversalFromPage | NodeTraversalFromNode<LayoutNode>;
 export type NodeTraversalFromRoot = Omit<NodeTraversal, 'parents'>;
 export type NodeTraversalFromPage = Omit<NodeTraversal<LayoutPage>, 'allNodes' | 'findPage'>;
-export type NodeTraversalFromNode<N extends LayoutNode> = Omit<
-  NodeTraversal<N>,
-  'allNodes' | 'findPage' | 'findById' | 'findAllById'
->;
+export type NodeTraversalFromNode<N extends LayoutNode> = Omit<NodeTraversal<N>, 'allNodes' | 'findPage' | 'findById'>;
 
 enum Strictness {
   // If the context or nodes are not provided, throw an error upon traversal
