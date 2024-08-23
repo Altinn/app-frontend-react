@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { AttributionControl, GeoJSON, MapContainer, Marker, TileLayer, Tooltip, useMapEvent } from 'react-leaflet';
 
 import cn from 'classnames';
@@ -32,7 +32,7 @@ const markerIcon = icon({
   iconAnchor: [12, 41],
 });
 
-function MapClickHandler({ onClick }: { map: LeafletMap; onClick: (location: Location) => void }) {
+function MapClickHandler({ onClick }: { onClick: (location: Location) => void }) {
   useMapEvent('click', (event) => {
     if (!event.originalEvent.defaultPrevented) {
       const location = event.latlng.wrap();
@@ -63,7 +63,7 @@ export function Map({
   geometries: rawGeometries,
   className,
 }: MapProps) {
-  const [map, setMap] = useState<LeafletMap | null>(null);
+  const map = useRef<LeafletMap | null>(null);
 
   const {
     readOnly,
@@ -77,27 +77,38 @@ export function Map({
   const isInteractive = !readOnly && !isSummary;
   const layers = customLayers ?? DefaultMapLayers;
   const markerLocationIsValid = isLocationValid(markerLocation);
-  const geometries = useMemo(() => parseGeometries(rawGeometries, geometryType), [geometryType, rawGeometries]);
+
+  const geometries = useMemo(() => {
+    const [geometries, errors] = parseGeometries(rawGeometries, geometryType);
+    if (errors?.length) {
+      window.logErrorOnce(
+        `Map component "${mapNode.id}" failed to show geometries with the following errors:\n- ${errors.join('- \n')}`,
+      );
+    }
+    return geometries;
+  }, [mapNode, geometryType, rawGeometries]);
+
   const geometryBounds = useMemo(() => calculateBounds(geometries), [geometries]);
 
   const { center, zoom, bounds } = getMapStartingView(markerLocation, customCenterLocation, customZoom, geometryBounds);
 
   useEffect(() => {
-    if (markerLocationIsValid && map) {
-      map.flyTo({ lat: markerLocation.latitude, lng: markerLocation.longitude }, DefaultFlyToZoomLevel, {
+    if (markerLocationIsValid) {
+      map.current?.flyTo({ lat: markerLocation.latitude, lng: markerLocation.longitude }, DefaultFlyToZoomLevel, {
         animate: !isSummary,
       });
     }
-  }, [isSummary, markerLocationIsValid, map, markerLocation]);
+  }, [isSummary, markerLocationIsValid, markerLocation]);
 
   useEffect(() => {
-    if (bounds && map) {
-      map.fitBounds(bounds, { padding: DefaultBoundsPadding, animate: !isSummary });
+    if (bounds) {
+      map.current?.fitBounds(bounds, { padding: DefaultBoundsPadding, animate: !isSummary });
     }
-  }, [bounds, isSummary, map]);
+  }, [bounds, isSummary]);
 
   return (
     <MapContainer
+      ref={map}
       className={cn(classes.map, { [classes.mapReadOnly]: !isInteractive, [classes.printHack]: isPdf }, className)}
       center={center}
       zoom={zoom}
@@ -115,14 +126,8 @@ export function Map({
       doubleClickZoom={isInteractive}
       scrollWheelZoom={isInteractive}
       attributionControl={false}
-      ref={setMap}
     >
-      {map && setMarkerLocation && isInteractive && (
-        <MapClickHandler
-          map={map}
-          onClick={setMarkerLocation}
-        />
-      )}
+      {setMarkerLocation && isInteractive && <MapClickHandler onClick={setMarkerLocation} />}
       {layers.map((layer, i) => (
         <TileLayer
           key={i}
