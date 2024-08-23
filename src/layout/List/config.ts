@@ -13,7 +13,7 @@ export const Config = new CG.component({
     renderInTabs: true,
   },
   functionality: {
-    customExpressions: false,
+    customExpressions: true,
   },
 })
   .extends(CG.common('LabeledComponentProps'))

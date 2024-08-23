@@ -5,12 +5,10 @@ import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
-import { Loader } from 'src/core/loading/Loader';
 import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { BackendValidation } from 'src/features/validation/backendValidation/BackendValidation';
-import { useShouldValidateInitial } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
 import { SchemaValidation } from 'src/features/validation/schemaValidation/SchemaValidation';
 import {
@@ -34,7 +32,6 @@ import type {
 } from 'src/features/validation';
 
 interface Internals {
-  isLoading: boolean;
   individualValidations: {
     backend: DataModelValidations;
     expression: DataModelValidations;
@@ -77,7 +74,6 @@ function initialCreateStore() {
 
       // =======
       // Internal state
-      isLoading: true,
       individualValidations: {
         backend: {},
         expression: {},
@@ -143,7 +139,7 @@ export function ValidationProvider({ children }: PropsWithChildren) {
       ))}
       <BackendValidation dataTypes={writableDataTypes} />
       <ManageShowAllErrors />
-      <LoadingBlocker>{children}</LoadingBlocker>
+      {children}
     </Provider>
   );
 }
@@ -192,27 +188,6 @@ export function ProvideWaitForValidation() {
   }, [updateValidating, validate]);
 
   return null;
-}
-
-export function LoadingBlockerWaitForValidation({ children }: PropsWithChildren) {
-  const validating = useSelector((state) => state.validating);
-  const shouldValidateInitial = useShouldValidateInitial();
-  if (!validating && shouldValidateInitial) {
-    return <Loader reason='validation-awaiter' />;
-  }
-
-  return <>{children}</>;
-}
-
-function LoadingBlocker({ children }: PropsWithChildren) {
-  const isLoading = useSelector((state) => state.isLoading);
-  const shouldValidateInitial = useShouldValidateInitial();
-
-  if (isLoading && shouldValidateInitial) {
-    return <Loader reason='validation' />;
-  }
-
-  return <>{children}</>;
 }
 
 function ManageShowAllErrors() {

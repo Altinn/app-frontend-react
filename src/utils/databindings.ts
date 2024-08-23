@@ -1,4 +1,4 @@
-import type { IDataModelReference, ILayoutSet } from 'src/layout/common.generated';
+import type { IDataModelReference } from 'src/layout/common.generated';
 
 export const GLOBAL_INDEX_KEY_INDICATOR_REGEX = /\[{\d+}]/g;
 
@@ -39,24 +39,4 @@ export function isDataModelReference(binding: unknown): binding is IDataModelRef
     'dataType' in binding &&
     typeof binding.dataType === 'string'
   );
-}
-
-/**
- * Mutates the data model bindings to convert from string representation with implicit data type to object with explicit data type
- * TODO(Datamodels): what are the types now and where should this happen?
- */
-export function resolveDataModelBindings<Item extends object>(item: Item, currentLayoutSet: ILayoutSet | null) {
-  if (!currentLayoutSet) {
-    window.logErrorOnce('Failed to resolve dataModelBindings, layout set not found');
-    return;
-  }
-
-  if ('dataModelBindings' in item && item.dataModelBindings) {
-    const dataType = currentLayoutSet.dataType;
-    for (const [bindingKey, binding] of Object.entries(item.dataModelBindings)) {
-      if (typeof binding === 'string') {
-        item.dataModelBindings[bindingKey] = { dataType, field: binding };
-      }
-    }
-  }
 }
