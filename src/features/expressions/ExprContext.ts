@@ -23,7 +23,6 @@ export interface ExpressionDataSources {
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
   formDataSelector: FormDataSelector;
-  invalidDataSelector: FormDataSelector;
   formDataRowsSelector: FormDataRowsSelector;
   attachmentsSelector: AttachmentsSelector;
   layoutSettings: ILayoutSettings;

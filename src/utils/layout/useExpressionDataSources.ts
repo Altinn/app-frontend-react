@@ -21,7 +21,6 @@ import type { ExpressionDataSources } from 'src/features/expressions/ExprContext
 export function useExpressionDataSources(): ExpressionDataSources {
   const instanceDataSources = useLaxInstanceDataSources();
   const formDataSelector = FD.useDebouncedSelector();
-  const invalidDataSelector = FD.useInvalidDebouncedSelector();
   const formDataRowsSelector = FD.useDebouncedRowsSelector();
   const layoutSettings = useLayoutSettings();
   const attachmentsSelector = useAttachmentsSelector();
@@ -38,17 +37,11 @@ export function useExpressionDataSources(): ExpressionDataSources {
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
   const nodeTraversal = useNodeTraversalSelectorLax();
   const transposeSelector = useDataModelBindingTranspose();
-  const currentLayoutSet = useCurrentLayoutSet();
-
-  if (!currentLayoutSet) {
-    // TODO(Datamodels): How should this be handled, we cant run expressions without a layout-set right?
-    throw new Error('No layout-set found');
-  }
+  const currentLayoutSet = useCurrentLayoutSet() ?? null;
 
   return useMemo(
     () => ({
       formDataSelector,
-      invalidDataSelector,
       formDataRowsSelector,
       attachmentsSelector,
       layoutSettings,
@@ -70,7 +63,6 @@ export function useExpressionDataSources(): ExpressionDataSources {
     }),
     [
       formDataSelector,
-      invalidDataSelector,
       formDataRowsSelector,
       attachmentsSelector,
       layoutSettings,

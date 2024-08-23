@@ -363,42 +363,39 @@ function hasUnsavedChanges(state: FormDataContext, dataType?: string) {
   return Object.keys(state.dataModels).some((dataType) => dataTypeHasUnsavedChanges(state, dataType));
 }
 
-const useHasUnsavedChanges = (dataType?: string) => {
-  const isSaving = useIsSaving(dataType);
-  const result = useLaxMemoSelector((state) => hasUnsavedChanges(state, dataType));
+const useHasUnsavedChanges = () => {
+  const isSaving = useIsSaving();
+  const result = useLaxMemoSelector((state) => hasUnsavedChanges(state));
   if (result === ContextNotProvided) {
     return false;
   }
   return result || isSaving;
 };
 
-const useHasUnsavedChangesNow = (dataType?: string) => {
+const useHasUnsavedChangesNow = () => {
   const store = useStore();
-  const isSavingNow = useIsSavingNow(dataType);
+  const isSavingNow = useIsSavingNow();
 
   return useCallback(() => {
-    if (hasUnsavedChanges(store.getState(), dataType)) {
+    if (hasUnsavedChanges(store.getState())) {
       return true;
     }
 
     return isSavingNow();
-  }, [store, dataType, isSavingNow]);
+  }, [store, isSavingNow]);
 };
 
-const useIsSavingNow = (dataType?: string) => {
-  const maybeSaveUrl = useLaxSelector((s) => (dataType ? s.dataModels[dataType].saveUrl : undefined));
+const useIsSavingNow = () => {
   const queryClient = useQueryClient();
 
   return useCallback(() => {
     const numRequests = queryClient.getMutationCache().findAll({
       status: 'pending',
-      mutationKey: dataType
-        ? ['saveFormData', typeof maybeSaveUrl === 'string' ? maybeSaveUrl : '__never__']
-        : ['saveFormData'],
+      mutationKey: ['saveFormData'],
     }).length;
 
     return numRequests > 0;
-  }, [queryClient, dataType, maybeSaveUrl]);
+  }, [queryClient]);
 };
 
 const useWaitForSave = () => {
