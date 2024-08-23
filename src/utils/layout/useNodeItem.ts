@@ -69,9 +69,8 @@ type NodeFormData<N extends LayoutNode | undefined> = N extends undefined
 
 const emptyObject = {};
 export function useNodeFormData<N extends LayoutNode | undefined>(node: N): NodeFormData<N> {
-  const nodeItem = useNodeItem(node);
+  const dataModelBindings = useNodeItem(node, (i) => i?.dataModelBindings);
   const formDataSelector = FD.useDebouncedSelector();
-  const dataModelBindings = nodeItem?.dataModelBindings;
 
   return useMemo(
     () => (dataModelBindings ? getNodeFormData(dataModelBindings, formDataSelector) : emptyObject) as NodeFormData<N>,
