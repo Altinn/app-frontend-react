@@ -1,10 +1,9 @@
 import React from 'react';
 
-import MomentUtils from '@date-io/moment';
 import { Grid, makeStyles } from '@material-ui/core';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { CalendarIcon } from '@navikt/aksel-icons';
-import moment from 'moment';
+import { isValid as isValidDate, set } from 'date-fns';
 import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
@@ -13,7 +12,15 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { getDateConstraint, getDateFormat, getDateString } from 'src/utils/dateHelpers';
+import {
+  convertToDatepickerFormat,
+  getDateConstraint,
+  getDateFormat,
+  getDateUtils,
+  getLocale,
+  getSaveFormattedDateString,
+  parseISOString,
+} from 'src/utils/dateHelpers';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -94,15 +101,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-class AltinnMomentUtils extends MomentUtils {
-  getDatePickerHeaderText(date: moment.Moment) {
-    if (date && date.locale() === 'nb') {
-      return date.format('dddd, D. MMMM');
-    }
-    return super.getDatePickerHeaderText(date);
-  }
-}
-
 // We dont use the built-in validation for the 3rd party component, so it is always empty string
 const emptyString = '';
 
@@ -125,19 +123,19 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');
-
-  const calculatedFormat = getDateFormat(format, languageLocale);
+  const resolvedFormat = getDateFormat(format, languageLocale);
+  const calculatedFormat = convertToDatepickerFormat(resolvedFormat);
+  const DateUtilsProvider = getDateUtils(resolvedFormat, calculatedFormat);
   const isMobile = useIsMobile();
 
   const { setValue, debounce, formData } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding;
-  const dateValue = moment(formData.simpleBinding, moment.ISO_8601);
-  const [date, input] = dateValue.isValid() ? [dateValue, undefined] : [null, value ?? ''];
+  const { date, input } = parseISOString(value);
 
   const handleDateValueChange = (dateValue: MaterialUiPickersDate, inputValue: string | undefined) => {
-    if (dateValue?.isValid()) {
-      dateValue.set('hour', 12).set('minute', 0).set('second', 0).set('millisecond', 0);
-      setValue('simpleBinding', getDateString(dateValue, timeStamp));
+    if (dateValue && isValidDate(dateValue)) {
+      dateValue = set(dateValue as Date, { hours: 12, minutes: 0, seconds: 0, milliseconds: 0 });
+      setValue('simpleBinding', getSaveFormattedDateString(dateValue, timeStamp));
     } else {
       setValue('simpleBinding', inputValue ?? '');
     }
@@ -156,7 +154,10 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
       node={node}
       label={{ node, renderLabelAs: 'label' }}
     >
-      <MuiPickersUtilsProvider utils={AltinnMomentUtils}>
+      <MuiPickersUtilsProvider
+        utils={DateUtilsProvider}
+        locale={getLocale(languageLocale)}
+      >
         <Grid
           container
           item

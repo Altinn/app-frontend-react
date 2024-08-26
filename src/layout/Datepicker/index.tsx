@@ -1,14 +1,14 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import moment from 'moment';
+//import moment from 'moment';
+import { formatISO, isAfter, isBefore, isValid } from 'date-fns';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { DatepickerDef } from 'src/layout/Datepicker/config.def.generated';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
-import { formatISOString } from 'src/utils/formatDate';
+import { formatISOString, getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
@@ -80,9 +80,9 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
 
     const validations: ComponentValidation[] = [];
 
-    const date = moment(dataAsString, moment.ISO_8601);
+    const date = formatISO(dataAsString);
 
-    if (!date.isValid()) {
+    if (!isValid(date)) {
       validations.push({
         message: { key: 'date_picker.invalid_date_message', params: [format] },
         severity: 'error',
@@ -91,14 +91,14 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
       });
     }
 
-    if (date.isBefore(minDate)) {
+    if (isBefore(date, minDate)) {
       validations.push({
         message: { key: 'date_picker.min_date_exeeded' },
         severity: 'error',
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });
-    } else if (date.isAfter(maxDate)) {
+    } else if (isAfter(date, maxDate)) {
       validations.push({
         message: { key: 'date_picker.max_date_exeeded' },
         severity: 'error',
