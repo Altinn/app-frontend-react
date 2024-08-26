@@ -152,8 +152,6 @@ function DataModelsLoader() {
   // Find all data types referenced in dataModelBindings in the layout
   useEffect(() => {
     const allDataTypes = getAllReferencedDataTypes(layouts, defaultDataType);
-    // TODO(Datamodels): Remove
-    console.log('allDataTypes', allDataTypes);
 
     // Verify that referenced data types are defined in application metadata, have a classRef, and have a corresponding data element in the instance data
     for (const dataType of allDataTypes) {

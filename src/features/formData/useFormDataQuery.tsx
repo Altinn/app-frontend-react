@@ -40,9 +40,16 @@ export function useFormDataQueryOptions() {
   return options;
 }
 
-// We dont want to include the current language in the cacheKey url
+// We dont want to include the current language in the cacheKey url, but for stateless we still need to keep
+// the 'dataType' query parameter in the cacheKey url to avoid caching issues.
 export function getFormDataCacheKeyUrl(url: string | undefined) {
-  return url ? new URL(url).pathname : undefined;
+  if (!url) {
+    return undefined;
+  }
+  const urlObj = new URL(url);
+  const searchParams = new URLSearchParams(urlObj.search);
+  searchParams.delete('language');
+  return `${urlObj.pathname}?${searchParams.toString()}`;
 }
 
 export function useFormDataQuery(url: string | undefined) {
@@ -59,7 +66,6 @@ export function useFormDataQuery(url: string | undefined) {
   const cacheKeyUrl = getFormDataCacheKeyUrl(url);
 
   // We dont want to refetch if only the language changes
-  // const utils = useQuery({
   const utils = useQuery(useFormDataQueryDef(cacheKeyUrl, currentProcessTaskId, url, options));
 
   useEffect(() => {

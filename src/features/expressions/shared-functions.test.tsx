@@ -171,9 +171,8 @@ describe('Expressions shared function tests', () => {
         if (!dataModels) {
           return dataModel ?? {};
         }
-        console.info('url', url);
 
-        const statelessDataType = url.match(/dataType=(\w+)&/)?.[1];
+        const statelessDataType = url.match(/dataType=([\w-]+)&/)?.[1];
         const statefulDataElementId = url.match(/data\/([a-f0-9-]+)\?/)?.[1];
 
         const model = dataModels.find(
