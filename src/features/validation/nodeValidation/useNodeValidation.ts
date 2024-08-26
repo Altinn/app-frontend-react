@@ -43,7 +43,7 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
       (dataModelBindings ?? {}) as Record<string, IDataModelReference>,
     )) {
       const fieldValidations = dataModelSelector(
-        (dataModels) => dataModels[reference.dataType][reference.field],
+        (dataModels) => dataModels[reference.dataType]?.[reference.field],
         [reference],
       );
       if (fieldValidations) {
