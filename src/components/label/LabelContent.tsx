@@ -13,7 +13,7 @@ import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
 export type LabelContentProps = Readonly<{
-  id?: string;
+  id: string;
   label?: string;
   description?: string;
   required?: boolean;
