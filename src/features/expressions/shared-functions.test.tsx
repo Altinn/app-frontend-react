@@ -19,6 +19,7 @@ import type { SharedTestFunctionContext } from 'src/features/expressions/shared'
 import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { ILayoutCollection } from 'src/layout/layout';
+import type { IData, IDataType } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 jest.mock('src/features/externalApi/useExternalApi');
@@ -131,7 +132,7 @@ describe('Expressions shared function tests', () => {
             : undefined;
 
       const applicationMetadata = getIncomingApplicationMetadataMock(
-        instance ? {} : { onEntry: { show: 'stateless' }, externalApiIds: ['testId'] },
+        instance ? {} : { onEntry: { show: 'layout-set' }, externalApiIds: ['testId'] },
       );
       if (instanceDataElements) {
         for (const element of instanceDataElements) {
@@ -145,10 +146,60 @@ describe('Expressions shared function tests', () => {
           }
         }
       }
+      if (dataModels) {
+        applicationMetadata.dataTypes.push(
+          ...(dataModels.map((dm) => ({
+            id: dm.dataElement.dataType,
+            appLogic: { classRef: 'some-class' },
+            taskId: 'Task_1',
+          })) as IDataType[]),
+        );
+      }
+      if (!applicationMetadata.dataTypes.find((d) => d.id === 'default')) {
+        applicationMetadata.dataTypes.push({
+          id: 'default',
+          appLogic: { classRef: 'some-class', taskId: 'Task_1' },
+        } as unknown as IDataType);
+      }
 
       const profile = getProfileMock();
       if (profileSettings?.language) {
         profile.profileSettingPreference.language = profileSettings.language;
+      }
+
+      async function fetchFormData(url: string) {
+        if (!dataModels) {
+          return dataModel ?? {};
+        }
+        console.info('url', url);
+
+        const statelessDataType = url.match(/dataType=(\w+)&/)?.[1];
+        const statefulDataElementId = url.match(/data\/([a-f0-9-]+)\?/)?.[1];
+
+        const model = dataModels.find(
+          (dm) => dm.dataElement.dataType === statelessDataType || dm.dataElement.id === statefulDataElementId,
+        );
+        if (model) {
+          return model.data;
+        }
+        throw new Error(`Datamodel ${url} not found in ${JSON.stringify(dataModels)}`);
+      }
+
+      async function fetchInstanceData() {
+        let instanceData = getInstanceDataMock();
+        if (instance) {
+          instanceData = { ...instanceData, ...instance };
+        }
+        if (instanceDataElements) {
+          instanceData.data.push(...instanceDataElements);
+        }
+        if (dataModels) {
+          instanceData.data.push(...dataModels.map((dm) => dm.dataElement));
+        }
+        if (!instanceData.data.find((d) => d.dataType === 'default')) {
+          instanceData.data.push({ id: 'abc', dataType: 'default' } as IData);
+        }
+        return instanceData;
       }
 
       // Clear localstorage, because LanguageProvider uses it to cache selected languages
@@ -168,10 +219,10 @@ describe('Expressions shared function tests', () => {
         ),
         inInstance: !!instance,
         queries: {
+          fetchLayoutSets: async () => ({ sets: [{ id: 'layout-set', dataType: 'default', tasks: ['Task_1'] }] }),
           fetchLayouts: async () => layouts ?? getDefaultLayouts(),
-          // TODO(Datamodels): add support for multiple data models
-          fetchFormData: async () => dataModel ?? {},
-          ...(instance ? { fetchInstanceData: async () => instance } : {}),
+          fetchFormData,
+          fetchInstanceData,
           ...(process ? { fetchProcessState: async () => process } : {}),
           ...(frontendSettings ? { fetchApplicationSettings: async () => frontendSettings } : {}),
           fetchUserProfile: async () => profile,

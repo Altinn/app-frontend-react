@@ -44,6 +44,8 @@ export function getAllReferencedDataTypes(layouts: ILayouts, defaultDataType?: s
 
   if (defaultDataType) {
     dataTypes.add(defaultDataType);
+    // TODO(Datamodels): Remove
+    console.log('from layout-sets', defaultDataType);
   }
 
   for (const layout of Object.values(layouts)) {
@@ -52,6 +54,8 @@ export function getAllReferencedDataTypes(layouts: ILayouts, defaultDataType?: s
         for (const binding of Object.values(component.dataModelBindings)) {
           if (isDataModelReference(binding)) {
             dataTypes.add(binding.dataType);
+            // TODO(Datamodels): Remove
+            console.log('from dmb', binding.dataType);
           }
         }
       }
@@ -77,6 +81,7 @@ function addDataTypesFromExpressionsRecursive(obj: unknown, dataTypes: Set<strin
       const maybeDataType = obj.at(2);
       if (typeof maybeDataType === 'string') {
         dataTypes.add(maybeDataType);
+        console.log('from expressions', maybeDataType);
       } else {
         window.logWarnOnce(
           'A non-string value was found when looking for dataType references in expressions, the following dataType could not be determined:\n',

@@ -45,6 +45,8 @@ function useLayoutQuery() {
   const process = useLaxProcessData();
   const currentLayoutSetId = useLayoutSetId();
   const defaultDataModel = useCurrentDataModelName() ?? 'unknown';
+  // TODO(Datamodels): Remove
+  console.log('defaultDataModel', defaultDataModel);
 
   // Waiting to fetch layouts until we have an instance, if we're supposed to have one
   // We don't want to fetch form layouts for a process step which we are currently not on
