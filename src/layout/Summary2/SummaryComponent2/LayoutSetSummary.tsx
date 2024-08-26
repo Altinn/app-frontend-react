@@ -9,7 +9,7 @@ import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
 import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 
 interface LayoutSetSummaryProps {
-  layoutSetId?: string;
+  pageKey?: string;
 }
 
 export function TaskSummaryAccordion({ pageKey, children }: React.PropsWithChildren<{ pageKey: string }>) {
@@ -32,7 +32,7 @@ export function TaskSummaryAccordion({ pageKey, children }: React.PropsWithChild
   );
 }
 
-export function LayoutSetSummary({ layoutSetId }: LayoutSetSummaryProps) {
+export function LayoutSetSummary({ pageKey }: LayoutSetSummaryProps) {
   const pageOrder = usePageOrder();
 
   const { summaryItem } = useTaskStore((state) => ({
@@ -40,10 +40,10 @@ export function LayoutSetSummary({ layoutSetId }: LayoutSetSummaryProps) {
   }));
 
   const filteredPages = pageOrder.filter((layoutId) => {
-    if (!layoutSetId) {
+    if (!pageKey) {
       return layoutId;
     }
-    return layoutId === layoutSetId;
+    return layoutId === pageKey;
   });
 
   return filteredPages.map((layoutId, idx) => (

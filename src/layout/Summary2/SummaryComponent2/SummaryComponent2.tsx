@@ -26,7 +26,7 @@ function SummaryBody({ target }: SummaryBodyProps) {
   }
 
   if (target.type === 'page') {
-    return <LayoutSetSummary layoutSetId={target.id} />;
+    return <LayoutSetSummary pageKey={target.id} />;
   }
 
   if (target.type === 'component') {
