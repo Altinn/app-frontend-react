@@ -39,7 +39,6 @@ export class RadioButtons extends RadioButtonsDef {
     return (
       <RadioButtonsSummary
         componentNode={props.target}
-        summaryOverrides={props.overrides}
         displayData={displayData}
         isCompact={props.isCompact}
       />
