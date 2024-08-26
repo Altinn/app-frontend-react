@@ -67,7 +67,7 @@ function DataModelValidation<T extends CompTypes>({ node, intermediateItem }: No
   return null;
 }
 
-function SchemaValidation<T extends CompTypes>({ node, intermediateItem }: NodeValidationProps<T>) {
+function SchemaValidation<T extends CompTypes>({ node, externalItem }: NodeValidationProps<T>) {
   const validate = GeneratorValidation.useValidate();
   const addError = NodesInternal.useAddError();
 
@@ -76,7 +76,7 @@ function SchemaValidation<T extends CompTypes>({ node, intermediateItem }: NodeV
       return;
     }
     const def = getNodeDef(node);
-    const errors = def.validateLayoutConfig(intermediateItem, validate);
+    const errors = def.validateLayoutConfig(externalItem, validate);
     if (!errors) {
       return;
     }
@@ -94,7 +94,7 @@ function SchemaValidation<T extends CompTypes>({ node, intermediateItem }: NodeV
     for (const error of errorMessages) {
       addError(error, node);
     }
-  }, [node, intermediateItem, validate, addError]);
+  }, [node, externalItem, validate, addError]);
 
   return null;
 }

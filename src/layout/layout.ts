@@ -158,5 +158,6 @@ export type CompWithBehavior<Behavior extends keyof CompBehaviors> = {
 
 export interface NodeValidationProps<T extends CompTypes> {
   node: LayoutNode<T>;
+  externalItem: CompExternal<T>;
   intermediateItem: CompIntermediate<T>;
 }
