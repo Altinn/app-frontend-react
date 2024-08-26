@@ -1,10 +1,6 @@
 {
   "name": "dataModel non default data type lookup",
-  "expression": [
-    "dataModel",
-    "a.value",
-    "non-defualt"
-  ],
+  "expression": ["dataModel", "a.value", "non-default"],
   "expects": "valueFromNonDefaultModel",
   "dataModels": [
     {
@@ -21,7 +17,7 @@
     {
       "dataElement": {
         "id": "123",
-        "dataType": "non-defualt"
+        "dataType": "non-default"
       },
       "data": {
         "a": {
@@ -37,7 +33,13 @@
         "layout": [
           {
             "id": "current-component",
-            "type": "Paragraph"
+            "type": "Input",
+            "dataModelBindings": {
+              "simpleBinding": {
+                "dataType": "non-default",
+                "field": "a.value"
+              }
+            }
           }
         ]
       }

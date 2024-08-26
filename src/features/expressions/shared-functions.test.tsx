@@ -5,7 +5,6 @@ import { screen } from '@testing-library/react';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
-import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getSharedTests } from 'src/features/expressions/shared';
@@ -52,7 +51,7 @@ function getDefaultLayouts(): ILayoutCollection {
             id: 'default',
             type: 'Input',
             dataModelBindings: {
-              simpleBinding: { dataType: defaultDataTypeMock, field: 'mockField' },
+              simpleBinding: { dataType: 'default', field: 'mockField' },
             },
           },
         ],
