@@ -3,6 +3,7 @@ import React from 'react';
 import { jest } from '@jest/globals';
 import fs from 'node:fs';
 
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
@@ -92,7 +93,11 @@ describe('Expression validation shared tests', () => {
       },
     });
 
-    expect(updateDataModelValidations).toHaveBeenCalledWith('expression', 'data', expect.objectContaining({}));
+    expect(updateDataModelValidations).toHaveBeenCalledWith(
+      'expression',
+      defaultDataTypeMock,
+      expect.objectContaining({}),
+    );
 
     // Format results in a way that makes it easier to compare
     const validations = JSON.stringify(
