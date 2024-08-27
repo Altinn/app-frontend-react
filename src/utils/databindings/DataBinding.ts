@@ -68,7 +68,7 @@ export function transposeDataBinding({
   currentLocationIsRepGroup,
 }: TransposeDataBindingParams): IDataModelReference {
   if (currentLocation.dataType !== subject.dataType) {
-    return currentLocation;
+    return subject;
   }
 
   const ourBinding = new DataBinding(currentLocation);
