@@ -330,45 +330,59 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
     if (variable.dataSource.startsWith('dataModel')) {
       const dataModelName = variable.dataSource.split('.')[1];
       const cleanPath = getKeyWithoutIndexIndicators(value);
-      const rawReference: IDataModelReference = { dataType: dataModelName, field: cleanPath };
-      const transposed = dataModelPath
-        ? transposeDataBinding({ subject: rawReference, currentLocation: dataModelPath })
-        : node
-          ? transposeSelector(node, rawReference)
-          : { dataType: dataModelName, field: value };
-      if (transposed) {
-        let readValue: unknown = undefined;
-        let modelReader: DataModelReader | undefined = undefined;
 
-        const dataFromDataModel = tryReadFromDataModel(transposed, defaultDataType, formDataTypes, formDataSelector);
+      const dataTypeToRead =
+        dataModelName === 'default'
+          ? typeof defaultDataType === 'string'
+            ? defaultDataType
+            : undefined
+          : dataModelName;
 
-        if (dataFromDataModel !== dataModelNotReadable) {
-          readValue = dataFromDataModel;
-        } else {
-          modelReader = dataModels.getReader(dataModelName);
-          readValue = modelReader.getAsString(transposed);
-        }
+      if (dataTypeToRead) {
+        const rawReference: IDataModelReference = {
+          dataType: dataTypeToRead,
+          field: cleanPath,
+        };
 
-        const stringValue =
-          typeof readValue === 'string' || typeof readValue === 'number' || typeof readValue === 'boolean'
-            ? readValue.toString()
-            : undefined;
-        const hasDefaultValue = variable.defaultValue !== undefined && variable.defaultValue !== null;
+        const transposed = dataModelPath
+          ? transposeDataBinding({ subject: rawReference, currentLocation: dataModelPath })
+          : node
+            ? transposeSelector(node, rawReference)
+            : { dataType: dataTypeToRead, field: value };
+        if (transposed) {
+          let readValue: unknown = undefined;
+          let modelReader: DataModelReader | undefined = undefined;
 
-        if (stringValue !== undefined) {
-          value = stringValue;
-        } else if (modelReader && modelReader.isLoading()) {
-          value = '...'; // TODO: Use a loading indicator, or at least let this value be configurable
-        } else if (dataModelName === 'default' && !hasDefaultValue) {
-          window.logWarnOnce(
-            `A text resource variable with key '${variable.key}' did not exist in the default data model. ` +
-              `You should provide a specific data model name instead, and/or set a defaultValue.`,
-          );
-        } else if (modelReader && modelReader.hasError() && !hasDefaultValue) {
-          window.logWarnOnce(
-            `A text resource variable with key '${variable.key}' did not exist in the data model '${dataModelName}'. ` +
-              `You may want to set a defaultValue to prevent the full key from being presented to the user.`,
-          );
+          const dataFromDataModel = tryReadFromDataModel(transposed, formDataTypes, formDataSelector);
+
+          if (dataFromDataModel !== dataModelNotReadable) {
+            readValue = dataFromDataModel;
+          } else {
+            modelReader = dataModels.getReader(dataModelName);
+            readValue = modelReader.getAsString(transposed);
+          }
+
+          const stringValue =
+            typeof readValue === 'string' || typeof readValue === 'number' || typeof readValue === 'boolean'
+              ? readValue.toString()
+              : undefined;
+          const hasDefaultValue = variable.defaultValue !== undefined && variable.defaultValue !== null;
+
+          if (stringValue !== undefined) {
+            value = stringValue;
+          } else if (modelReader && modelReader.isLoading()) {
+            value = '...'; // TODO: Use a loading indicator, or at least let this value be configurable
+          } else if (dataModelName === 'default' && !hasDefaultValue) {
+            window.logWarnOnce(
+              `A text resource variable with key '${variable.key}' did not exist in the default data model. ` +
+                `You should provide a specific data model name instead, and/or set a defaultValue.`,
+            );
+          } else if (modelReader && modelReader.hasError() && !hasDefaultValue) {
+            window.logWarnOnce(
+              `A text resource variable with key '${variable.key}' did not exist in the data model '${dataModelName}'. ` +
+                `You may want to set a defaultValue to prevent the full key from being presented to the user.`,
+            );
+          }
         }
       }
     } else if (variable.dataSource === 'instanceContext') {
@@ -399,28 +413,18 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
 const dataModelNotReadable = Symbol('dataModelNotReadable');
 function tryReadFromDataModel(
   reference: IDataModelReference,
-  defaultDataType: string | undefined | typeof ContextNotProvided,
   formDataTypes: string[] | typeof ContextNotProvided,
   formDataSelector: FormDataSelector | typeof ContextNotProvided,
 ): unknown | typeof dataModelNotReadable {
   const { dataType: dataModelName, field: path } = reference;
-  if (formDataSelector === ContextNotProvided || formDataTypes === ContextNotProvided) {
+  if (
+    formDataSelector === ContextNotProvided ||
+    formDataTypes === ContextNotProvided ||
+    !formDataTypes.includes(dataModelName)
+  ) {
     return dataModelNotReadable;
   }
-  if (dataModelName === 'default') {
-    if (typeof defaultDataType !== 'string' || !formDataTypes.includes(defaultDataType)) {
-      window.logErrorOnce(
-        "Tried to access a text resource variable using the dataSource: 'dataModel.default'. However, a default data model could not be found.",
-      );
-      return undefined;
-    }
-    return formDataSelector({ dataType: defaultDataType, field: path });
-  } else {
-    if (!formDataTypes.includes(dataModelName)) {
-      return dataModelNotReadable;
-    }
-    return formDataSelector({ dataType: dataModelName, field: path });
-  }
+  return formDataSelector({ dataType: dataModelName, field: path });
 }
 
 const replaceParameters = (nameString: string, params: SimpleLangParam[]) => {
