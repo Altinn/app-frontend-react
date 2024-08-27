@@ -7,7 +7,7 @@ import { FrontendValidationSource, ValidationMask } from '..';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { Validation } from 'src/features/validation/validationContext';
 
-function isScalar(value: any): value is string | number | boolean {
+function isScalar(value: unknown): value is string | number | boolean {
   return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean';
 }
 

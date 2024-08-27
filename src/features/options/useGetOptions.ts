@@ -75,6 +75,7 @@ interface EffectProps {
 const getLabelsForActiveOptions = (selectedOptions: string[], allOptions: IOptionInternal[]): string[] =>
   allOptions.filter((option) => selectedOptions.includes(option.value)).map((option) => option.label);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const usePrevious = (value: any) => {
   const ref = useRef();
   useEffect(() => {
@@ -82,6 +83,7 @@ const usePrevious = (value: any) => {
   });
   return ref.current;
 };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useHasChanged = (val: any) => {
   const prevVal = usePrevious(val);
   return prevVal !== val;
@@ -133,8 +135,10 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
     }
 
     if (valueType === 'single') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setValue('label' as any, translatedLabels.at(0));
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setValue('label' as any, translatedLabels);
     }
   }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, valueType]);
@@ -213,6 +217,7 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
   const preselectedOptionIndex = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
   const { langAsString } = useLanguage();
   const selectedLanguage = useCurrentLanguage();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { setValue } = useDataModelBindings(item.dataModelBindings as any);
 
   const sourceOptions = useSourceOptions({ source, node });
@@ -277,6 +282,7 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
 
   const alwaysOptions = calculatedOptions || defaultOptions;
   const { unsafeSelectedValues, setData } = useSetOptions(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { valueType, dataModelBindings: dataModelBindings as any },
     alwaysOptions,
   );
@@ -315,6 +321,7 @@ export function useGetOptions(
   node: LayoutNode<CompWithBehavior<'canHaveOptions'>>,
   valueType: OptionsValueType,
 ): GetOptionsResult & SetOptionsResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings) as any;
   const get = useNodeOptions(node);
   const set = useSetOptions({ valueType, dataModelBindings }, get.options);

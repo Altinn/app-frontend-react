@@ -34,6 +34,7 @@ import type {
   CompTypes,
   IsContainerComp,
   ITextResourceBindingsExternal,
+  NodeValidationProps,
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
@@ -74,6 +75,7 @@ export interface ExprResolver<Type extends CompTypes> {
 
 export abstract class AnyComponent<Type extends CompTypes> {
   protected readonly type: Type;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected plugins: { [key: string]: NodeDefPlugin<any> } = {};
 
   /**
@@ -94,9 +96,19 @@ export abstract class AnyComponent<Type extends CompTypes> {
   }
 
   /**
+   * Override this if you need to implement specific validators for the layout config, or if you need to
+   * validate properties that are not covered by the schema validation.
+   */
+  renderLayoutValidators(_props: NodeValidationProps<Type>): JSX.Element | null {
+    return null;
+  }
+
+  /**
    * Check if this component has a specific plugin
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public hasPlugin(constructor: new (...args: any[]) => NodeDefPlugin<any>): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return Object.values(this.plugins).some((plugin: NodeDefPlugin<any>) => plugin instanceof constructor);
   }
 
@@ -121,7 +133,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
     _state: NodeData<Type>,
     _childNode: LayoutNode,
     _claim: ChildClaim,
-    row: BaseRow | undefined,
+    _row: BaseRow | undefined,
   ): Partial<NodeData<Type>> {
     throw new Error(
       `addChild() is not implemented yet for '${this.type}'. ` +
@@ -137,7 +149,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
     _state: NodeData<Type>,
     _childNode: LayoutNode,
     _claim: ChildClaim,
-    row: BaseRow | undefined,
+    _row: BaseRow | undefined,
   ): Partial<NodeData<Type>> {
     throw new Error(
       `removeChild() is not implemented yet for '${this.type}'. ` +
@@ -303,7 +315,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
     name = key,
   ): [string[], undefined] | [undefined, JSONSchema7] {
     const { item, lookupBinding } = ctx;
-    const value: IDataModelReference = ((item.dataModelBindings as any) || {})[key] ?? undefined;
+    const value: IDataModelReference = (item.dataModelBindings ?? {})[key] ?? undefined;
 
     if (!value) {
       if (isRequired) {

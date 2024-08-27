@@ -12,6 +12,7 @@ import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
  * In TypeScript, this is a regular import statement, and in JSON Schema, this is a reference to the definition.
  */
 export class GenerateCommonImport<T extends ValidCommonKeys>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extends DescribableCodeGenerator<any>
   implements CodeGeneratorWithProperties
 {
@@ -46,6 +47,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProperty(name: string): GenerateProperty<any> | undefined {
     const source = getSourceForCommon(this.key);
     if (source instanceof GenerateObject) {
@@ -55,6 +57,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
     return undefined;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProperties(): GenerateProperty<any>[] {
     const source = getSourceForCommon(this.key);
     if (source instanceof GenerateObject) {

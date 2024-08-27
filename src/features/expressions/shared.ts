@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 import type { IAttachmentsMap, UploadedAttachment } from 'src/features/attachments';
-import type { Expression } from 'src/features/expressions/types';
+import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { IRawTextResource } from 'src/features/language/textResources';
 import type { ILayoutCollection } from 'src/layout/layout';
@@ -9,14 +9,14 @@ import type { IApplicationSettings, IData, IInstance, IProcess, ITask } from 'sr
 
 export type DataModelAndElement = {
   dataElement: IData;
-  data: any;
+  data: unknown;
 };
 
 interface SharedTest {
   name: string;
   disabledFrontend?: boolean;
   layouts?: ILayoutCollection;
-  dataModel?: any;
+  dataModel?: unknown;
   dataModels?: DataModelAndElement[];
   instance?: IInstance;
   process?: IProcess;
@@ -48,8 +48,8 @@ export interface ContextTest extends SharedTest {
 }
 
 export interface FunctionTest extends SharedTest {
-  expression: Expression;
-  expects?: any;
+  expression: ExprValToActualOrExpr<ExprVal.Any>;
+  expects?: unknown;
   expectsFailure?: string;
   context?: SharedTestFunctionContext;
 }
@@ -77,6 +77,7 @@ export function getSharedTests<Folder extends keyof TestFolders>(
   subPath: Folder,
   parentPath = '',
 ): TestFolders[Folder] {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const out: TestFolder<any> = {
     folderName: subPath,
     content: [],

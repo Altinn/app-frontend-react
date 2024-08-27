@@ -28,10 +28,12 @@ export interface InternalConfig<T> {
   typeScript: TypeScriptExt;
   symbol?: SymbolExt;
   optional: Optionality<T> | false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   source?: CodeGenerator<any>;
   frozen: false | string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Extract<Val extends CodeGenerator<any>> = Val extends CodeGenerator<infer X> ? X : never;
 
 export abstract class CodeGenerator<T> {
@@ -65,6 +67,7 @@ export abstract class CodeGenerator<T> {
     return {
       title: this.internal.jsonSchema.title || this.internal.symbol?.name || undefined,
       description: this.getSchemaDescription(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       examples: this.internal.jsonSchema.examples.length ? (this.internal.jsonSchema.examples as any) : undefined,
       default: this.internal.optional ? (this.internal.optional.default as JSONSchema7Type) : undefined,
       // @ts-expect-error Although not included in JSON schema version 7, this is implemented in more recent versions, and works in VS Code
@@ -217,6 +220,8 @@ export abstract class DescribableCodeGenerator<T> extends MaybeOptionalCodeGener
 
 export interface CodeGeneratorWithProperties {
   hasProperty(name: string): boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProperty(name: string): CodeGenerator<any> | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProperties(): CodeGenerator<any>[];
 }

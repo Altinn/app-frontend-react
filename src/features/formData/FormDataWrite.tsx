@@ -441,8 +441,8 @@ const useWaitForSave = () => {
   );
 };
 
-const emptyObject: any = {};
-const emptyArray: never[] = [];
+const emptyObject = {};
+const emptyArray = [];
 
 const debouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
   dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
@@ -477,6 +477,7 @@ export const FD = {
           return emptyArray;
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
       },
     });
@@ -534,6 +535,7 @@ export const FD = {
       if (!bindings || Object.keys(bindings).length === 0) {
         return emptyObject;
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const out: any = {};
       for (const key of Object.keys(bindings)) {
         const field = bindings[key].field;
@@ -572,6 +574,7 @@ export const FD = {
       if (!bindings || Object.keys(bindings).length === 0) {
         return emptyObject;
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const out: any = {};
       for (const key of Object.keys(bindings)) {
         const field = bindings[key].field;
@@ -606,6 +609,7 @@ export const FD = {
     const currentDataType = useCurrentDataModelName();
     return useMemoSelector((s) => {
       const realDataAs = dataAs || 'string';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const out: any = {};
       if (mapping && currentDataType) {
         for (const key of Object.keys(mapping)) {
@@ -719,6 +723,7 @@ export const FD = {
         return emptyArray;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
     }),
 

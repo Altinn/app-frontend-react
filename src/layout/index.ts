@@ -7,6 +7,7 @@ import type { BaseValidation, ComponentValidation, ValidationDataSources } from 
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
+import type { AnyComponent } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { BaseRow } from 'src/utils/layout/types';
@@ -33,11 +34,18 @@ export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> exte
   overrideDisplay?: IGenericComponentProps<T>['overrideDisplay'];
 }
 
+export function getNodeDef<T extends CompTypes>(node: LayoutNode<T>): CompClassMap[T] & AnyComponent<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return node.def as any;
+}
+
 export function getComponentDef<T extends keyof CompClassMap>(type: T): CompClassMap[T] {
   const configs = getComponentConfigs();
   if (type && type in configs) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return configs[type].def as any;
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return undefined as any;
 }
 
@@ -47,6 +55,7 @@ export function getNodeConstructor<T extends CompTypes>(type: T): ComponentConfi
     return configs[type].nodeConstructor;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return undefined as any;
 }
 
@@ -56,6 +65,7 @@ export function getComponentCapabilities<T extends CompTypes>(type: T): Componen
     return configs[type].capabilities;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return undefined as any;
 }
 
