@@ -19,7 +19,7 @@ import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layou
 import { FD } from 'src/features/formData/FormDataWrite';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
-import { ProvideWaitForValidation } from 'src/features/validation/validationContext';
+import { LoadingBlockerWaitForValidation, ProvideWaitForValidation } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
@@ -446,7 +446,7 @@ function ResettableStore({ counter, children }: PropsWithChildren<{ counter: num
       <BlockUntilLoaded>
         <ProvideWaitForValidation />
         <ExpressionValidation />
-        {children}
+        <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
       </BlockUntilLoaded>
       <IndicateReadiness />
     </Fragment>

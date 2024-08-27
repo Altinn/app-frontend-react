@@ -5,6 +5,7 @@ import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
+import { Loader } from 'src/core/loading/Loader';
 import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -188,6 +189,15 @@ export function ProvideWaitForValidation() {
   }, [updateValidating, validate]);
 
   return null;
+}
+
+export function LoadingBlockerWaitForValidation({ children }: PropsWithChildren) {
+  const validating = useSelector((state) => state.validating);
+  if (!validating) {
+    return <Loader reason='validation-awaiter' />;
+  }
+
+  return <>{children}</>;
 }
 
 function ManageShowAllErrors() {
