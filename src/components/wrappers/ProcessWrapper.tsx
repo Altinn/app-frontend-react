@@ -1,11 +1,10 @@
 import React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import type { ReactNode } from 'react';
 
 import { Button } from '@digdir/designsystemet-react';
 import Grid from '@material-ui/core/Grid';
 
-import { Form, FormFirstPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
@@ -77,9 +76,10 @@ export function ProcessWrapperWrapper() {
   );
 }
 
-function NavigateToStartUrl() {
+export function NavigateToStartUrl() {
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const startUrl = useStartUrl(currentTaskId);
+
   return (
     <Navigate
       to={startUrl}
@@ -156,22 +156,11 @@ export const ProcessWrapper = () => {
   if (taskType === ProcessTaskType.Data) {
     return (
       <FormProvider>
-        <Routes>
-          <Route
-            path=':pageKey'
-            element={
-              <PDFWrapper>
-                <PresentationComponent type={realTaskType}>
-                  <Form />
-                </PresentationComponent>
-              </PDFWrapper>
-            }
-          />
-          <Route
-            path='*'
-            element={<FormFirstPage />}
-          />
-        </Routes>
+        <PDFWrapper>
+          <PresentationComponent type={realTaskType}>
+            <Outlet />
+          </PresentationComponent>
+        </PDFWrapper>
       </FormProvider>
     );
   }
