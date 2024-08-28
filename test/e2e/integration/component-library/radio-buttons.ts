@@ -9,8 +9,6 @@ describe('RadioButtons component', () => {
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
     cy.get('#navigation-menu').find('button').contains('3. Radioknapper').click();
     cy.contains('label', testText).click();
-
-    // Verify Gateadresse (Street address)
     cy.get('[data-testid="summary-single-value-component"]')
       .eq(0)
       .find('span.fds-paragraph')

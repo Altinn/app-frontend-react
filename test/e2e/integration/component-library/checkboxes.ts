@@ -23,13 +23,8 @@ describe('Checkboxes component', () => {
     // Click the checkbox for "Kjøring i skogen"
     cy.contains('label', checkboxText3).prev('input[type="checkbox"]').check();
 
-    //cy.contains('CheckboxesPage-Header-Summary2-Display-String', 'Hva skal kjøretøyet brukes til?')
-    // cy.get('h4#CheckboxesPage-Header-Summary2-Display-String')
-    //   .parent() // Moves up to the parent div that contains the h4
-    //   .parent() // Moves up to the grandparent div
-    //   .siblings() // Moves up to the parent div that contains both the label and the span
     cy.get('div[data-componentbaseid="CheckboxesPage-Header-Summary2-Display-String"]')
-      .next() // Navigate to the sibling element containing the summary
+      .next()
       .find('span.fds-paragraph') // Targets the span with the summary text
       .should('have.text', expectedText);
   });
