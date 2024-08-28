@@ -62,7 +62,14 @@ function getDefaultLayouts(): ILayoutCollection {
 
 describe('Expressions shared function tests', () => {
   beforeAll(() => {
-    jest.spyOn(window, 'logError').mockImplementation(() => {});
+    jest
+      .spyOn(window, 'logError')
+      .mockImplementation(() => {})
+      .mockName('window.logError');
+    jest
+      .spyOn(window, 'logErrorOnce')
+      .mockImplementation(() => {})
+      .mockName('window.logErrorOnce');
   });
 
   afterEach(() => {
@@ -237,6 +244,7 @@ describe('Expressions shared function tests', () => {
 
       if (expectsFailure) {
         expect(errorMock).toHaveBeenCalledWith(expect.stringContaining(expectsFailure));
+        expect(errorMock).toHaveBeenCalledTimes(1);
       } else {
         expect(errorMock).not.toHaveBeenCalled();
         ExprValidation.throwIfInvalid(expression);

@@ -141,7 +141,6 @@ export function DataModelsProvider({ children }: PropsWithChildren) {
 function DataModelsLoader() {
   const applicationMetadata = useApplicationMetadata();
   const setDataTypes = useSelector((state) => state.setDataTypes);
-  const setError = useSelector((state) => state.setError);
   const allDataTypes = useSelector((state) => state.allDataTypes);
   const writableDataTypes = useSelector((state) => state.writableDataTypes);
   const layouts = useLayouts();
@@ -183,7 +182,7 @@ function DataModelsLoader() {
     }
 
     setDataTypes(allValidDataTypes, writableDataTypes, defaultDataType);
-  }, [applicationMetadata, defaultDataType, isStateless, layouts, setDataTypes, setError, instance]);
+  }, [applicationMetadata, defaultDataType, isStateless, layouts, setDataTypes, instance]);
 
   // We should load form data and schema for all referenced data models, schema is used for dataModelBinding validation which we want to do even if it is readonly
   // We only need to load validation and expression validation config for data types that are not readonly. Additionally, backend will error if we try to validate a model we are not supposed to
@@ -349,6 +348,7 @@ export const DataModels = {
 
   useLaxDefaultDataType: () => useLaxMemoSelector((state) => state.defaultDataType),
 
+  useReadableDataTypes: () => useMemoSelector((state) => state.allDataTypes ?? []),
   useLaxReadableDataTypes: () => useLaxMemoSelector((state) => state.allDataTypes!),
 
   useWritableDataTypes: () => useMemoSelector((state) => state.writableDataTypes!),

@@ -15,7 +15,6 @@ import type { DisplayData } from 'src/features/displayData';
 import type { EvaluateExpressionParams } from 'src/features/expressions';
 import type { ExprValToActual } from 'src/features/expressions/types';
 import type { ValidationContext } from 'src/features/expressions/validation';
-import type { FormDataSelector } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -255,7 +254,7 @@ export const ExprFunctions = {
           return null;
         }
 
-        return pickSimpleValue(simpleBinding, this.dataSources.formDataSelector);
+        return pickSimpleValue(simpleBinding, this);
       }
 
       // Expressions can technically be used without having all the layouts available, which might lead to unexpected
@@ -288,12 +287,12 @@ export const ExprFunctions = {
       const node = ensureNode(this.node);
       if (node instanceof BaseLayoutNode) {
         const newReference = this.dataSources.transposeSelector(node as LayoutNode, reference);
-        return pickSimpleValue(newReference, this.dataSources.formDataSelector);
+        return pickSimpleValue(newReference, this);
       }
 
       // No need to transpose the data model according to the location inside a repeating group when the context is
       // a LayoutPage (i.e., when we're resolving an expression directly on the layout definition).
-      return pickSimpleValue(reference, this.dataSources.formDataSelector);
+      return pickSimpleValue(reference, this);
     },
     args: [ExprVal.String, ExprVal.String] as const,
     minArguments: 1,
@@ -599,8 +598,13 @@ export const ExprFunctions = {
   }),
 };
 
-function pickSimpleValue(path: IDataModelReference, selector: FormDataSelector) {
-  const value = selector(path);
+function pickSimpleValue(path: IDataModelReference, params: EvaluateExpressionParams) {
+  const isValidDataType = params.dataSources.dataModelNames.includes(path.dataType);
+  if (!isValidDataType) {
+    throw new ExprRuntimeError(params.expr, params.path, `Unknown data model '${path.dataType}'`);
+  }
+
+  const value = params.dataSources.formDataSelector(path);
   if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
     return value;
   }

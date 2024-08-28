@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useAttachmentsSelector } from 'src/features/attachments/hooks';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { useCurrentLayoutSet } from 'src/features/form/layoutSets/useCurrentLayoutSet';
@@ -36,6 +37,7 @@ export interface ExpressionDataSources {
   process?: IProcess;
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
+  dataModelNames: string[];
   formDataSelector: FormDataSelector;
   formDataRowsSelector: FormDataRowsSelector;
   attachmentsSelector: AttachmentsSelector;
@@ -75,6 +77,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
   const nodeTraversal = useNodeTraversalSelectorLax();
   const transposeSelector = useDataModelBindingTranspose();
   const currentLayoutSet = useCurrentLayoutSet() ?? null;
+  const readableDataModels = DataModels.useReadableDataTypes();
 
   const externalApiIds = useApplicationMetadata().externalApiIds ?? [];
   const externalApis = useExternalApis(externalApiIds);
@@ -101,6 +104,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
       transposeSelector,
       currentLayoutSet,
       externalApis,
+      dataModelNames: readableDataModels,
     }),
     [
       formDataSelector,
@@ -123,6 +127,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
       transposeSelector,
       currentLayoutSet,
       externalApis,
+      readableDataModels,
     ],
   );
 }
