@@ -12,17 +12,18 @@ import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupProvi
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { BaseLayoutNode, type LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { InputSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { CompInternal } from 'src/layout/layout';
 
 type RepeatingGroupComponentSummaryProps = {
   componentNode: LayoutNode<'RepeatingGroup'>;
-  summaryOverrides?: InputSummaryOverrideProps;
+  summaryOverrides?: CompInternal<'Summary2'>['overrides'];
 };
 export const RepeatingGroupSummary = ({ componentNode }: RepeatingGroupComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const { rowsToDisplay } = useRepeatingGroup();
   const errors = validationsOfSeverity(validations, 'error');
-  const title = componentNode.item.textResourceBindings?.title;
+  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
   const rowsToDisplaySet = new Set(rowsToDisplay.map((row) => row.uuid));
   const rows = componentNode.item.rows.filter((row) => rowsToDisplaySet.has(row.uuid));
   const isNested = componentNode.parent instanceof BaseLayoutNode;
@@ -39,7 +40,7 @@ export const RepeatingGroupSummary = ({ componentNode }: RepeatingGroupComponent
   return (
     <div className={cn({ [classes.nestedRepeatingGroupSummaryWrapper]: isNested })}>
       <Label
-        id={componentNode.item.id}
+        node={componentNode}
         renderLabelAs='span'
         textResourceBindings={{ title }}
       />
