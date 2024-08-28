@@ -151,41 +151,38 @@ function DataModelsLoader() {
 
   // Find all data types referenced in dataModelBindings in the layout
   useEffect(() => {
-    const allDataTypes = getAllReferencedDataTypes(layouts, defaultDataType);
+    const referencedDataTypes = getAllReferencedDataTypes(layouts, defaultDataType);
+    const allValidDataTypes: string[] = [];
+    const writableDataTypes: string[] = [];
 
     // Verify that referenced data types are defined in application metadata, have a classRef, and have a corresponding data element in the instance data
-    for (const dataType of allDataTypes) {
+    for (const dataType of referencedDataTypes) {
       const typeDef = applicationMetadata.dataTypes.find((dt) => dt.id === dataType);
 
       if (!typeDef) {
         const error = new MissingDataTypeException(dataType);
         window.logErrorOnce(error.message);
-        setError(error);
-        return;
+        continue;
       }
       if (!typeDef?.appLogic?.classRef) {
         const error = new MissingClassRefException(dataType);
         window.logErrorOnce(error.message);
-        setError(error);
-        return;
+        continue;
       }
       if (!isStateless && !instance?.data.find((data) => data.dataType === dataType)) {
         const error = new MissingDataElementException(dataType);
         window.logErrorOnce(error.message);
-        setError(error);
-        return;
+        continue;
       }
-    }
 
-    // Identify data types that we are allowed to write to
-    const writableDataTypes: string[] = [];
-    for (const dataType of allDataTypes) {
+      allValidDataTypes.push(dataType);
+
       if (isDataTypeWritable(dataType, isStateless, instance)) {
         writableDataTypes.push(dataType);
       }
     }
 
-    setDataTypes(allDataTypes, writableDataTypes, defaultDataType);
+    setDataTypes(allValidDataTypes, writableDataTypes, defaultDataType);
   }, [applicationMetadata, defaultDataType, isStateless, layouts, setDataTypes, setError, instance]);
 
   // We should load form data and schema for all referenced data models, schema is used for dataModelBinding validation which we want to do even if it is readonly
