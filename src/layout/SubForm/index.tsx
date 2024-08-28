@@ -90,7 +90,7 @@ export class SubForm extends SubFormDef implements ValidateComponent<'SubForm'> 
     }
 
     let valiationMessage: TextReference | null = null;
-    const { minCount, maxCount, appLogic } = dataTypeDefinition;
+    const { minCount, maxCount } = dataTypeDefinition;
     const numDataElements = instance?.data.filter((x) => x.dataType === targetType).length ?? 0;
     if (minCount > 0 && numDataElements < minCount) {
       valiationMessage = {
@@ -101,14 +101,6 @@ export class SubForm extends SubFormDef implements ValidateComponent<'SubForm'> 
       valiationMessage = {
         key: 'form_fillers.error_max_count_reached_sub_form_local',
         params: [targetType, maxCount],
-      };
-    }
-
-    const allowInSubform = appLogic?.allowInSubform;
-    if (allowInSubform === undefined || allowInSubform === null || !allowInSubform) {
-      valiationMessage = {
-        key: 'form_filler.error_data_type_not_allowed_in_sub_form',
-        params: [targetType],
       };
     }
 
