@@ -10,7 +10,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { RadioSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RadioButtons extends RadioButtonsDef {
@@ -22,11 +22,11 @@ export class RadioButtons extends RadioButtonsDef {
 
   getDisplayData(
     node: LayoutNode<'RadioButtons'>,
-    { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
+    { langTools, optionsSelector, nodeFormDataSelector }: DisplayDataProps,
   ): string {
-    const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');
-    const optionList = optionsSelector(node.item.id);
-    return getSelectedValueToText(value, langTools, optionList) || '';
+    const value = String(nodeFormDataSelector(node).simpleBinding ?? '');
+    const { options } = optionsSelector(node);
+    return getSelectedValueToText(value, langTools, options) || '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'RadioButtons'>): JSX.Element | null {
@@ -34,16 +34,12 @@ export class RadioButtons extends RadioButtonsDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(
-    componentNode: LayoutNode<'RadioButtons'>,
-    summaryOverrides?: RadioSummaryOverrideProps,
-    isCompact?: boolean,
-  ): JSX.Element | null {
+  renderSummary2(props: Summary2Props<'RadioButtons'>): JSX.Element | null {
     return (
       <RadioButtonsSummary
-        componentNode={componentNode}
-        summaryOverrides={summaryOverrides}
-        isCompact={isCompact}
+        componentNode={props.target}
+        summaryOverrides={props.overrides}
+        isCompact={props.isCompact}
       />
     );
   }

@@ -4,17 +4,20 @@ import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type InputComponentSummaryProps = {
   isCompact?: boolean;
   componentNode: LayoutNode<'Input'>;
+  summaryOverrides?: CompInternal<'Summary2'>['overrides'];
 };
 export const InputSummary = ({ componentNode, isCompact }: InputComponentSummaryProps) => {
+  const displayData = componentNode.def.useDisplayData(componentNode);
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
-  const title = componentNode.item.textResourceBindings?.title;
-  const displayData = componentNode.def.useDisplayData(componentNode);
+  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
 
   return (
     <SingleValueSummary

@@ -2,23 +2,28 @@ import React from 'react';
 
 import { Lang } from 'src/features/language/Lang';
 import { MultipleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { CompInternal } from 'src/layout/layout';
 import type { MultipleSelectSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type MultipleSelectSummaryProps = {
+export function MultipleSelectSummary({
+  componentNode,
+  summaryOverrides,
+}: {
   componentNode: LayoutNode<'MultipleSelect'>;
-  summaryOverrides?: MultipleSelectSummaryOverrideProps;
-};
-
-export const MultipleSelectSummary = ({ componentNode, summaryOverrides }: MultipleSelectSummaryProps) => {
+  summaryOverrides?: CompInternal<'Summary2'>['overrides'];
+}) {
   const displayData = componentNode.def.useDisplayData(componentNode);
+
   const maxStringLength = 75;
-
+  const overrides = summaryOverrides?.find((override) => override.componentId === componentNode.baseId) as
+    | MultipleSelectSummaryOverrideProps
+    | undefined;
   const showAsList =
-    summaryOverrides?.displayType === 'list' ||
-    (!summaryOverrides?.displayType && displayData?.length >= maxStringLength);
+    overrides?.displayType === 'list' || (!overrides?.displayType && displayData?.length >= maxStringLength);
+  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
 
-  const title = componentNode.item.textResourceBindings?.title;
   return (
     <MultipleValueSummary
       title={<Lang id={title} />}
@@ -26,4 +31,4 @@ export const MultipleSelectSummary = ({ componentNode, summaryOverrides }: Multi
       showAsList={showAsList}
     />
   );
-};
+}

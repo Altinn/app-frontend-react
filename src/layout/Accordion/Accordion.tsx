@@ -6,15 +6,18 @@ import { Grid } from '@material-ui/core';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Accordion/Accordion.module.css';
 import { AccordionItem as AltinnAcordionItem } from 'src/layout/Accordion/AccordionItem';
+import { useIsInAccordionGroup } from 'src/layout/AccordionGroup/AccordionGroupContext';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { GenericComponent } from 'src/layout/GenericComponent';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 type IAccordionProps = PropsFromGenericComponent<'Accordion'>;
 
 export const Accordion = ({ node }: IAccordionProps) => {
-  const { textResourceBindings, renderAsAccordionItem, headingLevel } = node.item;
+  const { textResourceBindings, headingLevel, childComponents, openByDefault } = useNodeItem(node);
   const { langAsString } = useLanguage();
+  const renderAsAccordionItem = useIsInAccordionGroup();
 
   const title = langAsString(textResourceBindings?.title ?? '');
 
@@ -23,6 +26,7 @@ export const Accordion = ({ node }: IAccordionProps) => {
       title={title}
       className={className}
       headingLevel={headingLevel}
+      open={openByDefault}
     >
       <Grid
         item={true}
@@ -30,10 +34,10 @@ export const Accordion = ({ node }: IAccordionProps) => {
         spacing={6}
         alignItems='flex-start'
       >
-        {node.item.childComponents.map((n) => (
+        {childComponents.map((node) => (
           <GenericComponent
-            key={n.item.id}
-            node={n}
+            key={node.id}
+            node={node}
           />
         ))}
       </Grid>
