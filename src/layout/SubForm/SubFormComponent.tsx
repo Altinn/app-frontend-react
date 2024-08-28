@@ -11,6 +11,7 @@ import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subFormData/useSubFormMutations';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/SubForm/SubFormComponent.module.css';
@@ -31,6 +32,11 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
     showDeleteButton = true,
   } = useNodeItem(node);
 
+  const isSubFormPage = useNavigationParam('isSubFormPage');
+  if (isSubFormPage) {
+    throw new Error('Cannot use a SubFormComponent component within a sub-form');
+  }
+
   const { langAsString } = useLanguage();
   const addEntryMutation = useAddEntryMutation(dataType);
   const instanceData = useStrictInstanceData();
@@ -45,7 +51,6 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
     try {
       const result = await addEntryMutation.mutateAsync({});
       navigate(`${node.id}/${result.id}`);
-      // updateSubFormEntries([...subFormEntries, result]); // TODO: This is probably not required anymore
     } catch {
       // NOTE: Handled by useAddEntryMutation
     } finally {

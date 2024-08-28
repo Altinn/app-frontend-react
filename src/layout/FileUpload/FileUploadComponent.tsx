@@ -40,7 +40,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   } = item;
   const isSubFormPage = useNavigationParam('isSubFormPage');
   if (isSubFormPage) {
-    throw new Error('Cannot use FileUpload components in a sub-form, because sub-forms cannot contain attachments');
+    throw new Error('Cannot use a FileUpload components within a sub-form');
   }
 
   const [showFileUpload, setShowFileUpload] = React.useState(false);
