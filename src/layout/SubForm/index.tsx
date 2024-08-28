@@ -106,7 +106,6 @@ export class SubForm extends SubFormDef implements ValidateComponent<'SubForm'> 
 
     const allowInSubform = appLogic?.allowInSubform;
     if (allowInSubform === undefined || allowInSubform === null || !allowInSubform) {
-      // console.log('AllowInSubform', allowInSubform, 'targetType', targetType);
       valiationMessage = {
         key: 'form_filler.error_data_type_not_allowed_in_sub_form',
         params: [targetType],
