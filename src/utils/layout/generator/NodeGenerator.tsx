@@ -23,7 +23,6 @@ import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { SimpleEval } from 'src/features/expressions';
-import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { CompDef } from 'src/layout';
 import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
@@ -41,6 +40,7 @@ import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 import type { HiddenState } from 'src/utils/layout/NodesContext';
 import type { BaseRow, StateFactoryProps } from 'src/utils/layout/types';
+import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 /**
  * A node generator will always be rendered when a component is present in a layout, even if the component
@@ -133,6 +133,7 @@ interface AddNodeProps<T extends CompTypes> extends CommonProps<T> {
 function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: AddNodeProps<T>) {
   const parent = GeneratorInternal.useParent();
   const row = GeneratorInternal.useRow();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item: intermediateItem, parent, row });
   const addNode = NodesStateQueue.useAddNode();
   const removeNode = NodesInternal.useRemoveNode();
@@ -142,6 +143,7 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: A
   GeneratorStages.AddNodes.useEffect(() => {
     addNode({
       node: nodeRef.current,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       targetState: nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any),
       claim,
       row: rowRef.current,
@@ -164,6 +166,7 @@ function ResolveExpressions<T extends CompTypes>({ node, intermediateItem }: Com
   const def = useDef(intermediateItem.type);
   const setNodeProp = NodesStateQueue.useSetNodeProp();
   const resolved = useMemo(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     () => (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>,
     [def, resolverProps],
   );
@@ -276,10 +279,8 @@ export function useExpressionResolverProps<T extends CompTypes>(
 
   const evalSummarizable = useCallback<ExprResolver<T>['evalSummarizable']>(() => {
     const out: ExprResolved<SummarizableComponentProps> = {};
-    if (isSummarizableItem(item)) {
-      if (Array.isArray(item.forceShowInSummary)) {
-        out.forceShowInSummary = evalBool(item.forceShowInSummary, false);
-      }
+    if (isSummarizableItem(item) && Array.isArray(item.forceShowInSummary)) {
+      out.forceShowInSummary = evalBool(item.forceShowInSummary, false);
     }
 
     return out;
@@ -343,6 +344,7 @@ function useNewNode<T extends CompTypes>(item: CompIntermediate<T>): LayoutNode<
 
   return useMemo(() => {
     const newNodeProps: LayoutNodeProps<T> = { item, parent, rowIndex };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new LNode(newNodeProps as any) as LayoutNode<T>;
   }, [LNode, item, parent, rowIndex]);
 }
