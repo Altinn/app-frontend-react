@@ -5,6 +5,7 @@ import { Button } from '@digdir/designsystemet-react';
 import { useMutation } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
@@ -216,6 +217,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
     () => document.querySelector(`[data-componentid="${id}"]`)?.getClientRects().item(0)?.y,
     [id],
   );
+  const resetScrollPosition = useResetScrollPosition(getScrollPosition, '[data-testid="ErrorReport"]');
 
   const isPermittedToPerformActions = actions
     .filter((action) => action.type === 'ServerAction')
@@ -233,30 +235,6 @@ export const CustomButtonComponent = ({ node }: Props) => {
   if (isSubFormCloseButton && !buttonText) {
     buttonText = 'general.done';
   }
-
-  /**
-   * This is borrowed from NavigationButtonsComponent, but doesn't seem to scroll quite far enough
-   */
-  // TODO: Investigate more and possibly fix the scroll offset
-  const resetScrollPosition = (prevScrollPosition: number | undefined) => {
-    if (prevScrollPosition === undefined) {
-      return;
-    }
-    let attemptsLeft = 10;
-    const check = () => {
-      attemptsLeft--;
-      if (attemptsLeft <= 0) {
-        return;
-      }
-      const newScrollPosition = getScrollPosition();
-      if (newScrollPosition !== undefined && newScrollPosition !== prevScrollPosition) {
-        window.scrollBy({ top: newScrollPosition - prevScrollPosition });
-      } else {
-        requestAnimationFrame(check);
-      }
-    };
-    requestAnimationFrame(check);
-  };
 
   const onClick = async () => {
     if (disabled) {
