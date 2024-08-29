@@ -252,16 +252,6 @@ function HandleNavigationFocusComponent() {
   const navigateTo = useNavigateToNode();
   const navigate = useNavigate();
 
-  // TODO: Why did we implement `haveFocusComponentId`?
-  // const [searchParams, setSearchParams] = useSearchParams();
-  // const haveFocusComponentId = searchParams.get(SearchParams.FocusComponentId);
-  // React.useEffect(() => {
-  //   if (haveFocusComponentId) {
-  //     searchParams.delete(SearchParams.FocusComponentId);
-  //     setSearchParams(searchParams, { replace: true, preventScrollReset: true });
-  //   }
-  // }, [haveFocusComponentId, searchParams, setSearchParams]);
-
   React.useEffect(() => {
     (async () => {
       if (focusNode) {
