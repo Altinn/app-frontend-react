@@ -45,14 +45,18 @@ export const getAnonymousStatelessDataModelUrl = (dataType: string, includeRowId
   `${appPath}/v1/data/anonymous?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
 export const getStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
   `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
-export const getDataModelUrl = (instanceId: string, dataGuid: string, includeRowIds: boolean) =>
-  `${appPath}/instances/${instanceId}/data/${dataGuid}?includeRowId=${includeRowIds.toString()}`;
 
-// TODO: Rename this to something less ... bad.
-export const getDataModelUrl2 = (instanceId: string, dataGuid: string | undefined, dataType: string | undefined) =>
-  dataGuid
-    ? `${appPath}/instances/${instanceId}/data/${dataGuid}`
-    : `${appPath}/instances/${instanceId}/data?dataType=${dataType}`;
+export const getDataModelUrl = (instanceId: string, dataGuid?: string, includeRowId?: boolean, dataType?: string) => {
+  if (!dataGuid && !dataType) {
+    throw new Error('Data type is a required parameter if no Data Guid is supplied');
+  } else if (dataType) {
+    return `${appPath}/instances/${instanceId}/data?dataType=${dataType}`;
+  }
+
+  return includeRowId
+    ? `${appPath}/instances/${instanceId}/data/${dataGuid}?includeRowId=${includeRowId.toString()}`
+    : `${appPath}/instances/${instanceId}/data/${dataGuid}`;
+};
 
 export const getDataElementUrl = (instanceId: string, dataGuid: string, language: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}?language=${language}`;
