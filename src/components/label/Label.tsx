@@ -57,7 +57,7 @@ export function Label(props: LabelProps) {
 
   const labelId = `label-${id}`;
   const labelContentProps: LabelContentProps = {
-    id,
+    labelId,
     label: textResourceBindings.title,
     description: textResourceBindings.description,
     help: textResourceBindings.help,
@@ -75,6 +75,7 @@ export function Label(props: LabelProps) {
             <Label
               {...propsWithoutChildren}
               renderLabelAs='span'
+              overrideId={id}
             />
           }
         >
@@ -127,10 +128,11 @@ export function Label(props: LabelProps) {
             <DesignsystemetLabel
               asChild
               {...designsystemetLabelProps}
+              id={labelId}
             >
               <LabelContent
                 {...labelContentProps}
-                id={labelId}
+                labelId={labelId}
               />
             </DesignsystemetLabel>
           </LabelGridItemWrapper>

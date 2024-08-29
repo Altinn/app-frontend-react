@@ -13,7 +13,7 @@ import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
 export type LabelContentProps = Readonly<{
-  id: string;
+  labelId: string;
   label?: string;
   description?: string;
   required?: boolean;
@@ -23,7 +23,7 @@ export type LabelContentProps = Readonly<{
 }> & { className?: string };
 
 export function LabelContent({
-  id,
+  labelId,
   label,
   description,
   required,
@@ -53,7 +53,7 @@ export function LabelContent({
         </span>
         {help && (
           <HelpText
-            id={`${id}-helptext`}
+            id={`${labelId}-helptext`}
             title={
               label ? `${langAsString('helptext.button_title_prefix')} ${label}` : langAsString('helptext.button_title')
             }
@@ -64,9 +64,8 @@ export function LabelContent({
       </span>
       {description && (
         <Description
-          key={`description-${id}`}
+          key={`description-${labelId}`}
           description={<Lang id={description} />}
-          id={id}
         />
       )}
     </span>
