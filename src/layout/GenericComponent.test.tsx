@@ -42,6 +42,7 @@ const render = async (component: Partial<CompExternal> = {}, waitUntilLoaded = t
                     xl: 3,
                   },
                 },
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 ...(component as any),
               },
             ],
@@ -57,6 +58,7 @@ describe('GenericComponent', () => {
       .spyOn(window, 'logError')
       .mockImplementation(() => {})
       .mockName('window.logError');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await render({ type: 'unknown-type' as any }, false);
     await waitFor(
       () =>
