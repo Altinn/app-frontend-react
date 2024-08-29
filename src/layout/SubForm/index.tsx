@@ -11,6 +11,7 @@ import {
 } from 'src/features/validation';
 import { SubFormDef } from 'src/layout/SubForm/config.def.generated';
 import { SubFormComponent } from 'src/layout/SubForm/SubFormComponent';
+import { SubFormValidator } from 'src/layout/SubForm/SubFormValidator';
 import {
   RedirectBackToMainForm,
   SubFormFirstPage,
@@ -21,6 +22,7 @@ import { SubFormSummaryComponent } from 'src/layout/SubForm/Summary/SubFormSumma
 import { SubFormSummaryComponent2 } from 'src/layout/SubForm/Summary/SubFormSummaryComponent2';
 import type { TextReference } from 'src/features/language/useLanguage';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { NodeValidationProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -61,6 +63,10 @@ export class SubForm extends SubFormDef implements ValidateComponent<'SubForm'> 
     );
   }
 
+  renderLayoutValidators(props: NodeValidationProps<'SubForm'>): JSX.Element | null {
+    return <SubFormValidator {...props} />;
+  }
+
   renderSummaryBoilerplate(): boolean {
     return true;
   }
@@ -86,7 +92,6 @@ export class SubForm extends SubFormDef implements ValidateComponent<'SubForm'> 
     let valiationMessage: TextReference | null = null;
     const { minCount, maxCount } = dataTypeDefinition;
     const numDataElements = instance?.data.filter((x) => x.dataType === targetType).length ?? 0;
-
     if (minCount > 0 && numDataElements < minCount) {
       valiationMessage = {
         key: 'form_filler.error_min_count_not_reached_sub_form',
