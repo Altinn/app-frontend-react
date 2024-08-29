@@ -74,7 +74,7 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrid
   return (
     <section
       className={isNestedGroup ? cn(classes.groupContainer, classes.nested) : cn(classes.groupContainer)}
-      data-testid={'summary-group-component'}
+      data-testid={`summary-group-component${hierarchyLevel > 0 ? `-${hierarchyLevel}` : ''}`}
     >
       <div className={cn(classes.groupHeading)}>
         <Heading
