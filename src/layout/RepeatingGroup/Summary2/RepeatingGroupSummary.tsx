@@ -8,30 +8,28 @@ import { Label } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
-import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
+import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import { BaseLayoutNode, type LayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { CompInternal } from 'src/layout/layout';
+import type { CompTypes } from 'src/layout/layout';
+import type { AnyComponent } from 'src/layout/LayoutComponent';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-type RepeatingGroupComponentSummaryProps = {
-  componentNode: LayoutNode<'RepeatingGroup'>;
-  summaryOverrides?: CompInternal<'Summary2'>['overrides'];
-};
-export const RepeatingGroupSummary = ({ componentNode }: RepeatingGroupComponentSummaryProps) => {
-  const validations = useUnifiedValidationsForNode(componentNode);
-  const { rowsToDisplay } = useRepeatingGroup();
+export const RepeatingGroupSummary = ({ target, isCompact, overrides }: Summary2Props<'RepeatingGroup'>) => {
+  const validations = useUnifiedValidationsForNode(target);
+  const { visibleRows } = useRepeatingGroupRowState();
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
-  const rowsToDisplaySet = new Set(rowsToDisplay.map((row) => row.uuid));
-  const rows = componentNode.item.rows.filter((row) => rowsToDisplaySet.has(row.uuid));
-  const isNested = componentNode.parent instanceof BaseLayoutNode;
+  const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
+  const rowsToDisplaySet = new Set(visibleRows.map((row) => row.uuid));
+  const rows = useNodeItem(target, (i) => i.rows).filter((row) => row && rowsToDisplaySet.has(row.uuid));
+  const isNested = target.parent instanceof BaseLayoutNode;
 
   if (rows.length === 0) {
     return (
       <SingleValueSummary
-        componentNode={componentNode}
+        componentNode={target}
         title={title}
       />
     );
@@ -40,23 +38,26 @@ export const RepeatingGroupSummary = ({ componentNode }: RepeatingGroupComponent
   return (
     <div className={cn({ [classes.nestedRepeatingGroupSummaryWrapper]: isNested })}>
       <Label
-        node={componentNode}
+        node={target}
         renderLabelAs='span'
         textResourceBindings={{ title }}
       />
       <div className={cn({ [classes.nestedRepeatingGroupContentWrapper]: isNested })}>
         {rows.map((row, index) => (
           <div
-            key={row.uuid}
+            key={row?.uuid}
             className={cn(classes.repeatingGroupSummaryRow, {
               [classes.repeatingGroupRowDivider]: index < rows.length - 1,
             })}
           >
-            {row.items &&
-              row.items.map((layoutItem) => (
-                <div key={layoutItem.item.id}>
-                  {layoutItem.def.renderSummary2 && layoutItem.def.renderSummary2(layoutItem as LayoutNode<any>)}
-                </div>
+            {row?.items &&
+              row.items.map((n) => (
+                <NodeSummary
+                  key={n.id}
+                  target={n}
+                  isCompact={isCompact}
+                  overrides={overrides}
+                />
               ))}
           </div>
         ))}
@@ -72,10 +73,15 @@ export const RepeatingGroupSummary = ({ componentNode }: RepeatingGroupComponent
             <Lang
               id={message.key}
               params={message.params}
-              node={componentNode}
+              node={target}
             ></Lang>
           </ErrorMessage>
         ))}
     </div>
   );
 };
+
+function NodeSummary<T extends CompTypes>(props: Summary2Props<T>) {
+  const def = props.target.def as unknown as AnyComponent<T>;
+  return def.renderSummary2 ? def.renderSummary2(props) : null;
+}

@@ -20,7 +20,7 @@ import type {
   ValidationFilterFunction,
 } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { DatepickerSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
@@ -55,17 +55,8 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     );
   }
 
-  renderSummary2(
-    componentNode: LayoutNode<'Datepicker'>,
-    _?: DatepickerSummaryOverrideProps,
-    isCompact?: boolean,
-  ): JSX.Element | null {
-    return (
-      <DatepickerSummary
-        componentNode={componentNode}
-        isCompact={isCompact}
-      />
-    );
+  renderSummary2(props: Summary2Props<'Datepicker'>): JSX.Element | null {
+    return <DatepickerSummary {...props} />;
   }
 
   runComponentValidation(

@@ -81,10 +81,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return (
       <RepeatingGroupProvider node={props.target}>
         <RepeatingGroupsFocusProvider>
-          <RepeatingGroupSummary
-            componentNode={props.target}
-            summaryOverrides={props.overrides}
-          />
+          <RepeatingGroupSummary {...props} />
         </RepeatingGroupsFocusProvider>
       </RepeatingGroupProvider>
     );
