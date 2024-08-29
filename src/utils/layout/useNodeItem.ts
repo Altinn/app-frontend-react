@@ -3,6 +3,7 @@ import type { MutableRefObject } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { typedBoolean } from 'src/utils/typing';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
@@ -26,6 +27,7 @@ export function useNodeItem<N extends LayoutNode | undefined>(
 ): N extends undefined ? undefined : NodeItemFromNode<N>;
 // eslint-disable-next-line no-redeclare
 export function useNodeItem(node: never, selector: never): never {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return NodesInternal.useNodeData(node, (data: NodeData) => (selector ? (selector as any)(data.item) : data.item));
 }
 
@@ -41,6 +43,7 @@ export function useNodeItemRef<N extends LayoutNode | undefined>(
 // eslint-disable-next-line no-redeclare
 export function useNodeItemRef(node: never, selector: never): never {
   return NodesInternal.useNodeDataRef(node, (node: NodeData) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     selector ? (selector as any)(node.item) : node.item,
   ) as never;
 }
@@ -56,11 +59,14 @@ export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
   >;
 }
 
-export function useNodeDirectChildren(
-  parent: LayoutNode,
-  restriction?: TraversalRestriction,
-): LayoutNode[] | undefined {
-  return NodesInternal.useNodeData(parent, (store) => parent.def.pickDirectChildren(store as any, restriction));
+const emptyArray: LayoutNode[] = [];
+export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): LayoutNode[] {
+  return (
+    NodesInternal.useNodeData(parent, (store) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      parent.def.pickDirectChildren(store as any, restriction).filter(typedBoolean),
+    ) ?? emptyArray
+  );
 }
 
 type NodeFormData<N extends LayoutNode | undefined> = N extends undefined
@@ -69,9 +75,8 @@ type NodeFormData<N extends LayoutNode | undefined> = N extends undefined
 
 const emptyObject = {};
 export function useNodeFormData<N extends LayoutNode | undefined>(node: N): NodeFormData<N> {
-  const nodeItem = useNodeItem(node);
+  const dataModelBindings = useNodeItem(node, (i) => i?.dataModelBindings);
   const formDataSelector = FD.useDebouncedSelector();
-  const dataModelBindings = nodeItem?.dataModelBindings;
 
   return useMemo(
     () => (dataModelBindings ? getNodeFormData(dataModelBindings, formDataSelector) : emptyObject) as NodeFormData<N>,
@@ -103,7 +108,7 @@ function getNodeFormData<N extends LayoutNode>(
     return emptyObject as NodeFormData<N>;
   }
 
-  const formDataObj: { [key: string]: any } = {};
+  const formDataObj: { [key: string]: unknown } = {};
   for (const key of Object.keys(dataModelBindings)) {
     const binding = dataModelBindings[key];
     const data = formDataSelector(binding);

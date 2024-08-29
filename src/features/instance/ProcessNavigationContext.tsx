@@ -80,7 +80,7 @@ function useProcessNext() {
       try {
         const [result] = await mutateAsync(props);
         return result ? result : AbortedDueToFormErrors;
-      } catch (err) {
+      } catch (_err) {
         // The error is handled above
         return AbortedDueToFailure;
       }
