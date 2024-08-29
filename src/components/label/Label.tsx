@@ -121,14 +121,16 @@ export function Label(props: LabelProps) {
     case 'span':
     default:
       return (
-        <span className={cn(classes.fieldWrapper, className)}>
+        <span
+          id={labelId}
+          className={cn(classes.fieldWrapper, className)}
+        >
           {/* we want this "label" not to be rendered as a <label>,
            because it does not belong to an input element */}
           <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
             <DesignsystemetLabel
               asChild
               {...designsystemetLabelProps}
-              id={labelId}
             >
               <LabelContent
                 {...labelContentProps}
