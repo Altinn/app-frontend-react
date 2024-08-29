@@ -40,10 +40,7 @@ export function LabelContent({
   }
 
   return (
-    <span
-      id={id}
-      className={cn(classes.labelWrapper, className)}
-    >
+    <span className={cn(classes.labelWrapper, className)}>
       <span className={classes.labelContainer}>
         <span className={classes.labelContent}>
           <Lang id={label} />
