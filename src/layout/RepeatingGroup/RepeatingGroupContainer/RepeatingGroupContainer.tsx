@@ -12,7 +12,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
-import classes from 'src/layout/RepeatingGroup/RepeatingGroupContainer.module.css';
+import classes from 'src/layout/RepeatingGroup/RepeatingGroupContainer/RepeatingGroupContainer.module.css';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupEditContainer/RepeatingGroupsEditContainer';
 import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/RepeatingGroupPagination/RepeatingGroupPagination';
 import {

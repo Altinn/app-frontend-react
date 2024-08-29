@@ -7,7 +7,7 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMini, useIsMobile, useIsMobileOrTablet } from 'src/hooks/useIsMobile';
-import classes from 'src/layout/RepeatingGroup/RepeatingGroupPagination.module.css';
+import classes from 'src/layout/RepeatingGroup/RepeatingGroupPagination/RepeatingGroupPagination.module.css';
 import {
   useRepeatingGroup,
   useRepeatingGroupPagination,
