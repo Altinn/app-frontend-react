@@ -61,6 +61,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
   return (
     <ComponentStructureWrapper node={node}>
       <Grid
+        id={node.id}
         container={true}
         item={true}
         data-componentid={node.id}
