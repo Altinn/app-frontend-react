@@ -75,7 +75,6 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
   const instantiateWithPrefill = useInstantiateWithPrefillMutation();
   const [busyWithId, setBusyWithId] = useState<string | undefined>(undefined);
   const isInstantiatingRef = useRef(false);
-  const navigate = useNavigate();
 
   // Redirect to the instance page when instantiation completes
   useEffect(() => {

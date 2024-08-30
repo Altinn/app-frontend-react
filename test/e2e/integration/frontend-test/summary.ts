@@ -650,7 +650,10 @@ function injectExtraPageAndSetTriggers(pageValidationConfig?: PageValidation | u
             title: 'Page3required',
           },
           dataModelBindings: {
-            simpleBinding: 'etatid',
+            simpleBinding: {
+              field: 'etatid',
+              dataType: 'ServiceModel-test',
+            },
           },
           required: true,
         },

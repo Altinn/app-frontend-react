@@ -73,7 +73,6 @@ describe('Expressions shared context tests', () => {
       async ({
         layouts,
         dataModel,
-        dataModels,
         instanceDataElements,
         instance: _instance,
         frontendSettings,

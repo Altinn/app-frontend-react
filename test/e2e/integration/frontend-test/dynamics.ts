@@ -96,7 +96,12 @@ describe('Dynamics', () => {
             id: 'testInputOnSummary',
             type: 'Input',
             textResourceBindings: { title: 'Temporary field while testing' },
-            dataModelBindings: { simpleBinding: 'Innledning-grp-9309.Kontaktinformasjon-grp-9311.MelderFultnavn.orid' },
+            dataModelBindings: {
+              simpleBinding: {
+                field: 'Innledning-grp-9309.Kontaktinformasjon-grp-9311.MelderFultnavn.orid',
+                dataType: 'ServiceModel-test',
+              },
+            },
           },
           lastButton,
         ];

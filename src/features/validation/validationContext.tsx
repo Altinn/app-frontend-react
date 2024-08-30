@@ -145,7 +145,6 @@ export function ValidationProvider({ children }: PropsWithChildren) {
 }
 
 function useWaitForValidation(): WaitForValidation {
-  const initialValidations = DataModels.useInitialValidations();
   const waitForNodesReady = NodesInternal.useWaitUntilReady();
   const waitForSave = FD.useWaitForSave();
   const waitForState = useWaitForState<never, ValidationContext & Internals>(useStore());
