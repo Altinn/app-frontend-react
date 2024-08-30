@@ -21,7 +21,7 @@ export function applyLayoutQuirks(layouts: ILayouts, layoutSetId: string) {
       `Layout quirk(s) applied: \n - ${quirk.logMessages.join('\n - ')}.\n` +
         `Please fix your layout configuration. These workarounds will be removed in the future.`,
     );
-  } catch (e) {
+  } catch (_err) {
     return layouts;
   }
 
@@ -344,11 +344,13 @@ export const quirks: { [key: string]: QuirkDef } = {
       layouts['agency-picker']![4].id = 'NavigationButtons-NWIXihDuplicate';
       layouts['already-responsible']![6].id = 'already-responsible-infoDuplicate';
       layouts['summary']![2].id = 'summary-deceased-GroupDuplicate';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (layouts['summary']![2] as any).children = (layouts['summary']![2] as any).children.map((c: string) =>
         c === 'summary-deceased-multiple' ? c : `${c}Duplicate`,
       );
       layouts['summary']![3].id = 'summary-Paragraph-deceasedDuplicate';
       layouts['summary']![5].id = 'summary-responsible-GroupDuplicate';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (layouts['summary']![5] as any).children = (layouts['summary']![5] as any).children.map(
         (c: string) => `${c}Duplicate`,
       );
@@ -357,6 +359,7 @@ export const quirks: { [key: string]: QuirkDef } = {
       layouts['summary']![8].id = 'summary-deceased-municipality-unknownDuplicate';
       layouts['summary']![9].id = 'summary-deceased-municipalityDuplicate';
       layouts['summary']![10].id = 'summary-funeralhome-groupDuplicate';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (layouts['summary']![10] as any).children = (layouts['summary']![10] as any).children.map(
         (c: string) => `${c}Duplicate`,
       );
@@ -364,6 +367,7 @@ export const quirks: { [key: string]: QuirkDef } = {
       layouts['summary']![12].id = 'summary-burial-agencyDuplicate';
       layouts['summary']![13].id = 'summary-burial-agency-contactDuplicate';
       layouts['summary']![14].id = 'summary-burial-GroupDuplicate';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (layouts['summary']![14] as any).children = (layouts['summary']![14] as any).children.map(
         (c: string) => `${c}Duplicate`,
       );
