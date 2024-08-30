@@ -31,9 +31,9 @@ export const useAddEntryMutation = (dataType: string) => {
       console.error('Failed to add subform entry:', error);
 
       if (isAxiosError(error) && error.response?.status === 409) {
-        toast(langAsString('form_filler.error_max_count_reached_sub_form_server', [dataType]), { type: 'error' });
+        toast(langAsString('form_filler.error_max_count_reached_subform_server', [dataType]), { type: 'error' });
       } else {
-        toast(langAsString('form_filler.error_add_sub_form'), { type: 'error' });
+        toast(langAsString('form_filler.error_add_subform'), { type: 'error' });
       }
     },
   });
@@ -65,7 +65,7 @@ export const useDeleteEntryMutation = (id: string) => {
     },
     onError: (error) => {
       console.error('Failed to delete subform:', error);
-      toast(langAsString('form_filler.error_delete_sub_form'), { type: 'error' });
+      toast(langAsString('form_filler.error_delete_subform'), { type: 'error' });
     },
   });
 };

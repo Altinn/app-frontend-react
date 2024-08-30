@@ -94,12 +94,12 @@ export class SubForm extends SubFormDef implements ValidateComponent<'SubForm'> 
     const numDataElements = instance?.data.filter((x) => x.dataType === targetType).length ?? 0;
     if (minCount > 0 && numDataElements < minCount) {
       valiationMessage = {
-        key: 'form_filler.error_min_count_not_reached_sub_form',
+        key: 'form_filler.error_min_count_not_reached_subform',
         params: [minCount, targetType],
       };
     } else if (maxCount > 0 && numDataElements > maxCount) {
       valiationMessage = {
-        key: 'form_fillers.error_max_count_reached_sub_form_local',
+        key: 'form_fillers.error_max_count_reached_subform_local',
         params: [targetType, maxCount],
       };
     }

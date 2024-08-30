@@ -59,7 +59,7 @@ export function SubFormSummaryComponent2({ targetNode }: ISubFormSummaryComponen
                 ))
               ) : (
                 <th>
-                  <Lang id={'form_filler.sub_form_default_header'} />
+                  <Lang id={'form_filler.subform_default_header'} />
                 </th>
               )}
               {!pdfModeActive && (

@@ -90,7 +90,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
                     ))
                   ) : (
                     <Table.HeaderCell className={classes.tableCellFormatting}>
-                      <Lang id={'form_filler.sub_form_default_header'} />
+                      <Lang id={'form_filler.subform_default_header'} />
                     </Table.HeaderCell>
                   )}
                   <Table.HeaderCell>
