@@ -36,7 +36,10 @@ export const RepeatingGroupSummary = ({ target, isCompact, overrides }: Summary2
   }
 
   return (
-    <div className={cn({ [classes.nestedRepeatingGroupSummaryWrapper]: isNested })}>
+    <div
+      className={cn({ [classes.nestedRepeatingGroupSummaryWrapper]: isNested })}
+      data-testid={'summary-repeating-group-component'}
+    >
       <Label
         node={target}
         renderLabelAs='span'

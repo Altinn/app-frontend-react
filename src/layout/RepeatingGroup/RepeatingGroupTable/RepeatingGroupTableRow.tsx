@@ -246,7 +246,7 @@ function _RepeatingGroupTableRow({
                   color='second'
                   size='small'
                   onClick={() => toggleEditing({ index: row.index, uuid: row.uuid })}
-                  aria-label={`${editButtonText} ${firstCellData}`}
+                  aria-label={`${editButtonText} ${firstCellData ?? ''}`}
                   data-testid='edit-button'
                   className={classes.tableButton}
                 >
@@ -304,7 +304,7 @@ function _RepeatingGroupTableRow({
                 size='small'
                 icon={!isEditingRow && mobileViewSmall}
                 onClick={() => toggleEditing({ index, uuid })}
-                aria-label={`${editButtonText} ${firstCellData}`}
+                aria-label={`${editButtonText} ${firstCellData ?? ''}`}
                 data-testid='edit-button'
                 className={classes.tableButton}
               >
