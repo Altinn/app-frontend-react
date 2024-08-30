@@ -41,13 +41,10 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
       (picker) => picker(node)?.layout.dataModelBindings,
       [node],
     );
-    for (const [bindingKey, reference] of Object.entries(
+    for (const [bindingKey, { dataType, field }] of Object.entries(
       (dataModelBindings ?? {}) as Record<string, IDataModelReference>,
     )) {
-      const fieldValidations = dataModelSelector(
-        (dataModels) => dataModels[reference.dataType]?.[reference.field],
-        [reference],
-      );
+      const fieldValidations = dataModelSelector((dataModels) => dataModels[dataType]?.[field], [dataType, field]);
       if (fieldValidations) {
         validations.push(...fieldValidations.map((v) => ({ ...v, node, bindingKey })));
       }

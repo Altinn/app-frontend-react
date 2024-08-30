@@ -54,7 +54,7 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
 
       if (deepEqual(validatorGroups.current, newValidatorGroups)) {
         // Dont update any validations, only set last saved validations
-        updateBackendValidations({}, lastSaveValidations);
+        updateBackendValidations(undefined, lastSaveValidations);
         return;
       }
 

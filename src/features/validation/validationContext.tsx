@@ -50,7 +50,7 @@ interface Internals {
     validations?: FieldValidations,
   ) => void;
   updateBackendValidations: (
-    backendValidations: { [dataType: string]: FieldValidations },
+    backendValidations: { [dataType: string]: FieldValidations } | undefined,
     processedLast?: BackendValidationIssueGroups,
   ) => void;
   updateValidating: (validating: WaitForValidation) => void;
@@ -102,14 +102,16 @@ function initialCreateStore() {
           if (processedLast) {
             state.issueGroupsProcessedLast = processedLast;
           }
-          state.individualValidations.backend = backendValidations;
-          for (const dataType of Object.keys(backendValidations)) {
-            state.state.dataModels[dataType] = mergeFieldValidations(
-              state.individualValidations.backend[dataType],
-              state.individualValidations.invalidData[dataType],
-              state.individualValidations.schema[dataType],
-              state.individualValidations.expression[dataType],
-            );
+          if (backendValidations) {
+            state.individualValidations.backend = backendValidations;
+            for (const dataType of Object.keys(backendValidations)) {
+              state.state.dataModels[dataType] = mergeFieldValidations(
+                state.individualValidations.backend[dataType],
+                state.individualValidations.invalidData[dataType],
+                state.individualValidations.schema[dataType],
+                state.individualValidations.expression[dataType],
+              );
+            }
           }
         }),
       updateValidating: (newValidating) =>
