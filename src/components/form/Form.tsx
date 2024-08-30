@@ -27,6 +27,7 @@ import { GenericComponentById } from 'src/layout/GenericComponent';
 import { extractBottomButtons } from 'src/utils/formLayout';
 import { useGetPage, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
+import type { NavigateToNodeOptions } from 'src/features/form/layout/NavigateToNode';
 import type { NodeData } from 'src/utils/layout/types';
 
 interface FormState {
@@ -248,6 +249,7 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
 function HandleNavigationFocusComponent() {
   const searchStringRef = useQueryKeysAsStringAsRef();
   const componentId = useQueryKey(SearchParams.FocusComponentId);
+  const resetReturnToView = useQueryKey(SearchParams.ResetReturnView)?.toLocaleLowerCase() === 'false' ? false : true;
   const focusNode = useNode(componentId ?? undefined);
   const navigateTo = useNavigateToNode();
   const navigate = useNavigate();
@@ -255,15 +257,22 @@ function HandleNavigationFocusComponent() {
   React.useEffect(() => {
     (async () => {
       if (focusNode) {
-        await navigateTo(focusNode, { shouldFocus: true });
+        const nodeNavOptions: NavigateToNodeOptions = {
+          shouldFocus: true,
+          pageNavOptions: {
+            resetReturnToView,
+          },
+        };
+        await navigateTo(focusNode, nodeNavOptions);
         const location = new URLSearchParams(searchStringRef.current);
         location.delete(SearchParams.FocusComponentId);
+        location.delete(SearchParams.ResetReturnView);
         const baseHash = window.location.hash.slice(1).split('?')[0];
         const nextLocation = location.size > 0 ? `${baseHash}?${location.toString()}` : baseHash;
         navigate(nextLocation, { replace: true });
       }
     })();
-  }, [navigateTo, focusNode, navigate, searchStringRef]);
+  }, [navigateTo, focusNode, navigate, searchStringRef, resetReturnToView]);
 
   return null;
 }

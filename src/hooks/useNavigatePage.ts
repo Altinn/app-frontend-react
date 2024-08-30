@@ -35,6 +35,7 @@ export enum TaskKeys {
 
 export enum SearchParams {
   FocusComponentId = 'focusComponentId',
+  ResetReturnView = 'resetReturnView',
 }
 
 const emptyArray: never[] = [];
@@ -143,7 +144,6 @@ export const useNavigatePage = () => {
   const processTasks = useLaxProcessData()?.processTasks;
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
   const navigate = useNavigate();
-
   const navParams = useAllNavigationParamsAsRef();
   const queryKeysRef = useQueryKeysAsStringAsRef();
   const getTaskType = useGetTaskType();
@@ -217,6 +217,7 @@ export const useNavigatePage = () => {
       if (options?.focusComponentId) {
         const searchParams = new URLSearchParams();
         searchParams.set(SearchParams.FocusComponentId, options.focusComponentId);
+        searchParams.set(SearchParams.ResetReturnView, 'false');
         url = `${url}?${searchParams.toString()}`;
       }
 
@@ -311,7 +312,6 @@ export const useNavigatePage = () => {
     await navigateToPage(previousPage);
   }, [getPreviousPage, navigateToPage]);
 
-  // TODO: Focus on subform table component?
   const exitSubForm = async () => {
     if (!navParams.current.isSubFormPage || !navParams.current.mainPageKey) {
       window.logWarn('Tried to close subform page while not in a subform.');
@@ -319,7 +319,7 @@ export const useNavigatePage = () => {
     }
     await navigateToPage(navParams.current.mainPageKey, {
       exitSubForm: true,
-      shouldFocusComponent: true,
+      resetReturnToView: false,
       focusComponentId: navParams.current.componentId,
     });
   };
