@@ -77,22 +77,6 @@ export const quirks: { [key: string]: QuirkDef } = {
       `Renamed duplicate ID 'knappNavigasjonForside' components.`,
     ],
   },
-  'dsb/melding-om-sikkerhetsraadgiver/form': {
-    verifyAndApply(layouts) {
-      assert(layouts['99Summary']!.at(4)!.id === 'safetyAdvisersSummary');
-      assert(layouts['pdfReceipt']!.at(3)!.id === 'safetyAdvisersSummary');
-
-      assert(layouts['99Summary']!.at(5)!.id === 'termsSummary');
-      assert(layouts['pdfReceipt']!.at(4)!.id === 'termsSummary');
-
-      layouts['99Summary']!.at(4)!.id += 'SummaryPage';
-      layouts['99Summary']!.at(5)!.id += 'SummaryPage';
-    },
-    logMessages: [
-      `Renamed duplicate ID 'safetyAdvisersSummary' in '99Summary' layout to 'safetyAdvisersSummarySummaryPage'`,
-      `Renamed duplicate ID 'termsSummary' in '99Summary' layout to 'termsSummarySummaryPage'`,
-    ],
-  },
   'krt/krt-1177a-1/form': {
     verifyAndApply: (layouts) => {
       assert(layouts['Summary']![0].id === 'Paragraph-PZVeXz-summary');
