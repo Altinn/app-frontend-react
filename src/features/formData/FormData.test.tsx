@@ -5,10 +5,11 @@ import type { PropsWithChildren } from 'react';
 import { afterAll, beforeAll, expect, jest } from '@jest/globals';
 import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import type { JSONSchema7 } from 'json-schema';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
-import { statelessDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
+import { defaultDataTypeMock, statelessDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
@@ -22,7 +23,12 @@ import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteP
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { AppRoutingProvider, useNavigate } from 'src/features/routing/AppRoutingContext';
 import { fetchApplicationMetadata } from 'src/queries/queries';
-import { makeFormDataMethodProxies, renderWithMinimalProviders } from 'src/test/renderWithProviders';
+import {
+  makeFormDataMethodProxies,
+  renderWithInstanceAndLayout,
+  renderWithMinimalProviders,
+} from 'src/test/renderWithProviders';
+import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
 
 interface DataModelFlat {
   'obj1.prop1': string;
@@ -59,7 +65,34 @@ function NavigateBackButton() {
   );
 }
 
-async function genericRender(props: Partial<Parameters<typeof renderWithMinimalProviders>[0]> = {}) {
+const mockSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    obj1: {
+      type: 'object',
+      properties: {
+        prop1: {
+          type: 'string',
+        },
+        prop2: {
+          type: 'string',
+        },
+      },
+    },
+    obj2: {
+      type: 'object',
+      properties: {
+        prop1: {
+          type: 'string',
+        },
+      },
+    },
+  },
+};
+
+type MinimalRenderProps = Partial<Omit<Parameters<typeof renderWithInstanceAndLayout>[0], 'renderer'>>;
+type RenderProps = MinimalRenderProps & { renderer: React.ReactElement };
+async function statelessRender(props: RenderProps) {
   (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementationOnce(() =>
     Promise.resolve(
       getIncomingApplicationMetadataMock({
@@ -105,9 +138,7 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
                     <DynamicsProvider>
                       <RulesProvider>
                         <FormDataWriteProxyProvider value={formDataProxies}>
-                          <FormDataWriteProvider>
-                            {props.renderer && typeof props.renderer === 'function' ? props.renderer() : props.renderer}
-                          </FormDataWriteProvider>
+                          <FormDataWriteProvider>{props.renderer}</FormDataWriteProvider>
                         </FormDataWriteProxyProvider>
                       </RulesProvider>
                     </DynamicsProvider>
@@ -119,36 +150,29 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
         </ApplicationMetadataProvider>
       ),
       queries: {
-        fetchDataModelSchema: async () => ({
-          type: 'object',
-          properties: {
-            obj1: {
-              type: 'object',
-              properties: {
-                prop1: {
-                  type: 'string',
-                },
-                prop2: {
-                  type: 'string',
-                },
-              },
-            },
-            obj2: {
-              type: 'object',
-              properties: {
-                prop1: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        }),
+        fetchDataModelSchema: async () => mockSchema,
         fetchFormData: async () => ({}),
         fetchLayouts: async () => ({}),
         ...props.queries,
       },
     })),
   };
+}
+
+async function statefulRender(props: RenderProps) {
+  (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementationOnce(() =>
+    Promise.resolve(getIncomingApplicationMetadataMock()),
+  );
+  return await renderWithInstanceAndLayout({
+    ...props,
+    alwaysRouteToChildren: true,
+    queries: {
+      fetchDataModelSchema: async () => mockSchema,
+      fetchFormData: async () => ({}),
+      fetchLayouts: async () => ({}),
+      ...props.queries,
+    },
+  });
 }
 
 describe('FormData', () => {
@@ -182,7 +206,7 @@ describe('FormData', () => {
       );
     }
 
-    async function render(props: Partial<Parameters<typeof renderWithMinimalProviders>[0]> = {}) {
+    async function render(props: MinimalRenderProps = {}) {
       const renderCounts: RenderCounts = {
         ReaderObj1Prop1: 0,
         ReaderObj1Prop2: 0,
@@ -193,8 +217,8 @@ describe('FormData', () => {
         WriterObj2Prop1: 0,
       };
 
-      const utils = await genericRender({
-        renderer: () => (
+      const utils = await statelessRender({
+        renderer: (
           <>
             <RenderCountingReader
               renderCounts={renderCounts}
@@ -278,12 +302,12 @@ describe('FormData', () => {
     });
   });
 
-  function SimpleWriter({ path }: { path: keyof DataModelFlat }) {
+  function SimpleWriter({ path, dataType = statelessDataTypeMock }: { path: keyof DataModelFlat; dataType?: string }) {
     const {
       formData: { simpleBinding: value },
       setValue,
     } = useDataModelBindings({
-      simpleBinding: { field: path, dataType: statelessDataTypeMock },
+      simpleBinding: { field: path, dataType },
     });
 
     return (
@@ -327,13 +351,22 @@ describe('FormData', () => {
       );
     }
 
-    async function render(props: Partial<Parameters<typeof renderWithMinimalProviders>[0]> = {}) {
-      return genericRender({
-        renderer: () => (
+    async function render(props: MinimalRenderProps = {}) {
+      return statefulRender({
+        renderer: (
           <>
-            <SimpleWriter path='obj1.prop1' />
-            <SimpleWriter path='obj1.prop2' />
-            <SimpleWriter path='obj2.prop1' />
+            <SimpleWriter
+              path='obj1.prop1'
+              dataType={defaultDataTypeMock}
+            />
+            <SimpleWriter
+              path='obj1.prop2'
+              dataType={defaultDataTypeMock}
+            />
+            <SimpleWriter
+              path='obj2.prop1'
+              dataType={defaultDataTypeMock}
+            />
             <LockActionButton />
             <HasUnsavedChanges />
           </>
@@ -373,9 +406,9 @@ describe('FormData', () => {
       expect(screen.getByTestId('obj1.prop2')).toHaveValue('b');
 
       // Locking prevents saving
-      expect(mutations.doPostStatelessFormData.mock).toHaveBeenCalledTimes(0);
+      expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(0);
       act(() => jest.advanceTimersByTime(5000));
-      expect(mutations.doPostStatelessFormData.mock).toHaveBeenCalledTimes(0);
+      expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(0);
 
       // Unlock the form
       await user.click(screen.getByRole('button', { name: 'Unlock form data' }));
@@ -387,15 +420,10 @@ describe('FormData', () => {
       // Saving is now allowed, so the form data we saved earlier is sent. The one value
       // we changed that was overwritten is now lost.
       act(() => jest.advanceTimersByTime(5000));
-      await waitFor(() => expect(mutations.doPostStatelessFormData.mock).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(1));
 
-      const dataModel = (mutations.doPostStatelessFormData.mock as jest.Mock).mock.calls[0][1];
-      expect(dataModel).toEqual({
-        obj1: {
-          prop1: 'new value',
-          prop2: 'b',
-        },
-      });
+      const patchReq = (mutations.doPatchFormData.mock as jest.Mock).mock.calls[0][1] as IDataModelPatchRequest;
+      expect(patchReq.patch).toEqual([{ op: 'add', path: '/obj1/prop2', value: 'b' }]);
     });
 
     it('Locking will not trigger a save if no values have changed', async () => {
@@ -406,9 +434,9 @@ describe('FormData', () => {
       await user.click(screen.getByRole('button', { name: 'Lock form data' }));
       await waitFor(() => expect(screen.getByTestId('isLocked')).toHaveTextContent('true'));
 
-      expect(mutations.doPostStatelessFormData.mock).toHaveBeenCalledTimes(0);
+      expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(0);
       act(() => jest.advanceTimersByTime(5000));
-      expect(mutations.doPostStatelessFormData.mock).toHaveBeenCalledTimes(0);
+      expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(0);
 
       await user.click(screen.getByRole('button', { name: 'Unlock form data' }));
       await waitFor(() => expect(screen.getByTestId('isLocked')).toHaveTextContent('false'));
@@ -418,7 +446,7 @@ describe('FormData', () => {
 
       act(() => jest.advanceTimersByTime(5000));
       await waitFor(() => expect(screen.getByTestId('hasUnsavedChanges')).toHaveTextContent('false'));
-      expect(mutations.doPostStatelessFormData.mock).toHaveBeenCalledTimes(0);
+      expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(0);
     });
 
     it('Unsaved changes should be saved before locking', async () => {
@@ -430,22 +458,21 @@ describe('FormData', () => {
       expect(screen.getByTestId('obj2.prop1')).toHaveValue('a');
       expect(screen.getByTestId('hasUnsavedChanges')).toHaveTextContent('true');
 
-      expect(mutations.doPostStatelessFormData.mock).toHaveBeenCalledTimes(0);
+      expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(0);
       await user.click(screen.getByRole('button', { name: 'Lock form data' }));
-      expect(mutations.doPostStatelessFormData.mock).toHaveBeenCalledTimes(1);
+      expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId('isLocked')).toHaveTextContent('false'); // The save has not finished yet
 
-      const dataModel = (mutations.doPostStatelessFormData.mock as jest.Mock).mock.calls[0][1];
-      expect(dataModel).toEqual({
-        obj1: {
-          prop1: 'value1',
-        },
-        obj2: {
-          prop1: 'a',
-        },
-      });
+      const patchReq = (mutations.doPatchFormData.mock as jest.Mock).mock.calls[0][1] as IDataModelPatchRequest;
+      expect(patchReq.patch).toEqual([{ op: 'add', path: '/obj2', value: { prop1: 'a' } }]);
 
-      mutations.doPostStatelessFormData.resolve();
+      const response: IDataModelPatchResponse = {
+        newDataModel: {
+          obj2: { prop1: 'a' },
+        },
+        validationIssues: {},
+      };
+      mutations.doPatchFormData.resolve(response);
       await waitFor(() => expect(screen.getByTestId('isLocked')).toHaveTextContent('true'));
     });
   });
@@ -464,9 +491,9 @@ describe('FormData', () => {
       );
     }
 
-    async function render(props: Partial<Parameters<typeof renderWithMinimalProviders>[0]> = {}) {
-      return genericRender({
-        renderer: () => (
+    async function render(props: MinimalRenderProps = {}) {
+      return statelessRender({
+        renderer: (
           <>
             <HasUnsavedChanges />
             <SimpleWriter path='obj1.prop1' />
