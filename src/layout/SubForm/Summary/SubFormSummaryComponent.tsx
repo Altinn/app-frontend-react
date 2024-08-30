@@ -6,7 +6,7 @@ import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { dataQueryWithDefaultValue } from 'src/layout/SubForm/SubFormComponent';
+import { DataQueryWithDefaultValue } from 'src/layout/SubForm/SubFormComponent';
 import classes from 'src/layout/SubForm/Summary/SubFormSummaryComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
@@ -62,24 +62,34 @@ function SubFormSummaryRow({ dataElement, node }: { dataElement: IData; node: La
     );
   }
 
-  const content = tableColumns.map((entry) =>
-    dataQueryWithDefaultValue({
-      data,
-      languageProvider: { langAsString },
-      query: entry.cellContent.query,
-      defaultValue: entry.cellContent.default,
-    }),
-  );
+  const content = tableColumns.map((entry, i) => (
+    <DataQueryWithDefaultValue
+      key={i}
+      data={data}
+      query={entry.cellContent.query}
+      defaultValue={entry.cellContent.default}
+    />
+  ));
+
   if (content.length === 0) {
-    content.push(id);
+    content.push(<>{id}</>);
   }
+
+  const isLastEntry = (i: number) => i === content.length - 1;
 
   return (
     <div
       className={classes.row}
       key={rowkey}
     >
-      <div key={id}>{content.join(summaryDelimiter)}</div>
+      <div key={id}>
+        {content.map((entry, i) => (
+          <>
+            {entry}
+            {!isLastEntry(i) && <span>{summaryDelimiter}</span>}
+          </>
+        ))}
+      </div>
     </div>
   );
 }

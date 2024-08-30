@@ -17,7 +17,6 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import classes from 'src/layout/SubForm/SubFormComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
-import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -215,12 +214,11 @@ function SubFormTableRow({
       {tableColumns.length ? (
         tableColumns.map((entry, index) => (
           <Table.Cell key={`subform-cell-${id}-${index}`}>
-            {dataQueryWithDefaultValue({
-              data,
-              languageProvider: { langAsString },
-              query: entry.cellContent.query,
-              defaultValue: entry.cellContent.default,
-            })}
+            <DataQueryWithDefaultValue
+              data={data}
+              query={entry.cellContent.query}
+              defaultValue={entry.cellContent.default}
+            />
           </Table.Cell>
         ))
       ) : (
@@ -276,18 +274,17 @@ export interface DataQueryParams {
   data: unknown;
   query: string;
   defaultValue?: string;
-  languageProvider: Pick<IUseLanguage, 'langAsString'>;
 }
 
-// TODO: Make this a component?
-export function dataQueryWithDefaultValue(props: DataQueryParams) {
-  const { data, query, defaultValue, languageProvider } = props;
+export function DataQueryWithDefaultValue(props: DataQueryParams) {
+  const { data, query, defaultValue } = props;
+  const { langAsString } = useLanguage();
   let content = dot.pick(query, data);
 
   if (!content && defaultValue != undefined) {
-    const textLookup = languageProvider.langAsString(defaultValue);
+    const textLookup = langAsString(defaultValue);
     content = textLookup ? textLookup : defaultValue;
   }
 
-  return String(content);
+  return <>{String(content)}</>;
 }

@@ -10,7 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
-import { dataQueryWithDefaultValue } from 'src/layout/SubForm/SubFormComponent';
+import { DataQueryWithDefaultValue } from 'src/layout/SubForm/SubFormComponent';
 import classes from 'src/layout/SubForm/Summary/SubFormSummaryComponent2.module.css';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -131,12 +131,12 @@ function SubFormSummaryTableRow({
       {tableColumns.length ? (
         tableColumns.map((entry, index) => (
           <td key={`${rowkey}-${index}`}>
-            {dataQueryWithDefaultValue({
-              data,
-              languageProvider: { langAsString },
-              query: entry.cellContent.query,
-              defaultValue: entry.cellContent.default,
-            })}
+            <DataQueryWithDefaultValue
+              key={index}
+              data={data}
+              query={entry.cellContent.query}
+              defaultValue={entry.cellContent.default}
+            />
           </td>
         ))
       ) : (
