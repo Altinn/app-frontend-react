@@ -229,14 +229,18 @@ function makeActions(
   ) {
     state.manualSaveRequested = false;
     for (const [dataType, { dataElementId, isDefault }] of Object.entries(state.dataModels)) {
-      if (dataElementId && newDataModels[dataElementId]) {
+      const next =
+        dataElementId && newDataModels[dataElementId]
+          ? newDataModels[dataElementId] // When in an instance
+          : newDataModels[dataType]; // Stateless
+      if (next) {
         const backendChangesPatch = createPatch({
           prev: savedData[dataType],
-          next: newDataModels[dataElementId],
+          next,
           current: state.dataModels[dataType].currentData,
         });
         applyPatch(state.dataModels[dataType].currentData, backendChangesPatch);
-        state.dataModels[dataType].lastSavedData = newDataModels[dataElementId];
+        state.dataModels[dataType].lastSavedData = next;
 
         // Run rules again, against current data. Now that we have updates from the backend, some rules may
         // have caused data to change.
