@@ -342,16 +342,19 @@ function FormDataEffects() {
   );
 
   // Sets the debounced data in the window object, so that Cypress tests can access it.
-  // TODO(Datamodels): Fix this for attachment tests to work
-  useEffect(() => {
+  useSelector((state) => {
     if (window.Cypress) {
-      window.CypressState = { ...window.CypressState, formData: _debouncedCurrentData };
+      const formData: { [key: string]: unknown } = {};
+      for (const [dataType, { debouncedCurrentData }] of Object.entries(state.dataModels)) {
+        formData[dataType] = debouncedCurrentData;
+      }
+
+      window.CypressState = { ...window.CypressState, formData };
     }
-  }, []);
+  });
 
   return null;
 }
-const _debouncedCurrentData = {};
 
 const useRequestManualSave = () => {
   const requestSave = useLaxSelector((s) => s.requestManualSave);
