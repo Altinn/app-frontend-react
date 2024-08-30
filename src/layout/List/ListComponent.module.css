@@ -1,0 +1,20 @@
+.headerCell {
+  background-color: var(--fds-colors-grey-100);
+}
+
+.selectedRowCell {
+  background-color: var(--fds-colors-blue-100);
+}
+
+.pagination {
+  height: 60px;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  background-color: var(--fds-colors-grey-100);
+}
+
+tr {
+  cursor: pointer;
+  height: 60px;
+}

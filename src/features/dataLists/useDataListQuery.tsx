@@ -13,9 +13,10 @@ import type { IMapping } from 'src/layout/common.generated';
 export type Filter = {
   pageSize: number;
   pageNumber: number;
-  sortColumn: string | null;
+  sortColumn?: string;
   sortDirection: SortDirection;
 };
+
 export const useDataListQuery = (
   filter: Filter,
   dataListId: string,
