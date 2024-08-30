@@ -34,7 +34,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
 
   const isSubFormPage = useNavigationParam('isSubFormPage');
   if (isSubFormPage) {
-    throw new Error('Cannot use a SubFormComponent component within a sub-form');
+    throw new Error('Cannot use a SubFormComponent component within a subform');
   }
 
   const { langAsString } = useLanguage();

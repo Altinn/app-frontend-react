@@ -55,8 +55,8 @@ export function en() {
       body: 'Waiting for verification. When this is complete you will be forwarded to the next step or receipt automatically.',
     },
     form_filler: {
-      error_add_sub_form: 'Failed to add sub-form entry, please try again.',
-      error_delete_sub_form: 'An error occurred while deleting the sub-form entry, please try again.',
+      error_add_sub_form: 'Failed to add subform entry, please try again.',
+      error_delete_sub_form: 'An error occurred while deleting the subform entry, please try again.',
       error_max_count_reached_sub_form_server: 'The maximum number of {0} entries has been reached',
       error_max_count_reached_sub_form_local: 'The maximum number of {0} entries has been reached ({1})',
       error_min_count_not_reached_sub_form: 'At least {0} {1} entry is required',

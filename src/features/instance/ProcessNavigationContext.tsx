@@ -160,7 +160,7 @@ export const useProcessNavigation = () => {
   // const { isSubFormPage } = useNavigationParams();
   const isSubFormPage = useNavigationParam('isSubFormPage');
   if (isSubFormPage) {
-    throw new Error('Cannot use process navigation in a sub-form');
+    throw new Error('Cannot use process navigation in a subform');
   }
 
   return useCtx();

@@ -78,7 +78,7 @@ const useNavigationParams = (): Context['params'] => {
     useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey'),
     useMatch('/:pageKey'), // Stateless
 
-    // Temporary: Sub-form routing (should be moved into the component/index.tsx)
+    // Subform
     useMatch('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId'),
     useMatch('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId/:dataElementId'),
     useMatch('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId/:dataElementId/:pageKey'),

@@ -96,7 +96,7 @@ function useHandleClientActions(): UseHandleClientActions {
 
       const subFormActions = ['closeSubForm', 'validateSubForm'];
       if ((!isSubFormPage || !mainPageKey) && subFormActions.includes(action.id)) {
-        throw new Error('SubFormAction is only applicable for sub-forms');
+        throw new Error('SubFormAction is only applicable for subforms');
       }
 
       await frontendActions[action.id]();

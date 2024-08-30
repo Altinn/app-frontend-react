@@ -19,13 +19,13 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'layoutSet',
-      new CG.str().setTitle('Layout set ID').setDescription('The layout set to load for this sub-form'),
+      new CG.str().setTitle('Layout set ID').setDescription('The layout set to load for this subform'),
     ),
   )
   .addProperty(
     new CG.prop(
       'dataType',
-      new CG.str().setTitle('Data (model) type').setDescription('The data model be used for these sub-forms'),
+      new CG.str().setTitle('Data (model) type').setDescription('The data model be used for these subforms'),
     ),
   )
   .addProperty(new CG.prop('showAddButton', new CG.bool().optional({ default: true })))
@@ -80,7 +80,7 @@ export const Config = new CG.component({
     new CG.trb({
       name: 'title',
       title: 'Title',
-      description: 'The title of the sub-form component',
+      description: 'The title of the subform component',
     }),
   )
   .addTextResource(
