@@ -48,7 +48,7 @@ function SubFormSummaryRow({ dataElement, node }: { dataElement: IData; node: La
   const { tableColumns = [], summaryDelimiter = ' — ' } = useNodeItem(node);
   const instance = useStrictInstanceData();
   const url = getDataModelUrl(instance.id, id, true);
-  const { isFetching, data } = useFormDataQuery(url);
+  const { isFetching, data, error, failureCount } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
   const rowkey = `subform-summary-${node.id}-${id}`;
 
@@ -60,6 +60,9 @@ function SubFormSummaryRow({ dataElement, node }: { dataElement: IData; node: La
         key={rowkey}
       />
     );
+  } else if (error) {
+    console.error(`Error loading data element ${id} from server. Gave up after ${failureCount} attempt(s).`, error);
+    return <Lang id='form_filler.error_fetch_subform' />;
   }
 
   const content = tableColumns.map((entry, i) => (

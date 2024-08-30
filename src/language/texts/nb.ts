@@ -57,6 +57,7 @@ export function nb(): FixedLanguageList {
     form_filler: {
       error_add_subform: 'Det oppstod en feil ved opprettelse av underskjema, vennligst prøv igjen',
       error_delete_subform: 'Noe gikk galt ved sletting av underskjema, vennligst prøv igjen',
+      error_fetch_subform: 'Feil ved lasting av skjemadata',
       error_max_count_reached_subform_server: 'Maks antall {0} oppføringer har blitt nådd',
       error_max_count_reached_subform_local: 'Maks antall {0} oppføringer har blitt nådd {1}',
       error_min_count_not_reached_subform: 'Minst {0} {1} oppføring er påkrevd',

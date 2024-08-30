@@ -171,7 +171,7 @@ function SubFormTableRow({
   const { tableColumns = [] } = useNodeItem(node);
   const instance = useStrictInstanceData();
   const url = getDataModelUrl(instance.id, id, true);
-  const { isFetching, data, error } = useFormDataQuery(url);
+  const { isFetching, data, error, failureCount } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -180,15 +180,23 @@ function SubFormTableRow({
   const deleteButtonText = langAsString('general.delete');
   const editButtonText = langAsString('general.edit');
 
-  // TODO: Use `error`. Refetch?
+  const numColumns = tableColumns.length;
+  const actualColumns = showDeleteButton ? numColumns + 1 : numColumns;
 
   if (isFetching) {
-    const numColumns = tableColumns.length;
-    const actualColumns = showDeleteButton ? numColumns + 1 : numColumns;
     return (
       <Table.Row>
         <Table.Cell colSpan={actualColumns}>
           <Spinner title={langAsString('general.loading')} />
+        </Table.Cell>
+      </Table.Row>
+    );
+  } else if (error) {
+    console.error(`Error loading data element ${id} from server. Gave up after ${failureCount} attempt(s).`, error);
+    return (
+      <Table.Row>
+        <Table.Cell colSpan={actualColumns}>
+          <Lang id='form_filler.error_fetch_subform' />
         </Table.Cell>
       </Table.Row>
     );

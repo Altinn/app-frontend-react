@@ -57,6 +57,7 @@ export function en() {
     form_filler: {
       error_add_subform: 'Failed to add subform entry, please try again.',
       error_delete_subform: 'An error occurred while deleting the subform entry, please try again.',
+      error_fetch_subform: 'Error loading form data',
       error_max_count_reached_subform_server: 'The maximum number of {0} entries has been reached',
       error_max_count_reached_subform_local: 'The maximum number of {0} entries has been reached ({1})',
       error_min_count_not_reached_subform: 'At least {0} {1} entry is required',

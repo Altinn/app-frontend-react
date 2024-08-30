@@ -104,7 +104,7 @@ function SubFormSummaryTableRow({
   const navigate = useNavigate();
   const instance = useStrictInstanceData();
   const url = getDataModelUrl(instance.id, id, true);
-  const { isFetching, data } = useFormDataQuery(url);
+  const { isFetching, data, error, failureCount } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
   const rowkey = `subform-summary-cell-${id}`;
 
@@ -117,6 +117,15 @@ function SubFormSummaryTableRow({
             size='xs'
             key={rowkey}
           />
+        </td>
+      </tr>
+    );
+  } else if (error) {
+    console.error(`Error loading data element ${id} from server. Gave up after ${failureCount} attempt(s).`, error);
+    return (
+      <tr className={classes.noRowSpacing}>
+        <td colSpan={tableColumns.length}>
+          <Lang id='form_filler.error_fetch_subform' />
         </td>
       </tr>
     );
