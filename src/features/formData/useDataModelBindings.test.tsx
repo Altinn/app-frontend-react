@@ -5,6 +5,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IDataModelPatchResponse } from 'src/features/formData/types';
@@ -22,7 +23,8 @@ describe('useDataModelBindings', () => {
     const renderCount = useRef(0);
     renderCount.current++;
 
-    const { formData, setValue, setValues, isValid, debounce } = useDataModelBindings({
+    const debounce = FD.useDebounceImmediately();
+    const { formData, setValue, setValues, isValid } = useDataModelBindings({
       stringy: { field: 'stringyField', dataType: defaultDataTypeMock },
       decimal: { field: 'decimalField', dataType: defaultDataTypeMock },
       integer: { field: 'integerField', dataType: defaultDataTypeMock },

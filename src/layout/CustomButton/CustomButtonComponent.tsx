@@ -27,6 +27,12 @@ type UpdatedDataModels = {
   [dataModelGuid: string]: object;
 };
 
+/**
+ * This is the format we get from app-lib, it turns out mapping BackendValidationIssueGroups on a per-dataelement basis is unecessary,
+ * and so this mapping is simply un-done after receiving it. To avoid breaking changes which would require handling multiple
+ * formats in app-frontend, we decided to leave it as is for now, as it does not have any practical consequences. In a future
+ * major/breaking release which would require a specific backend version, this could be changed to simply return a single BackendValidationIssueGroups object.
+ */
 type UpdatedValidationIssues = {
   [dataModelGuid: string]: BackendValidationIssueGroups;
 };
@@ -56,7 +62,6 @@ const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerA
 
 function useHandleClientActions(): UseHandleClientActions {
   const { navigateToPage, navigateToNextPage, navigateToPreviousPage } = useNavigatePage();
-  const getDataTypeForElementId = FD.useGetDataTypeForElementId();
 
   const frontendActions: ClientActionHandlers = useMemo(
     () => ({
@@ -92,25 +97,20 @@ function useHandleClientActions(): UseHandleClientActions {
 
   const handleDataModelUpdate: UseHandleClientActions['handleDataModelUpdate'] = useCallback(
     async (lockTools, result) => {
-      const _updatedDataModels = result.updatedDataModels;
+      const updatedDataModels = result.updatedDataModels;
       const _updatedValidationIssues = result.updatedValidationIssues;
 
-      // The backend returns the objects in terms of dataElementId, we must therefore find and map to the corresponding dataTypes
-
-      const updatedDataModels = _updatedDataModels
-        ? Object.fromEntries(
-            Object.entries(_updatedDataModels)
-              .filter(([elementId]) => getDataTypeForElementId(elementId))
-              .map(([elementId, dataModel]) => [getDataTypeForElementId(elementId), dataModel]),
-          )
-        : undefined;
-
+      // Undo data element mapping from backend by combining sources into a single BackendValidationIssueGroups object
       const updatedValidationIssues = _updatedValidationIssues
-        ? Object.fromEntries(
-            Object.entries(_updatedValidationIssues)
-              .filter(([elementId]) => getDataTypeForElementId(elementId))
-              .map(([elementId, validationIssues]) => [getDataTypeForElementId(elementId), validationIssues]),
-          )
+        ? Object.values(_updatedValidationIssues).reduce((issueGroups, currentGroups) => {
+            for (const [source, group] of Object.entries(currentGroups)) {
+              if (!issueGroups[source]) {
+                issueGroups[source] = [];
+              }
+              issueGroups[source].push(...group);
+              return issueGroups;
+            }
+          }, {})
         : undefined;
 
       lockTools.unlock({
@@ -118,7 +118,7 @@ function useHandleClientActions(): UseHandleClientActions {
         updatedValidationIssues,
       });
     },
-    [getDataTypeForElementId],
+    [],
   );
 
   return { handleClientActions, handleDataModelUpdate };

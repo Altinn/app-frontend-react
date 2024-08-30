@@ -45,8 +45,9 @@ export const getAnonymousStatelessDataModelUrl = (dataType: string, includeRowId
   `${appPath}/v1/data/anonymous?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
 export const getStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
   `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
-export const getDataModelUrl = (instanceId: string, dataGuid: string, includeRowIds: boolean) =>
+export const getStatefulDataModelUrl = (instanceId: string, dataGuid: string, includeRowIds: boolean) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}?includeRowId=${includeRowIds.toString()}`;
+export const getMultiPatchUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/data`;
 
 export const getDataElementUrl = (instanceId: string, dataGuid: string, language: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}?language=${language}`;

@@ -81,11 +81,6 @@ export type FieldValidations = {
   [field: string]: FieldValidation[];
 };
 
-export type LastValidationInfo = {
-  dataType: string;
-  processedLast: BackendValidationIssueGroups;
-};
-
 /**
  * Validation format returned by backend validation API.
  */

@@ -23,13 +23,11 @@ import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
-import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useShouldValidateInitial } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { HttpStatusCodes } from 'src/utils/network/networking';
-import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
 import type { BackendValidationIssue, IExpressionValidations } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
@@ -39,7 +37,6 @@ interface DataModelsState {
   allDataTypes: string[] | null;
   writableDataTypes: string[] | null;
   initialData: { [dataType: string]: object };
-  urls: { [dataType: string]: string };
   dataElementIds: { [dataType: string]: string | null };
   initialValidations: BackendValidationIssue[] | null;
   schemas: { [dataType: string]: JSONSchema7 };
@@ -50,7 +47,7 @@ interface DataModelsState {
 
 interface DataModelsMethods {
   setDataTypes: (allDataTypes: string[], writableDataTypes: string[], defaultDataType: string | undefined) => void;
-  setInitialData: (dataType: string, initialData: object, url: string, dataElementId: string | null) => void;
+  setInitialData: (dataType: string, initialData: object, dataElementId: string | null) => void;
   setInitialValidations: (initialValidations: BackendValidationIssue[]) => void;
   setDataModelSchema: (dataType: string, schema: JSONSchema7, lookupTool: SchemaLookupTool) => void;
   setExpressionValidationConfig: (dataType: string, config: IExpressionValidations | null) => void;
@@ -63,7 +60,6 @@ function initialCreateStore() {
     allDataTypes: null,
     writableDataTypes: null,
     initialData: {},
-    urls: {},
     dataElementIds: {},
     initialValidations: null,
     schemas: {},
@@ -74,15 +70,11 @@ function initialCreateStore() {
     setDataTypes: (allDataTypes, writableDataTypes, defaultDataType) => {
       set(() => ({ allDataTypes, writableDataTypes, defaultDataType }));
     },
-    setInitialData: (dataType, initialData, url, dataElementId) => {
+    setInitialData: (dataType, initialData, dataElementId) => {
       set((state) => ({
         initialData: {
           ...state.initialData,
           [dataType]: initialData,
-        },
-        urls: {
-          ...state.urls,
-          [dataType]: url,
         },
         dataElementIds: {
           ...state.dataElementIds,
@@ -262,14 +254,14 @@ interface LoaderProps {
 function LoadInitialData({ dataType }: LoaderProps) {
   const setInitialData = useSelector((state) => state.setInitialData);
   const setError = useSelector((state) => state.setError);
-  const url = useDataModelUrl(true, dataType);
   const instance = useLaxInstanceData();
-  const dataElementId = getFirstDataElementId(instance, dataType) ?? null;
-  const { data, error } = useFormDataQuery(getUrlWithLanguage(url, useCurrentLanguage()));
+  const dataElementId = getFirstDataElementId(instance, dataType);
+  const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
+  const { data, error } = useFormDataQuery(url);
 
   useEffect(() => {
     if (data && url) {
-      setInitialData(dataType, data, url, dataElementId);
+      setInitialData(dataType, data, dataElementId ?? null);
     }
   }, [data, dataElementId, dataType, setInitialData, url]);
 

@@ -6,6 +6,7 @@ import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
@@ -23,7 +24,8 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
   const { id, readOnly, textResourceBindings, alertOnChange } = item;
   const { langAsString, lang } = useLanguage(node);
 
-  const { options, isFetching, selectedValues, setData, key, debounce } = useGetOptions(node, 'single');
+  const { options, isFetching, selectedValues, setData, key } = useGetOptions(node, 'single');
+  const debounce = FD.useDebounceImmediately();
 
   const changeMessageGenerator = useCallback(
     (values: string[]) => {

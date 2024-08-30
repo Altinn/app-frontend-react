@@ -18,7 +18,6 @@ type DataAs = 'raw' | 'string';
 type DataType<DA extends DataAs> = DA extends 'raw' ? unknown : string;
 interface Output<B extends IDataModelBindings | undefined, DA extends DataAs> {
   formData: B extends undefined ? Record<string, never> : { [key in keyof B]: DataType<DA> };
-  debounce: () => void;
   setValue: (key: keyof Exclude<B, undefined>, value: FDLeafValue) => void;
   setValues: (values: Partial<{ [key in keyof B]: FDLeafValue }>) => void;
   isValid: { [key in keyof B]: boolean };
@@ -42,7 +41,6 @@ export function useDataModelBindings<B extends IDataModelBindings | undefined, D
 
   const setLeafValue = FD.useSetLeafValue();
   const setMultiLeafValue = FD.useSetMultiLeafValues();
-  const debounceDataType = FD.useDebounceImmediately();
   const formData = FD.useFreshBindings(bindings, dataAs);
   const isValid = FD.useBindingsAreValid(bindings);
 
@@ -83,18 +81,8 @@ export function useDataModelBindings<B extends IDataModelBindings | undefined, D
     [bindings, saveOptions, setMultiLeafValue],
   );
 
-  /**
-   * Debounce all data types referenced in bindings
-   */
-  const debounce = useCallback(() => {
-    const dataTypes = new Set(Object.values(bindings).map((b: IDataModelReference) => b.dataType));
-    for (const dataType of dataTypes) {
-      debounceDataType(dataType);
-    }
-  }, [bindings, debounceDataType]);
-
   return useMemo(
-    () => ({ formData: formData as Output<B, DA>['formData'], debounce, setValue, setValues, isValid }),
-    [debounce, formData, isValid, setValue, setValues],
+    () => ({ formData: formData as Output<B, DA>['formData'], setValue, setValues, isValid }),
+    [formData, isValid, setValue, setValues],
   );
 }

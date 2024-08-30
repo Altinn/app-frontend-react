@@ -7,6 +7,7 @@ import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { statelessDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
@@ -311,8 +312,9 @@ describe('FormData', () => {
               if (isLocked) {
                 // Unlock with some pretend updated form data
                 unlock({
-                  updatedDataModels: { [statelessDataTypeMock]: { obj1: { prop1: 'new value' } } },
-                  updatedValidationIssues: { [statelessDataTypeMock]: { obj1: [] } },
+                  // TODO(Datamodels): Actions are not supported in stateless, so this test should use a stateful app instead
+                  updatedDataModels: { [defaultMockDataElementId]: { obj1: { prop1: 'new value' } } },
+                  updatedValidationIssues: { obj1: [] },
                 });
               } else {
                 await lock();

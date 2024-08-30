@@ -33,7 +33,8 @@ export function AddressComponent({ node }: IAddressProps) {
 
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
-  const { formData, setValue, debounce } = useDataModelBindings(dataModelBindings, saveWhileTyping);
+  const { formData, setValue } = useDataModelBindings(dataModelBindings, saveWhileTyping);
+  const debounce = FD.useDebounceImmediately();
   const { address, careOf, postPlace, zipCode, houseNumber } = formData;
 
   const updatePostPlace = useEffectEvent((newPostPlace) => {

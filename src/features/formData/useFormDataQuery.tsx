@@ -56,7 +56,7 @@ export function getFormDataCacheKeyUrl(url: string | undefined) {
 export function useFormDataQuery(url: string | undefined) {
   // We also add the current task id to the query key, so that the query is re-fetched when the task changes. This
   // is needed because we provide this query two different places:
-  // 1. In the <InitialFormDataProvider /> to fetch the initial form data for a task. At that point forwards, the
+  // 1. In the <DataModelsProvider /> to fetch the initial form data for a task. At that point forwards, the
   //    form data is managed by the <FormDataWriteProvider />, which will maintain an updated copy of the form data.
   // 2. In the <FormDataReaders /> to fetch the form data used in text resource variable lookups on-demand. This
   //    reads the data model, assumes it doesn't really change, and caches it indefinitely. So, if you start at Task_1

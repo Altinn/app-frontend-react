@@ -44,7 +44,12 @@ import type { IncomingApplicationMetadata } from 'src/features/applicationMetada
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IFormDynamics } from 'src/features/form/dynamics';
-import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
+import type {
+  IDataModelMultiPatchRequest,
+  IDataModelMultiPatchResponse,
+  IDataModelPatchRequest,
+  IDataModelPatchResponse,
+} from 'src/features/formData/types';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { OrderDetails, PaymentResponsePayload } from 'src/features/payment/types';
@@ -155,6 +160,10 @@ export const doAttachmentRemove = async (instanceId: string, dataGuid: string, l
 // When saving data for normal/stateful apps
 export const doPatchFormData = (url: string, data: IDataModelPatchRequest) =>
   httpPatch<IDataModelPatchResponse>(url, data);
+
+// New multi-patch endpoint for stateful apps
+export const doPatchMultipleFormData = (url: string, data: IDataModelMultiPatchRequest) =>
+  httpPatch<IDataModelMultiPatchResponse>(url, data);
 
 // When saving data for stateless apps
 export const doPostStatelessFormData = async (url: string, data: object): Promise<object> =>

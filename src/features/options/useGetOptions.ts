@@ -56,8 +56,6 @@ export interface SetOptionsResult {
 
   setData: (values: string[]) => void;
 
-  debounce: () => void;
-
   // Workaround for dropdown (Combobox single) not clearing text input when value changes
   // Can be used in the key-prop, will change every time the value changes
   key: number;
@@ -104,7 +102,7 @@ const compareOptionAlphabetically =
 
 function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[]): SetOptionsResult {
   const { valueType, dataModelBindings } = props;
-  const { formData, setValue, debounce } = useDataModelBindings(dataModelBindings);
+  const { formData, setValue } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding ?? '';
   const { langAsString } = useLanguage();
 
@@ -162,7 +160,6 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
     selectedValues,
     unsafeSelectedValues: currentValues,
     setData,
-    debounce,
   };
 }
 /**

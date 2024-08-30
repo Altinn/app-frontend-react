@@ -6,6 +6,7 @@ import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
@@ -20,7 +21,8 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
   const item = useNodeItem(node);
   const isValid = useIsValid(node);
   const { id, readOnly, textResourceBindings, alertOnChange } = item;
-  const { options, isFetching, selectedValues, setData, debounce } = useGetOptions(node, 'multi');
+  const { options, isFetching, selectedValues, setData } = useGetOptions(node, 'multi');
+  const debounce = FD.useDebounceImmediately();
   const { langAsString, lang } = useLanguage(node);
 
   const changeMessageGenerator = useCallback(

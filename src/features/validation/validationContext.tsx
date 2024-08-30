@@ -27,7 +27,6 @@ import type {
   BaseValidation,
   DataModelValidations,
   FieldValidations,
-  LastValidationInfo,
   ValidationContext,
   WaitForValidation,
 } from 'src/features/validation';
@@ -39,7 +38,7 @@ interface Internals {
     schema: DataModelValidations;
     invalidData: DataModelValidations;
   };
-  issueGroupsProcessedLast: { [dataType: string]: BackendValidationIssueGroups | undefined };
+  issueGroupsProcessedLast: BackendValidationIssueGroups | undefined;
   updateTaskValidations: (validations: BaseValidation[]) => void;
   /**
    * updateDataModelValidations
@@ -52,7 +51,7 @@ interface Internals {
   ) => void;
   updateBackendValidations: (
     backendValidations: { [dataType: string]: FieldValidations },
-    validationInfo?: LastValidationInfo,
+    processedLast?: BackendValidationIssueGroups,
   ) => void;
   updateValidating: (validating: WaitForValidation) => void;
 }
@@ -98,13 +97,13 @@ function initialCreateStore() {
             );
           }
         }),
-      updateBackendValidations: (backendValidations, validationInfo) =>
+      updateBackendValidations: (backendValidations, processedLast) =>
         set((state) => {
-          if (validationInfo) {
-            state.issueGroupsProcessedLast[validationInfo.dataType] = validationInfo.processedLast;
+          if (processedLast) {
+            state.issueGroupsProcessedLast = processedLast;
           }
-          for (const [dataType, validations] of Object.entries(backendValidations)) {
-            state.individualValidations.backend[dataType] = validations;
+          state.individualValidations.backend = backendValidations;
+          for (const dataType of Object.keys(backendValidations)) {
             state.state.dataModels[dataType] = mergeFieldValidations(
               state.individualValidations.backend[dataType],
               state.individualValidations.invalidData[dataType],
@@ -146,6 +145,7 @@ export function ValidationProvider({ children }: PropsWithChildren) {
 }
 
 function useWaitForValidation(): WaitForValidation {
+  const initialValidations = DataModels.useInitialValidations();
   const waitForNodesReady = NodesInternal.useWaitUntilReady();
   const waitForSave = FD.useWaitForSave();
   const waitForState = useWaitForState<never, ValidationContext & Internals>(useStore());
@@ -170,10 +170,11 @@ function useWaitForValidation(): WaitForValidation {
       await waitForNodesReady();
       const validationsFromSave = await waitForSave(forceSave);
       await waitForNodesReady();
-      await waitForState((state) =>
-        Object.keys(state.issueGroupsProcessedLast).every(
-          (dataType) => state.issueGroupsProcessedLast[dataType] === validationsFromSave?.[dataType],
-        ),
+      // If validationsFromSave is not defined, we check if initial validations are done processing
+      await waitForState(
+        (state) =>
+          (!!validationsFromSave && state.issueGroupsProcessedLast === validationsFromSave) ||
+          !!state.issueGroupsProcessedLast,
       );
     },
     [isPDF, hasWritableDataTypes, waitForAttachments, waitForNodesReady, waitForSave, waitForState],
