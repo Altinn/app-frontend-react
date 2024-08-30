@@ -20,10 +20,10 @@ import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types'
 export const RepeatingGroupSummary = ({ target, isCompact, overrides }: Summary2Props<'RepeatingGroup'>) => {
   const validations = useUnifiedValidationsForNode(target);
   const { visibleRows } = useRepeatingGroupRowState();
-  const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
   const rowsToDisplaySet = new Set(visibleRows.map((row) => row.uuid));
   const rows = useNodeItem(target, (i) => i.rows).filter((row) => row && rowsToDisplaySet.has(row.uuid));
+  const errors = validationsOfSeverity(validations, 'error');
+  const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
   const isNested = target.parent instanceof BaseLayoutNode;
 
   if (rows.length === 0) {
