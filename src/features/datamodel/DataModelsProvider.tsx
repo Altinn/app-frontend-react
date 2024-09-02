@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useIsFetching } from '@tanstack/react-query';
 import { createStore } from 'zustand';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -265,8 +265,7 @@ interface LoaderProps {
  * to patch with incorrect precondition, causing a crash.
  */
 function useIsLoadingFormData() {
-  const queryClient = useQueryClient();
-  return queryClient.isFetching({ queryKey: ['fetchFormData'] }) > 0;
+  return useIsFetching({ queryKey: ['fetchFormData'] }) > 0;
 }
 
 function LoadInitialData({ dataType }: LoaderProps) {
