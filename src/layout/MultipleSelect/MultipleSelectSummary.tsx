@@ -28,7 +28,6 @@ export function MultipleSelectSummary({
     overrides?.displayType === 'list' || (!overrides?.displayType && displayData?.length >= maxStringLength);
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
 
-  console.log('emptyFieldText', emptyFieldText);
 
   return (
     <MultipleValueSummary
