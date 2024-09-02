@@ -1,4 +1,4 @@
-import { useMediaQuery } from '@material-ui/core';
+import { useCallback, useEffect, useState } from 'react';
 
 export const breakpoints = {
   mini: 600,
@@ -6,22 +6,45 @@ export const breakpoints = {
   tablet: 992,
 };
 
+type Condition = (width: number) => boolean;
+
+const conditionIsMini: Condition = (width) => width <= breakpoints.mini;
+const conditionIsMobile: Condition = (width) => width <= breakpoints.mobile;
+const conditionIsTablet: Condition = (width) => width > breakpoints.mobile && width <= breakpoints.tablet;
+const conditionIsDesktop: Condition = (width) => width > breakpoints.tablet;
+const conditionIsMobileOrTablet: Condition = (width) => width <= breakpoints.tablet;
+
 export function useIsMini() {
-  return useMediaQuery(`(max-width:${breakpoints.mini}px)`);
+  return useBrowserWidth(conditionIsMini);
 }
 
 export function useIsMobile() {
-  return useMediaQuery(`(max-width:${breakpoints.mobile}px)`);
+  return useBrowserWidth(conditionIsMobile);
 }
 
 export function useIsTablet() {
-  return useMediaQuery(`(min-width:${breakpoints.mobile}px) and (max-width:${breakpoints.tablet}px)`);
+  return useBrowserWidth(conditionIsTablet);
 }
 
 export function useIsDesktop() {
-  return useMediaQuery(`(min-width:${breakpoints.tablet}px)`);
+  return useBrowserWidth(conditionIsDesktop);
 }
 
 export function useIsMobileOrTablet() {
-  return useMediaQuery(`(max-width:${breakpoints.tablet}px)`);
+  return useBrowserWidth(conditionIsMobileOrTablet);
+}
+
+function useBrowserWidth(condition: Condition) {
+  const [state, setState] = useState(condition(window.innerWidth));
+
+  const handleResize = useCallback(() => {
+    setState(condition(window.innerWidth));
+  }, [condition]);
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [handleResize]);
+
+  return state;
 }
