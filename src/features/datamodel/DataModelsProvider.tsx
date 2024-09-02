@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { createStore } from 'zustand';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -208,6 +209,7 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
   } = useSelector((state) => state);
   const isPDF = useIsPdf();
   const shouldValidateInitial = useShouldValidateInitial();
+  const isLoadingFormData = useIsLoadingFormData();
 
   if (error) {
     // Error trying to fetch data, if missing rights we display relevant page
@@ -222,14 +224,19 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
     return <Loader reason='data-types' />;
   }
 
+  if (isLoadingFormData) {
+    return <Loader reason='initial-data-loading' />;
+  }
+
   // in PDF mode, we do not load schema, validations, or expression validation config. So we should not block loading in that case
+  // Edit: Since #2244, layout and data model binding validations work differently, so enabling schema loading to make things work for now.
 
   for (const dataType of allDataTypes) {
     if (!Object.keys(initialData).includes(dataType)) {
       return <Loader reason='initial-data' />;
     }
 
-    if (!isPDF && !Object.keys(schemas).includes(dataType)) {
+    if (!Object.keys(schemas).includes(dataType)) {
       return <Loader reason='data-model-schema' />;
     }
   }
@@ -249,6 +256,17 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
 
 interface LoaderProps {
   dataType: string;
+}
+
+/**
+ * If you change the URL so the form context reloads,
+ * It is possible to render the provider with stale data while
+ * the new initial data is loading, which can cause FomDataEffects
+ * to patch with incorrect precondition, causing a crash.
+ */
+function useIsLoadingFormData() {
+  const queryClient = useQueryClient();
+  return queryClient.isFetching({ queryKey: ['fetchFormData'] }) > 0;
 }
 
 function LoadInitialData({ dataType }: LoaderProps) {
@@ -299,14 +317,15 @@ function LoadSchema({ dataType }: LoaderProps) {
   const setDataModelSchema = useSelector((state) => state.setDataModelSchema);
   const setError = useSelector((state) => state.setError);
   // No need to load schema in PDF
-  const enabled = !useIsPdf();
-  const { data, error } = useDataModelSchemaQuery(enabled, dataType);
+  // Edit: Since #2244, layout and data model binding validations work differently, so enabling schema loading to make things work for now.
+  // const enabled = !useIsPdf();
+  const { data, error } = useDataModelSchemaQuery(true, dataType);
 
   useEffect(() => {
     if (data) {
       setDataModelSchema(dataType, data.schema, data.lookupTool);
     }
-  }, [data, dataType, enabled, setDataModelSchema]);
+  }, [data, dataType, setDataModelSchema]);
 
   useEffect(() => {
     error && setError(error);
