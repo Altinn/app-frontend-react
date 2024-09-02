@@ -374,9 +374,9 @@ export function nn(): FixedLanguageList {
     },
     config_error: {
       layoutset_subform_config_error_customer_support:
-        'If you need help resolving this issue, reach out to Altinn via our support lines<br/><br/>Phone: <a href="tel:{0}">{0}</a><br/> Slack: {1}<br/> Email form: {2}',
+        'Om du treng hjelp kan du nå Altinn på<br/><br/>Telefon: <a href="tel:{0}">{0}</a><br/> Slack: {1}<br/> E-postskjema: {2}',
       layoutset_subform_config_error:
-        'Layout set with id <strong>{0}</strong> is configured incorrectly.<br /><br />The layout set cannot have both type <em>subform</em> AND <em>a task array</em> defined.',
+        'Layout-sett med id <strong>{0}</strong> er feilkonfigurert.<br /><br />Layout-sett kan ikkje ha både type <em>subform</em> OG <em>ei liste med oppgåver</em> definert.',
       layoutset_error: 'Layout set error',
       component_has_errors: 'Ein feil oppstod for <code>{0}</code>:',
       component_has_errors_after:
