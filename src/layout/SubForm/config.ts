@@ -22,12 +22,6 @@ export const Config = new CG.component({
       new CG.str().setTitle('Layout set ID').setDescription('The layout set to load for this subform'),
     ),
   )
-  .addProperty(
-    new CG.prop(
-      'dataType',
-      new CG.str().setTitle('Data (model) type').setDescription('The data model be used for these subforms'),
-    ),
-  )
   .addProperty(new CG.prop('showAddButton', new CG.bool().optional({ default: true })))
   .addProperty(new CG.prop('showDeleteButton', new CG.bool().optional({ default: true })))
   .addProperty(

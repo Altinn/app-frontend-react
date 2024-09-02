@@ -137,6 +137,8 @@ export function nb(): FixedLanguageList {
       create_new: 'Opprett ny',
       create: 'Opprett',
       customer_service_phone_number: '+47 75 00 60 00',
+      customer_service_slack: 'https://altinn.slack.com/',
+      customer_service_email_form: 'https://info.altinn.no/hjelp/?form=1',
       delete: 'Slett',
       download: 'Nedlasting {0}',
       disabled: 'Deaktivert',
@@ -371,6 +373,11 @@ export function nb(): FixedLanguageList {
       navigateLastPage: 'Naviger til siste side i tabell',
     },
     config_error: {
+      layoutset_subform_config_error_customer_support:
+        'If you need help resolving this issue, reach out to Altinn via our support lines<br/><br/>Phone: <a href="tel:{0}">{0}</a><br/> Slack: {1}<br/> Email form: {2}',
+      layoutset_subform_config_error:
+        'Layout set with id <strong>{0}</strong> is configured incorrectly.<br /><br />The layout set cannot have both type <em>subform</em> AND <em>a task array</em> defined.',
+      layoutset_error: 'Layout set error',
       component_has_errors: 'En feil oppstod for <code>{0}</code>:',
       component_has_errors_after:
         'Så lenge komponenten har konfigurasjonsfeil kan vi ikke vise den i skjemaet. Rett opp i feilene og prøv igjen.',

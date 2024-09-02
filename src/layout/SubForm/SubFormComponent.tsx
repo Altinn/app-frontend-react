@@ -7,6 +7,7 @@ import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@navikt/
 import dot from 'dot-object';
 
 import { Caption } from 'src/components/form/Caption';
+import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
@@ -23,8 +24,8 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>): React.JSX.Element | null {
   const {
-    dataType,
     id,
+    layoutSet,
     textResourceBindings,
     tableColumns = [],
     showAddButton = true,
@@ -33,7 +34,15 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
 
   const isSubFormPage = useNavigationParam('isSubFormPage');
   if (isSubFormPage) {
+    window.logErrorOnce('Cannot use a SubFormComponent component within a subform');
     throw new Error('Cannot use a SubFormComponent component within a subform');
+  }
+
+  const dataType = useDataTypeFromLayoutSet(layoutSet);
+
+  if (!dataType) {
+    window.logErrorOnce(`Unable to find data type for subform with id ${id}`);
+    throw new Error(`Unable to find data type for subform with id ${id}`);
   }
 
   const { langAsString } = useLanguage();

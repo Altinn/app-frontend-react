@@ -137,6 +137,8 @@ export function en() {
       create_new: 'Create new',
       create: 'Create',
       customer_service_phone_number: '+47 75 00 60 00',
+      customer_service_slack: 'https://altinn.slack.com/',
+      customer_service_email_form: 'https://info.altinn.no/hjelp/?form=1',
       delete: 'Delete',
       download: 'Download {0}',
       disabled: 'Disabled',
@@ -370,6 +372,11 @@ export function en() {
       navigateLastPage: 'Navigate to the last page in the table',
     },
     config_error: {
+      layoutset_subform_config_error_customer_support:
+        'If you need help resolving this issue, reach out to Altinn via our support lines<br/><br/>Phone: <a href="tel:{0}">{0}</a><br/> Slack: {1}<br/> Email form: {2}',
+      layoutset_subform_config_error:
+        'Layout set with id <strong>{0}</strong> is configured incorrectly.<br /><br />The layout set cannot have both type <em>subform</em> AND <em>a task array</em> defined.',
+      layoutset_error: 'Layout set error',
       component_has_errors: 'An error occurred for <code>{0}</code>:',
       component_has_errors_after:
         'As long as the component has configuration errors, we cannot show it in the form. Fix the errors and try again.',

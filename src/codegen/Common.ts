@@ -699,6 +699,8 @@ const common = {
           .setTitle('Tasks')
           .setDescription('An array specifying which task to use a layout-set'),
       ),
+      // TODO: should be 'xor' between tasks and type
+      new CG.prop('type', new CG.enum('subform').optional().setTitle('Type').setDescription('The type of layout set.')),
     )
       .setTitle('Layout set')
       .setDescription('Settings regarding a specific layout-set'),

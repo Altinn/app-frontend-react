@@ -1,14 +1,17 @@
 import { useEffect } from 'react';
 
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { NodeValidationProps } from 'src/layout/layout';
 
 export function SubFormValidator(props: NodeValidationProps<'SubForm'>) {
   const { node, externalItem } = props;
-
   const applicationMetadata = useApplicationMetadata();
-  const dataType = applicationMetadata.dataTypes.find((x) => x.id === externalItem.dataType);
+  const targetType = useDataTypeFromLayoutSet(externalItem.layoutSet);
+  const dataType = applicationMetadata.dataTypes.find(
+    (x) => x.id.toLocaleLowerCase() === targetType?.toLocaleLowerCase(),
+  );
 
   const addError = NodesInternal.useAddError();
 

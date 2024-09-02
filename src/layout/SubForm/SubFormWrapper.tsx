@@ -6,6 +6,7 @@ import { FormPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { FormProvider } from 'src/features/form/FormContext';
+import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -51,7 +52,11 @@ export const SubFormForm = () => {
 
 const useDoOverride = (node: LayoutNode<'SubForm'>) => {
   const { dataElementId } = useParams();
-  const { dataType, layoutSet } = useNodeItem(node);
+  const { layoutSet, id } = useNodeItem(node);
+  const dataType = useDataTypeFromLayoutSet(layoutSet);
+  if (!dataType) {
+    throw new Error(`Unable to find data type for subform with id ${id}`);
+  }
   const setOverriddenLayoutSetId = useTaskStore((state) => state.setOverriddenLayoutSetId);
   const setOverriddenDataModelType = useTaskStore((state) => state.setOverriddenDataModelType);
   const setOverriddenDataModelUuid = useTaskStore((state) => state.setOverriddenDataModelUuid);

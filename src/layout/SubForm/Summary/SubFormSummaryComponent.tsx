@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
 
+import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
@@ -18,7 +19,8 @@ export interface ISubFormSummaryComponent {
 }
 
 export function SubFormSummaryComponent({ targetNode }: ISubFormSummaryComponent): React.JSX.Element | null {
-  const { dataType, id } = useNodeItem(targetNode);
+  const { layoutSet, id } = useNodeItem(targetNode);
+  const dataType = useDataTypeFromLayoutSet(layoutSet);
   const dataElements = useStrictInstanceData().data.filter((d) => d.dataType === dataType) ?? [];
 
   return (

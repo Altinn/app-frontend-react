@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import type { JSX } from 'react';
 
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
+import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import {
   type ComponentValidation,
   FrontendValidationSource,
@@ -83,7 +84,14 @@ export class SubForm extends SubFormDef implements ValidateComponent<'SubForm'> 
     node: LayoutNode<'SubForm'>,
     { applicationMetadata, instance, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    const targetType = nodeDataSelector((picker) => picker(node)?.layout.dataType, [node]);
+    const layoutSetName = nodeDataSelector((picker) => picker(node)?.layout.layoutSet, [node]);
+    if (!layoutSetName) {
+      throw new Error(`Layoutset not found for node with id ${node.id}.`);
+    }
+    const targetType = useDataTypeFromLayoutSet(layoutSetName);
+    if (!targetType) {
+      throw new Error(`Data type not found for layout with name ${layoutSetName}`);
+    }
     const dataTypeDefinition = applicationMetadata.dataTypes.find((x) => x.id === targetType);
     if (dataTypeDefinition === undefined) {
       return [];
