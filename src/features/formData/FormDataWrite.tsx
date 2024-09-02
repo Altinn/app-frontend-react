@@ -310,8 +310,10 @@ function FormDataEffects() {
   // Debounce the data model when the user stops typing. This has the effect of triggering the useEffect below,
   // saving the data model to the backend. Freezing can also be triggered manually, when a manual save is requested.
   const shouldDebounce = useSelector(hasUnDebouncedChanges);
+  // TODO(Datamodels): this no longer works as intended, it will not clear the timeout when the user keeps typing,
+  // and will simply debounce after the first change when the timeout fires
   useEffect(() => {
-    const timer = shouldDebounce
+    const timer = shouldDebounce.hasChanges
       ? setTimeout(() => {
           debounce();
         }, debounceTimeout)
@@ -384,10 +386,12 @@ function hasDebouncedUnsavedChanges(state: FormDataContext) {
 }
 
 function hasUnDebouncedChanges(state: FormDataContext) {
-  return Object.values(state.dataModels).some(
-    ({ currentData, debouncedCurrentData, invalidCurrentData, invalidDebouncedCurrentData }) =>
-      currentData !== debouncedCurrentData || invalidCurrentData !== invalidDebouncedCurrentData,
-  );
+  return {
+    hasChanges: Object.values(state.dataModels).some(
+      ({ currentData, debouncedCurrentData, invalidCurrentData, invalidDebouncedCurrentData }) =>
+        currentData !== debouncedCurrentData || invalidCurrentData !== invalidDebouncedCurrentData,
+    ),
+  };
 }
 
 function hasUnDebouncedCurrentChanges(state: FormDataContext) {

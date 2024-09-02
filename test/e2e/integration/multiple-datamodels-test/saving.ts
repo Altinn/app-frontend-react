@@ -11,7 +11,7 @@ describe('saving multiple data models', () => {
 
   it('Calls save on individual data models', () => {
     const formDataRequests: string[] = [];
-    cy.intercept('PATCH', '**/data/**', (req) => {
+    cy.intercept('PATCH', '**/data', (req) => {
       formDataRequests.push(req.url);
     }).as('saveFormData');
 
@@ -25,7 +25,7 @@ describe('saving multiple data models', () => {
     cy.waitUntilSaved();
 
     cy.then(() => expect(formDataRequests.length).to.be.eq(2)); // Check that a total of two saves happened
-    cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(2)); // And that they were to different urls, one for each data element
+    cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(1)); // And that they were to the same url, multipatch
 
     cy.then(() => formDataRequests.splice(0, formDataRequests.length)); // Clear requests
 
@@ -39,7 +39,7 @@ describe('saving multiple data models', () => {
     cy.waitUntilSaved();
 
     cy.then(() => expect(formDataRequests.length).to.be.eq(3));
-    cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(2));
+    cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(1));
 
     cy.get(appFrontend.altinnError).should('not.exist');
   });
@@ -190,7 +190,7 @@ describe('saving multiple data models', () => {
 
   it('Likert component', () => {
     const formDataRequests: string[] = [];
-    cy.intercept('PATCH', '**/data/**', (req) => {
+    cy.intercept('PATCH', '**/data', (req) => {
       formDataRequests.push(req.url);
     }).as('saveFormData');
 
@@ -222,7 +222,7 @@ describe('saving multiple data models', () => {
 
   it('Dynamic options', () => {
     const formDataRequests: string[] = [];
-    cy.intercept('PATCH', '**/data/**', (req) => {
+    cy.intercept('PATCH', '**/data', (req) => {
       formDataRequests.push(req.url);
     }).as('saveFormData');
 
@@ -236,7 +236,7 @@ describe('saving multiple data models', () => {
     cy.findByRole('checkbox', { name: /statlig/i }).click();
     cy.waitUntilSaved();
     cy.then(() => expect(formDataRequests.length).to.be.eq(2));
-    cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(2));
+    cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(1));
     cy.then(() => formDataRequests.splice(0, formDataRequests.length)); // Clear requests
 
     cy.findByRole('radio', { name: /privat/i }).click();
@@ -245,7 +245,7 @@ describe('saving multiple data models', () => {
     cy.waitUntilSaved();
 
     cy.then(() => expect(formDataRequests.length).to.be.eq(2));
-    cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(2));
+    cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(1));
 
     cy.waitUntilSaved();
 
