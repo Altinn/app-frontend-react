@@ -820,10 +820,13 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(1).should('contain.text', 'NOK 1 233');
   });
 
-  it('verify that hidden rows are not shown in summary', () => {
+  it('verify that hidden rows are not shown in summary nor mode:showAll', () => {
     cy.interceptLayout('group', (c) => {
       if (c.id === 'summary1' && c.type === 'Summary') {
         c.largeGroup = false;
+      }
+      if (c.id === 'mainGroup' && c.type === 'RepeatingGroup' && c.edit) {
+        c.edit.mode = 'showAll';
       }
     });
     cy.goto('group');
@@ -836,8 +839,22 @@ describe('Group', () => {
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
     cy.get(appFrontend.group.hideRepeatingGroupRow).type('1000');
+
+    // Testing summary
     cy.gotoNavPage('summary');
     cy.get('[data-testid="summary-repeating-row"]').should('have.length', 2);
+
+    // Testing mode:showAll. Each row should appear as edit containers.
+    cy.gotoNavPage('repeating');
+    const rowSelector = '[id^="group-edit-container-mainGroup-"]';
+    cy.get(rowSelector).should('have.length', 2);
+    cy.get('[data-componentid="mainGroup"]').should('contain.text', 'Group title');
+
+    // Take a snapshot to make sure we don't get visual regressions for mode:showAll. Make sure we go to the next
+    // page in one of the rows in order to also snapshot the Cards component inside a repeating group edit container.
+    cy.get(rowSelector).eq(1).findByRole('button', { name: 'Neste' }).click();
+    cy.get(rowSelector).eq(1).should('contain.text', 'Hvem tipset deg om dette skjemaet?');
+    cy.snapshot('group:showAll');
   });
 
   it('Adding new nodes while nodes are already being generated', () => {

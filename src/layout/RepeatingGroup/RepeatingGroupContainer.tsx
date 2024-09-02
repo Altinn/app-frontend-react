@@ -6,13 +6,11 @@ import { Grid } from '@material-ui/core';
 import { Add as AddIcon } from '@navikt/ds-icons';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
-import { Lang } from 'src/features/language/Lang';
+import { Label } from 'src/components/label/Label';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
-import classes from 'src/layout/RepeatingGroup/RepeatingGroupContainer.module.css';
 import {
   useRepeatingGroup,
   useRepeatingGroupPagination,
@@ -49,6 +47,12 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
 
   const isNested = node.parent instanceof BaseLayoutNode;
 
+  const showTable =
+    !edit?.mode ||
+    edit?.mode === 'showTable' ||
+    edit?.mode === 'onlyTable' ||
+    (edit?.mode === 'hideTable' && !isEditingAnyRow);
+
   return (
     <Grid
       container={true}
@@ -57,10 +61,13 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
       data-componentbaseid={node.baseId}
       ref={ref}
     >
-      {(!edit?.mode ||
-        edit?.mode === 'showTable' ||
-        edit?.mode === 'onlyTable' ||
-        (edit?.mode === 'hideTable' && !isEditingAnyRow)) && <RepeatingGroupTable />}
+      {showTable && <RepeatingGroupTable />}
+      {!showTable && textResourceBindings?.title && (
+        <Label
+          renderLabelAs='span'
+          node={node}
+        />
+      )}
       {edit?.mode !== 'showAll' && <AddButton />}
       <ConditionalWrapper
         condition={!isNested}
@@ -72,29 +79,17 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
           )}
           {edit?.mode === 'showAll' && (
             <>
-              <Fieldset
-                legend={title && <Lang id={title} />}
-                description={
-                  description && (
-                    <span className={classes.showAllDescription}>
-                      <Lang id={description} />
-                    </span>
-                  )
-                }
-                className={classes.showAllFieldset}
-              >
-                {rowsToDisplay.map((row) => (
-                  <div
-                    key={`repeating-group-item-${row.uuid}`}
-                    style={{ width: '100%', marginBottom: !isNested && row == lastIndex ? 15 : 0 }}
-                  >
-                    <RepeatingGroupsEditContainer
-                      editId={row.uuid}
-                      forceHideSaveButton={true}
-                    />
-                  </div>
-                ))}
-              </Fieldset>
+              {rowsToDisplay.map((row) => (
+                <div
+                  key={`repeating-group-item-${row.uuid}`}
+                  style={{ width: '100%', marginBottom: !isNested && row == lastIndex ? 15 : 0 }}
+                >
+                  <RepeatingGroupsEditContainer
+                    editId={row.uuid}
+                    forceHideSaveButton={true}
+                  />
+                </div>
+              ))}
               <RepeatingGroupPagination inTable={false} />
             </>
           )}
