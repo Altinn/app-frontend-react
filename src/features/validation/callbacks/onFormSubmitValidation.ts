@@ -65,7 +65,7 @@ export function useOnFormSubmitValidation() {
     );
 
     if (nodesWithAnyError !== ContextNotProvided && nodesWithAnyError.length > 0) {
-      setNodeVisibility(nodesWithAnyError, ValidationMask.All);
+      setNodeVisibility(nodesWithAnyError, ValidationMask.AllIncludingBackend);
       return true;
     }
 
