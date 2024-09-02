@@ -18,7 +18,7 @@ import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteSta
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import { type BackendValidationIssueGroups, BuiltInValidationIssueSources } from 'src/features/validation';
+import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/features/validation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { doPatchMultipleFormData } from 'src/queries/queries';
@@ -171,7 +171,7 @@ function useFormDataSaveMutation() {
           const { newDataModels, validationIssues } = await doPatchMultipleFormData(multiPatchUrl, {
             patches,
             // Ignore validations that require layout parsing in the backend which will slow down requests significantly
-            ignoredValidators: [BuiltInValidationIssueSources.Required, BuiltInValidationIssueSources.Expression],
+            ignoredValidators: IgnoredValidators,
           });
           onSaveFinishedRef.current?.();
           return { newDataModels, validationIssues, savedData: next };
@@ -193,7 +193,7 @@ function useFormDataSaveMutation() {
           const { newDataModel, validationIssues } = await doPatchFormData(url, {
             patch,
             // Ignore validations that require layout parsing in the backend which will slow down requests significantly
-            ignoredValidators: [BuiltInValidationIssueSources.Required, BuiltInValidationIssueSources.Expression],
+            ignoredValidators: IgnoredValidators,
           });
           onSaveFinishedRef.current?.();
           return { newDataModels: { [dataElementId]: newDataModel }, validationIssues, savedData: next };

@@ -22,6 +22,8 @@ export enum BuiltInValidationIssueSources {
   Expression = 'Expression',
 }
 
+export const IgnoredValidators = [BuiltInValidationIssueSources.Required, BuiltInValidationIssueSources.Expression];
+
 export enum BackendValidationSeverity {
   Error = 1,
   Warning = 2,

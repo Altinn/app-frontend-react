@@ -2,10 +2,14 @@ import { useEffect, useMemo, useRef } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
-import type { BackendFieldValidatorGroups, BackendValidationIssueGroups } from '..';
-
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
+import {
+  type BackendFieldValidatorGroups,
+  type BackendValidationIssueGroups,
+  type BuiltInValidationIssueSources,
+  IgnoredValidators,
+} from 'src/features/validation';
 import {
   mapBackendIssuesToFieldValdiations,
   mapValidatorGroupsToDataModelValidations,
@@ -23,9 +27,16 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
     if (!initialValidations) {
       return {};
     }
+    // Note that we completely ignore task validations (validations not related to form data) on initial validations,
+    // this is because validations like minimum number of attachments in application metadata is not really useful to show initially
     const fieldValidations = mapBackendIssuesToFieldValdiations(initialValidations, getDataTypeForElementId);
     const validatorGroups: BackendFieldValidatorGroups = {};
     for (const validation of fieldValidations) {
+      // Do not include ignored ignored validators in initial validations
+      if (IgnoredValidators.includes(validation.source as BuiltInValidationIssueSources)) {
+        continue;
+      }
+
       if (!validatorGroups[validation.source]) {
         validatorGroups[validation.source] = [];
       }
@@ -34,6 +45,7 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
     return validatorGroups;
   }, [getDataTypeForElementId, initialValidations]);
 
+  // Initial validation
   useEffect(() => {
     const backendValidations = mapValidatorGroupsToDataModelValidations(initialValidatorGroups, dataTypes);
     // TODO(Datamodels): Consider loosening the type for issueGroupsProcessedLast
@@ -43,7 +55,7 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
 
   const validatorGroups = useRef<BackendFieldValidatorGroups>(initialValidatorGroups);
 
-  // Update validators and propagate changes to validationcontext
+  // Incremental validation: Update validators and propagate changes to validationcontext
   useEffect(() => {
     if (lastSaveValidations) {
       const newValidatorGroups = structuredClone(validatorGroups.current);
