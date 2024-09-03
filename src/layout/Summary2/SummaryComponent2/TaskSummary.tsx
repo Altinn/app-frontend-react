@@ -6,6 +6,7 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { layoutSetIsDefault } from 'src/features/form/layoutSets/TypeGuards';
 import { Lang } from 'src/features/language/Lang';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
@@ -127,7 +128,12 @@ export function TaskSummaryWrapper({ taskId, children }: React.PropsWithChildren
 
   useEffect(() => {
     if (taskId) {
-      const layoutSetForTask = layoutSets.sets.find((set) => set.tasks?.includes(taskId));
+      const layoutSetForTask = layoutSets.sets.find((set) => {
+        if (layoutSetIsDefault(set)) {
+          set.tasks?.includes(taskId);
+        }
+        return false;
+      });
       setTaskId && setTaskId(taskId);
       if (layoutSetForTask) {
         setOverriddenDataModelId && setOverriddenDataModelId(layoutSetForTask.dataType);

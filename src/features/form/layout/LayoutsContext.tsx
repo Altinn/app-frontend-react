@@ -9,6 +9,7 @@ import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { applyLayoutQuirks } from 'src/features/form/layout/quirks';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { layoutSetIsDefault } from 'src/features/form/layoutSets/TypeGuards';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useHasInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
@@ -69,7 +70,15 @@ export function useLayoutSetId() {
     return overriddenLayoutSetId;
   }
 
-  const layoutSetId = taskId != null ? layoutSets?.sets.find((set) => set.tasks?.includes(taskId))?.id : undefined;
+  const layoutSetId =
+    taskId != null
+      ? layoutSets?.sets.find((set) => {
+          if (layoutSetIsDefault(set)) {
+            return set.tasks.includes(taskId);
+          }
+          return false;
+        })?.id
+      : undefined;
 
   return layoutSetId ?? currentProcessLayoutSetId;
 }
