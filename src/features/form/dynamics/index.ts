@@ -1,10 +1,9 @@
 export type IFormDynamics = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   APIs: any;
   ruleConnection: IRuleConnections | null;
   conditionalRendering: IConditionalRenderingRules | null;
 };
-
-export type IFormDynamicState = IFormDynamics;
 
 export interface IRuleConnection {
   inputParams: IParameters;
@@ -24,7 +23,7 @@ export interface IConditionalRenderingRules {
 
 export interface IConditionalRenderingRule {
   selectedFunction: string;
-  selectedAction: string;
+  selectedAction: 'Show' | 'Hide';
   selectedFields: ISelectedFields;
   inputParams: IParameters;
   repeatingGroup?: IConditionalRenderingRepeatingGroup;

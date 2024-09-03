@@ -1,6 +1,7 @@
 import crypto from 'crypto';
-import { ESLint } from 'eslint';
+import { loadESLint } from 'eslint';
 import fs from 'node:fs/promises';
+import type { ESLint } from 'eslint';
 
 export async function saveFile(targetPath: string, _content: string, removeText?: RegExp, fileExisted?: boolean) {
   const content = `${_content.trim()}\n`;
@@ -16,7 +17,7 @@ export async function saveFile(targetPath: string, _content: string, removeText?
       await fd.write(content, 0, 'utf-8');
     }
     await fd.close();
-  } catch (e) {
+  } catch (_err) {
     // File does not exist
     await fs.writeFile(targetPath, content, 'utf-8');
     console.log(`Created ${targetPath}`);
@@ -27,14 +28,15 @@ async function fileExists(path: string) {
   try {
     await fs.stat(path);
     return true;
-  } catch (e) {
+  } catch (_err) {
     return false;
   }
 }
 
 let eslint: ESLint | undefined;
-function getESLint() {
+async function getESLint() {
   if (!eslint) {
+    const ESLint = await loadESLint({ useFlatConfig: true });
     eslint = new ESLint({
       fix: true,
       cache: true,
@@ -63,7 +65,8 @@ export async function saveTsFile(targetPath: string, content: TsResult | Promise
     await fs.writeFile(targetPath, result, 'utf-8');
   }
 
-  const results = await getESLint().lintText(result, { filePath: targetPath });
+  const eslint = await getESLint();
+  const results = await eslint.lintText(result, { filePath: targetPath });
   const output = results[0].output;
 
   if (!output && results[0].errorCount > 0) {

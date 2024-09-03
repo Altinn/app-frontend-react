@@ -15,12 +15,12 @@ import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLa
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
+import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import {
   getAnonymousStatelessDataModelUrl,
   getDataModelUrl,
   getStatelessDataModelUrl,
 } from 'src/utils/urls/appUrlHelper';
-import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 export type AsSchema<T> = {
@@ -42,7 +42,7 @@ export function useCurrentDataModelUrl(includeRowIds: boolean) {
   const layoutSetId = useCurrentLayoutSetId();
   const dataType = useDataTypeByLayoutSetId(layoutSetId);
   const dataElementUuid = useCurrentDataModelGuid();
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
 
   if (isStateless && isAnonymous && dataType) {
     return getAnonymousStatelessDataModelUrl(dataType, includeRowIds);
@@ -61,7 +61,7 @@ export function useCurrentDataModelUrl(includeRowIds: boolean) {
 
 export function useDataModelUrl(includeRowIds: boolean, dataType: string | undefined) {
   const isAnonymous = useAllowAnonymous();
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
   const instance = useLaxInstanceData();
 
   if (isStateless && isAnonymous && dataType) {
@@ -83,9 +83,15 @@ export function useDataModelUrl(includeRowIds: boolean, dataType: string | undef
 }
 
 export function useCurrentDataModelName() {
+  const { overriddenDataModelType } = useTaskStore(({ overriddenDataModelType }) => ({ overriddenDataModelType }));
+
   const application = useApplicationMetadata();
   const layoutSets = useLayoutSets();
   const taskId = useProcessTaskId();
+
+  if (overriddenDataModelType) {
+    return overriddenDataModelType;
+  }
 
   return getCurrentDataTypeForApplication({
     application,

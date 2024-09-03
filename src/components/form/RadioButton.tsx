@@ -5,9 +5,9 @@ import type { RadioProps } from '@digdir/designsystemet-react';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import classes from 'src/components/form/RadioButton.module.css';
-import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
+import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
+import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
 
 export interface IRadioButtonProps extends Omit<RadioProps, 'children'> {
   showAsCard?: boolean;
@@ -33,12 +33,6 @@ export const RadioButton = ({
 }: IRadioButtonProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { elementAsString } = useLanguage();
-  const Label = label ? (
-    <div className={`${hideLabel ? 'sr-only' : ''} ${classes.radioLabelContainer}`}>
-      {label}
-      {helpText ? <HelpText title={elementAsString(helpText)}>{helpText}</HelpText> : null}
-    </div>
-  ) : null;
 
   const { alertOpen, setAlertOpen, handleChange, confirmChange, cancelChange } = useAlertOnChange(
     Boolean(alertOnChange),
@@ -52,7 +46,12 @@ export const RadioButton = ({
       onChange={handleChange}
       ref={showAsCard ? inputRef : undefined}
     >
-      {Label}
+      {label && (
+        <div className={`${hideLabel ? 'sr-only' : ''} ${classes.radioLabelContainer}`}>
+          {label}
+          {helpText ? <HelpText title={elementAsString(helpText)}>{helpText}</HelpText> : null}
+        </div>
+      )}
     </Radio>
   );
   const cardElement = (

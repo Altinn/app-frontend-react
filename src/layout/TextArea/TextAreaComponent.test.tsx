@@ -73,7 +73,7 @@ describe('TextAreaComponent', () => {
     });
 
     const textarea = screen.getByRole('textbox');
-    expect(textarea).toHaveAttribute('aria-describedby', 'description-id');
+    expect(textarea.getAttribute('aria-describedby')).toContain('description-id');
   });
 
   it('should not have aria-describedby attribute if textResourceBindings is present without description', async () => {
@@ -96,11 +96,7 @@ describe('TextAreaComponent', () => {
   });
 });
 
-const render = async ({
-  component,
-  genericProps,
-  ...rest
-}: Partial<RenderGenericComponentTestProps<'TextArea'>> = {}) =>
+const render = async ({ component, ...rest }: Partial<RenderGenericComponentTestProps<'TextArea'>> = {}) =>
   await renderGenericComponentTest({
     type: 'TextArea',
     renderer: (props) => <TextAreaComponent {...props} />,
@@ -110,6 +106,5 @@ const render = async ({
       },
       ...component,
     },
-    genericProps,
     ...rest,
   });

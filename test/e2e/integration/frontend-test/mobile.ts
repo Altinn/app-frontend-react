@@ -3,6 +3,7 @@ import { Datalist } from 'test/e2e/pageobjects/datalist';
 import { Likert } from 'test/e2e/pageobjects/likert';
 
 import { breakpoints } from 'src/hooks/useIsMobile';
+import type { IGroupEditProperties } from 'src/layout/RepeatingGroup/config.generated';
 
 const appFrontend = new AppFrontend();
 const likertPage = new Likert();
@@ -34,7 +35,11 @@ describe('Mobile', () => {
 
 function testChangeName() {
   cy.goto('changename');
-  cy.get(appFrontend.changeOfName.oldFullName).parents().eq(3).should('have.css', 'max-width', '100%');
+
+  cy.findByRole('textbox', { name: /du har valgt å endre:/i })
+    .parents()
+    .eq(5)
+    .should('have.css', 'max-width', '100%');
   cy.fillOut('changename');
   cy.intercept('**/api/layoutsettings/group').as('getLayoutGroup');
   cy.get(appFrontend.sendinButton).should('be.visible');
@@ -55,7 +60,7 @@ function testGroup(mode: Mode) {
 
   // Mobile tables always have two columns
   ensureTableHasNumColumns(appFrontend.group.mainGroup, 6, 2);
-  let editWas: any = {};
+  let editWas: IGroupEditProperties = {};
   cy.changeLayout((c) => {
     if (c.id === 'mainGroup' && c.type === 'RepeatingGroup' && c.edit) {
       editWas = { ...c.edit };
@@ -100,7 +105,11 @@ function ensureTableHasNumColumns(tableContainer: string, numRows: number, numCo
 }
 
 function testLikert() {
-  likertPage.selectRequiredRadios();
+  cy.findByRole('group', { name: likertPage.requiredTableTitle }).within(() => {
+    likertPage.requiredQuestions.forEach((question, index) => {
+      likertPage.selectRadio(`${question} *`, likertPage.options[index]);
+    });
+  });
   sendIn();
 }
 

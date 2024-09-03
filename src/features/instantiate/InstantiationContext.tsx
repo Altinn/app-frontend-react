@@ -1,16 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
+import { useNavigate } from 'src/features/routing/AppRoutingContext';
 import type { IInstance } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export interface Prefill {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -37,32 +38,40 @@ const { Provider, useCtx } = createContext<InstantiationContext>({ name: 'Instan
 
 function useInstantiateMutation() {
   const { doInstantiate } = useAppMutations();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (instanceOwnerPartyId: number) => doInstantiate(instanceOwnerPartyId),
     onError: (error: HttpClientError) => {
       window.logError('Instantiation failed:\n', error);
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
+    },
   });
 }
 
 function useInstantiateWithPrefillMutation() {
   const { doInstantiateWithPrefill } = useAppMutations();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (instantiation: Instantiation) => doInstantiateWithPrefill(instantiation),
     onError: (error: HttpClientError) => {
       window.logError('Instantiation with prefill failed:\n', error);
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
+    },
   });
 }
 
 export function InstantiationProvider({ children }: React.PropsWithChildren) {
-  const navigate = useNavigate();
   const instantiate = useInstantiateMutation();
   const instantiateWithPrefill = useInstantiateWithPrefillMutation();
   const [busyWithId, setBusyWithId] = useState<string | undefined>(undefined);
   const isInstantiatingRef = useRef(false);
+  const navigate = useNavigate();
 
   // Redirect to the instance page when instantiation completes
   useEffect(() => {
@@ -86,7 +95,7 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
             return;
           }
           isInstantiatingRef.current = true;
-          setBusyWithId(node ? node.item.id : 'unknown');
+          setBusyWithId(node ? node.id : 'unknown');
           instantiate.mutate(instanceOwnerPartyId);
         },
         instantiateWithPrefill: (node, value) => {
@@ -94,7 +103,7 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
             return;
           }
           isInstantiatingRef.current = true;
-          setBusyWithId(node ? node.item.id : 'unknown');
+          setBusyWithId(node ? node.id : 'unknown');
           instantiateWithPrefill.mutate(value);
         },
 

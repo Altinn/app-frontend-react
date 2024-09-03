@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
@@ -8,7 +9,8 @@ import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { IRawOption, ISelectionComponentExternal } from 'src/layout/common.generated';
+import type { IRawOption, ISelectionComponent } from 'src/layout/common.generated';
+import type { fetchOptions } from 'src/queries/queries';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface RenderProps {
@@ -16,24 +18,18 @@ interface RenderProps {
   via: 'layout' | 'api' | 'repeatingGroups';
   options?: IRawOption[];
   mapping?: Record<string, string>;
-  fetchOptions?: () => Promise<AxiosResponse<IRawOption[], any>>;
+  fetchOptions?: jest.Mock<typeof fetchOptions>;
 }
 
 function TestOptions({ node }: { node: LayoutNode<'Dropdown' | 'MultipleSelect'> }) {
-  const { options, setData, current, currentStringy } = useGetOptions({
-    ...node.item,
-    node,
-    valueType: node.item.type === 'Dropdown' ? 'single' : 'multi',
-  });
+  const { options, setData, selectedValues } = useGetOptions(node, node.isType('Dropdown') ? 'single' : 'multi');
 
-  const setterFor = (index: number) => () =>
-    (setData as any)(node.item.type === 'Dropdown' ? options[index] : [options[index]]);
+  const setterFor = (index: number) => () => setData([options[index].value]);
 
   return (
     <>
       <div data-testid='options'>{JSON.stringify(options)}</div>
-      <div data-testid='current'>{JSON.stringify(current)}</div>
-      <div data-testid='currentStringy'>{JSON.stringify(currentStringy)}</div>
+      <div data-testid='currentStringy'>{JSON.stringify(selectedValues)}</div>
       <button onClick={setterFor(0)}>Choose first option</button>
       <button onClick={setterFor(1)}>Choose second option</button>
       <button onClick={setterFor(2)}>Choose third option</button>
@@ -43,7 +39,7 @@ function TestOptions({ node }: { node: LayoutNode<'Dropdown' | 'MultipleSelect'>
 }
 
 async function render(props: RenderProps) {
-  const layoutConfig: ISelectionComponentExternal = {
+  const layoutConfig: ISelectionComponent = {
     options: props.via === 'layout' ? props.options : undefined,
     optionsId: props.via === 'api' ? 'myOptions' : undefined,
     mapping: props.via === 'api' ? props.mapping : undefined,
@@ -95,7 +91,7 @@ async function render(props: RenderProps) {
           ({
             data: props.options,
             headers: {},
-          }) as AxiosResponse<IRawOption[], any>),
+          }) as AxiosResponse<IRawOption[]>),
       fetchTextResources: async () => ({
         resources: [
           {
@@ -156,40 +152,28 @@ describe('useGetOptions', () => {
       });
       (formDataMethods.setLeafValue as jest.Mock).mockClear();
 
-      const currentOption = JSON.parse(screen.getByTestId('current').textContent as string);
-      if (props.type === 'single') {
-        expect(currentOption).toEqual({
-          label: option.label,
-          value: option.value.toString(),
-        });
-      } else {
-        expect(currentOption).toEqual([
-          {
-            label: option.label,
-            value: option.value.toString(),
-          },
-        ]);
-      }
-
       const currentStringy = JSON.parse(screen.getByTestId('currentStringy').textContent as string);
-      if (props.type === 'single') {
-        expect(currentStringy).toEqual(option.value.toString());
-      } else {
-        expect(currentStringy).toEqual([option.value.toString()]);
-      }
+      expect(currentStringy).toEqual([option.value.toString()]);
     }
   });
 
   it('should include the mapping in the api request', async () => {
-    const fetchOptions = jest.fn().mockResolvedValue({ data: [], headers: {} });
+    const fetchOptionsMock = jest.fn<typeof fetchOptions>().mockImplementation(
+      async (_url: string) =>
+        ({
+          data: [] as IRawOption[],
+          headers: {},
+        }) as AxiosResponse<IRawOption[]>,
+    );
+
     await render({
       via: 'api',
       type: 'single',
       mapping: { someOther: 'someParam', result: 'someEmpty' },
-      fetchOptions,
+      fetchOptions: fetchOptionsMock,
     });
 
-    expect(fetchOptions).toHaveBeenCalledWith(
+    expect(fetchOptionsMock).toHaveBeenCalledWith(
       expect.stringMatching(/^.+\/api\/options\/myOptions.+someParam=value&someEmpty=$/),
     );
   });

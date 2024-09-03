@@ -3,20 +3,13 @@ import type { JSONSchema7 } from 'json-schema';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { CodeGenerator, Extract } from 'src/codegen/CodeGenerator';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class GenerateIntersection<U extends CodeGenerator<any>[]> extends DescribableCodeGenerator<Extract<U[number]>> {
   private types: U;
 
   constructor(...types: U) {
     super();
     this.types = types;
-  }
-
-  containsVariationDifferences(): boolean {
-    if (super.containsVariationDifferences()) {
-      return true;
-    }
-
-    return this.types.some((type) => type.containsVariationDifferences());
   }
 
   toJsonSchemaDefinition(): JSONSchema7 {

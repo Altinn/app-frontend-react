@@ -38,25 +38,24 @@ export const Caption = ({
       className={cn(classes.tableCaption, className)}
     >
       <Label
-        as='div'
+        asChild
         className={classes.captionTitle}
       >
-        {title}
-        <RequiredIndicator
-          required={required}
-          readOnly={false}
-        />
-        <OptionalIndicator
-          labelSettings={labelSettings}
-          readOnly={false}
-          required={required}
-        />
-        {helpText && (
-          <HelpTextContainer
-            helpText={helpText}
-            title={titleAsText}
+        <div>
+          {title}
+          <RequiredIndicator required={required} />
+          <OptionalIndicator
+            labelSettings={labelSettings}
+            readOnly={false}
+            required={required}
           />
-        )}
+          {helpText && (
+            <HelpTextContainer
+              helpText={helpText}
+              title={titleAsText}
+            />
+          )}
+        </div>
       </Label>
       {description && (
         <Description

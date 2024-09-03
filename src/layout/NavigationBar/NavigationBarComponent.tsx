@@ -6,9 +6,12 @@ import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 const useStyles = makeStyles((theme) => ({
@@ -84,6 +87,7 @@ interface INavigationButton {
 }
 
 const NavigationButton = React.forwardRef(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ({ onClick, hidden = false, children, current, ...rest }: INavigationButton, ref: any) => {
     const classes = useStyles();
 
@@ -109,12 +113,13 @@ const NavigationButton = React.forwardRef(
 NavigationButton.displayName = 'NavigationButton';
 
 export const NavigationBarComponent = ({ node }: INavigationBar) => {
-  const { compact, validateOnForward, validateOnBackward } = node.item;
+  const { compact, validateOnForward, validateOnBackward } = useNodeItem(node);
   const classes = useStyles();
   const [showMenu, setShowMenu] = React.useState(false);
   const isMobile = useIsMobile() || compact === true;
   const { langAsString } = useLanguage();
-  const { navigateToPage, currentPageId, order, maybeSaveOnPageChange } = useNavigatePage();
+  const currentPageId = useNavigationParam('pageKey') ?? '';
+  const { navigateToPage, order, maybeSaveOnPageChange } = useNavigatePage();
   const onPageNavigationValidation = useOnPageNavigationValidation();
 
   const firstPageLink = React.useRef<HTMLButtonElement>();
@@ -133,12 +138,12 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
 
     maybeSaveOnPageChange();
 
-    if (isForward && validateOnForward && (await onPageNavigationValidation(node.top, validateOnForward))) {
+    if (isForward && validateOnForward && (await onPageNavigationValidation(node.page, validateOnForward))) {
       // Block navigation if validation fails
       return;
     }
 
-    if (isBackward && validateOnBackward && (await onPageNavigationValidation(node.top, validateOnBackward))) {
+    if (isBackward && validateOnBackward && (await onPageNavigationValidation(node.page, validateOnBackward))) {
       // Block navigation if validation fails
       return;
     }
@@ -164,60 +169,62 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   }
 
   return (
-    <Grid container>
-      <Grid
-        data-testid='NavigationBar'
-        item
-        component='nav'
-        xs={12}
-        role='navigation'
-        aria-label={langAsString('general.navigation_form')}
-      >
-        {isMobile && (
-          <NavigationButton
-            hidden={showMenu}
-            current={true}
-            onClick={handleShowMenu}
-            aria-expanded={showMenu}
-            aria-controls='navigation-menu'
-            aria-haspopup='true'
-          >
-            <span className={classes.dropdownMenuContent}>
-              <span>
-                {order.indexOf(currentPageId) + 1}/{order.length} <Lang id={currentPageId} />
+    <ComponentStructureWrapper node={node}>
+      <Grid container>
+        <Grid
+          data-testid='NavigationBar'
+          item
+          component='nav'
+          xs={12}
+          role='navigation'
+          aria-label={langAsString('general.navigation_form')}
+        >
+          {isMobile && (
+            <NavigationButton
+              hidden={showMenu}
+              current={true}
+              onClick={handleShowMenu}
+              aria-expanded={showMenu}
+              aria-controls='navigation-menu'
+              aria-haspopup='true'
+            >
+              <span className={classes.dropdownMenuContent}>
+                <span>
+                  {order.indexOf(currentPageId) + 1}/{order.length} <Lang id={currentPageId} />
+                </span>
+                <CaretDownFillIcon
+                  aria-hidden='true'
+                  className={classes.dropdownIcon}
+                />
               </span>
-              <CaretDownFillIcon
-                aria-hidden='true'
-                className={classes.dropdownIcon}
-              />
-            </span>
-          </NavigationButton>
-        )}
-        {shouldShowMenu && (
-          <ul
-            id='navigation-menu'
-            data-testid='navigation-menu'
-            className={cn(classes.menu, {
-              [classes.menuCompact]: isMobile,
-            })}
-          >
-            {order.map((pageId, index) => (
-              <li
-                key={pageId}
-                className={classes.containerBase}
-              >
-                <NavigationButton
-                  current={currentPageId === pageId}
-                  onClick={() => handleNavigationClick(pageId)}
-                  ref={index === 0 ? firstPageLink : null}
+            </NavigationButton>
+          )}
+          {shouldShowMenu && (
+            <ul
+              id='navigation-menu'
+              data-testid='navigation-menu'
+              className={cn(classes.menu, {
+                [classes.menuCompact]: isMobile,
+              })}
+            >
+              {order.map((pageId, index) => (
+                <li
+                  key={pageId}
+                  className={classes.containerBase}
                 >
-                  {index + 1}. <Lang id={pageId} />
-                </NavigationButton>
-              </li>
-            ))}
-          </ul>
-        )}
+                  <NavigationButton
+                    current={currentPageId === pageId}
+                    onClick={() => handleNavigationClick(pageId)}
+                    ref={index === 0 ? firstPageLink : null}
+                  >
+                    {index + 1}. <Lang id={pageId} />
+                  </NavigationButton>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Grid>
       </Grid>
-    </Grid>
+    </ComponentStructureWrapper>
   );
 };

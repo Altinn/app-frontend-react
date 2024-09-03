@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMatch, useNavigate } from 'react-router-dom';
+import { useMatch } from 'react-router-dom';
 
 import { LegacyCheckbox } from '@digdir/design-system-react';
 import { Button, Textfield } from '@digdir/designsystemet-react';
@@ -17,6 +17,7 @@ import {
   useSetCurrentParty,
   useSetHasSelectedParty,
 } from 'src/features/party/PartiesProvider';
+import { useNavigate } from 'src/features/routing/AppRoutingContext';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { HttpStatusCodes } from 'src/utils/network/networking';
@@ -70,7 +71,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 24,
     padding: 12,
   },
-  checkboxLabes: {
+  checkboxLabels: {
     paddingTop: '0.75rem',
   },
 }));
@@ -79,13 +80,13 @@ export const PartySelection = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.white);
   const classes = useStyles();
   const match = useMatch(`/party-selection/:errorCode`);
-  const errorCode = match?.params.errorCode as 'error' | 'explained' | '403' | undefined;
+  const errorCode = match?.params.errorCode;
 
   const selectParty = useSetCurrentParty();
   const selectedParty = useCurrentParty();
   const setUserHasSelectedParty = useSetHasSelectedParty();
 
-  const parties = useParties() || [];
+  const parties = useParties() ?? [];
   const appMetadata = useApplicationMetadata();
 
   const appPromptForPartyOverride = appMetadata.promptForParty;
@@ -95,7 +96,6 @@ export const PartySelection = () => {
   const [numberOfPartiesShown, setNumberOfPartiesShown] = React.useState(4);
   const [showSubUnits, setShowSubUnits] = React.useState(true);
   const [showDeleted, setShowDeleted] = React.useState(false);
-
   const navigate = useNavigate();
 
   const onSelectParty = async (party: IParty) => {
@@ -104,32 +104,26 @@ export const PartySelection = () => {
     navigate('/');
   };
 
-  function renderParties() {
-    let numberOfPartiesRendered = 0;
+  const filteredParties = parties
+    .filter(
+      (party) => party.name.toUpperCase().includes(filterString.toUpperCase()) && !(party.isDeleted && !showDeleted),
+    )
+    .slice(0, numberOfPartiesShown);
 
+  const hasMoreParties = filteredParties.length < parties.length;
+
+  function renderParties() {
     return (
       <>
-        {parties.map((party: IParty, index: number) =>
-          party.name.toUpperCase().indexOf(filterString.toUpperCase()) > -1
-            ? numberOfPartiesShown > numberOfPartiesRendered
-              ? (() => {
-                  numberOfPartiesRendered += 1;
-                  if (party.isDeleted && !showDeleted) {
-                    return null;
-                  }
-                  return (
-                    <AltinnParty
-                      key={index}
-                      party={party}
-                      onSelectParty={onSelectParty}
-                      showSubUnits={showSubUnits}
-                    />
-                  );
-                })()
-              : null
-            : null,
-        )}
-        {numberOfPartiesRendered === numberOfPartiesShown && numberOfPartiesRendered < parties.length ? (
+        {filteredParties.map((party, index) => (
+          <AltinnParty
+            key={index}
+            party={party}
+            onSelectParty={onSelectParty}
+            showSubUnits={showSubUnits}
+          />
+        ))}
+        {hasMoreParties ? (
           <Grid
             container={true}
             direction='row'
@@ -137,7 +131,6 @@ export const PartySelection = () => {
             <Button
               size='small'
               variant='secondary'
-              dashedBorder={true}
               onClick={() => setNumberOfPartiesShown(numberOfPartiesShown + 4)}
             >
               {
@@ -185,7 +178,7 @@ export const PartySelection = () => {
       3. sub unit
       4. bankruptcy state
     */
-    const { partyTypesAllowed } = appMetadata || {};
+    const { partyTypesAllowed } = appMetadata ?? {};
     const partyTypes: string[] = [];
 
     let returnString = '';

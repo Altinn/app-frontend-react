@@ -2,12 +2,15 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
+import { Hidden } from 'src/utils/layout/NodesContext';
+import type { NodeValidation } from 'src/features/validation';
+import type { NavigateToPageOptions } from 'src/hooks/useNavigatePage';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type NavigationHandler = (node: LayoutNode) => boolean;
+type NavigationHandler = (node: LayoutNode, options: NavigateToNodeOptions | undefined) => Promise<boolean>;
 type FinishNavigationHandler = (
   node: LayoutNode,
-  shouldFocus: boolean,
+  options: NavigateToNodeOptions | undefined,
   whenHit: () => void,
 ) => Promise<NavigationResult | void>;
 
@@ -19,13 +22,19 @@ export enum NavigationResult {
   SuccessfulWithFocus = 'successfulWithFocus',
 }
 
+export interface NavigateToNodeOptions {
+  shouldFocus?: boolean;
+  pageNavOptions?: NavigateToPageOptions;
+  error?: NodeValidation;
+}
+
 interface NodeNavigationContext {
   /**
    * Start navigating to the given node. If the node is not found, or is hidden, the navigation will be cancelled.
    * If no navigation handler are registered to handle navigating to the node, the navigation will also be cancelled
    * after a short delay.
    */
-  navigateTo: (node: LayoutNode, shouldFocus?: boolean) => Promise<NavigationResult>;
+  navigateTo: (node: LayoutNode, options?: NavigateToNodeOptions) => Promise<NavigationResult>;
 
   /**
    * Registers a function that tries to change some internal state in its own context in order to help navigate
@@ -46,7 +55,7 @@ interface NodeNavigationContext {
 const { Provider, useCtx } = createContext<NodeNavigationContext>({ name: 'PageNavigationContext', required: true });
 
 interface NavigationRequest {
-  onHandlerAdded: (handler: NavigationHandler) => void;
+  onHandlerAdded: (handler: NavigationHandler) => Promise<void>;
   onFinishedHandlerAdded: (handler: FinishNavigationHandler) => Promise<void>;
 }
 
@@ -56,11 +65,12 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
   const request = useRef<NavigationRequest | undefined>();
   const navigationHandlers = useRef<HandlerRegistry<NavigationHandler>>(new Set());
   const finishHandlers = useRef<HandlerRegistry<FinishNavigationHandler>>(new Set());
+  const isHidden = Hidden.useIsHiddenSelector();
 
   const navigateTo = useCallback(
-    async (node: LayoutNode, shouldFocus = true) =>
+    async (node: LayoutNode, options?: NavigateToNodeOptions) =>
       new Promise<NavigationResult>((resolve) => {
-        if (node.isHidden()) {
+        if (isHidden(node)) {
           resolve(NavigationResult.NodeIsHidden);
           return;
         }
@@ -69,11 +79,11 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
           let finished = false;
           let lastTick = Date.now();
 
-          const onHandlerAdded = (handler: NavigationHandler) => {
+          const onHandlerAdded = async (handler: NavigationHandler) => {
             if (finished) {
               return;
             }
-            if (handler(node)) {
+            if (await handler(node, options)) {
               lastTick = Date.now();
             }
           };
@@ -81,7 +91,7 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
             if (finished) {
               return;
             }
-            const result = await handler(node, shouldFocus, () => {
+            const result = await handler(node, options, () => {
               // Mark as finished as soon as the component has been hit (i.e. rendered in GenericComponent), even if
               // we haven't actually focused it yet. The focussing requires a ref to the actual rendered element, and
               // it may take some time to reach that stage, and it may even fail if something downstream is hidden.
@@ -100,7 +110,7 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
           };
 
           for (const handler of navigationHandlers.current.values()) {
-            onHandlerAdded(handler);
+            await onHandlerAdded(handler);
           }
           for (const handler of finishHandlers.current.values()) {
             await onFinishedHandlerAdded(handler);
@@ -118,7 +128,7 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
           }, 500);
         })();
       }),
-    [],
+    [isHidden],
   );
 
   const registerNavigationHandler = useCallback((handler: NavigationHandler) => {

@@ -48,6 +48,11 @@ export interface FormDataState {
   // This contains the validation issues we receive from the server last time we saved the data model.
   validationIssues: BackendValidationIssueGroups | undefined;
 
+  // This may contain a callback function that will be called whenever the save finishes.
+  // Should only be set from NodesContext.
+  onSaveFinished: (() => void) | undefined;
+  setOnSaveFinished: (callback: () => void) => void;
+
   // Control state is used to control the behavior of form data.
   controlState: {
     // The time in milliseconds to debounce the currentData model. This is used to determine how long to wait after the
@@ -96,11 +101,13 @@ export interface FDNewValues extends FDChange {
 
 export interface FDAppendToListUnique {
   path: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   newValue: any;
 }
 
 export interface FDAppendToList {
   path: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   newValue: any;
 }
 
@@ -111,12 +118,14 @@ export interface FDRemoveIndexFromList {
 
 export interface FDRemoveValueFromList {
   path: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
 }
 
 export interface FDRemoveFromListCallback {
   path: string;
   startAtIndex?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callback: (value: any) => boolean;
 }
 
@@ -234,8 +243,14 @@ function makeActions(
   function setValue(props: { path: string; newValue: FDLeafValue; state: FormDataState & FormDataMethods }) {
     const { path, newValue, state } = props;
     if (newValue === '' || newValue === null || newValue === undefined) {
-      dot.delete(path, state.currentData);
-      dot.delete(path, state.invalidCurrentData);
+      const prevValue = dot.pick(path, state.currentData);
+
+      // We conflate null and undefined, so no need to set to null or undefined if the value is
+      // already null or undefined
+      if (prevValue !== null && prevValue !== undefined) {
+        dot.delete(path, state.currentData);
+        dot.delete(path, state.invalidCurrentData);
+      }
     } else {
       const schema = schemaLookup.getSchemaForPath(path)[0];
       const { newValue: convertedValue, error } = convertData(newValue, schema);
@@ -399,7 +414,9 @@ export const createFormDataWriteStore = (
         const original = actions[fnName];
         const proxyFn = proxies[fnName] as Proxy<keyof FormDataMethods>;
         const { proxy, method } = proxyFn(original);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         actions[fnName] = (...args: any[]) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           proxy({ args: args as any, toCall: method });
         };
       }
@@ -413,6 +430,11 @@ export const createFormDataWriteStore = (
         lastSavedData: initialData,
         hasUnsavedChanges: false,
         validationIssues: undefined,
+        onSaveFinished: undefined,
+        setOnSaveFinished: (callback) =>
+          set((state) => {
+            state.onSaveFinished = callback;
+          }),
         controlState: {
           autoSaving,
           manualSaveRequested: false,

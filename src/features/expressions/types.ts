@@ -1,8 +1,6 @@
 import type { PickByValue } from 'utility-types';
 
-import type { ExprFunctions } from 'src/features/expressions';
-import type { ExprContext } from 'src/features/expressions/ExprContext';
-import type { ValidationContext } from 'src/features/expressions/validation';
+import type { ExprFunctions } from 'src/features/expressions/expression-functions';
 
 type Functions = typeof ExprFunctions;
 
@@ -34,31 +32,6 @@ export type ExprValToActual<T extends ExprVal = ExprVal> = T extends ExprVal.Str
 export type ExprValToActualOrExpr<T extends ExprVal> =
   | ExprValToActual<T>
   | NonRecursiveExpression<FunctionsReturning<T>>;
-
-type ArgsToActualOrNull<T extends readonly ExprVal[]> = {
-  [Index in keyof T]: ExprValToActual<T[Index]> | null;
-};
-
-export interface FuncDef<Args extends readonly ExprVal[], Ret extends ExprVal> {
-  impl: (this: ExprContext, ...params: ArgsToActualOrNull<Args>) => ExprValToActual<Ret> | null;
-  args: Args;
-  minArguments?: number;
-  returns: Ret;
-
-  // Optional: Set this to true if the last argument type is considered a '...spread' argument, meaning
-  // all the rest of the arguments should be cast to the last type (and that the function allows any
-  // amount  of parameters).
-  lastArgSpreads?: true;
-
-  // Optional: Validator function which runs when the function is validated. This allows a function to add its own
-  // validation requirements. Use the addError() function if any errors are found.
-  validator?: (options: {
-    rawArgs: any[];
-    argTypes: (ExprVal | undefined)[];
-    ctx: ValidationContext;
-    path: string[];
-  }) => void;
-}
 
 type ArgsFor<F extends ExprFunction> = F extends ExprFunction ? Functions[F]['args'] : never;
 
@@ -97,19 +70,21 @@ export type Expression<F extends ExprFunction = ExprFunction> = MaybeRecursive<F
 /**
  * A much simpler variant of the type above, as it only type-checks the very outer function name
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type NonRecursiveExpression<F extends ExprFunction = ExprFunction> = [F, ...any];
 
 /**
  * This type removes all expressions from the input type (replacing them with the type
  * the expression is expected to return)
  *
- * @deprecated Use internal types for components instead
  * @see https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
  * @see https://stackoverflow.com/a/54487392
  */
-export type ExprResolved<T> = T extends ExprVal
-  ? ExprValToActual<T>
-  : T extends any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ExprResolved<T> = T extends [FunctionsReturning<any>, ...any]
+  ? never
+  : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    T extends any
     ? T extends object
       ? {
           [P in keyof T]: ExprResolved<T[P]>;
@@ -124,55 +99,13 @@ export type ExprResolved<T> = T extends ExprVal
 type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 /**
- * Removes all properties from an object where its keys point to never types. This turns { defunctProp: never } into {}
- */
-type OmitNeverKeys<T> = {
-  [P in keyof T as T[P] extends never ? never : P]: T[P];
-};
-
-type OmitEmptyObjects<T> = T extends Record<string, never> ? never : T;
-
-type OmitNeverArrays<T> = T extends never[] ? never : T;
-
-/**
- * Expression configuration. This configuration object needs to be set on every layout property which can be resolved
- * as an expression, and it is the configuration passed to the expression evaluator.
+ * Expression configuration. This configuration object indicates to the expression engine what we expect of the
+ * expression, such as the return type and the default value (which will be used should the expression fail at
+ * some point)
  */
 export interface ExprConfig<V extends ExprVal = ExprVal> {
   returnType: V;
   defaultValue: ExprValToActual<V> | null;
-  errorAsException?: true;
-
-  // Setting this to true means that if there are such expressions on a repeating 'Group' layout component, they will
-  // be evaluated separately for each row in the group. This means you can have a property like edit.deleteButton which
-  // hides the delete button, and this behaviour may differ for each row.
-  resolvePerRow: boolean;
 }
-
-/**
- * This is the heavy lifter used by ExprObjConfig to recursively iterate types
- */
-type DistributiveExprConfig<T, Iterations extends Prev[number]> = [T] extends [
-  string | number | boolean | null | undefined,
-]
-  ? never
-  : T extends ExprVal
-    ? ExprConfig<T>
-    : [T] extends [object]
-      ? OmitEmptyObjects<ExprObjConfig<T, Prev[Iterations]>>
-      : never;
-
-/**
- * This type looks through an object recursively, finds any expressions, and requires you to provide a default
- * value for them (i.e. a fallback value should the expression evaluation fail).
- */
-export type ExprObjConfig<
-  T,
-  Iterations extends Prev[number] = 1, // <-- Recursion depth limited to 2 levels by default
-> = [Iterations] extends [never]
-  ? never
-  : OmitNeverKeys<{
-      [P in keyof Required<T>]: OmitNeverArrays<DistributiveExprConfig<Exclude<T[P], undefined>, Iterations>>;
-    }>;
 
 export type ExprPositionalArgs = ExprValToActual<ExprVal.Any>[];

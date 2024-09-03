@@ -7,8 +7,10 @@ import type { PropsFromGenericComponent } from '..';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { ButtonLoader } from 'src/layout/Button/ButtonLoader';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { useActionAuthorization } from 'src/layout/CustomButton/CustomButtonComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ActionButtonStyle } from 'src/layout/ActionButton/config.generated';
 import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
 
@@ -23,7 +25,7 @@ export function ActionButtonComponent({ node }: IActionButton) {
   const { busyWithId, busy, next } = useProcessNavigation() || {};
   const { isAuthorized } = useActionAuthorization();
 
-  const { action, buttonStyle, id, textResourceBindings } = node.item;
+  const { action, buttonStyle, id, textResourceBindings } = useNodeItem(node);
   const disabled = !isAuthorized(action);
   const isLoadingHere = busyWithId === id;
 
@@ -34,25 +36,29 @@ export function ActionButtonComponent({ node }: IActionButton) {
   }
 
   const parentIsPage = node.parent instanceof LayoutPage;
+
+  // FIXME: app crashes hard if buttonStyle is configured incorrectly
   const { color, variant } = buttonStyles[buttonStyle];
 
   return (
-    <ButtonLoader
-      isLoading={isLoadingHere}
-      style={{
-        marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined,
-      }}
-    >
-      <Button
-        size='small'
-        id={`action-button-${id}`}
-        variant={variant}
-        color={color}
-        disabled={disabled || isLoadingHere || busy}
-        onClick={handleClick}
+    <ComponentStructureWrapper node={node}>
+      <ButtonLoader
+        isLoading={isLoadingHere}
+        style={{
+          marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined,
+        }}
       >
-        <Lang id={textResourceBindings?.title ?? `actions.${action}`} />
-      </Button>
-    </ButtonLoader>
+        <Button
+          size='small'
+          id={`action-button-${id}`}
+          variant={variant}
+          color={color}
+          disabled={disabled || isLoadingHere || busy}
+          onClick={handleClick}
+        >
+          <Lang id={textResourceBindings?.title ?? `actions.${action}`} />
+        </Button>
+      </ButtonLoader>
+    </ComponentStructureWrapper>
   );
 }

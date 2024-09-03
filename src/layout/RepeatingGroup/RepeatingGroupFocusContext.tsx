@@ -4,14 +4,16 @@ import type { PropsWithChildren } from 'react';
 import { createContext } from 'src/core/contexts/context';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
-import type { ParentNode } from 'src/layout/layout';
+import { useNodeItemRef } from 'src/utils/layout/useNodeItem';
+import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type FocusableHTMLElement = HTMLElement &
-  HTMLButtonElement &
-  HTMLInputElement &
-  HTMLSelectElement &
-  HTMLTextAreaElement &
-  HTMLAnchorElement;
+type FocusableHTMLElement =
+  | HTMLButtonElement
+  | HTMLInputElement
+  | HTMLSelectElement
+  | HTMLTextAreaElement
+  | HTMLAnchorElement;
 
 export type RefSetter = (rowIndex: number, key: string, node: HTMLElement | null) => void;
 export type FocusTrigger = (rowIndex: number) => void;
@@ -35,50 +37,64 @@ export const useRepeatingGroupsFocusContext = () => useCtx();
 export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
   const elementRefs = useMemo(() => new Map<string, HTMLElement | null>(), []);
   const waitingForFocus = useRef<number | null>(null);
+  const traversal = useNodeTraversalSelector();
 
   const { node, openForEditing, changePageToRow } = useRepeatingGroup();
-  useRegisterNodeNavigationHandler((targetNode) => {
-    // We are a parent of the target component, and the targetChild is the target component (or a nested group
-    // containing the target component).
-    let targetChild: ParentNode = targetNode;
-    for (const parent of targetNode.parents()) {
-      if (parent.item.id !== node.item.id) {
-        targetChild = parent;
-        continue;
-      }
-
-      const row = node.item.rows.find((r) => r.items.some((i) => i.item.id === targetChild.item.id));
-
-      // If pagination is used, navigate to the correct page
-      if (node.item.pagination) {
-        if (row) {
-          changePageToRow(row.uuid);
-        } else {
-          return false;
+  const nodeItem = useNodeItemRef(node);
+  useRegisterNodeNavigationHandler(async (targetNode) => {
+    // Figure out if we are a parent of the target component, setting the targetChild to the target
+    // component (or a nested repeating group containing the target component).
+    const targetChild = traversal(
+      (t) => {
+        if (targetNode.parent === node) {
+          // Direct child
+          return targetNode;
         }
-      }
+        const parents = t.with(targetNode).parents();
+        for (const parent of parents) {
+          if (parent.parent === node) {
+            return parent as LayoutNode;
+          }
+        }
+        return undefined;
+      },
+      [targetNode, node],
+    );
 
-      if (node.item.edit?.mode === 'showAll' || node.item.edit?.mode === 'onlyTable') {
-        // We're already showing all nodes, so nothing further to do
-        return true;
-      }
+    if (!targetChild) {
+      // We don't have any relation to the target
+      return false;
+    }
 
-      // Check if we need to open the row containing targetChild for editing.
-      const targetChildBaseComponentId = targetChild.item.baseComponentId ?? targetChild.item.id;
-      const tableColSetup =
-        (node.item.tableColumns && targetChildBaseComponentId && node.item.tableColumns[targetChildBaseComponentId]) ||
-        {};
+    const row = nodeItem.current.rows.find((r) => r?.items?.some((n) => n === targetChild));
 
-      if (tableColSetup.editInTable || tableColSetup.showInExpandedEdit === false) {
-        // No need to open rows or set editIndex for components that are rendered
-        // in table (outside the edit container)
+    // If pagination is used, navigate to the correct page
+    if (nodeItem.current.pagination) {
+      if (row) {
+        await changePageToRow(row);
+      } else {
         return false;
       }
+    }
 
-      if (row) {
-        openForEditing(row.uuid);
-        return true;
-      }
+    if (nodeItem.current.edit?.mode === 'showAll' || nodeItem.current.edit?.mode === 'onlyTable') {
+      // We're already showing all nodes, so nothing further to do
+      return true;
+    }
+
+    // Check if we need to open the row containing targetChild for editing.
+    const tableColSetup =
+      (nodeItem.current.tableColumns && targetChild.baseId && nodeItem.current.tableColumns[targetChild.baseId]) || {};
+
+    if (tableColSetup.editInTable || tableColSetup.showInExpandedEdit === false) {
+      // No need to open rows or set editIndex for components that are rendered
+      // in table (outside the edit container)
+      return false;
+    }
+
+    if (row) {
+      openForEditing(row);
+      return true;
     }
 
     return false;
@@ -121,7 +137,7 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
   return <Provider value={{ refSetter, triggerFocus }}>{children}</Provider>;
 }
 
-function isFocusable(element: FocusableHTMLElement) {
+function isFocusable(element: HTMLElement): element is FocusableHTMLElement {
   const tagName = element.tagName.toLowerCase();
   const focusableElements = ['a', 'input', 'select', 'textarea', 'button'];
 
@@ -130,13 +146,13 @@ function isFocusable(element: FocusableHTMLElement) {
   }
 
   const isAvailable =
-    (element.tagName === 'INPUT' && element.getAttribute('type') !== 'hidden') ||
-    !element.disabled ||
-    (element.tagName === 'A' && !!element.href);
+    !(element as HTMLInputElement).disabled &&
+    (element.tagName !== 'INPUT' || (element as HTMLInputElement).type !== 'hidden') &&
+    (element.tagName !== 'A' || !!(element as HTMLAnchorElement).href);
 
   return focusableElements.includes(tagName) && isAvailable;
 }
 
 function findFirstFocusableElement(container: HTMLElement): FocusableHTMLElement | undefined {
-  return Array.from(container.getElementsByTagName('*')).find(isFocusable) as FocusableHTMLElement;
+  return Array.from(container.getElementsByTagName('*')).find(isFocusable);
 }

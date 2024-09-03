@@ -3,12 +3,17 @@ import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Form,
-  rendersWithLabel: false,
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: true,
     renderInAccordion: false,
     renderInAccordionGroup: false,
+    renderInCards: true,
+    renderInCardsMedia: true,
+    renderInTabs: true,
+  },
+  functionality: {
+    customExpressions: false,
   },
 })
   .addDataModelBinding(

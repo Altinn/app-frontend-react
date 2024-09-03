@@ -2,7 +2,7 @@ import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
 import { PartyType } from 'src/types/shared';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IParty } from 'src/types/shared';
 
 const appFrontend = new AppFrontend();
@@ -95,8 +95,8 @@ interface Mockable {
   currentParty?: IParty;
   allowedToInstantiate?: IParty[] | ((parties: IParty[]) => IParty[]);
   doNotPromptForParty?: boolean;
-  appPromptForPartyOverride?: IApplicationMetadata['promptForParty'];
-  partyTypesAllowed?: IApplicationMetadata['partyTypesAllowed'];
+  appPromptForPartyOverride?: IncomingApplicationMetadata['promptForParty'];
+  partyTypesAllowed?: IncomingApplicationMetadata['partyTypesAllowed'];
 }
 
 function mockResponses(whatToMock: Mockable) {
@@ -118,8 +118,9 @@ function mockResponses(whatToMock: Mockable) {
       req.continue((res) => {
         const body =
           whatToMock.allowedToInstantiate instanceof Function
-            ? (whatToMock.allowedToInstantiate(res.body) as any)
-            : (whatToMock.allowedToInstantiate as any);
+            ? whatToMock.allowedToInstantiate(res.body)
+            : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (whatToMock.allowedToInstantiate as any);
         res.send(body);
       });
     });
@@ -176,6 +177,10 @@ describe('Party selection', () => {
     cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.get(appFrontend.reporteeSelection.reportee).should('not.exist');
     cy.wait('@loadInstance');
+
+    // This fails in the end because the partyId does not exist, but we still proved
+    // that party selection did not appear (even though @loadInstance fails with a 404)
+    cy.allowFailureOnEnd();
   });
 
   it('Should show party selection with a warning when you cannot use the preselected party', () => {
@@ -211,6 +216,7 @@ describe('Party selection', () => {
     cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.get('[data-testid=StatusCode').should('exist');
+    cy.allowFailureOnEnd();
   });
 
   it('List of parties should show correct icon and org nr or ssn', () => {

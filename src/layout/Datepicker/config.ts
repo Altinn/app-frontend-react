@@ -3,12 +3,17 @@ import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Form,
-  rendersWithLabel: true,
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: false,
     renderInAccordion: false,
     renderInAccordionGroup: false,
+    renderInCards: true,
+    renderInCardsMedia: false,
+    renderInTabs: true,
+  },
+  functionality: {
+    customExpressions: false,
   },
 })
   .addDataModelBinding(CG.common('IDataModelBindingsSimple'))
@@ -60,4 +65,6 @@ export const Config = new CG.component({
         )
         .addExample('DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD'),
     ),
-  );
+  )
+  .extends(CG.common('LabeledComponentProps'))
+  .extendTextResources(CG.common('TRBLabel'));

@@ -57,6 +57,8 @@ export function nn(): FixedLanguageList {
     form_filler: {
       alert_confirm: 'Bekreft',
       checkbox_alert: 'Er du sikker på at du vil fjerne avkrysningen?',
+      multi_select_alert: 'Er du sikker på at du vil slette <b>{0}</b>?',
+      dropdown_alert: 'Er du sikker på at du vil endre til <b>{0}</b>?',
       back_to_summary: 'Attende til samandrag',
       error_report_header: 'Du må retta desse feila før du kan gå vidare',
       error_required: 'Du må fylle ut {0}',
@@ -91,7 +93,6 @@ export function nn(): FixedLanguageList {
       placeholder_receipt_header: 'Skjemaet er no fullført og sendt inn.',
       placeholder_user: 'OLA PRIVATPERSON',
       radiobutton_alert_label: 'Er du sikker på at du vil endre frå {0}?',
-      radiobutton_alert: 'Er du sikker på at du vil endre?',
       required_description: 'Obligatoriske felt er markerte med *',
       required_label: '*',
       summary_item_change: 'Endre',
@@ -101,6 +102,8 @@ export function nn(): FixedLanguageList {
       houseNumber: 'Bustadnummer',
       postPlace: 'Poststad',
       zipCode: 'Postnr',
+      no_options_found: 'Fann ingen treff',
+      clear_selection: 'Fjern alle valde',
     },
     navigation: {
       main: 'Appnavigasjon',
@@ -361,7 +364,7 @@ export function nn(): FixedLanguageList {
       navigateLastPage: 'Naviger til siste side i tabell',
     },
     config_error: {
-      component_has_errors: 'Me fann følgjande feil når me tolka konfigurasjonen for <code>{0}</code>:',
+      component_has_errors: 'Ein feil oppstod for <code>{0}</code>:',
       component_has_errors_after:
         'Medan du har feil i konfigurasjonen kan me ikkje vise komponenten i skjemaet. Rett opp i feila og prøv igjen.',
     },

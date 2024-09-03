@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
 import cn from 'classnames';
@@ -9,14 +10,18 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupComponent.module.css';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { Hidden } from 'src/utils/layout/NodesContext';
+import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface IGroupComponent {
   groupNode: LayoutNode<'Group'>;
   containerDivRef?: React.Ref<HTMLDivElement>;
   id?: string;
-  onlyInRowUuid?: string;
+  restriction?: TraversalRestriction;
   isSummary?: boolean;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
@@ -33,25 +38,27 @@ export function GroupComponent({
   groupNode,
   containerDivRef,
   id,
-  onlyInRowUuid,
+  restriction,
   isSummary,
   renderLayoutNode,
 }: IGroupComponent) {
-  const container = groupNode.item;
+  const container = useNodeItem(groupNode);
   const { title, summaryTitle, description } = container.textResourceBindings ?? {};
+  const isHidden = Hidden.useIsHidden(groupNode);
 
-  if (groupNode.isHidden()) {
+  const children = useNodeDirectChildren(groupNode, restriction);
+  const depth = useNodeTraversal((traverser) => traverser.with(groupNode).parents().length);
+
+  if (isHidden) {
     return null;
   }
 
   const isNested = groupNode.parent instanceof BaseLayoutNode;
   const isPanel = container.groupingIndicator === 'panel';
   const isIndented = container.groupingIndicator === 'indented';
-  const headingLevel =
-    container.headingLevel ?? (Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel);
+  const headingLevel = container.headingLevel ?? (Math.min(Math.max(depth + 1, 2), 6) as HeadingLevel);
   const headingSize = headingSizes[headingLevel];
-  const legend = isSummary ? summaryTitle ?? title : title;
-  const restriction = typeof onlyInRowUuid === 'string' ? { onlyInRowUuid } : undefined;
+  const legend = isSummary ? (summaryTitle ?? title) : title;
 
   return (
     <ConditionalWrapper
@@ -71,15 +78,16 @@ export function GroupComponent({
         }
         className={cn(isSummary ? classes.summary : classes.group, { [classes.panel]: isPanel && !isSummary })}
         description={description && !isSummary && <Lang id={description} />}
+        data-componentid={container.id}
+        data-componentbaseid={container.baseComponentId || container.id}
       >
         <div
           ref={containerDivRef}
-          id={id || container.id}
-          data-componentid={container.id}
+          id={id ?? container.id}
           data-testid='display-group-container'
           className={cn({ [classes.groupingIndicator]: isIndented && !isNested }, classes.groupContainer)}
         >
-          {groupNode.children(undefined, restriction).map((n) => renderLayoutNode(n))}
+          {children.map((n) => renderLayoutNode(n))}
         </div>
       </Fieldset>
     </ConditionalWrapper>

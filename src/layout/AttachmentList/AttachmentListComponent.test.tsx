@@ -1,22 +1,17 @@
 import React from 'react';
 
+import { expect } from '@jest/globals';
 import { screen } from '@testing-library/react';
+import type { jest } from '@jest/globals';
 
-import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { AttachmentListComponent } from 'src/layout/AttachmentList/AttachmentListComponent';
+import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IData } from 'src/types/shared';
 
 describe('AttachmentListComponent', () => {
-  beforeEach(() => {
-    jest.spyOn(window, 'logErrorOnce').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('should render specific attachments without pdf', async () => {
     await render(['not-ref-data-as-pdf', 'different-process-task']);
     expect(screen.getByText('2mb')).toBeInTheDocument();
@@ -40,13 +35,6 @@ describe('AttachmentListComponent', () => {
     expect(screen.getByText('2mb')).toBeInTheDocument();
     expect(screen.getByText('differentTask')).toBeInTheDocument();
     expect(screen.queryByText('testData1')).not.toBeInTheDocument();
-
-    // We know this happens, because we don't have any uploader components available for this data type
-    expect(window.logErrorOnce).toHaveBeenCalledWith(
-      'Could not find matching component/node for attachment not-ref-data-as-pdf/test-data-type-2 ' +
-        '(there may be a problem with the mapping of attachments to form data in a repeating group). ' +
-        'Traversed 0 nodes with id not-ref-data-as-pdf',
-    );
   });
   it('should render attachments from current task without pdf', async () => {
     await render(['from-task']);
@@ -56,8 +44,22 @@ describe('AttachmentListComponent', () => {
   });
 });
 
-const render = async (ids?: string[]) =>
-  await renderGenericComponentTest({
+const render = async (ids?: string[]) => {
+  (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementationOnce(() =>
+    Promise.resolve(
+      getIncomingApplicationMetadataMock((a) => {
+        a.dataTypes.push(
+          generateDataType({ id: 'not-ref-data-as-pdf', dataType: 'text/plain', taskId: 'Task_1' }),
+          generateDataType({
+            id: 'different-process-task',
+            dataType: 'text/plain',
+            taskId: 'Task_2',
+          }),
+        );
+      }),
+    ),
+  );
+  return await renderGenericComponentTest({
     type: 'AttachmentList',
     renderer: (props) => <AttachmentListComponent {...props} />,
     component: {
@@ -90,19 +92,9 @@ const render = async (ids?: string[]) =>
             }),
           );
         }),
-      fetchApplicationMetadata: async () =>
-        getApplicationMetadataMock((a) => {
-          a.dataTypes.push(
-            generateDataType({ id: 'not-ref-data-as-pdf', dataType: 'text/plain', taskId: 'Task_1' }),
-            generateDataType({
-              id: 'different-process-task',
-              dataType: 'text/plain',
-              taskId: 'Task_2',
-            }),
-          );
-        }),
     },
   });
+};
 
 interface GenerateDataElementProps {
   id: string;

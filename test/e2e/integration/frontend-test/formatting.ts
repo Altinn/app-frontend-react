@@ -1,25 +1,15 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+import { changeToLang } from 'test/e2e/support/lang';
 
-import type { IInputFormattingInternal } from 'src/layout/Input/config.generated';
+import type { IFormatting } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
-
-export const changeToLang = (option: 'en' | 'nb') => {
-  cy.findByRole('combobox', { name: option === 'en' ? 'Språk' : 'Language' }).click();
-  cy.findByRole('option', { name: option === 'en' ? 'Engelsk' : 'Norwegian bokmål' }).click();
-
-  // Verify that the language has changed
-  cy.findByRole('combobox', { name: option === 'en' ? 'Language' : 'Språk' }).should('be.visible');
-};
 
 describe('Formatting', () => {
   it('Number formatting', () => {
     cy.goto('changename');
-    cy.get('#form-content-newFirstName').siblings().should('have.class', 'MuiGrid-grid-md-6');
-    cy.get('#form-content-newFirstName')
-      .siblings()
-      .parent()
-      .should('have.css', 'border-bottom', '1px dashed rgb(148, 148, 148)');
+    cy.get('#form-content-newFirstName').should('have.class', 'MuiGrid-grid-md-6');
+    cy.get('[data-componentid=newFirstName]').should('have.css', 'border-bottom', '1px dashed rgb(148, 148, 148)');
     cy.get(appFrontend.changeOfName.mobilenummer).type('44444444');
     cy.get(appFrontend.changeOfName.mobilenummer).should('have.value', '+47 444 44 444');
     cy.fillOut('changename');
@@ -46,7 +36,8 @@ describe('Formatting', () => {
     cy.get(appFrontend.group.currentValue).numberFormatClear();
     cy.get(appFrontend.group.currentValue).type('10000');
 
-    const alternatives: { format: IInputFormattingInternal; expected: any }[] = [
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const alternatives: { format: IFormatting; expected: any }[] = [
       {
         format: { currency: 'NOK', number: { prefix: 'SEK ' } },
         expected: { nb: 'SEK 10 000', en: 'SEK 10,000' },
@@ -82,10 +73,10 @@ describe('Formatting', () => {
 
       for (const lang of ['en', 'nb'] as const) {
         changeToLang(lang);
+        cy.get(appFrontend.group.edit).click();
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces(expected[lang]);
         cy.get(appFrontend.group.saveMainGroup).clickAndGone();
         cy.findByText(expected[lang]);
-        cy.get(appFrontend.group.edit).click();
       }
     }
   });

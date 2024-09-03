@@ -1,12 +1,15 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
+import type { doPatchFormData } from 'src/queries/queries';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -52,10 +55,11 @@ const countries = [
 
 function RenderCounter({ node }: { node: LayoutNode<'List'> }) {
   const renderCount = React.useRef(0);
+  const dataModelBindings = useNodeItem(node).dataModelBindings;
 
   // This simulates the List component data model fetching. It will trigger a re-render of the component once every
   // time any of the data model bindings change.
-  useDataModelBindings(node.item.dataModelBindings);
+  useDataModelBindings(dataModelBindings);
 
   renderCount.current++;
 
@@ -145,7 +149,9 @@ describe('ListComponent', () => {
     expect(screen.getByTestId('render-count')).toHaveTextContent('1');
 
     // Select the second row
-    await user.click(screen.getAllByRole('radio')[1]);
+    const swedishRow = screen.getByRole('row', { name: /sweden/i });
+    await user.click(swedishRow);
+
     expect(formDataMethods.setMultiLeafValues).toHaveBeenCalledWith({
       debounceTimeout: undefined,
       changes: [
@@ -156,8 +162,9 @@ describe('ListComponent', () => {
     });
     expect(screen.getByTestId('render-count')).toHaveTextContent('2');
 
-    // Select the third row
-    await user.click(screen.getAllByRole('radio')[2]);
+    // // Select the third row
+    const danishRow = screen.getByRole('row', { name: /denmark/i });
+    await user.click(danishRow);
     expect(formDataMethods.setMultiLeafValues).toHaveBeenCalledWith({
       debounceTimeout: undefined,
       changes: [
@@ -173,7 +180,10 @@ describe('ListComponent', () => {
     act(() => jest.advanceTimersByTime(2000));
     await waitFor(() => expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(1));
 
-    const patch: JsonPatch = (mutations.doPatchFormData.mock as jest.Mock).mock.calls[0][1].patch;
+    const mockedArgs = (mutations.doPatchFormData.mock as jest.Mock).mock.calls[0] as unknown as Parameters<
+      typeof doPatchFormData
+    >;
+    const patch: JsonPatch = mockedArgs[1].patch;
     expect(patch).toEqual([
       { op: 'add', path: '/CountryName', value: 'Denmark' },
       { op: 'add', path: '/CountryPopulation', value: 6 },

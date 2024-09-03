@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
-import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
+import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { useLaxInstance, useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -79,7 +79,7 @@ function useProcessNext() {
       try {
         const [result] = await mutateAsync(props);
         return result ? result : AbortedDueToFormErrors;
-      } catch (err) {
+      } catch (_err) {
         // The error is handled above
         return AbortedDueToFailure;
       }

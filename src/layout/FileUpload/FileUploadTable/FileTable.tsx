@@ -2,11 +2,13 @@ import React from 'react';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { Lang } from 'src/features/language/Lang';
+import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
 import { FileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRow';
 import { FileTableRowProvider } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import { atLeastOneTagExists } from 'src/utils/formComponentUtils';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IAttachment } from 'src/features/attachments';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -17,13 +19,22 @@ export interface FileTableProps {
   attachments: IAttachment[];
   mobileView: boolean;
   options?: IOptionInternal[];
+  isFetching: boolean;
+  isSummary?: boolean;
 }
 
-export function FileTable({ attachments, mobileView, node, options }: FileTableProps): React.JSX.Element | null {
-  const { textResourceBindings, type } = node.item;
+export function FileTable({
+  attachments,
+  mobileView,
+  node,
+  options,
+  isSummary,
+  isFetching,
+}: FileTableProps): React.JSX.Element | null {
+  const { textResourceBindings, type, readOnly } = useNodeItem(node);
   const hasTag = type === 'FileUploadWithTag';
+  const pdfModeActive = usePdfModeActive();
   const [editIndex, setEditIndex] = React.useState<number>(-1);
-
   if (!attachments || attachments.length === 0) {
     return null;
   }
@@ -47,10 +58,10 @@ export function FileTable({ attachments, mobileView, node, options }: FileTableP
       {(atLeastOneTagExists(attachments) || !hasTag) && (
         <thead>
           <tr
-            className={classes.blueUnderline}
+            className={pdfModeActive ? classes.grayUnderline : classes.blueUnderline}
             id='altinn-file-list-row-header'
           >
-            <th>
+            <th style={{ width: mobileView ? '80%' : '40%' }}>
               <Lang id={'form_filler.file_uploader_list_header_name'} />
             </th>
             {!mobileView && (
@@ -58,29 +69,33 @@ export function FileTable({ attachments, mobileView, node, options }: FileTableP
                 <Lang id={'form_filler.file_uploader_list_header_file_size'} />
               </th>
             )}
-            {hasTag && (
+            {hasTag && !mobileView && (
               <th>
                 <Lang id={tagTitle} />
               </th>
             )}
-            {!(hasTag && mobileView) && (
+            {!(hasTag && mobileView) && !pdfModeActive && !mobileView && (
               <th>
                 <Lang id={'form_filler.file_uploader_list_header_status'} />
               </th>
             )}
-            <th>
-              <p className='sr-only'>
-                <Lang id={'form_filler.file_uploader_list_header_delete_sr'} />
-              </p>
-            </th>
+
+            {!pdfModeActive && (
+              <th>
+                <p className='sr-only'>
+                  <Lang id={'form_filler.file_uploader_list_header_delete_sr'} />
+                </p>
+              </th>
+            )}
           </tr>
         </thead>
       )}
       <tbody className={classes.tableBody}>
         {attachments.map((attachment, index: number) => {
-          const canRenderRow = isAttachmentUploaded(attachment)
-            ? !hasTag || (attachment.data.tags !== undefined && attachment.data.tags.length > 0 && editIndex !== index)
-            : false;
+          const isMissingTag = hasTag && isAttachmentUploaded(attachment) && !attachment.data.tags?.length;
+          const showSimpleRow = isAttachmentUploaded(attachment)
+            ? !hasTag || readOnly || (hasTag && !isMissingTag && editIndex !== index)
+            : true;
 
           const ctx: FileTableRowContext = {
             setEditIndex,
@@ -88,17 +103,17 @@ export function FileTable({ attachments, mobileView, node, options }: FileTableP
             index,
           };
 
-          // Check if filter is applied and includes specified index.
-          return canRenderRow && isAttachmentUploaded(attachment) ? (
+          return showSimpleRow ? (
             <FileTableRowProvider
               value={ctx}
-              key={`altinn-file-list-row-${attachment.data.id}`}
+              key={`altinn-file-list-row-${isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId}`}
             >
               <FileTableRow
                 node={node}
                 attachment={attachment}
                 mobileView={mobileView}
                 tagLabel={label(attachment)}
+                isSummary={isSummary}
               />
             </FileTableRowProvider>
           ) : (
@@ -116,6 +131,7 @@ export function FileTable({ attachments, mobileView, node, options }: FileTableP
                     attachment={attachment}
                     mobileView={mobileView}
                     options={options}
+                    isFetching={isFetching}
                   />
                 </td>
               </tr>

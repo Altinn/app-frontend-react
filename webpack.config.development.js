@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 const env = require('dotenv').config().parsed ?? {};
 const path = require('path');
 const fs = require('fs');
@@ -20,6 +20,7 @@ if (enableNotifier) {
 
 const enableSourceMaps = !('WEBPACK_SOURCE_MAPS' in env) || env.WEBPACK_SOURCE_MAPS === 'true';
 const enableMinify = !('WEBPACK_MINIFY' in env) || env.WEBPACK_MINIFY === 'true';
+const enableErrorsOverlay = !('WEBPACK_ERRORS_OVERLAY' in env) || env.WEBPACK_ERRORS_OVERLAY === 'true';
 
 console.log('Starting Altinn 3 app-frontend-react development server');
 console.log('See template.env for available environment variables and how to set them');
@@ -71,7 +72,21 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                namedExport: false,
+                auto: true,
+                exportLocalsConvention: 'camel-case',
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.png$/,
@@ -90,7 +105,7 @@ module.exports = {
     },
     client: {
       overlay: {
-        errors: true,
+        errors: enableErrorsOverlay,
         warnings: false,
       },
     },

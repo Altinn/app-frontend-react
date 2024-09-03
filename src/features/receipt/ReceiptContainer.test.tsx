@@ -1,14 +1,17 @@
 import React from 'react';
 
+import { expect } from '@jest/globals';
 import { screen } from '@testing-library/react';
+import type { jest } from '@jest/globals';
 
-import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import { getSummaryDataObject, ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
+import { fetchApplicationMetadata } from 'src/queries/queries';
 import { InstanceRouter, renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import { PartyType } from 'src/types/shared';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
@@ -30,7 +33,7 @@ const buildInstance = (hasPdf = true) =>
   getInstanceDataMock((i) => {
     i.org = 'ttd';
     i.id = exampleInstanceId;
-    i.lastChanged = '2022-02-05T09:19:32.8858042Z' as any;
+    i.lastChanged = '2022-02-05T09:19:32.8858042Z';
     if (hasPdf) {
       i.data.push({
         id: exampleDataGuid,
@@ -47,9 +50,9 @@ const buildInstance = (hasPdf = true) =>
         locked: false,
         refs: [],
         isRead: true,
-        created: '2022-02-05T09:19:32.8710001Z' as any,
+        created: '2022-02-05T09:19:32.8710001Z',
         createdBy: '12345',
-        lastChanged: '2022-02-05T09:19:32.8710001Z' as any,
+        lastChanged: '2022-02-05T09:19:32.8710001Z',
         lastChangedBy: '12345',
       });
     }
@@ -67,15 +70,22 @@ const buildInstance = (hasPdf = true) =>
       locked: true,
       refs: [],
       isRead: true,
-      created: '2022-02-05T09:19:32.5897421Z' as any,
+      created: '2022-02-05T09:19:32.5897421Z',
       createdBy: '12345',
-      lastChanged: '2022-02-05T09:19:32.5897421Z' as any,
+      lastChanged: '2022-02-05T09:19:32.5897421Z',
       lastChangedBy: '12345',
     });
   });
 
-const render = async ({ autoDeleteOnProcessEnd = false, hasPdf = true }: IRender = {}) =>
-  await renderWithoutInstanceAndLayout({
+const render = async ({ autoDeleteOnProcessEnd = false, hasPdf = true }: IRender = {}) => {
+  (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementationOnce(() =>
+    Promise.resolve(
+      getIncomingApplicationMetadataMock((a) => {
+        a.autoDeleteOnProcessEnd = autoDeleteOnProcessEnd;
+      }),
+    ),
+  );
+  return await renderWithoutInstanceAndLayout({
     renderer: () => (
       <InstanceProvider>
         <ReceiptContainer />
@@ -91,10 +101,6 @@ const render = async ({ autoDeleteOnProcessEnd = false, hasPdf = true }: IRender
       </InstanceRouter>
     ),
     queries: {
-      fetchApplicationMetadata: async () =>
-        getApplicationMetadataMock((a) => {
-          a.autoDeleteOnProcessEnd = autoDeleteOnProcessEnd;
-        }),
       fetchOrgs: async () => ({
         orgs: {
           brg: {
@@ -119,6 +125,7 @@ const render = async ({ autoDeleteOnProcessEnd = false, hasPdf = true }: IRender
       fetchFormData: async () => ({}),
     },
   });
+};
 
 describe('ReceiptContainer', () => {
   it('should show download link to pdf when all data is loaded, and data includes pdf', async () => {

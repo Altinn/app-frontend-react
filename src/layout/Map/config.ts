@@ -3,12 +3,17 @@ import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Form,
-  rendersWithLabel: true,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
     renderInAccordion: false,
     renderInAccordionGroup: false,
+    renderInCards: false,
+    renderInCardsMedia: false,
+    renderInTabs: true,
+  },
+  functionality: {
+    customExpressions: false,
   },
 })
   .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional())
@@ -57,4 +62,6 @@ export const Config = new CG.component({
         .setDescription('Center location of the map'),
     ),
   )
-  .addProperty(new CG.prop('zoom', new CG.num().optional()));
+  .addProperty(new CG.prop('zoom', new CG.num().optional()))
+  .extends(CG.common('LabeledComponentProps'))
+  .extendTextResources(CG.common('TRBLabel'));

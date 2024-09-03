@@ -3,13 +3,19 @@ import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Presentation,
-  rendersWithLabel: false,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
     renderInAccordion: false,
     renderInAccordionGroup: false,
+    renderInCards: false,
+    renderInCardsMedia: false,
+    renderInTabs: true,
   },
+  functionality: {
+    customExpressions: false,
+  },
+  directRendering: false,
 })
   .addTextResource(
     new CG.trb({

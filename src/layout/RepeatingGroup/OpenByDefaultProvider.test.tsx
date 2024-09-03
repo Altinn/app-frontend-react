@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { afterAll, beforeAll, jest } from '@jest/globals';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
@@ -8,16 +9,14 @@ import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import {
   RepeatingGroupProvider,
   useRepeatingGroup,
+  useRepeatingGroupRowState,
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 import type { ILayout } from 'src/layout/layout';
-import type {
-  CompRepeatingGroupExternal,
-  CompRepeatingGroupInternal,
-} from 'src/layout/RepeatingGroup/config.generated';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 // Mocking so that we can predict the UUIDs for new rows
 const nextUuids: string[] = [];
@@ -36,7 +35,8 @@ describe('openByDefault', () => {
       editingId: state.editingId,
       addingIds: state.addingIds,
     }));
-    const { deleteRow, visibleRows, hiddenRows } = useRepeatingGroup();
+    const { deleteRow } = useRepeatingGroup();
+    const { visibleRows, hiddenRows } = useRepeatingGroupRowState();
 
     const data = FD.useDebouncedPick('MyGroup');
     return (
@@ -51,7 +51,7 @@ describe('openByDefault', () => {
         </div>
         <button
           onClick={() => {
-            deleteRow(visibleRows[visibleRows.length - 1].uuid);
+            deleteRow(visibleRows[visibleRows.length - 1]);
           }}
         >
           Delete last visible row
@@ -96,7 +96,7 @@ describe('openByDefault', () => {
       },
     ];
 
-    return renderWithNode<true, BaseLayoutNode<CompRepeatingGroupInternal>>({
+    return renderWithNode<true, LayoutNode<'RepeatingGroup'>>({
       renderer: ({ node }) => (
         <RepeatingGroupProvider node={node}>
           <RenderTest />
@@ -123,10 +123,13 @@ describe('openByDefault', () => {
   }
 
   interface WaitForStateProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any;
     mutations: Awaited<ReturnType<typeof render>>['mutations'];
     expectedPatch?: JsonPatch;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     newModelAfterSave?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expectedWarning?: any;
   }
 
@@ -472,6 +475,9 @@ describe('openByDefault', () => {
           ],
         },
         mutations,
+        expectedWarning: expect.stringContaining(
+          "openByDefault for repeating group 'myGroup' returned 'addedAndHidden'",
+        ),
       });
     },
   );

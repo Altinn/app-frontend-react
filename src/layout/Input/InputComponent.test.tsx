@@ -87,7 +87,7 @@ describe('InputComponent', () => {
     });
 
     const inputComponent = screen.getByRole('textbox');
-    expect(inputComponent).toHaveAttribute('aria-describedby', 'description-mock-id');
+    expect(inputComponent.getAttribute('aria-describedby')).toContain('description-mock-id');
   });
 
   it('should not show aria-describedby if textResourceBindings.description is not present', async () => {
@@ -136,7 +136,7 @@ describe('InputComponent', () => {
     expect(inputComponent).toHaveValue(formattedValue);
   });
 
-  const render = async ({ component, genericProps, ...rest }: Partial<RenderGenericComponentTestProps<'Input'>> = {}) =>
+  const render = async ({ component, ...rest }: Partial<RenderGenericComponentTestProps<'Input'>> = {}) =>
     await renderGenericComponentTest({
       type: 'Input',
       renderer: (props) => <InputComponent {...props} />,
@@ -148,10 +148,6 @@ describe('InputComponent', () => {
           simpleBinding: 'some.field',
         },
         ...component,
-      },
-      genericProps: {
-        isValid: true,
-        ...genericProps,
       },
       ...rest,
     });

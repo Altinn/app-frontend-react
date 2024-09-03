@@ -4,7 +4,6 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Form, FormFirstPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
@@ -18,32 +17,29 @@ import {
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { PresentationType } from 'src/types';
-import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
-import type { ShowTypes } from 'src/features/applicationMetadata';
+import type { ShowTypes } from 'src/features/applicationMetadata/types';
 
 const RenderStateless = () => (
   <FormProvider>
-    <LayoutValidationProvider>
-      <Routes>
-        <Route
-          path=':pageKey'
-          element={
-            <PresentationComponent type={PresentationType.Stateless}>
-              <Form />
-            </PresentationComponent>
-          }
-        />
-        <Route
-          path='*'
-          element={<FormFirstPage />}
-        />
-      </Routes>
-    </LayoutValidationProvider>
+    <Routes>
+      <Route
+        path=':pageKey'
+        element={
+          <PresentationComponent type={PresentationType.Stateless}>
+            <Form />
+          </PresentationComponent>
+        }
+      />
+      <Route
+        path='*'
+        element={<FormFirstPage />}
+      />
+    </Routes>
   </FormProvider>
 );
 
 const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
 
   if (isStateless) {
     return <RenderStateless />;
@@ -68,15 +64,17 @@ const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
 };
 
 export const Entrypoint = () => {
-  const applicationMetadata = useApplicationMetadata();
-  const show: ShowTypes = applicationMetadata.onEntry?.show ?? 'new-instance';
-  const validParties = useValidParties();
+  const {
+    onEntry: { show },
+    isStatelessApp: isStateless,
+    promptForParty,
+  } = useApplicationMetadata();
   const profile = useProfile();
-  const partyIsValid = useCurrentPartyIsValid();
-  const isStateless = useIsStatelessApp();
   const party = useCurrentParty();
-  const allowAnonymous = useAllowAnonymousIs(true);
+  const validParties = useValidParties();
+  const partyIsValid = useCurrentPartyIsValid();
   const userHasSelectedParty = useHasSelectedParty();
+  const allowAnonymous = useAllowAnonymousIs(true);
 
   if (isStateless && allowAnonymous && !party) {
     return <RenderStateless />;
@@ -104,7 +102,7 @@ export const Entrypoint = () => {
       return <ShowOrInstantiate show={show} />;
     }
 
-    if (applicationMetadata.promptForParty === 'always') {
+    if (promptForParty === 'always') {
       return (
         <Navigate
           to={'/party-selection/explained'}
@@ -113,7 +111,7 @@ export const Entrypoint = () => {
       );
     }
 
-    if (applicationMetadata.promptForParty === 'never') {
+    if (promptForParty === 'never') {
       return <ShowOrInstantiate show={show} />;
     }
 

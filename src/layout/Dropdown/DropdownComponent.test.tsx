@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { screen, waitFor } from '@testing-library/react';
+import { jest } from '@jest/globals';
+import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
@@ -42,7 +43,7 @@ function MySuperSimpleInput() {
   );
 }
 
-const render = async ({ component, genericProps, options, ...rest }: Props = {}) => {
+const render = async ({ component, options, ...rest }: Props = {}) => {
   const fetchOptions = queryPromiseMock('fetchOptions');
   const utils = await renderGenericComponentTest({
     type: 'Dropdown',
@@ -60,10 +61,6 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
       },
       ...component,
     },
-    genericProps: {
-      isValid: true,
-      ...genericProps,
-    },
     ...rest,
     queries: {
       fetchFormData: async () => ({
@@ -75,7 +72,7 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
           : Promise.resolve({
               data: options,
               headers: {},
-            } as AxiosResponse<IRawOption[], any>),
+            } as AxiosResponse<IRawOption[]>),
       ...rest.queries,
     },
   });
@@ -91,12 +88,14 @@ describe('DropdownComponent', () => {
 
     expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('combobox'));
-    await userEvent.click(screen.getByText('Sweden'));
+    await userEvent.click(screen.getByRole('option', { name: /sweden/i }));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'sweden' });
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'sweden' }),
+    );
   });
 
-  it('should show as disabled when readOnly is true', async () => {
+  it('should show as readonly when readOnly is true', async () => {
     await render({
       component: {
         readOnly: true,
@@ -105,10 +104,10 @@ describe('DropdownComponent', () => {
     });
 
     const select = await screen.findByRole('combobox');
-    expect(select).toHaveProperty('disabled', true);
+    expect(select).toHaveAttribute('readonly');
   });
 
-  it('should not show as disabled when readOnly is false', async () => {
+  it('should not show as readonly when readOnly is false', async () => {
     await render({
       component: {
         readOnly: false,
@@ -117,7 +116,7 @@ describe('DropdownComponent', () => {
     });
 
     const select = await screen.findByRole('combobox');
-    expect(select).toHaveProperty('disabled', false);
+    expect(select).not.toHaveAttribute('readonly');
   });
 
   it('should trigger setLeafValue when preselectedOptionIndex is set', async () => {
@@ -149,16 +148,17 @@ describe('DropdownComponent', () => {
     fetchOptions.resolve({
       data: countries,
       headers: {},
-    } as AxiosResponse<IRawOption[], any>);
+    } as AxiosResponse<IRawOption[]>);
 
-    await screen.findByText('Denmark');
+    await userEvent.click(await screen.findByRole('combobox'));
+    await screen.findByRole('option', { name: /denmark/i });
 
     // The component always finishes loading the first time, but if we have mapping that affects the options
     // the component renders a spinner for a while when fetching the options again.
     await userEvent.type(screen.getByTestId('my-input'), 'test');
 
     await waitFor(() => expect(fetchOptions.mock).toHaveBeenCalledTimes(2));
-    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
+    await screen.findByTestId('altinn-spinner');
 
     fetchOptions.resolve({
       data: [
@@ -169,10 +169,11 @@ describe('DropdownComponent', () => {
         },
       ],
       headers: {},
-    } as AxiosResponse<IRawOption[], any>);
+    } as AxiosResponse<IRawOption[]>);
 
     await waitFor(() => expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument());
-    expect(screen.getByText('Finland')).toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('combobox'));
+    expect(screen.getByRole('option', { name: /finland/i })).toBeInTheDocument();
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger setLeafValue with replaced values', async () => {
@@ -191,14 +192,18 @@ describe('DropdownComponent', () => {
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('The value from the group is: Label for first'));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for first' });
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for first' }),
+    );
 
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('The value from the group is: Label for second'));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for second' });
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for second' }),
+    );
   });
 
   it('should present the options list in the order it is provided when sortOrder is not specified', async () => {
@@ -212,9 +217,9 @@ describe('DropdownComponent', () => {
     await userEvent.click(await screen.findByRole('combobox'));
     const options = await screen.findAllByRole('option');
 
-    expect(options[0]).toHaveValue('norway');
-    expect(options[1]).toHaveValue('sweden');
-    expect(options[2]).toHaveValue('denmark');
+    expect(options[0]).toHaveTextContent('Norway');
+    expect(options[1]).toHaveTextContent('Sweden');
+    expect(options[2]).toHaveTextContent('Denmark');
   });
 
   it('should present the provided options list sorted alphabetically in ascending order when providing sortOrder "asc"', async () => {
@@ -229,9 +234,9 @@ describe('DropdownComponent', () => {
     await userEvent.click(await screen.findByRole('combobox'));
     const options = await screen.findAllByRole('option');
 
-    expect(options[0]).toHaveValue('denmark');
-    expect(options[1]).toHaveValue('norway');
-    expect(options[2]).toHaveValue('sweden');
+    expect(options[0]).toHaveTextContent('Denmark');
+    expect(options[1]).toHaveTextContent('Norway');
+    expect(options[2]).toHaveTextContent('Sweden');
   });
 
   it('should present the provided options list sorted alphabetically in descending order when providing sortOrder "desc"', async () => {
@@ -246,9 +251,9 @@ describe('DropdownComponent', () => {
     await userEvent.click(await screen.findByRole('combobox'));
     const options = await screen.findAllByRole('option');
 
-    expect(options[0]).toHaveValue('sweden');
-    expect(options[1]).toHaveValue('norway');
-    expect(options[2]).toHaveValue('denmark');
+    expect(options[0]).toHaveTextContent('Sweden');
+    expect(options[1]).toHaveTextContent('Norway');
+    expect(options[2]).toHaveTextContent('Denmark');
   });
 
   it.each([
@@ -279,7 +284,7 @@ describe('DropdownComponent', () => {
     await user.click(screen.getByText(label));
 
     expect(await screen.findByText(label)).toBeInTheDocument();
-    jest.advanceTimersByTime(1000);
+    act(() => jest.advanceTimersByTime(1000));
 
     await waitFor(() => expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(1));
     expect(mutations.doPatchFormData.mock).toHaveBeenCalledWith(

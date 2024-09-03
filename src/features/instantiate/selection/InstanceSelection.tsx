@@ -17,8 +17,9 @@ import classes from 'src/features/instantiate/selection/InstanceSelection.module
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useSetNavigationEffect } from 'src/features/routing/AppRoutingContext';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
-import { focusMainContent, useNavigationEffectStore } from 'src/hooks/useNavigatePage';
+import { focusMainContent } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';
 import type { ISimpleInstance } from 'src/types';
@@ -27,6 +28,7 @@ function getDateDisplayString(timeStamp: string) {
   let date = new Date(timeStamp);
   const offset = date.getTimezoneOffset();
   date = new Date(date.getTime() - offset * 60 * 1000);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const locale = window.navigator?.language || (window.navigator as any)?.userLanguage || 'nb-NO';
   return date.toLocaleDateString(locale, {
     year: 'numeric',
@@ -46,14 +48,14 @@ export const InstanceSelectionWrapper = () => (
 function InstanceSelection() {
   const _instances = useActiveInstances();
   const applicationMetadata = useApplicationMetadata();
-  const instanceSelectionOptions = applicationMetadata?.onEntry?.instanceSelection;
+  const instanceSelectionOptions = applicationMetadata?.onEntry.instanceSelection;
   const selectedIndex = instanceSelectionOptions?.defaultSelectedOption;
   const { langAsString, language } = useLanguage();
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
   const instantiate = useInstantiation().instantiate;
   const currentParty = useCurrentParty();
-  const storeCallback = useNavigationEffectStore((state) => state.storeCallback);
+  const storeCallback = useSetNavigationEffect();
 
   const doesIndexExist = (selectedIndex: number | undefined): selectedIndex is number =>
     selectedIndex !== undefined && rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0;
@@ -267,6 +269,7 @@ function InstanceSelection() {
 const openInTab = (url: string, originalEvent: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
   const link = document.createElement('a');
   link.href = url;
+  // eslint-disable-next-line no-undef
   const options: MouseEventInit = {
     button: originalEvent.button,
     buttons: originalEvent.buttons,

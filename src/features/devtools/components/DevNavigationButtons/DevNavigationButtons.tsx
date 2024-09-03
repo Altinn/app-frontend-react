@@ -1,15 +1,16 @@
 import React from 'react';
 
-import { LegacySelect } from '@digdir/design-system-react';
-import { Chip, Fieldset } from '@digdir/designsystemet-react';
+import { Chip, Combobox, Fieldset } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons.module.css';
 import { useIsInFormContext } from 'src/features/form/FormContext';
-import { useIsHiddenPage } from 'src/features/form/layout/PageNavigationContext';
+import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import comboboxClasses from 'src/styles/combobox.module.css';
+import { Hidden } from 'src/utils/layout/NodesContext';
 
 export function DevNavigationButtons() {
   const isInForm = useIsInFormContext();
@@ -21,15 +22,18 @@ export function DevNavigationButtons() {
 }
 
 const InnerDevNavigationButtons = () => {
-  const { navigateToPage, currentPageId } = useNavigatePage();
-  const isHiddenPage = useIsHiddenPage();
+  const pageKey = useNavigationParam('pageKey');
+  const { navigateToPage } = useNavigatePage();
+  const isHiddenPage = Hidden.useIsHiddenPageSelector();
   const orderWithHidden = useLayoutSettings().pages.order;
-  const ctx = useNodes();
   const order = orderWithHidden ?? [];
-  const allPages = ctx?.allPageKeys() || [];
+  const allPages = Object.keys(useLayouts() ?? {});
 
-  function handleChange(newView: string) {
-    navigateToPage(newView);
+  function handleChange(values: string[]) {
+    const newView = values.at(0);
+    if (newView) {
+      navigateToPage(newView);
+    }
   }
 
   function isHidden(page: string) {
@@ -81,8 +85,8 @@ const InnerDevNavigationButtons = () => {
               title={hiddenText(page)}
               // TODO(DevTools): Navigate to hidden pages is not working
               disabled={isHidden(page)}
-              onClick={() => handleChange(page)}
-              selected={currentPageId == page}
+              onClick={() => handleChange([page])}
+              selected={pageKey == page}
             >
               {page}
             </Chip.Toggle>
@@ -90,24 +94,27 @@ const InnerDevNavigationButtons = () => {
         </Chip.Group>
       </div>
       <div className={cn(classes.dropdown, { [classes.responsiveDropdown]: !compactView })}>
-        <LegacySelect
-          value={currentPageId}
-          options={
-            order?.map((page) => ({
-              value: page,
-              label: page,
-              formattedLabel: (
-                <span
-                  className={isHidden(page) ? classes.hiddenPage : classes.visiblePage}
-                  title={hiddenText(page)}
-                >
-                  {page}
-                </span>
-              ),
-            })) ?? []
-          }
-          onChange={handleChange}
-        />
+        <Combobox
+          size='sm'
+          value={[pageKey!]}
+          onValueChange={handleChange}
+          className={comboboxClasses.container}
+        >
+          {order?.map((page) => (
+            <Combobox.Option
+              key={page}
+              value={page}
+              displayValue={page}
+            >
+              <span
+                className={isHidden(page) ? classes.hiddenPage : undefined}
+                title={hiddenText(page)}
+              >
+                {page}
+              </span>
+            </Combobox.Option>
+          ))}
+        </Combobox>
       </div>
     </Fieldset>
   );

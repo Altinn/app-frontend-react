@@ -10,6 +10,7 @@ import { breakpoints } from 'src/hooks/useIsMobile';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
+import type { ILayoutFile } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
 
@@ -40,24 +41,33 @@ Cypress.Commands.add('dsUncheck', { prevSubject: true }, (subject: JQueryWithSel
 Cypress.Commands.add('waitUntilSaved', () => {
   // If the data-unsaved-changes attribute does not exist, the page is not in a data/form state, and we should not
   // wait for it to be saved.
-  cy.get('body').then(($body) => {
-    if ($body.data('unsaved-changes') === undefined) {
-      cy.log('Not in a data task/form, no need to wait for save');
-    } else {
-      cy.get('body').should('have.attr', 'data-unsaved-changes', 'false');
-    }
-  });
+  cy.get('body').should('not.have.attr', 'data-unsaved-changes', 'true');
+});
+
+Cypress.Commands.add('waitUntilNodesReady', () => {
+  cy.get('body').should('not.have.attr', 'data-nodes-ready', 'false');
+  cy.get('body').should('not.have.attr', 'data-commits-pending', 'true');
+});
+
+Cypress.Commands.add('dsReady', (selector) => {
+  // In case the option is dynamic, wait for save and progress bars to go away, otherwise the component could
+  // rerender after opening, causing it to close again
+  cy.findByRole('progressbar').should('not.exist');
+
+  cy.get(selector).should('not.be.disabled');
+  cy.waitUntilSaved();
+  cy.waitUntilNodesReady();
 });
 
 Cypress.Commands.add('dsSelect', (selector, value) => {
   cy.log(`Selecting ${value} in ${selector}`);
-  cy.get(selector).should('not.be.disabled');
+  cy.dsReady(selector);
   cy.get(selector).click();
 
   // It is tempting to just use findByRole('option', { name: value }) here, but that's flakier than using findByText()
   // as it never retries if the element re-renders. More information here:
   // https://github.com/testing-library/cypress-testing-library/issues/205#issuecomment-974688283
-  cy.get('[id^="fds-select-"] [aria-expanded=true]').findByText(value).click();
+  cy.get('[class*="fds-combobox__option"]').findByText(value).click();
 
   cy.get('body').click();
 });
@@ -97,7 +107,7 @@ Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQuer
   // react-number-format messes with our cursor position here as well.
   const moveToStart = new Array(5).fill('{moveToStart}').join('');
 
-  cy.wrap(subject).type(`${moveToStart}${del}`);
+  cy.get(subject.selector!).type(`${moveToStart}${del}`);
 });
 
 interface KnownViolation extends Pick<axe.Result, 'id'> {
@@ -202,7 +212,6 @@ Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
     }
   });
 
-  // eslint-disable-next-line cypress/unsafe-to-chain-command
   cy.focused().should('not.exist');
 
   // Wait for elements marked as loading are not loading anymore
@@ -445,7 +454,7 @@ Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator) 
       const set = JSON.parse(res.body);
       if (mutator) {
         for (const layout of Object.values(set)) {
-          (layout as any).data.layout.map(mutator);
+          (layout as ILayoutFile).data.layout.map(mutator);
         }
       }
       if (wholeLayoutMutator) {
@@ -457,6 +466,7 @@ Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator) 
 });
 
 Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
+  cy.log('Changing current layout');
   cy.window().then((win) => {
     const activeData = win.queryClient.getQueryCache().findAll({ type: 'active' });
     for (const query of activeData) {
@@ -479,6 +489,15 @@ Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
       }
     }
   });
+
+  // To make sure we actually wait for the layout change to become effective, we first wait for the loader to appear,
+  // and then wait for it to disappear.
+  cy.get('[data-testid="loader"]').should('exist');
+  cy.get('[data-testid="loader"]').should('not.exist');
+
+  cy.get('#readyForPrint').should('exist');
+  cy.findByRole('progressbar').should('not.exist');
+  cy.waitUntilNodesReady();
 });
 
 Cypress.Commands.add('interceptLayoutSetsUiSettings', (uiSettings) => {
@@ -508,6 +527,7 @@ Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
   cy.get('body').click();
 
   // Wait for network to be idle before calling reload
+  cy.waitUntilSaved();
   cy.waitForNetworkIdle('*', '*', 500);
 
   // Visit the PDF page and reload
@@ -562,3 +582,8 @@ Cypress.Commands.add(
       });
     }),
 );
+
+Cypress.Commands.add('allowFailureOnEnd', function () {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (this.test as any).__allowFailureOnEnd = true;
+});

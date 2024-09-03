@@ -20,8 +20,9 @@ describe('PDF', () => {
     cy.goto('changename');
 
     cy.findByRole('textbox', { name: /nytt fornavn/i }).type('Ola');
-    cy.findByRole('textbox', { name: /nytt etternavn/i }).type('Nordmann');
     cy.findByRole('textbox', { name: /nytt mellomnavn/i }).type('"Big G"');
+    cy.findByRole('tab', { name: /nytt etternavn/i }).click();
+    cy.findByRole('textbox', { name: /nytt etternavn/i }).type('Nordmann');
     cy.findByRole('checkbox', { name: /ja, jeg bekrefter/i }).check();
     cy.findByRole('radio', { name: /adoptivforelders/i }).check();
     cy.findByRole('textbox', { name: /når vil du at/i }).type('01012020');
@@ -102,10 +103,7 @@ describe('PDF', () => {
     cy.get(appFrontend.group.editContainer).should('be.visible');
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).first().click();
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.back).should('be.visible');
-    cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).first().click();
-    cy.dsSelect('#source-0', 'Digitaliseringsdirektoratet');
-    cy.get('#reference-0').should('have.value', '');
-    cy.dsSelect('#reference-0', 'Sophie Salt');
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).comments).type('Dette er en kommentar');
     cy.get(appFrontend.group.edit).first().click();
     cy.get(appFrontend.group.editContainer).should('not.exist');
 
@@ -113,10 +111,6 @@ describe('PDF', () => {
     cy.get(appFrontend.group.editContainer).should('be.visible');
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).first().click();
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.back).should('be.visible');
-    cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).first().click();
-    cy.dsSelect('#source-1', 'Altinn');
-    cy.get('#reference-1').should('have.value', '');
-    cy.dsSelect('#reference-1', 'Ola Nordmann');
     cy.get(appFrontend.group.edit).eq(1).click();
     cy.get(appFrontend.group.editContainer).should('not.exist');
 
@@ -127,32 +121,28 @@ describe('PDF', () => {
       cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
 
       cy.getSummary('Group summary title').should('contain.text', 'Endre fra : NOK 1');
-      cy.getSummary('Group summary title').should('contain.text', 'Endre verdi 1 til  : NOK 5');
-      cy.getSummary('Group summary title').should(
-        'contain.text',
-        'hvor fikk du vite om skjemaet? : Digitaliseringsdirektoratet',
-      );
-      cy.getSummary('Group summary title').should('contain.text', 'Referanse : Sophie Salt');
+      cy.getSummary('Group summary title').should('contain.text', 'Endre verdi 1 til : NOK 5');
 
       cy.getSummary('Group summary title').should('contain.text', 'Endre fra : NOK 120');
-      cy.getSummary('Group summary title').should('contain.text', 'Endre verdi 120 til  : NOK 350');
-      cy.getSummary('Group summary title').should('contain.text', 'hvor fikk du vite om skjemaet? : Altinn');
-      cy.getSummary('Group summary title').should('contain.text', 'Referanse : Ola Nordmann');
+      cy.getSummary('Group summary title').should('contain.text', 'Endre verdi 120 til : NOK 350');
 
       cy.getSummary('Group summary title').should('contain.text', 'Endre fra : NOK 1 233');
-      cy.getSummary('Group summary title').should('contain.text', 'Endre verdi 1233 til  : NOK 3 488');
-      cy.getSummary('Group summary title').should(
-        'contain.text',
-        'hvor fikk du vite om skjemaet? : Du har ikke lagt inn informasjon her',
-      );
-      cy.getSummary('Group summary title').should('contain.text', 'Referanse : Du har ikke lagt inn informasjon her');
+      cy.getSummary('Group summary title').should('contain.text', 'Endre verdi 1233 til : NOK 3 488');
     });
   });
 
   it('should generate PDF for likert step', () => {
     cy.goto('likert');
-    likertPage.selectOptionalRadios();
-    likertPage.selectRequiredRadios();
+    cy.findByRole('table', { name: likertPage.optionalTableTitle }).within(() => {
+      likertPage.optionalQuestions.forEach((question, index) => {
+        likertPage.selectRadio(question, likertPage.options[index]);
+      });
+    });
+    cy.findByRole('table', { name: likertPage.requiredTableTitle }).within(() => {
+      likertPage.requiredQuestions.forEach((question, index) => {
+        likertPage.selectRadio(`${question} *`, likertPage.options[index]);
+      });
+    });
 
     cy.testPdf(() => {
       cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');

@@ -12,10 +12,21 @@
   margin-top: 0;
 }
 
+.pdf-wrapper .page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fds-spacing-4);
+  margin-bottom: var(--fds-spacing-2);
+}
+
+.pdf-wrapper .instanceInfo {
+  margin-bottom: var(--fds-spacing-4);
+}
+
 .paymentTitleContainer {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: var(--fds-spacing-6);
   margin-bottom: var(--fds-spacing-3);
   h1 {

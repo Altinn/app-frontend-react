@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { beforeAll } from '@jest/globals';
 import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,17 +11,14 @@ import { type BackendValidationIssue, BackendValidationSeverity } from 'src/feat
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
 import {
   RepeatingGroupProvider,
-  useRepeatingGroup,
+  useRepeatingGroupRowState,
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayout } from 'src/layout/layout';
-import type {
-  CompRepeatingGroupExternal,
-  CompRepeatingGroupInternal,
-} from 'src/layout/RepeatingGroup/config.generated';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const mockContainer = getFormLayoutRepeatingGroupMock({
   id: 'myGroup',
@@ -98,7 +96,7 @@ async function render({ container, numRows = 3, validationIssues = [] }: IRender
     },
   });
 
-  return await renderWithNode<true, BaseLayoutNode<CompRepeatingGroupInternal>>({
+  return await renderWithNode<true, LayoutNode<'RepeatingGroup'>>({
     renderer: ({ node }) => (
       <RepeatingGroupProvider node={node}>
         <LeakEditIndex />
@@ -351,7 +349,7 @@ describe('RepeatingGroupContainer', () => {
 
 function LeakEditIndex() {
   const editingId = useRepeatingGroupSelector((state) => state.editingId);
-  const { visibleRows } = useRepeatingGroup();
+  const { visibleRows } = useRepeatingGroupRowState();
   const editingIndex = visibleRows.find((r) => r.uuid === editingId)?.index;
   return <div data-testid='editIndex'>{editingIndex === undefined ? 'undefined' : editingIndex}</div>;
 }

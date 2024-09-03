@@ -3,12 +3,17 @@ import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Action,
-  rendersWithLabel: false,
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: true,
     renderInAccordion: false,
     renderInAccordionGroup: false,
+    renderInCards: true,
+    renderInCardsMedia: false,
+    renderInTabs: true,
+  },
+  functionality: {
+    customExpressions: false,
   },
 }).addTextResource(
   new CG.trb({

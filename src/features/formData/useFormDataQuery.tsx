@@ -5,18 +5,18 @@ import type { AxiosRequestConfig } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { type QueryDefinition } from 'src/core/queries/usePrefetchQuery';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
-import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 
-// Also used for prefetching @see formPrefetcher.ts
 export function useFormDataQueryDef(
   cacheKeyUrl?: string,
   currentTaskId?: string,
   url?: string,
   options?: AxiosRequestConfig,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): QueryDefinition<any> {
   const { fetchFormData } = useAppQueries();
   return {
@@ -24,12 +24,14 @@ export function useFormDataQueryDef(
     queryFn: url ? () => fetchFormData(url, options) : skipToken,
     enabled: !!url,
     gcTime: 0,
+    staleTime: 0,
+    refetchInterval: false,
   };
 }
 
 export function useFormDataQueryOptions() {
   const currentPartyId = useCurrentParty()?.partyId;
-  const isStateless = useIsStatelessApp();
+  const isStateless = useApplicationMetadata().isStatelessApp;
   const options: AxiosRequestConfig = {};
   if (isStateless && currentPartyId !== undefined) {
     options.headers = {

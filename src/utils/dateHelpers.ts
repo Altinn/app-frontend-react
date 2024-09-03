@@ -6,6 +6,7 @@ export const DatepickerMinDateDefault = '1900-01-01T12:00:00.000Z';
 export const DatepickerMaxDateDefault = '2100-01-01T12:00:00.000Z';
 export const DatepickerFormatDefault = 'DD.MM.YYYY';
 export const DatepickerSaveFormatTimestamp = 'YYYY-MM-DDThh:mm:ss.sssZ';
+export const PrettyDateAndTime = 'DD.MM.YYYY HH.mm.SS';
 export const DatepickerSaveFormatNoTimestamp = 'YYYY-MM-DD';
 
 export function getISOString(potentialDate: string | undefined): string | undefined {
@@ -18,6 +19,7 @@ export function getISOString(potentialDate: string | undefined): string | undefi
   return momentDate.isValid() ? momentDate.toISOString() : undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const locale = window.navigator?.language || (window.navigator as any)?.userLanguage || 'nb';
 moment.locale(locale);
 

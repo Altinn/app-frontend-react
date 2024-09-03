@@ -1,14 +1,20 @@
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
+import { OptionsPlugin } from 'src/features/options/OptionsPlugin';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Form,
-  rendersWithLabel: false,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
     renderInAccordion: false,
     renderInAccordionGroup: false,
+    renderInCards: false,
+    renderInCardsMedia: false,
+    renderInTabs: false,
+  },
+  functionality: {
+    customExpressions: false,
   },
 })
   .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple'))
@@ -33,12 +39,14 @@ export const Config = new CG.component({
       description: 'Help text of the Likert component/row',
     }),
   )
-  .makeSelectionComponent()
-  .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()))
   .addProperty(
-    new CG.prop('showAsCard', new CG.bool().optional()).onlyIn(
-      // TODO: This should probably not be available on the Likert component (if it should, only on mobile?)
-      // Marking it as internal only for now, in case it is needed for some reason.
-      Variant.Internal,
+    new CG.prop(
+      'showLabelsInTable',
+      new CG.bool()
+        .optional({ default: false })
+        .setTitle('Show label when single option in table')
+        .setDescription('Boolean value indicating if the label should be visible when only one option exists in table'),
     ),
-  );
+  )
+  .addPlugin(new OptionsPlugin({ supportsPreselection: true, type: 'single' }))
+  .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()));

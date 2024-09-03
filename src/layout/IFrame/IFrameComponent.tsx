@@ -1,17 +1,20 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { getSandboxProperties } from 'src/layout/IFrame/utils';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
 
 export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => {
   const { langAsNonProcessedString } = useLanguage();
-  const { textResourceBindings, sandbox } = node.item;
+  const { textResourceBindings, sandbox } = useNodeItem(node);
 
   const sandboxProperties = getSandboxProperties(sandbox);
   const iFrameTitle = textResourceBindings?.title;
@@ -37,14 +40,16 @@ export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => 
   };
 
   return (
-    <iframe
-      scrolling='no'
-      frameBorder={0}
-      width='100%'
-      srcDoc={HTMLString}
-      title={iFrameTitle}
-      onLoad={adjustIFrameSize}
-      sandbox={sandboxProperties}
-    />
+    <ComponentStructureWrapper node={node}>
+      <iframe
+        scrolling='no'
+        frameBorder={0}
+        width='100%'
+        srcDoc={HTMLString}
+        title={iFrameTitle}
+        onLoad={adjustIFrameSize}
+        sandbox={sandboxProperties}
+      />
+    </ComponentStructureWrapper>
   );
 };

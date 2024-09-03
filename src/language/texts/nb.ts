@@ -19,7 +19,7 @@ export function nb(): FixedLanguageList {
       care_of: 'C/O eller annen tilleggsadresse',
       house_number: 'Bolignummer',
       house_number_helper:
-        'Om addressen er felles for flere boenhenter må du oppgi bolignummer. Den består av en bokstav og fire tall og skal være ført opp ved/på inngangsdøren din.',
+        'Om adressen er felles for flere boenhenter må du oppgi bolignummer. Den består av en bokstav og fire tall og skal være ført opp ved/på inngangsdøren din.',
       post_place: 'Poststed',
       simplified: 'Enkel',
       title_text_binding: 'Søk etter ledetekst for Adressekomponenten',
@@ -58,6 +58,8 @@ export function nb(): FixedLanguageList {
       back_to_summary: 'Tilbake til oppsummering',
       alert_confirm: 'Bekreft',
       checkbox_alert: 'Er du sikker på at du vil fjerne avkrysningen?',
+      multi_select_alert: 'Er du sikker på at du vil slette <b>{0}</b>?',
+      dropdown_alert: 'Er du sikker på at du vil endre til <b>{0}</b>?',
       error_report_header: 'Du må rette disse feilene før du kan gå videre',
       error_required: 'Du må fylle ut {0}',
       file_upload_valid_file_format_all: 'alle',
@@ -91,7 +93,6 @@ export function nb(): FixedLanguageList {
       placeholder_receipt_header: 'Skjemaet er nå fullført og sendt inn.',
       placeholder_user: 'OLA PRIVATPERSON',
       radiobutton_alert_label: 'Er du sikker på at du vil endre fra {0}?',
-      radiobutton_alert: 'Er du sikker på at du vil endre?',
       required_description: 'Obligatoriske felter er markert med *',
       required_label: '*',
       summary_item_change: 'Endre',
@@ -101,6 +102,8 @@ export function nb(): FixedLanguageList {
       houseNumber: 'Bolignummer',
       postPlace: 'Poststed',
       zipCode: 'Postnr',
+      no_options_found: 'Fant ingen treff',
+      clear_selection: 'Fjern alle valgte',
     },
     navigation: {
       main: 'Appnavigasjon',
@@ -361,7 +364,7 @@ export function nb(): FixedLanguageList {
       navigateLastPage: 'Naviger til siste side i tabell',
     },
     config_error: {
-      component_has_errors: 'Vi fant følgende feil når vi tolket konfigurasjonen for <code>{0}</code>:',
+      component_has_errors: 'En feil oppstod for <code>{0}</code>:',
       component_has_errors_after:
         'Så lenge komponenten har konfigurasjonsfeil kan vi ikke vise den i skjemaet. Rett opp i feilene og prøv igjen.',
     },

@@ -1,12 +1,12 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import type { Variant } from 'src/codegen/CG';
-import type { CodeGenerator, Extract, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { CodeGenerator, Extract } from 'src/codegen/CodeGenerator';
 
 /**
  * Generates an array with inner items of the given type
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class GenerateArray<Inner extends CodeGenerator<any>> extends DescribableCodeGenerator<Extract<Inner>[]> {
   private _minItems?: number;
   private _maxItems?: number;
@@ -43,22 +43,5 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
       minItems: this._minItems,
       maxItems: this._maxItems,
     };
-  }
-
-  transformTo(variant: Variant): this | MaybeSymbolizedCodeGenerator<any> {
-    if (this.currentVariant === variant) {
-      return this;
-    }
-
-    const out = new GenerateArray(this.innerType.transformTo(variant));
-    out.internal = structuredClone(this.internal);
-    out.internal.source = this;
-    out.currentVariant = variant;
-
-    return out;
-  }
-
-  containsVariationDifferences(): boolean {
-    return super.containsVariationDifferences() || this.innerType.containsVariationDifferences();
   }
 }

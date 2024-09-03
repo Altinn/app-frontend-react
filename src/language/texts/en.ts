@@ -57,6 +57,8 @@ export function en() {
     form_filler: {
       alert_confirm: 'Confirm',
       checkbox_alert: 'Are you sure you want to uncheck?',
+      multi_select_alert: 'Are you sure you want to delete <b>{0}</b>?',
+      dropdown_alert: 'Are you sure you want to change to <b>{0}</b>?',
       back_to_summary: 'Return to summary',
       error_report_header: 'These need to be corrected before continuing',
       error_required: 'You have to fill out {0}',
@@ -91,7 +93,6 @@ export function en() {
       placeholder_receipt_header: 'The form has been submitted',
       placeholder_user: 'OLA PRIVATPERSON',
       radiobutton_alert_label: 'Are you sure you want to change from {0}?',
-      radiobutton_alert: 'Are you sure you want to change?',
       required_description: 'Required fields are marked with *',
       required_label: '*',
       summary_item_change: 'Change',
@@ -101,6 +102,8 @@ export function en() {
       houseNumber: 'House Number',
       postPlace: 'Post Place',
       zipCode: 'Zip Code',
+      no_options_found: 'No matches found',
+      clear_selection: 'Clear selection',
     },
     navigation: {
       main: 'App navigation',
@@ -360,7 +363,7 @@ export function en() {
       navigateLastPage: 'Navigate to the last page in the table',
     },
     config_error: {
-      component_has_errors: 'We found the following errors when we interpreted the configuration for <code>{0}</code>:',
+      component_has_errors: 'An error occurred for <code>{0}</code>:',
       component_has_errors_after:
         'As long as the component has configuration errors, we cannot show it in the form. Fix the errors and try again.',
     },

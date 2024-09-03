@@ -1,10 +1,9 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { CG, VariantSuffixes } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
 import { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
-import { commonContainsVariationDifferences, getSourceForCommon } from 'src/codegen/Common';
+import { getSourceForCommon } from 'src/codegen/Common';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
-import type { Variant } from 'src/codegen/CG';
 import type { CodeGeneratorWithProperties } from 'src/codegen/CodeGenerator';
 import type { ValidCommonKeys } from 'src/codegen/Common';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
@@ -14,6 +13,7 @@ import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
  * In TypeScript, this is a regular import statement, and in JSON Schema, this is a reference to the definition.
  */
 export class GenerateCommonImport<T extends ValidCommonKeys>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extends MaybeOptionalCodeGenerator<any>
   implements CodeGeneratorWithProperties
 {
@@ -25,24 +25,6 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
   ) {
     super();
     this.realKey = realKey;
-  }
-
-  transformTo(variant: Variant): this | GenerateCommonImport<any> {
-    if (this.currentVariant === variant) {
-      return this;
-    }
-
-    if (commonContainsVariationDifferences(this.key)) {
-      const out = new GenerateCommonImport(this.key, `${this.key}${VariantSuffixes[variant]}`);
-      out.internal = structuredClone(this.internal);
-      out.internal.source = this;
-      out.currentVariant = variant;
-
-      return out;
-    }
-
-    this.currentVariant = variant;
-    return this;
   }
 
   toJsonSchema(): JSONSchema7 {
@@ -63,6 +45,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProperty(name: string): GenerateProperty<any> | undefined {
     const source = getSourceForCommon(this.key);
     if (source instanceof GenerateObject) {
@@ -72,6 +55,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
     return undefined;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProperties(): GenerateProperty<any>[] {
     const source = getSourceForCommon(this.key);
     if (source instanceof GenerateObject) {
@@ -86,10 +70,6 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
   }
 
   toTypeScriptDefinition(): string {
-    if (!this.currentVariant) {
-      throw new Error('Cannot generate TypeScript definition for common import without variant');
-    }
-
     const _import = new CG.import({
       import: this.realKey ?? this.key,
       from: 'src/layout/common.generated',
@@ -97,10 +77,6 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
 
     this.freeze('toTypeScriptDefinition');
     return _import.toTypeScriptDefinition(undefined);
-  }
-
-  containsVariationDifferences(): boolean {
-    return super.containsVariationDifferences() || commonContainsVariationDifferences(this.key);
   }
 
   getName(respectVariationDifferences = true): string {

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
 
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
@@ -10,6 +9,7 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { ProcessProvider } from 'src/features/instance/ProcessContext';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useStateDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { isAxiosError } from 'src/utils/isAxiosError';
@@ -44,21 +44,17 @@ const { Provider, useCtx, useHasProvider } = createContext<InstanceContext | und
 });
 
 // Also used for prefetching @see appPrefetcher.ts
-export function useInstanceDataQueryDef(
-  enabled: boolean,
-  partyId?: string,
-  instanceGuid?: string,
-): QueryDefinition<IInstance> {
+export function useInstanceDataQueryDef(partyId?: string, instanceGuid?: string): QueryDefinition<IInstance> {
   const { fetchInstanceData } = useAppQueries();
   return {
-    queryKey: ['fetchInstanceData', partyId, instanceGuid, enabled],
+    queryKey: ['fetchInstanceData', partyId, instanceGuid],
     queryFn: partyId && instanceGuid ? () => fetchInstanceData(partyId, instanceGuid) : skipToken,
-    enabled: enabled && !!partyId && !!instanceGuid,
+    enabled: !!partyId && !!instanceGuid,
   };
 }
 
-function useGetInstanceDataQuery(enabled: boolean, partyId: string, instanceGuid: string) {
-  const utils = useQuery(useInstanceDataQueryDef(enabled, partyId, instanceGuid));
+function useGetInstanceDataQuery(partyId: string, instanceGuid: string) {
+  const utils = useQuery(useInstanceDataQueryDef(partyId, instanceGuid));
 
   useEffect(() => {
     utils.error && window.logError('Fetching instance data failed:\n', utils.error);
@@ -68,7 +64,8 @@ function useGetInstanceDataQuery(enabled: boolean, partyId: string, instanceGuid
 }
 
 export const InstanceProvider = ({ children }: { children: React.ReactNode }) => {
-  const { partyId, instanceGuid } = useParams();
+  const partyId = useNavigationParam('partyId');
+  const instanceGuid = useNavigationParam('instanceGuid');
 
   if (!partyId || !instanceGuid) {
     return null;
@@ -93,15 +90,12 @@ const InnerInstanceProvider = ({
   partyId: string;
   instanceGuid: string;
 }) => {
-  const [forceFetching, setForceFetching] = useState(false);
+  const queryClient = useQueryClient();
   const [data, setData] = useStateDeepEqual<IInstance | undefined>(undefined);
   const [error, setError] = useState<AxiosError | undefined>(undefined);
   const dataSources = useMemo(() => buildInstanceDataSources(data), [data]);
-
   const instantiation = useInstantiation();
-
-  const fetchEnabled = forceFetching || !instantiation.lastResult;
-  const fetchQuery = useGetInstanceDataQuery(fetchEnabled, partyId, instanceGuid);
+  const fetchQuery = useGetInstanceDataQuery(partyId, instanceGuid);
 
   const changeData: ChangeInstanceData = useCallback(
     (callback) => {
@@ -118,11 +112,13 @@ const InnerInstanceProvider = ({
 
   // Update data
   useEffect(() => {
-    changeData((prev) => (instantiation.error ? undefined : instantiation.lastResult ?? prev));
+    changeData((prev) => (instantiation.error ? undefined : (instantiation.lastResult ?? prev)));
   }, [changeData, instantiation.lastResult, instantiation.error]);
 
   useEffect(() => {
-    changeData((prev) => (fetchQuery.error ? undefined : fetchQuery.data ?? prev));
+    if (fetchQuery.data && !fetchQuery.error) {
+      changeData(() => fetchQuery.data);
+    }
   }, [changeData, fetchQuery.data, fetchQuery.error]);
 
   // Update error states
@@ -135,8 +131,12 @@ const InnerInstanceProvider = ({
     return <DisplayError error={error} />;
   }
 
-  if (!data) {
+  if (fetchQuery.isLoading) {
     return <Loader reason='instance' />;
+  }
+
+  if (!data) {
+    return false;
   }
 
   return (
@@ -148,8 +148,8 @@ const InnerInstanceProvider = ({
         error,
         changeData,
         reFetch: async () => {
-          setForceFetching(true);
-          return void (await fetchQuery.refetch());
+          setData(undefined);
+          await queryClient.invalidateQueries({ queryKey: ['fetchInstanceData'] });
         },
         partyId,
         instanceGuid,

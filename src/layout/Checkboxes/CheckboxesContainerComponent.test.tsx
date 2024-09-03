@@ -50,7 +50,8 @@ const render = async ({ component, options, formData, groupData = getFormDataMoc
     queries: {
       fetchOptions: () =>
         options
-          ? Promise.resolve({ data: options, headers: {} } as AxiosResponse<IRawOption[], any>)
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            Promise.resolve({ data: options, headers: {} } as AxiosResponse<IRawOption[], any>)
           : Promise.reject(new Error('No options provided to render()')),
       fetchFormData: async () => (formData ? { selectedValues: formData, ...groupData } : { ...groupData }),
     },
@@ -236,7 +237,7 @@ describe('CheckboxesContainerComponent', () => {
     expect(screen.queryByTestId('checkboxes-fieldset')).not.toHaveClass('horizontal');
   });
 
-  it('should present replaced label if setup with values from repeating group in redux and trigger setLeafValue with replaced values', async () => {
+  it('should present replaced label if using data model source and trigger setLeafValue with replaced values', async () => {
     const { formDataMethods } = await render({
       component: {
         optionsId: undefined,

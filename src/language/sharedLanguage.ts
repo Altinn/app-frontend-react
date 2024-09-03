@@ -38,7 +38,7 @@ export const parseAndCleanText = cachedFunction(
       return null;
     }
 
-    const dirty = marked.parse(text);
+    const dirty = marked.parse(text, { async: false });
     const clean = DOMPurify.sanitize(dirty);
     return parseHtmlToReact(clean.toString().trim(), parserOptions);
   },
@@ -57,11 +57,27 @@ const parserOptions: HTMLReactParserOptions = {
      * since the text might already be used in f.ex `p`, `button`, `label` tags etc.
      * Span is a better solution, although not perfect, as block level elements are not valid children (f.ex h1), but this should be less frequent.
      */
-    if (isElement(domNode) && !domNode.parent && domNode.name === 'p') {
+    if (
+      isElement(domNode) &&
+      !domNode.parent &&
+      !domNode.nextSibling &&
+      !domNode.previousSibling &&
+      domNode.name === 'p'
+    ) {
       domNode.name = 'span';
       return;
     }
 
+    /**
+     * Replace p tag with Paragraph component from design system
+     */
+    if (isElement(domNode) && domNode.name === 'p') {
+      return React.createElement(
+        'p',
+        { style: { margin: 0 } },
+        domToReact(domNode.children as DOMNode[], parserOptions),
+      );
+    }
     /**
      * Replace h1-h6 tags with Heading component from design system
      */
@@ -107,6 +123,9 @@ const parserOptions: HTMLReactParserOptions = {
         domToReact(domNode.children as DOMNode[], parserOptions),
       );
     }
+    /**
+     * Internal links
+     */
     if (isElement(domNode) && domNode.name === 'a' && domNode.attribs['data-link-type'] === 'LinkToPotentialNode') {
       return React.createElement(
         LinkToPotentialNode,

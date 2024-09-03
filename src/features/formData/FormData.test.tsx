@@ -1,11 +1,12 @@
 import React from 'react';
-import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
+import { afterAll, beforeAll, expect, jest } from '@jest/globals';
 import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
-import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
@@ -18,6 +19,8 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
 import { InitialFormDataProvider } from 'src/features/formData/InitialFormData';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { AppRoutingProvider, useNavigate } from 'src/features/routing/AppRoutingContext';
+import { fetchApplicationMetadata } from 'src/queries/queries';
 import { makeFormDataMethodProxies, renderWithMinimalProviders } from 'src/test/renderWithProviders';
 
 interface DataModelFlat {
@@ -56,6 +59,15 @@ function NavigateBackButton() {
 }
 
 async function genericRender(props: Partial<Parameters<typeof renderWithMinimalProviders>[0]> = {}) {
+  (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementationOnce(() =>
+    Promise.resolve(
+      getIncomingApplicationMetadataMock({
+        onEntry: {
+          show: 'stateless',
+        },
+      }),
+    ),
+  );
   const initialRenderRef = { current: true };
   const { mocks: formDataMethods, proxies: formDataProxies } = makeFormDataMethodProxies(initialRenderRef);
   return {
@@ -68,15 +80,15 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
           <Routes>
             <Route
               path={'/'}
-              element={<>{children}</>}
+              element={<AppRoutingProvider>{children}</AppRoutingProvider>}
             />
             <Route
               path={'/different'}
               element={
-                <>
+                <AppRoutingProvider>
                   <div>something different</div>
                   <NavigateBackButton />
-                </>
+                </AppRoutingProvider>
               }
             />
           </Routes>
@@ -130,12 +142,6 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
             },
           },
         }),
-        fetchApplicationMetadata: async () =>
-          getApplicationMetadataMock({
-            onEntry: {
-              show: 'stateless',
-            },
-          }),
         fetchFormData: async () => ({}),
         fetchLayouts: async () => ({}),
         ...props.queries,

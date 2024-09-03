@@ -5,7 +5,6 @@ import { userEvent } from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 
 import { NavBar } from 'src/components/presentation/NavBar';
-import { mockWindow } from 'src/test/mockWindow';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { ProcessTaskType } from 'src/types';
 import type { IRawTextResource } from 'src/features/language/textResources';
@@ -46,7 +45,6 @@ const render = async ({
 };
 
 describe('NavBar', () => {
-  const { mockAssign } = mockWindow();
   it('should render nav', async () => {
     await render({
       hideCloseButton: true,
@@ -56,13 +54,16 @@ describe('NavBar', () => {
   });
 
   it('should render close button', async () => {
+    const assignMock = jest.fn();
+    jest.spyOn(window, 'location', 'get').mockReturnValue({ ...window.location, assign: assignMock });
+
     await render({
       hideCloseButton: false,
       showLanguageSelector: false,
     });
     const closeButton = screen.getByRole('button', { name: /Lukk Skjema/i });
     await userEvent.click(closeButton);
-    expect(mockAssign).toHaveBeenCalled();
+    expect(assignMock).toHaveBeenCalled();
   });
 
   it('should hide close button and back button', async () => {
@@ -91,7 +92,7 @@ describe('NavBar', () => {
     });
 
     await userEvent.click(screen.getByRole('combobox', { name: /Språk/i }));
-    const en = screen.getByText(/Engelsk/i, { selector: '[role=option]' });
+    const en = screen.getByRole('option', { name: /engelsk/i });
     await userEvent.click(en);
 
     // Language now changed, so the value should be the language name in the selected language
@@ -112,8 +113,8 @@ describe('NavBar', () => {
     });
 
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    screen.getByRole('combobox', { name: /Velg språk test/i });
-    screen.getByText(/Norsk test/i, { selector: '[role=option]' });
-    screen.getByText(/Engelsk test/i, { selector: '[role=option]' });
+    await userEvent.click(screen.getByRole('combobox', { name: /Velg språk test/i }));
+    screen.getByRole('option', { name: /norsk test/i });
+    screen.getByRole('option', { name: /engelsk test/i });
   });
 });

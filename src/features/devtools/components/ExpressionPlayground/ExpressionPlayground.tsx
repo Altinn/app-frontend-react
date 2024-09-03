@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
-import { LegacySelect } from '@digdir/design-system-react';
-import { Checkbox, Fieldset, Tabs } from '@digdir/designsystemet-react';
+import { Checkbox, Combobox, Fieldset, Tabs } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/ExpressionPlayground/ExpressionPlayground.module.css';
@@ -10,10 +9,12 @@ import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
-import { asExpression } from 'src/features/expressions/validation';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
-import { useIsHiddenComponent, useNodes } from 'src/utils/layout/NodesContext';
+import { ExprValidation } from 'src/features/expressions/validation';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import comboboxClasses from 'src/styles/combobox.module.css';
+import { useNodes } from 'src/utils/layout/NodesContext';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import { useNodeTraversal, useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -47,17 +48,10 @@ export const ExpressionPlayground = () => {
     },
   ]);
   const nodes = useNodes();
-  const { currentPageId } = useNavigatePage();
+  const currentPageId = useNavigationParam('pageKey');
 
-  const isHidden = useIsHiddenComponent();
-  const _dataSources = useExpressionDataSources(isHidden);
-  const dataSources = useMemo(
-    () => ({
-      ..._dataSources,
-      formDataSelector: (path: string) => _dataSources.formDataSelector(path),
-    }),
-    [_dataSources],
-  );
+  const selectedContext = forPage && forComponentId ? [`${forPage}|${forComponentId}`] : [];
+  const dataSources = useExpressionDataSources();
 
   const setOutputWithHistory = useCallback(
     (newValue: string, isError: boolean): boolean => {
@@ -80,6 +74,12 @@ export const ExpressionPlayground = () => {
   // populating the output history with a fresh value.
   const resetOutputHistory = () => setOutputs([]);
 
+  const traversalSelector = useNodeTraversalSelector();
+
+  const componentOptions = useNodeTraversal((t) =>
+    t.allNodes().map((n) => ({ label: n.id, value: `${n.page.pageKey}|${n.id}` })),
+  );
+
   useEffect(() => {
     if (!input || input.length <= 0) {
       if (!outputs[0] || outputs[0]?.value !== '') {
@@ -89,7 +89,7 @@ export const ExpressionPlayground = () => {
     }
 
     try {
-      let maybeExpression: string;
+      let maybeExpression: unknown;
       try {
         maybeExpression = JSON.parse(input);
       } catch (e) {
@@ -102,34 +102,41 @@ export const ExpressionPlayground = () => {
       const config: ExprConfig<ExprVal.Any> = {
         returnType: ExprVal.Any,
         defaultValue: null,
-        resolvePerRow: false,
-        errorAsException: true,
       };
 
-      const expr = asExpression(maybeExpression, config);
-      if (!expr) {
-        throw new Error('Ugyldig uttrykk');
-      }
+      ExprValidation.throwIfInvalid(maybeExpression);
 
-      let evalContext: LayoutPage | LayoutNode | undefined = nodes?.current();
+      let evalContext: LayoutPage | LayoutNode | undefined = traversalSelector(
+        (t) => t.findPage(currentPageId),
+        [currentPageId],
+      );
       if (!evalContext) {
         throw new Error('Fant ikke nåværende side/layout');
       }
 
       if (forPage && forComponentId) {
-        const foundNode = nodes?.findLayout(forPage)?.findById(forComponentId);
+        const foundNode = traversalSelector(
+          (t) => {
+            const page = t.findPage(forPage);
+            return page
+              ? t.with(page).children((i) => i.type === 'node' && i.item?.id === forComponentId)[0]
+              : undefined;
+          },
+          [forPage, forComponentId],
+        );
         if (foundNode) {
           evalContext = foundNode;
         }
       }
 
       const calls: string[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const onAfterFunctionCall = (path: string[], func: ExprFunction, args: any[], result: any) => {
         const indent = '  '.repeat(path.length);
         calls.push(`${indent}${JSON.stringify([func, ...args])} => ${JSON.stringify(result)}`);
       };
 
-      const out = evalExpr(expr as Expression, evalContext, dataSources, { config, onAfterFunctionCall });
+      const out = evalExpr(maybeExpression as Expression, evalContext, dataSources, { config, onAfterFunctionCall });
 
       if (showAllSteps) {
         setOutputWithHistory(calls.join('\n'), false);
@@ -141,7 +148,18 @@ export const ExpressionPlayground = () => {
         setOutputs([{ value: e.message, isError: true }]);
       }
     }
-  }, [input, forPage, forComponentId, dataSources, nodes, showAllSteps, outputs, setOutputWithHistory]);
+  }, [
+    input,
+    forPage,
+    forComponentId,
+    dataSources,
+    nodes,
+    showAllSteps,
+    outputs,
+    setOutputWithHistory,
+    currentPageId,
+    traversalSelector,
+  ]);
 
   return (
     <div className={classes.container}>
@@ -174,7 +192,7 @@ export const ExpressionPlayground = () => {
                   setActiveOutputTab(outputName);
                 }}
               >
-                <Tabs.List className={classes.tablist}>
+                <Tabs.List>
                   {outputs.map((output, i) => {
                     const { key, value } = getTabKeyAndValue(i, output);
                     return (
@@ -210,17 +228,28 @@ export const ExpressionPlayground = () => {
         </SplitView>
         <div className={classes.rightColumn}>
           <Fieldset legend={'Kjør uttrykk i kontekst av komponent'}>
-            <LegacySelect
-              value={`${forPage}|${forComponentId}`}
-              onChange={(value) => {
-                const [forPage, forComponentId] = value.split('|', 2);
-                setContext(forPage, forComponentId);
+            <Combobox
+              size='sm'
+              value={selectedContext}
+              onValueChange={(values) => {
+                const selected = values.at(0);
+                if (selected) {
+                  const [forPage, forComponentId] = selected.split('|', 2);
+                  setContext(forPage, forComponentId);
+                }
               }}
-              options={Object.values(nodes?.all() || [])
-                .map((page) => page.flat(true))
-                .flat()
-                .map((n) => ({ label: n.item.id, value: `${n.top.top.myKey}|${n.item.id}` }))}
-            />
+              className={comboboxClasses.container}
+            >
+              {componentOptions.map(({ value, label }) => (
+                <Combobox.Option
+                  key={value}
+                  value={value}
+                  displayValue={label}
+                >
+                  {label}
+                </Combobox.Option>
+              ))}
+            </Combobox>
             {forComponentId && forPage === currentPageId && (
               // eslint-disable-next-line jsx-a11y/anchor-is-valid
               <a

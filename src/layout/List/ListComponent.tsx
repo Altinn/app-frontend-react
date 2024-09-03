@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 
 import { Pagination } from '@altinn/altinn-design-system';
-import { LegacyFieldSet, LegacyResponsiveTable } from '@digdir/design-system-react';
+import { LegacyResponsiveTable } from '@digdir/design-system-react';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 import type { LegacyResponsiveTableConfig } from '@digdir/design-system-react';
 import type {
@@ -12,18 +12,21 @@ import type {
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { Filter } from 'src/features/dataLists/useDataListQuery';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 
 export type IListProps = PropsFromGenericComponent<'List'>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const defaultDataList: any[] = [];
 const defaultBindings: IDataModelBindingsForList = {};
 
 export const ListComponent = ({ node }: IListProps) => {
-  const { tableHeaders, pagination, sortableColumns, tableHeadersMobile, mapping, secure, dataListId } = node.item;
+  const item = useNodeItem(node);
+  const { tableHeaders, pagination, sortableColumns, tableHeadersMobile, mapping, secure, dataListId } = item;
   const { langAsString, language, lang } = useLanguage();
   const [pageSize, setPageSize] = useState<number>(pagination?.default || 0);
   const [pageNumber, setPageNumber] = useState<number>(0);
@@ -40,9 +43,10 @@ export const ListComponent = ({ node }: IListProps) => {
     [pageNumber, pageSize, sortColumn, sortDirection],
   );
   const { data } = useDataListQuery(filter, dataListId, secure, mapping);
+
   const calculatedDataList = (data && data.listItems) || defaultDataList;
 
-  const bindings = node.item.dataModelBindings || defaultBindings;
+  const bindings = item.dataModelBindings || defaultBindings;
   const { formData, setValues } = useDataModelBindings(bindings);
 
   const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
@@ -78,7 +82,7 @@ export const ListComponent = ({ node }: IListProps) => {
   const renderPagination = () =>
     pagination && (
       <Pagination
-        numberOfRows={data?._metaData.totaltItemsCount}
+        numberOfRows={data?._metaData.totaltItemsCount ?? 0}
         rowsPerPageOptions={pagination?.alternatives ? pagination?.alternatives : []}
         rowsPerPage={pageSize}
         onRowsPerPageChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -118,13 +122,13 @@ export const ListComponent = ({ node }: IListProps) => {
   };
 
   return (
-    <LegacyFieldSet
-      legend={<GenericComponentLegend />}
-      style={{ width: '100%' }}
+    <ComponentStructureWrapper
+      node={node}
+      label={{ node, renderLabelAs: 'legend' }}
     >
       <div style={{ overflow: 'auto' }}>
         <LegacyResponsiveTable config={config} />
       </div>
-    </LegacyFieldSet>
+    </ComponentStructureWrapper>
   );
 };

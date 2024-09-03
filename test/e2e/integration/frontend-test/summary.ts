@@ -17,10 +17,7 @@ describe('Summary', () => {
     });
 
     cy.goto('changename');
-
-    //Fixing flaky test by making sure that options are loaded before testing them in the summary
-    // Make sure we wait until the option is visible, as it's not instant
-    cy.get('[role=option][value="nordmann"]').should('exist');
+    cy.waitForLoad();
 
     cy.gotoNavPage('summary');
 
@@ -29,13 +26,11 @@ describe('Summary', () => {
     cy.get('[data-testid=summary-summary4]').contains(texts.emptySummary);
     cy.get('[data-testid=summary-summary5]').contains(texts.emptySummary);
     cy.get('[data-testid=summary-summary6]').contains(texts.emptySummary);
-    cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
-      .and('have.length', 3)
-      .then((items) => {
-        cy.wrap(items).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Altinn');
-        cy.wrap(items).eq(1).should('contain.text', `Referanse : ${texts.emptySummary}`);
-        cy.wrap(items).eq(2).should('contain.text', `Referanse 2 : ${texts.emptySummary}`);
-      });
+    const referencesSelector = '[data-testid=summary-summary-reference] [data-testid=summary-item-compact]';
+    cy.get(referencesSelector).should('have.length', 3);
+    cy.get(referencesSelector).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Altinn');
+    cy.get(referencesSelector).eq(1).should('contain.text', `Referanse : ${texts.emptySummary}`);
+    cy.get(referencesSelector).eq(2).should('contain.text', `Referanse 2 : ${texts.emptySummary}`);
 
     cy.gotoNavPage('form');
     cy.fillOut('changename');
@@ -135,39 +130,32 @@ describe('Summary', () => {
     cy.dsSelect('#reference', 'Ola Nordmann');
     cy.dsSelect('#reference2', 'Ole');
     cy.gotoNavPage('summary');
-    cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
-      .and('have.length', 3)
-      .then((items) => {
-        cy.wrap(items).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Altinn');
-        cy.wrap(items).eq(1).should('contain.text', 'Referanse : Ola Nordmann');
-        cy.wrap(items).eq(2).should('contain.text', 'Referanse 2 : Ole');
-      });
+    cy.get(referencesSelector).should('have.length', 3);
+    cy.get(referencesSelector).eq(0).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Altinn');
+    cy.get(referencesSelector).eq(1).should('contain.text', 'Referanse : Ola Nordmann');
+    cy.get(referencesSelector).eq(2).should('contain.text', 'Referanse 2 : Ole');
 
     cy.gotoNavPage('form');
     cy.dsSelect('#sources', 'Digitaliseringsdirektoratet');
     cy.dsSelect('#reference', 'Sophie Salt');
     cy.dsSelect('#reference2', 'Dole');
     cy.gotoNavPage('summary');
-    cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
-      .and('have.length', 3)
-      .then((items) => {
-        cy.wrap(items).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Digitaliseringsdirektoratet');
-        cy.wrap(items).eq(1).should('contain.text', 'Referanse : Sophie Salt');
-        cy.wrap(items).eq(2).should('contain.text', 'Referanse 2 : Dole');
-      });
+    cy.get(referencesSelector).should('have.length', 3);
+    cy.get(referencesSelector)
+      .eq(0)
+      .should('contain.text', 'hvor fikk du vite om skjemaet? : Digitaliseringsdirektoratet');
+    cy.get(referencesSelector).eq(1).should('contain.text', 'Referanse : Sophie Salt');
+    cy.get(referencesSelector).eq(2).should('contain.text', 'Referanse 2 : Dole');
 
     cy.gotoNavPage('form');
     cy.dsSelect('#sources', 'Annet');
     cy.dsSelect('#reference', 'Test');
     cy.dsSelect('#reference2', 'Doffen');
     cy.gotoNavPage('summary');
-    cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
-      .and('have.length', 3)
-      .then((items) => {
-        cy.wrap(items).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Annet');
-        cy.wrap(items).eq(1).should('contain.text', 'Referanse : Test');
-        cy.wrap(items).eq(2).should('contain.text', 'Referanse 2 : Doffen');
-      });
+    cy.get(referencesSelector).should('have.length', 3);
+    cy.get(referencesSelector).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Annet');
+    cy.get(referencesSelector).eq(1).should('contain.text', 'Referanse : Test');
+    cy.get(referencesSelector).eq(2).should('contain.text', 'Referanse 2 : Doffen');
 
     cy.snapshot('summary:change-name');
   });
@@ -187,30 +175,24 @@ describe('Summary', () => {
     cy.get(appFrontend.group.mainGroupSummaryContent).should('have.length', 1);
     const groupElements = () => cy.get(appFrontend.group.mainGroupSummaryContent).first().children(mui.gridItem);
 
-    groupElements().should('have.length', 7);
-    groupElements().find('button').should('have.length', 7);
+    groupElements().should('have.length', 6);
+    groupElements().find('button').should('have.length', 8);
 
-    groupElements().eq(2).should('contain.text', 'attachment-in-single.pdf');
-    groupElements().eq(3).should('contain.text', 'attachment-in-multi1.pdf');
-    groupElements().eq(3).should('contain.text', 'attachment-in-multi2.pdf');
-    groupElements().eq(4).should('contain.text', 'attachment-in-nested.pdf');
-    groupElements().eq(4).should('contain.text', 'automation');
-    groupElements().eq(4).should('contain.text', texts.nestedOptionsToggle);
-    groupElements().eq(4).should('not.contain.text', texts.nestedOptions);
-    groupElements().eq(4).should('contain.text', 'hvor fikk du vite om skjemaet? : Annet');
-    groupElements().eq(4).should('contain.text', 'Referanse : Test');
-    groupElements().eq(5).should('contain.text', 'Digitaliseringsdirektoratet');
-    groupElements().eq(6).should('contain.text', 'Sophie Salt');
-    groupElements().eq(4).find('button').first().should('contain.text', texts.change);
+    groupElements().eq(2).should('contain.text', 'Digitaliseringsdirektoratet');
+    groupElements().eq(2).should('contain.text', 'Sophie Salt');
+    groupElements().eq(3).should('contain.text', 'attachment-in-single.pdf');
+    groupElements().eq(4).should('contain.text', 'attachment-in-multi1.pdf');
+    groupElements().eq(4).should('contain.text', 'attachment-in-multi2.pdf');
+    groupElements().eq(5).should('contain.text', 'attachment-in-nested.pdf');
+    groupElements().eq(5).should('contain.text', 'automation');
+    groupElements().eq(5).should('contain.text', texts.nestedOptionsToggle);
+    groupElements().eq(5).should('not.contain.text', texts.nestedOptions);
+    groupElements().eq(5).should('contain.text', 'hvor fikk du vite om skjemaet? : Annet');
+    groupElements().eq(5).should('contain.text', 'Referanse : Test');
+    groupElements().eq(5).find('button').first().should('contain.text', texts.change);
 
     // Go back to the repeating group in order to set nested options
-    cy.get(appFrontend.group.mainGroupSummaryContent)
-      .first()
-      .children(mui.gridItem)
-      .eq(4)
-      .find('button')
-      .first()
-      .click();
+    groupElements().eq(5).find('button').first().click();
 
     // Check to show a couple of nested options, then go back to the summary
     cy.get(appFrontend.group.row(0).nestedGroup.row(0).editBtn).click();
@@ -220,10 +202,10 @@ describe('Summary', () => {
     cy.get(appFrontend.backToSummaryButton).click();
 
     cy.get(appFrontend.group.mainGroupSummaryContent).should('have.length', 1);
-    groupElements().should('have.length', 7);
-    groupElements().eq(4).should('contain.text', texts.nestedOptionsToggle);
-    groupElements().eq(4).should('contain.text', texts.nestedOptions);
-    groupElements().eq(4).should('contain.text', `${texts.nestedOption2}, ${texts.nestedOption3}`);
+    groupElements().should('have.length', 6);
+    groupElements().eq(5).should('contain.text', texts.nestedOptionsToggle);
+    groupElements().eq(5).should('contain.text', texts.nestedOptions);
+    groupElements().eq(5).should('contain.text', `${texts.nestedOption2}, ${texts.nestedOption3}`);
 
     cy.gotoNavPage('prefill');
     cy.get(appFrontend.group.prefill.liten).check();
@@ -276,11 +258,15 @@ describe('Summary', () => {
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
+    cy.waitForLoad();
     cy.get(appFrontend.group.row(4).nestedGroup.row(0).nestedSource).should('have.value', 'Altinn');
-    cy.get('[role=option][value="nordmann"]').should('exist');
 
     cy.get(appFrontend.group.saveSubGroup).click();
     cy.get(appFrontend.group.saveMainGroup).click();
+
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.saveMainGroup).click();
+
     cy.gotoNavPage('summary');
     cy.get('#summary-mainGroup-4 > [data-testid=summary-currentValue-4] > div')
       .children()
@@ -300,7 +286,7 @@ describe('Summary', () => {
       .should('contain.text', texts.emptySummary);
     cy.get('[data-testid=summary-group-component]')
       .children()
-      .last()
+      .eq(5)
       .first()
       .should('contain.text', `Kommentarer : ${texts.emptySummary}`)
       .and('contain.text', `Nested uploader with tags : ${texts.emptySummary}`)
@@ -309,14 +295,14 @@ describe('Summary', () => {
       .and('contain.text', `Skjul kommentar felt : ${texts.emptySummary}`);
     cy.get('[data-testid=summary-group-component]')
       .children()
-      .last()
+      .eq(5)
       .first()
       .should('contain.text', `hvor fikk du vite om skjemaet? : Altinn`);
-    cy.get('#summary-mainGroup-4 > [data-testid=summary-source-4] > div')
+    cy.get('#summary-mainGroup-5 [data-testid=summary-source-5] > div')
       .children()
       .last()
-      .should('contain.text', texts.emptySummary);
-    cy.get('#summary-mainGroup-4 > [data-testid=summary-reference-4] > div')
+      .should('contain.text', 'Altinn');
+    cy.get('#summary-mainGroup-5 [data-testid=summary-reference-5] > div')
       .children()
       .last()
       .should('contain.text', texts.emptySummary);
@@ -410,6 +396,7 @@ describe('Summary', () => {
       cy.navPage('form').click();
       cy.get(appFrontend.changeOfName.newFirstName).clear();
       cy.get(appFrontend.changeOfName.newFirstName).type(`Anne`);
+      cy.findByRole('tab', { name: /nytt etternavn/i }).click();
       cy.get(appFrontend.changeOfName.newLastName).clear();
       cy.get(appFrontend.changeOfName.sources).should('have.value', 'Altinn');
       cy.get(appFrontend.nextButton).click();
@@ -433,6 +420,7 @@ describe('Summary', () => {
         }
 
         cy.gotoNavPage('form');
+        cy.findByRole('tab', { name: /nytt etternavn/i }).click();
         cy.get(appFrontend.changeOfName.newLastName).type('a');
         cy.get(appFrontend.changeOfName.newLastName).blur();
         cy.get(appFrontend.nextButton).click();
@@ -462,7 +450,7 @@ describe('Summary', () => {
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
       cy.navPage('summary').click();
       assertErrorReport();
-      cy.get(exampleSummary).find('button').click();
+      cy.get(`${exampleSummary} button`).click();
       assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).click();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
@@ -487,6 +475,7 @@ describe('Summary', () => {
     cy.gotoAndComplete('changename');
     injectExtraPageAndSetTriggers();
     cy.navPage('form').click();
+    cy.findByRole('tab', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.changeOfName.newLastName).clear();
     cy.navPage('lastPage').click();
     cy.get('#page3-submit').click();
@@ -568,6 +557,7 @@ describe('Summary', () => {
   it('backToSummary should disappear when navigating away from the current page', () => {
     cy.goto('changename');
 
+    cy.findByRole('tab', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
     cy.get(appFrontend.nextButton).should('be.visible');

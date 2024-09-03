@@ -19,6 +19,9 @@ export class AppFrontend {
 
     /** @see https://dev.altinn.studio/repos/ttd/payment-test */
     paymentTest: 'payment-test',
+
+    /** @see https://altinn.studio/repos/ttd/component-library.git */
+    componentLibrary: 'component-library',
   };
 
   //Start app instance page
@@ -176,7 +179,7 @@ export class AppFrontend {
     popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
     uploadedTable: '#file-upload-table',
     downloadAttachment: '[data-testid="attachment-download"]',
-    uploadSuccess: '[data-testid="checkmark-success"]',
+    fileUploadSuccess: '[data-testid="status-success"]',
     uploadDropZone: '#altinn-drop-zone-fileUpload-changename',
     componentSummary: '[data-testid="summary-item-simple"]',
     uploadError: '#error_fileUpload-changename',
@@ -223,6 +226,7 @@ export class AppFrontend {
     mainGroupSummaryContent: '#summary-mainGroup-0',
     mainGroupTableBody: '#group-mainGroup-table-body',
     options: '#reduxOptions',
+    optionsDynamic: '#reduxOptions-expressions',
     hideRepeatingGroupRow: '#hideRepeatingGroupRow',
     popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
     popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',

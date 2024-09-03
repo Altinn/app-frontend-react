@@ -1,17 +1,19 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
 import { DescribableCodeGenerator, MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import { getSourceForCommon } from 'src/codegen/Common';
 import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { CodeGenerator, CodeGeneratorWithProperties, Extract } from 'src/codegen/CodeGenerator';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Props = GenerateProperty<any>[];
 export type AsInterface<P extends Props> = {
   [K in P[number]['name']]: Extract<P[number]['type']>;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Extendables = GenerateCommonImport<any> | GenerateObject<any>;
 
 /**
@@ -23,8 +25,10 @@ export class GenerateObject<P extends Props>
   implements CodeGeneratorWithProperties
 {
   private readonly properties: P;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _additionalProperties: CodeGenerator<any> | false = false;
   private _extends: Extendables[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _extendedBy: GenerateObject<any>[] = [];
 
   constructor(...properties: P) {
@@ -59,6 +63,7 @@ export class GenerateObject<P extends Props>
     return this;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extendObject(obj: GenerateObject<any>) {
     obj.ensureMutable();
     obj._extendedBy.push(this);
@@ -69,6 +74,7 @@ export class GenerateObject<P extends Props>
     return this._extends.length === 1 && this.properties.length === 0;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   additionalProperties(type: CodeGenerator<any> | false) {
     this.ensureMutable();
     this._additionalProperties = type;
@@ -76,14 +82,10 @@ export class GenerateObject<P extends Props>
   }
 
   hasProperty(name: string): boolean {
-    return this.properties.some((property) => {
-      if (property.name === name) {
-        const { onlyVariant } = property.toObject();
-        return !onlyVariant || this.currentVariant === onlyVariant;
-      }
-    });
+    return this.properties.some((property) => property.name === name);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   addProperty(prop: GenerateProperty<any>): this {
     this.ensureMutable();
     const { name, insertBefore, insertAfter, insertFirst } = prop.toObject();
@@ -133,6 +135,7 @@ export class GenerateObject<P extends Props>
     return this;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProperty(name: string): GenerateProperty<any> | undefined {
     if (!this.hasProperty(name)) {
       return undefined;
@@ -140,51 +143,9 @@ export class GenerateObject<P extends Props>
     return this.properties.find((property) => property.name === name);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProperties(): GenerateProperty<any>[] {
-    return this.properties.filter((property) => {
-      const { onlyVariant } = property.toObject();
-      return !onlyVariant || this.currentVariant === onlyVariant;
-    });
-  }
-
-  transformTo(variant: Variant): GenerateObject<any> {
-    if (this.currentVariant === variant) {
-      return this;
-    }
-
-    const newProps: Props = [];
-    for (const prop of this.properties) {
-      if (!prop.shouldExistIn(variant)) {
-        continue;
-      }
-
-      newProps.push(prop.transformTo(variant));
-    }
-
-    const next = new GenerateObject(...newProps);
-    next._additionalProperties = this._additionalProperties
-      ? (this._additionalProperties.transformTo(variant) as DescribableCodeGenerator<any>)
-      : this._additionalProperties;
-    next._extends = this._extends.map((e) => e.transformTo(variant));
-    next._extendedBy = this._extendedBy;
-    next.internal = structuredClone(this.internal);
-    next.internal.source = this;
-    next.currentVariant = variant;
-
-    return next;
-  }
-
-  containsVariationDifferences(): boolean {
-    if (super.containsVariationDifferences()) {
-      return true;
-    }
-    if (this.properties.some((prop) => prop.containsVariationDifferences())) {
-      return true;
-    }
-    if (this._additionalProperties && this._additionalProperties.containsVariationDifferences()) {
-      return true;
-    }
-    return this._extends.some((e) => e.containsVariationDifferences());
+    return this.properties;
   }
 
   private ensureExtendsHaveNames() {
@@ -221,25 +182,19 @@ export class GenerateObject<P extends Props>
 
       const adapted = new CG.intersection(
         prop.type,
-        ...parentsWithProp.map((e) => {
-          const out = new CG.raw({
-            typeScript: `${e}['${prop.name}']`,
-          });
-          out.currentVariant = this.currentVariant;
-
-          return out;
-        }),
+        ...parentsWithProp.map(
+          (e) =>
+            new CG.raw({
+              typeScript: `${e}['${prop.name}']`,
+            }),
+        ),
       );
 
       if (prop.type instanceof MaybeOptionalCodeGenerator && prop.type.isOptional()) {
         adapted.optional();
       }
-      adapted.currentVariant = this.currentVariant;
 
-      const newProp = new CG.prop(prop.name, adapted);
-      newProp.currentVariant = this.currentVariant;
-
-      return newProp;
+      return new CG.prop(prop.name, adapted);
     });
   }
 
@@ -277,7 +232,12 @@ export class GenerateObject<P extends Props>
       : `{ ${properties.join('\n')} }${extendsIntersection}`;
   }
 
-  private getPropertyList(): { all: { [key: string]: GenerateProperty<any> }; required: string[] } {
+  private getPropertyList(target: 'typeScript' | 'jsonSchema'): {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    all: { [key: string]: GenerateProperty<any> };
+    required: string[];
+  } {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const all: { [key: string]: GenerateProperty<any> } = {};
     const required: string[] = [];
 
@@ -287,7 +247,7 @@ export class GenerateObject<P extends Props>
         throw new Error(`Cannot extend a non-object type`);
       }
 
-      const { all: allFromExtend, required: requiredFromExtend } = obj.getPropertyList();
+      const { all: allFromExtend, required: requiredFromExtend } = obj.getPropertyList(target);
       for (const key of Object.keys(allFromExtend)) {
         const ourProp = this.getProperty(key);
         const theirProp = allFromExtend[key];
@@ -303,9 +263,10 @@ export class GenerateObject<P extends Props>
     }
 
     for (const prop of this.properties) {
-      if (!prop.shouldExistIn(Variant.External)) {
+      if (target === 'jsonSchema' && prop.shouldOmitInSchema()) {
         continue;
       }
+
       all[prop.name] = prop;
       if (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional()) {
         required.push(prop.name);
@@ -322,7 +283,7 @@ export class GenerateObject<P extends Props>
         return { $ref: `#/definitions/${this._extends[0].getName(false)}` };
       }
 
-      const { all: allProperties, required: requiredProperties } = this.getPropertyList();
+      const { all: allProperties, required: requiredProperties } = this.getPropertyList('jsonSchema');
       const allPropsAsTrue: { [key: string]: true } = {};
       for (const key of Object.keys(allProperties)) {
         allPropsAsTrue[key] = true;
@@ -357,19 +318,17 @@ export class GenerateObject<P extends Props>
 
   private innerToJsonSchema(respectAdditionalProperties = true): JSONSchema7 {
     const properties: { [key: string]: JSONSchema7 } = {};
+    const requiredProps: string[] = [];
     for (const prop of this.properties) {
-      if (!prop.shouldExistIn(Variant.External)) {
-        // JsonSchema only supports external variants
+      if (prop.shouldOmitInSchema()) {
         continue;
       }
-
       properties[prop.name] = prop.type.toJsonSchema();
-    }
 
-    const requiredProps = this.properties
-      .filter((prop) => !(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional())
-      .filter((prop) => prop.shouldExistIn(Variant.External))
-      .map((prop) => prop.name);
+      if (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional()) {
+        requiredProps.push(prop.name);
+      }
+    }
 
     return {
       ...this.getInternalJsonSchema(),

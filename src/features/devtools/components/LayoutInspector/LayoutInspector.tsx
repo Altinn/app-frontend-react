@@ -12,7 +12,7 @@ import { useLayoutValidationForPage } from 'src/features/devtools/layoutValidati
 import { useLayouts, useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { parseAndCleanText } from 'src/language/sharedLanguage';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { useNode } from 'src/utils/layout/NodesContext';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 
 export const LayoutInspector = () => {
@@ -24,7 +24,6 @@ export const LayoutInspector = () => {
   const [componentProperties, setComponentProperties] = useState<string | null>(null);
   const [propertiesHaveChanged, setPropertiesHaveChanged] = useState(false);
   const [error, setError] = useState<boolean>(false);
-  const nodes = useNodes();
   const focusNodeInspector = useDevToolsStore((state) => state.actions.focusNodeInspector);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -38,7 +37,7 @@ export const LayoutInspector = () => {
   }, [componentProperties]);
 
   const currentLayout = currentView ? layouts?.[currentView] : undefined;
-  const matchingNodes = selectedComponent ? nodes?.findAllById(selectedComponent) || [] : [];
+  const matchingNode = useNode(selectedComponent);
   const validationErrorsForPage = useLayoutValidationForPage() || {};
 
   useEffect(() => {
@@ -60,16 +59,19 @@ export const LayoutInspector = () => {
         const updatedComponent = JSON.parse(componentProperties ?? '');
 
         if (currentView) {
-          window.queryClient.setQueryData<LayoutContextValue>(['formLayouts', currentLayoutSetId], (_queryData) => {
-            const queryData = structuredClone(_queryData);
-            if (!queryData?.layouts?.[currentView]) {
-              return _queryData;
-            }
-            queryData.layouts[currentView] = queryData.layouts[currentView]?.map((component) =>
-              component.id === selectedComponent ? updatedComponent : component,
-            );
-            return queryData;
-          });
+          window.queryClient.setQueriesData<LayoutContextValue>(
+            { queryKey: ['formLayouts', currentLayoutSetId, true] },
+            (_queryData) => {
+              const queryData = structuredClone(_queryData);
+              if (!queryData?.layouts?.[currentView]) {
+                return _queryData;
+              }
+              queryData.layouts[currentView] = queryData.layouts[currentView]?.map((component) =>
+                component.id === selectedComponent ? updatedComponent : component,
+              );
+              return queryData;
+            },
+          );
         }
 
         setPropertiesHaveChanged(false);
@@ -137,13 +139,8 @@ export const LayoutInspector = () => {
               </Alert>
             )}
             <div className={classes.headerLink}>
-              {matchingNodes.length === 0 && 'Ingen aktive komponenter funnet'}
-              {matchingNodes.map((node) => (
-                <NodeLink
-                  key={node.item.id}
-                  nodeId={node.item.id}
-                />
-              ))}
+              {!matchingNode && 'Ingen aktive komponenter funnet'}
+              {matchingNode && <NodeLink nodeId={matchingNode.id} />}
             </div>
             <Button
               onClick={() => setSelectedComponent(undefined)}

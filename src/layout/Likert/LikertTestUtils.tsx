@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { expect } from '@jest/globals';
 import { screen, within } from '@testing-library/react';
 import { v4 as uuidv4 } from 'uuid';
 import type { AxiosResponse } from 'axios';
@@ -9,7 +10,7 @@ import { type BackendValidationIssue, BackendValidationSeverity } from 'src/feat
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import { useResolvedNode } from 'src/utils/layout/NodesContext';
+import { useNode } from 'src/utils/layout/NodesContext';
 import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
 import type { IRawOption } from 'src/layout/common.generated';
@@ -144,6 +145,7 @@ export const render = async ({
   return await renderWithInstanceAndLayout({
     renderer: () => <ContainerTester id={mockLikertLayout.id} />,
     queries: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       fetchOptions: async () => ({ data: mockOptions, headers: {} }) as AxiosResponse<IRawOption[], any>,
       fetchTextResources: async () => createTextResource(mockQuestions, extraTextResources),
       fetchFormData: async () => generateMockFormData(mockQuestions),
@@ -165,12 +167,17 @@ export const render = async ({
 };
 
 export function ContainerTester(props: { id: string }) {
-  const node = useResolvedNode(props.id);
+  const node = useNode(props.id);
   if (!node || !node.isType('Likert')) {
     throw new Error(`Could not resolve node with id ${props.id}, or unexpected node type`);
   }
 
-  return <LikertComponent node={node} />;
+  return (
+    <LikertComponent
+      node={node}
+      containerDivRef={{ current: null }}
+    />
+  );
 }
 
 export const validateTableLayout = async (
@@ -178,7 +185,7 @@ export const validateTableLayout = async (
   options: IRawOption[],
   validateRadioLayoutOptions: ValidateRadioLayoutOptions,
 ) => {
-  screen.getByRole('group');
+  screen.getByRole('table');
 
   for (const option of defaultMockOptions) {
     const allAlternatives = await screen.findAllByRole('radio', {
