@@ -97,25 +97,25 @@ export class SubForm extends SubFormDef implements ValidateComponent<'SubForm'> 
       return [];
     }
 
-    let valiationMessage: TextReference | null = null;
+    let validationMessage: TextReference | null = null;
     const { minCount, maxCount } = dataTypeDefinition;
     const numDataElements = instance?.data.filter((x) => x.dataType === targetType).length ?? 0;
     if (minCount > 0 && numDataElements < minCount) {
-      valiationMessage = {
+      validationMessage = {
         key: 'form_filler.error_min_count_not_reached_subform',
         params: [minCount, targetType],
       };
     } else if (maxCount > 0 && numDataElements > maxCount) {
-      valiationMessage = {
+      validationMessage = {
         key: 'form_fillers.error_max_count_reached_subform_local',
         params: [targetType, maxCount],
       };
     }
 
-    return valiationMessage
+    return validationMessage
       ? [
           {
-            message: valiationMessage,
+            message: validationMessage,
             severity: 'error',
             source: FrontendValidationSource.Component,
             category: ValidationMask.Required,
