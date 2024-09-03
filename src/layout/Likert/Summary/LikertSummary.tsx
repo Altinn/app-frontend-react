@@ -83,7 +83,7 @@ export function LikertSummary({
   return (
     <>
       <div
-        data-testid={'summary-group-component'}
+        data-testid='summary-group-component'
         style={{ width: '100%' }}
       >
         <div className={classes.container}>
@@ -140,7 +140,7 @@ export function LikertSummary({
                 onClick={onChangeClick}
                 type='button'
               >
-                <Lang id={'form_filler.summary_go_to_correct_page'} />
+                <Lang id='form_filler.summary_go_to_correct_page' />
               </button>
             )}
           </div>

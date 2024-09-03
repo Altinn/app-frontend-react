@@ -268,7 +268,7 @@ const ErrorList = ({ node, errors }: { node: LayoutNode; errors: string[] }) => 
     <div className={classes.errorFallback}>
       <h3>
         <Lang
-          id={'config_error.component_has_errors'}
+          id='config_error.component_has_errors'
           params={[id]}
         />
       </h3>
@@ -278,7 +278,7 @@ const ErrorList = ({ node, errors }: { node: LayoutNode; errors: string[] }) => 
         ))}
       </ul>
       <p>
-        <Lang id={'config_error.component_has_errors_after'} />
+        <Lang id='config_error.component_has_errors_after' />
       </p>
     </div>
   );

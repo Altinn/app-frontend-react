@@ -55,16 +55,16 @@ const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) =
   const { size: _, textOnly, prefixText, suffixText, ...customProps } = props;
 
   if (textOnly) {
-    return <TextOnly {...customProps}></TextOnly>;
+    return <TextOnly {...customProps} />;
   }
 
   return (
     <Textfield
-      size={'small'}
+      size='small'
       prefix={prefixText}
       suffix={suffixText}
       {...customProps}
-    ></Textfield>
+    />
   );
 };
 
@@ -186,7 +186,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
       );
     }
 
-    return <></>;
+    return null;
   };
 
   return (

@@ -159,7 +159,7 @@ export function LoadingBlockerWaitForValidation({ children }: PropsWithChildren)
     return <Loader reason='validation-awaiter' />;
   }
 
-  return <>{children}</>;
+  return children;
 }
 
 function LoadingBlocker({ children }: PropsWithChildren) {
@@ -170,7 +170,7 @@ function LoadingBlocker({ children }: PropsWithChildren) {
     return <Loader reason='validation' />;
   }
 
-  return <>{children}</>;
+  return children;
 }
 
 function UpdateValidations() {

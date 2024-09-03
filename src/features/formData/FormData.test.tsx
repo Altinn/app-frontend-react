@@ -79,11 +79,11 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
         <MemoryRouter>
           <Routes>
             <Route
-              path={'/'}
+              path='/'
               element={<AppRoutingProvider>{children}</AppRoutingProvider>}
             />
             <Route
-              path={'/different'}
+              path='/different'
               element={
                 <AppRoutingProvider>
                   <div>something different</div>

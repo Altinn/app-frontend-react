@@ -24,11 +24,7 @@ jest.mock('src/features/externalApi/useExternalApi');
 
 function ExpressionRunner({ node, expression }: { node: LayoutNode; expression: ExprValToActualOrExpr<ExprVal.Any> }) {
   const result = useEvalExpression(ExprVal.Any, node, expression, null);
-  return (
-    <>
-      <div data-testid='expr-result'>{JSON.stringify(result)}</div>
-    </>
-  );
+  return <div data-testid='expr-result'>{JSON.stringify(result)}</div>;
 }
 
 function nodeIdFromContext(context: SharedTestFunctionContext | undefined) {

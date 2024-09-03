@@ -28,34 +28,34 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
       <div className={classes.infoDetailsContainer}>
         {paymentInfo?.paymentDetails?.paymentId && (
           <Paragraph
-            size={'small'}
+            size='small'
             spacing={false}
           >
-            <Lang id={'payment.receipt.payment_id'} />: <b>{paymentInfo.paymentDetails.paymentId}</b>
+            <Lang id='payment.receipt.payment_id' />: <b>{paymentInfo.paymentDetails.paymentId}</b>
           </Paragraph>
         )}
         {instance && (
           <Paragraph
-            size={'small'}
+            size='small'
             spacing={false}
           >
-            <Lang id={'payment.receipt.altinn_ref'} />: <b>{getInstanceReferenceNumber(instance)}</b>
+            <Lang id='payment.receipt.altinn_ref' />: <b>{getInstanceReferenceNumber(instance)}</b>
           </Paragraph>
         )}
         {paymentInfo?.paymentDetails?.chargedDate && (
           <Paragraph
-            size={'small'}
+            size='small'
             spacing={false}
           >
-            <Lang id={'payment.receipt.payment_date'} />:{' '}
+            <Lang id='payment.receipt.payment_date' />:{' '}
             <b>{formatDateLocale(selectedLanguage, new Date(paymentInfo?.paymentDetails?.chargedDate))}</b>
           </Paragraph>
         )}
         <Paragraph
-          size={'small'}
+          size='small'
           spacing={false}
         >
-          <Lang id={'payment.receipt.total_amount'} />:{' '}
+          <Lang id='payment.receipt.total_amount' />:{' '}
           <b>
             {paymentInfo?.orderDetails.totalPriceIncVat} {paymentInfo?.orderDetails?.currency}
           </b>
@@ -63,12 +63,12 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
       </div>
       <div className={classes.senderReceiverInfoContainer}>
         <table>
-          <Caption title={<Lang id={'payment.receipt.receiver'} />} />
+          <Caption title={<Lang id='payment.receipt.receiver' />} />
           {paymentInfo?.orderDetails?.receiver?.name && (
             <tr>
               <th>
                 <Paragraph
-                  size={'small'}
+                  size='small'
                   variant='short'
                   spacing={false}
                 >
@@ -77,7 +77,7 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
               </th>
               <td>
                 <Label
-                  size={'small'}
+                  size='small'
                   spacing={false}
                   asChild
                 >
@@ -90,7 +90,7 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
             <tr>
               <th>
                 <Paragraph
-                  size={'small'}
+                  size='small'
                   spacing={false}
                 >
                   <Lang id='payment.receipt.phone' />
@@ -98,7 +98,7 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
               </th>
               <td>
                 <Label
-                  size={'small'}
+                  size='small'
                   spacing={false}
                   asChild
                 >
@@ -113,7 +113,7 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
             <tr>
               <th>
                 <Paragraph
-                  size={'small'}
+                  size='small'
                   spacing={false}
                 >
                   <Lang id='payment.receipt.address' />
@@ -121,7 +121,7 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
               </th>
               <td>
                 <Label
-                  size={'small'}
+                  size='small'
                   spacing={false}
                   asChild
                 >
@@ -143,7 +143,7 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
             <tr>
               <th>
                 <Paragraph
-                  size={'small'}
+                  size='small'
                   spacing={false}
                 >
                   <Lang id='payment.receipt.org_num' />
@@ -151,7 +151,7 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
               </th>
               <td>
                 <Label
-                  size={'small'}
+                  size='small'
                   spacing={false}
                   asChild
                 >
@@ -164,7 +164,7 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
             <tr>
               <th>
                 <Paragraph
-                  size={'small'}
+                  size='small'
                   spacing={false}
                 >
                   <Lang id='payment.receipt.account_number' />
@@ -172,7 +172,7 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
               </th>
               <td>
                 <Label
-                  size={'small'}
+                  size='small'
                   spacing={false}
                   asChild
                 >
@@ -185,7 +185,7 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
             <tr>
               <th>
                 <Paragraph
-                  size={'small'}
+                  size='small'
                   spacing={false}
                 >
                   <Lang id='payment.receipt.email' />
@@ -193,7 +193,7 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
               </th>
               <td>
                 <Label
-                  size={'small'}
+                  size='small'
                   spacing={false}
                   asChild
                 >
@@ -206,21 +206,21 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
 
         {privatePersonPayer && (
           <table>
-            <Caption title={<Lang id={'payment.receipt.payer'} />} />
+            <Caption title={<Lang id='payment.receipt.payer' />} />
 
             {privatePersonPayer.firstName && (
               <tr>
                 <th>
                   <Paragraph
-                    size={'small'}
+                    size='small'
                     spacing={false}
                   >
-                    <Lang id={'payment.receipt.name'}></Lang>
+                    <Lang id='payment.receipt.name' />
                   </Paragraph>
                 </th>
                 <td>
                   <Label
-                    size={'small'}
+                    size='small'
                     spacing={false}
                     asChild
                   >
@@ -233,15 +233,15 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
               <tr>
                 <th>
                   <Paragraph
-                    size={'small'}
+                    size='small'
                     spacing={false}
                   >
-                    <Lang id={'payment.receipt.phone'}></Lang>
+                    <Lang id='payment.receipt.phone' />
                   </Paragraph>
                 </th>
                 <td>
                   <Label
-                    size={'small'}
+                    size='small'
                     spacing={false}
                     asChild
                   >
@@ -257,15 +257,15 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
               <tr>
                 <th>
                   <Paragraph
-                    size={'small'}
+                    size='small'
                     spacing={false}
                   >
-                    <Lang id={'payment.receipt.email'}></Lang>
+                    <Lang id='payment.receipt.email' />
                   </Paragraph>
                 </th>
                 <td>
                   <Label
-                    size={'small'}
+                    size='small'
                     spacing={false}
                     asChild
                   >
@@ -278,15 +278,15 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
               <tr>
                 <th>
                   <Paragraph
-                    size={'small'}
+                    size='small'
                     spacing={false}
                   >
-                    <Lang id={'payment.receipt.card_number'}></Lang>
+                    <Lang id='payment.receipt.card_number' />
                   </Paragraph>
                 </th>
                 <td>
                   <Label
-                    size={'small'}
+                    size='small'
                     spacing={false}
                     asChild
                   >
@@ -299,15 +299,15 @@ export const SummaryPaymentComponent = ({ targetNode }: SummaryRendererProps<'Pa
               <tr>
                 <th>
                   <Paragraph
-                    size={'small'}
+                    size='small'
                     spacing={false}
                   >
-                    <Lang id={'payment.receipt.card_expiry'}></Lang>
+                    <Lang id='payment.receipt.card_expiry' />
                   </Paragraph>
                 </th>
                 <td>
                   <Label
-                    size={'small'}
+                    size='small'
                     spacing={false}
                     asChild
                   >

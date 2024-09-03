@@ -585,7 +585,7 @@ function BlockUntilAlmostReady({ children }: PropsWithChildren) {
     return null;
   }
 
-  return <>{children}</>;
+  return children;
 }
 
 function BlockUntilLoaded({ children }: PropsWithChildren) {
@@ -602,7 +602,7 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
     return <NodesLoader />;
   }
 
-  return <>{children}</>;
+  return children;
 }
 
 function NodesLoader() {

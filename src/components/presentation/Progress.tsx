@@ -21,7 +21,7 @@ export const Progress = () => {
   return (
     <CircularProgress
       value={value}
-      id={'progress'}
+      id='progress'
       label={labelText}
       ariaLabel={langAsString('general.progress', [currentPageNum, numberOfPages])}
     />

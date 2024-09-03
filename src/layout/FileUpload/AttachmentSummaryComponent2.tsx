@@ -28,7 +28,7 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
         overrideId={`attachment-summary2-${targetNode.id}`}
         renderLabelAs='span'
         className={classes.summaryLabelMargin}
-        weight={'regular'}
+        weight='regular'
       />
       <FileTable
         node={targetNode}

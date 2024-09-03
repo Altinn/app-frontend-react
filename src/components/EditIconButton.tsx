@@ -21,7 +21,7 @@ export function EditIconButton({ id, label, onClick }: IEditIconButtonProps) {
       onClick={onClick}
     >
       <PencilIcon
-        fontSize={'1rem'}
+        fontSize='1rem'
         aria-hidden
       />
       {label}

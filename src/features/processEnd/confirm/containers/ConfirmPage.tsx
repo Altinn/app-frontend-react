@@ -54,16 +54,16 @@ export const ConfirmPage = ({ instance, parties, appName, applicationMetadata }:
         body={
           appName && (
             <Lang
-              id={'confirm.body'}
+              id='confirm.body'
               params={[appName]}
             />
           )
         }
-        collapsibleTitle={<Lang id={'confirm.attachments'} />}
+        collapsibleTitle={<Lang id='confirm.attachments' />}
         hideCollapsibleCount={true}
         instanceMetaDataObject={getInstanceMetaObject()}
-        title={<Lang id={'confirm.title'} />}
-        titleSubmitted={<Lang id={'confirm.answers'} />}
+        title={<Lang id='confirm.title' />}
+        titleSubmitted={<Lang id='confirm.answers' />}
         pdf={filterDisplayPdfAttachments(instance?.data ?? [])}
       />
       <ProcessNavigation />

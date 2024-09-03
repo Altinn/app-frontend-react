@@ -44,7 +44,7 @@ export const NodeInspector = () => {
               size='small'
               variant='tertiary'
               color='second'
-              aria-label={'close'}
+              aria-label='close'
               icon={true}
             >
               <Close

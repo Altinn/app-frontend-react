@@ -53,7 +53,7 @@ export function DeleteWarningPopover({
             color='second'
             onClick={onCancelClick}
           >
-            <Lang id={'general.cancel'} />
+            <Lang id='general.cancel' />
           </Button>
         </div>
       </Popover.Content>

@@ -68,7 +68,7 @@ export function AddressComponent({ node }: IAddressProps) {
               id={`address_address_${id}`}
               data-bindingkey={bindingKeys.address}
               error={hasValidationErrors(bindingValidations?.address)}
-              size={'small'}
+              size='small'
               value={address}
               onChange={(ev) => setValue('address', ev.target.value)}
               onBlur={debounce}
@@ -98,7 +98,7 @@ export function AddressComponent({ node }: IAddressProps) {
                 id={`address_care_of_${id}`}
                 data-bindingkey={bindingKeys.careOf}
                 error={hasValidationErrors(bindingValidations?.careOf)}
-                size={'small'}
+                size='small'
                 value={careOf}
                 onChange={(ev) => setValue('careOf', ev.target.value)}
                 onBlur={debounce}
@@ -183,7 +183,7 @@ export function AddressComponent({ node }: IAddressProps) {
                 id={`address_house_number_${id}`}
                 data-bindingkey={bindingKeys.houseNumber}
                 error={hasValidationErrors(bindingValidations?.houseNumber)}
-                size={'small'}
+                size='small'
                 value={houseNumber}
                 onChange={(ev) => setValue('houseNumber', ev.target.value)}
                 onBlur={debounce}

@@ -62,7 +62,7 @@ export function EditButton({ componentNode, summaryComponentId, className }: Edi
       size='small'
       className={className}
     >
-      {!isMobile && <Lang id={'general.edit'} />}
+      {!isMobile && <Lang id='general.edit' />}
       <Edit
         fontSize='1rem'
         aria-hidden={true}

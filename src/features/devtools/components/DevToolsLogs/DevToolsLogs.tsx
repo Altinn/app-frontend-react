@@ -50,7 +50,7 @@ export const DevToolsLogs = () => {
       <div className={classes.toolbar}>
         <Button
           onClick={clearLogs}
-          color={'second'}
+          color='second'
           size='small'
           icon={true}
         >
@@ -61,7 +61,7 @@ export const DevToolsLogs = () => {
         </Button>
         <Button
           onClick={saveLogs}
-          color={'second'}
+          color='second'
           size='small'
           icon={true}
         >

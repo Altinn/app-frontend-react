@@ -28,7 +28,7 @@ export const ConfirmButton = (props: IConfirmButtonProps) => {
         onClick={handleConfirmClick}
         disabled={disabled}
       >
-        <Lang id={'confirm.button_text'} />
+        <Lang id='confirm.button_text' />
       </SubmitButton>
     </div>
   );

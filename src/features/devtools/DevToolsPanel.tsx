@@ -83,7 +83,7 @@ export const DevToolsPanel = ({ isOpen, close, children }: IDevToolsPanelProps) 
                 variant='tertiary'
                 color='second'
                 size='small'
-                aria-label={'close'}
+                aria-label='close'
                 icon={true}
               >
                 <Close

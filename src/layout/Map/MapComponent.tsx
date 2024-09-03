@@ -58,11 +58,11 @@ export function MapComponent({ node }: IMapComponentProps) {
         <Typography className={classes.footer}>
           {location ? (
             <Lang
-              id={'map_component.selectedLocation'}
+              id='map_component.selectedLocation'
               params={[location.latitude, location.longitude]}
             />
           ) : (
-            <Lang id={'map_component.noSelectedLocation'} />
+            <Lang id='map_component.noSelectedLocation' />
           )}
         </Typography>
       </div>

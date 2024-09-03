@@ -17,7 +17,7 @@ export function NodeInspectorDataModelBindings({ dataModelBindings }: Props) {
 
   return (
     <Value
-      property={'dataModelBindings'}
+      property='dataModelBindings'
       collapsible={true}
     >
       <dl className={classes.propertyList}>

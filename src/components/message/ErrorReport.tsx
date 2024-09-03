@@ -51,7 +51,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
     <div data-testid='ErrorReport'>
       <FullWidthWrapper isOnBottom={true}>
         <Panel
-          title={<Lang id={'form_filler.error_report_header'} />}
+          title={<Lang id='form_filler.error_report_header' />}
           showIcon={false}
           variant={PanelVariant.Error}
         >

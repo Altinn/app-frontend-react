@@ -219,11 +219,11 @@ function DefaultRouter({ children }: PropsWithChildren) {
     <MemoryRouter>
       <Routes>
         <Route
-          path={'/'}
+          path='/'
           element={children}
         />
         <Route
-          path={'*'}
+          path='*'
           element={<NotFound />}
         />
       </Routes>
@@ -240,20 +240,20 @@ export function InstanceRouter({
 }: PropsWithChildren<InstanceRouterProps>) {
   return (
     <MemoryRouter
-      basename={'/ttd/test'}
+      basename='/ttd/test'
       initialEntries={[`/ttd/test/instance/${instanceId}/${taskId}/${initialPage}`]}
     >
       <Routes>
         <Route
-          path={'instance/:partyId/:instanceGuid/:taskId/:pageId'}
+          path='instance/:partyId/:instanceGuid/:taskId/:pageId'
           element={children}
         />
         <Route
-          path={'instance/:partyId/:instanceGuid/:taskId'}
+          path='instance/:partyId/:instanceGuid/:taskId'
           element={children}
         />
         <Route
-          path={'*'}
+          path='*'
           element={alwaysRouteToChildren ? children : <NotFound />}
         />
       </Routes>
@@ -636,7 +636,7 @@ const WaitForNodes = ({
     }
   }
 
-  return <>{children}</>;
+  return children;
 };
 
 export interface RenderWithNodeTestProps<T extends LayoutNode, InInstance extends boolean>
