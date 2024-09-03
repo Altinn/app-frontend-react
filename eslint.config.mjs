@@ -178,4 +178,11 @@ export default tseslint.config(
       'no-console': 'off',
     },
   },
+  {
+    files: ['src/**/*.generated.{ts,tsx}'],
+    rules: {
+      'no-explicit-any': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
 );

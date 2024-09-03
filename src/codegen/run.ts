@@ -69,12 +69,11 @@ async function getComponentList() {
       const config = require(`src/layout/${key}/config`).Config;
       config.setType(componentList[key], key);
       configMap[key] = config;
-      const out = config.generateConfigFile();
-      return `/* eslint-disable @typescript-eslint/no-explicit-any */\n${out}`;
+      return config.generateConfigFile();
     });
     const defClass = await CodeGeneratorContext.generateTypeScript(tsPathDef, () => {
       const def = configMap[key].generateDefClass();
-      return [`/* eslint-disable @typescript-eslint/no-explicit-any */`, `import React from 'react';`, def].join('\n');
+      return `import React from 'react';\n\n${def}`;
     });
 
     promises.push(saveTsFile(tsPathConfig, config));
