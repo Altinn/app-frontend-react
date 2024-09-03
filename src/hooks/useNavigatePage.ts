@@ -35,7 +35,7 @@ export enum TaskKeys {
 
 export enum SearchParams {
   FocusComponentId = 'focusComponentId',
-  ResetReturnView = 'resetReturnView',
+  ExitSubform = 'exitSubform',
 }
 
 const emptyArray: never[] = [];
@@ -213,11 +213,18 @@ export const useNavigatePage = () => {
 
       let url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}${queryKeysRef.current}`;
 
-      // Focus on component?
-      if (options?.focusComponentId) {
+      // Special cases for component focus and subform exit
+      if (options?.focusComponentId || options?.exitSubForm) {
         const searchParams = new URLSearchParams();
-        searchParams.set(SearchParams.FocusComponentId, options.focusComponentId);
-        searchParams.set(SearchParams.ResetReturnView, 'false');
+
+        if (options?.focusComponentId) {
+          searchParams.set(SearchParams.FocusComponentId, options.focusComponentId);
+        }
+
+        if (options?.exitSubForm) {
+          searchParams.set(SearchParams.ExitSubform, 'true');
+        }
+
         url = `${url}?${searchParams.toString()}`;
       }
 

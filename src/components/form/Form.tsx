@@ -62,7 +62,9 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
       await navigateToPage(targetView, {
         ...options?.pageNavOptions,
         shouldFocusComponent: options?.shouldFocus ?? options?.pageNavOptions?.shouldFocusComponent ?? true,
-        replace: window.location.href.includes(SearchParams.FocusComponentId),
+        replace:
+          window.location.href.includes(SearchParams.FocusComponentId) ||
+          window.location.href.includes(SearchParams.ExitSubform),
       });
       return true;
     }
@@ -249,30 +251,35 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
 function HandleNavigationFocusComponent() {
   const searchStringRef = useQueryKeysAsStringAsRef();
   const componentId = useQueryKey(SearchParams.FocusComponentId);
-  const resetReturnToView = useQueryKey(SearchParams.ResetReturnView)?.toLocaleLowerCase() === 'false' ? false : true;
+  const exitSubform = useQueryKey(SearchParams.ExitSubform)?.toLocaleLowerCase() === 'true';
   const focusNode = useNode(componentId ?? undefined);
   const navigateTo = useNavigateToNode();
   const navigate = useNavigate();
 
   React.useEffect(() => {
     (async () => {
-      if (focusNode) {
-        const nodeNavOptions: NavigateToNodeOptions = {
-          shouldFocus: true,
-          pageNavOptions: {
-            resetReturnToView,
-          },
-        };
-        await navigateTo(focusNode, nodeNavOptions);
+      // Replace URL if we have query params
+      if (focusNode || exitSubform) {
         const location = new URLSearchParams(searchStringRef.current);
         location.delete(SearchParams.FocusComponentId);
-        location.delete(SearchParams.ResetReturnView);
+        location.delete(SearchParams.ExitSubform);
         const baseHash = window.location.hash.slice(1).split('?')[0];
         const nextLocation = location.size > 0 ? `${baseHash}?${location.toString()}` : baseHash;
         navigate(nextLocation, { replace: true });
       }
+
+      // Focus on node?
+      if (focusNode) {
+        const nodeNavOptions: NavigateToNodeOptions = {
+          shouldFocus: true,
+          pageNavOptions: {
+            resetReturnToView: !exitSubform,
+          },
+        };
+        await navigateTo(focusNode, nodeNavOptions);
+      }
     })();
-  }, [navigateTo, focusNode, navigate, searchStringRef, resetReturnToView]);
+  }, [navigateTo, focusNode, navigate, searchStringRef, exitSubform]);
 
   return null;
 }
