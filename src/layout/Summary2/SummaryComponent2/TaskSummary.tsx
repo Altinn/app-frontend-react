@@ -27,7 +27,7 @@ function TaskSummaryAccordion({ pageKey, children }: React.PropsWithChildren<{ p
   return (
     <Accordion
       border
-      color={'neutral'}
+      color='neutral'
     >
       <Accordion.Item
         key={pageKey}
@@ -139,5 +139,5 @@ export function TaskSummaryWrapper({ taskId, children }: React.PropsWithChildren
   if (overriddenTaskId) {
     return <FormProvider>{children}</FormProvider>;
   }
-  return <>{children}</>;
+  return children;
 }

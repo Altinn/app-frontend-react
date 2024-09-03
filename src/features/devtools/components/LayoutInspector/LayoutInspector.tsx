@@ -127,7 +127,7 @@ export const LayoutInspector = () => {
             {validationErrorsForPage[selectedComponent] && validationErrorsForPage[selectedComponent].length > 0 && (
               <Alert
                 className={classes.errorAlert}
-                severity={'warning'}
+                severity='warning'
               >
                 <div className={classes.errorList}>
                   <ul>
@@ -147,7 +147,7 @@ export const LayoutInspector = () => {
               variant='tertiary'
               color='second'
               size='small'
-              aria-label={'close'}
+              aria-label='close'
               icon={true}
             >
               <Close

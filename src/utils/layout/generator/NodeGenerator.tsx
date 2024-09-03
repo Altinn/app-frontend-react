@@ -175,9 +175,7 @@ function ResolveExpressions<T extends CompTypes>({ node, intermediateItem }: Com
     setNodeProp({ node, prop: 'item', value: resolved, partial: true });
   }, [node, resolved, setNodeProp]);
 
-  return (
-    <>{GeneratorDebug.displayState && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolved, null, 2)}</pre>}</>
-  );
+  return GeneratorDebug.displayState && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolved, null, 2)}</pre>;
 }
 
 /**

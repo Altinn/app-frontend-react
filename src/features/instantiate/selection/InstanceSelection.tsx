@@ -81,7 +81,7 @@ function InstanceSelection() {
         level={3}
         className={classes.leftOffHeading}
       >
-        <Lang id={'instance_selection.left_of'} />
+        <Lang id='instance_selection.left_of' />
       </Heading>
       <Table
         id='instance-selection-mobile-table'
@@ -160,10 +160,10 @@ function InstanceSelection() {
         <Table.Head id='instance-selection-table-header'>
           <Table.Row>
             <Table.HeaderCell>
-              <Lang id={'instance_selection.last_changed'} />
+              <Lang id='instance_selection.last_changed' />
             </Table.HeaderCell>
             <Table.HeaderCell>
-              <Lang id={'instance_selection.changed_by'} />
+              <Lang id='instance_selection.changed_by' />
             </Table.HeaderCell>
             <Table.HeaderCell />
           </Table.Row>
@@ -184,13 +184,11 @@ function InstanceSelection() {
                       openInstance(instance.id, ev);
                     }}
                   >
-                    <Lang id={'instance_selection.continue'} />
-                    {
-                      <EditIcon
-                        fontSize='1rem'
-                        title={langAsString('instance_selection.continue')}
-                      />
-                    }
+                    <Lang id='instance_selection.continue' />
+                    <EditIcon
+                      fontSize='1rem'
+                      title={langAsString('instance_selection.continue')}
+                    />
                   </Button>
                 </div>
               </Table.Cell>
@@ -231,12 +229,12 @@ function InstanceSelection() {
             size='medium'
             id='instance-selection-header'
           >
-            <Lang id={'instance_selection.header'} />
+            <Lang id='instance_selection.header' />
           </Heading>
         </div>
         <div id='instance-selection-description'>
           <Paragraph className={classes.descriptionParagraph}>
-            <Lang id={'instance_selection.description'} />
+            <Lang id='instance_selection.description' />
           </Paragraph>
         </div>
 
@@ -252,7 +250,7 @@ function InstanceSelection() {
             }}
             id='new-instance-button'
           >
-            <Lang id={'instance_selection.new_instance'} />
+            <Lang id='instance_selection.new_instance' />
           </Button>
         </div>
       </div>

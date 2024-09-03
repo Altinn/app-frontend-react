@@ -18,5 +18,5 @@ export function WindowTitleProvider({ children }: PropsWithChildren) {
     }
   }, [appOwner, appName]);
 
-  return <>{children}</>;
+  return children;
 }

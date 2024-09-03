@@ -592,7 +592,7 @@ function WhenTickIsSet({ children }: PropsWithChildren) {
     return null;
   }
 
-  return <>{children}</>;
+  return children;
 }
 
 /**
@@ -731,7 +731,7 @@ function WhenParentAdded({ id, stage, registryRef, children }: WhenProps) {
   registryRef.current.conditions =
     parent instanceof BaseLayoutNode ? `node ${parent.id} must be added` : `page ${parent.pageKey} must be added`;
 
-  return ready ? <>{children}</> : null;
+  return ready ? children : null;
 }
 
 function WhenAllAdded({ id, stage, registryRef, children }: WhenProps) {
@@ -745,12 +745,12 @@ function WhenAllAdded({ id, stage, registryRef, children }: WhenProps) {
       ? `node ${parent.id} and all others are added`
       : `page ${parent.pageKey} and all others are added`;
 
-  return ready ? <>{children}</> : null;
+  return ready ? children : null;
 }
 
 function Now({ id, stage, children }: WhenProps) {
   useMarkFinished(id, stage, true);
-  return <>{children}</>;
+  return children;
 }
 
 function useMarkFinished(id: string, stage: Stage, ready: boolean) {

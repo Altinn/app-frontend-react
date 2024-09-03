@@ -19,10 +19,10 @@ export function Feedback() {
   return (
     <div id='FeedbackContainer'>
       <Typography variant='body1'>
-        <Lang id={'feedback.title'} />
+        <Lang id='feedback.title' />
       </Typography>
       <Typography variant='body1'>
-        <Lang id={'feedback.body'} />
+        <Lang id='feedback.body' />
       </Typography>
       <ReadyForPrint />
     </div>

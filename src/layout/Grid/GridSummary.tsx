@@ -339,7 +339,7 @@ function CellWithComponent({
           />
         )}
       </div>
-      <div className={cn({ [classes.errorMessage]: errors.length > 0 })}></div>
+      <div className={cn({ [classes.errorMessage]: errors.length > 0 })} />
       {errors.length > 0 &&
         errors.map(({ message }) => (
           <ErrorMessage key={message.key}>
@@ -347,7 +347,7 @@ function CellWithComponent({
               id={message.key}
               params={message.params}
               node={node}
-            ></Lang>
+            />
           </ErrorMessage>
         ))}
     </CellComponent>
