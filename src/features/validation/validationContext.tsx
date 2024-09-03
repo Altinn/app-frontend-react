@@ -23,6 +23,7 @@ import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type {
+  BackendFieldValidatorGroups,
   BackendValidationIssueGroups,
   BaseValidation,
   DataModelValidations,
@@ -38,7 +39,7 @@ interface Internals {
     schema: DataModelValidations;
     invalidData: DataModelValidations;
   };
-  issueGroupsProcessedLast: BackendValidationIssueGroups | undefined;
+  issueGroupsProcessedLast: BackendValidationIssueGroups | BackendFieldValidatorGroups | undefined; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
   updateTaskValidations: (validations: BaseValidation[]) => void;
   /**
    * updateDataModelValidations
@@ -51,7 +52,7 @@ interface Internals {
   ) => void;
   updateBackendValidations: (
     backendValidations: { [dataType: string]: FieldValidations } | undefined,
-    processedLast?: BackendValidationIssueGroups,
+    processedLast?: BackendValidationIssueGroups | BackendFieldValidatorGroups,
   ) => void;
   updateValidating: (validating: WaitForValidation) => void;
 }

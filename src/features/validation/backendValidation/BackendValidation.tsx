@@ -6,7 +6,6 @@ import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import {
   type BackendFieldValidatorGroups,
-  type BackendValidationIssueGroups,
   type BuiltInValidationIssueSources,
   IgnoredValidators,
 } from 'src/features/validation';
@@ -48,9 +47,7 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
   // Initial validation
   useEffect(() => {
     const backendValidations = mapValidatorGroupsToDataModelValidations(initialValidatorGroups, dataTypes);
-    // TODO(Datamodels): Consider loosening the type for issueGroupsProcessedLast
-    // Since we only use issueGroupsProcessed last for comparing object references, so this assertion should not cause runtime errors.
-    updateBackendValidations(backendValidations, initialValidatorGroups as unknown as BackendValidationIssueGroups);
+    updateBackendValidations(backendValidations, initialValidatorGroups);
   }, [dataTypes, initialValidatorGroups, updateBackendValidations]);
 
   const validatorGroups = useRef<BackendFieldValidatorGroups>(initialValidatorGroups);

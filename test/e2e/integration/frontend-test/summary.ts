@@ -131,7 +131,6 @@ describe('Summary', () => {
     cy.dsSelect('#reference', 'Ola Nordmann');
     cy.dsSelect('#reference2', 'Ole');
     cy.gotoNavPage('summary');
-    // TODO(Datamodels): waituntilsaved?
     cy.get(referencesSelector).should('have.length', 3);
     cy.get(referencesSelector).eq(0).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Altinn');
     cy.get(referencesSelector).eq(1).should('contain.text', 'Referanse : Ola Nordmann');
@@ -142,7 +141,6 @@ describe('Summary', () => {
     cy.dsSelect('#reference', 'Sophie Salt');
     cy.dsSelect('#reference2', 'Dole');
     cy.gotoNavPage('summary');
-    // TODO(Datamodels): waituntilsaved?
     cy.get(referencesSelector).should('have.length', 3);
     cy.get(referencesSelector)
       .eq(0)
@@ -155,7 +153,6 @@ describe('Summary', () => {
     cy.dsSelect('#reference', 'Test');
     cy.dsSelect('#reference2', 'Doffen');
     cy.gotoNavPage('summary');
-    // TODO(Datamodels): waituntilsaved?
     cy.get(referencesSelector).should('have.length', 3);
     cy.get(referencesSelector).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Annet');
     cy.get(referencesSelector).eq(1).should('contain.text', 'Referanse : Test');
