@@ -5,27 +5,35 @@ export type ConvertedComponent = Component & {
   children?: ConvertedComponent[];
 };
 
+// all keys that can contain children
+const CHILD_KEYS = ['children', 'cards', 'tabs'];
+
 function isComponent(component: unknown): component is Component {
   return (
+    !!component &&
     typeof component === 'object' &&
-    component !== null &&
-    'id' in component &&
-    typeof (component as Component).id === 'string' &&
-    'type' in component &&
-    typeof (component as Component).type === 'string'
+    !Array.isArray(component) &&
+    CHILD_KEYS.some((key) => key in component)
   );
 }
 
-function hasStringChildren(component: Component): component is Component & { children: string[] } {
+function hasStringChildren<Key extends string>(
+  component: Component,
+  key: Key,
+): component is Component & Record<Key, string[]> {
   return (
-    'children' in component &&
-    Array.isArray(component.children) &&
-    component.children.every((child) => typeof child === 'string')
+    key in component && Array.isArray(component[key]) && component[key].every((child) => typeof child === 'string')
   );
 }
 
-function hasComponentChildren(component: Component): component is Component & { children: Component[] } {
-  return 'children' in component && Array.isArray(component.children) && component.children.every(isComponent);
+function hasComponentChildren<Key extends string>(
+  component: Component,
+  key: Key,
+): component is Component & Record<Key, Component[]> {
+  const result =
+    key in component && Array.isArray(component[key]) && component[key].some((child) => isComponent(child));
+
+  return result;
 }
 
 function findChild(components: Component[], id: string): Component | undefined {
@@ -53,26 +61,30 @@ export function convertLayout(
   const foundChildIds: string[] = [];
 
   const convertedLayout = [...layout].map((component) => {
-    let convertedComponent = { ...component };
+    let convertedComponent: ConvertedComponent = { ...component };
 
-    if (hasStringChildren(convertedComponent)) {
-      const foundChildren = convertedComponent.children.map((childId) => findChild(rootLayout, childId)).filter(truthy);
-      foundChildIds.push(...foundChildren.map((child) => child.id));
+    for (const key of CHILD_KEYS) {
+      if (hasStringChildren(component, key)) {
+        const foundChildren = component[key].map((childId) => findChild(rootLayout, childId)).filter((it) => !!it);
+        foundChildIds.push(...foundChildren.map((child) => child.id));
 
-      convertedComponent = { ...convertedComponent, children: foundChildren };
+        convertedComponent = { ...convertedComponent, [key]: foundChildren };
+      }
     }
 
     // recursively convert the children
-    if (hasComponentChildren(convertedComponent)) {
-      const { convertedLayout: convertedChildLayout, foundChildIds: foundNestedChildIds } = convertLayout(
-        convertedComponent.children,
-        rootLayout,
-      );
-      convertedComponent = {
-        ...convertedComponent,
-        children: convertedChildLayout,
-      };
-      foundChildIds.push(...foundNestedChildIds);
+    for (const key of CHILD_KEYS) {
+      if (hasComponentChildren(convertedComponent, key)) {
+        const { convertedLayout: convertedChildLayout, foundChildIds: foundNestedChildIds } = convertLayout(
+          convertedComponent[key],
+          rootLayout,
+        );
+        convertedComponent = {
+          ...convertedComponent,
+          [key]: convertedChildLayout,
+        };
+        foundChildIds.push(...foundNestedChildIds);
+      }
     }
 
     return convertedComponent;
@@ -83,10 +95,4 @@ export function convertLayout(
     convertedLayout: convertedLayout.filter((component) => !foundChildIds.includes(component.id)),
     foundChildIds,
   };
-}
-
-type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T; // from lodash
-
-function truthy<T>(value: T): value is Truthy<T> {
-  return !!value;
 }
