@@ -52,14 +52,12 @@ function SubFormSummaryRow({ dataElement, node }: { dataElement: IData; node: La
   const url = getDataModelUrl(instance.id, id, true);
   const { isFetching, data, error, failureCount } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
-  const rowkey = `subform-summary-${node.id}-${id}`;
 
   if (isFetching) {
     return (
       <Spinner
         title={langAsString('general.loading')}
         size='xs'
-        key={rowkey}
       />
     );
   } else if (error) {
@@ -83,16 +81,13 @@ function SubFormSummaryRow({ dataElement, node }: { dataElement: IData; node: La
   const isLastEntry = (i: number) => i === content.length - 1;
 
   return (
-    <div
-      className={classes.row}
-      key={rowkey}
-    >
-      <div key={id}>
+    <div className={classes.row}>
+      <div>
         {content.map((entry, i) => (
-          <>
+          <React.Fragment key={`wrapper-${i}`}>
             {entry}
-            {!isLastEntry(i) && <span>{summaryDelimiter}</span>}
-          </>
+            {!isLastEntry(i) && <span key={`delimiter-${i}`}>{summaryDelimiter}</span>}
+          </React.Fragment>
         ))}
       </div>
     </div>

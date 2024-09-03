@@ -108,7 +108,6 @@ function SubFormSummaryTableRow({
   const url = getDataModelUrl(instance.id, id, true);
   const { isFetching, data, error, failureCount } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
-  const rowkey = `subform-summary-cell-${id}`;
 
   if (isFetching) {
     return (
@@ -117,7 +116,6 @@ function SubFormSummaryTableRow({
           <Spinner
             title={langAsString('general.loading')}
             size='xs'
-            key={rowkey}
           />
         </td>
       </tr>
@@ -135,15 +133,14 @@ function SubFormSummaryTableRow({
 
   return (
     <tr
-      key={`subform-summary-row-${id}`}
       data-row-num={rowNumber}
       className={classes.noRowSpacing}
     >
       {tableColumns.length ? (
-        tableColumns.map((entry, index) => (
-          <td key={`${rowkey}-${index}`}>
+        tableColumns.map((entry, i) => (
+          <td key={i}>
             <DataQueryWithDefaultValue
-              key={index}
+              key={i}
               data={data}
               query={entry.cellContent.query}
               defaultValue={entry.cellContent.default}
@@ -151,7 +148,7 @@ function SubFormSummaryTableRow({
           </td>
         ))
       ) : (
-        <Table.Cell key={`${rowkey}-0`}>{String(id)}</Table.Cell>
+        <Table.Cell>{String(id)}</Table.Cell>
       )}
       {!pdfModeActive && (
         <td>
