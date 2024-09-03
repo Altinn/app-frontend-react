@@ -22,7 +22,9 @@ export enum BuiltInValidationIssueSources {
   Expression = 'Expression',
 }
 
-export const IgnoredValidators = [BuiltInValidationIssueSources.Required, BuiltInValidationIssueSources.Expression];
+// TODO(Datamodels): Ignore unecessary validations
+// This requires some changes to how we check validations before submit, and how we show validations after submit if it fails with validation messages
+export const IgnoredValidators: BuiltInValidationIssueSources[] = []; // [BuiltInValidationIssueSources.Required, BuiltInValidationIssueSources.Expression];
 
 export enum BackendValidationSeverity {
   Error = 1,
