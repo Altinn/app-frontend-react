@@ -9,6 +9,7 @@ const common = {
       new CG.prop('componentId', new CG.str()),
       new CG.prop('hidden', new CG.bool().optional()),
       new CG.prop('forceShow', new CG.bool().optional()),
+      new CG.prop('emptyFieldText', new CG.str().optional()),
     ),
   ILayoutFile: () =>
     new CG.obj(
@@ -819,6 +820,7 @@ function makeTRB(keys: { [key: string]: TRB }) {
   return obj;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const implementationsCache: { [key: string]: MaybeSymbolizedCodeGenerator<any> } = {};
 export function getSourceForCommon(key: ValidCommonKeys) {
   if (implementationsCache[key]) {
