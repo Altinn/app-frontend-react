@@ -19,11 +19,10 @@ export function SubFormValidator(props: NodeValidationProps<'SubForm'>) {
     if (dataType === undefined) {
       addError('Finner ikke datatypen i applicationmetadata', node);
       window.logErrorOnce(`SubFormValidator for node med id ${node.id}: Klarer ikke finne datatype for noden.`);
-    } else if (dataType.appLogic?.allowInSubform != true) {
-      addError('Datatypen er ikke tillatt for bruk i underskjema', node);
-      window.logErrorOnce(
-        `SubFormValidator for node med id ${node.id}: Datatypen er ikke tillatt for bruk i underskjema.`,
-      );
+    } else if (dataType.appLogic?.allowInSubform !== true) {
+      const message = `Datatypen '${dataType.id}' er ikke tillatt for bruk i underskjema`;
+      addError(message, node);
+      window.logErrorOnce(`SubFormValidator for node med id ${node.id}: ${message}`);
     }
   }, [addError, dataType, node]);
 
