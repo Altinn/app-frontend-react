@@ -565,8 +565,8 @@ Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) =
             params: { media: 'print' },
           }),
         );
-        // Set viewport to A4 paper
-        cy.viewport(794, 1123);
+        // Set viewport to A4 paper + scrollbar width
+        cy.viewport(794 + 15, 1123);
         cy.get('body').invoke('css', 'margin', '0.75in');
 
         Cypress.config('defaultCommandTimeout', 0);
@@ -582,7 +582,7 @@ Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) =
 
         if (snapshotName) {
           // Take snapshot of PDF
-          cy.percySnapshot(`${snapshotName} (PDF)`, { percyCSS });
+          cy.percySnapshot(`${snapshotName} (PDF)`, { percyCSS, widths: [794] });
         }
       });
   });
