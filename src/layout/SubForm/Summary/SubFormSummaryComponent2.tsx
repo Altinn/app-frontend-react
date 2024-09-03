@@ -52,10 +52,7 @@ export function SubFormSummaryComponent2({ targetNode }: ISubFormSummaryComponen
             <tr className={pdfModeActive ? classes.grayUnderline : classes.blueUnderline}>
               {tableColumns.length ? (
                 tableColumns.map((entry, index) => (
-                  <th
-                    className={classes.tableCellFormatting}
-                    key={index}
-                  >
+                  <th key={index}>
                     <Lang id={entry.headerContent} />
                   </th>
                 ))
