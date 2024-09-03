@@ -83,12 +83,6 @@ export function getMapStartingView(
       zoom: 16,
       bounds: undefined,
     };
-  } else if (centerLocationValid || customZoom) {
-    return {
-      center: centerLocationValid ? locationToTuple(customCenterLocation) : locationToTuple(DefaultCenterLocation),
-      zoom: customZoom ?? DefaultZoom,
-      bounds: undefined,
-    };
   } else if (geometryBounds) {
     return {
       center: undefined,
@@ -97,8 +91,8 @@ export function getMapStartingView(
     };
   } else {
     return {
-      center: locationToTuple(DefaultCenterLocation),
-      zoom: DefaultZoom,
+      center: centerLocationValid ? locationToTuple(customCenterLocation) : locationToTuple(DefaultCenterLocation),
+      zoom: customZoom ?? DefaultZoom,
       bounds: undefined,
     };
   }
