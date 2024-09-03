@@ -559,11 +559,12 @@ Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) =
       .should('exist')
       .then(() => {
         // Enable print media emulation
-        cy.then(() =>
+        cy.wrap(
           Cypress.automation('remote:debugger:protocol', {
             command: 'Emulation.setEmulatedMedia',
             params: { media: 'print' },
           }),
+          { log: false },
         );
         // Set viewport to A4 paper + scrollbar width
         cy.viewport(794 + 15, 1123);
@@ -589,11 +590,12 @@ Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) =
 
   if (returnToForm) {
     // Disable media emulation
-    cy.then(() =>
+    cy.wrap(
       Cypress.automation('remote:debugger:protocol', {
         command: 'Emulation.setEmulatedMedia',
         params: {},
       }),
+      { log: false },
     );
     // Revert to original viewport
     cy.then(() => cy.viewport(size.width, size.height));

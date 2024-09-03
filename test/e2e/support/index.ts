@@ -21,11 +21,12 @@ before(() => {
 
 // Clear media emulation before each test
 beforeEach(() => {
-  cy.then(() =>
+  cy.wrap(
     Cypress.automation('remote:debugger:protocol', {
       command: 'Emulation.setEmulatedMedia',
       params: {},
     }),
+    { log: false },
   );
 });
 
