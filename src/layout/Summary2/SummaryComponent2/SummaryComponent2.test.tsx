@@ -219,7 +219,7 @@ describe('SummaryComponent', () => {
               {
                 id: 'Input',
                 type: 'Input',
-                dataModelBindings: { simpleBinding: 'field' },
+                dataModelBindings: { simpleBinding: { field: 'field', dataType: defaultDataTypeMock } },
                 required: false,
               },
             ],
@@ -254,7 +254,7 @@ describe('SummaryComponent', () => {
               {
                 id: 'TextAreaId',
                 type: 'TextArea',
-                dataModelBindings: { simpleBinding: 'field' },
+                dataModelBindings: { simpleBinding: { field: 'field', dataType: defaultDataTypeMock } },
                 required: false,
               },
             ],
@@ -289,7 +289,7 @@ describe('SummaryComponent', () => {
               {
                 id: 'RadioButtonsId',
                 type: 'RadioButtons',
-                dataModelBindings: { simpleBinding: 'field' },
+                dataModelBindings: { simpleBinding: { field: 'field', dataType: defaultDataTypeMock } },
                 required: false,
               },
             ],
@@ -324,7 +324,7 @@ describe('SummaryComponent', () => {
               {
                 id: 'CheckboxesId',
                 type: 'Checkboxes',
-                dataModelBindings: { simpleBinding: 'field' },
+                dataModelBindings: { simpleBinding: { field: 'field', dataType: defaultDataTypeMock } },
                 required: false,
               },
             ],
@@ -359,7 +359,7 @@ describe('SummaryComponent', () => {
               {
                 id: 'DropdownId',
                 type: 'Dropdown',
-                dataModelBindings: { simpleBinding: 'field' },
+                dataModelBindings: { simpleBinding: { field: 'field', dataType: defaultDataTypeMock } },
                 required: false,
               },
             ],
@@ -384,7 +384,7 @@ describe('SummaryComponent', () => {
     expect(container).toHaveTextContent(emptyFieldText);
   });
 
-  test.only('MultipleSelect: Should render custom empty field text if set in overrides', async () => {
+  test('MultipleSelect: Should render custom empty field text if set in overrides', async () => {
     const emptyFieldText = 'Dette feltet må fylles ut';
     const { container } = await render({
       layout: {
@@ -395,7 +395,7 @@ describe('SummaryComponent', () => {
                 id: 'MultipleSelectPage',
                 type: 'MultipleSelect',
                 dataModelBindings: {
-                  simpleBinding: 'multipleSelect',
+                  simpleBinding: { field: 'multipleSelect', dataType: defaultDataTypeMock },
                 },
                 textResourceBindings: {
                   title: 'MultipleSelectPage.MultipleSelect.title',
