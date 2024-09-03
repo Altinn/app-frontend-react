@@ -48,7 +48,7 @@ export function useExternalApis(ids: string[]): ExternalApisResult {
   });
 }
 
-export function useExternalApi(id: string): unknown {
+export function useExternalApi(id: string) {
   const instanceId = useLaxInstanceId();
 
   return useQuery(getExternalApiQueryDef({ externalApiId: id, instanceId }));
