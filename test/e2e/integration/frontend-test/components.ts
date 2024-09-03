@@ -746,6 +746,11 @@ describe('UI Components', () => {
   it('Map component with simpleBinding', () => {
     cy.intercept('GET', 'https://cache.kartverket.no/**/*.png', { fixture: 'map-tile.png' });
     cy.intercept('GET', 'https://tile.openstreetmap.org/**/*.png', { fixture: 'map-tile.png' });
+    cy.interceptLayout('changename', (comp) => {
+      if (comp.id === 'map' && comp.type === 'Map') {
+        delete comp.dataModelBindings.geometries;
+      }
+    });
 
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('123');
@@ -784,8 +789,6 @@ describe('UI Components', () => {
     cy.interceptLayout('changename', (comp) => {
       if (comp.id === 'map' && comp.type === 'Map') {
         delete comp.dataModelBindings.simpleBinding;
-        delete comp.centerLocation;
-        delete comp.zoom;
       }
     });
 

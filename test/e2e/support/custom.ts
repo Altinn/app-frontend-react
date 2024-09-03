@@ -520,6 +520,13 @@ const DEFAULT_COMMAND_TIMEOUT = Cypress.config().defaultCommandTimeout;
 Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) => {
   cy.log('Testing PDF');
 
+  // Store initial viewport size for later
+  const size = { width: 0, height: 0 };
+  cy.window().then((win) => {
+    size.width = win.innerWidth;
+    size.height = win.innerHeight;
+  });
+
   // Make sure instantiation is completed before we get the url
   cy.location('hash').should('contain', '#/instance/');
 
@@ -544,14 +551,6 @@ Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) =
     cy.visit(visitUrl);
   });
 
-  // Enable print media emulation
-  cy.then(() =>
-    Cypress.automation('remote:debugger:protocol', {
-      command: 'Emulation.setEmulatedMedia',
-      params: { media: 'print' },
-    }),
-  );
-
   cy.readFile('test/percy.css').then((percyCSS) => {
     cy.reload();
 
@@ -559,6 +558,17 @@ Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) =
     cy.get('#pdfView > #readyForPrint')
       .should('exist')
       .then(() => {
+        // Enable print media emulation
+        cy.then(() =>
+          Cypress.automation('remote:debugger:protocol', {
+            command: 'Emulation.setEmulatedMedia',
+            params: { media: 'print' },
+          }),
+        );
+        // Set viewport to A4 paper
+        cy.viewport(794, 1123);
+        cy.get('body').invoke('css', 'margin', '0.75in');
+
         Cypress.config('defaultCommandTimeout', 0);
 
         // Verify that generic elements that should be hidden are not present
@@ -585,6 +595,9 @@ Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) =
         params: {},
       }),
     );
+    // Revert to original viewport
+    cy.then(() => cy.viewport(size.width, size.height));
+    cy.get('body').invoke('css', 'margin', '');
 
     cy.location('href').then((href) => {
       cy.visit(href.replace('?pdf=1', ''));

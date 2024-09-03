@@ -8,17 +8,19 @@
 }
 
 /**
-* This will give the map a square aspect ratio when loading the print page
+* This will give the map an (almost) square aspect ratio when loading the print page
 * Since it has @media only screen it will still scale to fit the page,
 * but the initial fitBounds will not depend on the PDF-service's browser viewport
 * Ideally, the browser's viewport would match the pages aspect ratio, as
 * geometries could still be cut off for extremely narrow pages, and would have a lot of
 * space on the right side for a landscape print, but for all "normal" portrait page formats
 * this should work well.
+* Additionally, for very wide pages the map tiles on the far right will not have a chance to
+* load before the page prints, but you should at least see the relevant area.
 **/
 @media only screen {
   .print-hack {
-    width: 40rem;
+    width: 42rem;
   }
 }
 

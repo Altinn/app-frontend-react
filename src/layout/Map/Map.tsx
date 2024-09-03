@@ -146,14 +146,13 @@ export function Map({
           {label && (
             <Tooltip
               permanent={true}
-              interactive={true}
+              content={label}
+              interactive={isInteractive}
               direction='top'
               eventHandlers={{
                 click: (e) => e.originalEvent.preventDefault(),
               }}
-            >
-              {label}
-            </Tooltip>
+            />
           )}
         </GeoJSON>
       ))}
