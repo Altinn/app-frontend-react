@@ -5,21 +5,28 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export const DatepickerSummary = ({ target, isCompact }: Summary2Props<'Datepicker'>) => {
-  const validations = useUnifiedValidationsForNode(target);
+type DatepickerComponentSummaryProps = {
+  isCompact?: boolean;
+  componentNode: LayoutNode<'Datepicker'>;
+  emptyFieldText?: string;
+};
+
+export const DatepickerSummary = ({ componentNode, isCompact, emptyFieldText }: DatepickerComponentSummaryProps) => {
+  const displayData = componentNode.def.useDisplayData(componentNode);
+  const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
-  const displayData = target.def.useDisplayData(target);
+  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
 
   return (
     <SingleValueSummary
       title={title && <Lang id={title} />}
       displayData={displayData}
       errors={errors}
-      componentNode={target}
+      componentNode={componentNode}
       isCompact={isCompact}
+      emptyFieldText={emptyFieldText}
     />
   );
 };
