@@ -5,6 +5,7 @@ import { screen } from '@testing-library/react';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
+import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getSharedTests } from 'src/features/expressions/shared';
@@ -176,6 +177,7 @@ describe('Expressions shared function tests', () => {
             language: 'nb',
             resources: textResources || [],
           }),
+          fetchLayoutSets: async () => getLayoutSetsMock(),
         },
       });
 

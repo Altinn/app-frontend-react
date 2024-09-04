@@ -16,7 +16,8 @@ import {
   getCreateInstancesUrl,
   getCustomValidationConfigUrl,
   getDataElementUrl,
-  getDataModelUrl,
+  getDataModelGuidUrl,
+  getDataModelTypeUrl,
   getDataValidationUrl,
   getFetchFormDynamicsUrl,
   getFileTagUrl,
@@ -154,8 +155,7 @@ export const doAttachmentRemove = async (instanceId: string, dataGuid: string, l
 };
 
 export const doSubFormEntryAdd = async (instanceId: string, dataType: string, data: unknown): Promise<IData> => {
-  const url = getDataModelUrl(instanceId, undefined, undefined, dataType);
-  const response = await httpPost(url, undefined, data);
+  const response = await httpPost(getDataModelTypeUrl(instanceId, dataType), undefined, data);
   if (response.status >= 300) {
     throw new Error('Failed to add sub form');
   }
@@ -163,8 +163,7 @@ export const doSubFormEntryAdd = async (instanceId: string, dataType: string, da
 };
 
 export const doSubFormEntryDelete = async (instanceId: string, dataGuid: string): Promise<void> => {
-  const url = getDataModelUrl(instanceId, dataGuid);
-  const response = await httpDelete(url);
+  const response = await httpDelete(getDataModelGuidUrl(instanceId, dataGuid));
   if (response.status !== 200) {
     throw new Error('Failed to delete sub form');
   }

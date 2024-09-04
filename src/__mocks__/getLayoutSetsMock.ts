@@ -18,6 +18,11 @@ export function getLayoutSetsMock(): ILayoutSets {
         dataType: 'test-data-model',
         tasks: ['Task_1'],
       },
+      {
+        id: 'subform-layout',
+        dataType: 'subform-data',
+        type: 'subform',
+      },
     ],
   };
 }
