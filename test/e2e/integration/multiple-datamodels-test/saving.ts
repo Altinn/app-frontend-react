@@ -1,6 +1,6 @@
-import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+import type { Interception } from 'cypress/types/net-stubbing';
 
-import { duplicateStringFilter } from 'src/utils/stringHelper';
+import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
 const appFrontend = new AppFrontend();
 
@@ -10,10 +10,7 @@ describe('saving multiple data models', () => {
   });
 
   it('Calls save on individual data models', () => {
-    const formDataRequests: string[] = [];
-    cy.intercept('PATCH', '**/data', (req) => {
-      formDataRequests.push(req.url);
-    }).as('saveFormData');
+    cy.intercept('PATCH', '**/data').as('saveFormData');
 
     cy.findByRole('textbox', { name: /tekstfelt 1/i }).type('første');
     cy.findByRole('textbox', { name: /tekstfelt 1/i }).clear();
@@ -22,24 +19,17 @@ describe('saving multiple data models', () => {
     cy.findByRole('textbox', { name: /tekstfelt 2/i }).clear();
     cy.findByRole('textbox', { name: /tekstfelt 2/i }).type('fjerde');
 
-    cy.waitUntilSaved();
-
-    cy.then(() => expect(formDataRequests.length).to.be.eq(2)); // Check that a total of two saves happened
-    cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(1)); // And that they were to the same url, multipatch
-
-    cy.then(() => formDataRequests.splice(0, formDataRequests.length)); // Clear requests
+    cy.get('@saveFormData.all').should('have.length', 2); // Check that a total of two saves happened
+    cy.get('@saveFormData.all').should(haveTheSameUrls); // And that they were to the same url (multipatch)
 
     cy.findByRole('textbox', { name: /adresse/i }).type('Brattørgata 3');
-    cy.waitUntilSaved();
-    cy.then(() => expect(formDataRequests.length).to.be.eq(1));
+    cy.get('@saveFormData.all').should('have.length', 3);
 
     cy.findByRole('textbox', { name: /postnr/i }).type('7010');
     cy.findByRole('textbox', { name: /poststed/i }).should('have.value', 'TRONDHEIM');
 
-    cy.waitUntilSaved();
-
-    cy.then(() => expect(formDataRequests.length).to.be.eq(3));
-    cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(1));
+    cy.get('@saveFormData.all').should('have.length', 4);
+    cy.get('@saveFormData.all').should(haveTheSameUrls);
 
     cy.get(appFrontend.altinnError).should('not.exist');
   });
@@ -189,12 +179,12 @@ describe('saving multiple data models', () => {
   });
 
   it('Likert component', () => {
-    const formDataRequests: string[] = [];
-    cy.intercept('PATCH', '**/data', (req) => {
-      formDataRequests.push(req.url);
-    }).as('saveFormData');
-
+    cy.intercept('PATCH', '**/data').as('saveFormData');
     cy.gotoNavPage('Side4');
+
+    // The 'choose-sector' radio component has a 'preselectedOptionIndex' which will auto-select an option before
+    // we get a chance to interact with it ourselves, thus an initial save will happen.
+    cy.get('@saveFormData.all').should('have.length', 1);
 
     cy.findAllByRole('radio', { name: /middels/i })
       .eq(0)
@@ -206,8 +196,7 @@ describe('saving multiple data models', () => {
       .eq(2)
       .click();
 
-    cy.waitUntilSaved();
-    cy.then(() => expect(formDataRequests.length).to.be.eq(1));
+    cy.get('@saveFormData.all').should('have.length', 1);
 
     cy.findAllByRole('radio', { name: /middels/i })
       .eq(0)
@@ -221,35 +210,33 @@ describe('saving multiple data models', () => {
   });
 
   it('Dynamic options', () => {
-    const formDataRequests: string[] = [];
-    cy.intercept('PATCH', '**/data', (req) => {
-      formDataRequests.push(req.url);
-    }).as('saveFormData');
-
+    cy.intercept('PATCH', '**/data').as('saveFormData');
     cy.gotoNavPage('Side2');
 
-    cy.findByRole('radio', { name: /offentlig sektor/i }).click();
-    cy.waitUntilSaved();
+    // The 'choose-sector' radio component has a 'preselectedOptionIndex' which will auto-select an option before
+    // we get a chance to interact with it ourselves, thus an initial save will happen.
+    cy.get('@saveFormData.all').should('have.length', 1);
 
-    cy.then(() => expect(formDataRequests.length).to.be.eq(1));
+    cy.findByRole('radio', { name: /offentlig sektor/i }).click();
+    cy.get('@saveFormData.all').should('have.length', 2);
 
     cy.findByRole('checkbox', { name: /statlig/i }).click();
-    cy.waitUntilSaved();
-    cy.then(() => expect(formDataRequests.length).to.be.eq(2));
-    cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(1));
-    cy.then(() => formDataRequests.splice(0, formDataRequests.length)); // Clear requests
+    cy.get('@saveFormData.all').should('have.length', 3);
+    cy.get('@saveFormData.all').should(haveTheSameUrls);
 
     cy.findByRole('radio', { name: /privat/i }).click();
     cy.findByRole('checkbox', { name: /petroleum og engineering/i }).should('exist');
 
-    cy.waitUntilSaved();
-
-    cy.then(() => expect(formDataRequests.length).to.be.eq(2));
-    cy.then(() => expect(formDataRequests.filter(duplicateStringFilter).length).to.be.eq(1));
-
-    cy.waitUntilSaved();
+    cy.get('@saveFormData.all').should('have.length', 5);
+    cy.get('@saveFormData.all').should(haveTheSameUrls);
 
     cy.findByRole('checkbox', { name: /petroleum og engineering/i }).click();
     cy.findByRole('alert', { name: /olje er ikke bra for planeten/i }).should('be.visible');
   });
 });
+
+function haveTheSameUrls(subject: unknown) {
+  const interceptions = subject as Interception[];
+  const urls = new Set(interceptions.map((i) => i.request.url));
+  expect(urls.size).to.be.eq(1);
+}
