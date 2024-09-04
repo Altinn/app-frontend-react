@@ -17,7 +17,9 @@
           {
             "id": "subform",
             "type": "SubForm",
-            "children": []
+            "children": [],
+            "layoutSet": "subform-layout",
+            "tableColumns": []
           }
         ]
       }
