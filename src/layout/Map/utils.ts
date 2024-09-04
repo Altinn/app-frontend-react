@@ -60,8 +60,8 @@ export function isLocationValid(location: Location | undefined): location is Loc
 /**
  * Center & Zoom / Bounds controls the starting view of the map in order of priority
  * 1. If a marker is set, center on that with zoom=16
- * 2. If custom center and/or zoom is set, use that
- * 3. If neither, but there are geometries present, use bounds to center on those
+ * 2. If geometries are present, use bounds to center on those
+ * 3. If custom center and/or zoom is set, use that
  * 4. Else, use default center and zoom
  */
 export function getMapStartingView(
