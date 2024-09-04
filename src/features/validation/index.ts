@@ -3,6 +3,7 @@ import type { AttachmentsSelector } from 'src/features/attachments/AttachmentsSt
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { FormDataSelector } from 'src/layout';
+import type { ILayoutSets } from 'src/layout/common.generated';
 import type { IInstance } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
@@ -156,7 +157,8 @@ export type ValidationDataSources = {
   attachmentsSelector: AttachmentsSelector;
   nodeDataSelector: NodeDataSelector;
   applicationMetadata: ApplicationMetadata;
-  instance?: IInstance;
+  instance: IInstance | undefined;
+  layoutSets: ILayoutSets;
 };
 
 /**

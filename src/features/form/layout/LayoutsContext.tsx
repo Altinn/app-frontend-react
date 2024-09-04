@@ -85,7 +85,7 @@ export function useLayoutSetId() {
 
 export function useDataTypeFromLayoutSet(layoutSetName: string) {
   const layoutSets = useLayoutSets();
-  return layoutSets?.sets.find((set) => set.id === layoutSetName)?.dataType;
+  return layoutSets.sets.find((set) => set.id === layoutSetName)?.dataType;
 }
 
 export const LayoutsProvider = Provider;

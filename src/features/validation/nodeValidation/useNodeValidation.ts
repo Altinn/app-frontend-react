@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useAttachmentsSelector } from 'src/features/attachments/hooks';
+import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -65,6 +66,7 @@ function useValidationDataSources(): ValidationDataSources {
   const nodeSelector = NodesInternal.useNodeDataSelector();
   const applicationMetadata = useApplicationMetadata();
   const instance = useLaxInstanceData();
+  const layoutSets = useLayoutSets();
 
   return useMemo(
     () => ({
@@ -75,6 +77,7 @@ function useValidationDataSources(): ValidationDataSources {
       nodeDataSelector: nodeSelector,
       applicationMetadata,
       instance,
+      layoutSets,
     }),
     [
       applicationMetadata,
@@ -84,6 +87,7 @@ function useValidationDataSources(): ValidationDataSources {
       instance,
       invalidDataSelector,
       nodeSelector,
+      layoutSets,
     ],
   );
 }
