@@ -11,19 +11,19 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
-import { DataQueryWithDefaultValue } from 'src/layout/SubForm/SubFormComponent';
-import classes from 'src/layout/SubForm/Summary/SubFormSummaryComponent2.module.css';
+import { DataQueryWithDefaultValue } from 'src/layout/Subform/SubformComponent';
+import classes from 'src/layout/Subform/Summary/SubformSummaryComponent2.module.css';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface ISubFormSummaryComponent {
-  targetNode: LayoutNode<'SubForm'>;
+export interface ISubformSummaryComponent {
+  targetNode: LayoutNode<'Subform'>;
 }
 
-export function SubFormSummaryComponent2({ targetNode }: ISubFormSummaryComponent): React.JSX.Element | null {
+export function SubformSummaryComponent2({ targetNode }: ISubformSummaryComponent): React.JSX.Element | null {
   const { layoutSet, id, textResourceBindings, tableColumns = [] } = useNodeItem(targetNode);
   const dataType = useDataTypeFromLayoutSet(layoutSet);
   const dataElements = useStrictInstanceData().data.filter((d) => d.dataType === dataType) ?? [];
@@ -72,7 +72,7 @@ export function SubFormSummaryComponent2({ targetNode }: ISubFormSummaryComponen
           </thead>
           <tbody className={classes.tableBody}>
             {dataElements.map((dataElement, index) => (
-              <SubFormSummaryTableRow
+              <SubformSummaryTableRow
                 key={dataElement.id}
                 dataElement={dataElement}
                 node={targetNode}
@@ -87,14 +87,14 @@ export function SubFormSummaryComponent2({ targetNode }: ISubFormSummaryComponen
   );
 }
 
-function SubFormSummaryTableRow({
+function SubformSummaryTableRow({
   dataElement,
   node,
   rowNumber,
   pdfModeActive,
 }: {
   dataElement: IData;
-  node: LayoutNode<'SubForm'>;
+  node: LayoutNode<'Subform'>;
   rowNumber: number;
   pdfModeActive: boolean;
 }) {

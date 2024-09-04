@@ -1,5 +1,5 @@
 {
-  "name": "Display value of the SubForm component",
+  "name": "Display value of the Subform component",
   "expression": [
     "displayValue",
     "subform"
@@ -16,7 +16,7 @@
         "layout": [
           {
             "id": "subform",
-            "type": "SubForm",
+            "type": "Subform",
             "children": [],
             "layoutSet": "subform-layout",
             "tableColumns": []

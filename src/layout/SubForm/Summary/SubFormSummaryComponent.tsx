@@ -7,18 +7,18 @@ import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { DataQueryWithDefaultValue } from 'src/layout/SubForm/SubFormComponent';
-import classes from 'src/layout/SubForm/Summary/SubFormSummaryComponent.module.css';
+import { DataQueryWithDefaultValue } from 'src/layout/Subform/SubformComponent';
+import classes from 'src/layout/Subform/Summary/SubformSummaryComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface ISubFormSummaryComponent {
-  targetNode: LayoutNode<'SubForm'>;
+export interface ISubformSummaryComponent {
+  targetNode: LayoutNode<'Subform'>;
 }
 
-export function SubFormSummaryComponent({ targetNode }: ISubFormSummaryComponent): React.JSX.Element | null {
+export function SubformSummaryComponent({ targetNode }: ISubformSummaryComponent): React.JSX.Element | null {
   const { layoutSet, id } = useNodeItem(targetNode);
   const dataType = useDataTypeFromLayoutSet(layoutSet);
   const dataElements = useStrictInstanceData().data.filter((d) => d.dataType === dataType) ?? [];
@@ -34,7 +34,7 @@ export function SubFormSummaryComponent({ targetNode }: ISubFormSummaryComponent
         </div>
       ) : (
         dataElements.map((dataElement) => (
-          <SubFormSummaryRow
+          <SubformSummaryRow
             key={dataElement.id}
             dataElement={dataElement}
             node={targetNode}
@@ -45,7 +45,7 @@ export function SubFormSummaryComponent({ targetNode }: ISubFormSummaryComponent
   );
 }
 
-function SubFormSummaryRow({ dataElement, node }: { dataElement: IData; node: LayoutNode<'SubForm'> }) {
+function SubformSummaryRow({ dataElement, node }: { dataElement: IData; node: LayoutNode<'Subform'> }) {
   const id = dataElement.id;
   const { tableColumns = [], summaryDelimiter = ' — ' } = useNodeItem(node);
   const instance = useStrictInstanceData();

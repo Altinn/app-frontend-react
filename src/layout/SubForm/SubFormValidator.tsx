@@ -5,7 +5,7 @@ import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContex
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { NodeValidationProps } from 'src/layout/layout';
 
-export function SubFormValidator(props: NodeValidationProps<'SubForm'>) {
+export function SubformValidator(props: NodeValidationProps<'Subform'>) {
   const { node, externalItem } = props;
   const applicationMetadata = useApplicationMetadata();
   const targetType = useDataTypeFromLayoutSet(externalItem.layoutSet);
@@ -18,11 +18,11 @@ export function SubFormValidator(props: NodeValidationProps<'SubForm'>) {
   useEffect(() => {
     if (dataType === undefined) {
       addError('Finner ikke datatypen i applicationmetadata', node);
-      window.logErrorOnce(`SubFormValidator for node med id ${node.id}: Klarer ikke finne datatype for noden.`);
+      window.logErrorOnce(`SubformValidator for node med id ${node.id}: Klarer ikke finne datatype for noden.`);
     } else if (dataType.appLogic?.allowInSubform !== true) {
       const message = `Datatypen '${dataType.id}' er ikke tillatt for bruk i underskjema`;
       addError(message, node);
-      window.logErrorOnce(`SubFormValidator for node med id ${node.id}: ${message}`);
+      window.logErrorOnce(`SubformValidator for node med id ${node.id}: ${message}`);
     }
   }, [addError, dataType, node]);
 

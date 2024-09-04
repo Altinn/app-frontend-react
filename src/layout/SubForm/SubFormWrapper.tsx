@@ -14,7 +14,7 @@ import { ProcessTaskType } from 'src/types';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export const SubFormWrapper = ({ node, children }: PropsWithChildren<{ node: LayoutNode<'SubForm'> }>) => {
+export const SubformWrapper = ({ node, children }: PropsWithChildren<{ node: LayoutNode<'Subform'> }>) => {
   const isDone = useDoOverride(node);
 
   if (!isDone) {
@@ -28,7 +28,7 @@ export const SubFormWrapper = ({ node, children }: PropsWithChildren<{ node: Lay
   );
 };
 
-export const SubFormFirstPage = () => {
+export const SubformFirstPage = () => {
   const order = useLayoutSettings().pages.order;
   const firstPage = order[0];
   return <Navigate to={firstPage} />;
@@ -45,12 +45,12 @@ export const RedirectBackToMainForm = () => {
   return null;
 };
 
-export const SubFormForm = () => {
+export const SubformForm = () => {
   const { subFormPage } = useParams();
   return <FormPage currentPageId={subFormPage} />;
 };
 
-const useDoOverride = (node: LayoutNode<'SubForm'>) => {
+const useDoOverride = (node: LayoutNode<'Subform'>) => {
   const { dataElementId } = useParams();
   const { layoutSet, id } = useNodeItem(node);
   const dataType = useDataTypeFromLayoutSet(layoutSet);

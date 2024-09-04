@@ -16,7 +16,7 @@ interface ContextParams {
   componentId?: string;
   dataElementId?: string;
   mainPageKey?: string;
-  isSubFormPage?: boolean;
+  isSubformPage?: boolean;
 }
 interface Context {
   params: ContextParams;
@@ -94,7 +94,7 @@ const useNavigationParams = (): Context['params'] => {
   const pageKey = _pageKey === undefined ? undefined : decodeURIComponent(_pageKey);
   const mainPageKey = _mainPageKey === undefined ? undefined : decodeURIComponent(_mainPageKey);
 
-  const isSubFormPage = !!mainPageKey;
+  const isSubformPage = !!mainPageKey;
 
   return {
     partyId,
@@ -104,7 +104,7 @@ const useNavigationParams = (): Context['params'] => {
     componentId,
     dataElementId,
     mainPageKey,
-    isSubFormPage,
+    isSubformPage,
   };
 };
 

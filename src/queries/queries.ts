@@ -154,7 +154,7 @@ export const doAttachmentRemove = async (instanceId: string, dataGuid: string, l
   return response.data;
 };
 
-export const doSubFormEntryAdd = async (instanceId: string, dataType: string, data: unknown): Promise<IData> => {
+export const doSubformEntryAdd = async (instanceId: string, dataType: string, data: unknown): Promise<IData> => {
   const response = await httpPost(getDataModelTypeUrl(instanceId, dataType), undefined, data);
   if (response.status >= 300) {
     throw new Error('Failed to add sub form');
@@ -162,7 +162,7 @@ export const doSubFormEntryAdd = async (instanceId: string, dataType: string, da
   return response.data;
 };
 
-export const doSubFormEntryDelete = async (instanceId: string, dataGuid: string): Promise<void> => {
+export const doSubformEntryDelete = async (instanceId: string, dataGuid: string): Promise<void> => {
   const response = await httpDelete(getDataModelGuidUrl(instanceId, dataGuid));
   if (response.status !== 200) {
     throw new Error('Failed to delete sub form');

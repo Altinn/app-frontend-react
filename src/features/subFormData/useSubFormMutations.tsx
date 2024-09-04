@@ -11,11 +11,11 @@ import type { IInstance } from 'src/types/shared';
 export const useAddEntryMutation = (dataType: string) => {
   const instanceContext = useStrictInstance();
   const { langAsString } = useLanguage();
-  const { doSubFormEntryAdd } = useAppMutations();
+  const { doSubformEntryAdd } = useAppMutations();
 
   return useMutation({
-    mutationKey: ['addSubForm', dataType],
-    mutationFn: async (data: unknown) => await doSubFormEntryAdd(instanceContext.instanceId, dataType, data),
+    mutationKey: ['addSubform', dataType],
+    mutationFn: async (data: unknown) => await doSubformEntryAdd(instanceContext.instanceId, dataType, data),
     onSuccess: (reply) => {
       instanceContext?.changeData((instance: IInstance | undefined) => {
         if (!instance || !instance.data) {
@@ -42,12 +42,12 @@ export const useAddEntryMutation = (dataType: string) => {
 export const useDeleteEntryMutation = (id: string) => {
   const instanceContext = useStrictInstance();
   const { langAsString } = useLanguage();
-  const { doSubFormEntryDelete } = useAppMutations();
+  const { doSubformEntryDelete } = useAppMutations();
 
   return useMutation({
-    mutationKey: ['deleteSubForm', id],
+    mutationKey: ['deleteSubform', id],
     mutationFn: async (id: string) => {
-      await doSubFormEntryDelete(instanceContext.instanceId, id);
+      await doSubformEntryDelete(instanceContext.instanceId, id);
       return id;
     },
     onSuccess: (deletedId) => {

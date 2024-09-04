@@ -13,16 +13,16 @@ import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
-import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subFormData/useSubFormMutations';
+import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subformData/useSubformMutations';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import classes from 'src/layout/SubForm/SubFormComponent.module.css';
+import classes from 'src/layout/Subform/SubformComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>): React.JSX.Element | null {
+export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>): React.JSX.Element | null {
   const {
     id,
     layoutSet,
@@ -32,10 +32,10 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
     showDeleteButton = true,
   } = useNodeItem(node);
 
-  const isSubFormPage = useNavigationParam('isSubFormPage');
-  if (isSubFormPage) {
-    window.logErrorOnce('Cannot use a SubFormComponent component within a subform');
-    throw new Error('Cannot use a SubFormComponent component within a subform');
+  const isSubformPage = useNavigationParam('isSubformPage');
+  if (isSubformPage) {
+    window.logErrorOnce('Cannot use a SubformComponent component within a subform');
+    throw new Error('Cannot use a SubformComponent component within a subform');
   }
 
   const dataType = useDataTypeFromLayoutSet(layoutSet);
@@ -51,7 +51,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
   const navigate = useNavigate();
   const [isAdding, setIsAdding] = useState(false);
   const dataElements = instanceData.data.filter((d) => d.dataType === dataType) ?? [];
-  const [subFormEntries, updateSubFormEntries] = useState(dataElements);
+  const [subformEntries, updateSubformEntries] = useState(dataElements);
 
   const addEntry = async () => {
     setIsAdding(true);
@@ -77,14 +77,14 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
       >
         <Table
           id={`subform-${id}-table`}
-          className={classes.subFormTable}
+          className={classes.subformTable}
         >
           <Caption
             id={`subform-${id}-caption`}
             title={<Lang id={textResourceBindings?.title} />}
             description={textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
           />
-          {subFormEntries.length > 0 && (
+          {subformEntries.length > 0 && (
             <>
               <Table.Head id={`subform-${id}-table-body`}>
                 <Table.Row>
@@ -117,16 +117,16 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
                 </Table.Row>
               </Table.Head>
               <Table.Body>
-                {subFormEntries.map((dataElement, index) => (
-                  <SubFormTableRow
+                {subformEntries.map((dataElement, index) => (
+                  <SubformTableRow
                     key={dataElement.id}
                     dataElement={dataElement}
                     node={node}
                     rowNumber={index}
                     showDeleteButton={showDeleteButton}
                     deleteEntryCallback={(d) => {
-                      const items = subFormEntries.filter((x) => x.id != d.id);
-                      updateSubFormEntries([...items]);
+                      const items = subformEntries.filter((x) => x.id != d.id);
+                      updateSubformEntries([...items]);
                     }}
                   />
                 ))}
@@ -163,7 +163,7 @@ export function SubFormComponent({ node }: PropsFromGenericComponent<'SubForm'>)
   );
 }
 
-function SubFormTableRow({
+function SubformTableRow({
   dataElement,
   node,
   rowNumber,
@@ -171,7 +171,7 @@ function SubFormTableRow({
   deleteEntryCallback,
 }: {
   dataElement: IData;
-  node: LayoutNode<'SubForm'>;
+  node: LayoutNode<'Subform'>;
   rowNumber: number;
   showDeleteButton: boolean;
   deleteEntryCallback: (dataElement: IData) => void;

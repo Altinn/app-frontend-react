@@ -40,16 +40,16 @@ export const Config = new CG.component({
             ).exportAs('NavigateToPageAction'),
             new CG.union(
               new CG.obj(
-                new CG.prop('id', new CG.const('closeSubForm')),
+                new CG.prop('id', new CG.const('closeSubform')),
                 new CG.prop('type', new CG.const('ClientAction')),
                 new CG.prop('validation', CG.common('PageValidation').optional()),
-              ).exportAs('CloseSubFormAction'),
+              ).exportAs('CloseSubformAction'),
               new CG.obj(
-                new CG.prop('id', new CG.const('validateSubForm')),
+                new CG.prop('id', new CG.const('validateSubform')),
                 new CG.prop('type', new CG.const('ClientAction')),
                 new CG.prop('validation', CG.common('PageValidation').optional()),
-              ).exportAs('ValidateSubFormAction'),
-            ).exportAs('SubFormAction'),
+              ).exportAs('ValidateSubformAction'),
+            ).exportAs('SubformAction'),
           ).exportAs('ClientAction'),
           new CG.obj(
             new CG.prop('id', new CG.str()),

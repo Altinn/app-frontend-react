@@ -701,7 +701,7 @@ const common = {
       .setTitle('Default Layout Set')
       .setDescription('Settings regarding a default layout-set'),
 
-  ILayoutSetSubForm: () =>
+  ILayoutSetSubform: () =>
     new CG.obj(
       new CG.prop(
         'id',
@@ -716,7 +716,7 @@ const common = {
       .setTitle('Layout Set')
       .setDescription('A layout set with either tasks or type, but not both.'),
   ILayoutSet: () =>
-    new CG.union(CG.common('ILayoutSetDefault'), CG.common('ILayoutSetSubForm'))
+    new CG.union(CG.common('ILayoutSetDefault'), CG.common('ILayoutSetSubform'))
       .setUnionType('discriminated')
       .setTitle('Layout Set Union')
       .setDescription('todo'),

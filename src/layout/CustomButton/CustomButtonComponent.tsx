@@ -66,21 +66,21 @@ const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerA
 
 function useHandleClientActions(): UseHandleClientActions {
   const currentDataModelGuid = useCurrentDataModelGuid();
-  const { navigateToPage, navigateToNextPage, navigateToPreviousPage, exitSubForm } = useNavigatePage();
+  const { navigateToPage, navigateToNextPage, navigateToPreviousPage, exitSubform } = useNavigatePage();
   const mainPageKey = useNavigationParam('mainPageKey');
-  const isSubFormPage = useNavigationParam('isSubFormPage');
+  const isSubformPage = useNavigationParam('isSubformPage');
 
   const frontendActions: ClientActionHandlers = useMemo(
     () => ({
       nextPage: promisify(navigateToNextPage),
       previousPage: promisify(navigateToPreviousPage),
       navigateToPage: promisify<ClientActionHandlers['navigateToPage']>(async ({ page }) => navigateToPage(page)),
-      closeSubForm: promisify(exitSubForm),
-      validateSubForm: promisify(() => {
+      closeSubform: promisify(exitSubform),
+      validateSubform: promisify(() => {
         throw new NotYetImplementedError();
       }),
     }),
-    [exitSubForm, navigateToNextPage, navigateToPage, navigateToPreviousPage],
+    [exitSubform, navigateToNextPage, navigateToPage, navigateToPreviousPage],
   );
 
   const handleClientAction = useCallback(
@@ -94,14 +94,14 @@ function useHandleClientActions(): UseHandleClientActions {
         return await frontendActions[action.id](action.metadata);
       }
 
-      const subFormActions = ['closeSubForm', 'validateSubForm'];
-      if ((!isSubFormPage || !mainPageKey) && subFormActions.includes(action.id)) {
-        throw new Error('SubFormAction is only applicable for subforms');
+      const subformActions = ['closeSubform', 'validateSubform'];
+      if ((!isSubformPage || !mainPageKey) && subformActions.includes(action.id)) {
+        throw new Error('SubformAction is only applicable for subforms');
       }
 
       await frontendActions[action.id]();
     },
-    [frontendActions, isSubFormPage, mainPageKey],
+    [frontendActions, isSubformPage, mainPageKey],
   );
 
   const handleClientActions: UseHandleClientActions['handleClientActions'] = useCallback(
@@ -224,15 +224,15 @@ export const CustomButtonComponent = ({ node }: Props) => {
     .reduce((acc, action) => acc && isAuthorized(action.id), true);
   const disabled = !isPermittedToPerformActions || isPending;
 
-  const isSubFormCloseButton = actions.filter((action) => action.id === 'closeSubForm').length > 0;
+  const isSubformCloseButton = actions.filter((action) => action.id === 'closeSubform').length > 0;
   let interceptedButtonStyle = buttonStyle ?? 'secondary';
 
-  if (isSubFormCloseButton && !buttonStyle) {
+  if (isSubformCloseButton && !buttonStyle) {
     interceptedButtonStyle = 'primary';
   }
 
   let buttonText = textResourceBindings?.title;
-  if (isSubFormCloseButton && !buttonText) {
+  if (isSubformCloseButton && !buttonText) {
     buttonText = 'general.done';
   }
 

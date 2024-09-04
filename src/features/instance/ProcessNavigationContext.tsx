@@ -157,9 +157,9 @@ export function ProcessNavigationProvider({ children }: React.PropsWithChildren)
 }
 
 export const useProcessNavigation = () => {
-  // const { isSubFormPage } = useNavigationParams();
-  const isSubFormPage = useNavigationParam('isSubFormPage');
-  if (isSubFormPage) {
+  // const { isSubformPage } = useNavigationParams();
+  const isSubformPage = useNavigationParam('isSubformPage');
+  if (isSubformPage) {
     throw new Error('Cannot use process navigation in a subform');
   }
 

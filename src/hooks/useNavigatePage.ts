@@ -24,7 +24,7 @@ export interface NavigateToPageOptions {
   skipAutoSave?: boolean;
   shouldFocusComponent?: boolean;
   resetReturnToView?: boolean;
-  exitSubForm?: boolean;
+  exitSubform?: boolean;
   focusComponentId?: string;
 }
 
@@ -190,7 +190,7 @@ export const useNavigatePage = () => {
         window.logWarn('navigateToPage called without page');
         return;
       }
-      if (!order.includes(page) && options?.exitSubForm !== true) {
+      if (!order.includes(page) && options?.exitSubform !== true) {
         window.logWarn('navigateToPage called with invalid page:', `"${page}"`);
         return;
       }
@@ -206,7 +206,7 @@ export const useNavigatePage = () => {
       const { partyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = navParams.current;
 
       // Subform
-      if (mainPageKey && componentId && dataElementId && options?.exitSubForm !== true) {
+      if (mainPageKey && componentId && dataElementId && options?.exitSubform !== true) {
         const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}/${queryKeysRef.current}`;
         return navigate(url, options, { replace }, () => focusMainContent(options));
       }
@@ -214,14 +214,14 @@ export const useNavigatePage = () => {
       let url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}${queryKeysRef.current}`;
 
       // Special cases for component focus and subform exit
-      if (options?.focusComponentId || options?.exitSubForm) {
+      if (options?.focusComponentId || options?.exitSubform) {
         const searchParams = new URLSearchParams();
 
         if (options?.focusComponentId) {
           searchParams.set(SearchParams.FocusComponentId, options.focusComponentId);
         }
 
-        if (options?.exitSubForm) {
+        if (options?.exitSubform) {
           searchParams.set(SearchParams.ExitSubform, 'true');
         }
 
@@ -319,13 +319,13 @@ export const useNavigatePage = () => {
     await navigateToPage(previousPage);
   }, [getPreviousPage, navigateToPage]);
 
-  const exitSubForm = async () => {
-    if (!navParams.current.isSubFormPage || !navParams.current.mainPageKey) {
+  const exitSubform = async () => {
+    if (!navParams.current.isSubformPage || !navParams.current.mainPageKey) {
       window.logWarn('Tried to close subform page while not in a subform.');
       return;
     }
     await navigateToPage(navParams.current.mainPageKey, {
-      exitSubForm: true,
+      exitSubform: true,
       resetReturnToView: false,
       focusComponentId: navParams.current.componentId,
     });
@@ -340,7 +340,7 @@ export const useNavigatePage = () => {
     navigateToNextPage,
     navigateToPreviousPage,
     maybeSaveOnPageChange,
-    exitSubForm,
+    exitSubform,
   };
 };
 

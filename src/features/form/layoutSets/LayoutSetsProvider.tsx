@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
-import { layoutSetIsDefault, layoutSetIsSubForm } from 'src/features/form/layoutSets/TypeGuards';
+import { layoutSetIsDefault, layoutSetIsSubform } from 'src/features/form/layoutSets/TypeGuards';
 import { InvalidSubformLayoutException } from 'src/features/formData/InvalidSubformLayoutException';
 import type { ILayoutSet, ILayoutSets } from 'src/layout/common.generated';
 
@@ -41,7 +41,7 @@ const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
 );
 
 function validateLayout(set: ILayoutSet): void {
-  if (layoutSetIsSubForm(set) && layoutSetIsDefault(set)) {
+  if (layoutSetIsSubform(set) && layoutSetIsDefault(set)) {
     window.logError(`The layout set with id '${set.id}' cannot have both type "subform" and a task association.`);
     throw new InvalidSubformLayoutException(set.id);
   }

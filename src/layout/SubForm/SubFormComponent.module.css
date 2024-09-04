@@ -15,7 +15,7 @@
   width: max-content;
 }
 
-.subFormTable {
+.subformTable {
   width: 100%;
 }
 
@@ -38,21 +38,21 @@
 /* ====
 TODO(1779): Remove these styles after going through all the different Table styles in
 Altinn, and making sure they are consistent. */
-.subFormTable > thead > tr > th {
+.subformTable > thead > tr > th {
   background-color: #f5f5f5;
   border-bottom: 1px solid #dde3e5;
   padding-top: 15px;
   padding-bottom: 15px;
 }
 
-.subFormTable > tbody > tr > td {
+.subformTable > tbody > tr > td {
   border-bottom-color: #dde3e5;
   padding-top: 12px;
   padding-bottom: 12px;
 }
 /* ==== */
 
-.subFormTable > tbody > tr:hover td {
+.subformTable > tbody > tr:hover td {
   background-color: unset;
 }
 

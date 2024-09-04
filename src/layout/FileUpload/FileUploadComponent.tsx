@@ -38,8 +38,8 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
     textResourceBindings,
     dataModelBindings,
   } = item;
-  const isSubFormPage = useNavigationParam('isSubFormPage');
-  if (isSubFormPage) {
+  const isSubformPage = useNavigationParam('isSubformPage');
+  if (isSubformPage) {
     throw new Error('Cannot use a FileUpload components within a subform');
   }
 
