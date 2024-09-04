@@ -54,33 +54,30 @@ export const RepeatingGroupSummary = ({ target, isCompact, overrides }: Summary2
               [classes.repeatingGroupRowDivider]: index < rows.length - 1,
             })}
           >
-            {row?.items &&
-              row.items.map((node) => (
-                <NodeSummary
-                  key={node.id}
-                  target={node}
-                  isCompact={isCompact}
-                  overrides={overrides}
-                />
-              ))}
+            {row?.items?.map((node) => (
+              <NodeSummary
+                key={node.id}
+                target={node}
+                isCompact={isCompact}
+                overrides={overrides}
+              />
+            ))}
           </div>
         ))}
       </div>
-      {errors &&
-        errors?.length > 0 &&
-        errors?.map(({ message }) => (
-          <ErrorMessage
-            key={message.key}
-            className={classes.errorMessage}
-          >
-            <ExclamationmarkTriangleIcon fontSize='1.5rem' />
-            <Lang
-              id={message.key}
-              params={message.params}
-              node={target}
-            ></Lang>
-          </ErrorMessage>
-        ))}
+      {errors?.map(({ message }) => (
+        <ErrorMessage
+          key={message.key}
+          className={classes.errorMessage}
+        >
+          <ExclamationmarkTriangleIcon fontSize='1.5rem' />
+          <Lang
+            id={message.key}
+            params={message.params}
+            node={target}
+          ></Lang>
+        </ErrorMessage>
+      ))}
     </div>
   );
 };
