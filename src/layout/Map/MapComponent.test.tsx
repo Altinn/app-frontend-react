@@ -6,6 +6,7 @@ import { userEvent } from '@testing-library/user-event';
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { MapComponent } from 'src/layout/Map/MapComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
+import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 const user = userEvent.setup();
@@ -84,9 +85,9 @@ describe('MapComponent', () => {
     await clickMap(container);
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'myCoords',
+      reference: { dataType: defaultDataTypeMock, field: 'myCoords' },
       newValue: '64.886265,12.832031',
-    });
+    } satisfies FDNewValue);
   });
 
   it('should call onClick with longitude between 180 and -180 even when map is wrapped', async () => {
@@ -95,9 +96,9 @@ describe('MapComponent', () => {
     await clickMap(container, 2500, 0); // Click so that the world is wrapped
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'myCoords',
+      reference: { dataType: defaultDataTypeMock, field: 'myCoords' },
       newValue: '64.886265,-127.441406',
-    });
+    } satisfies FDNewValue);
   });
 
   it('should not call onClick when readOnly is true and map is clicked', async () => {
@@ -114,17 +115,17 @@ describe('MapComponent', () => {
     await clickMap(container);
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'myCoords',
+      reference: { dataType: defaultDataTypeMock, field: 'myCoords' },
       newValue: '64.886265,12.832031',
-    });
+    } satisfies FDNewValue);
 
     // Second click at different location
     await clickMap(container, 50, 50);
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(2);
     expect(formDataMethods.setLeafValue).toHaveBeenLastCalledWith({
-      path: 'myCoords',
+      reference: { dataType: defaultDataTypeMock, field: 'myCoords' },
       newValue: '64.885810,12.833104',
-    });
+    } satisfies FDNewValue);
   });
 
   it('should display attribution link', async () => {
