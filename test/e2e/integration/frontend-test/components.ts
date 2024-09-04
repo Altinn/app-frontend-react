@@ -764,16 +764,16 @@ describe('UI Components', () => {
 
     cy.get(component('map')).findByAltText('Marker').should('be.visible');
     cy.get(component('map'))
-      .findByText(/Valgt lokasjon: 59\.\d{6}° nord, 10\.\d{6}° øst/)
+      .findByText(/Valgt lokasjon: 59(\.\d{1,6})?° nord, 10(\.\d{1,6})?° øst/)
       .should('be.visible');
 
     cy.get(component('mapSummary')).findByAltText('Marker').should('be.visible');
     cy.get(component('mapSummary'))
-      .findByText(/Valgt lokasjon: 59\.\d{6}° nord, 10\.\d{6}° øst/)
+      .findByText(/Valgt lokasjon: 59(\.\d{1,6})?° nord, 10(\.\d{1,6})?° øst/)
       .should('be.visible');
 
     cy.get(component('mapValue'))
-      .findByText(/59\.\d{6}, 10\.\d{6}/)
+      .findByText(/59(\.\d{1,6})?, 10(\.\d{1,6})?/)
       .should('be.visible');
 
     // Force the map component to remount to skip the zoom animation

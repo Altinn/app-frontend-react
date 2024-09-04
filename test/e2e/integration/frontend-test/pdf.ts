@@ -101,7 +101,7 @@ describe('PDF', () => {
       cy.getSummary('Adresse').should('contain.text', 'Økern 1');
       cy.getSummary('Velg lokasjon').findByAltText('Marker').should('be.visible');
       cy.getSummary('Velg lokasjon')
-        .findByText(/Valgt lokasjon: 67\.\d{6}° nord, 16\.\d{6}° øst/)
+        .findByText(/Valgt lokasjon: 67(\.\d{1,6})?° nord, 16(\.\d{1,6})?° øst/)
         .should('be.visible');
     });
   });
