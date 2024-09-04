@@ -18,7 +18,7 @@ export function PageSummary({ pageId }: PageSummaryProps) {
   return children?.map((child, idx) => (
     <ComponentSummary
       componentNode={child}
-      key={idx}
+      key={`${child.id}-${idx}`}
     />
   ));
 }
