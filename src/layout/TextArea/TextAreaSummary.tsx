@@ -5,26 +5,29 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type TextAreaComponentSummaryProps = {
   componentNode: LayoutNode<'TextArea'>;
-  summaryOverrides?: CompInternal<'Summary2'>['overrides'];
+  isCompact?: boolean;
+  emptyFieldText?: string;
 };
 
-export const TextAreaSummary = ({ componentNode }: TextAreaComponentSummaryProps) => {
+export const TextAreaSummary = ({ componentNode, isCompact, emptyFieldText }: TextAreaComponentSummaryProps) => {
   const displayData = componentNode.def.useDisplayData(componentNode);
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
+
   return (
     <SingleValueSummary
       title={title && <Lang id={title} />}
       displayData={displayData}
       errors={errors}
       componentNode={componentNode}
+      isCompact={isCompact}
       multiline
+      emptyFieldText={emptyFieldText}
     />
   );
 };

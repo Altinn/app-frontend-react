@@ -48,11 +48,12 @@ export class Input extends InputDef {
   }
 
   renderSummary2(props: Summary2Props<'Input'>): JSX.Element | null {
+    const ourOverride = props.overrides?.find((override) => override.componentId === props.target.id);
     return (
       <InputSummary
         componentNode={props.target}
-        summaryOverrides={props.overrides}
         isCompact={props.isCompact}
+        emptyFieldText={ourOverride?.emptyFieldText}
       />
     );
   }

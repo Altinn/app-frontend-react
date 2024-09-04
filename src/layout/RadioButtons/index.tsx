@@ -35,10 +35,11 @@ export class RadioButtons extends RadioButtonsDef {
   }
 
   renderSummary2(props: Summary2Props<'RadioButtons'>): JSX.Element | null {
+    const ourOverride = props.overrides?.find((override) => override.componentId === props.target.id);
     return (
       <RadioButtonsSummary
         componentNode={props.target}
-        summaryOverrides={props.overrides}
+        emptyFieldText={ourOverride?.emptyFieldText}
         isCompact={props.isCompact}
       />
     );

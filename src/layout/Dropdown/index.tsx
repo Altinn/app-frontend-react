@@ -39,10 +39,12 @@ export class Dropdown extends DropdownDef {
   }
 
   renderSummary2(props: Summary2Props<'Dropdown'>): JSX.Element | null {
+    const ourOverride = props.overrides?.find((override) => override.componentId === props.target.id);
     return (
       <DropdownSummary
         componentNode={props.target}
-        summaryOverrides={props.overrides}
+        isCompact={props.isCompact}
+        emptyFieldText={ourOverride?.emptyFieldText}
       />
     );
   }
