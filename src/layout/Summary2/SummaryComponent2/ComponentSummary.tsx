@@ -20,10 +20,7 @@ interface ResolveComponentProps {
   targetId: string;
 }
 export function ComponentSummary({ componentNode, isCompact }: ComponentSummaryProps) {
-  const summaryNode = useTaskStore((state) => state.summaryNode);
-
-  const summaryNodeItem = useNodeItem(summaryNode);
-
+  const summaryNodeItem = useTaskStore((state) => state.summaryItem);
   const componentNodeItem = useNodeItem(componentNode);
 
   const override = summaryNodeItem?.overrides?.find((override) => override.componentId === componentNode.id);
@@ -50,7 +47,7 @@ export function ComponentSummary({ componentNode, isCompact }: ComponentSummaryP
     return null;
   }
 
-  if (noUserInput && summaryNodeItem?.hideEmptyFields && !isRequired && !override?.forceShow) {
+  if (noUserInput && summaryNodeItem?.hideEmptyFields && !isRequired && !componentNodeItem['forceShowInSummary']) {
     return null;
   }
 
