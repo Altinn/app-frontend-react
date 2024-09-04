@@ -1,5 +1,5 @@
 import { type IParty, PartyType } from 'src/types/shared';
-import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
+import type { IPartyTypesAllowed } from 'src/features/applicationMetadata/types';
 
 export const flattenParties = (parties: IParty[]): IParty[] => {
   const result: IParty[] = [];
@@ -18,14 +18,14 @@ export const flattenParties = (parties: IParty[]): IParty[] => {
   return result;
 };
 
-export const reduceToValidParties = (parties: IParty[], appMetadata: ApplicationMetadata): IParty[] => {
+export const reduceToValidParties = (parties: IParty[], partyTypesAllowed: IPartyTypesAllowed): IParty[] => {
   const allParties = flattenParties(parties);
-  const { partyTypesAllowed } = appMetadata;
 
-  const partyTypeFilters = {
+  const partyTypeFilters: { [key in PartyType]: boolean } = {
     [PartyType.Organisation]: partyTypesAllowed.organisation,
     [PartyType.SubUnit]: partyTypesAllowed.subUnit,
     [PartyType.Person]: partyTypesAllowed.person,
+    [PartyType.SelfIdentified]: partyTypesAllowed.person, // Self-identified is treated as a person
     [PartyType.BankruptcyEstate]: partyTypesAllowed.bankruptcyEstate,
   };
 

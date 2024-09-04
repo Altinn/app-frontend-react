@@ -43,6 +43,7 @@ export class Dropdown extends DropdownDef {
       <DropdownSummary
         componentNode={props.target}
         displayData={this.useDisplayData(props.target)}
+        emptyFieldText={props.override?.emptyFieldText}
       />
     );
   }

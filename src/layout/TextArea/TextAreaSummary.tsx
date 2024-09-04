@@ -10,9 +10,10 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 type TextAreaComponentSummaryProps = {
   componentNode: LayoutNode<'TextArea'>;
   displayData: string;
+  emptyFieldText?: string;
 };
 
-export const TextAreaSummary = ({ componentNode, displayData }: TextAreaComponentSummaryProps) => {
+export const TextAreaSummary = ({ componentNode, displayData, emptyFieldText }: TextAreaComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
@@ -23,6 +24,7 @@ export const TextAreaSummary = ({ componentNode, displayData }: TextAreaComponen
       errors={errors}
       componentNode={componentNode}
       multiline
+      emptyFieldText={emptyFieldText}
     />
   );
 };

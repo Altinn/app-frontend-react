@@ -10,10 +10,12 @@ export function MultipleSelectSummary({
   componentNode,
   summaryOverride,
   displayData,
+  emptyFieldText,
 }: {
   componentNode: LayoutNode<'MultipleSelect'>;
   summaryOverride?: MultipleSelectSummaryOverrideProps;
   displayData: string;
+  emptyFieldText?: string;
 }) {
   const maxStringLength = 75;
 
@@ -27,6 +29,7 @@ export function MultipleSelectSummary({
       title={<Lang id={title} />}
       componentNode={componentNode}
       showAsList={showAsList}
+      emptyFieldText={emptyFieldText}
     />
   );
 }

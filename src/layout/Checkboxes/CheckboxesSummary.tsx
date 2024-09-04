@@ -11,11 +11,13 @@ export function CheckboxesSummary({
   summaryOverride,
   displayData,
   isCompact,
+  emptyFieldText,
 }: {
   componentNode: LayoutNode<'Checkboxes'>;
   summaryOverride?: CheckboxSummaryOverrideProps;
   displayData: string;
   isCompact?: boolean;
+  emptyFieldText?: string;
 }) {
   const maxStringLength = 75;
   const showAsList =
@@ -29,6 +31,7 @@ export function CheckboxesSummary({
       componentNode={componentNode}
       showAsList={showAsList}
       isCompact={isCompact}
+      emptyFieldText={emptyFieldText}
     />
   );
 }

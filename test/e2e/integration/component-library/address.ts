@@ -49,4 +49,10 @@ describe('Address component', () => {
       .find('span.fds-paragraph')
       .should('have.text', houseNumber);
   });
+
+  it('should pass accessibility tests', () => {
+    cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
+    cy.findByRole('button', { name: /adresse/i }).click();
+    cy.testWcag();
+  });
 });

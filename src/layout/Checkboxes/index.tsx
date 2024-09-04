@@ -46,6 +46,7 @@ export class Checkboxes extends CheckboxesDef {
         displayData={displayData}
         summaryOverride={props.override as CheckboxSummaryOverrideProps}
         isCompact={props.isCompact}
+        emptyFieldText={props.override?.emptyFieldText}
       />
     );
   }

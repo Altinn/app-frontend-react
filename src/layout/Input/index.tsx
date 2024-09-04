@@ -53,6 +53,7 @@ export class Input extends InputDef {
         componentNode={props.target}
         displayData={this.useDisplayData(props.target)}
         isCompact={props.isCompact}
+        emptyFieldText={props.override?.emptyFieldText}
       />
     );
   }

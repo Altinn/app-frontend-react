@@ -11,9 +11,15 @@ type RadioButtonsSummaryProps = {
   isCompact?: boolean;
   componentNode: LayoutNode<'RadioButtons'>;
   displayData: string;
+  emptyFieldText?: string;
 };
 
-export const RadioButtonsSummary = ({ componentNode, displayData, isCompact }: RadioButtonsSummaryProps) => {
+export const RadioButtonsSummary = ({
+  componentNode,
+  displayData,
+  isCompact,
+  emptyFieldText,
+}: RadioButtonsSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
@@ -24,6 +30,7 @@ export const RadioButtonsSummary = ({ componentNode, displayData, isCompact }: R
       errors={errors}
       componentNode={componentNode}
       isCompact={isCompact}
+      emptyFieldText={emptyFieldText}
     />
   );
 };

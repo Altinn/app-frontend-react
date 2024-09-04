@@ -11,8 +11,9 @@ type InputComponentSummaryProps = {
   isCompact?: boolean;
   componentNode: LayoutNode<'Input'>;
   displayData: string;
+  emptyFieldText?: string;
 };
-export const InputSummary = ({ componentNode, displayData, isCompact }: InputComponentSummaryProps) => {
+export const InputSummary = ({ componentNode, displayData, isCompact, emptyFieldText }: InputComponentSummaryProps) => {
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
@@ -24,6 +25,7 @@ export const InputSummary = ({ componentNode, displayData, isCompact }: InputCom
       errors={errors}
       componentNode={componentNode}
       isCompact={isCompact}
+      emptyFieldText={emptyFieldText}
     />
   );
 };
