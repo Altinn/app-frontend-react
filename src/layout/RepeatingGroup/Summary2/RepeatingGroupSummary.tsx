@@ -12,6 +12,7 @@ import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/RepeatingGr
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompTypes } from 'src/layout/layout';
 import type { AnyComponent } from 'src/layout/LayoutComponent';
@@ -54,10 +55,10 @@ export const RepeatingGroupSummary = ({ target, isCompact, overrides }: Summary2
             })}
           >
             {row?.items &&
-              row.items.map((n) => (
+              row.items.map((node) => (
                 <NodeSummary
-                  key={n.id}
-                  target={n}
+                  key={node.id}
+                  target={node}
                   isCompact={isCompact}
                   overrides={overrides}
                 />
@@ -86,5 +87,11 @@ export const RepeatingGroupSummary = ({ target, isCompact, overrides }: Summary2
 
 function NodeSummary<T extends CompTypes>(props: Summary2Props<T>) {
   const def = props.target.def as unknown as AnyComponent<T>;
+  const isHidden = Hidden.useIsHidden(props.target);
+
+  if (isHidden) {
+    return null;
+  }
+
   return def.renderSummary2 ? def.renderSummary2(props) : null;
 }

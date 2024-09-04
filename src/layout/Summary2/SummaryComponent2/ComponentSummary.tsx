@@ -7,7 +7,7 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
 import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
-import { useNode } from 'src/utils/layout/NodesContext';
+import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompExternal, CompInternal, CompTypes } from 'src/layout/layout';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
@@ -43,11 +43,17 @@ export function ComponentSummary<T extends CompTypes>({
 
   const { formData } = useDataModelBindings(dataModelBindings);
 
+  const isHidden = Hidden.useIsHidden(componentNode);
+
   const noUserInput = Object.values(formData).every((value) => value?.length < 1);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderedComponent = componentNode.def.renderSummary2 ? componentNode.def.renderSummary2(props as any) : null;
   if (!renderedComponent) {
+    return null;
+  }
+
+  if (isHidden) {
     return null;
   }
 
