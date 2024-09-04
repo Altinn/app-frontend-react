@@ -570,16 +570,14 @@ Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) =
         cy.viewport(794 + 15, 1123);
         cy.get('body').invoke('css', 'margin', '0.75in');
 
-        Cypress.config('defaultCommandTimeout', 0);
+        cy.then(() => Cypress.config('defaultCommandTimeout', 0));
 
         // Verify that generic elements that should be hidden are not present
         cy.findAllByRole('button').should('not.exist');
         // Run tests from callback
         callback();
 
-        cy.then(() => {
-          Cypress.config('defaultCommandTimeout', DEFAULT_COMMAND_TIMEOUT);
-        });
+        cy.then(() => Cypress.config('defaultCommandTimeout', DEFAULT_COMMAND_TIMEOUT));
 
         if (snapshotName) {
           // Take snapshot of PDF
