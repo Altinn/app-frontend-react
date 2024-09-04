@@ -8,16 +8,16 @@ import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import {
   RepeatingGroupEditRowProvider,
   useRepeatingGroupEdit,
-} from 'src/layout/RepeatingGroup/RepeatingGroupEditContainer/RepeatingGroupEditContext';
+} from 'src/layout/RepeatingGroup/EditContainer/RepeatingGroupEditContext';
 import {
   useRepeatingGroup,
   useRepeatingGroupRowState,
-} from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
-import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupFocusContext';
+} from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
+import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
+import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
 

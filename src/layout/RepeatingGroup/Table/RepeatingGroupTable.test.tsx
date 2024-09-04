@@ -11,8 +11,8 @@ import {
   RepeatingGroupProvider,
   useRepeatingGroupRowState,
   useRepeatingGroupSelector,
-} from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
-import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable/RepeatingGroupTable';
+} from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
+import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTable';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';

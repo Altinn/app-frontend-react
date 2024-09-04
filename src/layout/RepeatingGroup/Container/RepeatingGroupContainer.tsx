@@ -12,17 +12,17 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
-import classes from 'src/layout/RepeatingGroup/RepeatingGroupContainer/RepeatingGroupContainer.module.css';
-import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupEditContainer/RepeatingGroupsEditContainer';
-import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/RepeatingGroupPagination/RepeatingGroupPagination';
+import classes from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer.module.css';
+import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/EditContainer/RepeatingGroupsEditContainer';
+import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/Pagination/RepeatingGroupPagination';
 import {
   useRepeatingGroup,
   useRepeatingGroupPagination,
   useRepeatingGroupRowState,
   useRepeatingGroupSelector,
-} from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
-import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupFocusContext';
-import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable/RepeatingGroupTable';
+} from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
+import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
+import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';

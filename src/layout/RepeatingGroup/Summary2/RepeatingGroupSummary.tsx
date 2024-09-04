@@ -8,7 +8,7 @@ import { Label } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
-import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
+import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';

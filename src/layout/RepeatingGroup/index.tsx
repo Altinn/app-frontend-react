@@ -5,9 +5,9 @@ import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, Va
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
-import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer/RepeatingGroupContainer';
-import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupContext';
-import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/RepeatingGroupProviders/RepeatingGroupFocusContext';
+import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer';
+import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
+import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
