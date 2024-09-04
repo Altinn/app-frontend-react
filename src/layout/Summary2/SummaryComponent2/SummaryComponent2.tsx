@@ -34,7 +34,7 @@ function SummaryBody({ target }: SummaryBodyProps) {
   }
 }
 
-export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
+export function SummaryComponent2({ summaryNode }: ISummaryComponent2) {
   const item = useNodeItem(summaryNode);
   return (
     <Summary2StoreProvider
@@ -47,5 +47,3 @@ export function _SummaryComponent2({ summaryNode }: ISummaryComponent2) {
     </Summary2StoreProvider>
   );
 }
-
-export const SummaryComponent2 = React.forwardRef(_SummaryComponent2);
