@@ -12,7 +12,7 @@ export function getLayoutSetForDataElement(
       return false;
     }
     if (layoutSetIsDefault(layoutSet)) {
-      return layoutSet.tasks.some((taskId: string) => taskId === currentTaskId);
+      return layoutSet.tasks?.some((taskId: string) => taskId === currentTaskId);
     }
     return false;
   });

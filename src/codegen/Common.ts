@@ -695,7 +695,10 @@ const common = {
       new CG.prop('dataType', new CG.str().setTitle('Data type').setDescription('The datatype to use this layout.')),
       new CG.prop(
         'tasks',
-        new CG.arr(new CG.str()).setTitle('Tasks').setDescription('An array specifying which task to use a layout-set'),
+        new CG.arr(new CG.str())
+          .optional()
+          .setTitle('Tasks')
+          .setDescription('An array specifying which task to use a layout-set'),
       ),
     )
       .setTitle('Default Layout Set')
