@@ -138,7 +138,7 @@ export function nn(): FixedLanguageList {
       create: 'Opprett',
       customer_service_phone_number: '+47 75 00 60 00',
       customer_service_slack: 'https://altinn.slack.com/',
-      customer_service_email_form: 'https://info.altinn.no/hjelp/?form=1',
+      customer_service_email: 'servicedesk@altinn.no',
       delete: 'Slett',
       download: 'Nedlasting {0}',
       disabled: 'Deaktivert',
@@ -374,9 +374,9 @@ export function nn(): FixedLanguageList {
     },
     config_error: {
       layoutset_subform_config_error_customer_support:
-        'Om du treng hjelp kan du nå Altinn på<br/><br/>Telefon: <a href="tel:{0}">{0}</a><br/> Slack: {1}<br/> E-postskjema: {2}',
+        'Om du treng hjelp kan du nå Altinn på:<br/><br/>Telefon: <a href="tel:{0}">{0}</a><br/>E-post: {1}<br/>Slack: {2}',
       layoutset_subform_config_error:
-        'Layout-sett med id <strong>{0}</strong> er feilkonfigurert.<br /><br />Layout-sett kan ikkje ha både type <em>subform</em> OG <em>ei liste med oppgåver</em> definert.',
+        'Layout set med id <strong>{0}</strong> er feilkonfigurert.<br /><br />Layout set kan ikkje ha både <strong>type</strong> <em>og</em> <strong>tasks</strong> definert.',
       layoutset_error: 'Layout set error',
       component_has_errors: 'Ein feil oppstod for <code>{0}</code>:',
       component_has_errors_after:

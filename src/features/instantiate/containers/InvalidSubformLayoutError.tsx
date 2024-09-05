@@ -40,11 +40,11 @@ export function InvalidSubformLayoutError({ error }: { error: InvalidSubformLayo
               />,
               <Lang
                 key={1}
-                id='general.customer_service_slack'
+                id='general.customer_service_email'
               />,
               <Lang
                 key={2}
-                id='general.customer_service_email_form'
+                id='general.customer_service_slack'
               />,
             ]}
           />
