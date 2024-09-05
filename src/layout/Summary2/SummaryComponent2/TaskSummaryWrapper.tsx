@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { layoutSetIsDefault } from 'src/features/form/layoutSets/TypeGuards';
 
 interface TaskSummaryProps {
   taskId?: string;
@@ -24,7 +25,7 @@ export function TaskSummaryWrapper({ taskId, children }: React.PropsWithChildren
 
   useEffect(() => {
     if (taskId) {
-      const layoutSetForTask = layoutSets.sets.find((set) => set.tasks?.includes(taskId));
+      const layoutSetForTask = layoutSets.sets.find((set) => layoutSetIsDefault(set) && set.tasks?.includes(taskId));
       setTaskId && setTaskId(taskId);
       if (layoutSetForTask) {
         setOverriddenDataModelUuid && setOverriddenDataModelUuid(layoutSetForTask.dataType);
