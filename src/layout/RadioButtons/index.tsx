@@ -39,12 +39,13 @@ export class RadioButtons extends RadioButtonsDef {
     return (
       <RadioButtonsSummary
         componentNode={props.target}
-        summaryOverrides={props.overrides}
+        emptyFieldText={props.override?.emptyFieldText}
         displayData={displayData}
         isCompact={props.isCompact}
       />
     );
   }
+
   validateDataModelBindings(ctx: LayoutValidationCtx<'RadioButtons'>): string[] {
     return this.validateDataModelBindingsSimple(ctx);
   }

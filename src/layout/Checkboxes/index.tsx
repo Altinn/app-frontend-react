@@ -10,6 +10,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CheckboxSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -43,8 +44,9 @@ export class Checkboxes extends CheckboxesDef {
       <CheckboxesSummary
         componentNode={props.target}
         displayData={displayData}
-        summaryOverrides={props.overrides}
+        summaryOverride={props.override as CheckboxSummaryOverrideProps}
         isCompact={props.isCompact}
+        emptyFieldText={props.override?.emptyFieldText}
       />
     );
   }

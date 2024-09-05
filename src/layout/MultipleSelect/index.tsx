@@ -47,8 +47,9 @@ export class MultipleSelect extends MultipleSelectDef {
     return (
       <MultipleSelectSummary
         componentNode={props.target}
-        summaryOverrides={props.overrides}
+        summaryOverride={props.override}
         displayData={displayData}
+        emptyFieldText={props.override?.emptyFieldText}
       />
     );
   }

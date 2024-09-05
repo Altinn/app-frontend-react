@@ -51,9 +51,9 @@ export class Input extends InputDef {
     return (
       <InputSummary
         componentNode={props.target}
-        summaryOverrides={props.overrides}
         displayData={this.useDisplayData(props.target)}
         isCompact={props.isCompact}
+        emptyFieldText={props.override?.emptyFieldText}
       />
     );
   }
