@@ -137,8 +137,14 @@ export interface FDRemoveFromListCallback {
   callback: (value: any) => boolean;
 }
 
+export interface UpdatedDataModel {
+  data: unknown;
+  dataType: string;
+  dataElementId: string | undefined; // Can be undefined in stateless apps
+}
+
 export interface FDSaveResult {
-  newDataModels: { [dataElementId: string]: object };
+  newDataModels: UpdatedDataModel[];
   validationIssues: BackendValidationIssueGroups | undefined;
 }
 
@@ -463,8 +469,19 @@ function makeActions(
         state.lockedBy = undefined;
         // Update form data
         if (actionResult?.updatedDataModels) {
+          const newDataModels: UpdatedDataModel[] = [];
+          for (const dataElementId of Object.keys(actionResult.updatedDataModels)) {
+            const dataType = Object.keys(state.dataModels).find(
+              (dt) => state.dataModels[dt].dataElementId === dataElementId,
+            );
+            if (dataType) {
+              const data = actionResult.updatedDataModels[dataElementId];
+              newDataModels.push({ data, dataType, dataElementId });
+            }
+          }
+
           processChanges(state, {
-            newDataModels: actionResult.updatedDataModels,
+            newDataModels,
             savedData: Object.entries(state.dataModels).reduce((savedData, [dataType, { lastSavedData }]) => {
               savedData[dataType] = lastSavedData;
               return savedData;

@@ -7,8 +7,7 @@ describe('Navigation', () => {
      * when loading initial data to the form data provider, which causes us to try to PATCH form data later with an
      * outdated initial model (causing a 409). This test is not made to reproduce the bug, but try to avoid
      * changing the exact implementation so that the bug will be easier to reproduce if it happens again.
-     * @see useFormDataQuery
-     * @see useFormDataQueryDef
+     * @see updateQueryCache
      */
 
     cy.intercept('PATCH', '**/data/**').as('saveFormData');

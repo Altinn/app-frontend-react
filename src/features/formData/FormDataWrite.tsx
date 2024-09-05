@@ -17,6 +17,7 @@ import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProx
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
+import { getFormDataQueryKey } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/features/validation';
 import { useAsRef } from 'src/hooks/useAsRef';
@@ -31,6 +32,7 @@ import type {
   FDActionResult,
   FDSaveFinished,
   FormDataContext,
+  UpdatedDataModel,
 } from 'src/features/formData/FormDataWriteStateMachine';
 import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { IDataModelReference, IMapping } from 'src/layout/common.generated';
@@ -88,6 +90,21 @@ function useFormDataSaveMutation() {
   >(useStore());
   const useIsSavingRef = useAsRef(useIsSaving());
   const onSaveFinishedRef = useSelectorAsRef((s) => s.onSaveFinished);
+  const queryClient = useQueryClient();
+
+  // This updates the query cache with the new data models every time a save has finished. This means we won't have to
+  // refetch the data from the backend if the providers suddenly change (i.e. when navigating back and forth between
+  // the main form and a subform).
+  function updateQueryCache(result: FDSaveFinished) {
+    for (const { dataType, data, dataElementId } of result.newDataModels) {
+      const url = getDataModelUrl({ dataType, dataElementId, includeRowIds: true });
+      if (!url) {
+        continue;
+      }
+      const queryKey = getFormDataQueryKey(url);
+      queryClient.setQueryData(queryKey, data);
+    }
+  }
 
   const mutation = useMutation({
     mutationKey: ['saveFormData'],
@@ -119,30 +136,31 @@ function useFormDataSaveMutation() {
 
       if (isStateless) {
         // Stateless does not support multi patch, so we need to save each model independently
-        const newDataModels = Object.fromEntries(
-          await Promise.all(
-            Object.keys(dataModelsRef.current)
-              .filter((dataType) => next[dataType] !== prev[dataType])
-              .map((dataType) => {
-                const url = getDataModelUrl({ dataType });
-                if (!url) {
-                  return Promise.reject(`Cannot post data, url for dataType '${dataType}' could not be determined`);
-                }
-                return new Promise<[string, object]>((resolve) =>
-                  doPostStatelessFormData(url, next[dataType]).then((newDataModel) =>
-                    resolve([dataType, newDataModel]),
-                  ),
-                );
-              }),
-          ),
-        );
+        const newDataModels: Promise<UpdatedDataModel>[] = [];
 
-        if (Object.keys(newDataModels).length === 0) {
+        for (const dataType of Object.keys(dataModelsRef.current)) {
+          if (next[dataType] === prev[dataType]) {
+            continue;
+          }
+          const url = getDataModelUrl({ dataType });
+          if (!url) {
+            throw new Error(`Cannot post data, url for dataType '${dataType}' could not be determined`);
+          }
+          newDataModels.push(
+            doPostStatelessFormData(url, next[dataType]).then((newDataModel) => ({
+              dataType,
+              data: newDataModel,
+              dataElementId: undefined,
+            })),
+          );
+        }
+
+        if (newDataModels.length === 0) {
           return;
         }
 
         onSaveFinishedRef.current?.();
-        return { newDataModels, savedData: next, validationIssues: undefined };
+        return { newDataModels: await Promise.all(newDataModels), savedData: next, validationIssues: undefined };
       } else {
         // Stateful needs to use either old patch or multi patch
 
@@ -173,8 +191,19 @@ function useFormDataSaveMutation() {
             // Ignore validations that require layout parsing in the backend which will slow down requests significantly
             ignoredValidators: IgnoredValidators,
           });
+
+          const dataModelChanges: UpdatedDataModel[] = [];
+          for (const dataElementId of Object.keys(newDataModels)) {
+            const dataType = Object.keys(dataModelsRef.current).find(
+              (dataType) => dataModelsRef.current[dataType].dataElementId === dataElementId,
+            );
+            if (dataType) {
+              dataModelChanges.push({ dataType, data: newDataModels[dataElementId], dataElementId });
+            }
+          }
+
           onSaveFinishedRef.current?.();
-          return { newDataModels, validationIssues, savedData: next };
+          return { newDataModels: dataModelChanges, validationIssues, savedData: next };
         } else {
           const dataType = dataTypes[0];
           const patch = createPatch({ prev: prev[dataType], next: next[dataType] });
@@ -196,7 +225,11 @@ function useFormDataSaveMutation() {
             ignoredValidators: IgnoredValidators,
           });
           onSaveFinishedRef.current?.();
-          return { newDataModels: { [dataElementId]: newDataModel }, validationIssues, savedData: next };
+          return {
+            newDataModels: [{ dataType, data: newDataModel, dataElementId }],
+            validationIssues,
+            savedData: next,
+          };
         }
       }
     },
@@ -204,6 +237,7 @@ function useFormDataSaveMutation() {
       cancelSave();
     },
     onSuccess: (result) => {
+      result && updateQueryCache(result);
       result && saveFinished(result);
       !result && cancelSave();
     },
