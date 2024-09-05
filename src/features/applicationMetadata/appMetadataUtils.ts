@@ -55,7 +55,7 @@ export function getDataTypeByTaskId({ taskId, application, layoutSets }: GetData
   }
 
   const typeFromLayoutSet = layoutSets.sets.find((set) => {
-    if (layoutSetIsDefault(set)) {
+    if (layoutSetIsDefault(set) && set.tasks?.length) {
       return set.tasks.includes(taskId);
     }
     return false;
