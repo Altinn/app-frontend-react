@@ -506,7 +506,6 @@ export const createFormDataWriteStore = (
         autoSaving,
         lockedBy: undefined,
         debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
-        // TODO(Datamodels): use either old patch or new multi patch depending on backend version
         manualSaveRequested: false,
         validationIssues: undefined,
         onSaveFinished: undefined,

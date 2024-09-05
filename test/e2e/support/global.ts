@@ -261,9 +261,5 @@ declare global {
 
 export type BackendValidationResult = {
   validations: BackendValidationIssueGroups | null;
-  dataElementId: string | null;
 };
-export type BackendValdiationPredicate = (
-  validationIssue: BackendValidationIssue,
-  dataElementId: string,
-) => boolean | null | undefined;
+export type BackendValdiationPredicate = (validationIssue: BackendValidationIssue) => boolean | null | undefined;

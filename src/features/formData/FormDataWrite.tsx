@@ -18,7 +18,7 @@ import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteSta
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import { type BackendValidationIssueGroups, BuiltInValidationIssueSources } from 'src/features/validation';
+import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/features/validation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { doPatchMultipleFormData } from 'src/queries/queries';
@@ -171,7 +171,7 @@ function useFormDataSaveMutation() {
           const { newDataModels, validationIssues } = await doPatchMultipleFormData(multiPatchUrl, {
             patches,
             // Ignore validations that require layout parsing in the backend which will slow down requests significantly
-            ignoredValidators: [BuiltInValidationIssueSources.Required, BuiltInValidationIssueSources.Expression],
+            ignoredValidators: IgnoredValidators,
           });
           onSaveFinishedRef.current?.();
           return { newDataModels, validationIssues, savedData: next };
@@ -193,7 +193,7 @@ function useFormDataSaveMutation() {
           const { newDataModel, validationIssues } = await doPatchFormData(url, {
             patch,
             // Ignore validations that require layout parsing in the backend which will slow down requests significantly
-            ignoredValidators: [BuiltInValidationIssueSources.Required, BuiltInValidationIssueSources.Expression],
+            ignoredValidators: IgnoredValidators,
           });
           onSaveFinishedRef.current?.();
           return { newDataModels: { [dataElementId]: newDataModel }, validationIssues, savedData: next };
@@ -311,7 +311,7 @@ function FormDataEffects() {
   // saving the data model to the backend. Freezing can also be triggered manually, when a manual save is requested.
   const shouldDebounce = useSelector(hasUnDebouncedChanges);
   useEffect(() => {
-    const timer = shouldDebounce
+    const timer = shouldDebounce.hasChanges
       ? setTimeout(() => {
           debounce();
         }, debounceTimeout)
@@ -383,11 +383,18 @@ function hasDebouncedUnsavedChanges(state: FormDataContext) {
   );
 }
 
+/**
+ * Checks if we need to debounce. This returns a new object so that the useEffect where it is used gets rerun whenever FormDataEffects renders.
+ * If it returned the boolean directly, it would not extend the timeout beyond the first time which causes the debounce timeout not to work as intendend.
+ * This may not be an optimal solution, it would ideally cause a rerender whenever any of the items it checks changes with some sort of selector.
+ */
 function hasUnDebouncedChanges(state: FormDataContext) {
-  return Object.values(state.dataModels).some(
-    ({ currentData, debouncedCurrentData, invalidCurrentData, invalidDebouncedCurrentData }) =>
-      currentData !== debouncedCurrentData || invalidCurrentData !== invalidDebouncedCurrentData,
-  );
+  return {
+    hasChanges: Object.values(state.dataModels).some(
+      ({ currentData, debouncedCurrentData, invalidCurrentData, invalidDebouncedCurrentData }) =>
+        currentData !== debouncedCurrentData || invalidCurrentData !== invalidDebouncedCurrentData,
+    ),
+  };
 }
 
 function hasUnDebouncedCurrentChanges(state: FormDataContext) {

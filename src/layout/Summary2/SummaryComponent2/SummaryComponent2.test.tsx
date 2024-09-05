@@ -219,7 +219,7 @@ describe('SummaryComponent', () => {
               {
                 id: 'Input',
                 type: 'Input',
-                dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'field' } },
+                dataModelBindings: { simpleBinding: { field: 'field', dataType: defaultDataTypeMock } },
                 required: false,
               },
             ],
@@ -254,7 +254,7 @@ describe('SummaryComponent', () => {
               {
                 id: 'TextAreaId',
                 type: 'TextArea',
-                dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'field' } },
+                dataModelBindings: { simpleBinding: { field: 'field', dataType: defaultDataTypeMock } },
                 required: false,
               },
             ],
@@ -289,7 +289,7 @@ describe('SummaryComponent', () => {
               {
                 id: 'RadioButtonsId',
                 type: 'RadioButtons',
-                dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'field' } },
+                dataModelBindings: { simpleBinding: { field: 'field', dataType: defaultDataTypeMock } },
                 required: false,
               },
             ],
@@ -324,7 +324,7 @@ describe('SummaryComponent', () => {
               {
                 id: 'CheckboxesId',
                 type: 'Checkboxes',
-                dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'field' } },
+                dataModelBindings: { simpleBinding: { field: 'field', dataType: defaultDataTypeMock } },
                 required: false,
               },
             ],
@@ -359,7 +359,7 @@ describe('SummaryComponent', () => {
               {
                 id: 'DropdownId',
                 type: 'Dropdown',
-                dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'field' } },
+                dataModelBindings: { simpleBinding: { field: 'field', dataType: defaultDataTypeMock } },
                 required: false,
               },
             ],
@@ -395,7 +395,7 @@ describe('SummaryComponent', () => {
                 id: 'MultipleSelectPage',
                 type: 'MultipleSelect',
                 dataModelBindings: {
-                  simpleBinding: { dataType: defaultDataTypeMock, field: 'multipleSelect' },
+                  simpleBinding: { field: 'multipleSelect', dataType: defaultDataTypeMock },
                 },
                 textResourceBindings: {
                   title: 'MultipleSelectPage.MultipleSelect.title',

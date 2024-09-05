@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { AxiosRequestConfig } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
@@ -8,6 +8,7 @@ import { type QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 
@@ -66,8 +67,22 @@ export function useFormDataQuery(url: string | undefined) {
   const currentProcessTaskId = useLaxProcessData()?.currentTask?.elementId;
   const cacheKeyUrl = getFormDataCacheKeyUrl(url);
 
-  // We dont want to refetch if only the language changes
-  const utils = useQuery(useFormDataQueryDef(cacheKeyUrl, currentProcessTaskId, url, options));
+  const isInitialRender = useRef(true);
+  const queryClient = useQueryClient();
+  const def = useFormDataQueryDef(cacheKeyUrl, currentProcessTaskId, url, options);
+  const queryKey = useMemoDeepEqual(() => def.queryKey, [def.queryKey]);
+  const dataFromCache = queryClient.getQueryData(queryKey);
+
+  let pretendThereIsNoData = false;
+  if (isInitialRender.current && dataFromCache) {
+    // If we have data in the cache during the initial render, our attempts to never cache the data have failed.
+    // This actually happens during the first test in the navigation.ts cypress test suite. We'll remember this
+    // and return empty data to avoid storing stale initial data.
+    pretendThereIsNoData = true;
+  }
+  isInitialRender.current = false;
+
+  const utils = useQuery(def);
 
   useEffect(() => {
     if (utils.error && isAxiosError(utils.error)) {
@@ -81,6 +96,11 @@ export function useFormDataQuery(url: string | undefined) {
       maybeAuthenticationRedirect(utils.error).then();
     }
   }, [utils.error]);
+
+  if (pretendThereIsNoData) {
+    // We'll pretend there is no data in the cache to avoid storing stale initial data
+    return { ...utils, data: undefined };
+  }
 
   return utils;
 }

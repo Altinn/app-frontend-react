@@ -336,7 +336,6 @@ describe('FormData', () => {
               if (isLocked) {
                 // Unlock with some pretend updated form data
                 unlock({
-                  // TODO(Datamodels): Actions are not supported in stateless, so this test should use a stateful app instead
                   updatedDataModels: { [defaultMockDataElementId]: { obj1: { prop1: 'new value' } } },
                   updatedValidationIssues: { obj1: [] },
                 });
