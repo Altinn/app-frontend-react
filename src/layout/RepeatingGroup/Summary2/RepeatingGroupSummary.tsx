@@ -13,25 +13,31 @@ import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.mo
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { CompTypes } from 'src/layout/layout';
-import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export const RepeatingGroupSummary = ({ target, isCompact, overrides }: Summary2Props<'RepeatingGroup'>) => {
-  const validations = useUnifiedValidationsForNode(target);
+export const RepeatingGroupSummary = ({
+  componentNode,
+  isCompact,
+  emptyFieldText,
+}: {
+  componentNode: BaseLayoutNode<'RepeatingGroup'>;
+  isCompact?: boolean;
+  emptyFieldText?: string;
+}) => {
+  const validations = useUnifiedValidationsForNode(componentNode);
   const { visibleRows } = useRepeatingGroupRowState();
   const rowsToDisplaySet = new Set(visibleRows.map((row) => row.uuid));
-  const rows = useNodeItem(target, (i) => i.rows).filter((row) => row && rowsToDisplaySet.has(row.uuid));
+  const rows = useNodeItem(componentNode, (i) => i.rows).filter((row) => row && rowsToDisplaySet.has(row.uuid));
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
-  const isNested = target.parent instanceof BaseLayoutNode;
+  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
+  const isNested = componentNode.parent instanceof BaseLayoutNode;
 
   if (rows.length === 0) {
     return (
       <SingleValueSummary
-        componentNode={target}
         title={title}
+        componentNode={componentNode}
+        emptyFieldText={emptyFieldText}
       />
     );
   }
@@ -42,7 +48,7 @@ export const RepeatingGroupSummary = ({ target, isCompact, overrides }: Summary2
       data-testid={'summary-repeating-group-component'}
     >
       <Label
-        node={target}
+        node={componentNode}
         renderLabelAs='span'
         textResourceBindings={{ title }}
       />
@@ -55,11 +61,9 @@ export const RepeatingGroupSummary = ({ target, isCompact, overrides }: Summary2
             })}
           >
             {row?.items?.map((node) => (
-              <NodeSummary
+              <ComponentSummary
                 key={node.id}
-                target={node}
-                isCompact={isCompact}
-                overrides={overrides}
+                componentNode={node}
               />
             ))}
           </div>
@@ -74,24 +78,10 @@ export const RepeatingGroupSummary = ({ target, isCompact, overrides }: Summary2
           <Lang
             id={message.key}
             params={message.params}
-            node={target}
+            node={componentNode}
           ></Lang>
         </ErrorMessage>
       ))}
     </div>
   );
 };
-
-function NodeSummary<T extends CompTypes>(props: Summary2Props<T>) {
-  const isHidden = Hidden.useIsHidden(props.target);
-
-  if (isHidden) {
-    return null;
-  }
-  return (
-    <ComponentSummary
-      componentNode={props.target}
-      summaryOverrides={props.overrides}
-    />
-  );
-}

@@ -56,12 +56,11 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
   }
 
   renderSummary2(props: Summary2Props<'Datepicker'>): JSX.Element | null {
-    const ourOverride = props.overrides?.find((override) => override.componentId === props.target.id);
     return (
       <DatepickerSummary
         componentNode={props.target}
         isCompact={props.isCompact}
-        emptyFieldText={ourOverride?.emptyFieldText}
+        emptyFieldText={props.override?.emptyFieldText}
       />
     );
   }

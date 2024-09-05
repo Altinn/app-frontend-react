@@ -80,7 +80,11 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
   renderSummary2(props: Summary2Props<'RepeatingGroup'>): JSX.Element | null {
     return (
       <RepeatingGroupProvider node={props.target}>
-        <RepeatingGroupSummary {...props} />
+        <RepeatingGroupSummary
+          componentNode={props.target}
+          isCompact={props.isCompact}
+          emptyFieldText={props.override?.emptyFieldText}
+        />
       </RepeatingGroupProvider>
     );
   }
