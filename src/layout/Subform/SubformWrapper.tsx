@@ -46,8 +46,8 @@ export const RedirectBackToMainForm = () => {
 };
 
 export const SubformForm = () => {
-  const { subFormPage } = useParams();
-  return <FormPage currentPageId={subFormPage} />;
+  const { subformPage } = useParams();
+  return <FormPage currentPageId={subformPage} />;
 };
 
 const useDoOverride = (node: LayoutNode<'Subform'>) => {
