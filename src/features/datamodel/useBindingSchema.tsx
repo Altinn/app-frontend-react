@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 
 import type { JSONSchema7 } from 'json-schema';
 
+import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import {
   getCurrentDataTypeForApplication,
@@ -14,7 +15,6 @@ import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
 import { useAsRef } from 'src/hooks/useAsRef';
-import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import {
   getAnonymousStatelessDataModelUrl,
   getStatefulDataModelUrl,
