@@ -43,13 +43,12 @@ export class MultipleSelect extends MultipleSelectDef {
   }
 
   renderSummary2(props: Summary2Props<'MultipleSelect'>): JSX.Element | null {
-    const ourOverride = props.overrides?.find((override) => override.componentId === props.target.id);
     return (
       <MultipleSelectSummary
         componentNode={props.target}
-        summaryOverrides={props.overrides}
+        summaryOverride={props.override}
         isCompact={props.isCompact}
-        emptyFieldText={ourOverride?.emptyFieldText}
+        emptyFieldText={props.override?.emptyFieldText}
       />
     );
   }
