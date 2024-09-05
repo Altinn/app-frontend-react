@@ -59,7 +59,6 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
 });
 RepeatingGroupContainer.displayName = 'RepeatingGroupContainer';
 
-// TODO: Show label when no rows are present
 function ModeOnlyTable() {
   return (
     <>
