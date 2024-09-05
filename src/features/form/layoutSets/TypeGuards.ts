@@ -5,5 +5,5 @@ export function layoutSetIsSubform(layoutSet: ILayoutSet): layoutSet is ILayoutS
 }
 
 export function layoutSetIsDefault(layoutSet: ILayoutSet): layoutSet is ILayoutSetDefault {
-  return !layoutSetIsSubform(layoutSet);
+  return 'tasks' in layoutSet || !layoutSetIsSubform(layoutSet);
 }
