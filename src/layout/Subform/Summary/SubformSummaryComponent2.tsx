@@ -15,7 +15,7 @@ import { DataQueryWithDefaultValue } from 'src/layout/Subform/SubformComponent';
 import classes from 'src/layout/Subform/Summary/SubformSummaryComponent2.module.css';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
+import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -102,7 +102,7 @@ function SubformSummaryTableRow({
   const { tableColumns = [] } = useNodeItem(node);
   const navigate = useNavigate();
   const instance = useStrictInstanceData();
-  const url = getDataModelUrl(instance.id, id, true);
+  const url = getStatefulDataModelUrl(instance.id, id, true);
   const { isFetching, data, error, failureCount } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
 

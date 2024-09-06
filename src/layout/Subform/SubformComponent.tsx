@@ -17,7 +17,7 @@ import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subfor
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Subform/SubformComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
+import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -179,7 +179,7 @@ function SubformTableRow({
   const id = dataElement.id;
   const { tableColumns = [] } = useNodeItem(node);
   const instance = useStrictInstanceData();
-  const url = getDataModelUrl(instance.id, id, true);
+  const url = getStatefulDataModelUrl(instance.id, id, true);
   const { isFetching, data, error, failureCount } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
   const navigate = useNavigate();

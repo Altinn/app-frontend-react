@@ -10,7 +10,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { DataQueryWithDefaultValue } from 'src/layout/Subform/SubformComponent';
 import classes from 'src/layout/Subform/Summary/SubformSummaryComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { getDataModelUrl } from 'src/utils/urls/appUrlHelper';
+import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -49,7 +49,7 @@ function SubformSummaryRow({ dataElement, node }: { dataElement: IData; node: La
   const id = dataElement.id;
   const { tableColumns = [], summaryDelimiter = ' — ' } = useNodeItem(node);
   const instance = useStrictInstanceData();
-  const url = getDataModelUrl(instance.id, id, true);
+  const url = getStatefulDataModelUrl(instance.id, id, true);
   const { isFetching, data, error, failureCount } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
 
