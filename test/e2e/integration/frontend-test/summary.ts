@@ -446,22 +446,29 @@ describe('Summary', () => {
       cy.get(exampleSummary).find('button').click();
       cy.get(appFrontend.backToSummaryButton).should('exist');
       cy.gotoNavPage('lastPage');
+      cy.get('#some-required-component').should('exist');
       assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
       cy.gotoNavPage('summary');
+      cy.get(exampleSummary).should('exist');
       assertErrorReport();
       cy.get(`${exampleSummary} button`).click();
+      cy.get(appFrontend.changeOfName.newFirstName).should('exist'); // We're now on the first page
       assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).click();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
+      cy.get(exampleSummary).should('exist');
       assertErrorReport();
       cy.gotoNavPage('lastPage');
+      cy.get('#some-required-component').should('exist');
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
       cy.gotoNavPage('summary');
+      cy.get(exampleSummary).should('exist');
       assertErrorReport();
       cy.get(appFrontend.backButton).click();
       assertErrorReport();
       cy.gotoNavPage('summary');
+      cy.get(exampleSummary).should('exist');
       assertErrorReport();
 
       // Sending in always validates all pages
