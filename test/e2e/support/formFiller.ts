@@ -13,7 +13,7 @@ function fillOutChangeName() {
     // Fill out the grid first. There are other pages with elements that trigger validation, so filling out the grid
     // first will avoid a lingering validation error on the grid page. A real developer and app would probably not
     // make this mistake in designing their form.
-    cy.navPage('grid').click();
+    cy.gotoNavPage('grid');
     cy.get(appFrontend.grid.totalAmount).should('have.value', '0 kr');
     cy.get(appFrontend.grid.totalAmount).type('1000000');
 
@@ -40,7 +40,7 @@ function fillOutChangeName() {
 
     cy.get(appFrontend.grid.kredittkort.amount).should('have.value', '50 000 kr');
 
-    cy.navPage('form').click();
+    cy.gotoNavPage('form');
     cy.get(appFrontend.changeOfName.newFirstName).type('a');
     cy.findByRole('tab', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.changeOfName.newLastName).type('a');
@@ -55,7 +55,7 @@ function fillOutChangeName() {
     cy.get(mui.selectedDate).click();
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
 
-    cy.navPage('grid').click();
+    cy.gotoNavPage('grid');
   });
 }
 

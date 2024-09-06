@@ -393,7 +393,7 @@ describe('Summary', () => {
       const newFirstNameSummary = '[data-testid=summary-summary2]';
       const exampleSummary = '[data-testid=summary-summary-reference]';
 
-      cy.navPage('form').click();
+      cy.gotoNavPage('form');
       cy.get(appFrontend.changeOfName.newFirstName).clear();
       cy.get(appFrontend.changeOfName.newFirstName).type(`Anne`);
       cy.findByRole('tab', { name: /nytt etternavn/i }).click();
@@ -445,27 +445,27 @@ describe('Summary', () => {
       // that the back to summary button goes away when navigating via the navMenu instead.
       cy.get(exampleSummary).find('button').click();
       cy.get(appFrontend.backToSummaryButton).should('exist');
-      cy.navPage('lastPage').click();
+      cy.gotoNavPage('lastPage');
       assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
-      cy.navPage('summary').click();
+      cy.gotoNavPage('summary');
       assertErrorReport();
       cy.get(`${exampleSummary} button`).click();
       assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).click();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
       assertErrorReport();
-      cy.navPage('lastPage').click();
+      cy.gotoNavPage('lastPage');
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
-      cy.navPage('summary').click();
+      cy.gotoNavPage('summary');
       assertErrorReport();
       cy.get(appFrontend.backButton).click();
       assertErrorReport();
-      cy.navPage('summary').click();
+      cy.gotoNavPage('summary');
       assertErrorReport();
 
       // Sending in always validates all pages
-      cy.navPage('grid').click();
+      cy.gotoNavPage('grid');
       cy.get(appFrontend.sendinButton).click();
       cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut page3required');
     }
@@ -474,10 +474,10 @@ describe('Summary', () => {
   it('Navigation to fields on other pages outside the summary should not show the back-to-summary button', () => {
     cy.gotoAndComplete('changename');
     injectExtraPageAndSetTriggers();
-    cy.navPage('form').click();
+    cy.gotoNavPage('form');
     cy.findByRole('tab', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.changeOfName.newLastName).clear();
-    cy.navPage('lastPage').click();
+    cy.gotoNavPage('lastPage');
     cy.get('#page3-submit').click();
     cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut page3required');
     cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldLastName);
