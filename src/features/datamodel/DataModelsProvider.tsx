@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useIsFetching } from '@tanstack/react-query';
@@ -275,10 +275,12 @@ function LoadInitialData({ dataType }: LoaderProps) {
   const dataElementId = getFirstDataElementId(instance, dataType);
   const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
   const { data, error } = useFormDataQuery(url);
+  const hasBeenSet = useRef(false);
 
   useEffect(() => {
-    if (data && url) {
+    if (data && url && !hasBeenSet.current) {
       setInitialData(dataType, data, dataElementId ?? null);
+      hasBeenSet.current = true;
     }
   }, [data, dataElementId, dataType, setInitialData, url]);
 
