@@ -35,16 +35,15 @@ export class RadioButtons extends RadioButtonsDef {
   }
 
   renderSummary2(props: Summary2Props<'RadioButtons'>): JSX.Element | null {
-    const displayData = this.useDisplayData(props.target);
     return (
       <RadioButtonsSummary
         componentNode={props.target}
-        summaryOverrides={props.overrides}
-        displayData={displayData}
+        emptyFieldText={props.override?.emptyFieldText}
         isCompact={props.isCompact}
       />
     );
   }
+
   validateDataModelBindings(ctx: LayoutValidationCtx<'RadioButtons'>): string[] {
     return this.validateDataModelBindingsSimple(ctx);
   }

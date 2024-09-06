@@ -1,11 +1,14 @@
 import { CG } from 'src/codegen/CG';
 import { CHECKBOX_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Checkboxes/config';
 import { CompCategory } from 'src/layout/common';
+import { DATEPICKER_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Datepicker/config';
 import { DROPDOWN_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Dropdown/config';
 import { GROUP_SUMMARY_PROPS } from 'src/layout/Group/config';
 import { INPUT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Input/config';
+import { LIST_SUMMARY_OVERRIDE_PROPS } from 'src/layout/List/config';
 import { MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/MultipleSelect/config';
 import { RADIO_SUMMARY_OVERRIDE_PROPS } from 'src/layout/RadioButtons/config';
+import { REPEATING_GROUP_SUMMARY_OVERRIDE_PROPS } from 'src/layout/RepeatingGroup/config';
 import { TEXTAREA_SUMMARY_PROPS } from 'src/layout/TextArea/config';
 
 export const Config = new CG.component({
@@ -32,8 +35,7 @@ export const Config = new CG.component({
           'type',
           new CG.enum('page', 'layoutSet', 'component').optional({ default: 'component' }).setTitle('Mode'),
         ),
-        new CG.prop('id', new CG.str()),
-
+        new CG.prop('id', new CG.str().optional()),
         new CG.prop(
           'taskId',
           new CG.str()
@@ -67,6 +69,9 @@ export const Config = new CG.component({
           MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS,
           GROUP_SUMMARY_PROPS,
           TEXTAREA_SUMMARY_PROPS,
+          REPEATING_GROUP_SUMMARY_OVERRIDE_PROPS,
+          DATEPICKER_SUMMARY_OVERRIDE_PROPS,
+          LIST_SUMMARY_OVERRIDE_PROPS,
         ).exportAs('AnySummaryOverrideProps'),
       ).optional(),
     ),
