@@ -378,8 +378,6 @@ describe('Summary', () => {
   });
 
   it('Navigation between summary and pages', () => {
-    cy.gotoAndComplete('changename');
-
     const pageValidationConfigs: (PageValidation | undefined)[] = [
       undefined,
       { page: 'current', show: ['All'] },
@@ -387,32 +385,40 @@ describe('Summary', () => {
       { page: 'all', show: ['All'] },
     ];
 
+    cy.intercept('GET', '/api/form-data').as('formData');
+    cy.intercept('POST', '/api/validate').as('validate');
+
+    cy.gotoAndComplete('changename');
+    cy.wait('@formData');
+
     for (const config of pageValidationConfigs) {
+      cy.log(`Starting test with config: ${JSON.stringify(config)}`);
+
       injectExtraPageAndSetTriggers(config);
 
       const newFirstNameSummary = '[data-testid=summary-summary2]';
       const exampleSummary = '[data-testid=summary-summary-reference]';
 
       cy.navPage('form').click();
-      cy.get(appFrontend.changeOfName.newFirstName).clear();
-      cy.get(appFrontend.changeOfName.newFirstName).type(`Anne`);
+      cy.get('[data-testid=change-name-first-name]').as('firstNameField');
+      cy.get('@firstNameField').clear();
+      cy.get('@firstNameField').type('Anne');
       cy.findByRole('tab', { name: /nytt etternavn/i }).click();
-      cy.get(appFrontend.changeOfName.newLastName).clear();
-      cy.get(appFrontend.changeOfName.sources).should('have.value', 'Altinn');
-      cy.get(appFrontend.nextButton).click();
+      cy.get('[data-testid=change-name-last-name]').as('lastNameField').clear();
+      cy.get('[data-testid=change-name-sources]').should('have.value', Cypress.env('SOURCE_VALUE') || 'Altinn');
+      cy.get('[data-testid=next-button]').click();
+      cy.wait('@validate');
 
       if (config === undefined) {
         cy.navPage('summary').should('have.attr', 'aria-current', 'page');
       } else {
         cy.navPage('form').should('have.attr', 'aria-current', 'page');
-        cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldLastName);
+        cy.get('[data-testid=error-report]').should('contain.text', texts.requiredFieldLastName);
 
-        /*
-         * Test that ValidateAllPages and ValidatePreviousPages prevents the user from proceeding
-         * when there are errors on a previous page.
-         */
         cy.gotoNavPage('summary');
-        cy.get(appFrontend.nextButton).click();
+        cy.get('[data-testid=next-button]').click();
+        cy.wait('@validate');
+
         if (config.page === 'current') {
           cy.navPage('grid').should('have.attr', 'aria-current', 'page');
         } else {
@@ -421,53 +427,56 @@ describe('Summary', () => {
 
         cy.gotoNavPage('form');
         cy.findByRole('tab', { name: /nytt etternavn/i }).click();
-        cy.get(appFrontend.changeOfName.newLastName).type('a');
-        cy.get(appFrontend.changeOfName.newLastName).blur();
-        cy.get(appFrontend.nextButton).click();
+        cy.get('@lastNameField').type('a');
+        cy.get('@lastNameField').blur();
+        cy.get('[data-testid=next-button]').click();
+        cy.wait('@validate');
       }
 
       if (config?.page === 'all') {
-        cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut page3required');
+        cy.get('[data-testid=error-report]').should('contain.text', 'Du må fylle ut page3required');
       }
       cy.navPage('summary').should('have.attr', 'aria-current', 'page');
 
-      cy.get(newFirstNameSummary).should('contain.text', `Anne`);
+      cy.get(newFirstNameSummary).should('contain.text', 'Anne');
 
       const assertErrorReport = () => {
         if (config?.page === 'all') {
-          cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut page3required');
+          cy.get('[data-testid=error-report]').should('contain.text', 'Du må fylle ut page3required');
         } else {
-          cy.get(appFrontend.errorReport).should('not.exist');
+          cy.get('[data-testid=error-report]').should('not.exist');
         }
       };
 
-      // Going back to the first page via an 'edit' button and navigating to the summary page again. Also testing
-      // that the back to summary button goes away when navigating via the navMenu instead.
+      // Test navigation and error reporting
       cy.get(exampleSummary).find('button').click();
-      cy.get(appFrontend.backToSummaryButton).should('exist');
+      cy.get('[data-testid=back-to-summary-button]').should('exist');
       cy.navPage('lastPage').click();
       assertErrorReport();
-      cy.get(appFrontend.backToSummaryButton).should('not.exist');
+      cy.get('[data-testid=back-to-summary-button]').should('not.exist');
       cy.navPage('summary').click();
       assertErrorReport();
       cy.get(`${exampleSummary} button`).click();
       assertErrorReport();
-      cy.get(appFrontend.backToSummaryButton).click();
-      cy.get(appFrontend.backToSummaryButton).should('not.exist');
+      cy.get('[data-testid=back-to-summary-button]').click();
+      cy.get('[data-testid=back-to-summary-button]').should('not.exist');
       assertErrorReport();
       cy.navPage('lastPage').click();
-      cy.get(appFrontend.backToSummaryButton).should('not.exist');
+      cy.get('[data-testid=back-to-summary-button]').should('not.exist');
       cy.navPage('summary').click();
       assertErrorReport();
-      cy.get(appFrontend.backButton).click();
+      cy.get('[data-testid=back-button]').click();
       assertErrorReport();
       cy.navPage('summary').click();
       assertErrorReport();
 
-      // Sending in always validates all pages
+      // Test send-in validation
       cy.navPage('grid').click();
-      cy.get(appFrontend.sendinButton).click();
-      cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut page3required');
+      cy.get('[data-testid=send-in-button]').click();
+      cy.wait('@validate');
+      cy.get('[data-testid=error-report]').should('contain.text', 'Du må fylle ut page3required');
+
+      cy.log(`Completed test with config: ${JSON.stringify(config)}`);
     }
   });
 
