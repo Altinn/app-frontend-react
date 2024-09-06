@@ -1,8 +1,9 @@
 import path from 'path';
 
 import texts from 'test/e2e/fixtures/texts.json';
-import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+import { AppFrontend, component } from 'test/e2e/pageobjects/app-frontend';
 
+import { isNumberFormat } from 'src/layout/Input/number-format-helpers';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { CompExternal } from 'src/layout/layout';
 
@@ -230,7 +231,7 @@ describe('UI Components', () => {
       .should('have.attr', 'aria-current', 'page')
       .and('have.css', 'background-color', 'rgb(2, 47, 81)');
     cy.navPage('summary').should('have.css', 'background-color', 'rgba(0, 0, 0, 0)');
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     cy.navPage('form').should('not.have.attr', 'aria-current', 'page');
     cy.navPage('summary')
       .should('have.attr', 'aria-current', 'page')
@@ -507,7 +508,7 @@ describe('UI Components', () => {
     });
 
     cy.goto('changename');
-    cy.navPage('grid').click();
+    cy.gotoNavPage('grid');
     // dialog pops up when unchecking a checkbox
     cy.get('[data-testid="checkboxes-fieldset"]').find('label').contains('Ja').dblclick();
     //Make sure that the alert popover for only one checkbox is displayed, if several dialogs are displayed, the test will fail
@@ -741,5 +742,147 @@ describe('UI Components', () => {
         }
       }
     }
+  });
+
+  it('Map component with simpleBinding', () => {
+    cy.intercept('GET', 'https://cache.kartverket.no/**/*.png', { fixture: 'map-tile.png' });
+    cy.intercept('GET', 'https://tile.openstreetmap.org/**/*.png', { fixture: 'map-tile.png' });
+    cy.interceptLayout('changename', (comp) => {
+      if (comp.id === 'map' && comp.type === 'Map') {
+        delete comp.dataModelBindings.geometries;
+      }
+    });
+
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('123');
+    cy.get('#choose-extra').findByText('Kart').click();
+    cy.gotoNavPage('map');
+
+    cy.get(component('map')).should('contain.text', 'Ingen lokasjon valgt');
+    cy.get(component('mapSummary')).should('contain.text', 'Du har ikke lagt inn informasjon her');
+
+    cy.findByTestId(/^map-container/).click();
+
+    cy.get(component('map')).findByAltText('Marker').should('be.visible');
+    cy.get(component('map'))
+      .findByText(/Valgt lokasjon: 59(\.\d{1,6})?° nord, 10(\.\d{1,6})?° øst/)
+      .should('be.visible');
+
+    cy.get(component('mapSummary')).findByAltText('Marker').should('be.visible');
+    cy.get(component('mapSummary'))
+      .findByText(/Valgt lokasjon: 59(\.\d{1,6})?° nord, 10(\.\d{1,6})?° øst/)
+      .should('be.visible');
+
+    cy.get(component('mapValue'))
+      .findByText(/59(\.\d{1,6})?, 10(\.\d{1,6})?/)
+      .should('be.visible');
+
+    // Force the map component to remount to skip the zoom animation
+    cy.gotoNavPage('form');
+    cy.gotoNavPage('map');
+
+    cy.snapshot('components:map-simpleBinding');
+  });
+
+  it('Map component with geometries should center the map around the geometries', () => {
+    cy.intercept('GET', 'https://cache.kartverket.no/**/*.png', { fixture: 'map-tile.png' });
+    cy.intercept('GET', 'https://tile.openstreetmap.org/**/*.png', { fixture: 'map-tile.png' });
+    cy.interceptLayout('changename', (comp) => {
+      if (comp.id === 'map' && comp.type === 'Map') {
+        delete comp.dataModelBindings.simpleBinding;
+      }
+    });
+
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('123');
+    cy.get('#choose-extra').findByText('Kart').click();
+    cy.gotoNavPage('map');
+
+    // prettier-ignore
+    {
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 1/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 2/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 3/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 4/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 5/i }).should('be.visible');
+    }
+
+    cy.get(component('mapSummary')).should('not.contain.text', 'Du har ikke lagt inn informasjon her');
+
+    // prettier-ignore
+    {
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 1/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 2/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 3/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 4/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 5/i }).should('be.visible');
+    }
+
+    cy.findByRole('checkbox', { name: /hankabakken 2/i }).dsUncheck();
+    cy.findByRole('checkbox', { name: /hankabakken 4/i }).dsUncheck();
+
+    // prettier-ignore
+    {
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 1/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 2/i }).should('not.exist');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 3/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 4/i }).should('not.exist');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 5/i }).should('be.visible');
+    }
+
+    cy.get(component('mapSummary')).should('not.contain.text', 'Du har ikke lagt inn informasjon her');
+
+    // prettier-ignore
+    {
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 1/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 2/i }).should('not.exist');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 3/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 4/i }).should('not.exist');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 5/i }).should('be.visible');
+    }
+
+    cy.snapshot('components:map-geometries');
+  });
+
+  it('number formatting should never update/change the form data', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('123');
+    cy.get('#choose-extra').findByText('Tall-input').click();
+    cy.gotoNavPage('numeric-fields');
+    cy.get(appFrontend.errorReport).should('not.exist');
+
+    // Fill out a specific number in the field that we'll round later when setting up decimalScale
+    cy.get('#decimalAsNumber').type('123.456789');
+    cy.get('#decimalAsNumber').should('have.value', '123,456789 flis');
+    cy.get('#decimalAsString').should('have.value', '123.456789');
+
+    cy.changeLayout((c) => {
+      if (c.id === 'decimalAsNumber' && c.type === 'Input' && isNumberFormat(c.formatting?.number)) {
+        c.formatting.number.decimalScale = 2;
+      }
+      // Also unlock the stringy field so that we can write to it
+      if (c.id === 'decimalAsString' && c.type === 'Input') {
+        delete c.readOnly;
+      }
+    });
+
+    cy.get('#decimalAsNumber').should('have.value', '123,46 flis');
+    cy.get('#decimalAsString').should('have.value', '123.456789');
+    cy.waitUntilSaved();
+
+    // Change the stringy field to see if the rounding is reflected in the number field
+    cy.get('#decimalAsString').type('{selectall}123.759358');
+    cy.get('#decimalAsNumber').should('have.value', '123,76 flis');
+    cy.get('#decimalAsString').should('have.value', '123.759358');
+
+    // Removing the decimal scale should not change the value
+    cy.changeLayout((c) => {
+      if (c.id === 'decimalAsNumber' && c.type === 'Input' && isNumberFormat(c.formatting?.number)) {
+        delete c.formatting.number.decimalScale;
+      }
+    });
+
+    cy.get('#decimalAsNumber').should('have.value', '123,759358 flis');
+    cy.get('#decimalAsString').should('have.value', '123.759358');
   });
 });

@@ -2,43 +2,39 @@ import React, { createContext, useContext } from 'react';
 
 import { create } from 'zustand';
 
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-
 interface TaskState {
   overriddenTaskId?: string;
   overriddenDataModelType?: string;
+  overriddenDataModelUuid?: string;
   overriddenLayoutSetId?: string;
+  depth?: number;
   setOverriddenLayoutSetId?: (layoutSetId: string) => void;
-  setOverriddenDataModelId?: (taskId: string) => void;
+  setOverriddenDataModelType?: (dataModelType: string) => void;
+  setOverriddenDataModelUuid?: (dataModelUuid: string) => void;
   setTaskId?: (taskId: string) => void;
   setDepth?: (depth: number) => void;
   clearTaskId?: () => void;
-  depth?: number;
-  summaryNode: LayoutNode<'Summary2'>;
 }
 
-export const createSummaryStore = (summaryNode: LayoutNode<'Summary2'>) =>
+export const createTaskStore = () =>
   create<TaskState>((set) => ({
-    overriddenTaskId: '',
-    overriddenDataModelType: '',
-    overriddenLayoutSetId: '',
+    overriddenTaskId: undefined,
+    overriddenDataModelType: undefined,
+    overriddenDataModelUuid: undefined,
+    overriddenLayoutSetId: undefined,
     depth: 1,
     setTaskId: (overriddenTaskId: string) => set({ overriddenTaskId }),
     setOverriddenLayoutSetId: (overriddenLayoutSetId: string) => set({ overriddenLayoutSetId }),
-    setOverriddenDataModelId: (overriddenDataModelType: string) => set({ overriddenDataModelType }),
+    setOverriddenDataModelType: (overriddenDataModelType: string) => set({ overriddenDataModelType }),
+    setOverriddenDataModelUuid: (overriddenDataModelUuid: string) => set({ overriddenDataModelUuid }),
     clearTaskId: () => set({ overriddenTaskId: '' }),
     setDepth: (depth: number) => set({ depth }),
-    summaryNode,
   }));
 
-const StoreContext = createContext<ReturnType<typeof createSummaryStore> | null>(null);
+const StoreContext = createContext<ReturnType<typeof createTaskStore> | null>(null);
 
-interface Summary2StoreProviderProps extends React.PropsWithChildren {
-  summaryNode: LayoutNode<'Summary2'>;
-}
-
-export function Summary2StoreProvider({ children, summaryNode }: Summary2StoreProviderProps) {
-  const store = createSummaryStore(summaryNode);
+export function TaskStoreProvider({ children }: React.PropsWithChildren) {
+  const store = createTaskStore();
 
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
