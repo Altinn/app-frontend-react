@@ -377,7 +377,7 @@ describe('Summary', () => {
       .and('not.contain.text', 'Skjul kommentar felt');
   });
 
-  it.only('Navigation between summary and pages', () => {
+  it('Navigation between summary and pages', () => {
     cy.gotoAndComplete('changename');
 
     const pageValidationConfigs: (PageValidation | undefined)[] = [
