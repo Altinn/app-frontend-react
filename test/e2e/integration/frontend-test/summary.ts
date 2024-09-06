@@ -443,7 +443,8 @@ describe('Summary', () => {
 
       // Going back to the first page via an 'edit' button and navigating to the summary page again. Also testing
       // that the back to summary button goes away when navigating via the navMenu instead.
-      cy.get(exampleSummary).find('button').click();
+      cy.get(`${exampleSummary} button`).click();
+      cy.get(appFrontend.changeOfName.newFirstName).should('exist'); // We're now on the first page
       cy.get(appFrontend.backToSummaryButton).should('exist');
       cy.gotoNavPage('lastPage');
       cy.get('#some-required-component').should('exist');
@@ -453,7 +454,7 @@ describe('Summary', () => {
       cy.get(exampleSummary).should('exist');
       assertErrorReport();
       cy.get(`${exampleSummary} button`).click();
-      cy.get(appFrontend.changeOfName.newFirstName).should('exist'); // We're now on the first page
+      cy.get(appFrontend.changeOfName.newFirstName).should('exist');
       assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).click();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
