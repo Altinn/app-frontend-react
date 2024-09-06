@@ -3,7 +3,7 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 const appFrontend = new AppFrontend();
 
 export const fillInAddressAndVerify = (address: string, co: string, zip: string, houseNumber: string) => {
-  cy.get('#navigation-menu').find('button').contains('8. Adresse').click();
+  cy.gotoNavPage('Adresse');
   cy.get('#address_address_AddressPage-Address').type(address);
   cy.get('#address_care_of_AddressPage-Address').type(co);
   cy.get('#address_zip_code_AddressPage-Address').type(zip);

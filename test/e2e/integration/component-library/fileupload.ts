@@ -10,7 +10,7 @@ const makeTestFile = (fileName: string) => ({
 });
 
 export const uploadFileAndVerify = (fileName: string) => {
-  cy.get('#navigation-menu').find('button').contains('9. FileUploadPage').click();
+  cy.gotoNavPage('FileUploadPage');
   cy.get('[data-componenttype="FileUpload"]').first().should('be.visible');
 
   cy.get('[data-componenttype="FileUpload"]')
@@ -28,7 +28,7 @@ export const uploadFileAndVerify = (fileName: string) => {
 };
 
 export const uploadFileWithTagAndVerify = (fileName: string, fileType: string) => {
-  cy.get('#navigation-menu').find('button').contains('9. FileUploadPage').click();
+  cy.gotoNavPage('FileUploadPage');
   cy.get('[data-componenttype="FileUploadWithTag"]').first().should('be.visible');
   cy.get('[data-componenttype="FileUploadWithTag"]')
     .first()

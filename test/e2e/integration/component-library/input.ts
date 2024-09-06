@@ -3,10 +3,8 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 const appFrontend = new AppFrontend();
 
 export const fillInInputAndVerify = (text: string) => {
-  cy.get('#navigation-menu').find('button').contains('1. Kort svar').click();
+  cy.gotoNavPage('Kort svar');
   cy.get('#InputPage-Input').type(text);
-
-  // Verify Gateadresse (Street address)
   cy.get('[data-testid="summary-single-value-component"]').eq(0).find('span.fds-paragraph').should('have.text', text);
 };
 
