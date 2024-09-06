@@ -10,7 +10,7 @@ import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
-import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
+import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { DataQueryWithDefaultValue } from 'src/layout/Subform/SubformComponent';
 import classes from 'src/layout/Subform/Summary/SubformSummaryComponent2.module.css';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
