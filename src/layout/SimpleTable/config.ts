@@ -25,9 +25,18 @@ export const Config = new CG.component({
         new CG.obj(
           new CG.prop('id', new CG.str()),
           new CG.prop('title', new CG.str()),
-          new CG.prop('type', new CG.str()),
-          new CG.prop('path', new CG.str()),
-        ),
+          new CG.prop(
+            'component',
+            new CG.union(
+              new CG.obj(new CG.prop('type', new CG.const('Text')), new CG.prop('valuePath', new CG.str())),
+              new CG.obj(
+                new CG.prop('type', new CG.const('Link')),
+                new CG.prop('hrefPath', new CG.str()),
+                new CG.prop('textPath', new CG.str()),
+              ),
+            ),
+          ),
+        ).exportAs('ColumnConfig'),
       ),
     ),
   )
@@ -38,6 +47,6 @@ export const Config = new CG.component({
         new CG.prop('type', new CG.const('externalApi')),
         new CG.prop('id', new CG.str()),
         new CG.prop('path', new CG.str()),
-      ),
+      ).exportAs('DataConfig'),
     ),
   );
