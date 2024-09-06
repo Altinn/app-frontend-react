@@ -54,7 +54,7 @@ function testGroup(mode: Mode) {
   cy.get(appFrontend.group.prefill.svaer).check();
   cy.get(appFrontend.group.prefill.enorm).check();
 
-  cy.gotoNavPage('repeating');
+  cy.navPage('repeating').click();
   cy.get(appFrontend.group.showGroupToContinue).find('input').check();
   cy.addItemToGroup(1, 2, 'automation');
 
@@ -81,7 +81,7 @@ function testGroup(mode: Mode) {
   cy.navPage('repeating (store endringer)').click();
   ensureTableHasNumColumns(appFrontend.group.overflowGroup, 4, 2);
 
-  cy.gotoNavPage('hide');
+  cy.navPage('hide').click();
   cy.get(appFrontend.group.sendersName).type('automation');
 
   if (mode === 'mobile') {
@@ -92,7 +92,7 @@ function testGroup(mode: Mode) {
     cy.get(appFrontend.navMenu).find('li > button').last().click();
     cy.get(appFrontend.navMenu).should('not.exist');
   } else {
-    cy.gotoNavPage('summary');
+    cy.navPage('summary').click();
   }
   sendIn();
 }
