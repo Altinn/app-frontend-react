@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const breakpoints = {
   mini: 600,
@@ -37,14 +37,11 @@ export function useIsMobileOrTablet() {
 function useBrowserWidth(condition: Condition) {
   const [state, setState] = useState(condition(window.innerWidth));
 
-  const handleResize = useCallback(() => {
-    setState(condition(window.innerWidth));
-  }, [condition]);
-
   useEffect(() => {
+    const handleResize = () => setState(condition(window.innerWidth));
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [handleResize]);
+  }, [condition]);
 
   return state;
 }
