@@ -5,6 +5,7 @@ import { evalQueryParameters } from 'src/features/options/evalQueryParameters';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
+import { ListSummary } from 'src/layout/List/ListSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -12,6 +13,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class List extends ListDef {
@@ -43,6 +45,16 @@ export class List extends ListDef {
   renderSummary({ targetNode }: SummaryRendererProps<'List'>): JSX.Element | null {
     const displayData = this.useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
+  }
+
+  renderSummary2(props: Summary2Props<'List'>): JSX.Element | null {
+    return (
+      <ListSummary
+        componentNode={props.target}
+        isCompact={props.isCompact}
+        emptyFieldText={props.override?.emptyFieldText}
+      />
+    );
   }
 
   runEmptyFieldValidation(
