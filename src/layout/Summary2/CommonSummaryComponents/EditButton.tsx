@@ -78,7 +78,7 @@ export function EditButton({
       <Edit
         fontSize='1rem'
         aria-hidden={true}
-        title={`${langAsString('form_filler.summary_item_change')} ${accessibleTitle}`}
+        title={`${isMobile ? langAsString('form_filler.summary_item_change') : ''} ${accessibleTitle}`}
       />
     </Button>
   );
