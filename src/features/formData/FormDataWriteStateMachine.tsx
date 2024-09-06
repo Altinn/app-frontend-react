@@ -163,6 +163,11 @@ export interface FDSaveFinished extends FDSaveResult {
   };
 }
 
+interface ToProcess {
+  savedData: FDSaveFinished['savedData'];
+  newDataModels: UpdatedDataModel[];
+}
+
 export interface FormDataMethods {
   // Methods used for updating the data model. These methods will update the currentData model, and after
   // the debounce() method is called, the debouncedCurrentData model will be updated as well.
@@ -229,16 +234,12 @@ function makeActions(
     }
   }
 
-  function processChanges(
-    state: FormDataContext,
-    { newDataModels, savedData }: Pick<FDSaveFinished, 'newDataModels' | 'savedData'>,
-  ) {
+  function processChanges(state: FormDataContext, { newDataModels, savedData }: ToProcess) {
     state.manualSaveRequested = false;
     for (const [dataType, { dataElementId, isDefault }] of Object.entries(state.dataModels)) {
-      const next =
-        dataElementId && newDataModels[dataElementId]
-          ? newDataModels[dataElementId] // When in an instance
-          : newDataModels[dataType]; // Stateless
+      const next = dataElementId
+        ? newDataModels.find((m) => m.dataElementId === dataElementId)?.data // Stateful apps
+        : newDataModels.find((m) => m.dataType === dataType)?.data; // Stateless apps
       if (next) {
         const backendChangesPatch = createPatch({
           prev: savedData[dataType],
