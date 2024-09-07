@@ -5,6 +5,7 @@ import dot from 'dot-object';
 
 import { Caption } from 'src/components/form/Caption';
 import { useExternalApi } from 'src/features/externalApi/useExternalApi';
+import { ErrorList } from 'src/layout/GenericComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ColumnConfig } from 'src/layout/SimpleTable/config.generated';
@@ -13,14 +14,15 @@ export const SimpleTableComponent = ({ node }: PropsFromGenericComponent<'Simple
   const nodeItem = useNodeItem(node);
 
   const { data: externalApi } = useExternalApi(nodeItem.data.id);
-  const data: unknown = nodeItem.data.path ? dot.pick(nodeItem.data.path, externalApi) : externalApi;
+  const data: unknown = dot.pick(nodeItem.data.path, externalApi);
 
-  if (!data) {
-    return null;
-  }
-
-  if (!Array.isArray(data)) {
-    throw new Error('Data must be an array');
+  if (!isArrayOfObjects(data)) {
+    return (
+      <ErrorList
+        nodeId={node.id}
+        errors={['Tabelldata må være en liste av objekter']}
+      />
+    );
   }
 
   return (
@@ -34,10 +36,15 @@ export const SimpleTableComponent = ({ node }: PropsFromGenericComponent<'Simple
         </Table.Row>
       </Table.Head>
       <Table.Body>
+        {data.length === 0 && (
+          <Table.Row>
+            <Table.Cell colSpan={nodeItem.columns.length}>Ingen data</Table.Cell>
+          </Table.Row>
+        )}
         {data.map((row) => (
           <Table.Row key={String(row)}>
             {nodeItem.columns.map((column, idx) => (
-              <Table.Cell key={`${column.id}[${idx}]`}>{renderColumn(column, row)}</Table.Cell>
+              <Table.Cell key={`${column.id}[${idx}]`}>{renderCell(column.component, row)}</Table.Cell>
             ))}
           </Table.Row>
         ))}
@@ -46,22 +53,23 @@ export const SimpleTableComponent = ({ node }: PropsFromGenericComponent<'Simple
   );
 };
 
-function renderColumn({ component }: ColumnConfig, row: unknown) {
-  if (!row) {
-    return null;
+function renderCell(component: ColumnConfig['component'], row: Record<string, unknown>) {
+  if (component.type === 'Link') {
+    return (
+      <Link
+        href={dot.pick(component.hrefPath, row)}
+        target='_blank'
+      >
+        {dot.pick(component.textPath, row)}
+      </Link>
+    );
   }
 
-  switch (component.type) {
-    case 'Text':
-      return row[component.valuePath];
-    case 'Link':
-      return (
-        <Link
-          href={row[component.hrefPath]}
-          target='_blank'
-        >
-          {row[component.textPath]}
-        </Link>
-      );
-  }
+  // FIXME: what if the path does not exist and the resulting value is undefined?
+  // Should we display an error, or is this a valid use case in production?
+  return dot.pick(component.valuePath, row);
+}
+
+function isArrayOfObjects(data: unknown): data is Record<string, unknown>[] {
+  return Array.isArray(data) && data.every((row: unknown) => !!row && typeof row === 'object' && !Array.isArray(row));
 }
