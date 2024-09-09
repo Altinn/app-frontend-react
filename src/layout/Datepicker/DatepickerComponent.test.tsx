@@ -103,7 +103,7 @@ describe('DatepickerComponent', () => {
     await userEvent.click(getCalendarDayButton('15'));
 
     // Ignore TZ part of timestamp to avoid test failing when this changes
-    // Calendar opens up on current year/month by default, so we need to cater for this in the expected output
+    // DatePickerCalendar opens up on current year/month by default, so we need to cater for this in the expected output
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
       path: 'myDate',
       newValue: expect.stringContaining(`${currentYearNumeric}-${currentMonthNumeric}-15T12:00:00.000+`),

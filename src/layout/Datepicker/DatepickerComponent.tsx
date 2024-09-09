@@ -1,11 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import MomentUtils from '@date-io/moment';
 import { Grid, makeStyles } from '@material-ui/core';
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import { CalendarIcon } from '@navikt/aksel-icons';
-import moment from 'moment';
-import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
+import { format as formatDate, formatISO, isValid as isValidDate, parse } from 'date-fns';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -13,12 +9,15 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { getDateConstraint, getDateFormat, getDateString } from 'src/utils/dateHelpers';
+import { DatePickerCalendar } from 'src/layout/Datepicker/DatePickerCalendar';
+import { DatePickerInput } from 'src/layout/Datepicker/DatePickerInput';
+import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/layout/Datepicker/DatepickerComponent.css';
 import 'src/styles/shared.css';
+import 'react-day-picker/style.css';
 
 export type IDatepickerProps = PropsFromGenericComponent<'Datepicker'>;
 
@@ -94,18 +93,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-class AltinnMomentUtils extends MomentUtils {
-  getDatePickerHeaderText(date: moment.Moment) {
-    if (date && date.locale() === 'nb') {
-      return date.format('dddd, D. MMMM');
-    }
-    return super.getDatePickerHeaderText(date);
-  }
-}
-
-// We dont use the built-in validation for the 3rd party component, so it is always empty string
-const emptyString = '';
-
 export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps) {
   const classes = useStyles();
   const isValid = useIsValid(node);
@@ -123,6 +110,11 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
     dataModelBindings,
   } = useNodeItem(node);
 
+  const [month, setMonth] = useState(new Date());
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [input, setInput] = useState('');
+
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');
 
@@ -131,16 +123,20 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
 
   const { setValue, debounce, formData } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding;
-  const dateValue = moment(formData.simpleBinding, moment.ISO_8601);
-  const [date, input] = dateValue.isValid() ? [dateValue, undefined] : [null, value ?? ''];
+  const dateValue = formatISO(formData.simpleBinding);
+  //const [date, input] = isValidDate(dateValue) ? [dateValue, undefined] : [null, value ?? ''];
 
-  const handleDateValueChange = (dateValue: MaterialUiPickersDate, inputValue: string | undefined) => {
-    if (dateValue?.isValid()) {
-      dateValue.set('hour', 12).set('minute', 0).set('second', 0).set('millisecond', 0);
-      setValue('simpleBinding', getDateString(dateValue, timeStamp));
+  const handleDayPickerSelect = (date: Date) => {
+    if (!date || !isValidDate(date)) {
+      setInput('');
+      setDate(undefined);
+      //setValue('simpleBinding', inputValue ?? '');
     } else {
-      setValue('simpleBinding', inputValue ?? '');
+      //setValue('simpleBinding', getDateString(dateValue, timeStamp));
+      setDate(date);
+      setInput(formatDate(date, calculatedFormat));
     }
+    setIsDialogOpen(false);
   };
 
   const mobileOnlyProps = isMobile
@@ -151,18 +147,49 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
       }
     : {};
 
+  const toggleDialog = () => setIsDialogOpen(!isDialogOpen);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value); // keep the input value in sync
+    const parsedDate = parse(e.target.value, calculatedFormat, new Date());
+
+    if (isValidDate(parsedDate)) {
+      setDate(parsedDate);
+      setMonth(parsedDate);
+    } else {
+      setDate(undefined);
+    }
+  };
+
   return (
     <ComponentStructureWrapper
       node={node}
       label={{ node, renderLabelAs: 'label' }}
     >
-      <MuiPickersUtilsProvider utils={AltinnMomentUtils}>
-        <Grid
-          container
-          item
-          xs={12}
-        >
-          <KeyboardDatePicker
+      <Grid
+        container
+        item
+        xs={12}
+      >
+        <DatePickerInput
+          id={id}
+          value={input}
+          isDialogOpen={true}
+          formatString={calculatedFormat}
+          onChange={handleInputChange}
+          toggleDialog={toggleDialog}
+        />
+        <DatePickerCalendar
+          id={id}
+          selectedDate={date}
+          month={month}
+          setMonth={setMonth}
+          isOpen={isDialogOpen}
+          onSelect={handleDayPickerSelect}
+          minDate={calculatedMinDate}
+          maxDate={calculatedMaxDate}
+        />
+        {/*<KeyboardDatePicker
             readOnly={readOnly}
             required={required}
             variant={isMobile ? 'dialog' : 'inline'}
@@ -230,9 +257,9 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
             }
             className={classes.datepicker}
             {...mobileOnlyProps}
-          />
-        </Grid>
-      </MuiPickersUtilsProvider>
+          />*/}
+      </Grid>
+      {/* </MuiPickersUtilsProvider>*/}
     </ComponentStructureWrapper>
   );
 }

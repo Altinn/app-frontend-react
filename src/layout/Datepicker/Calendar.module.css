@@ -1,0 +1,57 @@
+.selectedDate {
+  background-color: var(--fds-colors-blue-900);
+  color: white;
+  font-weight: normal;
+  border-radius: var(--fds-border_radius-medium);
+}
+.disabledDate {
+  border-radius: var(--fds-border_radius-medium);
+  background: var(--fds-colors-grey-100);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+.focusedDate {
+  border-radius: var(--fds-border_radius-medium);
+  background: var(--fds-colors-blue-200);
+}
+.today {
+  //border-radius: var(--fds-border_radius-medium);
+  //border: var(--fds-border_width-default) solid var(--fds-colors-blue-200);
+}
+.today button {
+  border-radius: var(--fds-border_radius-medium);
+  border: var(--fds-border_width-default) solid var(--fds-colors-blue-200);
+}
+.disabledDate:hover button {
+  cursor: not-allowed;
+}
+.dayButton {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  border-radius: 0;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.monthWrapper {
+  display: flex;
+  flex-direction: column;
+}
+.calendarInputWrapper {
+  display: flex;
+  border-radius: 4px;
+  border: var(--fds-border_width-default, 1px) solid var(--fds-semantic-border-neutral-default);
+}
+.calendarInput input,
+.calendarInput button {
+  border: none;
+  background: white;
+  outline: none;
+}
