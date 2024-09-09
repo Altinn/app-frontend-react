@@ -23,7 +23,7 @@ describe('Render summary of previous task', () => {
     uploadFileAndVerify(fileName);
     uploadFileWithTagAndVerify(fileName, fileType);
 
-    cy.get('#navigation-menu').find('button').contains('13. Oppsummering 2.0').click();
+    cy.get('#navigation-menu').find('button').contains('15. Oppsummering 2.0').click();
 
     cy.contains('button', 'Send inn').click();
 
