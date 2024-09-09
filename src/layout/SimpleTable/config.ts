@@ -34,7 +34,7 @@ export const Config = new CG.component({
                 new CG.prop('hrefPath', new CG.str()),
                 new CG.prop('textPath', new CG.str()),
               ),
-            ),
+            ).setUnionType('discriminated'),
           ),
         ).exportAs('ColumnConfig'),
       ),
