@@ -4,10 +4,12 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
+import { resolveQueryParameters } from 'src/features/options/evalQueryParameters';
 import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { filterDuplicateOptions, verifyOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -71,6 +73,7 @@ interface EffectProps {
 const getLabelsForActiveOptions = (selectedOptions: string[], allOptions: IOptionInternal[]): string[] =>
   allOptions.filter((option) => selectedOptions.includes(option.value)).map((option) => option.label);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const usePrevious = (value: any) => {
   const ref = useRef();
   useEffect(() => {
@@ -78,6 +81,7 @@ const usePrevious = (value: any) => {
   });
   return ref.current;
 };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useHasChanged = (val: any) => {
   const prevVal = usePrevious(val);
   return prevVal !== val;
@@ -129,8 +133,10 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
     }
 
     if (valueType === 'single') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setValue('label' as any, translatedLabels.at(0));
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setValue('label' as any, translatedLabels);
     }
   }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, valueType]);
@@ -201,14 +207,23 @@ function useRemoveStaleValues(props: EffectProps) {
 
 export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): GetOptionsResult {
   const { options, optionsId, secure, source, mapping, queryParameters, sortOrder, dataModelBindings } = item;
+
+  const dataSources = useExpressionDataSources();
+  const resolvedQueryParameters = resolveQueryParameters(queryParameters, node, dataSources);
+
   const preselectedOptionIndex = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
   const { langAsString } = useLanguage();
   const selectedLanguage = useCurrentLanguage();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { setValue } = useDataModelBindings(item.dataModelBindings as any);
 
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
-  const { data: fetchedOptions, isFetching, isError } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
+  const {
+    data: fetchedOptions,
+    isFetching,
+    isError,
+  } = useGetOptionsQuery(optionsId, mapping, resolvedQueryParameters, secure);
   const isNodeHidden = Hidden.useIsHidden(node);
   const isNodesReady = NodesInternal.useIsReady();
 
@@ -264,6 +279,7 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
 
   const alwaysOptions = calculatedOptions || defaultOptions;
   const { unsafeSelectedValues, setData } = useSetOptions(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { valueType, dataModelBindings: dataModelBindings as any },
     alwaysOptions,
   );
@@ -302,6 +318,7 @@ export function useGetOptions(
   node: LayoutNode<CompWithBehavior<'canHaveOptions'>>,
   valueType: OptionsValueType,
 ): GetOptionsResult & SetOptionsResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings) as any;
   const get = useNodeOptions(node);
   const set = useSetOptions({ valueType, dataModelBindings }, get.options);

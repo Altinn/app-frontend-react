@@ -18,6 +18,7 @@ import { useDef, useExpressionResolverProps } from 'src/utils/layout/generator/N
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
 import type { CompDef } from 'src/layout';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal } from 'src/layout/layout';
 import type { ChildClaims, ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -76,7 +77,7 @@ interface GenerateRowProps {
   rowIndex: number;
   rowUuid: string;
   claims: ChildClaims;
-  groupBinding: string | undefined;
+  groupBinding: IDataModelReference | undefined;
   multiPageMapping: MultiPageMapping | undefined;
   internalProp: string;
   pluginKey: string;
@@ -147,6 +148,7 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
 
   const setExtra = NodesStateQueue.useSetRowExtras();
   const def = useDef(item!.type);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const resolvedRowExtras = useMemoDeepEqual(() => (def as CompDef).evalExpressionsForRow(props as any), [def, props]);
 
   GeneratorStages.EvaluateExpressions.useEffect(() => {
@@ -175,7 +177,7 @@ function mutateMultiPageIndex(multiPageMapping: MultiPageMapping | undefined): C
       return;
     }
 
-    const id = (item as any).baseComponentId ?? item.id;
+    const id = item.baseComponentId ?? item.id;
     const multiPageIndex = multiPageMapping[id];
     if (multiPageIndex !== undefined) {
       item['multiPageIndex'] = multiPageIndex;
@@ -185,18 +187,23 @@ function mutateMultiPageIndex(multiPageMapping: MultiPageMapping | undefined): C
 
 export function mutateComponentId(row: BaseRow): ChildMutator {
   return (item) => {
-    (item as any).baseComponentId = (item as any).baseComponentId || item.id;
+    item.baseComponentId = item.baseComponentId || item.id;
     item.id += `-${row.index}`;
   };
 }
 
-export function mutateDataModelBindings(row: BaseRow, groupBinding: string | undefined): ChildMutator {
+export function mutateDataModelBindings(row: BaseRow, groupBinding: IDataModelReference | undefined): ChildMutator {
   return (item) => {
     const bindings = item.dataModelBindings || {};
     for (const key of Object.keys(bindings)) {
-      if (groupBinding && bindings[key]) {
-        bindings[key] = bindings[key].replace(groupBinding, `${groupBinding}[${row.index}]`);
+      const binding = bindings[key] as IDataModelReference | undefined;
+      if (!binding || !groupBinding || groupBinding.dataType !== binding.dataType) {
+        continue;
       }
+      bindings[key] = {
+        dataType: binding.dataType,
+        field: binding.field.replace(groupBinding.field, `${groupBinding.field}[${row.index}]`),
+      };
     }
   };
 }

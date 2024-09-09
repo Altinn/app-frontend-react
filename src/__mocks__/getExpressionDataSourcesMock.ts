@@ -1,4 +1,5 @@
 import { getApplicationSettingsMock } from 'src/__mocks__/getApplicationSettingsMock';
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import type { IInstanceDataSources } from 'src/types/shared';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
@@ -11,15 +12,13 @@ export function getExpressionDataSourcesMock(): ExpressionDataSources {
     attachmentsSelector: () => {
       throw new Error('Not implemented: attachmentsSelector()');
     },
-    layoutSettings: { pages: { order: [] } },
     optionsSelector: () => ({ isFetching: false, options: [] }),
     applicationSettings: getApplicationSettingsMock(),
+    dataModelNames: [defaultDataTypeMock],
     instanceDataSources: {} as IInstanceDataSources | null,
-    authContext: null,
-    devToolsIsOpen: false,
-    devToolsHiddenComponents: 'hide',
     langToolsSelector: () => staticUseLanguageForTests(),
     currentLanguage: 'nb',
+    currentLayoutSet: { id: 'form', dataType: 'data', tasks: ['task1'] },
     isHiddenSelector: () => false,
     nodeFormDataSelector: (() => ({})) as unknown as NodeFormDataSelector,
     nodeDataSelector: () => {

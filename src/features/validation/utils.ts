@@ -8,18 +8,21 @@ import type {
 } from 'src/features/validation';
 import type { AllowedValidationMasks } from 'src/layout/common.generated';
 
-export function mergeFieldValidations(...X: FieldValidations[]): FieldValidations {
+export function mergeFieldValidations(...X: (FieldValidations | undefined)[]): FieldValidations {
   if (X.length === 0) {
     return {};
   }
 
   if (X.length === 1) {
-    return X[0];
+    return X[0] ?? {};
   }
 
   const [X1, ...XRest] = X;
-  const out = structuredClone(X1);
+  const out = X1 ? structuredClone(X1) : {};
   for (const Xn of XRest) {
+    if (!Xn) {
+      continue;
+    }
     for (const [field, validations] of Object.entries(structuredClone(Xn))) {
       if (!out[field]) {
         out[field] = [];
@@ -41,7 +44,7 @@ export function validationsOfSeverity<I extends BaseValidation, S extends Valida
 }
 
 export function hasValidationErrors<V extends BaseValidation>(validations: V[] | undefined): boolean {
-  return validations?.some((validation: any) => validation.severity === 'error') ?? false;
+  return validations?.some((validation) => validation.severity === 'error') ?? false;
 }
 
 export function isValidationVisible<T extends AnyValidation>(validation: T, mask: number): boolean {

@@ -4,6 +4,13 @@ import { CompCategory } from 'src/layout/common';
 import { GridRowsPlugin } from 'src/layout/Grid/GridRowsPlugin';
 import { RepeatingChildrenPlugin } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 
+export const REPEATING_GROUP_SUMMARY_OVERRIDE_PROPS = new CG.obj()
+  .extends(CG.common('ISummaryOverridesCommon'))
+  .optional()
+  .setTitle('Summary properties')
+  .setDescription('Properties for how to display the summary of the component')
+  .exportAs('RepeatingGroupSummaryOverrideProps');
+
 export const Config = new CG.component({
   category: CompCategory.Container,
   directRendering: true,
@@ -122,7 +129,7 @@ export const Config = new CG.component({
     new CG.obj(
       new CG.prop(
         'group',
-        new CG.str()
+        new CG.dataModelBinding()
           .setTitle('Group')
           .setDescription(
             'Dot notation location for a repeating group structure (array of objects), where the data is stored',

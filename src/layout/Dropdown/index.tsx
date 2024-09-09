@@ -42,8 +42,8 @@ export class Dropdown extends DropdownDef {
     return (
       <DropdownSummary
         componentNode={props.target}
-        summaryOverrides={props.overrides}
-        displayData={this.useDisplayData(props.target)}
+        isCompact={props.isCompact}
+        emptyFieldText={props.override?.emptyFieldText}
       />
     );
   }

@@ -6,10 +6,11 @@ import type { Options as AxeOptions } from 'cypress-axe';
 
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
-import { breakpoints } from 'src/hooks/useIsMobile';
+import { breakpoints } from 'src/hooks/useDeviceWidths';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
+import type { BackendValidationIssue } from 'src/features/validation';
 import type { ILayoutFile } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
@@ -517,8 +518,15 @@ Cypress.Commands.add('getSummary', (label) => {
 });
 
 const DEFAULT_COMMAND_TIMEOUT = Cypress.config().defaultCommandTimeout;
-Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
+Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) => {
   cy.log('Testing PDF');
+
+  // Store initial viewport size for later
+  const size = { width: 0, height: 0 };
+  cy.window().then((win) => {
+    size.width = win.innerWidth;
+    size.height = win.innerHeight;
+  });
 
   // Make sure instantiation is completed before we get the url
   cy.location('hash').should('contain', '#/instance/');
@@ -543,25 +551,55 @@ Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
     // the current task as a PDF.
     cy.visit(visitUrl);
   });
-  cy.reload();
 
-  // Wait for readyForPrint, after this everything should be rendered so using timeout: 0
-  cy.get('#pdfView > #readyForPrint')
-    .should('exist')
-    .then(() => {
-      Cypress.config('defaultCommandTimeout', 0);
+  cy.readFile('test/percy.css').then((percyCSS) => {
+    cy.reload();
 
-      // Verify that generic elements that should be hidden are not present
-      cy.findAllByRole('button').should('not.exist');
-      // Run tests from callback
-      callback();
+    // Wait for readyForPrint, after this everything should be rendered so using timeout: 0
+    cy.get('#pdfView > #readyForPrint')
+      .should('exist')
+      .then(() => {
+        // Enable print media emulation
+        cy.wrap(
+          Cypress.automation('remote:debugger:protocol', {
+            command: 'Emulation.setEmulatedMedia',
+            params: { media: 'print' },
+          }),
+          { log: false },
+        );
+        // Set viewport to A4 paper + scrollbar width
+        cy.viewport(794 + 15, 1123);
+        cy.get('body').invoke('css', 'margin', '0.75in');
 
-      cy.then(() => {
-        Cypress.config('defaultCommandTimeout', DEFAULT_COMMAND_TIMEOUT);
+        cy.then(() => Cypress.config('defaultCommandTimeout', 0));
+
+        // Verify that generic elements that should be hidden are not present
+        cy.findAllByRole('button').should('not.exist');
+        // Run tests from callback
+        callback();
+
+        cy.then(() => Cypress.config('defaultCommandTimeout', DEFAULT_COMMAND_TIMEOUT));
+
+        if (snapshotName) {
+          // Take snapshot of PDF
+          cy.percySnapshot(`${snapshotName} (PDF)`, { percyCSS, widths: [794] });
+        }
       });
-    });
+  });
 
   if (returnToForm) {
+    // Disable media emulation
+    cy.wrap(
+      Cypress.automation('remote:debugger:protocol', {
+        command: 'Emulation.setEmulatedMedia',
+        params: {},
+      }),
+      { log: false },
+    );
+    // Revert to original viewport
+    cy.then(() => cy.viewport(size.width, size.height));
+    cy.get('body').invoke('css', 'margin', '');
+
     cy.location('href').then((href) => {
       cy.visit(href.replace('?pdf=1', ''));
     });
@@ -583,6 +621,77 @@ Cypress.Commands.add(
     }),
 );
 
+Cypress.Commands.add('runAllBackendValidations', () => {
+  cy.intercept('PATCH', '**/data', (req) => {
+    req.body.ignoredValidators = [];
+  }).as('runBackendValidations');
+});
+
+Cypress.Commands.add('getNextPatchValidations', (result) => {
+  // We don't want to accidentally intercept a request caused by a change before this method is called
+  cy.waitUntilSaved();
+
+  // Clear existing data first
+  cy.then(() => {
+    result.validations = null;
+  });
+  cy.intercept({ method: 'PATCH', url: '**/data', times: 1 }, (req) => {
+    req.on('response', (res) => {
+      // Consider finding out what data element id corresponds to each type at the beginning of the test instead, for more explicit checking
+      result.validations = res.body.validationIssues;
+    });
+  }).as('getNextValidations');
+});
+
+Cypress.Commands.add('expectValidationToExist', (result, group, predicate) => {
+  cy.wrap(result, { log: false }).should(({ validations }) => {
+    const ready = Boolean(validations);
+    if (ready) {
+      expect(ready, 'Found validations from backend').to.be.true;
+    } else {
+      expect(ready, 'Did not find validations from backend').to.be.true;
+    }
+
+    const validation = validations?.[group]?.find((v: BackendValidationIssue) => predicate(v));
+    if (validation) {
+      expect(
+        validation,
+        `Backend validation with predicate ${predicate.toString().replaceAll('\n', ' ')} exists in validation group '${group}'`,
+      ).to.exist;
+    } else {
+      expect(
+        validation,
+        `Unable to find backend validation with predicate ${predicate.toString().replaceAll('\n', ' ')}} in validation group '${group}'. Validations: ${JSON.stringify(validations?.[group])}.`,
+      ).to.exist;
+    }
+  });
+});
+
+Cypress.Commands.add('expectValidationNotToExist', (result, group, predicate) => {
+  cy.wrap(result, { log: false }).should(({ validations }) => {
+    const ready = Boolean(validations);
+    if (ready) {
+      expect(ready, 'Found validations from backend').to.be.true;
+    } else {
+      expect(ready, 'Did not find validations from backend').to.be.true;
+    }
+
+    const validation = validations?.[group]?.find((v) => predicate(v));
+    if (!validation) {
+      expect(
+        validation,
+        `Backend validation with predicate ${predicate.toString().replaceAll('\n', ' ')} does not exist in validation group '${group}'`,
+      ).not.to.exist;
+    } else {
+      expect(
+        validation,
+        `Expected backend validation with predicate ${predicate.toString().replaceAll('\n', ' ')}} not to exist in validation group '${group}'. Validations: ${JSON.stringify(validations?.[group])}.`,
+      ).not.to.exist;
+    }
+  });
+});
+
 Cypress.Commands.add('allowFailureOnEnd', function () {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (this.test as any).__allowFailureOnEnd = true;
 });

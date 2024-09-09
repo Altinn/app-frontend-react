@@ -35,6 +35,7 @@ describe('Summary', () => {
     cy.gotoNavPage('form');
     cy.fillOut('changename');
     cy.gotoNavPage('summary');
+    cy.waitUntilSaved();
     cy.get(appFrontend.backButton).should('be.visible');
 
     // Summary displays change button for editable fields and does not for readonly fields
@@ -393,7 +394,7 @@ describe('Summary', () => {
       const newFirstNameSummary = '[data-testid=summary-summary2]';
       const exampleSummary = '[data-testid=summary-summary-reference]';
 
-      cy.navPage('form').click();
+      cy.gotoNavPage('form');
       cy.get(appFrontend.changeOfName.newFirstName).clear();
       cy.get(appFrontend.changeOfName.newFirstName).type(`Anne`);
       cy.findByRole('tab', { name: /nytt etternavn/i }).click();
@@ -443,29 +444,37 @@ describe('Summary', () => {
 
       // Going back to the first page via an 'edit' button and navigating to the summary page again. Also testing
       // that the back to summary button goes away when navigating via the navMenu instead.
-      cy.get(exampleSummary).find('button').click();
+      cy.get(`${exampleSummary} button`).click();
+      cy.get(appFrontend.changeOfName.newFirstName).should('exist'); // We're now on the first page
       cy.get(appFrontend.backToSummaryButton).should('exist');
-      cy.navPage('lastPage').click();
+      cy.gotoNavPage('lastPage');
+      cy.get('#some-required-component').should('exist');
       assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
-      cy.navPage('summary').click();
+      cy.gotoNavPage('summary');
+      cy.get(exampleSummary).should('exist');
       assertErrorReport();
       cy.get(`${exampleSummary} button`).click();
+      cy.get(appFrontend.changeOfName.newFirstName).should('exist');
       assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).click();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
+      cy.get(exampleSummary).should('exist');
       assertErrorReport();
-      cy.navPage('lastPage').click();
+      cy.gotoNavPage('lastPage');
+      cy.get('#some-required-component').should('exist');
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
-      cy.navPage('summary').click();
+      cy.gotoNavPage('summary');
+      cy.get(exampleSummary).should('exist');
       assertErrorReport();
       cy.get(appFrontend.backButton).click();
       assertErrorReport();
-      cy.navPage('summary').click();
+      cy.gotoNavPage('summary');
+      cy.get(exampleSummary).should('exist');
       assertErrorReport();
 
       // Sending in always validates all pages
-      cy.navPage('grid').click();
+      cy.gotoNavPage('grid');
       cy.get(appFrontend.sendinButton).click();
       cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut page3required');
     }
@@ -474,10 +483,10 @@ describe('Summary', () => {
   it('Navigation to fields on other pages outside the summary should not show the back-to-summary button', () => {
     cy.gotoAndComplete('changename');
     injectExtraPageAndSetTriggers();
-    cy.navPage('form').click();
+    cy.gotoNavPage('form');
     cy.findByRole('tab', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.changeOfName.newLastName).clear();
-    cy.navPage('lastPage').click();
+    cy.gotoNavPage('lastPage');
     cy.get('#page3-submit').click();
     cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut page3required');
     cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldLastName);
@@ -646,7 +655,10 @@ function injectExtraPageAndSetTriggers(pageValidationConfig?: PageValidation | u
             title: 'Page3required',
           },
           dataModelBindings: {
-            simpleBinding: 'etatid',
+            simpleBinding: {
+              field: 'etatid',
+              dataType: 'ServiceModel-test',
+            },
           },
           required: true,
         },

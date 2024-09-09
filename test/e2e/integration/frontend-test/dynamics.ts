@@ -61,8 +61,7 @@ describe('Dynamics', () => {
         component.hidden = ['equals', 'hideFirstName', ['component', 'newLastName']];
       }
     });
-    cy.gotoAndComplete('changename');
-    cy.navPage('form').click();
+    cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).clear();
     cy.findByRole('tab', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.changeOfName.newLastName).clear();
@@ -70,6 +69,7 @@ describe('Dynamics', () => {
     cy.get(appFrontend.errorReport).should('contain.text', texts.testIsNotValidValue);
     cy.get(appFrontend.changeOfName.newLastName).type('hideFirstName');
     cy.get(appFrontend.errorReport).should('not.exist');
+    cy.get(appFrontend.changeOfName.newFirstName).should('not.exist');
     cy.get(appFrontend.changeOfName.newLastName).clear();
     cy.get(appFrontend.changeOfName.newFirstName).should('be.visible');
     cy.get(appFrontend.errorReport).should('contain.text', texts.testIsNotValidValue);
@@ -96,7 +96,12 @@ describe('Dynamics', () => {
             id: 'testInputOnSummary',
             type: 'Input',
             textResourceBindings: { title: 'Temporary field while testing' },
-            dataModelBindings: { simpleBinding: 'Innledning-grp-9309.Kontaktinformasjon-grp-9311.MelderFultnavn.orid' },
+            dataModelBindings: {
+              simpleBinding: {
+                field: 'Innledning-grp-9309.Kontaktinformasjon-grp-9311.MelderFultnavn.orid',
+                dataType: 'ServiceModel-test',
+              },
+            },
           },
           lastButton,
         ];
@@ -115,10 +120,10 @@ describe('Dynamics', () => {
     cy.get(appFrontend.navMenuButtons).should('have.length', 3);
 
     // Typing 1234 into the field should hide the last name component
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     cy.get('#testInputOnSummary').clear();
     cy.get('#testInputOnSummary').type('1234');
-    cy.navPage('form').click();
+    cy.gotoNavPage('form');
     cy.findByRole('tab', { name: /nytt etternavn/i }).click();
     cy.get(appFrontend.changeOfName.newLastName).should('not.exist');
 

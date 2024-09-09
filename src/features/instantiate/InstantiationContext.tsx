@@ -11,6 +11,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export interface Prefill {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -37,6 +38,7 @@ const { Provider, useCtx } = createContext<InstantiationContext>({ name: 'Instan
 
 function useInstantiateMutation() {
   const { doInstantiate } = useAppMutations();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -44,7 +46,8 @@ function useInstantiateMutation() {
     onError: (error: HttpClientError) => {
       window.logError('Instantiation failed:\n', error);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      navigate(`/instance/${data.id}`);
       queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
     },
   });
@@ -52,6 +55,7 @@ function useInstantiateMutation() {
 
 function useInstantiateWithPrefillMutation() {
   const { doInstantiateWithPrefill } = useAppMutations();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -59,7 +63,8 @@ function useInstantiateWithPrefillMutation() {
     onError: (error: HttpClientError) => {
       window.logError('Instantiation with prefill failed:\n', error);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      navigate(`/instance/${data.id}`);
       queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
     },
   });
@@ -70,21 +75,18 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
   const instantiateWithPrefill = useInstantiateWithPrefillMutation();
   const [busyWithId, setBusyWithId] = useState<string | undefined>(undefined);
   const isInstantiatingRef = useRef(false);
-  const navigate = useNavigate();
 
   // Redirect to the instance page when instantiation completes
   useEffect(() => {
     if (instantiate.data?.id) {
-      navigate(`/instance/${instantiate.data.id}`);
       setBusyWithId(undefined);
       isInstantiatingRef.current = false;
     }
     if (instantiateWithPrefill.data?.id) {
-      navigate(`/instance/${instantiateWithPrefill.data.id}`);
       setBusyWithId(undefined);
       isInstantiatingRef.current = false;
     }
-  }, [instantiate.data?.id, instantiateWithPrefill.data?.id, navigate]);
+  }, [instantiate.data?.id, instantiateWithPrefill.data?.id]);
 
   return (
     <Provider

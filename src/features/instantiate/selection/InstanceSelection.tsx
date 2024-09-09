@@ -18,7 +18,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useSetNavigationEffect } from 'src/features/routing/AppRoutingContext';
-import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
+import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { focusMainContent } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';
@@ -28,6 +28,7 @@ function getDateDisplayString(timeStamp: string) {
   let date = new Date(timeStamp);
   const offset = date.getTimezoneOffset();
   date = new Date(date.getTime() - offset * 60 * 1000);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const locale = window.navigator?.language || (window.navigator as any)?.userLanguage || 'nb-NO';
   return date.toLocaleDateString(locale, {
     year: 'numeric',

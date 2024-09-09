@@ -19,7 +19,12 @@ import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
-import type { ComponentBase, FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
+import type {
+  ComponentBase,
+  FormComponentProps,
+  IDataModelReference,
+  SummarizableComponentProps,
+} from 'src/layout/common.generated';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternalExact,
@@ -70,6 +75,7 @@ export interface ExprResolver<Type extends CompTypes> {
 
 export abstract class AnyComponent<Type extends CompTypes> {
   protected readonly type: Type;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected plugins: { [key: string]: NodeDefPlugin<any> } = {};
 
   /**
@@ -100,7 +106,9 @@ export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Check if this component has a specific plugin
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public hasPlugin(constructor: new (...args: any[]) => NodeDefPlugin<any>): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return Object.values(this.plugins).some((plugin: NodeDefPlugin<any>) => plugin instanceof constructor);
   }
 
@@ -307,7 +315,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
     name = key,
   ): [string[], undefined] | [undefined, JSONSchema7] {
     const { item, lookupBinding } = ctx;
-    const value = ((item.dataModelBindings as any) || {})[key] || '';
+    const value: IDataModelReference = (item.dataModelBindings ?? {})[key] ?? undefined;
 
     if (!value) {
       if (isRequired) {
@@ -412,8 +420,8 @@ export abstract class FormComponent<Type extends CompTypes>
 
     const validations: ComponentValidation[] = [];
 
-    for (const [bindingKey, field] of Object.entries(dataModelBindings) as [string, string][]) {
-      const data = formDataSelector(field) ?? invalidDataSelector(field);
+    for (const [bindingKey, reference] of Object.entries(dataModelBindings as Record<string, IDataModelReference>)) {
+      const data = formDataSelector(reference) ?? invalidDataSelector(reference);
       const asString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
       const trb = nodeDataSelector((picker) => picker(node)?.item?.textResourceBindings, [node]);

@@ -19,11 +19,23 @@ before(() => {
   chai.use(chaiExtensions);
 });
 
+// Clear media emulation before each test
+beforeEach(() => {
+  cy.wrap(
+    Cypress.automation('remote:debugger:protocol', {
+      command: 'Emulation.setEmulatedMedia',
+      params: {},
+    }),
+    { log: false },
+  );
+});
+
 afterEach(function () {
   if (this.currentTest?.state !== 'failed') {
     cy.waitUntilSaved();
     cy.waitUntilNodesReady();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (this.currentTest && (this.currentTest as any).__allowFailureOnEnd === undefined) {
       cy.log('Making sure no errors happened after the test run. Call cy.allowFailureOnEnd() to disable this check.');
       cy.get(appFrontend.instanceErrorCode).should('not.exist');
@@ -35,6 +47,7 @@ afterEach(function () {
   const specBaseName = Cypress.spec.relative.split(/[\\/]/).pop()?.split('.')[0];
   const fileName = `log-${specBaseName}-${title}.txt`;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cy.window().then((win: any) => {
     if (Array.isArray(win._cyLog) && win._cyLog.length > 0 && win._cyLogSave === true) {
       const log: string[] = [

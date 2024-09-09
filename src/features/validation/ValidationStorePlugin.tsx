@@ -49,6 +49,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           nodesProduce((state) => {
             for (const node of nodes) {
               const nodeData = state.nodeData[node.id];
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (nodeData as any).validationVisibility = newVisibility;
             }
           }),
@@ -58,7 +59,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
         set(
           nodesProduce((state) => {
             const nodeData = state.nodeData[node.id];
-            if ('validations' in nodeData) {
+            if (nodeData && 'validations' in nodeData) {
               for (const validation of nodeData.validations) {
                 if ('attachmentId' in validation && validation.attachmentId === attachmentId) {
                   const v = validation as AttachmentValidation;

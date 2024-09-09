@@ -19,7 +19,7 @@ import type { IDataModelBindingsForAddress } from 'src/layout/Address/config.gen
 
 export type IAddressProps = PropsFromGenericComponent<'Address'>;
 
-const bindingKeys: IDataModelBindingsForAddress = {
+const bindingKeys: { [k in keyof IDataModelBindingsForAddress]: k } = {
   address: 'address',
   postPlace: 'postPlace',
   zipCode: 'zipCode',
@@ -33,7 +33,8 @@ export function AddressComponent({ node }: IAddressProps) {
 
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
-  const { formData, setValue, debounce } = useDataModelBindings(dataModelBindings, saveWhileTyping);
+  const { formData, setValue } = useDataModelBindings(dataModelBindings, saveWhileTyping);
+  const debounce = FD.useDebounceImmediately();
   const { address, careOf, postPlace, zipCode, houseNumber } = formData;
 
   const updatePostPlace = useEffectEvent((newPostPlace) => {
@@ -55,7 +56,7 @@ export function AddressComponent({ node }: IAddressProps) {
       <div>
         <Label
           node={node}
-          id={`address_address_${id}`}
+          overrideId={`address_address_${id}`}
           renderLabelAs='label'
           textResourceBindings={{ title: textResourceBindings?.title ?? 'address_component.address' }}
         >
@@ -85,7 +86,7 @@ export function AddressComponent({ node }: IAddressProps) {
         <div>
           <Label
             node={node}
-            id={`address_care_of_${id}`}
+            overrideId={`address_care_of_${id}`}
             renderLabelAs='label'
             textResourceBindings={{ title: textResourceBindings?.careOfTitle ?? 'address_component.care_of' }}
           >
@@ -121,7 +122,7 @@ export function AddressComponent({ node }: IAddressProps) {
         >
           <Label
             node={node}
-            id={`address_zip_code_${id}`}
+            overrideId={`address_zip_code_${id}`}
             renderLabelAs='label'
             textResourceBindings={{ title: textResourceBindings?.zipCodeTitle ?? 'address_component.zip_code' }}
           >
@@ -146,7 +147,7 @@ export function AddressComponent({ node }: IAddressProps) {
         >
           <Label
             node={node}
-            id={`address_post_place_${id}`}
+            overrideId={`address_post_place_${id}`}
             renderLabelAs='label'
             textResourceBindings={{ title: textResourceBindings?.postPlaceTitle ?? 'address_component.post_place' }}
           >
@@ -171,7 +172,7 @@ export function AddressComponent({ node }: IAddressProps) {
         <div>
           <Label
             node={node}
-            id={`address_house_number_${id}`}
+            overrideId={`address_house_number_${id}`}
             renderLabelAs='label'
             textResourceBindings={{
               title: textResourceBindings?.houseNumberTitle ?? 'address_component.house_number',

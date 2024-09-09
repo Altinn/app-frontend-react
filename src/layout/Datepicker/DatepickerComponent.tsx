@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import { format as formatDate, formatISO, isValid as isValidDate, parse } from 'date-fns';
 
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
-import { useIsMobile } from 'src/hooks/useIsMobile';
+import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { DatePickerCalendar } from 'src/layout/Datepicker/DatePickerCalendar';
 import { DatePickerInput } from 'src/layout/Datepicker/DatePickerInput';
@@ -121,7 +122,8 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
   const calculatedFormat = getDateFormat(format, languageLocale);
   const isMobile = useIsMobile();
 
-  const { setValue, debounce, formData } = useDataModelBindings(dataModelBindings);
+  const { setValue, formData } = useDataModelBindings(dataModelBindings);
+  const debounce = FD.useDebounceImmediately();
   const value = formData.simpleBinding;
   const dateValue = formatISO(formData.simpleBinding);
   //const [date, input] = isValidDate(dateValue) ? [dateValue, undefined] : [null, value ?? ''];

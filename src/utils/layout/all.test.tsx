@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
 import dotenv from 'dotenv';
 import layoutSchema from 'schemas/json/layout/layout.schema.v1.json';
@@ -33,10 +34,10 @@ const ignoreLogAndErrors = [
 
 function TestApp() {
   const errors = NodesInternal.useFullErrorList();
-  const filteredErrors: any = {};
+  const filteredErrors: Record<string, string[]> = {};
 
   for (const key in errors) {
-    const filtered = errors[key].filter((err: any) => !ignoreLogAndErrors.some((ignore) => err.includes(ignore)));
+    const filtered = errors[key].filter((err) => !ignoreLogAndErrors.some((ignore) => err.includes(ignore)));
     if (filtered.length) {
       filteredErrors[key] = filtered;
     }
@@ -55,12 +56,14 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     hashWas = window.location.hash.toString();
     for (const func of windowLoggers) {
       jest
-        .spyOn(window, func as any)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .spyOn(global, func as any)
         .mockImplementation(() => {})
-        .mockName(`window.${func}`);
+        .mockName(`global.${func}`);
     }
     for (const func of consoleLoggers) {
       jest
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .spyOn(console, func as any)
         .mockImplementation(() => {})
         .mockName(`console.${func}`);
@@ -90,18 +93,15 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     .filter((set) => set.isValid())
     .map((set) => ({ appName: set.app.getName(), setName: set.getName(), set }));
 
-  const appsToSkip = ['multiple-datamodels-test'];
-  const filteredSets = allSets.filter(
-    ({ set }) => !appsToSkip.map((app) => set.app.getName().includes(app)).some((x) => x),
-  );
-
   async function testSet(set: ExternalAppLayoutSet) {
     window.location.hash = set.simulateValidUrlHash();
     const [org, app] = set.app.getOrgApp();
     window.org = org;
     window.app = app;
 
-    (fetchApplicationMetadata as any).mockImplementation(() => Promise.resolve(set.app.getAppMetadata()));
+    (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementation(() =>
+      Promise.resolve(set.app.getAppMetadata()),
+    );
     await renderWithInstanceAndLayout({
       renderer: () => <TestApp />,
       queries: {
@@ -118,6 +118,7 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     });
 
     // If errors are not found in the DOM, but there are errors in the loggers, output those instead
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let errors: any = {};
     let alwaysFail = false;
     try {
@@ -143,12 +144,12 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     expect(alwaysFail).toBe(false);
   }
 
-  it.each(filteredSets)('$appName/$setName', async ({ set }) => testSet(set));
+  it.each(allSets)('$appName/$setName', async ({ set }) => testSet(set));
 
   if (env.parsed?.ALTINN_ALL_APPS_TEST_FOR_LAST_QUIRK === 'true') {
     it(`last quirk`, async () => {
       const lastQuirk = Object.keys(quirks).at(-1);
-      const found = filteredSets.find(({ set }) => {
+      const found = allSets.find(({ set }) => {
         const [org, app] = set.app.getOrgApp();
         return `${org}/${app}/${set.getName()}` === lastQuirk;
       });
@@ -191,12 +192,12 @@ function filterAndCleanMockCalls(mock: jest.Mock): string[] {
         return undefined;
       }
 
-      const out = call.filter((arg: any) => !!arg);
+      const out = call.filter((arg) => !!arg);
       if (out.length) {
         return out;
       }
       return undefined;
     })
     .filter((x) => x)
-    .map((x: any[]) => x.join('\n'));
+    .map((x) => (x ?? []).join('\n'));
 }

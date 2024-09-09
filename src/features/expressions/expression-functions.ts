@@ -7,6 +7,7 @@ import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
 import { SearchParams } from 'src/hooks/useNavigatePage';
 import { implementsDisplayData } from 'src/layout';
+import { buildAuthContext } from 'src/utils/authContext';
 import { isDate } from 'src/utils/dateHelpers';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -15,7 +16,7 @@ import type { DisplayData } from 'src/features/displayData';
 import type { EvaluateExpressionParams } from 'src/features/expressions';
 import type { ExprValToActual } from 'src/features/expressions/types';
 import type { ValidationContext } from 'src/features/expressions/validation';
-import type { FormDataSelector } from 'src/layout';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -37,6 +38,7 @@ export interface FuncDef<Args extends readonly ExprVal[], Ret extends ExprVal> {
   // Optional: Validator function which runs when the function is validated. This allows a function to add its own
   // validation requirements. Use the addError() function if any errors are found.
   validator?: (options: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rawArgs: any[];
     argTypes: (ExprVal | undefined)[];
     ctx: ValidationContext;
@@ -148,6 +150,7 @@ export const ExprFunctions = {
     lastArgSpreads: true,
   }),
   if: defineFunc({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     impl(...args): any {
       const [condition, result] = args;
       if (condition === true) {
@@ -190,6 +193,7 @@ export const ExprFunctions = {
     returns: ExprVal.String,
   }),
   frontendSettings: defineFunc({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     impl(key): any {
       if (key === null) {
         throw new ExprRuntimeError(this.expr, this.path, `Value cannot be null. (Parameter 'key')`);
@@ -215,12 +219,14 @@ export const ExprFunctions = {
         throw new ExprRuntimeError(this.expr, this.path, `Unknown auth context property ${key}`);
       }
 
-      return Boolean(this.dataSources.authContext?.[key]);
+      const authContext = buildAuthContext(this.dataSources.process?.currentTask);
+      return Boolean(authContext?.[key]);
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.Boolean,
   }),
   component: defineFunc({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     impl(id): any {
       if (id === null) {
         throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup component null`);
@@ -250,7 +256,7 @@ export const ExprFunctions = {
           return null;
         }
 
-        return pickSimpleValue(simpleBinding, this.dataSources.formDataSelector);
+        return pickSimpleValue(simpleBinding, this);
       }
 
       // Expressions can technically be used without having all the layouts available, which might lead to unexpected
@@ -268,22 +274,30 @@ export const ExprFunctions = {
     returns: ExprVal.Any,
   }),
   dataModel: defineFunc({
-    impl(path): any {
-      if (path === null) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    impl(propertyPath, maybeDataType): any {
+      if (propertyPath === null) {
         throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataModel null`);
       }
 
+      const dataType = maybeDataType ?? this.dataSources.currentLayoutSet?.dataType;
+      if (!dataType) {
+        throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataType undefined`);
+      }
+
+      const reference: IDataModelReference = { dataType, field: propertyPath };
       const node = ensureNode(this.node);
       if (node instanceof BaseLayoutNode) {
-        const newPath = this.dataSources.transposeSelector(node as LayoutNode, path);
-        return pickSimpleValue(newPath, this.dataSources.formDataSelector);
+        const newReference = this.dataSources.transposeSelector(node as LayoutNode, reference);
+        return pickSimpleValue(newReference, this);
       }
 
       // No need to transpose the data model according to the location inside a repeating group when the context is
       // a LayoutPage (i.e., when we're resolving an expression directly on the layout definition).
-      return pickSimpleValue(path, this.dataSources.formDataSelector);
+      return pickSimpleValue(reference, this);
     },
-    args: [ExprVal.String] as const,
+    args: [ExprVal.String, ExprVal.String] as const,
+    minArguments: 1,
     returns: ExprVal.Any,
   }),
   externalApi: defineFunc({
@@ -314,6 +328,7 @@ export const ExprFunctions = {
     returns: ExprVal.String,
   }),
   displayValue: defineFunc({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     impl(id): any {
       if (id === null) {
         throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup component null`);
@@ -348,6 +363,7 @@ export const ExprFunctions = {
         return null;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (def as DisplayData<any>).getDisplayData(targetNode, {
         attachmentsSelector: this.dataSources.attachmentsSelector,
         optionsSelector: this.dataSources.optionsSelector,
@@ -559,7 +575,12 @@ export const ExprFunctions = {
       if (path === null || propertyToSelect == null) {
         throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataModel null`);
       }
-      const array = this.dataSources.formDataSelector(path);
+
+      const dataType = this.dataSources.currentLayoutSet?.dataType;
+      if (!dataType) {
+        throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataType undefined`);
+      }
+      const array = this.dataSources.formDataSelector({ field: path, dataType });
       if (typeof array != 'object' || !Array.isArray(array)) {
         return '';
       }
@@ -579,12 +600,13 @@ export const ExprFunctions = {
   }),
 };
 
-function pickSimpleValue(path: string | undefined | null, selector: FormDataSelector) {
-  if (!path) {
-    return null;
+function pickSimpleValue(path: IDataModelReference, params: EvaluateExpressionParams) {
+  const isValidDataType = params.dataSources.dataModelNames.includes(path.dataType);
+  if (!isValidDataType) {
+    throw new ExprRuntimeError(params.expr, params.path, `Unknown data model '${path.dataType}'`);
   }
 
-  const value = selector(path);
+  const value = params.dataSources.formDataSelector(path);
   if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
     return value;
   }

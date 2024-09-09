@@ -16,7 +16,6 @@ import {
   getCreateInstancesUrl,
   getCustomValidationConfigUrl,
   getDataElementUrl,
-  getDataValidationUrl,
   getFetchFormDynamicsUrl,
   getFileTagUrl,
   getFileUploadUrl,
@@ -32,6 +31,7 @@ import {
   getProcessStateUrl,
   getRulehandlerUrl,
   getSetCurrentPartyUrl,
+  getValidationUrl,
   instancesControllerUrl,
   instantiateUrl,
   profileApiUrl,
@@ -44,7 +44,12 @@ import type { IncomingApplicationMetadata } from 'src/features/applicationMetada
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IFormDynamics } from 'src/features/form/dynamics';
-import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
+import type {
+  IDataModelMultiPatchRequest,
+  IDataModelMultiPatchResponse,
+  IDataModelPatchRequest,
+  IDataModelPatchResponse,
+} from 'src/features/formData/types';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { OrderDetails, PaymentResponsePayload } from 'src/features/payment/types';
@@ -87,8 +92,8 @@ export const doInstantiateWithPrefill = async (data: Instantiation): Promise<IIn
 export const doInstantiate = async (partyId: number): Promise<IInstance> =>
   cleanUpInstanceData((await httpPost(getCreateInstancesUrl(partyId))).data);
 
-export const doProcessNext = async (instanceId: string, language?: string, action?: IActionType): Promise<IProcess> =>
-  httpPut(getProcessNextUrl(instanceId, language), action ? { action } : null);
+export const doProcessNext = async (instanceId: string, language?: string, action?: IActionType) =>
+  httpPut<IProcess>(getProcessNextUrl(instanceId, language), action ? { action } : null);
 
 export const doAttachmentUpload = async (instanceId: string, dataTypeId: string, file: File): Promise<IData> => {
   const url = getFileUploadUrl(instanceId, dataTypeId);
@@ -134,7 +139,7 @@ export const doAttachmentAddTag = async (instanceId: string, dataGuid: string, t
 export const doPerformAction = async (
   partyId: string,
   dataGuid: string,
-  data: any,
+  data: unknown,
   language?: string,
 ): Promise<ActionResult> => {
   const response = await httpPost(getActionsUrl(partyId, dataGuid, language), undefined, data);
@@ -153,8 +158,12 @@ export const doAttachmentRemove = async (instanceId: string, dataGuid: string, l
 };
 
 // When saving data for normal/stateful apps
-export const doPatchFormData = (url: string, data: IDataModelPatchRequest): Promise<IDataModelPatchResponse> =>
-  httpPatch(url, data);
+export const doPatchFormData = (url: string, data: IDataModelPatchRequest) =>
+  httpPatch<IDataModelPatchResponse>(url, data);
+
+// New multi-patch endpoint for stateful apps
+export const doPatchMultipleFormData = (url: string, data: IDataModelMultiPatchRequest) =>
+  httpPatch<IDataModelMultiPatchResponse>(url, data);
 
 // When saving data for stateless apps
 export const doPostStatelessFormData = async (url: string, data: object): Promise<object> =>
@@ -215,6 +224,7 @@ export const fetchUserProfile = (): Promise<IProfile> => httpGet(profileApiUrl);
 export const fetchDataModelSchema = (dataTypeName: string): Promise<JSONSchema7> =>
   httpGet(getJsonSchemaUrl() + dataTypeName);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchFormData = (url: string, options?: AxiosRequestConfig): Promise<any> => httpGet(url, options);
 
 export const fetchPdfFormat = (instanceId: string, dataGuid: string): Promise<IPdfFormat> =>
@@ -235,11 +245,8 @@ export const fetchPaymentInformation = (instanceId: string, language?: string): 
 export const fetchOrderDetails = (instanceId: string, language?: string): Promise<OrderDetails> =>
   httpGet(getOrderDetailsUrl(instanceId, language));
 
-export const fetchBackendValidations = (
-  instanceId: string,
-  currentDataElementId: string,
-  language: string,
-): Promise<BackendValidationIssue[]> => httpGet(getDataValidationUrl(instanceId, currentDataElementId, language));
+export const fetchBackendValidations = (instanceId: string, language: string): Promise<BackendValidationIssue[]> =>
+  httpGet(getValidationUrl(instanceId, language));
 
 export const fetchLayoutSchema = async (): Promise<JSONSchema7 | undefined> => {
   // Hacky (and only) way to get the correct CDN url
