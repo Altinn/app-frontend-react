@@ -69,6 +69,7 @@ export const PDFView2 = () => {
             pdfSettings={pdfSettings}
           />
         ))}
+      <SubformPDF></SubformPDF>
     </PdfWrapping>
   );
 };
@@ -135,6 +136,30 @@ function PlainPage({ pageKey }: { pageKey: string }) {
   );
 }
 
+function SubformPDF() {
+  const isHiddenSelector = Hidden.useIsHiddenSelector();
+  const nodeDataSelector = NodesInternal.useNodeDataSelector();
+  const children = useNodeTraversal((t) => t.allNodes().filter((node) => node.isType('Subform')));
+
+  return (
+    <div className={classes.page}>
+      <h2>Subform kjeme her:::</h2>
+      <Grid
+        container={true}
+        spacing={6}
+        alignItems='flex-start'
+      >
+        {children.map((node) => (
+          <PdfForNode
+            key={node.id}
+            node={node}
+          />
+        ))}
+      </Grid>
+    </div>
+  );
+}
+
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
   const isHiddenSelector = Hidden.useIsHiddenSelector();
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
@@ -144,6 +169,7 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
       ? t
           .with(page)
           .children()
+          .filter((node) => !node.isType('Subform'))
           .filter((node) => !isHiddenSelector(node))
           .filter((node) => !pdfSettings?.excludedComponents.includes(node.id))
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -171,6 +197,7 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
 
 function PdfForNode({ node }: { node: LayoutNode }) {
   const target = useNodeItem(node, (i) => (i.type === 'Summary2' ? i.target : undefined));
+
   if (node.isType('Summary2') && target?.taskId) {
     return (
       <SummaryComponent2
