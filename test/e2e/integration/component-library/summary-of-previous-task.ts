@@ -59,12 +59,11 @@ describe('Render summary of previous task', () => {
     // None of the other data should be shown
     cy.get('#navigation-menu').find('button').contains('3. Oppsummering av komponent fra tidligere Task').click();
 
-    cy.contains(inputText);
-
-    cy.get('body').should('not.contain', address);
-    cy.get('body').should('not.contain', co);
-    cy.get('body').should('not.contain', zip);
-    cy.get('body').should('not.contain', houseNumber);
+    cy.get('body').should('not.contain', inputText);
+    cy.contains(address);
+    cy.contains(co);
+    cy.contains(zip);
+    cy.contains(houseNumber);
     cy.get('body').should('not.contain', fileName);
     cy.get('body').should('not.contain', fileType);
   });
