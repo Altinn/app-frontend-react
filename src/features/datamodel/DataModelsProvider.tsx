@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useIsFetching } from '@tanstack/react-query';
@@ -117,7 +117,7 @@ function initialCreateStore() {
   }));
 }
 
-const { Provider, useSelector, useMemoSelector, useLaxMemoSelector } = createZustandContext({
+const { Provider, useSelector, useMemoSelector, useLaxMemoSelector, useSelectorAsRef } = createZustandContext({
   name: 'DataModels',
   required: true,
   initialCreateStore,
@@ -278,12 +278,10 @@ function LoadInitialData({ dataType }: LoaderProps) {
   const dataElementId = overriddenType === dataType ? overriddenUuid : getFirstDataElementId(instance, dataType);
   const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
   const { data, error } = useFormDataQuery(url);
-  const hasBeenSet = useRef(false);
 
   useEffect(() => {
-    if (data && url && !hasBeenSet.current) {
+    if (data && url) {
       setInitialData(dataType, data, dataElementId ?? null);
-      hasBeenSet.current = true;
     }
   }, [data, dataElementId, dataType, setInitialData, url]);
 
@@ -359,7 +357,7 @@ function LoadExpressionValidationConfig({ dataType }: LoaderProps) {
 }
 
 export const DataModels = {
-  useFullState: () => useSelector((state) => state),
+  useFullStateRef: () => useSelectorAsRef((state) => state),
 
   useLaxDefaultDataType: () => useLaxMemoSelector((state) => state.defaultDataType),
 
