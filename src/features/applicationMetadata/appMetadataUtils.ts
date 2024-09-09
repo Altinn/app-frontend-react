@@ -124,5 +124,13 @@ export const getCurrentTaskDataElementId = (props: GetCurrentTaskDataElementIdPr
 };
 
 export function getFirstDataElementId(instance: IInstance | undefined, dataType: string) {
-  return (instance?.data ?? []).find((element) => element.dataType === dataType)?.id;
+  const elements = (instance?.data ?? []).filter((element) => element.dataType === dataType);
+  if (elements.length > 1) {
+    window.logWarnOnce(
+      `Found multiple data elements with data type ${dataType} in instance, cannot determine which one to use`,
+    );
+    return undefined;
+  }
+
+  return elements.length > 0 ? elements[0].id : undefined;
 }

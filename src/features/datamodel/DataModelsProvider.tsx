@@ -5,6 +5,7 @@ import { useIsFetching } from '@tanstack/react-query';
 import { createStore } from 'zustand';
 import type { JSONSchema7 } from 'json-schema';
 
+import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
@@ -272,7 +273,9 @@ function LoadInitialData({ dataType }: LoaderProps) {
   const setInitialData = useSelector((state) => state.setInitialData);
   const setError = useSelector((state) => state.setError);
   const instance = useLaxInstanceData();
-  const dataElementId = getFirstDataElementId(instance, dataType);
+  const overriddenUuid = useTaskStore((state) => state.overriddenDataModelUuid);
+  const overriddenType = useTaskStore((state) => state.overriddenDataModelType);
+  const dataElementId = overriddenType === dataType ? overriddenUuid : getFirstDataElementId(instance, dataType);
   const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
   const { data, error } = useFormDataQuery(url);
   const hasBeenSet = useRef(false);
