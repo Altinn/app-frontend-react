@@ -35,9 +35,6 @@ export function FileTable({
   const hasTag = type === 'FileUploadWithTag';
   const pdfModeActive = usePdfModeActive();
   const [editIndex, setEditIndex] = React.useState<number>(-1);
-
-  console.log('attachments', attachments);
-
   if (!attachments || attachments.length === 0) {
     return null;
   }

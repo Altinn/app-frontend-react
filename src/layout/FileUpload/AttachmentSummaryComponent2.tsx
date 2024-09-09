@@ -15,9 +15,6 @@ export interface IAttachmentSummaryComponent {
 
 export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryComponent) {
   const attachments = useUploaderSummaryData(targetNode);
-
-  console.log('attachments', attachments);
-
   const hasTag = targetNode.isType('FileUploadWithTag');
   const { options, isFetching } = useNodeOptions(targetNode as LayoutNode<'FileUploadWithTag'>);
   const mobileView = useIsMobileOrTablet();
