@@ -12,26 +12,20 @@ export interface IncomingApplicationMetadata {
   org: string;
   partyTypesAllowed: IPartyTypesAllowed;
   dataTypes: IDataType[];
-  altinnNugetVersion?: string;
   autoDeleteOnProcessEnd: boolean;
-  onEntry?: IOnEntry;
   features?: Partial<IBackendFeaturesState>;
   promptForParty?: 'always' | 'never';
+  externalApiIds?: string[];
+
+  onEntry?: IOnEntry;
+  altinnNugetVersion?: string;
   logo?: ILogoOptions;
 }
 
-export type ApplicationMetadata = {
-  isValidVersion: boolean;
-  dataTypes: IDataType[]; // TODO: next step
-  id: string;
-  org: string;
-  partyTypesAllowed: IPartyTypesAllowed; // FIXME: needs improvement
-  title: ITitle;
-  autoDeleteOnProcessEnd: boolean;
-  isStatelessApp: boolean;
+export type ApplicationMetadata = Omit<IncomingApplicationMetadata, 'onEntry' | 'altinnNugetVersion' | 'logo'> & {
   onEntry: IOnEntry;
-  features?: Partial<IBackendFeaturesState>;
-  promptForParty?: 'always' | 'never';
+  isValidVersion: boolean;
+  isStatelessApp: boolean;
   logoOptions?: ILogoOptions;
 };
 
@@ -48,7 +42,7 @@ export type IInstanceSelection = {
   sortDirection: 'asc' | 'desc';
 };
 
-interface IPartyTypesAllowed {
+export interface IPartyTypesAllowed {
   bankruptcyEstate: boolean;
   organisation: boolean;
   person: boolean;

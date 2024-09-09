@@ -12,7 +12,7 @@ import { useLayoutValidationForPage } from 'src/features/devtools/layoutValidati
 import { useLayouts, useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { parseAndCleanText } from 'src/language/sharedLanguage';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
+import { useNode } from 'src/utils/layout/NodesContext';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 
 export const LayoutInspector = () => {
@@ -37,7 +37,7 @@ export const LayoutInspector = () => {
   }, [componentProperties]);
 
   const currentLayout = currentView ? layouts?.[currentView] : undefined;
-  const matchingNodes = useNodeTraversal((t) => t.findAllById(selectedComponent));
+  const matchingNode = useNode(selectedComponent);
   const validationErrorsForPage = useLayoutValidationForPage() || {};
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export const LayoutInspector = () => {
 
         if (currentView) {
           window.queryClient.setQueriesData<LayoutContextValue>(
-            { queryKey: ['formLayouts', currentLayoutSetId, true] },
+            { queryKey: ['formLayouts', currentLayoutSetId] },
             (_queryData) => {
               const queryData = structuredClone(_queryData);
               if (!queryData?.layouts?.[currentView]) {
@@ -139,13 +139,8 @@ export const LayoutInspector = () => {
               </Alert>
             )}
             <div className={classes.headerLink}>
-              {matchingNodes.length === 0 && 'Ingen aktive komponenter funnet'}
-              {matchingNodes.map((node) => (
-                <NodeLink
-                  key={node.id}
-                  nodeId={node.id}
-                />
-              ))}
+              {!matchingNode && 'Ingen aktive komponenter funnet'}
+              {matchingNode && <NodeLink nodeId={matchingNode.id} />}
             </div>
             <Button
               onClick={() => setSelectedComponent(undefined)}

@@ -1,9 +1,9 @@
 import Ajv from 'ajv';
 import expressionSchema from 'schemas/json/layout/expression.schema.v1.json';
 
-import { ExprFunctions } from 'src/features/expressions/index';
+import { ExprFunctions } from 'src/features/expressions/expression-functions';
 import { ExprVal } from 'src/features/expressions/types';
-import type { FuncDef } from 'src/features/expressions/types';
+import type { FuncDef } from 'src/features/expressions/expression-functions';
 
 type Func = { name: string } & FuncDef<ExprVal[], ExprVal>;
 
@@ -28,6 +28,7 @@ describe('expression schema tests', () => {
 
       if (returns === ExprVal.Any) {
         // At least one of the definitions should be a match
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const allTypes: any[] = [];
         for (const type of ['number', 'string', 'boolean']) {
           allTypes.push(...expressionSchema.definitions[`strict-${type}`].anyOf);

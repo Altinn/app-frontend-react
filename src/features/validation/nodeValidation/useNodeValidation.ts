@@ -8,6 +8,7 @@ import { implementsValidateComponent, implementsValidateEmptyField } from 'src/l
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { AnyValidation, BaseValidation, ValidationDataSources } from 'src/features/validation';
 import type { CompDef, ValidationFilter } from 'src/layout';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
@@ -16,7 +17,7 @@ import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
  * validations for a node and return them.
  */
 export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): AnyValidation[] {
-  const fieldSelector = Validation.useFieldSelector();
+  const dataModelSelector = Validation.useDataModelSelector();
   const validationDataSources = useValidationDataSources();
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
 
@@ -27,10 +28,12 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
     }
 
     if (implementsValidateEmptyField(node.def)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       validations.push(...node.def.runEmptyFieldValidation(node as any, validationDataSources));
     }
 
     if (implementsValidateComponent(node.def)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       validations.push(...node.def.runComponentValidation(node as any, validationDataSources));
     }
 
@@ -38,16 +41,17 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
       (picker) => picker(node)?.layout.dataModelBindings,
       [node],
     );
-    for (const [bindingKey, _field] of Object.entries(dataModelBindings || {})) {
-      const field = _field as string;
-      const fieldValidations = fieldSelector((fields) => fields[field], [field]);
+    for (const [bindingKey, { dataType, field }] of Object.entries(
+      (dataModelBindings ?? {}) as Record<string, IDataModelReference>,
+    )) {
+      const fieldValidations = dataModelSelector((dataModels) => dataModels[dataType]?.[field], [dataType, field]);
       if (fieldValidations) {
         validations.push(...fieldValidations.map((v) => ({ ...v, node, bindingKey })));
       }
     }
 
     return filter(validations, node, nodeDataSelector);
-  }, [node, fieldSelector, shouldValidate, validationDataSources, nodeDataSelector]);
+  }, [node, dataModelSelector, shouldValidate, validationDataSources, nodeDataSelector]);
 }
 
 /**
@@ -84,6 +88,7 @@ function filter<Validation extends BaseValidation>(
     return validations;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filters = node.def.getValidationFilters(node as any, selector);
   if (filters.length == 0) {
     return validations;

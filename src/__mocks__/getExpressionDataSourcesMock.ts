@@ -1,6 +1,9 @@
 import { getApplicationSettingsMock } from 'src/__mocks__/getApplicationSettingsMock';
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
-import type { ExpressionDataSources } from 'src/features/expressions/ExprContext';
+import type { IInstanceDataSources } from 'src/types/shared';
+import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 
 export function getExpressionDataSourcesMock(): ExpressionDataSources {
   return {
@@ -9,17 +12,15 @@ export function getExpressionDataSourcesMock(): ExpressionDataSources {
     attachmentsSelector: () => {
       throw new Error('Not implemented: attachmentsSelector()');
     },
-    layoutSettings: { pages: { order: [] } },
     optionsSelector: () => ({ isFetching: false, options: [] }),
     applicationSettings: getApplicationSettingsMock(),
-    instanceDataSources: {} as any,
-    authContext: null,
-    devToolsIsOpen: false,
-    devToolsHiddenComponents: 'hide',
+    dataModelNames: [defaultDataTypeMock],
+    instanceDataSources: {} as IInstanceDataSources | null,
     langToolsSelector: () => staticUseLanguageForTests(),
     currentLanguage: 'nb',
+    currentLayoutSet: { id: 'form', dataType: 'data', tasks: ['task1'] },
     isHiddenSelector: () => false,
-    nodeFormDataSelector: () => ({}) as any,
+    nodeFormDataSelector: (() => ({})) as unknown as NodeFormDataSelector,
     nodeDataSelector: () => {
       throw new Error('Not implemented: nodeDataSelector()');
     },
@@ -29,5 +30,6 @@ export function getExpressionDataSourcesMock(): ExpressionDataSources {
     transposeSelector: () => {
       throw new Error('Not implemented: transposeSelector()');
     },
+    externalApis: { data: {}, errors: {} },
   };
 }

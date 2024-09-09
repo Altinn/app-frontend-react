@@ -9,7 +9,7 @@ import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { useLaxInstance, useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { mapValidationIssueToFieldValidation } from 'src/features/validation/backendValidation/backendValidationUtils';
+import { mapBackendIssuesToTaskValidations } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { Validation } from 'src/features/validation/validationContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -65,7 +65,7 @@ function useProcessNext() {
         setProcessData?.({ ...processData, processTasks: currentProcessData?.processTasks });
         navigateToTask(processData?.currentTask?.elementId);
       } else if (validationIssues && updateTaskValidations !== ContextNotProvided) {
-        updateTaskValidations(validationIssues.map(mapValidationIssueToFieldValidation));
+        updateTaskValidations(mapBackendIssuesToTaskValidations(validationIssues));
       }
     },
     onError: (error: HttpClientError) => {
@@ -79,7 +79,7 @@ function useProcessNext() {
       try {
         const [result] = await mutateAsync(props);
         return result ? result : AbortedDueToFormErrors;
-      } catch (err) {
+      } catch (_err) {
         // The error is handled above
         return AbortedDueToFailure;
       }

@@ -6,11 +6,12 @@ import { CalendarIcon } from '@navikt/aksel-icons';
 import { isValid as isValidDate, set } from 'date-fns';
 import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
-import { useIsMobile } from 'src/hooks/useIsMobile';
+import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import {
   convertToDatepickerFormat,
@@ -128,7 +129,8 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
   const DateUtilsProvider = getDateUtils(resolvedFormat, calculatedFormat);
   const isMobile = useIsMobile();
 
-  const { setValue, debounce, formData } = useDataModelBindings(dataModelBindings);
+  const { setValue, formData } = useDataModelBindings(dataModelBindings);
+  const debounce = FD.useDebounceImmediately();
   const value = formData.simpleBinding;
   const { date, input } = parseISOString(value);
 

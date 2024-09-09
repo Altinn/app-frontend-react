@@ -3,7 +3,7 @@ import React from 'react';
 import { Label } from 'src/components/label/Label';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
-import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
+import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
@@ -25,7 +25,7 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
     <>
       <Label
         node={targetNode}
-        id={`attachment-summary2-${targetNode.id}`}
+        overrideId={`attachment-summary2-${targetNode.id}`}
         renderLabelAs='span'
         className={classes.summaryLabelMargin}
         weight={'regular'}
@@ -34,7 +34,7 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
         node={targetNode}
         mobileView={isSmall}
         attachments={attachments.filter((attachment) => {
-          // If we have file upload with tags, we should hide files where the use have not yet
+          // If we have file upload with tags, we should hide files where the user have not yet
           // selected a tag, in the summary.
           if (!hasTag) {
             return attachment;

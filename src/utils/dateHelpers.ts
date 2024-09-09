@@ -24,6 +24,7 @@ export type DateResult =
       input: string;
     };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const locale = window.navigator?.language || (window.navigator as any)?.userLanguage || 'nb';
 setDefaultOptions({ locale });
 

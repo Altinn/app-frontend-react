@@ -11,7 +11,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
-import { useIsMobile } from 'src/hooks/useIsMobile';
+import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { CompCategory } from 'src/layout/common';
 import classes from 'src/layout/Grid/GridSummary.module.css';
 import { isGridRowHidden } from 'src/layout/Grid/tools';
@@ -329,6 +329,7 @@ function CellWithComponent({
       data-header-title={isSmall ? headerTitle : ''}
     >
       <div className={cn(classes.contentWrapper, { [classes.validationError]: errors.length > 0 })}>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {('getDisplayData' in node.def && node.def.getDisplayData(node as LayoutNode<any>, displayDataProps)) || '-'}
         {isSmall && !rowReadOnly && (
           <EditButton
@@ -394,7 +395,7 @@ function CellWithLabel({ cell, columnStyleOptions, isHeader = false, headerTitle
     >
       {componentId && (
         <LabelContent
-          id={`label-${componentId}`}
+          labelId={`label-${componentId}`}
           label={title}
           required={required}
         />

@@ -107,10 +107,9 @@ export default tseslint.config(
       'import/no-default-export': ['error'],
 
       '@typescript-eslint/no-unused-expressions': 'off',
-      '@typescript-eslint/no-explicit-any': ['warn'],
       '@typescript-eslint/no-unused-vars': [
         'warn',
-        { vars: 'all', varsIgnorePattern: '^_', args: 'all', argsIgnorePattern: '^_' },
+        { varsIgnorePattern: '^_', argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/consistent-type-imports': ['warn'],
 
@@ -177,6 +176,13 @@ export default tseslint.config(
     files: ['src/codegen/**/*.ts'],
     rules: {
       'no-console': 'off',
+    },
+  },
+  {
+    files: ['src/**/*.generated.{ts,tsx}'],
+    rules: {
+      'no-explicit-any': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 );

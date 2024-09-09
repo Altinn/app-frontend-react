@@ -22,6 +22,10 @@ export enum BuiltInValidationIssueSources {
   Expression = 'Expression',
 }
 
+// TODO(Datamodels): Ignore unecessary validations
+// This requires some changes to how we check validations before submit, and how we show validations after submit if it fails with validation messages
+export const IgnoredValidators: BuiltInValidationIssueSources[] = []; // [BuiltInValidationIssueSources.Required, BuiltInValidationIssueSources.Expression];
+
 export enum BackendValidationSeverity {
   Error = 1,
   Warning = 2,
@@ -70,7 +74,11 @@ export type ValidationContext = {
 
 export type ValidationState = {
   task: BaseValidation[];
-  fields: FieldValidations;
+  dataModels: DataModelValidations;
+};
+
+export type DataModelValidations = {
+  [dataType: string]: FieldValidations;
 };
 
 export type FieldValidations = {
@@ -91,6 +99,10 @@ export type BackendValidatorGroups = {
   [validator: string]: (BaseValidation | FieldValidation)[];
 };
 
+export type BackendFieldValidatorGroups = {
+  [validator: string]: FieldValidation[];
+};
+
 export type BaseValidation<Severity extends ValidationSeverity = ValidationSeverity> = {
   message: TextReference;
   severity: Severity;
@@ -104,6 +116,7 @@ export type BaseValidation<Severity extends ValidationSeverity = ValidationSever
  */
 export type FieldValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
   field: string;
+  dataType: string;
 };
 
 /**
@@ -139,6 +152,7 @@ export type AnyValidation<Severity extends ValidationSeverity = ValidationSeveri
  * Validation message format used by frontend components.
  * This type is derived from other validation types, but a reference to the node is added.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type NodeValidation<Validation extends AnyValidation<any> = AnyValidation<any>> = Validation & {
   node: LayoutNode;
 };
