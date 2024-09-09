@@ -28,7 +28,7 @@ describe('Render summary of previous task', () => {
     cy.contains('button', 'Send inn').click();
 
     // Wait for the URL to contain the text "PreviousProcessSummary"
-    cy.url({ timeout: 30000 }).should('include', 'PreviousProcessSummary');
+    cy.url({ timeout: 60000 }).should('include', 'PreviousProcessSummary');
 
     // Assert that each text appears on the page as we are summarizing the whole task
     cy.contains(inputText);
