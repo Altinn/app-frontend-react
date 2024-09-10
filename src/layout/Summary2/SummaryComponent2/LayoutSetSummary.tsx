@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Accordion } from '@digdir/designsystemet-react';
+import { Accordion, Label } from '@digdir/designsystemet-react';
 
 import { Lang } from 'src/features/language/Lang';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
@@ -28,16 +28,18 @@ export function TaskSummaryAccordion({ filteredPages }: LayoutSetAccordionSummar
           key={layoutId}
           defaultOpen={true}
         >
-          <Accordion.Header>
-            <Lang id={layoutId} />
+          <Accordion.Header level={2}>
+            <Label asChild>
+              <span>
+                <Lang id={layoutId} />
+              </span>
+            </Label>
           </Accordion.Header>
           <Accordion.Content>
-            {
-              <PageSummary
-                pageId={layoutId}
-                key={layoutId}
-              />
-            }
+            <PageSummary
+              pageId={layoutId}
+              key={layoutId}
+            />
           </Accordion.Content>
         </Accordion.Item>
       ))}
