@@ -7,7 +7,7 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 type Props = Pick<SummaryRendererProps<'Tabs'>, 'targetNode' | 'summaryNode' | 'overrides'>;
 
-export function TabsSummary({ targetNode, summaryNode, overrides }: Props): JSX.Element | null {
+export function TabsSummaryComponent({ targetNode, summaryNode, overrides }: Props): JSX.Element | null {
   const tabsInternal = useNodeItem(targetNode, (i) => i.tabsInternal);
   const children = tabsInternal.map((card) => card.children).flat();
 
