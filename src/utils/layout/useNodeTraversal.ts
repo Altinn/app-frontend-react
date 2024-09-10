@@ -385,8 +385,4 @@ export function useNodeTraversalSelectorLax() {
   return useNodeTraversalSelectorProto(Strictness.returnContextNotProvided);
 }
 
-export function useNodeTraversalSelectorSilent() {
-  return useNodeTraversalSelectorProto(Strictness.returnUndefined);
-}
-
 export type NodeTraversalSelectorLax = ReturnType<typeof useNodeTraversalSelectorLax>;
