@@ -10,15 +10,11 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
-export const TabsSummary = ({
-  componentNode,
-  isCompact,
-  emptyFieldText,
-}: {
+type TabsSummaryProps = {
   componentNode: BaseLayoutNode<'Tabs'>;
-  isCompact?: boolean;
-  emptyFieldText?: string;
-}) => {
+};
+
+export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
   const tabs = useNodeItem(componentNode, (i) => i.tabsInternal);
 
   return (
