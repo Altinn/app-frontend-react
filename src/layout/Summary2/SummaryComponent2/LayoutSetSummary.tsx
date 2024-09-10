@@ -24,7 +24,10 @@ export function TaskSummaryAccordion({ filteredPages }: LayoutSetAccordionSummar
       className={classes.summaryItem}
     >
       {filteredPages.map((layoutId: string) => (
-        <Accordion.Item key={layoutId}>
+        <Accordion.Item
+          key={layoutId}
+          defaultOpen={true}
+        >
           <Accordion.Header>
             <Lang id={layoutId} />
           </Accordion.Header>
