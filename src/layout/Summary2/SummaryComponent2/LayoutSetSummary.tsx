@@ -1,33 +1,43 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { Accordion } from '@digdir/designsystemet-react';
 
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { Lang } from 'src/features/language/Lang';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
+import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
 import { useSummary2Store } from 'src/layout/Summary2/summaryStoreContext';
 
-interface LayoutSetSummaryProps {
+type LayoutSetSummaryProps = {
   pageKey?: string;
-}
+};
 
-export function TaskSummaryAccordion({ pageKey, children }: React.PropsWithChildren<{ pageKey: string }>) {
-  const [isOpen, setIsOpen] = useState(true);
+type LayoutSetAccordionSummaryProps = {
+  filteredPages: string[];
+};
+
+export function TaskSummaryAccordion({ filteredPages }: LayoutSetAccordionSummaryProps) {
   return (
     <Accordion
       border
       color={'neutral'}
+      className={classes.summaryItem}
     >
-      <Accordion.Item
-        key={pageKey}
-        open={isOpen}
-      >
-        <Accordion.Header onHeaderClick={() => setIsOpen(!isOpen)}>
-          <Lang id={pageKey} />
-        </Accordion.Header>
-        <Accordion.Content>{children}</Accordion.Content>
-      </Accordion.Item>
+      {filteredPages.map((layoutId: string) => (
+        <Accordion.Item key={layoutId}>
+          <Accordion.Header>
+            <Lang id={layoutId} />
+          </Accordion.Header>
+          <Accordion.Content>
+            {
+              <PageSummary
+                pageId={layoutId}
+                key={layoutId}
+              />
+            }
+          </Accordion.Content>
+        </Accordion.Item>
+      ))}
     </Accordion>
   );
 }
@@ -46,16 +56,14 @@ export function LayoutSetSummary({ pageKey }: LayoutSetSummaryProps) {
     return layoutId === pageKey;
   });
 
-  return filteredPages.map((layoutId, idx) => (
-    <ConditionalWrapper
-      key={idx}
-      condition={!!summaryItem?.showPageInAccordion}
-      wrapper={(children) => <TaskSummaryAccordion pageKey={layoutId}>{children}</TaskSummaryAccordion>}
-    >
-      <PageSummary
-        pageId={layoutId}
-        key={layoutId}
-      />
-    </ConditionalWrapper>
+  if (summaryItem?.showPageInAccordion) {
+    return <TaskSummaryAccordion filteredPages={filteredPages} />;
+  }
+
+  return filteredPages.map((layoutId) => (
+    <PageSummary
+      pageId={layoutId}
+      key={layoutId}
+    />
   ));
 }
