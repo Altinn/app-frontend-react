@@ -27,12 +27,7 @@ export class Tabs extends TabsDef {
   }
 
   renderSummary2(props: Summary2Props<'Tabs'>): JSX.Element | null {
-    return (
-      <TabsSummary
-        componentNode={props.target}
-        isCompact={props.isCompact}
-      />
-    );
+    return <TabsSummary componentNode={props.target} />;
   }
 
   renderSummaryBoilerplate(): boolean {

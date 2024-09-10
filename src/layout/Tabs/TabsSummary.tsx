@@ -17,6 +17,10 @@ type TabsSummaryProps = {
 export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
   const tabs = useNodeItem(componentNode, (i) => i.tabsInternal);
 
+  if (!tabs || tabs.length === 0) {
+    return null;
+  }
+
   return (
     <div
       className={classes.summaryContent}
@@ -24,6 +28,7 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
     >
       {tabs.map((tab, index) => (
         <>
+          {index != 0 && <hr className={classes.tabDivider} />}
           <div
             key={tab.id}
             className={classes.tabWrapper}
@@ -47,7 +52,6 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
               ))}
             </Grid>
           </div>
-          {index < tabs.length - 1 && <hr className={classes.tabDivider} />}
         </>
       ))}
     </div>
