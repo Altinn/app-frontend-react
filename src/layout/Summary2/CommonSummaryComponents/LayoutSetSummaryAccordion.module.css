@@ -1,0 +1,13 @@
+.summaryItem {
+  width: 100%;
+}
+
+.accordionItemContent {
+  display: flex;
+  flex-wrap: wrap;
+  padding: var(--fds-spacing-2);
+}
+
+.accordionItemContent > * {
+  padding: var(--fds-spacing-3);
+}

@@ -1,51 +1,13 @@
 import React from 'react';
 
-import { Accordion, Label } from '@digdir/designsystemet-react';
-
-import { Lang } from 'src/features/language/Lang';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
+import { LayoutSetSummaryAccordion } from 'src/layout/Summary2/CommonSummaryComponents/LayoutSetSummaryAccordion';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
-import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
 import { useSummary2Store } from 'src/layout/Summary2/summaryStoreContext';
 
 type LayoutSetSummaryProps = {
   pageKey?: string;
 };
-
-type LayoutSetAccordionSummaryProps = {
-  filteredPages: string[];
-};
-
-export function TaskSummaryAccordion({ filteredPages }: LayoutSetAccordionSummaryProps) {
-  return (
-    <Accordion
-      border
-      color={'neutral'}
-      className={classes.summaryItem}
-    >
-      {filteredPages.map((layoutId: string) => (
-        <Accordion.Item
-          key={layoutId}
-          defaultOpen={true}
-        >
-          <Accordion.Header level={2}>
-            <Label asChild>
-              <span>
-                <Lang id={layoutId} />
-              </span>
-            </Label>
-          </Accordion.Header>
-          <Accordion.Content>
-            <PageSummary
-              pageId={layoutId}
-              key={layoutId}
-            />
-          </Accordion.Content>
-        </Accordion.Item>
-      ))}
-    </Accordion>
-  );
-}
 
 export function LayoutSetSummary({ pageKey }: LayoutSetSummaryProps) {
   const pageOrder = usePageOrder();
@@ -62,7 +24,7 @@ export function LayoutSetSummary({ pageKey }: LayoutSetSummaryProps) {
   });
 
   if (summaryItem?.showPageInAccordion) {
-    return <TaskSummaryAccordion filteredPages={filteredPages} />;
+    return <LayoutSetSummaryAccordion filteredPages={filteredPages} />;
   }
 
   return filteredPages.map((layoutId) => (
