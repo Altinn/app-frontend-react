@@ -11,12 +11,6 @@
   margin: 0;
 }
 
-.tabContent {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--fds-spacing-6);
-}
-
 .tabWrapper {
   display: flex;
   gap: var(--fds-spacing-8);

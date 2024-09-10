@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
-import cn from 'classnames';
+import { Grid } from '@material-ui/core';
 
 import { Lang } from 'src/features/language/Lang';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
@@ -38,14 +38,18 @@ export const TabsSummary = ({
             >
               {<Lang id={tab.title} />}
             </Heading>
-            <div className={cn(classes.tabContent)}>
+            <Grid
+              container={true}
+              spacing={6}
+              alignItems='flex-start'
+            >
               {tab.children.filter(typedBoolean).map((node) => (
                 <ComponentSummary
                   key={node.id}
                   componentNode={node}
                 />
               ))}
-            </div>
+            </Grid>
           </div>
           {index < tabs.length - 1 && <hr className={classes.tabDivider} />}
         </>
