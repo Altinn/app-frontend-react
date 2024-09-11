@@ -9,9 +9,9 @@ import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { GenericComponentById } from 'src/layout/GenericComponent';
-import { Hidden, useNode } from 'src/utils/layout/NodesContext';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
-import type { NodeRefValidation } from 'src/features/validation';
+import type { NodeValidation } from 'src/features/validation';
 
 export interface IErrorReportProps {
   renderIds: string[];
@@ -25,11 +25,27 @@ const listStyleImg = `url("data:image/svg+xml,${encodeURIComponent(ArrowForwardS
 export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
+  const navigateTo = useNavigateToNode();
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
+  const isHidden = Hidden.useIsHiddenSelector();
 
   if (!hasErrors) {
     return null;
   }
+
+  const handleErrorClick = (error: NodeValidation) => async (ev: React.KeyboardEvent | React.MouseEvent) => {
+    const { node } = error;
+    if (ev.type === 'keydown' && (ev as React.KeyboardEvent).key !== 'Enter') {
+      return;
+    }
+    ev.preventDefault();
+    if (isHidden(node)) {
+      // No point in trying to focus on a hidden component
+      return;
+    }
+
+    await navigateTo(node, { shouldFocus: true, error });
+  };
 
   return (
     <div data-testid='ErrorReport'>
@@ -62,10 +78,22 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
                   </li>
                 ))}
                 {formErrors.map((error) => (
-                  <Error
+                  <li
                     key={getUniqueKeyFromObject(error)}
-                    error={error}
-                  />
+                    style={{ listStyleImage: listStyleImg }}
+                  >
+                    <button
+                      className={classes.buttonAsInvisibleLink}
+                      onClick={handleErrorClick(error)}
+                      onKeyDown={handleErrorClick(error)}
+                    >
+                      <Lang
+                        id={error.message.key}
+                        params={error.message.params}
+                        node={error.node}
+                      />
+                    </button>
+                  </li>
                 ))}
               </ul>
             </Grid>
@@ -81,38 +109,3 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
     </div>
   );
 };
-
-function Error({ error }: { error: NodeRefValidation }) {
-  const node = useNode(error.nodeId);
-  const navigateTo = useNavigateToNode();
-  const isHidden = Hidden.useIsHidden(node);
-
-  const handleErrorClick = async (ev: React.KeyboardEvent | React.MouseEvent) => {
-    if (ev.type === 'keydown' && (ev as React.KeyboardEvent).key !== 'Enter') {
-      return;
-    }
-    ev.preventDefault();
-    if (isHidden) {
-      // No point in trying to focus on a hidden component
-      return;
-    }
-
-    await navigateTo(node, { shouldFocus: true, error });
-  };
-
-  return (
-    <li style={{ listStyleImage: listStyleImg }}>
-      <button
-        className={classes.buttonAsInvisibleLink}
-        onClick={handleErrorClick}
-        onKeyDown={handleErrorClick}
-      >
-        <Lang
-          id={error.message.key}
-          params={error.message.params}
-          node={node}
-        />
-      </button>
-    </li>
-  );
-}

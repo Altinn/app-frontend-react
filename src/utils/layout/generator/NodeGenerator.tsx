@@ -133,8 +133,8 @@ interface AddNodeProps<T extends CompTypes> extends CommonProps<T> {
 function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: AddNodeProps<T>) {
   const parent = GeneratorInternal.useParent();
   const row = GeneratorInternal.useRow();
-  const pageKey = GeneratorInternal.usePage().pageKey;
-  const stateFactoryPropsRef = useAsRef<StateFactoryProps<T>>({ item: intermediateItem, parent, row, pageKey });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item: intermediateItem, parent, row });
   const addNode = NodesStateQueue.useAddNode();
   const removeNode = NodesInternal.useRemoveNode();
   const nodeRef = useAsRef(node);

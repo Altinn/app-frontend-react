@@ -43,7 +43,8 @@ import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import { PageNavigationRouter } from 'src/test/routerUtils';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { useNode, useNodes } from 'src/utils/layout/NodesContext';
+import { useNodes } from 'src/utils/layout/NodesContext';
+import { useNodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
@@ -602,7 +603,7 @@ const WaitForNodes = ({
   nodeId,
 }: PropsWithChildren<{ waitForAllNodes: boolean; nodeId?: string }>) => {
   const nodes = useNodes();
-  const node = useNode(nodeId);
+  const selector = useNodeTraversalSelectorSilent();
 
   if (!nodes && waitForAllNodes) {
     return (
@@ -613,8 +614,26 @@ const WaitForNodes = ({
     );
   }
 
-  if (nodeId !== undefined && waitForAllNodes && !node) {
-    return <div>Unable to find target node: {nodeId}</div>;
+  if (nodeId !== undefined && nodes && waitForAllNodes) {
+    const node = selector((t) => t.findById(nodeId), [nodeId]);
+    if (!node) {
+      const allNodes = selector((t) => t.allNodes(), []);
+      return (
+        <>
+          <div>Unable to find target node: {nodeId}</div>
+          {allNodes && (
+            <>
+              <div>All other nodes loaded:</div>
+              <ul>
+                {allNodes.map((node) => (
+                  <li key={node.id}>{node.id}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </>
+      );
+    }
   }
 
   return <>{children}</>;
@@ -639,12 +658,13 @@ export async function renderWithNode<InInstance extends boolean, T extends Layou
 }: RenderWithNodeTestProps<T, InInstance>): Promise<RenderWithNodeReturnType<InInstance>> {
   function Child() {
     const root = useNodes();
-    const node = useNode(props.nodeId);
+    const selector = useNodeTraversalSelectorSilent();
 
     if (!root) {
       return <div>Unable to find root context</div>;
     }
 
+    const node = selector((t) => t.findById(props.nodeId), [props.nodeId]);
     if (!node) {
       return <div>Unable to find node: {props.nodeId}</div>;
     }

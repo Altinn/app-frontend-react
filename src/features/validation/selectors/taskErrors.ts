@@ -1,24 +1,40 @@
 import { useMemo } from 'react';
 
-import { ContextNotProvided } from 'src/core/contexts/context';
+import type { AnyValidation, BaseValidation, NodeValidation } from '..';
+
 import { getVisibilityMask, selectValidations, validationsOfSeverity } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation/index';
+import { useNodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
 
-const emptyArray: never[] = [];
+const emptyArray: [] = [];
 
 /**
  * Returns all validation errors (not warnings, info, etc.) for a layout set.
  * This includes unmapped/task errors as well
  */
 export function useTaskErrors(): {
-  formErrors: NodeRefValidation<AnyValidation<'error'>>[];
+  formErrors: NodeValidation<AnyValidation<'error'>>[];
   taskErrors: BaseValidation<'error'>[];
 } {
   const selector = Validation.useSelector();
-  const _formErrors = NodesInternal.useAllValidations('visible', 'error');
-  const formErrors = _formErrors === ContextNotProvided ? emptyArray : _formErrors;
+  const nodeValidationsSelector = NodesInternal.useValidationsSelector();
+  const traversalSelector = useNodeTraversalSelectorSilent();
+
+  const formErrors = useMemo(() => {
+    if (!traversalSelector) {
+      return emptyArray;
+    }
+
+    const formErrors: NodeValidation<AnyValidation<'error'>>[] = [];
+    const allNodes = traversalSelector((t) => t.allNodes(), []);
+    for (const node of allNodes ?? emptyArray) {
+      const validations = nodeValidationsSelector(node, 'visible', 'error') as AnyValidation<'error'>[];
+      formErrors.push(...validations.map((v) => ({ ...v, node })));
+    }
+
+    return formErrors;
+  }, [nodeValidationsSelector, traversalSelector]);
 
   const taskErrors = useMemo(() => {
     const taskErrors: BaseValidation<'error'>[] = [];
