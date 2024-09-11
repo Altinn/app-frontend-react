@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { ErrorMessage } from '@digdir/designsystemet-react';
-import Grid from '@material-ui/core/Grid';
+import { Grid } from '@material-ui/core';
 import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
