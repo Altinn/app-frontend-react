@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { ErrorMessage } from '@digdir/designsystemet-react';
+import Grid from '@material-ui/core/Grid';
 import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
@@ -44,7 +45,7 @@ export const RepeatingGroupSummary = ({
 
   return (
     <div
-      className={cn({ [classes.nestedRepeatingGroupSummaryWrapper]: isNested })}
+      className={cn(classes.summaryWrapper, { [classes.nestedSummaryWrapper]: isNested })}
       data-testid={'summary-repeating-group-component'}
     >
       <Label
@@ -52,21 +53,24 @@ export const RepeatingGroupSummary = ({
         renderLabelAs='span'
         textResourceBindings={{ title }}
       />
-      <div className={cn({ [classes.nestedRepeatingGroupContentWrapper]: isNested })}>
+      <div className={cn(classes.contentWrapper, { [classes.nestedContentWrapper]: isNested })}>
         {rows.map((row, index) => (
-          <div
-            key={row?.uuid}
-            className={cn(classes.repeatingGroupSummaryRow, {
-              [classes.repeatingGroupRowDivider]: index < rows.length - 1,
-            })}
-          >
-            {row?.items?.map((node) => (
-              <ComponentSummary
-                key={node.id}
-                componentNode={node}
-              />
-            ))}
-          </div>
+          <>
+            {index != 0 && <hr className={classes.rowDivider} />}
+            <Grid
+              key={row?.uuid}
+              container={true}
+              spacing={6}
+              alignItems='flex-start'
+            >
+              {row?.items?.map((node) => (
+                <ComponentSummary
+                  key={node.id}
+                  componentNode={node}
+                />
+              ))}
+            </Grid>
+          </>
         ))}
       </div>
       {errors?.map(({ message }) => (
