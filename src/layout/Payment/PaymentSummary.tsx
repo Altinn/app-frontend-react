@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PaymentReceiptDetails } from 'src/layout/Payment/PaymentReceiptDetails';
+import { PaymentReceiptDetails } from 'src/layout/Payment/PaymentReceiptDetails/PaymentReceiptDetails';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
