@@ -295,6 +295,9 @@ export interface DataQueryParams {
 
 export function DataQueryWithDefaultValue(props: DataQueryParams) {
   const { data, query, defaultValue } = props;
+
+  console.log({ data, query, defaultValue });
+
   const { langAsString } = useLanguage();
   let content = dot.pick(query, data);
 

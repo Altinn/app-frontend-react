@@ -36,6 +36,8 @@ const StoreContext = createContext<ReturnType<typeof createTaskStore> | null>(nu
 export function TaskStoreProvider({ children }: React.PropsWithChildren) {
   const store = createTaskStore();
 
+  // debugger;
+
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
 

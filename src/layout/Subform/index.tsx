@@ -19,7 +19,7 @@ import {
   SubformWrapper,
 } from 'src/layout/Subform/SubformWrapper';
 import { SubformSummaryComponent } from 'src/layout/Subform/Summary/SubformSummaryComponent';
-import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
+import { SUMMARUSubformComponent } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
 import type { TextReference } from 'src/features/language/useLanguage';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
@@ -75,8 +75,25 @@ export class Subform extends SubformDef implements ValidateComponent<'Subform'> 
     return <SubformSummaryComponent targetNode={targetNode} />;
   }
 
-  renderSummary2(props: Summary2Props<'Subform'>): JSX.Element | null {
-    return <SubformSummaryComponent2 targetNode={props.target} />;
+  renderSummary2(props: Summary2Props<'Subform'>) {
+    // console.log(props);
+    // return <div>renrdyer sum 2</div>;
+
+    //<FormProvider>{children}</FormProvider>
+
+    return <SUMMARUSubformComponent targetNode={props.target} />;
+
+    // return (
+    //   <TaskStoreProvider>
+    //     <FormProvider>
+    //       <SubformSummaryWrapper node={props.target}>
+    //         {/*<ComponentStructureWrapper node={props.target}>*/}
+    //         <SubformSummaryComponent2 targetNode={props.target} />
+    //         {/*</ComponentStructureWrapper>*/}
+    //       </SubformSummaryWrapper>
+    //     </FormProvider>
+    //   </TaskStoreProvider>
+    // );
   }
 
   runComponentValidation(
