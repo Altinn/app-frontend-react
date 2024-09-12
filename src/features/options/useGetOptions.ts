@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
-import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -14,9 +14,10 @@ import { useGetAwaitingCommits } from 'src/utils/layout/generator/GeneratorStage
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { filterDuplicateOptions, verifyOptions } from 'src/utils/options';
+import type { FDLeafValue } from 'src/features/formData/FormDataWrite';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { IDataModelBindingsOptionsSimple, IDataModelBindingsSimple } from 'src/layout/common.generated';
+import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
 import type { CompIntermediateExact, CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -30,7 +31,7 @@ interface FetchOptionsProps {
 
 interface SetOptionsProps {
   valueType: OptionsValueType;
-  dataModelBindings?: IDataModelBindingsOptionsSimple | IDataModelBindingsSimple;
+  dataModelBindings?: IDataModelBindingsOptionsSimple;
 }
 
 export interface GetOptionsResult {
@@ -69,8 +70,10 @@ interface EffectProps {
   options: IOptionInternal[] | undefined;
   preselectedOption: IOptionInternal | undefined;
   unsafeSelectedValues: string[];
-  setValue: (values: string[]) => void;
+  setRawData: (key: keyof IDataModelBindingsOptionsSimple, value: FDLeafValue) => void;
+  setValues: (values: string[]) => void;
   valueType: OptionsValueType;
+  downstreamParameters: string | undefined;
 }
 
 const defaultOptions: IOptionInternal[] = [];
@@ -126,7 +129,7 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
  * If given the 'preselectedOptionIndex' property, we should automatically select the given option index as soon
  * as options are ready. The code is complex to guard against overwriting data that has been set by the user.
  */
-function useEffectPreselectedOptionIndex({ node, setValue, preselectedOption, unsafeSelectedValues }: EffectProps) {
+function useEffectPreselectedOptionIndex({ node, setValues, preselectedOption, unsafeSelectedValues }: EffectProps) {
   const isNodeHidden = Hidden.useIsHidden(node);
   const isNodesReady = NodesInternal.useIsReady();
   const hasSelectedInitial = useRef(false);
@@ -140,10 +143,10 @@ function useEffectPreselectedOptionIndex({ node, setValue, preselectedOption, un
 
   useEffect(() => {
     if (shouldSelectOptionAutomatically) {
-      setValue([preselectedOption.value]);
+      setValues([preselectedOption.value]);
       hasSelectedInitial.current = true;
     }
-  }, [preselectedOption, shouldSelectOptionAutomatically, setValue]);
+  }, [preselectedOption, shouldSelectOptionAutomatically, setValues]);
 }
 
 /**
@@ -159,7 +162,7 @@ function useEffectRemoveStaleValues(props: EffectProps) {
   const getAwaiting = useGetAwaitingCommits();
   const ready = isNodesReady && !isNodeHidden;
   useEffect(() => {
-    const { options, unsafeSelectedValues, setValue } = props;
+    const { options, unsafeSelectedValues, setValues } = props;
     if (!options || !ready) {
       return;
     }
@@ -173,7 +176,7 @@ function useEffectRemoveStaleValues(props: EffectProps) {
 
     const itemsToRemove = unsafeSelectedValues.filter((v) => !options.find((option) => option.value === v));
     if (itemsToRemove.length > 0) {
-      setValue(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
+      setValues(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
     }
   }, [props, getAwaiting, ready]);
 }
@@ -181,12 +184,12 @@ function useEffectRemoveStaleValues(props: EffectProps) {
 /**
  * This effect is responsible for setting the label/display value in the data model.
  */
-function useEffectStoreLabel({ node, item, options, unsafeSelectedValues, valueType }: EffectProps) {
+function useEffectStoreLabel({ node, item, options, unsafeSelectedValues, valueType, setRawData }: EffectProps) {
   const isNodeHidden = Hidden.useIsHidden(node);
   const isNodesReady = NodesInternal.useIsReady();
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
   const { langAsString } = useLanguage();
-  const { setValue, formData } = useDataModelBindings(dataModelBindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
+  const formData = FD.useFreshBindings(dataModelBindings, 'raw');
 
   const translatedLabels = useMemo(
     () =>
@@ -207,14 +210,24 @@ function useEffectStoreLabel({ node, item, options, unsafeSelectedValues, valueT
     }
 
     if (!translatedLabels || translatedLabels.length === 0) {
-      setValue('label', undefined);
+      setRawData('label', undefined);
       return;
     } else if (valueType === 'single') {
-      setValue('label', translatedLabels.at(0));
+      setRawData('label', translatedLabels.at(0));
     } else {
-      setValue('label', translatedLabels);
+      setRawData('label', translatedLabels);
     }
-  }, [setValue, shouldSetData, translatedLabels, valueType]);
+  }, [setRawData, shouldSetData, translatedLabels, valueType]);
+}
+
+function useEffectSetDownstreamParameters({ item, downstreamParameters, setRawData }: EffectProps) {
+  const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
+  useEffect(() => {
+    if (dataModelBindings && 'metadata' in dataModelBindings && dataModelBindings.metadata && downstreamParameters) {
+      // The value might be url-encoded
+      setRawData('metadata', decodeURIComponent(downstreamParameters));
+    }
+  }, [dataModelBindings, downstreamParameters, setRawData]);
 }
 
 export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): GetOptionsResult {
@@ -222,8 +235,21 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
   const preselectedOptionIndex = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
   const { langAsString } = useLanguage();
   const selectedLanguage = useCurrentLanguage();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { setValue } = useDataModelBindings(item.dataModelBindings as any);
+  const setLeafValue = FD.useSetLeafValue();
+
+  const setRawData = useCallback(
+    (key: keyof IDataModelBindingsOptionsSimple, newValue: FDLeafValue) => {
+      if (!dataModelBindings || !(key in dataModelBindings)) {
+        return;
+      }
+
+      setLeafValue({
+        path: dataModelBindings[key],
+        newValue,
+      });
+    },
+    [dataModelBindings, setLeafValue],
+  );
 
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
@@ -281,19 +307,11 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
 
   const alwaysOptions = calculatedOptions || defaultOptions;
   const { unsafeSelectedValues, setData } = useSetOptions(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { valueType, dataModelBindings: dataModelBindings as any },
+    { valueType, dataModelBindings: dataModelBindings as IDataModelBindingsOptionsSimple },
     alwaysOptions,
   );
 
-  const downstreamParameters: string = fetchedOptions?.headers['altinn-downstreamparameters'];
-  useEffect(() => {
-    if (dataModelBindings && 'metadata' in dataModelBindings && dataModelBindings.metadata && downstreamParameters) {
-      // The value might be url-encoded
-      setValue('metadata', decodeURIComponent(downstreamParameters));
-    }
-  }, [dataModelBindings, downstreamParameters, setValue]);
-
+  const downstreamParameters: string | undefined = fetchedOptions?.headers['altinn-downstreamparameters'];
   const effectProps: EffectProps = useMemo(
     () => ({
       node,
@@ -302,14 +320,27 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
       valueType,
       preselectedOption,
       unsafeSelectedValues,
-      setValue: setData,
+      setRawData,
+      setValues: setData,
+      downstreamParameters,
     }),
-    [calculatedOptions, valueType, preselectedOption, unsafeSelectedValues, setData, node, item],
+    [
+      node,
+      item,
+      calculatedOptions,
+      valueType,
+      preselectedOption,
+      unsafeSelectedValues,
+      setRawData,
+      setData,
+      downstreamParameters,
+    ],
   );
 
   useEffectPreselectedOptionIndex(effectProps);
   useEffectRemoveStaleValues(effectProps);
   useEffectStoreLabel(effectProps);
+  useEffectSetDownstreamParameters(effectProps);
 
   return {
     options: alwaysOptions,
@@ -321,8 +352,10 @@ export function useGetOptions(
   node: LayoutNode<CompWithBehavior<'canHaveOptions'>>,
   valueType: OptionsValueType,
 ): GetOptionsResult & SetOptionsResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings) as any;
+  const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings) as
+    | IDataModelBindingsOptionsSimple
+    | undefined;
+
   const get = useNodeOptions(node);
   const set = useSetOptions({ valueType, dataModelBindings }, get.options);
 
