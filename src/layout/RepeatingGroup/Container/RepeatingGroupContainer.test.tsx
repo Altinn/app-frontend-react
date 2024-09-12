@@ -267,7 +267,7 @@ describe('RepeatingGroupContainer', () => {
       })[1],
     );
 
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.queryByText(/feltet er feil/i)).not.toBeInTheDocument();
   });
 
   it('should display "Add new" button when edit.addButton is undefined', async () => {

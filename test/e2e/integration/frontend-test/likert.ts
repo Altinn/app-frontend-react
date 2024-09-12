@@ -8,16 +8,26 @@ describe('Likert', () => {
   it('Should show validation message for required likert', () => {
     cy.goto('likert');
     cy.get(appFrontend.sendinButton).click();
-    cy.findAllByRole('alert').should(($alerts) => {
-      expect($alerts).to.have.length(3);
-      expect($alerts.eq(0).text()).to.match(new RegExp(`du må fylle ut ${likertPage.requiredQuestions[0]}`, 'i'));
-      expect($alerts.eq(1).text()).to.match(new RegExp(`du må fylle ut ${likertPage.requiredQuestions[1]}`, 'i'));
-      expect($alerts.eq(2).text()).to.match(new RegExp(`du må fylle ut ${likertPage.requiredQuestions[2]}`, 'i'));
-    });
+
+    cy.get(appFrontend.fieldValidation('likert-group-required-item-3')).should(
+      'contain.text',
+      `Du må fylle ut ${likertPage.requiredQuestions[0]}`,
+    );
+    cy.get(appFrontend.fieldValidation('likert-group-required-item-4')).should(
+      'contain.text',
+      `Du må fylle ut ${likertPage.requiredQuestions[1]}`,
+    );
+    cy.get(appFrontend.fieldValidation('likert-group-required-item-5')).should(
+      'contain.text',
+      `Du må fylle ut ${likertPage.requiredQuestions[2]}`,
+    );
 
     // Check the second required question and take a snapshot
     likertPage.selectRadio(likertPage.requiredQuestions[1], likertPage.options[1]);
-    cy.findAllByRole('alert').should('have.length', 2);
+    cy.get(appFrontend.fieldValidation('likert-group-required-item-4')).should(
+      'not.contain.text',
+      `Du må fylle ut ${likertPage.requiredQuestions[1]}`,
+    );
     cy.snapshot('likert');
   });
   it('Should fill out optional likert and see results in summary component', () => {
