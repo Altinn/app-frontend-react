@@ -182,6 +182,8 @@ function DataModelsLoader() {
   // We only need to load validation and expression validation config for data types that are not readonly. Additionally, backend will error if we try to validate a model we are not supposed to
   return (
     <>
+      <pre>{JSON.stringify(allDataTypes, null, 2)}</pre>
+
       {allDataTypes?.map((dataType) => (
         <React.Fragment key={dataType}>
           <LoadInitialData dataType={dataType} />
@@ -275,15 +277,42 @@ function LoadInitialData({ dataType }: LoaderProps) {
   const instance = useLaxInstanceData();
   const overriddenUuid = useTaskStore((state) => state.overriddenDataModelUuid);
   const overriddenType = useTaskStore((state) => state.overriddenDataModelType);
-  const dataElementId = overriddenType === dataType ? overriddenUuid : getFirstDataElementId(instance, dataType);
-  const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
+  //const dataElementId = overriddenType === dataType ? overriddenUuid : getFirstDataElementId(instance, dataType);
+
+  console.log('overriddenUuid', overriddenUuid);
+  console.log('overriddenType', overriddenType);
+
+  const actualDataType = overriddenType ? overriddenType : dataType;
+  const actualDataElementID = overriddenUuid ? overriddenUuid : getFirstDataElementId(instance, dataType);
+
+  console.log('actualDataType', actualDataType);
+  console.log('actualDataElementID', actualDataElementID);
+  const url = useDataModelUrl({ dataType: actualDataType, dataElementId: actualDataElementID, includeRowIds: true });
+
+  console.log('url', url);
+
   const { data, error } = useFormDataQuery(url);
+
+  /// dataType, data, dataElementId
+
+  // console.log('overriddenType', overriddenType);
+  //
+  // console.log('dataType', dataType);
+  //
+  // console.log('dataElementId', dataElementId);
 
   useEffect(() => {
     if (data && url) {
-      setInitialData(dataType, data, dataElementId ?? null);
+      // console.log('Use effect:');
+      // console.log({ dataType, data, dataElementId });
+      // setInitialData(dataType, data, actualDataType ?? null);
+
+      console.log('effect');
+      console.log({ actualDataType, data, actualDataElementID });
+
+      setInitialData(actualDataType, data, actualDataElementID ?? null);
     }
-  }, [data, dataElementId, dataType, setInitialData, url]);
+  }, [data, actualDataElementID, dataType, setInitialData, url, actualDataType]);
 
   useEffect(() => {
     error && setError(error);

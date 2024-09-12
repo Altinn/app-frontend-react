@@ -41,10 +41,12 @@ export function TaskStoreProvider({ children }: React.PropsWithChildren) {
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
 
-export const useTaskStore = <T,>(selector: (state: TaskState) => T): T => {
+export const useTaskStore = <T,>(selector: (state: TaskState) => T) => {
   const store = useContext(StoreContext);
   if (!store) {
-    return {} as T;
+    // return {} as T;
+    throw new Error('useTaskStore must be used within a TaskStoreProvider');
+    /*return null;*/
   }
   return store(selector);
 };

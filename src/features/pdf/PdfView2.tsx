@@ -150,8 +150,15 @@ export const DoSummaryWrapper = ({
   children,
 }: PropsWithChildren<{ dataElementId: string; layoutSet: string; dataType: string }>) => {
   const isDone = useDoOverrideSummary(dataElementId, layoutSet, dataType);
+  // const [areWeDone, setAreWeDone] = useState(false);
+  //
+  // useEffect(() => {
+  //   setAreWeDone(isDone);
+  // }, [isDone]);
+  // //
   if (!isDone) {
-    return null;
+    console.log('not done');
+    return <div>not done</div>;
   }
   return <FormProvider>{children}</FormProvider>;
 };
@@ -228,16 +235,19 @@ export const SummarySubformWrapper = ({ node, children }: PropsWithChildren<{ no
       {/*<pre>{JSON.stringify(dataElements, null, 2)}</pre>*/}
 
       {dataElements?.map((element, idx) => (
-        <DoSummaryWrapper
-          key={idx}
-          dataElementId={element.id}
-          layoutSet={layoutSet}
-          dataType={element.dataType}
-        >
-          <div style={{ border: '1px solid lightgray' }}>
-            <LayoutSetSummary />
-          </div>
-        </DoSummaryWrapper>
+        <TaskStoreProvider key={idx}>
+          <DoSummaryWrapper
+            key={element.id + idx}
+            dataElementId={element.id}
+            layoutSet={layoutSet}
+            dataType={element.dataType}
+          >
+            <div style={{ border: '1px solid lightgray' }}>
+              {/*<h1>{element.id}</h1>*/}
+              <LayoutSetSummary />
+            </div>
+          </DoSummaryWrapper>
+        </TaskStoreProvider>
       ))}
       {/*{dataElements?.map((element) => (*/}
       {/*  <DoSummaryWrapper*/}
@@ -266,9 +276,7 @@ function SubformPDF() {
   return (
     <div>
       {children.map((child, idx) => (
-        <TaskStoreProvider key={idx}>
-          <SummarySubformWrapper node={child} />
-        </TaskStoreProvider>
+        <SummarySubformWrapper node={child} />
       ))}
     </div>
   );
