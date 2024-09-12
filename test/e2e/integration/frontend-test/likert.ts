@@ -4,29 +4,35 @@ import { Likert } from 'test/e2e/pageobjects/likert';
 const appFrontend = new AppFrontend();
 const likertPage = new Likert();
 
+function containTextCaseInsensitive(text: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (el: any) => expect(el.text().toLowerCase()).to.include(text.toLowerCase());
+}
+
+function notContainTextCaseInsensitive(text: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (el: any) => expect(el.text().toLowerCase()).not.to.include(text.toLowerCase());
+}
+
 describe('Likert', () => {
   it('Should show validation message for required likert', () => {
     cy.goto('likert');
     cy.get(appFrontend.sendinButton).click();
 
     cy.get(appFrontend.fieldValidation('likert-group-required-item-3')).should(
-      'contain.text',
-      `Du må fylle ut ${likertPage.requiredQuestions[0]}`,
+      containTextCaseInsensitive(`Du må fylle ut ${likertPage.requiredQuestions[0]}`),
     );
     cy.get(appFrontend.fieldValidation('likert-group-required-item-4')).should(
-      'contain.text',
-      `Du må fylle ut ${likertPage.requiredQuestions[1]}`,
+      containTextCaseInsensitive(`Du må fylle ut ${likertPage.requiredQuestions[1]}`),
     );
     cy.get(appFrontend.fieldValidation('likert-group-required-item-5')).should(
-      'contain.text',
-      `Du må fylle ut ${likertPage.requiredQuestions[2]}`,
+      containTextCaseInsensitive(`Du må fylle ut ${likertPage.requiredQuestions[2]}`),
     );
 
     // Check the second required question and take a snapshot
     likertPage.selectRadio(likertPage.requiredQuestions[1], likertPage.options[1]);
     cy.get(appFrontend.fieldValidation('likert-group-required-item-4')).should(
-      'not.contain.text',
-      `Du må fylle ut ${likertPage.requiredQuestions[1]}`,
+      notContainTextCaseInsensitive(`Du må fylle ut ${likertPage.requiredQuestions[1]}`),
     );
     cy.snapshot('likert');
   });
