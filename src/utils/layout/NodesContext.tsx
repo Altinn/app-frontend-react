@@ -704,16 +704,20 @@ function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined
   return isHiddenHere(hiddenState, options);
 }
 
-function isHidden(state: NodesContext, node: LayoutNode | LayoutPage | undefined, options?: IsHiddenOptions) {
+function isHidden(
+  state: NodesContext,
+  node: LayoutNode | LayoutPage | undefined,
+  options?: IsHiddenOptions,
+): boolean | undefined {
   if (!node) {
-    return true;
+    return undefined;
   }
 
   const hiddenState =
     node instanceof LayoutPage ? state.pagesData.pages[node.pageKey]?.hidden : state.nodeData[node.id]?.hidden;
 
   if (!hiddenState) {
-    return true;
+    return undefined;
   }
 
   const hiddenHere = isHiddenHere(hiddenState, options);
