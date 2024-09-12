@@ -44,11 +44,6 @@ export const Config = new CG.component({
                 new CG.prop('type', new CG.const('ClientAction')),
                 new CG.prop('validation', CG.common('PageValidation').optional()),
               ).exportAs('CloseSubformAction'),
-              new CG.obj(
-                new CG.prop('id', new CG.const('validateSubform')),
-                new CG.prop('type', new CG.const('ClientAction')),
-                new CG.prop('validation', CG.common('PageValidation').optional()),
-              ).exportAs('ValidateSubformAction'),
             ).exportAs('SubformAction'),
           ).exportAs('ClientAction'),
           new CG.obj(
