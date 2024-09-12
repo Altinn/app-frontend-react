@@ -8,6 +8,7 @@ import { INPUT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Input/config';
 import { LIST_SUMMARY_OVERRIDE_PROPS } from 'src/layout/List/config';
 import { MAP_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Map/config';
 import { MULTIPLE_SELECT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/MultipleSelect/config';
+import { PAYMENT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Payment/config';
 import { RADIO_SUMMARY_OVERRIDE_PROPS } from 'src/layout/RadioButtons/config';
 import { REPEATING_GROUP_SUMMARY_OVERRIDE_PROPS } from 'src/layout/RepeatingGroup/config';
 import { TEXTAREA_SUMMARY_PROPS } from 'src/layout/TextArea/config';
@@ -74,6 +75,7 @@ export const Config = new CG.component({
           DATEPICKER_SUMMARY_OVERRIDE_PROPS,
           LIST_SUMMARY_OVERRIDE_PROPS,
           MAP_SUMMARY_OVERRIDE_PROPS,
+          PAYMENT_SUMMARY_OVERRIDE_PROPS,
         ).exportAs('AnySummaryOverrideProps'),
       ).optional(),
     ),
