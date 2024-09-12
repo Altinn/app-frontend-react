@@ -8,7 +8,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { getInstanceReferenceNumber } from 'src/layout/InstanceInformation/InstanceInformationComponent';
-import classes from 'src/layout/Payment/PaymentReceiptDetails.module.css';
+import classes from 'src/layout/Payment/PaymentReceiptDetails/PaymentReceiptDetails.module.css';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { typedBoolean } from 'src/utils/typing';
