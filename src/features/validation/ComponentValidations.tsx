@@ -92,7 +92,7 @@ function ErrorValidations({ validations, node }: { validations: BaseValidation<'
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
 
   return (
-    <ol style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
+    <ul style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
       {validations.map((validation) => (
         <li key={getUniqueKeyFromObject(validation)}>
           <ErrorMessage
@@ -107,7 +107,7 @@ function ErrorValidations({ validations, node }: { validations: BaseValidation<'
           </ErrorMessage>
         </li>
       ))}
-    </ol>
+    </ul>
   );
 }
 
@@ -136,7 +136,7 @@ function SoftValidations({
         useAsAlert={true}
         ariaLabel={ariaLabel}
       >
-        <ol style={{ paddingLeft: 0, listStyleType: 'none' }}>
+        <ul style={{ paddingLeft: 0, listStyleType: 'none' }}>
           {validations.map((validation) => (
             <li
               role='alert'
@@ -149,7 +149,7 @@ function SoftValidations({
               />
             </li>
           ))}
-        </ol>
+        </ul>
       </AlertBaseComponent>
     </div>
   );
