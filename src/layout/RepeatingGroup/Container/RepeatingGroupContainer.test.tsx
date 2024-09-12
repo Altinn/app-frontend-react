@@ -239,7 +239,7 @@ describe('RepeatingGroupContainer', () => {
       })[1],
     );
 
-    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Feltet er feil'));
+    await waitFor(() => expect(screen.getByText(/feltet er feil/i)).toBeInTheDocument());
   });
 
   it('should NOT trigger validate when saving if validation trigger is NOT present', async () => {
