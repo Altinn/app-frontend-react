@@ -40,9 +40,6 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
   }));
 
   const hasOverridenTaskId = !!overriddenTaskId;
-
-  console.log('overriddenTaskId', overriddenTaskId);
-
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
 
   const status = attachment.uploaded
