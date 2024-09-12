@@ -122,17 +122,16 @@ Cypress.Commands.add('gotoHiddenPage', (target) => {
     code: [
       `var instanceDataNew = await fetch('${baseUrl}/instances/' + instanceId, { headers }).then((res) => res.json());`,
       `var changeNameModel = instanceDataNew.data.find((data) => data.dataType === 'ServiceModel-test');`,
-      `var targetData = {
-        'NyttNavn-grp-9313': {
-          'NyttNavn-grp-9314': {
-            'PersonFornavnNytt-datadef-34758': { value: 'a' },
-            PersonBekrefterNyttNavn: { value: 'Ja' },
-          },
-        },
-        ChooseExtraPages: "${target}",
-      };`,
+      `var dataModel = await fetch('${baseUrl}/instances/' + instanceId + '/data/' + changeNameModel.id, { headers }).then((res) => res.json());`,
+      `dataModel['NyttNavn-grp-9313'] = {
+        'NyttNavn-grp-9314': {
+          'PersonFornavnNytt-datadef-34758': { value: 'a' },
+          'PersonBekrefterNyttNavn': { value: 'Ja' },
+        }
+      }`,
+      `dataModel.ChooseExtraPages = "${target}";`,
       `await fetch('${baseUrl}/instances/' + instanceId + '/data/' + changeNameModel.id,
-        { method: 'PUT', headers, body: JSON.stringify(targetData) });`,
+        { method: 'PUT', headers, body: JSON.stringify(dataModel) });`,
     ].join('\n'),
   }));
 });
