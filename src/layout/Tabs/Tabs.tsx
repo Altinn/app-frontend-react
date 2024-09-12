@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 
 import { Tabs as DesignsystemetTabs } from '@digdir/designsystemet-react';
+import { Grid } from '@material-ui/core';
 
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { GenericComponent } from 'src/layout/GenericComponent';
+import classes from 'src/layout/Tabs/Tabs.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import { typedBoolean } from 'src/utils/typing';
@@ -57,16 +59,19 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
             key={tab.id}
             value={tab.id}
             role='tabpanel'
-            style={{
-              backgroundColor: 'white',
-            }}
           >
-            {tab.children.filter(typedBoolean).map((node) => (
-              <GenericComponent
-                key={node.id}
-                node={node}
-              />
-            ))}
+            <Grid
+              container={true}
+              spacing={6}
+              alignItems='flex-start'
+            >
+              {tab.children.filter(typedBoolean).map((node) => (
+                <GenericComponent
+                  key={node.id}
+                  node={node}
+                />
+              ))}
+            </Grid>
           </DesignsystemetTabs.Content>
         ))}
       </DesignsystemetTabs>
@@ -112,9 +117,7 @@ function TabHeader({
         <img
           src={icon}
           alt=''
-          style={{
-            width: '24px',
-          }}
+          className={classes.icon}
         />
       )}
       <Lang id={translatedTitle} />
