@@ -1,11 +1,10 @@
 import React from 'react';
 
-import { ErrorMessage } from '@digdir/designsystemet-react';
+import { Alert as AlertDesignSystem, ErrorMessage } from '@digdir/designsystemet-react';
 
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
-import { AlertBaseComponent } from 'src/layout/Alert/AlertBaseComponent';
 import { useCurrentNode } from 'src/layout/FormComponentContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
@@ -64,21 +63,21 @@ export function ComponentValidations({ validations, node: _node }: Props) {
           {warnings.length > 0 && (
             <SoftValidations
               validations={warnings}
-              variant='warning'
+              severity='warning'
               node={node}
             />
           )}
           {info.length > 0 && (
             <SoftValidations
               validations={info}
-              variant='info'
+              severity='info'
               node={node}
             />
           )}
           {success.length > 0 && (
             <SoftValidations
               validations={success}
-              variant='success'
+              severity='success'
               node={node}
             />
           )}
@@ -110,18 +109,21 @@ function ErrorValidations({ validations, node }: { validations: BaseValidation<'
 
 function SoftValidations({
   validations,
-  variant,
+  severity,
   node,
 }: {
   validations: BaseValidation<'warning' | 'info' | 'success'>[];
-  variant: AlertSeverity;
+  severity: AlertSeverity;
   node: LayoutNode;
 }) {
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
 
   return (
     <div style={{ paddingTop: 'var(--fds-spacing-2)' }}>
-      <AlertBaseComponent severity={variant}>
+      <AlertDesignSystem
+        style={{ breakInside: 'avoid' }}
+        severity={severity}
+      >
         <ul style={{ paddingLeft: 0, listStyleType: 'none' }}>
           {validations.map((validation) => (
             <li key={getUniqueKeyFromObject(validation)}>
@@ -133,7 +135,7 @@ function SoftValidations({
             </li>
           ))}
         </ul>
-      </AlertBaseComponent>
+      </AlertDesignSystem>
     </div>
   );
 }
