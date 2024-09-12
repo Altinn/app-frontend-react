@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import deepEqual from 'fast-deep-equal';
+
+import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -67,24 +70,9 @@ interface EffectProps {
   setValue: (values: string[]) => void;
   isNodeHidden: boolean | undefined;
   isNodesReady: boolean;
+  dataModelBindings: IDataModelBindingsOptionsSimple | IDataModelBindingsSimple | undefined;
+  valueType: OptionsValueType;
 }
-
-const getLabelsForActiveOptions = (selectedOptions: string[], allOptions: IOptionInternal[]): string[] =>
-  allOptions.filter((option) => selectedOptions.includes(option.value)).map((option) => option.label);
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const usePrevious = (value: any) => {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-};
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useHasChanged = (val: any) => {
-  const prevVal = usePrevious(val);
-  return prevVal !== val;
-};
 
 const defaultOptions: IOptionInternal[] = [];
 
@@ -103,7 +91,6 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
   const { valueType, dataModelBindings } = props;
   const { formData, setValue } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding ?? '';
-  const { langAsString } = useLanguage();
 
   const currentValues = useMemo(
     () => (value && value.length > 0 ? (valueType === 'multi' ? value.split(',') : [value]) : []),
@@ -114,31 +101,6 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
     () => currentValues.filter((value) => alwaysOptions.find((option) => option.value === value)),
     [alwaysOptions, currentValues],
   );
-
-  const translatedLabels = useMemo(
-    () => getLabelsForActiveOptions(currentValues, alwaysOptions).map((label) => langAsString(label)),
-    [alwaysOptions, currentValues, langAsString],
-  );
-
-  const labelsHaveChanged = useHasChanged(translatedLabels.join(','));
-
-  useEffect(() => {
-    if (!(dataModelBindings as IDataModelBindingsOptionsSimple)?.label) {
-      return;
-    }
-
-    if (!labelsHaveChanged) {
-      return;
-    }
-
-    if (valueType === 'single') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setValue('label' as any, translatedLabels.at(0));
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setValue('label' as any, translatedLabels);
-    }
-  }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, valueType]);
 
   const [key, setKey] = useState(0);
   const setData = useCallback(
@@ -165,7 +127,7 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
  * If given the 'preselectedOptionIndex' property, we should automatically select the given option index as soon
  * as options are ready. The code is complex to guard against overwriting data that has been set by the user.
  */
-function usePreselectedOptionIndex(props: EffectProps) {
+function useEffectPreselectedOptionIndex(props: EffectProps) {
   const { setValue, preselectedOption, isNodeHidden, isNodesReady } = props;
   const hasSelectedInitial = useRef(false);
   const hasValue = props.unsafeSelectedValues.length > 0;
@@ -190,7 +152,7 @@ function usePreselectedOptionIndex(props: EffectProps) {
  * from a repeating group. If the options changed and the selected option (or selected row in a repeating group)
  * is gone, we should not save stale/invalid data, so we clear it.
  */
-function useRemoveStaleValues(props: EffectProps) {
+function useEffectRemoveStaleValues(props: EffectProps) {
   const [_, setForceRerender] = useState(0);
   const getAwaiting = useGetAwaitingCommits();
   useEffect(() => {
@@ -211,6 +173,46 @@ function useRemoveStaleValues(props: EffectProps) {
       setValue(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
     }
   }, [props, getAwaiting]);
+}
+
+/**
+ * This effect is responsible for setting the label/display value in the data model.
+ */
+function useEffectStoreLabel(props: EffectProps) {
+  const { langAsString } = useLanguage();
+  const { options, unsafeSelectedValues, valueType, dataModelBindings, isNodeHidden, isNodesReady } = props;
+  const { setValue, formData } = useDataModelBindings(dataModelBindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
+
+  const translatedLabels = useMemo(
+    () =>
+      options
+        ?.filter((option) => unsafeSelectedValues.includes(option.value))
+        .map((option) => option.label)
+        .map((label) => langAsString(label)),
+    [langAsString, options, unsafeSelectedValues],
+  );
+
+  const labelsHaveChanged = !deepEqual(translatedLabels, 'label' in formData ? formData.label : undefined);
+  const shouldSetData =
+    labelsHaveChanged && !isNodeHidden && isNodesReady && dataModelBindings && 'label' in dataModelBindings;
+
+  useEffect(() => {
+    if (!shouldSetData) {
+      return;
+    }
+
+    if (!translatedLabels || translatedLabels.length === 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setValue('label' as any, undefined);
+      return;
+    } else if (valueType === 'single') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setValue('label' as any, translatedLabels.at(0));
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setValue('label' as any, translatedLabels);
+    }
+  }, [setValue, shouldSetData, translatedLabels, valueType]);
 }
 
 export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): GetOptionsResult {
@@ -301,12 +303,23 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
       setValue: setData,
       isNodeHidden,
       isNodesReady,
+      dataModelBindings: dataModelBindings as IDataModelBindingsOptionsSimple | IDataModelBindingsSimple | undefined,
     }),
-    [calculatedOptions, unsafeSelectedValues, preselectedOption, setData, valueType, isNodeHidden, isNodesReady],
+    [
+      calculatedOptions,
+      valueType,
+      preselectedOption,
+      unsafeSelectedValues,
+      setData,
+      isNodeHidden,
+      isNodesReady,
+      dataModelBindings,
+    ],
   );
 
-  usePreselectedOptionIndex(effectProps);
-  useRemoveStaleValues(effectProps);
+  useEffectPreselectedOptionIndex(effectProps);
+  useEffectRemoveStaleValues(effectProps);
+  useEffectStoreLabel(effectProps);
 
   return {
     options: alwaysOptions,
