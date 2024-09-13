@@ -19,7 +19,6 @@ import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { CompExternalExact, CompIntermediate } from 'src/layout/layout';
 import type { ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { BaseRow } from 'src/utils/layout/types';
 
 export function LikertGeneratorChildren() {
   return (
@@ -62,12 +61,11 @@ interface GenerateRowProps {
   questionsBinding: string;
 }
 
-function _GenerateRow({ rowIndex, rowUuid, questionsBinding }: GenerateRowProps) {
+function _GenerateRow({ rowIndex, questionsBinding }: GenerateRowProps) {
   const parentItem = GeneratorInternal.useIntermediateItem() as CompIntermediate<'Likert'>;
   const node = GeneratorInternal.useParent() as LayoutNode<'Likert'>;
   const removeRow = NodesInternal.useRemoveRow();
   const depth = GeneratorInternal.useDepth();
-  const row: BaseRow = useMemo(() => ({ index: rowIndex, uuid: rowUuid }), [rowIndex, rowUuid]);
 
   const childId = `${parentItem.id}-item`;
 
@@ -116,8 +114,12 @@ function _GenerateRow({ rowIndex, rowUuid, questionsBinding }: GenerateRowProps)
   );
 
   const recursiveMutators = useMemo(
-    () => [mutateComponentId(row), mutateDataModelBindings(row, questionsBinding), mutateMapping(row, depth)],
-    [row, depth, questionsBinding],
+    () => [
+      mutateComponentId(rowIndex),
+      mutateDataModelBindings(rowIndex, questionsBinding),
+      mutateMapping(rowIndex, depth),
+    ],
+    [rowIndex, depth, questionsBinding],
   );
 
   GeneratorStages.AddNodes.useEffect(
@@ -129,7 +131,7 @@ function _GenerateRow({ rowIndex, rowUuid, questionsBinding }: GenerateRowProps)
 
   return (
     <GeneratorRowProvider
-      row={row}
+      rowIndex={rowIndex}
       recursiveMutators={recursiveMutators}
     >
       <GenerateNodeChildrenWithStaticLayout
