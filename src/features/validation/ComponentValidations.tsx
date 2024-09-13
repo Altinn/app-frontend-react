@@ -51,7 +51,10 @@ export function ComponentValidations({ validations, node: _node }: Props) {
   const success = validationsOfSeverity(filteredValidations, 'success');
 
   return (
-    <div aria-live='assertive'>
+    <div
+      aria-live='assertive'
+      style={{ display: 'contents' }}
+    >
       {node && validations?.length ? (
         <div data-validation={node.id}>
           {errors.length > 0 && (
