@@ -43,7 +43,7 @@ export function GeneratorValidationProvider({ children }) {
   );
 }
 
-function FetchLayoutSchema({
+export function FetchLayoutSchema({
   setSchemaValidator,
 }: {
   setSchemaValidator: React.Dispatch<React.SetStateAction<ValidateFunc | undefined>>;

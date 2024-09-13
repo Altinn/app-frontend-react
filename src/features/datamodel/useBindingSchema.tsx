@@ -51,7 +51,7 @@ type DataModelProps = {
   language?: string;
 };
 
-function getDataModelUrl({
+export function getDataModelUrl({
   dataType,
   dataElementId,
   includeRowIds = false,

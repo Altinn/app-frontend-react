@@ -17,6 +17,7 @@ import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsPayment } from 'src/features/payment/utils';
 import classes from 'src/features/pdf/PDFView.module.css';
+import { SubformPDF } from 'src/features/pdf/SubFormPDF';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { getFeature } from 'src/features/toggles';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
@@ -266,83 +267,83 @@ export const SummarySubformWrapper = ({ node, children }: PropsWithChildren<{ no
   );
 };
 
-function SubformPDF() {
-  // const isHiddenSelector = Hidden.useIsHiddenSelector();
-  // const nodeDataSelector = NodesInternal.useNodeDataSelector();
-  const children = useNodeTraversal((t) => t.allNodes().filter((node) => node.isType('Subform')));
-  // const dataType = useDataTypeFromLayoutSet(layoutSet);
-  console.log('children', children);
-
-  return (
-    <div>
-      {children.map((child, idx) => (
-        <SummarySubformWrapper
-          key={idx}
-          node={child}
-        />
-      ))}
-    </div>
-  );
-
-  // return (
-  //   <TaskStoreProvider>
-  //     <ul>
-  //       {children.map((child, idx) => {
-  //         console.log('child', child);
-  //         return (
-  //           <SummarySubformWrapper
-  //             key={idx}
-  //             node={child}
-  //           ></SummarySubformWrapper>
-  //         );
-  //       })}
-  //     </ul>
-  //   </TaskStoreProvider>
-  // );
-
-  // return (
-  //   <TaskStoreProvider>
-  //     {children.map((child, idx) => (
-  //       <SummarySubformWrapper
-  //         node={child}
-  //         key={idx}
-  //       >
-  //         <LayoutSetSummary pageKey={child.pageKey} />
-  //       </SummarySubformWrapper>
-  //     ))}
-  //   </TaskStoreProvider>
-  // );
-
-  // return (
-  //   <div className={classes.page}>
-  //     <h2>Subform kjeme her:::</h2>
-  //     <Grid
-  //       container={true}
-  //       spacing={6}
-  //       alignItems='flex-start'
-  //     >
-  //       {children.map((node) => {
-  //         console.log('subform node', node);
-  //
-  //         // return (
-  //         //   <PageSummary
-  //         //     key={node.id}
-  //         //     pageId={node.page.pageKey}
-  //         //   ></PageSummary>
-  //         // );
-  //
-  //         // node.
-  //         return (
-  //           <PdfForNode
-  //             key={node.id}
-  //             node={node}
-  //           />
-  //         );
-  //       })}
-  //     </Grid>
-  //   </div>
-  // );
-}
+// function SubformPDF() {
+//   // const isHiddenSelector = Hidden.useIsHiddenSelector();
+//   // const nodeDataSelector = NodesInternal.useNodeDataSelector();
+//   const children = useNodeTraversal((t) => t.allNodes().filter((node) => node.isType('Subform')));
+//   // const dataType = useDataTypeFromLayoutSet(layoutSet);
+//   console.log('children', children);
+//
+//   return (
+//     <div>
+//       {children.map((child, idx) => (
+//         <SummarySubformWrapper
+//           key={idx}
+//           node={child}
+//         />
+//       ))}
+//     </div>
+//   );
+//
+//   // return (
+//   //   <TaskStoreProvider>
+//   //     <ul>
+//   //       {children.map((child, idx) => {
+//   //         console.log('child', child);
+//   //         return (
+//   //           <SummarySubformWrapper
+//   //             key={idx}
+//   //             node={child}
+//   //           ></SummarySubformWrapper>
+//   //         );
+//   //       })}
+//   //     </ul>
+//   //   </TaskStoreProvider>
+//   // );
+//
+//   // return (
+//   //   <TaskStoreProvider>
+//   //     {children.map((child, idx) => (
+//   //       <SummarySubformWrapper
+//   //         node={child}
+//   //         key={idx}
+//   //       >
+//   //         <LayoutSetSummary pageKey={child.pageKey} />
+//   //       </SummarySubformWrapper>
+//   //     ))}
+//   //   </TaskStoreProvider>
+//   // );
+//
+//   // return (
+//   //   <div className={classes.page}>
+//   //     <h2>Subform kjeme her:::</h2>
+//   //     <Grid
+//   //       container={true}
+//   //       spacing={6}
+//   //       alignItems='flex-start'
+//   //     >
+//   //       {children.map((node) => {
+//   //         console.log('subform node', node);
+//   //
+//   //         // return (
+//   //         //   <PageSummary
+//   //         //     key={node.id}
+//   //         //     pageId={node.page.pageKey}
+//   //         //   ></PageSummary>
+//   //         // );
+//   //
+//   //         // node.
+//   //         return (
+//   //           <PdfForNode
+//   //             key={node.id}
+//   //             node={node}
+//   //           />
+//   //         );
+//   //       })}
+//   //     </Grid>
+//   //   </div>
+//   // );
+// }
 
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
   const isHiddenSelector = Hidden.useIsHiddenSelector();

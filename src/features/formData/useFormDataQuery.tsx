@@ -24,6 +24,19 @@ export function useFormDataQueryDef(url: string | undefined): QueryDefinition<un
   };
 }
 
+// export function formDataQueryDef(url: string | undefined): QueryDefinition<unknown> {
+//   console.log('url', url);
+//   const { fetchFormData } = useAppQueries();
+//   const queryKey = useFormDataQueryKey(url);
+//   const options = useFormDataQueryOptions();
+//   return {
+//     queryKey,
+//     queryFn: url ? () => fetchFormData(url, options) : skipToken,
+//     enabled: !!url,
+//     refetchInterval: false,
+//   };
+// }
+
 export function useFormDataQueryKey(url: string | undefined) {
   return useMemoDeepEqual(() => getFormDataQueryKey(url), [url]);
 }
