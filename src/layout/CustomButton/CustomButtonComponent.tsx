@@ -80,9 +80,6 @@ function useHandleClientActions(): UseHandleClientActions {
       previousPage: promisify(navigateToPreviousPage),
       navigateToPage: promisify<ClientActionHandlers['navigateToPage']>(async ({ page }) => navigateToPage(page)),
       closeSubform: promisify(exitSubform),
-      validateSubform: promisify(() => {
-        throw new NotYetImplementedError();
-      }),
     }),
     [exitSubform, navigateToNextPage, navigateToPage, navigateToPreviousPage],
   );
@@ -98,7 +95,7 @@ function useHandleClientActions(): UseHandleClientActions {
         return await frontendActions[action.id](action.metadata);
       }
 
-      const subformActions = ['closeSubform', 'validateSubform'];
+      const subformActions = ['closeSubform'];
       if ((!isSubformPage || !mainPageKey) && subformActions.includes(action.id)) {
         throw new Error('SubformAction is only applicable for subforms');
       }
