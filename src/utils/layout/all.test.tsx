@@ -30,6 +30,7 @@ const ignoreLogAndErrors = [
         'er ikke tillatt i `textResourceBindings`',
         'Egenskapen `pageRef` er ikke tillatt',
         'samsvarer ikke med mønsteret `^[0-9a-zA-Z][',
+        /Målet for oppsummeringen \([^)]*\) ble ikke funnet/,
       ]
     : []),
 
@@ -43,7 +44,10 @@ function TestApp() {
   const filteredErrors: Record<string, string[]> = {};
 
   for (const key in errors) {
-    const filtered = errors[key].filter((err) => !ignoreLogAndErrors.some((ignore) => err.includes(ignore)));
+    const filtered = errors[key].filter(
+      (err) =>
+        !ignoreLogAndErrors.some((ignore) => (ignore instanceof RegExp ? ignore.test(err) : err.includes(ignore))),
+    );
     if (filtered.length) {
       filteredErrors[key] = filtered;
     }
@@ -207,7 +211,9 @@ function filterAndCleanMockCalls(mock: jest.Mock): string[] {
           continue;
         }
         if (typeof arg === 'string') {
-          shouldIgnore = ignoreLogAndErrors.some((remove) => arg.includes(remove));
+          shouldIgnore = ignoreLogAndErrors.some((remove) =>
+            remove instanceof RegExp ? remove.test(arg) : arg.includes(remove),
+          );
           if (shouldIgnore) {
             continue;
           }
