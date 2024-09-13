@@ -253,6 +253,13 @@ describe('Options', () => {
       cy.get(nestedTableRow).should('not.exist');
     }
 
+    // The table here is full of mistakes and bugs, caused by our deletion of stale values. We should fix the root
+    // causes of these issues and possibly introduce validation for the values that are not in an option list
+    // instead of just removing them. On the other hand, garbage collection in the data model might want to hold
+    // on to these removed values in case they are valid again later. This test then serves as a reminder of the
+    // issues that need to be fixed, and it is expected to fail at some point in the future when the issues are fixed.
+    // Remember to update the test at that point.
+
     // Cell 3: This shows the _value_ from option list, not the label. That should not show up there, but we can't
     // change it while staying backwards compatible
     // Cell 4: The cat is also brown, but brown is only valid when isForeign is set to 'true' (it defaults to 'false').
@@ -298,8 +305,8 @@ describe('Options', () => {
     assertRow(0, 'Katt', 'fire', '4', 'Svart', ['Criticism', '']);
     assertRow(1, 'Tiger', '', '', 'Rød, Rosa', ['', 'Spam']);
 
-    // TODO: Add a radio or checkbox to select if the reset button should clear the isForeign value or not
-    // TODO: Open the repeating group rows for editing and observe the nested comments group. They sometimes
-    //       disappear from the table, but I'm not sure why
+    // A continuation of this test could add a choice for the user to prevent the CustomButton from resetting
+    // isForeign back to 'false' when the reset button is clicked. This would allow us to test the case where
+    // the foreign option components are still visible when the reset button is clicked.
   });
 });
