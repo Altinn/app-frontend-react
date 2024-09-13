@@ -69,10 +69,12 @@ export const PaymentReceiptDetails = ({ title, description }: PaymentReceiptDeta
   const selectedLanguage = useCurrentLanguage();
   const paymentInfo = usePaymentInformation();
   const instance = useLaxInstanceData();
-  const privatePersonPayer = paymentInfo?.paymentDetails?.payer.privatePerson;
   const receiver = paymentInfo?.orderDetails?.receiver;
+  const payer = paymentInfo?.paymentDetails?.payer;
+  const privatePersonPayer = payer?.privatePerson;
   const cardExpiryDate = paymentInfo?.paymentDetails?.cardDetails?.expiryDate;
-  const postalAddress = receiver?.postalAddress;
+  const receiverPostalAddress = receiver?.postalAddress;
+  const payerPostalAddress = payer?.shippingAddress;
 
   const receiverRows: PaymentInfoTableRowProps[] = [
     receiver?.name && { labelId: 'payment.receipt.name', value: receiver?.name },
@@ -80,9 +82,9 @@ export const PaymentReceiptDetails = ({ title, description }: PaymentReceiptDeta
       labelId: 'payment.receipt.phone',
       value: `${receiver?.phoneNumber.prefix} ${receiver.phoneNumber.number}`,
     },
-    postalAddress && {
+    receiverPostalAddress && {
       labelId: 'payment.receipt.address',
-      value: `${postalAddress?.addressLine1} ${postalAddress?.postalCode} ${postalAddress?.city} ${postalAddress?.country}`,
+      value: `${receiverPostalAddress?.addressLine1} ${receiverPostalAddress?.postalCode} ${receiverPostalAddress?.city} ${receiverPostalAddress?.country}`,
     },
     receiver?.organisationNumber && { labelId: 'payment.receipt.org_num', value: receiver?.organisationNumber },
     receiver?.bankAccountNumber && { labelId: 'payment.receipt.account_number', value: receiver?.bankAccountNumber },
@@ -97,6 +99,10 @@ export const PaymentReceiptDetails = ({ title, description }: PaymentReceiptDeta
     privatePersonPayer?.phoneNumber?.number && {
       labelId: 'payment.receipt.phone',
       value: `${privatePersonPayer.phoneNumber.prefix} ${privatePersonPayer.phoneNumber.number}`,
+    },
+    payerPostalAddress && {
+      labelId: 'payment.receipt.address',
+      value: `${payerPostalAddress?.addressLine1} ${payerPostalAddress?.postalCode} ${payerPostalAddress?.city} ${payerPostalAddress?.country}`,
     },
     privatePersonPayer?.email && { labelId: 'payment.receipt.email', value: privatePersonPayer.email },
     paymentInfo?.paymentDetails?.cardDetails?.maskedPan && {
