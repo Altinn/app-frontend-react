@@ -536,25 +536,25 @@ function InnerMarkAsReady() {
   // console.log('shouldMarkAsReady', shouldMarkAsReady);
   // console.log('waitingForCommits', waitingForCommits);
   // markReady();
-  if (isPdf) {
-    markReady();
-  }
+  // if (isPdf) {
+  //   markReady();
+  // }
 
   useEffect(() => {
-    if (!isPdf && shouldMarkAsReady) {
+    if (isPdf || shouldMarkAsReady) {
       generatorLog('logReadiness', 'Marking state as ready');
       markReady();
     }
   }, [shouldMarkAsReady, markReady, isPdf]);
 
   useEffect(() => {
-    if (!isPdf && fallbackToInterval) {
+    if (fallbackToInterval) {
       // Commits can happen where state is not really changed, and in those cases our useSelector() won't run, and we
       // won't notice that we could mark the state as ready again. For these cases we run intervals while the state
       // isn't ready.
       const runDuringInterval = () => {
         const awaiting = getAwaitingCommits();
-        if (awaiting === 0) {
+        if (isPdf || awaiting === 0) {
           generatorLog('logReadiness', 'Marking state as ready via interval fallback');
           markReady();
           clearInterval(interval);
