@@ -45,6 +45,14 @@ export class ExternalApp {
     }
   }
 
+  private fileSize(path: string) {
+    try {
+      return fs.statSync(this.rootDir + path).size;
+    } catch (_err) {
+      return 0;
+    }
+  }
+
   private dirExists(path: string) {
     try {
       return fs.statSync(this.rootDir + path).isDirectory();
@@ -157,7 +165,7 @@ export class ExternalApp {
 
   getRuleConfiguration(layoutSetId: string): { data: IFormDynamics } | null {
     const path = `/App/ui/${layoutSetId}/RuleConfiguration.json`;
-    if (!this.fileExists(path)) {
+    if (!this.fileExists(path) || this.fileSize(path) === 0) {
       return null;
     }
 
