@@ -208,6 +208,9 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     _metadata: undefined,
     row: BaseRow | undefined,
   ): Partial<DefPluginState<ToInternal<E>>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    console.log('debug, adding child', childNode.id, 'to', (state.layout as any).id);
+
     const rowIndex = childNode.rowIndex;
     if (rowIndex === undefined || rowIndex !== row?.index) {
       throw new Error(`Child node of repeating component missing 'rowIndex' property`);
@@ -234,6 +237,9 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     _metadata: undefined,
     row: BaseRow | undefined,
   ): Partial<DefPluginState<ToInternal<E>>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    console.log('debug, removing child', childNode.id, 'from', (state.layout as any).id);
+
     const rowIndex = childNode.rowIndex;
     if (rowIndex === undefined || rowIndex !== row?.index) {
       throw new Error(`Child node of repeating component missing 'rowIndex' property`);

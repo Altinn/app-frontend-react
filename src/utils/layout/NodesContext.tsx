@@ -966,6 +966,18 @@ export const NodesInternal = {
       }
       return s.nodeData[node.id] !== undefined;
     }),
+  useIsMissingInParent: (node: LayoutNode) =>
+    Store.useSelector((s) => {
+      if (!node.parent || !(node.parent instanceof BaseLayoutNode)) {
+        return false;
+      }
+      const parentData = s.nodeData[node.parent.id];
+      if (!parentData) {
+        return true;
+      }
+      // const def = node.parent.def;
+      // const children = def.pickDirectChildren(parentData, node.parent);
+    }),
   useHasErrors: () => Store.useSelector((s) => s.hasErrors),
 
   useStore: () => Store.useStore(),
