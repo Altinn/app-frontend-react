@@ -276,7 +276,10 @@ function SubformPDF() {
   return (
     <div>
       {children.map((child, idx) => (
-        <SummarySubformWrapper node={child} />
+        <SummarySubformWrapper
+          key={idx}
+          node={child}
+        />
       ))}
     </div>
   );

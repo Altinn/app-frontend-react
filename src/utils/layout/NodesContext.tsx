@@ -22,6 +22,7 @@ import { ExpressionValidation } from 'src/features/validation/expressionValidati
 import { LoadingBlockerWaitForValidation, ProvideWaitForValidation } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
@@ -519,6 +520,7 @@ function InnerMarkAsReady() {
   const hasNodes = Store.useSelector((state) => !!state.nodes);
   const stagesFinished = GeneratorStages.useIsFinished();
   const hasUnsavedChanges = FD.useHasUnsavedChanges();
+  const isPdf = useIsPdf();
 
   // Even though the getAwaitingCommits() function works on refs in the GeneratorStages context, the effects of such
   // commits always changes the NodesContext. Thus our useSelector() re-runs and re-renders this components when
@@ -531,15 +533,22 @@ function InnerMarkAsReady() {
   const shouldMarkAsReady = maybeReady && !waitingForCommits;
   const fallbackToInterval = maybeReady && !shouldMarkAsReady;
 
+  // console.log('shouldMarkAsReady', shouldMarkAsReady);
+  // console.log('waitingForCommits', waitingForCommits);
+  // markReady();
+  if (isPdf) {
+    markReady();
+  }
+
   useEffect(() => {
-    if (shouldMarkAsReady) {
+    if (!isPdf && shouldMarkAsReady) {
       generatorLog('logReadiness', 'Marking state as ready');
       markReady();
     }
-  }, [shouldMarkAsReady, markReady]);
+  }, [shouldMarkAsReady, markReady, isPdf]);
 
   useEffect(() => {
-    if (fallbackToInterval) {
+    if (!isPdf && fallbackToInterval) {
       // Commits can happen where state is not really changed, and in those cases our useSelector() won't run, and we
       // won't notice that we could mark the state as ready again. For these cases we run intervals while the state
       // isn't ready.
@@ -557,7 +566,7 @@ function InnerMarkAsReady() {
     }
 
     return () => undefined;
-  }, [fallbackToInterval, getAwaitingCommits, markReady]);
+  }, [fallbackToInterval, getAwaitingCommits, isPdf, markReady]);
 
   return null;
 }
