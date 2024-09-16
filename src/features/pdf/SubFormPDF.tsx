@@ -15,7 +15,7 @@ import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { ILayoutSetDefault, ILayoutSetSubform } from 'src/layout/common.generated';
 import type { IData } from 'src/types/shared';
 
-export function useFormDataQueries(dataElements: IData[], options?: AxiosRequestConfig) {
+export function useFormDataQueries(dataElements: IData[], partyId: string, options?: AxiosRequestConfig) {
   // Generate queries for each ID
   const queryResults = useQueries({
     queries: dataElements.map((element) => {
@@ -26,7 +26,7 @@ export function useFormDataQueries(dataElements: IData[], options?: AxiosRequest
       const url = getDataModelUrl({
         dataType: element.dataType,
         dataElementId: element.id,
-        instanceId: element.instanceGuid,
+        instanceId: `${partyId}/${element.instanceGuid}`,
         language: 'en',
         isStateless: false,
         isAnonymous: false,
@@ -106,7 +106,11 @@ export function SubformPDF() {
   //   queryFn: fetchLayoutSets,
   // };
 
-  const queries = useFormDataQueries(dataElements?.length > 0 ? dataElements : []);
+  if (!partyId) {
+    throw new Error('no party ID');
+  }
+
+  const queries = useFormDataQueries(dataElements?.length > 0 ? dataElements : [], partyId);
 
   return (
     <div>
