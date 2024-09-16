@@ -9,6 +9,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
 import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { useAsRef } from 'src/hooks/useAsRef';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { useGetAwaitingCommits } from 'src/utils/layout/generator/GeneratorStages';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
@@ -161,24 +162,43 @@ function useEffectRemoveStaleValues(props: EffectProps) {
   const [_, setForceRerender] = useState(0);
   const getAwaiting = useGetAwaitingCommits();
   const ready = isNodesReady && !isNodeHidden;
+  const propsAsRef = useAsRef(props);
+  const readyAsRef = useAsRef(ready);
+
   useEffect(() => {
-    const { options, unsafeSelectedValues, setValues } = props;
-    if (!options || !ready) {
-      return;
+    function isReady() {
+      if (!readyAsRef.current) {
+        return false;
+      }
+      const awaitingCommits = getAwaiting();
+      if (awaitingCommits > 0) {
+        // We should not remove values if there are pending commits. We'll force a re-render to delay this check until
+        // the pending commits are done. This is needed because getAwaiting() is not reactive.
+        setTimeout(() => setForceRerender((r) => r + 1), 100);
+        return false;
+      }
+      return true;
     }
-    const awaitingCommits = getAwaiting();
-    if (awaitingCommits > 0) {
-      // We should not remove values if there are pending commits. We'll force a re-render to delay this check until
-      // the pending commits are done. This is needed because getAwaiting() is not reactive.
-      setForceRerender((r) => r + 1);
+
+    if (!isReady()) {
       return;
     }
 
-    const itemsToRemove = unsafeSelectedValues.filter((v) => !options.find((option) => option.value === v));
-    if (itemsToRemove.length > 0) {
-      setValues(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
-    }
-  }, [props, getAwaiting, ready]);
+    setTimeout(() => {
+      // If you have larger sweeping changes in the data model happening at once, such as a data processing change
+      // or a click on a CustomButton, we might not have run the hidden expressions yet when this effect runs.
+      // We'll wait a bit to make sure the hidden expressions have run before we remove the values, and if we're
+      // hidden at that point, skip the removal.
+      const { options, unsafeSelectedValues, setValues } = propsAsRef.current;
+      if (!options || !isReady()) {
+        return;
+      }
+      const itemsToRemove = unsafeSelectedValues.filter((v) => !options?.find((option) => option.value === v));
+      if (itemsToRemove.length > 0) {
+        setValues(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
+      }
+    }, 200);
+  }, [getAwaiting, readyAsRef, propsAsRef, ready]);
 }
 
 /**
