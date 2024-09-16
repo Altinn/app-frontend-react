@@ -8,6 +8,7 @@ import type { UnionToIntersection } from 'utility-types';
 import type { StoreApi } from 'zustand';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
+import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
 import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStorePlugin';
@@ -522,6 +523,13 @@ function InnerMarkAsReady() {
   const hasUnsavedChanges = FD.useHasUnsavedChanges();
   const isPdf = useIsPdf();
 
+  const { overriddenTaskId, overriddenDataModelUuid } = useTaskStore(
+    ({ overriddenTaskId, overriddenDataModelUuid }) => ({
+      overriddenTaskId,
+      overriddenDataModelUuid,
+    }),
+  );
+
   // Even though the getAwaitingCommits() function works on refs in the GeneratorStages context, the effects of such
   // commits always changes the NodesContext. Thus our useSelector() re-runs and re-renders this components when
   // commits are done.
@@ -541,11 +549,11 @@ function InnerMarkAsReady() {
   // }
 
   useEffect(() => {
-    if (isPdf || shouldMarkAsReady) {
-      generatorLog('logReadiness', 'Marking state as ready');
+    if (shouldMarkAsReady) {
+      generatorLog('logReadiness', 'Marking state as ready', overriddenDataModelUuid);
       markReady();
     }
-  }, [shouldMarkAsReady, markReady, isPdf]);
+  }, [shouldMarkAsReady, markReady, overriddenDataModelUuid]);
 
   useEffect(() => {
     if (fallbackToInterval) {
@@ -554,7 +562,7 @@ function InnerMarkAsReady() {
       // isn't ready.
       const runDuringInterval = () => {
         const awaiting = getAwaitingCommits();
-        if (isPdf || awaiting === 0) {
+        if (awaiting === 0) {
           generatorLog('logReadiness', 'Marking state as ready via interval fallback');
           markReady();
           clearInterval(interval);
@@ -566,7 +574,7 @@ function InnerMarkAsReady() {
     }
 
     return () => undefined;
-  }, [fallbackToInterval, getAwaitingCommits, isPdf, markReady]);
+  }, [fallbackToInterval, getAwaitingCommits, markReady]);
 
   return null;
 }

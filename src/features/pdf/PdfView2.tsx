@@ -235,9 +235,8 @@ export const SummarySubformWrapper = ({ node, children }: PropsWithChildren<{ no
       {/*<pre>{JSON.stringify(dataElements, null, 2)}</pre>*/}
 
       {dataElements?.map((element, idx) => (
-        <TaskStoreProvider key={idx}>
+        <TaskStoreProvider key={element.id + idx}>
           <DoSummaryWrapper
-            key={element.id + idx}
             dataElementId={element.id}
             layoutSet={layoutSet}
             dataType={element.dataType}
