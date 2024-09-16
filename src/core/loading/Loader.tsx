@@ -22,11 +22,9 @@ export const Loader = ({ renderPresentation = true, ...rest }: LoaderProps) => {
     }),
   );
 
-  // if (overriddenDataModelUuid) {
-  //   return null;
-  // }
-  //
-  // console.log('in loader', overriddenTaskId);
+  if (overriddenDataModelUuid) {
+    return null;
+  }
 
   if (overriddenTaskId) {
     return null;
