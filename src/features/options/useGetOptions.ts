@@ -166,6 +166,11 @@ function useEffectRemoveStaleValues(props: EffectProps) {
   const readyAsRef = useAsRef(ready);
 
   useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    function cleanup() {
+      timeout !== undefined && clearTimeout(timeout);
+    }
+
     function isReady() {
       if (!readyAsRef.current) {
         return false;
@@ -174,17 +179,17 @@ function useEffectRemoveStaleValues(props: EffectProps) {
       if (awaitingCommits > 0) {
         // We should not remove values if there are pending commits. We'll force a re-render to delay this check until
         // the pending commits are done. This is needed because getAwaiting() is not reactive.
-        setTimeout(() => setForceRerender((r) => r + 1), 100);
+        timeout = setTimeout(() => setForceRerender((r) => r + 1), 100);
         return false;
       }
       return true;
     }
 
     if (!isReady()) {
-      return;
+      return cleanup;
     }
 
-    setTimeout(() => {
+    timeout = setTimeout(() => {
       // If you have larger sweeping changes in the data model happening at once, such as a data processing change
       // or a click on a CustomButton, we might not have run the hidden expressions yet when this effect runs.
       // We'll wait a bit to make sure the hidden expressions have run before we remove the values, and if we're
@@ -198,6 +203,8 @@ function useEffectRemoveStaleValues(props: EffectProps) {
         setValues(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
       }
     }, 200);
+
+    return cleanup;
   }, [getAwaiting, readyAsRef, propsAsRef, ready]);
 }
 
