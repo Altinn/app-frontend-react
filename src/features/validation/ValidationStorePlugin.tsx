@@ -16,6 +16,7 @@ import type {
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IsHiddenOptions, NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
+import type { NodeData } from 'src/utils/layout/types';
 
 export type ValidationsSelector = (
   node: LayoutNode,
@@ -42,6 +43,7 @@ export interface ValidationStorePluginConfig {
     useAllValidations: (
       mask: ValidationMask | 'visible',
       severity?: ValidationSeverity,
+      includeHidden?: boolean, // Defaults to false
     ) => NodeRefValidation[] | typeof ContextNotProvided;
     useGetNodesWithErrors: () => (
       mask: ValidationMask | 'visible',
@@ -64,11 +66,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             for (const node of nodes) {
               const nodeData = typeof node === 'string' ? state.nodeData[node] : state.nodeData[node.id];
               if (nodeData && 'validationVisibility' in nodeData) {
-                const oldVisibility = nodeData.validationVisibility;
                 nodeData.validationVisibility = newVisibility;
-                if (node === '8-2-2-id') {
-                  console.log('debug, setting visibility to', newVisibility, 'was', oldVisibility);
-                }
               }
             }
           }),
@@ -129,13 +127,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             return emptyArray;
           }
           const nodeData = state.nodeData[node.id];
-          if (!nodeData) {
-            return emptyArray;
-          }
-          const visibility = 'validationVisibility' in nodeData ? nodeData.validationVisibility : 0;
-          const out =
-            'validations' in nodeData ? selectValidations(nodeData.validations, visibility, severity) : undefined;
-          return out && out.length > 0 ? out : emptyArray;
+          return getValidations({ state, nodeData, mask: 'visible', severity });
         });
       },
       useValidationsSelector: () =>
@@ -146,36 +138,19 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
               node: LayoutNode,
               mask: ValidationMask | 'visible',
               severity?: ValidationSeverity,
-              includeHidden = false,
+              includeHidden: boolean = false,
             ) =>
             (state: NodesContext) => {
               const nodeData = state.nodeData[node.id];
-              if (
-                !nodeData ||
-                (!includeHidden && isHidden(state, node, hiddenOptions)) ||
-                !('validations' in nodeData)
-              ) {
-                return emptyArray;
-              }
-              const visibility = 'validationVisibility' in nodeData ? nodeData.validationVisibility : 0;
-              return selectValidations(nodeData.validations, mask === 'visible' ? visibility : mask, severity);
+              return getValidations({ state, nodeData, mask, severity, includeHidden });
             },
         }) satisfies ValidationsSelector,
-      useAllValidations: (mask, severity) =>
+      useAllValidations: (mask, severity, includeHidden) =>
         store.useLaxMemoSelector((state) => {
           const out: NodeRefValidation[] = [];
           for (const nodeId of Object.keys(state.nodeData)) {
             const nodeData = state.nodeData[nodeId];
-            if (!nodeData || !('validations' in nodeData) || !('validationVisibility' in nodeData)) {
-              continue;
-            }
-
-            const visibility = nodeData.validationVisibility;
-            const validations = selectValidations(
-              nodeData.validations,
-              mask === 'visible' ? visibility : mask,
-              severity,
-            );
+            const validations = getValidations({ state, nodeData, mask, severity, includeHidden });
             for (const validation of validations) {
               out.push({ ...validation, nodeId });
             }
@@ -198,21 +173,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             const out: string[] = [];
             for (const nodeId of Object.keys(state.nodeData)) {
               const nodeData = state.nodeData[nodeId];
-              if (!nodeData || !('validations' in nodeData) || !('validationVisibility' in nodeData)) {
-                continue;
-              }
-
-              const node = getNodeFromState(state, nodeId);
-              if (!node || (!includeHidden && isHidden(state, node, hiddenOptions))) {
-                continue;
-              }
-
-              const visibility = nodeData.validationVisibility;
-              const validations = selectValidations(
-                nodeData.validations,
-                mask === 'visible' ? visibility : mask,
-                severity,
-              );
+              const validations = getValidations({ state, nodeData, mask, severity, includeHidden });
               if (validations.length > 0) {
                 out.push(nodeId);
               }
@@ -230,17 +191,11 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
 
           for (const nodeId of Object.keys(state.nodeData)) {
             const nodeData = state.nodeData[nodeId];
-            if (!nodeData || !('validations' in nodeData) || !('validationVisibility' in nodeData)) {
+            if (!nodeData || nodeData.pageKey !== pageKey) {
               continue;
             }
 
-            const node = getNodeFromState(state, nodeId);
-            if (!node || nodeData.pageKey !== pageKey || isHidden(state, node, hiddenOptions)) {
-              continue;
-            }
-
-            const visibility = nodeData.validationVisibility;
-            const validations = selectValidations(nodeData.validations, visibility, 'error');
+            const validations = getValidations({ state, nodeData, mask: 'visible', severity: 'error' });
             for (const validation of validations) {
               if (validation.source === FrontendValidationSource.EmptyField) {
                 return true;
@@ -259,4 +214,33 @@ function getNodeFromState(state: NodesContext, nodeId: string): LayoutNode | und
     return state.nodes.findById(new TraversalTask(state, state.nodes, undefined, undefined), nodeId);
   }
   return undefined;
+}
+
+interface GetValidationsProps {
+  state: NodesContext;
+  nodeData: NodeData | undefined;
+  mask: ValidationMask | 'visible';
+  severity?: ValidationSeverity;
+  includeHidden?: boolean;
+}
+
+function getValidations({
+  state,
+  nodeData,
+  mask,
+  severity,
+  includeHidden = false,
+}: GetValidationsProps): AnyValidation[] {
+  if (!nodeData || !('validations' in nodeData) || !('validationVisibility' in nodeData)) {
+    return emptyArray;
+  }
+
+  const node = getNodeFromState(state, nodeData.layout.id);
+  if (!includeHidden && (!node || isHidden(state, node, hiddenOptions))) {
+    return emptyArray;
+  }
+
+  const visibility = nodeData.validationVisibility;
+  const validations = selectValidations(nodeData.validations, mask === 'visible' ? visibility : mask, severity);
+  return validations.length > 0 ? validations : emptyArray;
 }
