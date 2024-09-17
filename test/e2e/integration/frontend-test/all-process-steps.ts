@@ -370,6 +370,7 @@ const knownDataModels: { [key: string]: unknown } = {
           Name: 'Katt',
           NumLegs: 4,
           Color: 'BLACK,BROWN',
+          Colors: [],
           Comments: [
             {
               Type: 'CRITICISM',
@@ -388,6 +389,7 @@ const knownDataModels: { [key: string]: unknown } = {
           Name: 'Tiger',
           NumLegs: 5,
           Color: 'RED,PINK',
+          Colors: [],
           Comments: [
             {
               Type: 'SUGGESTION',
