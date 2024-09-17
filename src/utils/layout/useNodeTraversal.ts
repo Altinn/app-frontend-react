@@ -245,17 +245,11 @@ enum Strictness {
 
   // If the context or nodes are not provided, return ContextNotProvided upon traversal
   returnContextNotProvided,
-
-  // If the context or nodes are not provided, return undefined upon traversal (will usually work like silently
-  // never finding what you're looking for when nodes are not present)
-  returnUndefined,
 }
 
-type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictness.returnUndefined
-  ? U | undefined
-  : Strict extends Strictness.returnContextNotProvided
-    ? U | typeof ContextNotProvided
-    : U;
+type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictness.returnContextNotProvided
+  ? U | typeof ContextNotProvided
+  : U;
 
 function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: never, strictness?: Strictness): Out {
   const nodes = useNodesLax();
@@ -291,7 +285,7 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
       throw new Error('useNodeTraversal() must be used inside a NodesProvider');
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return strictness === Strictness.returnUndefined ? undefined : (selector as any)(ContextNotProvided);
+    return (selector as any)(ContextNotProvided);
   }
 
   return out;
