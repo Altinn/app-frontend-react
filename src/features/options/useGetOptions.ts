@@ -277,7 +277,7 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
       }
 
       setLeafValue({
-        path: dataModelBindings[key],
+        reference: dataModelBindings[key],
         newValue,
       });
     },
@@ -286,7 +286,11 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
 
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
-  const { data: fetchedOptions, isFetching, isError } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
+  const {
+    data: fetchedOptions,
+    isFetching,
+    isError,
+  } = useGetOptionsQuery(optionsId, mapping, resolvedQueryParameters, secure);
 
   const [calculatedOptions, preselectedOption] = useMemo(() => {
     let draft = sourceOptions || fetchedOptions?.data || staticOptions;

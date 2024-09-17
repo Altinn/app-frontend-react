@@ -154,7 +154,13 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
   return null;
 }
 
-function MaintainRowUuid({ groupBinding, internalProp }: { groupBinding: string | undefined; internalProp: string }) {
+function MaintainRowUuid({
+  groupBinding,
+  internalProp,
+}: {
+  groupBinding: IDataModelReference | undefined;
+  internalProp: string;
+}) {
   const parent = GeneratorInternal.useParent() as LayoutNode;
   const rowIndex = GeneratorInternal.useRowIndex() as number;
   const setUuid = NodesStateQueue.useSetRowUuid();

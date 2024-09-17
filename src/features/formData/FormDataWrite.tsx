@@ -805,13 +805,13 @@ export const FD = {
    * Returns the number of rows in a repeating group. This will always be 'fresh', meaning it will update immediately
    * when a new row is added/removed.
    */
-  useFreshNumRows: (binding: string | undefined): number =>
+  useFreshNumRows: (binding: IDataModelReference | undefined): number =>
     useMemoSelector((s) => {
       if (!binding) {
         return 0;
       }
 
-      const rawRows = dot.pick(binding, s.currentData);
+      const rawRows = dot.pick(binding.field, s.dataModels[binding.dataType].currentData);
       if (!Array.isArray(rawRows) || !rawRows.length) {
         return 0;
       }
@@ -823,13 +823,13 @@ export const FD = {
    * Get the UUID of a row in a repeating group. This will always be 'fresh', meaning it will update immediately when
    * a new row is added/removed.
    */
-  useFreshRowUuid: (binding: string | undefined, index: number): string | undefined =>
+  useFreshRowUuid: (binding: IDataModelReference | undefined, index: number): string | undefined =>
     useMemoSelector((s) => {
       if (!binding) {
         return undefined;
       }
 
-      const rawRows = dot.pick(binding, s.currentData);
+      const rawRows = dot.pick(binding.field, s.dataModels[binding.dataType].currentData);
       if (!Array.isArray(rawRows) || !rawRows.length) {
         return undefined;
       }
