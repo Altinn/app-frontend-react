@@ -4,10 +4,13 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
+import { resolveQueryParameters } from 'src/features/options/evalQueryParameters';
 import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
+import { useGetAwaitingCommits } from 'src/utils/layout/generator/GeneratorStages';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { filterDuplicateOptions, verifyOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -190,9 +193,18 @@ function usePreselectedOptionIndex(props: EffectProps) {
  * is gone, we should not save stale/invalid data, so we clear it.
  */
 function useRemoveStaleValues(props: EffectProps) {
+  const [_, setForceRerender] = useState(0);
+  const getAwaiting = useGetAwaitingCommits();
   useEffect(() => {
     const { options, unsafeSelectedValues, setValue, isNodeHidden, isNodesReady } = props;
     if (!options || !isNodesReady || isNodeHidden) {
+      return;
+    }
+    const awaitingCommits = getAwaiting();
+    if (awaitingCommits > 0) {
+      // We should not remove values if there are pending commits. We'll force a re-render to delay this check until
+      // the pending commits are done. This is needed because getAwaiting() is not reactive.
+      setForceRerender((r) => r + 1);
       return;
     }
 
@@ -200,11 +212,15 @@ function useRemoveStaleValues(props: EffectProps) {
     if (itemsToRemove.length > 0) {
       setValue(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
     }
-  }, [props]);
+  }, [props, getAwaiting]);
 }
 
 export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): GetOptionsResult {
   const { options, optionsId, secure, source, mapping, queryParameters, sortOrder, dataModelBindings } = item;
+
+  const dataSources = useExpressionDataSources();
+  const resolvedQueryParameters = resolveQueryParameters(queryParameters, node, dataSources);
+
   const preselectedOptionIndex = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
   const { langAsString } = useLanguage();
   const selectedLanguage = useCurrentLanguage();
@@ -213,7 +229,11 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): G
 
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
-  const { data: fetchedOptions, isFetching, isError } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
+  const {
+    data: fetchedOptions,
+    isFetching,
+    isError,
+  } = useGetOptionsQuery(optionsId, mapping, resolvedQueryParameters, secure);
   const isNodeHidden = Hidden.useIsHidden(node);
   const isNodesReady = NodesInternal.useIsReady();
 

@@ -8,6 +8,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
+import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IFormDynamics } from 'src/features/form/dynamics';
@@ -42,6 +43,14 @@ export class ExternalApp {
       return true;
     } catch (_err) {
       return false;
+    }
+  }
+
+  private fileSize(path: string) {
+    try {
+      return fs.statSync(this.rootDir + path).size;
+    } catch (_err) {
+      return 0;
     }
   }
 
@@ -157,7 +166,7 @@ export class ExternalApp {
 
   getRuleConfiguration(layoutSetId: string): { data: IFormDynamics } | null {
     const path = `/App/ui/${layoutSetId}/RuleConfiguration.json`;
-    if (!this.fileExists(path)) {
+    if (!this.fileExists(path) || this.fileSize(path) === 0) {
       return null;
     }
 
@@ -186,6 +195,7 @@ export class ExternalApp {
     if (!this.dirExists(layoutsDir)) {
       throw new Error(`Layout set '${setId}' folder not found`);
     }
+    const set = this.getRawLayoutSets().sets.find((s) => s.id === setId);
 
     const collection: ILayoutCollection = {};
     for (const file of this.readDir(layoutsDir)) {
@@ -193,7 +203,11 @@ export class ExternalApp {
         continue;
       }
 
-      collection[file.replace('.json', '')] = this.readJson<ILayoutFile>(`${layoutsDir}/${file}`);
+      const pageKey = file.replace('.json', '');
+      collection[pageKey] = this.readJson<ILayoutFile>(`${layoutsDir}/${file}`);
+
+      const cleaned = cleanLayout(collection[pageKey].data.layout, set?.dataType ?? 'unknown');
+      collection[pageKey].data.layout = cleaned;
     }
 
     return collection;
@@ -349,10 +363,10 @@ export class ExternalAppDataModel {
     for (const page of Object.keys(layouts)) {
       for (const comp of layouts[page].data.layout) {
         if (comp.type === 'RepeatingGroup' && comp.dataModelBindings?.group) {
-          groupsNeeded.push(comp.dataModelBindings.group);
+          groupsNeeded.push(comp.dataModelBindings.group.field);
         }
         if (comp.type === 'Likert' && comp.dataModelBindings?.questions) {
-          groupsNeeded.push(comp.dataModelBindings.questions);
+          groupsNeeded.push(comp.dataModelBindings.questions.field);
         }
       }
     }
@@ -430,7 +444,7 @@ export function ensureAppsDirIsSet(runVoidTest = true) {
  */
 function parseJsonTolerantly<T = unknown>(content: string): T {
   // Remove multiline comments
-  content = content.replace(/\/\*([\s\S]*?)\*\//g, '$1');
+  content = content.replace(/\/\*([\s\S]*?)\*\//g, '');
 
   // Remove single-line comments, but not in strings
   content = content.replace(/^(.*?)\/\/(.*)$/gm, (_, m1, m2) => {

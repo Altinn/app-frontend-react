@@ -8,10 +8,12 @@ import layoutSchema from 'schemas/json/layout/layout.schema.v1.json';
 import type { JSONSchema7 } from 'json-schema';
 
 import { quirks } from 'src/features/form/layout/quirks';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { fetchApplicationMetadata } from 'src/queries/queries';
 import { ensureAppsDirIsSet, getAllApps } from 'src/test/allApps';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 import type { ExternalAppLayoutSet } from 'src/test/allApps';
 
 const env = dotenv.config();
@@ -28,8 +30,13 @@ const ignoreLogAndErrors = [
         'er ikke tillatt i `textResourceBindings`',
         'Egenskapen `pageRef` er ikke tillatt',
         'samsvarer ikke med mønsteret `^[0-9a-zA-Z][',
+        /Målet for oppsummeringen \([^)]*\) ble ikke funnet/,
       ]
     : []),
+
+  // Deprecated react stuff (mostly when rendering components via RenderAllComponents)
+  'defaultProps will be removed from function components',
+  'React does not recognize the `%s` prop on a DOM element',
 ];
 
 function TestApp() {
@@ -37,13 +44,37 @@ function TestApp() {
   const filteredErrors: Record<string, string[]> = {};
 
   for (const key in errors) {
-    const filtered = errors[key].filter((err) => !ignoreLogAndErrors.some((ignore) => err.includes(ignore)));
+    const filtered = errors[key].filter(
+      (err) =>
+        !ignoreLogAndErrors.some((ignore) => (ignore instanceof RegExp ? ignore.test(err) : err.includes(ignore))),
+    );
     if (filtered.length) {
       filteredErrors[key] = filtered;
     }
   }
 
   return <div data-testid='errors'>{JSON.stringify(filteredErrors)}</div>;
+}
+
+function RenderAllComponents() {
+  const state = NodesInternal.useStore().getState();
+  const nodes = state.nodes;
+  if (!nodes) {
+    throw new Error('No nodes found');
+  }
+  const all = nodes.allNodes(new TraversalTask(state, nodes, undefined, undefined));
+
+  return (
+    <>
+      {all.map((node) => (
+        <GenericComponent
+          node={node}
+          key={node.id}
+        />
+      ))}
+      <TestApp />
+    </>
+  );
 }
 
 const windowLoggers = ['logError', 'logErrorOnce', 'logWarn', 'logWarnOnce', 'logInfo', 'logInfoOnce'];
@@ -93,11 +124,6 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     .filter((set) => set.isValid())
     .map((set) => ({ appName: set.app.getName(), setName: set.getName(), set }));
 
-  const appsToSkip = ['multiple-datamodels-test'];
-  const filteredSets = allSets.filter(
-    ({ set }) => !appsToSkip.map((app) => set.app.getName().includes(app)).some((x) => x),
-  );
-
   async function testSet(set: ExternalAppLayoutSet) {
     window.location.hash = set.simulateValidUrlHash();
     const [org, app] = set.app.getOrgApp();
@@ -108,7 +134,8 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
       Promise.resolve(set.app.getAppMetadata()),
     );
     await renderWithInstanceAndLayout({
-      renderer: () => <TestApp />,
+      renderer: () =>
+        env.parsed?.ALTINN_ALL_APPS_RENDER_COMPONENTS === 'true' ? <RenderAllComponents /> : <TestApp />,
       queries: {
         fetchLayoutSets: async () => set.getLayoutSetsAsOnlySet(),
         fetchLayouts: async () => set.getLayouts(),
@@ -151,12 +178,12 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     expect(alwaysFail).toBe(false);
   }
 
-  it.each(filteredSets)('$appName/$setName', async ({ set }) => testSet(set));
+  it.each(allSets)('$appName/$setName', async ({ set }) => testSet(set));
 
   if (env.parsed?.ALTINN_ALL_APPS_TEST_FOR_LAST_QUIRK === 'true') {
     it(`last quirk`, async () => {
       const lastQuirk = Object.keys(quirks).at(-1);
-      const found = filteredSets.find(({ set }) => {
+      const found = allSets.find(({ set }) => {
         const [org, app] = set.app.getOrgApp();
         return `${org}/${app}/${set.getName()}` === lastQuirk;
       });
@@ -179,7 +206,9 @@ function filterAndCleanMockCalls(mock: jest.Mock): string[] {
           continue;
         }
         if (typeof arg === 'string') {
-          shouldIgnore = ignoreLogAndErrors.some((remove) => arg.includes(remove));
+          shouldIgnore = ignoreLogAndErrors.some((remove) =>
+            remove instanceof RegExp ? remove.test(arg) : arg.includes(remove),
+          );
           if (shouldIgnore) {
             continue;
           }

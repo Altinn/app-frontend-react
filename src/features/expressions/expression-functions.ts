@@ -1,7 +1,6 @@
 import dot from 'dot-object';
 import type { Mutable } from 'utility-types';
 
-import { ContextNotProvided } from 'src/core/contexts/context';
 import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
@@ -16,7 +15,7 @@ import type { DisplayData } from 'src/features/displayData';
 import type { EvaluateExpressionParams } from 'src/features/expressions';
 import type { ExprValToActual } from 'src/features/expressions/types';
 import type { ValidationContext } from 'src/features/expressions/validation';
-import type { FormDataSelector } from 'src/layout';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -233,17 +232,7 @@ export const ExprFunctions = {
       }
 
       const node = ensureNode(this.node);
-      const closest = this.dataSources.nodeTraversal(
-        (t) =>
-          t.with(node).closest((c) => c.type === 'node' && (c.layout.id === id || c.layout.baseComponentId === id)),
-        [node, id],
-      );
-
-      if (closest === ContextNotProvided) {
-        // Expressions will run before the layout is fully loaded, so we might not have all the components available
-        // yet. If that's the case, silently ignore this expression.
-        return null;
-      }
+      const closest = this.dataSources.nodeTraversal((t) => t.with(node).closestId(id), [node, id]);
 
       const dataModelBindings = closest
         ? this.dataSources.nodeDataSelector((picker) => picker(closest)?.layout.dataModelBindings, [closest])
@@ -256,7 +245,7 @@ export const ExprFunctions = {
           return null;
         }
 
-        return pickSimpleValue(simpleBinding, this.dataSources.formDataSelector);
+        return pickSimpleValue(simpleBinding, this);
       }
 
       // Expressions can technically be used without having all the layouts available, which might lead to unexpected
@@ -275,22 +264,29 @@ export const ExprFunctions = {
   }),
   dataModel: defineFunc({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    impl(path): any {
-      if (path === null) {
+    impl(propertyPath, maybeDataType): any {
+      if (propertyPath === null) {
         throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataModel null`);
       }
 
+      const dataType = maybeDataType ?? this.dataSources.currentLayoutSet?.dataType;
+      if (!dataType) {
+        throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataType undefined`);
+      }
+
+      const reference: IDataModelReference = { dataType, field: propertyPath };
       const node = ensureNode(this.node);
       if (node instanceof BaseLayoutNode) {
-        const newPath = this.dataSources.transposeSelector(node as LayoutNode, path);
-        return pickSimpleValue(newPath, this.dataSources.formDataSelector);
+        const newReference = this.dataSources.transposeSelector(node as LayoutNode, reference);
+        return pickSimpleValue(newReference, this);
       }
 
       // No need to transpose the data model according to the location inside a repeating group when the context is
       // a LayoutPage (i.e., when we're resolving an expression directly on the layout definition).
-      return pickSimpleValue(path, this.dataSources.formDataSelector);
+      return pickSimpleValue(reference, this);
     },
-    args: [ExprVal.String] as const,
+    args: [ExprVal.String, ExprVal.String] as const,
+    minArguments: 1,
     returns: ExprVal.Any,
   }),
   externalApi: defineFunc({
@@ -328,16 +324,7 @@ export const ExprFunctions = {
       }
 
       const node = ensureNode(this.node);
-      const targetNode = this.dataSources.nodeTraversal(
-        (t) => t.with(node).closest((c) => c.type === 'node' && (c.item?.id === id || c.item?.baseComponentId === id)),
-        [node, id],
-      );
-
-      if (targetNode === ContextNotProvided) {
-        // Expressions will run before the layout is fully loaded, so we might not have all the components available
-        // yet. If that's the case, silently ignore this expression.
-        return null;
-      }
+      const targetNode = this.dataSources.nodeTraversal((t) => t.with(node).closestId(id), [node, id]);
 
       if (!targetNode) {
         throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
@@ -416,17 +403,7 @@ export const ExprFunctions = {
       }
 
       const node = ensureNode(this.node);
-      const closest = this.dataSources.nodeTraversal(
-        (t) =>
-          t.with(node).closest((c) => c.type === 'node' && (c.layout.id === id || c.layout.baseComponentId === id)),
-        [node, id],
-      );
-
-      if (closest === ContextNotProvided) {
-        // Expressions will run before the layout is fully loaded, so we might not have all the components available
-        // yet. If that's the case, silently ignore this expression.
-        return null;
-      }
+      const closest = this.dataSources.nodeTraversal((t) => t.with(node).closestId(id), [node, id]);
 
       if (!closest) {
         throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
@@ -568,7 +545,12 @@ export const ExprFunctions = {
       if (path === null || propertyToSelect == null) {
         throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataModel null`);
       }
-      const array = this.dataSources.formDataSelector(path);
+
+      const dataType = this.dataSources.currentLayoutSet?.dataType;
+      if (!dataType) {
+        throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataType undefined`);
+      }
+      const array = this.dataSources.formDataSelector({ field: path, dataType });
       if (typeof array != 'object' || !Array.isArray(array)) {
         return '';
       }
@@ -588,12 +570,13 @@ export const ExprFunctions = {
   }),
 };
 
-function pickSimpleValue(path: string | undefined | null, selector: FormDataSelector) {
-  if (!path) {
-    return null;
+function pickSimpleValue(path: IDataModelReference, params: EvaluateExpressionParams) {
+  const isValidDataType = params.dataSources.dataModelNames.includes(path.dataType);
+  if (!isValidDataType) {
+    throw new ExprRuntimeError(params.expr, params.path, `Unknown data model '${path.dataType}'`);
   }
 
-  const value = selector(path);
+  const value = params.dataSources.formDataSelector(path);
   if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
     return value;
   }

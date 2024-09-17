@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { ErrorMessage } from '@digdir/designsystemet-react';
+import { Grid } from '@material-ui/core';
 import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
@@ -24,10 +25,10 @@ export const RepeatingGroupSummary = ({
   isCompact?: boolean;
   emptyFieldText?: string;
 }) => {
-  const validations = useUnifiedValidationsForNode(componentNode);
   const { visibleRows } = useRepeatingGroupRowState();
   const rowsToDisplaySet = new Set(visibleRows.map((row) => row.uuid));
   const rows = useNodeItem(componentNode, (i) => i.rows).filter((row) => row && rowsToDisplaySet.has(row.uuid));
+  const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
   const isNested = componentNode.parent instanceof BaseLayoutNode;
@@ -37,6 +38,8 @@ export const RepeatingGroupSummary = ({
       <SingleValueSummary
         title={title}
         componentNode={componentNode}
+        errors={errors}
+        isCompact={isCompact}
         emptyFieldText={emptyFieldText}
       />
     );
@@ -44,7 +47,7 @@ export const RepeatingGroupSummary = ({
 
   return (
     <div
-      className={cn({ [classes.nestedRepeatingGroupSummaryWrapper]: isNested })}
+      className={cn(classes.summaryWrapper, { [classes.nestedSummaryWrapper]: isNested })}
       data-testid={'summary-repeating-group-component'}
     >
       <Label
@@ -52,21 +55,24 @@ export const RepeatingGroupSummary = ({
         renderLabelAs='span'
         textResourceBindings={{ title }}
       />
-      <div className={cn({ [classes.nestedRepeatingGroupContentWrapper]: isNested })}>
+      <div className={cn(classes.contentWrapper, { [classes.nestedContentWrapper]: isNested })}>
         {rows.map((row, index) => (
-          <div
-            key={row?.uuid}
-            className={cn(classes.repeatingGroupSummaryRow, {
-              [classes.repeatingGroupRowDivider]: index < rows.length - 1,
-            })}
-          >
-            {row?.items?.map((node) => (
-              <ComponentSummary
-                key={node.id}
-                componentNode={node}
-              />
-            ))}
-          </div>
+          <>
+            {index != 0 && <hr className={classes.rowDivider} />}
+            <Grid
+              key={row?.uuid}
+              container={true}
+              spacing={6}
+              alignItems='flex-start'
+            >
+              {row?.items?.map((node) => (
+                <ComponentSummary
+                  key={node.id}
+                  componentNode={node}
+                />
+              ))}
+            </Grid>
+          </>
         ))}
       </div>
       {errors?.map(({ message }) => (
