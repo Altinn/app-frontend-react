@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
@@ -7,7 +7,8 @@ import { Grid } from '@material-ui/core';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { TaskStoreProvider, useTaskStore } from 'src/core/contexts/taskStoreContext';
+import { useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
+import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { FormProvider } from 'src/features/form/FormContext';
@@ -53,33 +54,90 @@ export const PDFView2 = () => {
   }
 
   return (
-    <PdfWrapping>
-      <div className={classes.instanceInfo}>
-        <InstanceInformation
-          elements={{
-            dateSent: true,
-            sender: true,
-            receiver: true,
-            referenceNumber: true,
-          }}
-        />
-      </div>
-
-      {order
-        ?.filter((pageKey) => !isHiddenPage(pageKey))
-        .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
-        .map((pageKey) => (
-          <PdfForPage
-            key={pageKey}
-            pageKey={pageKey}
-            pdfSettings={pdfSettings}
+    <DataLoaderStoreInit>
+      <PdfWrapping>
+        <div className={classes.instanceInfo}>
+          <InstanceInformation
+            elements={{
+              dateSent: true,
+              sender: true,
+              receiver: true,
+              referenceNumber: true,
+            }}
           />
-        ))}
+        </div>
 
-      <SubformPDF />
-    </PdfWrapping>
+        {order
+          ?.filter((pageKey) => !isHiddenPage(pageKey))
+          .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
+          .map((pageKey) => (
+            <PdfForPage
+              key={pageKey}
+              pageKey={pageKey}
+              pdfSettings={pdfSettings}
+            />
+          ))}
+
+        <SubformPDF />
+      </PdfWrapping>
+    </DataLoaderStoreInit>
   );
 };
+
+function DataLoaderStoreInit({ children }: PropsWithChildren) {
+  const [loading, setLoading] = React.useState(true);
+  const subforms = useNodeTraversal((t) => t.allNodes().filter((node) => node.isType('Subform')));
+
+  const handleWorkerCompletion = React.useCallback(() => {
+    setLoading(false);
+  }, []);
+
+  return (
+    <>
+      {subforms.map((child, idx) => (
+        <DataLoaderStoreInitWorker
+          key={idx}
+          node={child}
+          initComplete={handleWorkerCompletion}
+        />
+      ))}
+      {!loading && children}
+    </>
+  );
+}
+
+function DataLoaderStoreInitWorker({
+  node,
+  initComplete,
+}: PropsWithChildren<{ node: LayoutNode<'Subform'>; initComplete: () => void }>): React.JSX.Element | null {
+  const { layoutSet } = useNodeItem(node);
+  const setDataLoaderElements = useDataLoadingStore((state) => state.setDataElements);
+  const dataLoaderElements = useDataLoadingStore((state) => state.dataElements);
+
+  const instanceData = useStrictInstanceData();
+  const dataType = useDataTypeFromLayoutSet(layoutSet);
+  const dataElements = useMemo(
+    () => instanceData.data.filter((d) => d.dataType === dataType) ?? [],
+    [instanceData, dataType],
+  );
+
+  useEffect(() => {
+    const elements: Record<string, boolean> = {};
+    for (const element of dataElements) {
+      if (element.id in dataLoaderElements) {
+        continue;
+      }
+      elements[element.id] = false;
+    }
+
+    if (Object.keys(elements).length) {
+      setDataLoaderElements(elements);
+    }
+    initComplete();
+  }, [dataElements, dataLoaderElements, setDataLoaderElements, initComplete]);
+
+  return null;
+}
 
 function PdfWrapping({ children }: PropsWithChildren) {
   const enableOrgLogo = Boolean(useApplicationMetadata().logoOptions);
@@ -157,42 +215,17 @@ export const DoSummaryWrapper = ({
   // }, [isDone]);
   // //
   if (!isDone) {
-    console.log('not done');
-    return <div>not done</div>;
+    return null;
   }
+
   return <FormProvider>{children}</FormProvider>;
 };
 
 export const SummarySubformWrapper = ({ node, children }: PropsWithChildren<{ node: LayoutNode<'Subform'> }>) => {
-  const {
-    id,
-    layoutSet,
-    textResourceBindings,
-    tableColumns = [],
-    showAddButton = true,
-    showDeleteButton = true,
-  } = useNodeItem(node);
-
+  const { layoutSet } = useNodeItem(node);
   const instanceData = useStrictInstanceData();
-
   const dataType = useDataTypeFromLayoutSet(layoutSet);
   const dataElements = instanceData.data.filter((d) => d.dataType === dataType) ?? [];
-
-  const dataElementId = `${dataElements[0]?.id}`;
-
-  console.log('node', node);
-  console.log('dataElements[0]?.id', dataElements[0]?.id);
-  // const isDone = useDoOverride(node, dataElementId);
-
-  const overriddenTaskId = useTaskStore((state) => state.overriddenTaskId);
-  const overriddenDataModelType = useTaskStore((state) => state.overriddenDataModelType);
-  const overriddenDataModelUuid = useTaskStore((state) => state.overriddenDataModelUuid);
-
-  // console.log('dataType', dataType);
-  //
-  // console.log('instanceData', instanceData);
-  //
-  // console.log('dataElements', dataElements);
 
   // 1. Finne alle subform komponenter OK
   // 2. For hver subform komponent:
@@ -270,7 +303,6 @@ function SubformPDF() {
   // const nodeDataSelector = NodesInternal.useNodeDataSelector();
   const children = useNodeTraversal((t) => t.allNodes().filter((node) => node.isType('Subform')));
   // const dataType = useDataTypeFromLayoutSet(layoutSet);
-  console.log('children', children);
 
   return (
     <div>
