@@ -781,6 +781,9 @@ describe('UI Components', () => {
     cy.gotoNavPage('form');
     cy.gotoNavPage('map');
 
+    // Make sure tiles are not faded before taking the snapshot
+    cy.get('.leaflet-layer img').each((layer) => cy.wrap(layer).should('have.css', 'opacity', '1'));
+
     cy.snapshot('components:map-simpleBinding');
   });
 
