@@ -1,6 +1,7 @@
 import { selectValidations } from 'src/features/validation/utils';
 import { Hidden, nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
+import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 import type { ContextNotProvided } from 'src/core/contexts/context';
 import type {
   AnyValidation,
@@ -22,12 +23,16 @@ export type ValidationsSelector = (
 export interface ValidationStorePluginConfig {
   extraFunctions: {
     setNodeVisibility: (nodes: LayoutNode[], newVisibility: number) => void;
+    setAllNodesVisibility: (newVisibility: number) => void;
     setAttachmentVisibility: (attachmentId: string, node: LayoutNode, newVisibility: number) => void;
   };
   extraHooks: {
     useSetNodeVisibility: () => ValidationStorePluginConfig['extraFunctions']['setNodeVisibility'];
     useLaxSetNodeVisibility: () =>
       | ValidationStorePluginConfig['extraFunctions']['setNodeVisibility']
+      | typeof ContextNotProvided;
+    useLaxSetAllNodesVisibility: () =>
+      | ValidationStorePluginConfig['extraFunctions']['setAllNodesVisibility']
       | typeof ContextNotProvided;
     useSetAttachmentVisibility: () => ValidationStorePluginConfig['extraFunctions']['setAttachmentVisibility'];
     useRawValidationVisibility: (node: LayoutNode | undefined) => number;
@@ -48,6 +53,18 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
         set(
           nodesProduce((state) => {
             for (const node of nodes) {
+              const nodeData = state.nodeData[node.id];
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (nodeData as any).validationVisibility = newVisibility;
+            }
+          }),
+        );
+      },
+      setAllNodesVisibility: (newVisibility) => {
+        set(
+          nodesProduce((state) => {
+            for (const node of state.nodes?.allNodes(new TraversalTask(state, state.nodes, undefined, undefined)) ??
+              []) {
               const nodeData = state.nodeData[node.id];
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (nodeData as any).validationVisibility = newVisibility;
@@ -100,6 +117,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
     const out: ValidationStorePluginConfig['extraHooks'] = {
       useSetNodeVisibility: () => store.useSelector((state) => state.setNodeVisibility),
       useLaxSetNodeVisibility: () => store.useLaxSelector((state) => state.setNodeVisibility),
+      useLaxSetAllNodesVisibility: () => store.useLaxSelector((state) => state.setAllNodesVisibility),
       useSetAttachmentVisibility: () => store.useSelector((state) => state.setAttachmentVisibility),
       useRawValidationVisibility: (node) =>
         store.useSelector((state) => {

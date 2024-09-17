@@ -10,6 +10,8 @@ import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { BackendValidation } from 'src/features/validation/backendValidation/BackendValidation';
+import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
+import { useShouldValidateInitial } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
 import { SchemaValidation } from 'src/features/validation/schemaValidation/SchemaValidation';
 import {
@@ -19,11 +21,10 @@ import {
   selectValidations,
 } from 'src/features/validation/utils';
 import { useAsRef } from 'src/hooks/useAsRef';
-import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type {
-  BackendFieldValidatorGroups,
+  BackendValidationIssue,
   BackendValidationIssueGroups,
   BaseValidation,
   DataModelValidations,
@@ -39,7 +40,8 @@ interface Internals {
     schema: DataModelValidations;
     invalidData: DataModelValidations;
   };
-  issueGroupsProcessedLast: BackendValidationIssueGroups | BackendFieldValidatorGroups | undefined; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
+  incrementalProcessedLast: BackendValidationIssueGroups | undefined; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
+  initialProcessedLast: BackendValidationIssue[] | undefined; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
   updateTaskValidations: (validations: BaseValidation[]) => void;
   /**
    * updateDataModelValidations
@@ -52,7 +54,7 @@ interface Internals {
   ) => void;
   updateBackendValidations: (
     backendValidations: { [dataType: string]: FieldValidations } | undefined,
-    processedLast?: BackendValidationIssueGroups | BackendFieldValidatorGroups,
+    processedLast?: { incremental?: BackendValidationIssueGroups; initial?: BackendValidationIssue[] },
   ) => void;
   updateValidating: (validating: WaitForValidation) => void;
 }
@@ -81,7 +83,8 @@ function initialCreateStore() {
         schema: {},
         invalidData: {},
       },
-      issueGroupsProcessedLast: {},
+      incrementalProcessedLast: undefined,
+      initialProcessedLast: undefined,
       updateTaskValidations: (validations) =>
         set((state) => {
           state.state.task = validations;
@@ -100,8 +103,11 @@ function initialCreateStore() {
         }),
       updateBackendValidations: (backendValidations, processedLast) =>
         set((state) => {
-          if (processedLast) {
-            state.issueGroupsProcessedLast = processedLast;
+          if (processedLast?.incremental) {
+            state.incrementalProcessedLast = processedLast.incremental;
+          }
+          if (processedLast?.initial) {
+            state.initialProcessedLast = processedLast.initial;
           }
           if (backendValidations) {
             state.individualValidations.backend = backendValidations;
@@ -158,11 +164,12 @@ function useWaitForValidation(): WaitForValidation {
   const waitForAttachments = useWaitForState(pendingAttachmentsRef);
 
   const hasWritableDataTypes = !!DataModels.useWritableDataTypes()?.length;
-  const isPDF = useIsPdf();
+  const enabled = useShouldValidateInitial();
+  const { data: initialValidations, isFetching } = useBackendValidationQuery(enabled);
 
   return useCallback(
     async (forceSave = true) => {
-      if (isPDF || !hasWritableDataTypes) {
+      if (!enabled || !hasWritableDataTypes) {
         return;
       }
 
@@ -175,11 +182,21 @@ function useWaitForValidation(): WaitForValidation {
       // If validationsFromSave is not defined, we check if initial validations are done processing
       await waitForState(
         (state) =>
-          (!!validationsFromSave && state.issueGroupsProcessedLast === validationsFromSave) ||
-          !!state.issueGroupsProcessedLast,
+          state.incrementalProcessedLast === validationsFromSave &&
+          state.initialProcessedLast === initialValidations &&
+          !isFetching,
       );
     },
-    [isPDF, hasWritableDataTypes, waitForAttachments, waitForNodesReady, waitForSave, waitForState],
+    [
+      enabled,
+      hasWritableDataTypes,
+      waitForAttachments,
+      waitForNodesReady,
+      waitForSave,
+      waitForState,
+      initialValidations,
+      isFetching,
+    ],
   );
 }
 
@@ -252,7 +269,7 @@ export const Validation = {
   useSelector: () => useDS((state) => state),
   useDataModelSelector: () => useDS((state) => state.state.dataModels),
 
-  useSetShowAllErrors: () => useSelector((state) => state.setShowAllErrors),
+  useSetShowAllErrors: () => useLaxSelector((state) => state.setShowAllErrors),
   useValidating: () => useSelector((state) => state.validating!),
   useUpdateTaskValidations: () => useLaxSelector((state) => state.updateTaskValidations),
   useUpdateDataModelValidations: () => useSelector((state) => state.updateDataModelValidations),

@@ -9,10 +9,13 @@ import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { useLaxInstance, useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useUpdateInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { mapBackendIssuesToTaskValidations } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
+import { getVisibilityMask } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { BackendValidationIssue } from 'src/features/validation';
 import type { IActionType, IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -34,6 +37,10 @@ function useProcessNext() {
   const instanceId = useLaxInstance()?.instanceId;
   const onFormSubmitValidation = useOnFormSubmitValidation();
   const updateTaskValidations = Validation.useUpdateTaskValidations();
+  const updateInitialValidations = useUpdateInitialValidations();
+  const validation = Validation.useLaxRef();
+  const setAllNodesVisibility = NodesInternal.useLaxSetAllNodesVisibility();
+  const setShowAllErrors = Validation.useSetShowAllErrors();
 
   const utils = useMutation({
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
@@ -66,6 +73,12 @@ function useProcessNext() {
         navigateToTask(processData?.currentTask?.elementId);
       } else if (validationIssues && updateTaskValidations !== ContextNotProvided) {
         updateTaskValidations(mapBackendIssuesToTaskValidations(validationIssues));
+        updateInitialValidations(validationIssues);
+        const validating = validation.current === ContextNotProvided ? undefined : validation.current?.validating;
+        validating && (await validating());
+        setAllNodesVisibility !== ContextNotProvided &&
+          setAllNodesVisibility(getVisibilityMask(['AllIncludingBackend']));
+        setShowAllErrors !== ContextNotProvided && setShowAllErrors(true);
       }
     },
     onError: (error: HttpClientError) => {

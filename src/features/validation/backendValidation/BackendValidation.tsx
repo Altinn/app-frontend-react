@@ -4,14 +4,12 @@ import deepEqual from 'fast-deep-equal';
 
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
-import {
-  type BackendFieldValidatorGroups,
-  type BuiltInValidationIssueSources,
-  IgnoredValidators,
-} from 'src/features/validation';
+import { type BackendFieldValidatorGroups } from 'src/features/validation';
+import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import {
   mapBackendIssuesToFieldValdiations,
   mapValidatorGroupsToDataModelValidations,
+  useShouldValidateInitial,
 } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { Validation } from 'src/features/validation/validationContext';
 
@@ -19,9 +17,11 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
   const updateBackendValidations = Validation.useUpdateBackendValidations();
   const getDataTypeForElementId = DataModels.useGetDataTypeForDataElementId();
   const lastSaveValidations = FD.useLastSaveValidationIssues();
+  const validatorGroups = useRef<BackendFieldValidatorGroups>({});
 
   // Map initial validations
-  const initialValidations = DataModels.useInitialValidations();
+  const enabled = useShouldValidateInitial();
+  const { data: initialValidations, isFetching } = useBackendValidationQuery(enabled);
   const initialValidatorGroups: BackendFieldValidatorGroups = useMemo(() => {
     if (!initialValidations) {
       return {};
@@ -31,11 +31,6 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
     const fieldValidations = mapBackendIssuesToFieldValdiations(initialValidations, getDataTypeForElementId);
     const validatorGroups: BackendFieldValidatorGroups = {};
     for (const validation of fieldValidations) {
-      // Do not include ignored ignored validators in initial validations
-      if (IgnoredValidators.includes(validation.source as BuiltInValidationIssueSources)) {
-        continue;
-      }
-
       if (!validatorGroups[validation.source]) {
         validatorGroups[validation.source] = [];
       }
@@ -46,11 +41,12 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
 
   // Initial validation
   useEffect(() => {
-    const backendValidations = mapValidatorGroupsToDataModelValidations(initialValidatorGroups, dataTypes);
-    updateBackendValidations(backendValidations, initialValidatorGroups);
-  }, [dataTypes, initialValidatorGroups, updateBackendValidations]);
-
-  const validatorGroups = useRef<BackendFieldValidatorGroups>(initialValidatorGroups);
+    if (!isFetching) {
+      validatorGroups.current = initialValidatorGroups;
+      const backendValidations = mapValidatorGroupsToDataModelValidations(initialValidatorGroups, dataTypes);
+      updateBackendValidations(backendValidations, { initial: initialValidations });
+    }
+  }, [dataTypes, initialValidations, initialValidatorGroups, isFetching, updateBackendValidations]);
 
   // Incremental validation: Update validators and propagate changes to validationcontext
   useEffect(() => {
@@ -63,13 +59,13 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
 
       if (deepEqual(validatorGroups.current, newValidatorGroups)) {
         // Dont update any validations, only set last saved validations
-        updateBackendValidations(undefined, lastSaveValidations);
+        updateBackendValidations(undefined, { incremental: lastSaveValidations });
         return;
       }
 
       validatorGroups.current = newValidatorGroups;
       const backendValidations = mapValidatorGroupsToDataModelValidations(validatorGroups.current, dataTypes);
-      updateBackendValidations(backendValidations, lastSaveValidations);
+      updateBackendValidations(backendValidations, { incremental: lastSaveValidations });
     }
   }, [dataTypes, getDataTypeForElementId, lastSaveValidations, updateBackendValidations]);
 
