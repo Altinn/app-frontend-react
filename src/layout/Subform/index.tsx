@@ -19,11 +19,12 @@ import {
   SubformWrapper,
 } from 'src/layout/Subform/SubformWrapper';
 import { SubformSummaryComponent } from 'src/layout/Subform/Summary/SubformSummaryComponent';
-import { SUMMARUSubformComponent } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
+import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
 import type { TextReference } from 'src/features/language/useLanguage';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { SubformSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -76,24 +77,13 @@ export class Subform extends SubformDef implements ValidateComponent<'Subform'> 
   }
 
   renderSummary2(props: Summary2Props<'Subform'>) {
-    // console.log(props);
-    // return <div>renrdyer sum 2</div>;
-
-    //<FormProvider>{children}</FormProvider>
-
-    return <SUMMARUSubformComponent targetNode={props.target} />;
-
-    // return (
-    //   <TaskStoreProvider>
-    //     <FormProvider>
-    //       <SubformSummaryWrapper node={props.target}>
-    //         {/*<ComponentStructureWrapper node={props.target}>*/}
-    //         <SubformSummaryComponent2 targetNode={props.target} />
-    //         {/*</ComponentStructureWrapper>*/}
-    //       </SubformSummaryWrapper>
-    //     </FormProvider>
-    //   </TaskStoreProvider>
-    // );
+    return (
+      <SubformSummaryComponent2
+        displayType={(props.override as SubformSummaryOverrideProps)?.display}
+        subformId={props.target?.id}
+        componentNode={props.target}
+      />
+    );
   }
 
   runComponentValidation(
