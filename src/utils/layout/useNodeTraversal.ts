@@ -323,32 +323,6 @@ export function useNodeTraversal<Out>(selector: (traverser: never) => Out, node?
   return useNodeTraversalProto(selector, node, Strictness.throwError);
 }
 
-export function useNodeTraversalSilent<Out>(selector: (traverser: NodeTraversalFromRoot) => Out): Out | undefined;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalSilent<N extends LayoutPage, Out>(
-  selector: (traverser: NodeTraversalFromPage) => Out,
-  node: N,
-): Out | undefined;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalSilent<N extends LayoutPage, Out>(
-  selector: (traverser: NodeTraversalFromPage | NodeTraversalFromRoot) => Out,
-  node: N | undefined,
-): Out | undefined;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalSilent<N extends LayoutNode, Out>(
-  selector: (traverser: NodeTraversalFromNode<N>) => Out,
-  node: N,
-): Out | undefined;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalSilent<N extends LayoutNode, Out>(
-  selector: (traverser: NodeTraversalFromNode<N> | NodeTraversalFromRoot) => Out,
-  node: N | undefined,
-): Out | undefined;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalSilent<Out>(selector: (traverser: never) => Out, node?: never): Out | undefined {
-  return useNodeTraversalProto(selector, node, Strictness.returnUndefined);
-}
-
 function throwOrReturn<R>(value: R, strictness: Strictness) {
   if (value === ContextNotProvided) {
     if (strictness === Strictness.throwError) {
@@ -393,10 +367,6 @@ function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: St
 
 export function useNodeTraversalSelector() {
   return useNodeTraversalSelectorProto(Strictness.throwError);
-}
-
-export function useNodeTraversalSelectorLax() {
-  return useNodeTraversalSelectorProto(Strictness.returnContextNotProvided);
 }
 
 export type NodeTraversalSelector = ReturnType<typeof useNodeTraversalSelector>;
