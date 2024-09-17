@@ -5,7 +5,7 @@ import type { PropsFromGenericComponent } from '..';
 
 import { LikertDef } from 'src/layout/Likert/config.def.generated';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
-import { LikertSummary } from 'src/layout/Likert/Summary/LikertSummary';
+import { LikertSummaryComponent } from 'src/layout/Likert/Summary/LikertSummaryComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -18,7 +18,7 @@ export class Likert extends LikertDef {
   );
 
   renderSummary(props: SummaryRendererProps<'Likert'>): JSX.Element | null {
-    return <LikertSummary {...props} />;
+    return <LikertSummaryComponent {...props} />;
   }
 
   renderSummaryBoilerplate(): boolean {
