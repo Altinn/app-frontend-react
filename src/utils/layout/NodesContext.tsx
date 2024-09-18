@@ -8,6 +8,7 @@ import type { UnionToIntersection } from 'utility-types';
 import type { StoreApi } from 'zustand';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
+import { useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
@@ -23,7 +24,6 @@ import { ExpressionValidation } from 'src/features/validation/expressionValidati
 import { LoadingBlockerWaitForValidation, ProvideWaitForValidation } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
-import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
@@ -465,6 +465,9 @@ function ResettableStore({ counter, children }: PropsWithChildren<{ counter: num
 function IndicateReadiness() {
   const [readiness, hiddenViaRulesRan] = Store.useSelector((s) => [s.readiness, s.hiddenViaRulesRan]);
   const ready = readiness === NodesReadiness.Ready && hiddenViaRulesRan;
+  const setDataElements = useDataLoadingStore((state) => state.setDataElements);
+  const dataElements = useDataLoadingStore((state) => state.dataElements);
+  const overriddenDataModelUuid = useTaskStore((state) => state.overriddenDataModelUuid);
   document.body.setAttribute('data-nodes-ready', ready.toString());
 
   useEffect(() => {
@@ -473,6 +476,16 @@ function IndicateReadiness() {
       document.body.removeAttribute('data-nodes-ready');
     };
   }, [ready]);
+
+  useEffect(() => {
+    if (
+      ready &&
+      overriddenDataModelUuid &&
+      (!(overriddenDataModelUuid in dataElements) || dataElements[overriddenDataModelUuid] !== true)
+    ) {
+      setDataElements({ [overriddenDataModelUuid]: true });
+    }
+  }, [dataElements, overriddenDataModelUuid, ready, setDataElements]);
 
   if (!GeneratorDebug.displayReadiness) {
     return null;
@@ -521,14 +534,6 @@ function InnerMarkAsReady() {
   const hasNodes = Store.useSelector((state) => !!state.nodes);
   const stagesFinished = GeneratorStages.useIsFinished();
   const hasUnsavedChanges = FD.useHasUnsavedChanges();
-  const isPdf = useIsPdf();
-
-  const { overriddenTaskId, overriddenDataModelUuid } = useTaskStore(
-    ({ overriddenTaskId, overriddenDataModelUuid }) => ({
-      overriddenTaskId,
-      overriddenDataModelUuid,
-    }),
-  );
 
   // Even though the getAwaitingCommits() function works on refs in the GeneratorStages context, the effects of such
   // commits always changes the NodesContext. Thus our useSelector() re-runs and re-renders this components when
@@ -541,19 +546,12 @@ function InnerMarkAsReady() {
   const shouldMarkAsReady = maybeReady && !waitingForCommits;
   const fallbackToInterval = maybeReady && !shouldMarkAsReady;
 
-  // console.log('shouldMarkAsReady', shouldMarkAsReady);
-  // console.log('waitingForCommits', waitingForCommits);
-  // markReady();
-  // if (isPdf) {
-  //   markReady();
-  // }
-
   useEffect(() => {
     if (shouldMarkAsReady) {
-      generatorLog('logReadiness', 'Marking state as ready', overriddenDataModelUuid);
+      generatorLog('logReadiness', 'Marking state as ready');
       markReady();
     }
-  }, [shouldMarkAsReady, markReady, overriddenDataModelUuid]);
+  }, [shouldMarkAsReady, markReady]);
 
   useEffect(() => {
     if (fallbackToInterval) {
