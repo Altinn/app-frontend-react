@@ -74,8 +74,16 @@ function useProcessNext() {
       } else if (validationIssues && updateTaskValidations !== ContextNotProvided) {
         updateTaskValidations(mapBackendIssuesToTaskValidations(validationIssues));
         updateInitialValidations(validationIssues);
-        const validating = validation.current === ContextNotProvided ? undefined : validation.current?.validating;
-        validating && (await validating());
+
+        // Let validation ref update
+        await new Promise((res) => window.requestAnimationFrame(res));
+
+        // Wait for validations to process
+        if (validation.current !== ContextNotProvided && validation.current.validating) {
+          await validation.current.validating();
+        }
+
+        // Set visibility and showAllErrors
         setAllNodesVisibility !== ContextNotProvided &&
           setAllNodesVisibility(getVisibilityMask(['AllIncludingBackend']));
         setShowAllErrors !== ContextNotProvided && setShowAllErrors(true);
