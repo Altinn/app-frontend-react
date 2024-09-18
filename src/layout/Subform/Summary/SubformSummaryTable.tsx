@@ -34,6 +34,7 @@ function SubformTableRow({
   const url = getStatefulDataModelUrl(instance.id, id, true);
   const { isFetching, data, error } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
+
   const numColumns = tableColumns.length;
   if (isFetching) {
     return (
@@ -99,7 +100,7 @@ export function DataQueryWithDefaultValue(props: DataQueryParams) {
 }
 
 export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): React.JSX.Element | null {
-  const { id, layoutSet, textResourceBindings, tableColumns = [], showDeleteButton = true } = useNodeItem(targetNode);
+  const { id, layoutSet, textResourceBindings, tableColumns = [] } = useNodeItem(targetNode);
 
   const isSubformPage = useNavigationParam('isSubformPage');
   if (isSubformPage) {
