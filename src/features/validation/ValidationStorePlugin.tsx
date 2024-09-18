@@ -37,6 +37,7 @@ export interface ValidationStorePluginConfig {
     useSetAttachmentVisibility: () => ValidationStorePluginConfig['extraFunctions']['setAttachmentVisibility'];
     useRawValidationVisibility: (node: LayoutNode | undefined) => number;
     useRawValidations: (node: LayoutNode | undefined) => AnyValidation[];
+    useRawDataModelValidationsForAllNodes: () => AnyValidation[];
     useVisibleValidations: (node: LayoutNode | undefined, severity?: ValidationSeverity) => AnyValidation[];
     useValidationsSelector: () => ValidationsSelector;
     useLaxValidationsSelector: () => ValidationsSelector | typeof ContextNotProvided;
@@ -141,6 +142,26 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           }
           const out = 'validations' in nodeData ? nodeData.validations : undefined;
           return out && out.length > 0 ? out : emptyArray;
+        }),
+      // Used to identify validation errors bound to a node
+      useRawDataModelValidationsForAllNodes: () =>
+        store.useSelector((state) => {
+          const nodes = state.nodes?.allNodes(new TraversalTask(state, state.nodes, undefined, undefined));
+          if (!nodes) {
+            return emptyArray;
+          }
+          const out: AnyValidation[] = [];
+          for (const node of nodes) {
+            const nodeData = state.nodeData[node.id];
+            if (!nodeData) {
+              continue;
+            }
+            if ('validations' in nodeData) {
+              out.push(...nodeData.validations.filter((v) => '_raw' in v).map((v) => v._raw as AnyValidation));
+            }
+          }
+
+          return out.length ? out : emptyArray;
         }),
       useVisibleValidations: (node, severity) => {
         const isHidden = Hidden.useIsHidden(node);

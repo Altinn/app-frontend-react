@@ -20,22 +20,21 @@ export function useTaskErrors(): {
   const selector = Validation.useSelector();
   const nodeValidationsSelector = NodesInternal.useValidationsSelector();
   const traversalSelector = useNodeTraversalSelectorSilent();
+  const rawValidations = NodesInternal.useRawDataModelValidationsForAllNodes();
 
-  const [formErrors, mappedValidations] = useMemo(() => {
+  const formErrors = useMemo(() => {
     if (!traversalSelector) {
-      return [emptyArray, null];
+      return emptyArray;
     }
 
     const formErrors: NodeValidation<AnyValidation<'error'>>[] = [];
-    const mappedValidations = new Set<AnyValidation>();
     const allNodes = traversalSelector((t) => t.allNodes(), []);
     for (const node of allNodes ?? emptyArray) {
       const validations = nodeValidationsSelector(node, 'visible', 'error') as AnyValidation<'error'>[];
       formErrors.push(...validations.map((v) => ({ ...v, node })));
-      validations.forEach((validation) => mappedValidations.add(validation));
     }
 
-    return [formErrors, mappedValidations];
+    return formErrors;
   }, [nodeValidationsSelector, traversalSelector]);
 
   const unmappedErrors = useMemo(() => {
@@ -53,15 +52,13 @@ export function useTaskErrors(): {
     for (const fields of Object.values(dataModels)) {
       for (const field of Object.values(fields)) {
         unmappedErrors.push(
-          ...selectValidations(field, mask, 'error').filter(
-            (validation) => !mappedValidations || !mappedValidations.has(validation),
-          ),
+          ...selectValidations(field, mask, 'error').filter((validation) => !rawValidations.includes(validation)),
         );
       }
     }
 
     return unmappedErrors;
-  }, [mappedValidations, selector]);
+  }, [rawValidations, selector]);
 
   const taskErrors = useMemo(
     () => [
