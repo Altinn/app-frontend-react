@@ -34,7 +34,6 @@ function useProcessNext() {
   const instanceId = useLaxInstance()?.instanceId;
   const onFormSubmitValidation = useOnFormSubmitValidation();
   const updateInitialValidations = useUpdateInitialValidations();
-  const validation = Validation.useLaxRef();
   const setShowAllErrors = Validation.useSetShowAllErrors();
 
   const utils = useMutation({
