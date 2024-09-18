@@ -6,7 +6,6 @@ import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import classes from 'src/layout/Likert/Summary2/LikertSummary.module.css';
-import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -44,24 +43,18 @@ export function LikertSummary({ componentNode, emptyFieldText, isCompact }: Like
     <div className={classes.summaryItemWrapper}>
       <div className={classes.summaryItem}>
         <Heading
-          size='sm'
+          size='xs'
           level={4}
         >
           <Lang id={title} />
         </Heading>
-        {!readOnly && (
-          <EditButton
-            className={classes.editButton}
-            componentNode={componentNode}
-            summaryComponentId={componentNode.id}
-          />
-        )}
       </div>
       {rows.map((row) => (
         <LikertRowSummary
           key={row?.uuid}
           rowNode={row?.itemNode}
           emptyFieldText={emptyFieldText}
+          readOnly={readOnly}
         />
       ))}
       {errors?.map(({ message }) => (
@@ -80,9 +73,10 @@ export function LikertSummary({ componentNode, emptyFieldText, isCompact }: Like
 type LikertRowSummaryProps = {
   rowNode?: LayoutNode<'LikertItem'>;
   emptyFieldText?: string;
+  readOnly?: boolean;
 };
 
-function LikertRowSummary({ rowNode, emptyFieldText }: LikertRowSummaryProps) {
+function LikertRowSummary({ rowNode, emptyFieldText, readOnly }: LikertRowSummaryProps) {
   const title = useNodeItem(rowNode, (i) => i.textResourceBindings?.title);
   const displayData = rowNode?.def.useDisplayData(rowNode);
   const validations = useUnifiedValidationsForNode(rowNode);
@@ -103,7 +97,7 @@ function LikertRowSummary({ rowNode, emptyFieldText }: LikertRowSummaryProps) {
       componentNode={rowNode}
       displayData={displayData}
       errors={errors}
-      hideEditButton={true}
+      hideEditButton={readOnly}
       emptyFieldText={emptyFieldText}
     />
   );

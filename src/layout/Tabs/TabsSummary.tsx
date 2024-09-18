@@ -39,7 +39,7 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
             className={classes.tabWrapper}
           >
             <Heading
-              size='sm'
+              size='xs'
               level={4}
             >
               <Lang id={tab.title} />
