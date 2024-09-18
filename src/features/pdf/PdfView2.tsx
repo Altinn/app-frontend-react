@@ -8,7 +8,6 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
-import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { FormProvider } from 'src/features/form/FormContext';
@@ -24,9 +23,9 @@ import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { useDoOverrideSummary } from 'src/layout/Subform/SubformWrapper';
+import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
-import { LayoutSetSummary } from 'src/layout/Summary2/SummaryComponent2/LayoutSetSummary';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -47,9 +46,11 @@ export const PDFView2 = () => {
   if (pdfLayoutName) {
     // Render all components directly if given a separate PDF layout
     return (
-      <PdfWrapping>
-        <PlainPage pageKey={pdfLayoutName} />
-      </PdfWrapping>
+      <DataLoaderStoreInit>
+        <PdfWrapping>
+          <PlainPage pageKey={pdfLayoutName} />
+        </PdfWrapping>
+      </DataLoaderStoreInit>
     );
   }
 
@@ -66,7 +67,6 @@ export const PDFView2 = () => {
             }}
           />
         </div>
-
         {order
           ?.filter((pageKey) => !isHiddenPage(pageKey))
           .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
@@ -77,14 +77,13 @@ export const PDFView2 = () => {
               pdfSettings={pdfSettings}
             />
           ))}
-
-        <SubformPDF />
+        <SubformSummaryComponent2 />
       </PdfWrapping>
     </DataLoaderStoreInit>
   );
 };
 
-function DataLoaderStoreInit({ children }: PropsWithChildren) {
+export function DataLoaderStoreInit({ children }: PropsWithChildren) {
   const [loading, setLoading] = React.useState(true);
   const subforms = useNodeTraversal((t) => t.allNodes().filter((node) => node.isType('Subform')));
 
@@ -208,172 +207,12 @@ export const DoSummaryWrapper = ({
   children,
 }: PropsWithChildren<{ dataElementId: string; layoutSet: string; dataType: string }>) => {
   const isDone = useDoOverrideSummary(dataElementId, layoutSet, dataType);
-  // const [areWeDone, setAreWeDone] = useState(false);
-  //
-  // useEffect(() => {
-  //   setAreWeDone(isDone);
-  // }, [isDone]);
-  // //
   if (!isDone) {
     return null;
   }
 
   return <FormProvider>{children}</FormProvider>;
 };
-
-export const SummarySubformWrapper = ({ node, children }: PropsWithChildren<{ node: LayoutNode<'Subform'> }>) => {
-  const { layoutSet } = useNodeItem(node);
-  const instanceData = useStrictInstanceData();
-  const dataType = useDataTypeFromLayoutSet(layoutSet);
-  const dataElements = instanceData.data.filter((d) => d.dataType === dataType) ?? [];
-
-  // 1. Finne alle subform komponenter OK
-  // 2. For hver subform komponent:
-  //        a For hver innsendfte subform instance:
-  //    a. Hente layoutsettet som subform komponenten referer til OK
-  //    b. Finne ut hvilken datamodell subformen trenger OK
-  //    c. Finne alle dataElements som matcher dataTypen
-  //    d. Laste dataen vi trenger
-  //    e. Override datamodellType, datamodellUUid, layoutsetId
-  //    f. Rendre form context
-  // 3.
-
-  // if (!isDone) {
-  //   return (
-  //     <div style={{ backgroundColor: 'pink' }}>
-  //       <pre>{JSON.stringify({ overriddenTaskId, overriddenDataModelType, overriddenDataModelUuid }, null, 2)}</pre>
-  //       {/*<pre>{JSON.stringify(dataElements, null, 2)}</pre>*/}
-  //       {/*not done {layoutSet} {dataElements[0]?.id}*/}
-  //     </div>
-  //   );
-  // }
-
-  return (
-    <div style={{ border: '1px solid gray' }}>
-      {/*<ul>*/}
-      {/*  <li>done</li>*/}
-      {/*  <li>layoutSet {layoutSet}</li>*/}
-      {/*  <li>id: {dataElements[0]?.id}</li>*/}
-      {/*  <li>dataType: {dataElements[0]?.dataType}</li>*/}
-      {/*</ul>*/}
-
-      {/*{ dataElements.map }*/}
-      {/*<LayoutSetSummary></LayoutSetSummary>*/}
-      {/*<ul>*/}
-      {/*  {dataElements.map((element) => (*/}
-      {/*    <li key={element.id}>{element.id}</li>*/}
-      {/*  ))}*/}
-      {/*</ul>*/}
-
-      {/*<pre>{JSON.stringify(dataElements, null, 2)}</pre>*/}
-
-      {dataElements?.map((element, idx) => (
-        <TaskStoreProvider key={element.id + idx}>
-          <DoSummaryWrapper
-            dataElementId={element.id}
-            layoutSet={layoutSet}
-            dataType={element.dataType}
-          >
-            <div style={{ border: '1px solid lightgray' }}>
-              {/*<h1>{element.id}</h1>*/}
-              <LayoutSetSummary />
-            </div>
-          </DoSummaryWrapper>
-        </TaskStoreProvider>
-      ))}
-      {/*{dataElements?.map((element) => (*/}
-      {/*  <DoSummaryWrapper*/}
-      {/*    key={element.id}*/}
-      {/*    dataElementId={element.id}*/}
-      {/*    layoutSet={layoutSet}*/}
-      {/*    dataType={element.dataType}*/}
-      {/*  >*/}
-      {/*    <PageSummary pageId={'Side1'} />*/}
-      {/*  </DoSummaryWrapper>*/}
-      {/*))}*/}
-
-      {/*<LayoutSetSummary pageKey={layoutSet} />*/}
-      {/*<PresentationComponent type={ProcessTaskType.Data}>{children}</PresentationComponent>*/}
-    </div>
-  );
-};
-
-function SubformPDF() {
-  // const isHiddenSelector = Hidden.useIsHiddenSelector();
-  // const nodeDataSelector = NodesInternal.useNodeDataSelector();
-  const children = useNodeTraversal((t) => t.allNodes().filter((node) => node.isType('Subform')));
-  // const dataType = useDataTypeFromLayoutSet(layoutSet);
-
-  return (
-    <div>
-      {children.map((child, idx) => (
-        <SummarySubformWrapper
-          key={idx}
-          node={child}
-        />
-      ))}
-    </div>
-  );
-
-  // return (
-  //   <TaskStoreProvider>
-  //     <ul>
-  //       {children.map((child, idx) => {
-  //         console.log('child', child);
-  //         return (
-  //           <SummarySubformWrapper
-  //             key={idx}
-  //             node={child}
-  //           ></SummarySubformWrapper>
-  //         );
-  //       })}
-  //     </ul>
-  //   </TaskStoreProvider>
-  // );
-
-  // return (
-  //   <TaskStoreProvider>
-  //     {children.map((child, idx) => (
-  //       <SummarySubformWrapper
-  //         node={child}
-  //         key={idx}
-  //       >
-  //         <LayoutSetSummary pageKey={child.pageKey} />
-  //       </SummarySubformWrapper>
-  //     ))}
-  //   </TaskStoreProvider>
-  // );
-
-  // return (
-  //   <div className={classes.page}>
-  //     <h2>Subform kjeme her:::</h2>
-  //     <Grid
-  //       container={true}
-  //       spacing={6}
-  //       alignItems='flex-start'
-  //     >
-  //       {children.map((node) => {
-  //         console.log('subform node', node);
-  //
-  //         // return (
-  //         //   <PageSummary
-  //         //     key={node.id}
-  //         //     pageId={node.page.pageKey}
-  //         //   ></PageSummary>
-  //         // );
-  //
-  //         // node.
-  //         return (
-  //           <PdfForNode
-  //             key={node.id}
-  //             node={node}
-  //           />
-  //         );
-  //       })}
-  //     </Grid>
-  //   </div>
-  // );
-}
 
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
   const isHiddenSelector = Hidden.useIsHiddenSelector();
