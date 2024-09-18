@@ -27,7 +27,6 @@ export const IgnoredValidators: BuiltInValidationIssueSources[] = [
   BuiltInValidationIssueSources.DataAnnotations,
   BuiltInValidationIssueSources.Required,
   BuiltInValidationIssueSources.Expression,
-  BuiltInValidationIssueSources.DefaultTaskValidator,
 ];
 
 export enum BackendValidationSeverity {
