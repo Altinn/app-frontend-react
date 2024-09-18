@@ -1,4 +1,4 @@
-import { fillInAddressAndVerify } from 'test/e2e/integration/component-library/address';
+qimport { fillInAddressAndVerify } from 'test/e2e/integration/component-library/address';
 import { uploadFileAndVerify, uploadFileWithTagAndVerify } from 'test/e2e/integration/component-library/fileupload';
 import { fillInInputAndVerify } from 'test/e2e/integration/component-library/input';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';

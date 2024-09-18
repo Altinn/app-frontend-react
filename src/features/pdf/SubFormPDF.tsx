@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useQueries, useQuery } from '@tanstack/react-query';
+import type { QueryKey, UseQueryOptions } from '@tanstack/react-query';
 import type { AxiosRequestConfig } from 'axios';
 
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { getDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { useLayoutQueryDef } from 'src/features/form/layout/LayoutsContext';
 import { useLayoutSetsQueryDef } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
+import { useLaxLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useInstanceDataQueryDef } from 'src/features/instance/InstanceContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { fetchFormData } from 'src/queries/queries';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
-import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
+import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 import type { ILayoutSetDefault, ILayoutSetSubform } from 'src/layout/common.generated';
 import type { IData } from 'src/types/shared';
 
@@ -38,7 +41,11 @@ export function useFormDataQueries(dataElements: IData[], partyId: string, optio
 
       return {
         queryKey: ['fetchFormDataNEW', url],
-        queryFn: () => fetchFormData(url, options),
+        queryFn: () =>
+          fetchFormData(url, options).then((data) => ({
+            ...data, // Include the fetched data
+            dataElement: element, // Attach the original dataElement
+          })),
         enabled: !!element.id,
       };
     }),
@@ -47,12 +54,58 @@ export function useFormDataQueries(dataElements: IData[], partyId: string, optio
   return queryResults; // Return the array of query results
 }
 
-export function RenderSubFormInstance({ dataElementID, instanceId }: { dataElementID: string; instanceId: string }) {
-  const url = getStatefulDataModelUrl(instanceId, dataElementID, true);
-  const { data } = useFormDataQuery(url);
+// export const useLayoutQuery = (
+//   enabled: boolean,
+//   defaultDataModelType: string,
+//   layoutSetId?: string,
+// ): UseQueryOptions<LayoutContextValue, Error, LayoutContextValue, QueryKey> => {
+//   const queryDef = useLayoutQueryDef(enabled, defaultDataModelType, layoutSetId);
+//
+//   return {
+//     queryKey: queryDef.queryKey,
+//     queryFn: queryDef.queryFn,
+//     enabled: queryDef.enabled,
+//   };
+// };
 
-  return <div>{JSON.stringify(data, null, 2)}</div>;
+const useLayoutQueryOptions = (
+  enabled: boolean,
+  defaultDataModelType: string,
+  layoutSetId: string,
+): UseQueryOptions<LayoutContextValue, Error, LayoutContextValue, QueryKey> => {
+  const queryDef = useLayoutQueryDef(enabled, defaultDataModelType, layoutSetId);
+
+  return {
+    queryKey: queryDef.queryKey,
+    queryFn: queryDef.queryFn,
+    enabled: queryDef.enabled,
+  };
+};
+
+export function useLayoutQueries(layoutSets: { layoutSetId: string; dateModel: string }[], enabled: boolean) {
+  // Generate an array of query options
+  const queryOptions = layoutSets.map((layoutSet) =>
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useLayoutQueryOptions(enabled, layoutSet.dateModel, layoutSet.layoutSetId),
+  );
+
+  // Use useQueries with the generated options
+  return useQueries({ queries: queryOptions });
 }
+// export function useLayoutQueries(layoutSetIds: string[], enabled: boolean, defaultDataModelType: string) {
+//   // Generate queries for each layoutSetId
+//   const queryResults = useQueries({
+//     queries: layoutSetIds.map((layoutSetId) => {
+//       const queryConfig = useLayoutQuery(enabled, defaultDataModelType, layoutSetId);
+//
+//       return {
+//         ...queryConfig,
+//       };
+//     }),
+//   });
+//
+//   return queryResults; // Return the array of query results
+// }
 
 export function SubformPDF() {
   // const isHiddenSelector = Hidden.useIsHiddenSelector();
@@ -72,6 +125,8 @@ export function SubformPDF() {
   //    f. Rendre form context
   // 3.
 
+  // const { data: layoutSets } = useQuery(useLayoutSetsQueryDef());
+
   // const dataElements = instanceData.data.filter((d) => d.dataType === dataType) ?? [];
 
   const partyId = useNavigationParam('partyId');
@@ -89,10 +144,20 @@ export function SubformPDF() {
 
   const { data: instanceData } = useQuery(useInstanceDataQueryDef(partyId, instanceGuid));
 
+  console.log('instanceData', instanceData);
+
   const layoutSetDataModelNames = filteredLayoutSets?.map((layoutSet) => layoutSet.dataType);
 
   const dataElements = instanceData?.data.filter((d) => layoutSetDataModelNames?.includes(d.dataType)) ?? [];
   const currentPartyId = useCurrentParty()?.partyId;
+  const maybeLayoutSettings = useLaxLayoutSettings();
+
+  const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? [] : maybeLayoutSettings.pages.order;
+
+  console.log(JSON.stringify(maybeLayoutSettings, null, 2));
+
+  console.log('orderWithHidden', orderWithHidden);
+
   // const { fetchLayoutSchema } = useAppQueries();
   // const { data: layoutSchema, isSuccess } = useQuery({
   //   enabled: true,
@@ -111,14 +176,172 @@ export function SubformPDF() {
   }
 
   const queries = useFormDataQueries(dataElements?.length > 0 ? dataElements : [], partyId);
+  const layoutQueries = useLayoutQueries(
+    layoutSets?.sets?.length && layoutSets?.sets?.length > 0
+      ? layoutSets?.sets.map((set) => ({ layoutSetId: set.id, dateModel: set.dataType }))
+      : [],
+    true,
+  );
+
+  const [allData, setAllData] = useState<any[]>([]); // State to store all data
+
+  const [allLayouts, setAllLayouts] = useState<LayoutContextValue[]>([]); // State to store all data
+
+  const [isLoading, setIsLoading] = useState(false); // State to handle loading state
+
+  const [isLoadingLayouts, setIsLoadingLayouts] = useState(false); // State to handle loading state
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function fetchLayoutData() {
+      try {
+        setIsLoadingLayouts(true);
+        const results = await Promise.all(layoutQueries.map((query) => query.refetch()));
+        const successfulData = results
+          .filter((result) => result.status === 'success') // Filter successful results
+          .map((result) => result.data); // Extract data
+        setAllLayouts(successfulData);
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setIsLoadingLayouts(false);
+      }
+    }
+    if (allLayouts.length < 1 && !isLoadingLayouts) {
+      fetchLayoutData();
+    }
+  }, [allLayouts.length, layoutQueries]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+        const results = await Promise.all(queries.map((query) => query.refetch()));
+        const successfulData = results
+          .filter((result) => result.status === 'success') // Filter successful results
+          .map((result) => result.data); // Extract data
+        setAllData(successfulData);
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    if (allData.length < 1 && !isLoading) {
+      fetchData();
+    }
+  }, [allData.length, queries]);
+
+  // instanceData?.data.map((data) => {  dataModel: data.contentType, la: data. })
+
+  const isQueryLoading = queries.every((query) => query.isLoading);
+  const isLayoutQueriesLoading = layoutQueries.every((query) => query.isLoading);
+
+  if (isQueryLoading && isLayoutQueriesLoading) {
+    return <h1>Loading</h1>;
+  }
+
+  if (!maybeLayoutSettings) {
+    return <h1>Loading</h1>;
+  }
+
+  if (isLoading) {
+    return <h1>Loading</h1>;
+  }
+
+  if (isLoadingLayouts) {
+    return <h1>isLoadingLayouts</h1>;
+  }
 
   return (
     <div>
+      <h2>All layouts:</h2>
+
+      <h2>All data:</h2>
+
+      {allData?.length > 0 &&
+        allData.map((data) => {
+          console.log('data', data);
+
+          const layoutForData = layoutSets?.sets.find((set) => set.dataType === data?.dataElement?.dataType);
+
+          console.log('layoutForData', layoutForData);
+          // const ourLayout = allLayouts.find((layout) => layout.layouts)
+
+          // const layoutSetForData = allLayouts.find(() => )
+
+          return (
+            <div key={data.dataType}>
+              {data.dataType}: <pre>{JSON.stringify(layoutForData, null, 2)}</pre>
+            </div>
+          );
+        })}
+
+      {allLayouts?.length > 0 && <pre>{JSON.stringify(allLayouts, null, 2)}</pre>}
+
+      {allData?.length > 0 && <pre>{JSON.stringify(allData, null, 2)}</pre>}
+
+      {/*{ layoutQueries.filter((q) =>  q.data.layouts.}*/}
+
+      {/*{orderWithHidden.map((page) => {*/}
+      {/*  console.log(page);*/}
+
+      {/*  // for each dataguid, find the layoutSet and render it along with the data*/}
+      {/*  // (*/}
+      {/*  //   // <div key={page}>{layoutQueries}</div>*/}
+      {/*  // )*/}
+      {/*  //*/}
+      {/*  return <div></div>;*/}
+      {/*})}*/}
+
+      <pre>{JSON.stringify(layoutSets, null, 2)}</pre>
+
+      {/*{orderWithHidden.map((page) =>*/}
+      {/*  layoutQueries.map((query, index) => (*/}
+      {/*    <div key={dataElements[index].id}>*/}
+      {/*      {query.isLoading && <p>Loading...</p>}*/}
+      {/*      {query.isError && <p>Error: {query.error.message}</p>}*/}
+      {/*      {query.isSuccess && (*/}
+      {/*        <div>*/}
+      {/*          <h1>Here comes: {page}</h1>*/}
+      {/*          <pre>{query.data[page]}</pre>*/}
+      {/*          /!*{query.data &&*!/*/}
+      {/*          /!*  query.data[page] &&*!/*/}
+      {/*          /!*  query.data[page].map((page) => <pre key={page}>{JSON.stringify(query.data[page], null, 2)}</pre>)}*!/*/}
+
+      {/*          /!*<pre>{JSON.stringify(query.data.layouts, null, 2)}</pre>*!/*/}
+      {/*        </div>*/}
+      {/*      )}*/}
+      {/*    </div>*/}
+      {/*  )),*/}
+      {/*)}*/}
+
+      <h1>The data:</h1>
       {queries.map((query, index) => (
         <div key={dataElements[index].id}>
           {query.isLoading && <p>Loading...</p>}
           {query.isError && <p>Error: {query.error.message}</p>}
-          {query.isSuccess && <p>Data: {JSON.stringify(query.data)}</p>}
+          {query.isSuccess && (
+            <div>
+              {layoutSets?.sets?.find((set) => set?.dataType === query?.data?.dataElement?.dataType)?.dataType}
+
+              {/*<pre>{JSON.stringify(query.data.dataElement.dataType, null, 2)}</pre>*/}
+            </div>
+          )}
+        </div>
+      ))}
+
+      <h1>Layouts:</h1>
+      {layoutQueries.map((query, index) => (
+        <div key={dataElements[index].id}>
+          {query.isLoading && <p>Loading...</p>}
+          {query.isError && <p>Error: {query.error.message}</p>}
+          {query.isSuccess && (
+            <div>
+              Data:
+              <pre>{JSON.stringify(query.data.layouts, null, 2)}</pre>
+            </div>
+          )}
         </div>
       ))}
 

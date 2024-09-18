@@ -101,7 +101,11 @@ export const useHiddenLayoutsExpressions = () => useCtx().hiddenLayoutsExpressio
 
 export const useExpandedWidthLayouts = () => useCtx().expandedWidthLayouts;
 
-function processLayouts(input: ILayoutCollection, layoutSetId: string, dataModelType: string): LayoutContextValue {
+export function processLayouts(
+  input: ILayoutCollection,
+  layoutSetId: string,
+  dataModelType: string,
+): LayoutContextValue {
   const layouts: ILayouts = {};
   const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
   const expandedWidthLayouts: IExpandedWidthLayouts = {};
