@@ -8,10 +8,14 @@ import { type BackendFieldValidatorGroups } from 'src/features/validation';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import {
   mapBackendIssuesToFieldValdiations,
+  mapBackendIssuesToTaskValidations,
   mapValidatorGroupsToDataModelValidations,
   useShouldValidateInitial,
 } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { Validation } from 'src/features/validation/validationContext';
+
+const emptyObject = {};
+const emptyArray = [];
 
 export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
   const updateBackendValidations = Validation.useUpdateBackendValidations();
@@ -24,7 +28,7 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
   const { data: initialValidations, isFetching } = useBackendValidationQuery(enabled);
   const initialValidatorGroups: BackendFieldValidatorGroups = useMemo(() => {
     if (!initialValidations) {
-      return {};
+      return emptyObject;
     }
     // Note that we completely ignore task validations (validations not related to form data) on initial validations,
     // this is because validations like minimum number of attachments in application metadata is not really useful to show initially
@@ -39,14 +43,29 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
     return validatorGroups;
   }, [getDataTypeForElementId, initialValidations]);
 
+  // Map task validations
+  const initialTaskValidations = useMemo(() => {
+    if (!initialValidations) {
+      return emptyArray;
+    }
+    return mapBackendIssuesToTaskValidations(initialValidations);
+  }, [initialValidations]);
+
   // Initial validation
   useEffect(() => {
     if (!isFetching) {
       validatorGroups.current = initialValidatorGroups;
       const backendValidations = mapValidatorGroupsToDataModelValidations(initialValidatorGroups, dataTypes);
-      updateBackendValidations(backendValidations, { initial: initialValidations });
+      updateBackendValidations(backendValidations, { initial: initialValidations }, initialTaskValidations);
     }
-  }, [dataTypes, initialValidations, initialValidatorGroups, isFetching, updateBackendValidations]);
+  }, [
+    dataTypes,
+    initialTaskValidations,
+    initialValidations,
+    initialValidatorGroups,
+    isFetching,
+    updateBackendValidations,
+  ]);
 
   // Incremental validation: Update validators and propagate changes to validationcontext
   useEffect(() => {

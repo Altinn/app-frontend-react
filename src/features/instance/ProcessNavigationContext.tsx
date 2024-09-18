@@ -10,12 +10,9 @@ import { useLaxInstance, useStrictInstance } from 'src/features/instance/Instanc
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useUpdateInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { mapBackendIssuesToTaskValidations } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
-import { getVisibilityMask } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { BackendValidationIssue } from 'src/features/validation';
 import type { IActionType, IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -36,10 +33,8 @@ function useProcessNext() {
   const { navigateToTask } = useNavigatePage();
   const instanceId = useLaxInstance()?.instanceId;
   const onFormSubmitValidation = useOnFormSubmitValidation();
-  const updateTaskValidations = Validation.useUpdateTaskValidations();
   const updateInitialValidations = useUpdateInitialValidations();
   const validation = Validation.useLaxRef();
-  const setAllNodesVisibility = NodesInternal.useLaxSetAllNodesVisibility();
   const setShowAllErrors = Validation.useSetShowAllErrors();
 
   const utils = useMutation({
@@ -52,14 +47,6 @@ function useProcessNext() {
         .catch((error) => {
           // If process next failed due to validation, return validationIssues instead of throwing
           if (error.response?.status === 409 && error.response?.data?.['validationIssues']?.length) {
-            if (updateTaskValidations === ContextNotProvided) {
-              window.logError(
-                "PUT 'process/next' returned validation issues, but there is no ValidationProvider available.",
-              );
-              throw error;
-            }
-
-            // Return validation issues
             return [null, error.response.data['validationIssues'] as BackendValidationIssue[]] as const;
           } else {
             throw error;
@@ -71,8 +58,7 @@ function useProcessNext() {
         await reFetchInstanceData();
         setProcessData?.({ ...processData, processTasks: currentProcessData?.processTasks });
         navigateToTask(processData?.currentTask?.elementId);
-      } else if (validationIssues && updateTaskValidations !== ContextNotProvided) {
-        updateTaskValidations(mapBackendIssuesToTaskValidations(validationIssues));
+      } else if (validationIssues) {
         updateInitialValidations(validationIssues);
 
         // Let validation ref update
@@ -83,9 +69,7 @@ function useProcessNext() {
           await validation.current.validating();
         }
 
-        // Set visibility and showAllErrors
-        setAllNodesVisibility !== ContextNotProvided &&
-          setAllNodesVisibility(getVisibilityMask(['AllIncludingBackend']));
+        // Set showAllErrors
         setShowAllErrors !== ContextNotProvided && setShowAllErrors(true);
       }
     },

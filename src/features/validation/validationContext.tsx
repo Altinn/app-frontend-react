@@ -42,7 +42,6 @@ interface Internals {
   };
   incrementalProcessedLast: BackendValidationIssueGroups | undefined; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
   initialProcessedLast: BackendValidationIssue[] | undefined; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
-  updateTaskValidations: (validations: BaseValidation[]) => void;
   /**
    * updateDataModelValidations
    * if validations is undefined, nothing will be changed
@@ -55,6 +54,7 @@ interface Internals {
   updateBackendValidations: (
     backendValidations: { [dataType: string]: FieldValidations } | undefined,
     processedLast?: { incremental?: BackendValidationIssueGroups; initial?: BackendValidationIssue[] },
+    taskValdiations?: BaseValidation[],
   ) => void;
   updateValidating: (validating: WaitForValidation) => void;
 }
@@ -85,10 +85,6 @@ function initialCreateStore() {
       },
       incrementalProcessedLast: undefined,
       initialProcessedLast: undefined,
-      updateTaskValidations: (validations) =>
-        set((state) => {
-          state.state.task = validations;
-        }),
       updateDataModelValidations: (key, dataType, validations) =>
         set((state) => {
           if (validations) {
@@ -101,13 +97,16 @@ function initialCreateStore() {
             );
           }
         }),
-      updateBackendValidations: (backendValidations, processedLast) =>
+      updateBackendValidations: (backendValidations, processedLast, taskValdiations) =>
         set((state) => {
           if (processedLast?.incremental) {
             state.incrementalProcessedLast = processedLast.incremental;
           }
           if (processedLast?.initial) {
             state.initialProcessedLast = processedLast.initial;
+          }
+          if (taskValdiations) {
+            state.state.task = taskValdiations;
           }
           if (backendValidations) {
             state.individualValidations.backend = backendValidations;
@@ -271,7 +270,6 @@ export const Validation = {
 
   useSetShowAllErrors: () => useLaxSelector((state) => state.setShowAllErrors),
   useValidating: () => useSelector((state) => state.validating!),
-  useUpdateTaskValidations: () => useLaxSelector((state) => state.updateTaskValidations),
   useUpdateDataModelValidations: () => useSelector((state) => state.updateDataModelValidations),
   useUpdateBackendValidations: () => useSelector((state) => state.updateBackendValidations),
 

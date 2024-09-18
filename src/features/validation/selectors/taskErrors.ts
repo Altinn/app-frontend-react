@@ -20,7 +20,6 @@ export function useTaskErrors(): {
   const selector = Validation.useSelector();
   const nodeValidationsSelector = NodesInternal.useValidationsSelector();
   const traversalSelector = useNodeTraversalSelectorSilent();
-  const rawValidations = NodesInternal.useRawDataModelValidationsForAllNodes();
 
   const formErrors = useMemo(() => {
     if (!traversalSelector) {
@@ -37,39 +36,32 @@ export function useTaskErrors(): {
     return formErrors;
   }, [nodeValidationsSelector, traversalSelector]);
 
-  const unmappedErrors = useMemo(() => {
+  const taskErrors = useMemo(() => {
     if (!selector((state) => state.showAllErrors, [])) {
       return emptyArray;
     }
 
-    const unmappedErrors: BaseValidation[] = [];
+    const allBackendErrors: BaseValidation<'error'>[] = [];
 
-    // Only show unmapped backend errors
-    // TODO: There is an issue the data model in frontend-test causing json schema errors with const on `orid` fields,
-    // investigate whether this can have an impact on other apps or if we can show all unmapped errors here.
+    // Show all backend errors
     const mask = getVisibilityMask(['Backend', 'CustomBackend']);
     const dataModels = selector((state) => state.state.dataModels, []);
     for (const fields of Object.values(dataModels)) {
       for (const field of Object.values(fields)) {
-        unmappedErrors.push(
-          ...selectValidations(field, mask, 'error').filter((validation) => !rawValidations.includes(validation)),
-        );
+        allBackendErrors.push(...(selectValidations(field, mask, 'error') as BaseValidation<'error'>[]));
       }
     }
 
-    return unmappedErrors;
-  }, [rawValidations, selector]);
-
-  const taskErrors = useMemo(
-    () => [
-      ...validationsOfSeverity(unmappedErrors, 'error'),
+    // Task errors
+    allBackendErrors.push(
       ...validationsOfSeverity(
         selector((state) => state.state.task, []),
         'error',
       ),
-    ],
-    [selector, unmappedErrors],
-  );
+    );
+
+    return allBackendErrors;
+  }, [selector]);
 
   return useMemo(() => ({ formErrors, taskErrors }), [formErrors, taskErrors]);
 }
