@@ -56,8 +56,6 @@ export function getFormDataCacheKeyUrl(url: string | undefined) {
 }
 
 export function useFormDataQuery(url: string | undefined) {
-  console.log('useFormDataQuery', url);
-
   const def = useFormDataQueryDef(url);
   const utils = useQuery(def);
 
