@@ -26,6 +26,21 @@ export function useBackendValidationQueryDef(
   };
 }
 
+export function useGetCachedInitialValidations() {
+  const instance = useLaxInstance();
+  const instanceId = instance?.instanceId;
+  const currentProcessTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const client = useQueryClient();
+
+  return useCallback(() => {
+    const queryKey = ['validation', instanceId, currentProcessTaskId, true];
+    return {
+      isFetching: client.isFetching({ queryKey }),
+      cachedInitialValidations: client.getQueryData(queryKey),
+    };
+  }, [client, currentProcessTaskId, instanceId]);
+}
+
 export function useUpdateInitialValidations() {
   const instance = useLaxInstance();
   const instanceId = instance?.instanceId;

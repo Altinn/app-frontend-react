@@ -12,7 +12,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { BackendValidation } from 'src/features/validation/backendValidation/BackendValidation';
 import {
-  useBackendValidationQuery,
+  useGetCachedInitialValidations,
   useInvalidateInitialValidations,
 } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useShouldValidateInitial } from 'src/features/validation/backendValidation/backendValidationUtils';
@@ -168,7 +168,7 @@ function useWaitForValidation(): WaitForValidation {
 
   const hasWritableDataTypes = !!DataModels.useWritableDataTypes()?.length;
   const enabled = useShouldValidateInitial();
-  const { data: initialValidations, isFetching } = useBackendValidationQuery(enabled);
+  const getCachedInitialValidations = useGetCachedInitialValidations();
 
   return useCallback(
     async (forceSave = true) => {
@@ -183,22 +183,24 @@ function useWaitForValidation(): WaitForValidation {
       const validationsFromSave = await waitForSave(forceSave);
       await waitForNodesReady();
       // If validationsFromSave is not defined, we check if initial validations are done processing
-      await waitForState(
-        (state) =>
+      await waitForState((state) => {
+        const { isFetching, cachedInitialValidations } = getCachedInitialValidations();
+
+        return (
           state.incrementalProcessedLast === validationsFromSave &&
-          state.initialProcessedLast === initialValidations &&
-          !isFetching,
-      );
+          state.initialProcessedLast === cachedInitialValidations &&
+          !isFetching
+        );
+      });
     },
     [
       enabled,
+      getCachedInitialValidations,
       hasWritableDataTypes,
       waitForAttachments,
       waitForNodesReady,
       waitForSave,
       waitForState,
-      initialValidations,
-      isFetching,
     ],
   );
 }
@@ -285,7 +287,14 @@ export const Validation = {
   useSelector: () => useDS((state) => state),
   useDataModelSelector: () => useDS((state) => state.state.dataModels),
 
-  useSetShowAllErrors: () => useLaxSelector((state) => state.setShowAllErrors),
+  useSetShowAllErrors: () =>
+    useLaxSelector((state) => async () => {
+      // Make sure we have finished processing validations before setting showAllErrors.
+      // This is because we automatically turn off this state as soon as possible.
+      // If the validations to show have not finished processing, this could get turned off before they ever became visible.
+      state.validating && (await state.validating());
+      state.setShowAllErrors(true);
+    }),
   useValidating: () => useSelector((state) => state.validating!),
   useUpdateDataModelValidations: () => useSelector((state) => state.updateDataModelValidations),
   useUpdateBackendValidations: () => useSelector((state) => state.updateBackendValidations),

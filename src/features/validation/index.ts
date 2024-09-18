@@ -68,8 +68,8 @@ export type ValidationContext = {
   validating: WaitForValidation | undefined;
 
   /**
-   * This is a last resort to show all errors, to prevent unknown error
-   * if this is ever visible, there is probably something wrong in the app.
+   * If there are no frontend errors, but process next still returns validation errors,
+   * this will show all backend errors.
    */
   setShowAllErrors: (showAllErrors: boolean) => void;
   showAllErrors: boolean;

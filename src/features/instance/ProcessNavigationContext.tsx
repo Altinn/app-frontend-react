@@ -59,18 +59,9 @@ function useProcessNext() {
         setProcessData?.({ ...processData, processTasks: currentProcessData?.processTasks });
         navigateToTask(processData?.currentTask?.elementId);
       } else if (validationIssues) {
+        // Set initial validation to validation issues from process/next and make all errors visible
         updateInitialValidations(validationIssues);
-
-        // Let validation ref update
-        await new Promise((res) => window.requestAnimationFrame(res));
-
-        // Wait for validations to process
-        if (validation.current !== ContextNotProvided && validation.current.validating) {
-          await validation.current.validating();
-        }
-
-        // Set showAllErrors
-        setShowAllErrors !== ContextNotProvided && setShowAllErrors(true);
+        setShowAllErrors !== ContextNotProvided && setShowAllErrors();
       }
     },
     onError: (error: HttpClientError) => {
