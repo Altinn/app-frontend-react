@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -9,8 +9,12 @@ import { Loader } from 'src/core/loading/Loader';
 import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { BackendValidation } from 'src/features/validation/backendValidation/BackendValidation';
-import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
+import {
+  useBackendValidationQuery,
+  useInvalidateInitialValidations,
+} from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useShouldValidateInitial } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
 import { SchemaValidation } from 'src/features/validation/schemaValidation/SchemaValidation';
@@ -228,6 +232,19 @@ function UpdateShowAllErrors() {
   const taskValidations = useSelector((state) => state.state.task);
   const dataModelValidations = useSelector((state) => state.state.dataModels);
   const setShowAllErrors = useSelector((state) => state.setShowAllErrors);
+
+  const isFirstRender = useRef(true);
+  const lastSaved = FD.useLastSaveValidationIssues();
+  const instanceData = useLaxInstanceData();
+  const invalidateInitialValidations = useInvalidateInitialValidations();
+  useEffect(() => {
+    // No need to invalidate initial validations right away
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    invalidateInitialValidations();
+  }, [invalidateInitialValidations, instanceData, lastSaved]);
 
   /**
    * Hide unbound errors as soon as possible.

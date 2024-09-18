@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useIsFetching, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { BackendValidationIssue } from '..';
 
@@ -36,6 +36,22 @@ export function useUpdateInitialValidations() {
     (validations: BackendValidationIssue[]) => {
       client.setQueryData(['validation', instanceId, currentProcessTaskId, true], validations);
     },
+    [client, currentProcessTaskId, instanceId],
+  );
+}
+
+export function useIsUpdatingInitialValidations() {
+  return useIsFetching({ queryKey: ['validation'] }) > 0;
+}
+
+export function useInvalidateInitialValidations() {
+  const instance = useLaxInstance();
+  const instanceId = instance?.instanceId;
+  const currentProcessTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const client = useQueryClient();
+
+  return useCallback(
+    () => client.invalidateQueries({ queryKey: ['validation', instanceId, currentProcessTaskId, true] }),
     [client, currentProcessTaskId, instanceId],
   );
 }
