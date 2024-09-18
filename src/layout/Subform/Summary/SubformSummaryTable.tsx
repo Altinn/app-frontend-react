@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { Spinner, Table } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
@@ -35,8 +34,6 @@ function SubformTableRow({
   const url = getStatefulDataModelUrl(instance.id, id, true);
   const { isFetching, data, error } = useFormDataQuery(url);
   const { langAsString } = useLanguage();
-  const editButtonText = langAsString('general.edit');
-  const navigate = useNavigate();
   const numColumns = tableColumns.length;
   if (isFetching) {
     return (
