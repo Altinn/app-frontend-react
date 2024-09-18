@@ -7,6 +7,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { PlusIcon } from '@navikt/aksel-icons';
 
 import { AltinnParty } from 'src/components/altinnParty';
+import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
 import { Lang } from 'src/features/language/Lang';
@@ -226,110 +227,112 @@ export const PartySelection = () => {
   };
 
   return (
-    <InstantiationContainer>
-      <Grid
-        container={true}
-        direction='row'
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-        }}
-      >
-        <Typography
-          variant='h1'
-          className={classes.partySelectionTitle}
-        >
-          {langAsString('party_selection.header')}
-        </Typography>
-        {templateErrorMessage()}
-      </Grid>
-      <Grid
-        container={true}
-        direction='column'
-        className={classes.partySearchFieldContainer}
-      >
-        <Textfield
-          aria-label={langAsString('party_selection.search_placeholder')}
-          placeholder={langAsString('party_selection.search_placeholder')}
-          onChange={onFilterStringChange}
-          value={filterString}
-          inputMode='search'
-        />
-      </Grid>
-      <Grid
-        container={true}
-        direction='column'
-      >
+    <DataLoadingProvider>
+      <InstantiationContainer>
         <Grid
           container={true}
-          justifyContent='space-between'
           direction='row'
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+          }}
         >
-          <Grid item={true}>
-            <Typography className={classes.partySelectionSubTitle}>
-              {langAsString('party_selection.subheader')}
-            </Typography>
-          </Grid>
+          <Typography
+            variant='h1'
+            className={classes.partySelectionTitle}
+          >
+            {langAsString('party_selection.header')}
+          </Typography>
+          {templateErrorMessage()}
+        </Grid>
+        <Grid
+          container={true}
+          direction='column'
+          className={classes.partySearchFieldContainer}
+        >
+          <Textfield
+            aria-label={langAsString('party_selection.search_placeholder')}
+            placeholder={langAsString('party_selection.search_placeholder')}
+            onChange={onFilterStringChange}
+            value={filterString}
+            inputMode='search'
+          />
+        </Grid>
+        <Grid
+          container={true}
+          direction='column'
+        >
+          <Grid
+            container={true}
+            justifyContent='space-between'
+            direction='row'
+          >
+            <Grid item={true}>
+              <Typography className={classes.partySelectionSubTitle}>
+                {langAsString('party_selection.subheader')}
+              </Typography>
+            </Grid>
 
-          <Grid item={true}>
-            <Grid
-              container={true}
-              direction='row'
-            >
+            <Grid item={true}>
               <Grid
-                item={true}
-                className={classes.partySelectionCheckbox}
+                container={true}
+                direction='row'
               >
                 <Grid
-                  container={true}
-                  direction='row'
+                  item={true}
+                  className={classes.partySelectionCheckbox}
                 >
-                  <LegacyCheckbox
-                    checked={showDeleted}
-                    onChange={toggleShowDeleted}
-                    label={langAsString('party_selection.show_deleted')}
-                  />
+                  <Grid
+                    container={true}
+                    direction='row'
+                  >
+                    <LegacyCheckbox
+                      checked={showDeleted}
+                      onChange={toggleShowDeleted}
+                      label={langAsString('party_selection.show_deleted')}
+                    />
+                  </Grid>
                 </Grid>
-              </Grid>
-              <Grid
-                item={true}
-                className={classes.partySelectionCheckbox}
-              >
                 <Grid
-                  container={true}
-                  direction='row'
+                  item={true}
+                  className={classes.partySelectionCheckbox}
                 >
-                  <LegacyCheckbox
-                    checked={showSubUnits}
-                    onChange={toggleShowSubUnits}
-                    label={langAsString('party_selection.show_sub_unit')}
-                  />
+                  <Grid
+                    container={true}
+                    direction='row'
+                  >
+                    <LegacyCheckbox
+                      checked={showSubUnits}
+                      onChange={toggleShowSubUnits}
+                      label={langAsString('party_selection.show_sub_unit')}
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
+          {renderParties()}
+          {errorCode === 'explained' && (
+            <Grid style={{ padding: 12 }}>
+              <Typography
+                variant='h2'
+                style={{ fontSize: '1.5rem', fontWeight: '500', marginBottom: 12 }}
+              >
+                {langAsString('party_selection.why_seeing_this')}
+              </Typography>
+              <Typography variant='body1'>
+                <Lang
+                  id={
+                    appPromptForPartyOverride === 'always'
+                      ? 'party_selection.seeing_this_override'
+                      : 'party_selection.seeing_this_preference'
+                  }
+                />
+              </Typography>
+            </Grid>
+          )}
         </Grid>
-        {renderParties()}
-        {errorCode === 'explained' && (
-          <Grid style={{ padding: 12 }}>
-            <Typography
-              variant='h2'
-              style={{ fontSize: '1.5rem', fontWeight: '500', marginBottom: 12 }}
-            >
-              {langAsString('party_selection.why_seeing_this')}
-            </Typography>
-            <Typography variant='body1'>
-              <Lang
-                id={
-                  appPromptForPartyOverride === 'always'
-                    ? 'party_selection.seeing_this_override'
-                    : 'party_selection.seeing_this_preference'
-                }
-              />
-            </Typography>
-          </Grid>
-        )}
-      </Grid>
-    </InstantiationContainer>
+      </InstantiationContainer>
+    </DataLoadingProvider>
   );
 };

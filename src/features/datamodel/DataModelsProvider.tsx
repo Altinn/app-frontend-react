@@ -182,8 +182,6 @@ function DataModelsLoader() {
   // We only need to load validation and expression validation config for data types that are not readonly. Additionally, backend will error if we try to validate a model we are not supposed to
   return (
     <>
-      <pre>{JSON.stringify(allDataTypes, null, 2)}</pre>
-
       {allDataTypes?.map((dataType) => (
         <React.Fragment key={dataType}>
           <LoadInitialData dataType={dataType} />

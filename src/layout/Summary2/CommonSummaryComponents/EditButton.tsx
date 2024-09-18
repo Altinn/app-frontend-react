@@ -40,9 +40,16 @@ export function EditButton({
   );
   const accessibleTitle = titleTrb ? langAsString(titleTrb) : '';
 
-  const { overriddenTaskId } = useTaskStore(({ overriddenTaskId }) => ({
-    overriddenTaskId,
-  }));
+  const { overriddenTaskId, overriddenDataModelUuid } = useTaskStore(
+    ({ overriddenTaskId, overriddenDataModelUuid }) => ({
+      overriddenTaskId,
+      overriddenDataModelUuid,
+    }),
+  );
+
+  if (overriddenDataModelUuid) {
+    return null;
+  }
 
   if (pdfModeActive || (overriddenTaskId && overriddenTaskId?.length > 0)) {
     return null;
