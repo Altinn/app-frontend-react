@@ -37,10 +37,10 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
               size='sm'
               level={4}
             >
-              {<Lang id={tab.title} />}
+              <Lang id={tab.title} />
             </Heading>
             <Grid
-              container={true}
+              container
               spacing={6}
               alignItems='flex-start'
             >
