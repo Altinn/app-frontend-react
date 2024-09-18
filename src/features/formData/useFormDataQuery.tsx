@@ -12,7 +12,6 @@ import { isAxiosError } from 'src/utils/isAxiosError';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 
 export function useFormDataQueryDef(url: string | undefined): QueryDefinition<unknown> {
-  console.log('url', url);
   const { fetchFormData } = useAppQueries();
   const queryKey = useFormDataQueryKey(url);
   const options = useFormDataQueryOptions();
@@ -72,27 +71,7 @@ export function useFormDataQuery(url: string | undefined) {
 
       maybeAuthenticationRedirect(utils.error).then();
     }
-  }, [url, utils.error]); // Include 'url' in the dependency array
+  }, [url, utils.error]);
 
   return utils;
 }
-
-// export function useFormDataQuery(url: string | undefined) {
-//   const def = useFormDataQueryDef(url);
-//   const utils = useQuery(def);
-//
-//   useEffect(() => {
-//     if (utils.error && isAxiosError(utils.error)) {
-//       if (utils.error.message?.includes('403')) {
-//         // This renders the <MissingRolesError /> component in the provider
-//         window.logInfo('Current party is missing roles');
-//       } else {
-//         window.logError('Fetching form data failed:\n', utils.error);
-//       }
-//
-//       maybeAuthenticationRedirect(utils.error).then();
-//     }
-//   }, [utils.error]);
-//
-//   return utils;
-// }
