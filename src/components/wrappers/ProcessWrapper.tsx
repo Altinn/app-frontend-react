@@ -8,7 +8,6 @@ import Grid from '@material-ui/core/Grid';
 import { Form, FormFirstPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
-import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
@@ -157,30 +156,28 @@ export const ProcessWrapper = () => {
 
   if (taskType === ProcessTaskType.Data) {
     return (
-      <TaskStoreProvider>
-        <FormProvider>
-          <Routes>
-            <Route
-              path=':pageKey/:componentId/*'
-              element={<ComponentRouting />}
-            />
-            <Route
-              path=':pageKey'
-              element={
-                <PDFWrapper>
-                  <PresentationComponent type={realTaskType}>
-                    <Form />
-                  </PresentationComponent>
-                </PDFWrapper>
-              }
-            />
-            <Route
-              path='*'
-              element={<FormFirstPage />}
-            />
-          </Routes>
-        </FormProvider>
-      </TaskStoreProvider>
+      <FormProvider>
+        <Routes>
+          <Route
+            path=':pageKey/:componentId/*'
+            element={<ComponentRouting />}
+          />
+          <Route
+            path=':pageKey'
+            element={
+              <PDFWrapper>
+                <PresentationComponent type={realTaskType}>
+                  <Form />
+                </PresentationComponent>
+              </PDFWrapper>
+            }
+          />
+          <Route
+            path='*'
+            element={<FormFirstPage />}
+          />
+        </Routes>
+      </FormProvider>
     );
   }
 

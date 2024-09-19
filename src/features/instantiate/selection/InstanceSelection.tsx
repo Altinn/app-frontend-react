@@ -8,6 +8,7 @@ import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/sr
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
+import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import {
@@ -39,13 +40,17 @@ function getDateDisplayString(timeStamp: string) {
 }
 
 export const InstanceSelectionWrapper = () => (
-  <ActiveInstancesProvider>
-    <PresentationComponent type={ProcessTaskType.Unknown}>
-      <DataLoadingProvider>
-        <InstanceSelection />
-      </DataLoadingProvider>
-    </PresentationComponent>
-  </ActiveInstancesProvider>
+  <TaskStoreProvider>
+    <DataLoadingProvider>
+      <ActiveInstancesProvider>
+        <PresentationComponent type={ProcessTaskType.Unknown}>
+          <DataLoadingProvider>
+            <InstanceSelection />
+          </DataLoadingProvider>
+        </PresentationComponent>
+      </ActiveInstancesProvider>
+    </DataLoadingProvider>
+  </TaskStoreProvider>
 );
 
 function InstanceSelection() {
@@ -226,7 +231,7 @@ function InstanceSelection() {
   );
 
   return (
-    <>
+    <TaskStoreProvider>
       <div id='instance-selection-container'>
         <div>
           <Heading
@@ -260,7 +265,7 @@ function InstanceSelection() {
         </div>
       </div>
       <ReadyForPrint />
-    </>
+    </TaskStoreProvider>
   );
 }
 
