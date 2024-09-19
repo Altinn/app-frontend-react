@@ -20,6 +20,7 @@ import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { getFormDataQueryKey } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/features/validation';
+import { useIsUpdatingInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { doPatchMultipleFormData } from 'src/queries/queries';
@@ -312,6 +313,7 @@ function FormDataEffects() {
 
   const { mutate: performSave, error } = useFormDataSaveMutation();
   const isSaving = useIsSaving();
+  const isUpdatingInitialValidaitons = useIsUpdatingInitialValidations();
   const debounce = useDebounceImmediately();
   const hasUnsavedChangesNow = useHasUnsavedChangesNow();
 
@@ -356,7 +358,7 @@ function FormDataEffects() {
 
   // Save the data model when the data has been frozen/debounced, and we're ready
   const needsToSave = useSelector(hasDebouncedUnsavedChanges);
-  const canSaveNow = !isSaving && !lockedBy;
+  const canSaveNow = !isSaving && !lockedBy && !isUpdatingInitialValidaitons;
   const shouldSave = (needsToSave && canSaveNow && autoSaving) || manualSaveRequested;
 
   useEffect(() => {
@@ -799,6 +801,42 @@ export const FD = {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
+    }),
+
+  /**
+   * Returns the number of rows in a repeating group. This will always be 'fresh', meaning it will update immediately
+   * when a new row is added/removed.
+   */
+  useFreshNumRows: (binding: IDataModelReference | undefined): number =>
+    useMemoSelector((s) => {
+      if (!binding) {
+        return 0;
+      }
+
+      const rawRows = dot.pick(binding.field, s.dataModels[binding.dataType].currentData);
+      if (!Array.isArray(rawRows) || !rawRows.length) {
+        return 0;
+      }
+
+      return rawRows.length;
+    }),
+
+  /**
+   * Get the UUID of a row in a repeating group. This will always be 'fresh', meaning it will update immediately when
+   * a new row is added/removed.
+   */
+  useFreshRowUuid: (binding: IDataModelReference | undefined, index: number): string | undefined =>
+    useMemoSelector((s) => {
+      if (!binding) {
+        return undefined;
+      }
+
+      const rawRows = dot.pick(binding.field, s.dataModels[binding.dataType].currentData);
+      if (!Array.isArray(rawRows) || !rawRows.length) {
+        return undefined;
+      }
+
+      return rawRows[index]?.[ALTINN_ROW_ID];
     }),
 
   /**
