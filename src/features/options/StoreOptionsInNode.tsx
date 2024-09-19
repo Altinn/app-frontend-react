@@ -1,5 +1,4 @@
 import React from 'react';
-import type { PropsWithChildren } from 'react';
 
 import { EffectPreselectedOptionIndex } from 'src/features/options/effects/EffectPreselectedOptionIndex';
 import { EffectRemoveStaleValues } from 'src/features/options/effects/EffectRemoveStaleValues';
@@ -14,7 +13,6 @@ import {
   StageFetchOptions,
 } from 'src/utils/layout/generator/GeneratorStages';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
 import type { CompIntermediate, CompWithBehavior } from 'src/layout/layout';
@@ -47,21 +45,25 @@ function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
     item,
   });
 
+  const hasBeenSet = NodesInternal.useNodeData(node, (data) => {
+    if (!data.item || !('options' in data.item) || !('isFetchingOptions' in data.item)) {
+      return false;
+    }
+    return data.item.options === options && data.item.isFetchingOptions === isFetching;
+  });
+
   GeneratorStages.FetchOptions.useEffect(() => {
     !isFetching && setNodeProp({ node, prop: 'options', value: options });
     setNodeProp({ node, prop: 'isFetchingOptions', value: isFetching });
   }, [node, setNodeProp, options]);
 
-  if (isFetching) {
-    // No need to run effects while fetching
+  if (isFetching || !hasBeenSet) {
+    // No need to run effects while fetching or if the data has not been set yet
     return false;
   }
 
   return (
-    <WhenDataIsSet
-      options={options}
-      isFetching={isFetching}
-    >
+    <>
       <EffectRemoveStaleValues valueType={valueType} />
       {preselectedOption !== undefined && (
         <EffectPreselectedOptionIndex
@@ -73,25 +75,6 @@ function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
         <EffectSetDownstreamParameters downstreamParameters={downstreamParameters} />
       ) : null}
       {dataModelBindings && dataModelBindings.label ? <EffectStoreLabel valueType={valueType} /> : null}
-    </WhenDataIsSet>
+    </>
   );
-}
-
-/**
- * Guard against running effect when the data in the worker has not been set yet
- */
-function WhenDataIsSet({
-  options,
-  isFetching,
-  children,
-}: PropsWithChildren<{ options: IOptionInternal[]; isFetching: boolean }>) {
-  const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
-  const isSet = NodesInternal.useNodeData(node, (data) => {
-    if (!data.item || !('options' in data.item) || !('isFetchingOptions' in data.item)) {
-      return false;
-    }
-    return data.item.options === options && data.item.isFetchingOptions === isFetching;
-  });
-
-  return isSet ? children : false;
 }
