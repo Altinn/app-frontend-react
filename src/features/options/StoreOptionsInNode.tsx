@@ -45,12 +45,9 @@ function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
     item,
   });
 
-  const hasBeenSet = NodesInternal.useNodeData(node, (data) => {
-    if (!data.item || !('options' in data.item) || !('isFetchingOptions' in data.item)) {
-      return false;
-    }
-    return data.item.options === options && data.item.isFetchingOptions === isFetching;
-  });
+  const hasBeenSet = NodesInternal.useNodeData(node, (data) =>
+    item ? data.options === options && data.isFetchingOptions === isFetching : false,
+  );
 
   GeneratorStages.FetchOptions.useEffect(() => {
     !isFetching && setNodeProp({ node, prop: 'options', value: options });
