@@ -120,6 +120,7 @@ declare global {
         taskName: FrontendTestTask | string,
         mutator?: (component: CompExternal) => void,
         wholeLayoutMutator?: (layoutSet: ILayoutCollection) => void,
+        options?: { times?: number },
       ): Chainable<null>;
 
       /**
