@@ -16,12 +16,16 @@ import type { IDataModelBindings } from 'src/layout/layout';
 type DataAs = 'raw' | 'string';
 
 type DataType<DA extends DataAs> = DA extends 'raw' ? unknown : string;
-interface Output<B extends IDataModelBindings | undefined, DA extends DataAs> {
+interface Output<B extends IDataModelBindings | undefined, DA extends DataAs> extends SaveOutput<B> {
   formData: B extends undefined ? Record<string, never> : { [key in keyof B]: DataType<DA> };
   debounce: () => void;
+  isValid: { [key in keyof B]: boolean };
+}
+
+interface SaveOutput<B extends IDataModelBindings | undefined> {
   setValue: (key: keyof Exclude<B, undefined>, value: FDLeafValue) => void;
   setValues: (values: Partial<{ [key in keyof B]: FDLeafValue }>) => void;
-  isValid: { [key in keyof B]: boolean };
+  debounce: () => void;
 }
 
 type SaveOptions = Omit<FDNewValue, 'path' | 'newValue' | 'schema'>;
@@ -40,11 +44,25 @@ export function useDataModelBindings<B extends IDataModelBindings | undefined, D
 ): Output<B, DA> {
   const bindings = useMemoDeepEqual(() => (_bindings || defaultBindings) as Exclude<B, undefined>, [_bindings]);
 
+  const formData = FD.useFreshBindings(bindings, dataAs);
+  const isValid = FD.useBindingsAreValid(bindings);
+  const { debounce, setValue, setValues } = useSaveDataModelBindings(bindings, debounceTimeout);
+
+  return useMemo(
+    () => ({ formData: formData as Output<B, DA>['formData'], debounce, setValue, setValues, isValid }),
+    [debounce, formData, isValid, setValue, setValues],
+  );
+}
+
+export function useSaveDataModelBindings<B extends IDataModelBindings | undefined>(
+  _bindings: B,
+  debounceTimeout: SaveWhileTyping = DEFAULT_DEBOUNCE_TIMEOUT,
+): SaveOutput<B> {
+  const bindings = useMemoDeepEqual(() => (_bindings || defaultBindings) as Exclude<B, undefined>, [_bindings]);
+
   const setLeafValue = FD.useSetLeafValue();
   const setMultiLeafValue = FD.useSetMultiLeafValues();
   const debounce = FD.useDebounceImmediately();
-  const formData = FD.useFreshBindings(bindings, dataAs);
-  const isValid = FD.useBindingsAreValid(bindings);
 
   const saveOptions: SaveOptions = useMemo(
     () =>
@@ -83,8 +101,5 @@ export function useDataModelBindings<B extends IDataModelBindings | undefined, D
     [bindings, saveOptions, setMultiLeafValue],
   );
 
-  return useMemo(
-    () => ({ formData: formData as Output<B, DA>['formData'], debounce, setValue, setValues, isValid }),
-    [debounce, formData, isValid, setValue, setValues],
-  );
+  return { setValue, setValues, debounce };
 }

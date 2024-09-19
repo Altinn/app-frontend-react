@@ -1,6 +1,6 @@
 import { skipToken, useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
-import type { AxiosResponse } from 'axios';
+import type { AxiosError, AxiosResponse } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -18,24 +18,37 @@ export function useGetOptionsQueryDef(url?: string): QueryDefinition<{ data: IOp
   return {
     queryKey: ['fetchOptions', url],
     queryFn: url
-      ? () => fetchOptions(url).then((result) => ({ ...result, data: castOptionsToStrings(result?.data) }))
+      ? async () => {
+          const debug = url?.includes('PerClass');
+          const shortUrl = url?.split('/options/')[1];
+          debug && console.log('debug, fetching options for url', { url: shortUrl });
+          const result = await fetchOptions(url).then((result) => ({
+            ...result,
+            data: castOptionsToStrings(result?.data),
+          }));
+          debug && console.log('debug, fetching options done for url', { url: shortUrl, options: result.data });
+          return result;
+        }
       : skipToken,
     enabled: !!url,
   };
 }
 
 export const useGetOptionsQuery = (
+  url: string | undefined,
+): UseQueryResult<AxiosResponse<IOptionInternal[], AxiosError>> => useQuery(useGetOptionsQueryDef(url));
+
+export const useGetOptionsUrl = (
   optionsId: string | undefined,
   mapping?: IMapping,
   queryParameters?: Record<string, string>,
   secure?: boolean,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): UseQueryResult<AxiosResponse<IOptionInternal[], any>> => {
+): string | undefined => {
   const mappingResult = FD.useMapping(mapping);
   const language = useCurrentLanguage();
   const instanceId = useLaxInstance()?.instanceId;
 
-  const url = optionsId
+  return optionsId
     ? getOptionsUrl({
         optionsId,
         language,
@@ -47,6 +60,4 @@ export const useGetOptionsQuery = (
         instanceId,
       })
     : undefined;
-
-  return useQuery(useGetOptionsQueryDef(url));
 };
