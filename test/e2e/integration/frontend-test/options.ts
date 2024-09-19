@@ -309,4 +309,29 @@ describe('Options', () => {
     // isForeign back to 'false' when the reset button is clicked. This would allow us to test the case where
     // the foreign option components are still visible when the reset button is clicked.
   });
+
+  it('should not remove stale values prematurely when deleting repeating group rows', () => {
+    const allColors = ['Rød', 'Grønn', 'Blå', 'Gul', 'Svart', 'Hvit', 'Brun', 'Oransje', 'Lilla', 'Rosa'];
+
+    cy.gotoHiddenPage('shifting-options');
+    cy.findByRole('button', { name: 'Legg til 10 rader' }).click();
+    const rows = '[id^="group-balloons-"][id$="-table-body"] tr';
+    cy.get(rows).should('have.length', 10);
+
+    function assertRows(...balloonNumbers: number[]) {
+      cy.log(`Asserting balloons: ${balloonNumbers.join(', ')}`);
+      for (const i in balloonNumbers) {
+        const num = balloonNumbers[i];
+        cy.get(rows).eq(parseInt(i)).find('td').eq(1).should('have.text', `Ballong ${num} er ${allColors[num]}`);
+      }
+    }
+
+    assertRows(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+    cy.get(rows).eq(0).findByRole('button', { name: `Slett-0` }).click();
+    cy.waitUntilSaved();
+    cy.waitUntilNodesReady();
+
+    assertRows(1, 2, 3, 4, 5, 6, 7, 8, 9);
+  });
 });
