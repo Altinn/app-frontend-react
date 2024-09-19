@@ -15,6 +15,7 @@ import {
   GeneratorStages,
   NodesStateQueue,
   StageAddNodes,
+  StageMarkHidden,
 } from 'src/utils/layout/generator/GeneratorStages';
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -85,32 +86,17 @@ export function LayoutSetGenerator() {
 }
 
 function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
-  const layouts = useLayouts();
   const existingNodes = useNodesWhenNotReady();
   const setNodes = NodesInternal.useSetNodes();
-  const isFinished = GeneratorStages.useIsFinished();
-  const layoutKeys = useMemo(() => Object.keys(layouts), [layouts]);
+  const isFinishedAddingNodes = GeneratorStages.AddNodes.useIsDone();
+  const numPages = Object.keys(useLayouts()).length;
+  const shouldSet = existingNodes !== pages && pages && (isFinishedAddingNodes || numPages === 0);
 
   useEffect(() => {
-    if (existingNodes === pages) {
-      return;
-    }
-
-    // With this being a useEffect, it will always run after all the children here have rendered - unless, importantly,
-    // the children themselves rely on useEffect() to run in order to reach a stable state.
-    const numPages = layoutKeys.length;
-    if (!pages) {
-      return;
-    }
-    if (numPages === 0) {
-      setNodes(pages);
-      return;
-    }
-
-    if (isFinished) {
+    if (shouldSet) {
       setNodes(pages);
     }
-  }, [layoutKeys, pages, isFinished, setNodes, existingNodes]);
+  }, [pages, setNodes, shouldSet]);
 
   return null;
 }
@@ -249,10 +235,12 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
         page={page}
         name={name}
       />
-      <MarkPageHidden
-        page={page}
-        name={name}
-      />
+      <GeneratorCondition stage={StageMarkHidden}>
+        <MarkPageHidden
+          page={page}
+          name={name}
+        />
+      </GeneratorCondition>
       {map === undefined &&
         layout.map((component) => (
           <ComponentClaimChildren
