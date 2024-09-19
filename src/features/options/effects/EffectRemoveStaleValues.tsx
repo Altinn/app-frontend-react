@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 
+import deepEqual from 'fast-deep-equal';
+
 import { useGetOptionsUsingDmb } from 'src/features/options/useGetOptions';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { useGetAwaitingCommits } from 'src/utils/layout/generator/GeneratorStages';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import type { GeneratorOptionProps } from 'src/features/options/StoreOptionsInNode';
+import type { GetOptionsResult, SetOptionsResult } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
 import type { CompIntermediate, CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -29,8 +32,13 @@ export function EffectRemoveStaleValues({ valueType }: GeneratorOptionProps) {
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
   const options = useGetOptionsUsingDmb(node, valueType, dataModelBindings);
   const optionsAsRef = useAsRef(options);
+  const itemsToRemove = getItemsToRemove(options);
 
   useEffect(() => {
+    if (itemsToRemove.length === 0) {
+      return;
+    }
+
     let timeout: ReturnType<typeof setTimeout> | undefined;
     function cleanup() {
       timeout !== undefined && clearTimeout(timeout);
@@ -63,14 +71,27 @@ export function EffectRemoveStaleValues({ valueType }: GeneratorOptionProps) {
       if (!options || !isReady()) {
         return;
       }
-      const itemsToRemove = unsafeSelectedValues.filter((v) => !options?.find((option) => option.value === v));
-      if (itemsToRemove.length > 0) {
+      const freshItemsToRemove = getItemsToRemove(optionsAsRef.current);
+      if (freshItemsToRemove.length > 0 && deepEqual(freshItemsToRemove, itemsToRemove)) {
         setData(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
       }
     }, 200);
 
     return cleanup;
-  }, [getAwaiting, readyAsRef, optionsAsRef, ready]);
+  }, [getAwaiting, readyAsRef, optionsAsRef, itemsToRemove]);
 
   return null;
+}
+
+const emptyArray: never[] = [];
+function getItemsToRemove(result: GetOptionsResult & SetOptionsResult): string[] {
+  const { options, unsafeSelectedValues } = result;
+  if (!options) {
+    return emptyArray;
+  }
+  const itemsToRemove = unsafeSelectedValues.filter((v) => !options.find((option) => option.value === v));
+  if (itemsToRemove.length === 0) {
+    return emptyArray;
+  }
+  return itemsToRemove;
 }
