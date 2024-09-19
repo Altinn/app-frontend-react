@@ -37,12 +37,19 @@ export function NodeRepeatingChildren(props: Props) {
       stage={StageAddNodes}
       mustBeAdded='parent'
     >
-      <PerformWork {...props} />
+      <NodeRepeatingChildrenWorker {...props} />
     </GeneratorCondition>
   );
 }
 
-function PerformWork({ claims, binding, multiPageSupport, externalProp, internalProp, pluginKey }: Props) {
+function NodeRepeatingChildrenWorker({
+  claims,
+  binding,
+  multiPageSupport,
+  externalProp,
+  internalProp,
+  pluginKey,
+}: Props) {
   const item = GeneratorInternal.useIntermediateItem();
   const groupBinding = item?.dataModelBindings?.[binding];
   const numRows = FD.useFreshNumRows(groupBinding);

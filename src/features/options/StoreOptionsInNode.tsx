@@ -22,12 +22,12 @@ export function StoreOptionsInNode(props: Props) {
       stage={StageFetchOptions}
       mustBeAdded='parent'
     >
-      <PerformWork {...props} />
+      <StoreOptionsInNodeWorker {...props} />
     </GeneratorCondition>
   );
 }
 
-function PerformWork({ valueType }: Props) {
+function StoreOptionsInNodeWorker({ valueType }: Props) {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const setNodeProp = NodesStateQueue.useSetNodeProp();

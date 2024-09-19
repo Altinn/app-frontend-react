@@ -26,12 +26,12 @@ export function LikertGeneratorChildren() {
       stage={StageAddNodes}
       mustBeAdded='parent'
     >
-      <PerformWork />
+      <LikertGeneratorChildrenWorker />
     </GeneratorCondition>
   );
 }
 
-function PerformWork() {
+function LikertGeneratorChildrenWorker() {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<'Likert'>;
   const questionsBinding = item?.dataModelBindings?.questions;
   const rows = FD.useFreshRows(questionsBinding);

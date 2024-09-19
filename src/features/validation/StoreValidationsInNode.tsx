@@ -19,12 +19,12 @@ export function StoreValidationsInNode() {
       stage={StageFormValidation}
       mustBeAdded='parent'
     >
-      <PerformWork />
+      <StoreValidationsInNodeWorker />
     </GeneratorCondition>
   );
 }
 
-function PerformWork() {
+function StoreValidationsInNodeWorker() {
   const item = GeneratorInternal.useIntermediateItem();
   const node = GeneratorInternal.useParent() as LayoutNode<
     TypesFromCategory<CompCategory.Form | CompCategory.Container>

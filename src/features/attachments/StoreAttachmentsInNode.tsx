@@ -25,12 +25,12 @@ export function StoreAttachmentsInNode() {
       stage={StageEvaluateExpressions}
       mustBeAdded='parent'
     >
-      <PerformWork />
+      <StoreAttachmentsInNodeWorker />
     </GeneratorCondition>
   );
 }
 
-function PerformWork() {
+function StoreAttachmentsInNodeWorker() {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
   const setNodeProp = NodesStateQueue.useSetNodeProp();
   const attachments = useNodeAttachments();
