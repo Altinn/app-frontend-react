@@ -2,19 +2,24 @@ import React, { createContext, useContext } from 'react';
 
 import { create } from 'zustand';
 
+export enum DataLoadingState {
+  Loading,
+  Ready,
+}
+
 export interface DataLoading {
-  dataElements: Record<string, boolean>;
+  dataElements: Record<string, DataLoadingState>;
   isDone: () => boolean;
-  setDataElements: (dataElements: Record<string, boolean>) => void;
+  setDataElements: (dataElements: Record<string, DataLoadingState>) => void;
 }
 
 export const createDataLoadingStore = () =>
   create<DataLoading>((set, state) => ({
     dataElements: {},
     isDone() {
-      return Object.values(state().dataElements).every((v) => v === true);
+      return Object.values(state().dataElements).every((v) => v === DataLoadingState.Ready);
     },
-    setDataElements: (newDataElements: Record<string, boolean>) => {
+    setDataElements: (newDataElements: Record<string, DataLoadingState>) => {
       set((state) => ({
         dataElements: {
           ...state.dataElements,

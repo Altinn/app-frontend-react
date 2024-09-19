@@ -7,10 +7,9 @@ import { Grid } from '@material-ui/core';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
+import { DataLoadingState, useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { FormProvider } from 'src/features/form/FormContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
@@ -22,7 +21,6 @@ import { getFeature } from 'src/features/toggles';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
-import { useDoOverrideSummary } from 'src/layout/Subform/SubformWrapper';
 import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
@@ -84,23 +82,36 @@ export const PDFView2 = () => {
 };
 
 export function DataLoaderStoreInit({ children }: PropsWithChildren) {
-  const [loading, setLoading] = React.useState(true);
   const subforms = useNodeTraversal((t) => t.allNodes().filter((node) => node.isType('Subform')));
 
-  const handleWorkerCompletion = React.useCallback(() => {
-    setLoading(false);
+  const [loadingState, setLoadingState] = React.useState(() => {
+    const initialLoadingState: Record<string, DataLoadingState> = {};
+    for (const subform of subforms) {
+      initialLoadingState[subform.id] = DataLoadingState.Loading;
+    }
+
+    return initialLoadingState;
+  });
+
+  const handleWorkerCompletion = React.useCallback((subformId: string) => {
+    setLoadingState((prevState) => ({
+      ...prevState,
+      [subformId]: DataLoadingState.Ready,
+    }));
   }, []);
+
+  const hasFinishedLoading = Object.values(loadingState).every((v) => v === DataLoadingState.Ready);
 
   return (
     <>
-      {subforms.map((child, idx) => (
+      {subforms.map((subform, idx) => (
         <DataLoaderStoreInitWorker
           key={idx}
-          node={child}
+          node={subform}
           initComplete={handleWorkerCompletion}
         />
       ))}
-      {!loading && children}
+      {hasFinishedLoading && children}
     </>
   );
 }
@@ -108,7 +119,10 @@ export function DataLoaderStoreInit({ children }: PropsWithChildren) {
 function DataLoaderStoreInitWorker({
   node,
   initComplete,
-}: PropsWithChildren<{ node: LayoutNode<'Subform'>; initComplete: () => void }>): React.JSX.Element | null {
+}: PropsWithChildren<{
+  node: LayoutNode<'Subform'>;
+  initComplete: (subformId: string) => void;
+}>): React.JSX.Element | null {
   const { layoutSet } = useNodeItem(node);
   const setDataLoaderElements = useDataLoadingStore((state) => state.setDataElements);
   const dataLoaderElements = useDataLoadingStore((state) => state.dataElements);
@@ -121,19 +135,19 @@ function DataLoaderStoreInitWorker({
   );
 
   useEffect(() => {
-    const elements: Record<string, boolean> = {};
+    const elements: Record<string, DataLoadingState> = {};
     for (const element of dataElements) {
       if (element.id in dataLoaderElements) {
         continue;
       }
-      elements[element.id] = false;
+      elements[element.id] = DataLoadingState.Loading;
     }
 
     if (Object.keys(elements).length) {
       setDataLoaderElements(elements);
     }
-    initComplete();
-  }, [dataElements, dataLoaderElements, setDataLoaderElements, initComplete]);
+    initComplete(node.id);
+  }, [dataElements, dataLoaderElements, setDataLoaderElements, initComplete, node.id]);
 
   return null;
 }
@@ -199,20 +213,6 @@ function PlainPage({ pageKey }: { pageKey: string }) {
     </div>
   );
 }
-
-export const DoSummaryWrapper = ({
-  dataElementId,
-  layoutSet,
-  dataType,
-  children,
-}: PropsWithChildren<{ dataElementId: string; layoutSet: string; dataType: string }>) => {
-  const isDone = useDoOverrideSummary(dataElementId, layoutSet, dataType);
-  if (!isDone) {
-    return null;
-  }
-
-  return <FormProvider>{children}</FormProvider>;
-};
 
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
   const isHiddenSelector = Hidden.useIsHiddenSelector();

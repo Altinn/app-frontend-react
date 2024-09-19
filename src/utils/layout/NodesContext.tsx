@@ -8,7 +8,7 @@ import type { UnionToIntersection } from 'utility-types';
 import type { StoreApi } from 'zustand';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
+import { DataLoadingState, useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
@@ -481,9 +481,9 @@ function IndicateReadiness() {
     if (
       ready &&
       overriddenDataModelUuid &&
-      (!(overriddenDataModelUuid in dataElements) || dataElements[overriddenDataModelUuid] !== true)
+      (!(overriddenDataModelUuid in dataElements) || dataElements[overriddenDataModelUuid] !== DataLoadingState.Ready)
     ) {
-      setDataElements({ [overriddenDataModelUuid]: true });
+      setDataElements({ [overriddenDataModelUuid]: DataLoadingState.Ready });
     }
   }, [dataElements, overriddenDataModelUuid, ready, setDataElements]);
 

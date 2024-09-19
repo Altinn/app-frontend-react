@@ -15,6 +15,7 @@ import {
   useQueryKeysAsStringAsRef,
   useSetNavigationEffect,
 } from 'src/features/routing/AppRoutingContext';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import { ProcessTaskType } from 'src/types';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
@@ -69,10 +70,21 @@ const useNavigate = () => {
 
 export const useCurrentView = () => useNavigationParam('pageKey');
 export const usePageOrder = () => {
+  const isPdf = useIsPdf();
+
   const maybeLayoutSettings = useLaxLayoutSettings();
   const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? emptyArray : maybeLayoutSettings.pages.order;
+
+  const hiddenFromPdf = useMemo(
+    () => new Set(maybeLayoutSettings !== ContextNotProvided && isPdf ? maybeLayoutSettings.pages.excludeFromPdf : []),
+    [maybeLayoutSettings, isPdf],
+  );
   const hiddenPages = Hidden.useHiddenPages();
-  return useMemo(() => orderWithHidden?.filter((page) => !hiddenPages.has(page)), [orderWithHidden, hiddenPages]);
+
+  return useMemo(
+    () => orderWithHidden?.filter((page) => !hiddenPages.has(page) && !hiddenFromPdf.has(page)),
+    [orderWithHidden, hiddenPages, hiddenFromPdf],
+  );
 };
 
 export const useIsCurrentTask = () => {

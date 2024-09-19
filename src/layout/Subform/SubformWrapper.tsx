@@ -55,16 +55,12 @@ export const useDoOverrideSummary = (dataElementId: string, layoutSet: string, d
   const setOverriddenDataModelType = useTaskStore((state) => state.setOverriddenDataModelType);
   const setOverriddenDataModelUuid = useTaskStore((state) => state.setOverriddenDataModelUuid);
 
-  const { overriddenDataModelType, overriddenDataModelUuid, overriddenLayoutSetId } = useTaskStore((s) => ({
-    overriddenDataModelType: s.overriddenDataModelType,
-    overriddenDataModelUuid: s.overriddenDataModelUuid,
-    overriddenLayoutSetId: s.overriddenLayoutSetId,
-  }));
-
-  const isDone =
-    overriddenDataModelType === dataType &&
-    overriddenDataModelUuid === dataElementId &&
-    overriddenLayoutSetId === layoutSet;
+  const isDone = useTaskStore(
+    (s) =>
+      s.overriddenDataModelType === dataType &&
+      s.overriddenDataModelUuid === dataElementId &&
+      s.overriddenLayoutSetId === layoutSet,
+  );
 
   useEffect(() => {
     setOverriddenLayoutSetId?.(layoutSet);
@@ -74,9 +70,6 @@ export const useDoOverrideSummary = (dataElementId: string, layoutSet: string, d
     dataElementId,
     dataType,
     layoutSet,
-    overriddenDataModelType,
-    overriddenDataModelUuid,
-    overriddenLayoutSetId,
     setOverriddenDataModelType,
     setOverriddenDataModelUuid,
     setOverriddenLayoutSetId,
@@ -87,27 +80,23 @@ export const useDoOverrideSummary = (dataElementId: string, layoutSet: string, d
 
 export const useDoOverride = (node: LayoutNode<'Subform'>, providedDataElementId?: string) => {
   const { dataElementId } = useParams();
-
   const actualDataElementId = providedDataElementId ? providedDataElementId : dataElementId;
   const { layoutSet, id } = useNodeItem(node);
   const dataType = useDataTypeFromLayoutSet(layoutSet);
+
   if (!dataType) {
     throw new Error(`Unable to find data type for subform with id ${id}`);
   }
+
   const setOverriddenLayoutSetId = useTaskStore((state) => state.setOverriddenLayoutSetId);
   const setOverriddenDataModelType = useTaskStore((state) => state.setOverriddenDataModelType);
   const setOverriddenDataModelUuid = useTaskStore((state) => state.setOverriddenDataModelUuid);
-
-  const { overriddenDataModelType, overriddenDataModelUuid, overriddenLayoutSetId } = useTaskStore((s) => ({
-    overriddenDataModelType: s.overriddenDataModelType,
-    overriddenDataModelUuid: s.overriddenDataModelUuid,
-    overriddenLayoutSetId: s.overriddenLayoutSetId,
-  }));
-
-  const isDone =
-    overriddenDataModelType === dataType &&
-    overriddenDataModelUuid === actualDataElementId &&
-    overriddenLayoutSetId === layoutSet;
+  const isDone = useTaskStore(
+    (s) =>
+      s.overriddenDataModelType === dataType &&
+      s.overriddenDataModelUuid === actualDataElementId &&
+      s.overriddenLayoutSetId === layoutSet,
+  );
 
   useEffect(() => {
     setOverriddenLayoutSetId?.(layoutSet);
@@ -117,9 +106,6 @@ export const useDoOverride = (node: LayoutNode<'Subform'>, providedDataElementId
     actualDataElementId,
     dataType,
     layoutSet,
-    overriddenDataModelType,
-    overriddenDataModelUuid,
-    overriddenLayoutSetId,
     setOverriddenDataModelType,
     setOverriddenDataModelUuid,
     setOverriddenLayoutSetId,
