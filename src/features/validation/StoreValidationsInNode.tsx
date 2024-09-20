@@ -9,6 +9,7 @@ import {
   NodesStateQueue,
   StageFormValidation,
 } from 'src/utils/layout/generator/GeneratorStages';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { CompCategory } from 'src/layout/common';
 import type { TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -38,14 +39,17 @@ function StoreValidationsInNodeWorker() {
 
   const validations = useNodeValidation(node, shouldValidate);
 
-  GeneratorStages.FormValidation.useEffect(() => {
+  const hasBeenSet = NodesInternal.useNodeData(node, (data) => data.validations === validations);
+  if (!hasBeenSet && shouldValidate) {
     setNodeProp({ node, prop: 'validations', value: validations });
-  }, [node, setNodeProp, validations]);
+  }
 
   const initialMask = item
     ? getInitialMaskFromNode('showValidations' in item ? item.showValidations : undefined)
     : undefined;
 
+  // This still has to be done in the effect, as the initialMask should only
+  // be set initially, not every time the component re-renders
   GeneratorStages.FormValidation.useConditionalEffect(() => {
     if (initialMask !== undefined) {
       setNodeProp({ node, prop: 'validationVisibility', value: initialMask });

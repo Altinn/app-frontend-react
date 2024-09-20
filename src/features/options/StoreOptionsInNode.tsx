@@ -6,12 +6,7 @@ import { EffectSetDownstreamParameters } from 'src/features/options/effects/Effe
 import { EffectStoreLabel } from 'src/features/options/effects/EffectStoreLabel';
 import { useFetchOptions, useSortedOptions } from 'src/features/options/useGetOptions';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import {
-  GeneratorCondition,
-  GeneratorStages,
-  NodesStateQueue,
-  StageFetchOptions,
-} from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorCondition, NodesStateQueue, StageFetchOptions } from 'src/utils/layout/generator/GeneratorStages';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
@@ -42,18 +37,15 @@ function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
   const { unsorted, isFetching, downstreamParameters } = useFetchOptions({ node, item });
   const { options, preselectedOption } = useSortedOptions({ unsorted, valueType, item });
 
-  const hasBeenSet = NodesInternal.useNodeData(node, (data) =>
-    item ? data.options === options && data.isFetchingOptions === isFetching : false,
+  const hasBeenSet = NodesInternal.useNodeData(
+    node,
+    (data) => data.options === options && data.isFetchingOptions === isFetching,
   );
 
-  GeneratorStages.FetchOptions.useConditionalEffect(() => {
-    if (!hasBeenSet) {
-      !isFetching && setNodeProp({ node, prop: 'options', value: options });
-      setNodeProp({ node, prop: 'isFetchingOptions', value: isFetching });
-      return true;
-    }
-    return false;
-  }, [node, setNodeProp, options, hasBeenSet]);
+  if (!hasBeenSet) {
+    !isFetching && setNodeProp({ node, prop: 'options', value: options });
+    setNodeProp({ node, prop: 'isFetchingOptions', value: isFetching });
+  }
 
   if (isFetching || !hasBeenSet) {
     // No need to run effects while fetching or if the data has not been set yet

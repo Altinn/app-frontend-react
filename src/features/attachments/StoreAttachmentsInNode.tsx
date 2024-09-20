@@ -7,10 +7,10 @@ import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import {
   GeneratorCondition,
-  GeneratorStages,
   NodesStateQueue,
   StageEvaluateExpressions,
 } from 'src/utils/layout/generator/GeneratorStages';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeFormData } from 'src/utils/layout/useNodeItem';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IAttachment } from 'src/features/attachments/index';
@@ -35,9 +35,10 @@ function StoreAttachmentsInNodeWorker() {
   const setNodeProp = NodesStateQueue.useSetNodeProp();
   const attachments = useNodeAttachments();
 
-  GeneratorStages.EvaluateExpressions.useEffect(() => {
+  const hasBeenSet = NodesInternal.useNodeData(node, (data) => data.attachments === attachments);
+  if (!hasBeenSet) {
     setNodeProp({ node, prop: 'attachments', value: attachments });
-  }, [node, setNodeProp, attachments]);
+  }
 
   return null;
 }
