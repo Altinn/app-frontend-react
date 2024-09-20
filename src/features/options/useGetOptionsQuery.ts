@@ -18,17 +18,11 @@ export function useGetOptionsQueryDef(url?: string): QueryDefinition<{ data: IOp
   return {
     queryKey: ['fetchOptions', url],
     queryFn: url
-      ? async () => {
-          const debug = url?.includes('PerClass');
-          const shortUrl = url?.split('/options/')[1];
-          debug && console.log('debug, fetching options for url', { url: shortUrl });
-          const result = await fetchOptions(url).then((result) => ({
+      ? () =>
+          fetchOptions(url).then((result) => ({
             ...result,
             data: castOptionsToStrings(result?.data),
-          }));
-          debug && console.log('debug, fetching options done for url', { url: shortUrl, options: result.data });
-          return result;
-        }
+          }))
       : skipToken,
     enabled: !!url,
   };

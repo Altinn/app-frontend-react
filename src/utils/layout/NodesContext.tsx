@@ -483,16 +483,20 @@ function ResettableStore({ counter, children }: PropsWithChildren<{ counter: num
 }
 
 function IndicateReadiness() {
-  const [readiness, hiddenViaRulesRan] = Store.useSelector((s) => [s.readiness, s.hiddenViaRulesRan]);
-  const ready = readiness === NodesReadiness.Ready && hiddenViaRulesRan;
-  document.body.setAttribute('data-nodes-ready', ready.toString());
+  const [readiness, hiddenViaRulesRan] = Store.useMemoSelector((s) => {
+    const ready = s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan;
 
-  useEffect(() => {
+    // Doing this in a selector instead of a useEffect() so that we don't have to re-render
     document.body.setAttribute('data-nodes-ready', ready.toString());
-    return () => {
-      document.body.removeAttribute('data-nodes-ready');
-    };
-  }, [ready]);
+
+    if (!GeneratorDebug.displayReadiness) {
+      return [null, null];
+    }
+
+    return [s.readiness, s.hiddenViaRulesRan];
+  });
+
+  useEffect(() => () => document.body.removeAttribute('data-nodes-ready'), []);
 
   if (!GeneratorDebug.displayReadiness) {
     return null;

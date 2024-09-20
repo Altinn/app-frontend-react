@@ -1,6 +1,6 @@
 import deepEqual from 'fast-deep-equal';
 
-import { useSetOptions } from 'src/features/options/useGetOptions';
+import { useOptionsUrl, useSetOptions } from 'src/features/options/useGetOptions';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
@@ -13,6 +13,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 interface Props {
   valueType: OptionsValueType;
   options: IOptionInternal[];
+  url: string | undefined;
 }
 
 /**
@@ -21,7 +22,7 @@ interface Props {
  * from a repeating group. If the options changed and the selected option (or selected row in a repeating group)
  * is gone, we should not save stale/invalid data, so we clear it.
  */
-export function EffectRemoveStaleValues({ valueType, options }: Props) {
+export function EffectRemoveStaleValues({ valueType, options, url }: Props) {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const isNodeHidden = Hidden.useIsHidden(node);
 
@@ -32,10 +33,17 @@ export function EffectRemoveStaleValues({ valueType, options }: Props) {
   const optionsAsRef = useAsRef(options);
   const itemsToRemove = getItemsToRemove(options, setResult.unsafeSelectedValues);
 
+  // If you have a repeating group with many rows, and each row has a different set of options (based on mapping or
+  // query parameters that end up in the URL), we could end up removing values before noticing that new options
+  // should be fetched (in StoreOptionsInNode). This extra check is necessary to ensure that we don't remove values
+  // if the new list of options are yet to be fetched and passed to us.
+  const targetUrl = useOptionsUrl(item);
+  const optionsAreStale = targetUrl !== url;
+
   NodesInternal.useEffectWhenReady(() => {
     const { unsafeSelectedValues, setData } = setResultAsRef.current;
     const options = optionsAsRef.current;
-    if (itemsToRemove.length === 0 || isNodeHidden || !options) {
+    if (itemsToRemove.length === 0 || isNodeHidden || !options || !optionsAreStale) {
       return;
     }
 
@@ -43,7 +51,7 @@ export function EffectRemoveStaleValues({ valueType, options }: Props) {
     if (freshItemsToRemove.length > 0 && deepEqual(freshItemsToRemove, itemsToRemove)) {
       setData(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
     }
-  }, [isNodeHidden, itemsToRemove, node.id, optionsAsRef, setResultAsRef]);
+  }, [isNodeHidden, itemsToRemove, node.id, optionsAsRef, setResultAsRef, optionsAreStale]);
 
   return null;
 }

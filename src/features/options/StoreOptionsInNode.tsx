@@ -34,7 +34,7 @@ function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
   const setNodeProp = NodesStateQueue.useSetNodeProp();
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
 
-  const { unsorted, isFetching, downstreamParameters } = useFetchOptions({ node, item });
+  const { unsorted, isFetching, downstreamParameters, url } = useFetchOptions({ node, item });
   const { options, preselectedOption } = useSortedOptions({ unsorted, valueType, item });
 
   const hasBeenSet = NodesInternal.useNodeData(
@@ -57,11 +57,13 @@ function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
       <EffectRemoveStaleValues
         valueType={valueType}
         options={options}
+        url={url}
       />
       {preselectedOption !== undefined && (
         <EffectPreselectedOptionIndex
           preselectedOption={preselectedOption}
           valueType={valueType}
+          options={options}
         />
       )}
       {downstreamParameters && dataModelBindings && dataModelBindings.metadata ? (

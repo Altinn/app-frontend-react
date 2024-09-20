@@ -111,35 +111,45 @@ export function useSetOptions(
   };
 }
 
+export function useOptionsUrl(item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>) {
+  const { optionsId, secure, mapping, queryParameters } = item;
+  return useGetOptionsUrl(optionsId, mapping, queryParameters, secure);
+}
+
 export function useFetchOptions({ node, item }: FetchOptionsProps) {
-  const { options, optionsId, secure, source, mapping, queryParameters } = item;
+  const { options, optionsId, source } = item;
+  const url = useOptionsUrl(item);
 
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
-  const url = useGetOptionsUrl(optionsId, mapping, queryParameters, secure);
-  const { data: fetchedOptions, isFetching, isError } = useGetOptionsQuery(url);
+  const { data, isFetching, error } = useGetOptionsQuery(url);
+  useLogFetchError(error, item);
 
-  // Log error if fetching options failed
+  const downstreamParameters: string | undefined = data?.headers['altinn-downstreamparameters'];
+
+  return {
+    unsorted: sourceOptions ?? data?.data ?? staticOptions ?? defaultOptions,
+    isFetching,
+    downstreamParameters,
+    url,
+  };
+}
+
+// Log error if fetching options failed
+function useLogFetchError(error: Error | null, item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>) {
   useEffect(() => {
-    if (isError) {
+    if (error) {
+      const { id, optionsId, secure, mapping, queryParameters } = item;
       const _optionsId = optionsId ? `\noptionsId: ${optionsId}` : '';
       const _mapping = mapping ? `\nmapping: ${JSON.stringify(mapping)}` : '';
       const _queryParameters = queryParameters ? `\nqueryParameters: ${JSON.stringify(queryParameters)}` : '';
       const _secure = secure ? `\nsecure: ${secure}` : '';
 
       window.logErrorOnce(
-        `Failed to fetch options for node ${node.id}${_optionsId}${_mapping}${_queryParameters}${_secure}`,
+        `Failed to fetch options for node ${id}${_optionsId}${_mapping}${_queryParameters}${_secure}`,
       );
     }
-  }, [isError, mapping, node, optionsId, queryParameters, secure]);
-
-  const downstreamParameters: string | undefined = fetchedOptions?.headers['altinn-downstreamparameters'];
-
-  return {
-    unsorted: sourceOptions ?? fetchedOptions?.data ?? staticOptions ?? defaultOptions,
-    isFetching,
-    downstreamParameters,
-  };
+  }, [error, item]);
 }
 
 const emptyArray: never[] = [];
