@@ -210,7 +210,7 @@ export function SubformPDF() {
     if (allLayouts.length < 1 && !isLoadingLayouts) {
       fetchLayoutData();
     }
-  }, [allLayouts.length, layoutQueries]);
+  }, [allLayouts.length, isLoadingLayouts, layoutQueries]);
 
   useEffect(() => {
     async function fetchData() {
@@ -253,8 +253,34 @@ export function SubformPDF() {
     return <h1>isLoadingLayouts</h1>;
   }
 
+  // For each dataElement, find the dataType and look up the correct layoutset from filteredLayoutSets
+  // Now you can find the actual layout set from allLayouts
+  // Now you can render the
+
   return (
     <div>
+      {dataElements.map((dataElement) => {
+        console.log(dataElement.dataType);
+
+        // const ourData = allData.find((data) => data.dataType)
+
+        const layouSetForData = filteredLayoutSets?.find((ls) => ls.dataType === dataElement.dataType);
+
+        const actualLayouSet = allLayouts.find((ls) => {
+          console.log('layousetFor us:');
+          console.log(ls);
+          return false;
+        });
+
+        return (
+          <div>
+            layouSetForData: <pre>{JSON.stringify(layouSetForData, null, 2)}</pre>
+          </div>
+        );
+      })}
+
+      <pre>{JSON.stringify(dataElements, null, 2)}</pre>
+
       <h2>All layouts:</h2>
 
       <h2>All data:</h2>
