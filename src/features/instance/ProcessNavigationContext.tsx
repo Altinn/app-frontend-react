@@ -10,7 +10,7 @@ import { useLaxInstance, useStrictInstance } from 'src/features/instance/Instanc
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
-import { mapBackendIssuesToTaskValidations } from 'src/features/validation/backendValidation/backendValidationUtils';
+import { useUpdateInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { Validation } from 'src/features/validation/validationContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -34,7 +34,8 @@ function useProcessNext() {
   const { navigateToTask } = useNavigatePage();
   const instanceId = useLaxInstance()?.instanceId;
   const onFormSubmitValidation = useOnFormSubmitValidation();
-  const updateTaskValidations = Validation.useUpdateTaskValidations();
+  const updateInitialValidations = useUpdateInitialValidations();
+  const setShowAllErrors = Validation.useSetShowAllErrors();
 
   const utils = useMutation({
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
@@ -46,14 +47,6 @@ function useProcessNext() {
         .catch((error) => {
           // If process next failed due to validation, return validationIssues instead of throwing
           if (error.response?.status === 409 && error.response?.data?.['validationIssues']?.length) {
-            if (updateTaskValidations === ContextNotProvided) {
-              window.logError(
-                "PUT 'process/next' returned validation issues, but there is no ValidationProvider available.",
-              );
-              throw error;
-            }
-
-            // Return validation issues
             return [null, error.response.data['validationIssues'] as BackendValidationIssue[]] as const;
           } else {
             throw error;
@@ -65,8 +58,10 @@ function useProcessNext() {
         await reFetchInstanceData();
         setProcessData?.({ ...processData, processTasks: currentProcessData?.processTasks });
         navigateToTask(processData?.currentTask?.elementId);
-      } else if (validationIssues && updateTaskValidations !== ContextNotProvided) {
-        updateTaskValidations(mapBackendIssuesToTaskValidations(validationIssues));
+      } else if (validationIssues) {
+        // Set initial validation to validation issues from process/next and make all errors visible
+        updateInitialValidations(validationIssues);
+        setShowAllErrors !== ContextNotProvided && setShowAllErrors();
       }
     },
     onError: (error: HttpClientError) => {

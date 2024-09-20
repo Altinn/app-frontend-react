@@ -442,10 +442,7 @@ describe('UI Components', () => {
       }
     });
 
-    cy.goto('changename');
-    cy.waitForLoad();
-    cy.findByRole('checkbox', { name: /label databindings/i }).dsCheck();
-    cy.gotoNavPage('label-data-bindings');
+    cy.gotoHiddenPage('label-data-bindings');
 
     cy.findByRole('combobox', { name: /velg noen farger/i }).click();
     cy.findByRole('option', { name: /blå/i }).click();
@@ -649,10 +646,7 @@ describe('UI Components', () => {
   }
 
   it('number conversion in regular form fields and number-formatted fields', () => {
-    cy.goto('changename');
-    cy.get(appFrontend.changeOfName.newFirstName).type('123');
-    cy.get('#choose-extra').findByText('Tall-input').click();
-    cy.gotoNavPage('numeric-fields');
+    cy.gotoHiddenPage('numeric-fields');
     cy.get(appFrontend.errorReport).should('not.exist');
 
     const fields: { [key: string]: Field } = {
@@ -745,18 +739,25 @@ describe('UI Components', () => {
   });
 
   it('Map component with simpleBinding', () => {
-    cy.intercept('GET', 'https://cache.kartverket.no/**/*.png', { fixture: 'map-tile.png' });
-    cy.intercept('GET', 'https://tile.openstreetmap.org/**/*.png', { fixture: 'map-tile.png' });
-    cy.interceptLayout('changename', (comp) => {
-      if (comp.id === 'map' && comp.type === 'Map') {
-        delete comp.dataModelBindings.geometries;
-      }
+    cy.fixture('map-tile.png', 'base64').then((data) => {
+      cy.interceptLayout('changename', (component) => {
+        if (component.type === 'Map' && component.id === 'map') {
+          component.layers = [
+            {
+              url: `data:image/png;base64,${data}`,
+              attribution: '&copy; <a href="about:blank">Team Apps</a>',
+            },
+          ];
+          delete component.dataModelBindings.geometries;
+        }
+
+        if (component.type === 'Input' && component.id === 'map-location') {
+          component.hidden = false;
+        }
+      });
     });
 
-    cy.goto('changename');
-    cy.get(appFrontend.changeOfName.newFirstName).type('123');
-    cy.get('#choose-extra').findByText('Kart').click();
-    cy.gotoNavPage('map');
+    cy.gotoHiddenPage('map');
 
     cy.get(component('map')).should('contain.text', 'Ingen lokasjon valgt');
     cy.get(component('mapSummary')).should('contain.text', 'Du har ikke lagt inn informasjon her');
@@ -777,26 +778,37 @@ describe('UI Components', () => {
       .findByText(/59(\.\d{1,6})?, 10(\.\d{1,6})?/)
       .should('be.visible');
 
+    // Set exact location so snapshot is consistent
+    cy.findByRole('textbox', { name: /eksakt lokasjon/i }).clear();
+    cy.findByRole('textbox', { name: /eksakt lokasjon/i }).type('59.930803,10.801246');
+    cy.waitUntilSaved();
+
     // Force the map component to remount to skip the zoom animation
     cy.gotoNavPage('form');
     cy.gotoNavPage('map');
+
+    // Make sure tiles are not faded before taking the snapshot
+    cy.get('.leaflet-layer img').each((layer) => cy.wrap(layer).should('have.css', 'opacity', '1'));
 
     cy.snapshot('components:map-simpleBinding');
   });
 
   it('Map component with geometries should center the map around the geometries', () => {
-    cy.intercept('GET', 'https://cache.kartverket.no/**/*.png', { fixture: 'map-tile.png' });
-    cy.intercept('GET', 'https://tile.openstreetmap.org/**/*.png', { fixture: 'map-tile.png' });
-    cy.interceptLayout('changename', (comp) => {
-      if (comp.id === 'map' && comp.type === 'Map') {
-        delete comp.dataModelBindings.simpleBinding;
-      }
+    cy.fixture('map-tile.png', 'base64').then((data) => {
+      cy.interceptLayout('changename', (component) => {
+        if (component.type === 'Map' && component.id === 'map') {
+          component.layers = [
+            {
+              url: `data:image/png;base64,${data}`,
+              attribution: '&copy; <a href="about:blank">Team Apps</a>',
+            },
+          ];
+          delete component.dataModelBindings.simpleBinding;
+        }
+      });
     });
 
-    cy.goto('changename');
-    cy.get(appFrontend.changeOfName.newFirstName).type('123');
-    cy.get('#choose-extra').findByText('Kart').click();
-    cy.gotoNavPage('map');
+    cy.gotoHiddenPage('map');
 
     // prettier-ignore
     {
@@ -845,10 +857,7 @@ describe('UI Components', () => {
   });
 
   it('number formatting should never update/change the form data', () => {
-    cy.goto('changename');
-    cy.get(appFrontend.changeOfName.newFirstName).type('123');
-    cy.get('#choose-extra').findByText('Tall-input').click();
-    cy.gotoNavPage('numeric-fields');
+    cy.gotoHiddenPage('numeric-fields');
     cy.get(appFrontend.errorReport).should('not.exist');
 
     // Fill out a specific number in the field that we'll round later when setting up decimalScale
