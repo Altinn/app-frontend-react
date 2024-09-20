@@ -1,5 +1,6 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
+import { typedBoolean } from 'src/utils/typing';
 import type { IRawOption } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
@@ -159,17 +160,26 @@ describe('Options', () => {
     cy.get(appFrontend.changeOfName.summaryReference).should('not.contain.text', 'nordmann');
   });
 
-  it('does not clear options when source changes and the old value is still valid', () => {
-    cy.intercept({ method: 'GET', url: '**/options/references*source=digdir' }, (req) => {
+  function interceptAndChangeOptions(matching: (url: string) => boolean, mutator: (options: IRawOption[]) => void) {
+    cy.intercept({ method: 'GET', url: '**/options/**' }, (req) => {
       req.reply((res) => {
+        if (!matching(req.url)) {
+          res.send(JSON.stringify(res.body));
+          return;
+        }
+
         const options = res.body as IRawOption[];
-        options.push({
-          value: 'nordmann',
-          label: 'Fortsatt Ola Nordmann',
-        });
+        mutator(options);
         res.send(JSON.stringify(options));
       });
     });
+  }
+
+  it('does not clear options when source changes and the old value is still valid', () => {
+    interceptAndChangeOptions(
+      (url) => url.includes('references') && url.includes('source=digdir'),
+      (options) => options.push({ value: 'nordmann', label: 'Fortsatt Ola Nordmann' }),
+    );
     cy.goto('changename');
 
     cy.get(appFrontend.changeOfName.sources).should('be.visible');
@@ -181,5 +191,122 @@ describe('Options', () => {
     cy.get(appFrontend.changeOfName.sources).should('have.value', 'Digitaliseringsdirektoratet');
 
     cy.get(appFrontend.changeOfName.reference).should('have.value', 'Fortsatt Ola Nordmann');
+  });
+
+  it('should not clear stale values when the component is hidden', () => {
+    cy.gotoHiddenPage('conflicting-options');
+    const headerRow = '#group-animals-table-header tr';
+    cy.get(headerRow).find('th').eq(0).should('have.text', 'Type');
+    cy.get(headerRow).find('th').eq(1).should('have.text', 'Antall bein');
+    cy.get(headerRow).find('th').eq(2).should('have.text', 'Antall bein (utland)');
+    cy.get(headerRow).find('th').eq(3).should('have.text', 'Farger');
+    cy.get(headerRow).find('th').eq(4).should('have.text', 'Kommentartyper');
+
+    const mainTableRow = '#group-animals-table-body tr';
+    const nestedTableRow = '[id^="group-animalComments-"][id$="-table-body"] tr';
+    cy.get(mainTableRow).should('have.length', 2);
+
+    const CommentTypes = {
+      '': { label: '', value: '' }, // Represents a missing value
+
+      // Valid for domestic animals
+      Criticism: { label: 'Kritikk', value: 'CRITICISM' },
+      Spam: { label: 'Søppel', value: 'SPAM' },
+
+      // Valid for foreign animals
+      Praise: { label: 'Skryt', value: 'PRAISE' },
+      Suggestions: { label: 'Forslag', value: 'SUGGESTIONS' },
+    };
+
+    function assertRow(
+      row: number,
+      type: string,
+      numLegs: string,
+      numLegsForeign: string,
+      colors: string,
+      commentTypes: [keyof typeof CommentTypes, keyof typeof CommentTypes],
+    ) {
+      cy.get(mainTableRow).eq(row).find('td').eq(0).should('have.text', type); // Type
+      cy.get(mainTableRow).eq(row).find('td').eq(1).should('have.text', numLegs); // Antall bein
+      cy.get(mainTableRow).eq(row).find('td').eq(2).should('have.text', numLegsForeign); // Antall bein (utland)
+      cy.get(mainTableRow).eq(row).find('td').eq(3).should('have.text', colors); // Farger
+
+      // This compound column shows the labels of the selected comment types (but filters out the empty string)
+      const commentTypeLabels = commentTypes
+        .filter(typedBoolean)
+        .map((t) => CommentTypes[t].label)
+        .join(', ');
+
+      cy.get(mainTableRow).eq(row).find('td').eq(4).should('have.text', commentTypeLabels);
+
+      cy.get(mainTableRow).eq(row).find('button').click();
+      cy.get(nestedTableRow).should('have.length', 2);
+      cy.get(nestedTableRow).eq(0).find('td').eq(0).should('have.text', CommentTypes[commentTypes[0]].label);
+      cy.get(nestedTableRow).eq(1).find('td').eq(0).should('have.text', CommentTypes[commentTypes[1]].label);
+
+      // Foreign components are hidden, so they will show the value (if they were visible, they would clear the value
+      // as it's not valid for these components)
+      cy.get(nestedTableRow).eq(0).find('td').eq(1).should('have.text', CommentTypes[commentTypes[0]].value);
+      cy.get(nestedTableRow).eq(1).find('td').eq(1).should('have.text', CommentTypes[commentTypes[1]].value);
+
+      cy.get(mainTableRow).eq(row).find('button').click();
+      cy.get(nestedTableRow).should('not.exist');
+    }
+
+    // The table here is full of mistakes and bugs, caused by our deletion of stale values. We should fix the root
+    // causes of these issues and possibly introduce validation for the values that are not in an option list
+    // instead of just removing them. On the other hand, garbage collection in the data model might want to hold
+    // on to these removed values in case they are valid again later. This test then serves as a reminder of the
+    // issues that need to be fixed, and it is expected to fail at some point in the future when the issues are fixed.
+    // Remember to update the test at that point.
+
+    // Cell 3: This shows the _value_ from option list, not the label. That should not show up there, but we can't
+    // change it while staying backwards compatible
+    // Cell 4: The cat is also brown, but brown is only valid when isForeign is set to 'true' (it defaults to 'false').
+    // The brown value is thus removed on load, but in the future we should keep it and show it if the isForeign
+    // radio button is set to 'true'.
+    assertRow(0, 'Katt', 'fire', '4', 'Svart', ['Criticism', '']);
+
+    // Cell 2: Tigers have 5 legs when loading, but that's not valid unless we set isForeign to 'true'.
+    // Cell 3: Since the data is deleted because it's not valid in the previous row, this will be empty. It would
+    // be more logical if this showed '5', but that's not the case. The best would be if this column didn't show
+    // up at all, as the component it refers to is hidden until we toggle the isForeign radio button to 'true'.
+    // Cell 4: Tigers are red and pink. The pink color disappears if we toggle isForeign to 'true', as that's not
+    // a valid color for foreign animals.
+    assertRow(1, 'Tiger', '', '', 'Rød, Rosa', ['', 'Spam']);
+
+    cy.get('#isForeign').findByRole('radio', { name: 'Ja' }).click();
+
+    // Now the first row gets cleared (and brown still doesn't show up in the color column)
+    assertRow(0, 'Katt', '', '', 'Svart', ['', '']);
+
+    // The second row is still there, and still doesn't have legs, but the pink color is gone
+    assertRow(1, 'Tiger', '', '', 'Rød', ['', '']);
+
+    // Now we toggle back to 'false' and probably expect the first row to be back
+    cy.get('#isForeign').findByRole('radio', { name: 'Nei' }).click();
+
+    // The first row legs are still missing
+    assertRow(0, 'Katt', '', '', 'Svart', ['', '']);
+
+    // The second row is still there, and still doesn't have legs (pink is still gone)
+    assertRow(1, 'Tiger', '', '', 'Rød', ['', '']);
+
+    // Now we toggle back to 'true' and click the reset button
+    cy.get('#isForeign').findByRole('radio', { name: 'Ja' }).click();
+    cy.findByRole('button', { name: 'Tilbakestill' }).click();
+
+    // If you set the isForeign radio button to 'true' and then clicked the reset button, we used to get into
+    // a situation where (for a short while) the foreign option components were still visible, so they would
+    // remove 'stale' values from the incoming data before the 'isForeign' radio button was set to 'false' again by
+    // that same incoming data. This has been fixed, so now we expect the first row to have been reset back to its
+    // original state.
+
+    assertRow(0, 'Katt', 'fire', '4', 'Svart', ['Criticism', '']);
+    assertRow(1, 'Tiger', '', '', 'Rød, Rosa', ['', 'Spam']);
+
+    // A continuation of this test could add a choice for the user to prevent the CustomButton from resetting
+    // isForeign back to 'false' when the reset button is clicked. This would allow us to test the case where
+    // the foreign option components are still visible when the reset button is clicked.
   });
 });

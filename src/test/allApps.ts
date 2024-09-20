@@ -11,6 +11,7 @@ import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/mi
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
+import type { IFormDynamics } from 'src/features/form/dynamics';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { ILayoutFile, ILayoutSet, ILayoutSets, ILayoutSettings } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
@@ -42,6 +43,14 @@ export class ExternalApp {
       return true;
     } catch (_err) {
       return false;
+    }
+  }
+
+  private fileSize(path: string) {
+    try {
+      return fs.statSync(this.rootDir + path).size;
+    } catch (_err) {
+      return 0;
     }
   }
 
@@ -145,6 +154,23 @@ export class ExternalApp {
     }
 
     return out;
+  }
+
+  getRuleHandler(layoutSetId: string): string {
+    const path = `/App/ui/${layoutSetId}/RuleHandler.js`;
+    if (!this.fileExists(path)) {
+      return '';
+    }
+    return this.readFile(path);
+  }
+
+  getRuleConfiguration(layoutSetId: string): { data: IFormDynamics } | null {
+    const path = `/App/ui/${layoutSetId}/RuleConfiguration.json`;
+    if (!this.fileExists(path) || this.fileSize(path) === 0) {
+      return null;
+    }
+
+    return this.readJson<{ data: IFormDynamics }>(path);
   }
 
   getRawLayoutSets(): ILayoutSets {
@@ -273,6 +299,14 @@ export class ExternalAppLayoutSet {
 
   getModel() {
     return new ExternalAppDataModel(this.app, this.config.dataType, this);
+  }
+
+  getRuleHandler() {
+    return this.app.getRuleHandler(this.id);
+  }
+
+  getRuleConfiguration() {
+    return this.app.getRuleConfiguration(this.id);
   }
 
   simulateInstance(): IInstance {
@@ -410,7 +444,7 @@ export function ensureAppsDirIsSet(runVoidTest = true) {
  */
 function parseJsonTolerantly<T = unknown>(content: string): T {
   // Remove multiline comments
-  content = content.replace(/\/\*([\s\S]*?)\*\//g, '$1');
+  content = content.replace(/\/\*([\s\S]*?)\*\//g, '');
 
   // Remove single-line comments, but not in strings
   content = content.replace(/^(.*?)\/\/(.*)$/gm, (_, m1, m2) => {
