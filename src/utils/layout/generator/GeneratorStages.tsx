@@ -78,7 +78,7 @@ type Registry = {
 
 interface CreateStoreProps {
   registry: MutableRefObject<Registry>;
-  markReady: (ready?: NodesReadiness) => void;
+  markReady: (reason: string, ready?: NodesReadiness) => void;
 }
 
 function performanceMark(action: 'start' | 'end', runNum: number, stage?: Stage) {
@@ -181,8 +181,7 @@ const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider
               registry.current.stages[stage].finished = false;
             }
 
-            generatorLog('logReadiness', 'Marking state as not ready when starting new run');
-            markReady(NodesReadiness.NotReady);
+            markReady('new run from stages', NodesReadiness.NotReady);
             return { currentStage: List[0], runNum };
           }
 
@@ -237,7 +236,7 @@ export function useGetAwaitingCommits() {
 }
 
 interface StagesProps {
-  markReady: (ready?: NodesReadiness) => void;
+  markReady: (reason: string, ready?: NodesReadiness) => void;
 }
 
 /**

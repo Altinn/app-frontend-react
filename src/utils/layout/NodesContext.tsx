@@ -143,7 +143,7 @@ export type NodesContext = {
 
   addPage: (pageKey: string) => void;
   setPageProps: <K extends keyof PageData>(requests: SetPagePropRequest<K>[]) => void;
-  markReady: (readiness?: NodesReadiness) => void;
+  markReady: (reason: string, readiness?: NodesReadiness) => void;
 
   reset: () => void;
 
@@ -329,7 +329,14 @@ export function createNodesDataStore() {
         }
         return { pagesData: { type: 'pages', pages: pageData } };
       }),
-    markReady: (readiness = NodesReadiness.Ready) => set(() => ({ readiness })),
+    markReady: (reason, readiness = NodesReadiness.Ready) =>
+      set((state) => {
+        if (state.readiness !== readiness) {
+          generatorLog('logReadiness', `Marking state as ${readiness}: ${reason}`);
+          return { readiness };
+        }
+        return {};
+      }),
 
     reset: () => set(() => ({ ...structuredClone(defaultState) })),
 
@@ -548,8 +555,7 @@ function InnerMarkAsReady() {
 
   useEffect(() => {
     if (shouldMarkAsReady) {
-      generatorLog('logReadiness', 'Marking state as ready');
-      markReady();
+      markReady('normal path');
     }
   }, [shouldMarkAsReady, markReady]);
 
@@ -561,8 +567,7 @@ function InnerMarkAsReady() {
       const runDuringInterval = () => {
         const awaiting = getAwaitingCommits();
         if (awaiting === 0) {
-          generatorLog('logReadiness', 'Marking state as ready via interval fallback');
-          markReady();
+          markReady('via interval fallback');
           clearInterval(interval);
         }
       };
@@ -583,8 +588,7 @@ function RegisterOnSaveFinished() {
 
   useEffect(() => {
     setOnSaveFinished(() => {
-      generatorLog('logReadiness', 'Marking state as not ready because of recent form data save');
-      markReady(NodesReadiness.WaitingUntilLastSaveHasProcessed);
+      markReady('recent form data save', NodesReadiness.WaitingUntilLastSaveHasProcessed);
     });
   }, [setOnSaveFinished, markReady]);
 
@@ -905,7 +909,7 @@ export const NodesInternal = {
   },
   useMarkNotReady() {
     const markReady = Store.useSelector((s) => s.markReady);
-    return useCallback(() => markReady(NodesReadiness.NotReady), [markReady]);
+    return useCallback(() => markReady('from useMarkNotReady', NodesReadiness.NotReady), [markReady]);
   },
   /**
    * Like a useEffect, but only runs the effect when the nodes context is ready.
