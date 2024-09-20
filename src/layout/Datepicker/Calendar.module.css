@@ -7,30 +7,53 @@
 .disabledDate {
   border-radius: var(--fds-border_radius-medium);
   background: var(--fds-colors-grey-100);
-  text-decoration: line-through;
+
   cursor: not-allowed;
+}
+.disabledDate button {
+  text-decoration: line-through;
 }
 .focusedDate {
   border-radius: var(--fds-border_radius-medium);
   background: var(--fds-colors-blue-200);
 }
 .today {
-  //border-radius: var(--fds-border_radius-medium);
-  //border: var(--fds-border_width-default) solid var(--fds-colors-blue-200);
-}
-.today button {
   border-radius: var(--fds-border_radius-medium);
   border: var(--fds-border_width-default) solid var(--fds-colors-blue-200);
 }
 .disabledDate:hover button {
   cursor: not-allowed;
 }
-.dayButton {
-  justify-content: center;
+
+.calendarWrapper {
+  max-width: 363px;
+}
+.calendar {
+  width: 350px;
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+.calendarWeekday {
+  width: 48px;
+  height: 48px;
+  text-align: center;
+  opacity: 0.75;
+  padding: 0.5rem 0rem;
+  font: inherit;
+  font-weight: 500;
+}
+.calendarDay {
+  width: 48px;
+  height: 48px;
+  text-align: center;
+}
+.calendarDayButton {
+  height: 46px;
+  width: 46px;
+  /*justify-content: center;
   align-items: center;
   display: flex;
-  height: 100%;
-  width: 100%;
+
   border-radius: 0;
   border: none;
   background: none;
@@ -38,12 +61,13 @@
   margin: 0;
   cursor: pointer;
   font: inherit;
-  color: inherit;
+  color: inherit;*/
 }
 .monthWrapper {
   display: flex;
   flex-direction: column;
 }
+
 .calendarInputWrapper {
   display: flex;
   border-radius: 4px;
@@ -53,5 +77,4 @@
 .calendarInput button {
   border: none;
   background: white;
-  outline: none;
 }

@@ -3,8 +3,6 @@ import {
   defaultLocale,
   formatMonthDropdown,
   labelMonthDropdown,
-  labelNext,
-  labelPrevious,
   labelYearDropdown,
   useDayPicker,
 } from 'react-day-picker';
@@ -12,13 +10,18 @@ import type { MonthCaptionProps } from 'react-day-picker';
 
 import { Button, Combobox } from '@digdir/designsystemet-react';
 import { ArrowLeftIcon, ArrowRightIcon } from '@navikt/aksel-icons';
-import { addYears, isSameYear, max, min, setMonth, setYear, startOfMonth, startOfYear, subYears } from 'date-fns';
+import { addYears, max, min, setMonth, setYear, startOfMonth, subYears } from 'date-fns';
 
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
+import { useIsMobile } from 'src/hooks/useDeviceWidths';
+import { getMonths, getYears } from 'src/layout/Datepicker/DatePickerHelpers';
 import comboboxClasses from 'src/styles/combobox.module.css';
 
 export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
   const { goToMonth, nextMonth, previousMonth } = useDayPicker();
+  const { langAsString } = useLanguage();
+  const isMobile = useIsMobile();
 
   const handleYearChange = (year: string) => {
     const newMonth = setYear(startOfMonth(calendarMonth.date), Number(year));
@@ -29,62 +32,11 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
     goToMonth(setMonth(startOfMonth(calendarMonth.date), Number(month)));
   };
 
-  const getMonths = (start: Date, end: Date, current: Date): Date[] => {
-    const dropdownMonths: Date[] = [];
-
-    if (isSameYear(start, end)) {
-      const date = startOfMonth(start);
-      for (let month = start.getMonth(); month <= end.getMonth(); month++) {
-        dropdownMonths.push(setMonth(date, month));
-      }
-    } else if (isSameYear(current, end)) {
-      const date = startOfMonth(new Date());
-      for (let month = 0; month <= end.getMonth(); month++) {
-        dropdownMonths.push(setMonth(date, month));
-      }
-    } else if (isSameYear(current, start)) {
-      const date = startOfMonth(start);
-      for (let month = date.getMonth(); month <= 11; month++) {
-        dropdownMonths.push(setMonth(date, month));
-      }
-    } else {
-      const date = startOfMonth(new Date());
-      for (let month = 0; month <= 11; month++) {
-        dropdownMonths.push(setMonth(date, month));
-      }
-    }
-
-    if (!dropdownMonths.map((d) => d.getMonth()).includes(current.getMonth())) {
-      dropdownMonths.push(current);
-    }
-    dropdownMonths.sort((a, b) => a.getMonth() - b.getMonth());
-
-    return dropdownMonths;
-  };
-
-  const getYears = (start: Date, end: Date, currentYear: number): Date[] => {
-    const years: Date[] = [];
-    const fromYear = start.getFullYear();
-    const toYear = end.getFullYear();
-    for (let year = fromYear; year <= toYear; year++) {
-      years.push(setYear(startOfYear(new Date()), year));
-    }
-
-    if (fromYear > currentYear || toYear < currentYear) {
-      years.push(setYear(startOfYear(new Date()), currentYear));
-    }
-
-    years.sort((a, b) => a.getFullYear() - b.getFullYear());
-    return years;
-  };
-
   const fromDate = subYears(calendarMonth.date, 100);
   const toDate = addYears(calendarMonth.date, 100);
 
   const years = getYears(fromDate, toDate, calendarMonth.date.getFullYear()).reverse();
   const months = getMonths(fromDate, toDate, calendarMonth.date);
-  const previousLabel = labelPrevious(previousMonth, { locale: defaultLocale });
-  const nextLabel = labelNext(nextMonth, { locale: defaultLocale });
   const yearDropdownLabel = labelYearDropdown({ locale: defaultLocale });
   const MonthDropdownLabel = labelMonthDropdown({ locale: defaultLocale });
 
@@ -95,7 +47,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
           icon={true}
           color='second'
           variant='tertiary'
-          //aria-label={previousLabel}
+          aria-label={langAsString('date_picker.aria_label_left_arrow')}
           disabled={!previousMonth}
           onClick={() => previousMonth && goToMonth(previousMonth)}
         >
@@ -108,9 +60,9 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
             size='sm'
             value={[calendarMonth.date.getFullYear().toString()]}
             onValueChange={(years) => handleYearChange(years[0])}
-            aria-label={'Year'}
+            aria-label={yearDropdownLabel}
             className={comboboxClasses.container}
-            portal={false}
+            portal={!isMobile}
           >
             <Combobox.Empty>
               <Lang id={'form_filler.no_options_found'} />
@@ -131,9 +83,9 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
             size='sm'
             value={[calendarMonth.date.getMonth().toString()]}
             onValueChange={(months) => handleMonthChange(months[0])}
-            aria-label={'Month'}
+            aria-label={MonthDropdownLabel}
             className={comboboxClasses.container}
-            portal={false}
+            portal={!isMobile}
           >
             <Combobox.Empty>
               <Lang id={'form_filler.no_options_found'} />
@@ -153,14 +105,13 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
           icon={true}
           color='second'
           variant='tertiary'
-          //aria-label={nextLabel}
+          aria-label={langAsString('date_picker.aria_label_right_arrow')}
           disabled={!nextMonth}
           onClick={() => nextMonth && goToMonth(nextMonth)}
         >
           <ArrowRightIcon />
         </Button>
       </div>
-      {/*<WeekRow displayMonth={displayMonth} />*/}
     </>
   );
 };

@@ -1,93 +1,61 @@
-import React, { useId, useRef } from 'react';
+import React from 'react';
 import { DayPicker } from 'react-day-picker';
-import type { Matcher } from 'react-day-picker';
 
 import styles from 'src/layout/Datepicker/Calendar.module.css';
 import DropdownCaption from 'src/layout/Datepicker/DropdownCaption';
+import { getLocale } from 'src/utils/dateHelpers';
 
 export interface CalendarDialogProps {
   id: string;
   isOpen?: boolean;
-  month: Date;
-  setMonth: (month: Date) => void;
   selectedDate: Date | undefined;
   onSelect?: (value: Date) => void;
-  maxDate: string;
-  minDate: string;
+  maxDate: Date;
+  minDate: Date;
+  locale?: string;
+  required?: boolean;
+  autoFocus?: boolean;
+  onBlur?: () => void;
 }
 
 export const DatePickerCalendar = ({
-  id,
-  isOpen = false,
-  month,
-  setMonth,
   selectedDate,
   onSelect,
   minDate,
   maxDate,
+  locale,
+  required,
+  autoFocus,
 }: CalendarDialogProps) => {
-  const dialogId = useId();
-  const headerId = useId();
-  const calendarRef = useRef<HTMLDivElement>(null);
+  const currentLocale = getLocale(locale ?? 'nb');
 
-  //Add event listner for closing calendar on click outside
-  /*useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
-        setIsDialogOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);*/
-
-  const disabledDates: Matcher[] = [];
-
-  const matcher = { before: new Date(minDate), after: new Date(maxDate) };
-  disabledDates.push(matcher);
   return (
-    isOpen && (
-      <div
-        ref={calendarRef}
-        style={{
-          position: 'absolute',
-          display: 'flex',
-          zIndex: 10,
-          backgroundColor: 'white',
-          boxShadow: 'gray 2px 2px 6px 0px',
-          padding: '10px',
-          flexDirection: 'column',
-        }}
-        id={dialogId}
-        aria-modal
-        aria-labelledby={headerId}
-      >
-        <DayPicker
-          classNames={{
-            selected: styles.selectedDate,
-            disabled: styles.disabledDate,
-            focused: styles.focusedDate,
-            today: styles.today,
-            day_button: styles.dayButton,
-            month: styles.monthWrapper,
-          }}
-          today={new Date()}
-          disabled={disabledDates}
-          month={month}
-          onMonthChange={setMonth}
-          weekStartsOn={1}
-          autoFocus={false}
-          mode='single'
-          hideNavigation
-          selected={selectedDate}
-          required={true}
-          captionLayout='label'
-          onSelect={onSelect}
-          components={{ MonthCaption: DropdownCaption }}
-        />
-      </div>
-    )
+    <DayPicker
+      classNames={{
+        selected: styles.selectedDate,
+        disabled: styles.disabledDate,
+        focused: styles.focusedDate,
+        today: styles.today,
+        month_grid: styles.calendar,
+        day: styles.calendarDay,
+        day_button: styles.calendarDayButton,
+        month: styles.monthWrapper,
+        weekday: styles.calendarWeekday,
+      }}
+      locale={currentLocale}
+      today={new Date()}
+      month={selectedDate}
+      disabled={[{ before: minDate, after: maxDate }]}
+      weekStartsOn={1}
+      mode='single'
+      hideNavigation
+      selected={selectedDate}
+      required={required}
+      captionLayout='label'
+      onSelect={onSelect}
+      components={{ MonthCaption: DropdownCaption }}
+      autoFocus={autoFocus}
+      style={{ height: '405px' }}
+    />
   );
 };
