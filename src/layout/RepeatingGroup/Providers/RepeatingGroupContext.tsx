@@ -11,6 +11,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useOnGroupCloseValidation } from 'src/features/validation/callbacks/onGroupCloseValidation';
 import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/Providers/OpenByDefaultProvider';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem, useNodeItemRef, useWaitForNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
 import type { IGroupEditProperties } from 'src/layout/RepeatingGroup/config.generated';
@@ -325,6 +326,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   const removeFromList = FD.useRemoveFromListCallback();
   const onBeforeRowDeletion = useAttachmentDeletionInRepGroups(node);
   const onGroupCloseValidation = useOnGroupCloseValidation();
+  const markNodesNotReady = NodesInternal.useMarkNotReady();
 
   const waitForItem = useWaitForNodeItem(node);
 
@@ -438,6 +440,8 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       path: groupBinding,
       newValue: { [ALTINN_ROW_ID]: uuid },
     });
+
+    markNodesNotReady(); // Doing this early to prevent re-renders when this is added to the data model
     startAddingRow(uuid);
     let foundRow: RepGroupRow | undefined;
     await waitForItem((item) => {
@@ -469,7 +473,16 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     }
 
     return { result: 'addedAndHidden', uuid, index };
-  }, [appendToList, groupBinding, maybeValidateRow, rowStateRef, openForEditing, stateRef, waitForItem]);
+  }, [
+    stateRef,
+    groupBinding,
+    maybeValidateRow,
+    appendToList,
+    markNodesNotReady,
+    waitForItem,
+    rowStateRef,
+    openForEditing,
+  ]);
 
   const deleteRow = useCallback(
     async (row: BaseRow) => {
@@ -480,6 +493,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
         return false;
       }
 
+      markNodesNotReady(); // Doing this early to prevent re-renders when this is removed from the data model
       startDeletingRow(row);
       const attachmentDeletionSuccessful = await onBeforeRowDeletion(row.index);
       if (attachmentDeletionSuccessful && groupBinding) {
@@ -496,7 +510,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       endDeletingRow(row, false);
       return false;
     },
-    [groupBinding, rowStateRef, onBeforeRowDeletion, removeFromList, stateRef],
+    [rowStateRef, stateRef, markNodesNotReady, onBeforeRowDeletion, groupBinding, removeFromList],
   );
 
   const isDeleting = useCallback((uuid: string) => stateRef.current.deletingIds.includes(uuid), [stateRef]);
