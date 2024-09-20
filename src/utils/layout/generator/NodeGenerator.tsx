@@ -59,7 +59,8 @@ export function NodeGenerator({ children, claim, externalItem }: PropsWithChildr
   const commonProps: CommonProps<CompTypes> = { node, externalItem, intermediateItem };
 
   return (
-    <GeneratorRunProvider>
+    // Adding id as a key to make it easier to see which component is being rendered in the React DevTools
+    <GeneratorRunProvider key={intermediateItem.id}>
       <GeneratorCondition
         stage={StageAddNodes}
         mustBeAdded='parent'
