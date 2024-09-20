@@ -4,7 +4,7 @@ import { EffectPreselectedOptionIndex } from 'src/features/options/effects/Effec
 import { EffectRemoveStaleValues } from 'src/features/options/effects/EffectRemoveStaleValues';
 import { EffectSetDownstreamParameters } from 'src/features/options/effects/EffectSetDownstreamParameters';
 import { EffectStoreLabel } from 'src/features/options/effects/EffectStoreLabel';
-import { useFetchOptions } from 'src/features/options/useGetOptions';
+import { useFetchOptions, useSortedOptions } from 'src/features/options/useGetOptions';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import {
   GeneratorCondition,
@@ -18,7 +18,7 @@ import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generate
 import type { CompIntermediate, CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface GeneratorOptionProps {
+interface GeneratorOptionProps {
   valueType: OptionsValueType;
 }
 
@@ -39,20 +39,21 @@ function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
   const setNodeProp = NodesStateQueue.useSetNodeProp();
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
 
-  const { options, isFetching, preselectedOption, downstreamParameters } = useFetchOptions({
-    valueType,
-    node,
-    item,
-  });
+  const { unsorted, isFetching, downstreamParameters } = useFetchOptions({ node, item });
+  const { options, preselectedOption } = useSortedOptions({ unsorted, valueType, item });
 
   const hasBeenSet = NodesInternal.useNodeData(node, (data) =>
     item ? data.options === options && data.isFetchingOptions === isFetching : false,
   );
 
-  GeneratorStages.FetchOptions.useEffect(() => {
-    !isFetching && setNodeProp({ node, prop: 'options', value: options });
-    setNodeProp({ node, prop: 'isFetchingOptions', value: isFetching });
-  }, [node, setNodeProp, options]);
+  GeneratorStages.FetchOptions.useConditionalEffect(() => {
+    if (!hasBeenSet) {
+      !isFetching && setNodeProp({ node, prop: 'options', value: options });
+      setNodeProp({ node, prop: 'isFetchingOptions', value: isFetching });
+      return true;
+    }
+    return false;
+  }, [node, setNodeProp, options, hasBeenSet]);
 
   if (isFetching || !hasBeenSet) {
     // No need to run effects while fetching or if the data has not been set yet
@@ -61,7 +62,10 @@ function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
 
   return (
     <>
-      <EffectRemoveStaleValues valueType={valueType} />
+      <EffectRemoveStaleValues
+        valueType={valueType}
+        options={options}
+      />
       {preselectedOption !== undefined && (
         <EffectPreselectedOptionIndex
           preselectedOption={preselectedOption}
@@ -71,7 +75,12 @@ function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
       {downstreamParameters && dataModelBindings && dataModelBindings.metadata ? (
         <EffectSetDownstreamParameters downstreamParameters={downstreamParameters} />
       ) : null}
-      {dataModelBindings && dataModelBindings.label ? <EffectStoreLabel valueType={valueType} /> : null}
+      {dataModelBindings && dataModelBindings.label ? (
+        <EffectStoreLabel
+          valueType={valueType}
+          options={options}
+        />
+      ) : null}
     </>
   );
 }

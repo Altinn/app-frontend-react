@@ -18,14 +18,14 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export type OptionsValueType = 'single' | 'multi';
 
 interface FetchOptionsProps {
-  valueType: OptionsValueType;
   node: LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
 }
 
-interface SetOptionsProps {
+interface SortedOptionsProps {
+  unsorted: IOptionInternal[];
   valueType: OptionsValueType;
-  dataModelBindings?: IDataModelBindingsOptionsSimple;
+  item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
 }
 
 export interface GetOptionsResult {
@@ -71,8 +71,11 @@ const compareOptionAlphabetically =
     return sortOrder === 'asc' ? comparison : -comparison;
   };
 
-function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[]): SetOptionsResult {
-  const { valueType, dataModelBindings } = props;
+export function useSetOptions(
+  valueType: OptionsValueType,
+  dataModelBindings: IDataModelBindingsOptionsSimple | undefined,
+  options: IOptionInternal[],
+): SetOptionsResult {
   const { formData, setValue } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding ?? '';
 
@@ -82,8 +85,8 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
   );
 
   const selectedValues = useMemo(
-    () => currentValues.filter((value) => alwaysOptions.find((option) => option.value === value)),
-    [alwaysOptions, currentValues],
+    () => currentValues.filter((value) => options.find((option) => option.value === value)),
+    [options, currentValues],
   );
 
   const [key, setKey] = useState(0);
@@ -108,52 +111,13 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
   };
 }
 
-export function useFetchOptions({ node, valueType, item }: FetchOptionsProps) {
-  const { options, optionsId, secure, source, mapping, queryParameters, sortOrder } = item;
-  const preselectedOptionIndex = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
-  const { langAsString } = useLanguage();
-  const selectedLanguage = useCurrentLanguage();
+export function useFetchOptions({ node, item }: FetchOptionsProps) {
+  const { options, optionsId, secure, source, mapping, queryParameters } = item;
 
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
   const url = useGetOptionsUrl(optionsId, mapping, queryParameters, secure);
   const { data: fetchedOptions, isFetching, isError } = useGetOptionsQuery(url);
-
-  const [calculatedOptions, preselectedOption] = useMemo(() => {
-    let draft = sourceOptions || fetchedOptions?.data || staticOptions;
-    verifyOptions(draft, valueType === 'multi');
-    let preselectedOption: IOptionInternal | undefined = undefined;
-    if (preselectedOptionIndex !== undefined && draft && draft[preselectedOptionIndex]) {
-      // This index uses the original options array, before any filtering or sorting
-      preselectedOption = draft[preselectedOptionIndex];
-    }
-
-    verifyOptions(draft, valueType === 'multi');
-
-    if (draft && draft.length < 2) {
-      // No need to sort or filter if there are 0 or 1 options. Using langAsString() can lead to re-rendering, so
-      // we avoid it if we don't need it.
-      return [draft, preselectedOption];
-    }
-
-    if (draft) {
-      draft = filterDuplicateOptions(draft);
-    }
-    if (draft && sortOrder) {
-      draft = [...draft].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
-    }
-
-    return [draft, preselectedOption];
-  }, [
-    fetchedOptions?.data,
-    langAsString,
-    preselectedOptionIndex,
-    selectedLanguage,
-    sortOrder,
-    sourceOptions,
-    staticOptions,
-    valueType,
-  ]);
 
   // Log error if fetching options failed
   useEffect(() => {
@@ -169,16 +133,53 @@ export function useFetchOptions({ node, valueType, item }: FetchOptionsProps) {
     }
   }, [isError, mapping, node, optionsId, queryParameters, secure]);
 
-  const alwaysOptions = calculatedOptions || defaultOptions;
-
   const downstreamParameters: string | undefined = fetchedOptions?.headers['altinn-downstreamparameters'];
 
   return {
-    options: alwaysOptions,
+    unsorted: sourceOptions ?? fetchedOptions?.data ?? staticOptions ?? defaultOptions,
     isFetching,
     downstreamParameters,
-    preselectedOption,
   };
+}
+
+const emptyArray: never[] = [];
+export function useSortedOptions({ unsorted, valueType, item }: SortedOptionsProps) {
+  const sortOrder = item.sortOrder;
+  const preselectedOptionIndex = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
+  const language = useLanguage();
+  const langAsString = language.langAsString;
+  const selectedLanguage = useCurrentLanguage();
+
+  return useMemo(() => {
+    let options = structuredClone(unsorted);
+    verifyOptions(options, valueType === 'multi');
+    let preselectedOption: IOptionInternal | undefined = undefined;
+    if (preselectedOptionIndex !== undefined && options && options[preselectedOptionIndex]) {
+      // This index uses the original options array, before any filtering or sorting
+      preselectedOption = options[preselectedOptionIndex];
+    }
+
+    verifyOptions(options, valueType === 'multi');
+
+    if (!options || options.length === 0) {
+      return { options: emptyArray, preselectedOption };
+    }
+
+    if (options && options.length < 2) {
+      // No need to sort or filter if there are 0 or 1 options. Using langAsString() can lead to re-rendering, so
+      // we avoid it if we don't need it.
+      return { options, preselectedOption };
+    }
+
+    if (options) {
+      options = filterDuplicateOptions(options);
+    }
+    if (options && sortOrder) {
+      options = [...options].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
+    }
+
+    return { options, preselectedOption };
+  }, [langAsString, preselectedOptionIndex, selectedLanguage, sortOrder, unsorted, valueType]);
 }
 
 export function useGetOptions(
@@ -198,7 +199,7 @@ export function useGetOptionsUsingDmb(
   dataModelBindings: IDataModelBindingsOptionsSimple | undefined,
 ): GetOptionsResult & SetOptionsResult {
   const get = useNodeOptions(node);
-  const set = useSetOptions({ valueType, dataModelBindings }, get.options);
+  const set = useSetOptions(valueType, dataModelBindings, get.options);
 
   return useMemo(() => ({ ...get, ...set }), [get, set]);
 }

@@ -883,12 +883,12 @@ export const NodesInternal = {
       } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
     });
   },
-  useIsReady() {
-    const isReady = Store.useLaxSelector((s) => s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan);
-    if (isReady === ContextNotProvided) {
-      return true;
-    }
-    return isReady;
+  useIsReadyRef() {
+    const ref = useRef(true); // Defaults to true if context is not provided
+    Store.useLaxSelectorAsRef((s) => {
+      ref.current = s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan;
+    });
+    return ref;
   },
   useWaitUntilReady() {
     const store = Store.useLaxStore();
@@ -902,6 +902,39 @@ export const NodesInternal = {
         await waitForCommits();
       }
     }, [waitForState, waitForCommits]);
+  },
+  useMarkNotReady() {
+    const markReady = Store.useSelector((s) => s.markReady);
+    return useCallback(() => markReady(NodesReadiness.NotReady), [markReady]);
+  },
+  /**
+   * Like a useEffect, but only runs the effect when the nodes context is ready.
+   */
+  useEffectWhenReady(effect: Parameters<typeof useEffect>[0], deps: Parameters<typeof useEffect>[1]) {
+    const [force, setForceReRun] = useState(0);
+    const getAwaiting = useGetAwaitingCommits();
+    const isReadyRef = NodesInternal.useIsReadyRef();
+    const waitUntilReady = NodesInternal.useWaitUntilReady();
+
+    useEffect(() => {
+      const isReady = isReadyRef.current;
+      if (!isReady) {
+        waitUntilReady().then(() => {
+          // We need to force a rerender to run the effect. If we didn't, the effect would never run.
+          setForceReRun((v) => v + 1);
+        });
+        return;
+      }
+      const awaiting = getAwaiting();
+      if (awaiting) {
+        // If we are awaiting commits, we need to wait until they are done before we can run the effect.
+        const timeout = setTimeout(() => setForceReRun((v) => v + 1), 100);
+        return () => clearTimeout(timeout);
+      }
+
+      return effect();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [force, ...(deps ?? [])]);
   },
 
   useFullErrorList() {
