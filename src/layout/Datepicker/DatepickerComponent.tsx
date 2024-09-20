@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import { Modal, Popover } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
-import { formatDate, isValid as isValidDate, parse, parseISO } from 'date-fns';
+import { isValid as isValidDate, parse, parseISO } from 'date-fns';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -12,7 +12,7 @@ import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import styles from 'src/layout/Datepicker/Calendar.module.css';
 import { DatePickerCalendar } from 'src/layout/Datepicker/DatePickerCalendar';
-import { DatePickerInput } from 'src/layout/Datepicker/DatePickerInput';
+import DatePickerInput from 'src/layout/Datepicker/DatePickerInput';
 import { getDateConstraint, getDateFormat, getSaveFormattedDateString } from 'src/utils/dateHelpers';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -112,7 +112,6 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
       node={node}
       label={{ node, renderLabelAs: 'label', title: 'Test' }}
     >
-      <span>Eksempel på formatering: {formatDate(new Date(), format || 'dd.MM.yyyy')}</span>
       <Grid
         container
         item
