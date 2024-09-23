@@ -1,5 +1,5 @@
 import type { CompDef } from 'src/layout';
-import type { CompIntermediate, CompInternal, CompTypes, TypeFromNode } from 'src/layout/layout';
+import type { CompIntermediate, CompIntermediateExact, CompInternal, CompTypes, TypeFromNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { HiddenState } from 'src/utils/layout/NodesContext';
@@ -16,9 +16,9 @@ export interface BaseRow {
 }
 
 export interface StateFactoryProps<Type extends CompTypes> {
-  item: CompIntermediate<Type>;
+  item: CompIntermediateExact<Type>;
   parent: LayoutNode | LayoutPage;
-  row?: BaseRow;
+  rowIndex: number | undefined;
 }
 
 export interface GeneratorErrors {
@@ -31,7 +31,7 @@ export interface BaseNodeData<T extends CompTypes> {
   layout: CompIntermediate<T>;
   item: CompInternal<T> | undefined;
   hidden: HiddenState | undefined;
-  row: BaseRow | undefined;
+  rowIndex: number | undefined;
   errors: GeneratorErrors | undefined;
 }
 

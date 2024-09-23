@@ -91,12 +91,12 @@ describe('Validation', () => {
       const realType = type as keyof typeof validationTypeMap;
       cy.findByRole('textbox', { name: newMiddleName }).clear();
       cy.findByRole('textbox', { name: newMiddleName }).type(value);
-      cy.get(`#form-content-newMiddleName`).findByRole('alert', { name: message }).should('exist');
+      cy.get(appFrontend.fieldValidation('newMiddleName')).should('contain.text', message);
 
       // Should not have any other messages
       for (const [otherType, { message: otherMessage }] of Object.entries(validationTypeMap)) {
         if (otherType !== realType) {
-          cy.findByRole('alert', { name: otherMessage }).should('not.exist');
+          cy.get(appFrontend.fieldValidation('newMiddleName')).should('not.contain.text', otherMessage);
         }
       }
     }
@@ -857,10 +857,7 @@ describe('Validation', () => {
         });
       });
 
-      cy.goto('changename');
-
-      cy.findByRole('checkbox', { name: /tall-input/i }).check();
-      cy.gotoNavPage('numeric-fields');
+      cy.gotoHiddenPage('numeric-fields');
 
       cy.get(appFrontend.fieldValidation('int32AsNumber')).should('contain.text', 'Du må fylle ut int32');
 
