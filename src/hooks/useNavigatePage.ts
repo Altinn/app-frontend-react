@@ -15,6 +15,7 @@ import {
   useQueryKeysAsStringAsRef,
   useSetNavigationEffect,
 } from 'src/features/routing/AppRoutingContext';
+import { useInvalidateInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { ProcessTaskType } from 'src/types';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
@@ -147,6 +148,7 @@ export const useNavigatePage = () => {
   const navParams = useAllNavigationParamsAsRef();
   const queryKeysRef = useQueryKeysAsStringAsRef();
   const getTaskType = useGetTaskType();
+  const invalidateInitialValidations = useInvalidateInitialValidations();
 
   const { autoSaveBehavior } = usePageSettings();
   const order = usePageOrder();
@@ -324,6 +326,7 @@ export const useNavigatePage = () => {
       window.logWarn('Tried to close subform page while not in a subform.');
       return;
     }
+    await invalidateInitialValidations();
     await navigateToPage(navParams.current.mainPageKey, {
       exitSubform: true,
       resetReturnToView: false,

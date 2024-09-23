@@ -61,6 +61,7 @@ export function nn(): FixedLanguageList {
       error_max_count_reached_subform_server: 'Maksimalt tal på {0} oppføringar er nådd',
       error_max_count_reached_subform_local: 'Maksimalt tal på {0} oppføringar er nådd ({1})',
       error_min_count_not_reached_subform: 'Minst {0} {1} oppføring er påkravd',
+      error_validation_inside_subform: 'Det er feil i ein eller fleire {0} oppføringar',
       subform_default_header: 'Oppføringer',
       alert_confirm: 'Bekreft',
       checkbox_alert: 'Er du sikker på at du vil fjerne avkrysningen?',

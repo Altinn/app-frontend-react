@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { waitForAnimationFrames } from 'src/utils/waitForAnimationFrames';
+
 /**
  * This element only serves to let our PDF generator know the app is ready and have rendered its content.
  * It should be included in the app DOM for every possible execution path, except those where we're showing
@@ -34,12 +36,6 @@ function loadPromise(element: HTMLImageElement | HTMLLinkElement) {
     element.addEventListener('load', res);
     element.addEventListener('error', res);
   });
-}
-
-async function waitForAnimationFrames(n: number) {
-  for (let i = 0; i < n; i++) {
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-  }
 }
 
 async function waitForImages() {
