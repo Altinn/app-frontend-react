@@ -111,7 +111,7 @@ export function useSetOptions(
   };
 }
 
-export function useOptionsUrl(item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>) {
+function useOptionsUrl(item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>) {
   const { optionsId, secure, mapping, queryParameters } = item;
   return useGetOptionsUrl(optionsId, mapping, queryParameters, secure);
 }
@@ -131,7 +131,6 @@ export function useFetchOptions({ node, item }: FetchOptionsProps) {
     unsorted: sourceOptions ?? data?.data ?? staticOptions ?? defaultOptions,
     isFetching,
     downstreamParameters,
-    url,
   };
 }
 
