@@ -300,9 +300,7 @@ function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
     [hiddenByTracks, hiddenByExpression],
   );
 
-  GeneratorStages.MarkHidden.useEffect(() => {
-    setPageProp({ pageKey: name, prop: 'hidden', value: hidden });
-  }, [hidden, name, setPageProp]);
+  setPageProp({ pageKey: name, prop: 'hidden', value: hidden });
 
   return null;
 }

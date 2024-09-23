@@ -153,9 +153,7 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const resolvedRowExtras = useMemoDeepEqual(() => (def as CompDef).evalExpressionsForRow(props as any), [def, props]);
 
-  GeneratorStages.EvaluateExpressions.useEffect(() => {
-    setExtra({ node: parent, rowIndex: rowIndex!, internalProp, extras: resolvedRowExtras });
-  }, [resolvedRowExtras, setExtra, parent, rowIndex, internalProp]);
+  setExtra({ node: parent, rowIndex: rowIndex!, internalProp, extras: resolvedRowExtras });
 
   return null;
 }
@@ -166,9 +164,7 @@ function MaintainRowUuid({ groupBinding, internalProp }: { groupBinding: string 
   const setUuid = NodesStateQueue.useSetRowUuid();
   const rowUuid = FD.useFreshRowUuid(groupBinding, rowIndex) as string;
 
-  GeneratorStages.AddNodes.useEffect(() => {
-    setUuid({ node: parent, rowIndex: rowIndex!, internalProp, rowUuid });
-  }, [setUuid, parent, rowIndex, internalProp, rowUuid]);
+  setUuid({ node: parent, rowIndex: rowIndex!, internalProp, rowUuid });
 
   return null;
 }

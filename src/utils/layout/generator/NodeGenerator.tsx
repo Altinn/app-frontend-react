@@ -110,19 +110,24 @@ function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T
 
   const hiddenByExpression = useEvalExpressionInGenerator(ExprVal.Boolean, node, externalItem.hidden, false);
   const hiddenByRules = Hidden.useIsHiddenViaRules(node);
-  const hidden = useMemo(
-    () =>
-      ({
-        hiddenByExpression,
-        hiddenByRules,
-        hiddenByTracks: false,
-      }) satisfies HiddenState,
-    [hiddenByExpression, hiddenByRules],
+  const hidden = {
+    hiddenByExpression,
+    hiddenByRules,
+    hiddenByTracks: false,
+  } satisfies HiddenState;
+
+  const isSet = NodesInternal.useNodeData(
+    node,
+    (data) =>
+      data.hidden &&
+      data.hidden.hiddenByExpression === hidden.hiddenByExpression &&
+      data.hidden.hiddenByRules === hidden.hiddenByRules &&
+      data.hidden.hiddenByTracks === hidden.hiddenByTracks,
   );
 
-  GeneratorStages.MarkHidden.useEffect(() => {
+  if (!isSet) {
     setNodeProp({ node, prop: 'hidden', value: hidden });
-  }, [hidden, node, setNodeProp]);
+  }
 
   return null;
 }
@@ -134,22 +139,23 @@ interface AddNodeProps<T extends CompTypes> extends CommonProps<T> {
 function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: AddNodeProps<T>) {
   const parent = GeneratorInternal.useParent();
   const rowIndex = GeneratorInternal.useRowIndex();
-  const stateFactoryPropsRef = useAsRef<StateFactoryProps<T>>({ item: intermediateItem, parent, rowIndex });
+  const stateFactoryProps = { item: intermediateItem, parent, rowIndex } satisfies StateFactoryProps<T>;
   const addNode = NodesStateQueue.useAddNode();
   const removeNode = NodesInternal.useRemoveNode();
+  const isAdded = NodesInternal.useIsAdded(node);
+
+  if (!isAdded) {
+    addNode({
+      node,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      targetState: node.def.stateFactory(stateFactoryProps as any),
+      claim,
+      rowIndex,
+    });
+  }
+
   const nodeRef = useAsRef(node);
   const rowIndexRef = useAsRef(rowIndex);
-
-  GeneratorStages.AddNodes.useEffect(() => {
-    addNode({
-      node: nodeRef.current,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      targetState: nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any),
-      claim,
-      rowIndex: rowIndexRef.current,
-    });
-  }, [addNode, nodeRef, stateFactoryPropsRef, claim, rowIndexRef]);
-
   GeneratorStages.AddNodes.useEffect(
     () => () => {
       removeNode(nodeRef.current, claim, rowIndexRef.current);
@@ -171,9 +177,7 @@ function ResolveExpressions<T extends CompTypes>({ node, intermediateItem }: Com
     [def, resolverProps],
   );
 
-  GeneratorStages.EvaluateExpressions.useEffect(() => {
-    setNodeProp({ node, prop: 'item', value: resolved, partial: true });
-  }, [node, resolved, setNodeProp]);
+  setNodeProp({ node, prop: 'item', value: resolved, partial: true });
 
   return (
     <>{GeneratorDebug.displayState && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolved, null, 2)}</pre>}</>
