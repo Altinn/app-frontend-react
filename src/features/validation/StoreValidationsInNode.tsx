@@ -26,7 +26,7 @@ export function StoreValidationsInNode() {
 }
 
 function StoreValidationsInNodeWorker() {
-  const item = GeneratorInternal.useIntermediateItem();
+  const item = GeneratorInternal.useIntermediateItem()!;
   const node = GeneratorInternal.useParent() as LayoutNode<
     TypesFromCategory<CompCategory.Form | CompCategory.Container>
   >;
@@ -44,18 +44,12 @@ function StoreValidationsInNodeWorker() {
     setNodeProp({ node, prop: 'validations', value: validations });
   }
 
-  const initialMask = item
-    ? getInitialMaskFromNode('showValidations' in item ? item.showValidations : undefined)
-    : undefined;
+  const initialMask = getInitialMaskFromNode('showValidations' in item ? item.showValidations : undefined);
 
   // This still has to be done in the effect, as the initialMask should only
   // be set initially, not every time the component re-renders
-  GeneratorStages.FormValidation.useConditionalEffect(() => {
-    if (initialMask !== undefined) {
-      setNodeProp({ node, prop: 'validationVisibility', value: initialMask });
-      return true;
-    }
-    return false;
+  GeneratorStages.FormValidation.useEffect(() => {
+    setNodeProp({ node, prop: 'validationVisibility', value: initialMask });
   }, [initialMask, node, setNodeProp]);
 
   return null;

@@ -792,66 +792,47 @@ function useUniqueId() {
 }
 
 function makeHooks(stage: Stage) {
-  function useEffect(effect: (markFinished: () => void) => void | (() => void), deps?: React.DependencyList) {
-    const uniqueId = useUniqueId();
-    const registry = useSelector((state) => state.registry);
-    const tick = useSelector((state) => state.tick!);
-    const runNum = useInitialRunNum();
-
-    let isNew = false;
-    const reg = registry.current.stages[stage];
-    if (!reg.hooks[uniqueId]) {
-      reg.hooks[uniqueId] = { finished: false, initialRunNum: runNum };
-      isNew = true;
-    }
-
-    if (isNew && reg.finished && !registry.current.stages[SecondToLast].finished) {
-      throw new Error(
-        'Cannot add new hooks after the AddNodes stage has finished. ' +
-          'Make sure this is wrapped in GeneratorRunProvider.',
-      );
-    }
-
-    const shouldRun = useShouldRenderOrRun(stage, isNew, 'hook');
-
-    // Unregister the hook when it is removed
-    React.useEffect(() => {
-      const reg = registry.current.stages[stage];
-      return () => {
-        delete reg.hooks[uniqueId];
-      };
-    }, [uniqueId, registry]);
-
-    // Run the actual hook
-    React.useEffect(() => {
-      if (shouldRun) {
-        const markFinished = () => {
-          registry.current.stages[stage].hooks[uniqueId].finished = true;
-        };
-        const returnValue = effect(markFinished);
-        tick();
-        return returnValue;
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [shouldRun, ...(deps || [])]);
-  }
-
   return {
-    useConditionalEffect(effect: () => boolean, deps?: React.DependencyList) {
-      useEffect((markFinished) => {
-        if (effect()) {
-          markFinished();
+    useEffect(effect: React.EffectCallback, deps?: React.DependencyList) {
+      const uniqueId = useUniqueId();
+      const registry = useSelector((state) => state.registry);
+      const tick = useSelector((state) => state.tick!);
+      const runNum = useInitialRunNum();
+
+      let isNew = false;
+      const reg = registry.current.stages[stage];
+      if (!reg.hooks[uniqueId]) {
+        reg.hooks[uniqueId] = { finished: false, initialRunNum: runNum };
+        isNew = true;
+      }
+
+      if (isNew && reg.finished && !registry.current.stages[SecondToLast].finished) {
+        throw new Error(
+          'Cannot add new hooks after the AddNodes stage has finished. ' +
+            'Make sure this is wrapped in GeneratorRunProvider.',
+        );
+      }
+
+      const shouldRun = useShouldRenderOrRun(stage, isNew, 'hook');
+
+      // Unregister the hook when it is removed
+      React.useEffect(() => {
+        const reg = registry.current.stages[stage];
+        return () => {
+          delete reg.hooks[uniqueId];
+        };
+      }, [uniqueId, registry]);
+
+      // Run the actual hook
+      React.useEffect(() => {
+        if (shouldRun) {
+          const returnValue = effect();
+          registry.current.stages[stage].hooks[uniqueId].finished = true;
+          tick();
+          return returnValue;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, deps);
-    },
-    useEffect(effect: React.EffectCallback, deps?: React.DependencyList) {
-      useEffect((markFinished) => {
-        const out = effect();
-        markFinished();
-        return out;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, deps);
+      }, [shouldRun, ...(deps || [])]);
     },
     useIsDone() {
       return useIsStageAtLeast(stage);

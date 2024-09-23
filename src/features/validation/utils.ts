@@ -70,7 +70,7 @@ export function selectValidations<T extends BaseValidation>(
  * Gets the initial validation mask for a component using its showValidations property
  * If the value is not set, it will default to all validations except required
  */
-export function getInitialMaskFromNode(showValidations: AllowedValidationMasks | null | undefined): number {
+export function getInitialMaskFromNode(showValidations: AllowedValidationMasks | undefined): number {
   // If not set, null, or undefined, default to all validations except required
   if (!showValidations) {
     return ValidationMask.AllExceptRequired;
