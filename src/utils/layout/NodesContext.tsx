@@ -891,6 +891,13 @@ export const NodesInternal = {
       } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
     });
   },
+  useIsReady() {
+    const isReady = Store.useLaxSelector((s) => s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan);
+    if (isReady === ContextNotProvided) {
+      return true;
+    }
+    return isReady;
+  },
   useIsReadyRef() {
     const ref = useRef(true); // Defaults to true if context is not provided
     Store.useLaxSelectorAsRef((s) => {

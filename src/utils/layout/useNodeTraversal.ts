@@ -259,8 +259,7 @@ type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictn
 
 function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: never, strictness?: Strictness): Out {
   const nodes = useNodesLax();
-  const isReady = NodesInternal.useIsReadyRef();
-  const wasReady = useRef(isReady.current);
+  const isReady = NodesInternal.useIsReady();
   const dataSelector = NodesInternal.useDataSelectorForTraversal();
 
   // We use the selector here, but we need it to re-render and re-select whenever we re-render. Otherwise the hook
@@ -268,10 +267,9 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
   // 'nodes' and 'node', the previous value would be selected. We bust that caching by including a counter as
   // a dependency.
   const counterRef = useRef(0);
-  if (isReady.current && !wasReady.current) {
+  if (isReady) {
     counterRef.current++;
   }
-  wasReady.current = isReady.current;
 
   const out = dataSelector(
     (state) => {
