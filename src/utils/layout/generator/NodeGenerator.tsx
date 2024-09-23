@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
@@ -12,7 +12,6 @@ import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/Gen
 import {
   GeneratorCondition,
   GeneratorRunProvider,
-  GeneratorStages,
   NodesStateQueue,
   StageAddNodes,
   StageEvaluateExpressions,
@@ -156,7 +155,7 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: A
 
   const nodeRef = useAsRef(node);
   const rowIndexRef = useAsRef(rowIndex);
-  GeneratorStages.AddNodes.useEffect(
+  useEffect(
     () => () => {
       removeNode(nodeRef.current, claim, rowIndexRef.current);
     },

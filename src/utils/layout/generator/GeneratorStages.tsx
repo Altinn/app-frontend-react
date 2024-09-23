@@ -26,7 +26,6 @@ const List = [
   StageFormValidation,
   StageFinished,
 ] as const;
-const SecondToLast = List[List.length - 2];
 
 type StageList = typeof List;
 type Stage = StageList[number];
@@ -64,12 +63,6 @@ type Registry = {
           initialRunNum: number;
           finished: boolean;
           conditions: string;
-        };
-      };
-      hooks: {
-        [id: string]: {
-          initialRunNum: number;
-          finished: boolean;
         };
       };
     };
@@ -128,9 +121,6 @@ const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider
             performanceMark('end', state.runNum, state.currentStage);
             performanceMark('start', state.runNum, nextStage);
 
-            const hooks = Object.values(registry.current.stages[state.currentStage].hooks).filter(
-              (hook) => hook.initialRunNum === state.runNum && hook.finished,
-            ).length;
             const components = Object.values(registry.current.stages[state.currentStage].components).filter(
               (component) => component.initialRunNum === state.runNum && component.finished,
             ).length;
@@ -138,8 +128,7 @@ const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider
             generatorLog(
               'logStages',
               `Stage finished: ${state.currentStage.description}`,
-              `(hooks: ${hooks},`,
-              `conditionals: ${components},`,
+              `(conditionals: ${components},`,
               `duration ${formatDuration(state.runNum, state.currentStage)})`,
             );
 
@@ -203,22 +192,15 @@ const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider
 
 function registryStats(stage: Stage, registry: Registry, runNum: number) {
   const s = registry.stages[stage];
-  const numHooks = Object.values(s.hooks).filter((h) => h.initialRunNum === runNum).length;
-  const doneHooks = Object.values(s.hooks).filter((h) => h.finished && h.initialRunNum === runNum).length;
-  const numComponents = Object.values(s.components).filter((c) => c.initialRunNum === runNum).length;
-  const doneComponents = Object.values(s.components).filter((c) => c.finished && c.initialRunNum === runNum).length;
+  const total = Object.values(s.components).filter((c) => c.initialRunNum === runNum).length;
+  const done = Object.values(s.components).filter((c) => c.finished && c.initialRunNum === runNum).length;
 
-  return { numHooks, doneHooks, numComponents, doneComponents };
+  return { total, done };
 }
 
 function isStageDone(stage: Stage, registry: Registry, runNum: number) {
-  const { numHooks, doneHooks, numComponents, doneComponents } = registryStats(stage, registry, runNum);
-  return numHooks === doneHooks && numComponents === doneComponents;
-}
-
-function shouldCommit(stage: Stage, registry: Registry, runNum: number) {
-  const { numHooks, doneHooks } = registryStats(stage, registry, runNum);
-  return numHooks === doneHooks;
+  const { total, done } = registryStats(stage, registry, runNum);
+  return total === done;
 }
 
 export function useGetAwaitingCommits() {
@@ -256,7 +238,6 @@ export function GeneratorStagesProvider({ children, markReady }: PropsWithChildr
         {
           finished: false,
           onDone: [],
-          hooks: {},
           components: {},
         } satisfies Registry['stages'][Stage],
       ]),
@@ -492,9 +473,7 @@ function SetTickFunc() {
     const stage = currentStageRef.current;
     const runNum = currentRunRef.current;
     if (!isStageDone(stage, registry.current, runNum)) {
-      if (shouldCommit(stage, registry.current, runNum)) {
-        commit();
-      }
+      commit();
       return;
     }
     const currentIndex = List.indexOf(stage);
@@ -544,14 +523,11 @@ function CatchEmptyStages() {
     // If, after a render we don't have any registered hooks or callbacks for the current stage, we should just proceed
     // to the next stage (using the tick function).
     setTimeout(() => {
-      const numHooks = Object.values(registry.current.stages[currentStage].hooks).filter(
-        (h) => h.initialRunNum === currentRun,
-      ).length;
       const numComponents = Object.values(registry.current.stages[currentStage].components).filter(
         (c) => c.initialRunNum === currentRun,
       ).length;
       const shouldFinish = isStageDone(currentStage, registry.current, currentRun);
-      if ((numHooks === 0 && numComponents === 0) || shouldFinish) {
+      if (numComponents === 0 || shouldFinish) {
         tick && tick();
       }
     }, NODES_TICK_TIMEOUT * 2);
@@ -579,25 +555,11 @@ function LogSlowStages() {
       }
       lastReportedStage = current;
 
-      const { numHooks, doneHooks, numComponents, doneComponents } = registryStats(
-        current,
-        registry.current,
-        currentRun,
-      );
-      generatorLog(
-        'logStages',
-        `Still on stage ${current.description}`,
-        `(${doneHooks}/${numHooks} hooks finished, ${doneComponents}/${numComponents} conditionals finished)`,
-      );
+      const { total, done } = registryStats(current, registry.current, currentRun);
+      generatorLog('logStages', `Still on stage ${current.description}`, `(${done}/${total} conditionals finished)`);
 
-      // If we're stuck on the same stage for a while, log a list of hooks that are still pending
+      // If we're stuck on the same stage for a while, log a list of conditionals that are still pending
       const stage = registry.current.stages[current];
-      const pendingHooks = Object.entries(stage.hooks)
-        .filter(([, hook]) => !hook.finished && hook.initialRunNum === currentRun)
-        .map(([id]) => id)
-        .join('\n - ');
-      generatorLog('logStages', `Pending hooks:\n - ${pendingHooks}`);
-
       const pendingComponents = Object.entries(stage.components)
         .filter(([, component]) => !component.finished && component.initialRunNum === currentRun)
         .map(([id, component]) => `${id} (conditions: ${component.conditions})`)
@@ -793,47 +755,6 @@ function useUniqueId() {
 
 function makeHooks(stage: Stage) {
   return {
-    useEffect(effect: React.EffectCallback, deps?: React.DependencyList) {
-      const uniqueId = useUniqueId();
-      const registry = useSelector((state) => state.registry);
-      const tick = useSelector((state) => state.tick!);
-      const runNum = useInitialRunNum();
-
-      let isNew = false;
-      const reg = registry.current.stages[stage];
-      if (!reg.hooks[uniqueId]) {
-        reg.hooks[uniqueId] = { finished: false, initialRunNum: runNum };
-        isNew = true;
-      }
-
-      if (isNew && reg.finished && !registry.current.stages[SecondToLast].finished) {
-        throw new Error(
-          'Cannot add new hooks after the AddNodes stage has finished. ' +
-            'Make sure this is wrapped in GeneratorRunProvider.',
-        );
-      }
-
-      const shouldRun = useShouldRenderOrRun(stage, isNew, 'hook');
-
-      // Unregister the hook when it is removed
-      React.useEffect(() => {
-        const reg = registry.current.stages[stage];
-        return () => {
-          delete reg.hooks[uniqueId];
-        };
-      }, [uniqueId, registry]);
-
-      // Run the actual hook
-      React.useEffect(() => {
-        if (shouldRun) {
-          const returnValue = effect();
-          registry.current.stages[stage].hooks[uniqueId].finished = true;
-          tick();
-          return returnValue;
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [shouldRun, ...(deps || [])]);
-    },
     useIsDone() {
       return useIsStageAtLeast(stage);
     },

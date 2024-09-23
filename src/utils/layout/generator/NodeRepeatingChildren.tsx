@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import dot from 'dot-object';
 
@@ -8,7 +8,6 @@ import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/genera
 import {
   GeneratorCondition,
   GeneratorRunProvider,
-  GeneratorStages,
   NodesStateQueue,
   StageAddNodes,
   StageEvaluateExpressions,
@@ -101,7 +100,7 @@ function _GenerateRow({ rowIndex, claims, groupBinding, multiPageMapping, intern
     [rowIndex, depth, groupBinding],
   );
 
-  GeneratorStages.AddNodes.useEffect(
+  useEffect(
     () => () => {
       removeRow(node, internalProp);
     },

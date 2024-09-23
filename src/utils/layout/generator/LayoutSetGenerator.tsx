@@ -276,7 +276,7 @@ interface CommonProps {
 function AddPage({ layoutSet, page, name }: CommonProps) {
   const addPage = NodesInternal.useAddPage();
 
-  GeneratorStages.AddNodes.useEffect(() => {
+  useEffect(() => {
     addPage(name);
     if (!page.isRegisteredInCollection(layoutSet)) {
       page.registerCollection(name, layoutSet);

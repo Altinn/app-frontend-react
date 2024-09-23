@@ -1,14 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
 import { getInitialMaskFromNode } from 'src/features/validation/utils';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import {
-  GeneratorCondition,
-  GeneratorStages,
-  NodesStateQueue,
-  StageFormValidation,
-} from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorCondition, NodesStateQueue, StageFormValidation } from 'src/utils/layout/generator/GeneratorStages';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { CompCategory } from 'src/layout/common';
 import type { TypesFromCategory } from 'src/layout/layout';
@@ -48,7 +43,7 @@ function StoreValidationsInNodeWorker() {
 
   // This still has to be done in the effect, as the initialMask should only
   // be set initially, not every time the component re-renders
-  GeneratorStages.FormValidation.useEffect(() => {
+  useEffect(() => {
     setNodeProp({ node, prop: 'validationVisibility', value: initialMask });
   }, [initialMask, node, setNodeProp]);
 
