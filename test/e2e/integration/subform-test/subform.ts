@@ -27,7 +27,7 @@ describe('Subform test', () => {
     // Verify subform url
     cy.url().should('include', '/ttd/subform-test');
     cy.url().should('include', '/Task_1/utfylling/subform-mopeder/');
-    cy.url().should('include', '/Side1');
+    cy.url().should('include', '/moped-utfylling');
 
     // Test submitting subform with missing required fields
     cy.get('#custom-button-subform-moped-exitButton').click();
