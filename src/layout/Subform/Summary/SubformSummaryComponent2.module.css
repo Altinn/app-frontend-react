@@ -78,3 +78,15 @@ tr.noRowSpacing td {
   font-size: 1rem;
   line-height: 1.6875;
 }
+
+.editColumnHeader {
+  width: 1px;
+}
+
+.noRightPad {
+  padding-right: 0;
+}
+
+.summaryItem {
+  width: 100%;
+}
