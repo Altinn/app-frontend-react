@@ -3,7 +3,7 @@ import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 import type { CompExternal, CompIntermediate, CompIntermediateExact, CompTypes } from 'src/layout/layout';
-import type { CommitQueues, StagesRegistry } from 'src/utils/layout/generator/GeneratorStages';
+import type { Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -22,7 +22,7 @@ export interface ChildClaimsMap {
   [parentId: string]: ChildClaims;
 }
 
-type GlobalProviderProps = Pick<GeneratorContext, 'layoutMap' | 'registry' | 'toCommit'>;
+type GlobalProviderProps = Pick<GeneratorContext, 'layoutMap' | 'registry'>;
 
 type PageProviderProps = Pick<GeneratorContext, 'childrenMap'> & {
   parent: LayoutPage;
@@ -38,8 +38,7 @@ type RowGeneratorProps = Pick<GeneratorContext, 'directMutators' | 'recursiveMut
 };
 
 interface GeneratorContext {
-  registry: MutableRefObject<StagesRegistry>;
-  toCommit: MutableRefObject<CommitQueues>;
+  registry: MutableRefObject<Registry>;
   directMutators?: ChildMutator[];
   recursiveMutators?: ChildMutator[];
   layoutMap: Record<string, CompExternal>;
@@ -158,7 +157,7 @@ export function GeneratorGlobalProvider({ children, ...rest }: PropsWithChildren
 export const GeneratorInternal = {
   useIsInsideGenerator: () => useCtx().depth > 0,
   useRegistry: () => useCtx().registry,
-  useCommitQueue: () => useCtx().toCommit.current,
+  useCommitQueue: () => useCtx().registry.current.toCommit,
   useDirectMutators: () => useCtx().directMutators ?? emptyArray,
   useRecursiveMutators: () => useCtx().recursiveMutators ?? emptyArray,
   useDepth: () => useCtx().depth,

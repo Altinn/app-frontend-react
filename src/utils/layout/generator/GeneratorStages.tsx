@@ -45,32 +45,39 @@ export interface GeneratorStagesContext {
 }
 
 /**
- * The stages registry is a collection of all the stages and their (GeneratorCondition) components.
+ * The registry is a collection of state kept in a ref, and is used to keep track of the progress in the node generator.
+ * Consider it an 'inner workings' state store that is frequently updated. Since it is stored in a ref, it cannot be
+ * reactive.
+ *
+ */
+export type Registry = {
+  restartAfter: boolean;
+  stages: RegistryStages;
+  toCommit: RegistryCommitQueues;
+};
+
+/**
  * Each component is registered with a unique ID, and the registry keeps track of whether the component
  * has finished its work for the current run.
  */
-export type StagesRegistry = {
-  restartAfter: boolean;
-  stages: {
-    [stage in Stage]: {
-      finished: boolean;
-      onDone: OnStageDone[];
-      components: {
-        [id: string]: {
-          initialRunNum: number;
-          finished: boolean;
-          conditions: string;
-        };
+type RegistryStages = {
+  [stage in Stage]: {
+    finished: boolean;
+    onDone: OnStageDone[];
+    components: {
+      [id: string]: {
+        initialRunNum: number;
+        finished: boolean;
+        conditions: string;
       };
     };
   };
 };
 
 /**
- * Queues for changes that need to be committed to the nodes store. These are collected in the GeneratorContext
- * and stored in a ref. That also means cannot be reactive.
+ * Queues for changes that need to be committed to the nodes store.
  */
-export interface CommitQueues {
+interface RegistryCommitQueues {
   addNodes: AddNodeRequest[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setNodeProps: SetNodePropRequest<any, any>[];
@@ -104,7 +111,7 @@ function formatDuration(runNum: number, stage?: Stage) {
 }
 
 export function createStagesStore(
-  registry: MutableRefObject<StagesRegistry>,
+  registry: MutableRefObject<Registry>,
   set: (setter: (ctx: NodesContext) => Partial<NodesContext>) => void,
 ): GeneratorStagesContext {
   generatorLog('logStages', `Initial node generation started`);
@@ -196,7 +203,7 @@ export function createStagesStore(
   };
 }
 
-function registryStats(stage: Stage, registry: StagesRegistry, runNum: number) {
+function registryStats(stage: Stage, registry: Registry, runNum: number) {
   const s = registry.stages[stage];
   const total = Object.values(s.components).filter((c) => c.initialRunNum === runNum).length;
   const done = Object.values(s.components).filter((c) => c.finished && c.initialRunNum === runNum).length;
@@ -204,7 +211,7 @@ function registryStats(stage: Stage, registry: StagesRegistry, runNum: number) {
   return { total, done };
 }
 
-function isStageDone(stage: Stage, registry: StagesRegistry, runNum: number) {
+function isStageDone(stage: Stage, registry: Registry, runNum: number) {
   const { total, done } = registryStats(stage, registry, runNum);
   return total === done;
 }
@@ -223,7 +230,12 @@ export function useGetAwaitingCommits() {
   );
 }
 
-export function useStagesRegistry() {
+/**
+ * Creates a new registry for the generator. Instead of using this hook directly, you'll probably want to
+ * get it from:
+ * @see GeneratorInternal.useRegistry
+ */
+export function useRegistry() {
   document.body.setAttribute('data-commits-pending', 'false');
   useEffect(
     () => () => {
@@ -232,7 +244,7 @@ export function useStagesRegistry() {
     [],
   );
 
-  return useRef<StagesRegistry>({
+  return useRef<Registry>({
     restartAfter: false,
     stages: Object.fromEntries(
       List.map((s) => [
@@ -241,19 +253,16 @@ export function useStagesRegistry() {
           finished: false,
           onDone: [],
           components: {},
-        } satisfies StagesRegistry['stages'][Stage],
+        } satisfies Registry['stages'][Stage],
       ]),
-    ),
-  } as StagesRegistry);
-}
-
-export function useCommitQueue() {
-  return useRef<CommitQueues>({
-    addNodes: [],
-    setNodeProps: [],
-    setRowExtras: [],
-    setRowUuid: [],
-    setPageProps: [],
+    ) as RegistryStages,
+    toCommit: {
+      addNodes: [],
+      setNodeProps: [],
+      setRowExtras: [],
+      setRowUuid: [],
+      setPageProps: [],
+    },
   });
 }
 
@@ -368,10 +377,10 @@ export const NodesStateQueue = {
   useSetPageProp: () => useAddToQueue('setPageProps', true),
 };
 
-function useAddToQueue<T extends keyof CommitQueues>(
+function useAddToQueue<T extends keyof RegistryCommitQueues>(
   queue: T,
   commitAfter: boolean,
-): (request: CommitQueues[T][number]) => void {
+): (request: RegistryCommitQueues[T][number]) => void {
   const toCommit = GeneratorInternal.useCommitQueue();
   const commit = useCommitWhenFinished();
 
@@ -409,7 +418,7 @@ function useCommitWhenFinished() {
   }, [stateRef, commit]);
 }
 
-function updateCommitsPendingInBody(toCommit: CommitQueues) {
+function updateCommitsPendingInBody(toCommit: RegistryCommitQueues) {
   const anyPendingCommits = Object.values(toCommit).some((arr) => arr.length > 0);
   if (anyPendingCommits) {
     document.body.setAttribute('data-commits-pending', 'true');
@@ -614,7 +623,7 @@ export function GeneratorCondition({ stage, mustBeAdded, children }: PropsWithCh
   const id = useUniqueId();
   const registry = GeneratorInternal.useRegistry();
   const initialRunNum = useInitialRunNum();
-  const registryRef = useRef<StagesRegistry['stages'][Stage]['components'][string]>({
+  const registryRef = useRef<Registry['stages'][Stage]['components'][string]>({
     finished: false,
     initialRunNum,
     conditions: mustBeAdded ? `${mustBeAdded} must be added` : 'none',
@@ -659,7 +668,7 @@ export function GeneratorCondition({ stage, mustBeAdded, children }: PropsWithCh
 interface WhenProps extends PropsWithChildren {
   id: string;
   stage: Stage;
-  registryRef: MutableRefObject<StagesRegistry['stages'][Stage]['components'][string]>;
+  registryRef: MutableRefObject<Registry['stages'][Stage]['components'][string]>;
 }
 
 function WhenParentAdded({ id, stage, registryRef, children }: WhenProps) {

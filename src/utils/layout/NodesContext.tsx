@@ -34,9 +34,8 @@ import {
   GeneratorStages,
   GeneratorStagesEffects,
   NODES_TICK_TIMEOUT,
-  useCommitQueue,
   useGetAwaitingCommits,
-  useStagesRegistry,
+  useRegistry,
 } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
@@ -51,7 +50,7 @@ import type { DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/de
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { CompExternal, CompTypes } from 'src/layout/layout';
 import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
-import type { CommitQueues, GeneratorStagesContext, StagesRegistry } from 'src/utils/layout/generator/GeneratorStages';
+import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
@@ -167,7 +166,7 @@ export function nodesProduce(fn: (draft: NodesContext) => void) {
 }
 
 interface CreateStoreProps {
-  registry: MutableRefObject<StagesRegistry>;
+  registry: MutableRefObject<Registry>;
 }
 
 export type NodesContextStore = StoreApi<NodesContext>;
@@ -441,8 +440,7 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => {
   const layouts = useLayouts();
   const lastLayouts = useRef(layouts);
   const counter = useRef(0);
-  const registry = useStagesRegistry();
-  const toCommit = useCommitQueue();
+  const registry = useRegistry();
 
   if (lastLayouts.current !== layouts) {
     // Resets the entire node state when the layout changes (either via Studio, our own DevTools, or Cypress tests).
@@ -454,10 +452,7 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => {
   }
 
   return (
-    <ProvideGlobalContext
-      registry={registry}
-      toCommit={toCommit}
-    >
+    <ProvideGlobalContext registry={registry}>
       <Store.Provider registry={registry}>
         <ResettableStore counter={counter.current}>{children}</ResettableStore>
       </Store.Provider>
@@ -501,11 +496,7 @@ function ResettableStore({ counter, children }: PropsWithChildren<{ counter: num
   );
 }
 
-function ProvideGlobalContext({
-  children,
-  registry,
-  toCommit,
-}: PropsWithChildren<{ registry: MutableRefObject<StagesRegistry>; toCommit: MutableRefObject<CommitQueues> }>) {
+function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ registry: MutableRefObject<Registry> }>) {
   const layouts = useLayouts();
   const layoutMap = useMemo(() => {
     const out: { [id: string]: CompExternal } = {};
@@ -525,7 +516,6 @@ function ProvideGlobalContext({
     <GeneratorGlobalProvider
       layoutMap={layoutMap}
       registry={registry}
-      toCommit={toCommit}
     >
       {children}
     </GeneratorGlobalProvider>
