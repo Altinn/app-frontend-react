@@ -88,7 +88,7 @@ export function LayoutSetGenerator() {
 function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
   const existingNodes = useNodesWhenNotReady();
   const setNodes = NodesInternal.useSetNodes();
-  const isFinishedAddingNodes = GeneratorStages.AddNodes.useIsDone();
+  const isFinishedAddingNodes = GeneratorStages.useIsDoneAddingNodes();
   const numPages = Object.keys(useLayouts()).length;
   const shouldSet = existingNodes !== pages && pages && (isFinishedAddingNodes || numPages === 0);
 

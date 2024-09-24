@@ -41,15 +41,7 @@ interface Context {
   nextStage: () => void;
   runNum: number;
   restart: (reason: 'hook' | 'component') => void;
-  toCommit: {
-    addNodes: AddNodeRequest[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setNodeProps: SetNodePropRequest<any, any>[];
-    setRowExtras: SetRowExtrasRequest[];
-    setRowUuid: SetRowUuidRequest[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setPageProps: SetPagePropRequest<any>[];
-  };
+  toCommit: CommitQueues;
 }
 
 type Registry = {
@@ -95,6 +87,18 @@ function formatDuration(runNum: number, stage?: Stage) {
     return '?ms';
   }
   return `${(end.startTime - start.startTime).toFixed(0)}ms`;
+}
+
+interface CommitQueues {
+  // These should be considered as 'refs'. Meaning, we won't set them via an action, we'll always just manipulate
+  // the arrays references directly.
+  addNodes: AddNodeRequest[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setNodeProps: SetNodePropRequest<any, any>[];
+  setRowExtras: SetRowExtrasRequest[];
+  setRowUuid: SetRowUuidRequest[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setPageProps: SetPagePropRequest<any>[];
 }
 
 const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider } = createZustandContext({
@@ -178,8 +182,6 @@ const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider
         });
       },
       toCommit: {
-        // These should be considered as 'refs'. Meaning, we won't set them via an action, we'll always just manipulate
-        // the arrays references directly.
         addNodes: [],
         setNodeProps: [],
         setRowExtras: [],
@@ -359,72 +361,32 @@ function SetWaitForCommits() {
  * committing all the changes in one go.
  */
 export const NodesStateQueue = {
-  useAddNode() {
-    const toCommit = useSelector((state) => state.toCommit);
-
-    return useCallback(
-      (request: AddNodeRequest) => {
-        toCommit.addNodes.push(request);
-        updateCommitsPendingInBody(toCommit);
-      },
-      [toCommit],
-    );
-  },
-  useSetNodeProp() {
-    const toCommit = useSelector((state) => state.toCommit);
-    const maybeCommit = useCommitWhenFinished();
-
-    return useCallback(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (request: SetNodePropRequest<any, any>) => {
-        toCommit.setNodeProps.push(request);
-        updateCommitsPendingInBody(toCommit);
-        maybeCommit();
-      },
-      [maybeCommit, toCommit],
-    );
-  },
-  useSetRowExtras() {
-    const toCommit = useSelector((state) => state.toCommit);
-    const maybeCommit = useCommitWhenFinished();
-
-    return useCallback(
-      (request: SetRowExtrasRequest) => {
-        toCommit.setRowExtras.push(request);
-        updateCommitsPendingInBody(toCommit);
-        maybeCommit();
-      },
-      [maybeCommit, toCommit],
-    );
-  },
-  useSetRowUuid() {
-    const toCommit = useSelector((state) => state.toCommit);
-    const maybeCommit = useCommitWhenFinished();
-
-    return useCallback(
-      (request: SetRowUuidRequest) => {
-        toCommit.setRowUuid.push(request);
-        updateCommitsPendingInBody(toCommit);
-        maybeCommit();
-      },
-      [maybeCommit, toCommit],
-    );
-  },
-  useSetPageProp() {
-    const toCommit = useSelector((state) => state.toCommit);
-    const maybeCommit = useCommitWhenFinished();
-
-    return useCallback(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (request: SetPagePropRequest<any>) => {
-        toCommit.setPageProps.push(request);
-        updateCommitsPendingInBody(toCommit);
-        maybeCommit();
-      },
-      [maybeCommit, toCommit],
-    );
-  },
+  useAddNode: () => useAddToQueue('addNodes', false),
+  useSetNodeProp: () => useAddToQueue('setNodeProps', true),
+  useSetRowExtras: () => useAddToQueue('setRowExtras', true),
+  useSetRowUuid: () => useAddToQueue('setRowUuid', true),
+  useSetPageProp: () => useAddToQueue('setPageProps', true),
 };
+
+function useAddToQueue<T extends keyof CommitQueues>(
+  queue: T,
+  commitAfter: boolean,
+): (request: CommitQueues[T][number]) => void {
+  const toCommit = useSelector((state) => state.toCommit);
+  const commit = useCommitWhenFinished();
+
+  return useCallback(
+    (request) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      toCommit[queue].push(request as any);
+      updateCommitsPendingInBody(toCommit);
+      if (commitAfter) {
+        commit();
+      }
+    },
+    [commit, commitAfter, queue, toCommit],
+  );
+}
 
 /**
  * Some of the queue hooks need to commit changes even when all stages are in a finished state. Even though we're not
@@ -584,19 +546,10 @@ function WhenTickIsSet({ children }: PropsWithChildren) {
  * Utility collection for hooks you can use to attach to different stages. The hooks will only run when the generator
  * has reached the stage they are attached to (or, if the node generator has finished, they will run immediately).
  */
-const Finished = makeHooks(StageFinished);
 export const GeneratorStages = {
-  AddNodes: makeHooks(StageAddNodes),
-  MarkHidden: makeHooks(StageMarkHidden),
-  FetchOptions: makeHooks(StageFetchOptions),
-  EvaluateExpressions: makeHooks(StageEvaluateExpressions),
-  FormValidation: makeHooks(StageFormValidation),
-  useIsFinished() {
-    return Finished.useIsCurrent();
-  },
-  useIsGenerating() {
-    return useHasProvider();
-  },
+  useIsDoneAddingNodes: () => useIsStageAtLeast(StageAddNodes),
+  useIsFinished: () => useMemoSelector((state) => state.currentStage === StageFinished),
+  useIsGenerating: () => useHasProvider(),
 };
 
 /**
@@ -721,7 +674,7 @@ function WhenParentAdded({ id, stage, registryRef, children }: WhenProps) {
 
 function WhenAllAdded({ id, stage, registryRef, children }: WhenProps) {
   const parent = GeneratorInternal.useParent();
-  const allAdded = GeneratorStages.AddNodes.useIsDone();
+  const allAdded = GeneratorStages.useIsDoneAddingNodes();
   const parentAdded = NodesInternal.useIsAdded(parent);
   const ready = allAdded && parentAdded;
   useMarkFinished(id, stage, ready);
@@ -751,17 +704,6 @@ function useMarkFinished(id: string, stage: Stage, ready: boolean) {
 
 function useUniqueId() {
   return useId();
-}
-
-function makeHooks(stage: Stage) {
-  return {
-    useIsDone() {
-      return useIsStageAtLeast(stage);
-    },
-    useIsCurrent() {
-      return useMemoSelector((state) => state.currentStage === stage);
-    },
-  };
 }
 
 const canProceedWhenIn = [StageFinished, StageAddNodes];
