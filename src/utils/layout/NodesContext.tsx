@@ -28,11 +28,13 @@ import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelecto
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
+import { GeneratorGlobalProvider } from 'src/utils/layout/generator/GeneratorContext';
 import {
   createStagesStore,
   GeneratorStages,
   GeneratorStagesEffects,
   NODES_TICK_TIMEOUT,
+  useCommitQueue,
   useGetAwaitingCommits,
   useStagesRegistry,
 } from 'src/utils/layout/generator/GeneratorStages';
@@ -47,9 +49,9 @@ import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStore
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
 import type { WaitForState } from 'src/hooks/useWaitForState';
-import type { CompTypes } from 'src/layout/layout';
+import type { CompExternal, CompTypes } from 'src/layout/layout';
 import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
-import type { GeneratorStagesContext, GeneratorStagesRegistry } from 'src/utils/layout/generator/GeneratorStages';
+import type { CommitQueues, GeneratorStagesContext, StagesRegistry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
@@ -165,7 +167,7 @@ export function nodesProduce(fn: (draft: NodesContext) => void) {
 }
 
 interface CreateStoreProps {
-  registry: MutableRefObject<GeneratorStagesRegistry>;
+  registry: MutableRefObject<StagesRegistry>;
 }
 
 export type NodesContextStore = StoreApi<NodesContext>;
@@ -440,6 +442,7 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => {
   const lastLayouts = useRef(layouts);
   const counter = useRef(0);
   const registry = useStagesRegistry();
+  const toCommit = useCommitQueue();
 
   if (lastLayouts.current !== layouts) {
     // Resets the entire node state when the layout changes (either via Studio, our own DevTools, or Cypress tests).
@@ -451,9 +454,14 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => {
   }
 
   return (
-    <Store.Provider registry={registry}>
-      <ResettableStore counter={counter.current}>{children}</ResettableStore>
-    </Store.Provider>
+    <ProvideGlobalContext
+      registry={registry}
+      toCommit={toCommit}
+    >
+      <Store.Provider registry={registry}>
+        <ResettableStore counter={counter.current}>{children}</ResettableStore>
+      </Store.Provider>
+    </ProvideGlobalContext>
   );
 };
 
@@ -490,6 +498,37 @@ function ResettableStore({ counter, children }: PropsWithChildren<{ counter: num
       </BlockUntilLoaded>
       <IndicateReadiness />
     </Fragment>
+  );
+}
+
+function ProvideGlobalContext({
+  children,
+  registry,
+  toCommit,
+}: PropsWithChildren<{ registry: MutableRefObject<StagesRegistry>; toCommit: MutableRefObject<CommitQueues> }>) {
+  const layouts = useLayouts();
+  const layoutMap = useMemo(() => {
+    const out: { [id: string]: CompExternal } = {};
+    for (const page of Object.values(layouts)) {
+      if (!page) {
+        continue;
+      }
+      for (const component of page) {
+        out[component.id] = component;
+      }
+    }
+
+    return out;
+  }, [layouts]);
+
+  return (
+    <GeneratorGlobalProvider
+      layoutMap={layoutMap}
+      registry={registry}
+      toCommit={toCommit}
+    >
+      {children}
+    </GeneratorGlobalProvider>
   );
 }
 
@@ -985,9 +1024,12 @@ export const NodesInternal = {
     });
   },
 
-  useNodeData<N extends LayoutNode | undefined, Out>(node: N, selector: (state: NodeDataFromNode<N>) => Out) {
+  useNodeData<N extends LayoutNode | undefined, Out>(
+    node: N,
+    selector: (state: NodeDataFromNode<N>, readiness: NodesReadiness) => Out,
+  ) {
     return Conditionally.useMemoSelector((s) =>
-      node && s.nodeData[node.id] ? selector(s.nodeData[node.id] as NodeDataFromNode<N>) : undefined,
+      node && s.nodeData[node.id] ? selector(s.nodeData[node.id] as NodeDataFromNode<N>, s.readiness) : undefined,
     ) as N extends undefined ? Out | undefined : Out;
   },
   useNodeDataRef<N extends LayoutNode | undefined, Out>(
@@ -1031,8 +1073,11 @@ export const NodesInternal = {
       makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
     }),
   useTypeFromId: (id: string) => Store.useSelector((s) => s.nodeData[id]?.layout.type),
-  useIsAdded: (node: LayoutNode | LayoutPage) =>
+  useIsAdded: (node: LayoutNode | LayoutPage | undefined) =>
     Store.useSelector((s) => {
+      if (!node) {
+        return false;
+      }
       if (node instanceof LayoutPage) {
         return s.pagesData.pages[node.pageKey] !== undefined;
       }

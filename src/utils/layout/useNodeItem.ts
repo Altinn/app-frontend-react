@@ -1,8 +1,9 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import type { MutableRefObject } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
+import { NodesInternal, NodesReadiness } from 'src/utils/layout/NodesContext';
 import { typedBoolean } from 'src/utils/typing';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector } from 'src/layout';
@@ -27,8 +28,31 @@ export function useNodeItem<N extends LayoutNode | undefined>(
 ): N extends undefined ? undefined : NodeItemFromNode<N>;
 // eslint-disable-next-line no-redeclare
 export function useNodeItem(node: never, selector: never): never {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return NodesInternal.useNodeData(node, (data: NodeData) => (selector ? (selector as any)(data.item) : data.item));
+  const lastValue = useRef<unknown>(undefined);
+  const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+  return NodesInternal.useNodeData(node, (data: NodeData, readiness) => {
+    if (insideGenerator) {
+      throw new Error(
+        'useNodeItem() should not be used inside the node generator, it would most likely just crash when ' +
+          'the item is undefined. Instead, use GeneratorInternal.useIntermediateItem() to get the item before ' +
+          'expressions have run, or use a more specific selector in NodesInternal.useNodeData() which will ' +
+          'make you handle the undefined item.',
+      );
+    }
+    if (!data.item && lastValue.current !== undefined) {
+      return lastValue.current;
+    }
+    if (!data.item && lastValue.current === undefined) {
+      throw new Error(
+        `Node item is undefined. This should normally not happen, but might happen if you select data in new ` +
+          `components while the node state is in the process of being updated (readiness is '${readiness}'). `,
+      );
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const out = selector ? (selector as any)(data.item) : data.item;
+    lastValue.current = out;
+    return out;
+  });
 }
 
 export function useNodeItemRef<N extends LayoutNode | undefined, Out>(
@@ -61,12 +85,17 @@ export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
 
 const emptyArray: LayoutNode[] = [];
 export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): LayoutNode[] {
-  return (
-    NodesInternal.useNodeData(parent, (store) =>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      parent.def.pickDirectChildren(store as any, restriction).filter(typedBoolean),
-    ) ?? emptyArray
-  );
+  const lastValue = useRef<LayoutNode[] | undefined>(undefined);
+  return NodesInternal.useNodeData(parent, (store, readiness) => {
+    if (readiness !== NodesReadiness.Ready) {
+      return lastValue.current ?? emptyArray;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const out = parent.def.pickDirectChildren(store as any, restriction).filter(typedBoolean);
+    lastValue.current = out;
+    return out ?? emptyArray;
+  });
 }
 
 type NodeFormData<N extends LayoutNode | undefined> = N extends undefined
@@ -75,7 +104,7 @@ type NodeFormData<N extends LayoutNode | undefined> = N extends undefined
 
 const emptyObject = {};
 export function useNodeFormData<N extends LayoutNode | undefined>(node: N): NodeFormData<N> {
-  const dataModelBindings = useNodeItem(node, (i) => i?.dataModelBindings);
+  const dataModelBindings = NodesInternal.useNodeData(node, (data) => data.layout.dataModelBindings);
   const formDataSelector = FD.useDebouncedSelector();
 
   return useMemo(

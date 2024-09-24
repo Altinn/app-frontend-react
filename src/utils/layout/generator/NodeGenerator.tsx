@@ -7,7 +7,7 @@ import { ExprValidation } from 'src/features/expressions/validation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getComponentDef, getNodeConstructor } from 'src/layout';
 import { GeneratorDebug } from 'src/utils/layout/generator/debug';
-import { GeneratorInternal, GeneratorProvider } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorInternal, GeneratorNodeProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
 import {
   GeneratorCondition,
@@ -81,10 +81,9 @@ export function NodeGenerator({ children, claim, externalItem }: PropsWithChildr
       >
         <ResolveExpressions {...commonProps} />
       </GeneratorCondition>
-      <GeneratorProvider
+      <GeneratorNodeProvider
         parent={node}
-        externalItem={externalItem}
-        intermediateItem={intermediateItem}
+        item={intermediateItem}
       >
         <GeneratorCondition
           stage={StageMarkHidden}
@@ -93,7 +92,7 @@ export function NodeGenerator({ children, claim, externalItem }: PropsWithChildr
           <NodePropertiesValidation {...commonProps} />
         </GeneratorCondition>
         {children}
-      </GeneratorProvider>
+      </GeneratorNodeProvider>
     </GeneratorRunProvider>
   );
 }
@@ -136,7 +135,7 @@ interface AddNodeProps<T extends CompTypes> extends CommonProps<T> {
 }
 
 function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: AddNodeProps<T>) {
-  const parent = GeneratorInternal.useParent();
+  const parent = GeneratorInternal.useParent()!;
   const rowIndex = GeneratorInternal.useRowIndex();
   const stateFactoryProps = { item: intermediateItem, parent, rowIndex } satisfies StateFactoryProps<T>;
   const addNode = NodesStateQueue.useAddNode();
@@ -340,7 +339,7 @@ function useIntermediateItem<T extends CompTypes = CompTypes>(item: CompExternal
  * Creates a new node instance for a component item, and adds that to the parent node and the store.
  */
 function useNewNode<T extends CompTypes>(item: CompIntermediate<T>): LayoutNode<T> {
-  const parent = GeneratorInternal.useParent();
+  const parent = GeneratorInternal.useParent()!;
   const rowIndex = GeneratorInternal.useRowIndex();
   const LNode = useNodeConstructor(item.type);
 

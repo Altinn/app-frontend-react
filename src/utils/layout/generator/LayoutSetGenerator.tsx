@@ -215,15 +215,6 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
     return claims;
   }, [map, layout]);
 
-  const layoutMap = useMemo(() => {
-    const out: { [id: string]: CompExternal } = {};
-    for (const component of layout) {
-      out[component.id] = component;
-    }
-
-    return out;
-  }, [layout]);
-
   if (layout.length === 0) {
     return null;
   }
@@ -254,7 +245,6 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
       {map !== undefined && (
         <GeneratorPageProvider
           parent={page}
-          layoutMap={layoutMap}
           childrenMap={map}
         >
           <GenerateNodeChildren
@@ -384,7 +374,7 @@ function GenerateNodeChildrenInternal({ claims, layoutMap }: NodeChildrenInterna
           <GenerateComponent
             layout={layoutMap[id]}
             claim={claims[id]}
-            childClaims={map[id]}
+            childClaims={map?.[id]}
           />
         </GeneratorErrorBoundary>
       ))}
