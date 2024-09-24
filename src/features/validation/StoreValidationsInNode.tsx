@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 
 import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
 import { getInitialMaskFromNode } from 'src/features/validation/utils';
@@ -25,7 +25,6 @@ function StoreValidationsInNodeWorker() {
   const node = GeneratorInternal.useParent() as LayoutNode<
     TypesFromCategory<CompCategory.Form | CompCategory.Container>
   >;
-  const setNodeProp = NodesStateQueue.useSetNodeProp();
 
   const shouldValidate = useMemo(
     () => item !== undefined && !('renderAsSummary' in item && item.renderAsSummary),
@@ -35,17 +34,12 @@ function StoreValidationsInNodeWorker() {
   const validations = useNodeValidation(node, shouldValidate);
 
   const hasBeenSet = NodesInternal.useNodeData(node, (data) => data.validations === validations);
-  if (!hasBeenSet && shouldValidate) {
-    setNodeProp({ node, prop: 'validations', value: validations });
-  }
+  NodesStateQueue.useSetNodeProp({ node, prop: 'validations', value: validations }, !hasBeenSet && shouldValidate);
 
   const initialMask = getInitialMaskFromNode('showValidations' in item ? item.showValidations : undefined);
-
-  // This still has to be done in the effect, as the initialMask should only
-  // be set initially, not every time the component re-renders
-  useEffect(() => {
-    setNodeProp({ node, prop: 'validationVisibility', value: initialMask });
-  }, [initialMask, node, setNodeProp]);
+  const isInitialRender = useRef(true);
+  NodesStateQueue.useSetNodeProp({ node, prop: 'validationVisibility', value: initialMask }, isInitialRender.current);
+  isInitialRender.current = false;
 
   return null;
 }

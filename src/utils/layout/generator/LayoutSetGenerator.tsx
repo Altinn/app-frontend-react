@@ -277,7 +277,6 @@ function AddPage({ layoutSet, page, name }: CommonProps) {
 }
 
 function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
-  const setPageProp = NodesStateQueue.useSetPageProp();
   const hiddenByTracks = Hidden.useIsPageHiddenViaTracks(name);
   const hiddenByExpression = useIsHiddenPage(page);
 
@@ -290,7 +289,7 @@ function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
     [hiddenByTracks, hiddenByExpression],
   );
 
-  setPageProp({ pageKey: name, prop: 'hidden', value: hidden });
+  NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'hidden', value: hidden });
 
   return null;
 }

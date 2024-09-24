@@ -32,13 +32,10 @@ export function StoreAttachmentsInNode() {
 
 function StoreAttachmentsInNodeWorker() {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
-  const setNodeProp = NodesStateQueue.useSetNodeProp();
   const attachments = useNodeAttachments();
 
   const hasBeenSet = NodesInternal.useNodeData(node, (data) => data.attachments === attachments);
-  if (!hasBeenSet) {
-    setNodeProp({ node, prop: 'attachments', value: attachments });
-  }
+  NodesStateQueue.useSetNodeProp({ node, prop: 'attachments', value: attachments }, !hasBeenSet);
 
   return null;
 }

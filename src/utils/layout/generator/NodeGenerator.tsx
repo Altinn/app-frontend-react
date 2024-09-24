@@ -104,8 +104,6 @@ interface CommonProps<T extends CompTypes> {
 }
 
 function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T>) {
-  const setNodeProp = NodesStateQueue.useSetNodeProp();
-
   const hiddenByExpression = useEvalExpressionInGenerator(ExprVal.Boolean, node, externalItem.hidden, false);
   const hiddenByRules = Hidden.useIsHiddenViaRules(node);
   const hidden = {
@@ -123,9 +121,7 @@ function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T
       data.hidden.hiddenByTracks === hidden.hiddenByTracks,
   );
 
-  if (!isSet) {
-    setNodeProp({ node, prop: 'hidden', value: hidden });
-  }
+  NodesStateQueue.useSetNodeProp({ node, prop: 'hidden', value: hidden }, !isSet);
 
   return null;
 }
@@ -138,19 +134,19 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: A
   const parent = GeneratorInternal.useParent()!;
   const rowIndex = GeneratorInternal.useRowIndex();
   const stateFactoryProps = { item: intermediateItem, parent, rowIndex } satisfies StateFactoryProps<T>;
-  const addNode = NodesStateQueue.useAddNode();
   const removeNode = NodesInternal.useRemoveNode();
   const isAdded = NodesInternal.useIsAdded(node);
 
-  if (!isAdded) {
-    addNode({
+  NodesStateQueue.useAddNode(
+    {
       node,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       targetState: node.def.stateFactory(stateFactoryProps as any),
       claim,
       rowIndex,
-    });
-  }
+    },
+    !isAdded,
+  );
 
   const nodeRef = useAsRef(node);
   const rowIndexRef = useAsRef(rowIndex);
@@ -168,14 +164,13 @@ function ResolveExpressions<T extends CompTypes>({ node, intermediateItem }: Com
   const resolverProps = useExpressionResolverProps(node, intermediateItem);
 
   const def = useDef(intermediateItem.type);
-  const setNodeProp = NodesStateQueue.useSetNodeProp();
   const resolved = useMemo(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     () => (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>,
     [def, resolverProps],
   );
 
-  setNodeProp({ node, prop: 'item', value: resolved, partial: true });
+  NodesStateQueue.useSetNodeProp({ node, prop: 'item', value: resolved, partial: true });
 
   return (
     <>{GeneratorDebug.displayState && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolved, null, 2)}</pre>}</>

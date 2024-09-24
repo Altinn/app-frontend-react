@@ -147,12 +147,11 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
   const item = GeneratorInternal.useIntermediateItem();
   const props = useExpressionResolverProps(firstChild, item as CompExternal, rowIndex);
 
-  const setExtra = NodesStateQueue.useSetRowExtras();
   const def = useDef(item!.type);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const resolvedRowExtras = useMemoDeepEqual(() => (def as CompDef).evalExpressionsForRow(props as any), [def, props]);
 
-  setExtra({ node: parent, rowIndex: rowIndex!, internalProp, extras: resolvedRowExtras });
+  NodesStateQueue.useSetRowExtras({ node: parent, rowIndex: rowIndex!, internalProp, extras: resolvedRowExtras });
 
   return null;
 }
@@ -160,10 +159,9 @@ function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
 function MaintainRowUuid({ groupBinding, internalProp }: { groupBinding: string | undefined; internalProp: string }) {
   const parent = GeneratorInternal.useParent() as LayoutNode;
   const rowIndex = GeneratorInternal.useRowIndex() as number;
-  const setUuid = NodesStateQueue.useSetRowUuid();
   const rowUuid = FD.useFreshRowUuid(groupBinding, rowIndex) as string;
 
-  setUuid({ node: parent, rowIndex: rowIndex!, internalProp, rowUuid });
+  NodesStateQueue.useSetRowUuid({ node: parent, rowIndex: rowIndex!, internalProp, rowUuid });
 
   return null;
 }

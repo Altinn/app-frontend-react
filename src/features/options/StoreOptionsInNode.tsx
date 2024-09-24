@@ -31,7 +31,6 @@ export function StoreOptionsInNode(props: GeneratorOptionProps) {
 function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
-  const setNodeProp = NodesStateQueue.useSetNodeProp();
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
 
   const { unsorted, isFetching, downstreamParameters } = useFetchOptions({ node, item });
@@ -42,10 +41,8 @@ function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
     (data) => data.options === options && data.isFetchingOptions === isFetching,
   );
 
-  if (!hasBeenSet) {
-    !isFetching && setNodeProp({ node, prop: 'options', value: options });
-    setNodeProp({ node, prop: 'isFetchingOptions', value: isFetching });
-  }
+  NodesStateQueue.useSetNodeProp({ node, prop: 'options', value: options }, !hasBeenSet && !isFetching);
+  NodesStateQueue.useSetNodeProp({ node, prop: 'isFetchingOptions', value: isFetching }, !hasBeenSet);
 
   if (isFetching || !hasBeenSet) {
     // No need to run effects while fetching or if the data has not been set yet

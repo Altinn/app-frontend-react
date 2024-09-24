@@ -370,31 +370,34 @@ function SetWaitForCommits() {
  * committing all the changes in one go.
  */
 export const NodesStateQueue = {
-  useAddNode: () => useAddToQueue('addNodes', false),
-  useSetNodeProp: () => useAddToQueue('setNodeProps', true),
-  useSetRowExtras: () => useAddToQueue('setRowExtras', true),
-  useSetRowUuid: () => useAddToQueue('setRowUuid', true),
-  useSetPageProp: () => useAddToQueue('setPageProps', true),
+  useAddNode: (req: AddNodeRequest, condition = true) => useAddToQueue('addNodes', false, req, condition),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useSetNodeProp: (req: SetNodePropRequest<any, any>, condition = true) =>
+    useAddToQueue('setNodeProps', true, req, condition),
+  useSetRowExtras: (req: SetRowExtrasRequest, condition = true) => useAddToQueue('setRowExtras', true, req, condition),
+  useSetRowUuid: (req: SetRowUuidRequest, condition = true) => useAddToQueue('setRowUuid', true, req, condition),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useSetPageProp: (req: SetPagePropRequest<any>, condition = true) =>
+    useAddToQueue('setPageProps', true, req, condition),
 };
 
 function useAddToQueue<T extends keyof RegistryCommitQueues>(
   queue: T,
   commitAfter: boolean,
-): (request: RegistryCommitQueues[T][number]) => void {
+  request: RegistryCommitQueues[T][number],
+  condition: boolean,
+) {
   const toCommit = GeneratorInternal.useCommitQueue();
   const commit = useCommitWhenFinished();
 
-  return useCallback(
-    (request) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      toCommit[queue].push(request as any);
-      updateCommitsPendingInBody(toCommit);
-      if (commitAfter) {
-        commit();
-      }
-    },
-    [commit, commitAfter, queue, toCommit],
-  );
+  if (condition) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    toCommit[queue].push(request as any);
+    updateCommitsPendingInBody(toCommit);
+    if (commitAfter) {
+      commit();
+    }
+  }
 }
 
 /**
