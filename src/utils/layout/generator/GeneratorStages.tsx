@@ -54,6 +54,7 @@ export type Registry = {
   restartAfter: boolean;
   stages: RegistryStages;
   toCommit: RegistryCommitQueues;
+  commitTimeout: ReturnType<typeof setTimeout> | null;
 };
 
 /**
@@ -263,6 +264,7 @@ export function useRegistry() {
       setRowUuid: [],
       setPageProps: [],
     },
+    commitTimeout: null,
   });
 }
 
@@ -406,19 +408,19 @@ function useAddToQueue<T extends keyof RegistryCommitQueues>(
  * up (setTimeout is slow, at least when debugging), we'll set a timeout once if this selector find out the generator
  * has finished.
  */
-let commitTimeout: ReturnType<typeof setTimeout> | null = null;
 function useCommitWhenFinished() {
   const commit = useCommit();
+  const registry = GeneratorInternal.useRegistry();
   const stateRef = NodesStore.useSelectorAsRef((s) => s.stages);
 
   return useCallback(() => {
-    if (stateRef.current.currentStage === StageFinished && !commitTimeout) {
-      commitTimeout = setTimeout(() => {
+    if (stateRef.current.currentStage === StageFinished && !registry.current.commitTimeout) {
+      registry.current.commitTimeout = setTimeout(() => {
         commit();
-        commitTimeout = null;
+        registry.current.commitTimeout = null;
       }, 4);
     }
-  }, [stateRef, commit]);
+  }, [stateRef, commit, registry]);
 }
 
 function updateCommitsPendingInBody(toCommit: RegistryCommitQueues) {
