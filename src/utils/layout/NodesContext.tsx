@@ -29,10 +29,12 @@ import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import {
+  createStagesStore,
   GeneratorStages,
-  GeneratorStagesProvider,
+  GeneratorStagesEffects,
   NODES_TICK_TIMEOUT,
   useGetAwaitingCommits,
+  useStagesRegistry,
 } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
@@ -47,6 +49,7 @@ import type { DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/de
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { CompTypes } from 'src/layout/layout';
 import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
+import type { GeneratorStagesContext, GeneratorStagesRegistry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
@@ -134,6 +137,8 @@ export type NodesContext = {
   hiddenViaRules: { [key: string]: true | undefined };
   hiddenViaRulesRan: boolean;
 
+  stages: GeneratorStagesContext;
+
   setNodes: (nodes: LayoutPages) => void;
   addNodes: (requests: AddNodeRequest[]) => void;
   removeNode: (node: LayoutNode, claim: ChildClaim, rowIndex: number | undefined) => void;
@@ -159,8 +164,12 @@ export function nodesProduce(fn: (draft: NodesContext) => void) {
   return produce(fn) as unknown as Partial<NodesContext>;
 }
 
+interface CreateStoreProps {
+  registry: MutableRefObject<GeneratorStagesRegistry>;
+}
+
 export type NodesContextStore = StoreApi<NodesContext>;
-export function createNodesDataStore() {
+export function createNodesDataStore({ registry }: CreateStoreProps) {
   const defaultState = {
     readiness: NodesReadiness.NotReady,
     addRemoveCounter: 0,
@@ -177,6 +186,8 @@ export function createNodesDataStore() {
 
   return createStore<NodesContext>((set) => ({
     ...defaultState,
+
+    stages: createStagesStore(registry, set),
 
     markHiddenViaRule: (newState) =>
       set((state) => {
@@ -354,6 +365,7 @@ const Store = createZustandContext<NodesContextStore, NodesContext>({
   initialCreateStore: createNodesDataStore,
 });
 
+export const NodesStore = Store; // Should be considered internal, do not use unless you know what you're doing
 export type NodesStoreFull = typeof Store;
 
 /**
@@ -427,6 +439,7 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => {
   const layouts = useLayouts();
   const lastLayouts = useRef(layouts);
   const counter = useRef(0);
+  const registry = useStagesRegistry();
 
   if (lastLayouts.current !== layouts) {
     // Resets the entire node state when the layout changes (either via Studio, our own DevTools, or Cypress tests).
@@ -438,14 +451,13 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => {
   }
 
   return (
-    <Store.Provider>
+    <Store.Provider registry={registry}>
       <ResettableStore counter={counter.current}>{children}</ResettableStore>
     </Store.Provider>
   );
 };
 
 function ResettableStore({ counter, children }: PropsWithChildren<{ counter: number }>) {
-  const markReady = Store.useSelector((s) => s.markReady);
   const reset = Store.useSelector((s) => s.reset);
   const [lastSeenCounter, setLastSeenCounter] = useState(0);
 
@@ -462,12 +474,11 @@ function ResettableStore({ counter, children }: PropsWithChildren<{ counter: num
 
   return (
     <Fragment key={counter}>
-      <GeneratorStagesProvider markReady={markReady}>
-        <GeneratorValidationProvider>
-          <LayoutSetGenerator />
-        </GeneratorValidationProvider>
-        <MarkAsReady />
-      </GeneratorStagesProvider>
+      <GeneratorStagesEffects />
+      <GeneratorValidationProvider>
+        <LayoutSetGenerator />
+      </GeneratorValidationProvider>
+      <MarkAsReady />
       {window.Cypress && <UpdateAttachmentsForCypress />}
       <BlockUntilAlmostReady>
         <HiddenComponentsProvider />

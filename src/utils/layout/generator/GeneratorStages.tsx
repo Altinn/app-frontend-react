@@ -1,14 +1,16 @@
 import React, { useCallback, useEffect, useId, useRef } from 'react';
 import type { MutableRefObject, PropsWithChildren } from 'react';
 
-import { createStore } from 'zustand';
-
-import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import { NodesInternal, NodesReadiness } from 'src/utils/layout/NodesContext';
-import type { AddNodeRequest, SetNodePropRequest, SetPagePropRequest } from 'src/utils/layout/NodesContext';
+import { NodesInternal, NodesReadiness, NodesStore } from 'src/utils/layout/NodesContext';
+import type {
+  AddNodeRequest,
+  NodesContext,
+  SetNodePropRequest,
+  SetPagePropRequest,
+} from 'src/utils/layout/NodesContext';
 import type { SetRowExtrasRequest, SetRowUuidRequest } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 
 export const StageAddNodes = Symbol('AddNodes');
@@ -33,9 +35,9 @@ type Stage = StageList[number];
 export const NODES_TICK_TIMEOUT = 10;
 
 type OnStageDone = () => void;
-interface Context {
+export interface GeneratorStagesContext {
   currentStage: Stage;
-  registry: React.MutableRefObject<Registry>;
+  registry: React.MutableRefObject<GeneratorStagesRegistry>;
   tick: undefined | (() => void);
   setTick: (tick: () => void) => void;
   nextStage: () => void;
@@ -44,7 +46,7 @@ interface Context {
   toCommit: CommitQueues;
 }
 
-type Registry = {
+export type GeneratorStagesRegistry = {
   restartAfter: boolean;
   stages: {
     [stage in Stage]: {
@@ -60,11 +62,6 @@ type Registry = {
     };
   };
 };
-
-interface CreateStoreProps {
-  registry: MutableRefObject<Registry>;
-  markReady: (reason: string, ready?: NodesReadiness) => void;
-}
 
 function performanceMark(action: 'start' | 'end', runNum: number, stage?: Stage) {
   if (typeof window.performance?.mark !== 'function') {
@@ -101,98 +98,108 @@ interface CommitQueues {
   setPageProps: SetPagePropRequest<any>[];
 }
 
-const { Provider, useSelector, useSelectorAsRef, useMemoSelector, useHasProvider } = createZustandContext({
-  name: 'GeneratorStages',
-  required: true,
-  initialCreateStore: ({ registry, markReady }: CreateStoreProps) => {
-    generatorLog('logStages', `Initial node generation started`);
-    performanceMark('start', 1, List[0]);
-    performanceMark('start', 1);
+export function createStagesStore(
+  registry: MutableRefObject<GeneratorStagesRegistry>,
+  set: (setter: (ctx: NodesContext) => Partial<NodesContext>) => void,
+): GeneratorStagesContext {
+  generatorLog('logStages', `Initial node generation started`);
+  performanceMark('start', 1, List[0]);
+  performanceMark('start', 1);
 
-    return createStore<Context>((set) => ({
-      currentStage: List[0],
-      registry,
-      tick: undefined,
-      setTick: (tick) => {
-        set({ tick });
-      },
-      nextStage: () => {
-        set((state) => {
-          const currentIndex = List.indexOf(state.currentStage);
-          let nextStage = List[currentIndex + 1];
-          let runNum = state.runNum;
-          if (nextStage) {
-            performanceMark('end', state.runNum, state.currentStage);
-            performanceMark('start', state.runNum, nextStage);
+  return {
+    currentStage: List[0],
+    registry,
+    tick: undefined,
+    setTick: (tick) => {
+      set((state) => {
+        const stages = { ...state.stages };
+        stages.tick = tick;
+        return { stages };
+      });
+    },
+    nextStage: () => {
+      set((state) => {
+        const currentIndex = List.indexOf(state.stages.currentStage);
+        let nextStage = List[currentIndex + 1];
+        let runNum = state.stages.runNum;
+        if (nextStage) {
+          performanceMark('end', state.stages.runNum, state.stages.currentStage);
+          performanceMark('start', state.stages.runNum, nextStage);
 
-            const components = Object.values(registry.current.stages[state.currentStage].components).filter(
-              (component) => component.initialRunNum === state.runNum && component.finished,
-            ).length;
+          const components = Object.values(registry.current.stages[state.stages.currentStage].components).filter(
+            (component) => component.initialRunNum === state.stages.runNum && component.finished,
+          ).length;
 
+          generatorLog(
+            'logStages',
+            `Stage finished: ${state.stages.currentStage.description}`,
+            `(conditionals: ${components},`,
+            `duration ${formatDuration(state.stages.runNum, state.stages.currentStage)})`,
+          );
+
+          if (nextStage === StageFinished && registry.current.restartAfter) {
+            registry.current.restartAfter = false;
+
+            // This has the advantage of skipping the 'finished' stage, and thus not reaching the nodes 'ready' state
+            // before the next run finishes. This may happen if you end up trying to generate more nodes before the
+            // last run finished properly, and thus a new cycle will start right afterwards.
+            performanceMark('end', state.stages.runNum);
             generatorLog(
               'logStages',
-              `Stage finished: ${state.currentStage.description}`,
-              `(conditionals: ${components},`,
-              `duration ${formatDuration(state.runNum, state.currentStage)})`,
+              `Node generation finished, but restarts instantly, total duration`,
+              formatDuration(state.stages.runNum),
             );
-
-            if (nextStage === StageFinished && registry.current.restartAfter) {
-              registry.current.restartAfter = false;
-
-              // This has the advantage of skipping the 'finished' stage, and thus not reaching the nodes 'ready' state
-              // before the next run finishes. This may happen if you end up trying to generate more nodes before the
-              // last run finished properly, and thus a new cycle will start right afterwards.
-              performanceMark('end', state.runNum);
-              generatorLog(
-                'logStages',
-                `Node generation finished, but restarts instantly, total duration`,
-                formatDuration(state.runNum),
-              );
-              nextStage = List[0];
-              runNum = state.runNum + 1;
-              performanceMark('start', runNum, nextStage);
-              performanceMark('start', runNum);
-            } else if (nextStage === StageFinished) {
-              performanceMark('end', state.runNum);
-              generatorLog('logStages', `Node generation finished, total duration`, formatDuration(state.runNum));
-            }
-            return { currentStage: nextStage, runNum };
-          }
-          return state;
-        });
-      },
-      runNum: 1,
-      restart: (reason) => {
-        set((state) => {
-          if (state.currentStage === List[List.length - 1]) {
-            const runNum = state.runNum + 1;
-            generatorLog('logStages', `New`, reason, `registered, restarting stages (run ${runNum})`);
-            performanceMark('start', runNum, List[0]);
+            nextStage = List[0];
+            runNum = state.stages.runNum + 1;
+            performanceMark('start', runNum, nextStage);
             performanceMark('start', runNum);
-
-            for (const stage of List) {
-              registry.current.stages[stage].finished = false;
-            }
-
-            markReady('new run from stages', NodesReadiness.NotReady);
-            return { currentStage: List[0], runNum };
+          } else if (nextStage === StageFinished) {
+            performanceMark('end', state.stages.runNum);
+            generatorLog('logStages', `Node generation finished, total duration`, formatDuration(state.stages.runNum));
           }
 
-          return {};
-        });
-      },
-      toCommit: {
-        addNodes: [],
-        setNodeProps: [],
-        setRowExtras: [],
-        setRowUuid: [],
-        setPageProps: [],
-      },
-    }));
-  },
-});
+          const stages = { ...state.stages };
+          stages.currentStage = nextStage;
+          stages.runNum = runNum;
+          return { stages };
+        }
+        return {};
+      });
+    },
+    runNum: 1,
+    restart: (reason) => {
+      set((state) => {
+        if (state.stages.currentStage === List[List.length - 1]) {
+          const runNum = state.stages.runNum + 1;
+          generatorLog('logStages', `New`, reason, `registered, restarting stages (run ${runNum})`);
+          performanceMark('start', runNum, List[0]);
+          performanceMark('start', runNum);
 
-function registryStats(stage: Stage, registry: Registry, runNum: number) {
+          for (const stage of List) {
+            registry.current.stages[stage].finished = false;
+          }
+
+          state.markReady('new run from stages', NodesReadiness.NotReady);
+          const stages = { ...state.stages };
+          stages.currentStage = List[0];
+          stages.runNum = runNum;
+          return { stages };
+        }
+
+        return {};
+      });
+    },
+    toCommit: {
+      addNodes: [],
+      setNodeProps: [],
+      setRowExtras: [],
+      setRowUuid: [],
+      setPageProps: [],
+    },
+  };
+}
+
+function registryStats(stage: Stage, registry: GeneratorStagesRegistry, runNum: number) {
   const s = registry.stages[stage];
   const total = Object.values(s.components).filter((c) => c.initialRunNum === runNum).length;
   const done = Object.values(s.components).filter((c) => c.finished && c.initialRunNum === runNum).length;
@@ -200,13 +207,13 @@ function registryStats(stage: Stage, registry: Registry, runNum: number) {
   return { total, done };
 }
 
-function isStageDone(stage: Stage, registry: Registry, runNum: number) {
+function isStageDone(stage: Stage, registry: GeneratorStagesRegistry, runNum: number) {
   const { total, done } = registryStats(stage, registry, runNum);
   return total === done;
 }
 
 export function useGetAwaitingCommits() {
-  const toCommit = useSelector((state) => state.toCommit);
+  const toCommit = NodesStore.useSelector((state) => state.stages.toCommit);
 
   return useCallback(
     () =>
@@ -219,33 +226,7 @@ export function useGetAwaitingCommits() {
   );
 }
 
-interface StagesProps {
-  markReady: (reason: string, ready?: NodesReadiness) => void;
-}
-
-/**
- * Generator stages provide useEffect() hooks that are called at different stages of the node generation process. This
- * is useful for separating logic into different stages that rely on earlier stages being completed before the
- * stage can begin. When processing the node hierarchy, it is important that all nodes are added to the storage before
- * we can start evaluating expressions, because expressions can reference other nodes.
- *
- * Wrapping hooks this way ensures that the order of execution of the hooks is guaranteed.
- */
-export function GeneratorStagesProvider({ children, markReady }: PropsWithChildren<StagesProps>) {
-  const registry = React.useRef<Registry>({
-    restartAfter: false,
-    stages: Object.fromEntries(
-      List.map((s) => [
-        s as Stage,
-        {
-          finished: false,
-          onDone: [],
-          components: {},
-        } satisfies Registry['stages'][Stage],
-      ]),
-    ),
-  } as Registry);
-
+export function useStagesRegistry() {
   document.body.setAttribute('data-commits-pending', 'false');
   useEffect(
     () => () => {
@@ -254,19 +235,31 @@ export function GeneratorStagesProvider({ children, markReady }: PropsWithChildr
     [],
   );
 
+  return useRef<GeneratorStagesRegistry>({
+    restartAfter: false,
+    stages: Object.fromEntries(
+      List.map((s) => [
+        s as Stage,
+        {
+          finished: false,
+          onDone: [],
+          components: {},
+        } satisfies GeneratorStagesRegistry['stages'][Stage],
+      ]),
+    ),
+  } as GeneratorStagesRegistry);
+}
+
+export function GeneratorStagesEffects() {
   return (
-    <Provider
-      registry={registry}
-      markReady={markReady}
-    >
+    <>
       <SetTickFunc />
       {GeneratorDebug.logStages && <LogSlowStages />}
       <WhenTickIsSet>
         <CatchEmptyStages />
-        {children}
       </WhenTickIsSet>
       <SetWaitForCommits />
-    </Provider>
+    </>
   );
 }
 
@@ -276,7 +269,7 @@ function useCommit() {
   const setPageProps = NodesInternal.useSetPageProps();
   const setRowExtras = NodesInternal.useSetRowExtras();
   const setRowUuids = NodesInternal.useSetRowUuids();
-  const toCommit = useSelector((state) => state.toCommit);
+  const toCommit = NodesStore.useSelector((state) => state.stages.toCommit);
 
   return useCallback(() => {
     if (toCommit.addNodes.length) {
@@ -331,7 +324,7 @@ function useCommit() {
 
 function SetWaitForCommits() {
   const setWaitForCommits = NodesInternal.useSetWaitForCommits();
-  const toCommit = useSelector((s) => s.toCommit);
+  const toCommit = NodesStore.useSelector((s) => s.stages.toCommit);
 
   const waitForCommits = useCallback(async () => {
     let didWait = false;
@@ -372,7 +365,7 @@ function useAddToQueue<T extends keyof CommitQueues>(
   queue: T,
   commitAfter: boolean,
 ): (request: CommitQueues[T][number]) => void {
-  const toCommit = useSelector((state) => state.toCommit);
+  const toCommit = NodesStore.useSelector((state) => state.stages.toCommit);
   const commit = useCommitWhenFinished();
 
   return useCallback(
@@ -397,7 +390,7 @@ function useAddToQueue<T extends keyof CommitQueues>(
 let commitTimeout: ReturnType<typeof setTimeout> | null = null;
 function useCommitWhenFinished() {
   const commit = useCommit();
-  const stateRef = useSelectorAsRef((s) => s);
+  const stateRef = NodesStore.useSelectorAsRef((s) => s.stages);
 
   return useCallback(() => {
     if (stateRef.current.currentStage === StageFinished && !commitTimeout) {
@@ -409,7 +402,7 @@ function useCommitWhenFinished() {
   }, [stateRef, commit]);
 }
 
-function updateCommitsPendingInBody(toCommit: Context['toCommit']) {
+function updateCommitsPendingInBody(toCommit: GeneratorStagesContext['toCommit']) {
   const anyPendingCommits = Object.values(toCommit).some((arr) => arr.length > 0);
   if (anyPendingCommits) {
     document.body.setAttribute('data-commits-pending', 'true');
@@ -421,11 +414,11 @@ function updateCommitsPendingInBody(toCommit: Context['toCommit']) {
 }
 
 function SetTickFunc() {
-  const currentStageRef = useSelectorAsRef((state) => state.currentStage);
-  const currentRunRef = useSelectorAsRef((state) => state.runNum);
-  const goToNextStage = useSelector((state) => state.nextStage);
-  const setTick = useSelector((state) => state.setTick);
-  const registry = useSelector((state) => state.registry);
+  const currentStageRef = NodesStore.useSelectorAsRef((state) => state.stages.currentStage);
+  const currentRunRef = NodesStore.useSelectorAsRef((state) => state.stages.runNum);
+  const goToNextStage = NodesStore.useSelector((state) => state.stages.nextStage);
+  const setTick = NodesStore.useSelector((state) => state.stages.setTick);
+  const registry = NodesStore.useSelector((state) => state.stages.registry);
   const commit = useCommit();
 
   const tickTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -476,10 +469,10 @@ function SetTickFunc() {
 }
 
 function CatchEmptyStages() {
-  const currentStage = useSelector((state) => state.currentStage);
-  const currentRun = useSelector((state) => state.runNum);
-  const registry = useSelector((state) => state.registry);
-  const tick = useSelector((state) => state.tick);
+  const currentStage = NodesStore.useSelector((state) => state.stages.currentStage);
+  const currentRun = NodesStore.useSelector((state) => state.stages.runNum);
+  const registry = NodesStore.useSelector((state) => state.stages.registry);
+  const tick = NodesStore.useSelector((state) => state.stages.tick);
 
   useEffect(() => {
     // If, after a render we don't have any registered hooks or callbacks for the current stage, we should just proceed
@@ -499,9 +492,9 @@ function CatchEmptyStages() {
 }
 
 function LogSlowStages() {
-  const currentStageRef = useSelectorAsRef((state) => state.currentStage);
-  const currentRun = useSelector((state) => state.runNum);
-  const registry = useSelector((state) => state.registry);
+  const currentStageRef = NodesStore.useSelectorAsRef((state) => state.stages.currentStage);
+  const currentRun = NodesStore.useSelector((state) => state.stages.runNum);
+  const registry = NodesStore.useSelector((state) => state.stages.registry);
   useEffect(() => {
     let lastReportedStage: Stage | undefined;
     const interval = setInterval(() => {
@@ -534,7 +527,7 @@ function LogSlowStages() {
 }
 
 function WhenTickIsSet({ children }: PropsWithChildren) {
-  const tick = useSelector((state) => state.tick);
+  const tick = NodesStore.useSelector((state) => state.stages.tick);
   if (!tick) {
     return null;
   }
@@ -548,8 +541,8 @@ function WhenTickIsSet({ children }: PropsWithChildren) {
  */
 export const GeneratorStages = {
   useIsDoneAddingNodes: () => useIsStageAtLeast(StageAddNodes),
-  useIsFinished: () => useMemoSelector((state) => state.currentStage === StageFinished),
-  useIsGenerating: () => useHasProvider(),
+  useIsFinished: () => NodesStore.useMemoSelector((state) => state.stages.currentStage === StageFinished),
+  useIsGenerating: () => NodesStore.useHasProvider(),
 };
 
 /**
@@ -559,7 +552,7 @@ export const GeneratorStages = {
  * finished).
  */
 function useInitialRunNum() {
-  const runNumberRef = useSelectorAsRef((state) => state.runNum);
+  const runNumberRef = NodesStore.useSelectorAsRef((state) => state.stages.runNum);
 
   const ref = useRef(runNumberRef.current);
   return ref.current;
@@ -568,20 +561,20 @@ function useInitialRunNum() {
 function useShouldRenderOrRun(stage: Stage, isNew: boolean, restartReason: 'hook' | 'component') {
   const initialRun = useInitialRunNum();
 
-  const [shouldRenderOrRun, shouldRestart] = useMemoSelector((state) => {
-    if (isNew && state.currentStage === StageFinished) {
+  const [shouldRenderOrRun, shouldRestart] = NodesStore.useMemoSelector((state) => {
+    if (isNew && state.stages.currentStage === StageFinished) {
       return [false, true];
     }
-    if (!isNew && state.runNum > initialRun) {
+    if (!isNew && state.stages.runNum > initialRun) {
       return [true, false];
     }
 
-    return [isStageAtLeast(state, stage), false];
+    return [isStageAtLeast(state.stages, stage), false];
   });
 
   // When new hooks and components are registered and the stages have finished (typically when a new
   // row in a repeating group is added, and thus new nodes are being generated), restart the stages.
-  const restart = useSelector((state) => state.restart);
+  const restart = NodesStore.useSelector((state) => state.stages.restart);
   useEffect(() => {
     if (shouldRestart) {
       restart(restartReason);
@@ -591,14 +584,14 @@ function useShouldRenderOrRun(stage: Stage, isNew: boolean, restartReason: 'hook
   return shouldRenderOrRun;
 }
 
-function isStageAtLeast(state: Context, stage: Stage) {
+function isStageAtLeast(state: GeneratorStagesContext, stage: Stage) {
   const currentIndex = List.indexOf(state.currentStage);
   const targetIndex = List.indexOf(stage);
   return currentIndex >= targetIndex;
 }
 
 function useIsStageAtLeast(stage: Stage) {
-  return useSelector((state) => isStageAtLeast(state, stage));
+  return NodesStore.useSelector((state) => isStageAtLeast(state.stages, stage));
 }
 
 interface ConditionProps {
@@ -612,9 +605,9 @@ interface ConditionProps {
  */
 export function GeneratorCondition({ stage, mustBeAdded, children }: PropsWithChildren<ConditionProps>) {
   const id = useUniqueId();
-  const registry = useSelector((state) => state.registry);
+  const registry = NodesStore.useSelector((state) => state.stages.registry);
   const initialRunNum = useInitialRunNum();
-  const registryRef = useRef<Registry['stages'][Stage]['components'][string]>({
+  const registryRef = useRef<GeneratorStagesRegistry['stages'][Stage]['components'][string]>({
     finished: false,
     initialRunNum,
     conditions: mustBeAdded ? `${mustBeAdded} must be added` : 'none',
@@ -659,7 +652,7 @@ export function GeneratorCondition({ stage, mustBeAdded, children }: PropsWithCh
 interface WhenProps extends PropsWithChildren {
   id: string;
   stage: Stage;
-  registryRef: MutableRefObject<Registry['stages'][Stage]['components'][string]>;
+  registryRef: MutableRefObject<GeneratorStagesRegistry['stages'][Stage]['components'][string]>;
 }
 
 function WhenParentAdded({ id, stage, registryRef, children }: WhenProps) {
@@ -692,8 +685,8 @@ function Now({ id, stage, children }: WhenProps) {
 }
 
 function useMarkFinished(id: string, stage: Stage, ready: boolean) {
-  const tick = useSelector((state) => state.tick!);
-  const registry = useSelector((state) => state.registry);
+  const tick = NodesStore.useSelector((state) => state.stages.tick!);
+  const registry = NodesStore.useSelector((state) => state.stages.registry);
   useEffect(() => {
     if (ready) {
       registry.current.stages[stage].components[id].finished = true;
@@ -708,24 +701,24 @@ function useUniqueId() {
 
 const canProceedWhenIn = [StageFinished, StageAddNodes];
 function useIsReadyToRun() {
-  const targetRunNumberRef = useSelectorAsRef((state) => {
+  const targetRunNumberRef = NodesStore.useSelectorAsRef((state) => {
     // New nodes are only allowed to be added after the last run has finished, or when the AddNodes
     // stage is in progress. All others will have to wait for the next run.
-    if (canProceedWhenIn.includes(state.currentStage)) {
-      return state.runNum;
+    if (canProceedWhenIn.includes(state.stages.currentStage)) {
+      return state.stages.runNum;
     }
-    return state.runNum + 1;
+    return state.stages.runNum + 1;
   });
 
   // Just like useInitialRunNum, this is intentionally not reactive
   const myRunNum = useRef(targetRunNumberRef.current);
 
-  return useSelector((state) => {
-    if (canProceedWhenIn.includes(state.currentStage)) {
+  return NodesStore.useSelector((state) => {
+    if (canProceedWhenIn.includes(state.stages.currentStage)) {
       return true;
     }
 
-    return myRunNum.current <= state.runNum;
+    return myRunNum.current <= state.stages.runNum;
   });
 }
 
@@ -735,7 +728,7 @@ function useIsReadyToRun() {
  */
 export function GeneratorRunProvider({ children }: PropsWithChildren) {
   const ready = useIsReadyToRun();
-  const registry = useSelector((state) => state.registry);
+  const registry = NodesStore.useSelector((state) => state.stages.registry);
 
   if (!ready) {
     // Something has stopped here and is not proceeding before the next run. By setting this we notify the
