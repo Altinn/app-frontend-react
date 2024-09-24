@@ -256,7 +256,7 @@ function SubformTableRow({
             variant='tertiary'
             color='second'
             size='small'
-            onClick={async () => navigate(`${node.id}/${id}`)}
+            onClick={async () => navigate(`${node.id}/${id}${hasErrors ? '?validate=true' : ''}`)}
             aria-label={editButtonText}
             data-testid='edit-button'
             className={classes.tableButton}

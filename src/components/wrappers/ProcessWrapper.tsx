@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import type { ReactNode } from 'react';
 
 import { Button } from '@digdir/designsystemet-react';
@@ -185,8 +185,9 @@ export const ProcessWrapper = () => {
 };
 
 export const ComponentRouting = () => {
-  const componentId = useParams().componentId;
+  const componentId = useNavigationParam('componentId');
   const node = useNode(componentId);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const subRouting = node?.def.subRouting(node as any);
 

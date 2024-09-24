@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { FormPage } from 'src/components/form/Form';
@@ -31,7 +30,13 @@ export const SubformWrapper = ({ node, children }: PropsWithChildren<{ node: Lay
 export const SubformFirstPage = () => {
   const order = useLayoutSettings().pages.order;
   const firstPage = order[0];
-  return <Navigate to={firstPage} />;
+  const { navigateToPage } = useNavigatePage();
+
+  useEffect(() => {
+    navigateToPage(firstPage, { replace: true });
+  }, [navigateToPage, firstPage]);
+
+  return null;
 };
 
 export const RedirectBackToMainForm = () => {
@@ -46,12 +51,13 @@ export const RedirectBackToMainForm = () => {
 };
 
 export const SubformForm = () => {
-  const { subformPage } = useParams();
+  const subformPage = useNavigationParam('pageKey');
+
   return <FormPage currentPageId={subformPage} />;
 };
 
 const useDoOverride = (node: LayoutNode<'Subform'>) => {
-  const { dataElementId } = useParams();
+  const dataElementId = useNavigationParam('dataElementId');
   const { layoutSet, id } = useNodeItem(node);
   const dataType = useDataTypeFromLayoutSet(layoutSet);
   if (!dataType) {

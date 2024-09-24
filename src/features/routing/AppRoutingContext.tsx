@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useRef } from 'react';
 import { useLocation, useMatch, useNavigate as useNativeNavigate } from 'react-router-dom';
 import type { MutableRefObject, PropsWithChildren } from 'react';
 
+import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
@@ -111,22 +112,26 @@ const useNavigationParams = (): Context['params'] => {
 function UpdateParams() {
   const updateParams = useSelector((ctx) => ctx.updateParams);
   const params = useNavigationParams();
+  const prevParams = useRef<Context['params']>({});
 
-  useEffect(() => {
+  if (!deepEqual(params, prevParams.current)) {
+    prevParams.current = params;
     updateParams(params);
-  }, [params, updateParams]);
+  }
 
   return null;
 }
 
 function UpdateQueryKeys() {
   const queryKeys = useLocation().search ?? '';
+  const prevQueryKeys = useRef('');
   const updateQueryKeys = useSelector((ctx) => ctx.updateQueryKeys);
 
-  useEffect(() => {
+  if (queryKeys !== prevQueryKeys.current) {
     const map = Object.fromEntries(new URLSearchParams(queryKeys).entries());
+    prevQueryKeys.current = queryKeys;
     updateQueryKeys(map);
-  }, [queryKeys, updateQueryKeys]);
+  }
 
   return null;
 }

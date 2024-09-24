@@ -21,6 +21,7 @@ import {
   useQueryKeysAsStringAsRef,
 } from 'src/features/routing/AppRoutingContext';
 import { FrontendValidationSource } from 'src/features/validation';
+import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { SearchParams, useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { GenericComponentById } from 'src/layout/GenericComponent';
@@ -249,9 +250,11 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
 }
 
 function HandleNavigationFocusComponent() {
+  const onFormSubmitValidation = useOnFormSubmitValidation();
   const searchStringRef = useQueryKeysAsStringAsRef();
   const componentId = useQueryKey(SearchParams.FocusComponentId);
   const exitSubform = useQueryKey(SearchParams.ExitSubform)?.toLocaleLowerCase() === 'true';
+  const validate = useQueryKey(SearchParams.Validate)?.toLocaleLowerCase() === 'true';
   const focusNode = useNode(componentId ?? undefined);
   const navigateTo = useNavigateToNode();
   const navigate = useNavigate();
@@ -259,13 +262,19 @@ function HandleNavigationFocusComponent() {
   React.useEffect(() => {
     (async () => {
       // Replace URL if we have query params
-      if (focusNode || exitSubform) {
+      if (focusNode || exitSubform || validate) {
         const location = new URLSearchParams(searchStringRef.current);
         location.delete(SearchParams.FocusComponentId);
         location.delete(SearchParams.ExitSubform);
+        location.delete(SearchParams.Validate);
         const baseHash = window.location.hash.slice(1).split('?')[0];
         const nextLocation = location.size > 0 ? `${baseHash}?${location.toString()}` : baseHash;
         navigate(nextLocation, { replace: true });
+      }
+
+      // Set validation visibility to the equivalent of trying to submit
+      if (validate) {
+        onFormSubmitValidation();
       }
 
       // Focus on node?
@@ -279,7 +288,7 @@ function HandleNavigationFocusComponent() {
         await navigateTo(focusNode, nodeNavOptions);
       }
     })();
-  }, [navigateTo, focusNode, navigate, searchStringRef, exitSubform]);
+  }, [navigateTo, focusNode, navigate, searchStringRef, exitSubform, validate, onFormSubmitValidation]);
 
   return null;
 }

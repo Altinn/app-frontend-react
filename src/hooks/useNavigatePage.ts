@@ -37,6 +37,7 @@ export enum TaskKeys {
 export enum SearchParams {
   FocusComponentId = 'focusComponentId',
   ExitSubform = 'exitSubform',
+  Validate = 'validate',
 }
 
 const emptyArray: never[] = [];
@@ -209,16 +210,16 @@ export const useNavigatePage = () => {
 
       // Subform
       if (mainPageKey && componentId && dataElementId && options?.exitSubform !== true) {
-        const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}/${queryKeysRef.current}`;
+        const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}${queryKeysRef.current}`;
         return navigate(url, options, { replace }, () => focusMainContent(options));
       }
 
-      let url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}${queryKeysRef.current}`;
+      let url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}`;
+
+      const searchParams = new URLSearchParams(queryKeysRef.current);
 
       // Special cases for component focus and subform exit
       if (options?.focusComponentId || options?.exitSubform) {
-        const searchParams = new URLSearchParams();
-
         if (options?.focusComponentId) {
           searchParams.set(SearchParams.FocusComponentId, options.focusComponentId);
         }
@@ -226,9 +227,9 @@ export const useNavigatePage = () => {
         if (options?.exitSubform) {
           searchParams.set(SearchParams.ExitSubform, 'true');
         }
-
-        url = `${url}?${searchParams.toString()}`;
       }
+
+      url = `${url}?${searchParams.toString()}`;
 
       navigate(url, options, { replace }, () => focusMainContent(options));
     },
