@@ -258,15 +258,15 @@ function LoadInitialData({ dataType }: LoaderProps) {
   const instance = useLaxInstanceData();
   const overriddenUuid = useTaskStore((state) => state.overriddenDataModelUuid);
   const overriddenType = useTaskStore((state) => state.overriddenDataModelType);
-  const dataElementId = overriddenType === dataType ? overriddenUuid : getFirstDataElementId(instance, dataType);
-  const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
+  const actualDataType = overriddenType ? overriddenType : dataType;
+  const actualDataElementID = overriddenUuid ? overriddenUuid : getFirstDataElementId(instance, dataType);
+  const url = useDataModelUrl({ dataType: actualDataType, dataElementId: actualDataElementID, includeRowIds: true });
   const { data, error } = useFormDataQuery(url);
-
   useEffect(() => {
     if (data && url) {
-      setInitialData(dataType, data, dataElementId ?? null);
+      setInitialData(actualDataType, data, actualDataElementID ?? null);
     }
-  }, [data, dataElementId, dataType, setInitialData, url]);
+  }, [data, actualDataElementID, dataType, setInitialData, url, actualDataType]);
 
   useEffect(() => {
     error && setError(error);

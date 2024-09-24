@@ -12,14 +12,19 @@ interface TaskSummaryProps {
 }
 
 export function TaskSummaryWrapper({ taskId, children }: React.PropsWithChildren<TaskSummaryProps>) {
-  const { setTaskId, setOverriddenDataModelUuid, setOverriddenLayoutSetId, overriddenTaskId } = useTaskStore(
-    (state) => ({
-      setTaskId: state.setTaskId,
-      setOverriddenDataModelUuid: state.setOverriddenDataModelUuid,
-      setOverriddenLayoutSetId: state.setOverriddenLayoutSetId,
-      overriddenTaskId: state.overriddenTaskId,
-    }),
-  );
+  const {
+    setTaskId,
+    setOverriddenDataModelType,
+    setOverriddenDataModelUuid,
+    setOverriddenLayoutSetId,
+    overriddenTaskId,
+  } = useTaskStore((state) => ({
+    setTaskId: state.setTaskId,
+    setOverriddenDataModelUuid: state.setOverriddenDataModelUuid,
+    setOverriddenLayoutSetId: state.setOverriddenLayoutSetId,
+    overriddenTaskId: state.overriddenTaskId,
+    setOverriddenDataModelType: state.setOverriddenDataModelType,
+  }));
 
   const layoutSets = useLayoutSets();
 
@@ -28,11 +33,18 @@ export function TaskSummaryWrapper({ taskId, children }: React.PropsWithChildren
       const layoutSetForTask = layoutSets.sets.find((set) => layoutSetIsDefault(set) && set.tasks?.includes(taskId));
       setTaskId && setTaskId(taskId);
       if (layoutSetForTask) {
-        setOverriddenDataModelUuid && setOverriddenDataModelUuid(layoutSetForTask.dataType);
+        setOverriddenDataModelType && setOverriddenDataModelType(layoutSetForTask.dataType);
         setOverriddenLayoutSetId && setOverriddenLayoutSetId(layoutSetForTask.id);
       }
     }
-  }, [layoutSets.sets, setOverriddenDataModelUuid, setOverriddenLayoutSetId, setTaskId, taskId]);
+  }, [
+    layoutSets.sets,
+    setOverriddenDataModelType,
+    setOverriddenDataModelUuid,
+    setOverriddenLayoutSetId,
+    setTaskId,
+    taskId,
+  ]);
 
   if (overriddenTaskId) {
     return <FormProvider>{children}</FormProvider>;

@@ -68,3 +68,13 @@ tr.noRowSpacing td {
 .marginLeftAuto {
   margin-left: auto;
 }
+
+.summaryWrapperMargin {
+  margin-top: var(--fds-spacing-3);
+}
+
+.emptyField {
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.6875;
+}

@@ -1,6 +1,8 @@
 import React from 'react';
 
+import { useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
 import { waitForAnimationFrames } from 'src/utils/waitForAnimationFrames';
+import type { DataLoading } from 'src/core/contexts/dataLoadingContext';
 
 /**
  * This element only serves to let our PDF generator know the app is ready and have rendered its content.
@@ -9,15 +11,21 @@ import { waitForAnimationFrames } from 'src/utils/waitForAnimationFrames';
  */
 export function ReadyForPrint() {
   const [assetsLoaded, setAssetsLoaded] = React.useState(false);
+  const dataLoadingIsDone = useDataLoadingStore((state) => state.isDone);
 
   React.useLayoutEffect(() => {
+    if (assetsLoaded) {
+      return;
+    }
+
+    const dataPromise = waitForDataLoading(dataLoadingIsDone);
     const imagePromise = waitForImages();
     const fontPromise = document.fonts.ready;
 
-    Promise.all([imagePromise, fontPromise]).then(() => {
+    Promise.all([imagePromise, fontPromise, dataPromise]).then(() => {
       setAssetsLoaded(true);
     });
-  }, []);
+  }, [assetsLoaded, dataLoadingIsDone]);
 
   if (!assetsLoaded) {
     return null;
@@ -52,4 +60,13 @@ async function waitForImages() {
       !node.complete && promises.push(loadPromise(node));
     });
   } while (nodes.some((node) => !node.complete));
+}
+
+async function waitForDataLoading(dataLoadingIsDone: DataLoading['isDone']) {
+  let done: boolean = dataLoadingIsDone();
+
+  while (!done) {
+    await new Promise((r) => setTimeout(r, 1000));
+    done = dataLoadingIsDone();
+  }
 }
