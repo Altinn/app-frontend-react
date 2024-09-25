@@ -21,11 +21,21 @@ describe('Options', () => {
     // Select a different source, expect previous selection to be cleared and
     // new value to be selectable in the reference option
     cy.dsSelect(appFrontend.changeOfName.sources, 'Digitaliseringsdirektoratet');
-    cy.get(appFrontend.changeOfName.reference).and('have.value', '');
+    cy.get(appFrontend.changeOfName.reference).should('have.value', '');
     cy.dsSelect(appFrontend.changeOfName.reference, 'Sophie Salt');
     cy.get(appFrontend.changeOfName.reference).should('have.value', 'Sophie Salt');
     cy.dsSelect(appFrontend.changeOfName.reference2, 'Dole');
     cy.get(appFrontend.changeOfName.reference2).should('have.value', 'Dole');
+
+    // If we change the source back to the previous one, the previous selections should be cleared
+    // and the previous options should be available again
+    cy.dsSelect(appFrontend.changeOfName.sources, 'Altinn');
+    cy.get(appFrontend.changeOfName.reference).should('have.value', '');
+    cy.dsSelect(appFrontend.changeOfName.reference, 'Ola Nordmann');
+    cy.get(appFrontend.changeOfName.reference).should('have.value', 'Ola Nordmann');
+    cy.get(appFrontend.changeOfName.reference2).should('have.value', '');
+    cy.dsSelect(appFrontend.changeOfName.reference2, 'Ole');
+    cy.get(appFrontend.changeOfName.reference2).should('have.value', 'Ole');
   });
 
   it('is possible to build options from repeating groups', () => {
