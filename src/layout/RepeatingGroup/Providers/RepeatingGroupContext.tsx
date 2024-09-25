@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -20,7 +20,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { BaseRow } from 'src/utils/layout/types';
 
 interface Store {
-  freshRowsRef: MutableRefObject<BaseRow[] | undefined>;
   editingAll: boolean;
   editingNone: boolean;
   editingId: string | undefined;
@@ -206,15 +205,13 @@ function gotoPageForRow(
 }
 
 interface NewStoreProps {
-  freshRowsRef: MutableRefObject<BaseRow[] | undefined>;
   rowsRef: MutableRefObject<RepGroupRows>;
   editMode: IGroupEditProperties['mode'];
   pagination: CompInternal<'RepeatingGroup'>['pagination'];
 }
 
-function newStore({ editMode, pagination, rowsRef, freshRowsRef }: NewStoreProps) {
+function newStore({ editMode, pagination, rowsRef }: NewStoreProps) {
   return createStore<ZustandState>((set) => ({
-    freshRowsRef,
     editingAll: editMode === 'showAll',
     editingNone: editMode === 'onlyTable',
     isFirstRender: true,
@@ -559,31 +556,6 @@ function EffectPagination() {
   return null;
 }
 
-/**
- * The item.rows state is updated through effects in the hierarchy generated, and will always be a bit slower
- * than the source (fresh list of rows from the data model). This trick stores a ref always containing a
- * fresh list of rows we can use to filter out rows that are about to be deleted. This fixes a problem
- * where repeating group rows will 'flash' with outdated data before being removed.
- */
-function EffectSelectFreshRows({ freshRowsRef }: { freshRowsRef: MutableRefObject<BaseRow[] | undefined> }) {
-  const node = useRepeatingGroupNode();
-  const binding = useNodeItem(node, (i) => i.dataModelBindings.group);
-  freshRowsRef.current = FD.useFreshRows(binding);
-
-  return null;
-}
-
-/**
- * This function filters out rows that are about to be deleted from the rows state
- */
-function filterByFreshRows(rows: RepGroupRows, freshRows: BaseRow[] | undefined): RepGroupRows {
-  if (!freshRows) {
-    return rows;
-  }
-  const freshRowIds = new Set(freshRows.map((row) => `${row.uuid}-${row.index}`));
-  return rows.filter((row) => !!row && freshRowIds.has(`${row.uuid}-${row.index}`));
-}
-
 function ProvideTheRest({ node, children }: PropsWithChildren<Props>) {
   const extended = useExtendedRepeatingGroupState(node);
   return <ExtendedStore.Provider value={extended}>{children}</ExtendedStore.Provider>;
@@ -596,13 +568,10 @@ interface Props {
 export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Props>) {
   const pagination = useNodeItem(node, (i) => i.pagination);
   const editMode = useNodeItem(node, (i) => i.edit?.mode);
-
-  const freshRowsRef = useRef<BaseRow[] | undefined>(undefined);
-  const rowsRef = useNodeItemRef(node, (i) => filterByFreshRows(i.rows, freshRowsRef.current));
+  const rowsRef = useNodeItemRef(node, (i) => i.rows);
 
   return (
     <ZStore.Provider
-      freshRowsRef={freshRowsRef}
       rowsRef={rowsRef}
       pagination={pagination}
       editMode={editMode}
@@ -610,7 +579,6 @@ export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Pro
       <ProvideTheRest node={node}>
         <EffectCloseEditing />
         <EffectPagination />
-        <EffectSelectFreshRows freshRowsRef={freshRowsRef} />
         <OpenByDefaultProvider node={node}>{children}</OpenByDefaultProvider>
       </ProvideTheRest>
     </ZStore.Provider>
@@ -622,8 +590,7 @@ export const useRepeatingGroupNode = () => ExtendedStore.useCtx().node;
 
 export const useRepeatingGroupRowState = () => {
   const node = useRepeatingGroupNode();
-  const freshRowsRef = ZStore.useSelector((state) => state.freshRowsRef);
-  return useNodeItem(node, (i) => produceStateFromRows(filterByFreshRows(i.rows, freshRowsRef.current)));
+  return useNodeItem(node, (i) => produceStateFromRows(i.rows));
 };
 
 export const useRepeatingGroupPagination = () => {
