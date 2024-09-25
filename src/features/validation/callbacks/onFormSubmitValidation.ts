@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import { ValidationMask } from '..';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { getVisibilityMask, selectValidations } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -27,7 +26,7 @@ export function useOnFormSubmitValidation() {
     }
 
     /*
-     * First: check and show any frontend errors
+     * Check if there are any frontend validation errors, and if so, show them now and block submit
      */
     const nodesWithFrontendErrors = getNodesWithErrors(ValidationMask.All, 'error');
     if (nodesWithFrontendErrors === ContextNotProvided) {
@@ -37,30 +36,6 @@ export function useOnFormSubmitValidation() {
 
     if (nodesWithFrontendErrors.length > 0) {
       setNodeVisibility(nodesWithFrontendErrors, ValidationMask.All);
-      return true;
-    }
-
-    /*
-     * Normally, backend errors should be in sync with frontend errors.
-     * But if not, show them now.
-     */
-    const nodesWithAnyErrors = getNodesWithErrors(ValidationMask.AllIncludingBackend, 'error');
-    if (nodesWithAnyErrors !== ContextNotProvided && nodesWithAnyErrors.length > 0) {
-      setNodeVisibility(nodesWithAnyErrors, ValidationMask.AllIncludingBackend);
-      return true;
-    }
-
-    /**
-     * As a last resort, to prevent unknown error, show any backend errors
-     * that cannot be mapped to any visible node.
-     */
-    const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
-    const fieldErrors = Object.values(validation.current.state.dataModels)
-      .flatMap((fields) => Object.values(fields))
-      .flatMap((field) => selectValidations(field, backendMask, 'error'));
-
-    if (fieldErrors.length > 0) {
-      validation.current.setShowAllErrors(true);
       return true;
     }
 
