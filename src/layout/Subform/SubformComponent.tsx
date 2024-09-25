@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { flushSync } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 
 import { Button, Spinner, Table } from '@digdir/designsystemet-react';
@@ -63,7 +64,9 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
 
     try {
       const result = await addEntryMutation.mutateAsync({});
-      navigate(`${node.id}/${result.id}`);
+      flushSync(() => {
+        navigate(`${node.id}/${result.id}`);
+      });
     } catch {
       // NOTE: Handled by useAddEntryMutation
     } finally {

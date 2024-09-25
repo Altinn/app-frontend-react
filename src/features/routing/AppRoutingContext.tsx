@@ -1,11 +1,11 @@
-import React, { useRef } from 'react';
-import { useLocation, useMatch, useNavigate as useNativeNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { matchPath, useNavigate as useNativeNavigate } from 'react-router-dom';
 import type { MutableRefObject, PropsWithChildren } from 'react';
 
-import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
+import { router } from 'src/index';
 
 export type NavigationEffectCb = () => void;
 
@@ -72,17 +72,17 @@ export const useQueryKey = (key: string) => useSelector((ctx) => ctx.queryKeys[k
 // Use this instead of the native one to avoid re-rendering whenever the route changes
 export const useNavigate = () => useSelector((ctx) => ctx.navigateRef).current;
 
-const useNavigationParams = (): Context['params'] => {
+const getNavigationParams = (pathName: string): Context['params'] => {
   const matches = [
-    useMatch('/instance/:partyId/:instanceGuid'),
-    useMatch('/instance/:partyId/:instanceGuid/:taskId'),
-    useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey'),
-    useMatch('/:pageKey'), // Stateless
+    matchPath('/instance/:partyId/:instanceGuid', pathName),
+    matchPath('/instance/:partyId/:instanceGuid/:taskId', pathName),
+    matchPath('/instance/:partyId/:instanceGuid/:taskId/:pageKey', pathName),
+    matchPath('/:pageKey', pathName), // Stateless
 
     // Subform
-    useMatch('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId'),
-    useMatch('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId/:dataElementId'),
-    useMatch('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId/:dataElementId/:pageKey'),
+    matchPath('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId', pathName),
+    matchPath('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId/:dataElementId', pathName),
+    matchPath('/instance/:partyId/:instanceGuid/:taskId/:mainPageKey/:componentId/:dataElementId/:pageKey', pathName),
   ];
 
   const partyId = matches.reduce((acc, match) => acc ?? match?.params['partyId'], undefined);
@@ -111,27 +111,30 @@ const useNavigationParams = (): Context['params'] => {
 
 function UpdateParams() {
   const updateParams = useSelector((ctx) => ctx.updateParams);
-  const params = useNavigationParams();
-  const prevParams = useRef<Context['params']>({});
 
-  if (!deepEqual(params, prevParams.current)) {
-    prevParams.current = params;
-    updateParams(params);
-  }
+  useEffect(
+    () =>
+      router.subscribe((state) => {
+        const params = getNavigationParams(state.location.pathname);
+        updateParams(params);
+      }),
+    [updateParams],
+  );
 
   return null;
 }
 
 function UpdateQueryKeys() {
-  const queryKeys = useLocation().search ?? '';
-  const prevQueryKeys = useRef('');
   const updateQueryKeys = useSelector((ctx) => ctx.updateQueryKeys);
 
-  if (queryKeys !== prevQueryKeys.current) {
-    const map = Object.fromEntries(new URLSearchParams(queryKeys).entries());
-    prevQueryKeys.current = queryKeys;
-    updateQueryKeys(map);
-  }
+  useEffect(
+    () =>
+      router.subscribe((state) => {
+        const map = Object.fromEntries(new URLSearchParams(state.location.search).entries());
+        updateQueryKeys(map);
+      }),
+    [updateQueryKeys],
+  );
 
   return null;
 }

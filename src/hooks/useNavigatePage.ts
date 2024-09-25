@@ -242,8 +242,7 @@ export const useNavigatePage = () => {
       }
 
       url = `${url}?${searchParams.toString()}`;
-
-      navigate(url, options, { replace }, () => focusMainContent(options));
+      navigate(url, options, { replace, unstable_flushSync: options?.exitSubform }, () => focusMainContent(options));
     },
     [isStatelessApp, maybeSaveOnPageChange, navParams, navigate, order, queryKeysRef],
   );
@@ -340,6 +339,7 @@ export const useNavigatePage = () => {
       return;
     }
     await invalidateInitialValidations();
+
     await navigateToPage(navParams.current.mainPageKey, {
       exitSubform: true,
       resetReturnToView: false,
