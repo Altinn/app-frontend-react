@@ -89,3 +89,9 @@ tr.noRowSpacing td {
 .summaryItem {
   width: 100%;
 }
+
+@media print {
+  .pageBreak {
+    page-break-before: always;
+  }
+}

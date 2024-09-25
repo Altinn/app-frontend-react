@@ -28,6 +28,7 @@ export const SummarySubformWrapper = ({ node }: PropsWithChildren<{ node: Layout
     <>
       {dataElements.length === 0 && (
         <>
+          <div className={classes.pageBreak} />
           <Label
             node={node}
             id={`subform-summary2-${id}`}
@@ -45,6 +46,7 @@ export const SummarySubformWrapper = ({ node }: PropsWithChildren<{ node: Layout
       )}
       {dataElements?.map((element, idx) => (
         <TaskStoreProvider key={element.id + idx}>
+          <div className={classes.pageBreak} />
           <DoSummaryWrapper
             dataElementId={element.id}
             layoutSet={layoutSet}
