@@ -43,7 +43,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
 import '@digdir/designsystemet-theme/brand/altinn/tokens.css';
 
-export const router = createHashRouter([
+const router = createHashRouter([
   {
     path: '*',
     element: (
