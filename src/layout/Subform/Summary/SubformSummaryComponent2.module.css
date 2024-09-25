@@ -75,6 +75,7 @@ tr.noRowSpacing td {
 
 .summaryWrapperMargin {
   margin-top: var(--fds-spacing-3);
+  margin-bottom: var(--fds-spacing-8);
 }
 
 .editColumnHeader {
