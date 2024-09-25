@@ -242,7 +242,7 @@ export const useNavigatePage = () => {
       }
 
       url = `${url}?${searchParams.toString()}`;
-      navigate(url, options, { replace, unstable_flushSync: options?.exitSubform }, () => focusMainContent(options));
+      navigate(url, options, { replace }, () => focusMainContent(options));
     },
     [isStatelessApp, maybeSaveOnPageChange, navParams, navigate, order, queryKeysRef],
   );
