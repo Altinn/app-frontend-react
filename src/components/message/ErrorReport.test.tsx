@@ -4,6 +4,8 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosError } from 'axios';
 
+import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { Form } from 'src/components/form/Form';
 import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
@@ -28,7 +30,7 @@ describe('ErrorReport', () => {
                   id: 'input',
                   type: 'Input',
                   dataModelBindings: {
-                    simpleBinding: 'boundField',
+                    simpleBinding: { dataType: defaultDataTypeMock, field: 'boundField' },
                   },
                 },
               ],
@@ -88,16 +90,29 @@ describe('ErrorReport', () => {
   });
 
   it('should list unbound mapped error as unclickable', async () => {
-    await render([
-      {
-        customTextKey: 'some unbound mapped error',
-        field: 'unboundField',
-        severity: BackendValidationSeverity.Error,
-        source: 'custom',
-      } as BackendValidationIssue,
-    ]);
+    const { mutations } = await render();
 
     await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    mutations.doProcessNext.reject({
+      name: 'AxiosError',
+      message: 'Request failed with status code 409',
+      response: {
+        status: 409,
+        data: {
+          validationIssues: [
+            {
+              customTextKey: 'some unbound mapped error',
+              field: 'unboundField',
+              dataElementId: defaultMockDataElementId,
+              severity: BackendValidationSeverity.Error,
+              source: 'custom',
+            } as BackendValidationIssue,
+          ],
+        },
+      },
+    } as AxiosError);
+
     await screen.findByTestId('ErrorReport');
 
     // mapped errors not bound to any component should not be clickable
@@ -111,6 +126,7 @@ describe('ErrorReport', () => {
       {
         customTextKey: 'some mapped error',
         field: 'boundField',
+        dataElementId: defaultMockDataElementId,
         severity: BackendValidationSeverity.Error,
         source: 'custom',
       } as BackendValidationIssue,

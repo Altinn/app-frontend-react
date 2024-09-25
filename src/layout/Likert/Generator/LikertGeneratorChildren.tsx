@@ -11,6 +11,7 @@ import {
   mutateMapping,
 } from 'src/utils/layout/generator/NodeRepeatingChildren';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternalExact, CompIntermediate } from 'src/layout/layout';
 import type { ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -53,7 +54,7 @@ function LikertGeneratorChildrenWorker() {
 interface GenerateRowProps {
   rowIndex: number;
   rowUuid: string;
-  questionsBinding: string;
+  questionsBinding: IDataModelReference;
 }
 
 function _GenerateRow({ rowIndex, questionsBinding }: GenerateRowProps) {

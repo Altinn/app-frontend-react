@@ -17,6 +17,7 @@ import { useDef, useExpressionResolverProps } from 'src/utils/layout/generator/N
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
 import type { CompDef } from 'src/layout';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal } from 'src/layout/layout';
 import type { ChildClaims, ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -79,7 +80,7 @@ function NodeRepeatingChildrenWorker({
 interface GenerateRowProps {
   rowIndex: number;
   claims: ChildClaims;
-  groupBinding: string | undefined;
+  groupBinding: IDataModelReference | undefined;
   multiPageMapping: MultiPageMapping | undefined;
   internalProp: string;
   pluginKey: string;
@@ -200,13 +201,18 @@ export function mutateComponentId(rowIndex: number): ChildMutator {
   };
 }
 
-export function mutateDataModelBindings(rowIndex: number, groupBinding: string | undefined): ChildMutator {
+export function mutateDataModelBindings(rowIndex: number, groupBinding: IDataModelReference | undefined): ChildMutator {
   return (item) => {
     const bindings = item.dataModelBindings || {};
     for (const key of Object.keys(bindings)) {
-      if (groupBinding && bindings[key]) {
-        bindings[key] = bindings[key].replace(groupBinding, `${groupBinding}[${rowIndex}]`);
+      const binding = bindings[key] as IDataModelReference | undefined;
+      if (!binding || !groupBinding || groupBinding.dataType !== binding.dataType) {
+        continue;
       }
+      bindings[key] = {
+        dataType: binding.dataType,
+        field: binding.field.replace(groupBinding.field, `${groupBinding.field}[${rowIndex}]`),
+      };
     }
   };
 }

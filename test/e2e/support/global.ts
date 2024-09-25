@@ -1,5 +1,6 @@
 import type { CyUser } from 'test/e2e/support/auth';
 
+import type { BackendValidationIssue, BackendValidationIssueGroups } from 'src/features/validation';
 import type { ILayoutSets } from 'src/layout/common.generated';
 import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
 
@@ -126,6 +127,7 @@ declare global {
         taskName: FrontendTestTask | string,
         mutator?: (component: CompExternal) => void,
         wholeLayoutMutator?: (layoutSet: ILayoutCollection) => void,
+        options?: { times?: number },
       ): Chainable<null>;
 
       /**
@@ -224,8 +226,41 @@ declare global {
       clearSelectionAndWait(viewport?: 'desktop' | 'tablet' | 'mobile'): Chainable<null>;
 
       getSummary(label: string): Chainable<Element>;
+      directSnapshot(
+        snapshotName: string,
+        options: { width: number; minHeight: number },
+        reset?: boolean,
+      ): Chainable<null>;
       testPdf(snapshotName: string | false, callback: () => void, returnToForm?: boolean): Chainable<null>;
       getCurrentPageId(): Chainable<string>;
+
+      /**
+       * Will intercept patch requests to set ignoredValidators to an empty array, causing the backend to run all validations
+       */
+      runAllBackendValidations(): Chainable<null>;
+
+      /**
+       * Returns a result containing the validation issues for the next patch request
+       */
+      getNextPatchValidations(resultContainer: BackendValidationResult): Chainable<null>;
+
+      /**
+       * Convenient way to check for the presence of a validation in a resultContainer
+       */
+      expectValidationToExist(
+        resultContainer: BackendValidationResult,
+        validatorGroup: string,
+        predicate: BackendValdiationPredicate,
+      ): Chainable<null>;
+
+      /**
+       * Convenient way to check for the absense of a validation in a resultContainer
+       */
+      expectValidationNotToExist(
+        resultContainer: BackendValidationResult,
+        validatorGroup: string,
+        predicate: BackendValdiationPredicate,
+      ): Chainable<null>;
 
       /**
        * All tests will check to make sure things didn't fail horribly after the test is done. This is useful for
@@ -236,3 +271,8 @@ declare global {
     }
   }
 }
+
+export type BackendValidationResult = {
+  validations: BackendValidationIssueGroups | null;
+};
+export type BackendValdiationPredicate = (validationIssue: BackendValidationIssue) => boolean | null | undefined;

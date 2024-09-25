@@ -1,6 +1,13 @@
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
+export const MAP_SUMMARY_OVERRIDE_PROPS = new CG.obj()
+  .extends(CG.common('ISummaryOverridesCommon'))
+  .optional()
+  .setTitle('Summary properties')
+  .setDescription('Properties for how to display the summary of the component')
+  .exportAs('MapSummaryOverrideProps');
+
 export const Config = new CG.component({
   category: CompCategory.Form,
   capabilities: {
@@ -18,10 +25,10 @@ export const Config = new CG.component({
 })
   .addDataModelBinding(
     new CG.obj(
-      new CG.prop('simpleBinding', new CG.str().optional()),
+      new CG.prop('simpleBinding', new CG.dataModelBinding().optional()),
       new CG.prop(
         'geometries',
-        new CG.str()
+        new CG.dataModelBinding()
           .optional()
           .setDescription('Should point to an array of objects like {data: string, label: string}'),
       ),

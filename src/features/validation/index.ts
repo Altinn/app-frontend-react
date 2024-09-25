@@ -17,10 +17,17 @@ export type ValidationSeverity = 'error' | 'warning' | 'info' | 'success';
 
 export enum BuiltInValidationIssueSources {
   File = 'File',
-  ModelState = 'DataAnnotations',
+  DataAnnotations = 'DataAnnotations',
   Required = 'Required',
   Expression = 'Expression',
+  DefaultTaskValidator = 'Altinn.App.Core.Features.Validation.Default.DefaultTaskValidator-*',
 }
+
+export const IgnoredValidators: BuiltInValidationIssueSources[] = [
+  BuiltInValidationIssueSources.DataAnnotations,
+  BuiltInValidationIssueSources.Required,
+  BuiltInValidationIssueSources.Expression,
+];
 
 export enum BackendValidationSeverity {
   Error = 1,
@@ -61,8 +68,8 @@ export type ValidationContext = {
   validating: WaitForValidation | undefined;
 
   /**
-   * This is a last resort to show all errors, to prevent unknown error
-   * if this is ever visible, there is probably something wrong in the app.
+   * If there are no frontend errors, but process next still returns validation errors,
+   * this will show all backend errors.
    */
   setShowAllErrors: (showAllErrors: boolean) => void;
   showAllErrors: boolean;
@@ -70,7 +77,11 @@ export type ValidationContext = {
 
 export type ValidationState = {
   task: BaseValidation[];
-  fields: FieldValidations;
+  dataModels: DataModelValidations;
+};
+
+export type DataModelValidations = {
+  [dataType: string]: FieldValidations;
 };
 
 export type FieldValidations = {
@@ -91,6 +102,10 @@ export type BackendValidatorGroups = {
   [validator: string]: (BaseValidation | FieldValidation)[];
 };
 
+export type BackendFieldValidatorGroups = {
+  [validator: string]: FieldValidation[];
+};
+
 export type BaseValidation<Severity extends ValidationSeverity = ValidationSeverity> = {
   message: TextReference;
   severity: Severity;
@@ -104,6 +119,7 @@ export type BaseValidation<Severity extends ValidationSeverity = ValidationSever
  */
 export type FieldValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
   field: string;
+  dataType: string;
 };
 
 /**

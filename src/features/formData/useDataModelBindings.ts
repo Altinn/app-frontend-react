@@ -5,7 +5,7 @@ import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import type { FDLeafValue } from 'src/features/formData/FormDataWrite';
 import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
-import type { SaveWhileTyping } from 'src/layout/common.generated';
+import type { IDataModelReference, SaveWhileTyping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 // Describes how you want the data to be returned from the useDataModelBindings hook. Usually, if you're
@@ -18,7 +18,6 @@ type DataAs = 'raw' | 'string';
 type DataType<DA extends DataAs> = DA extends 'raw' ? unknown : string;
 interface Output<B extends IDataModelBindings | undefined, DA extends DataAs> extends SaveOutput<B> {
   formData: B extends undefined ? Record<string, never> : { [key in keyof B]: DataType<DA> };
-  debounce: () => void;
   isValid: { [key in keyof B]: boolean };
 }
 
@@ -28,7 +27,7 @@ interface SaveOutput<B extends IDataModelBindings | undefined> {
   debounce: () => void;
 }
 
-type SaveOptions = Omit<FDNewValue, 'path' | 'newValue' | 'schema'>;
+type SaveOptions = Omit<FDNewValue, 'reference' | 'newValue' | 'schema'>;
 
 const defaultBindings = {};
 
@@ -62,7 +61,6 @@ export function useSaveDataModelBindings<B extends IDataModelBindings | undefine
 
   const setLeafValue = FD.useSetLeafValue();
   const setMultiLeafValue = FD.useSetMultiLeafValues();
-  const debounce = FD.useDebounceImmediately();
 
   const saveOptions: SaveOptions = useMemo(
     () =>
@@ -77,7 +75,7 @@ export function useSaveDataModelBindings<B extends IDataModelBindings | undefine
   const setValue = useCallback(
     (key: keyof B, newValue: FDLeafValue) =>
       setLeafValue({
-        path: bindings[key] as string,
+        reference: bindings[key] as IDataModelReference,
         newValue,
         ...saveOptions,
       }),
@@ -89,7 +87,7 @@ export function useSaveDataModelBindings<B extends IDataModelBindings | undefine
       const newValues: FDNewValue[] = [];
       Object.entries(values).forEach(([key, value]) => {
         newValues.push({
-          path: bindings[key as keyof B] as string,
+          reference: bindings[key as keyof B] as IDataModelReference,
           newValue: value as FDLeafValue,
         });
       });
@@ -101,5 +99,5 @@ export function useSaveDataModelBindings<B extends IDataModelBindings | undefine
     [bindings, saveOptions, setMultiLeafValue],
   );
 
-  return { setValue, setValues, debounce };
+  return { setValue, setValues };
 }

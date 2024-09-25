@@ -91,12 +91,12 @@ describe('Validation', () => {
       const realType = type as keyof typeof validationTypeMap;
       cy.findByRole('textbox', { name: newMiddleName }).clear();
       cy.findByRole('textbox', { name: newMiddleName }).type(value);
-      cy.get(`#form-content-newMiddleName`).findByRole('alert', { name: message }).should('exist');
+      cy.get(appFrontend.fieldValidation('newMiddleName')).should('contain.text', message);
 
       // Should not have any other messages
       for (const [otherType, { message: otherMessage }] of Object.entries(validationTypeMap)) {
         if (otherType !== realType) {
-          cy.findByRole('alert', { name: otherMessage }).should('not.exist');
+          cy.get(appFrontend.fieldValidation('newMiddleName')).should('not.contain.text', otherMessage);
         }
       }
     }
@@ -378,6 +378,7 @@ describe('Validation', () => {
     // Validation message should now have changed, since we filled out currentValue and saved
     cy.get(appFrontend.errorReport).findByText('Du må fylle ut 2. endre verdi 123 til').should('be.visible');
     cy.get(appFrontend.group.row(2).deleteBtn).click();
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 2);
     cy.waitUntilNodesReady();
 
     // Check that nested group with multipage gets focus
