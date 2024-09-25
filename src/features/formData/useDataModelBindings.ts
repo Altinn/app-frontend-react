@@ -24,7 +24,6 @@ interface Output<B extends IDataModelBindings | undefined, DA extends DataAs> ex
 interface SaveOutput<B extends IDataModelBindings | undefined> {
   setValue: (key: keyof Exclude<B, undefined>, value: FDLeafValue) => void;
   setValues: (values: Partial<{ [key in keyof B]: FDLeafValue }>) => void;
-  debounce: () => void;
 }
 
 type SaveOptions = Omit<FDNewValue, 'reference' | 'newValue' | 'schema'>;
@@ -45,11 +44,11 @@ export function useDataModelBindings<B extends IDataModelBindings | undefined, D
 
   const formData = FD.useFreshBindings(bindings, dataAs);
   const isValid = FD.useBindingsAreValid(bindings);
-  const { debounce, setValue, setValues } = useSaveDataModelBindings(bindings, debounceTimeout);
+  const { setValue, setValues } = useSaveDataModelBindings(bindings, debounceTimeout);
 
   return useMemo(
-    () => ({ formData: formData as Output<B, DA>['formData'], debounce, setValue, setValues, isValid }),
-    [debounce, formData, isValid, setValue, setValues],
+    () => ({ formData: formData as Output<B, DA>['formData'], setValue, setValues, isValid }),
+    [formData, isValid, setValue, setValues],
   );
 }
 

@@ -7,10 +7,13 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
+import { resolveQueryParameters } from 'src/features/options/evalQueryParameters';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { IMapping } from 'src/layout/common.generated';
+import type { IMapping, IQueryParameters } from 'src/layout/common.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 // Also used for prefetching @see staticOptionsPrefetcher.tsx
 export function useGetOptionsQueryDef(url?: string): QueryDefinition<{ data: IOptionInternal[] | undefined }> {
@@ -33,14 +36,17 @@ export const useGetOptionsQuery = (
 ): UseQueryResult<AxiosResponse<IOptionInternal[], AxiosError>> => useQuery(useGetOptionsQueryDef(url));
 
 export const useGetOptionsUrl = (
+  node: LayoutNode,
   optionsId: string | undefined,
   mapping?: IMapping,
-  queryParameters?: Record<string, string>,
+  queryParameters?: IQueryParameters,
   secure?: boolean,
 ): string | undefined => {
   const mappingResult = FD.useMapping(mapping);
   const language = useCurrentLanguage();
   const instanceId = useLaxInstance()?.instanceId;
+  const dataSources = useExpressionDataSources();
+  const resolvedQueryParameters = resolveQueryParameters(queryParameters, node, dataSources);
 
   return optionsId
     ? getOptionsUrl({
@@ -48,7 +54,7 @@ export const useGetOptionsUrl = (
         language,
         queryParameters: {
           ...mappingResult,
-          ...queryParameters,
+          ...resolvedQueryParameters,
         },
         secure,
         instanceId,

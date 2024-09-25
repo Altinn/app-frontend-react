@@ -111,14 +111,14 @@ export function useSetOptions(
   };
 }
 
-function useOptionsUrl(item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>) {
+function useOptionsUrl(node: LayoutNode, item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>) {
   const { optionsId, secure, mapping, queryParameters } = item;
-  return useGetOptionsUrl(optionsId, mapping, queryParameters, secure);
+  return useGetOptionsUrl(node, optionsId, mapping, queryParameters, secure);
 }
 
 export function useFetchOptions({ node, item }: FetchOptionsProps) {
   const { options, optionsId, source } = item;
-  const url = useOptionsUrl(item);
+  const url = useOptionsUrl(node, item);
 
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
