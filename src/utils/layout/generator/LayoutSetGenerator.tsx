@@ -4,6 +4,7 @@ import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
+import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorDebug } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal, GeneratorPageProvider } from 'src/utils/layout/generator/GeneratorContext';
 import {
@@ -13,7 +14,6 @@ import {
 import {
   GeneratorCondition,
   GeneratorStages,
-  NodesStateQueue,
   StageAddNodes,
   StageMarkHidden,
 } from 'src/utils/layout/generator/GeneratorStages';

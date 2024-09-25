@@ -27,6 +27,7 @@ import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePl
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
+import { useGetAwaitingCommits } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorGlobalProvider } from 'src/utils/layout/generator/GeneratorContext';
 import {
@@ -34,7 +35,6 @@ import {
   GeneratorStages,
   GeneratorStagesEffects,
   NODES_TICK_TIMEOUT,
-  useGetAwaitingCommits,
   useRegistry,
 } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';

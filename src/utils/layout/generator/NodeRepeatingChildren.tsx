@@ -4,11 +4,11 @@ import dot from 'dot-object';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
+import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
 import {
   GeneratorCondition,
   GeneratorRunProvider,
-  NodesStateQueue,
   StageAddNodes,
   StageEvaluateExpressions,
 } from 'src/utils/layout/generator/GeneratorStages';

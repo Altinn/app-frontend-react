@@ -5,8 +5,9 @@ import { EffectRemoveStaleValues } from 'src/features/options/effects/EffectRemo
 import { EffectSetDownstreamParameters } from 'src/features/options/effects/EffectSetDownstreamParameters';
 import { EffectStoreLabel } from 'src/features/options/effects/EffectStoreLabel';
 import { useFetchOptions, useSortedOptions } from 'src/features/options/useGetOptions';
+import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { GeneratorCondition, NodesStateQueue, StageFetchOptions } from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorCondition, StageFetchOptions } from 'src/utils/layout/generator/GeneratorStages';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
