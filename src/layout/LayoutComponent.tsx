@@ -25,7 +25,6 @@ import type {
   CompExternalExact,
   CompIntermediate,
   CompIntermediateExact,
-  CompInternal,
   CompTypes,
   IsContainerComp,
   ITextResourceBindingsExternal,
@@ -183,10 +182,8 @@ export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Direct render? Override this and return true if you want GenericComponent to omit rendering grid,
    * validation messages, etc.
-   *
-   * @param _item This will contain the item with possibly overridden properties given to GenericComponent
    */
-  directRender(_item: CompInternal<Type>): boolean {
+  directRender(): boolean {
     return false;
   }
 
