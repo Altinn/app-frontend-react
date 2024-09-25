@@ -1,6 +1,6 @@
 import React, { type PropsWithChildren } from 'react';
 
-import { Heading } from '@digdir/designsystemet-react';
+import { Heading, Paragraph } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 
 import { Label } from 'src/components/label/Label';
@@ -34,10 +34,13 @@ export const SummarySubformWrapper = ({ node }: PropsWithChildren<{ node: Layout
             renderLabelAs='span'
             weight='regular'
             textResourceBindings={{ title: textResourceBindings?.title }}
+            className={classes.summaryLabelMargin}
           />
-          <div className={classes.emptyField}>
-            <Lang id={'general.empty_summary'} />
-          </div>
+          <Paragraph asChild>
+            <span className={classes.emptyField}>
+              <Lang id={'general.empty_summary'} />
+            </span>
+          </Paragraph>
         </>
       )}
       {dataElements?.map((element, idx) => (

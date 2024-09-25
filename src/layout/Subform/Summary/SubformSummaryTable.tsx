@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Spinner, Table } from '@digdir/designsystemet-react';
+import { Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 import classNames from 'classnames';
 import dot from 'dot-object';
@@ -147,10 +147,13 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
           renderLabelAs='span'
           weight='regular'
           textResourceBindings={{ title: textResourceBindings?.title }}
+          className={classes2.summaryLabelMargin}
         />
-        <div className={classes2.emptyField}>
-          <Lang id={'general.empty_summary'} />
-        </div>
+        <Paragraph asChild>
+          <span className={classes2.emptyField}>
+            <Lang id={'general.empty_summary'} />
+          </span>
+        </Paragraph>
       </>
     );
   }

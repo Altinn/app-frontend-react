@@ -1,7 +1,11 @@
 .emptyField {
   font-style: italic;
-  font-size: 1rem;
   line-height: 1.6875;
+  color: var(--fds-semantic-text-neutral-subtle);
+}
+
+.summaryLabelMargin {
+  margin-bottom: var(--fds-spacing-2);
 }
 
 .table {
@@ -71,12 +75,6 @@ tr.noRowSpacing td {
 
 .summaryWrapperMargin {
   margin-top: var(--fds-spacing-3);
-}
-
-.emptyField {
-  font-style: italic;
-  font-size: 1rem;
-  line-height: 1.6875;
 }
 
 .editColumnHeader {
