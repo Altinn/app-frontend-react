@@ -147,10 +147,13 @@ function useAddToQueue<T extends keyof RegistryCommitQueues>(
   request: RegistryCommitQueues[T][number],
   condition: boolean,
 ) {
+  const registry = GeneratorInternal.useRegistry();
   const toCommit = GeneratorInternal.useCommitQueue();
   const commit = useCommitWhenFinished();
 
   if (condition) {
+    registry.current.toCommitCount += 1;
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     toCommit[queue].push(request as any);
     updateCommitsPendingInBody(toCommit);

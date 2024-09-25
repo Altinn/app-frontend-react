@@ -29,12 +29,11 @@ import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { useGetAwaitingCommits } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
-import { GeneratorGlobalProvider } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorGlobalProvider, GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import {
   createStagesStore,
   GeneratorStages,
   GeneratorStagesEffects,
-  NODES_TICK_TIMEOUT,
   useRegistry,
 } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
@@ -585,45 +584,74 @@ function InnerMarkAsReady() {
   const hasNodes = Store.useSelector((state) => !!state.nodes);
   const stagesFinished = GeneratorStages.useIsFinished();
   const hasUnsavedChanges = FD.useHasUnsavedChanges();
+  const registry = GeneratorInternal.useRegistry();
 
   // Even though the getAwaitingCommits() function works on refs in the GeneratorStages context, the effects of such
   // commits always changes the NodesContext. Thus our useSelector() re-runs and re-renders this components when
   // commits are done.
   const getAwaitingCommits = useGetAwaitingCommits();
-  const waitingForCommits = Store.useSelector(() => getAwaitingCommits() > 0);
 
   const savingOk = readiness === NodesReadiness.WaitingUntilLastSaveHasProcessed ? !hasUnsavedChanges : true;
-  const maybeReady = hasNodes && stagesFinished && savingOk && hiddenViaRulesRan;
-  const shouldMarkAsReady = maybeReady && !waitingForCommits;
-  const fallbackToInterval = maybeReady && !shouldMarkAsReady;
+  const maybeReady = hasNodes && stagesFinished && savingOk && hiddenViaRulesRan && readiness !== NodesReadiness.Ready;
 
   useEffect(() => {
-    if (shouldMarkAsReady) {
-      markReady('normal path');
-    }
-  }, [shouldMarkAsReady, markReady]);
-
-  useEffect(() => {
-    if (fallbackToInterval) {
+    if (maybeReady) {
       // Commits can happen where state is not really changed, and in those cases our useSelector() won't run, and we
       // won't notice that we could mark the state as ready again. For these cases we run intervals while the state
       // isn't ready.
-      const runDuringInterval = () => {
+      return setIdleInterval(registry, () => {
         const awaiting = getAwaitingCommits();
         if (awaiting === 0) {
-          markReady('via interval fallback');
-          clearInterval(interval);
+          markReady('idle and nothing to commit');
+          return true;
         }
-      };
-      const interval = setInterval(runDuringInterval, NODES_TICK_TIMEOUT);
-      runDuringInterval();
-      return () => clearInterval(interval);
+
+        return false;
+      });
     }
 
     return () => undefined;
-  }, [fallbackToInterval, getAwaitingCommits, markReady]);
+  }, [maybeReady, getAwaitingCommits, markReady, registry]);
 
   return null;
+}
+
+const IDLE_COUNTDOWN = 15;
+
+/**
+ * Utility that lets you register a function that will be called when the browser has been idle for
+ * at least N consecutive iterations of requestIdleCallback(). Cancels itself when the function returns
+ * true (otherwise it will continue to run), and returns a function to cancel the idle interval (upon unmounting).
+ */
+function setIdleInterval(registry: MutableRefObject<Registry>, fn: () => boolean): () => void {
+  let lastCommitCount = registry.current.toCommitCount;
+  let idleCountdown = IDLE_COUNTDOWN;
+  let id: ReturnType<typeof requestIdleCallback> | undefined;
+
+  const runWhenIdle = () => {
+    const currentCommitCount = registry.current.toCommitCount;
+    if (currentCommitCount !== lastCommitCount) {
+      // Something changed since last time, so we'll wait a bit more
+      idleCountdown = IDLE_COUNTDOWN;
+      lastCommitCount = currentCommitCount;
+      id = requestIdleCallback(runWhenIdle);
+      return;
+    }
+    if (idleCountdown > 0) {
+      // We'll wait until we've been idle (and did not get any new commits) for N iterations
+      idleCountdown -= 1;
+      id = requestIdleCallback(runWhenIdle);
+      return;
+    }
+    if (!fn()) {
+      // The function didn't return true, so we'll wait a bit more
+      id = requestIdleCallback(runWhenIdle);
+    }
+  };
+
+  id = requestIdleCallback(runWhenIdle);
+
+  return () => (id === undefined ? undefined : cancelIdleCallback(id));
 }
 
 function RegisterOnSaveFinished() {

@@ -50,6 +50,7 @@ export type Registry = {
   restartAfter: boolean;
   stages: RegistryStages;
   toCommit: RegistryCommitQueues;
+  toCommitCount: number;
   commitTimeout: ReturnType<typeof setTimeout> | null;
 };
 
@@ -226,6 +227,7 @@ export function useRegistry() {
         } satisfies Registry['stages'][Stage],
       ]),
     ) as RegistryStages,
+    toCommitCount: 0,
     toCommit: {
       addNodes: [],
       setNodeProps: [],
