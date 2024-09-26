@@ -196,6 +196,14 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
   }
 
   /**
+   * Checks if the state is ready. This can be overridden to add custom checks to ensure the state in this plugin
+   * is ready for use.
+   */
+  stateIsReady(_state: DefPluginState<Config>): boolean {
+    return true;
+  }
+
+  /**
    * Returns initial state for the item object. This may be needed if your plugin has to initialize the item object
    * with some state, and stateFactory() won't work properly since multiple plugins will overwrite each others item
    * object.

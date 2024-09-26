@@ -265,4 +265,14 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     // the RepeatingGroup component does.
     return false;
   }
+
+  stateIsReady(state: DefPluginState<ToInternal<E>>): boolean {
+    if (!super.stateIsReady(state)) {
+      return false;
+    }
+
+    const internalProp = this.settings.internalProp;
+    const rows = state.item?.[internalProp] as Row<E>[] | undefined;
+    return rows?.every((row) => row && row.uuid !== undefined) ?? false;
+  }
 }

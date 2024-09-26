@@ -112,6 +112,19 @@ export abstract class AnyComponent<Type extends CompTypes> {
   }
 
   /**
+   * This is called to figure out if the nodes state is ready to be rendered. This can be overridden to add
+   * additional checks for any component.
+   */
+  public stateIsReady(state: NodeData<Type>): boolean {
+    return state.item !== undefined;
+  }
+
+  /**
+   * Same as the above, but implemented by plugins automatically in the generated code.
+   */
+  abstract pluginStateIsReady(state: NodeData<Type>): boolean;
+
+  /**
    * Creates the zustand store default state for a node of this component type. Usually this is implemented
    * automatically by code generation, but you can override it if you need to add additional properties to the state.
    */

@@ -24,6 +24,7 @@ import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePl
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
+import { getComponentDef } from 'src/layout';
 import { useGetAwaitingCommits } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorGlobalProvider, GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
@@ -45,6 +46,7 @@ import type { ValidationStorePluginConfig } from 'src/features/validation/Valida
 import type { DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { CompExternal, CompTypes } from 'src/layout/layout';
+import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
 import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -607,7 +609,25 @@ function InnerMarkAsReady() {
   const getAwaitingCommits = useGetAwaitingCommits();
 
   const savingOk = readiness === NodesReadiness.WaitingUntilLastSaveHasProcessed ? !hasUnsavedChanges : true;
-  const maybeReady = hasNodes && stagesFinished && savingOk && hiddenViaRulesRan && readiness !== NodesReadiness.Ready;
+  const checkNodeStates =
+    hasNodes && stagesFinished && savingOk && hiddenViaRulesRan && readiness !== NodesReadiness.Ready;
+
+  const nodeStateReady = Store.useSelector((state) => {
+    if (!checkNodeStates) {
+      return false;
+    }
+
+    for (const nodeData of Object.values(state.nodeData)) {
+      const def = getComponentDef(nodeData.layout.type) as LayoutComponent;
+      if (!def.stateIsReady(nodeData) || !def.pluginStateIsReady(nodeData)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  const maybeReady = checkNodeStates && nodeStateReady;
 
   useEffect(() => {
     if (maybeReady) {
@@ -631,7 +651,7 @@ function InnerMarkAsReady() {
   return null;
 }
 
-const IDLE_COUNTDOWN = 15;
+const IDLE_COUNTDOWN = 3;
 
 /**
  * Utility that lets you register a function that will be called when the browser has been idle for
