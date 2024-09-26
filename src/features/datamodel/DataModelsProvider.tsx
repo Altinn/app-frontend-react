@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { useIsFetching } from '@tanstack/react-query';
 import { createStore } from 'zustand';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -137,6 +136,10 @@ function DataModelsLoader() {
   const isStateless = useApplicationMetadata().isStatelessApp;
   const instance = useLaxInstanceData();
 
+  // Subform
+  const overriddenDataElement = useTaskStore((state) => state.overriddenDataModelUuid);
+  const overriddenDataType = useTaskStore((state) => state.overriddenDataModelType);
+
   // Find all data types referenced in dataModelBindings in the layout
   useEffect(() => {
     const referencedDataTypes = getAllReferencedDataTypes(layouts, defaultDataType);
@@ -179,7 +182,10 @@ function DataModelsLoader() {
     <>
       {allDataTypes?.map((dataType) => (
         <React.Fragment key={dataType}>
-          <LoadInitialData dataType={dataType} />
+          <LoadInitialData
+            dataType={dataType}
+            overrideDataElement={dataType === overriddenDataType ? overriddenDataElement : undefined}
+          />
           <LoadSchema dataType={dataType} />
         </React.Fragment>
       ))}
@@ -197,7 +203,6 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
     (state) => state,
   );
   const isPDF = useIsPdf();
-  const isLoadingFormData = useIsLoadingFormData();
 
   if (error) {
     // Error trying to fetch data, if missing rights we display relevant page
@@ -210,10 +215,6 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
 
   if (!allDataTypes || !writableDataTypes) {
     return <Loader reason='data-types' />;
-  }
-
-  if (isLoadingFormData) {
-    return <Loader reason='initial-data-loading' />;
   }
 
   // in PDF mode, we do not load schema, validations, or expression validation config. So we should not block loading in that case
@@ -242,31 +243,18 @@ interface LoaderProps {
   dataType: string;
 }
 
-/**
- * If you change the URL so the form context reloads,
- * It is possible to render the provider with stale data while
- * the new initial data is loading, which can cause FomDataEffects
- * to patch with incorrect precondition, causing a crash.
- */
-function useIsLoadingFormData() {
-  return useIsFetching({ queryKey: ['fetchFormData'] }) > 0;
-}
-
-function LoadInitialData({ dataType }: LoaderProps) {
+function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { overrideDataElement?: string }) {
   const setInitialData = useSelector((state) => state.setInitialData);
   const setError = useSelector((state) => state.setError);
   const instance = useLaxInstanceData();
-  const overriddenUuid = useTaskStore((state) => state.overriddenDataModelUuid);
-  const overriddenType = useTaskStore((state) => state.overriddenDataModelType);
-  const actualDataType = overriddenType ? overriddenType : dataType;
-  const actualDataElementID = overriddenUuid ? overriddenUuid : getFirstDataElementId(instance, dataType);
-  const url = useDataModelUrl({ dataType: actualDataType, dataElementId: actualDataElementID, includeRowIds: true });
+  const dataElementId = overrideDataElement ?? getFirstDataElementId(instance, dataType);
+  const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
   const { data, error } = useFormDataQuery(url);
   useEffect(() => {
     if (data && url) {
-      setInitialData(actualDataType, data, actualDataElementID ?? null);
+      setInitialData(dataType, data, dataElementId ?? null);
     }
-  }, [data, actualDataElementID, dataType, setInitialData, url, actualDataType]);
+  }, [data, dataElementId, dataType, setInitialData, url]);
 
   useEffect(() => {
     error && setError(error);
