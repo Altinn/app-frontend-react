@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 
 import { Button } from '@digdir/designsystemet-react';
@@ -19,7 +19,7 @@ import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { useNavigate, useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useNavigate, useNavigationParam, useQueryKeysAsString } from 'src/features/routing/AppRoutingContext';
 import { TaskKeys, useIsCurrentTask, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
@@ -86,9 +86,13 @@ function NavigateToStartUrl() {
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const startUrl = useStartUrl(currentTaskId);
 
+  const currentLocation = `${useLocation().pathname}${useQueryKeysAsString()}`;
+
   useEffect(() => {
-    navigate(startUrl, { replace: true });
-  }, [navigate, startUrl]);
+    if (currentLocation !== startUrl) {
+      navigate(startUrl, { replace: true });
+    }
+  }, [currentLocation, navigate, startUrl]);
 
   return <Loader reason='navigate-to-process-start' />;
 }
@@ -194,7 +198,7 @@ export const ComponentRouting = () => {
 
   // Wait for props to sync, needed for now
   if (!componentId) {
-    return null;
+    return <Loader reason='component-routing' />;
   }
 
   if (!node) {
