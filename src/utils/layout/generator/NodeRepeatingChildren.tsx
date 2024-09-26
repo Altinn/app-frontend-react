@@ -111,6 +111,7 @@ function _GenerateRow({ rowIndex, claims, groupBinding, multiPageMapping, intern
   return (
     <GeneratorRowProvider
       rowIndex={rowIndex}
+      groupBinding={groupBinding}
       directMutators={directMutators}
       recursiveMutators={recursiveMutators}
     >

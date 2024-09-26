@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal, CompIntermediate, CompIntermediateExact, CompTypes } from 'src/layout/layout';
 import type { Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -34,6 +35,7 @@ type NodeGeneratorProps = Pick<GeneratorContext, 'directMutators' | 'recursiveMu
 };
 
 type RowGeneratorProps = Pick<GeneratorContext, 'directMutators' | 'recursiveMutators'> & {
+  groupBinding: IDataModelReference;
   rowIndex: number;
 };
 
@@ -46,7 +48,12 @@ interface GeneratorContext {
   page: LayoutPage | undefined;
   parent: LayoutNode | LayoutPage | undefined;
   item: CompIntermediateExact<CompTypes> | undefined;
-  rowIndex: number | undefined;
+  row:
+    | {
+        index: number;
+        binding: IDataModelReference;
+      }
+    | undefined;
   depth: number; // Depth is 1 for top level nodes, 2 for children of top level nodes, etc.
 }
 
@@ -74,7 +81,7 @@ export function GeneratorNodeProvider({ children, ...rest }: PropsWithChildren<N
 
       // Direct mutators and rows are not meant to be inherited, if none are passed to us directly we'll reset
       directMutators: rest.directMutators ?? emptyArray,
-      rowIndex: parent.rowIndex ?? undefined,
+      row: parent.row ?? undefined,
 
       recursiveMutators: parent.recursiveMutators
         ? [...parent.recursiveMutators, ...(rest.recursiveMutators ?? [])]
@@ -97,9 +104,6 @@ export function GeneratorPageProvider({ children, ...rest }: PropsWithChildren<P
   const value: GeneratorContext = useMemo(
     () => ({
       ...parent,
-
-      item: undefined,
-      rowIndex: undefined,
       page: rest.parent,
 
       // For a page, the depth starts at 1 because in principle the page is the top level node, at depth 0, so
@@ -120,6 +124,7 @@ export function GeneratorPageProvider({ children, ...rest }: PropsWithChildren<P
 export function GeneratorRowProvider({
   children,
   rowIndex,
+  groupBinding,
   directMutators,
   recursiveMutators,
 }: PropsWithChildren<RowGeneratorProps>) {
@@ -128,7 +133,10 @@ export function GeneratorRowProvider({
     () => ({
       // Inherit all values from the parent, overwrite with our own if they are passed
       ...parent,
-      rowIndex,
+      row: {
+        index: rowIndex,
+        binding: groupBinding,
+      },
 
       // Direct mutators and rows are not meant to be inherited, if none are passed to us directly we'll reset
       directMutators: directMutators ?? emptyArray,
@@ -136,7 +144,7 @@ export function GeneratorRowProvider({
         ? [...parent.recursiveMutators, ...(recursiveMutators ?? [])]
         : recursiveMutators,
     }),
-    [parent, directMutators, recursiveMutators, rowIndex],
+    [parent, directMutators, recursiveMutators, rowIndex, groupBinding],
   );
   return <Provider value={value}>{children}</Provider>;
 }
@@ -145,7 +153,7 @@ export function GeneratorGlobalProvider({ children, ...rest }: PropsWithChildren
   const value: GeneratorContext = useMemo(
     () => ({
       item: undefined,
-      rowIndex: undefined,
+      row: undefined,
       depth: 0,
       childrenMap: undefined,
       parent: undefined,
@@ -168,6 +176,7 @@ export const GeneratorInternal = {
   useChildrenMap: () => useCtx().childrenMap,
   useParent: () => useCtx().parent,
   usePage: () => useCtx().page,
-  useRowIndex: () => useCtx().rowIndex,
+  useRowBinding: () => useCtx().row?.binding,
+  useRowIndex: () => useCtx().row?.index,
   useIntermediateItem: () => useCtx().item,
 };

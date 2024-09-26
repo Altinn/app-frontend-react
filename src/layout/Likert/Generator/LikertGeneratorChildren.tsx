@@ -129,6 +129,7 @@ function _GenerateRow({ rowIndex, questionsBinding }: GenerateRowProps) {
     <GeneratorRowProvider
       rowIndex={rowIndex}
       recursiveMutators={recursiveMutators}
+      groupBinding={questionsBinding}
     >
       <GenerateNodeChildrenWithStaticLayout
         claims={childClaims}
