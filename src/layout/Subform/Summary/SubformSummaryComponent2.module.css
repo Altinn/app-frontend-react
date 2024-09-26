@@ -1,7 +1,11 @@
 .emptyField {
   font-style: italic;
-  font-size: 1rem;
   line-height: 1.6875;
+  color: var(--fds-semantic-text-neutral-subtle);
+}
+
+.summaryLabelMargin {
+  margin-bottom: var(--fds-spacing-2);
 }
 
 .table {
@@ -71,10 +75,23 @@ tr.noRowSpacing td {
 
 .summaryWrapperMargin {
   margin-top: var(--fds-spacing-3);
+  margin-bottom: var(--fds-spacing-8);
 }
 
-.emptyField {
-  font-style: italic;
-  font-size: 1rem;
-  line-height: 1.6875;
+.editColumnHeader {
+  width: 1px;
+}
+
+.noRightPad {
+  padding-right: 0;
+}
+
+.summaryItem {
+  width: 100%;
+}
+
+@media print {
+  .pageBreak {
+    page-break-before: always;
+  }
 }
