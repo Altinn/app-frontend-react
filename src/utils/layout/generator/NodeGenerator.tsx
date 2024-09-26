@@ -133,7 +133,8 @@ interface AddNodeProps<T extends CompTypes> extends CommonProps<T> {
 function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: AddNodeProps<T>) {
   const parent = GeneratorInternal.useParent()!;
   const rowIndex = GeneratorInternal.useRowIndex();
-  const stateFactoryProps = { item: intermediateItem, parent, rowIndex } satisfies StateFactoryProps<T>;
+  const pageKey = GeneratorInternal.usePage().pageKey;
+  const stateFactoryProps = { item: intermediateItem, parent, rowIndex, pageKey } satisfies StateFactoryProps<T>;
   const removeNode = NodesInternal.useRemoveNode();
   const isAdded = NodesInternal.useIsAdded(node);
 
