@@ -28,7 +28,7 @@ export function useNodeItem<N extends LayoutNode | undefined>(
 ): N extends undefined ? undefined : NodeItemFromNode<N>;
 // eslint-disable-next-line no-redeclare
 export function useNodeItem(node: never, selector: never): never {
-  const lastValue = useRef<unknown>(undefined);
+  const lastItem = useRef<CompInternal | undefined>(undefined);
   const insideGenerator = GeneratorInternal.useIsInsideGenerator();
   return NodesInternal.useNodeData(node, (data: NodeData, readiness) => {
     if (insideGenerator) {
@@ -39,22 +39,26 @@ export function useNodeItem(node: never, selector: never): never {
           'make you handle the undefined item.',
       );
     }
-    if (readiness !== NodesReadiness.Ready && lastValue.current !== undefined) {
-      return lastValue.current;
+
+    let item: CompInternal | undefined;
+    if (readiness === NodesReadiness.Ready && data.item) {
+      item = data.item;
+      lastItem.current = item;
+    } else if (lastItem.current) {
+      item = lastItem.current;
+    } else {
+      item = data.item;
     }
-    if (!data.item && lastValue.current !== undefined) {
-      return lastValue.current;
-    }
-    if (!data.item && lastValue.current === undefined) {
+
+    if (!item) {
       throw new Error(
         `Node item is undefined. This should normally not happen, but might happen if you select data in new ` +
           `components while the node state is in the process of being updated (readiness is '${readiness}'). `,
       );
     }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const out = selector ? (selector as any)(data.item) : data.item;
-    lastValue.current = out;
-    return out;
+    return selector ? (selector as any)(item) : item;
   });
 }
 
