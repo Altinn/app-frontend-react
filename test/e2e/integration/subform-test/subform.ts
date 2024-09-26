@@ -140,20 +140,19 @@ describe('Subform test', () => {
       'Det er feil i en eller flere moped oppføringer',
     );
 
-    // TODO(Subform): A known issue is that the validation visibility in the main form gets reset when creating a new subform.
-    // Currently, this is only preserved when editing an existing subform.
-    // The following commented code tests this:
-    // cy.findByRole('button', { name: /legg til moped/i }).click();
-    // cy.findByRole('button', { name: /ferdig/i }).should('be.visible');
-    // cy.get(appFrontend.errorReport).should('not.exist');
-    // cy.findByRole('button', { name: /avbryt/i }).click();
-    // cy.findByRole('button', { name: /neste/i }).should('be.visible');
-    // cy.get(appFrontend.errorReport).should('be.visible');
-    // cy.get(appFrontend.fieldValidation('subform-mopeder')).should(
-    //   'contain.text',
-    //   'Det er feil i en eller flere moped oppføringer',
-    // );
-    // cy.findAllByRole('button', { name: /slett/i }).last().clickAndGone();
+    // Test that main form still shows the same validations as before upon exiting a newly created subform
+    // The reason for this case is that this did not work initially
+    cy.findByRole('button', { name: /legg til moped/i }).click();
+    cy.findByRole('button', { name: /ferdig/i }).should('be.visible');
+    cy.get(appFrontend.errorReport).should('not.exist');
+    cy.findByRole('button', { name: /avbryt/i }).click();
+    cy.findByRole('button', { name: /neste/i }).should('be.visible');
+    cy.get(appFrontend.errorReport).should('be.visible');
+    cy.get(appFrontend.fieldValidation('subform-mopeder')).should(
+      'contain.text',
+      'Det er feil i en eller flere moped oppføringer',
+    );
+    cy.findAllByRole('button', { name: /slett/i }).last().clickAndGone();
 
     // Test that fixing the validations works
     cy.findByRole('button', { name: /endre/i }).click();

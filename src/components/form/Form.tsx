@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 import deepEqual from 'fast-deep-equal';
@@ -18,6 +18,7 @@ import {
   useNavigate,
   useNavigationParam,
   useQueryKey,
+  useQueryKeysAsString,
   useQueryKeysAsStringAsRef,
 } from 'src/features/routing/AppRoutingContext';
 import { FrontendValidationSource } from 'src/features/validation';
@@ -124,13 +125,18 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
 }
 
 export function FormFirstPage() {
+  const navigate = useNavigate();
   const startUrl = useStartUrl();
-  return (
-    <Navigate
-      to={startUrl}
-      replace
-    />
-  );
+
+  const currentLocation = `${useLocation().pathname}${useQueryKeysAsString()}`;
+
+  useEffect(() => {
+    if (currentLocation !== startUrl) {
+      navigate(startUrl, { replace: true });
+    }
+  }, [currentLocation, navigate, startUrl]);
+
+  return <Loader reason='navigate-to-start' />;
 }
 
 /**

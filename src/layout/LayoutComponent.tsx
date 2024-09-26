@@ -236,10 +236,6 @@ export abstract class AnyComponent<Type extends CompTypes> {
     const schemaPointer = '#/definitions/AnyComponent';
     return validate(schemaPointer, component);
   }
-
-  subRouting(_node: LayoutNode<Type>): JSX.Element | null {
-    return null;
-  }
 }
 
 export abstract class PresentationComponent<Type extends CompTypes> extends AnyComponent<Type> {

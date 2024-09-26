@@ -1,7 +1,8 @@
 import React, { forwardRef } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 
+import { Form, FormFirstPage } from 'src/components/form/Form';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import {
   type ComponentValidation,
@@ -13,29 +14,24 @@ import {
 import { SubformDef } from 'src/layout/Subform/config.def.generated';
 import { SubformComponent } from 'src/layout/Subform/SubformComponent';
 import { SubformValidator } from 'src/layout/Subform/SubformValidator';
-import {
-  RedirectBackToMainForm,
-  SubformFirstPage,
-  SubformForm,
-  SubformWrapper,
-} from 'src/layout/Subform/SubformWrapper';
+import { RedirectBackToMainForm, SubformWrapper } from 'src/layout/Subform/SubformWrapper';
 import { SubformSummaryComponent } from 'src/layout/Subform/Summary/SubformSummaryComponent';
 import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
-import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { PropsFromGenericComponent, SubRouting, ValidateComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { SubformSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Subform extends SubformDef implements ValidateComponent<'Subform'> {
+export class Subform extends SubformDef implements ValidateComponent<'Subform'>, SubRouting<'Subform'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Subform'>>(
     function LayoutComponentSubformRender(props, _): JSX.Element | null {
       return <SubformComponent {...props} />;
     },
   );
 
-  subRouting(node: LayoutNode<'Subform'>): JSX.Element | null {
+  subRouting({ node }: { node: LayoutNode<'Subform'> }): ReactNode {
     return (
       <TaskStoreProvider>
         <Routes>
@@ -43,7 +39,7 @@ export class Subform extends SubformDef implements ValidateComponent<'Subform'> 
             path=':dataElementId/:subformPage'
             element={
               <SubformWrapper node={node}>
-                <SubformForm />
+                <Form />
               </SubformWrapper>
             }
           />
@@ -51,7 +47,7 @@ export class Subform extends SubformDef implements ValidateComponent<'Subform'> 
             path=':dataElementId'
             element={
               <SubformWrapper node={node}>
-                <SubformFirstPage />
+                <FormFirstPage />
               </SubformWrapper>
             }
           />

@@ -11,6 +11,7 @@ import {
   useAllNavigationParamsAsRef,
   useNavigate as useCtxNavigate,
   useNavigationParam,
+  useNavigationParams,
   useQueryKeysAsString,
   useQueryKeysAsStringAsRef,
   useSetNavigationEffect,
@@ -123,9 +124,11 @@ export const useNextPageKey = () => {
 export const useStartUrl = (forcedTaskId?: string) => {
   const queryKeys = useQueryKeysAsString();
   const order = usePageOrder();
-  const partyId = useNavigationParam('partyId');
-  const instanceGuid = useNavigationParam('instanceGuid');
-  const taskId = useNavigationParam('taskId');
+  // This needs up to date params, so using the native hook that re-renders often
+  // However, this hook is only used in cases where we immediatly navigate to a different path
+  // so it does not make a difference here.
+  const { partyId, instanceGuid, taskId, isSubformPage, mainPageKey, componentId, dataElementId } =
+    useNavigationParams();
   const taskType = useTaskType(taskId);
   const isStateless = useApplicationMetadata().isStatelessApp;
 
@@ -143,6 +146,9 @@ export const useStartUrl = (forcedTaskId?: string) => {
     if (taskType !== ProcessTaskType.Data && taskId !== undefined) {
       return `/instance/${partyId}/${instanceGuid}/${taskId}${queryKeys}`;
     }
+    if (isSubformPage && taskId && mainPageKey && componentId && dataElementId && firstPage) {
+      return `/instance/${partyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${firstPage}${queryKeys}`;
+    }
     if (taskId && firstPage) {
       return `/instance/${partyId}/${instanceGuid}/${taskId}/${firstPage}${queryKeys}`;
     }
@@ -150,7 +156,20 @@ export const useStartUrl = (forcedTaskId?: string) => {
       return `/instance/${partyId}/${instanceGuid}/${taskId}${queryKeys}`;
     }
     return `/instance/${partyId}/${instanceGuid}${queryKeys}`;
-  }, [forcedTaskId, instanceGuid, isStateless, order, partyId, queryKeys, taskId, taskType]);
+  }, [
+    componentId,
+    dataElementId,
+    forcedTaskId,
+    instanceGuid,
+    isStateless,
+    isSubformPage,
+    mainPageKey,
+    order,
+    partyId,
+    queryKeys,
+    taskId,
+    taskType,
+  ]);
 };
 
 export const useNavigatePage = () => {
