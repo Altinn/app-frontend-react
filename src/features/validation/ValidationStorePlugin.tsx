@@ -136,12 +136,12 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           return getValidations({ state, nodeData, mask: 'visible', severity });
         }),
       useVisibleValidationsDeep: (node, stopAtDepth, restriction, severity) =>
-        store.useSelector((state) => {
+        store.useMemoSelector((state) => {
           if (!node) {
             return emptyArray;
           }
           const nodeData = state.nodeData[node.id];
-          return getRecursiveValidations({ state, nodeData, mask: 'visible', severity });
+          return getRecursiveValidations({ state, nodeData, mask: 'visible', severity, stopAtDepth, restriction });
         }),
       useValidationsSelector: () =>
         store.useDelayedSelector({
