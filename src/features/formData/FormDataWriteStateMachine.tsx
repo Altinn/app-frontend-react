@@ -413,29 +413,39 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
-        const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
-        if (!Array.isArray(existingValue)) {
-          return;
-        }
-
-        if (
-          startAtIndex !== undefined &&
-          startAtIndex >= 0 &&
-          startAtIndex < existingValue.length &&
-          callback(existingValue[startAtIndex])
-        ) {
-          existingValue.splice(startAtIndex, 1);
-          return;
-        }
-
-        // Continue looking for the item to remove from the start of the list if we didn't find it at the start index
-        let index = 0;
-        while (index < existingValue.length) {
-          if (callback(existingValue[index])) {
-            existingValue.splice(index, 1);
-            return;
+        const models = [
+          // This is used when deleting a row in repeating groups. If we didn't delete from both the current
+          // and debounced data models, the row would linger for a while in the UI, and we'd have intricate problems
+          // to solve, like fetching options (which use the debounced data model when mapping form data into the URL),
+          // which then would stall updating options and might cause deletion of stale option values before debounce.
+          state.dataModels[reference.dataType].currentData,
+          state.dataModels[reference.dataType].debouncedCurrentData,
+        ];
+        for (const model of models) {
+          const existingValue = dot.pick(reference.field, model);
+          if (!Array.isArray(existingValue)) {
+            continue;
           }
-          index++;
+
+          if (
+            startAtIndex !== undefined &&
+            startAtIndex >= 0 &&
+            startAtIndex < existingValue.length &&
+            callback(existingValue[startAtIndex])
+          ) {
+            existingValue.splice(startAtIndex, 1);
+            continue;
+          }
+
+          // Continue looking for the item to remove from the start of the list if we didn't find it at the start index
+          let index = 0;
+          while (index < existingValue.length) {
+            if (callback(existingValue[index])) {
+              existingValue.splice(index, 1);
+              continue;
+            }
+            index++;
+          }
         }
       }),
 
