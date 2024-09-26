@@ -121,7 +121,7 @@ function _RepeatingGroupTableRow({
     .map((n) => n.id);
   const rowValidations = useDeepValidationsForNode(node, true, index);
   const rowHasErrors = rowValidations.some(
-    (validation) => validation.severity === 'error' && !tableEditingNodeIds.includes(validation.node.id),
+    (validation) => validation.severity === 'error' && !tableEditingNodeIds.includes(validation.nodeId),
   );
 
   const editButtonText = rowHasErrors

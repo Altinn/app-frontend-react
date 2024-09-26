@@ -131,6 +131,7 @@ export type NodesContext = {
   nodes: LayoutPages | undefined;
   pagesData: PagesData;
   nodeData: { [key: string]: NodeData };
+  childrenMap: { [key: string]: string[] | undefined };
   hiddenViaRules: { [key: string]: true | undefined };
   hiddenViaRulesRan: boolean;
 
@@ -177,6 +178,7 @@ export function createNodesDataStore({ registry }: CreateStoreProps) {
       pages: {},
     },
     nodeData: {},
+    childrenMap: {},
     hiddenViaRules: {},
     hiddenViaRulesRan: false,
   };
@@ -199,6 +201,7 @@ export function createNodesDataStore({ registry }: CreateStoreProps) {
     addNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
+        const childrenMap = { ...state.childrenMap };
         for (const { node, targetState, claim, rowIndex } of requests) {
           if (nodeData[node.id]) {
             const errorMsg =
@@ -223,15 +226,23 @@ export function createNodesDataStore({ registry }: CreateStoreProps) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               ...(additionalParentState as any),
             };
+            childrenMap[node.parent.id] = childrenMap[node.parent.id] || [];
+            childrenMap[node.parent.id]!.push(node.id);
           }
 
           node.page._addChild(node);
         }
-        return { nodeData, readiness: NodesReadiness.NotReady, addRemoveCounter: state.addRemoveCounter + 1 };
+        return {
+          nodeData,
+          childrenMap,
+          readiness: NodesReadiness.NotReady,
+          addRemoveCounter: state.addRemoveCounter + 1,
+        };
       }),
     removeNode: (node, claim, rowIndex) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
+        const childrenMap = { ...state.childrenMap };
         if (!nodeData[node.id]) {
           return {};
         }
@@ -249,11 +260,18 @@ export function createNodesDataStore({ registry }: CreateStoreProps) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ...(additionalParentState as any),
           };
+          childrenMap[node.parent.id] = childrenMap[node.parent.id] || [];
+          childrenMap[node.parent.id] = childrenMap[node.parent.id]!.filter((id) => id !== node.id);
         }
 
         delete nodeData[node.id];
         node.page._removeChild(node);
-        return { nodeData, readiness: NodesReadiness.NotReady, addRemoveCounter: state.addRemoveCounter + 1 };
+        return {
+          nodeData,
+          childrenMap,
+          readiness: NodesReadiness.NotReady,
+          addRemoveCounter: state.addRemoveCounter + 1,
+        };
       }),
     setNodeProps: (requests) =>
       set((state) => {

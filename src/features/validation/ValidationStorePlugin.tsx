@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { FrontendValidationSource } from 'src/features/validation/index';
 import { selectValidations } from 'src/features/validation/utils';
-import { Hidden, isHidden, nodesProduce } from 'src/utils/layout/NodesContext';
+import { isHidden, nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 import type {
@@ -17,6 +17,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IsHiddenOptions, NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export type ValidationsSelector = (
   node: LayoutNode,
@@ -39,6 +40,12 @@ export interface ValidationStorePluginConfig {
     useRawValidationVisibility: (node: LayoutNode | undefined) => number;
     useRawValidations: (node: LayoutNode | undefined) => AnyValidation[];
     useVisibleValidations: (node: LayoutNode | undefined, severity?: ValidationSeverity) => AnyValidation[];
+    useVisibleValidationsDeep: (
+      node: LayoutNode | undefined,
+      stopAtDepth?: number,
+      restriction?: TraversalRestriction,
+      severity?: ValidationSeverity,
+    ) => NodeRefValidation[];
     useValidationsSelector: () => ValidationsSelector;
     useAllValidations: (
       mask: ValidationMask | 'visible',
@@ -120,16 +127,22 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           const out = 'validations' in nodeData ? nodeData.validations : undefined;
           return out && out.length > 0 ? out : emptyArray;
         }),
-      useVisibleValidations: (node, severity) => {
-        const isHidden = Hidden.useIsHidden(node);
-        return store.useSelector((state) => {
-          if (!node || isHidden) {
+      useVisibleValidations: (node, severity) =>
+        store.useSelector((state) => {
+          if (!node) {
             return emptyArray;
           }
           const nodeData = state.nodeData[node.id];
           return getValidations({ state, nodeData, mask: 'visible', severity });
-        });
-      },
+        }),
+      useVisibleValidationsDeep: (node, stopAtDepth, restriction, severity) =>
+        store.useSelector((state) => {
+          if (!node) {
+            return emptyArray;
+          }
+          const nodeData = state.nodeData[node.id];
+          return getRecursiveValidations({ state, nodeData, mask: 'visible', severity });
+        }),
       useValidationsSelector: () =>
         store.useDelayedSelector({
           mode: 'simple',
@@ -243,4 +256,40 @@ function getValidations({
   const visibility = nodeData.validationVisibility;
   const validations = selectValidations(nodeData.validations, mask === 'visible' ? visibility : mask, severity);
   return validations.length > 0 ? validations : emptyArray;
+}
+
+interface GetDeepValidationsProps extends GetValidationsProps {
+  depth?: number;
+  stopAtDepth?: number;
+  restriction?: TraversalRestriction;
+}
+
+function getRecursiveValidations(props: GetDeepValidationsProps): NodeRefValidation[] {
+  const nodeId = props.nodeData?.layout.id;
+  const out: NodeRefValidation[] = [];
+  const depth = props.depth ?? 0;
+  if (!nodeId) {
+    return emptyArray;
+  }
+
+  const nodeValidations = getValidations(props);
+  for (const validation of nodeValidations) {
+    out.push({ ...validation, nodeId });
+  }
+
+  if (props.stopAtDepth !== undefined && depth >= props.stopAtDepth) {
+    return out;
+  }
+
+  const directChildren = props.state.childrenMap[nodeId];
+  if (directChildren) {
+    for (const childId of directChildren) {
+      const childData = props.state.nodeData[childId];
+      if (childData && childData.rowIndex === props.restriction) {
+        out.push(...getRecursiveValidations({ ...props, nodeData: childData, depth: depth + 1 }));
+      }
+    }
+  }
+
+  return out;
 }
