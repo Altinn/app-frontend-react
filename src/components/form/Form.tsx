@@ -30,6 +30,7 @@ import { extractBottomButtons } from 'src/utils/formLayout';
 import { useGetPage, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { NavigateToNodeOptions } from 'src/features/form/layout/NavigateToNode';
+import type { AnyValidation, BaseValidation, NodeValidation } from 'src/features/validation';
 import type { NodeData } from 'src/utils/layout/types';
 
 interface FormState {
@@ -37,6 +38,8 @@ interface FormState {
   requiredFieldsMissing: boolean;
   mainIds: string[] | undefined;
   errorReportIds: string[];
+  formErrors: NodeValidation<AnyValidation<'error'>>[];
+  taskErrors: BaseValidation<'error'>[];
 }
 
 export function Form() {
@@ -52,8 +55,10 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
     requiredFieldsMissing: false,
     mainIds: undefined,
     errorReportIds: [],
+    formErrors: [],
+    taskErrors: [],
   });
-  const { hasRequired, requiredFieldsMissing, mainIds, errorReportIds } = formState;
+  const { hasRequired, requiredFieldsMissing, mainIds, errorReportIds, formErrors, taskErrors } = formState;
 
   useRedirectToStoredPage();
   useSetExpandedWidth();
@@ -115,7 +120,11 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
           aria-live='polite'
           className={classes.errorReport}
         >
-          <ErrorReport renderIds={errorReportIds} />
+          <ErrorReport
+            renderIds={errorReportIds}
+            formErrors={formErrors}
+            taskErrors={taskErrors}
+          />
         </Grid>
       </Grid>
       <ReadyForPrint />
@@ -238,7 +247,9 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
         prevState.hasRequired === hasRequired &&
         prevState.requiredFieldsMissing === requiredFieldsMissing &&
         deepEqual(mainIds, prevState.mainIds) &&
-        deepEqual(errorReportIds, prevState.errorReportIds)
+        deepEqual(errorReportIds, prevState.errorReportIds) &&
+        prevState.formErrors === formErrors &&
+        prevState.taskErrors === taskErrors
       ) {
         return prevState;
       }
@@ -248,9 +259,11 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
         requiredFieldsMissing,
         mainIds,
         errorReportIds,
+        formErrors,
+        taskErrors,
       };
     });
-  }, [setFormState, hasRequired, requiredFieldsMissing, mainIds, errorReportIds]);
+  }, [setFormState, hasRequired, requiredFieldsMissing, mainIds, errorReportIds, formErrors, taskErrors]);
 
   return null;
 }

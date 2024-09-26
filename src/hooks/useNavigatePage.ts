@@ -297,7 +297,7 @@ export const useNavigatePage = () => {
 
   const trimSingleTrailingSlash = (str: string) => (str.endsWith('/') ? str.slice(0, -1) : str);
   const getCurrentPageIndex = useCallback(() => {
-    const location = trimSingleTrailingSlash(window.location.href);
+    const location = trimSingleTrailingSlash(window.location.href.split('?')[0]);
     const _currentPageId = location.split('/').slice(-1)[0];
     return order?.indexOf(_currentPageId) ?? undefined;
   }, [order]);
