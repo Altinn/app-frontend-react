@@ -43,6 +43,7 @@ interface GeneratorContext {
   recursiveMutators?: ChildMutator[];
   layoutMap: Record<string, CompExternal>;
   childrenMap: ChildClaimsMap | undefined;
+  page: LayoutPage | undefined;
   parent: LayoutNode | LayoutPage | undefined;
   item: CompIntermediateExact<CompTypes> | undefined;
   rowIndex: number | undefined;
@@ -99,6 +100,7 @@ export function GeneratorPageProvider({ children, ...rest }: PropsWithChildren<P
 
       item: undefined,
       rowIndex: undefined,
+      page: rest.parent,
 
       // For a page, the depth starts at 1 because in principle the page is the top level node, at depth 0, so
       // when a page provides a depth indicator to its children (the top level components on that page), it should be 1.
@@ -147,6 +149,7 @@ export function GeneratorGlobalProvider({ children, ...rest }: PropsWithChildren
       depth: 0,
       childrenMap: undefined,
       parent: undefined,
+      page: undefined,
       ...rest,
     }),
     [rest],
@@ -164,6 +167,7 @@ export const GeneratorInternal = {
   useLayoutMap: () => useCtx().layoutMap,
   useChildrenMap: () => useCtx().childrenMap,
   useParent: () => useCtx().parent,
+  usePage: () => useCtx().page,
   useRowIndex: () => useCtx().rowIndex,
   useIntermediateItem: () => useCtx().item,
 };
