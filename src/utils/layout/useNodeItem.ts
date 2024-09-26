@@ -39,6 +39,9 @@ export function useNodeItem(node: never, selector: never): never {
           'make you handle the undefined item.',
       );
     }
+    if (readiness !== NodesReadiness.Ready && lastValue.current !== undefined) {
+      return lastValue.current;
+    }
     if (!data.item && lastValue.current !== undefined) {
       return lastValue.current;
     }

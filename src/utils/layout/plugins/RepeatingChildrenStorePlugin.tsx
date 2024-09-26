@@ -123,6 +123,16 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           // When removing rows, we'll always remove the last one. There is no such thing as removing a row in the
           // middle, as the indexes will always re-flow to the total number of rows left.
           const newRows = existingRows.slice(0, -1);
+
+          // In these rows, all the UUIDs will change now that we've removed one. Removing these from existing rows
+          // so that we don't have stale UUIDs in the state while waiting for them to be set.
+          for (const row of existingRows) {
+            if (row.uuid) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              delete (row as any).uuid;
+            }
+          }
+
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
 
