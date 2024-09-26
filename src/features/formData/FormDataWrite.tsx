@@ -593,8 +593,10 @@ export const FD = {
    * the value will be returned as-is. If the value is not found, undefined is returned. Null may also be returned if
    * the value is explicitly set to null.
    */
-  useDebouncedPick(reference: IDataModelReference): FDValue {
-    return useSelector((v) => dot.pick(reference.field, v.dataModels[reference.dataType].debouncedCurrentData));
+  useDebouncedPick(reference: IDataModelReference | undefined): FDValue {
+    return useSelector((v) =>
+      reference ? dot.pick(reference.field, v.dataModels[reference.dataType].debouncedCurrentData) : undefined,
+    );
   },
 
   /**
@@ -825,9 +827,9 @@ export const FD = {
    * Get the UUID of a row in a repeating group. This will always be 'fresh', meaning it will update immediately when
    * a new row is added/removed.
    */
-  useFreshRowUuid: (binding: IDataModelReference | undefined, index: number): string | undefined =>
+  useFreshRowUuid: (binding: IDataModelReference | undefined, index: number | undefined): string | undefined =>
     useMemoSelector((s) => {
-      if (!binding) {
+      if (!binding || index === undefined) {
         return undefined;
       }
 

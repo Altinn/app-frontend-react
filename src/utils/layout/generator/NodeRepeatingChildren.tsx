@@ -80,7 +80,7 @@ function NodeRepeatingChildrenWorker({
 interface GenerateRowProps {
   rowIndex: number;
   claims: ChildClaims;
-  groupBinding: IDataModelReference | undefined;
+  groupBinding: IDataModelReference;
   multiPageMapping: MultiPageMapping | undefined;
   internalProp: string;
   pluginKey: string;
