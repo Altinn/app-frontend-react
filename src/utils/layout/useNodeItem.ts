@@ -92,9 +92,10 @@ export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
 
 const emptyArray: LayoutNode[] = [];
 export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): LayoutNode[] {
+  const insideGenerator = GeneratorInternal.useIsInsideGenerator();
   const lastValue = useRef<LayoutNode[] | undefined>(undefined);
   return NodesInternal.useNodeData(parent, (store, readiness) => {
-    if (readiness !== NodesReadiness.Ready) {
+    if (readiness !== NodesReadiness.Ready && !insideGenerator) {
       return lastValue.current ?? emptyArray;
     }
 
