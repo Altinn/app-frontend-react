@@ -29,8 +29,12 @@ export function useOnFormSubmitValidation() {
     /*
      * Check if there are any frontend validation errors, and if so, show them now and block submit
      */
-    // TODO:           .filter((n) => includeSubform || !n.isType('Subform'))
-    const nodesWithFrontendErrors = getNodesWithErrors(ValidationMask.All, 'error');
+    const nodesWithFrontendErrors = getNodesWithErrors(
+      ValidationMask.All,
+      'error',
+      false,
+      (data) => includeSubform || data.layout.type !== 'Subform',
+    );
     if (nodesWithFrontendErrors === ContextNotProvided) {
       // If the nodes are not provided, we cannot validate them
       return false;
