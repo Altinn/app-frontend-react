@@ -74,6 +74,13 @@ function useNodeAttachments(): Record<string, IAttachment> {
       };
     }
 
+    // Find any not-yet uploaded attachments and add them back to the result
+    for (const [id, attachment] of Object.entries(storedPrev ?? {})) {
+      if (!attachment.uploaded) {
+        result[id] = attachment;
+      }
+    }
+
     prevAttachments.current = result;
     return result;
   }, [mappedAttachments, storedPrev]);
