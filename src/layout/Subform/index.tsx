@@ -1,41 +1,37 @@
 import React, { forwardRef } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 
+import { Form, FormFirstPage } from 'src/components/form/Form';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import {
   type ComponentValidation,
   FrontendValidationSource,
+  type SubformValidation,
   type ValidationDataSources,
   ValidationMask,
 } from 'src/features/validation';
 import { SubformDef } from 'src/layout/Subform/config.def.generated';
 import { SubformComponent } from 'src/layout/Subform/SubformComponent';
 import { SubformValidator } from 'src/layout/Subform/SubformValidator';
-import {
-  RedirectBackToMainForm,
-  SubformFirstPage,
-  SubformForm,
-  SubformWrapper,
-} from 'src/layout/Subform/SubformWrapper';
+import { RedirectBackToMainForm, SubformWrapper } from 'src/layout/Subform/SubformWrapper';
 import { SubformSummaryComponent } from 'src/layout/Subform/Summary/SubformSummaryComponent';
 import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
-import type { TextReference } from 'src/features/language/useLanguage';
-import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { PropsFromGenericComponent, SubRouting, ValidateComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { SubformSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Subform extends SubformDef implements ValidateComponent<'Subform'> {
+export class Subform extends SubformDef implements ValidateComponent<'Subform'>, SubRouting<'Subform'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Subform'>>(
     function LayoutComponentSubformRender(props, _): JSX.Element | null {
       return <SubformComponent {...props} />;
     },
   );
 
-  subRouting(node: LayoutNode<'Subform'>): JSX.Element | null {
+  subRouting({ node }: { node: LayoutNode<'Subform'> }): ReactNode {
     return (
       <TaskStoreProvider>
         <Routes>
@@ -43,7 +39,7 @@ export class Subform extends SubformDef implements ValidateComponent<'Subform'> 
             path=':dataElementId/:subformPage'
             element={
               <SubformWrapper node={node}>
-                <SubformForm />
+                <Form />
               </SubformWrapper>
             }
           />
@@ -51,7 +47,7 @@ export class Subform extends SubformDef implements ValidateComponent<'Subform'> 
             path=':dataElementId'
             element={
               <SubformWrapper node={node}>
-                <SubformFirstPage />
+                <FormFirstPage />
               </SubformWrapper>
             }
           />
@@ -88,7 +84,13 @@ export class Subform extends SubformDef implements ValidateComponent<'Subform'> 
 
   runComponentValidation(
     node: LayoutNode<'Subform'>,
-    { applicationMetadata, instance, nodeDataSelector, layoutSets }: ValidationDataSources,
+    {
+      applicationMetadata,
+      instance,
+      nodeDataSelector,
+      layoutSets,
+      dataElementHasErrorsSelector,
+    }: ValidationDataSources,
   ): ComponentValidation[] {
     const layoutSetName = nodeDataSelector((picker) => picker(node)?.layout.layoutSet, [node]);
     if (!layoutSetName) {
@@ -103,30 +105,43 @@ export class Subform extends SubformDef implements ValidateComponent<'Subform'> 
       return [];
     }
 
-    let validationMessage: TextReference | null = null;
+    const validations: ComponentValidation[] = [];
+
+    const dataElements = instance?.data.filter((x) => x.dataType === targetType);
+    const numDataElements = dataElements?.length ?? 0;
     const { minCount, maxCount } = dataTypeDefinition;
-    const numDataElements = instance?.data.filter((x) => x.dataType === targetType).length ?? 0;
+
     if (minCount > 0 && numDataElements < minCount) {
-      validationMessage = {
-        key: 'form_filler.error_min_count_not_reached_subform',
-        params: [minCount, targetType],
-      };
-    } else if (maxCount > 0 && numDataElements > maxCount) {
-      validationMessage = {
-        key: 'form_fillers.error_max_count_reached_subform_local',
-        params: [targetType, maxCount],
-      };
+      validations.push({
+        message: { key: 'form_filler.error_min_count_not_reached_subform', params: [minCount, targetType] },
+        severity: 'error',
+        source: FrontendValidationSource.Component,
+        category: ValidationMask.Required,
+      });
     }
 
-    return validationMessage
-      ? [
-          {
-            message: validationMessage,
-            severity: 'error',
-            source: FrontendValidationSource.Component,
-            category: ValidationMask.Required,
-          },
-        ]
-      : [];
+    if (maxCount > 0 && numDataElements > maxCount) {
+      validations.push({
+        message: { key: 'form_filler.error_max_count_reached_subform_local', params: [targetType, maxCount] },
+        severity: 'error',
+        source: FrontendValidationSource.Component,
+        category: ValidationMask.Required,
+      });
+    }
+
+    const subformIdsWithError = dataElements?.map((dE) => dE.id).filter((id) => dataElementHasErrorsSelector(id));
+    if (subformIdsWithError?.length) {
+      const validation: SubformValidation = {
+        subformDataElementIds: subformIdsWithError,
+        message: { key: 'form_filler.error_validation_inside_subform', params: [targetType] },
+        severity: 'error',
+        source: FrontendValidationSource.Component,
+        category: ValidationMask.Required,
+      };
+
+      validations.push(validation);
+    }
+
+    return validations;
   }
 }

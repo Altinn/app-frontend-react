@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useAttachmentsSelector } from 'src/features/attachments/hooks';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
@@ -23,6 +24,7 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
   const dataModelSelector = Validation.useDataModelSelector();
   const validationDataSources = useValidationDataSources();
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
+  const getDataElementIdForDataType = DataModels.useGetDataElementIdForDataType();
 
   return useMemo(() => {
     const validations: AnyValidation[] = [];
@@ -47,14 +49,15 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
     for (const [bindingKey, { dataType, field }] of Object.entries(
       (dataModelBindings ?? {}) as Record<string, IDataModelReference>,
     )) {
-      const fieldValidations = dataModelSelector((dataModels) => dataModels[dataType]?.[field], [dataType, field]);
+      const dataElementId = getDataElementIdForDataType(dataType) ?? dataType; // stateless does not have dataElementId
+      const fieldValidations = dataModelSelector((dataModels) => dataModels[dataElementId]?.[field], [dataType, field]);
       if (fieldValidations) {
         validations.push(...fieldValidations.map((v) => ({ ...v, node, bindingKey })));
       }
     }
 
     return filter(validations, node, nodeDataSelector);
-  }, [node, dataModelSelector, shouldValidate, validationDataSources, nodeDataSelector]);
+  }, [shouldValidate, node, validationDataSources, nodeDataSelector, getDataElementIdForDataType, dataModelSelector]);
 }
 
 /**
@@ -69,6 +72,7 @@ function useValidationDataSources(): ValidationDataSources {
   const applicationMetadata = useApplicationMetadata();
   const instance = useLaxInstanceData();
   const layoutSets = useLayoutSets();
+  const dataElementHasErrorsSelector = Validation.useDataElementHasErrorsSelector();
 
   return useMemo(
     () => ({
@@ -80,16 +84,18 @@ function useValidationDataSources(): ValidationDataSources {
       applicationMetadata,
       instance,
       layoutSets,
+      dataElementHasErrorsSelector,
     }),
     [
-      applicationMetadata,
+      formDataSelector,
+      invalidDataSelector,
       attachmentsSelector,
       currentLanguage,
-      formDataSelector,
-      instance,
-      invalidDataSelector,
       nodeSelector,
+      applicationMetadata,
+      instance,
       layoutSets,
+      dataElementHasErrorsSelector,
     ],
   );
 }

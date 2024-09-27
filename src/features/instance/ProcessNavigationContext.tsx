@@ -36,6 +36,7 @@ function useProcessNext() {
   const onFormSubmitValidation = useOnFormSubmitValidation();
   const updateInitialValidations = useUpdateInitialValidations();
   const setShowAllErrors = Validation.useSetShowAllErrors();
+  const onSubmitFormValidation = useOnFormSubmitValidation();
 
   const utils = useMutation({
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
@@ -61,7 +62,9 @@ function useProcessNext() {
       } else if (validationIssues) {
         // Set initial validation to validation issues from process/next and make all errors visible
         updateInitialValidations(validationIssues);
-        setShowAllErrors !== ContextNotProvided && setShowAllErrors();
+        if (!(await onSubmitFormValidation(true))) {
+          setShowAllErrors !== ContextNotProvided && setShowAllErrors();
+        }
       }
     },
     onError: (error: HttpClientError) => {

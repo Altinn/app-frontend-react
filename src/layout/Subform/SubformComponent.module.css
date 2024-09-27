@@ -77,6 +77,10 @@ Altinn, and making sure they are consistent. */
   color: #ccc;
 }
 
+.tableRowError > td {
+  background-color: var(--repeating-group-error-color) !important;
+}
+
 .addButton {
   width: 100%;
   margin-bottom: var(--fds-spacing-2);

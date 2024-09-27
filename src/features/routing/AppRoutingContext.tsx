@@ -71,7 +71,7 @@ export const useQueryKey = (key: string) => useSelector((ctx) => ctx.queryKeys[k
 // Use this instead of the native one to avoid re-rendering whenever the route changes
 export const useNavigate = () => useSelector((ctx) => ctx.navigateRef).current;
 
-const useNavigationParams = (): Context['params'] => {
+export const useNavigationParams = (): Context['params'] => {
   const matches = [
     useMatch('/instance/:partyId/:instanceGuid'),
     useMatch('/instance/:partyId/:instanceGuid/:taskId'),

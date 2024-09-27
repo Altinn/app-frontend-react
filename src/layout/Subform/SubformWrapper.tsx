@@ -1,13 +1,11 @@
 import React, { useEffect } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
-import { FormPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
+import { Loader } from 'src/core/loading/Loader';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
-import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
@@ -18,7 +16,7 @@ export const SubformWrapper = ({ node, children }: PropsWithChildren<{ node: Lay
   const isDone = useDoOverride(node);
 
   if (!isDone) {
-    return null;
+    return <Loader reason='subform-taskstore' />;
   }
 
   return (
@@ -26,12 +24,6 @@ export const SubformWrapper = ({ node, children }: PropsWithChildren<{ node: Lay
       <PresentationComponent type={ProcessTaskType.Data}>{children}</PresentationComponent>
     </FormProvider>
   );
-};
-
-export const SubformFirstPage = () => {
-  const order = useLayoutSettings().pages.order;
-  const firstPage = order[0];
-  return <Navigate to={firstPage} />;
 };
 
 export const RedirectBackToMainForm = () => {
@@ -42,12 +34,7 @@ export const RedirectBackToMainForm = () => {
     navigateToPage(mainPageKey);
   }, [navigateToPage, mainPageKey]);
 
-  return null;
-};
-
-export const SubformForm = () => {
-  const { subformPage } = useParams();
-  return <FormPage currentPageId={subformPage} />;
+  return <Loader reason='navigate-to-mainform' />;
 };
 
 export const useDoOverrideSummary = (dataElementId: string, layoutSet: string, dataType: string) => {
@@ -79,7 +66,7 @@ export const useDoOverrideSummary = (dataElementId: string, layoutSet: string, d
 };
 
 export const useDoOverride = (node: LayoutNode<'Subform'>, providedDataElementId?: string) => {
-  const { dataElementId } = useParams();
+  const dataElementId = useNavigationParam('dataElementId');
   const actualDataElementId = providedDataElementId ? providedDataElementId : dataElementId;
   const { layoutSet, id } = useNodeItem(node);
   const dataType = useDataTypeFromLayoutSet(layoutSet);

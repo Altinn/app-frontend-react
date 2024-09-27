@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
+import { waitForAnimationFrames } from 'src/utils/waitForAnimationFrames';
 import type { DataLoading } from 'src/core/contexts/dataLoadingContext';
 
 /**
@@ -43,12 +44,6 @@ function loadPromise(element: HTMLImageElement | HTMLLinkElement) {
     element.addEventListener('load', res);
     element.addEventListener('error', res);
   });
-}
-
-async function waitForAnimationFrames(n: number) {
-  for (let i = 0; i < n; i++) {
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-  }
 }
 
 async function waitForImages() {
