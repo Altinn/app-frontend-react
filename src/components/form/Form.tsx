@@ -29,14 +29,14 @@ import { extractBottomButtons } from 'src/utils/formLayout';
 import { NodesInternal, useGetPage, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { NavigateToNodeOptions } from 'src/features/form/layout/NavigateToNode';
-import type { AnyValidation, BaseValidation, NodeValidation } from 'src/features/validation';
+import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 import type { NodeData } from 'src/utils/layout/types';
 
 interface FormState {
   hasRequired: boolean;
   mainIds: string[] | undefined;
   errorReportIds: string[];
-  formErrors: NodeValidation<AnyValidation<'error'>>[];
+  formErrors: NodeRefValidation<AnyValidation<'error'>>[];
   taskErrors: BaseValidation<'error'>[];
 }
 
