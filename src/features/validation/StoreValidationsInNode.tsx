@@ -1,5 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 
+import deepEqual from 'fast-deep-equal';
+
 import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
 import { getInitialMaskFromNode } from 'src/features/validation/utils';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
@@ -34,7 +36,7 @@ function StoreValidationsInNodeWorker() {
 
   const validations = useNodeValidation(node, shouldValidate);
 
-  const hasBeenSet = NodesInternal.useNodeData(node, (data) => data.validations === validations);
+  const hasBeenSet = NodesInternal.useNodeData(node, (data) => deepEqual(data.validations, validations));
   NodesStateQueue.useSetNodeProp({ node, prop: 'validations', value: validations }, !hasBeenSet && shouldValidate);
 
   const initialMask = getInitialMaskFromNode('showValidations' in item ? item.showValidations : undefined);

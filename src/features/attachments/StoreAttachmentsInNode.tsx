@@ -1,5 +1,7 @@
 import React, { useRef } from 'react';
 
+import deepEqual from 'fast-deep-equal';
+
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
@@ -32,7 +34,7 @@ function StoreAttachmentsInNodeWorker() {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
   const attachments = useNodeAttachments();
 
-  const hasBeenSet = NodesInternal.useNodeData(node, (data) => data.attachments === attachments);
+  const hasBeenSet = NodesInternal.useNodeData(node, (data) => deepEqual(data.attachments, attachments));
   NodesStateQueue.useSetNodeProp({ node, prop: 'attachments', value: attachments }, !hasBeenSet);
 
   return null;
@@ -57,6 +59,8 @@ function useNodeAttachments(): Record<string, IAttachment> {
   }, [node, data, application, currentTask, nodeData, overriddenTaskId]);
 
   const prevAttachments = useRef<Record<string, IAttachment>>({});
+  const storedPrev = NodesInternal.useNodeData(node, (data) => data.attachments);
+
   return useMemoDeepEqual(() => {
     const prevResult = prevAttachments.current ?? new Map<string, IAttachment>();
     const result: Record<string, IAttachment> = {};
@@ -64,15 +68,15 @@ function useNodeAttachments(): Record<string, IAttachment> {
     for (const attachment of mappedAttachments) {
       result[attachment.id] = {
         uploaded: true,
-        updating: prevResult[attachment.id]?.updating ?? false,
-        deleting: prevResult[attachment.id]?.deleting ?? false,
+        updating: prevResult[attachment.id]?.updating || storedPrev?.[attachment.id]?.updating || false,
+        deleting: prevResult[attachment.id]?.deleting || storedPrev?.[attachment.id]?.deleting || false,
         data: attachment,
       };
     }
 
     prevAttachments.current = result;
     return result;
-  }, [mappedAttachments]);
+  }, [mappedAttachments, storedPrev]);
 }
 
 function mapAttachments(
