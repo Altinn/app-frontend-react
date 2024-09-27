@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import '@testing-library/jest-dom/jest-globals';
 import 'core-js/stable/structured-clone'; // https://github.com/jsdom/jsdom/issues/3363
+import 'requestidlecallback';
 import 'jest';
 
 import { jest } from '@jest/globals';
