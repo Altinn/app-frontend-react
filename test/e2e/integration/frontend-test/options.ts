@@ -147,7 +147,7 @@ describe('Options', () => {
   it('clears options when source changes and old value is no longer valid', () => {
     cy.goto('changename');
 
-    cy.get(appFrontend.changeOfName.sources).should('be.visible');
+    cy.get(appFrontend.changeOfName.sources).should('have.value', 'Altinn');
 
     cy.dsSelect(appFrontend.changeOfName.reference, 'Ola Nordmann');
     cy.get(appFrontend.changeOfName.reference).should('have.value', 'Ola Nordmann');
