@@ -228,7 +228,7 @@ export function createNodesDataStore({ registry }: CreateStoreProps) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               ...(additionalParentState as any),
             };
-            childrenMap[node.parent.id] = childrenMap[node.parent.id] || [];
+            childrenMap[node.parent.id] = [...(childrenMap[node.parent.id] || [])];
             childrenMap[node.parent.id]!.push(node.id);
           }
 
@@ -262,7 +262,7 @@ export function createNodesDataStore({ registry }: CreateStoreProps) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ...(additionalParentState as any),
           };
-          childrenMap[node.parent.id] = childrenMap[node.parent.id] || [];
+          childrenMap[node.parent.id] = [...(childrenMap[node.parent.id] || [])];
           childrenMap[node.parent.id] = childrenMap[node.parent.id]!.filter((id) => id !== node.id);
         }
 
