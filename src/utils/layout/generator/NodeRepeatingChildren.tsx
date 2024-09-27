@@ -21,6 +21,7 @@ import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal } from 'src/layout/layout';
 import type { ChildClaims, ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { RepChildrenRow } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 
 interface Props {
   claims: ChildClaims;
@@ -168,8 +169,13 @@ function MaintainRowUuid({
   const parent = GeneratorInternal.useParent() as LayoutNode;
   const rowIndex = GeneratorInternal.useRowIndex() as number;
   const rowUuid = FD.useFreshRowUuid(groupBinding, rowIndex) as string;
+  const existingUuid = NodesInternal.useNodeData(
+    parent,
+    (data) => data.item?.[internalProp]?.find((row: RepChildrenRow) => row.index === rowIndex)?.uuid,
+  );
 
-  NodesStateQueue.useSetRowUuid({ node: parent, rowIndex: rowIndex!, internalProp, rowUuid });
+  const isSet = rowUuid === existingUuid;
+  NodesStateQueue.useSetRowUuid({ node: parent, rowIndex: rowIndex!, internalProp, rowUuid }, !isSet);
 
   return null;
 }

@@ -619,7 +619,14 @@ function InnerMarkAsReady() {
 
     for (const nodeData of Object.values(state.nodeData)) {
       const def = getComponentDef(nodeData.layout.type) as LayoutComponent;
-      if (!def.stateIsReady(nodeData) || !def.pluginStateIsReady(nodeData)) {
+      const nodeReady = def.stateIsReady(nodeData);
+      const pluginsReady = def.pluginStateIsReady(nodeData);
+      if (!nodeReady || !pluginsReady) {
+        generatorLog(
+          'logReadiness',
+          `Node ${nodeData.layout.id} is not ready yet because of ` +
+            `${nodeReady ? 'plugins' : pluginsReady ? 'node' : 'both node and plugins'}`,
+        );
         return false;
       }
     }
@@ -641,6 +648,7 @@ function InnerMarkAsReady() {
           return true;
         }
 
+        generatorLog('logReadiness', `Not quite ready yet (waiting for ${awaiting} commits)`);
         return false;
       });
     }
