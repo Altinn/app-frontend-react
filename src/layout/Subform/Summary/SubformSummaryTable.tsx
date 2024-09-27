@@ -15,6 +15,8 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { isSubformValidation } from 'src/features/validation';
+import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes1 from 'src/layout/Subform/SubformComponent.module.css';
 import classes2 from 'src/layout/Subform/Summary/SubformSummaryComponent2.module.css';
@@ -28,11 +30,13 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 function SubformTableRow({
   dataElement,
   targetNode,
+  hasErrors,
   rowNumber,
   pdfModeActive,
 }: {
   dataElement: IData;
   targetNode: LayoutNode<'Subform'>;
+  hasErrors: boolean;
   rowNumber: number;
   pdfModeActive: boolean;
 }) {
@@ -66,6 +70,7 @@ function SubformTableRow({
     <Table.Row
       key={`subform-row-${id}`}
       data-row-num={rowNumber}
+      className={classNames({ [classes1.tableRowError]: !pdfModeActive && hasErrors })}
     >
       {tableColumns.length ? (
         tableColumns.map((entry, index) => (
@@ -128,6 +133,8 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
   }
 
   const dataType = useDataTypeFromLayoutSet(layoutSet);
+  const subformIdsWithError =
+    useComponentValidationsForNode(targetNode).find(isSubformValidation)?.subformDataElementIds;
 
   if (!dataType) {
     window.logErrorOnce(`Unable to find data type for subform with id ${id}`);
@@ -207,6 +214,7 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
                 key={dataElement.id}
                 dataElement={dataElement}
                 targetNode={targetNode}
+                hasErrors={Boolean(subformIdsWithError?.includes(dataElement.id))}
                 rowNumber={index}
                 pdfModeActive={pdfModeActive}
               />
