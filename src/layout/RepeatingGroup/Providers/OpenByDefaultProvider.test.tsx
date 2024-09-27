@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import type { PropsWithChildren } from 'react';
+import React from 'react';
 
 import { afterAll, beforeAll, jest } from '@jest/globals';
-import { act, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
@@ -32,25 +31,6 @@ jest.mock('uuid', () => ({
 }));
 
 describe('openByDefault', () => {
-  function StartFakingTimers({
-    children,
-    promise,
-  }: PropsWithChildren<{
-    promise: Promise<void>;
-  }>) {
-    const [fakingDone, setFakingDone] = useState(false);
-
-    useEffect(() => {
-      (async () => {
-        await promise;
-        jest.useFakeTimers();
-        act(() => setFakingDone(true));
-      })();
-    }, [promise]);
-
-    return fakingDone ? children : null;
-  }
-
   function RenderTest() {
     const state = useRepeatingGroupSelector((state) => ({
       editingId: state.editingId,
@@ -117,18 +97,11 @@ describe('openByDefault', () => {
       },
     ];
 
-    let resolver: () => void;
-    const readyForFakeTimers = new Promise<void>((resolve) => {
-      resolver = resolve;
-    });
-
-    const out = await renderWithNode<true, LayoutNode<'RepeatingGroup'>>({
+    return renderWithNode<true, LayoutNode<'RepeatingGroup'>>({
       renderer: ({ node }) => (
-        <StartFakingTimers promise={readyForFakeTimers}>
-          <RepeatingGroupProvider node={node}>
-            <RenderTest />
-          </RepeatingGroupProvider>
-        </StartFakingTimers>
+        <RepeatingGroupProvider node={node}>
+          <RenderTest />
+        </RepeatingGroupProvider>
       ),
       nodeId: 'myGroup',
       inInstance: true,
@@ -143,10 +116,6 @@ describe('openByDefault', () => {
         }),
       },
     });
-
-    resolver!();
-
-    return out;
   }
 
   function getState() {
@@ -166,9 +135,10 @@ describe('openByDefault', () => {
   }
 
   async function waitUntil({ state, mutations, expectedPatch, newModelAfterSave, expectedWarning }: WaitForStateProps) {
-    jest.advanceTimersByTime(3000);
     if (newModelAfterSave && mutations) {
-      await waitFor(() => expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(1));
+      await waitFor(() => {
+        expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(1);
+      });
 
       expect(mutations.doPatchFormData.mock).toHaveBeenCalledWith(
         expect.anything(),
@@ -186,10 +156,7 @@ describe('openByDefault', () => {
 
     // Because this typically happens in a loop, we need to wait a little more and check again to make sure
     // the state doesn't change again.
-    jest.advanceTimersByTime(3000);
-    jest.useRealTimers();
     await new Promise((resolve) => setTimeout(resolve, 300));
-    jest.useFakeTimers();
     expect(getState()).toEqual(state);
     expect(mutations?.doPatchFormData.mock).not.toHaveBeenCalled();
 
@@ -209,7 +176,6 @@ describe('openByDefault', () => {
   });
 
   afterEach(() => {
-    jest.useRealTimers();
     jest.clearAllMocks();
   });
 
