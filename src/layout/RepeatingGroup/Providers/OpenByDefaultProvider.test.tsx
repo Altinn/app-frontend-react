@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { afterAll, beforeAll, jest } from '@jest/globals';
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
@@ -31,6 +32,25 @@ jest.mock('uuid', () => ({
 }));
 
 describe('openByDefault', () => {
+  function StartFakingTimers({
+    children,
+    promise,
+  }: PropsWithChildren<{
+    promise: Promise<void>;
+  }>) {
+    const [fakingDone, setFakingDone] = useState(false);
+
+    useEffect(() => {
+      (async () => {
+        await promise;
+        jest.useFakeTimers();
+        act(() => setFakingDone(true));
+      })();
+    }, [promise]);
+
+    return fakingDone ? children : null;
+  }
+
   function RenderTest() {
     const state = useRepeatingGroupSelector((state) => ({
       editingId: state.editingId,
@@ -73,7 +93,7 @@ describe('openByDefault', () => {
     hiddenRow?: CompRepeatingGroupExternal['hiddenRow'];
   }
 
-  function render({ existingRows, edit, hiddenRow }: Props) {
+  async function render({ existingRows, edit, hiddenRow }: Props) {
     const layout: ILayout = [
       {
         id: 'myGroup',
@@ -97,11 +117,18 @@ describe('openByDefault', () => {
       },
     ];
 
-    return renderWithNode<true, LayoutNode<'RepeatingGroup'>>({
+    let resolver: () => void;
+    const readyForFakeTimers = new Promise<void>((resolve) => {
+      resolver = resolve;
+    });
+
+    const out = await renderWithNode<true, LayoutNode<'RepeatingGroup'>>({
       renderer: ({ node }) => (
-        <RepeatingGroupProvider node={node}>
-          <RenderTest />
-        </RepeatingGroupProvider>
+        <StartFakingTimers promise={readyForFakeTimers}>
+          <RepeatingGroupProvider node={node}>
+            <RenderTest />
+          </RepeatingGroupProvider>
+        </StartFakingTimers>
       ),
       nodeId: 'myGroup',
       inInstance: true,
@@ -116,6 +143,10 @@ describe('openByDefault', () => {
         }),
       },
     });
+
+    resolver!();
+
+    return out;
   }
 
   function getState() {
@@ -170,7 +201,6 @@ describe('openByDefault', () => {
   }
 
   beforeAll(() => {
-    jest.useFakeTimers();
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     jest
       .spyOn(window, 'logWarn')
@@ -179,11 +209,11 @@ describe('openByDefault', () => {
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     jest.clearAllMocks();
   });
 
   afterAll(() => {
-    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
