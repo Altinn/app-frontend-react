@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
@@ -636,7 +636,7 @@ function InnerMarkAsReady() {
 
   const maybeReady = checkNodeStates && nodeStateReady;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (maybeReady) {
       // Commits can happen where state is not really changed, and in those cases our useSelector() won't run, and we
       // won't notice that we could mark the state as ready again. For these cases we run intervals while the state
@@ -669,7 +669,9 @@ const IDLE_COUNTDOWN = 3;
 function setIdleInterval(registry: MutableRefObject<Registry>, fn: () => boolean): () => void {
   let lastCommitCount = registry.current.toCommitCount;
   let idleCountdown = IDLE_COUNTDOWN;
-  let id: ReturnType<typeof requestIdleCallback> | undefined;
+  let id: ReturnType<typeof requestIdleCallback | typeof requestAnimationFrame> | undefined;
+  const request = window.requestIdleCallback || window.requestAnimationFrame;
+  const cancel = window.cancelIdleCallback || window.cancelAnimationFrame;
 
   const runWhenIdle = () => {
     const currentCommitCount = registry.current.toCommitCount;
@@ -677,24 +679,24 @@ function setIdleInterval(registry: MutableRefObject<Registry>, fn: () => boolean
       // Something changed since last time, so we'll wait a bit more
       idleCountdown = IDLE_COUNTDOWN;
       lastCommitCount = currentCommitCount;
-      id = requestIdleCallback(runWhenIdle);
+      id = request(runWhenIdle);
       return;
     }
     if (idleCountdown > 0) {
       // We'll wait until we've been idle (and did not get any new commits) for N iterations
       idleCountdown -= 1;
-      id = requestIdleCallback(runWhenIdle);
+      id = request(runWhenIdle);
       return;
     }
     if (!fn()) {
       // The function didn't return true, so we'll wait a bit more
-      id = requestIdleCallback(runWhenIdle);
+      id = request(runWhenIdle);
     }
   };
 
-  id = requestIdleCallback(runWhenIdle);
+  id = request(runWhenIdle);
 
-  return () => (id === undefined ? undefined : cancelIdleCallback(id));
+  return () => (id === undefined ? undefined : cancel(id));
 }
 
 function RegisterOnSaveFinished() {

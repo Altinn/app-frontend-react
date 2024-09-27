@@ -7,7 +7,6 @@ import { createRoot } from 'react-dom/client';
 import { createHashRouter, RouterProvider, ScrollRestoration } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
 
-import 'requestidlecallback';
 import 'src/features/baseurlinjection';
 import 'src/features/toggles';
 import 'src/features/logging';
