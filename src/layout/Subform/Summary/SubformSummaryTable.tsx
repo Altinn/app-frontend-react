@@ -177,7 +177,7 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
             description={textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
           />
           <Table.Head id={`subform-${id}-table-body`}>
-            <Table.Row className={classes2.summaryTableRow}>
+            <Table.Row>
               {tableColumns.length ? (
                 tableColumns.map((entry, index) => (
                   <Table.HeaderCell
