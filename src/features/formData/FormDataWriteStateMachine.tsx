@@ -373,12 +373,18 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
-        const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
+        const models = [
+          state.dataModels[reference.dataType].currentData,
+          state.dataModels[reference.dataType].debouncedCurrentData,
+        ];
+        for (const model of models) {
+          const existingValue = dot.pick(reference.field, model);
 
-        if (Array.isArray(existingValue)) {
-          existingValue.push(newValue);
-        } else {
-          dot.str(reference.field, [newValue], state.dataModels[reference.dataType].currentData);
+          if (Array.isArray(existingValue)) {
+            existingValue.push(newValue);
+          } else {
+            dot.str(reference.field, [newValue], state.dataModels[reference.dataType].currentData);
+          }
         }
       }),
     removeIndexFromList: ({ reference, index }) =>
