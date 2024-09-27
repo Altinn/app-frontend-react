@@ -21,13 +21,12 @@ import {
   useQueryKeysAsString,
   useQueryKeysAsStringAsRef,
 } from 'src/features/routing/AppRoutingContext';
-import { FrontendValidationSource } from 'src/features/validation';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { SearchParams, useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { extractBottomButtons } from 'src/utils/formLayout';
-import { useGetPage, useNode } from 'src/utils/layout/NodesContext';
+import { NodesInternal, useGetPage, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { NavigateToNodeOptions } from 'src/features/form/layout/NavigateToNode';
 import type { AnyValidation, BaseValidation, NodeValidation } from 'src/features/validation';
@@ -35,7 +34,6 @@ import type { NodeData } from 'src/utils/layout/types';
 
 interface FormState {
   hasRequired: boolean;
-  requiredFieldsMissing: boolean;
   mainIds: string[] | undefined;
   errorReportIds: string[];
   formErrors: NodeValidation<AnyValidation<'error'>>[];
@@ -52,13 +50,13 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const [formState, setFormState] = useState<FormState>({
     hasRequired: false,
-    requiredFieldsMissing: false,
     mainIds: undefined,
     errorReportIds: [],
     formErrors: [],
     taskErrors: [],
   });
-  const { hasRequired, requiredFieldsMissing, mainIds, errorReportIds, formErrors, taskErrors } = formState;
+  const { hasRequired, mainIds, errorReportIds, formErrors, taskErrors } = formState;
+  const requiredFieldsMissing = NodesInternal.usePageHasVisibleRequiredValidations(currentPageId);
 
   useRedirectToStoredPage();
   useSetExpandedWidth();
@@ -237,15 +235,11 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
     }
     return extractBottomButtons(traverser.with(page).children());
   });
-  const requiredFieldsMissing = formErrors.some(
-    (error) => error.source === FrontendValidationSource.EmptyField && error.node.pageKey === currentPageId,
-  );
 
   useEffect(() => {
     setFormState((prevState) => {
       if (
         prevState.hasRequired === hasRequired &&
-        prevState.requiredFieldsMissing === requiredFieldsMissing &&
         deepEqual(mainIds, prevState.mainIds) &&
         deepEqual(errorReportIds, prevState.errorReportIds) &&
         prevState.formErrors === formErrors &&
@@ -256,14 +250,13 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
 
       return {
         hasRequired,
-        requiredFieldsMissing,
         mainIds,
         errorReportIds,
         formErrors,
         taskErrors,
       };
     });
-  }, [setFormState, hasRequired, requiredFieldsMissing, mainIds, errorReportIds, formErrors, taskErrors]);
+  }, [setFormState, hasRequired, mainIds, errorReportIds, formErrors, taskErrors]);
 
   return null;
 }
