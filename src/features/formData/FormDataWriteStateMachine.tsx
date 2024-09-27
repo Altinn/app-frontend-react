@@ -383,7 +383,7 @@ function makeActions(
           if (Array.isArray(existingValue)) {
             existingValue.push(newValue);
           } else {
-            dot.str(reference.field, [newValue], state.dataModels[reference.dataType].currentData);
+            dot.str(reference.field, [newValue], model);
           }
         }
       }),
