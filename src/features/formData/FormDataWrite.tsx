@@ -216,7 +216,7 @@ function useFormDataSaveMutation() {
           if (!dataElementId) {
             throw new Error(`Cannot patch data, dataElementId for dataType '${dataType}' could not be determined`);
           }
-          const url = getDataModelUrl({ dataElementId });
+          const url = getDataModelUrl({ dataElementId, includeRowIds: true });
           if (!url) {
             throw new Error(`Cannot patch data, url for dataType '${dataType}' could not be determined`);
           }
