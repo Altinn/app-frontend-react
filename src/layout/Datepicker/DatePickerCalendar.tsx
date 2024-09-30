@@ -55,7 +55,7 @@ export const DatePickerCalendar = ({
       onSelect={onSelect}
       components={{ MonthCaption: DropdownCaption }}
       autoFocus={autoFocus}
-      style={{ height: '405px' }}
+      style={{ minHeight: '405px', maxWidth: '100%' }}
     />
   );
 };

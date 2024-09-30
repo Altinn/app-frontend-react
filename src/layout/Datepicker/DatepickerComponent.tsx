@@ -80,6 +80,7 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
           role='dialog'
           ref={modalRef}
           onInteractOutside={() => modalRef.current?.close()}
+          style={{ width: 'fit-content', minWidth: 'fit-content' }}
         >
           <Modal.Content>{content}</Modal.Content>
         </Modal>
