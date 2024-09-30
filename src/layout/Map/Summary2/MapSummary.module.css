@@ -1,13 +1,14 @@
 .summaryItem {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .summaryItemWrapper {
   display: flex;
   flex-direction: column;
   gap: var(--fds-spacing-2);
+  break-inside: avoid;
 }
 
 .summaryValue {
