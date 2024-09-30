@@ -1,12 +1,14 @@
 import React from 'react';
 
 import { Table } from '@digdir/designsystemet-react';
-import { Grid, Typography } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
 import type { PropsFromGenericComponent } from '..';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { Caption } from 'src/components/form/Caption';
+import { Label } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
@@ -29,37 +31,6 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
   const rowNodes = rows.map((row) => row?.itemNode).filter(typedBoolean);
 
   const id = node.id;
-  const hasDescription = !!textResourceBindings?.description;
-  const hasTitle = !!textResourceBindings?.title;
-  const titleId = `likert-title-${id}`;
-  const descriptionId = `likert-description-${id}`;
-
-  const Header = () => (
-    <Grid
-      item={true}
-      xs={12}
-      className={cn({ [classes.likertHeader]: hasTitle || hasDescription })}
-    >
-      {hasTitle && (
-        <Typography
-          component='div'
-          variant='h3'
-          style={{ width: '100%' }}
-          id={titleId}
-        >
-          <Lang id={textResourceBindings?.title} />
-        </Typography>
-      )}
-      {hasDescription && (
-        <Typography
-          variant='body1'
-          id={descriptionId}
-        >
-          <Lang id={textResourceBindings?.description} />
-        </Typography>
-      )}
-    </Grid>
-  );
 
   if (mobileView) {
     return (
@@ -70,12 +41,15 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           data-componentid={node.id}
           data-componentbaseid={node.baseId}
         >
-          <Header />
+          <Label
+            node={node}
+            renderLabelAs='legend'
+          />
           <div
             role='group'
             className={classes.likertMobileGroup}
-            aria-labelledby={(hasTitle && titleId) || undefined}
-            aria-describedby={(hasDescription && descriptionId) || undefined}
+            aria-labelledby={textResourceBindings?.title ? `label-${node.id}` : undefined}
+            aria-describedby={textResourceBindings?.description ? `description-label-${node.id}` : undefined}
           >
             {rowNodes.map((comp) => (
               <GenericComponent
@@ -97,20 +71,19 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
         data-componentid={node.id}
         data-componentbaseid={node.baseId}
       >
-        <Header />
         {isFetching ? (
           <AltinnSpinner />
         ) : (
           <Table
             id={id}
-            aria-labelledby={hasTitle ? titleId : undefined}
-            aria-describedby={hasDescription ? descriptionId : undefined}
             className={classes.likertTable}
           >
-            <Table.Head
-              id={`likert-table-header-${id}`}
-              aria-hidden={true}
-            >
+            <Caption
+              id={node.id}
+              title={textResourceBindings?.title}
+              description={textResourceBindings?.description}
+            />
+            <Table.Head id={`likert-table-header-${id}`}>
               <Table.Row>
                 <Table.HeaderCell id={`${id}-likert-columnheader-left`}>
                   <span

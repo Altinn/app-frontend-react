@@ -83,6 +83,7 @@ export function Label(props: LabelProps) {
         </Fieldset>
       );
     }
+
     case 'label':
       return (
         <DesignsystemetLabel

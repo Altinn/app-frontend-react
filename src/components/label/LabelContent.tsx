@@ -64,7 +64,7 @@ export function LabelContent({
       </span>
       {description && (
         <Description
-          key={`description-${labelId}`}
+          id={labelId}
           description={<Lang id={description} />}
         />
       )}
