@@ -140,7 +140,7 @@
     "axios": "1.7.7",
     "classnames": "2.5.1",
     "date-fns": "^3.6.0",
-    "dompurify": "3.1.6",
+    "dompurify": "3.1.7",
     "dot-object": "2.1.5",
     "eslint-plugin-preferred-import-path": "^1.1.0",
     "fast-array-diff": "^1.1.0",
