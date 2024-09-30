@@ -62,10 +62,10 @@ function NodeRepeatingChildrenWorker({
 
   return (
     <>
-      {Array.from({ length: numRows }, (_, index) => ({ index })).map((row) => (
-        <GeneratorRunProvider key={row.index}>
+      {Array.from({ length: numRows }).map((_, index) => (
+        <GeneratorRunProvider key={index}>
           <GenerateRow
-            rowIndex={row.index}
+            rowIndex={index}
             groupBinding={groupBinding}
             claims={claims}
             multiPageMapping={multiPageMapping}

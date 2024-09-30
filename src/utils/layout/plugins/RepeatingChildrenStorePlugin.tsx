@@ -53,6 +53,10 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             }
 
             const existingRows = thisNode.item && (thisNode.item[internalProp] as RepChildrenRow[] | undefined);
+            if (!existingRows || !existingRows[rowIndex]) {
+              continue;
+            }
+
             const existingRow = existingRows ? existingRows[rowIndex] : undefined;
             const nextRow = { ...existingRow, ...extras, index: rowIndex } as RepChildrenRow;
             if (existingRows && existingRow && deepEqual(existingRow, nextRow)) {
@@ -86,6 +90,10 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             }
 
             const existingRows = thisNode.item && (thisNode.item[internalProp] as RepChildrenRow[] | undefined);
+            if (!existingRows || !existingRows[rowIndex]) {
+              continue;
+            }
+
             const existingRow = existingRows ? existingRows[rowIndex] : undefined;
             const nextRow = { ...existingRow, uuid: rowUuid, index: rowIndex } as RepChildrenRow;
             if (existingRows && existingRow && deepEqual(existingRow, nextRow)) {
