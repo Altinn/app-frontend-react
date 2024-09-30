@@ -97,9 +97,18 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     throw new Error(`Node not found`);
   }
 
-  const grid = useNodeItem(node, (i) => i.grid);
-  const renderAsSummary = useNodeItem(node, (i) => ('renderAsSummary' in i ? i.renderAsSummary : undefined));
-  const pageBreak = useNodeItem(node, (i) => ('pageBreak' in i ? i.pageBreak : undefined));
+  const grid = useNodeItem(node, (i) => overrideItemProps?.grid ?? i.grid);
+  const renderAsSummary = useNodeItem(node, (i) =>
+    overrideItemProps && 'renderAsSummary' in overrideItemProps && overrideItemProps.renderAsSummary !== undefined
+      ? overrideItemProps.renderAsSummary
+      : 'renderAsSummary' in i
+        ? i.renderAsSummary
+        : undefined,
+  );
+  const pageBreak = useNodeItem(
+    node,
+    (i) => overrideItemProps?.pageBreak ?? ('pageBreak' in i ? i.pageBreak : undefined),
+  );
   const id = node.id;
   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
   const isHidden = Hidden.useIsHidden(node);
