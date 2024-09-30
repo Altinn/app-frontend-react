@@ -129,7 +129,7 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
   const instantiation = useInstantiation();
   const {
     error: queryError,
-    isFetching,
+    isLoading,
     data: queryData,
     refetch,
   } = useGetInstanceDataQuery(!!instantiation.lastResult, partyId, instanceGuid);
@@ -150,7 +150,7 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
     return <DisplayError error={error} />;
   }
 
-  if (isFetching || !isDataSet) {
+  if (isLoading || !isDataSet) {
     return <Loader reason='instance' />;
   }
 

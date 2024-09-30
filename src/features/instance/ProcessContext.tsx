@@ -1,9 +1,13 @@
 import React, { useCallback, useEffect } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createStore } from 'zustand';
+import type { QueryClient } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { createContext } from 'src/core/contexts/context';
+import { ContextNotProvided } from 'src/core/contexts/context';
+import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -17,15 +21,27 @@ import type { IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 interface IProcessContext {
-  data: IProcess;
+  data: IProcess | undefined;
   setData: (data: IProcess | undefined) => void;
-  reFetch: () => Promise<void>;
+  reFetch: () => Promise<unknown>;
+  setReFetch: (reFetch: () => Promise<unknown>) => void;
 }
 
-const { Provider, useCtx, useHasProvider } = createContext<IProcessContext | undefined>({
+const { Provider, useSelector, useLaxSelector, useHasProvider } = createZustandContext({
   name: 'Process',
-  required: false,
-  default: undefined,
+  required: true,
+  initialCreateStore: ({ instanceId, queryClient }: { instanceId: string; queryClient: QueryClient }) =>
+    createStore<IProcessContext>((set) => ({
+      data: undefined,
+      setData: (data) => {
+        set({ data });
+        queryClient.setQueryData(['fetchProcessState', instanceId], data);
+      },
+      reFetch: async () => {
+        throw new Error('reFetch not implemented yet');
+      },
+      setReFetch: (reFetch) => set({ reFetch }),
+    })),
 });
 
 export const useHasProcessProvider = () => useHasProvider();
@@ -50,21 +66,29 @@ function useProcessQuery(instanceId: string) {
   return utils;
 }
 
-export function ProcessProvider({ children, instanceId }: React.PropsWithChildren<{ instanceId: string }>) {
+export function ProcessProvider({ children, instanceId }: PropsWithChildren<{ instanceId: string }>) {
+  const queryClient = useQueryClient();
+  return (
+    <Provider
+      instanceId={instanceId}
+      queryClient={queryClient}
+    >
+      <BlockUntilLoaded instanceId={instanceId}>{children}</BlockUntilLoaded>
+    </Provider>
+  );
+}
+
+function BlockUntilLoaded({ children, instanceId }: PropsWithChildren<{ instanceId: string }>) {
   const taskId = useNavigationParam('taskId');
   const { navigateToTask } = useNavigatePage();
   const query = useProcessQuery(instanceId);
-  const reFetchNative = query.refetch;
-  const reFetch = useCallback(async () => void (await reFetchNative()), [reFetchNative]);
-  const queryClient = useQueryClient();
+  const setData = useSelector((ctx) => ctx.setData);
+  const setReFetch = useSelector((ctx) => ctx.setReFetch);
   const layoutSets = useLayoutSets();
 
-  const setData = useCallback(
-    (data: IProcess | undefined) => queryClient.setQueryData(['fetchProcessState', instanceId], data),
-    [queryClient, instanceId],
-  );
-
   useEffect(() => {
+    setData(query.data);
+
     const elementId = query?.data?.currentTask?.elementId;
     if (query?.data?.ended) {
       const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
@@ -82,6 +106,10 @@ export function ProcessProvider({ children, instanceId }: React.PropsWithChildre
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query.data]);
 
+  useEffect(() => {
+    setReFetch(query.refetch);
+  }, [query.refetch, setReFetch]);
+
   if (query.error) {
     return <DisplayError error={query.error} />;
   }
@@ -89,22 +117,17 @@ export function ProcessProvider({ children, instanceId }: React.PropsWithChildre
     return <Loader reason='fetching-process' />;
   }
 
-  return (
-    <Provider
-      value={{
-        data: query.data,
-        setData,
-        reFetch,
-      }}
-    >
-      {children}
-    </Provider>
-  );
+  return children;
 }
 
-export const useLaxProcessData = () => useCtx()?.data;
-export const useSetProcessData = () => useCtx()?.setData;
-export const useReFetchProcessData = () => useCtx()?.reFetch;
+function useLaxProcessCtx<U>(selector: (ctx: IProcessContext) => U) {
+  const out = useLaxSelector(selector);
+  return out === ContextNotProvided ? undefined : out;
+}
+
+export const useLaxProcessData = () => useLaxProcessCtx((ctx) => ctx.data);
+export const useSetProcessData = () => useLaxProcessCtx((ctx) => ctx.setData);
+export const useReFetchProcessData = () => useLaxProcessCtx((ctx) => ctx.reFetch);
 
 /**
  * This returns the task type of the current process task, as we got it from the backend
