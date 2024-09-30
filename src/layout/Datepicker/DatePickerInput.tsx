@@ -55,6 +55,7 @@ const DatePickerInput = forwardRef(
           aria-readonly={readOnly}
         />
         <Button
+          id={`${id}-button`}
           variant='tertiary'
           icon={true}
           aria-controls='dialog'
