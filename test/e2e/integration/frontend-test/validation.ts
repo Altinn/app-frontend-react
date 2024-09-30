@@ -40,8 +40,8 @@ describe('Validation', () => {
 
     cy.findByRole('checkbox', { name: /Ja[a-z, ]*/ }).check();
     cy.get(appFrontend.changeOfName.reasonRelationship).type('test');
-    cy.get(appFrontend.changeOfName.dateOfEffect).siblings().children(mui.buttonIcon).click();
-    cy.get(mui.selectedDate).click();
+    cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
+    cy.get('button[aria-label*="Today"]').click();
 
     cy.get(appFrontend.nextButton).click();
 
@@ -816,7 +816,7 @@ describe('Validation', () => {
         c++;
       }).as('patchData');
 
-      cy.get(appFrontend.changeOfName.dateOfEffect).type('01012020');
+      cy.get(appFrontend.changeOfName.dateOfEffect).type('01.01.2020');
       cy.wait('@patchData').then(() => {
         expect(c).to.be.eq(1);
       });
@@ -824,7 +824,7 @@ describe('Validation', () => {
       cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.dateOfEffect)).should('not.exist');
 
       cy.get(appFrontend.changeOfName.dateOfEffect).clear();
-      cy.get(appFrontend.changeOfName.dateOfEffect).type('45451234');
+      cy.get(appFrontend.changeOfName.dateOfEffect).type('45.45.1234');
       cy.wait('@patchData').then(() => {
         expect(c).to.be.eq(2);
       });

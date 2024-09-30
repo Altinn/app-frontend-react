@@ -18,8 +18,8 @@ describe('Grid component', () => {
     cy.get(appFrontend.changeOfName.confirmChangeName).find('input').check();
     cy.get(appFrontend.changeOfName.reasonRelationship).click();
     cy.get(appFrontend.changeOfName.reasonRelationship).type('hello world');
-    cy.get(appFrontend.changeOfName.dateOfEffect).siblings().children(mui.buttonIcon).click();
-    cy.get(mui.selectedDate).click();
+    cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
+    cy.get('button[aria-label*="Today"]').click();
 
     cy.gotoNavPage('grid');
 
