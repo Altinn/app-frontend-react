@@ -8,13 +8,12 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { TaskKeys, useNavigatePage } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
-import type { IInstance, IProcess } from 'src/types/shared';
+import type { IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 interface IProcessContext {
@@ -51,14 +50,13 @@ function useProcessQuery(instanceId: string) {
   return utils;
 }
 
-export function ProcessProvider({ children, instance }: React.PropsWithChildren<{ instance: IInstance }>) {
+export function ProcessProvider({ children, instanceId }: React.PropsWithChildren<{ instanceId: string }>) {
   const taskId = useNavigationParam('taskId');
   const { navigateToTask } = useNavigatePage();
-  const query = useProcessQuery(instance.id);
+  const query = useProcessQuery(instanceId);
   const reFetchNative = query.refetch;
   const reFetch = useCallback(async () => void (await reFetchNative()), [reFetchNative]);
   const queryClient = useQueryClient();
-  const instanceId = useLaxInstanceData()?.id;
   const layoutSets = useLayoutSets();
 
   const setData = useCallback(

@@ -5,7 +5,7 @@ import { useIsFetching, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { BackendValidationIssue } from '..';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
@@ -27,8 +27,7 @@ export function useBackendValidationQueryDef(
 }
 
 export function useGetCachedInitialValidations() {
-  const instance = useLaxInstance();
-  const instanceId = instance?.instanceId;
+  const instanceId = useLaxInstanceId();
   const currentProcessTaskId = useLaxProcessData()?.currentTask?.elementId;
   const client = useQueryClient();
 
@@ -42,8 +41,7 @@ export function useGetCachedInitialValidations() {
 }
 
 export function useUpdateInitialValidations() {
-  const instance = useLaxInstance();
-  const instanceId = instance?.instanceId;
+  const instanceId = useLaxInstanceId();
   const currentProcessTaskId = useLaxProcessData()?.currentTask?.elementId;
   const client = useQueryClient();
 
@@ -60,8 +58,7 @@ export function useIsUpdatingInitialValidations() {
 }
 
 export function useInvalidateInitialValidations() {
-  const instance = useLaxInstance();
-  const instanceId = instance?.instanceId;
+  const instanceId = useLaxInstanceId();
   const currentProcessTaskId = useLaxProcessData()?.currentTask?.elementId;
   const client = useQueryClient();
 
@@ -73,8 +70,7 @@ export function useInvalidateInitialValidations() {
 
 export function useBackendValidationQuery(enabled: boolean) {
   const currentLanguage = useCurrentLanguage();
-  const instance = useLaxInstance();
-  const instanceId = instance?.instanceId;
+  const instanceId = useLaxInstanceId();
   const currentProcessTaskId = useLaxProcessData()?.currentTask?.elementId;
 
   const utils = useQuery({

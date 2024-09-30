@@ -6,7 +6,7 @@ import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { useHasPendingAttachments } from 'src/features/attachments/hooks';
-import { useLaxInstance, useStrictInstance } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceId, useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useUpdateInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
@@ -31,7 +31,7 @@ function useProcessNext() {
   const setProcessData = useSetProcessData();
   const currentProcessData = useLaxProcessData();
   const { navigateToTask } = useNavigatePage();
-  const instanceId = useLaxInstance()?.instanceId;
+  const instanceId = useLaxInstanceId();
   const onFormSubmitValidation = useOnFormSubmitValidation();
   const updateInitialValidations = useUpdateInitialValidations();
   const setShowAllErrors = Validation.useSetShowAllErrors();

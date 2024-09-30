@@ -4,7 +4,7 @@ import type { AxiosError, AxiosResponse } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
 import { resolveQueryParameters } from 'src/features/options/evalQueryParameters';
@@ -44,7 +44,7 @@ export const useGetOptionsUrl = (
 ): string | undefined => {
   const mappingResult = FD.useMapping(mapping);
   const language = useCurrentLanguage();
-  const instanceId = useLaxInstance()?.instanceId;
+  const instanceId = useLaxInstanceId();
   const dataSources = useExpressionDataSources();
   const resolvedQueryParameters = resolveQueryParameters(queryParameters, node, dataSources);
 

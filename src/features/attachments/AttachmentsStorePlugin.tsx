@@ -12,7 +12,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { isAttachmentUploaded } from 'src/features/attachments/index';
 import { sortAttachmentsByName } from 'src/features/attachments/sortAttachments';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxChangeInstanceData, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getValidationIssueMessage } from 'src/features/validation/backendValidation/backendValidationUtils';
@@ -214,7 +214,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
   extraHooks(store: NodesStoreFull): AttachmentsStorePluginConfig['extraHooks'] {
     return {
       useAttachmentsUpload() {
-        const { changeData: changeInstanceData } = useLaxInstance() || {};
+        const changeInstanceData = useLaxChangeInstanceData();
         const upload = store.useSelector((state) => state.attachmentUpload);
         const fulfill = store.useSelector((state) => state.attachmentUploadFulfilled);
         const reject = store.useSelector((state) => state.attachmentUploadRejected);
@@ -298,7 +298,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       useAttachmentsUpdate() {
         const { mutateAsync: removeTag } = useAttachmentsRemoveTagMutation();
         const { mutateAsync: addTag } = useAttachmentsAddTagMutation();
-        const { changeData: changeInstanceData } = useLaxInstance() || {};
+        const changeInstanceData = useLaxChangeInstanceData();
         const { lang } = useLanguage();
         const update = store.useSelector((state) => state.attachmentUpdate);
         const fulfill = store.useSelector((state) => state.attachmentUpdateFulfilled);
@@ -355,7 +355,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
       useAttachmentsRemove() {
         const { mutateAsync: removeAttachment } = useAttachmentsRemoveMutation();
-        const { changeData: changeInstanceData } = useLaxInstance() || {};
+        const changeInstanceData = useLaxChangeInstanceData();
         const { lang } = useLanguage();
         const remove = store.useSelector((state) => state.attachmentRemove);
         const fulfill = store.useSelector((state) => state.attachmentRemoveFulfilled);
