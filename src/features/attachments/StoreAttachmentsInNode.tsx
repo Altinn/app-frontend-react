@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
@@ -58,32 +58,33 @@ function useNodeAttachments(): Record<string, IAttachment> {
     return mapAttachments(node, data ?? [], application, taskId, nodeData);
   }, [node, data, application, currentTask, nodeData, overriddenTaskId]);
 
-  const prevAttachments = useRef<Record<string, IAttachment>>({});
-  const storedPrev = NodesInternal.useNodeData(node, (data) => data.attachments);
+  const prev = NodesInternal.useNodeData(node, (data) => data.attachments);
 
   return useMemoDeepEqual(() => {
-    const prevResult = prevAttachments.current ?? new Map<string, IAttachment>();
     const result: Record<string, IAttachment> = {};
 
     for (const attachment of mappedAttachments) {
+      const prevStored = prev?.[attachment.id];
       result[attachment.id] = {
         uploaded: true,
-        updating: prevResult[attachment.id]?.updating || storedPrev?.[attachment.id]?.updating || false,
-        deleting: prevResult[attachment.id]?.deleting || storedPrev?.[attachment.id]?.deleting || false,
-        data: attachment,
+        updating: prevStored?.updating || false,
+        deleting: prevStored?.deleting || false,
+        data: {
+          ...attachment,
+          tags: prevStored?.data.tags ?? attachment.tags,
+        },
       };
     }
 
     // Find any not-yet uploaded attachments and add them back to the result
-    for (const [id, attachment] of Object.entries(storedPrev ?? {})) {
+    for (const [id, attachment] of Object.entries(prev ?? {})) {
       if (!attachment.uploaded) {
         result[id] = attachment;
       }
     }
 
-    prevAttachments.current = result;
     return result;
-  }, [mappedAttachments, storedPrev]);
+  }, [mappedAttachments, prev]);
 }
 
 function mapAttachments(
