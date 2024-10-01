@@ -85,30 +85,26 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
             />
             <Table.Head id={`likert-table-header-${id}`}>
               <Table.Row>
-                <Table.HeaderCell id={`${id}-likert-columnheader-left`}>
+                <Table.HeaderCell scope='col'>
                   <span
-                    className={cn(classes.likertTableHeaderCell, {
+                    className={cn({
                       'sr-only': textResourceBindings?.leftColumnHeader == null,
                     })}
                   >
                     <Lang id={textResourceBindings?.leftColumnHeader ?? 'likert.left_column_default_header_text'} />
                   </span>
                 </Table.HeaderCell>
-                {calculatedOptions.map((option, index) => {
-                  const colLabelId = `${id}-likert-columnheader-${index}`;
-                  return (
-                    <Table.HeaderCell
-                      key={option.value}
-                      className={classes.likertTableHeaderCell}
-                      id={colLabelId}
-                    >
-                      {lang(option.label)}
-                    </Table.HeaderCell>
-                  );
-                })}
+                {calculatedOptions.map((option, index) => (
+                  <Table.HeaderCell
+                    key={option.value}
+                    id={`${id}-likert-columnheader-${index}`}
+                  >
+                    {lang(option.label)}
+                  </Table.HeaderCell>
+                ))}
               </Table.Row>
             </Table.Head>
-            <Table.Body id={`likert-table-body-${id}`}>
+            <Table.Body>
               {rowNodes.map((comp) => {
                 const override: IGenericComponentProps<'LikertItem'>['overrideItemProps'] = {
                   layout: LayoutStyle.Table,

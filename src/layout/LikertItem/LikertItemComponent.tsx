@@ -3,7 +3,6 @@ import React, { forwardRef } from 'react';
 import { Radio, Table } from '@digdir/designsystemet-react';
 
 import { Label } from 'src/components/label/Label';
-import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { LayoutStyle } from 'src/layout/common.generated';
@@ -37,27 +36,22 @@ LikertItemComponent.displayName = 'LikertItemComponent';
 
 const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroupProps>((props, ref) => {
   const { node } = props;
-  const { langAsString } = useLanguage();
   const { selectedValues, handleChange, calculatedOptions, fetchingOptions } = useRadioButtons(props);
   const validations = useUnifiedValidationsForNode(node);
 
   const { id, readOnly } = useNodeItem(node);
   const groupContainer =
     node.parent instanceof BaseLayoutNode && node.parent.isType('Likert') ? node.parent : undefined;
-  const groupContainerId = groupContainer?.id;
 
-  const headerColumnId = `${groupContainerId}-likert-columnheader-left`;
   const rowLabelId = `row-label-${id}`;
 
   return (
     <Table.Row
-      aria-labelledby={`${headerColumnId} ${rowLabelId}`}
       data-componentid={node.id}
       data-is-loading={fetchingOptions ? 'true' : 'false'}
-      role='radiogroup'
       ref={ref}
     >
-      <Table.Cell id={rowLabelId}>
+      <Table.HeaderCell scope='row'>
         <Label
           node={node}
           renderLabelAs='legend'
@@ -66,9 +60,11 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
         >
           <ComponentValidations validations={validations} />
         </Label>
-      </Table.Cell>
-      {calculatedOptions?.map((option) => {
+      </Table.HeaderCell>
+      {calculatedOptions?.map((option, index) => {
         const isChecked = selectedValues[0] === option.value;
+        const labelledby = `label-${node.id} ${groupContainer?.baseId}-likert-columnheader-${index}`;
+
         return (
           <Table.Cell key={option.value}>
             <Radio
@@ -78,7 +74,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
               value={option.value}
               className={classes.likertRadioButton}
               name={rowLabelId}
-              aria-label={langAsString(option.label)}
+              aria-labelledby={labelledby}
             />
           </Table.Cell>
         );
