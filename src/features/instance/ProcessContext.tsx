@@ -34,8 +34,13 @@ const { Provider, useSelector, useLaxSelector, useHasProvider } = createZustandC
     createStore<IProcessContext>((set) => ({
       data: undefined,
       setData: (data) => {
-        set({ data });
-        queryClient.setQueryData(['fetchProcessState', instanceId], data);
+        set((state) => {
+          if (state.data !== data) {
+            queryClient.setQueryData(['fetchProcessState', instanceId], data);
+            return { ...state, data };
+          }
+          return state;
+        });
       },
       reFetch: async () => {
         throw new Error('reFetch not implemented yet');
@@ -85,9 +90,12 @@ function BlockUntilLoaded({ children, instanceId }: PropsWithChildren<{ instance
   const setData = useSelector((ctx) => ctx.setData);
   const setReFetch = useSelector((ctx) => ctx.setReFetch);
   const layoutSets = useLayoutSets();
+  const isSetToQueryData = useSelector((ctx) => ctx.data === query.data);
 
   useEffect(() => {
-    setData(query.data);
+    if (query.data) {
+      setData(query.data);
+    }
 
     const elementId = query?.data?.currentTask?.elementId;
     if (query?.data?.ended) {
@@ -113,7 +121,7 @@ function BlockUntilLoaded({ children, instanceId }: PropsWithChildren<{ instance
   if (query.error) {
     return <DisplayError error={query.error} />;
   }
-  if (!query.data || query.isLoading) {
+  if (!query.data || query.isLoading || !isSetToQueryData) {
     return <Loader reason='fetching-process' />;
   }
 

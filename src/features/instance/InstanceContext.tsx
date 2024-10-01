@@ -3,6 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { createStore } from 'zustand';
+import type { QueryObserverResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -14,7 +15,7 @@ import { useInstantiation } from 'src/features/instantiate/InstantiationContext'
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
-import type { IInstance, IInstanceDataSources } from 'src/types/shared';
+import type { IData, IInstance, IInstanceDataSources } from 'src/types/shared';
 
 export interface InstanceContext {
   // Instance identifiers
@@ -27,9 +28,13 @@ export interface InstanceContext {
   dataSources: IInstanceDataSources | null;
 
   // Methods/utilities
+  appendDataElement: (element: IData) => void;
+  mutateDataElement: (elementId: string, mutator: (element: IData) => IData) => void;
+  removeDataElement: (elementId: string) => void;
+
   changeData: ChangeInstanceData;
-  reFetch: () => Promise<unknown>;
-  setReFetch: (reFetch: () => Promise<unknown>) => void;
+  reFetch: () => Promise<QueryObserverResult<IInstance>>;
+  setReFetch: (reFetch: () => Promise<QueryObserverResult<IInstance>>) => void;
 }
 
 export type ChangeInstanceData = (callback: (instance: IInstance | undefined) => IInstance | undefined) => void;
@@ -45,10 +50,37 @@ const { Provider, useSelector, useLaxSelector, useHasProvider } = createZustandC
       instanceId: `${props.partyId}/${props.instanceGuid}`,
       data: undefined,
       dataSources: null,
+      appendDataElement: (element) =>
+        set((state) => {
+          if (!state.data) {
+            throw new Error('Cannot append data element when instance data is not set');
+          }
+          const next = { ...state.data, data: [...state.data.data, element] };
+          return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
+        }),
+      mutateDataElement: (elementId, mutator) =>
+        set((state) => {
+          if (!state.data) {
+            throw new Error('Cannot mutate data element when instance data is not set');
+          }
+          const next = {
+            ...state.data,
+            data: state.data.data.map((element) => (element.id === elementId ? mutator(element) : element)),
+          };
+          return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
+        }),
+      removeDataElement: (elementId) =>
+        set((state) => {
+          if (!state.data) {
+            throw new Error('Cannot remove data element when instance data is not set');
+          }
+          const next = { ...state.data, data: state.data.data.filter((element) => element.id !== elementId) };
+          return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
+        }),
       changeData: (callback) =>
         set((state) => {
           const next = callback(state.data);
-          if (next) {
+          if (next && state.data !== next) {
             return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
           }
           return {};
@@ -56,7 +88,14 @@ const { Provider, useSelector, useLaxSelector, useHasProvider } = createZustandC
       reFetch: async () => {
         throw new Error('reFetch not implemented yet');
       },
-      setReFetch: (reFetch) => set({ reFetch }),
+      setReFetch: (reFetch) =>
+        set({
+          reFetch: async () => {
+            const result = await reFetch();
+            set((state) => ({ ...state, data: result.data, dataSources: buildInstanceDataSources(result.data) }));
+            return result;
+          },
+        }),
     })),
 });
 
@@ -170,7 +209,9 @@ function useLaxInstance<U>(selector: (state: InstanceContext) => U) {
 
 export const useLaxInstanceId = () => useLaxInstance((state) => state.instanceId);
 export const useLaxInstanceData = () => useLaxInstance((state) => state.data);
-export const useLaxChangeInstanceData = () => useLaxInstance((state) => state.changeData);
+export const useLaxAppendDataElement = () => useLaxInstance((state) => state.appendDataElement);
+export const useLaxMutateDataElement = () => useLaxInstance((state) => state.mutateDataElement);
+export const useLaxRemoveDataElement = () => useLaxInstance((state) => state.removeDataElement);
 export const useLaxInstanceDataSources = () => useLaxInstance((state) => state.dataSources) ?? null;
 export const useHasInstance = () => useHasProvider();
 
