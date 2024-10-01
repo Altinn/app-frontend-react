@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import { Modal, Popover } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
-import { isValid as isValidDate, parse, parseISO } from 'date-fns';
+import { formatDate, isValid as isValidDate, parseISO } from 'date-fns';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -64,10 +64,14 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
     : {};*/
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const parsedDate = parse(e.target.value, dateFormat, new Date());
-    if (isValidDate(parsedDate)) {
-      setValue('simpleBinding', getSaveFormattedDateString(parsedDate, timeStamp));
-    } else {
+    try {
+      const date = new Date(formatDate(e.target.value, dateFormat));
+      if (isValidDate(date)) {
+        setValue('simpleBinding', getSaveFormattedDateString(date, timeStamp));
+      } else {
+        setValue('simpleBinding', e.target.value ?? '');
+      }
+    } catch (error) {
       setValue('simpleBinding', e.target.value ?? '');
     }
   };

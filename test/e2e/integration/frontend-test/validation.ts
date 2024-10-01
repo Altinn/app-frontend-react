@@ -42,7 +42,6 @@ describe('Validation', () => {
     cy.get(appFrontend.changeOfName.reasonRelationship).type('test');
     cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
     cy.get('button[aria-label*="Today"]').click();
-
     cy.get(appFrontend.nextButton).click();
 
     cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
@@ -817,6 +816,7 @@ describe('Validation', () => {
       }).as('patchData');
 
       cy.get(appFrontend.changeOfName.dateOfEffect).type('01.01.2020');
+      cy.get(appFrontend.changeOfName.dateOfEffect).blur();
       cy.wait('@patchData').then(() => {
         expect(c).to.be.eq(1);
       });
@@ -825,6 +825,7 @@ describe('Validation', () => {
 
       cy.get(appFrontend.changeOfName.dateOfEffect).clear();
       cy.get(appFrontend.changeOfName.dateOfEffect).type('45.45.1234');
+      cy.get(appFrontend.changeOfName.dateOfEffect).blur();
       cy.wait('@patchData').then(() => {
         expect(c).to.be.eq(2);
       });
