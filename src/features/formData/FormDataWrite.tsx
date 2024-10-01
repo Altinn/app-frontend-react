@@ -809,13 +809,17 @@ export const FD = {
    * Returns the number of rows in a repeating group. This will always be 'fresh', meaning it will update immediately
    * when a new row is added/removed.
    */
-  useFreshNumRows: (binding: IDataModelReference | undefined): number =>
+  useFreshNumRows: (reference: IDataModelReference | undefined): number =>
     useMemoSelector((s) => {
-      if (!binding) {
+      if (!reference) {
         return 0;
       }
 
-      const rawRows = dot.pick(binding.field, s.dataModels[binding.dataType].currentData);
+      const model = s.dataModels[reference.dataType];
+      if (!model) {
+        return 0;
+      }
+      const rawRows = dot.pick(reference.field, model.currentData);
       if (!Array.isArray(rawRows) || !rawRows.length) {
         return 0;
       }
@@ -827,13 +831,17 @@ export const FD = {
    * Get the UUID of a row in a repeating group. This will always be 'fresh', meaning it will update immediately when
    * a new row is added/removed.
    */
-  useFreshRowUuid: (binding: IDataModelReference | undefined, index: number | undefined): string | undefined =>
+  useFreshRowUuid: (reference: IDataModelReference | undefined, index: number | undefined): string | undefined =>
     useMemoSelector((s) => {
-      if (!binding || index === undefined) {
+      if (!reference || index === undefined) {
         return undefined;
       }
 
-      const rawRows = dot.pick(binding.field, s.dataModels[binding.dataType].currentData);
+      const model = s.dataModels[reference.dataType];
+      if (!model) {
+        return undefined;
+      }
+      const rawRows = dot.pick(reference.field, model.currentData);
       if (!Array.isArray(rawRows) || !rawRows.length) {
         return undefined;
       }
