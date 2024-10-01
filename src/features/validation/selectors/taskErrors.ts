@@ -32,7 +32,7 @@ export function useTaskErrors(): {
     : 'visible';
 
   const _formErrors = NodesInternal.useAllValidations(formErrorVisibility, 'error');
-  const formErrors = _formErrors === ContextNotProvided ? emptyArray : _formErrors;
+  const formErrors = _formErrors === ContextNotProvided || !_formErrors.length ? emptyArray : _formErrors;
 
   const taskErrors = useMemo(() => {
     if (!showAllBackendErrors) {
@@ -64,14 +64,11 @@ export function useTaskErrors(): {
       ),
     );
 
-    return allBackendErrors;
+    return allBackendErrors?.length ? allBackendErrors : emptyArray;
   }, [backendMask, formErrors, selector, showAllBackendErrors]);
 
-  return useMemo(
-    () => ({
-      formErrors: formErrors.length ? formErrors : emptyArray,
-      taskErrors: taskErrors.length ? taskErrors : emptyArray,
-    }),
-    [formErrors, taskErrors],
-  );
+  return {
+    formErrors,
+    taskErrors,
+  };
 }
