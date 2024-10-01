@@ -27,6 +27,10 @@ describe('Options', () => {
     cy.dsSelect(appFrontend.changeOfName.reference2, 'Dole');
     cy.get(appFrontend.changeOfName.reference2).should('have.value', 'Dole');
 
+    /** TODO: Enable this part again when the bug is fixed
+     * @see https://github.com/digdir/designsystemet/issues/2264
+     * @see https://github.com/Altinn/app-frontend-react/issues/2486
+     * @see https://github.com/Altinn/app-frontend-react/pull/2500
     // If we change the source back to the previous one, the previous selections should be cleared
     // and the previous options should be available again
     cy.dsSelect(appFrontend.changeOfName.sources, 'Altinn');
@@ -36,6 +40,7 @@ describe('Options', () => {
     cy.get(appFrontend.changeOfName.reference2).should('have.value', '');
     cy.dsSelect(appFrontend.changeOfName.reference2, 'Ole');
     cy.get(appFrontend.changeOfName.reference2).should('have.value', 'Ole');
+     */
   });
 
   it('is possible to build options from repeating groups', () => {
