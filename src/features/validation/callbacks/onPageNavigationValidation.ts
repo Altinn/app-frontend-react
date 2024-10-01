@@ -64,7 +64,7 @@ export function useOnPageNavigationValidation() {
 
     // We need to get updated validations from backend to validate subform
     if (nodes.some((n) => n.isType('Subform'))) {
-      await invalidateInitialValidations();
+      await invalidateInitialValidations(true);
       await validating();
       // TODO(Subform): Figure out a better way to wait for validations to have propagated to node data
       await waitForAnimationFrames(10); // Ugh
