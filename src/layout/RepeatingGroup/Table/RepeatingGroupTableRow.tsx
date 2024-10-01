@@ -2,7 +2,6 @@ import React from 'react';
 import type { JSX } from 'react';
 
 import { Button, Table } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
@@ -10,7 +9,6 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
-import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
@@ -18,7 +16,7 @@ import { implementsDisplayData } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
-import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
+import classes from 'src/layout/RepeatingGroup/Table/RepeatingGroup.module.css';
 import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -37,7 +35,6 @@ export interface IRepeatingGroupTableRowProps {
   className?: string;
   uuid: string;
   index: number;
-  mobileView: boolean;
   displayEditColumn: boolean;
   displayDeleteColumn: boolean;
 }
@@ -77,7 +74,6 @@ function _RepeatingGroupTableRow({
   className,
   uuid,
   index,
-  mobileView,
   displayEditColumn,
   displayDeleteColumn,
 }: IRepeatingGroupTableRowProps): JSX.Element | null {
@@ -98,7 +94,6 @@ function _RepeatingGroupTableRow({
 
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
-  const nodeDataSelector = NodesInternal.useNodeDataSelector();
   const tableNodes = useTableNodes(node, index);
   const displayDataProps = useDisplayDataProps();
   const displayData = tableNodes.map((node) => {
@@ -145,165 +140,60 @@ function _RepeatingGroupTableRow({
       data-row-num={index}
       data-row-uuid={uuid}
     >
-      {!mobileView ? (
-        tableNodes.map((n, idx) =>
-          shouldEditInTable(editForGroup, n, columnSettings) ? (
-            <Table.Cell
-              key={n.id}
-              className={classes.tableCell}
-            >
-              <div ref={(ref) => refSetter && refSetter(index, `component-${n.id}`, ref)}>
-                <GenericComponent
-                  node={n}
-                  overrideDisplay={{
-                    renderedInTable: true,
-                    renderLabel: false,
-                    renderLegend: false,
-                  }}
-                  overrideItemProps={{
-                    grid: {},
-                  }}
-                />
-              </div>
-            </Table.Cell>
-          ) : (
-            <NonEditableCell
-              key={n.id}
-              node={n}
-              isEditingRow={isEditingRow}
-              idx={idx}
-              displayData={displayData}
-              columnSettings={columnSettings}
-            />
-          ),
-        )
-      ) : (
-        <Table.Cell className={classes.mobileTableCell}>
-          <Grid
-            container={true}
-            spacing={6}
+      {tableNodes.map((n, idx) =>
+        shouldEditInTable(editForGroup, n, columnSettings) ? (
+          <Table.Cell
+            key={n.id}
+            className={classes.tableCell}
           >
-            {tableNodes.map(
-              (n, i, { length }) =>
-                !isEditingRow &&
-                (shouldEditInTable(editForGroup, n, columnSettings) ? (
-                  <Grid
-                    container={true}
-                    item={true}
-                    key={n.id}
-                    ref={(ref) => refSetter && refSetter(index, `component-${n.id}`, ref)}
-                  >
-                    <GenericComponent
-                      node={n}
-                      overrideItemProps={{
-                        grid: {},
-                      }}
-                    />
-                  </Grid>
-                ) : (
-                  <Grid
-                    container={true}
-                    item={true}
-                    key={n.id}
-                  >
-                    <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>
-                      <Lang
-                        id={getTableTitle(
-                          nodeDataSelector((picker) => picker(n)?.item?.textResourceBindings ?? {}, [n]),
-                        )}
-                      />
-                      :
-                    </b>
-                    <span className={classes.contentFormatting}>{displayData[i]}</span>
-                    {i < length - 1 && <div style={{ height: 8 }} />}
-                  </Grid>
-                )),
-            )}
-          </Grid>
-        </Table.Cell>
+            <div ref={(ref) => refSetter && refSetter(index, `component-${n.id}`, ref)}>
+              <GenericComponent
+                node={n}
+                overrideDisplay={{
+                  renderedInTable: true,
+                  renderLabel: false,
+                  renderLegend: false,
+                }}
+                overrideItemProps={{
+                  grid: {},
+                }}
+              />
+            </div>
+          </Table.Cell>
+        ) : (
+          <NonEditableCell
+            key={n.id}
+            node={n}
+            isEditingRow={isEditingRow}
+            idx={idx}
+            displayData={displayData}
+            columnSettings={columnSettings}
+          />
+        ),
       )}
-      {!mobileView ? (
-        <>
-          {editForRow?.editButton === false &&
-          editForRow?.deleteButton === false &&
-          (displayEditColumn || displayDeleteColumn) ? (
-            <Table.Cell
-              key={`editDelete-${uuid}`}
-              colSpan={displayEditColumn && displayDeleteColumn ? 2 : 1}
-            />
-          ) : null}
-          {editForRow?.editButton !== false && displayEditColumn && (
-            <Table.Cell
-              key={`edit-${uuid}`}
-              className={classes.buttonCell}
-              colSpan={displayDeleteColumn && editForRow?.deleteButton === false ? 2 : 1}
-            >
-              <div className={classes.buttonInCellWrapper}>
-                <Button
-                  aria-expanded={isEditingRow}
-                  aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
-                  variant='tertiary'
-                  color='second'
-                  size='small'
-                  onClick={() => toggleEditing({ index: row.index, uuid: row.uuid })}
-                  aria-label={`${editButtonText} ${firstCellData ?? ''}`}
-                  data-testid='edit-button'
-                  className={classes.tableButton}
-                >
-                  {editButtonText}
-                  {rowHasErrors ? (
-                    <ErrorIcon
-                      fontSize='1rem'
-                      aria-hidden='true'
-                    />
-                  ) : (
-                    <EditIcon
-                      fontSize='1rem'
-                      aria-hidden='true'
-                    />
-                  )}
-                </Button>
-              </div>
-            </Table.Cell>
-          )}
-          {editForRow?.deleteButton !== false && displayDeleteColumn && (
-            <Table.Cell
-              key={`delete-${uuid}`}
-              className={cn(classes.buttonCell)}
-              colSpan={displayEditColumn && editForRow?.editButton === false ? 2 : 1}
-            >
-              <div className={classes.buttonInCellWrapper}>
-                <DeleteElement
-                  index={index}
-                  uuid={uuid}
-                  isDeletingRow={isDeletingRow}
-                  editForRow={editForRow}
-                  deleteButtonText={deleteButtonText}
-                  firstCellData={firstCellData}
-                  alertOnDeleteProps={alertOnDelete}
-                  langAsString={langAsString}
-                >
-                  {deleteButtonText}
-                </DeleteElement>
-              </div>
-            </Table.Cell>
-          )}
-        </>
-      ) : (
-        <Table.Cell
-          className={cn(classes.buttonCell, classes.mobileTableCell)}
-          style={{ verticalAlign: 'top' }}
-        >
-          <div className={classes.buttonInCellWrapper}>
-            {editForRow?.editButton !== false && (
+      <>
+        {editForRow?.editButton === false &&
+        editForRow?.deleteButton === false &&
+        (displayEditColumn || displayDeleteColumn) ? (
+          <Table.Cell
+            key={`editDelete-${uuid}`}
+            colSpan={displayEditColumn && displayDeleteColumn ? 2 : 1}
+          />
+        ) : null}
+        {editForRow?.editButton !== false && displayEditColumn && (
+          <Table.Cell
+            key={`edit-${uuid}`}
+            className={classes.buttonCell}
+            colSpan={displayDeleteColumn && editForRow?.deleteButton === false ? 2 : 1}
+          >
+            <div className={classes.buttonInCellWrapper}>
               <Button
                 aria-expanded={isEditingRow}
                 aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
                 variant='tertiary'
                 color='second'
                 size='small'
-                icon={!isEditingRow && mobileViewSmall}
-                onClick={() => toggleEditing({ index, uuid })}
+                onClick={() => toggleEditing({ index: row.index, uuid: row.uuid })}
                 aria-label={`${editButtonText} ${firstCellData ?? ''}`}
                 data-testid='edit-button'
                 className={classes.tableButton}
@@ -321,27 +211,32 @@ function _RepeatingGroupTableRow({
                   />
                 )}
               </Button>
-            )}
-            {editForRow?.deleteButton !== false && (
-              <>
-                <div style={{ height: 8 }} />
-                <DeleteElement
-                  index={index}
-                  uuid={uuid}
-                  isDeletingRow={isDeletingRow}
-                  editForRow={editForRow}
-                  deleteButtonText={deleteButtonText}
-                  firstCellData={firstCellData}
-                  alertOnDeleteProps={alertOnDelete}
-                  langAsString={langAsString}
-                >
-                  {isEditingRow || !mobileViewSmall ? deleteButtonText : null}
-                </DeleteElement>
-              </>
-            )}
-          </div>
-        </Table.Cell>
-      )}
+            </div>
+          </Table.Cell>
+        )}
+        {editForRow?.deleteButton !== false && displayDeleteColumn && (
+          <Table.Cell
+            key={`delete-${uuid}`}
+            className={cn(classes.buttonCell)}
+            colSpan={displayEditColumn && editForRow?.editButton === false ? 2 : 1}
+          >
+            <div className={classes.buttonInCellWrapper}>
+              <DeleteElement
+                index={index}
+                uuid={uuid}
+                isDeletingRow={isDeletingRow}
+                editForRow={editForRow}
+                deleteButtonText={deleteButtonText}
+                firstCellData={firstCellData}
+                alertOnDeleteProps={alertOnDelete}
+                langAsString={langAsString}
+              >
+                {isEditingRow || !mobileViewSmall ? deleteButtonText : null}
+              </DeleteElement>
+            </div>
+          </Table.Cell>
+        )}
+      </>
     </Table.Row>
   );
 }
@@ -438,9 +333,18 @@ function NonEditableCell({
   displayData: string[];
   isEditingRow: boolean;
 }) {
+  const { langAsString } = useLanguage();
+  const nodeDataSelector = NodesInternal.useNodeDataSelector();
+  const headerTitle = langAsString(
+    getTableTitle(nodeDataSelector((picker) => picker(node)?.item?.textResourceBindings ?? {}, [node])),
+  );
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
+
   return (
-    <Table.Cell className={classes.tableCell}>
+    <Table.Cell
+      className={classes.tableCell}
+      data-header-title={headerTitle}
+    >
       <span
         className={classes.contentFormatting}
         style={style}
