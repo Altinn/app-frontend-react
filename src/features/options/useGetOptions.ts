@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -167,16 +167,14 @@ export function useSortedOptions({ unsorted, valueType, item }: SortedOptionsPro
       return { options: emptyArray, preselectedOption };
     }
 
-    if (options && options.length < 2) {
+    if (options.length < 2) {
       // No need to sort or filter if there are 0 or 1 options. Using langAsString() can lead to re-rendering, so
       // we avoid it if we don't need it.
       return { options, preselectedOption };
     }
 
-    if (options) {
-      options = filterDuplicateOptions(options);
-    }
-    if (options && sortOrder) {
+    options = filterDuplicateOptions(options);
+    if (sortOrder) {
       options = [...options].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
     }
 
