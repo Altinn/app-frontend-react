@@ -15,6 +15,7 @@ import type { ILabelSettings } from 'src/layout/common.generated';
 export type LabelContentProps = Readonly<{
   labelId: string;
   label?: string;
+  descriptionId?: string;
   description?: string;
   required?: boolean;
   readOnly?: boolean;
@@ -26,6 +27,7 @@ export function LabelContent({
   labelId,
   label,
   description,
+  descriptionId,
   required,
   readOnly,
   help,
@@ -64,6 +66,7 @@ export function LabelContent({
       </span>
       {description && (
         <Description
+          id={descriptionId}
           key={`description-${labelId}`}
           description={<Lang id={description} />}
         />

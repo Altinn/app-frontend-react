@@ -47,6 +47,7 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
   const { setValue, formData } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding;
   const selectedDate = isValidDate(parseISO(value)) ? parseISO(value) : new Date();
+
   const handleDayPickerSelect = (date: Date) => {
     if (date && isValidDate(date)) {
       setValue('simpleBinding', getSaveFormattedDateString(date, timeStamp));
@@ -126,14 +127,12 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
           <DatePickerInput
             id={id}
             value={value}
-            isDialogOpen={true}
+            isDialogOpen={isMobile ? modalRef.current?.open : isDialogOpen}
             formatString={dateFormat}
             onBlur={handleInputChange}
             onClick={() => (isMobile ? modalRef.current?.showModal() : setIsDialogOpen(!isDialogOpen))}
             ariaLabel={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
-            description={
-              textResourceBindings?.description ? langAsString(textResourceBindings?.description) : undefined
-            }
+            description={textResourceBindings?.description}
             readOnly={readOnly}
           />,
           <DatePickerCalendar

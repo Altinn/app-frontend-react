@@ -14,7 +14,7 @@ export interface DatePickerInputProps {
   formatString?: string;
   onBlur?: FocusEventHandler<HTMLInputElement>;
   onClick?: () => void;
-  isDialogOpen: boolean;
+  isDialogOpen?: boolean;
   ariaLabel?: string;
   description?: string;
   readOnly?: boolean;
@@ -50,7 +50,7 @@ const DatePickerInput = forwardRef(
           onChange={handleInputChange}
           onBlur={onBlur}
           aria-label={ariaLabel}
-          aria-describedby={description ? `${description}-${id}` : undefined}
+          aria-describedby={description ? `description-${id}` : undefined}
           readOnly={readOnly}
           aria-readonly={readOnly}
         />
@@ -64,10 +64,9 @@ const DatePickerInput = forwardRef(
           aria-expanded={isDialogOpen}
           aria-label={langAsString('date_picker.aria_label_icon')}
           ref={ref}
-          aria-readonly={readOnly}
           disabled={readOnly}
         >
-          <CalendarIcon />
+          <CalendarIcon title={langAsString('date_picker.aria_label_icon')} />
         </Button>
       </div>
     );

@@ -56,10 +56,12 @@ export function Label(props: LabelProps) {
   }
 
   const labelId = `label-${id}`;
+  const descriptionId = `description-${id}`;
   const labelContentProps: LabelContentProps = {
     labelId,
     label: textResourceBindings.title,
     description: textResourceBindings.description,
+    descriptionId,
     help: textResourceBindings.help,
     required,
     readOnly,

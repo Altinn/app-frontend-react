@@ -19,8 +19,8 @@ export function Description({ description, className, id, ...rest }: Description
     <span
       {...rest}
       className={cn(classes.description, className)}
-      id={`description-${id}`}
-      data-testid={`description-${id}`}
+      id={id}
+      data-testid={id}
     >
       {description}
     </span>
