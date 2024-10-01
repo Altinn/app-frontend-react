@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useInvalidateInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
+import { useRefetchInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { getVisibilityMask } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
@@ -23,7 +23,7 @@ export function useOnPageNavigationValidation() {
   const validating = Validation.useValidating();
   const pageOrder = usePageOrder();
   const traversalSelector = useNodeTraversalSelector();
-  const invalidateInitialValidations = useInvalidateInitialValidations();
+  const refetchInitialValidations = useRefetchInitialValidations(true);
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent(async (currentPage: LayoutPage, config: PageValidation): Promise<boolean> => {
@@ -64,7 +64,7 @@ export function useOnPageNavigationValidation() {
 
     // We need to get updated validations from backend to validate subform
     if (nodes.some((n) => n.isType('Subform'))) {
-      await invalidateInitialValidations(true);
+      await refetchInitialValidations();
       await validating();
       // TODO(Subform): Figure out a better way to wait for validations to have propagated to node data
       await waitForAnimationFrames(10); // Ugh

@@ -13,7 +13,7 @@ import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { BackendValidation } from 'src/features/validation/backendValidation/BackendValidation';
 import {
   useGetCachedInitialValidations,
-  useInvalidateInitialValidations,
+  useRefetchInitialValidations,
 } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useShouldValidateInitial } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
@@ -248,15 +248,16 @@ function UpdateShowAllErrors() {
   const isFirstRender = useRef(true);
   const lastSaved = FD.useLastSaveValidationIssues();
   const instanceData = useLaxInstanceData();
-  const invalidateInitialValidations = useInvalidateInitialValidations();
+  // Since process/next returns non-incremental validations, we need to also check these to see when they are removed
+  const refetchInitialValidations = useRefetchInitialValidations(false);
   useEffect(() => {
     // No need to invalidate initial validations right away
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-    invalidateInitialValidations();
-  }, [invalidateInitialValidations, instanceData, lastSaved]);
+    refetchInitialValidations();
+  }, [refetchInitialValidations, instanceData, lastSaved]);
 
   /**
    * Hide unbound errors as soon as possible.

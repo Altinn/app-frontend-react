@@ -11,6 +11,7 @@ import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { appSupportsIncrementalValidationFeatures } from 'src/features/validation/backendValidation/backendValidationUtils';
+import { useAsRef } from 'src/hooks/useAsRef';
 
 /**
  * The same queryKey must be used for all of the functions below
@@ -51,30 +52,20 @@ export function useIsUpdatingInitialValidations() {
   return useIsFetching({ queryKey: ['validation'] }) > 0;
 }
 
-export function useInvalidateInitialValidations() {
+/*
+ * This will refetch the validate API with or without non-incremental validations
+ */
+export function useRefetchInitialValidations(onlyIncrementalValidators: boolean) {
+  const queryFn = useBackendValidationQueryFunc(onlyIncrementalValidators);
   const queryKey = useBackendValidationQueryKey();
   const client = useQueryClient();
 
-  return useCallback(
-    (onlyIncrementalValidators = false) => {
-      if (onlyIncrementalValidators) {
-        // This will reset the query state so that useIsInitialValidation will return true again,
-        // and therefore we will run the query with onlyIncrementalValidators=true
-        return client.resetQueries({ queryKey });
-      }
-      return client.invalidateQueries({ queryKey });
-    },
-    [client, queryKey],
-  );
-}
-
-// Checks if this is the first call to validate or if we are refetching
-// returns true if the data has not been updated before
-function useIsInitialValidation() {
-  const queryKey = useBackendValidationQueryKey();
-  const client = useQueryClient();
-
-  return useCallback(() => !client.getQueryState(queryKey)?.dataUpdateCount, [client, queryKey]);
+  return useCallback(() => {
+    // To fetch the query again with a potentially different query function, we first need to invalidate the existing query without triggering an automatic refetch
+    client.invalidateQueries({ queryKey, refetchType: 'none' });
+    // Prefetch query will not throw if it errors, we also don't need the result here, we simply need to fill the cache with the new data
+    return client.prefetchQuery({ queryKey, queryFn });
+  }, [client, queryFn, queryKey]);
 }
 
 /**
@@ -82,30 +73,48 @@ function useIsInitialValidation() {
  * This is because the old API did not run ITaskValidators, and the regular validate API does. If we cannot tell if validations incrementally update, then
  * we cannot distinguish between regular custom validations and ITaskValidator validations (with a field property set), which will block the user from submitting until they refresh.
  */
-function useBackendValidationQueryFunc() {
+function useBackendValidationQueryFunc(onlyIncrementalValidators: boolean) {
   const { fetchBackendValidations, fetchBackendValidationsForDataElement } = useAppQueries();
-  const shouldUseInstanceValidateAPI = appSupportsIncrementalValidationFeatures(useApplicationMetadata());
+  const hasIncrementalValidationFeatures = appSupportsIncrementalValidationFeatures(useApplicationMetadata());
   const currentDataElementID = useCurrentDataModelGuid();
   const instanceId = useLaxInstance()?.instanceId;
-  const currentLanguage = useCurrentLanguage();
-  const isInitialValidation = useIsInitialValidation();
+  const currentLanguage = useAsRef(useCurrentLanguage());
 
-  if (shouldUseInstanceValidateAPI) {
-    if (!instanceId) {
-      return skipToken;
+  return useMemo(() => {
+    // When incremental validation features are not supported, use the old API to avoid running ITaskValidators,
+    // However, use the regular instance validation API when we specifically want non-incremental validations
+    if (hasIncrementalValidationFeatures || !onlyIncrementalValidators) {
+      if (!instanceId) {
+        return skipToken;
+      }
+      return () =>
+        fetchBackendValidations(
+          instanceId,
+          currentLanguage.current,
+          // Only set this parameter if the app supports this option
+          hasIncrementalValidationFeatures ? onlyIncrementalValidators : undefined,
+        );
+    } else {
+      if (!instanceId || !currentDataElementID) {
+        return skipToken;
+      }
+      return () => fetchBackendValidationsForDataElement(instanceId, currentDataElementID, currentLanguage.current);
     }
-    return () => fetchBackendValidations(instanceId, currentLanguage, isInitialValidation());
-  } else {
-    if (!instanceId || !currentDataElementID) {
-      return skipToken;
-    }
-    return () => fetchBackendValidationsForDataElement(instanceId, currentDataElementID, currentLanguage);
-  }
+  }, [
+    currentDataElementID,
+    currentLanguage,
+    fetchBackendValidations,
+    fetchBackendValidationsForDataElement,
+    instanceId,
+    onlyIncrementalValidators,
+    hasIncrementalValidationFeatures,
+  ]);
 }
 
+// By default we only fetch with incremental validations
 export function useBackendValidationQuery(enabled: boolean) {
   const queryKey = useBackendValidationQueryKey();
-  const queryFn = useBackendValidationQueryFunc();
+  const queryFn = useBackendValidationQueryFunc(true);
 
   const utils = useQuery({
     queryKey,
