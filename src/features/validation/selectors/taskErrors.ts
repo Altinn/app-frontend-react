@@ -1,10 +1,16 @@
 import { useMemo } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
+import {
+  type AnyValidation,
+  type BaseValidation,
+  hasBackendValidationId,
+  type NodeRefValidation,
+  type ValidationMask,
+} from 'src/features/validation/index';
 import { getVisibilityMask, selectValidations, validationsOfSeverity } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation/index';
 
 const emptyArray: never[] = [];
 
@@ -17,22 +23,36 @@ export function useTaskErrors(): {
   taskErrors: BaseValidation<'error'>[];
 } {
   const selector = Validation.useSelector();
-  const _formErrors = NodesInternal.useAllValidations('visible', 'error');
+
+  const showAllBackendErrors = selector((state) => state.showAllBackendErrors, []);
+  const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
+
+  const formErrorVisibility = showAllBackendErrors
+    ? (['visible', backendMask] as ['visible', ValidationMask])
+    : 'visible';
+
+  const _formErrors = NodesInternal.useAllValidations(formErrorVisibility, 'error');
   const formErrors = _formErrors === ContextNotProvided ? emptyArray : _formErrors;
 
   const taskErrors = useMemo(() => {
-    if (!selector((state) => state.showAllErrors, [])) {
+    if (!showAllBackendErrors) {
       return emptyArray;
     }
 
     const allBackendErrors: BaseValidation<'error'>[] = [];
 
-    // Show all backend errors
-    const mask = getVisibilityMask(['Backend', 'CustomBackend']);
+    const boundErrorIds = new Set(formErrors.filter(hasBackendValidationId).map((v) => v.backendValidationId));
+
+    // Unbound field errors
     const dataModels = selector((state) => state.state.dataModels, []);
     for (const fields of Object.values(dataModels)) {
       for (const field of Object.values(fields)) {
-        allBackendErrors.push(...(selectValidations(field, mask, 'error') as BaseValidation<'error'>[]));
+        allBackendErrors.push(
+          ...(selectValidations(field, backendMask, 'error').filter(
+            // Only select backend errors which are not already visible through formErrors
+            (v) => v.backendValidationId && !boundErrorIds.has(v.backendValidationId),
+          ) as BaseValidation<'error'>[]),
+        );
       }
     }
 
@@ -45,7 +65,13 @@ export function useTaskErrors(): {
     );
 
     return allBackendErrors;
-  }, [selector]);
+  }, [backendMask, formErrors, selector, showAllBackendErrors]);
 
-  return useMemo(() => ({ formErrors, taskErrors }), [formErrors, taskErrors]);
+  return useMemo(
+    () => ({
+      formErrors: formErrors.length ? formErrors : emptyArray,
+      taskErrors: taskErrors.length ? taskErrors : emptyArray,
+    }),
+    [formErrors, taskErrors],
+  );
 }

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
-import { getInitialMaskFromNode } from 'src/features/validation/utils';
+import { getInitialMaskFromNodeItem } from 'src/features/validation/utils';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import {
   GeneratorCondition,
@@ -9,6 +9,7 @@ import {
   NodesStateQueue,
   StageFormValidation,
 } from 'src/utils/layout/generator/GeneratorStages';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { CompCategory } from 'src/layout/common';
 import type { TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -37,15 +38,25 @@ function PerformWork() {
   );
 
   const validations = useNodeValidation(node, shouldValidate);
+  const visibility = NodesInternal.useRawValidationVisibility(node);
 
+  const initialMask = item ? getInitialMaskFromNodeItem(item) : undefined;
+
+  // Update validations
   GeneratorStages.FormValidation.useEffect(() => {
     setNodeProp({ node, prop: 'validations', value: validations });
+
+    // Reduce visibility as validations are fixed
+    if (initialMask !== undefined) {
+      const currentValidationMask = validations.reduce((mask, { category }) => mask | category, 0);
+      const newVisibilityMask = currentValidationMask & visibility;
+      if ((newVisibilityMask | initialMask) !== visibility) {
+        setNodeProp({ node, prop: 'validationVisibility', value: newVisibilityMask });
+      }
+    }
   }, [node, setNodeProp, validations]);
 
-  const initialMask = item
-    ? getInitialMaskFromNode('showValidations' in item ? item.showValidations : undefined)
-    : undefined;
-
+  // Set initial visibility
   GeneratorStages.FormValidation.useConditionalEffect(() => {
     if (initialMask !== undefined) {
       setNodeProp({ node, prop: 'validationVisibility', value: initialMask });

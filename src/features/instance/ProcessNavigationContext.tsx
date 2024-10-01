@@ -35,7 +35,7 @@ function useProcessNext() {
   const instanceId = useLaxInstance()?.instanceId;
   const onFormSubmitValidation = useOnFormSubmitValidation();
   const updateInitialValidations = useUpdateInitialValidations();
-  const setShowAllErrors = Validation.useSetShowAllErrors();
+  const setShowAllBackendErrors = Validation.useSetShowAllBackendErrors();
   const onSubmitFormValidation = useOnFormSubmitValidation();
 
   const utils = useMutation({
@@ -63,7 +63,7 @@ function useProcessNext() {
         // Set initial validation to validation issues from process/next and make all errors visible
         updateInitialValidations(validationIssues);
         if (!(await onSubmitFormValidation(true))) {
-          setShowAllErrors !== ContextNotProvided && setShowAllErrors();
+          setShowAllBackendErrors !== ContextNotProvided && setShowAllBackendErrors();
         }
       }
     },

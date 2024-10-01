@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { FrontendValidationSource } from 'src/features/validation/index';
-import { selectValidations } from 'src/features/validation/utils';
+import { getInitialMaskFromNodeItem, selectValidations } from 'src/features/validation/utils';
 import { Hidden, isHidden, nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
@@ -41,7 +41,7 @@ export interface ValidationStorePluginConfig {
     useVisibleValidations: (node: LayoutNode | undefined, severity?: ValidationSeverity) => AnyValidation[];
     useValidationsSelector: () => ValidationsSelector;
     useAllValidations: (
-      mask: ValidationMask | 'visible',
+      mask: ValidationMask | 'visible' | ['visible', ValidationMask],
       severity?: ValidationSeverity,
       includeHidden?: boolean, // Defaults to false
     ) => NodeRefValidation[] | typeof ContextNotProvided;
@@ -49,8 +49,7 @@ export interface ValidationStorePluginConfig {
       mask: ValidationMask | 'visible',
       severity?: ValidationSeverity,
       includeHidden?: boolean, // Defaults to false
-      filter?: (nodeData: NodeData) => boolean,
-    ) => string[] | typeof ContextNotProvided;
+    ) => [string[], AnyValidation[]] | typeof ContextNotProvided;
     usePageHasVisibleRequiredValidations: (pageKey: string | undefined) => boolean;
   };
 }
@@ -66,8 +65,10 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           nodesProduce((state) => {
             for (const node of nodes) {
               const nodeData = typeof node === 'string' ? state.nodeData[node] : state.nodeData[node.id];
+              const initialMask = getInitialMaskFromNodeItem(nodeData.item);
+
               if (nodeData && 'validationVisibility' in nodeData) {
-                nodeData.validationVisibility = newVisibility;
+                nodeData.validationVisibility = newVisibility | initialMask;
               }
             }
           }),
@@ -162,7 +163,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
       useGetNodesWithErrors: () => {
         const zustand = store.useLaxStore();
         return useCallback(
-          (mask, severity, includeHidden = false, filter) => {
+          (mask, severity, includeHidden = false) => {
             if (zustand === ContextNotProvided) {
               return ContextNotProvided;
             }
@@ -171,19 +172,18 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             // constantly recompute this.
             const state = zustand.getState();
 
-            const out: string[] = [];
+            const out_nodes: string[] = [];
+            const out_validations: AnyValidation[] = [];
             for (const nodeId of Object.keys(state.nodeData)) {
               const nodeData = state.nodeData[nodeId];
-              if (filter && !filter(nodeData)) {
-                continue;
-              }
 
               const validations = getValidations({ state, nodeData, mask, severity, includeHidden });
               if (validations.length > 0) {
-                out.push(nodeId);
+                out_nodes.push(nodeId);
+                out_validations.push(...validations);
               }
             }
-            return out;
+            return [out_nodes, out_validations];
           },
           [zustand],
         );
@@ -224,7 +224,7 @@ function getNodeFromState(state: NodesContext, nodeId: string): LayoutNode | und
 interface GetValidationsProps {
   state: NodesContext;
   nodeData: NodeData | undefined;
-  mask: ValidationMask | 'visible';
+  mask: ValidationMask | 'visible' | ['visible', ValidationMask];
   severity?: ValidationSeverity;
   includeHidden?: boolean;
 }
@@ -245,7 +245,10 @@ function getValidations({
     return emptyArray;
   }
 
-  const visibility = nodeData.validationVisibility;
-  const validations = selectValidations(nodeData.validations, mask === 'visible' ? visibility : mask, severity);
+  const nodeVisibility = nodeData.validationVisibility;
+  const visibilityMask =
+    mask === 'visible' ? nodeVisibility : typeof mask === 'number' ? mask : nodeVisibility | mask[1];
+
+  const validations = selectValidations(nodeData.validations, visibilityMask, severity);
   return validations.length > 0 ? validations : emptyArray;
 }

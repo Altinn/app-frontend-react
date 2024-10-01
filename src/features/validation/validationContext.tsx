@@ -72,11 +72,11 @@ function initialCreateStore() {
         task: [],
         dataModels: {},
       },
-      setShowAllErrors: (newValue) =>
+      setShowAllBackendErrors: (newValue) =>
         set((state) => {
-          state.showAllErrors = newValue;
+          state.showAllBackendErrors = newValue;
         }),
-      showAllErrors: false,
+      showAllBackendErrors: false,
       validating: undefined,
 
       // =======
@@ -113,9 +113,17 @@ function initialCreateStore() {
             state.state.task = taskValdiations;
           }
           if (backendValidations) {
-            state.individualValidations.backend = backendValidations;
+            /**
+             * If a data model no longer has any backend validations, the key will not exist in the new object,
+             * we therefore need to make sure we update data model validations for any model that
+             * previously had validations as well.
+             */
+            const keys = new Set([
+              ...Object.keys(backendValidations),
+              ...Object.keys(state.individualValidations.backend),
+            ]);
 
-            const keys = new Set([...Object.keys(backendValidations), ...Object.keys(state.state.dataModels)]);
+            state.individualValidations.backend = backendValidations;
             for (const dataElementId of keys) {
               state.state.dataModels[dataElementId] = mergeFieldValidations(
                 state.individualValidations.backend[dataElementId],
@@ -228,14 +236,14 @@ export function LoadingBlockerWaitForValidation({ children }: PropsWithChildren)
 }
 
 function ManageShowAllErrors() {
-  const showAllErrors = useSelector((state) => state.showAllErrors);
+  const showAllErrors = useSelector((state) => state.showAllBackendErrors);
   return showAllErrors ? <UpdateShowAllErrors /> : null;
 }
 
 function UpdateShowAllErrors() {
   const taskValidations = useSelector((state) => state.state.task);
   const dataModelValidations = useSelector((state) => state.state.dataModels);
-  const setShowAllErrors = useSelector((state) => state.setShowAllErrors);
+  const setShowAllErrors = useSelector((state) => state.setShowAllBackendErrors);
 
   const isFirstRender = useRef(true);
   const lastSaved = FD.useLastSaveValidationIssues();
@@ -306,13 +314,13 @@ export const Validation = {
       },
     }),
 
-  useSetShowAllErrors: () =>
+  useSetShowAllBackendErrors: () =>
     useLaxSelector((state) => async () => {
       // Make sure we have finished processing validations before setting showAllErrors.
       // This is because we automatically turn off this state as soon as possible.
       // If the validations to show have not finished processing, this could get turned off before they ever became visible.
       state.validating && (await state.validating());
-      state.setShowAllErrors(true);
+      state.setShowAllBackendErrors(true);
     }),
   useValidating: () => useSelector((state) => state.validating!),
   useUpdateDataModelValidations: () => useSelector((state) => state.updateDataModelValidations),
