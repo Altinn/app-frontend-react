@@ -284,7 +284,6 @@ describe('Likert', () => {
       const user = userEvent.setup();
 
       await user.tab();
-      await user.tab();
       await user.keyboard('[Space]');
 
       expect(cell1).toBeChecked();
