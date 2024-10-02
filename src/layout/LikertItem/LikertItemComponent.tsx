@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 
 import { Radio, Table } from '@digdir/designsystemet-react';
 
+import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getLabelId } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
@@ -40,7 +41,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   const { selectedValues, handleChange, calculatedOptions, fetchingOptions } = useRadioButtons(props);
   const validations = useUnifiedValidationsForNode(node);
 
-  const { id, readOnly, textResourceBindings } = useNodeItem(node);
+  const { id, readOnly, textResourceBindings, required } = useNodeItem(node);
   const groupContainer =
     node.parent instanceof BaseLayoutNode && node.parent.isType('Likert') ? node.parent : undefined;
 
@@ -52,6 +53,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
     >
       <Table.HeaderCell scope='row'>
         <Lang id={textResourceBindings?.title} />
+        <RequiredIndicator required={required} />
         <ComponentValidations validations={validations} />
       </Table.HeaderCell>
       {calculatedOptions?.map((option, index) => {
