@@ -91,7 +91,6 @@ function Root() {
                     <PartyProvider>
                       <KeepAliveProvider>
                         <HelmetProvider>
-                          {/*<WindowTitleProvider>*/}
                           <App />
                           <ToastContainer
                             position='top-center'
@@ -101,7 +100,6 @@ function Root() {
                           />
                         </HelmetProvider>
                         <ScrollRestoration />
-                        {/*</WindowTitleProvider>*/}
                       </KeepAliveProvider>
                     </PartyProvider>
                   </ApplicationSettingsProvider>

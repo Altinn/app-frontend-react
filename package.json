@@ -141,7 +141,6 @@
     "classnames": "2.5.1",
     "dompurify": "3.1.7",
     "dot-object": "2.1.5",
-    "e": "^0.2.33",
     "eslint-plugin-preferred-import-path": "^1.1.0",
     "fast-array-diff": "^1.1.0",
     "fast-json-patch": "^3.1.1",

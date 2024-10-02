@@ -5416,7 +5416,6 @@ __metadata:
     dompurify: "npm:3.1.7"
     dot-object: "npm:2.1.5"
     dotenv: "npm:16.4.5"
-    e: "npm:^0.2.33"
     esbuild-loader: "npm:^4.0.2"
     eslint: "npm:9.11.1"
     eslint-config-prettier: "npm:9.1.0"
@@ -7720,13 +7719,6 @@ __metadata:
   version: 0.1.5
   resolution: "duplexer3@npm:0.1.5"
   checksum: 10c0/02195030d61c4d6a2a34eca71639f2ea5e05cb963490e5bd9527623c2ac7f50c33842a34d14777ea9cbfd9bc2be5a84065560b897d9fabb99346058a5b86ca98
-  languageName: node
-  linkType: hard
-
-"e@npm:^0.2.33":
-  version: 0.2.33
-  resolution: "e@npm:0.2.33"
-  checksum: 10c0/28c12ee98d5587686765831ac71ea5676e138c43491a305c9dc28edc10efc53ac2aedec8e0266f0bcc5ff414f909e0ccf1cc37032754660f1c07d8ed2b6652d1
   languageName: node
   linkType: hard
 
