@@ -815,7 +815,7 @@ describe('Validation', () => {
         c++;
       }).as('patchData');
 
-      cy.get(appFrontend.changeOfName.dateOfEffect).type('01.01.2020');
+      cy.get(appFrontend.changeOfName.dateOfEffect).type('01/01/2020');
       cy.get(appFrontend.changeOfName.dateOfEffect).blur();
       cy.wait('@patchData').then(() => {
         expect(c).to.be.eq(1);
@@ -824,7 +824,7 @@ describe('Validation', () => {
       cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.dateOfEffect)).should('not.exist');
 
       cy.get(appFrontend.changeOfName.dateOfEffect).clear();
-      cy.get(appFrontend.changeOfName.dateOfEffect).type('45.45.1234');
+      cy.get(appFrontend.changeOfName.dateOfEffect).type('45/45/1234');
       cy.get(appFrontend.changeOfName.dateOfEffect).blur();
       cy.wait('@patchData').then(() => {
         expect(c).to.be.eq(2);
