@@ -57,7 +57,7 @@ export function Label(props: LabelProps) {
 
   const labelId = getLabelId(id);
   const labelContentProps: LabelContentProps = {
-    labelId,
+    componentId: id,
     label: textResourceBindings.title,
     description: textResourceBindings.description,
     help: textResourceBindings.help,
@@ -135,7 +135,7 @@ export function Label(props: LabelProps) {
             >
               <LabelContent
                 {...labelContentProps}
-                labelId={labelId}
+                componentId={node.id}
               />
             </DesignsystemetLabel>
           </LabelGridItemWrapper>
@@ -165,5 +165,5 @@ export function getDescriptionId(nodeId?: string) {
     return undefined;
   }
 
-  return `description-label-${nodeId}`;
+  return `description-${getLabelId(nodeId)}`;
 }

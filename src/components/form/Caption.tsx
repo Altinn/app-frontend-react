@@ -59,7 +59,7 @@ export const Caption = ({
       </Label>
       {description && (
         <Description
-          id={id}
+          componentId={id}
           description={description}
         />
       )}

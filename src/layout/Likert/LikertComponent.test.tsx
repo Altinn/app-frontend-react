@@ -382,6 +382,7 @@ describe('Likert', () => {
         },
         mobileView: true,
       });
+
       expect(screen.getByRole('group', { name: /Likert test title/i })).toHaveAccessibleDescription(
         'This is a test description',
       );

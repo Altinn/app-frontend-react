@@ -8,10 +8,10 @@ import { getDescriptionId } from 'src/components/label/Label';
 
 export type DescriptionProps = {
   description: React.ReactNode | string | undefined;
-  id?: string;
+  componentId?: string;
 } & HTMLAttributes<HTMLSpanElement>;
 
-export function Description({ description, className, id, ...rest }: DescriptionProps) {
+export function Description({ description, className, componentId, ...rest }: DescriptionProps) {
   if (!description) {
     return null;
   }
@@ -20,8 +20,8 @@ export function Description({ description, className, id, ...rest }: Description
     <span
       {...rest}
       className={cn(classes.description, className)}
-      id={getDescriptionId(id)}
-      data-testid={getDescriptionId(id)}
+      id={getDescriptionId(componentId)}
+      data-testid={getDescriptionId(componentId)}
     >
       {description}
     </span>

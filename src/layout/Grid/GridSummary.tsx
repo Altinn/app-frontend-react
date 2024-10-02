@@ -4,7 +4,6 @@ import type { JSX, PropsWithChildren } from 'react';
 import { ErrorMessage, Heading, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
-import { getLabelId } from 'src/components/label/Label';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
@@ -399,7 +398,7 @@ function CellWithLabel({ cell, columnStyleOptions, isHeader = false, headerTitle
     >
       {componentId && (
         <LabelContent
-          labelId={getLabelId(componentId)}
+          componentId={componentId}
           label={title}
           required={required}
         />

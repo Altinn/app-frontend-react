@@ -4,7 +4,6 @@ import { Radio } from '@digdir/designsystemet-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { RadioButton } from 'src/components/form/RadioButton';
-import { getLabelId } from 'src/components/label/Label';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -44,7 +43,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   };
   const labelText = (
     <LabelContent
-      labelId={getLabelId(id)}
+      componentId={id}
       label={[getLabelPrefixForLikert(), langAsString(textResourceBindings?.title)].join(' ')}
       help={textResourceBindings?.help}
       required={required}
