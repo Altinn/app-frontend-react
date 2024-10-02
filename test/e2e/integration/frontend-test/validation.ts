@@ -768,7 +768,7 @@ describe('Validation', () => {
       cy.findByRole('row', {
         name: /Hører skolen på elevenes forslag\?\*/i,
       }).within(() => {
-        cy.findByRole('radio', { name: 'Alltid' }).should('not.be.focused');
+        cy.findByRole('radio', { name: /Alltid/ }).should('not.be.focused');
       });
 
       cy.findByRole('button', { name: /Du må fylle ut hører skolen på elevenes forslag/ }).click();
@@ -776,7 +776,7 @@ describe('Validation', () => {
       cy.findByRole('row', {
         name: /Hører skolen på elevenes forslag\?\*/i,
       }).within(() => {
-        cy.findByRole('radio', { name: 'Alltid' }).should('be.focused');
+        cy.findByRole('radio', { name: /Alltid/ }).should('be.focused');
       });
     });
 

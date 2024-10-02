@@ -28,7 +28,7 @@ describe('Likert', () => {
         });
 
         defaultMockOptions.forEach((option) => {
-          expect(within(row).getByRole('radio', { name: option.label })).toBeInTheDocument();
+          expect(within(row).getByRole('radio', { name: new RegExp(option.label) })).toBeInTheDocument();
         });
       });
     });
@@ -117,8 +117,8 @@ describe('Likert', () => {
         name: /Har du det bra?/i,
       });
 
-      const checkedRadio = within(row).getByRole('radio', { name: answer.label });
-      const unCheckedRadio = within(row).getByRole('radio', { name: defaultMockOptions[0].label });
+      const checkedRadio = within(row).getByRole('radio', { name: new RegExp(answer.label) });
+      const unCheckedRadio = within(row).getByRole('radio', { name: new RegExp(defaultMockOptions[0].label) });
 
       expect(checkedRadio).toBeChecked();
       expect(unCheckedRadio).not.toBeChecked();
@@ -142,7 +142,7 @@ describe('Likert', () => {
           name: new RegExp(mockQuestion.Question),
         });
 
-        const checkedRadio = within(row).getByRole('radio', { name: mockQuestion.Answer.label });
+        const checkedRadio = within(row).getByRole('radio', { name: new RegExp(mockQuestion.Answer.label) });
         expect(checkedRadio).toBeChecked();
       });
     });
@@ -254,7 +254,7 @@ describe('Likert', () => {
       });
 
       const cell1 = within(row1).getByRole('radio', {
-        name: defaultMockOptions[0].label,
+        name: new RegExp(defaultMockOptions[0].label),
       });
 
       const user = userEvent.setup();
@@ -276,13 +276,14 @@ describe('Likert', () => {
       });
 
       const cell1 = within(row1).getByRole('radio', {
-        name: defaultMockOptions[0].label,
+        name: new RegExp(defaultMockOptions[0].label),
       });
 
       expect(cell1).not.toBeChecked();
 
       const user = userEvent.setup();
 
+      await user.tab();
       await user.tab();
       await user.keyboard('[Space]');
 
@@ -345,7 +346,7 @@ describe('Likert', () => {
 
       const row = screen.getByRole('row', { name: new RegExp(mockQuestions[0].Question) });
       extraTextResources.forEach((textResource) => {
-        within(row).getByRole('radio', { name: textResource.value });
+        within(row).getByRole('radio', { name: new RegExp(textResource.value) });
       });
     });
 
@@ -456,7 +457,7 @@ describe('Likert', () => {
       });
 
       const checkedRadio = within(radiogroup).getByRole('radio', { name: answer.label });
-      const unCheckedRadio = within(radiogroup).getByRole('radio', { name: defaultMockOptions[0].label });
+      const unCheckedRadio = within(radiogroup).getByRole('radio', { name: new RegExp(defaultMockOptions[0].label) });
 
       expect(checkedRadio).toBeChecked();
       expect(unCheckedRadio).not.toBeChecked();
