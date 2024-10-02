@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 
 import { skipToken, useIsFetching, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import type { BackendValidationIssue } from '..';
+import { type BackendValidationIssue, BackendValidationSeverity } from '..';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -36,13 +36,34 @@ export function useGetCachedInitialValidations() {
   );
 }
 
+/**
+ * For backwards compatibility, this allows you to mark all backend validations as noIncrementalUpdates, which will cause them
+ * not to block submit. This should only be used when fetching validations that include non-incremental-validators (ITaskValidator).
+ * This is needed when updating validations from process/next, and in <UpdateShowAllErrors />.
+ * This is only needed in old apps that do not support onlyIncrementalValidators/noIncrementalUpdates
+ */
+function maybeMarkNoIncrementalUpdates(validations: BackendValidationIssue[], forceNoIncrementalUpdates: boolean) {
+  if (!forceNoIncrementalUpdates) {
+    return validations;
+  }
+
+  return validations.map((issue) =>
+    issue.severity === BackendValidationSeverity.Error ? { ...issue, noIncrementalUpdates: true } : issue,
+  );
+}
+
+/**
+ * Setting forceNoIncrementalUpdates will set the noIncrementalUpdates flag to true for all validation errors.
+ * This is needed for old apps that dont support incremental validation features when getting validations from process/next
+ * and in <UpdateShowAllErrors />
+ */
 export function useUpdateInitialValidations() {
   const queryKey = useBackendValidationQueryKey();
   const client = useQueryClient();
 
   return useCallback(
-    (validations: BackendValidationIssue[]) => {
-      client.setQueryData(queryKey, validations);
+    (validations: BackendValidationIssue[], forceMarkNoIncrementalUpdates = false) => {
+      client.setQueryData(queryKey, maybeMarkNoIncrementalUpdates(validations, forceMarkNoIncrementalUpdates));
     },
     [client, queryKey],
   );
@@ -55,8 +76,11 @@ export function useIsUpdatingInitialValidations() {
 /*
  * This will refetch the validate API with or without non-incremental validations
  */
-export function useRefetchInitialValidations(onlyIncrementalValidators: boolean) {
-  const queryFn = useBackendValidationQueryFunc(onlyIncrementalValidators);
+export function useRefetchInitialValidations(
+  onlyIncrementalValidators: boolean,
+  forceMarkNoIncrementalUpdates = false,
+) {
+  const queryFn = useBackendValidationQueryFunc(onlyIncrementalValidators, forceMarkNoIncrementalUpdates);
   const queryKey = useBackendValidationQueryKey();
   const client = useQueryClient();
 
@@ -73,7 +97,7 @@ export function useRefetchInitialValidations(onlyIncrementalValidators: boolean)
  * This is because the old API did not run ITaskValidators, and the regular validate API does. If we cannot tell if validations incrementally update, then
  * we cannot distinguish between regular custom validations and ITaskValidator validations (with a field property set), which will block the user from submitting until they refresh.
  */
-function useBackendValidationQueryFunc(onlyIncrementalValidators: boolean) {
+function useBackendValidationQueryFunc(onlyIncrementalValidators: boolean, forceMarkNoIncrementalUpdates = false) {
   const { fetchBackendValidations, fetchBackendValidationsForDataElement } = useAppQueries();
   const hasIncrementalValidationFeatures = appSupportsIncrementalValidationFeatures(useApplicationMetadata());
   const currentDataElementID = useCurrentDataModelGuid();
@@ -87,12 +111,15 @@ function useBackendValidationQueryFunc(onlyIncrementalValidators: boolean) {
       if (!instanceId) {
         return skipToken;
       }
-      return () =>
-        fetchBackendValidations(
-          instanceId,
-          currentLanguage.current,
-          // Only set this parameter if the app supports this option
-          hasIncrementalValidationFeatures ? onlyIncrementalValidators : undefined,
+      return async () =>
+        maybeMarkNoIncrementalUpdates(
+          await fetchBackendValidations(
+            instanceId,
+            currentLanguage.current,
+            // Only set this parameter if the app supports this option
+            hasIncrementalValidationFeatures ? onlyIncrementalValidators : undefined,
+          ),
+          forceMarkNoIncrementalUpdates,
         );
     } else {
       if (!instanceId || !currentDataElementID) {
@@ -101,13 +128,14 @@ function useBackendValidationQueryFunc(onlyIncrementalValidators: boolean) {
       return () => fetchBackendValidationsForDataElement(instanceId, currentDataElementID, currentLanguage.current);
     }
   }, [
-    currentDataElementID,
-    currentLanguage,
-    fetchBackendValidations,
-    fetchBackendValidationsForDataElement,
-    instanceId,
-    onlyIncrementalValidators,
     hasIncrementalValidationFeatures,
+    onlyIncrementalValidators,
+    instanceId,
+    fetchBackendValidations,
+    currentLanguage,
+    forceMarkNoIncrementalUpdates,
+    currentDataElementID,
+    fetchBackendValidationsForDataElement,
   ]);
 }
 
