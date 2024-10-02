@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import { Modal, Popover } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
-import { formatDate, isValid as isValidDate, parseISO } from 'date-fns';
+import { isValid as isValidDate, parse, parseISO } from 'date-fns';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -41,7 +41,7 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');
-  const dateFormat = getDateFormat(format, languageLocale);
+  const dateFormat = getDateFormat(format || 'dd.MM.yyyy', languageLocale);
   const isMobile = useIsMobile();
 
   const { setValue, formData } = useDataModelBindings(dataModelBindings);
@@ -65,14 +65,10 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
     : {};*/
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      const date = new Date(formatDate(e.target.value, dateFormat));
-      if (isValidDate(date)) {
-        setValue('simpleBinding', getSaveFormattedDateString(date, timeStamp));
-      } else {
-        setValue('simpleBinding', e.target.value ?? '');
-      }
-    } catch (error) {
+    const parsed = parse(e.target.value, dateFormat, new Date());
+    if (isValidDate(parsed)) {
+      setValue('simpleBinding', getSaveFormattedDateString(parsed, timeStamp));
+    } else {
       setValue('simpleBinding', e.target.value ?? '');
     }
   };

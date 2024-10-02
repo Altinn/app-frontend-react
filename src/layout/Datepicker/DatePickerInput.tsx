@@ -3,10 +3,11 @@ import type { FocusEventHandler, RefObject } from 'react';
 
 import { Button, Textfield } from '@digdir/designsystemet-react';
 import { CalendarIcon } from '@navikt/aksel-icons';
-import { format, isValid } from 'date-fns';
+import { format, isMatch, isValid } from 'date-fns';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import styles from 'src/layout/Datepicker/Calendar.module.css';
+import { DatepickerSaveFormatNoTimestamp, DatepickerSaveFormatTimestamp } from 'src/utils/dateHelpers';
 
 export interface DatePickerInputProps {
   id: string;
@@ -30,7 +31,8 @@ const DatePickerInput = forwardRef(
     const { langAsString } = useLanguage();
 
     useEffect(() => {
-      if (value) {
+      console.log(value);
+      if (value && isMatch(value, formatString || DatepickerSaveFormatNoTimestamp || DatepickerSaveFormatTimestamp)) {
         setInput(isValid(new Date(value)) ? format(value, formatString ?? 'dd.MM.yyyy') : value);
       }
     }, [value, formatString]);

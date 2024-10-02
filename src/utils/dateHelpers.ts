@@ -7,7 +7,7 @@ import { locales } from 'src/utils/dateLocales';
 export const DatepickerMinDateDefault = '1900-01-01T12:00:00.000Z';
 export const DatepickerMaxDateDefault = '2100-01-01T12:00:00.000Z';
 export const DatepickerFormatDefault = 'dd.MM.yyyy';
-export const DatepickerSaveFormatTimestamp = 'hh:mm:ss.sss';
+export const DatepickerSaveFormatTimestamp = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 export const PrettyDateAndTime = 'dd.MM.yyyy HH.mm.SS';
 export const DatepickerSaveFormatNoTimestamp = 'yyyy-MM-dd';
 
