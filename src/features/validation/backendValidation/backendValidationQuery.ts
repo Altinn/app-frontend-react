@@ -30,7 +30,7 @@ export function useGetCachedInitialValidations() {
   return useCallback(
     () => ({
       isFetching: client.isFetching({ queryKey }),
-      cachedInitialValidations: client.getQueryData(queryKey),
+      cachedInitialValidations: client.getQueryData<BackendValidationIssue[] | undefined>(queryKey),
     }),
     [client, queryKey],
   );

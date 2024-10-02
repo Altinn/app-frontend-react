@@ -174,7 +174,7 @@ function useWaitForValidation(): WaitForValidation {
   const waitForNodesReady = NodesInternal.useWaitUntilReady();
   const waitForValidationsReady = NodesInternal.useWaitForValidationsReady();
   const waitForSave = FD.useWaitForSave();
-  const waitForState = useWaitForState<never, ValidationContext & Internals>(useStore());
+  const waitForState = useWaitForState<ValidationsProcessedLast['initial'], ValidationContext & Internals>(useStore());
   const hasPendingAttachments = useHasPendingAttachments();
 
   // Provide a promise that resolves when all pending validations have been completed
@@ -198,16 +198,21 @@ function useWaitForValidation(): WaitForValidation {
       const validationsFromSave = await waitForSave(forceSave);
       await waitForNodesReady();
       // If validationsFromSave is not defined, we check if initial validations are done processing
-      await waitForState((state) => {
+      const lastInitialValidations = await waitForState((state, setReturnValue) => {
         const { isFetching, cachedInitialValidations } = getCachedInitialValidations();
 
-        return (
+        if (
           state.processedLast.incremental === validationsFromSave &&
           state.processedLast.initial === cachedInitialValidations &&
           !isFetching
-        );
+        ) {
+          setReturnValue(cachedInitialValidations);
+          return true;
+        }
+
+        return false;
       });
-      await waitForValidationsReady(validationsFromSave, getCachedInitialValidations);
+      await waitForValidationsReady(validationsFromSave, lastInitialValidations);
     },
     [
       enabled,

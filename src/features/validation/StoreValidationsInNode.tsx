@@ -60,7 +60,7 @@ function PerformWork() {
     }
 
     if (processedLast !== prevProcessedLast) {
-      setNodeProp({ node, prop: 'validationsProcessedLast', value: processedLast });
+      setNodeProp({ node, prop: 'validationsProcessedLast', value: processedLast, force: true });
     }
   }, [node, setNodeProp, validations, processedLast]);
 
