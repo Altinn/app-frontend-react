@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 
 import { Pagination } from '@altinn/altinn-design-system';
 import { Button, Heading, Paragraph, Table } from '@digdir/designsystemet-react';
@@ -7,6 +8,7 @@ import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/sr
 
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import {
@@ -21,6 +23,7 @@ import { useSetNavigationEffect } from 'src/features/routing/AppRoutingContext';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { focusMainContent } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
+import { getPageTitle } from 'src/utils/getPageTitle';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';
 import type { ISimpleInstance } from 'src/types';
 
@@ -56,6 +59,9 @@ function InstanceSelection() {
   const instantiate = useInstantiation().instantiate;
   const currentParty = useCurrentParty();
   const storeCallback = useSetNavigationEffect();
+
+  const appName = useAppName();
+  const appOwner = useAppOwner();
 
   const doesIndexExist = (selectedIndex: number | undefined): selectedIndex is number =>
     selectedIndex !== undefined && rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0;
@@ -224,6 +230,9 @@ function InstanceSelection() {
 
   return (
     <>
+      <Helmet>
+        <title>{`${getPageTitle(appName, langAsString('instance_selection.left_of'), appOwner)}`}</title>
+      </Helmet>
       <div id='instance-selection-container'>
         <div>
           <Heading

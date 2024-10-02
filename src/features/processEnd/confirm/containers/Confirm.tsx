@@ -12,9 +12,10 @@ export const Confirm = () => {
   const instance = useLaxInstanceData();
   const parties = useParties();
   const applicationMetadata = useApplicationMetadata();
-  const appName = useAppName();
 
   const missingRequirement = !instance ? 'instance' : !parties ? 'parties' : undefined;
+
+  const appName = useAppName();
   return (
     <div id='confirmcontainer'>
       {missingRequirement ? (

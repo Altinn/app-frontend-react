@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Navigate, useLocation } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
@@ -15,6 +16,7 @@ import { useExpandedWidthLayouts } from 'src/features/form/layout/LayoutsContext
 import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useLanguage } from 'src/features/language/useLanguage';
 import {
   useNavigate,
   useNavigationParam,
@@ -25,6 +27,7 @@ import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { SearchParams, useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { extractBottomButtons } from 'src/utils/formLayout';
+import { getPageTitle } from 'src/utils/getPageTitle';
 import { NodesInternal, useGetPage, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { NodeData } from 'src/utils/layout/types';
@@ -38,7 +41,7 @@ interface FormState {
 export function Form() {
   const appName = useAppName();
   const appOwner = useAppOwner();
-
+  const { langAsString } = useLanguage();
   const currentPageId = useCurrentView();
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const [formState, setFormState] = useState<FormState>({
@@ -83,6 +86,9 @@ export function Form() {
 
   return (
     <>
+      <Helmet>
+        <title>{`${getPageTitle(appName, langAsString(currentPageId), appOwner)}`}</title>
+      </Helmet>
       <ErrorProcessing setFormState={setFormState} />
       {hasRequired && (
         <MessageBanner

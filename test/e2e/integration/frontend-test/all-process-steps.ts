@@ -22,6 +22,7 @@ describe('All process steps', () => {
     cy.get(appFrontend.sendinButton).clickAndGone();
 
     cy.fillOut('changename');
+    cy.title().should('eq', 'form - frontend-test - Testdepartementet');
     cy.get(appFrontend.sendinButton).clickAndGone();
 
     cy.fillOut('group');
