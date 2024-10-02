@@ -12,6 +12,7 @@ import type {
   NodeRefValidation,
   ValidationMask,
   ValidationSeverity,
+  ValidationsProcessedLast,
 } from 'src/features/validation/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IsHiddenOptions, NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
@@ -38,6 +39,7 @@ export interface ValidationStorePluginConfig {
     useSetAttachmentVisibility: () => ValidationStorePluginConfig['extraFunctions']['setAttachmentVisibility'];
     useRawValidationVisibility: (node: LayoutNode | undefined) => number;
     useRawValidations: (node: LayoutNode | undefined) => AnyValidation[];
+    useValidationsProcessedLast: (node: LayoutNode | undefined) => ValidationsProcessedLast | undefined;
     useVisibleValidations: (node: LayoutNode | undefined, severity?: ValidationSeverity) => AnyValidation[];
     useValidationsSelector: () => ValidationsSelector;
     useAllValidations: (
@@ -109,6 +111,17 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             return 0;
           }
           return 'validationVisibility' in nodeData ? nodeData.validationVisibility : 0;
+        }),
+      useValidationsProcessedLast: (node) =>
+        store.useSelector((state) => {
+          if (!node) {
+            return;
+          }
+          const nodeData = state.nodeData[node.id];
+          if (!nodeData) {
+            return;
+          }
+          return 'validationsProcessedLast' in nodeData ? nodeData.validationsProcessedLast : undefined;
         }),
       useRawValidations: (node) =>
         store.useSelector((state) => {

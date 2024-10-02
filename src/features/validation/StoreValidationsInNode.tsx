@@ -37,24 +37,32 @@ function PerformWork() {
     [item],
   );
 
-  const validations = useNodeValidation(node, shouldValidate);
+  const { validations, processedLast } = useNodeValidation(node, shouldValidate);
   const visibility = NodesInternal.useRawValidationVisibility(node);
+  const prevValidations = NodesInternal.useRawValidations(node);
+  const prevProcessedLast = NodesInternal.useValidationsProcessedLast(node);
 
   const initialMask = item ? getInitialMaskFromNodeItem(item) : undefined;
 
   // Update validations
   GeneratorStages.FormValidation.useEffect(() => {
-    setNodeProp({ node, prop: 'validations', value: validations });
+    if (validations !== prevValidations) {
+      setNodeProp({ node, prop: 'validations', value: validations });
 
-    // Reduce visibility as validations are fixed
-    if (initialMask !== undefined) {
-      const currentValidationMask = validations.reduce((mask, { category }) => mask | category, 0);
-      const newVisibilityMask = currentValidationMask & visibility;
-      if ((newVisibilityMask | initialMask) !== visibility) {
-        setNodeProp({ node, prop: 'validationVisibility', value: newVisibilityMask });
+      // Reduce visibility as validations are fixed
+      if (initialMask !== undefined) {
+        const currentValidationMask = validations.reduce((mask, { category }) => mask | category, 0);
+        const newVisibilityMask = currentValidationMask & visibility;
+        if ((newVisibilityMask | initialMask) !== visibility) {
+          setNodeProp({ node, prop: 'validationVisibility', value: newVisibilityMask });
+        }
       }
     }
-  }, [node, setNodeProp, validations]);
+
+    if (processedLast !== prevProcessedLast) {
+      setNodeProp({ node, prop: 'validationsProcessedLast', value: processedLast });
+    }
+  }, [node, setNodeProp, validations, processedLast]);
 
   // Set initial visibility
   GeneratorStages.FormValidation.useConditionalEffect(() => {

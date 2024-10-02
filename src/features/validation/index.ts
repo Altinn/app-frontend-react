@@ -194,6 +194,11 @@ export type NodeRefValidation<Validation extends AnyValidation<any> = AnyValidat
   nodeId: string;
 };
 
+export type ValidationsProcessedLast = {
+  incremental: BackendValidationIssueGroups | undefined;
+  initial: BackendValidationIssue[] | undefined;
+};
+
 /**
  * Contains all the necessary elements from the store to run frontend validations.
  */

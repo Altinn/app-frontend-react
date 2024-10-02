@@ -28,12 +28,11 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type {
-  BackendValidationIssue,
-  BackendValidationIssueGroups,
   BaseValidation,
   DataModelValidations,
   FieldValidations,
   ValidationContext,
+  ValidationsProcessedLast,
   WaitForValidation,
 } from 'src/features/validation';
 
@@ -44,8 +43,7 @@ interface Internals {
     schema: DataModelValidations;
     invalidData: DataModelValidations;
   };
-  incrementalProcessedLast: BackendValidationIssueGroups | undefined; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
-  initialProcessedLast: BackendValidationIssue[] | undefined; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
+  processedLast: ValidationsProcessedLast; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
   /**
    * updateDataModelValidations
    * if validations is undefined, nothing will be changed
@@ -57,7 +55,7 @@ interface Internals {
   ) => void;
   updateBackendValidations: (
     backendValidations: { [dataElementId: string]: FieldValidations } | undefined,
-    processedLast?: { incremental?: BackendValidationIssueGroups; initial?: BackendValidationIssue[] },
+    processedLast?: Partial<ValidationsProcessedLast>,
     taskValdiations?: BaseValidation[],
   ) => void;
   updateValidating: (validating: WaitForValidation) => void;
@@ -87,8 +85,10 @@ function initialCreateStore() {
         schema: {},
         invalidData: {},
       },
-      incrementalProcessedLast: undefined,
-      initialProcessedLast: undefined,
+      processedLast: {
+        initial: undefined,
+        incremental: undefined,
+      },
       updateDataModelValidations: (key, dataElementId, validations) =>
         set((state) => {
           if (validations) {
@@ -104,10 +104,10 @@ function initialCreateStore() {
       updateBackendValidations: (backendValidations, processedLast, taskValdiations) =>
         set((state) => {
           if (processedLast?.incremental) {
-            state.incrementalProcessedLast = processedLast.incremental;
+            state.processedLast.incremental = processedLast.incremental;
           }
           if (processedLast?.initial) {
-            state.initialProcessedLast = processedLast.initial;
+            state.processedLast.initial = processedLast.initial;
           }
           if (taskValdiations) {
             state.state.task = taskValdiations;
@@ -168,6 +168,7 @@ export function ValidationProvider({ children }: PropsWithChildren) {
 
 function useWaitForValidation(): WaitForValidation {
   const waitForNodesReady = NodesInternal.useWaitUntilReady();
+  const waitForValidationsReady = NodesInternal.useWaitForValidationsReady();
   const waitForSave = FD.useWaitForSave();
   const waitForState = useWaitForState<never, ValidationContext & Internals>(useStore());
   const hasPendingAttachments = useHasPendingAttachments();
@@ -197,11 +198,12 @@ function useWaitForValidation(): WaitForValidation {
         const { isFetching, cachedInitialValidations } = getCachedInitialValidations();
 
         return (
-          state.incrementalProcessedLast === validationsFromSave &&
-          state.initialProcessedLast === cachedInitialValidations &&
+          state.processedLast.incremental === validationsFromSave &&
+          state.processedLast.initial === cachedInitialValidations &&
           !isFetching
         );
       });
+      await waitForValidationsReady(validationsFromSave, getCachedInitialValidations);
     },
     [
       enabled,
@@ -211,6 +213,7 @@ function useWaitForValidation(): WaitForValidation {
       waitForNodesReady,
       waitForSave,
       waitForState,
+      waitForValidationsReady,
     ],
   );
 }
@@ -326,6 +329,8 @@ export const Validation = {
   useValidating: () => useSelector((state) => state.validating!),
   useUpdateDataModelValidations: () => useSelector((state) => state.updateDataModelValidations),
   useUpdateBackendValidations: () => useSelector((state) => state.updateBackendValidations),
+
+  useProcessedLast: () => useSelector((state) => state.processedLast),
 
   useRef: () => useSelectorAsRef((state) => state),
   useLaxRef: () => useLaxSelectorAsRef((state) => state),

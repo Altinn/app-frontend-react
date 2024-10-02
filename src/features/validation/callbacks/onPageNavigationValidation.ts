@@ -7,7 +7,6 @@ import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
-import { waitForAnimationFrames } from 'src/utils/waitForAnimationFrames';
 import type { PageValidation } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -66,8 +65,6 @@ export function useOnPageNavigationValidation() {
     if (nodes.some((n) => n.isType('Subform'))) {
       await refetchInitialValidations();
       await validating();
-      // TODO(Subform): Figure out a better way to wait for validations to have propagated to node data
-      await waitForAnimationFrames(10); // Ugh
     }
 
     // Get nodes with errors along with their errors

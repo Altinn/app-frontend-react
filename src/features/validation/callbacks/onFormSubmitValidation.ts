@@ -6,7 +6,6 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { waitForAnimationFrames } from 'src/utils/waitForAnimationFrames';
 
 /**
  * Checks for any validation errors before submitting the form.
@@ -62,8 +61,6 @@ export function useOnFormSubmitValidation() {
       }
 
       await validating();
-      // TODO(Subform): Figure out a better way to wait for validations to have propagated to node data
-      includeNonIncrementalValidations && (await waitForAnimationFrames(10)); // Ugh
       return callback(includeNonIncrementalValidations);
     },
     [callback, validation],
