@@ -4,6 +4,7 @@ import 'core-js';
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { HelmetProvider } from 'react-helmet-async';
 import { createHashRouter, RouterProvider, ScrollRestoration } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
 
@@ -20,7 +21,6 @@ import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { KeepAliveProvider } from 'src/core/auth/KeepAliveProvider';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
-import { WindowTitleProvider } from 'src/core/ui/WindowTitleProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
@@ -90,7 +90,8 @@ function Root() {
                   <ApplicationSettingsProvider>
                     <PartyProvider>
                       <KeepAliveProvider>
-                        <WindowTitleProvider>
+                        <HelmetProvider>
+                          {/*<WindowTitleProvider>*/}
                           <App />
                           <ToastContainer
                             position='top-center'
@@ -98,8 +99,9 @@ function Root() {
                             transition={Slide}
                             draggable={false}
                           />
-                          <ScrollRestoration />
-                        </WindowTitleProvider>
+                        </HelmetProvider>
+                        <ScrollRestoration />
+                        {/*</WindowTitleProvider>*/}
                       </KeepAliveProvider>
                     </PartyProvider>
                   </ApplicationSettingsProvider>

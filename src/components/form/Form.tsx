@@ -9,6 +9,7 @@ import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { Loader } from 'src/core/loading/Loader';
+import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useExpandedWidthLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
@@ -35,6 +36,9 @@ interface FormState {
 }
 
 export function Form() {
+  const appName = useAppName();
+  const appOwner = useAppOwner();
+
   const currentPageId = useCurrentView();
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const [formState, setFormState] = useState<FormState>({
