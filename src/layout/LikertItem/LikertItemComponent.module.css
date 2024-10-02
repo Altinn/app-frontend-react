@@ -31,10 +31,6 @@ Altinn, and making sure they are consistent. */
   border-bottom: none;
 }
 
-.likertTable tr:hover {
-  background-color: #e3f7ff;
-}
-
 /* ==== */
 
 .likertTable thead th:not(:first-of-type) {

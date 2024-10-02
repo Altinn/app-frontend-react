@@ -43,7 +43,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
         >
           <Label
             node={node}
-            renderLabelAs='legend'
+            renderLabelAs='span'
           />
           <div
             role='group'
