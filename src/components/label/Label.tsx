@@ -55,7 +55,7 @@ export function Label(props: LabelProps) {
     return <>{children}</>;
   }
 
-  const labelId = `label-${id}`;
+  const labelId = getLabelId(id);
   const labelContentProps: LabelContentProps = {
     labelId,
     label: textResourceBindings.title,
@@ -154,4 +154,16 @@ function LabelGridItemWrapper({ children, labelGrid }: PropsWithChildren<{ label
       {children}
     </Grid>
   );
+}
+
+export function getLabelId(nodeId: string) {
+  return `label-${nodeId}`;
+}
+
+export function getDescriptionId(nodeId?: string) {
+  if (!nodeId) {
+    return undefined;
+  }
+
+  return `description-label-${nodeId}`;
 }

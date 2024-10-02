@@ -9,6 +9,7 @@ import { Caption } from 'src/components/form/Caption';
 import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
+import { getLabelId } from 'src/components/label/Label';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -274,7 +275,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
     >
       {labelFromNode && (
         <LabelContent
-          labelId={`label-${labelFromNode.id}`}
+          labelId={getLabelId(labelFromNode.id)}
           label={title}
           required={required}
           help={help}

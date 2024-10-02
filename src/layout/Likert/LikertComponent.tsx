@@ -8,7 +8,7 @@ import type { PropsFromGenericComponent } from '..';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { Caption } from 'src/components/form/Caption';
-import { Label } from 'src/components/label/Label';
+import { getDescriptionId, getLabelId, Label } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
@@ -48,8 +48,8 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           <div
             role='group'
             className={classes.likertMobileGroup}
-            aria-labelledby={textResourceBindings?.title ? `label-${node.id}` : undefined}
-            aria-describedby={textResourceBindings?.description ? `description-label-${node.id}` : undefined}
+            aria-labelledby={textResourceBindings?.title ? getLabelId(node.id) : undefined}
+            aria-describedby={textResourceBindings?.description ? getDescriptionId(node.id) : undefined}
           >
             {rowNodes.map((comp) => (
               <GenericComponent
@@ -77,6 +77,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           <Table
             id={id}
             className={classes.likertTable}
+            aria-describedby={getDescriptionId(id)}
           >
             <Caption
               id={node.id}

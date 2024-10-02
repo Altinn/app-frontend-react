@@ -4,6 +4,7 @@ import { Checkbox } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { getLabelId } from 'src/components/label/Label';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -28,7 +29,7 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
 
   const labelTextGroup = (
     <LabelContent
-      labelId={`label-${id}`}
+      labelId={getLabelId(id)}
       label={textResourceBindings?.title}
       readOnly={readOnly}
       required={required}
