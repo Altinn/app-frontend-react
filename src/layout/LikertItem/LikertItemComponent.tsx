@@ -50,8 +50,14 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
       data-componentid={node.id}
       data-is-loading={fetchingOptions ? 'true' : 'false'}
       ref={ref}
+      role='row'
+      tabIndex={0}
     >
-      <Table.HeaderCell scope='row'>
+      <Table.HeaderCell
+        id={getLabelId(node.id)}
+        scope='row'
+        role='rowheader'
+      >
         <Lang id={textResourceBindings?.title} />
         <RequiredIndicator required={required} />
         <ComponentValidations validations={validations} />

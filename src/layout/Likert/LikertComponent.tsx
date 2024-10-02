@@ -98,6 +98,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
                 {calculatedOptions.map((option, index) => (
                   <Table.HeaderCell
                     key={option.value}
+                    scope='col'
                     id={`${id}-likert-columnheader-${index}`}
                   >
                     {lang(option.label)}
