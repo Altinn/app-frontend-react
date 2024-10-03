@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { Label as DesignsystemetLabel, Table } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
 import type { PropsFromGenericComponent } from '..';
@@ -34,111 +33,112 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
 
   const id = node.id;
 
+  const title = textResourceBindings?.title;
+  const description = textResourceBindings?.description;
+
   if (mobileView) {
     return (
-      <ComponentStructureWrapper node={node}>
-        <Grid
-          item
-          container
-          data-componentid={node.id}
-          data-componentbaseid={node.baseId}
-        >
-          <DesignsystemetLabel
-            asChild
-            size='lg'
-            id={getLabelId(node.id)}
-          >
-            <LabelContent
+      <ComponentStructureWrapper
+        node={node}
+        data-componentid={node.id}
+        data-componentbaseid={node.baseId}
+      >
+        {(title || description) && (
+          <div className={classes.likertMobileLabel}>
+            <span id={getLabelId(node.id)}>
+              <DesignsystemetLabel
+                asChild
+                size='lg'
+              >
+                <LabelContent
+                  componentId={node.id}
+                  label={title}
+                />
+              </DesignsystemetLabel>
+            </span>
+            <Description
+              description={description}
               componentId={node.id}
-              label={textResourceBindings?.title}
             />
-          </DesignsystemetLabel>
-          <Description
-            description={textResourceBindings?.description}
-            componentId={node.id}
-          />
-          <br />
-          <div
-            role='group'
-            className={classes.likertMobileGroup}
-            aria-labelledby={textResourceBindings?.title ? getLabelId(node.id) : undefined}
-            aria-describedby={textResourceBindings?.description ? getDescriptionId(node.id) : undefined}
-          >
-            {rowNodes.map((comp) => (
-              <GenericComponent
-                key={comp.id}
-                node={comp}
-              />
-            ))}
           </div>
-        </Grid>
+        )}
+        <div
+          role='group'
+          className={classes.likertMobileGroup}
+          aria-labelledby={textResourceBindings?.title ? getLabelId(node.id) : undefined}
+          aria-describedby={textResourceBindings?.description ? getDescriptionId(node.id) : undefined}
+        >
+          {rowNodes.map((comp) => (
+            <GenericComponent
+              key={comp.id}
+              node={comp}
+            />
+          ))}
+        </div>
       </ComponentStructureWrapper>
     );
   }
 
   return (
-    <ComponentStructureWrapper node={node}>
-      <Grid
-        item
-        container
-        data-componentid={node.id}
-        data-componentbaseid={node.baseId}
-      >
-        {isFetching ? (
-          <AltinnSpinner />
-        ) : (
-          <Table
-            id={id}
-            className={classes.likertTable}
-            aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
-          >
-            <Caption
-              id={node.id}
-              title={textResourceBindings?.title}
-              description={textResourceBindings?.description}
-              designSystemLabelProps={{ size: 'lg' }}
-            />
-            <Table.Head id={`likert-table-header-${id}`}>
-              <Table.Row>
-                <Table.HeaderCell scope='col'>
-                  <span
-                    className={cn({
-                      'sr-only': textResourceBindings?.leftColumnHeader == null,
-                    })}
-                  >
-                    <Lang id={textResourceBindings?.leftColumnHeader ?? 'likert.left_column_default_header_text'} />
-                  </span>
+    <ComponentStructureWrapper
+      node={node}
+      data-componentid={node.id}
+      data-componentbaseid={node.baseId}
+    >
+      {isFetching ? (
+        <AltinnSpinner />
+      ) : (
+        <Table
+          id={id}
+          className={classes.likertTable}
+          aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
+        >
+          <Caption
+            id={node.id}
+            title={textResourceBindings?.title}
+            description={textResourceBindings?.description}
+            designSystemLabelProps={{ size: 'lg' }}
+          />
+          <Table.Head id={`likert-table-header-${id}`}>
+            <Table.Row>
+              <Table.HeaderCell scope='col'>
+                <span
+                  className={cn({
+                    'sr-only': textResourceBindings?.leftColumnHeader == null,
+                  })}
+                >
+                  <Lang id={textResourceBindings?.leftColumnHeader ?? 'likert.left_column_default_header_text'} />
+                </span>
+              </Table.HeaderCell>
+              {calculatedOptions.map((option, index) => (
+                <Table.HeaderCell
+                  key={option.value}
+                  scope='col'
+                  id={`${id}-likert-columnheader-${index}`}
+                >
+                  {lang(option.label)}
                 </Table.HeaderCell>
-                {calculatedOptions.map((option, index) => (
-                  <Table.HeaderCell
-                    key={option.value}
-                    scope='col'
-                    id={`${id}-likert-columnheader-${index}`}
-                  >
-                    {lang(option.label)}
-                  </Table.HeaderCell>
-                ))}
-              </Table.Row>
-            </Table.Head>
-            <Table.Body>
-              {rowNodes.map((comp) => {
-                const override: IGenericComponentProps<'LikertItem'>['overrideItemProps'] = {
-                  layout: LayoutStyle.Table,
-                };
+              ))}
+            </Table.Row>
+          </Table.Head>
+          <Table.Body>
+            {rowNodes.map((comp) => {
+              const override: IGenericComponentProps<'LikertItem'>['overrideItemProps'] = {
+                layout: LayoutStyle.Table,
+              };
 
-                return (
-                  <GenericComponent
-                    key={comp.id}
-                    node={comp}
-                    overrideDisplay={{ directRender: true }}
-                    overrideItemProps={override}
-                  />
-                );
-              })}
-            </Table.Body>
-          </Table>
-        )}
-      </Grid>
+              return (
+                <GenericComponent
+                  key={comp.id}
+                  node={comp}
+                  overrideDisplay={{ directRender: true }}
+                  overrideItemProps={override}
+                />
+              );
+            })}
+          </Table.Body>
+        </Table>
+      )}
     </ComponentStructureWrapper>
   );
 };
