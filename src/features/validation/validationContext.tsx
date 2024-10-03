@@ -11,6 +11,15 @@ import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import {
+  type BaseValidation,
+  type DataModelValidations,
+  type FieldValidations,
+  type ValidationContext,
+  ValidationMask,
+  type ValidationsProcessedLast,
+  type WaitForValidation,
+} from 'src/features/validation';
 import { BackendValidation } from 'src/features/validation/backendValidation/BackendValidation';
 import {
   useGetCachedInitialValidations,
@@ -22,23 +31,10 @@ import {
 } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
 import { SchemaValidation } from 'src/features/validation/schemaValidation/SchemaValidation';
-import {
-  getVisibilityMask,
-  hasValidationErrors,
-  mergeFieldValidations,
-  selectValidations,
-} from 'src/features/validation/utils';
+import { hasValidationErrors, mergeFieldValidations, selectValidations } from 'src/features/validation/utils';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type {
-  BaseValidation,
-  DataModelValidations,
-  FieldValidations,
-  ValidationContext,
-  ValidationsProcessedLast,
-  WaitForValidation,
-} from 'src/features/validation';
 
 interface Internals {
   individualValidations: {
@@ -276,7 +272,7 @@ function UpdateShowAllErrors() {
    * Hide unbound errors as soon as possible.
    */
   useEffect(() => {
-    const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
+    const backendMask = ValidationMask.Backend | ValidationMask.CustomBackend;
     const hasFieldErrors =
       Object.values(dataModelValidations)
         .flatMap((fields) => Object.values(fields))
@@ -328,6 +324,7 @@ export const Validation = {
       },
     }),
 
+  useShowAllBackendErrors: () => useSelector((state) => state.showAllBackendErrors),
   useSetShowAllBackendErrors: () =>
     useLaxSelector((state) => async () => {
       // Make sure we have finished processing validations before setting showAllErrors.

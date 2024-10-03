@@ -65,6 +65,14 @@ export type ValidationCategoryKey = Exclude<ValidationMaskKeys, ValidationMaskCo
 /*  A value of 0 represents a validation to be shown immediately */
 export type ValidationCategory = (typeof ValidationMask)[ValidationCategoryKey] | 0;
 
+/*
+ * Visibility setting used for selecting errors for nodes.
+ * 'visible' = Select all validations with a ValidationMask matching the nodes current visibility
+ * 'showAll' = Matches both current visibility and all backend validations, needed for "showAllBackendErrors"
+ * number = Select all validations with a ValidationMask maching the mask (number, because you can OR multiple masks together in any combination)
+ */
+export type NodeVisibility = 'visible' | 'showAll' | number;
+
 export type WaitForValidation = (forceSave?: boolean) => Promise<void>;
 
 export type ValidationContext = {

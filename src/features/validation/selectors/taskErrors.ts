@@ -6,9 +6,10 @@ import {
   type BaseValidation,
   hasBackendValidationId,
   type NodeRefValidation,
-  type ValidationMask,
+  type NodeVisibility,
+  ValidationMask,
 } from 'src/features/validation/index';
-import { getVisibilityMask, selectValidations, validationsOfSeverity } from 'src/features/validation/utils';
+import { selectValidations, validationsOfSeverity } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 
@@ -25,11 +26,8 @@ export function useTaskErrors(): {
   const selector = Validation.useSelector();
 
   const showAllBackendErrors = selector((state) => state.showAllBackendErrors, []);
-  const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
 
-  const formErrorVisibility = showAllBackendErrors
-    ? (['visible', backendMask] as ['visible', ValidationMask])
-    : 'visible';
+  const formErrorVisibility: NodeVisibility = showAllBackendErrors ? 'showAll' : 'visible';
 
   const _formErrors = NodesInternal.useAllValidations(formErrorVisibility, 'error');
   const formErrors = _formErrors === ContextNotProvided || !_formErrors.length ? emptyArray : _formErrors;
@@ -39,6 +37,7 @@ export function useTaskErrors(): {
       return emptyArray;
     }
 
+    const backendMask = ValidationMask.Backend | ValidationMask.CustomBackend;
     const allBackendErrors: BaseValidation<'error'>[] = [];
 
     const boundErrorIds = new Set(formErrors.filter(hasBackendValidationId).map((v) => v.backendValidationId));
@@ -65,7 +64,7 @@ export function useTaskErrors(): {
     );
 
     return allBackendErrors?.length ? allBackendErrors : emptyArray;
-  }, [backendMask, formErrors, selector, showAllBackendErrors]);
+  }, [formErrors, selector, showAllBackendErrors]);
 
   return {
     formErrors,
