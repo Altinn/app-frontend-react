@@ -24,7 +24,7 @@ describe('Repeating group attachments', () => {
   // Allows you to toggle reload() tests off. These have the effects of testing mapAttachments() to make sure state is
   // the same even after reloading the instance data, but you can toggle them off to save some time when developing
   // the test.
-  const runReloadTests = false;
+  const runReloadTests = true;
 
   const addNewRow = () => {
     cy.get(appFrontend.group.addNewItem).click();
