@@ -11,6 +11,8 @@ import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
 
+jest.mock('react-helmet-async');
+
 describe('Form', () => {
   const mockComponents: ILayout = [
     {
@@ -58,6 +60,7 @@ describe('Form', () => {
 
   it('should render components and groups', async () => {
     await render();
+    screen.debug();
     expect(screen.getByText('First title')).toBeInTheDocument();
     expect(screen.getByText('Second title')).toBeInTheDocument();
     expect(screen.getByText('Third title')).toBeInTheDocument();
