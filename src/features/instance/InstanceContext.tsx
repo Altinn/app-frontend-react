@@ -7,6 +7,7 @@ import type { QueryObserverResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
+import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
@@ -132,12 +133,14 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
   }
 
   return (
-    <InnerInstanceProvider
-      partyId={partyId}
-      instanceGuid={instanceGuid}
-    >
-      {children}
-    </InnerInstanceProvider>
+    <DataLoadingProvider>
+      <InnerInstanceProvider
+        partyId={partyId}
+        instanceGuid={instanceGuid}
+      >
+        {children}
+      </InnerInstanceProvider>
+    </DataLoadingProvider>
   );
 };
 

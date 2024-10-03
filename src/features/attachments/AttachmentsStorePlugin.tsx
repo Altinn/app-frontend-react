@@ -377,7 +377,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
           }
 
           const nodeData = state.nodeData[node.id];
-          if ('attachments' in nodeData) {
+          if (nodeData && 'attachments' in nodeData) {
             return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
           }
 
@@ -392,7 +392,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             if (!nodeData) {
               return emptyArray;
             }
-            if ('attachments' in nodeData) {
+            if (nodeData && 'attachments' in nodeData) {
               return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
             }
             return emptyArray;
