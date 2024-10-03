@@ -70,7 +70,6 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
       </Table.Cell>
       {calculatedOptions?.map((option, index) => {
         const isChecked = selectedValues[0] === option.value;
-        // TODO: get this from props when LikertItemComponent is refactored to be an internal component
         const rowLabelId = getLabelId(id);
         const labelledby = `${rowLabelId} ${groupContainer?.baseId}-likert-columnheader-${index}`;
 

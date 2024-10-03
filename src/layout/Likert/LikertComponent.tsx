@@ -90,7 +90,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           <Table
             id={id}
             className={classes.likertTable}
-            aria-describedby={getDescriptionId(id)}
+            aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
           >
             <Caption
               id={node.id}

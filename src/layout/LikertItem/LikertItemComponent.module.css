@@ -18,7 +18,7 @@ Altinn, and making sure they are consistent. */
 }
 
 .likertTable thead th {
-  background-color: #f5f5f5;
+  background-color: var(--fds-colors-grey-100);
 }
 
 .likertTable tr:not(:last-of-type) td {
