@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  defaultLocale,
-  formatMonthDropdown,
-  labelMonthDropdown,
-  labelYearDropdown,
-  useDayPicker,
-} from 'react-day-picker';
+import { formatMonthDropdown, useDayPicker } from 'react-day-picker';
 import type { MonthCaptionProps } from 'react-day-picker';
 
 import { Button, Combobox } from '@digdir/designsystemet-react';
@@ -13,15 +7,19 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@navikt/aksel-icons';
 import { addYears, max, min, setMonth, setYear, startOfMonth, subYears } from 'date-fns';
 
 import { Lang } from 'src/features/language/Lang';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { getMonths, getYears } from 'src/layout/Datepicker/DatePickerHelpers';
 import comboboxClasses from 'src/styles/combobox.module.css';
+import { getLocale } from 'src/utils/dateHelpers';
 
 export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
   const { goToMonth, nextMonth, previousMonth } = useDayPicker();
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
+  const languageLocale = useCurrentLanguage();
+  const currentLocale = getLocale(languageLocale ?? 'nb');
 
   const handleYearChange = (year: string) => {
     const newMonth = setYear(startOfMonth(calendarMonth.date), Number(year));
@@ -37,9 +35,8 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
 
   const years = getYears(fromDate, toDate, calendarMonth.date.getFullYear()).reverse();
   const months = getMonths(fromDate, toDate, calendarMonth.date);
-  const yearDropdownLabel = labelYearDropdown({ locale: defaultLocale });
-  const MonthDropdownLabel = labelMonthDropdown({ locale: defaultLocale });
-
+  const yearDropdownLabel = langAsString('date_picker.aria_label_year_dropdown');
+  const MonthDropdownLabel = langAsString('date_picker.aria_label_month_dropdown');
   return (
     <>
       <div style={{ display: 'flex', marginBottom: '10px' }}>
@@ -94,9 +91,9 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
               <Combobox.Option
                 key={value.getMonth()}
                 value={value.getMonth().toString()}
-                displayValue={formatMonthDropdown(value.getMonth(), defaultLocale)}
+                displayValue={formatMonthDropdown(value.getMonth(), currentLocale)}
               >
-                <Lang id={formatMonthDropdown(value.getMonth(), defaultLocale)} />
+                <Lang id={formatMonthDropdown(value.getMonth(), currentLocale)} />
               </Combobox.Option>
             ))}
           </Combobox>
