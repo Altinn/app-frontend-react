@@ -5879,7 +5879,7 @@ __metadata:
     eslint-plugin-testing-library: ^6.0.0
     eslint-plugin-unused-imports: ^3.0.0
     execa: 8.0.1
-    fork-ts-checker-notifier-webpack-plugin: 7.0.0
+    fork-ts-checker-notifier-webpack-plugin: 9.0.0
     fork-ts-checker-webpack-plugin: 9.0.2
     html-react-parser: 4.2.10
     http-server: ^14.1.1
@@ -9813,14 +9813,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fork-ts-checker-notifier-webpack-plugin@npm:7.0.0":
-  version: 7.0.0
-  resolution: "fork-ts-checker-notifier-webpack-plugin@npm:7.0.0"
+"fork-ts-checker-notifier-webpack-plugin@npm:9.0.0":
+  version: 9.0.0
+  resolution: "fork-ts-checker-notifier-webpack-plugin@npm:9.0.0"
   dependencies:
     node-notifier: ^10.0.1
   peerDependencies:
-    fork-ts-checker-webpack-plugin: ^8.0.0
-  checksum: 1caf9b355d402f70634c5b300052064ac3f72a9cedff0444ad1a4a54d4f1eea1562c8b4227fffa115fe10541e94027915b66e4b31019c9525ff4d05067e33d21
+    fork-ts-checker-webpack-plugin: ^9.0.0
+  checksum: c7bc712db42df83bd569b06517f3796bde91613d84e30ea3ae289990162f62874d9bbdfe5ae8ec86a5f8045f73dad48959de68063f0266dbb974cfe6f44b64f5
   languageName: node
   linkType: hard
 
