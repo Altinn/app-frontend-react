@@ -42,7 +42,7 @@ export type ChangeInstanceData = (callback: (instance: IInstance | undefined) =>
 
 type InstanceStoreProps = Pick<InstanceContext, 'partyId' | 'instanceGuid'>;
 
-const { Provider, useSelector, useLaxSelector, useHasProvider } = createZustandContext({
+const { Provider, useMemoSelector, useSelector, useLaxSelector, useHasProvider } = createZustandContext({
   name: 'InstanceContext',
   required: true,
   initialCreateStore: (props: InstanceStoreProps) =>
@@ -218,5 +218,8 @@ export const useLaxRemoveDataElement = () => useLaxInstance((state) => state.rem
 export const useLaxInstanceDataSources = () => useLaxInstance((state) => state.dataSources) ?? null;
 export const useHasInstance = () => useHasProvider();
 
+const emptyArray: never[] = [];
 export const useStrictInstance = () => useSelector((state) => state);
-export const useStrictInstanceData = () => useSelector((state) => state.data);
+export const useStrictInstanceId = () => useSelector((state) => state.instanceId);
+export const useStrictDataElements = (dataType: string | undefined) =>
+  useMemoSelector((state) => state.data?.data.filter((d) => d.dataType === dataType)) ?? emptyArray;
