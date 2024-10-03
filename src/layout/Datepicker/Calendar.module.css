@@ -50,18 +50,6 @@
 .calendarDayButton {
   height: 46px;
   width: 46px;
-  /*justify-content: center;
-  align-items: center;
-  display: flex;
-
-  border-radius: 0;
-  border: none;
-  background: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  font: inherit;
-  color: inherit;*/
 }
 .monthWrapper {
   display: flex;

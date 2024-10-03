@@ -1,13 +1,11 @@
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
-import { Common } from 'test/e2e/pageobjects/common';
 import { Datalist } from 'test/e2e/pageobjects/datalist';
 
 import type { IDataModelPatchResponse } from 'src/features/formData/types';
 
 const appFrontend = new AppFrontend();
 const dataListPage = new Datalist();
-const mui = new Common();
 
 describe('Validation', () => {
   const newFirstName = /nytt fornavn/i;
