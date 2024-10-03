@@ -96,7 +96,7 @@
     "eslint-plugin-sonarjs": "0.23.0",
     "eslint-plugin-testing-library": "^6.0.0",
     "eslint-plugin-unused-imports": "^3.0.0",
-    "execa": "8.0.1",
+    "execa": "9.4.0",
     "fork-ts-checker-notifier-webpack-plugin": "7.0.0",
     "fork-ts-checker-webpack-plugin": "9.0.2",
     "html-react-parser": "4.2.10",
