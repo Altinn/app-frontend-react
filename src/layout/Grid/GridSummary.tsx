@@ -160,7 +160,13 @@ export function GridRowRenderer(props: GridRowProps) {
           {...props}
         />
       ))}
-      {!pdfModeActive && row.header && !isSmall && <Table.HeaderCell />}
+      {!pdfModeActive && row.header && !isSmall && (
+        <Table.HeaderCell>
+          <span className={classes.visuallyHidden}>
+            <Lang id={'general.edit'} />
+          </span>
+        </Table.HeaderCell>
+      )}
       {!pdfModeActive && !row.header && !isSmall && (
         <Table.Cell align='right'>
           {showEditButton && !row.readOnly && (
@@ -314,6 +320,7 @@ function CellWithComponent({
   const errors = validationsOfSeverity(validations, 'error');
   const isHidden = Hidden.useIsHidden(node);
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
+  const { textResourceBindings } = useNodeItem(node);
 
   if (isHidden) {
     return <CellComponent />;
@@ -326,7 +333,7 @@ function CellWithComponent({
       data-header-title={isSmall ? headerTitle : ''}
     >
       <div className={cn(classes.contentWrapper, { [classes.validationError]: errors.length > 0 })}>
-        {getComponentCellData(node, displayDataProps)}
+        {getComponentCellData(node, displayDataProps, textResourceBindings)}
         {isSmall && !rowReadOnly && (
           <EditButton
             className={classes.mobileEditButton}
@@ -400,23 +407,24 @@ function CellWithLabel({ cell, columnStyleOptions, isHeader = false, headerTitle
   );
 }
 
-function getComponentCellData(node: LayoutNode, displayDataProps: DisplayDataProps) {
+function getComponentCellData(
+  node: LayoutNode,
+  displayDataProps: DisplayDataProps,
+  textResourceBindings?: ITextResourceBindings,
+) {
   if (node && 'getDisplayData' in node.def) {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    return node.def.getDisplayData(node as LayoutNode<any>, displayDataProps);
-  } else if (node.type === 'Header') {
-    return (
-      <GenericComponent
-        node={node}
-        overrideDisplay={{
-          renderLabel: false,
-          renderLegend: false,
-          renderedInTable: true,
-        }}
-      />
-    );
-    // return <Lang id={node.textResourceBindings.title} />;
+    return node.def.getDisplayData(node as LayoutNode<any>, displayDataProps) || '-';
+  } else if (textResourceBindings && 'title' in textResourceBindings) {
+    return <Lang id={textResourceBindings.title} />;
   } else {
-    return '-';
+    <GenericComponent
+      node={node}
+      overrideDisplay={{
+        renderLabel: false,
+        renderLegend: false,
+        renderedInTable: true,
+      }}
+    />;
   }
 }
