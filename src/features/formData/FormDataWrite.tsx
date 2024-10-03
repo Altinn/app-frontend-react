@@ -19,6 +19,7 @@ import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { getFormDataQueryKey } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { cleanUpInstanceData, instanceHasRelevantChanges } from 'src/features/instance/instanceUtils';
 import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/features/validation';
 import { useIsUpdatingInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useAsRef } from 'src/hooks/useAsRef';
@@ -79,6 +80,7 @@ function useFormDataSaveMutation() {
   const { doPatchFormData, doPostStatelessFormData } = useAppMutations();
   const getDataModelUrl = useGetDataModelUrl();
   const instanceId = useLaxInstance()?.instanceId;
+  const { changeData: changeInstanceData } = useLaxInstance() || {};
   const multiPatchUrl = instanceId ? getMultiPatchUrl(instanceId) : undefined;
   const dataModelsRef = useAsRef(useSelector((state) => state.dataModels));
   const saveFinished = useSelector((s) => s.saveFinished);
@@ -187,24 +189,24 @@ function useFormDataSaveMutation() {
             return;
           }
 
-          const { newDataModels, validationIssues } = await doPatchMultipleFormData(multiPatchUrl, {
+          const { newDataModels, validationIssues, instance } = await doPatchMultipleFormData(multiPatchUrl, {
             patches,
             // Ignore validations that require layout parsing in the backend which will slow down requests significantly
             ignoredValidators: IgnoredValidators,
           });
 
           const dataModelChanges: UpdatedDataModel[] = [];
-          for (const dataElementId of Object.keys(newDataModels)) {
+          for (const { id: dataElementId, data } of newDataModels) {
             const dataType = Object.keys(dataModelsRef.current).find(
               (dataType) => dataModelsRef.current[dataType].dataElementId === dataElementId,
             );
             if (dataType) {
-              dataModelChanges.push({ dataType, data: newDataModels[dataElementId], dataElementId });
+              dataModelChanges.push({ dataType, data, dataElementId });
             }
           }
 
           onSaveFinishedRef.current?.();
-          return { newDataModels: dataModelChanges, validationIssues, savedData: next };
+          return { newDataModels: dataModelChanges, validationIssues, instance, savedData: next };
         } else {
           const dataType = dataTypes[0];
           const patch = createPatch({ prev: prev[dataType], next: next[dataType] });
@@ -240,6 +242,14 @@ function useFormDataSaveMutation() {
     onSuccess: (result) => {
       result && updateQueryCache(result);
       result && saveFinished(result);
+
+      const cleanInstanceData = cleanUpInstanceData(result?.instance);
+      if (cleanInstanceData && changeInstanceData) {
+        changeInstanceData((prevInstance) =>
+          instanceHasRelevantChanges(prevInstance, cleanInstanceData) ? cleanInstanceData : undefined,
+        );
+      }
+
       !result && cancelSave();
     },
   });

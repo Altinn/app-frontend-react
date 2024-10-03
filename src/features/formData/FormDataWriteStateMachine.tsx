@@ -14,6 +14,7 @@ import type { FDLeafValue } from 'src/features/formData/FormDataWrite';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
+import type { IInstance } from 'src/types/shared';
 
 export interface DataModelState {
   // These values contain the current data model, with the values immediately available whenever the user is typing.
@@ -146,6 +147,7 @@ export interface UpdatedDataModel {
 export interface FDSaveResult {
   newDataModels: UpdatedDataModel[];
   validationIssues: BackendValidationIssueGroups | undefined;
+  instance?: IInstance;
 }
 
 export interface FDActionResult {
