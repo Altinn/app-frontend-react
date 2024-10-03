@@ -56,14 +56,6 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
     setIsDialogOpen(false);
   };
 
-  /*const mobileOnlyProps = isMobile
-    ? {
-        cancelLabel: langAsString('date_picker.cancel_label'),
-        clearLabel: langAsString('date_picker.clear_label'),
-        todayLabel: langAsString('date_picker.today_label'),
-      }
-    : {};*/
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const parsed = parse(e.target.value, dateFormat, new Date());
     if (isValidDate(parsed)) {
@@ -143,78 +135,7 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
             autoFocus={isMobile}
           />,
         )}
-
-        {/*<KeyboardDatePicker
-            readOnly={readOnly}
-            required={required}
-            variant={isMobile ? 'dialog' : 'inline'}
-            format={calculatedFormat}
-            margin='normal'
-            id={id}
-            data-testid={id}
-            value={date}
-            inputValue={input}
-            placeholder={calculatedFormat}
-            key={id}
-            onChange={handleDateValueChange}
-            onBlur={debounce}
-            onAccept={(dateValue) => handleDateValueChange(dateValue, undefined)}
-            autoOk={true}
-            invalidDateMessage={emptyString}
-            maxDateMessage={emptyString}
-            minDateMessage={emptyString}
-            minDate={calculatedMinDate}
-            maxDate={calculatedMaxDate}
-            InputProps={{
-              disableUnderline: true,
-              error: !isValid,
-              readOnly,
-              classes: {
-                root: classes.root + (!isValid ? ` ${classes.invalid}` : '') + (readOnly ? ' disabled' : ''),
-                input: classes.input,
-              },
-              ...(textResourceBindings?.description && {
-                'aria-describedby': `description-${id}`,
-              }),
-            }}
-            inputProps={{
-              className: 'no-visual-testing',
-              'aria-label': overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined,
-            }}
-            DialogProps={{ className: classes.dialog }}
-            PopoverProps={{ className: classes.dialog }}
-            FormHelperTextProps={{
-              classes: {
-                root: classes.formHelperText,
-              },
-            }}
-            KeyboardButtonProps={{
-              'aria-label': langAsString('date_picker.aria_label_icon'),
-              id: 'date-icon-button',
-              classes: {
-                root: classes.iconButton,
-              },
-            }}
-            leftArrowButtonProps={{
-              'aria-label': langAsString('date_picker.aria_label_left_arrow'),
-              id: 'date-left-icon-button',
-            }}
-            rightArrowButtonProps={{
-              'aria-label': langAsString('date_picker.aria_label_right_arrow'),
-              id: 'date-right-icon-button',
-            }}
-            keyboardIcon={
-              <CalendarIcon
-                id='date-icon'
-                className={classes.icon}
-                aria-label={langAsString('date_picker.aria_label_icon')}
-              />
-            }
-            className={classes.datepicker}
-            {...mobileOnlyProps}
-          />*/}
       </Grid>
-      {/* </MuiPickersUtilsProvider>*/}
     </ComponentStructureWrapper>
   );
 }

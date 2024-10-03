@@ -1,7 +1,6 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-//import moment from 'moment';
 import { isAfter, isBefore, isValid, parseISO } from 'date-fns';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
