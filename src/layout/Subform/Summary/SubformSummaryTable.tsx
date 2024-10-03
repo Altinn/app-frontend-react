@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 import classNames from 'classnames';
-import dot from 'dot-object';
 
 import { Caption } from 'src/components/form/Caption';
 import { Label } from 'src/components/label/Label';
@@ -18,6 +17,7 @@ import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import { DataQueryWithDefaultValue } from 'src/layout/Subform/SubformComponent';
 import classes1 from 'src/layout/Subform/SubformComponent.module.css';
 import classes2 from 'src/layout/Subform/Summary/SubformSummaryComponent2.module.css';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
@@ -97,30 +97,6 @@ function SubformTableRow({
       )}
     </Table.Row>
   );
-}
-
-export interface DataQueryParams {
-  data: unknown;
-  query: string;
-  defaultValue?: string;
-}
-
-export function DataQueryWithDefaultValue(props: DataQueryParams) {
-  const { data, query, defaultValue } = props;
-
-  const { langAsString } = useLanguage();
-  let content = dot.pick(query, data);
-
-  if (!content && defaultValue != undefined) {
-    const textLookup = langAsString(defaultValue);
-    content = textLookup ? textLookup : defaultValue;
-  }
-
-  if (typeof content === 'object' || content === undefined || content === null) {
-    return null;
-  }
-
-  return <>{String(content)}</>;
 }
 
 export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): React.JSX.Element | null {
