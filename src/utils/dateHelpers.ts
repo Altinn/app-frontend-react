@@ -4,8 +4,8 @@ import type { Locale } from 'date-fns/locale';
 import { DateFlags } from 'src/types';
 import { locales } from 'src/utils/dateLocales';
 
-export const DatepickerMinDateDefault = '1900-01-01T12:00:00.000Z';
-export const DatepickerMaxDateDefault = '2100-01-01T12:00:00.000Z';
+export const DatepickerMinDateDefault = '1900-01-01T00:00:00Z';
+export const DatepickerMaxDateDefault = '2100-01-01T23:59:59Z';
 export const DatepickerFormatDefault = 'dd.MM.yyyy';
 export const DatepickerSaveFormatTimestamp = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 export const PrettyDateAndTime = 'dd.MM.yyyy HH.mm.SS';

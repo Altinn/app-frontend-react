@@ -6,7 +6,7 @@ import {
   convertToDatepickerFormat,
   DatepickerMaxDateDefault,
   DatepickerMinDateDefault,
-  DatepickerSaveFormatNoTimestamp,
+  DatepickerSaveFormatTimestamp,
   formatISOString,
   getDateConstraint,
   getDateFormat,
@@ -64,13 +64,13 @@ describe('dateHelpers', () => {
       props: Parameters<typeof getSaveFormattedDateString>;
       expected: ReturnType<typeof getSaveFormattedDateString>;
     }[] = [
-      { props: [null, true], expected: '' },
-      { props: [null, false], expected: '' },
-      { props: [parseISO('2020-12-31T12:00:00.000Z'), true], expected: '2020-12-31T12:00:00.000+00:00' },
+      { props: [null, true], expected: null },
+      { props: [null, false], expected: null },
+      { props: [parseISO('2020-12-31T12:00:00.000Z'), true], expected: '2020-12-31T12:00:00Z' },
       { props: [parseISO('2020-12-31T12:00:00.000Z'), false], expected: '2020-12-31' },
-      { props: [parseISO('2018-01-05T20:00:00.000Z'), true], expected: '2018-01-05T20:00:00.000+00:00' },
+      { props: [parseISO('2018-01-05T20:00:00.000Z'), true], expected: '2018-01-05T20:00:00Z' },
       { props: [parseISO('2018-01-05T20:00:00.000Z'), false], expected: '2018-01-05' },
-      { props: [parseISO('1987-01-03T12:00:00.000Z'), true], expected: '1987-01-03T12:00:00.000+00:00' },
+      { props: [parseISO('1987-01-03T12:00:00.000Z'), true], expected: '1987-01-03T12:00:00Z' },
       { props: [parseISO('1987-01-03T12:00:00.000Z'), false], expected: '1987-01-03' },
     ];
     tests.forEach(({ props, expected }) => {
@@ -91,17 +91,17 @@ describe('dateHelpers', () => {
       { props: ['asdf', 'max'], expected: DatepickerMaxDateDefault },
       { props: ['2022-45-15', 'min'], expected: DatepickerMinDateDefault },
       { props: ['2022-45-15', 'max'], expected: DatepickerMaxDateDefault },
-      { props: [DateFlags.Today, 'min'], expected: '2023-07-07' },
-      { props: [DateFlags.Today, 'max'], expected: '2023-07-07' },
-      { props: ['2022-11-05T12:00:00.000Z', 'min'], expected: '2022-11-05' },
-      { props: ['2022-11-05T12:00:00.000Z', 'max'], expected: '2022-11-05' },
-      { props: ['2022-01-31', 'min'], expected: '2022-01-31' },
-      { props: ['2022-01-31', 'max'], expected: '2022-01-31' },
+      { props: [DateFlags.Today, 'min'], expected: '2023-07-07T00:00:00Z' },
+      { props: [DateFlags.Today, 'max'], expected: '2023-07-07T23:59:59Z' },
+      { props: ['2022-11-05T12:00:00.000Z', 'min'], expected: '2022-11-05T00:00:00Z' },
+      { props: ['2022-11-05T12:00:00.000Z', 'max'], expected: '2022-11-05T23:59:59Z' },
+      { props: ['2022-01-31', 'min'], expected: '2022-01-31T00:00:00Z' },
+      { props: ['2022-01-31', 'max'], expected: '2022-01-31T23:59:59Z' },
     ];
     tests.forEach(({ props, expected }) => {
       it(`should return ${expected} when called with ${JSON.stringify(props)}`, () => {
         const result = getDateConstraint(...props);
-        expect(format(result, DatepickerSaveFormatNoTimestamp)).toEqual(expected);
+        expect(format(result, DatepickerSaveFormatTimestamp)).toEqual(expected);
       });
     });
   });
