@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Table } from '@digdir/designsystemet-react';
+import { Label as DesignsystemetLabel, Table } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
@@ -8,7 +8,9 @@ import type { PropsFromGenericComponent } from '..';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { Caption } from 'src/components/form/Caption';
-import { getDescriptionId, getLabelId, Label } from 'src/components/label/Label';
+import { Description } from 'src/components/form/Description';
+import { getDescriptionId, getLabelId } from 'src/components/label/Label';
+import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
@@ -41,10 +43,21 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           data-componentid={node.id}
           data-componentbaseid={node.baseId}
         >
-          <Label
-            node={node}
-            renderLabelAs='span'
+          <DesignsystemetLabel
+            asChild
+            size='lg'
+            id={getLabelId(node.id)}
+          >
+            <LabelContent
+              componentId={node.id}
+              label={textResourceBindings?.title}
+            />
+          </DesignsystemetLabel>
+          <Description
+            description={textResourceBindings?.description}
+            componentId={node.id}
           />
+          <br />
           <div
             role='group'
             className={classes.likertMobileGroup}
@@ -83,6 +96,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
               id={node.id}
               title={textResourceBindings?.title}
               description={textResourceBindings?.description}
+              designSystemLabelProps={{ size: 'lg' }}
             />
             <Table.Head id={`likert-table-header-${id}`}>
               <Table.Row>
