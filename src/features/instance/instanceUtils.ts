@@ -63,8 +63,6 @@ export function instanceHasRelevantChanges(a: IInstance | undefined, b: IInstanc
   // Fields like lastChanged changes constantly, but we don't need to update our instance data if only such irrelevant fields have changed
   const aRelevant = filterRelevantFields(a!);
   const bRelevant = filterRelevantFields(b!);
-  console.log(aRelevant);
-  console.log(bRelevant);
 
   return !deepEqual(aRelevant, bRelevant);
 }
