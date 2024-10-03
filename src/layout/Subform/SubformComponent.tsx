@@ -311,7 +311,7 @@ export function DataQueryWithDefaultValue(props: DataQueryParams) {
     content = textLookup ? textLookup : defaultValue;
   }
 
-  if (typeof content === 'object' || content === undefined || content === null) {
+  if (typeof content === 'object' || content === undefined) {
     return null;
   }
 

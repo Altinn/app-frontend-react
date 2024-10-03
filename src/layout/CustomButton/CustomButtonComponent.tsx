@@ -53,13 +53,6 @@ type UseHandleClientActions = {
   handleDataModelUpdate: (lockTools: FormDataLockTools, result: ActionResult) => Promise<void>;
 };
 
-class NotYetImplementedError extends Error {
-  constructor(message = '', ...args) {
-    super(message, ...args);
-    this.message = message;
-  }
-}
-
 /**
  * A type guard to check if the action is an action that can be run entirely on the client
  */
