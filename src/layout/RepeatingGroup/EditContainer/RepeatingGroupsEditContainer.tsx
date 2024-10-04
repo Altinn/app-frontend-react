@@ -17,7 +17,7 @@ import {
   useRepeatingGroupRowState,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
-import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
+import classes from 'src/layout/RepeatingGroup/Table/RepeatingGroup.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
 

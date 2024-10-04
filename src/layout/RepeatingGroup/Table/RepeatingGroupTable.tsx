@@ -16,7 +16,7 @@ import {
   useRepeatingGroupPagination,
   useRepeatingGroupRowState,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
-import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
+import classes from 'src/layout/RepeatingGroup/Table/RepeatingGroup.module.css';
 import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableRow';
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
@@ -85,6 +85,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
             [classes.editingBorder]: isNested,
             [classes.nestedTable]: isNested,
             [classes.nestedNonSticky]: isNested && !stickyHeader,
+            [classes.responsiveTable]: mobileView,
           },
           classes.repeatingGroupTable,
         )}
@@ -107,7 +108,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
           extraCells={extraCells}
           columnSettings={columnSettings}
         />
-        {showTableHeader && !mobileView && (
+        {showTableHeader && (
           <Table.Head id={`group-${id}-table-header`}>
             <Table.Row>
               {tableNodes?.map((n) => (
@@ -146,7 +147,6 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                   })}
                   uuid={row.uuid}
                   index={row.index}
-                  mobileView={mobileView}
                   displayDeleteColumn={displayDeleteColumn}
                   displayEditColumn={displayEditColumn}
                 />
@@ -213,7 +213,7 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
     return (
       <Table.Body>
         <Table.Row>
-          <Table.Cell className={classes.mobileTableCell}>
+          <Table.Cell>
             {mobileNodes.map((child) => (
               <GenericComponent
                 key={child.id}
@@ -221,30 +221,25 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
               />
             ))}
           </Table.Cell>
-          {/* One extra cell to make place for edit/delete buttons */}
-          <Table.Cell className={classes.mobileTableCell} />
         </Table.Row>
       </Table.Body>
     );
   }
 
-  return (
-    <>
-      {rows.map((row, index) => (
-        <GridRowRenderer
-          key={`grid${where}-${index}`}
-          row={{ ...row, cells: [...row.cells, ...extraCells] }}
-          isNested={isNested}
-          mutableColumnSettings={columnSettings}
-          node={node}
-        />
-      ))}
-    </>
-  );
+  return rows.map((row, index) => (
+    <GridRowRenderer
+      key={`grid${where}-${index}`}
+      row={{ ...row, cells: [...row.cells, ...extraCells] }}
+      isNested={isNested}
+      mutableColumnSettings={columnSettings}
+      node={node}
+    />
+  ));
 }
 
 function TitleCell({ node, columnSettings }: { node: LayoutNode; columnSettings: ITableColumnFormatting }) {
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
+  console.log('node', node);
   return (
     <Table.HeaderCell
       className={classes.tableCellFormatting}

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Lang } from 'src/features/language/Lang';
-import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
+import classes from 'src/layout/RepeatingGroup/Table/RepeatingGroup.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
