@@ -60,7 +60,7 @@ describe('Form', () => {
 
   it('should render components and groups', async () => {
     await render();
-    screen.debug();
+
     expect(screen.getByText('First title')).toBeInTheDocument();
     expect(screen.getByText('Second title')).toBeInTheDocument();
     expect(screen.getByText('Third title')).toBeInTheDocument();

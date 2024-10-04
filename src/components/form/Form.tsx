@@ -54,7 +54,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const appName = useAppName();
   const appOwner = useAppOwner();
-  const { langAsString } = useLanguage();
+  const { langAsString, lang } = useLanguage();
   const [formState, setFormState] = useState<FormState>({
     hasRequired: false,
     mainIds: undefined,
@@ -99,10 +99,24 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
     );
   }
 
+  const hasSetCurrentPageId = langAsString(currentPageId) !== currentPageId;
+
+  if (!hasSetCurrentPageId) {
+    window.logWarnOnce(
+      `You have not set a page title for this page. This is highly recommended for user experience and WCAG compliance and will be required in the future.
+       To add a title to this page, add this to your language resource file (for example language.nb.json):
+
+      {
+        "id": "${currentPageId}",
+         "value": "Your custom title goes here"
+      }`,
+    );
+  }
+
   return (
     <>
       <Helmet>
-        <title>{`${getPageTitle(appName, langAsString(currentPageId), appOwner)}`}</title>
+        <title>{`${getPageTitle(appName, hasSetCurrentPageId ? langAsString(currentPageId) : undefined, appOwner)}`}</title>
       </Helmet>
       <ErrorProcessing setFormState={setFormState} />
       {hasRequired && (
