@@ -111,7 +111,6 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
               formatString={dateFormat}
               onBlur={handleInputChange}
               onClick={() => (isMobile ? modalRef.current?.showModal() : setIsDialogOpen(!isDialogOpen))}
-              //ariaLabel={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
               readOnly={readOnly}
             />,
             <DatePickerCalendar
