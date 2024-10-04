@@ -180,18 +180,18 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             // constantly recompute this.
             const state = zustand.getState();
 
-            const out_nodes: string[] = [];
-            const out_validations: AnyValidation[] = [];
+            const outNodes: string[] = [];
+            const outValidations: AnyValidation[] = [];
             for (const nodeId of Object.keys(state.nodeData)) {
               const nodeData = state.nodeData[nodeId];
 
               const validations = getValidations({ state, nodeData, mask, severity, includeHidden });
               if (validations.length > 0) {
-                out_nodes.push(nodeId);
-                out_validations.push(...validations);
+                outNodes.push(nodeId);
+                outValidations.push(...validations);
               }
             }
-            return [out_nodes, out_validations];
+            return [outNodes, outValidations];
           },
           [zustand],
         );
