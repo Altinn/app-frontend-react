@@ -335,6 +335,7 @@ export const Validation = {
   useUpdateBackendValidations: () => useSelector((state) => state.updateBackendValidations),
 
   useProcessedLast: () => useSelector((state) => state.processedLast),
+  useProcessedLastRef: () => useSelectorAsRef((state) => state.processedLast),
 
   useRef: () => useSelectorAsRef((state) => state),
   useLaxRef: () => useLaxSelectorAsRef((state) => state),

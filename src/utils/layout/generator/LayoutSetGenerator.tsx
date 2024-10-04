@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ExprVal } from 'src/features/expressions/types';
-import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
@@ -53,7 +53,7 @@ interface ChildrenState {
 }
 
 export function LayoutSetGenerator() {
-  const layouts = useLayouts();
+  const layouts = GeneratorInternal.useLayouts();
   const pages = useMemo(() => new LayoutPages(), []);
 
   const children = (
@@ -89,7 +89,7 @@ function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
   const existingNodes = useNodesWhenNotReady();
   const setNodes = NodesInternal.useSetNodes();
   const isFinishedAddingNodes = GeneratorStages.useIsDoneAddingNodes();
-  const numPages = Object.keys(useLayouts()).length;
+  const numPages = Object.keys(GeneratorInternal.useLayouts()).length;
   const shouldSet = existingNodes !== pages && pages && (isFinishedAddingNodes || numPages === 0);
 
   useEffect(() => {

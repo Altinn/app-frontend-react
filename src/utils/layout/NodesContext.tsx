@@ -23,7 +23,11 @@ import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
 import { MaintainInitialValidationsInNodesContext } from 'src/features/validation/backendValidation/BackendValidation';
 import { useGetCachedInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
-import { LoadingBlockerWaitForValidation, ProvideWaitForValidation } from 'src/features/validation/validationContext';
+import {
+  LoadingBlockerWaitForValidation,
+  ProvideWaitForValidation,
+  Validation,
+} from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
@@ -51,7 +55,7 @@ import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
 import type { WaitForState } from 'src/hooks/useWaitForState';
-import type { CompExternal, CompTypes } from 'src/layout/layout';
+import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
 import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
@@ -175,11 +179,12 @@ export function nodesProduce(fn: (draft: NodesContext) => void) {
 }
 
 interface CreateStoreProps {
+  validationsProcessedLast: ValidationsProcessedLast;
   registry: MutableRefObject<Registry>;
 }
 
 export type NodesContextStore = StoreApi<NodesContext>;
-export function createNodesDataStore({ registry }: CreateStoreProps) {
+export function createNodesDataStore({ registry, validationsProcessedLast }: CreateStoreProps) {
   const defaultState = {
     readiness: NodesReadiness.NotReady,
     addRemoveCounter: 0,
@@ -193,10 +198,7 @@ export function createNodesDataStore({ registry }: CreateStoreProps) {
     childrenMap: {},
     hiddenViaRules: {},
     hiddenViaRulesRan: false,
-    validationsProcessedLast: {
-      initial: undefined,
-      incremental: undefined,
-    } satisfies ValidationsProcessedLast,
+    validationsProcessedLast,
   };
 
   return createStore<NodesContext>((set) => ({
@@ -219,14 +221,6 @@ export function createNodesDataStore({ registry }: CreateStoreProps) {
         const nodeData = { ...state.nodeData };
         const childrenMap = { ...state.childrenMap };
         for (const { node, targetState, claim, rowIndex } of requests) {
-          if (nodeData[node.id]) {
-            const errorMsg =
-              `Cannot add node '${node.id}', it already exists. ` +
-              `Maybe the layout-set has one or more components with duplicate IDs?`;
-            window.logError(errorMsg);
-            throw new Error(errorMsg);
-          }
-
           nodeData[node.id] = targetState;
 
           if (node.parent instanceof BaseLayoutNode) {
@@ -244,6 +238,7 @@ export function createNodesDataStore({ registry }: CreateStoreProps) {
             };
             childrenMap[node.parent.id] = [...(childrenMap[node.parent.id] || [])];
             childrenMap[node.parent.id]!.push(node.id);
+            childrenMap[node.parent.id] = [...new Set(childrenMap[node.parent.id]!)];
           }
 
           node.page._addChild(node);
@@ -488,67 +483,47 @@ const Conditionally = {
 };
 
 export const NodesProvider = ({ children }: React.PropsWithChildren) => {
-  const layouts = useLayouts();
-  const lastLayouts = useRef(layouts);
-  const counter = useRef(0);
   const registry = useRegistry();
-
-  if (lastLayouts.current !== layouts) {
-    // Resets the entire node state when the layout changes (either via Studio, our own DevTools, or Cypress tests).
-    // We could just re-render Store.Provider here by passing counter as a key to it, but that would create an entirely
-    // new store, which would break the reference in ProvideWaitForValidation (which would take a few render cycles to
-    // properly update, which may break those already awaiting validation).
-    counter.current += 1;
-    lastLayouts.current = layouts;
-  }
+  const processedLast = Validation.useProcessedLastRef();
 
   return (
-    <ProvideGlobalContext registry={registry}>
-      <Store.Provider registry={registry}>
-        <ResettableStore counter={counter.current}>{children}</ResettableStore>
-      </Store.Provider>
-    </ProvideGlobalContext>
+    <Store.Provider
+      registry={registry}
+      validationsProcessedLast={processedLast.current}
+    >
+      <ProvideGlobalContext registry={registry}>
+        <GeneratorStagesEffects />
+        <GeneratorValidationProvider>
+          <LayoutSetGenerator />
+        </GeneratorValidationProvider>
+        <MarkAsReady />
+        {window.Cypress && <UpdateAttachmentsForCypress />}
+        <BlockUntilAlmostReady>
+          <HiddenComponentsProvider />
+        </BlockUntilAlmostReady>
+        <BlockUntilLoaded>
+          <ProvideWaitForValidation />
+          <ExpressionValidation />
+          <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
+        </BlockUntilLoaded>
+        <IndicateReadiness />
+      </ProvideGlobalContext>
+    </Store.Provider>
   );
 };
 
-function ResettableStore({ counter, children }: PropsWithChildren<{ counter: number }>) {
-  const reset = Store.useSelector((s) => s.reset);
-  const [lastSeenCounter, setLastSeenCounter] = useState(0);
+function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ registry: MutableRefObject<Registry> }>) {
+  const latestLayouts = useLayouts();
+  const [layouts, setLayouts] = useState<ILayouts>(latestLayouts);
+  const markNotReady = NodesInternal.useMarkNotReady();
 
   useEffect(() => {
-    if (counter > 0) {
-      reset();
-      setLastSeenCounter(counter);
+    if (layouts !== latestLayouts) {
+      markNotReady('new layouts');
+      setLayouts(latestLayouts);
     }
-  }, [counter, reset]);
+  }, [latestLayouts, layouts, markNotReady]);
 
-  if (counter !== lastSeenCounter) {
-    return <NodesLoader />;
-  }
-
-  return (
-    <Fragment key={counter}>
-      <GeneratorStagesEffects />
-      <GeneratorValidationProvider>
-        <LayoutSetGenerator />
-      </GeneratorValidationProvider>
-      <MarkAsReady />
-      {window.Cypress && <UpdateAttachmentsForCypress />}
-      <BlockUntilAlmostReady>
-        <HiddenComponentsProvider />
-      </BlockUntilAlmostReady>
-      <BlockUntilLoaded>
-        <ProvideWaitForValidation />
-        <ExpressionValidation />
-        <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
-      </BlockUntilLoaded>
-      <IndicateReadiness />
-    </Fragment>
-  );
-}
-
-function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ registry: MutableRefObject<Registry> }>) {
-  const layouts = useLayouts();
   const layoutMap = useMemo(() => {
     const out: { [id: string]: CompExternal } = {};
     for (const page of Object.values(layouts)) {
@@ -563,8 +538,14 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
     return out;
   }, [layouts]);
 
+  if (layouts !== latestLayouts) {
+    // You changed the layouts, possibly by using devtools. Hold on while we re-generate!
+    return <NodesLoader />;
+  }
+
   return (
     <GeneratorGlobalProvider
+      layouts={layouts}
       layoutMap={layoutMap}
       registry={registry}
     >
@@ -1106,7 +1087,10 @@ export const NodesInternal = {
   },
   useMarkNotReady() {
     const markReady = Store.useSelector((s) => s.markReady);
-    return useCallback(() => markReady('from useMarkNotReady', NodesReadiness.NotReady), [markReady]);
+    return useCallback(
+      (reason?: string) => markReady(reason ?? 'from useMarkNotReady', NodesReadiness.NotReady),
+      [markReady],
+    );
   },
   /**
    * Like a useEffect, but only runs the effect when the nodes context is ready.
