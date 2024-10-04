@@ -16,13 +16,12 @@ export interface DatePickerInputProps {
   onBlur?: FocusEventHandler<HTMLInputElement>;
   onClick?: () => void;
   isDialogOpen?: boolean;
-  ariaLabel?: string;
   readOnly?: boolean;
 }
 
 const DatePickerInput = forwardRef(
   (
-    { id, value, formatString, onBlur, isDialogOpen, ariaLabel, readOnly, onClick }: DatePickerInputProps,
+    { id, value, formatString, onBlur, isDialogOpen, readOnly, onClick }: DatePickerInputProps,
     ref: RefObject<HTMLButtonElement>,
   ) => {
     const [input, setInput] = useState(value ?? '');
@@ -30,8 +29,14 @@ const DatePickerInput = forwardRef(
     const { langAsString } = useLanguage();
 
     useEffect(() => {
-      if (value && isMatch(value, formatString || DatepickerSaveFormatNoTimestamp || DatepickerSaveFormatTimestamp)) {
-        setInput(isValid(new Date(value)) ? format(value, formatString ?? 'dd.MM.yyyy') : value);
+      if (value) {
+        if (formatString && isMatch(value, formatString)) {
+          setInput(isValid(new Date(value)) ? format(value, formatString ?? 'dd.MM.yyyy') : value);
+        } else if (isMatch(value, DatepickerSaveFormatNoTimestamp)) {
+          setInput(isValid(new Date(value)) ? format(value, formatString ?? 'dd.MM.yyyy') : value);
+        } else if (isMatch(value, DatepickerSaveFormatTimestamp)) {
+          setInput(isValid(new Date(value)) ? format(value, formatString ?? 'dd.MM.yyyy') : value);
+        }
       }
     }, [value, formatString]);
 

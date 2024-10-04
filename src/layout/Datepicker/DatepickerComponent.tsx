@@ -21,21 +21,11 @@ import 'react-day-picker/style.css';
 
 export type IDatepickerProps = PropsFromGenericComponent<'Datepicker'>;
 
-export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps) {
+export function DatepickerComponent({ node }: IDatepickerProps) {
   const { langAsString } = useLanguage();
   const languageLocale = useCurrentLanguage();
   const currentLocale = getLocale(languageLocale ?? 'nb');
-  const {
-    minDate,
-    maxDate,
-    format,
-    timeStamp = true,
-    readOnly,
-    required,
-    id,
-    textResourceBindings,
-    dataModelBindings,
-  } = useNodeItem(node);
+  const { minDate, maxDate, format, timeStamp = true, readOnly, required, id, dataModelBindings } = useNodeItem(node);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const modalRef = useRef<HTMLDialogElement>(null);
@@ -121,7 +111,7 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
               formatString={dateFormat}
               onBlur={handleInputChange}
               onClick={() => (isMobile ? modalRef.current?.showModal() : setIsDialogOpen(!isDialogOpen))}
-              ariaLabel={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+              //ariaLabel={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
               readOnly={readOnly}
             />,
             <DatePickerCalendar
