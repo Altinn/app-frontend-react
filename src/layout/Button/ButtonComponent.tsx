@@ -58,10 +58,11 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
       return;
     }
     setReturnToView?.(undefined);
-    if (currentTaskType === ProcessTaskType.Data) {
-      next({ nodeId: node.id });
-    } else if (currentTaskType === ProcessTaskType.Confirm) {
+
+    if (currentTaskType === ProcessTaskType.Confirm) {
       next({ nodeId: node.id, action: 'confirm' });
+    } else {
+      next({ nodeId: node.id });
     }
   };
   return (
