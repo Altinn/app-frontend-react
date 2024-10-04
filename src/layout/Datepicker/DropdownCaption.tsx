@@ -52,29 +52,6 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
         </Button>
         <div style={{ display: 'flex', gap: '8px' }}>
           <Combobox
-            style={{ width: '100px' }}
-            id={id}
-            size='sm'
-            value={[calendarMonth.date.getFullYear().toString()]}
-            onValueChange={(years) => handleYearChange(years[0])}
-            aria-label={yearDropdownLabel}
-            className={comboboxClasses.container}
-            portal={!isMobile}
-          >
-            <Combobox.Empty>
-              <Lang id={'form_filler.no_options_found'} />
-            </Combobox.Empty>
-            {years.map((date) => (
-              <Combobox.Option
-                key={date.getFullYear().toString()}
-                value={date.getFullYear().toString()}
-                displayValue={date.getFullYear().toString()}
-              >
-                <Lang id={date.getFullYear().toString()} />
-              </Combobox.Option>
-            ))}
-          </Combobox>
-          <Combobox
             style={{ width: '150px' }}
             id={id}
             size='sm'
@@ -94,6 +71,29 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
                 displayValue={formatMonthDropdown(value.getMonth(), currentLocale)}
               >
                 <Lang id={formatMonthDropdown(value.getMonth(), currentLocale)} />
+              </Combobox.Option>
+            ))}
+          </Combobox>
+          <Combobox
+            style={{ width: '100px' }}
+            id={id}
+            size='sm'
+            value={[calendarMonth.date.getFullYear().toString()]}
+            onValueChange={(years) => handleYearChange(years[0])}
+            aria-label={yearDropdownLabel}
+            className={comboboxClasses.container}
+            portal={!isMobile}
+          >
+            <Combobox.Empty>
+              <Lang id={'form_filler.no_options_found'} />
+            </Combobox.Empty>
+            {years.map((date) => (
+              <Combobox.Option
+                key={date.getFullYear().toString()}
+                value={date.getFullYear().toString()}
+                displayValue={date.getFullYear().toString()}
+              >
+                <Lang id={date.getFullYear().toString()} />
               </Combobox.Option>
             ))}
           </Combobox>

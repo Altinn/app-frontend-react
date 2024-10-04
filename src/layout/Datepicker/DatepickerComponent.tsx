@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import { Modal, Popover } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
-import { isValid as isValidDate, parse, parseISO } from 'date-fns';
+import { formatDate, isValid as isValidDate, parse, parseISO } from 'date-fns';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -13,7 +13,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import styles from 'src/layout/Datepicker/Calendar.module.css';
 import { DatePickerCalendar } from 'src/layout/Datepicker/DatePickerCalendar';
 import DatePickerInput from 'src/layout/Datepicker/DatePickerInput';
-import { getDateConstraint, getDateFormat, getSaveFormattedDateString } from 'src/utils/dateHelpers';
+import { getDateConstraint, getDateFormat, getLocale, getSaveFormattedDateString } from 'src/utils/dateHelpers';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -24,6 +24,7 @@ export type IDatepickerProps = PropsFromGenericComponent<'Datepicker'>;
 export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps) {
   const { langAsString } = useLanguage();
   const languageLocale = useCurrentLanguage();
+  const currentLocale = getLocale(languageLocale ?? 'nb');
   const {
     minDate,
     maxDate,
@@ -104,38 +105,42 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
   return (
     <ComponentStructureWrapper
       node={node}
-      label={{ node, renderLabelAs: 'label', title: 'Test' }}
+      label={{ node, renderLabelAs: 'label', className: styles.datepickerLabelWrapper }}
     >
-      <Grid
-        container
-        item
-        xs={12}
-      >
-        {renderModal(
-          <DatePickerInput
-            id={id}
-            value={value}
-            isDialogOpen={isMobile ? modalRef.current?.open : isDialogOpen}
-            formatString={dateFormat}
-            onBlur={handleInputChange}
-            onClick={() => (isMobile ? modalRef.current?.showModal() : setIsDialogOpen(!isDialogOpen))}
-            ariaLabel={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
-            description={textResourceBindings?.description}
-            readOnly={readOnly}
-          />,
-          <DatePickerCalendar
-            id={id}
-            locale={languageLocale}
-            selectedDate={selectedDate}
-            isOpen={isDialogOpen}
-            onSelect={handleDayPickerSelect}
-            minDate={calculatedMinDate}
-            maxDate={calculatedMaxDate}
-            required={required}
-            autoFocus={isMobile}
-          />,
-        )}
-      </Grid>
+      <div className={styles.calendarGrid}>
+        <Grid
+          container
+          item
+          xs={12}
+        >
+          {renderModal(
+            <DatePickerInput
+              id={id}
+              value={value}
+              isDialogOpen={isMobile ? modalRef.current?.open : isDialogOpen}
+              formatString={dateFormat}
+              onBlur={handleInputChange}
+              onClick={() => (isMobile ? modalRef.current?.showModal() : setIsDialogOpen(!isDialogOpen))}
+              ariaLabel={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+              readOnly={readOnly}
+            />,
+            <DatePickerCalendar
+              id={id}
+              locale={languageLocale}
+              selectedDate={selectedDate}
+              isOpen={isDialogOpen}
+              onSelect={handleDayPickerSelect}
+              minDate={calculatedMinDate}
+              maxDate={calculatedMaxDate}
+              required={required}
+              autoFocus={isMobile}
+            />,
+          )}
+        </Grid>
+        <span className={styles.formatText}>
+          {langAsString('date_picker.format_text', [formatDate(new Date(), dateFormat, { locale: currentLocale })])}
+        </span>
+      </div>
     </ComponentStructureWrapper>
   );
 }

@@ -17,13 +17,12 @@ export interface DatePickerInputProps {
   onClick?: () => void;
   isDialogOpen?: boolean;
   ariaLabel?: string;
-  description?: string;
   readOnly?: boolean;
 }
 
 const DatePickerInput = forwardRef(
   (
-    { id, value, formatString, onBlur, isDialogOpen, ariaLabel, readOnly, onClick, description }: DatePickerInputProps,
+    { id, value, formatString, onBlur, isDialogOpen, ariaLabel, readOnly, onClick }: DatePickerInputProps,
     ref: RefObject<HTMLButtonElement>,
   ) => {
     const [input, setInput] = useState(value ?? '');
@@ -50,8 +49,6 @@ const DatePickerInput = forwardRef(
           placeholder={formatString}
           onChange={handleInputChange}
           onBlur={onBlur}
-          aria-label={ariaLabel}
-          aria-describedby={description ? `description-${id}` : undefined}
           readOnly={readOnly}
           aria-readonly={readOnly}
         />
@@ -66,8 +63,12 @@ const DatePickerInput = forwardRef(
           aria-label={langAsString('date_picker.aria_label_icon')}
           ref={ref}
           disabled={readOnly}
+          color='first'
         >
-          <CalendarIcon title={langAsString('date_picker.aria_label_icon')} />
+          <CalendarIcon
+            style={{ width: '24px', height: '24px' }}
+            title={langAsString('date_picker.aria_label_icon')}
+          />
         </Button>
       </div>
     );
