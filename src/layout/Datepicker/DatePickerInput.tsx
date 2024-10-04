@@ -31,7 +31,7 @@ const DatePickerInput = forwardRef(
     useEffect(() => {
       if (value) {
         if (formatString && isMatch(value, formatString)) {
-          setInput(isValid(new Date(value)) ? format(value, formatString ?? 'dd.MM.yyyy') : value);
+          setInput(isValid(new Date(value)) ? format(value, formatString) : value);
         } else if (isMatch(value, DatepickerSaveFormatNoTimestamp)) {
           setInput(isValid(new Date(value)) ? format(value, formatString ?? 'dd.MM.yyyy') : value);
         } else if (isMatch(value, DatepickerSaveFormatTimestamp)) {
