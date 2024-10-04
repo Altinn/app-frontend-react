@@ -44,6 +44,7 @@ export interface ValidationStorePluginConfig {
     useVisibleValidations: (node: LayoutNode | undefined, showAll?: boolean) => AnyValidation[];
     useVisibleValidationsDeep: (
       node: LayoutNode | undefined,
+      mask: NodeVisibility,
       stopAtDepth?: number,
       restriction?: TraversalRestriction,
       severity?: ValidationSeverity,
@@ -74,7 +75,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           nodesProduce((state) => {
             for (const node of nodes) {
               const nodeData = typeof node === 'string' ? state.nodeData[node] : state.nodeData[node.id];
-              const initialMask = getInitialMaskFromNodeItem(nodeData.item);
+              const initialMask = getInitialMaskFromNodeItem(nodeData.layout);
 
               if (nodeData && 'validationVisibility' in nodeData) {
                 nodeData.validationVisibility = newVisibility | initialMask;
@@ -150,13 +151,13 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           const nodeData = state.nodeData[node.id];
           return getValidations({ state, nodeData, mask: showAll ? 'showAll' : 'visible' });
         }),
-      useVisibleValidationsDeep: (node, stopAtDepth, restriction, severity) =>
+      useVisibleValidationsDeep: (node, mask, stopAtDepth, restriction, severity) =>
         store.useMemoSelector((state) => {
           if (!node) {
             return emptyArray;
           }
           const nodeData = state.nodeData[node.id];
-          return getRecursiveValidations({ state, nodeData, mask: 'visible', severity, stopAtDepth, restriction });
+          return getRecursiveValidations({ state, nodeData, mask, severity, stopAtDepth, restriction });
         }),
       useValidationsSelector: () =>
         store.useDelayedSelector({

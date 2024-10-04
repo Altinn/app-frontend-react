@@ -13,6 +13,6 @@ export function useDeepValidationsForNode(
   restriction?: TraversalRestriction,
 ): NodeRefValidation[] {
   const showAll = Validation.useShowAllBackendErrors();
-  const mask = showAll ? 'showAll' : 'visible'; // TODO: Fix after merge from main
-  return NodesInternal.useVisibleValidationsDeep(node, onlyChildren ? 1 : undefined, restriction);
+  const mask = showAll ? 'showAll' : 'visible';
+  return NodesInternal.useVisibleValidationsDeep(node, mask, onlyChildren ? 1 : undefined, restriction);
 }
