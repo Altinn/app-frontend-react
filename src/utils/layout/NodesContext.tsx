@@ -20,6 +20,8 @@ import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
+import { MaintainInitialValidationsInNodesContext } from 'src/features/validation/backendValidation/BackendValidation';
+import { useGetCachedInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import { LoadingBlockerWaitForValidation, ProvideWaitForValidation } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
@@ -43,6 +45,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
+import type { FDSaveFinished } from 'src/features/formData/FormDataWriteStateMachine';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
@@ -140,6 +143,7 @@ export type NodesContext = {
   childrenMap: { [key: string]: string[] | undefined };
   hiddenViaRules: { [key: string]: true | undefined };
   hiddenViaRulesRan: boolean;
+  validationsProcessedLast: ValidationsProcessedLast;
 
   stages: GeneratorStagesContext;
 
@@ -153,6 +157,8 @@ export type NodesContext = {
   addPage: (pageKey: string) => void;
   setPageProps: <K extends keyof PageData>(requests: SetPagePropRequest<K>[]) => void;
   markReady: (reason: string, readiness?: NodesReadiness) => void;
+  onSaveFinished: (result: FDSaveFinished) => void;
+  setLatestInitialValidations: (validations: ValidationsProcessedLast['initial']) => void;
 
   reset: () => void;
 
@@ -187,6 +193,10 @@ export function createNodesDataStore({ registry }: CreateStoreProps) {
     childrenMap: {},
     hiddenViaRules: {},
     hiddenViaRulesRan: false,
+    validationsProcessedLast: {
+      initial: undefined,
+      incremental: undefined,
+    } satisfies ValidationsProcessedLast,
   };
 
   return createStore<NodesContext>((set) => ({
@@ -369,6 +379,27 @@ export function createNodesDataStore({ registry }: CreateStoreProps) {
         }
         return {};
       }),
+    onSaveFinished: (result) =>
+      set((state) => {
+        if (state.readiness !== NodesReadiness.WaitingUntilLastSaveHasProcessed) {
+          generatorLog('logReadiness', `Marking state as NOT READY: processing save results`);
+        }
+
+        return {
+          readiness: NodesReadiness.WaitingUntilLastSaveHasProcessed,
+          validationsProcessedLast: {
+            ...state.validationsProcessedLast,
+            incremental: result.validationIssues,
+          },
+        };
+      }),
+    setLatestInitialValidations: (validations) =>
+      set((state) => ({
+        validationsProcessedLast: {
+          ...state.validationsProcessedLast,
+          initial: validations,
+        },
+      })),
 
     reset: () => set(() => ({ ...structuredClone(defaultState) })),
 
@@ -599,6 +630,7 @@ function IndicateReadiness() {
 function MarkAsReady() {
   return (
     <>
+      <MaintainInitialValidationsInNodesContext />
       <InnerMarkAsReady />
       <RegisterOnSaveFinished />
     </>
@@ -621,6 +653,7 @@ function InnerMarkAsReady() {
   const stagesFinished = GeneratorStages.useIsFinished();
   const hasUnsavedChanges = FD.useHasUnsavedChanges();
   const registry = GeneratorInternal.useRegistry();
+  const getCachedInitialValidations = useGetCachedInitialValidations();
 
   // Even though the getAwaitingCommits() function works on refs in the GeneratorStages context, the effects of such
   // commits always changes the NodesContext. Thus our useSelector() re-runs and re-renders this components when
@@ -636,10 +669,16 @@ function InnerMarkAsReady() {
       return false;
     }
 
+    const { cachedInitialValidations, isFetching } = getCachedInitialValidations();
+    if (isFetching || cachedInitialValidations !== state.validationsProcessedLast.initial) {
+      generatorLog('logReadiness', `Initial validations are still being fetched, waiting...`);
+      return false;
+    }
+
     for (const nodeData of Object.values(state.nodeData)) {
       const def = getComponentDef(nodeData.layout.type) as LayoutComponent;
       const nodeReady = def.stateIsReady(nodeData);
-      const pluginsReady = def.pluginStateIsReady(nodeData);
+      const pluginsReady = def.pluginStateIsReady(nodeData, state);
       if (!nodeReady || !pluginsReady) {
         generatorLog(
           'logReadiness',
@@ -720,13 +759,13 @@ function setIdleInterval(registry: MutableRefObject<Registry>, fn: () => boolean
 
 function RegisterOnSaveFinished() {
   const setOnSaveFinished = FD.useSetOnSaveFinished();
-  const markReady = Store.useSelector((s) => s.markReady);
+  const ourOnSaveFinished = Store.useSelector((s) => s.onSaveFinished);
 
   useEffect(() => {
-    setOnSaveFinished(() => {
-      markReady('recent form data save', NodesReadiness.WaitingUntilLastSaveHasProcessed);
+    setOnSaveFinished((result) => {
+      ourOnSaveFinished(result);
     });
-  }, [setOnSaveFinished, markReady]);
+  }, [ourOnSaveFinished, setOnSaveFinished]);
 
   return null;
 }
@@ -1041,14 +1080,29 @@ export const NodesInternal = {
     const store = Store.useLaxStore();
     const waitForState = useWaitForState<undefined, NodesContext | typeof ContextNotProvided>(store);
     const waitForCommits = Store.useSelector((s) => s.waitForCommits);
-    return useCallback(async () => {
-      await waitForState((state) =>
-        state === ContextNotProvided ? true : state.readiness === NodesReadiness.Ready && state.hiddenViaRulesRan,
-      );
-      if (waitForCommits) {
-        await waitForCommits();
-      }
-    }, [waitForState, waitForCommits]);
+    return useCallback(
+      async (lastValidations?: ValidationsProcessedLast) => {
+        await waitForState((state) => {
+          if (state === ContextNotProvided) {
+            return true;
+          }
+          const initialIsLatest =
+            lastValidations?.initial === undefined ||
+            lastValidations.initial === state.validationsProcessedLast.initial;
+          const incrementalIsLatest =
+            lastValidations?.incremental === undefined ||
+            lastValidations.incremental === state.validationsProcessedLast.incremental;
+          if (!incrementalIsLatest || !initialIsLatest) {
+            return false;
+          }
+          return state.readiness === NodesReadiness.Ready && state.hiddenViaRulesRan;
+        });
+        if (waitForCommits) {
+          await waitForCommits();
+        }
+      },
+      [waitForState, waitForCommits],
+    );
   },
   useMarkNotReady() {
     const markReady = Store.useSelector((s) => s.markReady);
@@ -1082,34 +1136,6 @@ export const NodesInternal = {
       return effect();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [force, ...(deps ?? [])]);
-  },
-
-  useWaitForValidationsReady() {
-    const store = Store.useLaxStore();
-    const waitForState = useWaitForState<undefined, NodesContext | typeof ContextNotProvided>(store);
-    const waitForCommits = Store.useSelector((s) => s.waitForCommits);
-    return useCallback(
-      async (
-        validationsFromSave: ValidationsProcessedLast['incremental'],
-        lastInitialValidations: ValidationsProcessedLast['initial'],
-      ) => {
-        await waitForState((state) => {
-          if (state === ContextNotProvided) {
-            return true;
-          }
-          return Object.values(state.nodeData).every(
-            (nodeData) =>
-              !('validationsProcessedLast' in nodeData) ||
-              (nodeData.validationsProcessedLast.incremental === validationsFromSave &&
-                nodeData.validationsProcessedLast.initial === lastInitialValidations),
-          );
-        });
-        if (waitForCommits) {
-          await waitForCommits();
-        }
-      },
-      [waitForState, waitForCommits],
-    );
   },
 
   useFullErrorList() {

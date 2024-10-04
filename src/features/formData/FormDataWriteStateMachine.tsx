@@ -80,8 +80,8 @@ type FormDataState = {
 
   // This may contain a callback function that will be called whenever the save finishes.
   // Should only be set from NodesContext.
-  onSaveFinished: (() => void) | undefined;
-  setOnSaveFinished: (callback: () => void) => void;
+  onSaveFinished: ((result: FDSaveFinished) => void) | undefined;
+  setOnSaveFinished: (callback: (result: FDSaveFinished) => void) => void;
 
   // This is used to track which component is currently blocking the auto-saving feature. If this is set to a string
   // value, auto-saving will be disabled, even if the autoSaving flag is set to true. This is useful when you want

@@ -33,7 +33,6 @@ function StoreValidationsInNodeWorker() {
 
   const { validations: freshValidations, processedLast } = useNodeValidation(node, shouldValidate);
   const validations = useUpdatedValidations(freshValidations, node);
-  const prevProcessedLast = NodesInternal.useValidationsProcessedLast(node);
 
   const shouldSetValidations = NodesInternal.useNodeData(node, (data) => !deepEqual(data.validations, validations));
   NodesStateQueue.useSetNodeProp(
@@ -58,7 +57,10 @@ function StoreValidationsInNodeWorker() {
     visibilityToSet !== undefined,
   );
 
-  const shouldSetProcessedLast = processedLast !== prevProcessedLast;
+  const shouldSetProcessedLast = NodesInternal.useNodeData(
+    node,
+    (data) => data.validationsProcessedLast !== processedLast,
+  );
   NodesStateQueue.useSetNodeProp(
     { node, prop: 'validationsProcessedLast', value: processedLast, force: true },
     shouldSetProcessedLast,

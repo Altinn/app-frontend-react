@@ -300,6 +300,11 @@ export class ComponentConfig {
       from: 'src/utils/layout/types',
     });
 
+    const NodesContext = new CG.import({
+      import: 'NodesContext',
+      from: 'src/utils/layout/NodesContext',
+    });
+
     const isFormComponent = this.config.category === CompCategory.Form;
     const isSummarizable = this.behaviors.isSummarizable;
 
@@ -384,7 +389,7 @@ export class ComponentConfig {
       const extraInEval = plugin.extraInEvalExpressions();
       extraInEval && evalLines.push(extraInEval);
 
-      readyCheckers.push(`${pluginRef(plugin)}.stateIsReady(state as any)`);
+      readyCheckers.push(`${pluginRef(plugin)}.stateIsReady(state as any, fullState)`);
     }
 
     if (readyCheckers.length === 0) {
@@ -396,7 +401,7 @@ export class ComponentConfig {
       );
     } else {
       additionalMethods.push(
-        `pluginStateIsReady(state: ${NodeData}<'${this.type}'>): boolean {
+        `pluginStateIsReady(state: ${NodeData}<'${this.type}'>, fullState: ${NodesContext}): boolean {
           return ${readyCheckers.join(' && ')};
         }`,
       );

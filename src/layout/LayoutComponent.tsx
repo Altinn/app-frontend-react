@@ -39,7 +39,7 @@ import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { ChildClaim, ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
+import type { NodeDataSelector, NodesContext } from 'src/utils/layout/NodesContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { NodeData, StateFactoryProps } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
@@ -122,7 +122,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Same as the above, but implemented by plugins automatically in the generated code.
    */
-  abstract pluginStateIsReady(state: NodeData<Type>): boolean;
+  abstract pluginStateIsReady(state: NodeData<Type>, fullState: NodesContext): boolean;
 
   /**
    * Creates the zustand store default state for a node of this component type. Usually this is implemented

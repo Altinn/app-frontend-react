@@ -6,6 +6,7 @@ import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal, NodesReadiness, NodesStore } from 'src/utils/layout/NodesContext';
+import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { RegistryCommitQueues } from 'src/utils/layout/generator/CommitQueue';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 
@@ -52,6 +53,7 @@ export type Registry = {
   toCommit: RegistryCommitQueues;
   toCommitCount: number;
   commitTimeout: ReturnType<typeof setTimeout> | null;
+  validations: ValidationsProcessedLast;
 };
 
 /**
@@ -236,6 +238,10 @@ export function useRegistry() {
       setPageProps: [],
     },
     commitTimeout: null,
+    validations: {
+      initial: undefined,
+      incremental: undefined,
+    },
   });
 }
 

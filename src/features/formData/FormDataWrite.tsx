@@ -160,8 +160,13 @@ function useFormDataSaveMutation() {
           return;
         }
 
-        onSaveFinishedRef.current?.();
-        return { newDataModels: await Promise.all(newDataModels), savedData: next, validationIssues: undefined };
+        const out: FDSaveFinished = {
+          newDataModels: await Promise.all(newDataModels),
+          savedData: next,
+          validationIssues: undefined,
+        };
+        onSaveFinishedRef.current?.(out);
+        return out;
       } else {
         // Stateful needs to use either old patch or multi patch
 
@@ -203,8 +208,9 @@ function useFormDataSaveMutation() {
             }
           }
 
-          onSaveFinishedRef.current?.();
-          return { newDataModels: dataModelChanges, validationIssues, savedData: next };
+          const out: FDSaveFinished = { newDataModels: dataModelChanges, validationIssues, savedData: next };
+          onSaveFinishedRef.current?.(out);
+          return out;
         } else {
           const dataType = dataTypes[0];
           const patch = createPatch({ prev: prev[dataType], next: next[dataType] });
@@ -225,12 +231,13 @@ function useFormDataSaveMutation() {
             // Ignore validations that require layout parsing in the backend which will slow down requests significantly
             ignoredValidators: IgnoredValidators,
           });
-          onSaveFinishedRef.current?.();
-          return {
+          const out: FDSaveFinished = {
             newDataModels: [{ dataType, data: newDataModel, dataElementId }],
             validationIssues,
             savedData: next,
           };
+          onSaveFinishedRef.current?.(out);
+          return out;
         }
       }
     },

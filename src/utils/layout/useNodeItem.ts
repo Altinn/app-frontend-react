@@ -110,7 +110,11 @@ export function useNodeDirectChildren(parent: LayoutNode, restriction?: Traversa
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const childNodeData = fullState.nodeData[child.id] as any;
-        if (!childNodeData || !child.def.stateIsReady(childNodeData) || !child.def.pluginStateIsReady(childNodeData)) {
+        if (
+          !childNodeData ||
+          !child.def.stateIsReady(childNodeData) ||
+          !child.def.pluginStateIsReady(childNodeData, fullState)
+        ) {
           // At least one child is not ready, so rendering these out would be worse than pretending there are none.
           return emptyArray;
         }
