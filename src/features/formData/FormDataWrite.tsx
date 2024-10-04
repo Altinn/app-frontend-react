@@ -196,7 +196,7 @@ function useFormDataSaveMutation() {
           });
 
           const dataModelChanges: UpdatedDataModel[] = [];
-          for (const { id: dataElementId, data } of newDataModels) {
+          for (const { dataElementId, data } of newDataModels) {
             const dataType = Object.keys(dataModelsRef.current).find(
               (dataType) => dataModelsRef.current[dataType].dataElementId === dataElementId,
             );

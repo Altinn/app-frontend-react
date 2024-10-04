@@ -43,6 +43,6 @@ export interface IDataModelMultiPatchResponse {
 }
 
 export interface IDataModelPairResponse {
-  id: string;
+  dataElementId: string;
   data: object;
 }
