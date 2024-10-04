@@ -56,6 +56,7 @@ interface ContextMethods extends ExtendedState {
   isDeleting: (uuid: string) => boolean;
   changePage: (page: number) => Promise<void>;
   changePageToRow: (row: BaseRow) => Promise<void>;
+  deletingIds: string[];
 }
 
 type ZustandState = Store & ZustandHiddenMethods & Omit<ExtendedState, 'toggleEditing'>;
@@ -501,6 +502,8 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
 
   const isDeleting = useCallback((uuid: string) => stateRef.current.deletingIds.includes(uuid), [stateRef]);
 
+  const deletingIds = stateRef.current.deletingIds;
+
   return {
     node,
     addRow,
@@ -513,6 +516,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     toggleEditing,
     changePage,
     changePageToRow,
+    deletingIds,
   };
 }
 

@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import type { JSX } from 'react';
 
 import { Button } from '@digdir/designsystemet-react';
@@ -25,36 +25,60 @@ import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
 export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HTMLDivElement>): JSX.Element | null => {
-  const { node } = useRepeatingGroup();
+  const { node, isDeleting, deletingIds } = useRepeatingGroup();
   const mode = useNodeItem(node, (i) => i.edit?.mode);
 
   const editingId = useRepeatingGroupSelector((state) => state.editingId);
+
+  const deletingId = useRepeatingGroupSelector((state) => state.deletingIds);
+
   const isHidden = Hidden.useIsHidden(node);
+
+  const [ariaMessage, setAriaMessage] = useState('');
+
+  useEffect(() => {}, [deletingIds]);
+
+  console.log('isDeleting', isDeleting);
 
   if (isHidden || !node.isType('RepeatingGroup')) {
     return null;
   }
 
   return (
-    <Grid
-      container={true}
-      item={true}
-      data-componentid={node.id}
-      data-componentbaseid={node.baseId}
-      ref={ref}
-    >
-      {(!mode || mode === 'showTable') && <ModeOnlyTable />}
-      {mode === 'onlyTable' && <ModeOnlyTable />}
-      {mode === 'hideTable' && editingId === undefined && <ModeOnlyTable />}
-      {mode === 'hideTable' && editingId !== undefined && <ModeOnlyEdit editingId={editingId} />}
-      {mode === 'showAll' && <ModeShowAll />}
+    <>
+      <pre>{JSON.stringify(deletingIds, null, 2)}</pre>
+      {/*<pre>{JSON.stringify(deletingId, null, 2)}</pre>*/}
       <Grid
+        container={true}
         item={true}
-        xs={12}
+        data-componentid={node.id}
+        data-componentbaseid={node.baseId}
+        ref={ref}
       >
-        <AllComponentValidations node={node} />
+        <pre>{JSON.stringify(isDeleting, null, 2)}</pre>
+
+        {(!mode || mode === 'showTable') && <ModeOnlyTable />}
+        {mode === 'onlyTable' && <ModeOnlyTable />}
+        {mode === 'hideTable' && editingId === undefined && <ModeOnlyTable />}
+        {mode === 'hideTable' && editingId !== undefined && <ModeOnlyEdit editingId={editingId} />}
+        {mode === 'showAll' && <ModeShowAll />}
+        <Grid
+          item={true}
+          xs={12}
+        >
+          <AllComponentValidations node={node} />
+        </Grid>
       </Grid>
-    </Grid>
+
+      {deletingIds.length > 0 && (
+        <div
+          aria-live='polite'
+          className={'sr-only'}
+        >
+          item deleted
+        </div>
+      )}
+    </>
   );
 });
 RepeatingGroupContainer.displayName = 'RepeatingGroupContainer';
