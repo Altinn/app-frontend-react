@@ -1106,10 +1106,10 @@ export const NodesInternal = {
 
   useNodeData<N extends LayoutNode | undefined, Out>(
     node: N,
-    selector: (state: NodeDataFromNode<N>, readiness: NodesReadiness) => Out,
+    selector: (nodeData: NodeDataFromNode<N>, readiness: NodesReadiness, fullState: NodesContext) => Out,
   ) {
     return Conditionally.useMemoSelector((s) =>
-      node && s.nodeData[node.id] ? selector(s.nodeData[node.id] as NodeDataFromNode<N>, s.readiness) : undefined,
+      node && s.nodeData[node.id] ? selector(s.nodeData[node.id] as NodeDataFromNode<N>, s.readiness, s) : undefined,
     ) as N extends undefined ? Out | undefined : Out;
   },
   useNodeDataRef<N extends LayoutNode | undefined, Out>(

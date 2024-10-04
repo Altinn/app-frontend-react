@@ -4,7 +4,6 @@ import type { MutableRefObject } from 'react';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal, NodesReadiness } from 'src/utils/layout/NodesContext';
-import { typedBoolean } from 'src/utils/typing';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
@@ -47,6 +46,7 @@ export function useNodeItem(node: never, selector: never): never {
     } else if (lastItem.current) {
       item = lastItem.current;
     } else {
+      // This is possibly stale state, or in the process of being updated, but it's better than failing hard.
       item = data.item;
     }
 
@@ -94,13 +94,29 @@ const emptyArray: LayoutNode[] = [];
 export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): LayoutNode[] {
   const insideGenerator = GeneratorInternal.useIsInsideGenerator();
   const lastValue = useRef<LayoutNode[] | undefined>(undefined);
-  return NodesInternal.useNodeData(parent, (store, readiness) => {
-    if (readiness !== NodesReadiness.Ready && !insideGenerator) {
-      return lastValue.current ?? emptyArray;
+  return NodesInternal.useNodeData(parent, (nodeData, readiness, fullState) => {
+    if (readiness !== NodesReadiness.Ready && !insideGenerator && lastValue.current) {
+      return lastValue.current;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const out = parent.def.pickDirectChildren(nodeData as any, restriction);
+    if (!insideGenerator) {
+      // If we're not inside the generator, we should make sure to only return values that make sense.
+      for (const child of out) {
+        if (!child) {
+          // At least one child is undefined, meaning we're in the process of adding/removing nodes. Better to return
+          // none than return a broken-up set of children.
+          return emptyArray;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const childNodeData = fullState.nodeData[child.id] as any;
+        if (!childNodeData || !child.def.stateIsReady(childNodeData) || !child.def.pluginStateIsReady(childNodeData)) {
+          // At least one child is not ready, so rendering these out would be worse than pretending there are none.
+          return emptyArray;
+        }
+      }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const out = parent.def.pickDirectChildren(store as any, restriction).filter(typedBoolean);
     lastValue.current = out;
     return out ?? emptyArray;
   });
