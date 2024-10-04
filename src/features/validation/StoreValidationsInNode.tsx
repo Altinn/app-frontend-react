@@ -37,17 +37,16 @@ function StoreValidationsInNodeWorker() {
   const shouldSetValidations = NodesInternal.useNodeData(node, (data) => !deepEqual(data.validations, validations));
   NodesStateQueue.useSetNodeProp(
     { node, prop: 'validations', value: validations },
-    !shouldSetValidations && shouldValidate,
+    shouldSetValidations && shouldValidate,
   );
 
   // Reduce visibility as validations are fixed
   const initialVisibility = getInitialMaskFromNodeItem(item);
   const visibilityToSet = NodesInternal.useNodeData(node, (data) => {
-    const visibility = data.validationVisibility;
     const currentValidationMask = validations.reduce((mask, { category }) => mask | category, 0);
-    const newVisibilityMask = currentValidationMask & visibility;
-    if ((newVisibilityMask | initialVisibility) !== visibility) {
-      return newVisibilityMask;
+    const newVisibilityMask = currentValidationMask & data.validationVisibility;
+    if ((newVisibilityMask | initialVisibility) !== data.validationVisibility) {
+      return newVisibilityMask | initialVisibility;
     }
     return undefined;
   });
