@@ -34,6 +34,11 @@ export function useCurrentDataModelGuid() {
   const layoutSets = useLayoutSets();
   const taskId = useProcessTaskId();
 
+  const overriddenDataModelGuid = useTaskStore((s) => s.overriddenDataModelUuid);
+  if (overriddenDataModelGuid) {
+    return overriddenDataModelGuid;
+  }
+
   return getCurrentTaskDataElementId({ application, instance, taskId, layoutSets });
 }
 
@@ -115,7 +120,7 @@ export function useDataModelUrl({ dataType, dataElementId, includeRowIds, langua
 }
 
 export function useCurrentDataModelName() {
-  const { overriddenDataModelType } = useTaskStore(({ overriddenDataModelType }) => ({ overriddenDataModelType }));
+  const overriddenDataModelType = useTaskStore((state) => state.overriddenDataModelType);
 
   const application = useApplicationMetadata();
   const layoutSets = useLayoutSets();

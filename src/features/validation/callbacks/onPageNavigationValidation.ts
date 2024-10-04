@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { useRefetchInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { getVisibilityMask } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
@@ -21,9 +22,10 @@ export function useOnPageNavigationValidation() {
   const validating = Validation.useValidating();
   const pageOrder = usePageOrder();
   const traversalSelector = useNodeTraversalSelector();
+  const refetchInitialValidations = useRefetchInitialValidations(true);
 
   /* Ensures the callback will have the latest state */
-  const callback = useEffectEvent((currentPage: LayoutPage, config: PageValidation): boolean => {
+  const callback = useEffectEvent(async (currentPage: LayoutPage, config: PageValidation): Promise<boolean> => {
     const pageConfig = config.page ?? 'current';
     const masks = config.show;
 
@@ -57,6 +59,12 @@ export function useOnPageNavigationValidation() {
     } else {
       // Get all nodes
       nodes = traversalSelector((t) => t.flat(), []);
+    }
+
+    // We need to get updated validations from backend to validate subform
+    if (nodes.some((n) => n.isType('Subform'))) {
+      await refetchInitialValidations();
+      await validating();
     }
 
     // Get nodes with errors along with their errors
