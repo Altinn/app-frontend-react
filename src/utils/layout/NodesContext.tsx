@@ -159,7 +159,7 @@ export type NodesContext = {
   onSaveFinished: (result: FDSaveFinished) => void;
   setLatestInitialValidations: (validations: ValidationsProcessedLast['initial']) => void;
 
-  reset: () => void;
+  reset: (validationsProcessedLast: ValidationsProcessedLast) => void;
 
   waitForCommits: undefined | (() => Promise<void>);
   setWaitForCommits: (waitForCommits: () => Promise<void>) => void;
@@ -388,7 +388,8 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
         },
       })),
 
-    reset: () => set(() => ({ ...structuredClone(defaultState) })),
+    reset: (validationsProcessedLast: ValidationsProcessedLast) =>
+      set(() => ({ ...structuredClone(defaultState), validationsProcessedLast })),
 
     waitForCommits: undefined,
     setWaitForCommits: (waitForCommits) => set(() => ({ waitForCommits })),
@@ -508,13 +509,16 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const latestLayouts = useLayouts();
   const [layouts, setLayouts] = useState<ILayouts>(latestLayouts);
   const markNotReady = NodesInternal.useMarkNotReady();
+  const reset = Store.useSelector((s) => s.reset);
+  const processedLast = Validation.useProcessedLastRef();
 
   useEffect(() => {
     if (layouts !== latestLayouts) {
       markNotReady('new layouts');
       setLayouts(latestLayouts);
+      reset(processedLast.current);
     }
-  }, [latestLayouts, layouts, markNotReady]);
+  }, [latestLayouts, layouts, markNotReady, reset, processedLast]);
 
   const layoutMap = useMemo(() => {
     const out: { [id: string]: CompExternal } = {};
