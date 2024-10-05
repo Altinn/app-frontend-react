@@ -19,7 +19,7 @@ import {
 } from 'src/utils/layout/generator/GeneratorStages';
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -37,7 +37,6 @@ import type {
 import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
 import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
-import type { HiddenState } from 'src/utils/layout/NodesContext';
 import type { StateFactoryProps } from 'src/utils/layout/types';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
@@ -104,23 +103,8 @@ interface CommonProps<T extends CompTypes> {
 }
 
 function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T>) {
-  const hiddenByExpression = useEvalExpressionInGenerator(ExprVal.Boolean, node, externalItem.hidden, false);
-  const hiddenByRules = Hidden.useIsHiddenViaRules(node);
-  const hidden = {
-    hiddenByExpression,
-    hiddenByRules,
-    hiddenByTracks: false,
-  } satisfies HiddenState;
-
-  const isSet = NodesInternal.useNodeData(
-    node,
-    (data) =>
-      data.hidden &&
-      data.hidden.hiddenByExpression === hidden.hiddenByExpression &&
-      data.hidden.hiddenByRules === hidden.hiddenByRules &&
-      data.hidden.hiddenByTracks === hidden.hiddenByTracks,
-  );
-
+  const hidden = useEvalExpressionInGenerator(ExprVal.Boolean, node, externalItem.hidden, false) ?? false;
+  const isSet = NodesInternal.useNodeData(node, (data) => data.hidden === hidden);
   NodesStateQueue.useSetNodeProp({ node, prop: 'hidden', value: hidden }, !isSet);
 
   return null;

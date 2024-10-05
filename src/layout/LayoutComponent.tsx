@@ -116,7 +116,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * additional checks for any component.
    */
   public stateIsReady(state: NodeData<Type>): boolean {
-    return state.item !== undefined;
+    return state.item !== undefined && state.hidden !== undefined;
   }
 
   /**

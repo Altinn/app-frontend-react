@@ -29,7 +29,6 @@ import type {
   ContainerGeneratorProps,
 } from 'src/layout/LayoutComponent';
 import type { ChildClaim, ChildClaims, ChildClaimsMap } from 'src/utils/layout/generator/GeneratorContext';
-import type { HiddenState } from 'src/utils/layout/NodesContext';
 
 const style: React.CSSProperties = GeneratorDebug.displayState
   ? {
@@ -277,19 +276,11 @@ function AddPage({ layoutSet, page, name }: CommonProps) {
 }
 
 function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
-  const hiddenByTracks = Hidden.useIsPageHiddenViaTracks(name);
-  const hiddenByExpression = useIsHiddenPage(page);
-
-  const hidden: HiddenState = useMemo(
-    () => ({
-      hiddenByTracks,
-      hiddenByExpression,
-      hiddenByRules: false,
-    }),
-    [hiddenByTracks, hiddenByExpression],
-  );
+  const inOrder = Hidden.useIsPageInOrder(name);
+  const hidden = useIsHiddenPage(page);
 
   NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'hidden', value: hidden });
+  NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'inOrder', value: inOrder });
 
   return null;
 }
@@ -381,9 +372,9 @@ function GenerateNodeChildrenInternal({ claims, layoutMap }: NodeChildrenInterna
   );
 }
 
-function useIsHiddenPage(page: LayoutPage) {
+function useIsHiddenPage(page: LayoutPage): boolean {
   const hiddenExpr = useHiddenLayoutsExpressions();
-  return useEvalExpressionInGenerator(ExprVal.Boolean, page, hiddenExpr[page.pageKey], false);
+  return useEvalExpressionInGenerator(ExprVal.Boolean, page, hiddenExpr[page.pageKey], false) ?? false;
 }
 
 interface ComponentClaimChildrenProps {

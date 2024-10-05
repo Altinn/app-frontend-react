@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
@@ -72,16 +72,11 @@ export interface PagesData {
   };
 }
 
-export interface HiddenState {
-  hiddenByRules: boolean;
-  hiddenByExpression: boolean;
-  hiddenByTracks: boolean;
-}
-
 export interface PageData {
   type: 'page';
   pageKey: string;
-  hidden: HiddenState;
+  hidden: boolean;
+  inOrder: boolean;
   errors: GeneratorErrors | undefined;
 }
 
@@ -342,11 +337,8 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
           state.pagesData.pages[pageKey] = {
             type: 'page',
             pageKey,
-            hidden: {
-              hiddenByRules: false,
-              hiddenByExpression: false,
-              hiddenByTracks: false,
-            },
+            hidden: false,
+            inOrder: true,
             errors: undefined,
           };
           state.readiness = NodesReadiness.NotReady;
@@ -853,64 +845,72 @@ export interface IsHiddenOptions {
 
 type AccessibleIsHiddenOptions = Omit<IsHiddenOptions, 'forcedVisibleByDevTools'>;
 
-function isHiddenHere(hidden: HiddenState, options?: IsHiddenOptions) {
+function withDefaults(options?: IsHiddenOptions): Required<IsHiddenOptions> {
   const { respectDevTools = true, respectTracks = false, forcedVisibleByDevTools = false } = options ?? {};
-  if (forcedVisibleByDevTools && respectDevTools) {
-    return true;
-  }
-
-  return hidden.hiddenByRules || hidden.hiddenByExpression || (respectTracks && hidden.hiddenByTracks);
+  return { respectDevTools, respectTracks, forcedVisibleByDevTools };
 }
 
-function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined, options?: IsHiddenOptions) {
+function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined, _options?: IsHiddenOptions) {
+  const options = withDefaults(_options);
   if (!page) {
     return true;
   }
 
+  if (options.forcedVisibleByDevTools && options.respectDevTools) {
+    return false;
+  }
+
   const pageKey = typeof page === 'string' ? page : page.pageKey;
-  const hiddenState = state.pagesData.pages[pageKey]?.hidden;
-  if (!hiddenState) {
+  const pageState = state.pagesData.pages[pageKey];
+  const hidden = pageState?.hidden;
+  if (hidden) {
     return true;
   }
 
-  return isHiddenHere(hiddenState, options);
+  return options.respectTracks ? pageState?.inOrder === false : false;
 }
 
 export function isHidden(
   state: NodesContext,
   node: LayoutNode | LayoutPage | undefined,
-  options?: IsHiddenOptions,
+  _options?: IsHiddenOptions,
 ): boolean | undefined {
   if (!node) {
     return undefined;
   }
 
-  const hiddenState =
-    node instanceof LayoutPage ? state.pagesData.pages[node.pageKey]?.hidden : state.nodeData[node.id]?.hidden;
+  if (node instanceof LayoutPage) {
+    return isHiddenPage(state, node, _options);
+  }
 
-  if (!hiddenState) {
+  const options = withDefaults(_options);
+  if (options.forcedVisibleByDevTools && options.respectDevTools) {
+    return false;
+  }
+
+  const hidden = state.nodeData[node.id]?.hidden;
+  if (hidden === undefined) {
     return undefined;
   }
 
-  const hiddenHere = isHiddenHere(hiddenState, options);
-  if (hiddenHere) {
+  if (hidden) {
     return true;
   }
 
-  if (node instanceof BaseLayoutNode) {
-    const parent = node.parent;
-    if (parent instanceof BaseLayoutNode && 'isChildHidden' in parent.def && state.nodeData[parent.id]) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const childHidden = parent.def.isChildHidden(state.nodeData[parent.id] as any, node);
-      if (childHidden) {
-        return true;
-      }
-    }
-
-    return isHidden(state, parent, options);
+  if (state.hiddenViaRules[node.id]) {
+    return true;
   }
 
-  return false;
+  const parent = node.parent;
+  if (parent instanceof BaseLayoutNode && 'isChildHidden' in parent.def && state.nodeData[parent.id]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const childHidden = parent.def.isChildHidden(state.nodeData[parent.id] as any, node);
+    if (childHidden) {
+      return true;
+    }
+  }
+
+  return isHidden(state, parent, options);
 }
 
 function makeOptions(forcedVisibleByDevTools: boolean, options?: AccessibleIsHiddenOptions): IsHiddenOptions {
@@ -941,9 +941,7 @@ export const Hidden = {
   useHiddenPages(): Set<string> {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     const hiddenPages = WhenReady.useLaxMemoSelector((s) =>
-      Object.keys(s.pagesData.pages).filter((key) =>
-        isHiddenHere(s.pagesData.pages[key].hidden, makeOptions(forcedVisibleByDevTools)),
-      ),
+      Object.keys(s.pagesData.pages).filter((key) => isHiddenPage(s, key, makeOptions(forcedVisibleByDevTools))),
     );
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
   },
@@ -955,45 +953,34 @@ export const Hidden = {
         isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
     });
   },
-  useLaxIsHiddenSelector() {
-    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return Store.useLaxDelayedSelector({
-      mode: 'simple',
-      selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
-        isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
-    });
-  },
 
   /**
    * The next ones are primarily for internal use:
    */
-  useIsHiddenViaRules: (node: LayoutNode) =>
-    Store.useSelector((s) => s.hiddenViaRules[node.id] ?? s.hiddenViaRules[node.baseId] ?? false),
   useIsForcedVisibleByDevTools() {
     const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
     const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
 
     return devToolsIsOpen && devToolsHiddenComponents !== 'hide';
   },
-  useIsPageHiddenViaTracks(pageKey: string) {
+  useIsPageInOrder(pageKey: string) {
     const currentView = useCurrentView();
     const maybeLayoutSettings = useLaxLayoutSettings();
     const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? [] : maybeLayoutSettings.pages.order;
-    const isHiddenByTracks = !orderWithHidden.includes(pageKey);
     const layoutSettings = useLayoutSettings();
 
     if (pageKey === currentView) {
       // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
       // code caused this to be the current view even if it's not in the common order.
-      return false;
+      return true;
     }
 
     if (layoutSettings.pages.pdfLayoutName && pageKey === layoutSettings.pages.pdfLayoutName) {
       // If this is the pdf layout, then it's never hidden.
-      return false;
+      return true;
     }
 
-    return isHiddenByTracks;
+    return orderWithHidden.includes(pageKey);
   },
 };
 
