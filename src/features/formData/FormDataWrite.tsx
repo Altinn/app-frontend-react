@@ -90,7 +90,6 @@ function useFormDataSaveMutation() {
     FormDataContext
   >(useStore());
   const useIsSavingRef = useAsRef(useIsSaving());
-  const onSaveFinishedRef = useSelectorAsRef((s) => s.onSaveFinished);
   const queryClient = useQueryClient();
 
   // This updates the query cache with the new data models every time a save has finished. This means we won't have to
@@ -160,13 +159,11 @@ function useFormDataSaveMutation() {
           return;
         }
 
-        const out: FDSaveFinished = {
+        return {
           newDataModels: await Promise.all(newDataModels),
           savedData: next,
           validationIssues: undefined,
         };
-        onSaveFinishedRef.current?.(out);
-        return out;
       } else {
         // Stateful needs to use either old patch or multi patch
 
@@ -208,9 +205,7 @@ function useFormDataSaveMutation() {
             }
           }
 
-          const out: FDSaveFinished = { newDataModels: dataModelChanges, validationIssues, savedData: next };
-          onSaveFinishedRef.current?.(out);
-          return out;
+          return { newDataModels: dataModelChanges, validationIssues, savedData: next };
         } else {
           const dataType = dataTypes[0];
           const patch = createPatch({ prev: prev[dataType], next: next[dataType] });
@@ -231,13 +226,11 @@ function useFormDataSaveMutation() {
             // Ignore validations that require layout parsing in the backend which will slow down requests significantly
             ignoredValidators: IgnoredValidators,
           });
-          const out: FDSaveFinished = {
+          return {
             newDataModels: [{ dataType, data: newDataModel, dataElementId }],
             validationIssues,
             savedData: next,
           };
-          onSaveFinishedRef.current?.(out);
-          return out;
         }
       }
     },

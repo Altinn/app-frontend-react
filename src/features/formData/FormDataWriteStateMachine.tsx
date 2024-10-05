@@ -163,11 +163,6 @@ export interface FDSaveFinished extends FDSaveResult {
   };
 }
 
-interface ToProcess {
-  savedData: FDSaveFinished['savedData'];
-  newDataModels: UpdatedDataModel[];
-}
-
 export interface FormDataMethods {
   // Methods used for updating the data model. These methods will update the currentData model, and after
   // the debounce() method is called, the debouncedCurrentData model will be updated as well.
@@ -234,8 +229,11 @@ function makeActions(
     }
   }
 
-  function processChanges(state: FormDataContext, { newDataModels, savedData }: ToProcess) {
+  function processChanges(state: FormDataContext, toProcess: FDSaveFinished) {
+    const { validationIssues, savedData, newDataModels } = toProcess;
     state.manualSaveRequested = false;
+    state.validationIssues = validationIssues;
+    state.onSaveFinished?.(toProcess);
     for (const [dataType, { dataElementId, isDefault }] of Object.entries(state.dataModels)) {
       const next = dataElementId
         ? newDataModels.find((m) => m.dataElementId === dataElementId)?.data // Stateful apps
@@ -329,8 +327,6 @@ function makeActions(
       }),
     saveFinished: (props) =>
       set((state) => {
-        const { validationIssues } = props;
-        state.validationIssues = validationIssues;
         processChanges(state, props);
       }),
     setLeafValue: ({ reference, newValue, ...rest }) =>
@@ -503,11 +499,8 @@ function makeActions(
               savedData[dataType] = lastSavedData;
               return savedData;
             }, {}),
+            validationIssues: actionResult.updatedValidationIssues,
           });
-        }
-        // Update validation issues
-        if (actionResult?.updatedValidationIssues) {
-          state.validationIssues = actionResult.updatedValidationIssues;
         }
       }),
   };
