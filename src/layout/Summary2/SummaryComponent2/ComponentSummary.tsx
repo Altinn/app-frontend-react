@@ -21,6 +21,9 @@ interface ResolveComponentProps {
 }
 export function ComponentSummary({ componentNode, isCompact }: ComponentSummaryProps) {
   const summaryNodeItem = useSummary2Store((state) => state.summaryItem);
+
+  console.log('componentNode', componentNode);
+
   const componentNodeItem = useNodeItem(componentNode);
 
   const override = summaryNodeItem?.overrides?.find((override) => override.componentId === componentNode.id);

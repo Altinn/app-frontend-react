@@ -11,6 +11,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useOnGroupCloseValidation } from 'src/features/validation/callbacks/onGroupCloseValidation';
 import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/Providers/OpenByDefaultProvider';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem, useNodeItemRef, useWaitForNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
 import type { IGroupEditProperties } from 'src/layout/RepeatingGroup/config.generated';
@@ -19,7 +20,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { BaseRow } from 'src/utils/layout/types';
 
 interface Store {
-  freshRowsRef: MutableRefObject<BaseRow[] | undefined>;
+  freshRowsRef: MutableRefObject<number | undefined>;
   editingAll: boolean;
   editingNone: boolean;
   editingId: string | undefined;
@@ -206,7 +207,7 @@ function gotoPageForRow(
 }
 
 interface NewStoreProps {
-  freshRowsRef: MutableRefObject<BaseRow[] | undefined>;
+  freshRowsRef: MutableRefObject<number | undefined>;
   rowsRef: MutableRefObject<RepGroupRows>;
   editMode: IGroupEditProperties['mode'];
   pagination: CompInternal<'RepeatingGroup'>['pagination'];
@@ -326,6 +327,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   const removeFromList = FD.useRemoveFromListCallback();
   const onBeforeRowDeletion = useAttachmentDeletionInRepGroups(node);
   const onGroupCloseValidation = useOnGroupCloseValidation();
+  const markNodesNotReady = NodesInternal.useMarkNotReady();
 
   const waitForItem = useWaitForNodeItem(node);
 
@@ -439,6 +441,8 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       reference: groupBinding,
       newValue: { [ALTINN_ROW_ID]: uuid },
     });
+
+    markNodesNotReady(); // Doing this early to prevent re-renders when this is added to the data model
     startAddingRow(uuid);
     let foundRow: RepGroupRow | undefined;
     await waitForItem((item) => {
@@ -470,7 +474,16 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     }
 
     return { result: 'addedAndHidden', uuid, index };
-  }, [appendToList, groupBinding, maybeValidateRow, rowStateRef, openForEditing, stateRef, waitForItem]);
+  }, [
+    stateRef,
+    groupBinding,
+    maybeValidateRow,
+    appendToList,
+    markNodesNotReady,
+    waitForItem,
+    rowStateRef,
+    openForEditing,
+  ]);
 
   const deleteRow = useCallback(
     async (row: BaseRow) => {
@@ -481,6 +494,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
         return false;
       }
 
+      markNodesNotReady(); // Doing this early to prevent re-renders when this is removed from the data model
       startDeletingRow(row);
       const attachmentDeletionSuccessful = await onBeforeRowDeletion(row.index);
       if (attachmentDeletionSuccessful && groupBinding) {
@@ -497,7 +511,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       endDeletingRow(row, false);
       return false;
     },
-    [groupBinding, rowStateRef, onBeforeRowDeletion, removeFromList, stateRef],
+    [rowStateRef, stateRef, markNodesNotReady, onBeforeRowDeletion, groupBinding, removeFromList],
   );
 
   const isDeleting = useCallback((uuid: string) => stateRef.current.deletingIds.includes(uuid), [stateRef]);
@@ -555,10 +569,10 @@ function EffectPagination() {
  * fresh list of rows we can use to filter out rows that are about to be deleted. This fixes a problem
  * where repeating group rows will 'flash' with outdated data before being removed.
  */
-function EffectSelectFreshRows({ freshRowsRef }: { freshRowsRef: MutableRefObject<BaseRow[] | undefined> }) {
+function EffectSelectFreshRows({ freshRowsRef }: { freshRowsRef: MutableRefObject<number | undefined> }) {
   const node = useRepeatingGroupNode();
   const binding = useNodeItem(node, (i) => i.dataModelBindings.group);
-  freshRowsRef.current = FD.useFreshRows(binding);
+  freshRowsRef.current = FD.useFreshNumRows(binding);
 
   return null;
 }
@@ -566,12 +580,11 @@ function EffectSelectFreshRows({ freshRowsRef }: { freshRowsRef: MutableRefObjec
 /**
  * This function filters out rows that are about to be deleted from the rows state
  */
-function filterByFreshRows(rows: RepGroupRows, freshRows: BaseRow[] | undefined): RepGroupRows {
-  if (!freshRows) {
+function filterByFreshRows(rows: RepGroupRows, freshRowsNum: number | undefined): RepGroupRows {
+  if (!freshRowsNum) {
     return rows;
   }
-  const freshRowIds = new Set(freshRows.map((row) => `${row.uuid}-${row.index}`));
-  return rows.filter((row) => !!row && freshRowIds.has(`${row.uuid}-${row.index}`));
+  return rows.slice(0, freshRowsNum);
 }
 
 function ProvideTheRest({ node, children }: PropsWithChildren<Props>) {
@@ -587,7 +600,7 @@ export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Pro
   const pagination = useNodeItem(node, (i) => i.pagination);
   const editMode = useNodeItem(node, (i) => i.edit?.mode);
 
-  const freshRowsRef = useRef<BaseRow[] | undefined>(undefined);
+  const freshRowsRef = useRef<number | undefined>(undefined);
   const rowsRef = useNodeItemRef(node, (i) => filterByFreshRows(i.rows, freshRowsRef.current));
 
   return (
