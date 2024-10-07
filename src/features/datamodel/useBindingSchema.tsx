@@ -10,7 +10,7 @@ import {
 } from 'src/features/applicationMetadata/appMetadataUtils';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceData, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
@@ -83,7 +83,7 @@ function getDataModelUrl({
 export function useGetDataModelUrl() {
   const isAnonymous = useAllowAnonymous();
   const isStateless = useApplicationMetadata().isStatelessApp;
-  const instanceId = useLaxInstanceData()?.id;
+  const instanceId = useLaxInstanceId();
   const currentLanguage = useAsRef(useCurrentLanguage());
 
   return useCallback(
@@ -105,7 +105,7 @@ export function useGetDataModelUrl() {
 export function useDataModelUrl({ dataType, dataElementId, includeRowIds, language }: DataModelProps) {
   const isAnonymous = useAllowAnonymous();
   const isStateless = useApplicationMetadata().isStatelessApp;
-  const instanceId = useLaxInstanceData()?.id;
+  const instanceId = useLaxInstanceId();
   const currentLanguage = useAsRef(useCurrentLanguage());
 
   return getDataModelUrl({

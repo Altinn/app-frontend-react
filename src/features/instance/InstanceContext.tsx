@@ -215,6 +215,7 @@ function useLaxInstance<U>(selector: (state: InstanceContext) => U) {
 
 export const useLaxInstanceId = () => useLaxInstance((state) => state.instanceId);
 export const useLaxInstanceData = () => useLaxInstance((state) => state.data);
+export const useLaxInstanceStatus = () => useLaxInstance((state) => state.data?.status);
 export const useLaxAppendDataElement = () => useLaxInstance((state) => state.appendDataElement);
 export const useLaxMutateDataElement = () => useLaxInstance((state) => state.mutateDataElement);
 export const useLaxRemoveDataElement = () => useLaxInstance((state) => state.removeDataElement);
@@ -223,7 +224,10 @@ export const useLaxChangeInstance = (): ChangeInstanceData | undefined => useLax
 export const useHasInstance = () => useHasProvider();
 
 const emptyArray: never[] = [];
-export const useStrictInstance = () => useSelector((state) => state);
+export const useStrictInstanceRefetch = () => useSelector((state) => state.reFetch);
 export const useStrictInstanceId = () => useSelector((state) => state.instanceId);
+export const useStrictAppendDataElement = () => useSelector((state) => state.appendDataElement);
+export const useStrictMutateDataElement = () => useSelector((state) => state.mutateDataElement);
+export const useStrictRemoveDataElement = () => useSelector((state) => state.removeDataElement);
 export const useStrictDataElements = (dataType: string | undefined) =>
   useMemoSelector((state) => state.data?.data.filter((d) => d.dataType === dataType)) ?? emptyArray;
