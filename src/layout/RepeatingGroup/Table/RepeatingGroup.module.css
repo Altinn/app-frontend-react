@@ -178,8 +178,17 @@ table > tbody > tr.editingRow:hover {
 
 .buttonInCellWrapper {
   display: inline-flex;
-  flex-direction: column;
-  align-items: flex-end;
+  gap: var(--fds-spacing-2);
+  width: 100%;
+}
+
+.buttonInCellWrapper > button:first-of-type {
+  margin-left: auto;
+}
+
+.buttonInMobileCellWrapper {
+  display: flex;
+  gap: var(--fds-spacing-2);
   width: 100%;
 }
 
@@ -233,7 +242,7 @@ table > tbody > tr.editingRow:hover {
 }
 
 .responsiveTable {
-  display: block;
+  border-collapse: collapse;
 }
 
 .responsiveTable thead {
@@ -265,12 +274,16 @@ table > tbody > tr.editingRow:hover {
   width: 100%;
 }
 
-.responsiveTable tbody:last-child tr:last-child {
-  border-bottom: none;
+.responsiveTable tbody tr:last-child {
+  border-bottom: 2px solid var(--fds-semantic-border-neutral-default);
+}
+
+.responsiveTable tbody tr:first-child {
+  border-top: 2px solid var(--fds-semantic-border-neutral-default);
 }
 
 .responsiveTable tr {
-  border-bottom: 2px solid var(--fds-semantic-border-neutral-default);
+  border-bottom: 1px solid var(--fds-semantic-border-neutral-default);
   padding-top: var(--fds-spacing-3);
   padding-bottom: var(--fds-spacing-3);
 }

@@ -142,24 +142,11 @@ function _RepeatingGroupTableRow({
     >
       {tableNodes.map((n, idx) =>
         shouldEditInTable(editForGroup, n, columnSettings) ? (
-          <Table.Cell
+          <EditableTableCell
             key={n.id}
-            className={classes.tableCell}
-          >
-            <div ref={(ref) => refSetter && refSetter(index, `component-${n.id}`, ref)}>
-              <GenericComponent
-                node={n}
-                overrideDisplay={{
-                  renderedInTable: true,
-                  renderLabel: false,
-                  renderLegend: false,
-                }}
-                overrideItemProps={{
-                  grid: {},
-                }}
-              />
-            </div>
-          </Table.Cell>
+            node={n}
+            index={index}
+          />
         ) : (
           <NonEditableCell
             key={n.id}
@@ -180,47 +167,71 @@ function _RepeatingGroupTableRow({
             colSpan={displayEditColumn && displayDeleteColumn ? 2 : 1}
           />
         ) : null}
-        {editForRow?.editButton !== false && displayEditColumn && (
+        {((editForRow?.editButton !== false && displayEditColumn) ||
+          (editForRow?.deleteButton !== false && displayDeleteColumn)) && (
           <Table.Cell
             key={`edit-${uuid}`}
             className={classes.buttonCell}
             colSpan={displayDeleteColumn && editForRow?.deleteButton === false ? 2 : 1}
           >
-            <div className={classes.buttonInCellWrapper}>
-              <Button
-                aria-expanded={isEditingRow}
-                aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
-                variant='tertiary'
-                color='second'
-                size='small'
-                onClick={() => toggleEditing({ index: row.index, uuid: row.uuid })}
-                aria-label={`${editButtonText} ${firstCellData ?? ''}`}
-                data-testid='edit-button'
-                className={classes.tableButton}
-              >
-                {(isEditingRow || !mobileViewSmall) && editButtonText}
-                {rowHasErrors ? (
-                  <ErrorIcon
-                    fontSize='1rem'
-                    aria-hidden='true'
-                  />
-                ) : (
-                  <EditIcon
-                    fontSize='1rem'
-                    aria-hidden='true'
-                  />
-                )}
-              </Button>
+            <div
+              className={cn({
+                [classes.buttonInCellWrapper]: !mobileViewSmall,
+                [classes.buttonInMobileCellWrapper]: mobileViewSmall,
+              })}
+            >
+              {editForRow?.editButton !== false && displayEditColumn && (
+                <Button
+                  aria-expanded={isEditingRow}
+                  aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
+                  variant={mobileViewSmall ? 'secondary' : 'tertiary'}
+                  color='second'
+                  size='small'
+                  onClick={() => toggleEditing({ index: row.index, uuid: row.uuid })}
+                  aria-label={`${editButtonText} ${firstCellData ?? ''}`}
+                  data-testid='edit-button'
+                  className={classes.tableButton}
+                >
+                  {editButtonText}
+                  {rowHasErrors ? (
+                    <ErrorIcon
+                      fontSize='1rem'
+                      aria-hidden='true'
+                    />
+                  ) : (
+                    <EditIcon
+                      fontSize='1rem'
+                      aria-hidden='true'
+                    />
+                  )}
+                </Button>
+              )}
+              {editForRow?.deleteButton !== false && displayDeleteColumn && (
+                <DeleteElement
+                  index={index}
+                  uuid={uuid}
+                  isDeletingRow={isDeletingRow}
+                  editForRow={editForRow}
+                  deleteButtonText={deleteButtonText}
+                  firstCellData={firstCellData}
+                  alertOnDeleteProps={alertOnDelete}
+                  langAsString={langAsString}
+                  isMobile={mobileViewSmall}
+                >
+                  {deleteButtonText}
+                </DeleteElement>
+              )}
             </div>
           </Table.Cell>
         )}
-        {editForRow?.deleteButton !== false && displayDeleteColumn && (
+
+        {/* {editForRow?.deleteButton !== false && displayDeleteColumn && (
           <Table.Cell
             key={`delete-${uuid}`}
             className={cn(classes.buttonCell)}
             colSpan={displayEditColumn && editForRow?.editButton === false ? 2 : 1}
           >
-            <div className={classes.buttonInCellWrapper}>
+            <div className={cn({ [classes.buttonInCellWrapper]: !mobileViewSmall })}>
               <DeleteElement
                 index={index}
                 uuid={uuid}
@@ -230,12 +241,13 @@ function _RepeatingGroupTableRow({
                 firstCellData={firstCellData}
                 alertOnDeleteProps={alertOnDelete}
                 langAsString={langAsString}
+                isMobile={mobileViewSmall}
               >
-                {isEditingRow || !mobileViewSmall ? deleteButtonText : null}
+                {deleteButtonText}
               </DeleteElement>
             </div>
           </Table.Cell>
-        )}
+        )} */}
       </>
     </Table.Row>
   );
@@ -271,6 +283,7 @@ function DeleteElement({
   langAsString,
   alertOnDeleteProps: { alertOpen, setAlertOpen, confirmChange, cancelChange, handleChange: handleDelete },
   children,
+  isMobile,
 }: {
   index: number;
   uuid: string;
@@ -281,6 +294,7 @@ function DeleteElement({
   langAsString: (key: string) => string;
   alertOnDeleteProps: AlertOnChange<(row: BaseRow) => void>;
   children: React.ReactNode;
+  isMobile?: boolean;
 }) {
   return (
     <ConditionalWrapper
@@ -300,7 +314,7 @@ function DeleteElement({
       )}
     >
       <Button
-        variant='tertiary'
+        variant={isMobile ? 'secondary' : 'tertiary'}
         color='danger'
         size='small'
         disabled={isDeletingRow}
@@ -335,10 +349,10 @@ function NonEditableCell({
 }) {
   const { langAsString } = useLanguage();
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
+  const style = useColumnStylesRepeatingGroups(node, columnSettings);
   const headerTitle = langAsString(
     getTableTitle(nodeDataSelector((picker) => picker(node)?.item?.textResourceBindings ?? {}, [node])),
   );
-  const style = useColumnStylesRepeatingGroups(node, columnSettings);
 
   return (
     <Table.Cell
@@ -351,6 +365,35 @@ function NonEditableCell({
       >
         {isEditingRow ? null : displayData[idx]}
       </span>
+    </Table.Cell>
+  );
+}
+
+function EditableTableCell({ node, index }: { node: LayoutNode; index: number }) {
+  const { langAsString } = useLanguage();
+  const { refSetter } = useRepeatingGroupsFocusContext();
+  const nodeDataSelector = NodesInternal.useNodeDataSelector();
+  const headerTitle = langAsString(
+    getTableTitle(nodeDataSelector((picker) => picker(node)?.item?.textResourceBindings ?? {}, [node])),
+  );
+  return (
+    <Table.Cell
+      className={classes.tableCell}
+      data-header-title={headerTitle}
+    >
+      <div ref={(ref) => refSetter && refSetter(index, `component-${node.id}`, ref)}>
+        <GenericComponent
+          node={node}
+          overrideDisplay={{
+            renderedInTable: true,
+            renderLabel: false,
+            renderLegend: false,
+          }}
+          overrideItemProps={{
+            grid: {},
+          }}
+        />
+      </div>
     </Table.Cell>
   );
 }

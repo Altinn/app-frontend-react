@@ -239,7 +239,6 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
 
 function TitleCell({ node, columnSettings }: { node: LayoutNode; columnSettings: ITableColumnFormatting }) {
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
-  console.log('node', node);
   return (
     <Table.HeaderCell
       className={classes.tableCellFormatting}
