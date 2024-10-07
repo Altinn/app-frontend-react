@@ -16,6 +16,7 @@ describe('Payment', () => {
     cy.findByRole('checkbox', { name: /Jeg har lest og forstått/ }).click();
     cy.findByRole('textbox', { name: /Klassenummer/ }).type('1');
     cy.findByRole('textbox', { name: /Varer\/tjenester/ }).type('test');
+    cy.findByRole('textbox', { name: /Varer\/tjenester/ }).blur();
     cy.contains('button', 'Betalning og saksgangen vidare').click();
   });
 
