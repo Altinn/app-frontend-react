@@ -86,12 +86,9 @@ export const ListComponent = ({ node }: IListProps) => {
 
   return (
     <ComponentStructureWrapper node={node}>
-      <Table width='100%'>
+      <Table className={classes.listTable}>
         {title && (
-          <caption
-            id={getLabelId(node.id)}
-            className={classes.caption}
-          >
+          <caption id={getLabelId(node.id)}>
             <Heading
               level={2}
               size='sm'
@@ -107,11 +104,10 @@ export const ListComponent = ({ node }: IListProps) => {
         )}
         <Table.Head>
           <Table.Row>
-            <Table.HeaderCell className={classes.headerCell} />
+            <Table.HeaderCell />
             {Object.entries(filteredHeaders).map(([key, value]) => (
               <Table.HeaderCell
                 key={key}
-                className={classes.headerCell}
                 sortable={sortableColumns?.includes(key)}
                 sort={sortColumn === key ? sortDirection : undefined}
                 onSortClick={() => {

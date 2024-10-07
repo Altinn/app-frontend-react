@@ -1,5 +1,34 @@
-.headerCell {
+.listTable {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.listTable caption {
+  text-align: left;
+  padding-bottom: var(--fds-spacing-4);
+}
+
+.listTable th:first-of-type {
+  width: 100px;
+}
+
+.listTable th {
   background-color: var(--fds-colors-grey-100);
+}
+
+.listTable tr {
+  cursor: pointer;
+  height: 60px;
+}
+
+.listTable tr td:first-of-type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.listTable td {
+  font-size: 16px;
 }
 
 .selectedRowCell {
@@ -12,14 +41,4 @@
   justify-content: end;
   align-items: center;
   background-color: var(--fds-colors-grey-100);
-}
-
-tr {
-  cursor: pointer;
-  height: 60px;
-}
-
-.caption {
-  text-align: left;
-  padding-bottom: var(--fds-spacing-4);
 }
