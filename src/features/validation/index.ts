@@ -5,7 +5,7 @@ import type { TextReference, ValidLangParam } from 'src/features/language/useLan
 import type { DataElementHasErrorsSelector } from 'src/features/validation/validationContext';
 import type { FormDataSelector } from 'src/layout';
 import type { ILayoutSets } from 'src/layout/common.generated';
-import type { IInstance } from 'src/types/shared';
+import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
@@ -217,7 +217,7 @@ export type ValidationDataSources = {
   attachmentsSelector: AttachmentsSelector;
   nodeDataSelector: NodeDataSelector;
   applicationMetadata: ApplicationMetadata;
-  instance: IInstance | undefined;
+  dataElements: IData[];
   layoutSets: ILayoutSets;
   dataElementHasErrorsSelector: DataElementHasErrorsSelector;
 };

@@ -253,7 +253,7 @@ function UpdateShowAllErrors() {
 
   const isFirstRender = useRef(true);
   const lastSaved = FD.useLastSaveValidationIssues();
-  const instanceData = useLaxInstanceData();
+  const instanceData = useLaxInstanceData((data) => data); // TODO: Do we need to select everything?
   // Since process/next returns non-incremental validations, we need to also check these to see when they are removed
   const refetchInitialValidations = useRefetchInitialValidations(false, !hasIncrementalValidationFeatures);
   useEffect(() => {
