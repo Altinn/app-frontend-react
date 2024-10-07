@@ -7,6 +7,7 @@ import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { QueryClient } from '@tanstack/react-query';
 import { act, render as rtlRender, waitFor } from '@testing-library/react';
 import dotenv from 'dotenv';
+import { applyPatch } from 'fast-json-patch';
 import type { RenderOptions, waitForOptions } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
@@ -23,6 +24,8 @@ import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
+import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
+import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { RenderStart } from 'src/core/ui/RenderStart';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
@@ -48,6 +51,7 @@ import { useNode, useNodes } from 'src/utils/layout/NodesContext';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
 import type { FormDataMethods } from 'src/features/formData/FormDataWriteStateMachine';
+import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
@@ -61,6 +65,10 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   waitUntilLoaded?: boolean;
   queries?: Partial<AppQueries>;
   initialRenderRef?: InitialRenderRef;
+
+  // Setting this allows you to pretend to be the backend (true = all requests are resolved successfully). When
+  // using a callback function you can simulate ProcessDataWrite by returning a new model.
+  mockFormDataSaving?: true | ((data: unknown, url: string) => unknown);
 }
 
 interface InstanceRouterProps {
@@ -122,6 +130,8 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   doProcessNext: makeMock('doProcessNext'),
   doInstantiateWithPrefill: makeMock('doInstantiateWithPrefill'),
   doPerformAction: makeMock('doPerformAction'),
+  doSubformEntryAdd: makeMock('doSubformEntryAdd'),
+  doSubformEntryDelete: makeMock('doSubformEntryDelete'),
 });
 
 const defaultQueryMocks: AppQueries = {
@@ -153,6 +163,7 @@ const defaultQueryMocks: AppQueries = {
   fetchProcessState: async () => getProcessDataMock(),
   fetchInstanceData: async () => getInstanceDataMock(),
   fetchBackendValidations: async () => [],
+  fetchBackendValidationsForDataElement: async () => [],
   fetchPaymentInformation: async () => paymentResponsePayload,
   fetchOrderDetails: async () => orderDetailsResponsePayload,
 };
@@ -274,35 +285,39 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
       queryClient={queryClient}
     >
       <LanguageProvider>
-        <LangToolsStoreProvider>
-          <MuiThemeProvider theme={theme}>
-            <UiConfigProvider>
-              <PageNavigationProvider>
-                <Router>
-                  <AppRoutingProvider>
-                    <ApplicationMetadataProvider>
-                      <GlobalFormDataReadersProvider>
-                        <OrgsProvider>
-                          <ApplicationSettingsProvider>
-                            <LayoutSetsProvider>
-                              <ProfileProvider>
-                                <PartyProvider>
-                                  <TextResourcesProvider>
-                                    <InstantiationProvider>{children}</InstantiationProvider>
-                                  </TextResourcesProvider>
-                                </PartyProvider>
-                              </ProfileProvider>
-                            </LayoutSetsProvider>
-                          </ApplicationSettingsProvider>
-                        </OrgsProvider>
-                      </GlobalFormDataReadersProvider>
-                    </ApplicationMetadataProvider>
-                  </AppRoutingProvider>
-                </Router>
-              </PageNavigationProvider>
-            </UiConfigProvider>
-          </MuiThemeProvider>
-        </LangToolsStoreProvider>
+        <DataLoadingProvider>
+          <TaskStoreProvider>
+            <LangToolsStoreProvider>
+              <MuiThemeProvider theme={theme}>
+                <UiConfigProvider>
+                  <PageNavigationProvider>
+                    <Router>
+                      <AppRoutingProvider>
+                        <ApplicationMetadataProvider>
+                          <GlobalFormDataReadersProvider>
+                            <OrgsProvider>
+                              <ApplicationSettingsProvider>
+                                <LayoutSetsProvider>
+                                  <ProfileProvider>
+                                    <PartyProvider>
+                                      <TextResourcesProvider>
+                                        <InstantiationProvider>{children}</InstantiationProvider>
+                                      </TextResourcesProvider>
+                                    </PartyProvider>
+                                  </ProfileProvider>
+                                </LayoutSetsProvider>
+                              </ApplicationSettingsProvider>
+                            </OrgsProvider>
+                          </GlobalFormDataReadersProvider>
+                        </ApplicationMetadataProvider>
+                      </AppRoutingProvider>
+                    </Router>
+                  </PageNavigationProvider>
+                </UiConfigProvider>
+              </MuiThemeProvider>
+            </LangToolsStoreProvider>
+          </TaskStoreProvider>
+        </DataLoadingProvider>
       </LanguageProvider>
     </AppQueriesProvider>
   );
@@ -331,11 +346,15 @@ function MinimalProviders({ children, queries, queryClient, Router = DefaultRout
       {...queries}
       queryClient={queryClient}
     >
-      <LangToolsStoreProvider>
-        <Router>
-          <AppRoutingProvider>{children}</AppRoutingProvider>
-        </Router>
-      </LangToolsStoreProvider>
+      <TaskStoreProvider>
+        <DataLoadingProvider>
+          <LangToolsStoreProvider>
+            <Router>
+              <AppRoutingProvider>{children}</AppRoutingProvider>
+            </Router>
+          </LangToolsStoreProvider>
+        </DataLoadingProvider>
+      </TaskStoreProvider>
     </AppQueriesProvider>
   );
 }
@@ -387,6 +406,44 @@ export function setupFakeApp({ queries, mutations }: SetupFakeAppProps = {}) {
   };
 }
 
+function injectFormDataSavingSimulator(
+  queryMocks: AppQueries,
+  mutationMocks: AppMutations,
+  mockBackend: Required<ExtendedRenderOptions>['mockFormDataSaving'],
+) {
+  const models: Record<string, unknown> = {};
+  const originalFetchFormData = queryMocks.fetchFormData;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (queryMocks as any).fetchFormData = jest.fn().mockImplementation(async (url: string) => {
+    const result = await originalFetchFormData(url);
+    models[url] = result;
+    return result;
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (mutationMocks as any).doPatchFormData = jest
+    .fn()
+    .mockImplementation(async (url: string, req: IDataModelPatchRequest): Promise<IDataModelPatchResponse> => {
+      const model = structuredClone(models[url] ?? {});
+      applyPatch(model, req.patch);
+      const afterProcessing = typeof mockBackend === 'function' ? mockBackend(model, url) : model;
+      models[url] = afterProcessing;
+
+      return {
+        newDataModel: afterProcessing as object,
+        validationIssues: {},
+      };
+    });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (mutationMocks as any).doPostStatelessFormData = jest.fn().mockImplementation(async (url: string, data: unknown) => {
+    const afterProcessing = typeof mockBackend === 'function' ? mockBackend(data, url) : data;
+    models[url] = afterProcessing;
+    return afterProcessing;
+  });
+}
+
 const renderBase = async ({
   renderer,
   router,
@@ -394,6 +451,7 @@ const renderBase = async ({
   waitUntilLoaded = true,
   Providers = DefaultProviders,
   initialRenderRef = { current: true },
+  mockFormDataSaving,
   ...renderOptions
 }: BaseRenderOptions) => {
   const { queryClient, queriesOnly: finalQueries } = setupFakeApp({ queries });
@@ -406,6 +464,10 @@ const renderBase = async ({
   const mutationMocks = Object.fromEntries(
     Object.entries(mutations).map(([key, value]) => [key, value.mock]),
   ) as AppMutations;
+
+  if (mockFormDataSaving) {
+    injectFormDataSavingSimulator(queryMocks, mutationMocks, mockFormDataSaving);
+  }
 
   const ProviderWrapper = ({ children }: PropsWithChildren) => (
     <Providers

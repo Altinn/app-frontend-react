@@ -10,7 +10,7 @@ export const getIncomingApplicationMetadataMock = (
       nb: 'Test App',
     },
     autoDeleteOnProcessEnd: false,
-    altinnNugetVersion: '8.0.0.108',
+    altinnNugetVersion: '8.5.0.141',
     dataTypes: [
       {
         id: 'test-data-model',
@@ -61,6 +61,17 @@ export const getIncomingApplicationMetadataMock = (
         },
         maxCount: 1,
         minCount: 1,
+      },
+      {
+        id: 'subform-data',
+        allowedContentTypes: ['application/xml'],
+        appLogic: {
+          classRef: '...',
+          allowInSubform: true,
+        },
+        taskId: 'Task_1',
+        maxCount: 0,
+        minCount: 0,
       },
     ],
     partyTypesAllowed: {

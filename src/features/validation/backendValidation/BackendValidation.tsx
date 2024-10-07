@@ -13,13 +13,14 @@ import {
   useShouldValidateInitial,
 } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { Validation } from 'src/features/validation/validationContext';
+import { NodesStore } from 'src/utils/layout/NodesContext';
 
 const emptyObject = {};
 const emptyArray = [];
 
 export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
   const updateBackendValidations = Validation.useUpdateBackendValidations();
-  const getDataTypeForElementId = DataModels.useGetDataTypeForDataElementId();
+  const defaultDataElementId = DataModels.useDefaultDataElementId();
   const lastSaveValidations = FD.useLastSaveValidationIssues();
   const validatorGroups = useRef<BackendFieldValidatorGroups>({});
 
@@ -32,7 +33,7 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
     }
     // Note that we completely ignore task validations (validations not related to form data) on initial validations,
     // this is because validations like minimum number of attachments in application metadata is not really useful to show initially
-    const fieldValidations = mapBackendIssuesToFieldValdiations(initialValidations, getDataTypeForElementId);
+    const fieldValidations = mapBackendIssuesToFieldValdiations(initialValidations, defaultDataElementId);
     const validatorGroups: BackendFieldValidatorGroups = {};
     for (const validation of fieldValidations) {
       if (!validatorGroups[validation.source]) {
@@ -41,7 +42,7 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
       validatorGroups[validation.source].push(validation);
     }
     return validatorGroups;
-  }, [getDataTypeForElementId, initialValidations]);
+  }, [defaultDataElementId, initialValidations]);
 
   // Map task validations
   const initialTaskValidations = useMemo(() => {
@@ -73,7 +74,7 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
       const newValidatorGroups = structuredClone(validatorGroups.current);
 
       for (const [group, validationIssues] of Object.entries(lastSaveValidations)) {
-        newValidatorGroups[group] = mapBackendIssuesToFieldValdiations(validationIssues, getDataTypeForElementId);
+        newValidatorGroups[group] = mapBackendIssuesToFieldValdiations(validationIssues, defaultDataElementId);
       }
 
       if (deepEqual(validatorGroups.current, newValidatorGroups)) {
@@ -86,7 +87,19 @@ export function BackendValidation({ dataTypes }: { dataTypes: string[] }) {
       const backendValidations = mapValidatorGroupsToDataModelValidations(validatorGroups.current, dataTypes);
       updateBackendValidations(backendValidations, { incremental: lastSaveValidations });
     }
-  }, [dataTypes, getDataTypeForElementId, lastSaveValidations, updateBackendValidations]);
+  }, [dataTypes, defaultDataElementId, lastSaveValidations, updateBackendValidations]);
+
+  return null;
+}
+
+export function MaintainInitialValidationsInNodesContext() {
+  const enabled = useShouldValidateInitial();
+  const { data: initialValidations } = useBackendValidationQuery(enabled);
+  const setInitialValidations = NodesStore.useSelector((state) => state.setLatestInitialValidations);
+
+  useEffect(() => {
+    setInitialValidations(initialValidations);
+  }, [initialValidations, setInitialValidations]);
 
   return null;
 }

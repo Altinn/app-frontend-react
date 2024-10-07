@@ -1,16 +1,22 @@
 import { CG } from 'src/codegen/CG';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
-import type { ComponentValidation } from 'src/features/validation/index';
+import type { ComponentValidation, ValidationsProcessedLast } from 'src/features/validation/index';
 import type { CompCategory } from 'src/layout/common';
 import type { TypesFromCategory } from 'src/layout/layout';
-import type { DefPluginExtraState, DefPluginStateFactoryProps } from 'src/utils/layout/plugins/NodeDefPlugin';
+import type { NodesContext } from 'src/utils/layout/NodesContext';
+import type {
+  DefPluginExtraState,
+  DefPluginState,
+  DefPluginStateFactoryProps,
+} from 'src/utils/layout/plugins/NodeDefPlugin';
 
 interface Config {
   componentType: TypesFromCategory<CompCategory.Form | CompCategory.Container>;
   extraState: {
     validations: ComponentValidation[];
     validationVisibility: number;
+    validationsProcessedLast: ValidationsProcessedLast;
   };
 }
 
@@ -39,6 +45,7 @@ export class ValidationPlugin extends NodeDefPlugin<Config> {
     return {
       validations: [],
       validationVisibility: 0,
+      validationsProcessedLast: { initial: undefined, incremental: undefined },
     };
   }
 
@@ -49,5 +56,12 @@ export class ValidationPlugin extends NodeDefPlugin<Config> {
     });
 
     return `<${StoreValidationsInNode} />`;
+  }
+
+  stateIsReady(state: DefPluginState<Config>, fullState: NodesContext): boolean {
+    return (
+      state.validationsProcessedLast.initial === fullState.validationsProcessedLast.initial &&
+      state.validationsProcessedLast.incremental === fullState.validationsProcessedLast.incremental
+    );
   }
 }

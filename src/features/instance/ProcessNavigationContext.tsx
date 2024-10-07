@@ -5,11 +5,14 @@ import { useMutation } from '@tanstack/react-query';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useHasPendingAttachments } from 'src/features/attachments/hooks';
-import { useLaxInstance, useStrictInstance } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceId, useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useUpdateInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
+import { appSupportsIncrementalValidationFeatures } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { Validation } from 'src/features/validation/validationContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -31,10 +34,12 @@ function useProcessNext() {
   const setProcessData = useSetProcessData();
   const currentProcessData = useLaxProcessData();
   const { navigateToTask } = useNavigatePage();
-  const instanceId = useLaxInstance()?.instanceId;
+  const instanceId = useLaxInstanceId();
   const onFormSubmitValidation = useOnFormSubmitValidation();
   const updateInitialValidations = useUpdateInitialValidations();
-  const setShowAllErrors = Validation.useSetShowAllErrors();
+  const setShowAllBackendErrors = Validation.useSetShowAllBackendErrors();
+  const onSubmitFormValidation = useOnFormSubmitValidation();
+  const hasIncrementalValidationFeatures = appSupportsIncrementalValidationFeatures(useApplicationMetadata());
 
   const utils = useMutation({
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
@@ -59,8 +64,10 @@ function useProcessNext() {
         navigateToTask(processData?.currentTask?.elementId);
       } else if (validationIssues) {
         // Set initial validation to validation issues from process/next and make all errors visible
-        updateInitialValidations(validationIssues);
-        setShowAllErrors !== ContextNotProvided && setShowAllErrors();
+        updateInitialValidations(validationIssues, !hasIncrementalValidationFeatures);
+        if (!(await onSubmitFormValidation(true))) {
+          setShowAllBackendErrors !== ContextNotProvided && setShowAllBackendErrors();
+        }
       }
     },
     onError: (error: HttpClientError) => {
@@ -150,4 +157,12 @@ export function ProcessNavigationProvider({ children }: React.PropsWithChildren)
   );
 }
 
-export const useProcessNavigation = () => useCtx();
+export const useProcessNavigation = () => {
+  // const { isSubformPage } = useNavigationParams();
+  const isSubformPage = useNavigationParam('isSubformPage');
+  if (isSubformPage) {
+    throw new Error('Cannot use process navigation in a subform');
+  }
+
+  return useCtx();
+};

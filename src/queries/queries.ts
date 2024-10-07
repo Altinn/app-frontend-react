@@ -16,6 +16,9 @@ import {
   getCreateInstancesUrl,
   getCustomValidationConfigUrl,
   getDataElementUrl,
+  getDataModelGuidUrl,
+  getDataModelTypeUrl,
+  getDataValidationUrl,
   getFetchFormDynamicsUrl,
   getFileTagUrl,
   getFileUploadUrl,
@@ -157,6 +160,21 @@ export const doAttachmentRemove = async (instanceId: string, dataGuid: string, l
   return response.data;
 };
 
+export const doSubformEntryAdd = async (instanceId: string, dataType: string, data: unknown): Promise<IData> => {
+  const response = await httpPost(getDataModelTypeUrl(instanceId, dataType), undefined, data);
+  if (response.status >= 300) {
+    throw new Error('Failed to add sub form');
+  }
+  return response.data;
+};
+
+export const doSubformEntryDelete = async (instanceId: string, dataGuid: string): Promise<void> => {
+  const response = await httpDelete(getDataModelGuidUrl(instanceId, dataGuid));
+  if (response.status !== 200) {
+    throw new Error('Failed to delete sub form');
+  }
+};
+
 // When saving data for normal/stateful apps
 export const doPatchFormData = (url: string, data: IDataModelPatchRequest) =>
   httpPatch<IDataModelPatchResponse>(url, data);
@@ -245,8 +263,17 @@ export const fetchPaymentInformation = (instanceId: string, language?: string): 
 export const fetchOrderDetails = (instanceId: string, language?: string): Promise<OrderDetails> =>
   httpGet(getOrderDetailsUrl(instanceId, language));
 
-export const fetchBackendValidations = (instanceId: string, language: string): Promise<BackendValidationIssue[]> =>
-  httpGet(getValidationUrl(instanceId, language));
+export const fetchBackendValidations = (
+  instanceId: string,
+  language: string,
+  onlyIncrementalValidators?: boolean,
+): Promise<BackendValidationIssue[]> => httpGet(getValidationUrl(instanceId, language, onlyIncrementalValidators));
+
+export const fetchBackendValidationsForDataElement = (
+  instanceId: string,
+  currentDataElementID: string,
+  language: string,
+): Promise<BackendValidationIssue[]> => httpGet(getDataValidationUrl(instanceId, currentDataElementID, language));
 
 export const fetchLayoutSchema = async (): Promise<JSONSchema7 | undefined> => {
   // Hacky (and only) way to get the correct CDN url

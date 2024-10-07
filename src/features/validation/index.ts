@@ -1,7 +1,11 @@
+import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { AttachmentsSelector } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
+import type { DataElementHasErrorsSelector } from 'src/features/validation/validationContext';
 import type { FormDataSelector } from 'src/layout';
+import type { ILayoutSets } from 'src/layout/common.generated';
+import type { IInstance } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
@@ -61,6 +65,14 @@ export type ValidationCategoryKey = Exclude<ValidationMaskKeys, ValidationMaskCo
 /*  A value of 0 represents a validation to be shown immediately */
 export type ValidationCategory = (typeof ValidationMask)[ValidationCategoryKey] | 0;
 
+/*
+ * Visibility setting used for selecting errors for nodes.
+ * 'visible' = Select all validations with a ValidationMask matching the nodes current visibility
+ * 'showAll' = Matches both current visibility and all backend validations, needed for "showAllBackendErrors"
+ * number = Select all validations with a ValidationMask maching the mask (number, because you can OR multiple masks together in any combination)
+ */
+export type NodeVisibility = 'visible' | 'showAll' | number;
+
 export type WaitForValidation = (forceSave?: boolean) => Promise<void>;
 
 export type ValidationContext = {
@@ -71,8 +83,8 @@ export type ValidationContext = {
    * If there are no frontend errors, but process next still returns validation errors,
    * this will show all backend errors.
    */
-  setShowAllErrors: (showAllErrors: boolean) => void;
-  showAllErrors: boolean;
+  setShowAllBackendErrors: (showAllErrors: boolean) => void;
+  showAllBackendErrors: boolean;
 };
 
 export type ValidationState = {
@@ -81,7 +93,7 @@ export type ValidationState = {
 };
 
 export type DataModelValidations = {
-  [dataType: string]: FieldValidations;
+  [dataElementId: string]: FieldValidations;
 };
 
 export type FieldValidations = {
@@ -111,6 +123,7 @@ export type BaseValidation<Severity extends ValidationSeverity = ValidationSever
   severity: Severity;
   category: ValidationCategory;
   source: string;
+  noIncrementalUpdates?: boolean;
 };
 
 /**
@@ -119,8 +132,17 @@ export type BaseValidation<Severity extends ValidationSeverity = ValidationSever
  */
 export type FieldValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
   field: string;
-  dataType: string;
+  dataElementId: string;
+  // When showing all backend validations we want to associate the validations to nodes if we can, and show the rest as unclickable
+  // In order to avoid showing the same validation multiple times we need a unique identifier.
+  backendValidationId?: string;
 };
+
+export function hasBackendValidationId<T extends AnyValidation>(
+  validation: T,
+): validation is T & { backendValidationId: string } {
+  return 'backendValidationId' in validation && typeof validation.backendValidationId === 'string';
+}
 
 /**
  * Validation message associated with a component in the layout
@@ -146,10 +168,22 @@ export type AttachmentValidation<Severity extends ValidationSeverity = Validatio
     visibility?: number;
   };
 
+/**
+ * Validation message associated with a subform
+ */
+export type SubformValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
+  subformDataElementIds: string[];
+};
+
+export function isSubformValidation(validation: NodeValidation): validation is NodeValidation<SubformValidation> {
+  return 'subformDataElementIds' in validation;
+}
+
 export type AnyValidation<Severity extends ValidationSeverity = ValidationSeverity> =
   | FieldValidation<Severity>
   | ComponentValidation<Severity>
-  | AttachmentValidation<Severity>;
+  | AttachmentValidation<Severity>
+  | SubformValidation<Severity>;
 
 /**
  * Validation message format used by frontend components.
@@ -168,6 +202,11 @@ export type NodeRefValidation<Validation extends AnyValidation<any> = AnyValidat
   nodeId: string;
 };
 
+export type ValidationsProcessedLast = {
+  incremental: BackendValidationIssueGroups | undefined;
+  initial: BackendValidationIssue[] | undefined;
+};
+
 /**
  * Contains all the necessary elements from the store to run frontend validations.
  */
@@ -177,6 +216,10 @@ export type ValidationDataSources = {
   invalidDataSelector: FormDataSelector;
   attachmentsSelector: AttachmentsSelector;
   nodeDataSelector: NodeDataSelector;
+  applicationMetadata: ApplicationMetadata;
+  instance: IInstance | undefined;
+  layoutSets: ILayoutSets;
+  dataElementHasErrorsSelector: DataElementHasErrorsSelector;
 };
 
 /**
@@ -189,6 +232,7 @@ export interface BackendValidationIssue {
   dataElementId?: string;
   severity: BackendValidationSeverity;
   source: string;
+  noIncrementalUpdates?: boolean; // true if it will not be validated on PATCH, should be ignored when trying to submit
   customTextKey?: string;
   customTextParams?: ValidLangParam[]; //TODO(Validation): Probably broken for text resources currently
   showImmediately?: boolean; // Not made available
