@@ -1,3 +1,5 @@
+import type { AriaAttributes } from 'react';
+
 import { useQuery } from '@tanstack/react-query';
 import type { SortDirection } from '@digdir/design-system-react/dist/types/components/legacy/LegacyTable/utils';
 import type { UseQueryResult } from '@tanstack/react-query';
@@ -14,7 +16,7 @@ export type Filter = {
   pageSize: number;
   pageNumber: number;
   sortColumn?: string;
-  sortDirection: SortDirection;
+  sortDirection: AriaAttributes['aria-sort'];
 };
 
 export const useDataListQuery = (
@@ -42,7 +44,7 @@ export const useDataListQuery = (
     pageSize: `${pageSize}`,
     pageNumber: `${pageNumber}`,
     sortColumn,
-    sortDirection,
+    sortDirection: ariaSortToSortDirection(sortDirection),
   });
 
   return useQuery({
@@ -50,3 +52,14 @@ export const useDataListQuery = (
     queryFn: () => fetchDataList(url),
   });
 };
+
+function ariaSortToSortDirection(ariaSort: AriaAttributes['aria-sort']): SortDirection {
+  switch (ariaSort) {
+    case 'ascending':
+      return 'asc';
+    case 'descending':
+      return 'desc';
+    default:
+      return 'notActive';
+  }
+}

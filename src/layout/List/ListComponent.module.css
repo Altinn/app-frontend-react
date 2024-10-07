@@ -18,3 +18,8 @@ tr {
   cursor: pointer;
   height: 60px;
 }
+
+.caption {
+  text-align: left;
+  padding-bottom: var(--fds-spacing-4);
+}
