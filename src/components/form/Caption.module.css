@@ -8,3 +8,7 @@
   align-items: center;
   gap: 0.25rem;
 }
+
+.description {
+  padding-bottom: var(--fds-spacing-3);
+}

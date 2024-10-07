@@ -45,10 +45,9 @@ Altinn, and making sure they are consistent. */
   justify-content: center;
 }
 
-.likertMobileLabel {
-  display: flex;
-  flex-direction: column;
-  padding-bottom: var(--fds-spacing-2);
+.likertHeading {
+  text-align: left;
+  padding-bottom: var(--fds-spacing-4);
 }
 
 .likertMobileGroup {

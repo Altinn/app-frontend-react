@@ -64,6 +64,7 @@ export const Caption = ({
       </DesignsystemetLabel>
       {description && (
         <Description
+          className={classes.description}
           componentId={id}
           description={description}
         />

@@ -1,15 +1,13 @@
 import React from 'react';
 
-import { Label as DesignsystemetLabel, Table } from '@digdir/designsystemet-react';
+import { Heading, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import type { PropsFromGenericComponent } from '..';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { Caption } from 'src/components/form/Caption';
 import { Description } from 'src/components/form/Description';
 import { getDescriptionId, getLabelId } from 'src/components/label/Label';
-import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
@@ -43,19 +41,17 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
         data-componentid={node.id}
         data-componentbaseid={node.baseId}
       >
-        {(title || description) && (
-          <div className={classes.likertMobileLabel}>
-            <span id={getLabelId(node.id)}>
-              <DesignsystemetLabel
-                asChild
-                size='lg'
-              >
-                <LabelContent
-                  componentId={node.id}
-                  label={title}
-                />
-              </DesignsystemetLabel>
-            </span>
+        {title && (
+          <div
+            className={classes.likertHeading}
+            id={getLabelId(node.id)}
+          >
+            <Heading
+              level={2}
+              size='sm'
+            >
+              {title}
+            </Heading>
             <Description
               description={description}
               componentId={node.id}
@@ -93,12 +89,23 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           className={classes.likertTable}
           aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
         >
-          <Caption
-            id={node.id}
-            title={textResourceBindings?.title}
-            description={textResourceBindings?.description}
-            designSystemLabelProps={{ size: 'lg' }}
-          />
+          {title && (
+            <caption
+              id={getLabelId(node.id)}
+              className={classes.likertHeading}
+            >
+              <Heading
+                level={2}
+                size='sm'
+              >
+                {title}
+              </Heading>
+              <Description
+                description={description}
+                componentId={node.id}
+              />
+            </caption>
+          )}
           <Table.Head id={`likert-table-header-${id}`}>
             <Table.Row>
               <Table.HeaderCell scope='col'>

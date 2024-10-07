@@ -65,6 +65,7 @@ export function LabelContent({
       </span>
       {description && (
         <Description
+          className={classes.description}
           componentId={componentId}
           key={getDescriptionId(componentId)}
           description={<Lang id={description} />}
