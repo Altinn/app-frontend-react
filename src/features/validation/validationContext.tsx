@@ -6,36 +6,35 @@ import { immer } from 'zustand/middleware/immer';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import {
+  type BaseValidation,
+  type DataModelValidations,
+  type FieldValidations,
+  type ValidationContext,
+  ValidationMask,
+  type ValidationsProcessedLast,
+  type WaitForValidation,
+} from 'src/features/validation';
 import { BackendValidation } from 'src/features/validation/backendValidation/BackendValidation';
 import {
   useGetCachedInitialValidations,
-  useInvalidateInitialValidations,
+  useRefetchInitialValidations,
 } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { useShouldValidateInitial } from 'src/features/validation/backendValidation/backendValidationUtils';
+import {
+  appSupportsIncrementalValidationFeatures,
+  useShouldValidateInitial,
+} from 'src/features/validation/backendValidation/backendValidationUtils';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
 import { SchemaValidation } from 'src/features/validation/schemaValidation/SchemaValidation';
-import {
-  getVisibilityMask,
-  hasValidationErrors,
-  mergeFieldValidations,
-  selectValidations,
-} from 'src/features/validation/utils';
+import { hasValidationErrors, mergeFieldValidations, selectValidations } from 'src/features/validation/utils';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type {
-  BackendValidationIssue,
-  BackendValidationIssueGroups,
-  BaseValidation,
-  DataModelValidations,
-  FieldValidations,
-  ValidationContext,
-  WaitForValidation,
-} from 'src/features/validation';
 
 interface Internals {
   individualValidations: {
@@ -44,8 +43,7 @@ interface Internals {
     schema: DataModelValidations;
     invalidData: DataModelValidations;
   };
-  incrementalProcessedLast: BackendValidationIssueGroups | undefined; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
-  initialProcessedLast: BackendValidationIssue[] | undefined; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
+  processedLast: ValidationsProcessedLast; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
   /**
    * updateDataModelValidations
    * if validations is undefined, nothing will be changed
@@ -57,8 +55,8 @@ interface Internals {
   ) => void;
   updateBackendValidations: (
     backendValidations: { [dataElementId: string]: FieldValidations } | undefined,
-    processedLast?: { incremental?: BackendValidationIssueGroups; initial?: BackendValidationIssue[] },
-    taskValdiations?: BaseValidation[],
+    processedLast?: Partial<ValidationsProcessedLast>,
+    taskValidations?: BaseValidation[],
   ) => void;
   updateValidating: (validating: WaitForValidation) => void;
 }
@@ -72,11 +70,11 @@ function initialCreateStore() {
         task: [],
         dataModels: {},
       },
-      setShowAllErrors: (newValue) =>
+      setShowAllBackendErrors: (newValue) =>
         set((state) => {
-          state.showAllErrors = newValue;
+          state.showAllBackendErrors = newValue;
         }),
-      showAllErrors: false,
+      showAllBackendErrors: false,
       validating: undefined,
 
       // =======
@@ -87,8 +85,10 @@ function initialCreateStore() {
         schema: {},
         invalidData: {},
       },
-      incrementalProcessedLast: undefined,
-      initialProcessedLast: undefined,
+      processedLast: {
+        initial: undefined,
+        incremental: undefined,
+      },
       updateDataModelValidations: (key, dataElementId, validations) =>
         set((state) => {
           if (validations) {
@@ -101,21 +101,29 @@ function initialCreateStore() {
             );
           }
         }),
-      updateBackendValidations: (backendValidations, processedLast, taskValdiations) =>
+      updateBackendValidations: (backendValidations, processedLast, taskValidations) =>
         set((state) => {
           if (processedLast?.incremental) {
-            state.incrementalProcessedLast = processedLast.incremental;
+            state.processedLast.incremental = processedLast.incremental;
           }
           if (processedLast?.initial) {
-            state.initialProcessedLast = processedLast.initial;
+            state.processedLast.initial = processedLast.initial;
           }
-          if (taskValdiations) {
-            state.state.task = taskValdiations;
+          if (taskValidations) {
+            state.state.task = taskValidations;
           }
           if (backendValidations) {
-            state.individualValidations.backend = backendValidations;
+            /**
+             * If a data model no longer has any backend validations, the key will not exist in the new object,
+             * we therefore need to make sure we update data model validations for any model that
+             * previously had validations as well.
+             */
+            const keys = new Set([
+              ...Object.keys(backendValidations),
+              ...Object.keys(state.individualValidations.backend),
+            ]);
 
-            const keys = new Set([...Object.keys(backendValidations), ...Object.keys(state.state.dataModels)]);
+            state.individualValidations.backend = backendValidations;
             for (const dataElementId of keys) {
               state.state.dataModels[dataElementId] = mergeFieldValidations(
                 state.individualValidations.backend[dataElementId],
@@ -161,7 +169,7 @@ export function ValidationProvider({ children }: PropsWithChildren) {
 function useWaitForValidation(): WaitForValidation {
   const waitForNodesReady = NodesInternal.useWaitUntilReady();
   const waitForSave = FD.useWaitForSave();
-  const waitForState = useWaitForState<never, ValidationContext & Internals>(useStore());
+  const waitForState = useWaitForState<ValidationsProcessedLast['initial'], ValidationContext & Internals>(useStore());
   const hasPendingAttachments = useHasPendingAttachments();
 
   // Provide a promise that resolves when all pending validations have been completed
@@ -183,17 +191,22 @@ function useWaitForValidation(): WaitForValidation {
       // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
       await waitForNodesReady();
       const validationsFromSave = await waitForSave(forceSave);
-      await waitForNodesReady();
       // If validationsFromSave is not defined, we check if initial validations are done processing
-      await waitForState((state) => {
+      const lastInitialValidations = await waitForState((state, setReturnValue) => {
         const { isFetching, cachedInitialValidations } = getCachedInitialValidations();
 
-        return (
-          state.incrementalProcessedLast === validationsFromSave &&
-          state.initialProcessedLast === cachedInitialValidations &&
+        if (
+          state.processedLast.incremental === validationsFromSave &&
+          state.processedLast.initial === cachedInitialValidations &&
           !isFetching
-        );
+        ) {
+          setReturnValue(cachedInitialValidations);
+          return true;
+        }
+
+        return false;
       });
+      await waitForNodesReady({ initial: lastInitialValidations, incremental: validationsFromSave });
     },
     [
       enabled,
@@ -228,33 +241,35 @@ export function LoadingBlockerWaitForValidation({ children }: PropsWithChildren)
 }
 
 function ManageShowAllErrors() {
-  const showAllErrors = useSelector((state) => state.showAllErrors);
+  const showAllErrors = useSelector((state) => state.showAllBackendErrors);
   return showAllErrors ? <UpdateShowAllErrors /> : null;
 }
 
 function UpdateShowAllErrors() {
   const taskValidations = useSelector((state) => state.state.task);
   const dataModelValidations = useSelector((state) => state.state.dataModels);
-  const setShowAllErrors = useSelector((state) => state.setShowAllErrors);
+  const setShowAllErrors = useSelector((state) => state.setShowAllBackendErrors);
+  const hasIncrementalValidationFeatures = appSupportsIncrementalValidationFeatures(useApplicationMetadata());
 
   const isFirstRender = useRef(true);
   const lastSaved = FD.useLastSaveValidationIssues();
   const instanceData = useLaxInstanceData();
-  const invalidateInitialValidations = useInvalidateInitialValidations();
+  // Since process/next returns non-incremental validations, we need to also check these to see when they are removed
+  const refetchInitialValidations = useRefetchInitialValidations(false, !hasIncrementalValidationFeatures);
   useEffect(() => {
     // No need to invalidate initial validations right away
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-    invalidateInitialValidations();
-  }, [invalidateInitialValidations, instanceData, lastSaved]);
+    refetchInitialValidations();
+  }, [refetchInitialValidations, instanceData, lastSaved]);
 
   /**
    * Hide unbound errors as soon as possible.
    */
   useEffect(() => {
-    const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
+    const backendMask = ValidationMask.Backend | ValidationMask.CustomBackend;
     const hasFieldErrors =
       Object.values(dataModelValidations)
         .flatMap((fields) => Object.values(fields))
@@ -306,17 +321,21 @@ export const Validation = {
       },
     }),
 
-  useSetShowAllErrors: () =>
+  useShowAllBackendErrors: () => useSelector((state) => state.showAllBackendErrors),
+  useSetShowAllBackendErrors: () =>
     useLaxSelector((state) => async () => {
       // Make sure we have finished processing validations before setting showAllErrors.
       // This is because we automatically turn off this state as soon as possible.
       // If the validations to show have not finished processing, this could get turned off before they ever became visible.
       state.validating && (await state.validating());
-      state.setShowAllErrors(true);
+      state.setShowAllBackendErrors(true);
     }),
   useValidating: () => useSelector((state) => state.validating!),
   useUpdateDataModelValidations: () => useSelector((state) => state.updateDataModelValidations),
   useUpdateBackendValidations: () => useSelector((state) => state.updateBackendValidations),
+
+  useProcessedLast: () => useSelector((state) => state.processedLast),
+  useProcessedLastRef: () => useSelectorAsRef((state) => state.processedLast),
 
   useRef: () => useSelectorAsRef((state) => state),
   useLaxRef: () => useLaxSelectorAsRef((state) => state),
