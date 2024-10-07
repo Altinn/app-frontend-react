@@ -152,6 +152,7 @@ export interface FDSaveResult {
 }
 
 export interface FDActionResult {
+  instance?: IInstance;
   updatedDataModels:
     | {
         [dataElementId: string]: object;
@@ -503,6 +504,7 @@ function makeActions(
           }
 
           processChanges(state, {
+            instance: actionResult.instance,
             newDataModels,
             savedData: Object.entries(state.dataModels).reduce((savedData, [dataType, { lastSavedData }]) => {
               savedData[dataType] = lastSavedData;
