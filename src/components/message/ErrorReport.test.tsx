@@ -52,6 +52,15 @@ describe('ErrorReport', () => {
             },
           },
         }),
+        fetchTextResources: async () => ({
+          language: 'nb',
+          resources: [
+            {
+              id: 'submit',
+              value: 'This is a page title',
+            },
+          ],
+        }),
       },
     });
 
