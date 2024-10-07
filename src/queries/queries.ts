@@ -187,7 +187,7 @@ export const fetchActiveInstances = (partyId: number): Promise<ISimpleInstance[]
   httpGet(getActiveInstancesUrl(partyId));
 
 export const fetchInstanceData = async (partyId: string, instanceGuid: string): Promise<IInstance> =>
-  cleanUpInstanceData(await httpGet<IInstance>(`${instancesControllerUrl}/${partyId}/${instanceGuid}`));
+  await httpGet<IInstance>(`${instancesControllerUrl}/${partyId}/${instanceGuid}`);
 
 export const fetchProcessState = (instanceId: string): Promise<IProcess> => httpGet(getProcessStateUrl(instanceId));
 

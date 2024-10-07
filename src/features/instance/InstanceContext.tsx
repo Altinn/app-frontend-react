@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { skipToken, useQuery } from '@tanstack/react-query';
+import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand';
 import type { QueryObserverResult } from '@tanstack/react-query';
 
@@ -11,6 +12,7 @@ import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
+import { cleanUpInstanceData } from 'src/features/instance/instanceUtils';
 import { ProcessProvider } from 'src/features/instance/ProcessContext';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
@@ -81,7 +83,8 @@ const { Provider, useMemoSelector, useSelector, useLaxSelector, useHasProvider }
       changeData: (callback) =>
         set((state) => {
           const next = callback(state.data);
-          if (next && state.data !== next) {
+          const clean = cleanUpInstanceData(next);
+          if (clean && !deepEqual(state.data, clean)) {
             return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
           }
           return {};
@@ -216,6 +219,7 @@ export const useLaxAppendDataElement = () => useLaxInstance((state) => state.app
 export const useLaxMutateDataElement = () => useLaxInstance((state) => state.mutateDataElement);
 export const useLaxRemoveDataElement = () => useLaxInstance((state) => state.removeDataElement);
 export const useLaxInstanceDataSources = () => useLaxInstance((state) => state.dataSources) ?? null;
+export const useLaxChangeInstance = (): ChangeInstanceData | undefined => useLaxInstance((state) => state.changeData);
 export const useHasInstance = () => useHasProvider();
 
 const emptyArray: never[] = [];
