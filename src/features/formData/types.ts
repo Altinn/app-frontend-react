@@ -32,8 +32,13 @@ export interface IDataModelPatchResponse {
 }
 
 export interface IDataModelMultiPatchRequest {
-  patches: { [dataElementId: string]: JsonPatch };
+  patches: IPatchListItem[];
   ignoredValidators: BuiltInValidationIssueSources[];
+}
+
+export interface IPatchListItem {
+  dataElementId: string;
+  patch: JsonPatch;
 }
 
 export interface IDataModelMultiPatchResponse {

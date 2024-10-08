@@ -35,6 +35,7 @@ import type {
   FormDataContext,
   UpdatedDataModel,
 } from 'src/features/formData/FormDataWriteStateMachine';
+import type { IPatchListItem } from 'src/features/formData/types';
 import type { ChangeInstanceData } from 'src/features/instance/InstanceContext';
 import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { IDataModelReference, IMapping } from 'src/layout/common.generated';
@@ -177,18 +178,19 @@ function useFormDataSaveMutation() {
             throw new Error(`Cannot patch data, multipatch url could not be determined`);
           }
 
-          const patches = dataTypes.reduce((patches, dataType) => {
-            const { dataElementId, debouncedCurrentData, lastSavedData } = dataModelsRef.current[dataType];
-            if (dataElementId && debouncedCurrentData !== lastSavedData) {
+          const patches: IPatchListItem[] = [];
+
+          for (const dataType of dataTypes) {
+            const { dataElementId } = dataModelsRef.current[dataType];
+            if (dataElementId && next[dataType] !== prev[dataType]) {
               const patch = createPatch({ prev: prev[dataType], next: next[dataType] });
               if (patch.length > 0) {
-                patches[dataElementId] = patch;
+                patches.push({ dataElementId, patch });
               }
             }
-            return patches;
-          }, {});
+          }
 
-          if (Object.keys(patches).length === 0) {
+          if (patches.length === 0) {
             return;
           }
 
