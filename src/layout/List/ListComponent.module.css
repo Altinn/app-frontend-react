@@ -31,14 +31,54 @@
   font-size: 16px;
 }
 
+.selectedRow,
 .selectedRowCell {
   background-color: var(--fds-colors-blue-100);
 }
 
 .pagination {
-  height: 60px;
+  min-height: 60px;
   display: flex;
   justify-content: end;
   align-items: center;
   background-color: var(--fds-colors-grey-100);
+}
+
+.paginationMobile {
+  justify-content: center;
+}
+
+.mobileRadioGroup > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobileRadioGroup > div :hover {
+  background-color: var(--fds-colors-grey-100);
+}
+
+.mobileRadio {
+  border-top: 1px solid var(--fds-colors-grey-200);
+  padding: var(--fds-spacing-4);
+  gap: var(--fds-spacing-8);
+}
+
+.mobileRadio input:checked:hover {
+  background-color: var(--fds-radio-border-color);
+}
+
+.mobileRadio label {
+  width: 100%;
+}
+
+.mobileRadio span {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fds-spacing-4);
+}
+
+.mobileRadio label div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fds-spacing-2);
 }

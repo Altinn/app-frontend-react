@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { AriaAttributes } from 'react';
 
 import { Pagination as AltinnPagination } from '@altinn/altinn-design-system';
-import { Heading, Table } from '@digdir/designsystemet-react';
+import { Heading, Radio, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
@@ -39,7 +39,7 @@ export const ListComponent = ({ node }: IListProps) => {
     required,
   } = item;
 
-  const { langAsString, language, lang } = useLanguage();
+  const { langAsString, lang } = useLanguage();
   const [pageSize, setPageSize] = useState<number>(pagination?.default ?? 0);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [sortColumn, setSortColumn] = useState<string | undefined>();
@@ -63,7 +63,8 @@ export const ListComponent = ({ node }: IListProps) => {
       return result;
     }) ?? [];
 
-  const selectedRow = filteredRows.find((row) => Object.keys(formData).every((key) => row[key] === formData[key]));
+  const selectedRow =
+    filteredRows.find((row) => Object.keys(formData).every((key) => row[key] === formData[key])) ?? '';
 
   function handleRowSelect({ selectedValue }: { selectedValue: Row }) {
     const next: Row = {};
@@ -83,6 +84,52 @@ export const ListComponent = ({ node }: IListProps) => {
 
   const title = item.textResourceBindings?.title;
   const description = item.textResourceBindings?.description;
+
+  if (isMobile) {
+    return (
+      <ComponentStructureWrapper node={node}>
+        <Radio.Group
+          required={required}
+          legend={
+            <Heading
+              level={2}
+              size='sm'
+            >
+              {title}
+              <RequiredIndicator required={required} />
+            </Heading>
+          }
+          description={description}
+          className={classes.mobileRadioGroup}
+          value={JSON.stringify(selectedRow)}
+        >
+          {filteredRows.map((row) => (
+            <Radio
+              key={JSON.stringify(row)}
+              value={JSON.stringify(row)}
+              className={cn(classes.mobileRadio, { [classes.selectedRow]: isRowSelected(row) })}
+              onClick={() => handleRowSelect({ selectedValue: row })}
+            >
+              {Object.entries(row).map(([key, value]) => (
+                <div key={key}>
+                  <strong>{tableHeaders[key]}</strong>
+                  <span>{typeof value === 'string' ? lang(value) : value}</span>
+                </div>
+              ))}
+            </Radio>
+          ))}
+        </Radio.Group>
+        <Pagination
+          pageSize={pageSize}
+          setPageSize={setPageSize}
+          pageNumber={pageNumber}
+          setPageNumber={setPageNumber}
+          numberOfRows={data?._metaData.totaltItemsCount}
+          rowsPerPageOptions={pagination?.alternatives}
+        />
+      </ComponentStructureWrapper>
+    );
+  }
 
   return (
     <ComponentStructureWrapper node={node}>
@@ -161,23 +208,58 @@ export const ListComponent = ({ node }: IListProps) => {
           ))}
         </Table.Body>
       </Table>
-      {pagination && (
-        <div className={cn([classes.pagination, 'fds-table__header__cell'])}>
-          <AltinnPagination
-            numberOfRows={data?._metaData.totaltItemsCount ?? 0}
-            rowsPerPageOptions={pagination?.alternatives ? pagination?.alternatives : []}
-            rowsPerPage={pageSize}
-            onRowsPerPageChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-              setPageSize(parseInt(event.target.value, 10));
-            }}
-            currentPage={pageNumber}
-            setCurrentPage={(newPage: number) => {
-              setPageNumber(newPage);
-            }}
-            descriptionTexts={(language?.['list_component'] ?? {}) as unknown as DescriptionText}
-          />
-        </div>
-      )}
+      <Pagination
+        pageSize={pageSize}
+        setPageSize={setPageSize}
+        pageNumber={pageNumber}
+        setPageNumber={setPageNumber}
+        numberOfRows={data?._metaData.totaltItemsCount}
+        rowsPerPageOptions={pagination?.alternatives}
+      />
     </ComponentStructureWrapper>
   );
 };
+
+type PaginationProps = {
+  pageSize: number;
+  setPageSize: (pageSize: number) => void;
+  pageNumber: number;
+  setPageNumber: (pageNumber: number) => void;
+  numberOfRows: number | undefined;
+  rowsPerPageOptions: number[] | undefined;
+};
+
+function Pagination({
+  pageSize,
+  setPageSize,
+  pageNumber,
+  setPageNumber,
+  numberOfRows = 0,
+  rowsPerPageOptions = [],
+}: PaginationProps) {
+  const { language } = useLanguage();
+  const isMobile = useIsMobile();
+
+  function handlePageSizeChange(newSize: number) {
+    setPageNumber(0);
+    setPageSize(newSize);
+  }
+
+  return (
+    <div className={cn({ [classes.paginationMobile]: isMobile }, classes.pagination, 'fds-table__header__cell')}>
+      <AltinnPagination
+        numberOfRows={numberOfRows ?? 0}
+        rowsPerPageOptions={rowsPerPageOptions}
+        rowsPerPage={pageSize}
+        onRowsPerPageChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
+          handlePageSizeChange(parseInt(event.target.value, 10));
+        }}
+        currentPage={pageNumber}
+        setCurrentPage={(newPage: number) => {
+          setPageNumber(newPage);
+        }}
+        descriptionTexts={(language?.['list_component'] ?? {}) as unknown as DescriptionText}
+      />
+    </div>
+  );
+}
