@@ -89,6 +89,7 @@ export const ListComponent = ({ node }: IListProps) => {
     return (
       <ComponentStructureWrapper node={node}>
         <Radio.Group
+          role='radiogroup'
           required={required}
           legend={
             <Heading
