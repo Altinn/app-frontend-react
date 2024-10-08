@@ -11,6 +11,7 @@ import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useCustomValidationConfigQuery } from 'src/features/customValidation/useCustomValidationQuery';
+import { UpdateDataElementIdsForCypress } from 'src/features/datamodel/DataElementIdsForCypress';
 import { useCurrentDataModelName, useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSchemaQuery';
 import {
@@ -121,6 +122,7 @@ export function DataModelsProvider({ children }: PropsWithChildren) {
   return (
     <Provider>
       <DataModelsLoader />
+      {window.Cypress && <UpdateDataElementIdsForCypress />}
       <BlockUntilLoaded>{children}</BlockUntilLoaded>
     </Provider>
   );
@@ -338,4 +340,6 @@ export const DataModels = {
     const dataElementIds = useMemoSelector((state) => state.dataElementIds);
     return useCallback((dataType: string) => dataElementIds[dataType], [dataElementIds]);
   },
+
+  useDataElementIds: () => useSelector((state) => state.dataElementIds),
 };
