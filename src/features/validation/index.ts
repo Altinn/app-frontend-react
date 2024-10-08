@@ -101,10 +101,18 @@ export type FieldValidations = {
 };
 
 /**
- * Validation format returned by backend validation API.
+ * Validation format returned by backend single patch API
  */
 export type BackendValidationIssueGroups = {
   [validator: string]: BackendValidationIssue[];
+};
+
+/**
+ * Validation format returned by backend multi patch API
+ */
+export type BackendValidationIssueGroupListItem = {
+  source: string;
+  issues: BackendValidationIssue[];
 };
 
 /**

@@ -210,7 +210,16 @@ function useFormDataSaveMutation() {
             }
           }
 
-          return { newDataModels: dataModelChanges, validationIssues, instance, savedData: next };
+          const validationIssueGroups: BackendValidationIssueGroups = Object.fromEntries(
+            validationIssues.map(({ source, issues }) => [source, issues]),
+          );
+
+          return {
+            newDataModels: dataModelChanges,
+            validationIssues: validationIssueGroups,
+            instance,
+            savedData: next,
+          };
         } else {
           const dataType = dataTypes[0];
           const patch = createPatch({ prev: prev[dataType], next: next[dataType] });
