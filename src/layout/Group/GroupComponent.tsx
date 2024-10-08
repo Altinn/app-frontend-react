@@ -65,23 +65,31 @@ export function GroupComponent({
       condition={isPanel && !isSummary}
       wrapper={(child) => <FullWidthWrapper className={classes.panelPadding}>{child}</FullWidthWrapper>}
     >
-      <Fieldset
-        legend={
-          legend && (
-            <Heading
-              level={headingLevel}
-              size={headingSize}
-            >
-              <Lang id={legend} />
-            </Heading>
-          )
-        }
-        className={cn(isSummary ? classes.summary : classes.group, { [classes.panel]: isPanel && !isSummary })}
-        description={description && !isSummary && <Lang id={description} />}
-        data-componentid={container.id}
-        data-componentbaseid={container.baseComponentId || container.id}
+      {/* If the group does not have a legend, we don't want to render the Fieldset because it breaks WCAG tests*/}
+      <ConditionalWrapper
+        condition={!!legend}
+        wrapper={(child) => (
+          <Fieldset
+            legend={
+              legend && (
+                <Heading
+                  level={headingLevel}
+                  size={headingSize}
+                >
+                  <Lang id={legend} />
+                </Heading>
+              )
+            }
+            className={cn(isSummary ? classes.summary : classes.group, { [classes.panel]: isPanel && !isSummary })}
+            description={description && !isSummary && <Lang id={description} />}
+          >
+            {child}
+          </Fieldset>
+        )}
       >
         <div
+          data-componentid={container.id}
+          data-componentbaseid={container.baseComponentId || container.id}
           ref={containerDivRef}
           id={id ?? container.id}
           data-testid='display-group-container'
@@ -89,7 +97,7 @@ export function GroupComponent({
         >
           {children.map((n) => renderLayoutNode(n))}
         </div>
-      </Fieldset>
+      </ConditionalWrapper>
     </ConditionalWrapper>
   );
 }
