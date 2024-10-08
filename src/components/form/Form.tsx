@@ -54,7 +54,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const appName = useAppName();
   const appOwner = useAppOwner();
-  const { langAsString, lang } = useLanguage();
+  const { langAsString } = useLanguage();
   const [formState, setFormState] = useState<FormState>({
     hasRequired: false,
     mainIds: undefined,
