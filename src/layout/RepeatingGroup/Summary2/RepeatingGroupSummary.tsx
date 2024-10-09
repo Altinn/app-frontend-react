@@ -11,7 +11,7 @@ import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { ResolveComponent } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
@@ -32,7 +32,7 @@ export const RepeatingGroupSummary = ({
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
   const isNested = componentNode.parent instanceof BaseLayoutNode;
 
-  if (rows.length === 0) {
+  if (rows.length === 0 && componentNode) {
     return (
       <SingleValueSummary
         title={title}
@@ -66,9 +66,9 @@ export const RepeatingGroupSummary = ({
               alignItems='flex-start'
             >
               {row?.items?.map((node) => (
-                <ComponentSummary
+                <ResolveComponent
+                  targetId={node.id}
                   key={node.id}
-                  componentNode={node}
                 />
               ))}
             </Grid>

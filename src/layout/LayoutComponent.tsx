@@ -13,6 +13,7 @@ import { getComponentCapabilities } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { NodeGenerator } from 'src/utils/layout/generator/NodeGenerator';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
@@ -295,6 +296,16 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
    */
   public renderCompactSummary({ targetNode }: SummaryRendererProps<Type>): JSX.Element | null {
     const displayData = this.useDisplayData(targetNode);
+    const targetItem = useNodeItem(targetNode);
+    if (!targetItem) {
+      // Why do we need this check?
+      // The targetItem can actually be undefined even though the type suggests otherwise.
+      // This caused an error in the repeating group summary (Summary v1) when deleting a row
+      // when the group was on the same page as the summary.
+      // The type should be fixed to properly indicate that it can be undefined, but that causes
+      // errors throughout the app.
+      return null;
+    }
     return (
       <SummaryItemCompact
         targetNode={targetNode}

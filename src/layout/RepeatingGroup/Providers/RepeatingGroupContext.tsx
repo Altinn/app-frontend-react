@@ -43,6 +43,7 @@ interface ExtendedState {
   openNextForEditing: () => void;
   closeForEditing: (row: BaseRow) => void;
   changePage: (page: number) => void;
+  deletedRow?: BaseRow;
 }
 
 type AddRowResult =
@@ -307,7 +308,10 @@ function newStore({ editMode, pagination, rowsRef, freshRowsRef }: NewStoreProps
         if (isEditing && successful) {
           return { editingId: undefined, deletingIds };
         }
+        console.log('endDeletingRow', row);
+
         return {
+          deletedRow: row,
           deletingIds,
           editingId: isEditing && successful ? undefined : state.editingId,
         };
@@ -487,6 +491,8 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
 
   const deleteRow = useCallback(
     async (row: BaseRow) => {
+      console.log('row', row);
+
       const { deletableRows } = rowStateRef.current;
       const { startDeletingRow, endDeletingRow } = stateRef.current;
       const deletableRow = deletableRows.find((r) => r.uuid === row.uuid && r.index === row.index);
@@ -517,7 +523,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   const isDeleting = useCallback((uuid: string) => stateRef.current.deletingIds.includes(uuid), [stateRef]);
 
   const deletingIds = stateRef.current.deletingIds;
-
+  const deletedRow = stateRef.current.deletedRow;
   return {
     node,
     addRow,
@@ -531,6 +537,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     changePage,
     changePageToRow,
     deletingIds,
+    deletedRow,
   };
 }
 

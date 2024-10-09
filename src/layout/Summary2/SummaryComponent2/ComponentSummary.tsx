@@ -22,8 +22,6 @@ interface ResolveComponentProps {
 export function ComponentSummary({ componentNode, isCompact }: ComponentSummaryProps) {
   const summaryNodeItem = useSummary2Store((state) => state.summaryItem);
 
-  console.log('componentNode', componentNode);
-
   const componentNodeItem = useNodeItem(componentNode);
 
   const override = summaryNodeItem?.overrides?.find((override) => override.componentId === componentNode.id);
@@ -73,6 +71,11 @@ export function ComponentSummary({ componentNode, isCompact }: ComponentSummaryP
 
 export function ResolveComponent({ targetId }: ResolveComponentProps) {
   const resolvedComponent = useNode(targetId);
+  const componentNodeItem = useNodeItem(resolvedComponent);
+
+  if (!componentNodeItem) {
+    return null;
+  }
   if (!resolvedComponent) {
     return null;
   }
