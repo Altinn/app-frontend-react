@@ -11,7 +11,6 @@ import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
 
-import type { BackendValidationIssue } from 'src/features/validation';
 import type { ILayoutFile } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
@@ -278,6 +277,7 @@ Cypress.Commands.add('getCurrentPageId', () => cy.location('hash').then((hash) =
 Cypress.Commands.add('snapshot', (name: string) => {
   cy.clearSelectionAndWait();
   cy.waitUntilSaved();
+  cy.waitUntilNodesReady();
 
   // Running wcag tests before taking snapshot, because the resizing of the viewport can cause some elements to
   // re-render and go slightly out of sync with the proper state of the application. One example is the Dropdown
@@ -714,6 +714,9 @@ Cypress.Commands.add('getNextPatchValidations', (result) => {
   }).as('getNextValidations');
 });
 
+/**
+ * Only works with multi-patch
+ */
 Cypress.Commands.add('expectValidationToExist', (result, group, predicate) => {
   cy.wrap(result, { log: false }).should(({ validations }) => {
     const ready = Boolean(validations);
@@ -723,7 +726,7 @@ Cypress.Commands.add('expectValidationToExist', (result, group, predicate) => {
       expect(ready, 'Did not find validations from backend').to.be.true;
     }
 
-    const validation = validations?.[group]?.find((v: BackendValidationIssue) => predicate(v));
+    const validation = validations?.find(({ source }) => source === group)?.issues.find((v) => predicate(v));
     if (validation) {
       expect(
         validation,
@@ -738,6 +741,9 @@ Cypress.Commands.add('expectValidationToExist', (result, group, predicate) => {
   });
 });
 
+/**
+ * Only works with multi-patch
+ */
 Cypress.Commands.add('expectValidationNotToExist', (result, group, predicate) => {
   cy.wrap(result, { log: false }).should(({ validations }) => {
     const ready = Boolean(validations);
@@ -747,7 +753,7 @@ Cypress.Commands.add('expectValidationNotToExist', (result, group, predicate) =>
       expect(ready, 'Did not find validations from backend').to.be.true;
     }
 
-    const validation = validations?.[group]?.find((v) => predicate(v));
+    const validation = validations?.find(({ source }) => source === group)?.issues.find((v) => predicate(v));
     if (!validation) {
       expect(
         validation,

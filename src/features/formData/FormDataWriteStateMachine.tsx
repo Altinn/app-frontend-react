@@ -12,8 +12,10 @@ import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchema
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FDLeafValue } from 'src/features/formData/FormDataWrite';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
+import type { ChangeInstanceData } from 'src/features/instance/InstanceContext';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
+import type { IInstance } from 'src/types/shared';
 
 export interface DataModelState {
   // These values contain the current data model, with the values immediately available whenever the user is typing.
@@ -80,8 +82,8 @@ type FormDataState = {
 
   // This may contain a callback function that will be called whenever the save finishes.
   // Should only be set from NodesContext.
-  onSaveFinished: (() => void) | undefined;
-  setOnSaveFinished: (callback: () => void) => void;
+  onSaveFinished: ((result: FDSaveFinished) => void) | undefined;
+  setOnSaveFinished: (callback: (result: FDSaveFinished) => void) => void;
 
   // This is used to track which component is currently blocking the auto-saving feature. If this is set to a string
   // value, auto-saving will be disabled, even if the autoSaving flag is set to true. This is useful when you want
@@ -146,9 +148,11 @@ export interface UpdatedDataModel {
 export interface FDSaveResult {
   newDataModels: UpdatedDataModel[];
   validationIssues: BackendValidationIssueGroups | undefined;
+  instance?: IInstance;
 }
 
 export interface FDActionResult {
+  instance?: IInstance;
   updatedDataModels:
     | {
         [dataElementId: string]: object;
@@ -161,11 +165,6 @@ export interface FDSaveFinished extends FDSaveResult {
   savedData: {
     [dataType: string]: object;
   };
-}
-
-interface ToProcess {
-  savedData: FDSaveFinished['savedData'];
-  newDataModels: UpdatedDataModel[];
 }
 
 export interface FormDataMethods {
@@ -192,6 +191,7 @@ export type FormDataContext = FormDataState & FormDataMethods;
 
 function makeActions(
   set: (fn: (state: FormDataContext) => void) => void,
+  changeInstance: ChangeInstanceData | undefined,
   ruleConnections: IRuleConnections | null,
   schemaLookup: { [dataType: string]: SchemaLookupTool },
 ): FormDataMethods {
@@ -234,8 +234,16 @@ function makeActions(
     }
   }
 
-  function processChanges(state: FormDataContext, { newDataModels, savedData }: ToProcess) {
+  function processChanges(state: FormDataContext, toProcess: FDSaveFinished) {
+    const { validationIssues, savedData, newDataModels, instance } = toProcess;
     state.manualSaveRequested = false;
+    state.validationIssues = validationIssues;
+    state.onSaveFinished?.(toProcess);
+
+    if (instance && changeInstance) {
+      changeInstance(() => instance);
+    }
+
     for (const [dataType, { dataElementId, isDefault }] of Object.entries(state.dataModels)) {
       const next = dataElementId
         ? newDataModels.find((m) => m.dataElementId === dataElementId)?.data // Stateful apps
@@ -329,8 +337,6 @@ function makeActions(
       }),
     saveFinished: (props) =>
       set((state) => {
-        const { validationIssues } = props;
-        state.validationIssues = validationIssues;
         processChanges(state, props);
       }),
     setLeafValue: ({ reference, newValue, ...rest }) =>
@@ -373,12 +379,18 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
-        const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
+        const models = [
+          state.dataModels[reference.dataType].currentData,
+          state.dataModels[reference.dataType].debouncedCurrentData,
+        ];
+        for (const model of models) {
+          const existingValue = dot.pick(reference.field, model);
 
-        if (Array.isArray(existingValue)) {
-          existingValue.push(newValue);
-        } else {
-          dot.str(reference.field, [newValue], state.dataModels[reference.dataType].currentData);
+          if (Array.isArray(existingValue)) {
+            existingValue.push(newValue);
+          } else {
+            dot.str(reference.field, [newValue], model);
+          }
         }
       }),
     removeIndexFromList: ({ reference, index }) =>
@@ -413,29 +425,39 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
-        const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
-        if (!Array.isArray(existingValue)) {
-          return;
-        }
-
-        if (
-          startAtIndex !== undefined &&
-          startAtIndex >= 0 &&
-          startAtIndex < existingValue.length &&
-          callback(existingValue[startAtIndex])
-        ) {
-          existingValue.splice(startAtIndex, 1);
-          return;
-        }
-
-        // Continue looking for the item to remove from the start of the list if we didn't find it at the start index
-        let index = 0;
-        while (index < existingValue.length) {
-          if (callback(existingValue[index])) {
-            existingValue.splice(index, 1);
-            return;
+        const models = [
+          // This is used when deleting a row in repeating groups. If we didn't delete from both the current
+          // and debounced data models, the row would linger for a while in the UI, and we'd have intricate problems
+          // to solve, like fetching options (which use the debounced data model when mapping form data into the URL),
+          // which then would stall updating options and might cause deletion of stale option values before debounce.
+          state.dataModels[reference.dataType].currentData,
+          state.dataModels[reference.dataType].debouncedCurrentData,
+        ];
+        for (const model of models) {
+          const existingValue = dot.pick(reference.field, model);
+          if (!Array.isArray(existingValue)) {
+            continue;
           }
-          index++;
+
+          if (
+            startAtIndex !== undefined &&
+            startAtIndex >= 0 &&
+            startAtIndex < existingValue.length &&
+            callback(existingValue[startAtIndex])
+          ) {
+            existingValue.splice(startAtIndex, 1);
+            continue;
+          }
+
+          // Continue looking for the item to remove from the start of the list if we didn't find it at the start index
+          let index = 0;
+          while (index < existingValue.length) {
+            if (callback(existingValue[index])) {
+              existingValue.splice(index, 1);
+              continue;
+            }
+            index++;
+          }
         }
       }),
 
@@ -482,16 +504,14 @@ function makeActions(
           }
 
           processChanges(state, {
+            instance: actionResult.instance,
             newDataModels,
             savedData: Object.entries(state.dataModels).reduce((savedData, [dataType, { lastSavedData }]) => {
               savedData[dataType] = lastSavedData;
               return savedData;
             }, {}),
+            validationIssues: actionResult.updatedValidationIssues,
           });
-        }
-        // Update validation issues
-        if (actionResult?.updatedValidationIssues) {
-          state.validationIssues = actionResult.updatedValidationIssues;
         }
       }),
   };
@@ -503,10 +523,11 @@ export const createFormDataWriteStore = (
   proxies: FormDataWriteProxies,
   ruleConnections: IRuleConnections | null,
   schemaLookup: { [dataType: string]: SchemaLookupTool },
+  changeInstance: ChangeInstanceData | undefined,
 ) =>
   createStore<FormDataContext>()(
     immer((set) => {
-      const actions = makeActions(set, ruleConnections, schemaLookup);
+      const actions = makeActions(set, changeInstance, ruleConnections, schemaLookup);
       for (const name of Object.keys(actions)) {
         const fnName = name as keyof FormDataMethods;
         const original = actions[fnName];

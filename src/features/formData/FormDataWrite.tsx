@@ -18,7 +18,7 @@ import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteSta
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { getFormDataQueryKey } from 'src/features/formData/useFormDataQuery';
-import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLaxChangeInstance, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/features/validation';
 import { useIsUpdatingInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useAsRef } from 'src/hooks/useAsRef';
@@ -35,6 +35,8 @@ import type {
   FormDataContext,
   UpdatedDataModel,
 } from 'src/features/formData/FormDataWriteStateMachine';
+import type { IPatchListItem } from 'src/features/formData/types';
+import type { ChangeInstanceData } from 'src/features/instance/InstanceContext';
 import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { IDataModelReference, IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
@@ -49,6 +51,7 @@ interface FormDataContextInitialProps {
   proxies: FormDataWriteProxies;
   ruleConnections: IRuleConnections | null;
   schemaLookup: { [dataType: string]: SchemaLookupTool };
+  changeInstance: ChangeInstanceData | undefined;
 }
 
 const {
@@ -71,14 +74,15 @@ const {
     proxies,
     ruleConnections,
     schemaLookup,
+    changeInstance,
   }: FormDataContextInitialProps) =>
-    createFormDataWriteStore(initialDataModels, autoSaving, proxies, ruleConnections, schemaLookup),
+    createFormDataWriteStore(initialDataModels, autoSaving, proxies, ruleConnections, schemaLookup, changeInstance),
 });
 
 function useFormDataSaveMutation() {
   const { doPatchFormData, doPostStatelessFormData } = useAppMutations();
   const getDataModelUrl = useGetDataModelUrl();
-  const instanceId = useLaxInstance()?.instanceId;
+  const instanceId = useLaxInstanceId();
   const multiPatchUrl = instanceId ? getMultiPatchUrl(instanceId) : undefined;
   const dataModelsRef = useAsRef(useSelector((state) => state.dataModels));
   const saveFinished = useSelector((s) => s.saveFinished);
@@ -90,7 +94,6 @@ function useFormDataSaveMutation() {
     FormDataContext
   >(useStore());
   const useIsSavingRef = useAsRef(useIsSaving());
-  const onSaveFinishedRef = useSelectorAsRef((s) => s.onSaveFinished);
   const queryClient = useQueryClient();
 
   // This updates the query cache with the new data models every time a save has finished. This means we won't have to
@@ -160,8 +163,11 @@ function useFormDataSaveMutation() {
           return;
         }
 
-        onSaveFinishedRef.current?.();
-        return { newDataModels: await Promise.all(newDataModels), savedData: next, validationIssues: undefined };
+        return {
+          newDataModels: await Promise.all(newDataModels),
+          savedData: next,
+          validationIssues: undefined,
+        };
       } else {
         // Stateful needs to use either old patch or multi patch
 
@@ -172,39 +178,48 @@ function useFormDataSaveMutation() {
             throw new Error(`Cannot patch data, multipatch url could not be determined`);
           }
 
-          const patches = dataTypes.reduce((patches, dataType) => {
-            const { dataElementId, debouncedCurrentData, lastSavedData } = dataModelsRef.current[dataType];
-            if (dataElementId && debouncedCurrentData !== lastSavedData) {
+          const patches: IPatchListItem[] = [];
+
+          for (const dataType of dataTypes) {
+            const { dataElementId } = dataModelsRef.current[dataType];
+            if (dataElementId && next[dataType] !== prev[dataType]) {
               const patch = createPatch({ prev: prev[dataType], next: next[dataType] });
               if (patch.length > 0) {
-                patches[dataElementId] = patch;
+                patches.push({ dataElementId, patch });
               }
             }
-            return patches;
-          }, {});
+          }
 
-          if (Object.keys(patches).length === 0) {
+          if (patches.length === 0) {
             return;
           }
 
-          const { newDataModels, validationIssues } = await doPatchMultipleFormData(multiPatchUrl, {
+          const { newDataModels, validationIssues, instance } = await doPatchMultipleFormData(multiPatchUrl, {
             patches,
             // Ignore validations that require layout parsing in the backend which will slow down requests significantly
             ignoredValidators: IgnoredValidators,
           });
 
           const dataModelChanges: UpdatedDataModel[] = [];
-          for (const dataElementId of Object.keys(newDataModels)) {
+          for (const { dataElementId, data } of newDataModels) {
             const dataType = Object.keys(dataModelsRef.current).find(
               (dataType) => dataModelsRef.current[dataType].dataElementId === dataElementId,
             );
             if (dataType) {
-              dataModelChanges.push({ dataType, data: newDataModels[dataElementId], dataElementId });
+              dataModelChanges.push({ dataType, data, dataElementId });
             }
           }
 
-          onSaveFinishedRef.current?.();
-          return { newDataModels: dataModelChanges, validationIssues, savedData: next };
+          const validationIssueGroups: BackendValidationIssueGroups = Object.fromEntries(
+            validationIssues.map(({ source, issues }) => [source, issues]),
+          );
+
+          return {
+            newDataModels: dataModelChanges,
+            validationIssues: validationIssueGroups,
+            instance,
+            savedData: next,
+          };
         } else {
           const dataType = dataTypes[0];
           const patch = createPatch({ prev: prev[dataType], next: next[dataType] });
@@ -216,7 +231,7 @@ function useFormDataSaveMutation() {
           if (!dataElementId) {
             throw new Error(`Cannot patch data, dataElementId for dataType '${dataType}' could not be determined`);
           }
-          const url = getDataModelUrl({ dataElementId });
+          const url = getDataModelUrl({ dataElementId, includeRowIds: true });
           if (!url) {
             throw new Error(`Cannot patch data, url for dataType '${dataType}' could not be determined`);
           }
@@ -225,7 +240,6 @@ function useFormDataSaveMutation() {
             // Ignore validations that require layout parsing in the backend which will slow down requests significantly
             ignoredValidators: IgnoredValidators,
           });
-          onSaveFinishedRef.current?.();
           return {
             newDataModels: [{ dataType, data: newDataModel, dataElementId }],
             validationIssues,
@@ -271,6 +285,7 @@ export function FormDataWriteProvider({ children }: PropsWithChildren) {
   const { allDataTypes, writableDataTypes, defaultDataType, initialData, schemaLookup, dataElementIds } =
     DataModels.useFullStateRef().current;
   const autoSaveBehaviour = usePageSettings().autoSaveBehavior;
+  const changeInstance = useLaxChangeInstance();
 
   if (!writableDataTypes || !allDataTypes) {
     throw new Error('FormDataWriteProvider failed because data types have not been loaded, see DataModelsProvider.');
@@ -299,6 +314,7 @@ export function FormDataWriteProvider({ children }: PropsWithChildren) {
       proxies={proxies}
       ruleConnections={ruleConnections}
       schemaLookup={schemaLookup}
+      changeInstance={changeInstance}
     >
       <FormDataEffects />
       {children}
@@ -313,7 +329,7 @@ function FormDataEffects() {
 
   const { mutate: performSave, error } = useFormDataSaveMutation();
   const isSaving = useIsSaving();
-  const isUpdatingInitialValidaitons = useIsUpdatingInitialValidations();
+  const isUpdatingInitialValidations = useIsUpdatingInitialValidations();
   const debounce = useDebounceImmediately();
   const hasUnsavedChangesNow = useHasUnsavedChangesNow();
 
@@ -358,7 +374,7 @@ function FormDataEffects() {
 
   // Save the data model when the data has been frozen/debounced, and we're ready
   const needsToSave = useSelector(hasDebouncedUnsavedChanges);
-  const canSaveNow = !isSaving && !lockedBy && !isUpdatingInitialValidaitons;
+  const canSaveNow = !isSaving && !lockedBy && !isUpdatingInitialValidations;
   const shouldSave = (needsToSave && canSaveNow && autoSaving) || manualSaveRequested;
 
   useEffect(() => {
@@ -593,8 +609,10 @@ export const FD = {
    * the value will be returned as-is. If the value is not found, undefined is returned. Null may also be returned if
    * the value is explicitly set to null.
    */
-  useDebouncedPick(reference: IDataModelReference): FDValue {
-    return useSelector((v) => dot.pick(reference.field, v.dataModels[reference.dataType].debouncedCurrentData));
+  useDebouncedPick(reference: IDataModelReference | undefined): FDValue {
+    return useSelector((v) =>
+      reference ? dot.pick(reference.field, v.dataModels[reference.dataType].debouncedCurrentData) : undefined,
+    );
   },
 
   /**
@@ -807,13 +825,17 @@ export const FD = {
    * Returns the number of rows in a repeating group. This will always be 'fresh', meaning it will update immediately
    * when a new row is added/removed.
    */
-  useFreshNumRows: (binding: IDataModelReference | undefined): number =>
+  useFreshNumRows: (reference: IDataModelReference | undefined): number =>
     useMemoSelector((s) => {
-      if (!binding) {
+      if (!reference) {
         return 0;
       }
 
-      const rawRows = dot.pick(binding.field, s.dataModels[binding.dataType].currentData);
+      const model = s.dataModels[reference.dataType];
+      if (!model) {
+        return 0;
+      }
+      const rawRows = dot.pick(reference.field, model.currentData);
       if (!Array.isArray(rawRows) || !rawRows.length) {
         return 0;
       }
@@ -825,13 +847,17 @@ export const FD = {
    * Get the UUID of a row in a repeating group. This will always be 'fresh', meaning it will update immediately when
    * a new row is added/removed.
    */
-  useFreshRowUuid: (binding: IDataModelReference | undefined, index: number): string | undefined =>
+  useFreshRowUuid: (reference: IDataModelReference | undefined, index: number | undefined): string | undefined =>
     useMemoSelector((s) => {
-      if (!binding) {
+      if (!reference || index === undefined) {
         return undefined;
       }
 
-      const rawRows = dot.pick(binding.field, s.dataModels[binding.dataType].currentData);
+      const model = s.dataModels[reference.dataType];
+      if (!model) {
+        return undefined;
+      }
+      const rawRows = dot.pick(reference.field, model.currentData);
       if (!Array.isArray(rawRows) || !rawRows.length) {
         return undefined;
       }

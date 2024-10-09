@@ -5,12 +5,17 @@ import { useAttachmentsSelector } from 'src/features/attachments/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceAllDataElements } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { Validation } from 'src/features/validation/validationContext';
 import { implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type { AnyValidation, BaseValidation, ValidationDataSources } from 'src/features/validation';
+import type {
+  AnyValidation,
+  BaseValidation,
+  ValidationDataSources,
+  ValidationsProcessedLast,
+} from 'src/features/validation';
 import type { CompDef, ValidationFilter } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -20,44 +25,54 @@ import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
  * Runs validations defined in the component classes. This runs from the node generator, and will collect all
  * validations for a node and return them.
  */
-export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): AnyValidation[] {
+export function useNodeValidation(
+  node: LayoutNode,
+  shouldValidate: boolean,
+): { validations: AnyValidation[]; processedLast: ValidationsProcessedLast } {
   const dataModelSelector = Validation.useDataModelSelector();
   const validationDataSources = useValidationDataSources();
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
   const getDataElementIdForDataType = DataModels.useGetDataElementIdForDataType();
+  const processedLast = Validation.useProcessedLast();
 
-  return useMemo(() => {
-    const validations: AnyValidation[] = [];
-    if (!shouldValidate) {
-      return validations;
-    }
-
-    if (implementsValidateEmptyField(node.def)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      validations.push(...node.def.runEmptyFieldValidation(node as any, validationDataSources));
-    }
-
-    if (implementsValidateComponent(node.def)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      validations.push(...node.def.runComponentValidation(node as any, validationDataSources));
-    }
-
-    const dataModelBindings = validationDataSources.nodeDataSelector(
-      (picker) => picker(node)?.layout.dataModelBindings,
-      [node],
-    );
-    for (const [bindingKey, { dataType, field }] of Object.entries(
-      (dataModelBindings ?? {}) as Record<string, IDataModelReference>,
-    )) {
-      const dataElementId = getDataElementIdForDataType(dataType) ?? dataType; // stateless does not have dataElementId
-      const fieldValidations = dataModelSelector((dataModels) => dataModels[dataElementId]?.[field], [dataType, field]);
-      if (fieldValidations) {
-        validations.push(...fieldValidations.map((v) => ({ ...v, node, bindingKey })));
+  return {
+    processedLast,
+    validations: useMemo(() => {
+      const validations: AnyValidation[] = [];
+      if (!shouldValidate) {
+        return validations;
       }
-    }
 
-    return filter(validations, node, nodeDataSelector);
-  }, [shouldValidate, node, validationDataSources, nodeDataSelector, getDataElementIdForDataType, dataModelSelector]);
+      if (implementsValidateEmptyField(node.def)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        validations.push(...node.def.runEmptyFieldValidation(node as any, validationDataSources));
+      }
+
+      if (implementsValidateComponent(node.def)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        validations.push(...node.def.runComponentValidation(node as any, validationDataSources));
+      }
+
+      const dataModelBindings = validationDataSources.nodeDataSelector(
+        (picker) => picker(node)?.layout.dataModelBindings,
+        [node],
+      );
+      for (const [bindingKey, { dataType, field }] of Object.entries(
+        (dataModelBindings ?? {}) as Record<string, IDataModelReference>,
+      )) {
+        const dataElementId = getDataElementIdForDataType(dataType) ?? dataType; // stateless does not have dataElementId
+        const fieldValidations = dataModelSelector(
+          (dataModels) => dataModels[dataElementId]?.[field],
+          [dataType, field],
+        );
+        if (fieldValidations) {
+          validations.push(...fieldValidations.map((v) => ({ ...v, bindingKey })));
+        }
+      }
+
+      return filter(validations, node, nodeDataSelector);
+    }, [shouldValidate, node, validationDataSources, nodeDataSelector, getDataElementIdForDataType, dataModelSelector]),
+  };
 }
 
 /**
@@ -70,7 +85,7 @@ function useValidationDataSources(): ValidationDataSources {
   const currentLanguage = useCurrentLanguage();
   const nodeSelector = NodesInternal.useNodeDataSelector();
   const applicationMetadata = useApplicationMetadata();
-  const instance = useLaxInstanceData();
+  const dataElements = useLaxInstanceAllDataElements();
   const layoutSets = useLayoutSets();
   const dataElementHasErrorsSelector = Validation.useDataElementHasErrorsSelector();
 
@@ -82,7 +97,7 @@ function useValidationDataSources(): ValidationDataSources {
       currentLanguage,
       nodeDataSelector: nodeSelector,
       applicationMetadata,
-      instance,
+      dataElements,
       layoutSets,
       dataElementHasErrorsSelector,
     }),
@@ -93,7 +108,7 @@ function useValidationDataSources(): ValidationDataSources {
       currentLanguage,
       nodeSelector,
       applicationMetadata,
-      instance,
+      dataElements,
       layoutSets,
       dataElementHasErrorsSelector,
     ],
