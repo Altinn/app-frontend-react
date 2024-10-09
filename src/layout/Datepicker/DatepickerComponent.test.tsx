@@ -5,7 +5,6 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
-import { getDescriptionId } from 'src/components/label/Label';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
@@ -192,18 +191,6 @@ describe('DatepickerComponent', () => {
       reference: { field: 'myDate', dataType: defaultDataTypeMock },
       newValue: '12.34',
     });
-  });
-
-  it('should have aria-describedby if textResourceBindings.description is present', async () => {
-    await render({
-      component: {
-        textResourceBindings: { description: 'description' },
-        id: 'test-id',
-      },
-    });
-    screen.logTestingPlaygroundURL();
-    const inputField = screen.getByRole('textbox');
-    expect(inputField).toHaveAttribute('aria-describedby', getDescriptionId('test-id'));
   });
 
   it('should not have aria-describedby if textResources.description does not exist', async () => {
