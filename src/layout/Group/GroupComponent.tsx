@@ -97,7 +97,14 @@ export function GroupComponent({
           ref={containerDivRef}
           id={id ?? container.id}
           data-testid='display-group-container'
-          className={cn(classes.groupContainer, { [classes.groupingIndicator]: isIndented && !isNested })}
+          className={cn(classes.groupContainer, {
+            [classes.groupingIndicator]: isIndented && !isNested,
+            [classes.summary]: isSummary && !legend,
+            [classes.group]: !isSummary && !legend,
+            [classes.panel]: isPanel && !isSummary && !legend,
+            [classes.noFieldsetPanel]: isPanel && !isSummary && !legend,
+            [classes.noFieldsetGroupingIndicator]: isIndented && !isNested && !legend,
+          })}
         >
           {children.map((n) => renderLayoutNode(n))}
         </div>
