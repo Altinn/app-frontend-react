@@ -80,7 +80,11 @@ export function GroupComponent({
                 </Heading>
               )
             }
-            className={cn(isSummary ? classes.summary : classes.group, { [classes.panel]: isPanel && !isSummary })}
+            className={cn({
+              [classes.summary]: isSummary,
+              [classes.group]: !isSummary,
+              [classes.panel]: isPanel && !isSummary,
+            })}
             description={description && !isSummary && <Lang id={description} />}
           >
             {child}
@@ -93,7 +97,7 @@ export function GroupComponent({
           ref={containerDivRef}
           id={id ?? container.id}
           data-testid='display-group-container'
-          className={cn({ [classes.groupingIndicator]: isIndented && !isNested }, classes.groupContainer)}
+          className={cn(classes.groupContainer, { [classes.groupingIndicator]: isIndented && !isNested })}
         >
           {children.map((n) => renderLayoutNode(n))}
         </div>
