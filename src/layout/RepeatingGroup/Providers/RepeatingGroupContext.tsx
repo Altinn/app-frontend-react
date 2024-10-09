@@ -10,6 +10,7 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useOnGroupCloseValidation } from 'src/features/validation/callbacks/onGroupCloseValidation';
 import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/Providers/OpenByDefaultProvider';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -327,7 +328,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   const stateRef = ZStore.useSelectorAsRef((state) => state);
   const validateOnSaveRow = useNodeItem(node, (i) => i.validateOnSaveRow);
   const groupBinding = useNodeItem(node, (i) => i.dataModelBindings.group);
-
+  const { langAsString } = useLanguage();
   const appendToList = FD.useAppendToList();
   const removeFromList = FD.useRemoveFromListCallback();
   const onBeforeRowDeletion = useAttachmentDeletionInRepGroups(node);
@@ -492,13 +493,14 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
 
   const deleteRow = useCallback(
     async (row: BaseRow) => {
-      ariaAnnounce(`Deleted row at index: ${row.index}`);
+      ariaAnnounce(langAsString('group.row_deleted', [`${row.index + 1}`]));
       const { deletableRows } = rowStateRef.current;
-      const { startDeletingRow, endDeletingRow } = stateRef.current;
+
       const deletableRow = deletableRows.find((r) => r.uuid === row.uuid && r.index === row.index);
       if (!deletableRow) {
         return false;
       }
+      const { startDeletingRow, endDeletingRow } = stateRef.current;
 
       markNodesNotReady(); // Doing this early to prevent re-renders when this is removed from the data model
       startDeletingRow(row);
@@ -517,7 +519,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       endDeletingRow(row, false);
       return false;
     },
-    [rowStateRef, stateRef, markNodesNotReady, onBeforeRowDeletion, groupBinding, removeFromList],
+    [langAsString, rowStateRef, stateRef, markNodesNotReady, onBeforeRowDeletion, groupBinding, removeFromList],
   );
 
   const isDeleting = useCallback((uuid: string) => stateRef.current.deletingIds.includes(uuid), [stateRef]);

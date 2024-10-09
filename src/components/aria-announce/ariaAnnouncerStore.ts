@@ -1,5 +1,3 @@
-// ariaAnnouncerStore.ts
-
 type SubscriberCallback = (message: string) => void;
 
 const subscribers: SubscriberCallback[] = [];

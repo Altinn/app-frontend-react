@@ -185,6 +185,7 @@ export function nn(): FixedLanguageList {
       row_error: 'Ei av radene er ikkje fylt ut riktig. Dette må bli retta før skjema kan sendast inn.',
       row_popover_delete_message: 'Er du sikker på at du vil sletta denne rada?',
       row_popover_delete_button_confirm: 'Ja, slett rada',
+      row_deleted: 'Rad nummer {0} slettet',
     },
     iframe_component: {
       unsupported_browser_title: 'Nettlesaren din støttas ikkje',

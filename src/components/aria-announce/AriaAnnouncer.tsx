@@ -1,5 +1,3 @@
-// AriaAnnouncer.tsx
-
 import React, { useEffect, useState } from 'react';
 
 import { subscribeToAriaAnnounce } from 'src/components/aria-announce/ariaAnnouncerStore';
@@ -9,10 +7,10 @@ export function AriaAnnouncer() {
 
   useEffect(() => {
     const unsubscribe = subscribeToAriaAnnounce((msg: string) => {
-      setMessage('');
+      setMessage(msg);
       // Clear the message first to ensure the screen reader picks up new messages
       setTimeout(() => {
-        setMessage(msg);
+        setMessage('');
       }, 100);
     });
 

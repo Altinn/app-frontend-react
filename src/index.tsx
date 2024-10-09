@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const root = container && createRoot(container);
   root?.render(
     <AppQueriesProvider {...queries}>
+      <AriaAnnouncer />
       <AppPrefetcher />
       <ErrorBoundary>
         <AppWrapper>
@@ -93,7 +94,6 @@ function Root() {
                     <ApplicationSettingsProvider>
                       <PartyProvider>
                         <KeepAliveProvider>
-                          <AriaAnnouncer />
                           <WindowTitleProvider>
                             <App />
                             <ToastContainer

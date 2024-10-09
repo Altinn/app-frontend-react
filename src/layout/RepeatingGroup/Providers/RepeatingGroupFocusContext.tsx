@@ -113,7 +113,7 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
       }
       const firstFocusableChild = element && findFirstFocusableElement(element);
       if (firstFocusableChild) {
-        firstFocusableChild.focus();
+        // firstFocusableChild.focus();
         return;
       }
     }

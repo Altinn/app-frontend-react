@@ -131,7 +131,9 @@ function RepeatingGroupsEditContainerInternal({
               color='danger'
               size='small'
               disabled={isDeleting(editId)}
-              onClick={() => deleteRow({ index: row.index, uuid: row.uuid })}
+              onClick={() => {
+                deleteRow({ index: row.index, uuid: row.uuid });
+              }}
               data-testid='delete-button'
             >
               <Lang id={'general.delete'} />
