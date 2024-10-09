@@ -49,6 +49,12 @@ export const getStatefulDataModelUrl = (instanceId: string, dataGuid: string, in
   `${appPath}/instances/${instanceId}/data/${dataGuid}?includeRowId=${includeRowIds.toString()}`;
 export const getMultiPatchUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/data`;
 
+export const getDataModelGuidUrl = (instanceId: string, dataGuid: string) =>
+  `${appPath}/instances/${instanceId}/data/${dataGuid}`;
+
+export const getDataModelTypeUrl = (instanceId: string, dataType: string) =>
+  `${appPath}/instances/${instanceId}/data?dataType=${dataType}`;
+
 export const getDataElementUrl = (instanceId: string, dataGuid: string, language: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}?language=${language}`;
 
@@ -60,8 +66,11 @@ export const getActionsUrl = (partyId: string, instanceId: string, language?: st
 
 export const getCreateInstancesUrl = (partyId: number) => `${appPath}/instances?instanceOwnerPartyId=${partyId}`;
 
-export const getValidationUrl = (instanceId: string, language: string) => {
-  const queryString = getQueryStringFromObject({ language });
+export const getValidationUrl = (instanceId: string, language: string, onlyIncrementalValidators?: boolean) => {
+  const queryString = getQueryStringFromObject({
+    language,
+    onlyIncrementalValidators: onlyIncrementalValidators?.toString(),
+  });
   return `${appPath}/instances/${instanceId}/validate${queryString}`;
 };
 

@@ -1,15 +1,14 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import dot from 'dot-object';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
+import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
 import {
   GeneratorCondition,
   GeneratorRunProvider,
-  GeneratorStages,
-  NodesStateQueue,
   StageAddNodes,
   StageEvaluateExpressions,
 } from 'src/utils/layout/generator/GeneratorStages';
@@ -22,7 +21,7 @@ import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal } from 'src/layout/layout';
 import type { ChildClaims, ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { BaseRow } from 'src/utils/layout/types';
+import type { RepChildrenRow } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 
 interface Props {
   claims: ChildClaims;
@@ -39,15 +38,22 @@ export function NodeRepeatingChildren(props: Props) {
       stage={StageAddNodes}
       mustBeAdded='parent'
     >
-      <PerformWork {...props} />
+      <NodeRepeatingChildrenWorker {...props} />
     </GeneratorCondition>
   );
 }
 
-function PerformWork({ claims, binding, multiPageSupport, externalProp, internalProp, pluginKey }: Props) {
+function NodeRepeatingChildrenWorker({
+  claims,
+  binding,
+  multiPageSupport,
+  externalProp,
+  internalProp,
+  pluginKey,
+}: Props) {
   const item = GeneratorInternal.useIntermediateItem();
   const groupBinding = item?.dataModelBindings?.[binding];
-  const rows = FD.useFreshRows(groupBinding);
+  const numRows = FD.useFreshNumRows(groupBinding);
   const multiPage = multiPageSupport !== false && dot.pick(multiPageSupport, item) === true;
   const multiPageMapping = useMemo(
     () => (multiPage ? makeMultiPageMapping(dot.pick(externalProp, item)) : undefined),
@@ -56,11 +62,10 @@ function PerformWork({ claims, binding, multiPageSupport, externalProp, internal
 
   return (
     <>
-      {rows.map((row) => (
-        <GeneratorRunProvider key={row.index}>
+      {Array.from({ length: numRows }).map((_, index) => (
+        <GeneratorRunProvider key={index}>
           <GenerateRow
-            rowIndex={row.index}
-            rowUuid={row.uuid}
+            rowIndex={index}
             groupBinding={groupBinding}
             claims={claims}
             multiPageMapping={multiPageMapping}
@@ -75,35 +80,29 @@ function PerformWork({ claims, binding, multiPageSupport, externalProp, internal
 
 interface GenerateRowProps {
   rowIndex: number;
-  rowUuid: string;
   claims: ChildClaims;
-  groupBinding: IDataModelReference | undefined;
+  groupBinding: IDataModelReference;
   multiPageMapping: MultiPageMapping | undefined;
   internalProp: string;
   pluginKey: string;
 }
 
-function _GenerateRow({
-  rowIndex,
-  rowUuid,
-  claims,
-  groupBinding,
-  multiPageMapping,
-  internalProp,
-  pluginKey,
-}: GenerateRowProps) {
+function _GenerateRow({ rowIndex, claims, groupBinding, multiPageMapping, internalProp, pluginKey }: GenerateRowProps) {
   const node = GeneratorInternal.useParent() as LayoutNode;
   const removeRow = NodesInternal.useRemoveRow();
   const depth = GeneratorInternal.useDepth();
   const directMutators = useMemo(() => [mutateMultiPageIndex(multiPageMapping)], [multiPageMapping]);
-  const row: BaseRow = useMemo(() => ({ index: rowIndex, uuid: rowUuid }), [rowIndex, rowUuid]);
 
   const recursiveMutators = useMemo(
-    () => [mutateComponentId(row), mutateDataModelBindings(row, groupBinding), mutateMapping(row, depth)],
-    [row, depth, groupBinding],
+    () => [
+      mutateComponentId(rowIndex),
+      mutateDataModelBindings(rowIndex, groupBinding),
+      mutateMapping(rowIndex, depth),
+    ],
+    [rowIndex, depth, groupBinding],
   );
 
-  GeneratorStages.AddNodes.useEffect(
+  useEffect(
     () => () => {
       removeRow(node, internalProp);
     },
@@ -112,10 +111,15 @@ function _GenerateRow({
 
   return (
     <GeneratorRowProvider
-      row={row}
+      rowIndex={rowIndex}
+      groupBinding={groupBinding}
       directMutators={directMutators}
       recursiveMutators={recursiveMutators}
     >
+      <MaintainRowUuid
+        groupBinding={groupBinding}
+        internalProp={internalProp}
+      />
       <GeneratorCondition
         stage={StageEvaluateExpressions}
         mustBeAdded='all'
@@ -139,21 +143,39 @@ interface ResolveRowProps {
 
 function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
   const parent = GeneratorInternal.useParent() as LayoutNode;
-  const row = GeneratorInternal.useRow() as BaseRow;
-  const nodeChildren = useNodeDirectChildren(parent as LayoutNode, row!.index);
+  const rowIndex = GeneratorInternal.useRowIndex();
+  const nodeChildren = useNodeDirectChildren(parent as LayoutNode, rowIndex);
   const firstChild = nodeChildren ? nodeChildren[0] : undefined;
 
   const item = GeneratorInternal.useIntermediateItem();
-  const props = useExpressionResolverProps(firstChild, item as CompExternal, row);
+  const props = useExpressionResolverProps(firstChild, item as CompExternal, rowIndex);
 
-  const setExtra = NodesStateQueue.useSetRowExtras();
   const def = useDef(item!.type);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const resolvedRowExtras = useMemoDeepEqual(() => (def as CompDef).evalExpressionsForRow(props as any), [def, props]);
 
-  GeneratorStages.EvaluateExpressions.useEffect(() => {
-    setExtra({ node: parent, row, internalProp, extras: resolvedRowExtras });
-  }, [resolvedRowExtras, setExtra, parent, row, internalProp]);
+  NodesStateQueue.useSetRowExtras({ node: parent, rowIndex: rowIndex!, internalProp, extras: resolvedRowExtras });
+
+  return null;
+}
+
+function MaintainRowUuid({
+  groupBinding,
+  internalProp,
+}: {
+  groupBinding: IDataModelReference | undefined;
+  internalProp: string;
+}) {
+  const parent = GeneratorInternal.useParent() as LayoutNode;
+  const rowIndex = GeneratorInternal.useRowIndex() as number;
+  const rowUuid = FD.useFreshRowUuid(groupBinding, rowIndex) as string;
+  const existingUuid = NodesInternal.useNodeData(
+    parent,
+    (data) => data.item?.[internalProp]?.find((row: RepChildrenRow) => row.index === rowIndex)?.uuid,
+  );
+
+  const isSet = rowUuid === existingUuid;
+  NodesStateQueue.useSetRowUuid({ node: parent, rowIndex: rowIndex!, internalProp, rowUuid }, !isSet);
 
   return null;
 }
@@ -185,14 +207,14 @@ function mutateMultiPageIndex(multiPageMapping: MultiPageMapping | undefined): C
   };
 }
 
-export function mutateComponentId(row: BaseRow): ChildMutator {
+export function mutateComponentId(rowIndex: number): ChildMutator {
   return (item) => {
     item.baseComponentId = item.baseComponentId || item.id;
-    item.id += `-${row.index}`;
+    item.id += `-${rowIndex}`;
   };
 }
 
-export function mutateDataModelBindings(row: BaseRow, groupBinding: IDataModelReference | undefined): ChildMutator {
+export function mutateDataModelBindings(rowIndex: number, groupBinding: IDataModelReference | undefined): ChildMutator {
   return (item) => {
     const bindings = item.dataModelBindings || {};
     for (const key of Object.keys(bindings)) {
@@ -202,20 +224,20 @@ export function mutateDataModelBindings(row: BaseRow, groupBinding: IDataModelRe
       }
       bindings[key] = {
         dataType: binding.dataType,
-        field: binding.field.replace(groupBinding.field, `${groupBinding.field}[${row.index}]`),
+        field: binding.field.replace(groupBinding.field, `${groupBinding.field}[${rowIndex}]`),
       };
     }
   };
 }
 
-export function mutateMapping(row: BaseRow, depth: number): ChildMutator {
+export function mutateMapping(rowIndex: number, depth: number): ChildMutator {
   return (item) => {
     if ('mapping' in item && item.mapping) {
       // Pages start at 1, top-level nodes at 2, so for nodes inside repeating groups to start at 0 we subtract 2.
       const depthMarker = depth - 2;
       for (const key of Object.keys(item.mapping)) {
         const value = item.mapping[key];
-        const newKey = key.replace(`[{${depthMarker}}]`, `[${row.index}]`);
+        const newKey = key.replace(`[{${depthMarker}}]`, `[${rowIndex}]`);
         delete item.mapping[key];
         item.mapping[newKey] = value;
       }

@@ -1,16 +1,15 @@
-import DateFnsUtils from '@date-io/date-fns';
-import { endOfDay, formatDate, isValid, parseISO, setDefaultOptions, startOfDay } from 'date-fns';
+import { endOfDay, formatDate, formatISO, isValid, parseISO, startOfDay } from 'date-fns';
 import type { Locale } from 'date-fns/locale';
 
 import { DateFlags } from 'src/types';
 import { locales } from 'src/utils/dateLocales';
 
-export const DatepickerMinDateDefault = '1900-01-01T12:00:00.000Z';
-export const DatepickerMaxDateDefault = '2100-01-01T12:00:00.000Z';
-export const DatepickerFormatDefault = 'DD.MM.YYYY';
-export const DatepickerSaveFormatTimestamp = 'YYYY-MM-DDThh:mm:ss.sssZ';
-export const PrettyDateAndTime = 'DD.MM.YYYY HH.mm.SS';
-export const DatepickerSaveFormatNoTimestamp = 'YYYY-MM-DD';
+export const DatepickerMinDateDefault = '1900-01-01T00:00:00Z';
+export const DatepickerMaxDateDefault = '2100-01-01T23:59:59Z';
+export const DatepickerFormatDefault = 'dd.MM.yyyy';
+export const DatepickerSaveFormatTimestamp = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+export const PrettyDateAndTime = 'dd.MM.yyyy HH.mm.SS';
+export const DatepickerSaveFormatNoTimestamp = 'yyyy-MM-dd';
 
 export type DateResult =
   | {
@@ -24,17 +23,13 @@ export type DateResult =
       input: string;
     };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const locale = window.navigator?.language || (window.navigator as any)?.userLanguage || 'nb';
-setDefaultOptions({ locale });
-
 /**
  * Moment used a non-standard format for dates, this is a work-around to prevent breaking changes
  * @deprecated
  */
 function convertLegacyFormat(format: string): string {
   if (format === 'DD.MM.YYYY') {
-    return 'dd.MM.y';
+    return 'dd.MM.yyyy';
   }
   if (format === 'DD/MM/YYYY') {
     return 'dd/MM/yyyy';
@@ -90,9 +85,7 @@ export function convertToDatepickerFormat(format: string): string {
 export function getSaveFormattedDateString(date: Date | null, timestamp: boolean) {
   if (date && isValid(date)) {
     return (
-      (!timestamp
-        ? formatDate(date, DatepickerSaveFormatNoTimestamp)
-        : formatDate(date, DatepickerSaveFormatTimestamp)) ?? ''
+      (!timestamp ? formatISO(date, { representation: 'date' }) : formatISO(date, { representation: 'complete' })) ?? ''
     );
   }
   return null;
@@ -149,32 +142,4 @@ export function parseISOString(isoString: string | undefined): DateResult {
       input: isoString ?? '',
     };
   }
-}
-
-/**
- * This is a workaround for displaying and using different formats for the datepicker.
- * @deprecated
- */
-export function getDateUtils(dateFormat: string, calculatedFormat: string) {
-  class DateUtilsProvider extends DateFnsUtils {
-    getDatePickerHeaderText(date: Date) {
-      const locale1 = this.locale;
-      console.log(locale1);
-      /*const code = this.locale?.code?.substring(0, 2);
-      if ((['nb', 'nn'] as (string | undefined)[]).includes(code)) {
-        return dateFnsFormat(date, 'EEEE, d. MMMM', { locale: this.locale });
-      } else if (code === 'en') {
-        return dateFnsFormat(date, 'EEEE, MMMM d', { locale: this.locale });
-      }
-       */
-      return super.getDatePickerHeaderText(date);
-    }
-    /*format(date: Date, propFormat: string) {
-      return dateFnsFormat(date, propFormat === calculatedFormat ? dateFormat : propFormat, { locale: this.locale });
-    }
-    parse(value: string) {
-      return parse(value, dateFormat, new Date());
-    }*/
-  }
-  return DateUtilsProvider;
 }

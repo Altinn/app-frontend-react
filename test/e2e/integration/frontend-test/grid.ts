@@ -1,11 +1,9 @@
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
-import { Common } from 'test/e2e/pageobjects/common';
 
 import type { GridCellLabelFrom } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
-const mui = new Common();
 
 describe('Grid component', () => {
   it('should work with basic table functionality', () => {
@@ -18,8 +16,8 @@ describe('Grid component', () => {
     cy.get(appFrontend.changeOfName.confirmChangeName).find('input').check();
     cy.get(appFrontend.changeOfName.reasonRelationship).click();
     cy.get(appFrontend.changeOfName.reasonRelationship).type('hello world');
-    cy.get(appFrontend.changeOfName.dateOfEffect).siblings().children(mui.buttonIcon).click();
-    cy.get(mui.selectedDate).click();
+    cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
+    cy.get('button[aria-label*="Today"]').click();
 
     cy.gotoNavPage('grid');
 
@@ -167,7 +165,7 @@ describe('Grid component', () => {
       name: /prosentandel av gjeld i studielån hjelpetekst for prosentandel av gjeld i studielån dette er en beskrivende tekst/i,
     }).should('exist');
     cy.findByRole('button', { name: /Hjelpetekst for Prosentandel av gjeld i studielån/i }).click();
-    cy.focused().should('have.attr', 'id', 'label-fordeling-studie-helptext');
+    cy.focused().should('have.attr', 'id', 'fordeling-studie-helptext');
     cy.get(appFrontend.helpText.alert).should('contain.text', 'Dette er en hjelpetekst');
   });
 });

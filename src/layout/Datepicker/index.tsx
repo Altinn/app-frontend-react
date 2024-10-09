@@ -1,8 +1,7 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-//import moment from 'moment';
-import { formatISO, isAfter, isBefore, isValid } from 'date-fns';
+import { isAfter, isBefore, isValid, parseISO } from 'date-fns';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { DatepickerDef } from 'src/layout/Datepicker/config.def.generated';
@@ -72,7 +71,6 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     const field = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings?.simpleBinding, [node]);
     const data = field ? formDataSelector(field) : undefined;
     const dataAsString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
-
     if (!dataAsString) {
       return [];
     }
@@ -91,9 +89,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     );
 
     const validations: ComponentValidation[] = [];
-
-    const date = formatISO(dataAsString);
-
+    const date = parseISO(dataAsString);
     if (!isValid(date)) {
       validations.push({
         message: { key: 'date_picker.invalid_date_message', params: [format] },

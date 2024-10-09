@@ -10,7 +10,7 @@ import { breakpoints } from 'src/hooks/useDeviceWidths';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
-import type { BackendValidationIssue } from 'src/features/validation';
+
 import type { ILayoutFile } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
@@ -60,8 +60,8 @@ Cypress.Commands.add('dsReady', (selector) => {
   cy.waitUntilNodesReady();
 });
 
-Cypress.Commands.add('dsSelect', (selector, value) => {
-  cy.log(`Selecting ${value} in ${selector}`);
+Cypress.Commands.add('dsSelect', (selector, value, debounce = true) => {
+  cy.log(`Selecting ${value} in ${selector}, with debounce: ${debounce}`);
   cy.dsReady(selector);
   cy.get(selector).click();
 
@@ -70,7 +70,9 @@ Cypress.Commands.add('dsSelect', (selector, value) => {
   // https://github.com/testing-library/cypress-testing-library/issues/205#issuecomment-974688283
   cy.get('[class*="fds-combobox__option"]').findByText(value).click();
 
-  cy.get('body').click();
+  if (debounce) {
+    cy.get('body').click();
+  }
 });
 
 Cypress.Commands.add('clickAndGone', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
@@ -275,6 +277,7 @@ Cypress.Commands.add('getCurrentPageId', () => cy.location('hash').then((hash) =
 Cypress.Commands.add('snapshot', (name: string) => {
   cy.clearSelectionAndWait();
   cy.waitUntilSaved();
+  cy.waitUntilNodesReady();
 
   // Running wcag tests before taking snapshot, because the resizing of the viewport can cause some elements to
   // re-render and go slightly out of sync with the proper state of the application. One example is the Dropdown
@@ -449,8 +452,9 @@ Cypress.Commands.add('moveProcessNext', () => {
   });
 });
 
-Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator) => {
-  cy.intercept({ method: 'GET', url: `**/api/layouts/${taskName}`, times: 1 }, (req) => {
+Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator, _options) => {
+  const options = _options ?? { times: 1 };
+  cy.intercept({ method: 'GET', url: `**/api/layouts/${taskName}`, ...options }, (req) => {
     req.reply((res) => {
       const set = JSON.parse(res.body);
       if (mutator) {
@@ -517,6 +521,73 @@ Cypress.Commands.add('getSummary', (label) => {
   cy.get(`[data-testid^=summary-]:has(span:contains(${label}))`);
 });
 
+Cypress.Commands.add('directSnapshot', (snapshotName, { width, minHeight }, reset = true) => {
+  // Store initial viewport size for later
+  const initialViewportSize = { width: 0, height: 0 };
+  cy.window().then((win) => {
+    initialViewportSize.width = win.innerWidth;
+    initialViewportSize.height = win.innerHeight;
+  });
+
+  cy.viewport(width, minHeight);
+
+  // cy.screenshot's blackout property does not ensure that text is monospace which causes unecessary visual changes, so using our own percy css instead
+  cy.readFile('test/percy.css').then((percyCSS) => {
+    cy.document().then((doc) => {
+      const style = doc.createElement('style');
+      style.id = 'percy-css';
+      style.appendChild(doc.createTextNode(percyCSS));
+      doc.head.appendChild(style);
+    });
+  });
+  cy.get('#percy-css').should('exist');
+
+  // Take screenshot
+  const imageData = { path: '', dataUrl: '' };
+  cy.screenshot(snapshotName, {
+    overwrite: true,
+    onAfterScreenshot: (_, { path }) => {
+      imageData.path = path;
+    },
+  });
+
+  cy.then(() =>
+    cy.readFile(imageData.path, 'base64').then((data) => {
+      imageData.dataUrl = `data:image/png;base64,${data}`;
+    }),
+  );
+
+  cy.then(() =>
+    cy.intercept(
+      { url: '**/screenshot', times: 1 },
+      `<!doctype html>
+       <html>
+          <head>
+            <meta charset="utf-8">
+            <title>${snapshotName}</title>
+            <style>
+              *, *::before, *::after { margin: 0; padding: 0; font-size: 0; }
+              html, body { width: 100%; }
+              img { max-width: 100%; }
+            </style>
+          </head>
+          <body>
+            <img src="${imageData.dataUrl}">
+          </body>
+       </html>`,
+    ),
+  );
+  cy.visit('/screenshot');
+
+  cy.percySnapshot(snapshotName, { widths: [width], minHeight });
+
+  // Revert to original viewport
+  if (reset) {
+    cy.go('back');
+    cy.then(() => cy.viewport(initialViewportSize.width, initialViewportSize.height));
+  }
+});
+
 const DEFAULT_COMMAND_TIMEOUT = Cypress.config().defaultCommandTimeout;
 Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) => {
   cy.log('Testing PDF');
@@ -552,52 +623,52 @@ Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) =
     cy.visit(visitUrl);
   });
 
-  cy.readFile('test/percy.css').then((percyCSS) => {
-    cy.reload();
+  cy.reload();
 
-    // Wait for readyForPrint, after this everything should be rendered so using timeout: 0
-    cy.get('#pdfView > #readyForPrint')
-      .should('exist')
-      .then(() => {
-        // Enable print media emulation
-        cy.wrap(
-          Cypress.automation('remote:debugger:protocol', {
-            command: 'Emulation.setEmulatedMedia',
-            params: { media: 'print' },
-          }),
-          { log: false },
-        );
-        // Set viewport to A4 paper + scrollbar width
-        cy.viewport(794 + 15, 1123);
-        cy.get('body').invoke('css', 'margin', '0.75in');
+  // Wait for readyForPrint, after this everything should be rendered so using timeout: 0
+  cy.get('#pdfView > #readyForPrint')
+    .should('exist')
+    .then(() => {
+      // Enable print media emulation
+      cy.wrap(
+        Cypress.automation('remote:debugger:protocol', {
+          command: 'Emulation.setEmulatedMedia',
+          params: { media: 'print' },
+        }),
+        { log: false },
+      );
+      // Set viewport to A4 paper
+      cy.viewport(794, 1123);
+      cy.get('body').invoke('css', 'margin', '0.75in');
 
-        cy.then(() => Cypress.config('defaultCommandTimeout', 0));
+      cy.then(() => Cypress.config('defaultCommandTimeout', 0));
 
-        // Verify that generic elements that should be hidden are not present
-        cy.findAllByRole('button').should('not.exist');
-        // Run tests from callback
-        callback();
+      // Verify that generic elements that should be hidden are not present
+      cy.findAllByRole('button').should('not.exist');
+      // Run tests from callback
+      callback();
 
-        cy.then(() => Cypress.config('defaultCommandTimeout', DEFAULT_COMMAND_TIMEOUT));
+      cy.then(() => Cypress.config('defaultCommandTimeout', DEFAULT_COMMAND_TIMEOUT));
 
-        if (snapshotName) {
-          // Take snapshot of PDF
-          cy.percySnapshot(`${snapshotName} (PDF)`, { percyCSS, widths: [794] });
-        }
-      });
-  });
+      if (snapshotName) {
+        // Take snapshot of PDF
+        cy.directSnapshot(`${snapshotName} (PDF)`, { width: 794, minHeight: 1123 }, returnToForm);
+      }
+    });
 
   if (returnToForm) {
-    // Disable media emulation
-    cy.wrap(
-      Cypress.automation('remote:debugger:protocol', {
-        command: 'Emulation.setEmulatedMedia',
-        params: {},
-      }),
-      { log: false },
-    );
-    // Revert to original viewport
-    cy.then(() => cy.viewport(size.width, size.height));
+    // Disable media emulation and revert to original viewport
+    cy.then(() => {
+      cy.wrap(
+        Cypress.automation('remote:debugger:protocol', {
+          command: 'Emulation.setEmulatedMedia',
+          params: {},
+        }),
+        { log: false },
+      );
+      cy.viewport(size.width, size.height);
+    });
+
     cy.get('body').invoke('css', 'margin', '');
 
     cy.location('href').then((href) => {
@@ -643,6 +714,9 @@ Cypress.Commands.add('getNextPatchValidations', (result) => {
   }).as('getNextValidations');
 });
 
+/**
+ * Only works with multi-patch
+ */
 Cypress.Commands.add('expectValidationToExist', (result, group, predicate) => {
   cy.wrap(result, { log: false }).should(({ validations }) => {
     const ready = Boolean(validations);
@@ -652,7 +726,7 @@ Cypress.Commands.add('expectValidationToExist', (result, group, predicate) => {
       expect(ready, 'Did not find validations from backend').to.be.true;
     }
 
-    const validation = validations?.[group]?.find((v: BackendValidationIssue) => predicate(v));
+    const validation = validations?.find(({ source }) => source === group)?.issues.find((v) => predicate(v));
     if (validation) {
       expect(
         validation,
@@ -667,6 +741,9 @@ Cypress.Commands.add('expectValidationToExist', (result, group, predicate) => {
   });
 });
 
+/**
+ * Only works with multi-patch
+ */
 Cypress.Commands.add('expectValidationNotToExist', (result, group, predicate) => {
   cy.wrap(result, { log: false }).should(({ validations }) => {
     const ready = Boolean(validations);
@@ -676,7 +753,7 @@ Cypress.Commands.add('expectValidationNotToExist', (result, group, predicate) =>
       expect(ready, 'Did not find validations from backend').to.be.true;
     }
 
-    const validation = validations?.[group]?.find((v) => predicate(v));
+    const validation = validations?.find(({ source }) => source === group)?.issues.find((v) => predicate(v));
     if (!validation) {
       expect(
         validation,

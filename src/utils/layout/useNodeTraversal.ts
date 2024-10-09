@@ -119,6 +119,20 @@ export class NodeTraversal<T extends Node = LayoutPages> {
   }
 
   /**
+   * Looks for a component with a specific ID upwards in the hierarchy, using the same rules as closest().
+   */
+  closestId(id: string): LayoutNode | undefined {
+    return this.target.closest(
+      new TraversalTask(
+        this.state,
+        this.rootNode,
+        (c) => c.type === 'node' && (c.layout.id === id || c.layout.baseComponentId === id),
+        undefined,
+      ),
+    );
+  }
+
+  /**
    * Like children(), but will only match upwards along the tree towards the top page (LayoutPage)
    */
   parents(matching?: TraversalMatcher): ParentsFrom<T> {
@@ -231,17 +245,11 @@ enum Strictness {
 
   // If the context or nodes are not provided, return ContextNotProvided upon traversal
   returnContextNotProvided,
-
-  // If the context or nodes are not provided, return undefined upon traversal (will usually work like silently
-  // never finding what you're looking for when nodes are not present)
-  returnUndefined,
 }
 
-type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictness.returnUndefined
-  ? U | undefined
-  : Strict extends Strictness.returnContextNotProvided
-    ? U | typeof ContextNotProvided
-    : U;
+type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictness.returnContextNotProvided
+  ? U | typeof ContextNotProvided
+  : U;
 
 function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: never, strictness?: Strictness): Out {
   const nodes = useNodesLax();
@@ -277,7 +285,7 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
       throw new Error('useNodeTraversal() must be used inside a NodesProvider');
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return strictness === Strictness.returnUndefined ? undefined : (selector as any)(ContextNotProvided);
+    return (selector as any)(ContextNotProvided);
   }
 
   return out;
@@ -307,32 +315,6 @@ export function useNodeTraversal<N extends LayoutNode, Out>(
 // eslint-disable-next-line no-redeclare
 export function useNodeTraversal<Out>(selector: (traverser: never) => Out, node?: never): Out {
   return useNodeTraversalProto(selector, node, Strictness.throwError);
-}
-
-export function useNodeTraversalSilent<Out>(selector: (traverser: NodeTraversalFromRoot) => Out): Out | undefined;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalSilent<N extends LayoutPage, Out>(
-  selector: (traverser: NodeTraversalFromPage) => Out,
-  node: N,
-): Out | undefined;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalSilent<N extends LayoutPage, Out>(
-  selector: (traverser: NodeTraversalFromPage | NodeTraversalFromRoot) => Out,
-  node: N | undefined,
-): Out | undefined;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalSilent<N extends LayoutNode, Out>(
-  selector: (traverser: NodeTraversalFromNode<N>) => Out,
-  node: N,
-): Out | undefined;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalSilent<N extends LayoutNode, Out>(
-  selector: (traverser: NodeTraversalFromNode<N> | NodeTraversalFromRoot) => Out,
-  node: N | undefined,
-): Out | undefined;
-// eslint-disable-next-line no-redeclare
-export function useNodeTraversalSilent<Out>(selector: (traverser: never) => Out, node?: never): Out | undefined {
-  return useNodeTraversalProto(selector, node, Strictness.returnUndefined);
 }
 
 function throwOrReturn<R>(value: R, strictness: Strictness) {
@@ -381,12 +363,4 @@ export function useNodeTraversalSelector() {
   return useNodeTraversalSelectorProto(Strictness.throwError);
 }
 
-export function useNodeTraversalSelectorLax() {
-  return useNodeTraversalSelectorProto(Strictness.returnContextNotProvided);
-}
-
-export function useNodeTraversalSelectorSilent() {
-  return useNodeTraversalSelectorProto(Strictness.returnUndefined);
-}
-
-export type NodeTraversalSelectorLax = ReturnType<typeof useNodeTraversalSelectorLax>;
+export type NodeTraversalSelector = ReturnType<typeof useNodeTraversalSelector>;

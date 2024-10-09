@@ -30,7 +30,6 @@ import type {
   CompExternalExact,
   CompIntermediate,
   CompIntermediateExact,
-  CompInternal,
   CompTypes,
   IsContainerComp,
   ITextResourceBindingsExternal,
@@ -40,9 +39,9 @@ import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { ChildClaim, ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
+import type { NodeDataSelector, NodesContext } from 'src/utils/layout/NodesContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { BaseRow, NodeData, StateFactoryProps } from 'src/utils/layout/types';
+import type { NodeData, StateFactoryProps } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface BasicNodeGeneratorProps {
@@ -59,7 +58,7 @@ export type NodeGeneratorProps<Type extends CompTypes> =
 
 export interface ExprResolver<Type extends CompTypes> {
   item: CompIntermediateExact<Type>;
-  row?: BaseRow;
+  rowIndex?: number;
   formDataSelector: FormDataSelector;
   evalBase: () => ExprResolved<Omit<ComponentBase, 'hidden'>>;
   evalFormProps: () => ExprResolved<FormComponentProps>;
@@ -113,6 +112,19 @@ export abstract class AnyComponent<Type extends CompTypes> {
   }
 
   /**
+   * This is called to figure out if the nodes state is ready to be rendered. This can be overridden to add
+   * additional checks for any component.
+   */
+  public stateIsReady(state: NodeData<Type>): boolean {
+    return state.item !== undefined && state.hidden !== undefined;
+  }
+
+  /**
+   * Same as the above, but implemented by plugins automatically in the generated code.
+   */
+  abstract pluginStateIsReady(state: NodeData<Type>, fullState: NodesContext): boolean;
+
+  /**
    * Creates the zustand store default state for a node of this component type. Usually this is implemented
    * automatically by code generation, but you can override it if you need to add additional properties to the state.
    */
@@ -133,7 +145,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
     _state: NodeData<Type>,
     _childNode: LayoutNode,
     _claim: ChildClaim,
-    _row: BaseRow | undefined,
+    _rowIndex: number | undefined,
   ): Partial<NodeData<Type>> {
     throw new Error(
       `addChild() is not implemented yet for '${this.type}'. ` +
@@ -149,7 +161,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
     _state: NodeData<Type>,
     _childNode: LayoutNode,
     _claim: ChildClaim,
-    _row: BaseRow | undefined,
+    _rowIndex: number | undefined,
   ): Partial<NodeData<Type>> {
     throw new Error(
       `removeChild() is not implemented yet for '${this.type}'. ` +
@@ -188,10 +200,8 @@ export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Direct render? Override this and return true if you want GenericComponent to omit rendering grid,
    * validation messages, etc.
-   *
-   * @param _item This will contain the item with possibly overridden properties given to GenericComponent
    */
-  directRender(_item: CompInternal<Type>): boolean {
+  directRender(): boolean {
     return false;
   }
 
@@ -472,14 +482,14 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
     state: NodeData<Type>,
     childNode: LayoutNode,
     claim: ChildClaim,
-    row: BaseRow | undefined,
+    rowIndex: number | undefined,
   ): Partial<NodeData<Type>>;
 
   abstract removeChild(
     state: NodeData<Type>,
     childNode: LayoutNode,
     claim: ChildClaim,
-    row: BaseRow | undefined,
+    rowIndex: number | undefined,
   ): Partial<NodeData<Type>>;
 }
 

@@ -1,6 +1,6 @@
 import type { CyUser } from 'test/e2e/support/auth';
 
-import type { BackendValidationIssue, BackendValidationIssueGroups } from 'src/features/validation';
+import type { BackendValidationIssue, BackendValidationIssueGroupListItem } from 'src/features/validation';
 import type { ILayoutSets } from 'src/layout/common.generated';
 import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
 
@@ -30,6 +30,13 @@ declare global {
        * Quickly go to a certain task in the app
        */
       goto(target: FrontendTestTask): Chainable<Element>;
+
+      /**
+       * In 'ttd/frontend-test' we're using a pattern of initially hidden pages to expand with new test cases.
+       * This shortcut function will load the 'changename' task, make sure there are no validation errors, and then
+       * enable and navigate to the hidden page specified by the target string.
+       */
+      gotoHiddenPage(target: string): Chainable<Element>;
 
       /**
        * Go to a certain task and fill out the data in it. This will skip ahead quickly to the correct task, and
@@ -120,6 +127,7 @@ declare global {
         taskName: FrontendTestTask | string,
         mutator?: (component: CompExternal) => void,
         wholeLayoutMutator?: (layoutSet: ILayoutCollection) => void,
+        options?: { times?: number },
       ): Chainable<null>;
 
       /**
@@ -172,7 +180,7 @@ declare global {
       /**
        * Select from a dropdown in the design system
        */
-      dsSelect(selector: string, value: string): Chainable<null>;
+      dsSelect(selector: string, value: string, debounce?: boolean): Chainable<null>;
 
       /**
        * Shortcut for clicking an element and waiting for it to disappear
@@ -218,6 +226,11 @@ declare global {
       clearSelectionAndWait(viewport?: 'desktop' | 'tablet' | 'mobile'): Chainable<null>;
 
       getSummary(label: string): Chainable<Element>;
+      directSnapshot(
+        snapshotName: string,
+        options: { width: number; minHeight: number },
+        reset?: boolean,
+      ): Chainable<null>;
       testPdf(snapshotName: string | false, callback: () => void, returnToForm?: boolean): Chainable<null>;
       getCurrentPageId(): Chainable<string>;
 
@@ -260,6 +273,6 @@ declare global {
 }
 
 export type BackendValidationResult = {
-  validations: BackendValidationIssueGroups | null;
+  validations: BackendValidationIssueGroupListItem[] | null;
 };
 export type BackendValdiationPredicate = (validationIssue: BackendValidationIssue) => boolean | null | undefined;

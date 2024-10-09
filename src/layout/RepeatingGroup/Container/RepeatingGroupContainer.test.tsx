@@ -134,6 +134,7 @@ async function render({ container, numRows = 3, validationIssues = [] }: IRender
       }),
       fetchBackendValidations: async () => validationIssues,
     },
+    mockFormDataSaving: true,
   });
 }
 
@@ -239,7 +240,7 @@ describe('RepeatingGroupContainer', () => {
       })[1],
     );
 
-    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Feltet er feil'));
+    await waitFor(() => expect(screen.getByText(/feltet er feil/i)).toBeInTheDocument());
   });
 
   it('should NOT trigger validate when saving if validation trigger is NOT present', async () => {
@@ -267,7 +268,7 @@ describe('RepeatingGroupContainer', () => {
       })[1],
     );
 
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.queryByText(/feltet er feil/i)).not.toBeInTheDocument();
   });
 
   it('should display "Add new" button when edit.addButton is undefined', async () => {

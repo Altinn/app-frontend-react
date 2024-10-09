@@ -15,9 +15,12 @@ interface LoaderProps {
 }
 
 export const Loader = ({ renderPresentation = true, ...rest }: LoaderProps) => {
-  const { overriddenTaskId } = useTaskStore(({ overriddenTaskId }) => ({
-    overriddenTaskId,
-  }));
+  const overriddenDataModelUuid = useTaskStore((state) => state.overriddenDataModelUuid);
+  const overriddenTaskId = useTaskStore((state) => state.overriddenTaskId);
+
+  if (overriddenDataModelUuid) {
+    return null;
+  }
 
   if (overriddenTaskId) {
     return null;

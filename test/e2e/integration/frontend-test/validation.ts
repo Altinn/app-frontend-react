@@ -1,13 +1,11 @@
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
-import { Common } from 'test/e2e/pageobjects/common';
 import { Datalist } from 'test/e2e/pageobjects/datalist';
 
 import type { IDataModelPatchResponse } from 'src/features/formData/types';
 
 const appFrontend = new AppFrontend();
 const dataListPage = new Datalist();
-const mui = new Common();
 
 describe('Validation', () => {
   const newFirstName = /nytt fornavn/i;
@@ -40,9 +38,8 @@ describe('Validation', () => {
 
     cy.findByRole('checkbox', { name: /Ja[a-z, ]*/ }).check();
     cy.get(appFrontend.changeOfName.reasonRelationship).type('test');
-    cy.get(appFrontend.changeOfName.dateOfEffect).siblings().children(mui.buttonIcon).click();
-    cy.get(mui.selectedDate).click();
-
+    cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
+    cy.get('button[aria-label*="Today"]').click();
     cy.get(appFrontend.nextButton).click();
 
     cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
@@ -91,12 +88,12 @@ describe('Validation', () => {
       const realType = type as keyof typeof validationTypeMap;
       cy.findByRole('textbox', { name: newMiddleName }).clear();
       cy.findByRole('textbox', { name: newMiddleName }).type(value);
-      cy.get(`#form-content-newMiddleName`).findByRole('alert', { name: message }).should('exist');
+      cy.get(appFrontend.fieldValidation('newMiddleName')).should('contain.text', message);
 
       // Should not have any other messages
       for (const [otherType, { message: otherMessage }] of Object.entries(validationTypeMap)) {
         if (otherType !== realType) {
-          cy.findByRole('alert', { name: otherMessage }).should('not.exist');
+          cy.get(appFrontend.fieldValidation('newMiddleName')).should('not.contain.text', otherMessage);
         }
       }
     }
@@ -765,18 +762,18 @@ describe('Validation', () => {
       cy.goto('likert');
       cy.findByRole('button', { name: /Send inn/ }).click();
 
-      cy.findByRole('radiogroup', {
-        name: 'Spørsmål Hører skolen på elevenes forslag?*',
+      cy.findByRole('row', {
+        name: /Hører skolen på elevenes forslag\? \*/i,
       }).within(() => {
-        cy.findByRole('radio', { name: 'Alltid' }).should('not.be.focused');
+        cy.findByRole('radio', { name: /Alltid/ }).should('not.be.focused');
       });
 
       cy.findByRole('button', { name: /Du må fylle ut hører skolen på elevenes forslag/ }).click();
 
-      cy.findByRole('radiogroup', {
-        name: 'Spørsmål Hører skolen på elevenes forslag?*',
+      cy.findByRole('row', {
+        name: /Hører skolen på elevenes forslag\? \*/i,
       }).within(() => {
-        cy.findByRole('radio', { name: 'Alltid' }).should('be.focused');
+        cy.findByRole('radio', { name: /Alltid/ }).should('be.focused');
       });
     });
 
@@ -816,7 +813,8 @@ describe('Validation', () => {
         c++;
       }).as('patchData');
 
-      cy.get(appFrontend.changeOfName.dateOfEffect).type('01012020');
+      cy.get(appFrontend.changeOfName.dateOfEffect).type('01/01/2020');
+      cy.get(appFrontend.changeOfName.dateOfEffect).blur();
       cy.wait('@patchData').then(() => {
         expect(c).to.be.eq(1);
       });
@@ -824,7 +822,8 @@ describe('Validation', () => {
       cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.dateOfEffect)).should('not.exist');
 
       cy.get(appFrontend.changeOfName.dateOfEffect).clear();
-      cy.get(appFrontend.changeOfName.dateOfEffect).type('45451234');
+      cy.get(appFrontend.changeOfName.dateOfEffect).type('45/45/1234');
+      cy.get(appFrontend.changeOfName.dateOfEffect).blur();
       cy.wait('@patchData').then(() => {
         expect(c).to.be.eq(2);
       });
@@ -857,10 +856,7 @@ describe('Validation', () => {
         });
       });
 
-      cy.goto('changename');
-
-      cy.findByRole('checkbox', { name: /tall-input/i }).check();
-      cy.gotoNavPage('numeric-fields');
+      cy.gotoHiddenPage('numeric-fields');
 
       cy.get(appFrontend.fieldValidation('int32AsNumber')).should('contain.text', 'Du må fylle ut int32');
 

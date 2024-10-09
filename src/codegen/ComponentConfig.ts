@@ -295,9 +295,14 @@ export class ComponentConfig {
       from: 'src/layout/layout',
     });
 
-    const BaseRow = new CG.import({
-      import: 'BaseRow',
+    const NodeData = new CG.import({
+      import: 'NodeData',
       from: 'src/utils/layout/types',
+    });
+
+    const NodesContext = new CG.import({
+      import: 'NodesContext',
+      from: 'src/utils/layout/NodesContext',
     });
 
     const isFormComponent = this.config.category === CompCategory.Form;
@@ -376,12 +381,30 @@ export class ComponentConfig {
       );
     }
 
+    const readyCheckers: string[] = [];
     for (const plugin of this.plugins) {
       const extraMethodsFromPlugin = plugin.extraMethodsInDef();
       additionalMethods.push(...extraMethodsFromPlugin);
 
       const extraInEval = plugin.extraInEvalExpressions();
       extraInEval && evalLines.push(extraInEval);
+
+      readyCheckers.push(`${pluginRef(plugin)}.stateIsReady(state as any, fullState)`);
+    }
+
+    if (readyCheckers.length === 0) {
+      additionalMethods.push(
+        `// No plugins in this component
+        pluginStateIsReady(_state: ${NodeData}<'${this.type}'>): boolean {
+          return true;
+        }`,
+      );
+    } else {
+      additionalMethods.push(
+        `pluginStateIsReady(state: ${NodeData}<'${this.type}'>, fullState: ${NodesContext}): boolean {
+          return ${readyCheckers.join(' && ')};
+        }`,
+      );
     }
 
     const childrenPlugins = this.plugins.filter((plugin) => isNodeDefChildrenPlugin(plugin));
@@ -418,11 +441,11 @@ export class ComponentConfig {
         `pickDirectChildren(state: ${NodeData}<'${this.type}'>, restriction?: ${TraversalRestriction}) {
           return [${pickDirectChildrenBody.join(', ')}];
         }`,
-        `addChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}, { pluginKey, metadata }: ${ChildClaim}, row: ${BaseRow} | undefined) {
-          return this.plugins[pluginKey!].addChild(state as any, childNode, metadata, row) as Partial<${NodeData}<'${this.type}'>>;
+        `addChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}, { pluginKey, metadata }: ${ChildClaim}, rowIndex: number | undefined) {
+          return this.plugins[pluginKey!].addChild(state as any, childNode, metadata, rowIndex) as Partial<${NodeData}<'${this.type}'>>;
         }`,
-        `removeChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}, { pluginKey, metadata }: ${ChildClaim}, row: ${BaseRow} | undefined) {
-          return this.plugins[pluginKey!].removeChild(state as any, childNode, metadata, row) as Partial<${NodeData}<'${this.type}'>>;
+        `removeChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}, { pluginKey, metadata }: ${ChildClaim}, rowIndex: number | undefined) {
+          return this.plugins[pluginKey!].removeChild(state as any, childNode, metadata, rowIndex) as Partial<${NodeData}<'${this.type}'>>;
         }`,
         `isChildHidden(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}) {
           return [${isChildHiddenBody.join(', ')}].some((h) => h);
@@ -447,10 +470,11 @@ export class ComponentConfig {
       stateFactory(props: ${StateFactoryProps}<'${this.type}'>) {
         const baseState: ${BaseNodeData}<'${this.type}'> = {
           type: 'node',
+          pageKey: props.pageKey,
           item: undefined,
           layout: props.item,
           hidden: undefined,
-          row: props.row,
+          rowIndex: props.rowIndex,
           errors: undefined,
         };
         ${itemDef}

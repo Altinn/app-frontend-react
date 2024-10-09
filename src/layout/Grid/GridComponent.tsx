@@ -59,7 +59,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
             className={cn({ [css.captionFullWidth]: shouldHaveFullWidth })}
             title={<Lang id={title} />}
             description={description && <Lang id={description} />}
-            helpText={help}
+            helpText={help && <Lang id={help} />}
             labelSettings={labelSettings}
           />
         )}
@@ -170,11 +170,7 @@ function InternalRow({ header, readOnly, children }: InternalRowProps) {
     );
   }
 
-  return (
-    <Table.Body>
-      <Table.Row className={className}>{children}</Table.Row>
-    </Table.Body>
-  );
+  return <Table.Row className={className}>{children}</Table.Row>;
 }
 
 interface CellProps {
@@ -278,7 +274,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
     >
       {labelFromNode && (
         <LabelContent
-          labelId={`label-${labelFromNode.id}`}
+          componentId={labelFromNode.id}
           label={title}
           required={required}
           help={help}

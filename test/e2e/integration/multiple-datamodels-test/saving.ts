@@ -90,7 +90,8 @@ describe('saving multiple data models', () => {
       'Per Hansen er født dato og er dermed alder år gammel',
     );
 
-    cy.findByRole('textbox', { name: /fødselsdato/i }).type(`${d}${m}${y1}`);
+    cy.findByRole('textbox', { name: /fødselsdato/i }).type(`${d}.${m}.${y1}`);
+    cy.findByRole('textbox', { name: /fødselsdato/i }).blur();
 
     cy.get(appFrontend.multipleDatamodelsTest.repeatingParagraph).should(
       'contain.text',
@@ -104,7 +105,8 @@ describe('saving multiple data models', () => {
 
     cy.findByRole('textbox', { name: /fornavn/i }).type('Hanne');
     cy.findByRole('textbox', { name: /etternavn/i }).type('Persen');
-    cy.findByRole('textbox', { name: /fødselsdato/i }).type(`${d}${m}${y2}`);
+    cy.findByRole('textbox', { name: /fødselsdato/i }).type(`${d}.${m}.${y2}`);
+    cy.findByRole('textbox', { name: /fødselsdato/i }).blur();
 
     cy.get(appFrontend.multipleDatamodelsTest.repeatingParagraph).should(
       'contain.text',
@@ -115,6 +117,11 @@ describe('saving multiple data models', () => {
       .first()
       .click();
     cy.findAllByRole('button', { name: /slett/i }).first().click();
+
+    cy.waitUntilSaved();
+    cy.waitUntilNodesReady();
+    cy.findByRole('table').find('td').first().should('have.text', 'Hanne');
+
     cy.findByRole('button', { name: /rediger/i }).click();
 
     cy.get(appFrontend.multipleDatamodelsTest.repeatingParagraph).should(

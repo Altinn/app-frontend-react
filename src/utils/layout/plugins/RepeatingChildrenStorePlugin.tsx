@@ -7,22 +7,30 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepChildrenRow } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
-import type { BaseRow } from 'src/utils/layout/types';
 
-export interface SetRowExtrasRequest<T extends CompTypes = CompTypes> {
+interface BaseSetProps<T extends CompTypes> {
   node: LayoutNode<T>;
-  row: BaseRow;
+  rowIndex: number;
   internalProp: string;
+}
+
+export interface SetRowExtrasRequest<T extends CompTypes = CompTypes> extends BaseSetProps<T> {
   extras: unknown;
+}
+
+export interface SetRowUuidRequest<T extends CompTypes = CompTypes> extends BaseSetProps<T> {
+  rowUuid: string;
 }
 
 export interface RepeatingChildrenStorePluginConfig {
   extraFunctions: {
     setRowExtras: (requests: SetRowExtrasRequest[]) => void;
+    setRowUuids: (requests: SetRowUuidRequest[]) => void;
     removeRow: (node: LayoutNode, internalProp: string) => void;
   };
   extraHooks: {
     useSetRowExtras: () => RepeatingChildrenStorePluginConfig['extraFunctions']['setRowExtras'];
+    useSetRowUuids: () => RepeatingChildrenStorePluginConfig['extraFunctions']['setRowUuids'];
     useRemoveRow: () => RepeatingChildrenStorePluginConfig['extraFunctions']['removeRow'];
   };
 }
@@ -34,7 +42,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
         set((state) => {
           let changes = false;
           const nodeData = { ...state.nodeData };
-          for (const { node, row, internalProp, extras } of requests) {
+          for (const { node, rowIndex, internalProp, extras } of requests) {
             if (typeof extras !== 'object' || !extras) {
               throw new Error('Extras must be an object');
             }
@@ -45,16 +53,57 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             }
 
             const existingRows = thisNode.item && (thisNode.item[internalProp] as RepChildrenRow[] | undefined);
-            const existingRow = existingRows ? existingRows[row.index] : undefined;
-            const nextRow = { ...existingRow, ...extras, ...row } as RepChildrenRow;
+            if (!existingRows || !existingRows[rowIndex]) {
+              continue;
+            }
+
+            const existingRow = existingRows ? existingRows[rowIndex] : undefined;
+            const nextRow = { ...existingRow, ...extras, index: rowIndex } as RepChildrenRow;
             if (existingRows && existingRow && deepEqual(existingRow, nextRow)) {
               continue;
             }
 
-            if (row.index !== undefined) {
+            if (rowIndex !== undefined) {
               changes = true;
               const newRows = [...(existingRows || [])];
-              newRows[row.index] = nextRow;
+              newRows[rowIndex] = nextRow;
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
+            }
+          }
+
+          return changes ? { nodeData, readiness: NodesReadiness.NotReady } : {};
+        });
+      },
+      setRowUuids: (requests) => {
+        set((state) => {
+          let changes = false;
+          const nodeData = { ...state.nodeData };
+          for (const { node, rowIndex, internalProp, rowUuid } of requests) {
+            if (typeof rowUuid !== 'string') {
+              throw new Error('Row UUID must be a string');
+            }
+
+            const thisNode = nodeData[node.id];
+            if (!thisNode) {
+              continue;
+            }
+
+            const existingRows = thisNode.item && (thisNode.item[internalProp] as RepChildrenRow[] | undefined);
+            if (!existingRows || !existingRows[rowIndex]) {
+              continue;
+            }
+
+            const existingRow = existingRows ? existingRows[rowIndex] : undefined;
+            const nextRow = { ...existingRow, uuid: rowUuid, index: rowIndex } as RepChildrenRow;
+            if (existingRows && existingRow && deepEqual(existingRow, nextRow)) {
+              continue;
+            }
+
+            if (rowIndex !== undefined) {
+              changes = true;
+              const newRows = [...(existingRows || [])];
+              newRows[rowIndex] = nextRow;
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
             }
@@ -71,17 +120,25 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             return {};
           }
           const existingRows = thisNode.item && (thisNode.item[internalProp] as RepChildrenRow[] | undefined);
-          if (!existingRows) {
-            return {};
-          }
-          const lastRow = existingRows[existingRows.length - 1];
-          if (!lastRow) {
+          if (!existingRows || !existingRows[existingRows.length - 1]) {
             return {};
           }
 
           // When removing rows, we'll always remove the last one. There is no such thing as removing a row in the
           // middle, as the indexes will always re-flow to the total number of rows left.
           const newRows = existingRows.slice(0, -1);
+
+          // In these rows, all the UUIDs will change now that we've removed one. Removing these from existing rows
+          // so that we don't have stale UUIDs in the state while waiting for them to be set.
+          for (const rowIdx in newRows) {
+            const row = { ...newRows[rowIdx] };
+            if (row.uuid) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              delete (row as any).uuid;
+            }
+            newRows[rowIdx] = row;
+          }
+
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
 
@@ -94,6 +151,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
   extraHooks(store: NodesStoreFull): RepeatingChildrenStorePluginConfig['extraHooks'] {
     return {
       useSetRowExtras: () => store.useSelector((state) => state.setRowExtras),
+      useSetRowUuids: () => store.useSelector((state) => state.setRowUuids),
       useRemoveRow: () => store.useSelector((state) => state.removeRow),
     };
   }

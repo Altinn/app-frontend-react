@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { Heading, Paragraph } from '@digdir/designsystemet-react';
+import { Heading } from '@digdir/designsystemet-react';
+import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 import type { HeadingProps } from '@digdir/designsystemet-react';
 
@@ -15,7 +16,6 @@ type GroupComponentSummaryProps = {
   componentNode: LayoutNode<'Group'>;
   hierarchyLevel?: number;
   summaryOverride?: GroupSummaryOverrideProps;
-  parentId?: string;
 };
 
 type HeadingLevel = HeadingProps['level'];
@@ -32,67 +32,67 @@ function getHeadingLevel(hierarchyLevel: number): HeadingLevel {
   }
 }
 
-const ChildComponents = ({ componentNode, hierarchyLevel, summaryOverride, parentId }: GroupComponentSummaryProps) => {
+const ChildComponents = ({ componentNode, hierarchyLevel, summaryOverride }: GroupComponentSummaryProps) => {
   const childComponents = useNodeItem(componentNode, (i) => i.childComponents);
-  return (
-    childComponents.length &&
-    childComponents.map((child) => {
-      if (child?.isType('Group')) {
-        return (
+  return childComponents.map((child) => {
+    if (child?.isType('Group')) {
+      return (
+        <Grid
+          item
+          key={child?.id}
+        >
           <GroupSummary
             componentNode={child}
             hierarchyLevel={hierarchyLevel ? hierarchyLevel + 1 : 1}
             key={componentNode.id}
             summaryOverride={summaryOverride}
           />
-        );
-      } else {
-        const isCompact = summaryOverride?.isCompact;
+        </Grid>
+      );
+    }
 
-        return (
-          <div
-            key={child?.id}
-            className={cn(classes.childItem)}
-          >
-            <ComponentSummary
-              componentNode={child}
-              isCompact={isCompact}
-            />
-          </div>
-        );
-      }
-    })
-  );
+    const isCompact = summaryOverride?.isCompact;
+
+    return (
+      <ComponentSummary
+        key={child?.id}
+        componentNode={child}
+        isCompact={isCompact}
+      />
+    );
+  });
 };
 
 export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverride }: GroupComponentSummaryProps) => {
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
   const summaryTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.summaryTitle);
-  const description = useNodeItem(componentNode, (i) => i.textResourceBindings?.description);
   const headingLevel = getHeadingLevel(hierarchyLevel);
   const isNestedGroup = hierarchyLevel > 0;
+
+  const dataTestId = hierarchyLevel > 0 ? `summary-group-component-${hierarchyLevel}` : 'summary-group-component';
+
   return (
     <section
-      className={isNestedGroup ? cn(classes.groupContainer, classes.nested) : cn(classes.groupContainer)}
-      data-testid={`summary-group-component${hierarchyLevel > 0 ? `-${hierarchyLevel}` : ''}`}
+      className={cn(classes.groupContainer, { [classes.nested]: isNestedGroup })}
+      data-testid={dataTestId}
     >
-      <div className={cn(classes.groupHeading)}>
-        <Heading
-          size={isNestedGroup ? 'xsmall' : 'small'}
-          level={headingLevel}
-        >
-          <Lang id={summaryTitle ?? title} />
-        </Heading>
-        <Paragraph className={cn(classes.description)}>
-          <Lang id={description} />
-        </Paragraph>
-      </div>
-      <ChildComponents
-        componentNode={componentNode}
-        hierarchyLevel={hierarchyLevel}
-        summaryOverride={summaryOverride}
-        parentId={componentNode.baseId}
-      />
+      <Heading
+        size={isNestedGroup ? 'xsmall' : 'small'}
+        level={headingLevel}
+      >
+        <Lang id={summaryTitle ?? title} />
+      </Heading>
+      <Grid
+        container
+        spacing={6}
+        alignItems='flex-start'
+      >
+        <ChildComponents
+          componentNode={componentNode}
+          hierarchyLevel={hierarchyLevel}
+          summaryOverride={summaryOverride}
+        />
+      </Grid>
     </section>
   );
 };

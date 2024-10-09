@@ -5,7 +5,8 @@ import type { SerializableSetting } from 'src/codegen/SerializableSetting';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { BaseNodeData, BaseRow, StateFactoryProps } from 'src/utils/layout/types';
+import type { NodesContext } from 'src/utils/layout/NodesContext';
+import type { BaseNodeData, StateFactoryProps } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface DefPluginConfig {
@@ -196,6 +197,14 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
   }
 
   /**
+   * Checks if the state is ready. This can be overridden to add custom checks to ensure the state in this plugin
+   * is ready for use.
+   */
+  stateIsReady(_state: DefPluginState<Config>, _fullState: NodesContext): boolean {
+    return true;
+  }
+
+  /**
    * Returns initial state for the item object. This may be needed if your plugin has to initialize the item object
    * with some state, and stateFactory() won't work properly since multiple plugins will overwrite each others item
    * object.
@@ -262,13 +271,13 @@ export interface NodeDefChildrenPlugin<Config extends DefPluginConfig> {
     state: DefPluginState<Config>,
     childNode: LayoutNode,
     metadata: DefPluginClaimMetadata<Config>,
-    row: BaseRow | undefined,
+    rowIndex: number | undefined,
   ): Partial<DefPluginState<Config>>;
   removeChild(
     state: DefPluginState<Config>,
     childNode: LayoutNode,
     metadata: DefPluginClaimMetadata<Config>,
-    row: BaseRow | undefined,
+    rowIndex: number | undefined,
   ): Partial<DefPluginState<Config>>;
   isChildHidden(state: DefPluginState<Config>, childNode: LayoutNode): boolean;
 }

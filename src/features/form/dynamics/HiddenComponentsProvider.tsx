@@ -63,7 +63,6 @@ function useLegacyHiddenComponents() {
           [node],
         );
         for (const firstChild of firstChildren ?? []) {
-          runConditionalRenderingRule(rule, firstChild, ...props);
           if (rule.repeatingGroup.childGroupId && firstChild) {
             const rowIndex = firstChild.rowIndex!;
             const childId = `${rule.repeatingGroup.childGroupId}-${rowIndex}`;
@@ -84,6 +83,8 @@ function useLegacyHiddenComponents() {
                 runConditionalRenderingRule(rule, firstNestedChild, ...props);
               }
             }
+          } else if (firstChild) {
+            runConditionalRenderingRule(rule, firstChild, ...props);
           }
         }
       }
@@ -120,7 +121,15 @@ function runConditionalRenderingRule(
     }
   }
 
-  const result = window.conditionalRuleHandlerObject[functionToRun](inputObj);
+  const func = window.conditionalRuleHandlerObject[functionToRun];
+  if (!func || typeof func !== 'function') {
+    window.logErrorOnce(
+      `Conditional rule function '${functionToRun}' not found, rules referencing this function will not run.`,
+    );
+    return;
+  }
+
+  const result = func(inputObj);
   const action = rule.selectedAction;
   const hide = (action === 'Show' && !result) || (action === 'Hide' && result);
 

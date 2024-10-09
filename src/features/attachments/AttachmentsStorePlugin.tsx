@@ -12,7 +12,12 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { isAttachmentUploaded } from 'src/features/attachments/index';
 import { sortAttachmentsByName } from 'src/features/attachments/sortAttachments';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import {
+  useLaxAppendDataElement,
+  useLaxInstanceId,
+  useLaxMutateDataElement,
+  useLaxRemoveDataElement,
+} from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getValidationIssueMessage } from 'src/features/validation/backendValidation/backendValidationUtils';
@@ -214,7 +219,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
   extraHooks(store: NodesStoreFull): AttachmentsStorePluginConfig['extraHooks'] {
     return {
       useAttachmentsUpload() {
-        const { changeData: changeInstanceData } = useLaxInstance() || {};
+        const appendDataElement = useLaxAppendDataElement();
         const upload = store.useSelector((state) => state.attachmentUpload);
         const fulfill = store.useSelector((state) => state.attachmentUploadFulfilled);
         const reject = store.useSelector((state) => state.attachmentUploadRejected);
@@ -250,18 +255,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                 });
               }
               fulfill(fullAction, reply);
-
-              changeInstanceData &&
-                changeInstanceData((instance) => {
-                  if (instance?.data && reply) {
-                    return {
-                      ...instance,
-                      data: [...instance.data, reply],
-                    };
-                  }
-
-                  return instance;
-                });
+              appendDataElement?.(reply);
 
               return reply.id;
             } catch (err) {
@@ -284,7 +278,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
           [
             appendToListUnique,
             backendFeatures.jsonObjectInDataResponse,
-            changeInstanceData,
+            appendDataElement,
             fulfill,
             lang,
             langAsString,
@@ -298,7 +292,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       useAttachmentsUpdate() {
         const { mutateAsync: removeTag } = useAttachmentsRemoveTagMutation();
         const { mutateAsync: addTag } = useAttachmentsAddTagMutation();
-        const { changeData: changeInstanceData } = useLaxInstance() || {};
+        const mutateDataElement = useLaxMutateDataElement();
         const { lang } = useLanguage();
         const update = store.useSelector((state) => state.attachmentUpdate);
         const fulfill = store.useSelector((state) => state.attachmentUpdateFulfilled);
@@ -327,35 +321,18 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                 );
               }
               fulfill(action);
-
-              changeInstanceData &&
-                changeInstanceData((instance) => {
-                  if (instance?.data) {
-                    return {
-                      ...instance,
-                      data: instance.data.map((dataElement) => {
-                        if (dataElement.id === attachment.data.id) {
-                          return {
-                            ...dataElement,
-                            tags,
-                          };
-                        }
-                        return dataElement;
-                      }),
-                    };
-                  }
-                });
+              mutateDataElement?.(attachment.data.id, (dataElement) => ({ ...dataElement, tags }));
             } catch (error) {
               reject(action, error);
               toast(lang('form_filler.file_uploader_validation_error_update'), { type: 'error' });
             }
           },
-          [addTag, changeInstanceData, fulfill, lang, reject, removeTag, update],
+          [addTag, mutateDataElement, fulfill, lang, reject, removeTag, update],
         );
       },
       useAttachmentsRemove() {
         const { mutateAsync: removeAttachment } = useAttachmentsRemoveMutation();
-        const { changeData: changeInstanceData } = useLaxInstance() || {};
+        const removeDataElement = useLaxRemoveDataElement();
         const { lang } = useLanguage();
         const remove = store.useSelector((state) => state.attachmentRemove);
         const fulfill = store.useSelector((state) => state.attachmentRemoveFulfilled);
@@ -381,16 +358,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               }
 
               fulfill(action);
-
-              changeInstanceData &&
-                changeInstanceData((instance) => {
-                  if (instance?.data) {
-                    return {
-                      ...instance,
-                      data: instance.data.filter((d) => d.id !== action.attachment.data.id),
-                    };
-                  }
-                });
+              removeDataElement?.(action.attachment.data.id);
 
               return true;
             } catch (error) {
@@ -399,7 +367,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               return false;
             }
           },
-          [changeInstanceData, fulfill, lang, reject, remove, removeAttachment, removeValueFromList, setLeafValue],
+          [removeDataElement, fulfill, lang, reject, remove, removeAttachment, removeValueFromList, setLeafValue],
         );
       },
       useAttachments(node) {
@@ -409,7 +377,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
           }
 
           const nodeData = state.nodeData[node.id];
-          if ('attachments' in nodeData) {
+          if (nodeData && 'attachments' in nodeData) {
             return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
           }
 
@@ -424,7 +392,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             if (!nodeData) {
               return emptyArray;
             }
-            if ('attachments' in nodeData) {
+            if (nodeData && 'attachments' in nodeData) {
               return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
             }
             return emptyArray;
@@ -510,7 +478,7 @@ interface MutationVariables {
 
 function useAttachmentsUploadMutation() {
   const { doAttachmentUpload } = useAppMutations();
-  const instanceId = useLaxInstanceData()?.id;
+  const instanceId = useLaxInstanceId();
 
   const options: UseMutationOptions<IData, AxiosError, MutationVariables> = {
     mutationFn: ({ dataTypeId, file }: MutationVariables) => {
@@ -530,7 +498,7 @@ function useAttachmentsUploadMutation() {
 
 function useAttachmentsAddTagMutation() {
   const { doAttachmentAddTag } = useAppMutations();
-  const instanceId = useLaxInstanceData()?.id;
+  const instanceId = useLaxInstanceId();
 
   return useMutation({
     mutationFn: ({ dataGuid, tagToAdd }: { dataGuid: string; tagToAdd: string }) => {
@@ -548,7 +516,7 @@ function useAttachmentsAddTagMutation() {
 
 function useAttachmentsRemoveTagMutation() {
   const { doAttachmentRemoveTag } = useAppMutations();
-  const instanceId = useLaxInstanceData()?.id;
+  const instanceId = useLaxInstanceId();
 
   return useMutation({
     mutationFn: ({ dataGuid, tagToRemove }: { dataGuid: string; tagToRemove: string }) => {
@@ -566,7 +534,7 @@ function useAttachmentsRemoveTagMutation() {
 
 function useAttachmentsRemoveMutation() {
   const { doAttachmentRemove } = useAppMutations();
-  const instanceId = useLaxInstanceData()?.id;
+  const instanceId = useLaxInstanceId();
   const language = useCurrentLanguage();
 
   return useMutation({

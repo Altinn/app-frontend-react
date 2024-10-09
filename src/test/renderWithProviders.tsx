@@ -7,10 +7,12 @@ import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { QueryClient } from '@tanstack/react-query';
 import { act, render as rtlRender, waitFor } from '@testing-library/react';
 import dotenv from 'dotenv';
+import { applyPatch } from 'fast-json-patch';
 import type { RenderOptions, waitForOptions } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
+import { getDataListMock } from 'src/__mocks__/getDataListMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getLogoMock } from 'src/__mocks__/getLogoMock';
@@ -22,6 +24,8 @@ import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
+import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
+import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { RenderStart } from 'src/core/ui/RenderStart';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
@@ -43,12 +47,11 @@ import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import { PageNavigationRouter } from 'src/test/routerUtils';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { useNodes } from 'src/utils/layout/NodesContext';
-import { useNodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
-import type { IDataList } from 'src/features/dataLists';
+import { useNode, useNodes } from 'src/utils/layout/NodesContext';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
 import type { FormDataMethods } from 'src/features/formData/FormDataWriteStateMachine';
+import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
@@ -62,6 +65,10 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   waitUntilLoaded?: boolean;
   queries?: Partial<AppQueries>;
   initialRenderRef?: InitialRenderRef;
+
+  // Setting this allows you to pretend to be the backend (true = all requests are resolved successfully). When
+  // using a callback function you can simulate ProcessDataWrite by returning a new model.
+  mockFormDataSaving?: true | ((data: unknown, url: string) => unknown);
 }
 
 interface InstanceRouterProps {
@@ -123,6 +130,8 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   doProcessNext: makeMock('doProcessNext'),
   doInstantiateWithPrefill: makeMock('doInstantiateWithPrefill'),
   doPerformAction: makeMock('doPerformAction'),
+  doSubformEntryAdd: makeMock('doSubformEntryAdd'),
+  doSubformEntryDelete: makeMock('doSubformEntryDelete'),
 });
 
 const defaultQueryMocks: AppQueries = {
@@ -139,9 +148,8 @@ const defaultQueryMocks: AppQueries = {
   fetchRefreshJwtToken: async () => ({}),
   fetchCustomValidationConfig: async () => null,
   fetchFormData: async () => ({}),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fetchOptions: async () => ({ data: [], headers: {} }) as unknown as AxiosResponse<IRawOption[], any>,
-  fetchDataList: async () => ({}) as unknown as IDataList,
+  fetchOptions: async () => ({ data: [], headers: {} }) as unknown as AxiosResponse<IRawOption[], unknown>,
+  fetchDataList: async () => getDataListMock(),
   fetchPdfFormat: async () => ({ excludedPages: [], excludedComponents: [] }),
   fetchDynamics: async () => null,
   fetchRuleHandler: async () => null,
@@ -155,6 +163,7 @@ const defaultQueryMocks: AppQueries = {
   fetchProcessState: async () => getProcessDataMock(),
   fetchInstanceData: async () => getInstanceDataMock(),
   fetchBackendValidations: async () => [],
+  fetchBackendValidationsForDataElement: async () => [],
   fetchPaymentInformation: async () => paymentResponsePayload,
   fetchOrderDetails: async () => orderDetailsResponsePayload,
 };
@@ -276,35 +285,39 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
       queryClient={queryClient}
     >
       <LanguageProvider>
-        <LangToolsStoreProvider>
-          <MuiThemeProvider theme={theme}>
-            <UiConfigProvider>
-              <PageNavigationProvider>
-                <Router>
-                  <AppRoutingProvider>
-                    <ApplicationMetadataProvider>
-                      <GlobalFormDataReadersProvider>
-                        <OrgsProvider>
-                          <ApplicationSettingsProvider>
-                            <LayoutSetsProvider>
-                              <ProfileProvider>
-                                <PartyProvider>
-                                  <TextResourcesProvider>
-                                    <InstantiationProvider>{children}</InstantiationProvider>
-                                  </TextResourcesProvider>
-                                </PartyProvider>
-                              </ProfileProvider>
-                            </LayoutSetsProvider>
-                          </ApplicationSettingsProvider>
-                        </OrgsProvider>
-                      </GlobalFormDataReadersProvider>
-                    </ApplicationMetadataProvider>
-                  </AppRoutingProvider>
-                </Router>
-              </PageNavigationProvider>
-            </UiConfigProvider>
-          </MuiThemeProvider>
-        </LangToolsStoreProvider>
+        <DataLoadingProvider>
+          <TaskStoreProvider>
+            <LangToolsStoreProvider>
+              <MuiThemeProvider theme={theme}>
+                <UiConfigProvider>
+                  <PageNavigationProvider>
+                    <Router>
+                      <AppRoutingProvider>
+                        <ApplicationMetadataProvider>
+                          <GlobalFormDataReadersProvider>
+                            <OrgsProvider>
+                              <ApplicationSettingsProvider>
+                                <LayoutSetsProvider>
+                                  <ProfileProvider>
+                                    <PartyProvider>
+                                      <TextResourcesProvider>
+                                        <InstantiationProvider>{children}</InstantiationProvider>
+                                      </TextResourcesProvider>
+                                    </PartyProvider>
+                                  </ProfileProvider>
+                                </LayoutSetsProvider>
+                              </ApplicationSettingsProvider>
+                            </OrgsProvider>
+                          </GlobalFormDataReadersProvider>
+                        </ApplicationMetadataProvider>
+                      </AppRoutingProvider>
+                    </Router>
+                  </PageNavigationProvider>
+                </UiConfigProvider>
+              </MuiThemeProvider>
+            </LangToolsStoreProvider>
+          </TaskStoreProvider>
+        </DataLoadingProvider>
       </LanguageProvider>
     </AppQueriesProvider>
   );
@@ -333,11 +346,15 @@ function MinimalProviders({ children, queries, queryClient, Router = DefaultRout
       {...queries}
       queryClient={queryClient}
     >
-      <LangToolsStoreProvider>
-        <Router>
-          <AppRoutingProvider>{children}</AppRoutingProvider>
-        </Router>
-      </LangToolsStoreProvider>
+      <TaskStoreProvider>
+        <DataLoadingProvider>
+          <LangToolsStoreProvider>
+            <Router>
+              <AppRoutingProvider>{children}</AppRoutingProvider>
+            </Router>
+          </LangToolsStoreProvider>
+        </DataLoadingProvider>
+      </TaskStoreProvider>
     </AppQueriesProvider>
   );
 }
@@ -389,6 +406,44 @@ export function setupFakeApp({ queries, mutations }: SetupFakeAppProps = {}) {
   };
 }
 
+function injectFormDataSavingSimulator(
+  queryMocks: AppQueries,
+  mutationMocks: AppMutations,
+  mockBackend: Required<ExtendedRenderOptions>['mockFormDataSaving'],
+) {
+  const models: Record<string, unknown> = {};
+  const originalFetchFormData = queryMocks.fetchFormData;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (queryMocks as any).fetchFormData = jest.fn().mockImplementation(async (url: string) => {
+    const result = await originalFetchFormData(url);
+    models[url] = result;
+    return result;
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (mutationMocks as any).doPatchFormData = jest
+    .fn()
+    .mockImplementation(async (url: string, req: IDataModelPatchRequest): Promise<IDataModelPatchResponse> => {
+      const model = structuredClone(models[url] ?? {});
+      applyPatch(model, req.patch);
+      const afterProcessing = typeof mockBackend === 'function' ? mockBackend(model, url) : model;
+      models[url] = afterProcessing;
+
+      return {
+        newDataModel: afterProcessing as object,
+        validationIssues: {},
+      };
+    });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (mutationMocks as any).doPostStatelessFormData = jest.fn().mockImplementation(async (url: string, data: unknown) => {
+    const afterProcessing = typeof mockBackend === 'function' ? mockBackend(data, url) : data;
+    models[url] = afterProcessing;
+    return afterProcessing;
+  });
+}
+
 const renderBase = async ({
   renderer,
   router,
@@ -396,6 +451,7 @@ const renderBase = async ({
   waitUntilLoaded = true,
   Providers = DefaultProviders,
   initialRenderRef = { current: true },
+  mockFormDataSaving,
   ...renderOptions
 }: BaseRenderOptions) => {
   const { queryClient, queriesOnly: finalQueries } = setupFakeApp({ queries });
@@ -409,9 +465,17 @@ const renderBase = async ({
     Object.entries(mutations).map(([key, value]) => [key, value.mock]),
   ) as AppMutations;
 
+  if (mockFormDataSaving) {
+    injectFormDataSavingSimulator(queryMocks, mutationMocks, mockFormDataSaving);
+  }
+
+  if (!router) {
+    throw new Error('No router provided');
+  }
+
   const ProviderWrapper = ({ children }: PropsWithChildren) => (
     <Providers
-      Router={router || PageNavigationRouter({ currentPageId: 'formLayout' })}
+      Router={router}
       queryClient={queryClient}
       queries={{
         ...queryMocks,
@@ -509,6 +573,7 @@ const renderBase = async ({
 export const renderWithMinimalProviders = async (props: ExtendedRenderOptions) =>
   await renderBase({
     ...props,
+    router: props.router ?? PageNavigationRouter({ currentPageId: 'formLayout' }),
     Providers: MinimalProviders,
   });
 
@@ -518,6 +583,7 @@ export const renderWithoutInstanceAndLayout = async ({
 }: ExtendedRenderOptions & { withFormProvider?: boolean }) =>
   await renderBase({
     ...rest,
+    router: rest.router ?? DefaultRouter,
     Providers: withFormProvider
       ? ({ children, ...props }: ProvidersProps) => (
           <DefaultProviders {...props}>
@@ -604,7 +670,7 @@ const WaitForNodes = ({
   nodeId,
 }: PropsWithChildren<{ waitForAllNodes: boolean; nodeId?: string }>) => {
   const nodes = useNodes();
-  const selector = useNodeTraversalSelectorSilent();
+  const node = useNode(nodeId);
 
   if (!nodes && waitForAllNodes) {
     return (
@@ -615,26 +681,8 @@ const WaitForNodes = ({
     );
   }
 
-  if (nodeId !== undefined && nodes && waitForAllNodes) {
-    const node = selector((t) => t.findById(nodeId), [nodeId]);
-    if (!node) {
-      const allNodes = selector((t) => t.allNodes(), []);
-      return (
-        <>
-          <div>Unable to find target node: {nodeId}</div>
-          {allNodes && (
-            <>
-              <div>All other nodes loaded:</div>
-              <ul>
-                {allNodes.map((node) => (
-                  <li key={node.id}>{node.id}</li>
-                ))}
-              </ul>
-            </>
-          )}
-        </>
-      );
-    }
+  if (nodeId !== undefined && waitForAllNodes && !node) {
+    return <div>Unable to find target node: {nodeId}</div>;
   }
 
   return <>{children}</>;
@@ -659,13 +707,12 @@ export async function renderWithNode<InInstance extends boolean, T extends Layou
 }: RenderWithNodeTestProps<T, InInstance>): Promise<RenderWithNodeReturnType<InInstance>> {
   function Child() {
     const root = useNodes();
-    const selector = useNodeTraversalSelectorSilent();
+    const node = useNode(props.nodeId);
 
     if (!root) {
       return <div>Unable to find root context</div>;
     }
 
-    const node = selector((t) => t.findById(props.nodeId), [props.nodeId]);
     if (!node) {
       return <div>Unable to find node: {props.nodeId}</div>;
     }

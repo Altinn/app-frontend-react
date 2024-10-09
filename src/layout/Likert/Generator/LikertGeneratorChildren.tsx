@@ -1,14 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { getLikertStartStopIndex } from 'src/utils/formLayout';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
-import {
-  GeneratorCondition,
-  GeneratorRunProvider,
-  GeneratorStages,
-  StageAddNodes,
-} from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorCondition, GeneratorRunProvider, StageAddNodes } from 'src/utils/layout/generator/GeneratorStages';
 import { GenerateNodeChildrenWithStaticLayout } from 'src/utils/layout/generator/LayoutSetGenerator';
 import {
   mutateComponentId,
@@ -20,7 +15,6 @@ import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternalExact, CompIntermediate } from 'src/layout/layout';
 import type { ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { BaseRow } from 'src/utils/layout/types';
 
 export function LikertGeneratorChildren() {
   return (
@@ -28,12 +22,12 @@ export function LikertGeneratorChildren() {
       stage={StageAddNodes}
       mustBeAdded='parent'
     >
-      <PerformWork />
+      <LikertGeneratorChildrenWorker />
     </GeneratorCondition>
   );
 }
 
-function PerformWork() {
+function LikertGeneratorChildrenWorker() {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<'Likert'>;
   const questionsBinding = item?.dataModelBindings?.questions;
   const rows = FD.useFreshRows(questionsBinding);
@@ -63,12 +57,11 @@ interface GenerateRowProps {
   questionsBinding: IDataModelReference;
 }
 
-function _GenerateRow({ rowIndex, rowUuid, questionsBinding }: GenerateRowProps) {
+function _GenerateRow({ rowIndex, questionsBinding }: GenerateRowProps) {
   const parentItem = GeneratorInternal.useIntermediateItem() as CompIntermediate<'Likert'>;
   const node = GeneratorInternal.useParent() as LayoutNode<'Likert'>;
   const removeRow = NodesInternal.useRemoveRow();
   const depth = GeneratorInternal.useDepth();
-  const row: BaseRow = useMemo(() => ({ index: rowIndex, uuid: rowUuid }), [rowIndex, rowUuid]);
 
   const childId = `${parentItem.id}-item`;
 
@@ -117,11 +110,15 @@ function _GenerateRow({ rowIndex, rowUuid, questionsBinding }: GenerateRowProps)
   );
 
   const recursiveMutators = useMemo(
-    () => [mutateComponentId(row), mutateDataModelBindings(row, questionsBinding), mutateMapping(row, depth)],
-    [row, depth, questionsBinding],
+    () => [
+      mutateComponentId(rowIndex),
+      mutateDataModelBindings(rowIndex, questionsBinding),
+      mutateMapping(rowIndex, depth),
+    ],
+    [rowIndex, depth, questionsBinding],
   );
 
-  GeneratorStages.AddNodes.useEffect(
+  useEffect(
     () => () => {
       removeRow(node, 'rows');
     },
@@ -130,8 +127,9 @@ function _GenerateRow({ rowIndex, rowUuid, questionsBinding }: GenerateRowProps)
 
   return (
     <GeneratorRowProvider
-      row={row}
+      rowIndex={rowIndex}
       recursiveMutators={recursiveMutators}
+      groupBinding={questionsBinding}
     >
       <GenerateNodeChildrenWithStaticLayout
         claims={childClaims}
