@@ -20,7 +20,7 @@ export class GenerateIntersection<U extends CodeGenerator<any>[]> extends Descri
   }
 
   toTypeScriptDefinition(symbol: string | undefined): string {
-    const out = this.types.map((type) => type.toTypeScript()).join(' & ');
+    const out = this.types.map((type) => `(${type.toTypeScript()})`).join(' & ');
 
     return symbol ? `type ${symbol} = ${out};` : out;
   }
