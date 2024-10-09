@@ -4,6 +4,7 @@ import type { MutableRefObject, PropsWithChildren } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 
+import { ariaAnnounce } from 'src/components/aria-announce/ariaAnnouncerStore';
 import { createContext } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
@@ -491,8 +492,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
 
   const deleteRow = useCallback(
     async (row: BaseRow) => {
-      console.log('row', row);
-
+      ariaAnnounce(`Deleted row at index: ${row.index}`);
       const { deletableRows } = rowStateRef.current;
       const { startDeletingRow, endDeletingRow } = stateRef.current;
       const deletableRow = deletableRows.find((r) => r.uuid === row.uuid && r.index === row.index);
