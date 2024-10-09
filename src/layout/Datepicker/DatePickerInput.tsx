@@ -69,9 +69,10 @@ const DatePickerInput = forwardRef(
           ref={ref}
           disabled={readOnly}
           color='first'
+          size='small'
         >
           <CalendarIcon
-            style={{ width: '24px', height: '24px' }}
+            //style={{ width: 'px', height: '24px' }}
             title={langAsString('date_picker.aria_label_icon')}
           />
         </Button>

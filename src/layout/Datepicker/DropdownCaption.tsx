@@ -10,6 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
+import styles from 'src/layout/Datepicker/Calendar.module.css';
 import { getMonths, getYears } from 'src/layout/Datepicker/DatePickerHelpers';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { getLocale } from 'src/utils/dateHelpers';
@@ -39,7 +40,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
   const MonthDropdownLabel = langAsString('date_picker.aria_label_month_dropdown');
   return (
     <>
-      <div style={{ display: 'flex', marginBottom: '10px' }}>
+      <div className={styles.dropdownCaption}>
         <Button
           icon={true}
           color='second'
@@ -47,6 +48,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
           aria-label={langAsString('date_picker.aria_label_left_arrow')}
           disabled={!previousMonth}
           onClick={() => previousMonth && goToMonth(previousMonth)}
+          size='small'
         >
           <ArrowLeftIcon />
         </Button>
@@ -54,7 +56,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
           <Combobox
             style={{ width: '150px' }}
             id={id}
-            size='sm'
+            size='small'
             value={[calendarMonth.date.getMonth().toString()]}
             onValueChange={(months) => handleMonthChange(months[0])}
             aria-label={MonthDropdownLabel}
@@ -77,7 +79,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
           <Combobox
             style={{ width: '100px' }}
             id={id}
-            size='sm'
+            size='small'
             value={[calendarMonth.date.getFullYear().toString()]}
             onValueChange={(years) => handleYearChange(years[0])}
             aria-label={yearDropdownLabel}
@@ -105,6 +107,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
           aria-label={langAsString('date_picker.aria_label_right_arrow')}
           disabled={!nextMonth}
           onClick={() => nextMonth && goToMonth(nextMonth)}
+          size='small'
         >
           <ArrowRightIcon />
         </Button>

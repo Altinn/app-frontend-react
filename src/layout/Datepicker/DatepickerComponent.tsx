@@ -71,7 +71,7 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
       </>
     ) : (
       <Popover
-        portal
+        portal={false}
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         size='lg'
@@ -86,6 +86,7 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
         <Popover.Content
           className={styles.calendarWrapper}
           aria-modal
+          autoFocus={true}
         >
           {content}
         </Popover.Content>

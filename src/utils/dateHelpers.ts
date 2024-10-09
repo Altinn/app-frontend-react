@@ -29,7 +29,7 @@ export type DateResult =
  */
 function convertLegacyFormat(format: string): string {
   if (format === 'DD.MM.YYYY') {
-    return 'dd.MM.y';
+    return 'dd.MM.yyyy';
   }
   if (format === 'DD/MM/YYYY') {
     return 'dd/MM/yyyy';

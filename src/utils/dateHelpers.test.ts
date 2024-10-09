@@ -26,19 +26,17 @@ describe('dateHelpers', () => {
     const tests: { props: Parameters<typeof getDateFormat>; expected: ReturnType<typeof getDateFormat> }[] = [
       { props: ['YYYY-MM-DD'], expected: 'yyyy-MM-dd' },
       { props: ['DD/MM/YYYY'], expected: 'dd/MM/yyyy' },
-      { props: ['DD.MM.YYYY'], expected: 'dd.MM.y' },
+      { props: ['DD.MM.YYYY'], expected: 'dd.MM.yyyy' },
       { props: ['yyyy-MM-dd'], expected: 'yyyy-MM-dd' },
       { props: ['dd/MM/yyyy'], expected: 'dd/MM/yyyy' },
-      { props: ['dd.MM.y'], expected: 'dd.MM.y' },
+      { props: ['dd.MM.yyyy'], expected: 'dd.MM.yyyy' },
       { props: [undefined, 'en'], expected: 'MM/dd/yyyy' },
       { props: [undefined, 'nb'], expected: 'dd.MM.y' },
       { props: [undefined, undefined], expected: 'dd.MM.y' },
     ];
-    tests.forEach(({ props, expected }) => {
-      it(`should return ${expected} when called with ${JSON.stringify(props)}`, () => {
-        const result = getDateFormat(...props);
-        expect(result).toEqual(expected);
-      });
+    it.each(tests)(`should return $expected when called with $props`, ({ props, expected }) => {
+      const result = getDateFormat(...props);
+      expect(result).toEqual(expected);
     });
   });
 
