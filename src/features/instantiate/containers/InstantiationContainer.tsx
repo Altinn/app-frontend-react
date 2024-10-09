@@ -9,20 +9,20 @@ import { Footer } from 'src/features/footer/Footer';
 import classes from 'src/features/instantiate/containers/InstantiationContainer.module.css';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { changeBodyBackground } from 'src/utils/bodyStyling';
+import { BackgroundColor } from 'src/utils/BackgroundColor';
 
 export interface IInstantiateContainerProps {
   children?: React.ReactNode;
 }
 
 export function InstantiationContainer({ children }: IInstantiateContainerProps) {
-  changeBodyBackground(AltinnAppTheme.altinnPalette.primary.white);
   const profile = useProfile();
 
   return (
     <TaskStoreProvider>
       <DataLoadingProvider>
         <RenderStart>
+          <BackgroundColor color={AltinnAppTheme.altinnPalette.primary.white} />
           <div className={classes.container}>
             <AltinnAppHeader profile={profile} />
             <main id='main-content'>{children}</main>

@@ -18,8 +18,6 @@ import {
   useSetHasSelectedParty,
 } from 'src/features/party/PartiesProvider';
 import { useNavigate } from 'src/features/routing/AppRoutingContext';
-import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import { capitalizeName } from 'src/utils/stringHelper';
 import type { IParty } from 'src/types/shared';
@@ -77,7 +75,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const PartySelection = () => {
-  changeBodyBackground(AltinnAppTheme.altinnPalette.primary.white);
   const classes = useStyles();
   const match = useMatch(`/party-selection/:errorCode`);
   const errorCode = match?.params.errorCode;
