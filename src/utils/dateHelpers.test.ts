@@ -3,11 +3,9 @@ import { format, parseISO } from 'date-fns';
 
 import { DateFlags } from 'src/types';
 import {
-  convertToDatepickerFormat,
   DatepickerMaxDateDefault,
   DatepickerMinDateDefault,
   DatepickerSaveFormatTimestamp,
-  formatISOString,
   getDateConstraint,
   getDateFormat,
   getSaveFormattedDateString,
@@ -37,23 +35,6 @@ describe('dateHelpers', () => {
     it.each(tests)(`should return $expected when called with $props`, ({ props, expected }) => {
       const result = getDateFormat(...props);
       expect(result).toEqual(expected);
-    });
-  });
-
-  describe('convertToDatepickerFormat', () => {
-    const tests: {
-      props: Parameters<typeof convertToDatepickerFormat>;
-      expected: ReturnType<typeof convertToDatepickerFormat>;
-    }[] = [
-      { props: ['yyyy-MM-dd'], expected: 'YYYY-MM-DD' },
-      { props: ['dd/MM/yyyy'], expected: 'DD/MM/YYYY' },
-      { props: ['dd.MM.y'], expected: 'DD.MM.YYYY' },
-    ];
-    tests.forEach(({ props, expected }) => {
-      it(`should return ${expected} when called with ${JSON.stringify(props)}`, () => {
-        const result = convertToDatepickerFormat(...props);
-        expect(result).toEqual(expected);
-      });
     });
   });
 
@@ -134,25 +115,6 @@ describe('dateHelpers', () => {
         const dateStr = date?.toISOString() ?? null;
         expect(dateStr).toEqual(expected.date);
         expect(input).toEqual(expected.input);
-      });
-    });
-  });
-
-  describe('formatISOString', () => {
-    const tests: { props: Parameters<typeof formatISOString>; expected: ReturnType<typeof formatISOString> }[] = [
-      { props: [undefined, 'dd/MM/yyyy'], expected: null },
-      { props: ['2023-13-01', 'dd/MM/yyyy'], expected: null },
-      { props: ['2023-10-41', 'dd/MM/yyyy'], expected: null },
-      { props: ['2023-01-04T12:69:00.000Z', 'dd/MM/yyyy'], expected: null },
-      { props: ['2020-12-31T12:00:00.000Z', 'dd/MM/yyyy'], expected: '31/12/2020' },
-      { props: ['2020-12-31T12:00:00.000Z', 'yyyy-MM-dd'], expected: '2020-12-31' },
-      { props: ['2020-12-31T12:00:00.000Z', 'yyyy/MM/dd'], expected: '2020/12/31' },
-      { props: ['2023-09-01', 'dd.MM.y'], expected: '01.09.2023' },
-    ];
-    tests.forEach(({ props, expected }) => {
-      it(`should return ${expected} when called with ${JSON.stringify(props)}`, () => {
-        const result = formatISOString(...props);
-        expect(result).toEqual(expected);
       });
     });
   });
