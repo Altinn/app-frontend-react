@@ -6,6 +6,7 @@ import {
   DatepickerMaxDateDefault,
   DatepickerMinDateDefault,
   DatepickerSaveFormatTimestamp,
+  formatISOString,
   getDateConstraint,
   getDateFormat,
   getSaveFormattedDateString,
@@ -115,6 +116,25 @@ describe('dateHelpers', () => {
         const dateStr = date?.toISOString() ?? null;
         expect(dateStr).toEqual(expected.date);
         expect(input).toEqual(expected.input);
+      });
+    });
+  });
+
+  describe('formatISOString', () => {
+    const tests: { props: Parameters<typeof formatISOString>; expected: ReturnType<typeof formatISOString> }[] = [
+      { props: [undefined, 'dd/MM/yyyy'], expected: null },
+      { props: ['2023-13-01', 'dd/MM/yyyy'], expected: null },
+      { props: ['2023-10-41', 'dd/MM/yyyy'], expected: null },
+      { props: ['2023-01-04T12:69:00.000Z', 'dd/MM/yyyy'], expected: null },
+      { props: ['2020-12-31T12:00:00.000Z', 'dd/MM/yyyy'], expected: '31/12/2020' },
+      { props: ['2020-12-31T12:00:00.000Z', 'yyyy-MM-dd'], expected: '2020-12-31' },
+      { props: ['2020-12-31T12:00:00.000Z', 'yyyy/MM/dd'], expected: '2020/12/31' },
+      { props: ['2023-09-01', 'dd.MM.y'], expected: '01.09.2023' },
+    ];
+    tests.forEach(({ props, expected }) => {
+      it(`should return ${expected} when called with ${JSON.stringify(props)}`, () => {
+        const result = formatISOString(...props);
+        expect(result).toEqual(expected);
       });
     });
   });
