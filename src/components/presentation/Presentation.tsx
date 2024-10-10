@@ -21,6 +21,7 @@ import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
+import { BackgroundColor } from 'src/utils/BackgroundColor';
 import type { PresentationType } from 'src/types';
 
 export interface IPresentationProvidedProps extends PropsWithChildren {
@@ -41,10 +42,10 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
   const backgroundColor = isProcessStepsArchived
     ? AltinnAppTheme.altinnPalette.primary.greenLight
     : AltinnAppTheme.altinnPalette.primary.greyLight;
-  document.body.style.background = backgroundColor;
 
   return (
     <RenderStart>
+      <BackgroundColor color={backgroundColor} />
       <div
         data-testid='presentation'
         data-expanded={JSON.stringify(expandedWidth)}

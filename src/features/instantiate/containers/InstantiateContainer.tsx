@@ -9,11 +9,17 @@ import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { changeBodyBackground } from 'src/utils/bodyStyling';
+import { BackgroundColor } from 'src/utils/BackgroundColor';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 
-export const InstantiateContainer = () => {
-  changeBodyBackground(AltinnAppTheme.altinnPalette.primary.greyLight);
+export const InstantiateContainer = () => (
+  <>
+    <BackgroundColor color={AltinnAppTheme.altinnPalette.primary.greyLight} />
+    <InnerInstantiateContainer />
+  </>
+);
+
+const InnerInstantiateContainer = () => {
   const party = useCurrentParty();
   const instantiation = useInstantiation();
 

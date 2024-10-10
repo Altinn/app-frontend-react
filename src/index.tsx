@@ -4,6 +4,7 @@ import 'core-js';
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { HelmetProvider } from 'react-helmet-async';
 import { createHashRouter, RouterProvider, ScrollRestoration } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
 
@@ -64,15 +65,17 @@ document.addEventListener('DOMContentLoaded', () => {
       <AppPrefetcher />
       <ErrorBoundary>
         <AppWrapper>
-          <LanguageProvider>
-            <LangToolsStoreProvider>
-              <ThemeWrapper>
-                <UiConfigProvider>
-                  <RouterProvider router={router} />
-                </UiConfigProvider>
-              </ThemeWrapper>
-            </LangToolsStoreProvider>
-          </LanguageProvider>
+          <HelmetProvider>
+            <LanguageProvider>
+              <LangToolsStoreProvider>
+                <ThemeWrapper>
+                  <UiConfigProvider>
+                    <RouterProvider router={router} />
+                  </UiConfigProvider>
+                </ThemeWrapper>
+              </LangToolsStoreProvider>
+            </LanguageProvider>
+          </HelmetProvider>
         </AppWrapper>
       </ErrorBoundary>
     </AppQueriesProvider>,
