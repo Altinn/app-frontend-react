@@ -3,6 +3,7 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
+import { Flex } from 'src/components/Flex';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
@@ -113,8 +114,8 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
       data-componentbaseid={summaryNode?.baseId ?? `summary-${targetNode.id}`}
       className={cn(pageBreakStyles(pageBreak))}
     >
-      <Grid
-        container={true}
+      <Flex
+        direction='column'
         className={cn({
           [classes.border]: !display?.hideBottomBorder && shouldShowBorder,
         })}
@@ -132,8 +133,8 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
           <GenericComponent node={targetNode} />
         )}
         {errors.length && targetItem.type !== 'Group' && !display?.hideValidationMessages ? (
-          <Grid
-            container={true}
+          <Flex
+            direction='column'
             style={{ paddingTop: '12px' }}
             spacing={4}
           >
@@ -149,10 +150,7 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
                 }
               />
             ))}
-            <Grid
-              item={true}
-              xs={12}
-            >
+            <Flex>
               {!display?.hideChangeButton && (
                 <button
                   className={classes.link}
@@ -162,10 +160,10 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
                   <Lang id='form_filler.summary_go_to_correct_page' />
                 </button>
               )}
-            </Grid>
-          </Grid>
+            </Flex>
+          </Flex>
         ) : null}
-      </Grid>
+      </Flex>
     </Grid>
   );
 });
