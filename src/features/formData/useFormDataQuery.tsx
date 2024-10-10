@@ -15,6 +15,17 @@ export function useFormDataQueryDef(url: string | undefined): QueryDefinition<un
   const { fetchFormData } = useAppQueries();
   const queryKey = useFormDataQueryKey(url);
   const options = useFormDataQueryOptions();
+  const isStateless = useApplicationMetadata().isStatelessApp;
+
+  if (isStateless) {
+    return {
+      queryKey,
+      queryFn: url ? () => fetchFormData(url, options) : skipToken,
+      enabled: true,
+      gcTime: 0,
+    };
+  }
+
   return {
     queryKey,
     queryFn: url ? () => fetchFormData(url, options) : skipToken,
