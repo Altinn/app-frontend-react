@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import Grid from '@material-ui/core/Grid';
 import deepEqual from 'fast-deep-equal';
 
+import { Flex } from 'src/components/Flex';
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
@@ -101,8 +101,9 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
           messageKey={'form_filler.required_description'}
         />
       )}
-      <Grid
-        container={true}
+
+      <Flex
+        direction='column'
         spacing={6}
         alignItems='flex-start'
       >
@@ -112,19 +113,19 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
             id={id}
           />
         ))}
-        <Grid
-          item={true}
-          xs={12}
-          aria-live='polite'
-          className={classes.errorReport}
-        >
-          <ErrorReport
-            renderIds={errorReportIds}
-            formErrors={formErrors}
-            taskErrors={taskErrors}
-          />
-        </Grid>
-      </Grid>
+        {(!!errorReportIds.length || !!formErrors.length || !!taskErrors.length) && (
+          <div
+            aria-live='polite'
+            className={classes.errorReport}
+          >
+            <ErrorReport
+              renderIds={errorReportIds}
+              formErrors={formErrors}
+              taskErrors={taskErrors}
+            />
+          </div>
+        )}
+      </Flex>
       <ReadyForPrint />
       <HandleNavigationFocusComponent />
     </>
