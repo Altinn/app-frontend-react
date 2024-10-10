@@ -5210,7 +5210,7 @@ __metadata:
     cypress-network-idle: "npm:^1.14.2"
     cypress-plugin-tab: "npm:1.0.5"
     cypress-wait-until: "npm:^3.0.0"
-    date-fns: "npm:^3.6.0"
+    date-fns: "npm:^4.0.0"
     dompurify: "npm:3.1.7"
     dot-object: "npm:2.1.5"
     dotenv: "npm:16.4.5"
@@ -7091,6 +7091,13 @@ __metadata:
   version: 3.6.0
   resolution: "date-fns@npm:3.6.0"
   checksum: 10c0/0b5fb981590ef2f8e5a3ba6cd6d77faece0ea7f7158948f2eaae7bbb7c80a8f63ae30b01236c2923cf89bb3719c33aeb150c715ea4fe4e86e37dcf06bed42fb6
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^4.0.0":
+  version: 4.1.0
+  resolution: "date-fns@npm:4.1.0"
+  checksum: 10c0/b79ff32830e6b7faa009590af6ae0fb8c3fd9ffad46d930548fbb5acf473773b4712ae887e156ba91a7b3dc30591ce0f517d69fd83bd9c38650fdc03b4e0bac8
   languageName: node
   linkType: hard
 
