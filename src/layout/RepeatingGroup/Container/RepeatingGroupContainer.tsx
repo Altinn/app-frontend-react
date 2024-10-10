@@ -6,6 +6,7 @@ import { Grid } from '@material-ui/core';
 import { Add as AddIcon } from '@navikt/ds-icons';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { Flex } from 'src/components/Flex';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Label } from 'src/components/label/Label';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -36,12 +37,11 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
   }
 
   return (
-    <Grid
-      container={true}
-      item={true}
+    <Flex
       data-componentid={node.id}
       data-componentbaseid={node.baseId}
       ref={ref}
+      direction='column'
     >
       {(!mode || mode === 'showTable') && <ModeOnlyTable />}
       {mode === 'onlyTable' && <ModeOnlyTable />}
@@ -54,7 +54,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
       >
         <AllComponentValidations node={node} />
       </Grid>
-    </Grid>
+    </Flex>
   );
 });
 RepeatingGroupContainer.displayName = 'RepeatingGroupContainer';
