@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
+import { Flex } from 'src/components/Flex';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -49,28 +49,20 @@ export const HeaderComponent = ({ node }: IHeaderProps) => {
   const { langAsString } = useLanguage();
   return (
     <ComponentStructureWrapper node={node}>
-      <Grid
-        container={true}
-        direction='row'
-        alignItems='center'
-      >
-        <Grid item={true}>
-          <Heading
-            id={id}
-            {...getHeaderProps(size)}
-          >
-            <Lang id={textResourceBindings?.title} />
-          </Heading>
-        </Grid>
+      <Flex alignItems='center'>
+        <Heading
+          id={id}
+          {...getHeaderProps(size)}
+        >
+          <Lang id={textResourceBindings?.title} />
+        </Heading>
         {textResourceBindings?.help && (
-          <Grid item={true}>
-            <HelpTextContainer
-              helpText={<Lang id={textResourceBindings.help} />}
-              title={langAsString(textResourceBindings?.title)}
-            />
-          </Grid>
+          <HelpTextContainer
+            helpText={<Lang id={textResourceBindings.help} />}
+            title={langAsString(textResourceBindings?.title)}
+          />
         )}
-      </Grid>
+      </Flex>
     </ComponentStructureWrapper>
   );
 };

@@ -3,6 +3,7 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
+import { Flex } from 'src/components/Flex';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
@@ -110,8 +111,8 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
       data-componentbaseid={summaryNode?.baseId ?? `summary-${targetNode.id}`}
       className={cn(pageBreakStyles(pageBreak))}
     >
-      <Grid
-        container={true}
+      <Flex
+        direction='column'
         className={cn({
           [classes.border]: !display?.hideBottomBorder && shouldShowBorder,
         })}
@@ -129,8 +130,8 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
           <GenericComponent node={targetNode} />
         )}
         {errors.length && targetItem.type !== 'Group' && !display?.hideValidationMessages ? (
-          <Grid
-            container={true}
+          <Flex
+            direction='column'
             style={{ paddingTop: '12px' }}
             spacing={4}
           >
@@ -146,10 +147,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
                 }
               />
             ))}
-            <Grid
-              item={true}
-              xs={12}
-            >
+            <Flex>
               {!display?.hideChangeButton && (
                 <button
                   className={classes.link}
@@ -159,10 +157,10 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
                   <Lang id={'form_filler.summary_go_to_correct_page'} />
                 </button>
               )}
-            </Grid>
-          </Grid>
+            </Flex>
+          </Flex>
         ) : null}
-      </Grid>
+      </Flex>
     </Grid>
   );
 }
