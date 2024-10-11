@@ -175,6 +175,11 @@ export function PartyProvider({ children }: PropsWithChildren) {
 
 export const useParties = () => usePartiesCtx();
 
+// Returns a list of all parties including all sub units in a single list
+// This is not recursive and assumes that childParties cannot have childParties of their own,
+// the same assumption is currently present in PartySelection.tsx
+export const usePartiesFlat = () => usePartiesCtx()?.flatMap((party) => [party, ...(party.childParties ?? [])]);
+
 /**
  * Returns the current party, or the custom selected current party if one is set.
  * Please note that the current party might not be allowed to instantiate, so you should

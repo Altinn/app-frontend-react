@@ -12,7 +12,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useLaxInstanceAllDataElements, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useParties } from 'src/features/party/PartiesProvider';
+import { usePartiesFlat } from 'src/features/party/PartiesProvider';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import {
   filterDisplayAttachments,
@@ -81,7 +81,7 @@ export const ReceiptContainer = () => {
   const instanceOrg = useLaxInstanceData((i) => i.org);
   const instanceOwner = useLaxInstanceData((i) => i.instanceOwner);
   const dataElements = useLaxInstanceAllDataElements();
-  const parties = useParties();
+  const parties = usePartiesFlat();
   const langTools = useLanguage();
   const receiver = useAppReceiver();
 

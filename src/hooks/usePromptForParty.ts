@@ -1,11 +1,11 @@
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useParties } from 'src/features/party/PartiesProvider';
+import { usePartiesFlat } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 
 export function usePromptForParty(): boolean | null {
   const applicationMetadata = useApplicationMetadata();
   const profile = useProfile();
-  const parties = useParties();
+  const parties = usePartiesFlat();
 
   if (!profile?.partyId || !parties) {
     return null;

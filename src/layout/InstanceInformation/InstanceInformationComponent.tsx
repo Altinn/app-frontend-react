@@ -10,7 +10,7 @@ import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useParties } from 'src/features/party/PartiesProvider';
+import { usePartiesFlat } from 'src/features/party/PartiesProvider';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { getDateFormat, PrettyDateAndTime } from 'src/utils/dateHelpers';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -69,7 +69,7 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
   const instanceOwner = useLaxInstanceData((data) => data.instanceOwner);
   const lastChanged = useLaxInstanceData((data) => data.lastChanged);
   const instanceId = useLaxInstanceId();
-  const parties = useParties();
+  const parties = usePartiesFlat();
   const appReceiver = useAppReceiver();
 
   const instanceOwnerParty =
