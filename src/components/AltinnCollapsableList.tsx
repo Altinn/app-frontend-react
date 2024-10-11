@@ -1,6 +1,8 @@
 import React from 'react';
 
-import { Collapse, Grid } from '@material-ui/core';
+import { Collapse } from '@material-ui/core';
+
+import { Flex } from 'src/components/Flex';
 
 export interface IAltinnCollapsableListProps {
   /** Boolean value for if the animation will transition */
@@ -26,27 +28,17 @@ export const AltinnCollapsableList = ({
   }
 
   return (
-    <Grid
-      container={true}
-      direction='column'
-    >
-      <Grid
-        container={true}
-        direction='row'
+    <Flex direction='column'>
+      <Flex
         onClick={onClickExpand}
         onKeyPress={onKeyPress}
         tabIndex={0}
       >
-        <Grid
-          container={true}
-          direction='row'
-        >
-          {listHeader}
-        </Grid>
-      </Grid>
-      <Grid item={true}>
+        <Flex>{listHeader}</Flex>
+      </Flex>
+      <Flex>
         <Collapse in={transition}>{children}</Collapse>
-      </Grid>
-    </Grid>
+      </Flex>
+    </Flex>
   );
 };

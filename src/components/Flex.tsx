@@ -14,8 +14,8 @@ type Props = PropsWithChildren<
 > &
   React.HTMLAttributes<HTMLDivElement>;
 
-export const Flex = forwardRef(
-  ({ children, className, spacing, direction, justifyContent, alignItems, style, ...rest }: Props) => (
+export const Flex = forwardRef<HTMLDivElement, Props>(
+  ({ children, className, spacing, direction, justifyContent = 'space-evenly', alignItems, style, ...rest }: Props) => (
     <div
       {...rest}
       style={{
