@@ -12,6 +12,7 @@ import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getLabelId } from 'src/components/label/Label';
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -96,11 +97,11 @@ export const ListComponent = ({ node }: IListProps) => {
               level={2}
               size='sm'
             >
-              {title}
+              <Lang id={title} />
               <RequiredIndicator required={required} />
             </Heading>
           }
-          description={description}
+          description={langAsString(description)}
           className={classes.mobileRadioGroup}
           value={JSON.stringify(selectedRow)}
         >
@@ -141,7 +142,7 @@ export const ListComponent = ({ node }: IListProps) => {
               level={2}
               size='sm'
             >
-              {title}
+              <Lang id={title} />
               <RequiredIndicator required={required} />
             </Heading>
             <Description
