@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 
-import moment from 'moment';
+import { formatDate } from 'date-fns';
 
 import { AltinnContentIconReceipt } from 'src/components/atoms/AltinnContentIconReceipt';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
@@ -96,7 +96,7 @@ export const ReceiptContainer = () => {
   const { langAsString } = useLanguage();
   const lastChangedDateTime = useMemo(() => {
     if (lastChanged) {
-      return moment(lastChanged).format('DD.MM.YYYY / HH:mm');
+      return formatDate(lastChanged, 'dd.MM.yyyy / HH:mm');
     }
     return undefined;
   }, [lastChanged]);

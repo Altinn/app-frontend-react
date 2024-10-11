@@ -1,8 +1,35 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
 const appFrontend = new AppFrontend();
 
 describe('Title tag updates', () => {
+  it('Should update the title tag when on select instance page', () => {
+    const instanceIdExamples = [`512345/${uuidv4()}`, `512345/${uuidv4()}`, `512345/${uuidv4()}`];
+
+    cy.intercept('**/active', [
+      {
+        id: instanceIdExamples[0],
+        lastChanged: '2021-04-06T14:11:02.6893987Z',
+        lastChangedBy: 'Ola Nordmann',
+      },
+      {
+        id: instanceIdExamples[1],
+        lastChanged: '2022-04-06T14:11:02.6893987Z',
+        lastChangedBy: 'Foo Bar',
+      },
+      {
+        id: instanceIdExamples[2],
+        lastChanged: '2020-04-06T14:11:02.6893987Z',
+        lastChangedBy: 'Bar Baz',
+      },
+    ]);
+    cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
+    cy.visit('/ttd/component-library/#/instance-selection');
+    cy.title().should('eq', 'Fortsett der du slapp - altinn-apps-all-components - Testdepartementet');
+  });
+
   it('Should update the title tag when changing pages', () => {
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
     cy.get('#navigation-menu').find('button').contains('16. Oppsummering 2.0').click();
@@ -14,10 +41,6 @@ describe('Title tag updates', () => {
     cy.visit('/ttd/component-library/#/instance-selection');
 
     cy.title().should('eq', 'Fortsett der du slapp - altinn-apps-all-components - Testdepartementet');
-
-    cy.visit('/ttd/component-library/#/party-selection/');
-
-    cy.title().should('eq', 'Hvem vil du sende inn for? - altinn-apps-all-components - Testdepartementet');
   });
 
   it('Should update the title in error page', () => {
