@@ -8,6 +8,7 @@ import { Add as AddIcon } from '@navikt/ds-icons';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Label } from 'src/components/label/Label';
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { AllComponentValidations } from 'src/features/validation/ComponentValidations';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/EditContainer/RepeatingGroupsEditContainer';
@@ -27,6 +28,14 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HTMLDivElement>): JSX.Element | null => {
   const { node } = useRepeatingGroup();
   const mode = useNodeItem(node, (i) => i.edit?.mode);
+
+  const { dataModelBindings } = useNodeItem(node);
+  // console.log('tableItem', tableItem);
+
+  console.log('dataModelBindings', dataModelBindings);
+
+  const { formData, setValue } = useDataModelBindings(dataModelBindings, 100);
+  console.log('formData', formData);
 
   const editingId = useRepeatingGroupSelector((state) => state.editingId);
   const isHidden = Hidden.useIsHidden(node);

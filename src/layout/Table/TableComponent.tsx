@@ -59,11 +59,15 @@ type TableComponentProps = PropsFromGenericComponent<'Table'>;
  */
 export function TableComponent({ node }: TableComponentProps) {
   console.log('tableNode', node);
-  const tableItem = useNodeItem(node);
-  console.log('tableItem', tableItem);
-  const { formData, setValue } = useDataModelBindings(tableItem.dataModelBindings, 100);
+  const { dataModelBindings } = useNodeItem(node);
+  // console.log('tableItem', tableItem);
 
-  console.log(formData, formData);
+  console.log('dataModelBindings', dataModelBindings);
+
+  // console.log('tableItem.dataModelBindings', tableItem.dataModelBindings);
+  const { formData, setValue } = useDataModelBindings(dataModelBindings, 100);
+
+  console.log('formData', formData);
 
   return (
     <AppTable<User>
