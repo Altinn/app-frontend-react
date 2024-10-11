@@ -26,7 +26,12 @@ interface DataTableProps<T> {
  */
 export function AppTable<T extends object>({ data, columns }: DataTableProps<T>) {
   return (
-    <Table size='md'>
+    <Table
+      size='md'
+      style={{
+        width: '100%',
+      }}
+    >
       <Table.Head>
         <Table.Row>
           {columns.map((col, index) => (

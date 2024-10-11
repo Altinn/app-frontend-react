@@ -112,7 +112,6 @@ export class Table extends TableDef {
   }
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Table'>>(
     function LayoutComponentTableRender(props, _): JSX.Element | null {
-      console.log('props', props);
       return <TableComponent {...props}></TableComponent>;
     },
   );
