@@ -17,19 +17,21 @@ export function useFormDataQueryDef(url: string | undefined): QueryDefinition<un
   const options = useFormDataQueryOptions();
   const isStateless = useApplicationMetadata().isStatelessApp;
 
+  const queryFn = url ? () => fetchFormData(url, options) : skipToken;
+
   if (isStateless) {
+    //  We need to refetch for stateless apps as caching will break some apps.
+    // See this issue: https://github.com/Altinn/app-frontend-react/issues/2564
     return {
       queryKey,
-      queryFn: url ? () => fetchFormData(url, options) : skipToken,
-      enabled: true,
+      queryFn,
       gcTime: 0,
     };
   }
 
   return {
     queryKey,
-    queryFn: url ? () => fetchFormData(url, options) : skipToken,
-    enabled: !!url,
+    queryFn,
     refetchInterval: false,
   };
 }
