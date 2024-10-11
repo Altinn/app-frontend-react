@@ -102,8 +102,7 @@ export function GroupComponent({
             [classes.summary]: isSummary && !legend,
             [classes.group]: !isSummary && !legend,
             [classes.panel]: isPanel && !isSummary && !legend,
-            [classes.noFieldsetPanel]: isPanel && !isSummary && !legend,
-            [classes.noFieldsetGroupingIndicator]: isIndented && !isNested && !legend,
+            [classes.noFieldset]: !isSummary && !legend,
           })}
         >
           {children.map((n) => renderLayoutNode(n))}

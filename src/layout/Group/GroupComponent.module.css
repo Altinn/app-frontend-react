@@ -36,7 +36,7 @@
   margin-left: var(--fds-spacing-3);
 }
 
-.noFieldsetPanel {
+.noFieldset.panel {
   padding-left: calc(var(--panel-x-padding) - var(--fds-spacing-3));
   padding-right: calc(var(--panel-x-padding) - var(--fds-spacing-3));
 }
@@ -47,6 +47,6 @@
   padding: var(--fds-spacing-3) 0 var(--fds-spacing-3) var(--fds-spacing-3);
 }
 
-.noFieldsetGroupingIndicator {
+.noFieldset.groupingIndicator {
   margin-left: var(--fds-spacing-3);
 }
