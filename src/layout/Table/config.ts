@@ -54,4 +54,15 @@ export const Config = new CG.component({
           ),
       ),
     ),
+  )
+  .addProperty(
+    new CG.prop(
+      'columnConfig',
+      new CG.arr(
+        new CG.obj(
+          new CG.prop('header', new CG.str()),
+          new CG.prop('accessor', new CG.str().setTitle('Title').setDescription('Title of the tab')),
+        ).exportAs('ColumnConfig'),
+      ).optional(),
+    ),
   );

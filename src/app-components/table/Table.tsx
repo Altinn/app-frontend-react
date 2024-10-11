@@ -2,20 +2,20 @@ import React from 'react';
 
 import { Table } from '@digdir/designsystemet-react';
 
-interface Column<T> {
+interface Column {
   /** Header text for the column */
   header: string;
   /** Key of the data item to display in this column */
-  accessor: keyof T;
+  accessor: string;
   /** Optional function to render custom cell content */
-  renderCell?: (value: T[keyof T], rowData: T) => React.ReactNode;
+  renderCell?: (value: string, rowData: object) => React.ReactNode;
 }
 
 interface DataTableProps<T> {
   /** Array of data objects to display */
   data: T[];
   /** Configuration for table columns */
-  columns: Column<T>[];
+  columns: Column[];
 }
 
 /**
