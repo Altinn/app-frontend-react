@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import moment from 'moment';
+import { formatDate } from 'date-fns';
 
 import { AltinnContentIconReceipt } from 'src/components/atoms/AltinnContentIconReceipt';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
@@ -19,6 +19,7 @@ import {
   filterDisplayPdfAttachments,
   getAttachmentGroupings,
 } from 'src/utils/attachmentsUtils';
+import { getInstanceOwnerParty } from 'src/utils/party';
 import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -91,7 +92,7 @@ export const ReceiptContainer = () => {
 
   const lastChangedDateTime = useMemo(() => {
     if (lastChanged) {
-      return moment(lastChanged).format('DD.MM.YYYY / HH:mm');
+      return formatDate(lastChanged, 'dd.MM.yyyy / HH:mm');
     }
     return undefined;
   }, [lastChanged]);
@@ -117,7 +118,7 @@ export const ReceiptContainer = () => {
 
   const instanceMetaObject = useMemo(() => {
     if (instanceOrg && instanceOwner && parties && instanceGuid && lastChangedDateTime) {
-      const instanceOwnerParty = parties.find((party: IParty) => party.partyId.toString() === instanceOwner.partyId);
+      const instanceOwnerParty = getInstanceOwnerParty(instanceOwner, parties);
 
       return getSummaryDataObject({
         langTools,
