@@ -63,7 +63,7 @@ function _GenericComponent<Type extends CompTypes = CompTypes>({
   if (generatorErrors && Object.keys(generatorErrors).length > 0) {
     return (
       <ErrorList
-        node={node}
+        nodeId={node.id}
         errors={Object.keys(generatorErrors)}
       />
     );
@@ -256,8 +256,7 @@ const gridToClasses = (labelGrid: IGridStyling | undefined, classes: { [key: str
   };
 };
 
-const ErrorList = ({ node, errors }: { node: LayoutNode; errors: string[] }) => {
-  const id = node.id;
+export const ErrorList = ({ nodeId, errors }: { nodeId: string; errors: string[] }) => {
   const isDev = useIsDev();
   if (!isDev) {
     return null;
@@ -268,7 +267,7 @@ const ErrorList = ({ node, errors }: { node: LayoutNode; errors: string[] }) => 
       <h3>
         <Lang
           id={'config_error.component_has_errors'}
-          params={[id]}
+          params={[nodeId]}
         />
       </h3>
       <ul>
