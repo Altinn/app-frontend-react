@@ -43,9 +43,6 @@ export function useDataModelBindings<B extends IDataModelBindings | undefined, D
   const bindings = useMemoDeepEqual(() => (_bindings || defaultBindings) as Exclude<B, undefined>, [_bindings]);
 
   const formData = FD.useFreshBindings(bindings, dataAs);
-
-  console.log('formData', formData);
-
   const isValid = FD.useBindingsAreValid(bindings);
   const { setValue, setValues } = useSaveDataModelBindings(bindings, debounceTimeout);
 

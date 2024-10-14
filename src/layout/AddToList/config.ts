@@ -16,7 +16,6 @@ export const Config = new CG.component({
     customExpressions: false,
   },
 })
-  .extends(CG.common('LabeledComponentProps'))
   .addProperty(new CG.prop('title', new CG.str()))
   .addDataModelBinding(
     new CG.obj(
@@ -28,16 +27,5 @@ export const Config = new CG.component({
             'Dot notation location for a repeating group structure (array of objects), where the data is stored',
           ),
       ),
-    ),
-  )
-  .addProperty(
-    new CG.prop(
-      'columnConfig',
-      new CG.arr(
-        new CG.obj(
-          new CG.prop('header', new CG.str()),
-          new CG.prop('accessor', new CG.str().setTitle('Title').setDescription('Title of the tab')),
-        ).exportAs('ColumnConfig'),
-      ).optional(),
     ),
   );
