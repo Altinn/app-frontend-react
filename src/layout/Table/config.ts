@@ -2,7 +2,7 @@ import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
-  category: CompCategory.Container,
+  category: CompCategory.Form,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
@@ -18,18 +18,19 @@ export const Config = new CG.component({
 })
   .extends(CG.common('LabeledComponentProps'))
   .addProperty(new CG.prop('title', new CG.str()))
-  .addDataModelBinding(
-    new CG.obj(
-      new CG.prop(
-        'data',
-        new CG.dataModelBinding()
-          .setTitle('Data')
-          .setDescription(
-            'Dot notation location for a repeating group structure (array of objects), where the data is stored',
-          ),
-      ),
-    ),
-  )
+  .addDataModelBinding(CG.common('IDataModelBindingsSimple'))
+  // .addDataModelBinding(
+  //   new CG.obj(
+  //     new CG.prop(
+  //       'data',
+  //       new CG.dataModelBinding()
+  //         .setTitle('Data')
+  //         .setDescription(
+  //           'Dot notation location for a repeating group structure (array of objects), where the data is stored',
+  //         ),
+  //     ),
+  //   ),
+  // )
   .addProperty(
     new CG.prop(
       'columnConfig',

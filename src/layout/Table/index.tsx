@@ -4,110 +4,16 @@ import { TableDef } from 'src/layout/Table/config.def.generated';
 import { TableComponent, TableSummary } from 'src/layout/Table/TableComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation, ValidationDataSources, ValidationsProcessedLast } from 'src/features/validation';
-import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
-import type { CompIntermediate, CompInternal } from 'src/layout/layout';
-import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { PropsFromGenericComponent } from 'src/layout';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { GeneratorErrors } from 'src/utils/layout/types';
-import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Table extends TableDef implements ValidateComponent<'Table'> {
-  runComponentValidation: (
-    node: BaseLayoutNode<'Table'>,
-    validationContext: ValidationDataSources,
-  ) => ComponentValidation[];
+export class Table extends TableDef {
   validateDataModelBindings(ctx: LayoutValidationCtx<'Table'>): string[] {
-    // throw new Error('Method not implemented.');
     return [];
-  }
-  claimChildren(props: ChildClaimerProps<'Table', unknown>): void {
-    // throw new Error('Method not implemented.');
-  }
-  pickDirectChildren(
-    state: {
-      validations: ComponentValidation[];
-      validationVisibility: number;
-      validationsProcessedLast: ValidationsProcessedLast;
-      type: 'node';
-      pageKey: string;
-      layout: CompIntermediate<'Table'>;
-      item: CompInternal<'Table'> | undefined;
-      hidden: boolean | undefined;
-      rowIndex: number | undefined;
-      errors: GeneratorErrors | undefined;
-    },
-    restriction?: TraversalRestriction,
-  ): LayoutNode[] {
-    // throw new Error('Method not implemented.');
-    return [];
-  }
-  addChild(
-    state: {
-      validations: ComponentValidation[];
-      validationVisibility: number;
-      validationsProcessedLast: ValidationsProcessedLast;
-      type: 'node';
-      pageKey: string;
-      layout: CompIntermediate<'Table'>;
-      item: CompInternal<'Table'> | undefined;
-      hidden: boolean | undefined;
-      rowIndex: number | undefined;
-      errors: GeneratorErrors | undefined;
-    },
-    childNode: LayoutNode,
-    claim: ChildClaim,
-    rowIndex: number | undefined,
-  ): Partial<{
-    validations: ComponentValidation[];
-    validationVisibility: number;
-    validationsProcessedLast: ValidationsProcessedLast;
-    type: 'node';
-    pageKey: string;
-    layout: CompIntermediate<'Table'>;
-    item: CompInternal<'Table'> | undefined;
-    hidden: boolean | undefined;
-    rowIndex: number | undefined;
-    errors: GeneratorErrors | undefined;
-  }> {
-    // throw new Error('Method not implemented.');
-    return {};
-  }
-  removeChild(
-    state: {
-      validations: ComponentValidation[];
-      validationVisibility: number;
-      validationsProcessedLast: ValidationsProcessedLast;
-      type: 'node';
-      pageKey: string;
-      layout: CompIntermediate<'Table'>;
-      item: CompInternal<'Table'> | undefined;
-      hidden: boolean | undefined;
-      rowIndex: number | undefined;
-      errors: GeneratorErrors | undefined;
-    },
-    childNode: LayoutNode,
-    claim: ChildClaim,
-    rowIndex: number | undefined,
-  ): Partial<{
-    validations: ComponentValidation[];
-    validationVisibility: number;
-    validationsProcessedLast: ValidationsProcessedLast;
-    type: 'node';
-    pageKey: string;
-    layout: CompIntermediate<'Table'>;
-    item: CompInternal<'Table'> | undefined;
-    hidden: boolean | undefined;
-    rowIndex: number | undefined;
-    errors: GeneratorErrors | undefined;
-  }> {
-    // throw new Error('Method not implemented.');
-    return {};
   }
   getDisplayData(node: BaseLayoutNode<'Table'>, displayDataProps: DisplayDataProps): string {
-    // throw new Error('Method not implemented.');
     return '';
   }
   renderSummary2(props: Summary2Props<'Table'>): React.JSX.Element | null {

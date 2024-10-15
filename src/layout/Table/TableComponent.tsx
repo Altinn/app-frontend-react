@@ -18,12 +18,14 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
   const item = useNodeItem(componentNode);
   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
 
-  return (
-    <AppTable<IDataModelReference>
-      data={formData.data as IDataModelReference[]}
-      columns={item.columnConfig as ColumnConfig[]}
-    />
-  );
+  return <div></div>;
+
+  // return (
+  //   <AppTable<IDataModelReference>
+  //     data={formData.data as IDataModelReference[]}
+  //     columns={item.columnConfig as ColumnConfig[]}
+  //   />
+  // );
 }
 
 /**
@@ -35,10 +37,9 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
 export function TableComponent({ node }: TableComponentProps) {
   const item = useNodeItem(node);
   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
-
   return (
     <AppTable<IDataModelReference>
-      data={formData.data as IDataModelReference[]}
+      data={formData.simpleBinding as IDataModelReference[]}
       columns={item.columnConfig as ColumnConfig[]}
     />
   );
