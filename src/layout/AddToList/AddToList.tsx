@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-import { Button } from '@digdir/designsystemet-react';
+import { Button, Heading, Modal } from '@digdir/designsystemet-react';
 import { v4 as uuidv4 } from 'uuid';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -32,16 +32,16 @@ function isJSONSchema7Definition(obj: unknown): obj is JSONSchema7 {
   return false;
 }
 
-//IDataModelReference
-
 interface ModalDynamicFormProps extends DynamicFormProps {
   dataModelReference: IDataModelReference;
 }
 
 function AddToListModal({ schema, onChange, initialData, dataModelReference }: ModalDynamicFormProps) {
   const appendToList = FD.useAppendToList();
+  const modalRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
+    modalRef.current?.showModal();
     const uuid = uuidv4();
     appendToList({
       reference: dataModelReference,
@@ -50,10 +50,21 @@ function AddToListModal({ schema, onChange, initialData, dataModelReference }: M
   }, [appendToList, dataModelReference]);
 
   return (
-    <DynamicForm
-      schema={schema}
-      onChange={onChange}
-    />
+    <Modal ref={modalRef}>
+      <Heading
+        size='xs'
+        style={{
+          marginBottom: 'var(--ds-spacing-2)',
+        }}
+      >
+        Modal header
+      </Heading>
+      <DynamicForm
+        schema={schema}
+        onChange={onChange}
+        initialData={initialData}
+      />
+    </Modal>
   );
 }
 
@@ -61,15 +72,9 @@ export function AddToListComponent({ node }: AddToListProps) {
   const item = useNodeItem(node);
 
   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
-
-  console.log('item', item);
-  console.log('formData', formData);
-  const setLeafValue = FD.useSetLeafValue();
-
   const setMultiLeafValues = FD.useSetMultiLeafValues();
 
-  const { allDataTypes, writableDataTypes, defaultDataType, initialData, schemaLookup, dataElementIds } =
-    DataModels.useFullStateRef().current;
+  const { schemaLookup } = DataModels.useFullStateRef().current;
 
   const schema = schemaLookup[item.dataModelBindings.data.dataType].getSchemaForPath(
     item.dataModelBindings.data.field,
@@ -87,24 +92,18 @@ export function AddToListComponent({ node }: AddToListProps) {
 
   return (
     <div>
-      <pre>{JSON.stringify(formData, null, 2)}</pre>
-
       {showForm && (
         <AddToListModal
           schema={properties}
           dataModelReference={item.dataModelBindings.data}
           onChange={(formProps) => {
-            console.log('onChange HERE!');
             const changes = Object.entries(formProps).map((entry) => ({
               reference: {
                 dataType: item.dataModelBindings.data.dataType,
-                field: `${item.dataModelBindings.data.field}/${(formData.data as []).length - 1}/${entry[0]}`,
+                field: `${item.dataModelBindings.data.field}[${(formData.data as []).length - 1}].${entry[0]}`,
               },
               newValue: `${entry[1]}`,
-              changes: [],
             }));
-            console.log('SETTING!');
-            console.log(JSON.stringify(changes, null, 2));
             setMultiLeafValues({ changes });
             setShowForm(false);
           }}

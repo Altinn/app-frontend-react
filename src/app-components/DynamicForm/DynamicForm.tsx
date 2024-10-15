@@ -27,7 +27,6 @@ export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFo
 
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  // const selectedDate = isValidDate(parseISO(value)) ? parseISO(value) : new Date();
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
@@ -196,7 +195,6 @@ export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFo
 
   return (
     <form>
-      <pre>{JSON.stringify(schema, null, 2)}</pre>
       {renderFields(schema)}
       <Button
         size='md'
