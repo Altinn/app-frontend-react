@@ -51,7 +51,7 @@ export const DatePickerCalendar = ({
       selected={selectedDate}
       required={required}
       captionLayout='label'
-      onSelect={(date: Date) => {
+      onSelect={(date: Date | undefined) => {
         if (date) {
           onSelect(date);
         } else if (selectedDate) {
