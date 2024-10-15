@@ -19,7 +19,7 @@ export interface DatePickerInputProps {
   readOnly?: boolean;
 }
 
-const DatePickerInput = forwardRef(
+export const DatePickerInput = forwardRef(
   (
     { id, value, formatString, onBlur, isDialogOpen, readOnly, onClick }: DatePickerInputProps,
     ref: RefObject<HTMLButtonElement>,
@@ -71,10 +71,7 @@ const DatePickerInput = forwardRef(
           color='first'
           size='small'
         >
-          <CalendarIcon
-            //style={{ width: 'px', height: '24px' }}
-            title={langAsString('date_picker.aria_label_icon')}
-          />
+          <CalendarIcon title={langAsString('date_picker.aria_label_icon')} />
         </Button>
       </div>
     );
@@ -82,5 +79,3 @@ const DatePickerInput = forwardRef(
 );
 
 DatePickerInput.displayName = 'DatePickerInput';
-
-export default DatePickerInput;

@@ -7,14 +7,18 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useParties } from 'src/features/party/PartiesProvider';
 import { ConfirmPage } from 'src/features/processEnd/confirm/containers/ConfirmPage';
+import { getInstanceOwnerParty } from 'src/utils/party';
 
 export const Confirm = () => {
   const instance = useLaxInstanceData((data) => data);
   const parties = useParties();
+
+  const instanceOwnerParty = getInstanceOwnerParty(instance, parties);
   const applicationMetadata = useApplicationMetadata();
-  const appName = useAppName();
 
   const missingRequirement = !instance ? 'instance' : !parties ? 'parties' : undefined;
+
+  const appName = useAppName();
   return (
     <div id='confirmcontainer'>
       {missingRequirement ? (
@@ -29,8 +33,9 @@ export const Confirm = () => {
         <ConfirmPage
           applicationMetadata={applicationMetadata}
           instance={instance}
-          parties={parties}
+          instanceOwnerParty={instanceOwnerParty}
           appName={appName}
+          parties={parties}
         />
       )}
     </div>
