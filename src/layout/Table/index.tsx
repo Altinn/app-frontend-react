@@ -1,20 +1,24 @@
 import React, { forwardRef } from 'react';
-import type { JSX } from 'react';
 
 import { TableDef } from 'src/layout/Table/config.def.generated';
-import { TableComponent } from 'src/layout/Table/TableComponent';
+import { TableComponent, TableSummary } from 'src/layout/Table/TableComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation, ValidationsProcessedLast } from 'src/features/validation';
-import type { PropsFromGenericComponent } from 'src/layout';
+import type { ComponentValidation, ValidationDataSources, ValidationsProcessedLast } from 'src/features/validation';
+import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { CompIntermediate, CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { GeneratorErrors } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
-export class Table extends TableDef {
+export class Table extends TableDef implements ValidateComponent<'Table'> {
+  runComponentValidation: (
+    node: BaseLayoutNode<'Table'>,
+    validationContext: ValidationDataSources,
+  ) => ComponentValidation[];
   validateDataModelBindings(ctx: LayoutValidationCtx<'Table'>): string[] {
     // throw new Error('Method not implemented.');
     return [];
@@ -106,13 +110,16 @@ export class Table extends TableDef {
     // throw new Error('Method not implemented.');
     return '';
   }
-  renderSummary(props: SummaryRendererProps<'Table'>): JSX.Element | null {
-    // throw new Error('Method not implemented.');
-    return <div>summary</div>;
+  renderSummary2(props: Summary2Props<'Table'>): React.JSX.Element | null {
+    return <TableSummary componentNode={props.target} />;
   }
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Table'>>(
     function LayoutComponentTableRender(props, _): JSX.Element | null {
       return <TableComponent {...props}></TableComponent>;
     },
   );
+
+  renderSummary(props: SummaryRendererProps<'Table'>): React.JSX.Element | null {
+    return null;
+  }
 }

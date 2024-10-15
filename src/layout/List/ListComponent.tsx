@@ -58,6 +58,7 @@ export const ListComponent = ({ node }: IListProps) => {
   const { formData, setValues } = useDataModelBindings(bindings);
 
   const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
+    console.log('selectedValue', selectedValue);
     const next: Record<string, string> = {};
     for (const binding of Object.keys(bindings)) {
       next[binding] = selectedValue[binding];
