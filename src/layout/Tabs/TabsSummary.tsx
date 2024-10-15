@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
+import { Flex } from 'src/components/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import classes from 'src/layout/Tabs/TabsSummary.module.css';
@@ -44,8 +44,8 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
             >
               <Lang id={tab.title} />
             </Heading>
-            <Grid
-              container
+            <Flex
+              direction='column'
               spacing={6}
               alignItems='flex-start'
             >
@@ -55,7 +55,7 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
                   componentNode={node}
                 />
               ))}
-            </Grid>
+            </Flex>
           </div>
         </>
       ))}
