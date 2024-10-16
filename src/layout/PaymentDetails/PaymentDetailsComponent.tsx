@@ -27,9 +27,6 @@ export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
   }, [refetchOrderDetails]);
 
   useEffect(() => {
-    console.log('hasUnsavedChanges', hasUnsavedChanges);
-    console.log('prevMappedValues.current', prevMappedValues.current);
-    console.log('mappedValues', mappedValues);
     if (
       !hasUnsavedChanges &&
       mapping &&
