@@ -71,20 +71,20 @@ export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>)
         </div>
         <div className={classes.buttonContainer}>
           {(paymentInfo?.status === PaymentStatus.Created || paymentError) && (
-            <Button
-              variant='secondary'
-              onClick={() => next && next({ action: 'reject', nodeId: 'reject-button' })}
-            >
-              <Lang id='general.back' />
-            </Button>
-          )}
-          {(paymentInfo?.status === PaymentStatus.Created || paymentError) && (
-            <Button
-              color='success'
-              onClick={() => performPayment()}
-            >
-              <Lang id='payment.pay' />
-            </Button>
+            <>
+              <Button
+                variant='secondary'
+                onClick={() => next && next({ action: 'reject', nodeId: 'reject-button' })}
+              >
+                <Lang id='general.back' />
+              </Button>
+              <Button
+                color='success'
+                onClick={() => performPayment()}
+              >
+                <Lang id='payment.pay' />
+              </Button>
+            </>
           )}
           {paymentInfo?.status === PaymentStatus.Paid && (
             <Button
