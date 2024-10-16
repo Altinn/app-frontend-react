@@ -71,7 +71,7 @@ export function AppTable<T extends object>({ data, columns, actionButtons }: Dat
                 {actionButtons?.map((button, idx) => (
                   <Button
                     key={idx}
-                    onClick={() => button.onClick(idx, rowData)}
+                    onClick={() => button.onClick(rowIndex, rowData)}
                     size={'sm'}
                     style={{ marginRight: '5px' }}
                     variant={button.variant ? button.variant : 'tertiary'}

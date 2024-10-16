@@ -36,7 +36,6 @@ export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFo
   const handleChange = (key: string, value: FormDataValue) => {
     const newData = { ...formData, [key]: value };
     setFormData(newData);
-    // Removed onChange call here
   };
 
   const renderField = (key: string, fieldSchema: JSONSchema7Definition) => {
