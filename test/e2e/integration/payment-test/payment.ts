@@ -93,7 +93,6 @@ describe('PaymentInformation component', () => {
     cy.findByRole('checkbox', { name: /Jeg har lest og forstått/ }).click();
     cy.findByRole('textbox', { name: /Klassenummer/ }).type('1');
     cy.findByRole('textbox', { name: /Varer\/tjenester/ }).type('test');
-    cy.findByRole('textbox', { name: /Varer\/tjenester/ }).blur();
     cy.contains('button', 'Betalning og saksgangen vidare').click();
 
     cy.findByRole('row', { name: /1 - test 1 1000 NOK/ }).should('exist');
