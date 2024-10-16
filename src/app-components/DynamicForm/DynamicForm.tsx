@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { DayPicker } from 'react-day-picker';
+import React, { useEffect, useRef, useState } from 'react';
 
-import { Button, Textfield } from '@digdir/designsystemet-react';
+import { Button, Popover, Textfield } from '@digdir/designsystemet-react';
 import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
-import DropdownCaption from 'src/layout/Datepicker/DropdownCaption';
-import { getLocale, getSaveFormattedDateString } from 'src/utils/dateHelpers';
+import styles from 'src/layout/Datepicker/Calendar.module.css';
+import { DatePickerCalendar } from 'src/layout/Datepicker/DatePickerCalendar';
+import DatePickerInput from 'src/layout/Datepicker/DatePickerInput';
+import { getDateFormat, getLocale, getSaveFormattedDateString } from 'src/utils/dateHelpers';
 
 export type FormDataValue = string | number | boolean | null | FormDataValue[] | { [key: string]: FormDataValue };
 
@@ -24,9 +25,11 @@ export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFo
   const [formData, setFormData] = useState<FormDataObject>(initialData || {});
 
   const currentLocale = getLocale(locale ?? 'nb');
-
+  const modalRef = useRef<HTMLDialogElement>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const dateFormat = getDateFormat('dd.MM.yyyy', currentLocale.code);
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
@@ -78,28 +81,75 @@ export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFo
         case 'string':
           if (format === 'date') {
             return (
-              <div key={key}>
-                <DayPicker
-                  locale={currentLocale}
-                  today={new Date()}
-                  month={selectedDate}
-                  weekStartsOn={1}
-                  mode='single'
-                  hideNavigation
-                  selected={selectedDate}
-                  required={required}
-                  captionLayout='label'
-                  onSelect={(date: Date) => {
-                    setSelectedDate(date);
+              <div
+                key={key}
+                style={{ marginBottom: '10px' }}
+              >
+                <Popover
+                  portal={false}
+                  open={isDialogOpen}
+                  onClose={() => setIsDialogOpen(false)}
+                  size='lg'
+                  placement='top'
+                >
+                  <Popover.Trigger
+                    onClick={() => setIsDialogOpen(!isDialogOpen)}
+                    asChild={true}
+                  >
+                    <DatePickerInput
+                      id={key}
+                      value={(formData[key] as string) || ''}
+                      isDialogOpen={isDialogOpen}
+                      formatString={dateFormat}
+                      onClick={() => setIsDialogOpen(!isDialogOpen)}
+                    />
+                  </Popover.Trigger>
+                  <Popover.Content
+                    className={styles.calendarWrapper}
+                    aria-modal
+                    autoFocus={true}
+                  >
+                    <DatePickerCalendar
+                      id={`id-${DatePickerCalendar}`}
+                      locale={currentLocale.code}
+                      selectedDate={selectedDate}
+                      isOpen={isDialogOpen}
+                      onSelect={(date: Date) => {
+                        setSelectedDate(date);
+                        const formattedDate = getSaveFormattedDateString(date, false);
+                        console.log('key', key);
+                        // console.log('getSaveFormattedDateString(date, false)', getSaveFormattedDateString(date, false));
+                        handleChange(key, formattedDate);
+                        setIsDialogOpen(!isDialogOpen);
+                      }}
+                      required={required}
+                      maxDate={new Date(new Date().setFullYear(new Date().getFullYear() + 100))}
+                      minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 100))}
+                    />
+                  </Popover.Content>
+                </Popover>
 
-                    const formattedDate = getSaveFormattedDateString(date, false);
-                    console.log('key', key);
-                    // console.log('getSaveFormattedDateString(date, false)', getSaveFormattedDateString(date, false));
-                    handleChange(key, formattedDate);
-                  }}
-                  components={{ MonthCaption: DropdownCaption }}
-                  style={{ minHeight: '405px', maxWidth: '100%' }}
-                />
+                {/*<DayPicker*/}
+                {/*  locale={currentLocale}*/}
+                {/*  today={new Date()}*/}
+                {/*  month={selectedDate}*/}
+                {/*  weekStartsOn={1}*/}
+                {/*  mode='single'*/}
+                {/*  hideNavigation*/}
+                {/*  selected={selectedDate}*/}
+                {/*  required={required}*/}
+                {/*  captionLayout='label'*/}
+                {/*  onSelect={(date: Date) => {*/}
+                {/*    setSelectedDate(date);*/}
+
+                {/*    const formattedDate = getSaveFormattedDateString(date, false);*/}
+                {/*    console.log('key', key);*/}
+                {/*    // console.log('getSaveFormattedDateString(date, false)', getSaveFormattedDateString(date, false));*/}
+                {/*    handleChange(key, formattedDate);*/}
+                {/*  }}*/}
+                {/*  components={{ MonthCaption: DropdownCaption }}*/}
+                {/*  style={{ minHeight: '405px', maxWidth: '100%' }}*/}
+                {/*/>*/}
               </div>
             );
           }
@@ -107,7 +157,10 @@ export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFo
           // "format": "date"
 
           return (
-            <div key={key}>
+            <div
+              key={key}
+              style={{ marginBottom: '10px' }}
+            >
               <Textfield
                 description=''
                 error=''
@@ -122,7 +175,10 @@ export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFo
         case 'number':
         case 'integer':
           return (
-            <div key={key}>
+            <div
+              key={key}
+              style={{ marginBottom: '10px' }}
+            >
               <Textfield
                 description=''
                 error=''

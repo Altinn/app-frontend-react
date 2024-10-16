@@ -5,6 +5,7 @@ import { Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
 import { AppTable } from 'src/app-components/table/Table';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { AddToListModal } from 'src/layout/AddToList/AddToList';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { FormDataValue } from 'src/app-components/DynamicForm/DynamicForm';
@@ -62,7 +63,8 @@ export function TableComponent({ node }: TableComponentProps) {
 
   const [editItemIndex, setEditItemIndex] = useState<number>(-1);
   const setMultiLeafValues = FD.useSetMultiLeafValues();
-  console.log('formData', formData);
+
+  const { langAsString } = useLanguage();
 
   return (
     <>
@@ -93,7 +95,14 @@ export function TableComponent({ node }: TableComponentProps) {
 
       <AppTable<IDataModelReference>
         data={formData.simpleBinding as IDataModelReference[]}
-        columns={item.columnConfig as ColumnConfig[]}
+        columns={
+          item.columnConfig
+            ? item.columnConfig.map((config) => ({
+                ...config,
+                header: langAsString(config.header),
+              }))
+            : []
+        }
         actionButtons={[
           {
             onClick: (idx, _) => {
