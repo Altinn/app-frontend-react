@@ -21,7 +21,7 @@ describe('Stateless', () => {
     cy.get(appFrontend.stateless.name).blur();
     cy.get(appFrontend.stateless.name).should('have.value', 'automation');
     cy.get(appFrontend.header).should('contain.text', appFrontend.apps.stateless).and('contain.text', texts.ttd);
-    // cy.snapshot('stateless');
+    cy.snapshot('stateless');
   });
 
   it('Dynamics in stateless app', () => {
@@ -51,7 +51,7 @@ describe('Stateless', () => {
 
   it('back button should work after starting an instance', () => {
     cy.get(appFrontend.instantiationButton).click();
-    cy.window().then((win) => win.history.back());
+    cy.go('back');
     cy.get(appFrontend.instantiationButton).should('exist');
   });
 });
