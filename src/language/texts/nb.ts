@@ -293,6 +293,8 @@ export function nb(): FixedLanguageList {
         payer: 'Betaler',
         name: 'Navn',
         phone: 'Telefon',
+        company_name: 'Firmanavn',
+        org_number: 'Organisasjonsnummer',
         address: 'Addresse',
         org_num: 'Organisasjonsnummer',
         account_number: 'Kontonummer',

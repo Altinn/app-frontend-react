@@ -292,6 +292,8 @@ export function nn(): FixedLanguageList {
         receiver: 'Mottaker',
         payer: 'Betaler',
         name: 'Navn',
+        company_name: 'Firmanavn',
+        org_number: 'Organisasjonsnummer',
         phone: 'Telefon',
         address: 'Addresse',
         org_num: 'Organisasjonsnummer',

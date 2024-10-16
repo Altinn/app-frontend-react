@@ -291,6 +291,8 @@ export function en() {
         receiver: 'Receiver',
         payer: 'Payer',
         name: 'Name',
+        company_name: 'Company name',
+        org_number: 'Organisasjonsnummer',
         phone: 'Phone',
         address: 'Address',
         org_num: 'Org number',

@@ -72,6 +72,7 @@ export const PaymentReceiptDetails = ({ title, description }: PaymentReceiptDeta
   const receiver = paymentInfo?.orderDetails?.receiver;
   const payer = paymentInfo?.paymentDetails?.payer;
   const privatePersonPayer = payer?.privatePerson;
+  const companyPayer = payer?.company;
   const cardExpiryDate = paymentInfo?.paymentDetails?.cardDetails?.expiryDate;
   const receiverPostalAddress = receiver?.postalAddress;
   const payerPostalAddress = payer?.shippingAddress;
@@ -100,11 +101,16 @@ export const PaymentReceiptDetails = ({ title, description }: PaymentReceiptDeta
       labelId: 'payment.receipt.phone',
       value: `${privatePersonPayer.phoneNumber.prefix} ${privatePersonPayer.phoneNumber.number}`,
     },
+    privatePersonPayer?.email && { labelId: 'payment.receipt.email', value: privatePersonPayer.email },
+    companyPayer?.name && { labelId: 'payment.receipt.company_name', value: companyPayer.name },
+    companyPayer?.organisationNumber && {
+      labelId: 'payment.receipt.org_number',
+      value: companyPayer.organisationNumber,
+    },
     payerPostalAddress && {
       labelId: 'payment.receipt.address',
       value: `${payerPostalAddress?.addressLine1} ${payerPostalAddress?.postalCode} ${payerPostalAddress?.city} ${payerPostalAddress?.country}`,
     },
-    privatePersonPayer?.email && { labelId: 'payment.receipt.email', value: privatePersonPayer.email },
     paymentInfo?.paymentDetails?.cardDetails?.maskedPan && {
       labelId: 'payment.receipt.card_number',
       value: paymentInfo?.paymentDetails?.cardDetails?.maskedPan,
