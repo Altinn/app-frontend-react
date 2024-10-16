@@ -205,6 +205,9 @@ describe('ListComponent', () => {
     const user = userEvent.setup({ delay: null });
     const { formDataMethods } = await render({ component: { tableHeadersMobile: ['Name', 'FlagLink'] } });
 
+    // Make sure test is not broken by changing mobile-view implementation
+    expect(useDeviceWidths.useIsMobile).toHaveBeenCalled();
+
     // There should be one radio for each country, but none of them should be checked
     await waitFor(() => expect(screen.getAllByRole('radio')).toHaveLength(6));
     expect(screen.queryByRole('radio', { checked: true })).not.toBeInTheDocument();
