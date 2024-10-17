@@ -107,6 +107,18 @@ export const PaymentReceiptDetails = ({ title, description }: PaymentReceiptDeta
       labelId: 'payment.receipt.org_number',
       value: companyPayer.organisationNumber,
     },
+    companyPayer?.ContactPerson?.firstName && {
+      labelId: 'payment.receipt.contact_person',
+      value: `${companyPayer.ContactPerson.firstName} ${companyPayer.ContactPerson.lastName}`,
+    },
+    companyPayer?.ContactPerson?.phoneNumber?.number && {
+      labelId: 'payment.receipt.contact_phone',
+      value: `${companyPayer.ContactPerson.phoneNumber.prefix} ${companyPayer.ContactPerson.phoneNumber.number}`,
+    },
+    companyPayer?.ContactPerson?.email && {
+      labelId: 'payment.receipt.contact_email',
+      value: companyPayer.ContactPerson.email,
+    },
     payerPostalAddress && {
       labelId: 'payment.receipt.address',
       value: `${payerPostalAddress?.addressLine1} ${payerPostalAddress?.postalCode} ${payerPostalAddress?.city} ${payerPostalAddress?.country}`,
