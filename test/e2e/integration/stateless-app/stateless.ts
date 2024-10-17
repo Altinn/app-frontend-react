@@ -50,8 +50,13 @@ describe('Stateless', () => {
   });
 
   it('back button should work after starting an instance', () => {
+    cy.get(appFrontend.stateless.name).clear();
+    cy.get(appFrontend.stateless.name).type('hello world');
+    cy.get(appFrontend.stateless.number).clear();
+    cy.get(appFrontend.stateless.number).type('6789');
     cy.get(appFrontend.instantiationButton).click();
-    cy.go('back', { timeout: 10000 });
+    cy.get('#sendInButton').should('exist');
+    cy.window().then((win) => win.history.back());
     cy.get(appFrontend.instantiationButton).should('exist');
   });
 });
