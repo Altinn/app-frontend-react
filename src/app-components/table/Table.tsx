@@ -52,6 +52,7 @@ function formatIfDate(value: unknown): string {
  * @param actionButtons - Optional action button config.
  */
 export function AppTable<T extends object>({ data, columns, actionButtons, mobile }: DataTableProps<T>) {
+  const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
     <Table
       size='md'
@@ -94,7 +95,14 @@ export function AppTable<T extends object>({ data, columns, actionButtons, mobil
               }
 
               if (cellValues.length === 1) {
-                return <Table.Cell key={colIndex}>{cellValues.map(formatIfDate)}</Table.Cell>;
+                return (
+                  <Table.Cell
+                    data-header-title={col.header}
+                    key={colIndex}
+                  >
+                    {cellValues.map(formatIfDate)}
+                  </Table.Cell>
+                );
               }
 
               return (
@@ -120,7 +128,7 @@ export function AppTable<T extends object>({ data, columns, actionButtons, mobil
                       key={idx}
                       onClick={() => button.onClick(rowIndex, rowData)}
                       size={'sm'}
-                      variant={button.variant ? button.variant : 'tertiary'}
+                      variant={button.variant ? button.variant : defaultButtonVariant}
                       color={button.color ? button.color : 'second'}
                     >
                       {button.buttonText}
