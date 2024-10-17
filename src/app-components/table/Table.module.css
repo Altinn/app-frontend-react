@@ -1,0 +1,76 @@
+.table {
+  width: 100%;
+}
+
+.buttonCell {
+  display: flex;
+  justify-content: end;
+  gap: var(--fds-spacing-2);
+}
+
+.actionButton {
+  margin-left: var(--fds-spacing-3);
+}
+
+.mobileTable {
+  display: block;
+}
+
+.mobileTable thead {
+  display: none;
+}
+
+.mobileTable th {
+  display: block;
+  border: none;
+}
+
+.mobileTable tbody,
+.mobileTable tr {
+  display: block;
+}
+
+.mobileTable td {
+  display: flex;
+  flex-direction: column;
+  border: none;
+  padding: var(--fds-spacing-2) 0;
+}
+
+.mobileTable td .contentWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.mobileTable tbody:last-child tr:last-child {
+  border-bottom: none;
+}
+
+.mobileTable tr {
+  border-bottom: 2px solid var(--fds-semantic-border-neutral-default);
+  padding-top: var(--fds-spacing-3);
+  padding-bottom: var(--fds-spacing-3);
+}
+
+.mobileTable td[data-header-title]:not([data-header-title=''])::before,
+.mobileTable th[data-header-title]:not([data-header-title=''])::before {
+  content: attr(data-header-title);
+  display: block;
+  text-align: left;
+  font-weight: 500;
+}
+
+.visuallyHidden {
+  border: none;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px 1px 1px 1px);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
