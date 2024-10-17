@@ -35,18 +35,12 @@ interface DataTableProps<T> {
 }
 
 function formatIfDate(value: unknown): string {
-  // Ensure the value is a string before attempting to parse it
   if (typeof value === 'string') {
     const parsedDate = parseISO(value);
-
-    // Check if it's a valid date
     if (isValid(parsedDate)) {
-      // Format the date as needed, e.g., "yyyy-MM-dd"
       return format(parsedDate, 'dd.MM.yyyy');
     }
   }
-
-  // Return the original value (converted to string) if it's not a valid date
   return String(value);
 }
 
@@ -76,13 +70,7 @@ export function AppTable<T extends object>({ data, columns, actionButtons, mobil
         {data.map((rowData, rowIndex) => (
           <Table.Row key={rowIndex}>
             {columns.map((col, colIndex) => {
-              // Get the values for all accessors in the current column
               const cellValues = col.accessors.map((accessor) => rowData[accessor]);
-
-              // Optionally, you can filter out undefined or null values
-              // const cellValues = col.accessors.map((accessor) => rowData[accessor]).filter(value => value != null);
-
-              // If no values are present, you might want to render null or an empty cell
               if (cellValues.every((value) => value == null)) {
                 return (
                   <Table.Cell
@@ -91,7 +79,7 @@ export function AppTable<T extends object>({ data, columns, actionButtons, mobil
                   >
                     -
                   </Table.Cell>
-                ); // or return null;
+                );
               }
 
               if (col.renderCell) {
@@ -109,7 +97,6 @@ export function AppTable<T extends object>({ data, columns, actionButtons, mobil
                 return <Table.Cell key={colIndex}>{cellValues.map(formatIfDate)}</Table.Cell>;
               }
 
-              // Default rendering: join the values with a space or any separator you prefer
               return (
                 <Table.Cell
                   key={colIndex}
