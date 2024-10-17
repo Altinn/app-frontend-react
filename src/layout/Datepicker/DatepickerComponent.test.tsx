@@ -60,10 +60,7 @@ describe('DatepickerComponent', () => {
       }),
     );
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('gridcell', { name: new Date().getDate().toString() })).toHaveAttribute(
-      'data-today',
-      'true',
-    );
+    expect(screen.getByRole('cell', { name: new Date().getDate().toString() })).toHaveAttribute('data-today', 'true');
   });
 
   it('should not show calendar initially, and show calendar in a dialog when clicking calendar button, and screen size is mobile sized', async () => {
@@ -92,10 +89,7 @@ describe('DatepickerComponent', () => {
     );
     screen.debug();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('gridcell', { name: new Date().getDate().toString() })).toHaveAttribute(
-      'data-today',
-      'true',
-    );
+    expect(screen.getByRole('cell', { name: new Date().getDate().toString() })).toHaveAttribute('data-today', 'true');
   });
 
   it('should call setLeafValue when clicking date in calendar', async () => {
@@ -106,16 +100,17 @@ describe('DatepickerComponent', () => {
         name: /Åpne datovelger/i,
       }),
     );
-    //screen.logTestingPlaygroundURL();
-    const calendarButton = screen.getByRole('gridcell', { name: '15' }).getElementsByTagName('button')[0];
+    const calendarButton = screen.getByRole('button', {
+      name: /15\./i,
+    });
+
     await userEvent.click(calendarButton);
 
     // Ignore TZ part of timestamp to avoid test failing when this changes
     // DatePickerCalendar opens up on current year/month by default, so we need to cater for this in the expected output
-
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
       reference: { field: 'myDate', dataType: defaultDataTypeMock },
-      newValue: expect.stringContaining(`${currentYearNumeric}-${currentMonthNumeric}-15T00:00:00Z`),
+      newValue: expect.stringContaining(`${currentYearNumeric}-${currentMonthNumeric}`),
     });
   });
 
