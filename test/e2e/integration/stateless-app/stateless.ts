@@ -51,7 +51,7 @@ describe('Stateless', () => {
 
   // it('back button should work after starting an instance', () => {
   //   cy.get(appFrontend.instantiationButton).click();
-  //   cy.window().then((win) => win.history.back());
+  //   cy.go('back');
   //   cy.get(appFrontend.instantiationButton).should('exist');
   // });
 });
