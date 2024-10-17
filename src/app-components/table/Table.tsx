@@ -86,14 +86,15 @@ export function AppTable<T extends object>({ data, columns, actionButtons }: Dat
                 return <Table.Cell key={colIndex}>{col.renderCell(cellValues, rowData)}</Table.Cell>;
               }
 
+              if (cellValues.length === 1) {
+                return <Table.Cell key={colIndex}>{cellValues.map(formatIfDate)}</Table.Cell>;
+              }
+
               // Default rendering: join the values with a space or any separator you prefer
               return (
                 <Table.Cell key={colIndex}>
                   {cellValues.map(formatIfDate).map((value, idx) => (
-                    <React.Fragment key={idx}>
-                      {value}
-                      {idx < cellValues.length - 1 && <br />}
-                    </React.Fragment>
+                    <p key={idx}>{value}</p>
                   ))}
                 </Table.Cell>
               );
