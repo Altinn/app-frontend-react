@@ -19,18 +19,6 @@ export const Config = new CG.component({
   .extends(CG.common('LabeledComponentProps'))
   .addProperty(new CG.prop('title', new CG.str()))
   .addDataModelBinding(CG.common('IDataModelBindingsSimple'))
-  // .addDataModelBinding(
-  //   new CG.obj(
-  //     new CG.prop(
-  //       'data',
-  //       new CG.dataModelBinding()
-  //         .setTitle('Data')
-  //         .setDescription(
-  //           'Dot notation location for a repeating group structure (array of objects), where the data is stored',
-  //         ),
-  //     ),
-  //   ),
-  // )
   .addProperty(
     new CG.prop(
       'columnConfig',
@@ -44,6 +32,6 @@ export const Config = new CG.component({
               .setDescription('List of fields that should be included in the cell'),
           ),
         ).exportAs('ColumnConfig'),
-      ).optional(),
+      ),
     ),
   );
