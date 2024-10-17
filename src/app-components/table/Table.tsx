@@ -1,7 +1,11 @@
 import React from 'react';
 
 import { Button, Table } from '@digdir/designsystemet-react';
+import cn from 'classnames';
 import { format, isValid, parseISO } from 'date-fns';
+
+import classes from 'src/app-components/table/Table.module.css';
+
 interface Column {
   /** Header text for the column */
   header: string;
@@ -11,7 +15,7 @@ interface Column {
   renderCell?: (values: string[], rowData: object) => React.ReactNode;
 }
 
-interface ActionButtons {
+interface ActionButton {
   onClick: (rowIdx: number, rowData: object) => void;
   buttonText: string;
   icon: React.ReactNode;
@@ -24,7 +28,10 @@ interface DataTableProps<T> {
   data: T[];
   /** Configuration for table columns */
   columns: Column[];
-  actionButtons?: ActionButtons[];
+  /** Optional configuration for action buttons */
+  actionButtons?: ActionButton[];
+  /** Displays table in mobile mode */
+  mobile?: boolean;
 }
 
 function formatIfDate(value: unknown): string {
@@ -50,13 +57,11 @@ function formatIfDate(value: unknown): string {
  * @param columns - Configuration for table columns.
  * @param actionButtons - Optional action button config.
  */
-export function AppTable<T extends object>({ data, columns, actionButtons }: DataTableProps<T>) {
+export function AppTable<T extends object>({ data, columns, actionButtons, mobile }: DataTableProps<T>) {
   return (
     <Table
       size='md'
-      style={{
-        width: '100%',
-      }}
+      className={cn(classes.table, { [classes.mobileTable]: mobile })}
     >
       <Table.Head>
         <Table.Row>
@@ -79,11 +84,25 @@ export function AppTable<T extends object>({ data, columns, actionButtons }: Dat
 
               // If no values are present, you might want to render null or an empty cell
               if (cellValues.every((value) => value == null)) {
-                return <Table.Cell key={colIndex}>-</Table.Cell>; // or return null;
+                return (
+                  <Table.Cell
+                    key={colIndex}
+                    data-header-title={col.header}
+                  >
+                    -
+                  </Table.Cell>
+                ); // or return null;
               }
 
               if (col.renderCell) {
-                return <Table.Cell key={colIndex}>{col.renderCell(cellValues, rowData)}</Table.Cell>;
+                return (
+                  <Table.Cell
+                    key={colIndex}
+                    data-header-title={col.header}
+                  >
+                    {col.renderCell(cellValues, rowData)}
+                  </Table.Cell>
+                );
               }
 
               if (cellValues.length === 1) {
@@ -92,7 +111,10 @@ export function AppTable<T extends object>({ data, columns, actionButtons }: Dat
 
               // Default rendering: join the values with a space or any separator you prefer
               return (
-                <Table.Cell key={colIndex}>
+                <Table.Cell
+                  key={colIndex}
+                  data-header-title={col.header}
+                >
                   {cellValues.map(formatIfDate).map((value, idx) => (
                     <p key={idx}>{value}</p>
                   ))}
@@ -101,7 +123,7 @@ export function AppTable<T extends object>({ data, columns, actionButtons }: Dat
             })}
 
             {actionButtons && actionButtons?.length > 0 && (
-              <Table.Cell>
+              <Table.Cell className={classes.buttonCell}>
                 {actionButtons?.map((button, idx) => (
                   <Button
                     key={idx}
