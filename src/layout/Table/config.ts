@@ -37,7 +37,12 @@ export const Config = new CG.component({
       new CG.arr(
         new CG.obj(
           new CG.prop('header', new CG.str()),
-          new CG.prop('accessor', new CG.str().setTitle('Title').setDescription('Title of the tab')),
+          new CG.prop(
+            'accessors',
+            new CG.arr(new CG.str())
+              .setTitle('Accessors')
+              .setDescription('List of fields that should be included in the cell'),
+          ),
         ).exportAs('ColumnConfig'),
       ).optional(),
     ),
