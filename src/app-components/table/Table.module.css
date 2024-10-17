@@ -2,7 +2,7 @@
   width: 100%;
 }
 
-.buttonCell {
+.buttonContainer {
   display: flex;
   justify-content: end;
   gap: var(--fds-spacing-2);

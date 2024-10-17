@@ -110,20 +110,24 @@ export function AppTable<T extends object>({ data, columns, actionButtons, mobil
             })}
 
             {actionButtons && actionButtons?.length > 0 && (
-              <Table.Cell className={classes.buttonCell}>
-                {actionButtons?.map((button, idx) => (
-                  <Button
-                    key={idx}
-                    onClick={() => button.onClick(rowIndex, rowData)}
-                    size={'sm'}
-                    style={{ marginRight: '5px' }}
-                    variant={button.variant ? button.variant : 'tertiary'}
-                    color={button.color ? button.color : 'second'}
-                  >
-                    {button.buttonText}
-                    {button.icon}
-                  </Button>
-                ))}
+              <Table.Cell
+                className={classes.buttonCell}
+                align={'right'}
+              >
+                <div className={classes.buttonContainer}>
+                  {actionButtons?.map((button, idx) => (
+                    <Button
+                      key={idx}
+                      onClick={() => button.onClick(rowIndex, rowData)}
+                      size={'sm'}
+                      variant={button.variant ? button.variant : 'tertiary'}
+                      color={button.color ? button.color : 'second'}
+                    >
+                      {button.buttonText}
+                      {button.icon}
+                    </Button>
+                  ))}
+                </div>
               </Table.Cell>
             )}
           </Table.Row>
