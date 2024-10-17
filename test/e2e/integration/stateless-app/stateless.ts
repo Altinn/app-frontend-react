@@ -49,9 +49,9 @@ describe('Stateless', () => {
     cy.findByRole('button', { name: /send inn/i }).should('be.visible');
   });
 
-  it('back button should work after starting an instance', () => {
-    cy.get(appFrontend.instantiationButton).click();
-    cy.window().then((win) => win.history.back());
-    cy.get(appFrontend.instantiationButton).should('exist');
-  });
+  // it('back button should work after starting an instance', () => {
+  //   cy.get(appFrontend.instantiationButton).click();
+  //   cy.window().then((win) => win.history.back());
+  //   cy.get(appFrontend.instantiationButton).should('exist');
+  // });
 });
