@@ -6,7 +6,6 @@ import { AppTable } from 'src/app-components/table/Table';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { isIDataModelReferenceArray } from 'src/layout/Table/typeguards';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
@@ -23,7 +22,7 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
   const { langAsString } = useLanguage();
 
-  const data = isIDataModelReferenceArray(formData.simpleBinding) ? formData.simpleBinding : [];
+  const data = formData.simpleBinding as IDataModelReference[];
   if (data.length < 1) {
     return null;
   }
@@ -44,10 +43,7 @@ export function TableComponent({ node }: TableComponentProps) {
   const removeFromList = FD.useRemoveFromListCallback();
   const { langAsString } = useLanguage();
 
-  console.log('formData', formData);
-
-  const data = isIDataModelReferenceArray(formData.simpleBinding) ? formData.simpleBinding : [];
-
+  const data = formData.simpleBinding as IDataModelReference[];
   if (data.length < 1) {
     return null;
   }

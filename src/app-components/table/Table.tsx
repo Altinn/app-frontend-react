@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Button, Table } from '@digdir/designsystemet-react';
-
+import { format, isValid, parseISO } from 'date-fns';
 interface Column {
   /** Header text for the column */
   header: string;
@@ -25,6 +25,22 @@ interface DataTableProps<T> {
   /** Configuration for table columns */
   columns: Column[];
   actionButtons?: ActionButtons[];
+}
+
+function formatIfDate(value: unknown): string {
+  // Ensure the value is a string before attempting to parse it
+  if (typeof value === 'string') {
+    const parsedDate = parseISO(value);
+
+    // Check if it's a valid date
+    if (isValid(parsedDate)) {
+      // Format the date as needed, e.g., "yyyy-MM-dd"
+      return format(parsedDate, 'dd.MM.yyyy');
+    }
+  }
+
+  // Return the original value (converted to string) if it's not a valid date
+  return String(value);
 }
 
 /**
@@ -71,11 +87,20 @@ export function AppTable<T extends object>({ data, columns, actionButtons }: Dat
               }
 
               // Default rendering: join the values with a space or any separator you prefer
-              return <Table.Cell key={colIndex}>{cellValues.join('\r\n')}</Table.Cell>;
+              return (
+                <Table.Cell key={colIndex}>
+                  {cellValues.map(formatIfDate).map((value, idx) => (
+                    <React.Fragment key={idx}>
+                      {value}
+                      {idx < cellValues.length - 1 && <br />}
+                    </React.Fragment>
+                  ))}
+                </Table.Cell>
+              );
             })}
 
             {actionButtons && actionButtons?.length > 0 && (
-              <Table.Cell style={{ display: 'flex', justifyContent: 'end' }}>
+              <Table.Cell>
                 {actionButtons?.map((button, idx) => (
                   <Button
                     key={idx}
