@@ -57,6 +57,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+ROOT=$(pwd)
 TARGET=toolkits/altinn-app-frontend
 AZURE_TARGET_URI="https://${AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/app-frontend"
 
@@ -165,7 +166,7 @@ else
     if [[ "$SYNC_AZURE_CDN" != "no" ]]; then
       AFD_PATH_PREFIX="/toolkits/altinn-app-frontend"
       AFD_PATHS=( --path "$AFD_PATH_PREFIX/$APP_MAJOR/*" --path "$AFD_PATH_PREFIX/$APP_MAJOR_MINOR/*" )
-      bash "$PATH_TO_FRONTEND/.github/scripts/purge-frontdoor-cache.sh" "${AFD_PATHS[@]}"
+      bash "$ROOT/.github/scripts/purge-frontdoor-cache.sh" "${AFD_PATHS[@]}"
       echo "-------------------------------------"
     fi
   fi
