@@ -5,6 +5,7 @@ import { Delete as DeleteIcon } from '@navikt/ds-icons';
 import { AppTable } from 'src/app-components/table/Table';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -80,6 +81,7 @@ export function TableComponent({ node }: TableComponentProps) {
           color: 'danger',
         },
       ]}
+      actionButtonHeader={<Lang id={'general.action'} />}
     />
   );
 }

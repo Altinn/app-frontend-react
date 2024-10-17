@@ -30,6 +30,8 @@ interface DataTableProps<T> {
   columns: Column[];
   /** Optional configuration for action buttons */
   actionButtons?: ActionButton[];
+  /** Accessible header value for action buttons for screenreaders */
+  actionButtonHeader?: React.ReactNode;
   /** Displays table in mobile mode */
   mobile?: boolean;
 }
@@ -51,7 +53,13 @@ function formatIfDate(value: unknown): string {
  * @param columns - Configuration for table columns.
  * @param actionButtons - Optional action button config.
  */
-export function AppTable<T extends object>({ data, columns, actionButtons, mobile }: DataTableProps<T>) {
+export function AppTable<T extends object>({
+  data,
+  columns,
+  actionButtons,
+  mobile,
+  actionButtonHeader,
+}: DataTableProps<T>) {
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
     <Table
@@ -64,7 +72,11 @@ export function AppTable<T extends object>({ data, columns, actionButtons, mobil
             <Table.HeaderCell key={index}>{col.header}</Table.HeaderCell>
           ))}
 
-          {actionButtons && actionButtons?.length > 0 && <Table.HeaderCell />}
+          {actionButtons && actionButtons?.length > 0 && (
+            <Table.HeaderCell>
+              <span className={classes.visuallyHidden}>{actionButtonHeader}</span>
+            </Table.HeaderCell>
+          )}
         </Table.Row>
       </Table.Head>
       <Table.Body>

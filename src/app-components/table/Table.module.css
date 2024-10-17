@@ -8,10 +8,6 @@
   gap: var(--fds-spacing-2);
 }
 
-.actionButton {
-  margin-left: var(--fds-spacing-3);
-}
-
 .mobileTable {
   display: block;
 }
