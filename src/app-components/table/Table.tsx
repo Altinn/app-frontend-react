@@ -122,18 +122,17 @@ export function AppTable<T extends object>({
                   key={colIndex}
                   data-header-title={col.header}
                 >
-                  {cellValues.map(formatIfDate).map((value, idx) => (
-                    <p key={idx}>{value}</p>
-                  ))}
+                  <ul>
+                    {cellValues.map(formatIfDate).map((value, idx) => (
+                      <li key={idx}>{value}</li>
+                    ))}
+                  </ul>
                 </Table.Cell>
               );
             })}
 
             {actionButtons && actionButtons?.length > 0 && (
-              <Table.Cell
-                className={classes.buttonCell}
-                align={'right'}
-              >
+              <Table.Cell>
                 <div className={classes.buttonContainer}>
                   {actionButtons?.map((button, idx) => (
                     <Button
