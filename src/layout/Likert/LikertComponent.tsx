@@ -51,7 +51,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
               <Lang id={title} />
             </Heading>
             <Description
-              description={<Lang id={description} />}
+              description={description && <Lang id={description} />}
               componentId={node.id}
             />
           </div>
@@ -99,7 +99,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
                 <Lang id={title} />
               </Heading>
               <Description
-                description={<Lang id={description} />}
+                description={description && <Lang id={description} />}
                 componentId={node.id}
               />
             </caption>

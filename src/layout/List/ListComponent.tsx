@@ -140,7 +140,7 @@ export const ListComponent = ({ node }: IListProps) => {
               <RequiredIndicator required={required} />
             </Heading>
             <Description
-              description={<Lang id={description} />}
+              description={description && <Lang id={description} />}
               componentId={node.id}
             />
           </caption>
