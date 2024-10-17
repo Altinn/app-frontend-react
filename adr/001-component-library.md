@@ -6,7 +6,7 @@
 
 ## Result
 
-A2: Component library is introduced, managed with yarn workspaces.
+A1: Component library is introduced, firstly as just a folder in our current setup, adding yarn workspaces or similar requires more research and testing
 
 ## Problem context
 
