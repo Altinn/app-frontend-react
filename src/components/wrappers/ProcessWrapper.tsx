@@ -78,25 +78,7 @@ export function InvalidTaskIdPage() {
   return <NavigationError label={'general.invalid_task_id'} />;
 }
 
-export function ProcessWrapperWrapper() {
-  const taskId = useNavigationParam('taskId');
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-
-  if (taskId === undefined && currentTaskId !== undefined) {
-    return <NavigateToStartUrl />;
-  }
-
-  return (
-    <Routes>
-      <Route
-        path=':taskId/*'
-        element={<ProcessWrapper />}
-      />
-    </Routes>
-  );
-}
-
-function NavigateToStartUrl() {
+export function NavigateToStartUrl() {
   const navigate = useNavigate();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const startUrl = useStartUrl(currentTaskId);
