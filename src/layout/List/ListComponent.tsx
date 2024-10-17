@@ -180,6 +180,7 @@ export const ListComponent = ({ node }: IListProps) => {
                 })}
               >
                 <RadioButton
+                  className={classes.radio}
                   aria-label={JSON.stringify(row)}
                   onChange={() => {
                     handleRowSelect({ selectedValue: row });
