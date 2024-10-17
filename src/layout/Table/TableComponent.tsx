@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { Delete as DeleteIcon } from '@navikt/ds-icons';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
 
 import { AppTable } from 'src/app-components/table/Table';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -8,6 +8,7 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
+import { AddToListModal } from 'src/layout/AddToList/AddToList';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
@@ -48,40 +49,76 @@ export function TableComponent({ node }: TableComponentProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
 
+  const [showEdit, setShowEdit] = useState(false);
+
+  const [editItemIndex, setEditItemIndex] = useState<number>(-1);
+  const setMultiLeafValues = FD.useSetMultiLeafValues();
+
   const data = formData.simpleBinding as IDataModelReference[];
   if (data.length < 1) {
     return null;
   }
 
   return (
-    <AppTable<IDataModelReference>
-      data={data}
-      columns={item.columnConfig.map((config) => ({
-        ...config,
-        header: langAsString(config.header),
-      }))}
-      mobile={isMobile}
-      actionButtons={[
-        {
-          onClick: (idx) => {
-            removeFromList({
-              startAtIndex: idx,
+    <>
+      {showEdit && editItemIndex > -1 && formData.simpleBinding && formData.simpleBinding[editItemIndex] && (
+        <AddToListModal
+          dataModelReference={item.dataModelBindings.simpleBinding}
+          initialData={formData.simpleBinding[editItemIndex]}
+          onChange={(formProps) => {
+            const changes = Object.entries(formProps).map((entry) => ({
               reference: {
                 dataType: item.dataModelBindings.simpleBinding.dataType,
-                field: item.dataModelBindings.simpleBinding.field,
+                field: `${item.dataModelBindings.simpleBinding.field}[${editItemIndex}].${entry[0]}`,
               },
-              callback: (item) => {
-                console.log(item);
-                return true;
-              },
-            });
+              newValue: `${entry[1]}`,
+            }));
+            setMultiLeafValues({ changes });
+            setEditItemIndex(-1);
+            setShowEdit(false);
+          }}
+          onInteractOutside={() => {
+            setShowEdit(false);
+          }}
+        />
+      )}
+
+      <AppTable<IDataModelReference>
+        data={data}
+        columns={item.columnConfig.map((config) => ({
+          ...config,
+          header: langAsString(config.header),
+        }))}
+        mobile={isMobile}
+        actionButtons={[
+          {
+            onClick: (idx) => {
+              removeFromList({
+                startAtIndex: idx,
+                reference: {
+                  dataType: item.dataModelBindings.simpleBinding.dataType,
+                  field: item.dataModelBindings.simpleBinding.field,
+                },
+                callback: (_) => true,
+              });
+            },
+            buttonText: langAsString('general.delete'),
+            icon: <DeleteIcon />,
+            color: 'danger',
           },
-          buttonText: 'Delete',
-          icon: <DeleteIcon />,
-          color: 'danger',
-        },
-      ]}
-      actionButtonHeader={<Lang id={'general.action'} />}
-    />
+          {
+            onClick: (idx, _) => {
+              setEditItemIndex(idx);
+              setShowEdit(true);
+            },
+            buttonText: langAsString('general.edit'),
+            icon: <EditIcon />,
+            variant: 'tertiary',
+            color: 'second',
+          },
+        ]}
+        actionButtonHeader={<Lang id={'general.action'} />}
+      />
+    </>
   );
 }
