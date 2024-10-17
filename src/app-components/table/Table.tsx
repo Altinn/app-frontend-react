@@ -4,6 +4,7 @@ import { Button, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import { format, isValid, parseISO } from 'date-fns';
 
+import { Caption } from 'src/app-components/table/caption/Caption';
 import classes from 'src/app-components/table/Table.module.css';
 
 interface Column {
@@ -28,6 +29,10 @@ interface DataTableProps<T> {
   data: T[];
   /** Configuration for table columns */
   columns: Column[];
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  helpText?: React.ReactNode;
+  accessibleTitle?: string;
   /** Optional configuration for action buttons */
   actionButtons?: ActionButton[];
   /** Accessible header value for action buttons for screenreaders */
@@ -54,6 +59,10 @@ function formatIfDate(value: unknown): string {
  * @param actionButtons - Optional action button config.
  */
 export function AppTable<T extends object>({
+  title,
+  description,
+  helpText,
+  accessibleTitle,
   data,
   columns,
   actionButtons,
@@ -66,6 +75,13 @@ export function AppTable<T extends object>({
       size='md'
       className={cn(classes.table, { [classes.mobileTable]: mobile })}
     >
+      <Caption
+        title={title}
+        description={description}
+        helpText={helpText ? { text: helpText, accessibleTitle } : undefined}
+        required={false}
+        labelSettings={undefined}
+      />
       <Table.Head>
         <Table.Row>
           {columns.map((col, index) => (

@@ -22,6 +22,7 @@ type TableSummaryProps = {
 export function TableSummary({ componentNode }: TableSummaryProps) {
   const item = useNodeItem(componentNode);
   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
+  const { title } = item.textResourceBindings ?? {};
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
 
@@ -31,6 +32,7 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
   }
   return (
     <AppTable<IDataModelReference>
+      title={title && <Lang id={title} />}
       data={data}
       columns={item.columnConfig.map((config) => ({
         ...config,
@@ -45,7 +47,10 @@ export function TableComponent({ node }: TableComponentProps) {
   const item = useNodeItem(node);
   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
   const removeFromList = FD.useRemoveFromListCallback();
+  const { title, description, help } = item.textResourceBindings ?? {};
   const { langAsString } = useLanguage();
+  const { elementAsString } = useLanguage();
+  const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
 
   const data = formData.simpleBinding as IDataModelReference[];
@@ -55,6 +60,10 @@ export function TableComponent({ node }: TableComponentProps) {
 
   return (
     <AppTable<IDataModelReference>
+      title={title && <Lang id={title} />}
+      description={description && <Lang id={description} />}
+      helpText={help && <Lang id={help} />}
+      accessibleTitle={help && accessibleTitle}
       data={data}
       columns={item.columnConfig.map((config) => ({
         ...config,
