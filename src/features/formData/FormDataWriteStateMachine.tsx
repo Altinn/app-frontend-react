@@ -341,6 +341,7 @@ function makeActions(
       }),
     setLeafValue: ({ reference, newValue, ...rest }) =>
       set((state) => {
+        // debugger;
         if (state.dataModels[reference.dataType].readonly) {
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
@@ -399,6 +400,9 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
+
+        console.log('statedataModels', state.dataModels);
+
         const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
         if (index >= existingValue.length) {
           return;
@@ -406,6 +410,7 @@ function makeActions(
 
         existingValue.splice(index, 1);
       }),
+
     removeValueFromList: ({ reference, value }) =>
       set((state) => {
         if (state.dataModels[reference.dataType].readonly) {
@@ -463,6 +468,7 @@ function makeActions(
 
     setMultiLeafValues: ({ changes, ...rest }) =>
       set((state) => {
+        // debugger;
         const changedTypes = new Set<string>();
         for (const { reference, newValue } of changes) {
           if (state.dataModels[reference.dataType].readonly) {
