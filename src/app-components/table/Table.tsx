@@ -3,6 +3,7 @@ import React from 'react';
 import { Button, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import { format, isValid, parseISO } from 'date-fns';
+import { pick } from 'dot-object';
 
 import { Caption } from 'src/app-components/table/caption/Caption';
 import classes from 'src/app-components/table/Table.module.css';
@@ -54,9 +55,15 @@ function formatIfDate(value: unknown): string {
 /**
  * Generic Table component to display tabular data.
  *
+ * @param title
+ * @param description
+ * @param helpText
+ * @param accessibleTitle
  * @param data - Array of data objects.
  * @param columns - Configuration for table columns.
  * @param actionButtons - Optional action button config.
+ * @param mobile
+ * @param actionButtonHeader
  */
 export function AppTable<T extends object>({
   title,
@@ -72,7 +79,7 @@ export function AppTable<T extends object>({
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
     <Table
-      size='md'
+      size='sm'
       className={cn(classes.table, { [classes.mobileTable]: mobile })}
     >
       <Caption
@@ -99,7 +106,9 @@ export function AppTable<T extends object>({
         {data.map((rowData, rowIndex) => (
           <Table.Row key={rowIndex}>
             {columns.map((col, colIndex) => {
-              const cellValues = col.accessors.map((accessor) => rowData[accessor]);
+              const cellValues = col.accessors
+                .filter((accessor) => !!pick(accessor, rowData))
+                .map((accessor) => pick(accessor, rowData));
               if (cellValues.every((value) => value == null)) {
                 return (
                   <Table.Cell
