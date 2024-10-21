@@ -21,7 +21,7 @@ export const PaymentDetailsTable = ({ orderDetails, tableTitle, description, ...
   >
     {tableTitle && (
       <Caption
-        title={tableTitle && <Lang id={tableTitle} />}
+        title={<Lang id={tableTitle} />}
         description={description && <Lang id={description} />}
       />
     )}
