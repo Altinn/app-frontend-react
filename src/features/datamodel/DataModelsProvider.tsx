@@ -306,15 +306,16 @@ function LoadExpressionValidationConfig({ dataType }: LoaderProps) {
   return null;
 }
 
+const emptyArray = [];
 export const DataModels = {
   useFullStateRef: () => useSelectorAsRef((state) => state),
 
   useLaxDefaultDataType: () => useLaxMemoSelector((state) => state.defaultDataType),
 
-  useReadableDataTypes: () => useMemoSelector((state) => state.allDataTypes ?? []),
-  useLaxReadableDataTypes: () => useLaxMemoSelector((state) => state.allDataTypes!),
+  useReadableDataTypes: () => useMemoSelector((state) => state.allDataTypes ?? emptyArray),
+  useLaxReadableDataTypes: () => useLaxMemoSelector((state) => state.allDataTypes ?? emptyArray),
 
-  useWritableDataTypes: () => useMemoSelector((state) => state.writableDataTypes!),
+  useWritableDataTypes: () => useMemoSelector((state) => state.writableDataTypes ?? emptyArray),
 
   useDataModelSchema: (dataType: string) => useSelector((state) => state.schemas[dataType]),
 
