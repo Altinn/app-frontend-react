@@ -18,6 +18,7 @@ This leads to several issues:
 - Makes refactoring the app framework a lot harder.
 - Leads to unclear interfaces between UI components and the app framework.
 - Makes developing UI components complex without deep understanding of the application.
+- Allows us to use the components more separately in for example storybook or Studio.
 
 ## Decision drivers
 
