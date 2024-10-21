@@ -312,9 +312,9 @@ export const DataModels = {
 
   useLaxDefaultDataType: () => useLaxMemoSelector((state) => state.defaultDataType),
 
+  // The following hooks use emptyArray if the value is null, so cannot be used to determine whether or not the datamodels are finished loading
   useReadableDataTypes: () => useMemoSelector((state) => state.allDataTypes ?? emptyArray),
   useLaxReadableDataTypes: () => useLaxMemoSelector((state) => state.allDataTypes ?? emptyArray),
-
   useWritableDataTypes: () => useMemoSelector((state) => state.writableDataTypes ?? emptyArray),
 
   useDataModelSchema: (dataType: string) => useSelector((state) => state.schemas[dataType]),
