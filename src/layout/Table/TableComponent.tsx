@@ -9,6 +9,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { AddToListModal } from 'src/layout/AddToList/AddToList';
+import classes from 'src/layout/Table/Table.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
@@ -23,15 +24,21 @@ type TableSummaryProps = {
 export function TableSummary({ componentNode }: TableSummaryProps) {
   const item = useNodeItem(componentNode);
   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
+  const { title } = item.textResourceBindings ?? {};
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
 
   const data = formData.simpleBinding as IDataModelReference[];
+  if (!data) {
+    return null;
+  }
+
   if (data.length < 1) {
     return null;
   }
   return (
     <AppTable<IDataModelReference>
+      title={title && <Lang id={title} />}
       data={data}
       columns={item.columnConfig.map((config) => ({
         ...config,
@@ -46,7 +53,10 @@ export function TableComponent({ node }: TableComponentProps) {
   const item = useNodeItem(node);
   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
   const removeFromList = FD.useRemoveFromListCallback();
+  const { title, description, help } = item.textResourceBindings ?? {};
   const { langAsString } = useLanguage();
+  const { elementAsString } = useLanguage();
+  const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
 
   const [showEdit, setShowEdit] = useState(false);
@@ -55,12 +65,17 @@ export function TableComponent({ node }: TableComponentProps) {
   const setMultiLeafValues = FD.useSetMultiLeafValues();
 
   const data = formData.simpleBinding as IDataModelReference[];
+
+  if (!data) {
+    return null;
+  }
+
   if (data.length < 1) {
     return null;
   }
 
   return (
-    <>
+    <div className={classes.groupContainer}>
       {showEdit && editItemIndex > -1 && formData.simpleBinding && formData.simpleBinding[editItemIndex] && (
         <AddToListModal
           dataModelReference={item.dataModelBindings.simpleBinding}
@@ -84,6 +99,10 @@ export function TableComponent({ node }: TableComponentProps) {
       )}
 
       <AppTable<IDataModelReference>
+        title={title && <Lang id={title} />}
+        description={description && <Lang id={description} />}
+        helpText={help && <Lang id={help} />}
+        accessibleTitle={help && accessibleTitle}
         data={data}
         columns={item.columnConfig.map((config) => ({
           ...config,
@@ -119,6 +138,6 @@ export function TableComponent({ node }: TableComponentProps) {
         ]}
         actionButtonHeader={<Lang id={'general.action'} />}
       />
-    </>
+    </div>
   );
 }

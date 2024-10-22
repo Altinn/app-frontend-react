@@ -18,6 +18,7 @@ This leads to several issues:
 - Makes refactoring the app framework a lot harder.
 - Leads to unclear interfaces between UI components and the app framework.
 - Makes developing UI components complex without deep understanding of the application.
+- Allows us to use the components more separately in for example storybook or Studio.
 
 ## Decision drivers
 
@@ -52,7 +53,7 @@ List the pros and cons with the alternatives. This should be in regards to the d
 - This way our libs would live separately to the app, and it would be obvious that it is a lib.
 - The con is that it takes more setup.
 
-### A2
+### A3
 
 - Good, because this alternative adheres to B1, B2 and B3.
 - This way our libs would live separately to the app, and it would be obvious that it is a lib.
