@@ -14,7 +14,8 @@ import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
 
 export function DownloadXMLButton() {
   const isInForm = useIsInFormContext();
-  if (!isInForm) {
+  const isStateless = useApplicationMetadata().isStatelessApp;
+  if (!isInForm || isStateless) {
     return null;
   }
 
@@ -26,7 +27,7 @@ const InnerDownloadXMLButton = () => {
   const writableDataTypes = DataModels.useWritableDataTypes();
   const getDataElementIdForDataType = DataModels.useGetDataElementIdForDataType();
   const [selectedDataType, setSelectedDataType] = useState(writableDataTypes?.at(0));
-  const disabled = useApplicationMetadata().isStatelessApp || !writableDataTypes.length || !selectedDataType;
+  const disabled = !selectedDataType;
 
   const { lock, unlock } = FD.useLocking('__dev_tools__');
 

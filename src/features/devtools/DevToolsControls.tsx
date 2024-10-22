@@ -3,7 +3,6 @@ import React from 'react';
 import { Tabs } from '@digdir/designsystemet-react';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { DevHiddenFunctionality } from 'src/features/devtools/components/DevHiddenFunctionality/DevHiddenFunctionality';
 import { DevLanguageSelector } from 'src/features/devtools/components/DevLanguageSelector/DevLanguageSelector';
 import { DevNavigationButtons } from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons';
@@ -27,7 +26,6 @@ export const DevToolsControls = () => {
   const activeTab = useDevToolsStore((state) => state.activeTab);
   const setActiveTab = useDevToolsStore((state) => state.actions.setActiveTab);
   const isInForm = useIsInFormContext();
-  const isStateless = useApplicationMetadata().isStatelessApp;
 
   return (
     <Tabs
@@ -62,7 +60,7 @@ export const DevToolsControls = () => {
           <VersionSwitcher />
           <PermissionsEditor />
           <DevLanguageSelector />
-          {!isStateless && <DownloadXMLButton />}
+          <DownloadXMLButton />
           <ReactQueryDevtools initialIsOpen={false} />
         </div>
       </Tabs.Content>
