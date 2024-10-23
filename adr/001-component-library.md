@@ -24,7 +24,7 @@ This leads to several issues:
 A list of decision drivers. These are points which can differ in importance. If a point is "nice to have" rather than
 "need to have", then prefix the description.
 
-- B1: UI components should only receive data to display, notify the app when data is changed, and notify validity of user input.
+- B1: UI components should only receive data to display, and notify the app when data is changed.
 - B2: UI components should live in a separate folder from the app itself, and have no dependencies to the app.
 - B3: UI components should live in a lib separately to the src folder to have stricter control of dependencies.
 
