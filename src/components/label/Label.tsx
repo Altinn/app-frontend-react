@@ -6,6 +6,7 @@ import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 import type { LabelProps as DesignsystemetLabelProps } from '@digdir/designsystemet-react';
 
+import { Flex } from 'src/components/Flex';
 import classes from 'src/components/label/Label.module.css';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { useFormComponentCtx } from 'src/layout/FormComponentContext';
@@ -93,15 +94,15 @@ export function Label(props: LabelProps) {
           className={className}
           {...designsystemetLabelProps}
         >
-          <Grid
-            container
+          <Flex
+            direction='column'
             spacing={2}
           >
             <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
               <LabelContent {...labelContentProps} />
             </LabelGridItemWrapper>
             {children}
-          </Grid>
+          </Flex>
         </DesignsystemetLabel>
       );
     case 'plainLabel':
