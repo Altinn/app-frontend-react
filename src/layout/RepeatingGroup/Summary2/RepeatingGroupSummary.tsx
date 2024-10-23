@@ -57,7 +57,7 @@ export const RepeatingGroupSummary = ({
       </Heading>
       <div className={cn(classes.contentWrapper, { [classes.nestedContentWrapper]: isNested })}>
         {rows.map((row, index) => (
-          <>
+          <React.Fragment key={row?.uuid}>
             {index != 0 && <hr className={classes.rowDivider} />}
             <Grid
               key={row?.uuid}
@@ -72,7 +72,7 @@ export const RepeatingGroupSummary = ({
                 />
               ))}
             </Grid>
-          </>
+          </React.Fragment>
         ))}
       </div>
       {errors?.map(({ message }) => (
