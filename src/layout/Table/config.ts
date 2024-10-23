@@ -37,5 +37,11 @@ export const Config = new CG.component({
     ),
   )
   .addProperty(
+    new CG.prop(
+      'zebra',
+      new CG.bool().setTitle('Size').setDescription('If true, the table will have zebra striping').optional(),
+    ),
+  )
+  .addProperty(
     new CG.prop('size', new CG.enum('sm', 'md', 'lg').setTitle('Size').setDescription('Size of table.').optional()),
   );

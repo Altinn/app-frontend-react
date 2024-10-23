@@ -69,6 +69,7 @@ export function TableComponent({ node }: TableComponentProps) {
 
   return (
     <AppTable<IDataModelReference>
+      zebra={item.zebra}
       size={item.size}
       title={title && <Lang id={title} />}
       description={description && <Lang id={description} />}
@@ -89,10 +90,7 @@ export function TableComponent({ node }: TableComponentProps) {
                 dataType: item.dataModelBindings.simpleBinding.dataType,
                 field: item.dataModelBindings.simpleBinding.field,
               },
-              callback: (item) => {
-                console.log(item);
-                return true;
-              },
+              callback: (_) => true,
             });
           },
           buttonText: 'Delete',

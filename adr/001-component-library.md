@@ -15,8 +15,12 @@ Today our UI components are tightly coupled to the app in which they are rendere
 This leads to several issues:
 
 - Makes it hard to do component testing outside a fully rendered app.
+  - See tests in `test/e2e/integration` for examples of how we have most of our tests in integration tests because components need to be running inside an app to work.
+  - See `src/test/renderWithProviders.tsx` for examples of how much scaffolding we need to do to run component tests currently. This also leads to very slow component tests.
 - Makes refactoring the app framework a lot harder.
+  - If we search for `useNodeItem` in src/layout we get over 100 hits. If we make changes or remove hooks like this, every single UI component must be updated.
 - Leads to unclear interfaces between UI components and the app framework.
+  - See: `src/layout/Button/ButtonComponent.tsx`. This component references `node.parent` which confuses the role and responsibility of the button component.
 - Makes developing UI components complex without deep understanding of the application.
 - Allows us to use the components more separately in for example storybook or Studio.
 

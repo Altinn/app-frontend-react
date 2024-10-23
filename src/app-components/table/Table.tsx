@@ -41,6 +41,7 @@ interface DataTableProps<T> {
   /** Displays table in mobile mode */
   mobile?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  zebra?: boolean;
 }
 
 function formatIfDate(value: unknown): string {
@@ -66,6 +67,7 @@ function formatIfDate(value: unknown): string {
  * @param mobile
  * @param actionButtonHeader
  * @param size Size of table
+ * @param zebra If true, the table will have zebra striping
  */
 export function AppTable<T extends object>({
   title,
@@ -78,12 +80,14 @@ export function AppTable<T extends object>({
   mobile,
   actionButtonHeader,
   size,
+  zebra,
 }: DataTableProps<T>) {
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
     <Table
       size={size || 'sm'}
       className={cn(classes.table, { [classes.mobileTable]: mobile })}
+      zebra={zebra}
     >
       <Caption
         title={title}
