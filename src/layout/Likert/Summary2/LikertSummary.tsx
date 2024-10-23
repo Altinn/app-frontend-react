@@ -55,6 +55,7 @@ export function LikertSummary({ componentNode, emptyFieldText, isCompact }: Like
           rowNode={row?.itemNode}
           emptyFieldText={emptyFieldText}
           readOnly={readOnly}
+          isCompact={isCompact}
         />
       ))}
       {errors?.map(({ message }) => (
@@ -74,9 +75,10 @@ type LikertRowSummaryProps = {
   rowNode?: LayoutNode<'LikertItem'>;
   emptyFieldText?: string;
   readOnly?: boolean;
+  isCompact?: boolean;
 };
 
-function LikertRowSummary({ rowNode, emptyFieldText, readOnly }: LikertRowSummaryProps) {
+function LikertRowSummary({ rowNode, emptyFieldText, readOnly, isCompact }: LikertRowSummaryProps) {
   const title = useNodeItem(rowNode, (i) => i.textResourceBindings?.title);
   const displayData = rowNode?.def.useDisplayData(rowNode);
   const validations = useUnifiedValidationsForNode(rowNode);
@@ -94,6 +96,7 @@ function LikertRowSummary({ rowNode, emptyFieldText, readOnly }: LikertRowSummar
           node={rowNode}
         />
       }
+      isCompact={isCompact}
       componentNode={rowNode}
       displayData={displayData}
       errors={errors}
