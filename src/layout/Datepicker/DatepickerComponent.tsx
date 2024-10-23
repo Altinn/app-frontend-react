@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import { Modal, Popover } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
-import { formatDate, isValid as isValidDate, parse, parseISO } from 'date-fns';
+import { formatDate, isValid as isValidDate } from 'date-fns';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -13,7 +13,13 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import styles from 'src/layout/Datepicker/Calendar.module.css';
 import { DatePickerCalendar } from 'src/layout/Datepicker/DatePickerCalendar';
 import { DatePickerInput } from 'src/layout/Datepicker/DatePickerInput';
-import { getDateConstraint, getDateFormat, getLocale, getSaveFormattedDateString } from 'src/utils/dateHelpers';
+import {
+  getDateConstraint,
+  getDateFormat,
+  getLocale,
+  getSaveFormattedDateString,
+  strictParseISO,
+} from 'src/utils/dateHelpers';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -37,7 +43,8 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
 
   const { setValue, formData } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding;
-  const selectedDate = isValidDate(parseISO(value)) ? parseISO(value) : new Date();
+  const dateValue = strictParseISO(value);
+  const dayPickerDate = dateValue && isValidDate(dateValue) ? dateValue : new Date();
 
   const handleDayPickerSelect = (date: Date) => {
     if (date && isValidDate(date)) {
@@ -47,13 +54,8 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
     setIsDialogOpen(false);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const parsed = parse(e.target.value, dateFormat, new Date());
-    if (isValidDate(parsed)) {
-      setValue('simpleBinding', getSaveFormattedDateString(parsed, timeStamp));
-    } else {
-      setValue('simpleBinding', e.target.value ?? '');
-    }
+  const handleInputValueChange = (isoDateString: string) => {
+    setValue('simpleBinding', isoDateString);
   };
 
   const renderModal = (trigger: ReactNode, content: ReactNode) =>
@@ -110,14 +112,15 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
               value={value}
               isDialogOpen={isMobile ? modalRef.current?.open : isDialogOpen}
               formatString={dateFormat}
-              onBlur={handleInputChange}
+              timeStamp={timeStamp}
+              onValueChange={handleInputValueChange}
               onClick={() => (isMobile ? modalRef.current?.showModal() : setIsDialogOpen(!isDialogOpen))}
               readOnly={readOnly}
             />,
             <DatePickerCalendar
               id={id}
               locale={languageLocale}
-              selectedDate={selectedDate}
+              selectedDate={dayPickerDate}
               isOpen={isDialogOpen}
               onSelect={handleDayPickerSelect}
               minDate={calculatedMinDate}

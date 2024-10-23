@@ -1,19 +1,20 @@
 import React, { forwardRef, useEffect, useState } from 'react';
-import type { FocusEventHandler, RefObject } from 'react';
+import type { RefObject } from 'react';
 
 import { Button, Textfield } from '@digdir/designsystemet-react';
 import { CalendarIcon } from '@navikt/aksel-icons';
-import { format, isMatch, isValid } from 'date-fns';
+import { format, isValid } from 'date-fns';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import styles from 'src/layout/Datepicker/Calendar.module.css';
-import { DatepickerSaveFormatNoTimestamp, DatepickerSaveFormatTimestamp } from 'src/utils/dateHelpers';
+import { getSaveFormattedDateString, strictParseFormat, strictParseISO } from 'src/utils/dateHelpers';
 
 export interface DatePickerInputProps {
   id: string;
+  formatString: string;
+  timeStamp: boolean;
   value?: string;
-  formatString?: string;
-  onBlur?: FocusEventHandler<HTMLInputElement>;
+  onValueChange?: (value: string) => void;
   onClick?: () => void;
   isDialogOpen?: boolean;
   readOnly?: boolean;
@@ -21,28 +22,34 @@ export interface DatePickerInputProps {
 
 export const DatePickerInput = forwardRef(
   (
-    { id, value, formatString, onBlur, isDialogOpen, readOnly, onClick }: DatePickerInputProps,
+    { id, value, formatString, timeStamp, onValueChange, isDialogOpen, readOnly, onClick }: DatePickerInputProps,
     ref: RefObject<HTMLButtonElement>,
   ) => {
-    const [input, setInput] = useState(value ?? '');
-
-    const { langAsString } = useLanguage();
+    const dateValue = value ? strictParseISO(value) : undefined;
+    const formattedDateValue = dateValue && isValid(dateValue) ? format(dateValue, formatString) : value;
+    const [inputValue, setInputValue] = useState(formattedDateValue ?? '');
 
     useEffect(() => {
-      if (value) {
-        if (formatString && isMatch(value, formatString)) {
-          setInput(isValid(new Date(value)) ? format(value, formatString) : value);
-        } else if (isMatch(value, DatepickerSaveFormatNoTimestamp)) {
-          setInput(isValid(new Date(value)) ? format(value, formatString ?? 'dd.MM.yyyy') : value);
-        } else if (isMatch(value, DatepickerSaveFormatTimestamp)) {
-          setInput(isValid(new Date(value)) ? format(value, formatString ?? 'dd.MM.yyyy') : value);
-        }
-      }
-    }, [value, formatString]);
+      setInputValue(formattedDateValue ?? '');
+    }, [formattedDateValue]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setInput(e.target.value);
+    const saveValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const stringValue = e.target.value;
+      const date = strictParseFormat(stringValue, formatString);
+      const valueToSave = getSaveFormattedDateString(date, timeStamp) ?? stringValue;
+      onValueChange && onValueChange(valueToSave);
     };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const stringValue = e.target.value;
+      setInputValue(stringValue);
+      // If the date is valid, save immediately
+      if (isValid(strictParseFormat(stringValue, formatString))) {
+        saveValue(e);
+      }
+    };
+
+    const { langAsString } = useLanguage();
 
     return (
       <div className={styles.calendarInputWrapper}>
@@ -50,10 +57,10 @@ export const DatePickerInput = forwardRef(
           className={styles.calendarInput}
           type='text'
           id={id}
-          value={input}
+          value={inputValue}
           placeholder={formatString}
-          onChange={handleInputChange}
-          onBlur={onBlur}
+          onChange={handleChange}
+          onBlur={saveValue}
           readOnly={readOnly}
           aria-readonly={readOnly}
         />

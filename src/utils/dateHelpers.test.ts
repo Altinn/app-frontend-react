@@ -1,11 +1,10 @@
 import { jest } from '@jest/globals';
-import { format, parseISO } from 'date-fns';
+import { formatISO, parseISO } from 'date-fns';
 
 import { DateFlags } from 'src/types';
 import {
   DatepickerMaxDateDefault,
   DatepickerMinDateDefault,
-  DatepickerSaveFormatTimestamp,
   formatISOString,
   getDateConstraint,
   getDateFormat,
@@ -81,7 +80,7 @@ describe('dateHelpers', () => {
     tests.forEach(({ props, expected }) => {
       it(`should return ${expected} when called with ${JSON.stringify(props)}`, () => {
         const result = getDateConstraint(...props);
-        expect(format(result, DatepickerSaveFormatTimestamp)).toEqual(expected);
+        expect(formatISO(result, { representation: 'complete' })).toEqual(expected);
       });
     });
   });
