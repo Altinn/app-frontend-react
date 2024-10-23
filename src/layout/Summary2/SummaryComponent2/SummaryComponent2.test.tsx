@@ -57,7 +57,7 @@ describe('SummaryComponent', () => {
         hideEmptyFields: false,
       },
     });
-    const elements = screen.getAllByTestId('summary-single-value-component'); //document.querySelectorAll('[data-testid="summary-single-value-component"]');
+    const elements = screen.getAllByTestId('summary-single-value-component');
     expect(elements.length).toBeGreaterThan(0);
     elements.forEach((element) => {
       const labelElement = element.querySelector('.compact');
