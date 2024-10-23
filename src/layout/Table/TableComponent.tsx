@@ -8,7 +8,6 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import classes from 'src/layout/Table/Table.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
@@ -69,40 +68,39 @@ export function TableComponent({ node }: TableComponentProps) {
   }
 
   return (
-    <div className={classes.groupContainer}>
-      <AppTable<IDataModelReference>
-        title={title && <Lang id={title} />}
-        description={description && <Lang id={description} />}
-        helpText={help && <Lang id={help} />}
-        accessibleTitle={help && accessibleTitle}
-        data={data}
-        columns={item.columnConfig.map((config) => ({
-          ...config,
-          header: langAsString(config.header),
-        }))}
-        mobile={isMobile}
-        actionButtons={[
-          {
-            onClick: (idx) => {
-              removeFromList({
-                startAtIndex: idx,
-                reference: {
-                  dataType: item.dataModelBindings.simpleBinding.dataType,
-                  field: item.dataModelBindings.simpleBinding.field,
-                },
-                callback: (item) => {
-                  console.log(item);
-                  return true;
-                },
-              });
-            },
-            buttonText: 'Delete',
-            icon: <DeleteIcon />,
-            color: 'danger',
+    <AppTable<IDataModelReference>
+      size={item.size}
+      title={title && <Lang id={title} />}
+      description={description && <Lang id={description} />}
+      helpText={help && <Lang id={help} />}
+      accessibleTitle={help && accessibleTitle}
+      data={data}
+      columns={item.columnConfig.map((config) => ({
+        ...config,
+        header: langAsString(config.header),
+      }))}
+      mobile={isMobile}
+      actionButtons={[
+        {
+          onClick: (idx) => {
+            removeFromList({
+              startAtIndex: idx,
+              reference: {
+                dataType: item.dataModelBindings.simpleBinding.dataType,
+                field: item.dataModelBindings.simpleBinding.field,
+              },
+              callback: (item) => {
+                console.log(item);
+                return true;
+              },
+            });
           },
-        ]}
-        actionButtonHeader={<Lang id={'general.action'} />}
-      />
-    </div>
+          buttonText: 'Delete',
+          icon: <DeleteIcon />,
+          color: 'danger',
+        },
+      ]}
+      actionButtonHeader={<Lang id={'general.action'} />}
+    />
   );
 }

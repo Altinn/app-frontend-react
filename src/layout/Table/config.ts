@@ -35,4 +35,7 @@ export const Config = new CG.component({
         ).exportAs('ColumnConfig'),
       ),
     ),
+  )
+  .addProperty(
+    new CG.prop('size', new CG.enum('sm', 'md', 'lg').setTitle('Size').setDescription('Size of table.').optional()),
   );

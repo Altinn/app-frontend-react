@@ -40,6 +40,7 @@ interface DataTableProps<T> {
   actionButtonHeader?: React.ReactNode;
   /** Displays table in mobile mode */
   mobile?: boolean;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 function formatIfDate(value: unknown): string {
@@ -64,6 +65,7 @@ function formatIfDate(value: unknown): string {
  * @param actionButtons - Optional action button config.
  * @param mobile
  * @param actionButtonHeader
+ * @param size Size of table
  */
 export function AppTable<T extends object>({
   title,
@@ -75,11 +77,12 @@ export function AppTable<T extends object>({
   actionButtons,
   mobile,
   actionButtonHeader,
+  size,
 }: DataTableProps<T>) {
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
     <Table
-      size='sm'
+      size={size || 'sm'}
       className={cn(classes.table, { [classes.mobileTable]: mobile })}
     >
       <Caption
