@@ -323,5 +323,6 @@ describe('PDF', () => {
     // To confirm we are on the PDF page, reload (which should now succeed) and check that #readyForPrint is visible
     cy.reload();
     cy.get('#readyForPrint').should('exist');
+    cy.findByRole('heading', { name: 'Ukjent feil' }).should('not.exist');
   });
 });
