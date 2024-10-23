@@ -53,7 +53,10 @@ export const RepeatingGroupSummary = ({
         size='xs'
         level={4}
       >
-        <Lang id={title} />
+        <Lang
+          id={title}
+          node={componentNode}
+        />
       </Heading>
       <div className={cn(classes.contentWrapper, { [classes.nestedContentWrapper]: isNested })}>
         {rows.map((row, index) => (
