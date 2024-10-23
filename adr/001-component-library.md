@@ -1,6 +1,6 @@
 # Introduce component library
 
-- Status: Proposed
+- Status: Accepted
 - Deciders: Team
 - Date: 17.10.2024
 
