@@ -17,7 +17,7 @@ interface Column {
   renderCell?: (values: string[], rowData: object) => React.ReactNode;
 }
 
-interface ActionButton {
+export interface TableActionButton {
   onClick: (rowIdx: number, rowData: object) => void;
   buttonText: string;
   icon: React.ReactNode;
@@ -35,7 +35,7 @@ interface DataTableProps<T> {
   helpText?: React.ReactNode;
   accessibleTitle?: string;
   /** Optional configuration for action buttons */
-  actionButtons?: ActionButton[];
+  actionButtons?: TableActionButton[];
   /** Accessible header value for action buttons for screenreaders */
   actionButtonHeader?: React.ReactNode;
   /** Displays table in mobile mode */

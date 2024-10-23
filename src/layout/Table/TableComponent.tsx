@@ -9,6 +9,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { TableActionButton } from 'src/app-components/table/Table';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -67,6 +68,26 @@ export function TableComponent({ node }: TableComponentProps) {
     return null;
   }
 
+  const actionButtons: TableActionButton[] = [];
+
+  if (item.enableDelete) {
+    actionButtons.push({
+      onClick: (idx) => {
+        removeFromList({
+          startAtIndex: idx,
+          reference: {
+            dataType: item.dataModelBindings.simpleBinding.dataType,
+            field: item.dataModelBindings.simpleBinding.field,
+          },
+          callback: (_) => true,
+        });
+      },
+      buttonText: langAsString('general.delete'),
+      icon: <DeleteIcon />,
+      color: 'danger',
+    });
+  }
+
   return (
     <AppTable<IDataModelReference>
       zebra={item.zebra}
@@ -81,23 +102,7 @@ export function TableComponent({ node }: TableComponentProps) {
         header: langAsString(config.header),
       }))}
       mobile={isMobile}
-      actionButtons={[
-        {
-          onClick: (idx) => {
-            removeFromList({
-              startAtIndex: idx,
-              reference: {
-                dataType: item.dataModelBindings.simpleBinding.dataType,
-                field: item.dataModelBindings.simpleBinding.field,
-              },
-              callback: (_) => true,
-            });
-          },
-          buttonText: 'Delete',
-          icon: <DeleteIcon />,
-          color: 'danger',
-        },
-      ]}
+      actionButtons={actionButtons}
       actionButtonHeader={<Lang id={'general.action'} />}
     />
   );
