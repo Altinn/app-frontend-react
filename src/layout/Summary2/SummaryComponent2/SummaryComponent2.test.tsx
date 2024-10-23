@@ -48,6 +48,23 @@ describe('SummaryComponent', () => {
     expect(screen.getByTestId('summary-group-component')).toBeInTheDocument();
   });
 
+  test('Should render in compact mode when set', async () => {
+    await render({
+      summary2Config: {
+        type: 'Summary2',
+        id: 'Summary2',
+        isCompact: true,
+        hideEmptyFields: false,
+      },
+    });
+    const elements = screen.getAllByTestId('summary-single-value-component'); //document.querySelectorAll('[data-testid="summary-single-value-component"]');
+    expect(elements.length).toBeGreaterThan(0);
+    elements.forEach((element) => {
+      const labelElement = element.querySelector('.compact');
+      expect(labelElement).toBeInTheDocument();
+    });
+  });
+
   test('should render component if hideEmptyFields is set to false', async () => {
     await render({
       summary2Config: {
@@ -460,6 +477,7 @@ describe('SummaryComponent', () => {
       type: 'Summary2',
       id: 'mySummary2',
       hideEmptyFields: summary2Config.hideEmptyFields,
+      isCompact: summary2Config.isCompact,
       target: {
         id: summary2Config.target?.id || '',
         type: summary2Config.target?.type,
