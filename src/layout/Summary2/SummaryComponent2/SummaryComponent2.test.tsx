@@ -33,7 +33,7 @@ describe('SummaryComponent', () => {
       },
     },
   });
-  //
+
   test('should render Group', async () => {
     await render({
       summary2Config: {
@@ -60,7 +60,7 @@ describe('SummaryComponent', () => {
         },
       },
     });
-    // expect(screen.getByTestId('summary-single-value-component'));
+
     expect(screen.getByTestId('summary-single-value-component')).toBeInTheDocument();
   });
 
