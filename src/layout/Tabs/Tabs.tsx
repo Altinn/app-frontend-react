@@ -14,8 +14,14 @@ import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import { typedBoolean } from 'src/utils/typing';
 import type { PropsFromGenericComponent } from 'src/layout';
 
+const sizeMap: Record<string, 'sm' | 'md' | 'lg'> = {
+  small: 'sm',
+  medium: 'md',
+  large: 'lg',
+};
+
 export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
-  const size = useNodeItem(node, (i) => i.size);
+  const size = useNodeItem(node, (i) => i.size) ?? 'medium';
   const defaultTab = useNodeItem(node, (i) => i.defaultTab);
   const tabs = useNodeItem(node, (i) => i.tabsInternal);
   const [activeTab, setActiveTab] = useState<string | undefined>(defaultTab ?? tabs.at(0)?.id);
@@ -41,7 +47,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
         defaultValue={activeTab}
         value={activeTab}
         onChange={(tabId) => setActiveTab(tabId)}
-        size={size}
+        size={sizeMap[size]}
       >
         <DesignsystemetTabs.List>
           {tabs.map((tab) => (
@@ -55,7 +61,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
           ))}
         </DesignsystemetTabs.List>
         {tabs.map((tab) => (
-          <DesignsystemetTabs.Content
+          <DesignsystemetTabs.Panel
             key={tab.id}
             value={tab.id}
             role='tabpanel'
@@ -73,7 +79,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
                 />
               ))}
             </Grid>
-          </DesignsystemetTabs.Content>
+          </DesignsystemetTabs.Panel>
         ))}
       </DesignsystemetTabs>
     </ComponentStructureWrapper>

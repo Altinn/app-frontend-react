@@ -10,6 +10,7 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Label } from 'src/components/label/Label';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { AllComponentValidations } from 'src/features/validation/ComponentValidations';
+import classes from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer.module.css';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/EditContainer/RepeatingGroupsEditContainer';
 import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/Pagination/RepeatingGroupPagination';
 import {
@@ -160,6 +161,7 @@ function AddButton() {
   return (
     <Button
       id={`add-button-${id}`}
+      className={classes.addButton}
       onClick={async () => {
         const newRow = await addRow();
         newRow.index !== undefined && triggerFocus(newRow.index);
@@ -173,7 +175,6 @@ function AddButton() {
       }}
       variant='secondary'
       disabled={currentlyAddingRow}
-      fullWidth
     >
       <AddIcon
         fontSize='1.5rem'

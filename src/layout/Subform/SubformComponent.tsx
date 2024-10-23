@@ -141,8 +141,9 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
         </Table>
 
         {showAddButton && (
-          <div className={classes.addButton}>
+          <div className={classes.addButtonWrapper}>
             <Button
+              className={classes.addButton}
               disabled={isAdding}
               id={`subform-${id}-add-button`}
               onClick={async () => await addEntry()}
@@ -153,7 +154,6 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
                 }
               }}
               variant='secondary'
-              fullWidth
             >
               <AddIcon
                 fontSize='1.5rem'
@@ -253,8 +253,8 @@ function SubformTableRow({
           <Button
             disabled={isDeleting}
             variant='tertiary'
-            color='second'
-            size='small'
+            color='neutral'
+            size='sm'
             onClick={async () => navigate(`${node.id}/${id}${hasErrors ? '?validate=true' : ''}`)}
             aria-label={editButtonText}
             data-testid='edit-button'
@@ -275,7 +275,7 @@ function SubformTableRow({
               disabled={isDeleting}
               variant='tertiary'
               color='danger'
-              size='small'
+              size='sm'
               onClick={async () => await deleteEntry()}
               aria-label={deleteButtonText}
               data-testid='delete-button'

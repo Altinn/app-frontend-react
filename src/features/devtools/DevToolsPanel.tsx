@@ -81,8 +81,8 @@ export const DevToolsPanel = ({ isOpen, close, children }: IDevToolsPanelProps) 
               <Button
                 onClick={close}
                 variant='tertiary'
-                color='second'
-                size='small'
+                color='neutral'
+                size='sm'
                 aria-label={'close'}
                 icon={true}
               >

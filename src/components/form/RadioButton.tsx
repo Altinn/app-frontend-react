@@ -51,7 +51,7 @@ export const RadioButton = ({
       {label && (
         <div className={`${hideLabel ? 'sr-only' : ''} ${classes.radioLabelContainer}`}>
           {label}
-          {helpText ? <HelpText title={elementAsString(helpText)}>{helpText}</HelpText> : null}
+          {helpText ? <HelpText aria-label={elementAsString(helpText)}>{helpText}</HelpText> : null}
         </div>
       )}
     </Radio>

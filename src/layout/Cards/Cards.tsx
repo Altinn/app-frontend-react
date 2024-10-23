@@ -49,14 +49,14 @@ export const Cards = ({ node }: ICardsProps) => {
               />
             )}
             {card.title && (
-              <Card.Header>
+              <Card.Block>
                 <Lang id={card.title} />
-              </Card.Header>
+              </Card.Block>
             )}
             {card.description && (
-              <Card.Content>
+              <Card.Block>
                 <Lang id={card.description} />
-              </Card.Content>
+              </Card.Block>
             )}
             {card.children && card.children.length > 0 && (
               <Grid
@@ -86,9 +86,9 @@ export const Cards = ({ node }: ICardsProps) => {
               </Grid>
             )}
             {card.footer && (
-              <Card.Footer>
+              <Card.Block>
                 <Lang id={card.footer} />
-              </Card.Footer>
+              </Card.Block>
             )}
             {mediaPosition === 'bottom' && (
               <Media
@@ -116,7 +116,7 @@ function Media({ card, node, minMediaHeight }: MediaProps) {
   }
 
   return (
-    <Card.Media>
+    <Card.Block>
       <CardProvider
         node={node}
         renderedInMedia={true}
@@ -134,6 +134,6 @@ function Media({ card, node, minMediaHeight }: MediaProps) {
           />
         </div>
       </CardProvider>
-    </Card.Media>
+    </Card.Block>
   );
 }

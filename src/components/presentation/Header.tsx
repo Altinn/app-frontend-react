@@ -33,7 +33,7 @@ const InnerHeader = ({ header, aboveHeader, children }: IInnerHeaderProps) => (
         <Grid item>
           <Heading
             level={1}
-            size='medium'
+            size='md'
             data-testid='presentation-heading'
           >
             {header}

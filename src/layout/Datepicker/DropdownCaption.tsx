@@ -43,12 +43,12 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
       <div className={styles.dropdownCaption}>
         <Button
           icon={true}
-          color='second'
+          color='neutral'
           variant='tertiary'
           aria-label={langAsString('date_picker.aria_label_left_arrow')}
           disabled={!previousMonth}
           onClick={() => previousMonth && goToMonth(previousMonth)}
-          size='small'
+          size='sm'
         >
           <ArrowLeftIcon />
         </Button>
@@ -56,7 +56,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
           <Combobox
             style={{ width: '150px' }}
             id={id}
-            size='small'
+            size='sm'
             value={[calendarMonth.date.getMonth().toString()]}
             onValueChange={(months) => handleMonthChange(months[0])}
             aria-label={MonthDropdownLabel}
@@ -79,7 +79,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
           <Combobox
             style={{ width: '100px' }}
             id={id}
-            size='small'
+            size='sm'
             value={[calendarMonth.date.getFullYear().toString()]}
             onValueChange={(years) => handleYearChange(years[0])}
             aria-label={yearDropdownLabel}
@@ -102,12 +102,12 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
         </div>
         <Button
           icon={true}
-          color='second'
+          color='neutral'
           variant='tertiary'
           aria-label={langAsString('date_picker.aria_label_right_arrow')}
           disabled={!nextMonth}
           onClick={() => nextMonth && goToMonth(nextMonth)}
-          size='small'
+          size='sm'
         >
           <ArrowRightIcon />
         </Button>

@@ -68,8 +68,8 @@ export const DatePickerInput = forwardRef(
           aria-label={langAsString('date_picker.aria_label_icon')}
           ref={ref}
           disabled={readOnly}
-          color='first'
-          size='small'
+          color='accent'
+          size='sm'
         >
           <CalendarIcon title={langAsString('date_picker.aria_label_icon')} />
         </Button>

@@ -41,7 +41,7 @@ const TextOnly: React.FunctionComponent<TextfieldProps> = ({ className, id, valu
   return (
     <Paragraph
       id={id}
-      size='small'
+      size='sm'
       className={`${classes.textPadding} ${classes.focusable}  ${className}`}
       tabIndex={0}
     >
@@ -62,7 +62,7 @@ const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) =
 
   return (
     <Textfield
-      size={'small'}
+      size={'sm'}
       prefix={prefixText}
       suffix={suffixText}
       {...customProps}

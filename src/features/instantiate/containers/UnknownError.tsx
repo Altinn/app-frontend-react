@@ -44,7 +44,7 @@ export function UnknownError() {
               <br />
               <br />
               <Button
-                size='small'
+                size='sm'
                 onClick={openLog}
               >
                 Vis logg

@@ -91,7 +91,7 @@ function InstanceSelection() {
   const renderMobileTable = () => (
     <>
       <Heading
-        size='xsmall'
+        size='xs'
         level={3}
         className={classes.leftOffHeading}
       >
@@ -125,8 +125,8 @@ function InstanceSelection() {
                   <div className={classes.tableButtonWrapper}>
                     <Button
                       variant='tertiary'
-                      size='small'
-                      color='second'
+                      size='sm'
+                      color='neutral'
                       icon={true}
                       onClick={handleOpenInstance}
                       onMouseDown={handleOpenInstance}
@@ -191,8 +191,8 @@ function InstanceSelection() {
                 <div className={classes.tableButtonWrapper}>
                   <Button
                     variant='tertiary'
-                    size='small'
-                    color='second'
+                    size='sm'
+                    color='neutral'
                     onClick={(ev) => {
                       storeCallback(focusMainContent);
                       openInstance(instance.id, ev);
@@ -246,7 +246,7 @@ function InstanceSelection() {
         <div>
           <Heading
             level={2}
-            size='medium'
+            size='md'
             id='instance-selection-header'
           >
             <Lang id={'instance_selection.header'} />

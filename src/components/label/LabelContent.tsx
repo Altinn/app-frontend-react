@@ -55,7 +55,7 @@ export function LabelContent({
         {help && (
           <HelpText
             id={`${componentId}-helptext`}
-            title={
+            aria-label={
               label ? `${langAsString('helptext.button_title_prefix')} ${label}` : langAsString('helptext.button_title')
             }
           >

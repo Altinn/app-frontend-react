@@ -12,3 +12,7 @@
 .showAllFieldset > * {
   margin-top: 0 !important;
 }
+
+.addButton {
+  width: 100%;
+}

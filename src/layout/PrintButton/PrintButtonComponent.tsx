@@ -18,8 +18,8 @@ export const PrintButtonComponent = ({ node }: PropsFromGenericComponent<'PrintB
       <Button
         style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
         variant='secondary'
-        color='first'
-        size='small'
+        color='accent'
+        size='sm'
         onClick={window.print}
       >
         <Lang id={textResourceBindings?.title ?? 'general.print_button_text'} />

@@ -23,13 +23,13 @@ export function LayoutSetSummaryAccordion({ filteredPages }: LayoutSetAccordionS
           key={layoutId}
           defaultOpen={true}
         >
-          <Accordion.Header level={2}>
+          <Accordion.Heading>
             <Label asChild>
               <span>
                 <Lang id={layoutId} />
               </span>
             </Label>
-          </Accordion.Header>
+          </Accordion.Heading>
           <Accordion.Content>
             <Grid
               container={true}

@@ -89,10 +89,10 @@ function _RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationP
         currentPage={currentPage + 1}
         totalPages={totalPages}
         pagesWithErrors={pagesWithErrors}
-        onChange={onChange}
+        onChange={() => onChange}
         compact={isTablet}
         hideLabels={isMobile}
-        size={isMini ? 'small' : 'medium'}
+        size={isMini ? 'sm' : 'md'}
       />
     </ConditionalWrapper>
   );
@@ -107,8 +107,7 @@ type PaginationComponentProps = {
   currentPage: number;
   totalPages: number;
   pagesWithErrors: number[];
-  onChange: Parameters<typeof Pagination>[0]['onChange'];
-} & Omit<React.HTMLAttributes<HTMLElement>, 'onChange'>;
+} & React.HTMLAttributes<HTMLElement>;
 
 const iconSize = {
   small: '1rem',
@@ -128,8 +127,8 @@ function PaginationComponent({
   onChange,
   ...rest
 }: PaginationComponentProps) {
-  const { pages, showNextPage, showPreviousPage } = usePagination({
-    compact,
+  const { pages, prevButtonProps, nextButtonProps, hasPrev, hasNext } = usePagination({
+    onChange,
     currentPage,
     totalPages,
   });
@@ -139,71 +138,59 @@ function PaginationComponent({
   const previousLabel = langAsString(backTextKey);
 
   return (
-    <Pagination.Root
+    <Pagination
       aria-label='Pagination'
       size={size}
-      compact={compact}
       {...rest}
     >
-      <Pagination.Content>
+      <Pagination.List>
         <Pagination.Item>
-          <Pagination.Previous
-            className={!showPreviousPage ? classes.hidden : undefined}
-            onClick={() => {
-              onChange(currentPage - 1);
-            }}
+          <Pagination.Button
+            className={!hasPrev ? classes.hidden : undefined}
             aria-label={previousLabel}
+            {...prevButtonProps}
           >
             <ChevronLeftIcon
               aria-hidden
               fontSize={iconSize[size]}
             />
             {!hideLabels && previousLabel}
-          </Pagination.Previous>
+          </Pagination.Button>
         </Pagination.Item>
-        {pages.map((page, i) => {
+        {pages.map(({ page, buttonProps, itemKey }) => {
           const hasErrors = typeof page === 'number' && pagesWithErrors.includes(page - 1);
           const label = hasErrors
             ? `${langAsString('general.edit_alt_error')}: ${langAsString('general.page_number', [page])}`
             : langAsString('general.page_number', [page]);
 
           return (
-            <Pagination.Item key={`${page}${i}`}>
-              {page === 'ellipsis' ? (
-                <Pagination.Ellipsis />
-              ) : (
-                <Pagination.Button
-                  color={hasErrors ? 'danger' : 'first'}
-                  aria-current={currentPage === page}
-                  isActive={currentPage === page}
-                  aria-label={label}
-                  onClick={() => {
-                    onChange(page);
-                  }}
-                >
-                  {page}
-                </Pagination.Button>
-              )}
+            <Pagination.Item key={itemKey}>
+              <Pagination.Button
+                color={hasErrors ? 'danger' : 'accent'}
+                aria-current={currentPage === page}
+                aria-label={label}
+                {...buttonProps}
+              >
+                {page}
+              </Pagination.Button>
             </Pagination.Item>
           );
         })}
         <Pagination.Item>
-          <Pagination.Next
+          <Pagination.Button
             aria-label={nextLabel}
-            onClick={() => {
-              onChange(currentPage + 1);
-            }}
-            className={!showNextPage ? classes.hidden : undefined}
+            className={!hasNext ? classes.hidden : undefined}
+            {...nextButtonProps}
           >
             {!hideLabels && nextLabel}
             <ChevronRightIcon
               aria-hidden
               fontSize={iconSize[size]}
             />
-          </Pagination.Next>
+          </Pagination.Button>
         </Pagination.Item>
-      </Pagination.Content>
-    </Pagination.Root>
+      </Pagination.List>
+    </Pagination>
   );
 }
 

@@ -56,7 +56,7 @@ export function InvalidSubformLayoutError({ error }: { error: InvalidSubformLayo
               <br />
               <br />
               <Button
-                size='small'
+                size='sm'
                 onClick={openLog}
               >
                 Vis logg

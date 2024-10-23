@@ -16,8 +16,8 @@ export function EditButton(props: IEditButtonProps) {
     <Button
       className={classes.editButton}
       variant='tertiary'
-      color='second'
-      size='small'
+      color='neutral'
+      size='sm'
       onClick={props.onClick}
       aria-label={`${props.editText}: ${props.label}`}
     >

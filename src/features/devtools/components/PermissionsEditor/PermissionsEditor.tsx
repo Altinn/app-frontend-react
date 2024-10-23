@@ -30,7 +30,7 @@ export const PermissionsEditor = () => {
       className={classes.checkboxWrapper}
     >
       <Checkbox
-        size='small'
+        size='sm'
         checked={Boolean(write)}
         onChange={(e) =>
           handleChange((obj) => {
@@ -43,7 +43,7 @@ export const PermissionsEditor = () => {
         Write
       </Checkbox>
       <Checkbox
-        size='small'
+        size='sm'
         checked={Boolean(actions?.confirm)}
         onChange={(e) =>
           handleChange((obj) => {
@@ -56,7 +56,7 @@ export const PermissionsEditor = () => {
         Confirm
       </Checkbox>
       <Checkbox
-        size='small'
+        size='sm'
         checked={Boolean(actions?.sign)}
         onChange={(e) =>
           handleChange((obj) => {
@@ -69,7 +69,7 @@ export const PermissionsEditor = () => {
         Sign
       </Checkbox>
       <Checkbox
-        size='small'
+        size='sm'
         checked={Boolean(actions?.reject)}
         onChange={(e) =>
           handleChange((obj) => {

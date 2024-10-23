@@ -30,14 +30,10 @@ export const AccordionItem = ({
   return (
     <DesignSystemAccordion.Item
       open={isOpen as boolean}
+      onToggle={handleHeaderClick}
       className={cn(className, classes.accordion)}
     >
-      <DesignSystemAccordion.Header
-        level={headingLevel}
-        onHeaderClick={handleHeaderClick}
-      >
-        {title}
-      </DesignSystemAccordion.Header>
+      <DesignSystemAccordion.Heading>{title}</DesignSystemAccordion.Heading>
       <DesignSystemAccordion.Content>{children}</DesignSystemAccordion.Content>
     </DesignSystemAccordion.Item>
   );

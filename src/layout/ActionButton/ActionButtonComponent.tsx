@@ -15,8 +15,8 @@ import type { ActionButtonStyle } from 'src/layout/ActionButton/config.generated
 import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
 
 export const buttonStyles: { [style in ActionButtonStyle]: { color: ButtonColor; variant: ButtonVariant } } = {
-  primary: { variant: 'primary', color: 'success' },
-  secondary: { variant: 'secondary', color: 'first' },
+  primary: { variant: 'primary', color: 'accent' }, //success
+  secondary: { variant: 'secondary', color: 'accent' },
 };
 
 export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
@@ -49,7 +49,7 @@ export function ActionButtonComponent({ node }: IActionButton) {
         }}
       >
         <Button
-          size='small'
+          size='sm'
           id={`action-button-${id}`}
           variant={variant}
           color={color}

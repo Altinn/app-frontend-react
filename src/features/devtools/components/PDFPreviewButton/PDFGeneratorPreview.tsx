@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button, Modal, Spinner } from '@digdir/designsystemet-react';
+import { Button, Heading, Modal, Spinner } from '@digdir/designsystemet-react';
 import { FilePdfIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/features/devtools/components/PDFPreviewButton/PDFPreview.module.css';
@@ -59,9 +59,9 @@ export function PDFGeneratorPreview() {
     <>
       <Button
         onClick={generatePDF}
-        size='small'
+        size='sm'
         disabled={disabled}
-        color='second'
+        color='neutral'
       >
         {
           <FilePdfIcon
@@ -74,7 +74,7 @@ export function PDFGeneratorPreview() {
       <Modal
         ref={modalRef}
         onClose={() => abortRef.current?.abort()}
-        onInteractOutside={() => modalRef.current?.close()}
+        backdropClose={true}
         className={classes.modal}
       >
         {blobUrl ? (
@@ -85,21 +85,23 @@ export function PDFGeneratorPreview() {
           />
         ) : errorText ? (
           <>
-            <Modal.Header>PDF-generering feilet</Modal.Header>
-            <Modal.Content>
+            <Modal.Block>
+              <Heading>PDF-generering feilet</Heading>
+            </Modal.Block>
+            <Modal.Block>
               {errorText.split('\n').map((line) => (
                 <>
                   {line}
                   <br />
                 </>
               ))}
-            </Modal.Content>
+            </Modal.Block>
           </>
         ) : (
           <div className={classes.loading}>
             <Spinner
               title='Laster...'
-              size='xlarge'
+              size='xl'
             />
           </div>
         )}

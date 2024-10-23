@@ -74,7 +74,7 @@ export function EditButton({
     <Button
       onClick={onChangeClick}
       variant='tertiary'
-      size='small'
+      size='sm'
       className={className}
     >
       {!isMobile && <Lang id={'general.edit'} />}

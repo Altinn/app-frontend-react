@@ -246,8 +246,8 @@ function _RepeatingGroupTableRow({
                   aria-expanded={isEditingRow}
                   aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
                   variant='tertiary'
-                  color='second'
-                  size='small'
+                  color='neutral'
+                  size='sm'
                   onClick={() => toggleEditing({ index: row.index, uuid: row.uuid })}
                   aria-label={`${editButtonText} ${firstCellData ?? ''}`}
                   data-testid='edit-button'
@@ -305,8 +305,8 @@ function _RepeatingGroupTableRow({
                 aria-expanded={isEditingRow}
                 aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
                 variant='tertiary'
-                color='second'
-                size='small'
+                color='neutral'
+                size='sm'
                 icon={!isEditingRow && mobileViewSmall}
                 onClick={() => toggleEditing({ index, uuid })}
                 aria-label={`${editButtonText} ${firstCellData ?? ''}`}
@@ -415,7 +415,7 @@ function DeleteElement({
       <Button
         variant='tertiary'
         color='danger'
-        size='small'
+        size='sm'
         disabled={isDeletingRow || disabled}
         onClick={() => handleDelete({ index, uuid })}
         aria-label={`${deleteButtonText}-${firstCellData}`}

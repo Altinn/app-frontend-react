@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { Modal, Popover } from '@digdir/designsystemet-react';
+import { Button, Modal, Popover } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 import { formatDate, isValid as isValidDate, parse, parseISO } from 'date-fns';
 
@@ -62,35 +62,36 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
         {trigger}
         <Modal
           role='dialog'
+          closeButton={false}
           ref={modalRef}
-          onInteractOutside={() => modalRef.current?.close()}
+          backdropClose={true}
           style={{ width: 'fit-content', minWidth: 'fit-content' }}
         >
-          <Modal.Content>{content}</Modal.Content>
+          {content}
         </Modal>
       </>
     ) : (
-      <Popover
-        portal={false}
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        size='lg'
-        placement='top'
-      >
-        <Popover.Trigger
+      <>
+        <Button
           onClick={() => setIsDialogOpen(!isDialogOpen)}
           asChild={true}
+          popovertarget={`datepicker-popover-${id}`}
         >
           {trigger}
-        </Popover.Trigger>
-        <Popover.Content
+        </Button>
+        <Popover
+          id={`datepicker-popover-${id}`}
+          size='lg'
+          placement='top'
+          onClose={() => setIsDialogOpen(false)}
+          open={isDialogOpen}
           className={styles.calendarWrapper}
           aria-modal
           autoFocus={true}
         >
           {content}
-        </Popover.Content>
-      </Popover>
+        </Popover>
+      </>
     );
 
   return (

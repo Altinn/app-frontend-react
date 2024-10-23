@@ -60,19 +60,18 @@ export function FeatureToggles() {
                 className={classes.itemContent}
               >
                 <Heading
-                  spacing={true}
-                  size={'small'}
+                  size={'sm'}
                   level={4}
                 >
                   {parseAndCleanText(title)}
                 </Heading>
-                <Label size={'xsmall'}>Nøkkel: {key}</Label>
+                <Label size={'xs'}>Nøkkel: {key}</Label>
                 <br />
-                <Label size={'xsmall'}>
+                <Label size={'xs'}>
                   Verdi: {JSON.stringify(value)} / Standardverdi: {JSON.stringify(defaultValue)}
                 </Label>
                 <br />
-                <Label size={'xsmall'}>Kilde: {sourceMap[source]}</Label>
+                <Label size={'xs'}>Kilde: {sourceMap[source]}</Label>
                 <Paragraph>
                   {parseAndCleanText(description)}
                   {links && links.length && (
@@ -99,7 +98,7 @@ export function FeatureToggles() {
         )}
         <div className={classes.button}>
           <Button
-            size='small'
+            size='sm'
             disabled={Object.keys(overrides).length <= 0}
             onClick={() => {
               const { org, app } = window;

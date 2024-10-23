@@ -135,7 +135,7 @@ export const PartySelection = () => {
             direction='row'
           >
             <Button
-              size='small'
+              size='sm'
               variant='secondary'
               onClick={() => setNumberOfPartiesShown(numberOfPartiesShown + 4)}
             >

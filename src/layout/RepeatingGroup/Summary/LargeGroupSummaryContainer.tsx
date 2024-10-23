@@ -23,11 +23,11 @@ export interface IDisplayRepAsLargeGroup {
 }
 
 const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size'] } = {
-  [2]: 'medium',
-  [3]: 'small',
-  [4]: 'xsmall',
-  [5]: 'xsmall',
-  [6]: 'xsmall',
+  [2]: 'md',
+  [3]: 'sm',
+  [4]: 'xs',
+  [5]: 'xs',
+  [6]: 'xs',
 };
 
 export function LargeGroupSummaryContainer({ groupNode, id, restriction, renderLayoutNode }: IDisplayRepAsLargeGroup) {

@@ -15,7 +15,7 @@ export function HelpTextContainer({ helpText, title }: IHelpTextContainerProps) 
   return (
     <div className={classes.helpTextContainer}>
       <HelpText
-        title={
+        aria-label={
           title ? `${langAsString('helptext.button_title_prefix')} ${title}` : langAsString('helptext.button_title')
         }
       >

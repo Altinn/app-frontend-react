@@ -77,7 +77,7 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrid
       data-testid={dataTestId}
     >
       <Heading
-        size={isNestedGroup ? 'xsmall' : 'small'}
+        size={isNestedGroup ? 'xs' : 'sm'}
         level={headingLevel}
       >
         <Lang
