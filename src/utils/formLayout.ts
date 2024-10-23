@@ -1,6 +1,4 @@
-import { layoutSetIsDefault } from 'src/features/form/layoutSets/TypeGuards';
 import { getComponentCapabilities } from 'src/layout';
-import type { ILayoutSets } from 'src/layout/common.generated';
 import type { ILikertFilter } from 'src/layout/Likert/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -43,24 +41,4 @@ export function extractBottomButtons(topLevelNodes: LayoutNode[]) {
   }
 
   return [toMainLayout.reverse(), toErrorReport.reverse()];
-}
-
-/**
- * Some tasks other than data (for instance confirm, or other in the future) can be configured to behave like data steps
- * @param task the task
- * @param layoutSets the layout sets
- */
-export function behavesLikeDataTask(task: string | null | undefined, layoutSets: ILayoutSets | null): boolean {
-  if (!task) {
-    return false;
-  }
-
-  return (
-    layoutSets?.sets.some((set) => {
-      if (layoutSetIsDefault(set) && set.tasks?.length) {
-        return set.tasks.includes(task);
-      }
-      return false;
-    }) || false
-  );
 }

@@ -6,7 +6,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useGetTaskType, useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useGetTaskTypeByTaskId, useLaxProcessData } from 'src/features/instance/ProcessContext';
 import {
   useAllNavigationParamsAsRef,
   useNavigate as useCtxNavigate,
@@ -129,47 +129,32 @@ export const useStartUrl = (forcedTaskId?: string) => {
   // so it does not make a difference here.
   const { partyId, instanceGuid, taskId, isSubformPage, mainPageKey, componentId, dataElementId } =
     useNavigationParams();
-  const taskType = useGetTaskType()(taskId);
+  const taskType = useGetTaskTypeByTaskId()(taskId);
   const isStateless = useApplicationMetadata().isStatelessApp;
 
-  return useMemo(() => {
-    const firstPage = order?.[0];
-    if (isStateless && firstPage) {
-      return `/${firstPage}${queryKeys}`;
-    }
-    if (typeof forcedTaskId === 'string') {
-      return `/instance/${partyId}/${instanceGuid}/${forcedTaskId}${queryKeys}`;
-    }
-    if (taskType === ProcessTaskType.Archived) {
-      return `/instance/${partyId}/${instanceGuid}/${TaskKeys.ProcessEnd}${queryKeys}`;
-    }
-    if (taskType !== ProcessTaskType.Data && taskId !== undefined) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}${queryKeys}`;
-    }
-    if (isSubformPage && taskId && mainPageKey && componentId && dataElementId && firstPage) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${firstPage}${queryKeys}`;
-    }
-    if (taskId && firstPage) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}/${firstPage}${queryKeys}`;
-    }
-    if (taskId) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}${queryKeys}`;
-    }
-    return `/instance/${partyId}/${instanceGuid}${queryKeys}`;
-  }, [
-    componentId,
-    dataElementId,
-    forcedTaskId,
-    instanceGuid,
-    isStateless,
-    isSubformPage,
-    mainPageKey,
-    order,
-    partyId,
-    queryKeys,
-    taskId,
-    taskType,
-  ]);
+  const firstPage = order?.[0];
+  if (isStateless && firstPage) {
+    return `/${firstPage}${queryKeys}`;
+  }
+  if (typeof forcedTaskId === 'string') {
+    return `/instance/${partyId}/${instanceGuid}/${forcedTaskId}${queryKeys}`;
+  }
+  if (taskType === ProcessTaskType.Archived) {
+    return `/instance/${partyId}/${instanceGuid}/${TaskKeys.ProcessEnd}${queryKeys}`;
+  }
+  if (taskType !== ProcessTaskType.Data && taskId !== undefined) {
+    return `/instance/${partyId}/${instanceGuid}/${taskId}${queryKeys}`;
+  }
+  if (isSubformPage && taskId && mainPageKey && componentId && dataElementId && firstPage) {
+    return `/instance/${partyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${firstPage}${queryKeys}`;
+  }
+  if (taskId && firstPage) {
+    return `/instance/${partyId}/${instanceGuid}/${taskId}/${firstPage}${queryKeys}`;
+  }
+  if (taskId) {
+    return `/instance/${partyId}/${instanceGuid}/${taskId}${queryKeys}`;
+  }
+  return `/instance/${partyId}/${instanceGuid}${queryKeys}`;
 };
 
 export function useNavigatePage() {
@@ -179,7 +164,7 @@ export function useNavigatePage() {
   const navigate = useNavigate();
   const navParams = useAllNavigationParamsAsRef();
   const queryKeysRef = useQueryKeysAsStringAsRef();
-  const getTaskType = useGetTaskType();
+  const getTaskType = useGetTaskTypeByTaskId();
   const refetchInitialValidations = useRefetchInitialValidations(true);
 
   const { autoSaveBehavior } = usePageSettings();

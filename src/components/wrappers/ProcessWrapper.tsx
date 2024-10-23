@@ -13,7 +13,7 @@ import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useGetTaskType, useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
+import { behavesLikeDataTask, useGetTaskTypeByTaskId, useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -26,7 +26,6 @@ import { TaskKeys, useIsCurrentTask, useNavigatePage, useStartUrl } from 'src/ho
 import { implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
-import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { useNode } from 'src/utils/layout/NodesContext';
 
@@ -100,18 +99,18 @@ export function NavigateToStartUrl() {
 export const ProcessWrapper = () => {
   const isCurrentTask = useIsCurrentTask();
   const { isValidTaskId } = useNavigatePage();
-  const taskId = useNavigationParam('taskId');
-  const taskType = useGetTaskType()(taskId);
-  const realTaskType = useRealTaskType();
   const layoutSets = useLayoutSets();
   const dataModelGuid = useCurrentDataModelGuid();
+
+  const taskId = useNavigationParam('taskId');
+  const taskType = useGetTaskTypeByTaskId()(taskId);
 
   const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
   const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid && taskId === TaskKeys.CustomReceipt;
 
   if (!isValidTaskId(taskId)) {
     return (
-      <PresentationComponent type={realTaskType}>
+      <PresentationComponent type={taskType}>
         <InvalidTaskIdPage />
       </PresentationComponent>
     );
@@ -119,7 +118,7 @@ export const ProcessWrapper = () => {
 
   if (!isCurrentTask && taskId !== TaskKeys.ProcessEnd) {
     return (
-      <PresentationComponent type={realTaskType}>
+      <PresentationComponent type={taskType}>
         <NotCurrentTaskPage />
       </PresentationComponent>
     );
@@ -128,7 +127,7 @@ export const ProcessWrapper = () => {
   if (taskType === ProcessTaskType.Confirm) {
     return (
       <ProcessNavigationProvider>
-        <PresentationComponent type={realTaskType}>
+        <PresentationComponent type={taskType}>
           <Confirm />
         </PresentationComponent>
       </ProcessNavigationProvider>
@@ -137,7 +136,7 @@ export const ProcessWrapper = () => {
 
   if (taskType === ProcessTaskType.Feedback) {
     return (
-      <PresentationComponent type={realTaskType}>
+      <PresentationComponent type={taskType}>
         <Feedback />
       </PresentationComponent>
     );
@@ -145,7 +144,7 @@ export const ProcessWrapper = () => {
 
   if (taskType === ProcessTaskType.Archived) {
     return (
-      <PresentationComponent type={realTaskType}>
+      <PresentationComponent type={taskType}>
         <ReceiptContainer />
       </PresentationComponent>
     );
@@ -156,7 +155,7 @@ export const ProcessWrapper = () => {
       'You specified a custom receipt, but the data model is missing. Falling back to default receipt.',
     );
     return (
-      <PresentationComponent type={realTaskType}>
+      <PresentationComponent type={taskType}>
         <ReceiptContainer />
       </PresentationComponent>
     );
@@ -169,7 +168,7 @@ export const ProcessWrapper = () => {
           <Route
             path=':pageKey/:componentId/*'
             element={
-              <PresentationComponent type={realTaskType}>
+              <PresentationComponent type={taskType}>
                 <ComponentRouting />
               </PresentationComponent>
             }
@@ -178,7 +177,7 @@ export const ProcessWrapper = () => {
             path=':pageKey'
             element={
               <PDFWrapper>
-                <PresentationComponent type={realTaskType}>
+                <PresentationComponent type={taskType}>
                   <Form />
                 </PresentationComponent>
               </PDFWrapper>

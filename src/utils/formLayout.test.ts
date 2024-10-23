@@ -1,4 +1,4 @@
-import { behavesLikeDataTask } from 'src/utils/formLayout';
+import { behavesLikeDataTask } from 'src/features/instance/ProcessContext';
 import type { ILayoutSets } from 'src/layout/common.generated';
 
 describe('behavesLikeDataTask', () => {
