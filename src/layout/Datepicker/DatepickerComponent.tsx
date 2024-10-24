@@ -13,13 +13,8 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import styles from 'src/layout/Datepicker/Calendar.module.css';
 import { DatePickerCalendar } from 'src/layout/Datepicker/DatePickerCalendar';
 import { DatePickerInput } from 'src/layout/Datepicker/DatePickerInput';
-import {
-  getDateConstraint,
-  getDateFormat,
-  getLocale,
-  getSaveFormattedDateString,
-  strictParseISO,
-} from 'src/utils/dateHelpers';
+import { getDateConstraint, getDateFormat, getSaveFormattedDateString, strictParseISO } from 'src/utils/dateHelpers';
+import { getDatepickerFormat } from 'src/utils/formatDateLocale';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -30,7 +25,6 @@ export type IDatepickerProps = PropsFromGenericComponent<'Datepicker'>;
 export function DatepickerComponent({ node }: IDatepickerProps) {
   const { langAsString } = useLanguage();
   const languageLocale = useCurrentLanguage();
-  const currentLocale = getLocale(languageLocale ?? 'nb');
   const { minDate, maxDate, format, timeStamp = true, readOnly, required, id, dataModelBindings } = useNodeItem(node);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -38,7 +32,7 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');
-  const dateFormat = getDateFormat(format, languageLocale);
+  const dateFormat = getDatepickerFormat(getDateFormat(format, languageLocale));
   const isMobile = useIsMobile();
 
   const { setValue, formData } = useDataModelBindings(dataModelBindings);
@@ -111,7 +105,7 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
               id={id}
               value={value}
               isDialogOpen={isMobile ? modalRef.current?.open : isDialogOpen}
-              formatString={dateFormat}
+              datepickerFormat={dateFormat}
               timeStamp={timeStamp}
               onValueChange={handleInputValueChange}
               onClick={() => (isMobile ? modalRef.current?.showModal() : setIsDialogOpen(!isDialogOpen))}
@@ -131,7 +125,7 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
           )}
         </Grid>
         <span className={`${styles.formatText} no-visual-testing`}>
-          {langAsString('date_picker.format_text', [formatDate(new Date(), dateFormat, { locale: currentLocale })])}
+          {langAsString('date_picker.format_text', [formatDate(new Date(), dateFormat)])}
         </span>
       </div>
     </ComponentStructureWrapper>

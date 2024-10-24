@@ -9,11 +9,11 @@ import { format, isValid } from 'date-fns';
 import { useLanguage } from 'src/features/language/useLanguage';
 import styles from 'src/layout/Datepicker/Calendar.module.css';
 import { getSaveFormattedDateString, strictParseFormat, strictParseISO } from 'src/utils/dateHelpers';
-import { getFormatDisplay, getFormatPattern } from 'src/utils/formatDateLocale';
+import { getFormatPattern } from 'src/utils/formatDateLocale';
 
 export interface DatePickerInputProps {
   id: string;
-  formatString: string;
+  datepickerFormat: string;
   timeStamp: boolean;
   value?: string;
   onValueChange?: (value: string) => void;
@@ -24,13 +24,12 @@ export interface DatePickerInputProps {
 
 export const DatePickerInput = forwardRef(
   (
-    { id, value, formatString, timeStamp, onValueChange, isDialogOpen, readOnly, onClick }: DatePickerInputProps,
+    { id, value, datepickerFormat, timeStamp, onValueChange, isDialogOpen, readOnly, onClick }: DatePickerInputProps,
     ref: RefObject<HTMLButtonElement>,
   ) => {
-    const formatDisplay = getFormatDisplay(formatString);
-    const formatPattern = getFormatPattern(formatDisplay);
+    const formatPattern = getFormatPattern(datepickerFormat);
     const dateValue = strictParseISO(value);
-    const formattedDateValue = dateValue ? format(dateValue, formatString) : value;
+    const formattedDateValue = dateValue ? format(dateValue, datepickerFormat) : value;
     const [inputValue, setInputValue] = useState(formattedDateValue ?? '');
 
     useEffect(() => {
@@ -39,7 +38,7 @@ export const DatePickerInput = forwardRef(
 
     const saveValue = (e: React.ChangeEvent<HTMLInputElement>) => {
       const stringValue = e.target.value;
-      const date = strictParseFormat(stringValue, formatString);
+      const date = strictParseFormat(stringValue, datepickerFormat);
       const valueToSave = getSaveFormattedDateString(date, timeStamp) ?? stringValue;
       onValueChange && onValueChange(valueToSave);
     };
@@ -48,7 +47,7 @@ export const DatePickerInput = forwardRef(
       const stringValue = e.target.value;
       setInputValue(stringValue);
       // If the date is valid, save immediately
-      if (isValid(strictParseFormat(stringValue, formatString))) {
+      if (stringValue.length == 0 || isValid(strictParseFormat(stringValue, datepickerFormat))) {
         saveValue(e);
       }
     };
@@ -65,7 +64,7 @@ export const DatePickerInput = forwardRef(
           type='text'
           id={id}
           value={inputValue}
-          placeholder={formatDisplay}
+          placeholder={datepickerFormat.toUpperCase()}
           onChange={handleChange}
           onBlur={saveValue}
           readOnly={readOnly}
