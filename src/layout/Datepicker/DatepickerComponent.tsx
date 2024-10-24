@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import { Modal, Popover } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
-import { formatDate, isValid as isValidDate, parse, parseISO } from 'date-fns';
+import { formatDate, isValid as isValidDate } from 'date-fns';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -13,7 +13,8 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import styles from 'src/layout/Datepicker/Calendar.module.css';
 import { DatePickerCalendar } from 'src/layout/Datepicker/DatePickerCalendar';
 import { DatePickerInput } from 'src/layout/Datepicker/DatePickerInput';
-import { getDateConstraint, getDateFormat, getLocale, getSaveFormattedDateString } from 'src/utils/dateHelpers';
+import { getDateConstraint, getDateFormat, getSaveFormattedDateString, strictParseISO } from 'src/utils/dateHelpers';
+import { getDatepickerFormat } from 'src/utils/formatDateLocale';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -24,7 +25,6 @@ export type IDatepickerProps = PropsFromGenericComponent<'Datepicker'>;
 export function DatepickerComponent({ node }: IDatepickerProps) {
   const { langAsString } = useLanguage();
   const languageLocale = useCurrentLanguage();
-  const currentLocale = getLocale(languageLocale ?? 'nb');
   const { minDate, maxDate, format, timeStamp = true, readOnly, required, id, dataModelBindings } = useNodeItem(node);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -32,12 +32,13 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');
-  const dateFormat = getDateFormat(format || 'dd.MM.yyyy', languageLocale);
+  const dateFormat = getDatepickerFormat(getDateFormat(format, languageLocale));
   const isMobile = useIsMobile();
 
   const { setValue, formData } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding;
-  const selectedDate = isValidDate(parseISO(value)) ? parseISO(value) : new Date();
+  const dateValue = strictParseISO(value);
+  const dayPickerDate = dateValue ? dateValue : new Date();
 
   const handleDayPickerSelect = (date: Date) => {
     if (date && isValidDate(date)) {
@@ -47,13 +48,8 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
     setIsDialogOpen(false);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const parsed = parse(e.target.value, dateFormat, new Date());
-    if (isValidDate(parsed)) {
-      setValue('simpleBinding', getSaveFormattedDateString(parsed, timeStamp));
-    } else {
-      setValue('simpleBinding', e.target.value ?? '');
-    }
+  const handleInputValueChange = (isoDateString: string) => {
+    setValue('simpleBinding', isoDateString);
   };
 
   const renderModal = (trigger: ReactNode, content: ReactNode) =>
@@ -109,15 +105,16 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
               id={id}
               value={value}
               isDialogOpen={isMobile ? modalRef.current?.open : isDialogOpen}
-              formatString={dateFormat}
-              onBlur={handleInputChange}
+              datepickerFormat={dateFormat}
+              timeStamp={timeStamp}
+              onValueChange={handleInputValueChange}
               onClick={() => (isMobile ? modalRef.current?.showModal() : setIsDialogOpen(!isDialogOpen))}
               readOnly={readOnly}
             />,
             <DatePickerCalendar
               id={id}
               locale={languageLocale}
-              selectedDate={selectedDate}
+              selectedDate={dayPickerDate}
               isOpen={isDialogOpen}
               onSelect={handleDayPickerSelect}
               minDate={calculatedMinDate}
@@ -128,7 +125,7 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
           )}
         </Grid>
         <span className={`${styles.formatText} no-visual-testing`}>
-          {langAsString('date_picker.format_text', [formatDate(new Date(), dateFormat, { locale: currentLocale })])}
+          {langAsString('date_picker.format_text', [formatDate(new Date(), dateFormat)])}
         </span>
       </div>
     </ComponentStructureWrapper>
