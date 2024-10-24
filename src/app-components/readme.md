@@ -6,6 +6,6 @@ They should implement three things:
 
 1. Receive and display data in the form of props.
 2. Report data changes in a callback.
-3. Report if the input is valid or not.
+3. Receive and display the validity of the data.
 
 These components will form the basis of our future component library, and will enable refactoring of the frontend app.

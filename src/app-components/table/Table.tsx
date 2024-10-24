@@ -54,21 +54,6 @@ function formatIfDate(value: unknown): string {
   return String(value);
 }
 
-/**
- * Generic Table component to display tabular data.
- *
- * @param title
- * @param description
- * @param helpText
- * @param accessibleTitle
- * @param data - Array of data objects.
- * @param columns - Configuration for table columns.
- * @param actionButtons - Optional action button config.
- * @param mobile
- * @param actionButtonHeader
- * @param size Size of table
- * @param zebra If true, the table will have zebra striping
- */
 export function AppTable<T extends object>({
   title,
   description,
