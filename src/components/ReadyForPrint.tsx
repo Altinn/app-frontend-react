@@ -73,7 +73,7 @@ async function waitForDataLoading(dataLoadingIsDone: DataLoading['isDone']) {
   let done: boolean = dataLoadingIsDone();
 
   while (!done) {
-    await new Promise((resolve) => window.requestIdleCallback(resolve));
+    await new Promise((resolve) => window.requestIdleCallback(resolve, { timeout: 100 }));
     done = dataLoadingIsDone();
   }
 }
