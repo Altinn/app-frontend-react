@@ -5,7 +5,7 @@ import { FilePdfIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/features/devtools/components/PDFPreviewButton/PDFPreview.module.css';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
-import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
+import { useCurrentTaskType } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useIsLocalOrStaging } from 'src/hooks/useIsDev';
 import { ProcessTaskType } from 'src/types';
@@ -18,7 +18,7 @@ export function PDFGeneratorPreview() {
   const [blobUrl, setBlobUrl] = React.useState<string | null>(null);
   const [errorText, setErrorText] = React.useState<string | null>(null);
 
-  const taskType = useTaskTypeFromBackend();
+  const taskType = useCurrentTaskType();
   const instanceId = useLaxInstanceId();
   const language = useCurrentLanguage();
   const isLocalOrStaging = useIsLocalOrStaging();

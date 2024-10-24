@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useSetReturnToView } from 'src/features/form/layout/PageNavigationContext';
-import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
+import { useCurrentTaskType, useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -25,7 +25,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const { langAsString } = useLanguage();
   const props: IButtonProvidedProps = { ...componentProps, ...item, node };
 
-  const currentTaskType = useTaskTypeFromBackend();
+  const currentTaskType = useCurrentTaskType();
   const { actions, write } = useLaxProcessData()?.currentTask || {};
   const { next, canSubmit, busyWithId, attachmentsPending } = useProcessNavigation() || {};
   const setReturnToView = useSetReturnToView();
