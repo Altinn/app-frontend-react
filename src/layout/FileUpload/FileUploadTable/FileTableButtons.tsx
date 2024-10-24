@@ -76,9 +76,9 @@ export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpe
     >
       <Button
         className={classes.button}
-        size='small'
+        size='sm'
         variant='tertiary'
-        color={showEditButton ? 'second' : 'danger'}
+        color={showEditButton ? 'neutral' : 'danger'}
         onClick={() => (showEditButton ? handleEdit(index) : handleDelete())}
         data-testid={`attachment-delete-${index}`}
         aria-label={langAsString(showEditButton ? 'general.edit_alt' : 'general.delete')}

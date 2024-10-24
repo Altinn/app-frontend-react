@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Link, List } from '@digdir/designsystemet-react';
+import { Heading, Link, List } from '@digdir/designsystemet-react';
 
 import classes from 'src/components/atoms/AltinnAttachment.module.css';
 import { Lang } from 'src/features/language/Lang';
@@ -24,14 +24,14 @@ export function AltinnAttachment({ attachments, id, title }: IAltinnAttachmentPr
     ?.filter((attachment) => attachment.name)
     .sort((a, b) => (a.name && b.name ? a.name.localeCompare(b.name, selectedLanguage, { numeric: true }) : 0));
   return (
-    <List.Root
+    <div
       id={id}
       data-testid='attachment-list'
     >
       {title && (
-        <List.Heading>
+        <Heading>
           <Lang id={title} />
-        </List.Heading>
+        </Heading>
       )}
       <List.Unordered className={classes.attachmentList}>
         {filteredAndSortedAttachments?.map((attachment, index) => (
@@ -51,6 +51,6 @@ export function AltinnAttachment({ attachments, id, title }: IAltinnAttachmentPr
           </List.Item>
         ))}
       </List.Unordered>
-    </List.Root>
+    </div>
   );
 }

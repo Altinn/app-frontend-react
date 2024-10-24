@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ErrorMessage } from '@digdir/designsystemet-react';
+import { ValidationMessage } from '@digdir/designsystemet-react';
 import { Typography } from '@material-ui/core';
 import cn from 'classnames';
 
@@ -83,13 +83,13 @@ export function MapSummary({ componentNode, emptyFieldText, isCompact }: MapSumm
         </Typography>
       )}
       {errors?.map(({ message }) => (
-        <ErrorMessage key={message.key}>
+        <ValidationMessage key={message.key}>
           <Lang
             id={message.key}
             params={message.params}
             node={componentNode}
           ></Lang>
-        </ErrorMessage>
+        </ValidationMessage>
       ))}
     </div>
   );

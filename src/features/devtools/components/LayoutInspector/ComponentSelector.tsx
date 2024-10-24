@@ -132,7 +132,7 @@ export function ComponentSelector({ type }: ComponentSelectorProps) {
       size='sm'
       onClick={toggle}
       variant={active ? 'primary' : 'tertiary'}
-      color='second'
+      color='neutral'
       style={{
         marginTop: -10,
         marginBottom: -10,

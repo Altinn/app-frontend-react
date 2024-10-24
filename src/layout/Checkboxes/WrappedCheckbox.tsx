@@ -53,14 +53,14 @@ export function WrappedCheckbox({ id, option, hideLabel, alertOnChange, checked,
         description={option.description && <Lang id={option.description} />}
         value={option.value}
         checked={checked}
-        size='small'
+        size='sm'
         onChange={(e) => handleChange(e.target.checked)}
       >
         {
           <span className={cn({ 'sr-only': hideLabel }, classes.checkboxLabelContainer)}>
             {langAsString(option.label)}
             {option.helpText && (
-              <HelpText title={elementAsString(option.helpText)}>
+              <HelpText aria-label={elementAsString(option.helpText)}>
                 <Lang id={option.helpText} />
               </HelpText>
             )}

@@ -67,8 +67,8 @@ export const NavBar = ({ type }: INavBarProps) => {
             className={classes.buttonMargin}
             onClick={handleBackArrowButton}
             variant='tertiary'
-            color='second'
-            size='small'
+            color='neutral'
+            size='sm'
             aria-label={langAsString('general.back')}
             icon={true}
           >
@@ -88,8 +88,8 @@ export const NavBar = ({ type }: INavBarProps) => {
             className={cn(classes.buttonMargin, { [classes.hideExpandButtonMaxWidth]: !expandedWidth })}
             onClick={toggleExpandedWidth}
             variant='tertiary'
-            color='second'
-            size='small'
+            color='neutral'
+            size='sm'
             aria-label={langAsString('general.expand_form')}
             icon={true}
           >
@@ -114,8 +114,8 @@ export const NavBar = ({ type }: INavBarProps) => {
             className={classes.buttonMargin}
             onClick={handleModalCloseButton}
             variant='tertiary'
-            color='second'
-            size='small'
+            color='neutral'
+            size='sm'
             aria-label={langAsString('general.close_schema')}
             icon={true}
           >

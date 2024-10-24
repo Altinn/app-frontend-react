@@ -15,8 +15,8 @@ import type { LinkStyle } from 'src/layout/Link/config.generated';
 export const buttonStyles: {
   [style in Exclude<LinkStyle, 'link'>]: { color: ButtonColor; variant: ButtonVariant };
 } = {
-  primary: { variant: 'primary', color: 'success' },
-  secondary: { variant: 'secondary', color: 'first' },
+  primary: { variant: 'primary', color: 'accent' }, //success
+  secondary: { variant: 'secondary', color: 'accent' }, //first
 };
 
 export type ILinkComponent = PropsFromGenericComponent<'Link'>;
@@ -48,7 +48,7 @@ export function LinkComponent({ node }: ILinkComponent) {
       style={style}
       color={buttonStyles[linkStyle].color}
       variant={buttonStyles[linkStyle].variant}
-      size='small'
+      size='sm'
       onClick={LinkButtonOnClick()}
     >
       <Lang id={textResourceBindings?.title} />

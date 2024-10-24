@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ErrorMessage, Label, Paragraph } from '@digdir/designsystemet-react';
+import { Label, Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
@@ -70,13 +70,13 @@ export const SingleValueSummary = ({
     {errors &&
       errors?.length > 0 &&
       errors?.map(({ message }) => (
-        <ErrorMessage key={message.key}>
+        <ValidationMessage key={message.key}>
           <Lang
             id={message.key}
             params={message.params}
             node={componentNode}
           ></Lang>
-        </ErrorMessage>
+        </ValidationMessage>
       ))}
   </div>
 );

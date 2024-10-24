@@ -81,9 +81,13 @@ Altinn, and making sure they are consistent. */
   background-color: var(--repeating-group-error-color) !important;
 }
 
-.addButton {
+.addButtonWrapper {
   width: 100%;
   margin-bottom: var(--fds-spacing-2);
+}
+
+.addButton {
+  width: 100%;
 }
 
 .emptyField {

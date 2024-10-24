@@ -25,7 +25,7 @@ interface Props extends ButtonProps {
 export const WrappedButton = ({
   nodeId,
   variant = 'secondary',
-  color = 'first',
+  color = 'accent',
   onClick,
   children,
   busyWithId,
@@ -45,7 +45,7 @@ export const WrappedButton = ({
       <ButtonLoader isLoading={thisIsLoading}>
         <Button
           data-is-loading={thisIsLoading ? 'true' : 'false'}
-          size='small'
+          size='sm'
           variant={variant}
           color={color}
           onClick={handleClick}

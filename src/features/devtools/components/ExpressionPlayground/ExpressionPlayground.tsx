@@ -186,7 +186,7 @@ export const ExpressionPlayground = () => {
           {outputs.length > 1 && (
             <div className={classes.outputs}>
               <Tabs
-                size='small'
+                size='sm'
                 value={activeOutputTab}
                 onChange={(outputName) => {
                   setActiveOutputTab(outputName);
@@ -208,7 +208,7 @@ export const ExpressionPlayground = () => {
                 {outputs.map((output, i) => {
                   const { key, value } = getTabKeyAndValue(i, output);
                   return (
-                    <Tabs.Content
+                    <Tabs.Panel
                       value={value}
                       key={key}
                     >
@@ -219,7 +219,7 @@ export const ExpressionPlayground = () => {
                         value={output.value}
                         placeholder={'Resultatet av uttrykket vises her'}
                       />
-                    </Tabs.Content>
+                    </Tabs.Panel>
                   );
                 })}
               </Tabs>

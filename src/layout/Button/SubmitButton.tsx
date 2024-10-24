@@ -6,7 +6,7 @@ import type { ButtonProps } from 'src/layout/Button/WrappedButton';
 export const SubmitButton = ({ children, ...props }: ButtonProps) => (
   <WrappedButton
     {...props}
-    color='success'
+    color='accent' //success
     variant='primary'
   >
     {children}

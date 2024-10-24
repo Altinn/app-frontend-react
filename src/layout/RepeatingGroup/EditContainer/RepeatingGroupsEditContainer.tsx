@@ -129,7 +129,7 @@ function RepeatingGroupsEditContainerInternal({
             <Button
               variant='tertiary'
               color='danger'
-              size='small'
+              size='sm'
               disabled={isDeleting(editId)}
               onClick={() => deleteRow({ index: row.index, uuid: row.uuid })}
               data-testid='delete-button'
@@ -182,9 +182,9 @@ function RepeatingGroupsEditContainerInternal({
               {hasPrevMultiPage && (
                 <Grid item={true}>
                   <Button
-                    size='small'
+                    size='sm'
                     variant='tertiary'
-                    color='second'
+                    color='neutral'
                     onClick={() => prevMultiPage()}
                     disabled={!isFresh}
                   >
@@ -199,9 +199,9 @@ function RepeatingGroupsEditContainerInternal({
               {hasNextMultiPage && (
                 <Grid item={true}>
                   <Button
-                    size='small'
+                    size='sm'
                     variant='tertiary'
-                    color='second'
+                    color='neutral'
                     onClick={() => nextMultiPage()}
                     disabled={!isFresh}
                   >
@@ -226,8 +226,8 @@ function RepeatingGroupsEditContainerInternal({
                   id={`next-button-grp-${id}`}
                   onClick={() => openNextForEditing()}
                   variant='primary'
-                  color='first'
-                  size='small'
+                  color='accent'
+                  size='sm'
                   disabled={!isFresh}
                 >
                   <Lang id={texts?.save_and_next_button ? texts?.save_and_next_button : 'general.save_and_next'} />
@@ -240,8 +240,8 @@ function RepeatingGroupsEditContainerInternal({
                   id={`save-button-${id}`}
                   onClick={() => closeForEditing({ index: row.index, uuid: row.uuid })}
                   variant={saveAndNextButtonVisible ? 'secondary' : 'primary'}
-                  color='first'
-                  size='small'
+                  color='accent'
+                  size='sm'
                   disabled={!isFresh}
                 >
                   <Lang id={texts?.save_button ? texts?.save_button : 'general.save_and_close'} />
