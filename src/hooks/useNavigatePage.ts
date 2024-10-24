@@ -55,20 +55,22 @@ const useNavigate = () => {
   const setSummaryNodeOfOrigin = useSetSummaryNodeOfOrigin();
   const navigate = useCtxNavigate();
 
-  return useCallback(
-    (path: string, ourOptions?: NavigateToPageOptions, theirOptions?: NavigateOptions, cb?: NavigationEffectCb) => {
-      const resetReturnToView = ourOptions?.resetReturnToView ?? true;
-      if (resetReturnToView) {
-        setReturnToView?.(undefined);
-        setSummaryNodeOfOrigin?.(undefined);
-      }
-      if (cb) {
-        storeCallback(cb);
-      }
-      navigate(path, theirOptions);
-    },
-    [setReturnToView, storeCallback, setSummaryNodeOfOrigin, navigate],
-  );
+  return (
+    path: string,
+    ourOptions?: NavigateToPageOptions,
+    theirOptions?: NavigateOptions,
+    cb?: NavigationEffectCb,
+  ) => {
+    const resetReturnToView = ourOptions?.resetReturnToView ?? true;
+    if (resetReturnToView) {
+      setReturnToView?.(undefined);
+      setSummaryNodeOfOrigin?.(undefined);
+    }
+    if (cb) {
+      storeCallback(cb);
+    }
+    navigate(path, theirOptions);
+  };
 };
 
 export const useCurrentView = () => useNavigationParam('pageKey');
@@ -88,17 +90,6 @@ export const usePageOrder = () => {
     () => orderWithHidden?.filter((page) => !hiddenPages.has(page) && !hiddenFromPdf.has(page)),
     [orderWithHidden, hiddenPages, hiddenFromPdf],
   );
-};
-
-export const useIsCurrentTask = () => {
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-  const taskId = useNavigationParam('taskId');
-  return useMemo(() => {
-    if (currentTaskId === undefined && taskId === TaskKeys.CustomReceipt) {
-      return true;
-    }
-    return currentTaskId === taskId;
-  }, [currentTaskId, taskId]);
 };
 
 export const usePreviousPageKey = () => {
@@ -251,18 +242,15 @@ export function useNavigatePage() {
     [isStatelessApp, maybeSaveOnPageChange, navParams, navigate, order, queryKeysRef],
   );
 
-  const navigateToTask = useCallback(
-    (newTaskId?: string, options?: NavigateOptions & { runEffect?: boolean }) => {
-      const { runEffect = true } = options ?? {};
-      const { partyId, instanceGuid, taskId } = navParams.current;
-      if (newTaskId === taskId) {
-        return;
-      }
-      const url = `/instance/${partyId}/${instanceGuid}/${newTaskId ?? lastTaskId}${queryKeysRef.current}`;
-      navigate(url, undefined, options, runEffect ? () => focusMainContent(options) : undefined);
-    },
-    [lastTaskId, navParams, navigate, queryKeysRef],
-  );
+  function navigateToTask(newTaskId?: string, options?: NavigateOptions & { runEffect?: boolean }) {
+    const { runEffect = true } = options ?? {};
+    const { partyId, instanceGuid, taskId } = navParams.current;
+    if (newTaskId === taskId) {
+      return;
+    }
+    const url = `/instance/${partyId}/${instanceGuid}/${newTaskId ?? lastTaskId}${queryKeysRef.current}`;
+    navigate(url, undefined, options, runEffect ? () => focusMainContent(options) : undefined);
+  }
 
   const isValidTaskId = useCallback(
     (taskId?: string) => {

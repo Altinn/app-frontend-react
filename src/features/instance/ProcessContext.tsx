@@ -39,23 +39,18 @@ export function ProcessProvider({ children, instanceId }: PropsWithChildren<{ in
   const { isLoading, data, error, refetch } = useQuery<IProcess, HttpClientError>(getProcessQueryDef(instanceId));
 
   useEffect(() => {
-    const elementId = data?.currentTask?.elementId;
-    if (data?.ended) {
-      const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
-      if (hasCustomReceipt) {
-        navigateToTask(TaskKeys.CustomReceipt);
-      } else {
-        navigateToTask(TaskKeys.ProcessEnd);
-      }
-    } else if (elementId && elementId !== taskId) {
-      navigateToTask(elementId, { replace: true, runEffect: taskId !== undefined });
-    }
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
-
-  useEffect(() => {
     error && window.logError('Fetching process state failed:\n', error);
   }, [error]);
+
+  const elementId = data?.currentTask?.elementId;
+  if (data?.ended) {
+    const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
+    hasCustomReceipt ? navigateToTask(TaskKeys.CustomReceipt) : navigateToTask(TaskKeys.ProcessEnd);
+  }
+
+  if (elementId && elementId !== taskId) {
+    navigateToTask(elementId, { replace: true, runEffect: taskId !== undefined });
+  }
 
   if (isLoading) {
     return <Loader reason='fetching-process' />;

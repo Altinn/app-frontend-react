@@ -22,7 +22,7 @@ import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useNavigate, useNavigationParam, useQueryKeysAsString } from 'src/features/routing/AppRoutingContext';
-import { TaskKeys, useIsCurrentTask, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
+import { TaskKeys, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
@@ -102,13 +102,13 @@ export const ProcessWrapper = () => {
   const layoutSets = useLayoutSets();
   const dataModelGuid = useCurrentDataModelGuid();
 
-  const taskId = useNavigationParam('taskId');
-  const taskType = useGetTaskTypeByTaskId()(taskId);
+  const taskIdParam = useNavigationParam('taskId');
+  const taskType = useGetTaskTypeByTaskId()(taskIdParam);
 
   const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
-  const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid && taskId === TaskKeys.CustomReceipt;
+  const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid && taskIdParam === TaskKeys.CustomReceipt;
 
-  if (!isValidTaskId(taskId)) {
+  if (!isValidTaskId(taskIdParam)) {
     return (
       <PresentationComponent type={taskType}>
         <InvalidTaskIdPage />
@@ -116,7 +116,7 @@ export const ProcessWrapper = () => {
     );
   }
 
-  if (!isCurrentTask && taskId !== TaskKeys.ProcessEnd) {
+  if (!isCurrentTask && taskIdParam !== TaskKeys.ProcessEnd) {
     return (
       <PresentationComponent type={taskType}>
         <NotCurrentTaskPage />
@@ -223,3 +223,12 @@ export const ComponentRouting = () => {
   // If node exists but does not implement sub routing
   throw new Error(`Component ${componentId} does not have subRouting`);
 };
+
+function useIsCurrentTask() {
+  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const taskId = useNavigationParam('taskId');
+  if (currentTaskId === undefined && taskId === TaskKeys.CustomReceipt) {
+    return true;
+  }
+  return currentTaskId === taskId;
+}
