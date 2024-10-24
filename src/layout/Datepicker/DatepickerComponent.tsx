@@ -38,13 +38,13 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');
-  const dateFormat = getDateFormat(format || 'dd.MM.yyyy', languageLocale);
+  const dateFormat = getDateFormat(format, languageLocale);
   const isMobile = useIsMobile();
 
   const { setValue, formData } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding;
   const dateValue = strictParseISO(value);
-  const dayPickerDate = dateValue && isValidDate(dateValue) ? dateValue : new Date();
+  const dayPickerDate = dateValue ? dateValue : new Date();
 
   const handleDayPickerSelect = (date: Date) => {
     if (date && isValidDate(date)) {

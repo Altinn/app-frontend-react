@@ -1,4 +1,5 @@
 import React, { forwardRef, useEffect, useState } from 'react';
+import { PatternFormat } from 'react-number-format';
 import type { RefObject } from 'react';
 
 import { Button, Textfield } from '@digdir/designsystemet-react';
@@ -8,6 +9,7 @@ import { format, isValid } from 'date-fns';
 import { useLanguage } from 'src/features/language/useLanguage';
 import styles from 'src/layout/Datepicker/Calendar.module.css';
 import { getSaveFormattedDateString, strictParseFormat, strictParseISO } from 'src/utils/dateHelpers';
+import { getFormatDisplay, getFormatPattern } from 'src/utils/formatDateLocale';
 
 export interface DatePickerInputProps {
   id: string;
@@ -25,8 +27,10 @@ export const DatePickerInput = forwardRef(
     { id, value, formatString, timeStamp, onValueChange, isDialogOpen, readOnly, onClick }: DatePickerInputProps,
     ref: RefObject<HTMLButtonElement>,
   ) => {
-    const dateValue = value ? strictParseISO(value) : undefined;
-    const formattedDateValue = dateValue && isValid(dateValue) ? format(dateValue, formatString) : value;
+    const formatDisplay = getFormatDisplay(formatString);
+    const formatPattern = getFormatPattern(formatDisplay);
+    const dateValue = strictParseISO(value);
+    const formattedDateValue = dateValue ? format(dateValue, formatString) : value;
     const [inputValue, setInputValue] = useState(formattedDateValue ?? '');
 
     useEffect(() => {
@@ -53,12 +57,15 @@ export const DatePickerInput = forwardRef(
 
     return (
       <div className={styles.calendarInputWrapper}>
-        <Textfield
+        <PatternFormat
+          format={formatPattern}
+          customInput={Textfield}
+          mask='_'
           className={styles.calendarInput}
           type='text'
           id={id}
           value={inputValue}
-          placeholder={formatString}
+          placeholder={formatDisplay}
           onChange={handleChange}
           onBlur={saveValue}
           readOnly={readOnly}

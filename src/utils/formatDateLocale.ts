@@ -114,6 +114,28 @@ export function formatDateLocale(localeStr: string, date: Date, unicodeFormat?: 
   }, '');
 }
 
+export function getFormatDisplay(unicodeFormat: string): string {
+  const tokens = unicodeFormat.split(UNICODE_TOKENS) as Token[];
+  const separators: Separator[] = unicodeFormat.match(UNICODE_TOKENS) ?? [];
+
+  return tokens.reduce((acc, token: Token, index) => {
+    if (['y', 'yy', 'yyy', 'yyyy', 'u', 'uu', 'uuu', 'uuuu'].includes(token)) {
+      return `${acc}YYYY${separators?.[index] ?? ''}`;
+    }
+    if (['M', 'MM', 'MMM', 'MMMM', 'MMMMM'].includes(token)) {
+      return `${acc}MM${separators?.[index] ?? ''}`;
+    }
+    if (['d', 'dd'].includes(token)) {
+      return `${acc}DD${separators?.[index] ?? ''}`;
+    }
+    return acc;
+  }, '');
+}
+
+export function getFormatPattern(formatDisplay: string): string {
+  return formatDisplay.replaceAll(/D|M|Y/g, '#');
+}
+
 function selectPartToUse(parts: Intl.DateTimeFormatPart[], token: Token) {
   if (['G', 'GG', 'GGG', 'GGGG', 'GGGGG'].includes(token)) {
     return parts.find((part) => part.type === 'era');
