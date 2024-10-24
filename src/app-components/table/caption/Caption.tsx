@@ -54,14 +54,14 @@ export const Caption = ({
           readOnly={false}
           required={required}
         />
-        {helpText && (
-          <HelpTextContainer
-            helpText={helpText.text}
-            title={helpText.accessibleTitle}
-          />
-        )}
       </div>
     </DesignsystemetLabel>
+    {helpText && (
+      <HelpTextContainer
+        helpText={helpText.text}
+        title={helpText.accessibleTitle}
+      />
+    )}
     {description && (
       <Description
         className={classes.description}

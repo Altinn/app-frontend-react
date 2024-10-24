@@ -341,7 +341,6 @@ function makeActions(
       }),
     setLeafValue: ({ reference, newValue, ...rest }) =>
       set((state) => {
-        // debugger;
         if (state.dataModels[reference.dataType].readonly) {
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
@@ -468,7 +467,6 @@ function makeActions(
 
     setMultiLeafValues: ({ changes, ...rest }) =>
       set((state) => {
-        // debugger;
         const changedTypes = new Set<string>();
         for (const { reference, newValue } of changes) {
           if (state.dataModels[reference.dataType].readonly) {
