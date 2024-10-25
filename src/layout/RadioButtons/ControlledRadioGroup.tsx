@@ -91,7 +91,6 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
               readOnly={readOnly}
               onChange={handleChange}
               hideLabel={hideLabel}
-              size='sm'
               alertOnChange={alertOnChange}
               alertText={alertText}
               confirmChangeText={confirmChangeText}

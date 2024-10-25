@@ -57,16 +57,16 @@ Altinn, and making sure they are consistent. */
 }
 
 .nestedTable {
-  background-color: var(--fds-semantic-surface-neutral-default);
+  background-color: var(--ds-semantic-surface-neutral-default);
 }
 
 .nestedTable > thead > tr > th {
-  /*background-color: var(--fds-semantic-background-subtle);*/
+  /*background-color: var(--ds-semantic-background-subtle);*/
   background-color: #f5f5f5;
 }
 
 .nestedTable thead:not(:first-of-type) th {
-  /*border-top: 2px solid var(--fds-semantic-border-divider-default);*/
+  /*border-top: 2px solid var(--ds-semantic-border-divider-default);*/
   border-top: 1px solid #dde3e5; /* Remove this and uncomment the line above when adjusting the new table component*/
 }
 

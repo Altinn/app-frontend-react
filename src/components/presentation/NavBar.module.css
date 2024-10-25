@@ -15,7 +15,7 @@
 }
 
 .buttonMargin {
-  margin-top: calc(2 * var(--fds-focus-border-width));
+  margin-top: calc(2 * var(--ds-focus-border-width));
 }
 
 @media only screen and (max-width: 1200px) {

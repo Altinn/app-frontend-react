@@ -18,7 +18,7 @@ Altinn, and making sure they are consistent. */
 }
 
 .likertTable thead th {
-  background-color: var(--fds-colors-grey-100);
+  background-color: var(--ds-colors-grey-100);
 }
 
 .likertTable tr:not(:last-of-type) td {
@@ -47,7 +47,7 @@ Altinn, and making sure they are consistent. */
 
 .likertHeading {
   text-align: left;
-  padding-bottom: var(--fds-spacing-4);
+  padding-bottom: var(--ds-spacing-4);
 }
 
 .likertMobileGroup {

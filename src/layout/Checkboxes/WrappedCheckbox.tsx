@@ -53,7 +53,6 @@ export function WrappedCheckbox({ id, option, hideLabel, alertOnChange, checked,
         description={option.description && <Lang id={option.description} />}
         value={option.value}
         checked={checked}
-        size='sm'
         onChange={(e) => handleChange(e.target.checked)}
       >
         {

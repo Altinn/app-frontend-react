@@ -246,7 +246,7 @@ function _RepeatingGroupTableRow({
                   aria-expanded={isEditingRow}
                   aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
                   variant='tertiary'
-                  color='neutral'
+                  color='accent'
                   size='sm'
                   onClick={() => toggleEditing({ index: row.index, uuid: row.uuid })}
                   aria-label={`${editButtonText} ${firstCellData ?? ''}`}
@@ -305,7 +305,7 @@ function _RepeatingGroupTableRow({
                 aria-expanded={isEditingRow}
                 aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
                 variant='tertiary'
-                color='neutral'
+                color='accent'
                 size='sm'
                 icon={!isEditingRow && mobileViewSmall}
                 onClick={() => toggleEditing({ index, uuid })}

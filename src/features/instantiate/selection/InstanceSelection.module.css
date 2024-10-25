@@ -51,7 +51,7 @@ Altinn, and making sure they are consistent. */
   background-color: #f5f5f5; /* Remove this when upgrading to the new design system component look*/
 }
 tr.tableFooter:hover {
-  background-color: var(--fds-semantic-background-subtle);
+  background-color: var(--ds-semantic-background-subtle);
 }
 
 .startNewButtonContainer {

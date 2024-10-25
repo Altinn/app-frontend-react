@@ -83,7 +83,7 @@ Altinn, and making sure they are consistent. */
 
 .addButtonWrapper {
   width: 100%;
-  margin-bottom: var(--fds-spacing-2);
+  margin-bottom: var(--ds-spacing-2);
 }
 
 .addButton {

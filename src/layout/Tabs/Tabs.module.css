@@ -2,8 +2,8 @@
   background-color: white;
   display: flex;
   flex-direction: column;
-  gap: var(--fds-spacing-6);
+  gap: var(--ds-spacing-6);
 }
 .icon {
-  width: var(--fds-sizing-6);
+  width: var(--ds-sizing-6);
 }

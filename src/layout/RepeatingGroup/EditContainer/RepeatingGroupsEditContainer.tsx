@@ -184,7 +184,7 @@ function RepeatingGroupsEditContainerInternal({
                   <Button
                     size='sm'
                     variant='tertiary'
-                    color='neutral'
+                    color='accent'
                     onClick={() => prevMultiPage()}
                     disabled={!isFresh}
                   >
@@ -201,7 +201,7 @@ function RepeatingGroupsEditContainerInternal({
                   <Button
                     size='sm'
                     variant='tertiary'
-                    color='neutral'
+                    color='accent'
                     onClick={() => nextMultiPage()}
                     disabled={!isFresh}
                   >

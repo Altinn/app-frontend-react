@@ -1,14 +1,13 @@
 .groupContainer {
-  color: var(--semantic-text-neutral-subtle);
   display: flex;
   flex-direction: column;
-  gap: var(--fds-spacing-6);
+  gap: var(--ds-spacing-6);
 }
 
 .nested {
-  border-width: var(--fds-border_width-default);
-  border-radius: var(--fds-border_radius-medium);
-  border-color: var(--fds-semantic-border-neutral-default);
+  border-width: var(--ds-border_width-default);
+  border-radius: var(--ds-border-radius-md);
+  border-color: var(--ds-color-neutral-border-default);
   border-style: dashed;
-  padding: var(--fds-spacing-6) var(--fds-spacing-4);
+  padding: var(--ds-spacing-6) var(--ds-spacing-4);
 }
