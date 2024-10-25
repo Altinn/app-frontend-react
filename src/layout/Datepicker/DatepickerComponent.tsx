@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import React, { useState } from 'react';
 
-import { Modal, Popover } from '@digdir/designsystemet-react';
+import { Button } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
+import { CalendarIcon } from '@navikt/aksel-icons';
 import { formatDate, isValid as isValidDate } from 'date-fns';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
@@ -12,6 +12,7 @@ import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import styles from 'src/layout/Datepicker/Calendar.module.css';
 import { DatePickerCalendar } from 'src/layout/Datepicker/DatePickerCalendar';
+import { DatePickerDialog } from 'src/layout/Datepicker/DatepickerDialog';
 import { DatePickerInput } from 'src/layout/Datepicker/DatePickerInput';
 import { getDateConstraint, getDateFormat, getSaveFormattedDateString, strictParseISO } from 'src/utils/dateHelpers';
 import { getDatepickerFormat } from 'src/utils/formatDateLocale';
@@ -26,9 +27,7 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
   const { langAsString } = useLanguage();
   const languageLocale = useCurrentLanguage();
   const { minDate, maxDate, format, timeStamp = true, readOnly, required, id, dataModelBindings } = useNodeItem(node);
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const modalRef = useRef<HTMLDialogElement>(null);
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');
@@ -44,50 +43,12 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
     if (date && isValidDate(date)) {
       setValue('simpleBinding', getSaveFormattedDateString(date, timeStamp));
     }
-    modalRef.current?.close();
     setIsDialogOpen(false);
   };
 
   const handleInputValueChange = (isoDateString: string) => {
     setValue('simpleBinding', isoDateString);
   };
-
-  const renderModal = (trigger: ReactNode, content: ReactNode) =>
-    isMobile ? (
-      <>
-        {trigger}
-        <Modal
-          role='dialog'
-          ref={modalRef}
-          onInteractOutside={() => modalRef.current?.close()}
-          style={{ width: 'fit-content', minWidth: 'fit-content' }}
-        >
-          <Modal.Content>{content}</Modal.Content>
-        </Modal>
-      </>
-    ) : (
-      <Popover
-        portal={false}
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        size='lg'
-        placement='top'
-      >
-        <Popover.Trigger
-          onClick={() => setIsDialogOpen(!isDialogOpen)}
-          asChild={true}
-        >
-          {trigger}
-        </Popover.Trigger>
-        <Popover.Content
-          className={styles.calendarWrapper}
-          aria-modal
-          autoFocus={true}
-        >
-          {content}
-        </Popover.Content>
-      </Popover>
-    );
 
   return (
     <ComponentStructureWrapper
@@ -100,29 +61,49 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
           item
           xs={12}
         >
-          {renderModal(
+          <div className={styles.calendarInputWrapper}>
             <DatePickerInput
               id={id}
               value={value}
-              isDialogOpen={isMobile ? modalRef.current?.open : isDialogOpen}
               datepickerFormat={dateFormat}
               timeStamp={timeStamp}
               onValueChange={handleInputValueChange}
-              onClick={() => (isMobile ? modalRef.current?.showModal() : setIsDialogOpen(!isDialogOpen))}
               readOnly={readOnly}
-            />,
-            <DatePickerCalendar
-              id={id}
-              locale={languageLocale}
-              selectedDate={dayPickerDate}
-              isOpen={isDialogOpen}
-              onSelect={handleDayPickerSelect}
-              minDate={calculatedMinDate}
-              maxDate={calculatedMaxDate}
-              required={required}
-              autoFocus={isMobile}
-            />,
-          )}
+            />
+            <DatePickerDialog
+              isDialogOpen={isDialogOpen}
+              setIsDialogOpen={setIsDialogOpen}
+              trigger={
+                <Button
+                  id={`${id}-button`}
+                  variant='tertiary'
+                  icon={true}
+                  aria-controls='dialog'
+                  aria-haspopup='dialog'
+                  onClick={() => setIsDialogOpen(!isDialogOpen)}
+                  aria-expanded={isDialogOpen}
+                  aria-label={langAsString('date_picker.aria_label_icon')}
+                  disabled={readOnly}
+                  color='first'
+                  size='small'
+                >
+                  <CalendarIcon title={langAsString('date_picker.aria_label_icon')} />
+                </Button>
+              }
+            >
+              <DatePickerCalendar
+                id={id}
+                locale={languageLocale}
+                selectedDate={dayPickerDate}
+                isOpen={isDialogOpen}
+                onSelect={handleDayPickerSelect}
+                minDate={calculatedMinDate}
+                maxDate={calculatedMaxDate}
+                required={required}
+                autoFocus={isMobile}
+              />
+            </DatePickerDialog>
+          </div>
         </Grid>
         <span className={`${styles.formatText} no-visual-testing`}>
           {langAsString('date_picker.format_text', [formatDate(new Date(), dateFormat)])}
