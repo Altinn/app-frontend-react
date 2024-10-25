@@ -399,9 +399,6 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
-
-        console.log('statedataModels', state.dataModels);
-
         const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
         if (index >= existingValue.length) {
           return;
