@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 
 import { Pagination, Table, usePagination } from '@digdir/designsystemet-react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
@@ -64,10 +63,14 @@ function _RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationP
     return null;
   }
 
-  const onChange = async (pageNumber: number) => {
+  const onChange = async () => {
     const prevScrollPosition = getScrollPosition();
-    await changePage(pageNumber - 1);
+    //await changePage(pageNumber - 1);
     resetScrollPosition(prevScrollPosition);
+  };
+
+  const setCurrentPage = (pagenumber: number) => {
+    changePage(pagenumber - 1);
   };
 
   return (
@@ -90,6 +93,7 @@ function _RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationP
         totalPages={totalPages}
         pagesWithErrors={pagesWithErrors}
         onChange={() => onChange}
+        setCurrentPage={setCurrentPage}
         compact={isTablet}
         hideLabels={isMobile}
         size={isMini ? 'sm' : 'md'}
@@ -107,13 +111,9 @@ type PaginationComponentProps = {
   currentPage: number;
   totalPages: number;
   pagesWithErrors: number[];
-} & React.HTMLAttributes<HTMLElement>;
-
-const iconSize = {
-  small: '1rem',
-  medium: '1.5rem',
-  large: '2rem',
-};
+  setCurrentPage: (pageNumber: number) => void;
+  onChange: Parameters<typeof Pagination>[0]['onChange'];
+} & Omit<React.HTMLAttributes<HTMLElement>, 'onChange'>;
 
 function PaginationComponent({
   nextTextKey,
@@ -124,13 +124,15 @@ function PaginationComponent({
   currentPage,
   totalPages,
   pagesWithErrors,
+  setCurrentPage,
   onChange,
   ...rest
 }: PaginationComponentProps) {
   const { pages, prevButtonProps, nextButtonProps, hasPrev, hasNext } = usePagination({
-    onChange,
+    setCurrentPage,
     currentPage,
     totalPages,
+    onChange,
   });
   const { langAsString } = useLanguage();
 
@@ -150,10 +152,6 @@ function PaginationComponent({
             aria-label={previousLabel}
             {...prevButtonProps}
           >
-            <ChevronLeftIcon
-              aria-hidden
-              fontSize={iconSize[size]}
-            />
             {!hideLabels && previousLabel}
           </Pagination.Button>
         </Pagination.Item>
@@ -183,10 +181,6 @@ function PaginationComponent({
             {...nextButtonProps}
           >
             {!hideLabels && nextLabel}
-            <ChevronRightIcon
-              aria-hidden
-              fontSize={iconSize[size]}
-            />
           </Pagination.Button>
         </Pagination.Item>
       </Pagination.List>
