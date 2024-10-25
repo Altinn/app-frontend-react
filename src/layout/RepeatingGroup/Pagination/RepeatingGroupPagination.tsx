@@ -65,7 +65,6 @@ function _RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationP
 
   const onChange = async () => {
     const prevScrollPosition = getScrollPosition();
-    //await changePage(pageNumber - 1);
     resetScrollPosition(prevScrollPosition);
   };
 
