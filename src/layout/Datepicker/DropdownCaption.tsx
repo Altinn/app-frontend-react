@@ -124,11 +124,20 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
  */
 function scrollToIfSelected(selected: boolean) {
   return selected
-    ? (el: HTMLButtonElement) => {
-        if (el && !el.getAttribute('data-scroll') && el.parentElement) {
+    ? (el: HTMLButtonElement | null) => {
+        if (
+          el &&
+          el.parentElement &&
+          // The option list seems to first render with unbounded height and later rendering with scroll-bars, we need to check again when the height changes
+          el.getAttribute('data-scroll-element-height') !== `${el.parentElement.clientHeight}`
+        ) {
           el.parentElement.scrollTop = el.offsetTop;
-          if (el.offsetTop == 0 || (el.offsetTop > 0 && el.parentElement.scrollTop > 0)) {
-            el.setAttribute('data-scroll', 'true');
+          if (
+            el.offsetTop == 0 || // no scrolling necessary
+            el.parentElement.scrollHeight - el.parentElement.clientHeight == 0 || // container does not have scroll-bars
+            (el.offsetTop > 0 && el.parentElement.scrollTop > 0) // check that we have actually scrolled
+          ) {
+            el.setAttribute('data-scroll-element-height', `${el.parentElement.clientHeight}`);
           }
         }
       }
