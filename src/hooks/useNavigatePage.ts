@@ -91,17 +91,6 @@ export const usePageOrder = () => {
   );
 };
 
-export const useIsCurrentTask = () => {
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-  const taskId = useNavigationParam('taskId');
-  return useMemo(() => {
-    if (currentTaskId === undefined && taskId === TaskKeys.CustomReceipt) {
-      return true;
-    }
-    return currentTaskId === taskId;
-  }, [currentTaskId, taskId]);
-};
-
 export const usePreviousPageKey = () => {
   const order = usePageOrder();
 

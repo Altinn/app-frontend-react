@@ -51,6 +51,9 @@ export function ProcessProvider({ children, instanceId }: PropsWithChildren<{ in
 
   const currentProcessTaskId = process?.currentTask?.elementId;
   if (currentProcessTaskId && currentProcessTaskId !== taskIdParam) {
+    window.logWarn('Task id does not match current task from process data.');
+    window.logWarn(`Navigating to task ${currentProcessTaskId} from ${taskIdParam}.`);
+
     navigateToTask(currentProcessTaskId, { replace: true, runEffect: taskIdParam !== undefined });
   }
 

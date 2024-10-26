@@ -23,7 +23,7 @@ import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useNavigate, useNavigationParam, useQueryKeysAsString } from 'src/features/routing/AppRoutingContext';
-import { TaskKeys, useIsCurrentTask, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
+import { TaskKeys, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
@@ -99,7 +99,6 @@ export function NavigateToStartUrl() {
 }
 
 export const ProcessWrapper = () => {
-  const isCurrentTask = useIsCurrentTask();
   const taskIdParam = useNavigationParam('taskId');
   const paramTaskType = useGetTaskType()(taskIdParam);
   const processTaskType = useCurrentTaskTypeFromProcess();
@@ -108,14 +107,6 @@ export const ProcessWrapper = () => {
 
   const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
   const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid && taskIdParam === TaskKeys.CustomReceipt;
-
-  if (!isCurrentTask && taskIdParam !== TaskKeys.ProcessEnd) {
-    return (
-      <PresentationComponent type={processTaskType}>
-        <NotCurrentTaskPage />
-      </PresentationComponent>
-    );
-  }
 
   if (paramTaskType === ProcessTaskType.Confirm) {
     return (
