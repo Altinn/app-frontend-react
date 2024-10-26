@@ -30,7 +30,6 @@ import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { useNode } from 'src/utils/layout/NodesContext';
-import type { ITask } from 'src/types/shared';
 
 interface NavigationErrorProps {
   label: string;
@@ -106,18 +105,9 @@ export const ProcessWrapper = () => {
   const processTaskType = useCurrentTaskTypeFromProcess();
   const layoutSets = useLayoutSets();
   const dataModelGuid = useCurrentDataModelGuid();
-  const process = useLaxProcessData();
 
   const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
   const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid && taskIdParam === TaskKeys.CustomReceipt;
-
-  if (!isValidTaskId(process?.processTasks, taskIdParam)) {
-    return (
-      <PresentationComponent type={processTaskType}>
-        <InvalidTaskIdPage />
-      </PresentationComponent>
-    );
-  }
 
   if (!isCurrentTask && taskIdParam !== TaskKeys.ProcessEnd) {
     return (
@@ -226,16 +216,3 @@ export const ComponentRouting = () => {
   // If node exists but does not implement sub routing
   throw new Error(`Component ${componentId} does not have subRouting`);
 };
-
-function isValidTaskId(processTasks: ITask[] | undefined, taskId?: string) {
-  if (!taskId) {
-    return false;
-  }
-  if (taskId === TaskKeys.ProcessEnd) {
-    return true;
-  }
-  if (taskId === TaskKeys.CustomReceipt) {
-    return true;
-  }
-  return processTasks?.find((task) => task.elementId === taskId) !== undefined;
-}
