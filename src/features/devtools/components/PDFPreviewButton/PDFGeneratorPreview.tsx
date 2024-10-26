@@ -5,7 +5,7 @@ import { FilePdfIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/features/devtools/components/PDFPreviewButton/PDFPreview.module.css';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
-import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
+import { useTaskTypeFromBackend } from 'src/features/instance/useProcessTask';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useIsLocalOrStaging } from 'src/hooks/useIsDev';
 import { ProcessTaskType } from 'src/types';

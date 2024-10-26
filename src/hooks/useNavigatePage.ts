@@ -6,7 +6,8 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useGetTaskType, useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useGetTaskType } from 'src/features/instance/useProcessTask';
 import {
   useAllNavigationParamsAsRef,
   useNavigate as useCtxNavigate,

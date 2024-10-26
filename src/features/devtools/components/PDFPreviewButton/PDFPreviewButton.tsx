@@ -6,7 +6,7 @@ import { FilePdfIcon } from '@navikt/aksel-icons';
 import { PDFGeneratorPreview } from 'src/features/devtools/components/PDFPreviewButton/PDFGeneratorPreview';
 import classes from 'src/features/devtools/components/PDFPreviewButton/PDFPreview.module.css';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
-import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
+import { useTaskTypeFromBackend } from 'src/features/instance/useProcessTask';
 import { useIsLocalOrStaging } from 'src/hooks/useIsDev';
 import { ProcessTaskType } from 'src/types';
 
