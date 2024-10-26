@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { skipToken, useQuery } from '@tanstack/react-query';
@@ -74,7 +74,7 @@ export const useReFetchProcessData = () => useContext(ProcessContext)?.refetch;
 /**
  * This returns the task type of the current process task, as we got it from the backend
  *
- * @see useRealTaskType
+ * @see useCurrentTaskTypeFromProcess
  */
 export function useTaskTypeFromBackend() {
   const processData = useLaxProcessData();
@@ -96,59 +96,8 @@ export function useTaskTypeFromBackend() {
  *
  * @see useTaskTypeFromBackend
  */
-export function useRealTaskType() {
+export function useCurrentTaskTypeFromProcess() {
   const taskId = useLaxProcessData()?.currentTask?.elementId;
-  return useRealTaskTypeById(taskId || undefined);
-}
-
-/**
- * This hook returns the taskType of a given taskId. If the
- * taskId cannot be found in processTasks it will return the
- * taskType of the currentTask if the currentTask matches
- * the taskId provided.
- */
-export function useGetTaskType() {
-  const processData = useLaxProcessData();
-  const isStateless = useApplicationMetadata().isStatelessApp;
-  const layoutSets = useLayoutSets();
-
-  return useCallback(
-    (taskId: string | undefined) => {
-      const task =
-        (processData?.processTasks?.find((t) => t.elementId === taskId) ??
-        processData?.currentTask?.elementId === taskId)
-          ? processData?.currentTask
-          : undefined;
-
-      if (isStateless) {
-        // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,
-        // applicationMetadata.isStatelessApp will return false and we'll proceed as normal.
-        return ProcessTaskType.Data;
-      }
-
-      if (taskId === TaskKeys.CustomReceipt) {
-        return ProcessTaskType.Data;
-      }
-
-      if (taskId === TaskKeys.ProcessEnd) {
-        return ProcessTaskType.Archived;
-      }
-
-      if (processData?.ended) {
-        return ProcessTaskType.Archived;
-      }
-      if (task === undefined || task?.altinnTaskType === undefined) {
-        return ProcessTaskType.Unknown;
-      }
-
-      const isDataTask = behavesLikeDataTask(task.elementId, layoutSets);
-      return isDataTask ? ProcessTaskType.Data : (task.altinnTaskType as ProcessTaskType);
-    },
-    [isStateless, layoutSets, processData?.currentTask, processData?.ended, processData?.processTasks],
-  );
-}
-
-export function useRealTaskTypeById(taskId: string | undefined) {
   const isStateless = useApplicationMetadata().isStatelessApp;
   const taskType = useTaskTypeFromBackend();
   const layoutSets = useLayoutSets();
@@ -161,4 +110,44 @@ export function useRealTaskTypeById(taskId: string | undefined) {
 
   const isDataTask = behavesLikeDataTask(taskId, layoutSets);
   return isDataTask ? ProcessTaskType.Data : taskType;
+}
+
+/**
+ * This hook returns a function to find the taskType of a given taskId.
+ */
+export function useGetTaskType() {
+  const processData = useLaxProcessData();
+  const isStateless = useApplicationMetadata().isStatelessApp;
+  const layoutSets = useLayoutSets();
+
+  return (taskId: string | undefined) => {
+    const task =
+      (processData?.processTasks?.find((t) => t.elementId === taskId) ?? processData?.currentTask?.elementId === taskId)
+        ? processData?.currentTask
+        : undefined;
+
+    if (isStateless) {
+      // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,
+      // applicationMetadata.isStatelessApp will return false and we'll proceed as normal.
+      return ProcessTaskType.Data;
+    }
+
+    if (taskId === TaskKeys.CustomReceipt) {
+      return ProcessTaskType.Data;
+    }
+
+    if (taskId === TaskKeys.ProcessEnd) {
+      return ProcessTaskType.Archived;
+    }
+
+    if (processData?.ended) {
+      return ProcessTaskType.Archived;
+    }
+    if (task === undefined || task?.altinnTaskType === undefined) {
+      return ProcessTaskType.Unknown;
+    }
+
+    const isDataTask = behavesLikeDataTask(task.elementId, layoutSets);
+    return isDataTask ? ProcessTaskType.Data : (task.altinnTaskType as ProcessTaskType);
+  };
 }

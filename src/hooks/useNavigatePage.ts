@@ -279,22 +279,6 @@ export function useNavigatePage() {
     [lastTaskId, navParams, navigate, queryKeysRef],
   );
 
-  const isValidTaskId = useCallback(
-    (taskId?: string) => {
-      if (!taskId) {
-        return false;
-      }
-      if (taskId === TaskKeys.ProcessEnd) {
-        return true;
-      }
-      if (taskId === TaskKeys.CustomReceipt) {
-        return true;
-      }
-      return processTasks?.find((task) => task.elementId === taskId) !== undefined;
-    },
-    [processTasks],
-  );
-
   const trimSingleTrailingSlash = (str: string) => (str.endsWith('/') ? str.slice(0, -1) : str);
   const getCurrentPageIndex = useCallback(() => {
     const location = trimSingleTrailingSlash(window.location.href.split('?')[0]);
@@ -370,7 +354,6 @@ export function useNavigatePage() {
     navigateToPage,
     navigateToTask,
     isValidPageId,
-    isValidTaskId,
     order,
     navigateToNextPage,
     navigateToPreviousPage,

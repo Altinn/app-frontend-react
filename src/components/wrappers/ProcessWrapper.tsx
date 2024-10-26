@@ -13,7 +13,7 @@ import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useGetTaskType, useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
+import { useCurrentTaskTypeFromProcess, useGetTaskType, useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -29,6 +29,7 @@ import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { useNode } from 'src/utils/layout/NodesContext';
+import type { ITask } from 'src/types/shared';
 
 interface NavigationErrorProps {
   label: string;
@@ -99,77 +100,77 @@ export function NavigateToStartUrl() {
 
 export const ProcessWrapper = () => {
   const isCurrentTask = useIsCurrentTask();
-  const { isValidTaskId } = useNavigatePage();
-  const taskId = useNavigationParam('taskId');
-  const taskType = useGetTaskType()(taskId);
-  const realTaskType = useRealTaskType();
+  const taskIdParam = useNavigationParam('taskId');
+  const paramTaskType = useGetTaskType()(taskIdParam);
+  const processTaskType = useCurrentTaskTypeFromProcess();
   const layoutSets = useLayoutSets();
   const dataModelGuid = useCurrentDataModelGuid();
+  const process = useLaxProcessData();
 
   const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
-  const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid && taskId === TaskKeys.CustomReceipt;
+  const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid && taskIdParam === TaskKeys.CustomReceipt;
 
-  if (!isValidTaskId(taskId)) {
+  if (!isValidTaskId(process?.processTasks, taskIdParam)) {
     return (
-      <PresentationComponent type={realTaskType}>
+      <PresentationComponent type={processTaskType}>
         <InvalidTaskIdPage />
       </PresentationComponent>
     );
   }
 
-  if (!isCurrentTask && taskId !== TaskKeys.ProcessEnd) {
+  if (!isCurrentTask && taskIdParam !== TaskKeys.ProcessEnd) {
     return (
-      <PresentationComponent type={realTaskType}>
+      <PresentationComponent type={processTaskType}>
         <NotCurrentTaskPage />
       </PresentationComponent>
     );
   }
 
-  if (taskType === ProcessTaskType.Confirm) {
+  if (paramTaskType === ProcessTaskType.Confirm) {
     return (
       <ProcessNavigationProvider>
-        <PresentationComponent type={realTaskType}>
+        <PresentationComponent type={processTaskType}>
           <Confirm />
         </PresentationComponent>
       </ProcessNavigationProvider>
     );
   }
 
-  if (taskType === ProcessTaskType.Feedback) {
+  if (paramTaskType === ProcessTaskType.Feedback) {
     return (
-      <PresentationComponent type={realTaskType}>
+      <PresentationComponent type={processTaskType}>
         <Feedback />
       </PresentationComponent>
     );
   }
 
-  if (taskType === ProcessTaskType.Archived) {
+  if (paramTaskType === ProcessTaskType.Archived) {
     return (
-      <PresentationComponent type={realTaskType}>
+      <PresentationComponent type={processTaskType}>
         <ReceiptContainer />
       </PresentationComponent>
     );
   }
 
-  if (taskType === ProcessTaskType.Data && customReceiptDataModelNotFound) {
+  if (paramTaskType === ProcessTaskType.Data && customReceiptDataModelNotFound) {
     window.logWarnOnce(
       'You specified a custom receipt, but the data model is missing. Falling back to default receipt.',
     );
     return (
-      <PresentationComponent type={realTaskType}>
+      <PresentationComponent type={processTaskType}>
         <ReceiptContainer />
       </PresentationComponent>
     );
   }
 
-  if (taskType === ProcessTaskType.Data) {
+  if (paramTaskType === ProcessTaskType.Data) {
     return (
       <FormProvider>
         <Routes>
           <Route
             path=':pageKey/:componentId/*'
             element={
-              <PresentationComponent type={realTaskType}>
+              <PresentationComponent type={processTaskType}>
                 <ComponentRouting />
               </PresentationComponent>
             }
@@ -178,7 +179,7 @@ export const ProcessWrapper = () => {
             path=':pageKey'
             element={
               <PDFWrapper>
-                <PresentationComponent type={realTaskType}>
+                <PresentationComponent type={processTaskType}>
                   <Form />
                 </PresentationComponent>
               </PDFWrapper>
@@ -193,7 +194,7 @@ export const ProcessWrapper = () => {
     );
   }
 
-  throw new Error(`Unknown task type: ${taskType}`);
+  throw new Error(`Unknown task type: ${paramTaskType}`);
 };
 
 export const ComponentRouting = () => {
@@ -224,3 +225,16 @@ export const ComponentRouting = () => {
   // If node exists but does not implement sub routing
   throw new Error(`Component ${componentId} does not have subRouting`);
 };
+
+function isValidTaskId(processTasks: ITask[] | undefined, taskId?: string) {
+  if (!taskId) {
+    return false;
+  }
+  if (taskId === TaskKeys.ProcessEnd) {
+    return true;
+  }
+  if (taskId === TaskKeys.CustomReceipt) {
+    return true;
+  }
+  return processTasks?.find((task) => task.elementId === taskId) !== undefined;
+}
