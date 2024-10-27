@@ -29,13 +29,10 @@ export function useGetTaskType() {
       return ProcessTaskType.Data;
     }
 
-    if (taskId === TaskKeys.ProcessEnd) {
+    if (taskId === TaskKeys.ProcessEnd || processData?.ended) {
       return ProcessTaskType.Archived;
     }
 
-    if (processData?.ended) {
-      return ProcessTaskType.Archived;
-    }
     if (task === undefined || task?.altinnTaskType === undefined) {
       return ProcessTaskType.Unknown;
     }
@@ -48,13 +45,10 @@ export function useGetTaskType() {
 /**
  * This returns the task type of the current process task, as we want to use it in the frontend. Some tasks
  * are configured to behave like data tasks, and we want to treat them as such.
- *
- * @see useTaskTypeFromBackend
  */
 export function useCurrentTaskTypeFromProcess() {
-  const taskId = useLaxProcessData()?.currentTask?.elementId;
+  const processData = useLaxProcessData();
   const isStateless = useApplicationMetadata().isStatelessApp;
-  const taskType = useTaskTypeFromBackend();
   const layoutSets = useLayoutSets();
 
   if (isStateless) {
@@ -63,25 +57,16 @@ export function useCurrentTaskTypeFromProcess() {
     return ProcessTaskType.Data;
   }
 
-  const isDataTask = behavesLikeDataTask(taskId, layoutSets);
-  return isDataTask ? ProcessTaskType.Data : taskType;
-}
-
-/**
- * This returns the task type of the current process task, as we got it from the backend
- *
- * @see useCurrentTaskTypeFromProcess
- */
-export function useTaskTypeFromBackend() {
-  const processData = useLaxProcessData();
-
   if (processData?.ended) {
     return ProcessTaskType.Archived;
   }
 
-  if (processData?.currentTask?.altinnTaskType) {
-    return processData.currentTask.altinnTaskType as ProcessTaskType;
-  }
+  const { elementId: taskId, altinnTaskType } = processData?.currentTask ?? {
+    elementId: undefined,
+    altinnTaskType: ProcessTaskType.Unknown,
+  };
 
-  return ProcessTaskType.Unknown;
+  const isDataTask = behavesLikeDataTask(taskId, layoutSets);
+
+  return isDataTask ? ProcessTaskType.Data : (altinnTaskType as ProcessTaskType); // FIXME: fix casting
 }
