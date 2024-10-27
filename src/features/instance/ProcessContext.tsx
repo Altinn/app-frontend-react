@@ -6,11 +6,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
-import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
-import { TaskKeys, useNavigatePage } from 'src/hooks/useNavigatePage';
 import { fetchProcessState } from 'src/queries/queries';
-import { behavesLikeDataTask } from 'src/utils/formLayout';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -29,10 +25,6 @@ const ProcessContext = createContext<Pick<UseQueryResult<IProcess, HttpClientErr
 );
 
 export function ProcessProvider({ children, instanceId }: PropsWithChildren<{ instanceId: string }>) {
-  const taskIdParam = useNavigationParam('taskId');
-  const layoutSets = useLayoutSets();
-  const navigateToTask = useNavigatePage().navigateToTask;
-
   const {
     isLoading,
     data: process,
@@ -43,19 +35,6 @@ export function ProcessProvider({ children, instanceId }: PropsWithChildren<{ in
   useEffect(() => {
     error && window.logError('Fetching process state failed:\n', error);
   }, [error]);
-
-  if (process?.ended) {
-    const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
-    hasCustomReceipt ? navigateToTask(TaskKeys.CustomReceipt) : navigateToTask(TaskKeys.ProcessEnd);
-  }
-
-  const currentProcessTaskId = process?.currentTask?.elementId;
-  if (currentProcessTaskId && currentProcessTaskId !== taskIdParam) {
-    window.logWarn('Task id does not match current task from process data.');
-    window.logWarn(`Navigating to task ${currentProcessTaskId} from ${taskIdParam}.`);
-
-    navigateToTask(currentProcessTaskId, { replace: true, runEffect: taskIdParam !== undefined });
-  }
 
   if (isLoading) {
     return <Loader reason='fetching-process' />;

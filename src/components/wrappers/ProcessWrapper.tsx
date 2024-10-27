@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation, useParams } from 'react-router-dom';
 
 import { Button } from '@digdir/designsystemet-react';
 import Grid from '@material-ui/core/Grid';
@@ -99,7 +99,7 @@ export function NavigateToStartUrl() {
 }
 
 export const ProcessWrapper = () => {
-  const taskIdParam = useNavigationParam('taskId');
+  const { taskId: taskIdParam } = useParams();
   const paramTaskType = useGetTaskType()(taskIdParam);
   const processTaskType = useCurrentTaskTypeFromProcess();
   const layoutSets = useLayoutSets();
@@ -107,6 +107,24 @@ export const ProcessWrapper = () => {
 
   const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
   const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid && taskIdParam === TaskKeys.CustomReceipt;
+
+  const navigateToTask = useNavigatePage().navigateToTask;
+  const process = useLaxProcessData();
+
+  useEffect(() => {
+    if (process?.ended) {
+      const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
+      hasCustomReceipt ? navigateToTask(TaskKeys.CustomReceipt) : navigateToTask(TaskKeys.ProcessEnd);
+    }
+
+    const currentProcessTaskId = process?.currentTask?.elementId;
+    if (currentProcessTaskId && currentProcessTaskId !== taskIdParam) {
+      window.logWarn('Task id does not match current task from process data.');
+      window.logWarn(`Navigating to task ${currentProcessTaskId} from ${taskIdParam}.`);
+
+      navigateToTask(currentProcessTaskId, { replace: true, runEffect: taskIdParam !== undefined });
+    }
+  }, [layoutSets, navigateToTask, process, taskIdParam]);
 
   if (paramTaskType === ProcessTaskType.Confirm) {
     return (
