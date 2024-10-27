@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { skipToken, useQuery } from '@tanstack/react-query';
@@ -15,7 +16,6 @@ import { Loader } from 'src/core/loading/Loader';
 import { cleanUpInstanceData } from 'src/features/instance/instanceUtils';
 import { ProcessProvider } from 'src/features/instance/ProcessContext';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IData, IInstance, IInstanceDataSources } from 'src/types/shared';
@@ -118,18 +118,17 @@ export function useInstanceDataQueryDef(
 }
 
 function useGetInstanceDataQuery(hasResultFromInstantiation: boolean, partyId: string, instanceGuid: string) {
-  const utils = useQuery(useInstanceDataQueryDef(hasResultFromInstantiation, partyId, instanceGuid));
+  const query = useQuery(useInstanceDataQueryDef(hasResultFromInstantiation, partyId, instanceGuid));
 
   useEffect(() => {
-    utils.error && window.logError('Fetching instance data failed:\n', utils.error);
-  }, [utils.error]);
+    query.error && window.logError('Fetching instance data failed:\n', query.error);
+  }, [query.error]);
 
-  return utils;
+  return query;
 }
 
 export const InstanceProvider = ({ children }: { children: React.ReactNode }) => {
-  const partyId = useNavigationParam('partyId');
-  const instanceGuid = useNavigationParam('instanceGuid');
+  const { partyId, instanceGuid } = useParams();
 
   if (!partyId || !instanceGuid) {
     return null;
@@ -137,34 +136,17 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
 
   return (
     <DataLoadingProvider>
-      <InnerInstanceProvider
+      <Provider
         partyId={partyId}
         instanceGuid={instanceGuid}
       >
-        {children}
-      </InnerInstanceProvider>
+        <BlockUntilLoaded>
+          <ProcessProvider instanceId={`${partyId}/${instanceGuid}`}>{children}</ProcessProvider>
+        </BlockUntilLoaded>
+      </Provider>
     </DataLoadingProvider>
   );
 };
-
-const InnerInstanceProvider = ({
-  children,
-  partyId,
-  instanceGuid,
-}: {
-  children: React.ReactNode;
-  partyId: string;
-  instanceGuid: string;
-}) => (
-  <Provider
-    partyId={partyId}
-    instanceGuid={instanceGuid}
-  >
-    <BlockUntilLoaded>
-      <ProcessProvider instanceId={`${partyId}/${instanceGuid}`}>{children}</ProcessProvider>
-    </BlockUntilLoaded>
-  </Provider>
-);
 
 const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
   const partyId = useSelector((state) => state.partyId);

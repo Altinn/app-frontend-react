@@ -21,7 +21,7 @@ import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { BackendValidationIssue } from 'src/features/validation';
-import type { IActionType, IProcess } from 'src/types/shared';
+import type { IActionType } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 interface ProcessNextProps {
@@ -44,13 +44,13 @@ function useProcessNext() {
   const onSubmitFormValidation = useOnFormSubmitValidation();
   const applicationMetadata = useApplicationMetadata();
 
-  const utils = useMutation({
+  const mutation = useMutation({
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
       if (!instanceId) {
         throw new Error('Missing instance ID, cannot perform process/next');
       }
       return doProcessNext(instanceId, language, action)
-        .then((process) => [process as IProcess, null] as const)
+        .then((process) => [process, null] as const)
         .catch((error) => {
           if (error.response?.status === 409 && error.response?.data?.['validationIssues']?.length) {
             // If process next failed due to validation, return validationIssues instead of throwing
@@ -86,7 +86,7 @@ function useProcessNext() {
     },
   });
 
-  const mutateAsync = utils.mutateAsync;
+  const mutateAsync = mutation.mutateAsync;
   const nativeMutate = useCallback(
     async (props: ProcessNextProps = {}) => {
       try {
@@ -112,7 +112,7 @@ function useProcessNext() {
     [nativeMutate, onFormSubmitValidation],
   );
 
-  return { perform, error: utils.error };
+  return { perform, error: mutation.error };
 }
 
 function appUnlocksOnPDFFailure({ altinnNugetVersion }: ApplicationMetadata) {

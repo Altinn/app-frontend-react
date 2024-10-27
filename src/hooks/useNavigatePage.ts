@@ -164,8 +164,7 @@ export const useStartUrl = (forcedTaskId?: string) => {
 
 export function useNavigatePage() {
   const isStatelessApp = useApplicationMetadata().isStatelessApp;
-  const processTasks = useLaxProcessData()?.processTasks;
-  const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
+  const lastTaskId = useLaxProcessData()?.processTasks?.at(-1)?.elementId;
   const navigate = useNavigate();
   const navParams = useAllNavigationParamsAsRef();
   const queryKeysRef = useQueryKeysAsStringAsRef();
