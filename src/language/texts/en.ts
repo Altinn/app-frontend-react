@@ -291,6 +291,11 @@ export function en() {
         receiver: 'Receiver',
         payer: 'Payer',
         name: 'Name',
+        company_name: 'Company name',
+        org_number: 'Organisasjonsnummer',
+        contact_person: 'Contact person',
+        contact_phone: 'Contact phone',
+        contact_email: 'Contact email',
         phone: 'Phone',
         address: 'Address',
         org_num: 'Org number',
@@ -405,6 +410,9 @@ export function en() {
     },
     likert: {
       left_column_default_header_text: 'Question',
+    },
+    process_error: {
+      submit_error_please_retry: 'Something went wrong when submitting, please try again in a few minutes.',
     },
   } satisfies NestedTexts;
 }

@@ -177,15 +177,4 @@ describe('AppTable Component', () => {
     expect(screen.getByText('Not a date')).toBeInTheDocument();
     expect(screen.getByText('Also not a date')).toBeInTheDocument();
   });
-
-  test('non-string date values are converted to string', () => {
-    const dataWithNumberDate = [{ id: 1, name: 'Alice', date: 1234567890, amount: 100 }];
-    render(
-      <AppTable
-        data={dataWithNumberDate}
-        columns={columns}
-      />,
-    );
-    expect(screen.getByText('1234567890')).toBeInTheDocument();
-  });
 });

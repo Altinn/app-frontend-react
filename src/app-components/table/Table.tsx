@@ -5,7 +5,6 @@ import cn from 'classnames';
 import { format, isValid, parseISO } from 'date-fns';
 import { pick } from 'dot-object';
 
-import { Caption } from 'src/app-components/table/caption/Caption';
 import classes from 'src/app-components/table/Table.module.css';
 
 interface Column {
@@ -17,7 +16,7 @@ interface Column {
   renderCell?: (values: string[], rowData: object) => React.ReactNode;
 }
 
-interface ActionButton {
+export interface TableActionButton {
   onClick: (rowIdx: number, rowData: object) => void;
   buttonText: string;
   icon: React.ReactNode;
@@ -30,16 +29,15 @@ interface DataTableProps<T> {
   data: T[];
   /** Configuration for table columns */
   columns: Column[];
-  title?: React.ReactNode;
-  description?: React.ReactNode;
-  helpText?: React.ReactNode;
-  accessibleTitle?: string;
+  caption?: React.ReactNode;
   /** Optional configuration for action buttons */
-  actionButtons?: ActionButton[];
+  actionButtons?: TableActionButton[];
   /** Accessible header value for action buttons for screenreaders */
   actionButtonHeader?: React.ReactNode;
   /** Displays table in mobile mode */
   mobile?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  zebra?: boolean;
 }
 
 function formatIfDate(value: unknown): string {
@@ -52,50 +50,31 @@ function formatIfDate(value: unknown): string {
   return String(value);
 }
 
-/**
- * Generic Table component to display tabular data.
- *
- * @param title
- * @param description
- * @param helpText
- * @param accessibleTitle
- * @param data - Array of data objects.
- * @param columns - Configuration for table columns.
- * @param actionButtons - Optional action button config.
- * @param mobile
- * @param actionButtonHeader
- */
 export function AppTable<T extends object>({
-  title,
-  description,
-  helpText,
-  accessibleTitle,
+  caption,
   data,
   columns,
   actionButtons,
   mobile,
   actionButtonHeader,
+  size,
+  zebra,
 }: DataTableProps<T>) {
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
     <Table
-      size='sm'
+      size={size || 'sm'}
       className={cn(classes.table, { [classes.mobileTable]: mobile })}
+      zebra={zebra}
     >
-      <Caption
-        title={title}
-        description={description}
-        helpText={helpText ? { text: helpText, accessibleTitle } : undefined}
-        required={false}
-        labelSettings={undefined}
-      />
+      {caption}
       <Table.Head>
         <Table.Row>
           {columns.map((col, index) => (
             <Table.HeaderCell key={index}>{col.header}</Table.HeaderCell>
           ))}
 
-          {actionButtons && actionButtons?.length > 0 && (
+          {actionButtons && actionButtons.length > 0 && (
             <Table.HeaderCell>
               <span className={classes.visuallyHidden}>{actionButtonHeader}</span>
             </Table.HeaderCell>

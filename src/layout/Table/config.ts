@@ -35,4 +35,28 @@ export const Config = new CG.component({
         ).exportAs('ColumnConfig'),
       ),
     ),
+  )
+  .addProperty(
+    new CG.prop(
+      'zebra',
+      new CG.bool().setTitle('Size').setDescription('If true, the table will have zebra striping').optional(),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'enableDelete',
+      new CG.bool().setTitle('Enable delete').setDescription('If true, will allow user to delete row').optional(),
+    ),
+  )
+  .addProperty(
+    new CG.prop('size', new CG.enum('sm', 'md', 'lg').setTitle('Size').setDescription('Size of table.').optional()),
+  )
+  .addProperty(
+    new CG.prop(
+      'excludedChildren',
+      new CG.arr(new CG.enum('action', 'md', 'lg'))
+        .optional()
+        .setTitle('Excluded child components')
+        .setDescription("Array of component IDs that should not be shown in a repeating group's summary"),
+    ),
   );

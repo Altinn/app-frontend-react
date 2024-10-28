@@ -13,7 +13,7 @@ import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useLaxProcessData, useRealTaskType, useTaskType } from 'src/features/instance/ProcessContext';
+import { useGetTaskType, useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -81,25 +81,7 @@ export function InvalidTaskIdPage() {
   return <NavigationError label={'general.invalid_task_id'} />;
 }
 
-export function ProcessWrapperWrapper() {
-  const taskId = useNavigationParam('taskId');
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-
-  if (taskId === undefined && currentTaskId !== undefined) {
-    return <NavigateToStartUrl />;
-  }
-
-  return (
-    <Routes>
-      <Route
-        path=':taskId/*'
-        element={<ProcessWrapper />}
-      />
-    </Routes>
-  );
-}
-
-function NavigateToStartUrl() {
+export function NavigateToStartUrl() {
   const navigate = useNavigate();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const startUrl = useStartUrl(currentTaskId);
@@ -119,7 +101,7 @@ export const ProcessWrapper = () => {
   const isCurrentTask = useIsCurrentTask();
   const { isValidTaskId } = useNavigatePage();
   const taskId = useNavigationParam('taskId');
-  const taskType = useTaskType(taskId);
+  const taskType = useGetTaskType()(taskId);
   const realTaskType = useRealTaskType();
   const layoutSets = useLayoutSets();
   const dataModelGuid = useCurrentDataModelGuid();
@@ -186,7 +168,11 @@ export const ProcessWrapper = () => {
         <Routes>
           <Route
             path=':pageKey/:componentId/*'
-            element={<ComponentRouting />}
+            element={
+              <PresentationComponent type={realTaskType}>
+                <ComponentRouting />
+              </PresentationComponent>
+            }
           />
           <Route
             path=':pageKey'

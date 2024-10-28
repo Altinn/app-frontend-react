@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 
-import { Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
+import { Delete as DeleteIcon } from '@navikt/ds-icons';
 
 import { AppTable } from 'src/app-components/table/Table';
+import { Caption } from 'src/components/form/caption/Caption';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { AddToListModal } from 'src/layout/AddToList/AddToList';
-import classes from 'src/layout/Table/Table.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { TableActionButton } from 'src/app-components/table/Table';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -28,8 +29,9 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
 
-  const data = formData.simpleBinding as IDataModelReference[];
-  if (!data) {
+  const data = formData.simpleBinding;
+
+  if (!Array.isArray(data)) {
     return null;
   }
 
@@ -38,7 +40,7 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
   }
   return (
     <AppTable<IDataModelReference>
-      title={title && <Lang id={title} />}
+      caption={title && <Caption title={<Lang id={title} />} />}
       data={data}
       columns={item.columnConfig.map((config) => ({
         ...config,
@@ -58,15 +60,34 @@ export function TableComponent({ node }: TableComponentProps) {
   const { elementAsString } = useLanguage();
   const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
-
   const [showEdit, setShowEdit] = useState(false);
 
   const [editItemIndex, setEditItemIndex] = useState<number>(-1);
   const setMultiLeafValues = FD.useSetMultiLeafValues();
 
-  const data = formData.simpleBinding as IDataModelReference[];
+  const data = formData.simpleBinding;
 
-  if (!data) {
+  const actionButtons: TableActionButton[] = [];
+
+  if (item.enableDelete) {
+    actionButtons.push({
+      onClick: (idx) => {
+        removeFromList({
+          startAtIndex: idx,
+          reference: {
+            dataType: item.dataModelBindings.simpleBinding.dataType,
+            field: item.dataModelBindings.simpleBinding.field,
+          },
+          callback: (_) => true,
+        });
+      },
+      buttonText: langAsString('general.delete'),
+      icon: <DeleteIcon />,
+      color: 'danger',
+    });
+  }
+
+  if (!Array.isArray(data)) {
     return null;
   }
 
@@ -75,7 +96,7 @@ export function TableComponent({ node }: TableComponentProps) {
   }
 
   return (
-    <div className={classes.groupContainer}>
+    <>
       {showEdit && editItemIndex > -1 && formData.simpleBinding && formData.simpleBinding[editItemIndex] && (
         <AddToListModal
           dataModelReference={item.dataModelBindings.simpleBinding}
@@ -99,45 +120,26 @@ export function TableComponent({ node }: TableComponentProps) {
       )}
 
       <AppTable<IDataModelReference>
-        title={title && <Lang id={title} />}
-        description={description && <Lang id={description} />}
-        helpText={help && <Lang id={help} />}
-        accessibleTitle={help && accessibleTitle}
+        zebra={item.zebra}
+        size={item.size}
+        caption={
+          title && (
+            <Caption
+              title={<Lang id={title} />}
+              description={description && <Lang id={description} />}
+              helpText={help ? { text: <Lang id={help} />, accessibleTitle } : undefined}
+            />
+          )
+        }
         data={data}
         columns={item.columnConfig.map((config) => ({
           ...config,
           header: langAsString(config.header),
         }))}
         mobile={isMobile}
-        actionButtons={[
-          {
-            onClick: (idx) => {
-              removeFromList({
-                startAtIndex: idx,
-                reference: {
-                  dataType: item.dataModelBindings.simpleBinding.dataType,
-                  field: item.dataModelBindings.simpleBinding.field,
-                },
-                callback: (_) => true,
-              });
-            },
-            buttonText: langAsString('general.delete'),
-            icon: <DeleteIcon />,
-            color: 'danger',
-          },
-          {
-            onClick: (idx, _) => {
-              setEditItemIndex(idx);
-              setShowEdit(true);
-            },
-            buttonText: langAsString('general.edit'),
-            icon: <EditIcon />,
-            variant: 'tertiary',
-            color: 'second',
-          },
-        ]}
+        actionButtons={actionButtons}
         actionButtonHeader={<Lang id={'general.action'} />}
       />
-    </div>
+    </>
   );
 }
