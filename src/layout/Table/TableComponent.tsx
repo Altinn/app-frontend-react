@@ -3,6 +3,7 @@ import React from 'react';
 import { Delete as DeleteIcon } from '@navikt/ds-icons';
 
 import { AppTable } from 'src/app-components/table/Table';
+import { Caption } from 'src/components/form/caption/Caption';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
@@ -27,8 +28,9 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
 
-  const data = formData.simpleBinding as IDataModelReference[];
-  if (!data) {
+  const data = formData.simpleBinding;
+
+  if (!Array.isArray(data)) {
     return null;
   }
 
@@ -37,7 +39,7 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
   }
   return (
     <AppTable<IDataModelReference>
-      title={title && <Lang id={title} />}
+      caption={title && <Caption title={<Lang id={title} />} />}
       data={data}
       columns={item.columnConfig.map((config) => ({
         ...config,
@@ -58,9 +60,9 @@ export function TableComponent({ node }: TableComponentProps) {
   const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
 
-  const data = formData.simpleBinding as IDataModelReference[];
+  const data = formData.simpleBinding;
 
-  if (!data) {
+  if (!Array.isArray(data)) {
     return null;
   }
 
@@ -92,10 +94,15 @@ export function TableComponent({ node }: TableComponentProps) {
     <AppTable<IDataModelReference>
       zebra={item.zebra}
       size={item.size}
-      title={title && <Lang id={title} />}
-      description={description && <Lang id={description} />}
-      helpText={help && <Lang id={help} />}
-      accessibleTitle={help && accessibleTitle}
+      caption={
+        title && (
+          <Caption
+            title={<Lang id={title} />}
+            description={description && <Lang id={description} />}
+            helpText={help ? { text: <Lang id={help} />, accessibleTitle } : undefined}
+          />
+        )
+      }
       data={data}
       columns={item.columnConfig.map((config) => ({
         ...config,

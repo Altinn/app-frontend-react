@@ -5,7 +5,6 @@ import cn from 'classnames';
 import { format, isValid, parseISO } from 'date-fns';
 import { pick } from 'dot-object';
 
-import { Caption } from 'src/app-components/table/caption/Caption';
 import classes from 'src/app-components/table/Table.module.css';
 
 interface Column {
@@ -30,10 +29,7 @@ interface DataTableProps<T> {
   data: T[];
   /** Configuration for table columns */
   columns: Column[];
-  title?: React.ReactNode;
-  description?: React.ReactNode;
-  helpText?: React.ReactNode;
-  accessibleTitle?: string;
+  caption?: React.ReactNode;
   /** Optional configuration for action buttons */
   actionButtons?: TableActionButton[];
   /** Accessible header value for action buttons for screenreaders */
@@ -55,10 +51,7 @@ function formatIfDate(value: unknown): string {
 }
 
 export function AppTable<T extends object>({
-  title,
-  description,
-  helpText,
-  accessibleTitle,
+  caption,
   data,
   columns,
   actionButtons,
@@ -74,20 +67,14 @@ export function AppTable<T extends object>({
       className={cn(classes.table, { [classes.mobileTable]: mobile })}
       zebra={zebra}
     >
-      <Caption
-        title={title}
-        description={description}
-        helpText={helpText ? { text: helpText, accessibleTitle } : undefined}
-        required={false}
-        labelSettings={undefined}
-      />
+      {caption}
       <Table.Head>
         <Table.Row>
           {columns.map((col, index) => (
             <Table.HeaderCell key={index}>{col.header}</Table.HeaderCell>
           ))}
 
-          {actionButtons && actionButtons?.length > 0 && (
+          {actionButtons && actionButtons.length > 0 && (
             <Table.HeaderCell>
               <span className={classes.visuallyHidden}>{actionButtonHeader}</span>
             </Table.HeaderCell>

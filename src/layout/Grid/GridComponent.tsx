@@ -4,8 +4,8 @@ import type { PropsWithChildren } from 'react';
 import { Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
-import { Caption } from 'src/app-components/table/caption/Caption';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { Caption } from 'src/components/form/caption/Caption';
 import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';

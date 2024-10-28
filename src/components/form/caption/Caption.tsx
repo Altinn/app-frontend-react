@@ -5,7 +5,7 @@ import { Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import type { LabelProps as DesignsystemetLabelProps } from '@digdir/designsystemet-react';
 
-import classes from 'src/app-components/table/caption/Caption.module.css';
+import classes from 'src/components/form/caption/Caption.module.css';
 import { Description } from 'src/components/form/Description';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
