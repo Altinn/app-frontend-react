@@ -74,7 +74,7 @@ export function AppTable<T extends object>({
             <Table.HeaderCell key={index}>{col.header}</Table.HeaderCell>
           ))}
 
-          {actionButtons && actionButtons?.length > 0 && (
+          {actionButtons && actionButtons.length > 0 && (
             <Table.HeaderCell>
               <span className={classes.visuallyHidden}>{actionButtonHeader}</span>
             </Table.HeaderCell>
