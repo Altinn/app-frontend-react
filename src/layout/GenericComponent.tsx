@@ -53,7 +53,7 @@ export function GenericComponentById<Type extends CompTypes = CompTypes>(props: 
   );
 }
 
-export function GenericComponent<Type extends CompTypes = CompTypes>({
+function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
   node,
   overrideItemProps,
   overrideDisplay,
@@ -83,8 +83,9 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     </ComponentErrorBoundary>
   );
 }
-
-GenericComponent.displayName = 'GenericComponent';
+const MemoGenericComponent = React.memo(NonMemoGenericComponent);
+MemoGenericComponent.displayName = 'GenericComponent';
+export const GenericComponent = MemoGenericComponent as typeof NonMemoGenericComponent;
 
 function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   node,
