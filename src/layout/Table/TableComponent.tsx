@@ -22,9 +22,16 @@ type TableSummaryProps = {
 };
 
 export function TableSummary({ componentNode }: TableSummaryProps) {
-  const item = useNodeItem(componentNode);
-  const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
-  const { title } = item.textResourceBindings ?? {};
+  const { dataModelBindings, textResourceBindings, columns } = useNodeItem(componentNode, (item) => ({
+    dataModelBindings: item.dataModelBindings,
+    textResourceBindings: item.textResourceBindings,
+    columns: item.columns,
+  }));
+
+  //st item = useNodeItem(componentNode);
+
+  const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
+  const { title } = textResourceBindings ?? {};
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
 
@@ -41,7 +48,7 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
     <AppTable<IDataModelReference[]>
       caption={title && <Caption title={<Lang id={title} />} />}
       data={data}
-      columns={item.columns.map((config) => ({
+      columns={columns.map((config) => ({
         ...config,
         header: langAsString(config.header),
       }))}
