@@ -28,8 +28,9 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
 
-  const data = formData.simpleBinding as IDataModelReference[];
-  if (!data) {
+  const data = formData.simpleBinding;
+
+  if (!Array.isArray(data)) {
     return null;
   }
 
@@ -65,7 +66,7 @@ export function TableComponent({ node }: TableComponentProps) {
     return null;
   }
 
-  if (data.length < 1) {
+  if (data?.length < 1) {
     return null;
   }
 
