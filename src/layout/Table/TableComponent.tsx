@@ -28,8 +28,6 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
     columns: item.columns,
   }));
 
-  //st item = useNodeItem(componentNode);
-
   const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
   const { title } = textResourceBindings ?? {};
   const { langAsString } = useLanguage();
@@ -50,7 +48,7 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
       data={data}
       columns={columns.map((config) => ({
         ...config,
-        header: langAsString(config.header),
+        header: <Lang id={config.header} />,
       }))}
       mobile={isMobile}
     />
@@ -91,7 +89,7 @@ export function TableComponent({ node }: TableComponentProps) {
           callback: (_) => true,
         });
       },
-      buttonText: langAsString('general.delete'),
+      buttonText: <Lang id={'general.delete'} />,
       icon: <DeleteIcon />,
       color: 'danger',
     });
