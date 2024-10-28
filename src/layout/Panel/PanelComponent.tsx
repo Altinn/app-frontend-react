@@ -1,17 +1,16 @@
 import React from 'react';
 
-import { Panel } from '@altinn/altinn-design-system';
-
+import { Panel } from 'src/app-components/panel/Panel';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
-import { getVariant } from 'src/components/form/Panel';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import classes from 'src/layout/Panel/Panel.module.css';
+import classes from 'src/layout/Panel/OldPanel.module.css';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { PropsFromGenericComponent } from 'src/layout';
+
 type IPanelProps = PropsFromGenericComponent<'Panel'>;
 
 export const PanelComponent = ({ node }: IPanelProps) => {
@@ -45,9 +44,9 @@ export const PanelComponent = ({ node }: IPanelProps) => {
         )}
       >
         <Panel
-          title={textResourceBindings.title ? <Lang id={textResourceBindings.title} /> : null}
+          title={textResourceBindings.title ? <Lang id={textResourceBindings.title} /> : undefined}
           showIcon={showIcon}
-          variant={getVariant({ variant })}
+          variant={variant ?? 'info'}
           forceMobileLayout={!fullWidth}
         >
           <Lang id={textResourceBindings.body} />

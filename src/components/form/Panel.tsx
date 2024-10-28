@@ -5,9 +5,9 @@ import { Panel as PanelDesignSystem, PanelVariant } from '@altinn/altinn-design-
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { useFormComponentCtx } from 'src/layout/FormComponentContext';
-import { assertUnreachable } from 'src/types';
 import type { IPanelBase } from 'src/layout/common.generated';
 
+// TODO: remove
 interface IGetVariantProps {
   variant: IPanelBase['variant'];
 }
@@ -28,8 +28,6 @@ export const getVariant = ({ variant }: IGetVariantProps = defaultObj) => {
     case 'warning':
       return PanelVariant.Warning;
   }
-
-  return assertUnreachable(variant, () => PanelVariant.Info);
 };
 
 export interface IPanelProps {

@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import deepEqual from 'fast-deep-equal';
 
+import { Panel } from 'src/app-components/panel/Panel';
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
@@ -149,6 +150,9 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
           />
         </Grid>
       </Grid>
+      <Panel variant='info'>
+        <></>
+      </Panel>
       <ReadyForPrint />
       <HandleNavigationFocusComponent />
     </>

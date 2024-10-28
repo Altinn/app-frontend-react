@@ -112,6 +112,15 @@ const common = {
       .setTitle('Grid')
       .setDescription('Settings for the components grid. Used for controlling horizontal alignment'),
 
+  /**
+ *
+ * IPanelVariant: () =>
+  //   new CG.enum('info', 'warning', 'error', 'success')
+  //     .optional()
+  //     .setTitle('Panel variant')
+  //     .setDescription('Change the look of the panel'),
+ */
+
   // Panel display mode:
   IPanelBase: () =>
     new CG.obj(
