@@ -135,7 +135,7 @@ export function AppTable<T extends object>({
               );
             })}
 
-            {actionButtons && actionButtons?.length > 0 && (
+            {actionButtons && actionButtons.length > 0 && (
               <Table.Cell>
                 <div className={classes.buttonContainer}>
                   {actionButtons?.map((button, idx) => (
