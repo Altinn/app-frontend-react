@@ -28,7 +28,7 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
 
-  const data = formData.simpleBinding;
+  const data = formData.tableData;
 
   if (!Array.isArray(data)) {
     return null;
@@ -38,10 +38,10 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
     return null;
   }
   return (
-    <AppTable<IDataModelReference>
+    <AppTable<IDataModelReference[]>
       caption={title && <Caption title={<Lang id={title} />} />}
       data={data}
-      columns={item.columnConfig.map((config) => ({
+      columns={item.columns.map((config) => ({
         ...config,
         header: langAsString(config.header),
       }))}
@@ -60,7 +60,7 @@ export function TableComponent({ node }: TableComponentProps) {
   const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
 
-  const data = formData.simpleBinding;
+  const data = formData.tableData;
 
   if (!Array.isArray(data)) {
     return null;
@@ -78,8 +78,8 @@ export function TableComponent({ node }: TableComponentProps) {
         removeFromList({
           startAtIndex: idx,
           reference: {
-            dataType: item.dataModelBindings.simpleBinding.dataType,
-            field: item.dataModelBindings.simpleBinding.field,
+            dataType: item.dataModelBindings.tableData.dataType,
+            field: item.dataModelBindings.tableData.field,
           },
           callback: (_) => true,
         });
@@ -91,7 +91,7 @@ export function TableComponent({ node }: TableComponentProps) {
   }
 
   return (
-    <AppTable<IDataModelReference>
+    <AppTable<IDataModelReference[]>
       zebra={item.zebra}
       size={item.size}
       caption={
@@ -104,7 +104,7 @@ export function TableComponent({ node }: TableComponentProps) {
         )
       }
       data={data}
-      columns={item.columnConfig.map((config) => ({
+      columns={item.columns.map((config) => ({
         ...config,
         header: langAsString(config.header),
       }))}
