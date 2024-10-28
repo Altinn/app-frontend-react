@@ -8,7 +8,7 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Table extends TableDef {
-  validateDataModelBindings(ctx: LayoutValidationCtx<'Table'>): string[] {
+  validateDataModelBindings(ctx: LayoutValidationCtx<'Tabgile'>): string[] {
     const [errors, result] = this.validateDataModelBindingsAny(ctx, 'tableData', ['array']);
     if (errors) {
       return errors;
