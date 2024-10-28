@@ -111,7 +111,7 @@ export function TableComponent({ node }: TableComponentProps) {
       data={data}
       columns={item.columns.map((config) => ({
         ...config,
-        header: langAsString(config.header),
+        header: <Lang id={config.header} />,
       }))}
       mobile={isMobile}
       actionButtons={actionButtons}
