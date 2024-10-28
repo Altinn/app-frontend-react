@@ -60,13 +60,13 @@ export function TableComponent({ node }: TableComponentProps) {
   const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
 
-  const data = formData.simpleBinding as IDataModelReference[];
+  const data = formData.simpleBinding;
 
-  if (!data) {
+  if (!Array.isArray(data)) {
     return null;
   }
 
-  if (data?.length < 1) {
+  if (data.length < 1) {
     return null;
   }
 
