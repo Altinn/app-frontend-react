@@ -1,11 +1,12 @@
 import React from 'react';
 import type { CSSProperties } from 'react';
 
-import { Card } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
+import { Card, Heading, Paragraph } from '@digdir/designsystemet-react';
+import Grid from '@material-ui/core/Grid';
 
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
+import classes from 'src/layout/Cards/Cards.module.css';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -39,7 +40,6 @@ export const Cards = ({ node }: ICardsProps) => {
           <Card
             key={idx}
             color={color}
-            style={{ height: '100%' }}
           >
             {mediaPosition === 'top' && (
               <Media
@@ -48,32 +48,29 @@ export const Cards = ({ node }: ICardsProps) => {
                 minMediaHeight={processedMinMediaHeight}
               />
             )}
-            {card.title && (
+            {(card.title || card.description) && (
               <Card.Block>
-                <Lang id={card.title} />
-              </Card.Block>
-            )}
-            {card.description && (
-              <Card.Block>
-                <Lang id={card.description} />
+                {card.title && (
+                  <Heading data-size='md'>
+                    <Lang id={card.title} />
+                  </Heading>
+                )}
+                {card.description && (
+                  <Paragraph>
+                    <Lang id={card.description} />
+                  </Paragraph>
+                )}
               </Card.Block>
             )}
             {card.children && card.children.length > 0 && (
-              <Grid
-                container={true}
-                item={true}
-                direction='row'
-                spacing={6}
-              >
-                <Grid
-                  container={true}
-                  alignItems='flex-start'
-                  item={true}
-                  spacing={6}
+              <Card.Block>
+                <CardProvider
+                  node={node}
+                  renderedInMedia={false}
                 >
-                  <CardProvider
-                    node={node}
-                    renderedInMedia={false}
+                  <Grid
+                    container
+                    spacing={6}
                   >
                     {card.children.filter(typedBoolean).map((childNode, idx) => (
                       <GenericComponent
@@ -81,13 +78,15 @@ export const Cards = ({ node }: ICardsProps) => {
                         node={childNode}
                       />
                     ))}
-                  </CardProvider>
-                </Grid>
-              </Grid>
+                  </Grid>
+                </CardProvider>
+              </Card.Block>
             )}
             {card.footer && (
               <Card.Block>
-                <Lang id={card.footer} />
+                <Paragraph data-size='sm'>
+                  <Lang id={card.footer} />
+                </Paragraph>
               </Card.Block>
             )}
             {mediaPosition === 'bottom' && (
@@ -116,7 +115,7 @@ function Media({ card, node, minMediaHeight }: MediaProps) {
   }
 
   return (
-    <Card.Block>
+    <Card.Block className={classes.mediaCard}>
       <CardProvider
         node={node}
         renderedInMedia={true}
