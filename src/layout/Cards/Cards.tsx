@@ -1,19 +1,16 @@
 import React from 'react';
 import type { CSSProperties } from 'react';
 
-import { Card, Heading, Paragraph } from '@digdir/designsystemet-react';
-import Grid from '@material-ui/core/Grid';
-
+import { AppCard } from 'src/app-components/Card/Card';
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
-import classes from 'src/layout/Cards/Cards.module.css';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CardInternal } from 'src/layout/Cards/CardsPlugin';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ICardsProps = PropsFromGenericComponent<'Cards'>;
 
@@ -37,102 +34,74 @@ export const Cards = ({ node }: ICardsProps) => {
     <ComponentStructureWrapper node={node}>
       <div style={cardContainer}>
         {cardsInternal.map((card, idx) => (
-          <Card
+          <AppCard
             key={idx}
+            title={card.title && <Lang id={card.title} />}
+            description={card.description && <Lang id={card.description} />}
+            footer={card.footer && <Lang id={card.footer} />}
             color={color}
+            mediaPosition={mediaPosition}
+            media={
+              card.media && (
+                <CardItem
+                  key={idx}
+                  node={card.media}
+                  parentNode={node}
+                  isMedia={true}
+                  minMediaHeight={processedMinMediaHeight}
+                />
+              )
+            }
           >
-            {mediaPosition === 'top' && (
-              <Media
-                card={card}
-                node={node}
-                minMediaHeight={processedMinMediaHeight}
-              />
-            )}
-            {(card.title || card.description) && (
-              <Card.Block>
-                {card.title && (
-                  <Heading data-size='md'>
-                    <Lang id={card.title} />
-                  </Heading>
-                )}
-                {card.description && (
-                  <Paragraph>
-                    <Lang id={card.description} />
-                  </Paragraph>
-                )}
-              </Card.Block>
-            )}
-            {card.children && card.children.length > 0 && (
-              <Card.Block>
-                <CardProvider
-                  node={node}
-                  renderedInMedia={false}
-                >
-                  <Grid
-                    container
-                    spacing={6}
-                  >
-                    {card.children.filter(typedBoolean).map((childNode, idx) => (
-                      <GenericComponent
-                        key={idx}
-                        node={childNode}
-                      />
-                    ))}
-                  </Grid>
-                </CardProvider>
-              </Card.Block>
-            )}
-            {card.footer && (
-              <Card.Block>
-                <Paragraph data-size='sm'>
-                  <Lang id={card.footer} />
-                </Paragraph>
-              </Card.Block>
-            )}
-            {mediaPosition === 'bottom' && (
-              <Media
-                card={card}
-                node={node}
-                minMediaHeight={processedMinMediaHeight}
-              />
-            )}
-          </Card>
+            {card?.children &&
+              card.children?.length > 0 &&
+              card.children?.filter(typedBoolean).map((childNode, idx) => (
+                <CardItem
+                  key={idx}
+                  node={childNode}
+                  parentNode={node}
+                  isMedia={false}
+                />
+              ))}
+          </AppCard>
         ))}
       </div>
     </ComponentStructureWrapper>
   );
 };
 
-interface MediaProps {
-  card: CardInternal;
-  node: LayoutNode<'Cards'>;
-  minMediaHeight: string | undefined;
-}
+type CardItemProps = {
+  node: LayoutNode;
+  parentNode: BaseLayoutNode<'Cards'>;
+  isMedia: boolean;
+  minMediaHeight?: string;
+};
 
-function Media({ card, node, minMediaHeight }: MediaProps) {
-  if (!card.media) {
-    return null;
-  }
-
+function CardItem({ node, parentNode, isMedia, minMediaHeight }: CardItemProps) {
   return (
-    <Card.Block className={classes.mediaCard}>
-      <CardProvider
-        node={node}
-        renderedInMedia={true}
-        minMediaHeight={minMediaHeight}
+    <CardProvider
+      node={parentNode}
+      renderedInMedia={isMedia}
+      minMediaHeight={minMediaHeight}
+    >
+      <ConditionalWrapper
+        condition={isMedia}
+        wrapper={(children) => (
+          <div
+            data-componentid={node.id}
+            data-componentbaseid={node.baseId}
+          >
+            {children}
+          </div>
+        )}
       >
-        <div
-          data-componentid={card.media.id}
-          data-componentbaseid={card.media.baseId}
-        >
-          <GenericComponent
-            node={card.media}
-            overrideDisplay={{
-              directRender: true,
-            }}
-          />
-        </div>
-      </CardProvider>
-    </Card.Block>
+        <GenericComponent
+          node={node}
+          overrideDisplay={{
+            directRender: true,
+          }}
+        />
+      </ConditionalWrapper>
+    </CardProvider>
   );
 }
