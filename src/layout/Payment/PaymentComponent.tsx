@@ -59,12 +59,12 @@ export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>)
         />
         <div className={classes.alertContainer}>
           {(paymentInfo?.status === PaymentStatus.Failed || paymentError) && (
-            <Alert severity='warning'>
+            <Alert color='warning'>
               <Lang id='payment.alert.failed' />
             </Alert>
           )}
           {paymentInfo?.status === PaymentStatus.Paid && (
-            <Alert severity={'info'}>
+            <Alert color={'info'}>
               <Lang id='payment.alert.paid' />
             </Alert>
           )}
@@ -78,10 +78,8 @@ export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>)
               >
                 <Lang id='general.back' />
               </Button>
-              <Button
-                color='success'
-                onClick={() => performPayment()}
-              >
+              <Button className={classes.payButton}>
+                {/*success*/}
                 <Lang id='payment.pay' />
               </Button>
             </>

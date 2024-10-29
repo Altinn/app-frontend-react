@@ -6,7 +6,7 @@
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
-  gap: var(--fds-spacing-2);
+  gap: var(--ds-spacing-2);
 }
 
 .checkboxGroup div label {
@@ -16,7 +16,7 @@
 
 .checkboxLabelContainer {
   display: flex;
-  gap: var(--fds-spacing-1);
+  gap: var(--ds-spacing-1);
   align-items: center;
 }
 

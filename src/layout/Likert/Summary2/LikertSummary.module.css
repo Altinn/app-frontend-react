@@ -7,7 +7,7 @@
 .summaryItemWrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--fds-spacing-6);
+  gap: var(--ds-spacing-6);
 }
 
 .editButton {

@@ -22,40 +22,38 @@ export function DatePickerDialog({
 
   if (isMobile) {
     return (
-      <>
-        {trigger}
+      <Modal.Context>
+        <Modal.Trigger asChild>{trigger}</Modal.Trigger>
         <Modal
           role='dialog'
           ref={modalRef}
-          onInteractOutside={() => setIsDialogOpen(false)}
+          backdropClose
           style={{ width: 'fit-content', minWidth: 'fit-content' }}
         >
-          <Modal.Content>{children}</Modal.Content>
+          {children}
         </Modal>
-      </>
+      </Modal.Context>
     );
   }
   return (
-    <Popover
-      portal={true}
-      open={isDialogOpen}
-      onClose={() => setIsDialogOpen(false)}
-      size='lg'
-      placement='top'
-    >
+    <Popover.Context>
       <Popover.Trigger
         onClick={() => setIsDialogOpen(!isDialogOpen)}
-        asChild={true}
+        asChild
       >
         {trigger}
       </Popover.Trigger>
-      <Popover.Content
+      <Popover
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        size='lg'
+        placement='top'
         className={styles.calendarWrapper}
         aria-modal
         autoFocus={true}
       >
         {children}
-      </Popover.Content>
-    </Popover>
+      </Popover>
+    </Popover.Context>
   );
 }

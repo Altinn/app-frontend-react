@@ -2,10 +2,10 @@
   margin-bottom: 0;
 }
 .calendarGrid {
-  gap: var(--fds-spacing-2);
+  gap: var(--ds-spacing-2);
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--fds-spacing-2);
+  margin-bottom: var(--ds-spacing-2);
 }
 
 .formatText {
@@ -20,29 +20,29 @@
 }
 
 .selectedDate {
-  background-color: var(--fds-colors-blue-900);
+  background-color: var(--ds-colors-blue-900);
   color: white;
   font-weight: normal;
-  border-radius: var(--fds-border_radius-medium);
+  border-radius: var(--ds-border-radius-md);
 }
 .selectedDate button {
   color: white;
 }
 .disabledDate {
-  border-radius: var(--fds-border_radius-medium);
-  background: var(--fds-colors-grey-100);
+  border-radius: var(--ds-border-radius-md);
+  background: var(--ds-colors-grey-100);
   cursor: not-allowed;
 }
 .disabledDate button {
   text-decoration: line-through;
 }
 .focusedDate {
-  border-radius: var(--fds-border_radius-medium);
-  background: var(--fds-colors-blue-200);
+  border-radius: var(--ds-border-radius-md);
+  background: var(--ds-colors-blue-200);
 }
 .today {
-  border-radius: var(--fds-border_radius-medium);
-  border: var(--fds-border_width-default) solid var(--fds-colors-blue-200);
+  border-radius: var(--ds-border-radius-md);
+  border: var(--ds-border_width-default) solid var(--ds-colors-blue-200);
 }
 .disabledDate:hover button {
   cursor: not-allowed;
@@ -66,8 +66,8 @@
   font-weight: 500;
 }
 .calendarDay:hover {
-  border-radius: var(--fds-border_radius-medium);
-  background: var(--fds-colors-blue-200);
+  border-radius: var(--ds-border-radius-md);
+  background: var(--ds-colors-blue-200);
 }
 .calendarDay {
   width: 48px;
@@ -83,7 +83,7 @@
 .monthWrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--fds-spacing-2);
+  gap: var(--ds-spacing-2);
 }
 .dropdownCaption {
   display: flex;
@@ -94,12 +94,12 @@
 .calendarInputWrapper {
   display: flex;
   border-radius: 4px;
-  border: var(--fds-border_width-default, 1px) solid var(--fds-semantic-border-neutral-default);
-  gap: var(--fds-spacing-1);
+  border: var(--ds-border_width-default, 1px) solid var(--ds-color-neutral-border-default);
+  gap: var(--ds-spacing-1);
   background: white;
 }
 .calendarInputWrapper:hover {
-  box-shadow: inset 0 0 0 1px var(--fds-semantic-border-input-hover);
+  box-shadow: inset 0 0 0 1px var(--ds-semantic-border-input-hover);
 }
 .calendarInput {
   padding: 1px;

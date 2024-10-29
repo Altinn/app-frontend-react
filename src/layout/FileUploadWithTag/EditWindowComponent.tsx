@@ -215,7 +215,7 @@ export function EditWindowComponent({
                 />
               ) : (
                 <Button
-                  size='small'
+                  size='sm'
                   onClick={handleSave}
                   id={`attachment-save-tag-button-${uniqueId}`}
                 >

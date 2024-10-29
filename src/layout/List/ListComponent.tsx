@@ -151,9 +151,8 @@ export const ListComponent = ({ node }: IListProps) => {
             {Object.entries(tableHeaders).map(([key, value]) => (
               <Table.HeaderCell
                 key={key}
-                sortable={sortableColumns?.includes(key)}
-                sort={sortColumn === key ? sortDirection : undefined}
-                onSortClick={() => {
+                sort={sortableColumns?.includes(key) && sortColumn === key ? sortDirection : undefined}
+                onClick={() => {
                   if (sortColumn === key) {
                     setSortDirection(sortDirection === 'ascending' ? 'descending' : 'ascending');
                   } else {

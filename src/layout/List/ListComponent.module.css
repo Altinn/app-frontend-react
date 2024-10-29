@@ -5,7 +5,7 @@
 
 .listTable caption {
   text-align: left;
-  padding-bottom: var(--fds-spacing-4);
+  padding-bottom: var(--ds-spacing-4);
 }
 
 .listTable th:first-of-type {
@@ -13,7 +13,7 @@
 }
 
 .listTable th {
-  background-color: var(--fds-colors-grey-100);
+  background-color: var(--ds-colors-grey-100);
 }
 
 .listTable tr {
@@ -32,7 +32,7 @@
 
 .selectedRow,
 .selectedRowCell {
-  background-color: var(--fds-colors-blue-100);
+  background-color: var(--ds-colors-blue-100);
 }
 
 .pagination {
@@ -40,7 +40,7 @@
   display: flex;
   justify-content: end;
   align-items: center;
-  background-color: var(--fds-colors-grey-100);
+  background-color: var(--ds-colors-grey-100);
 }
 
 .paginationMobile {
@@ -53,17 +53,17 @@
 }
 
 .mobileRadioGroup > div :hover {
-  background-color: var(--fds-colors-grey-100);
+  background-color: var(--ds-colors-grey-100);
 }
 
 .mobileRadio {
-  border-top: 1px solid var(--fds-colors-grey-200);
-  padding: var(--fds-spacing-4);
-  gap: var(--fds-spacing-8);
+  border-top: 1px solid var(--ds-colors-grey-200);
+  padding: var(--ds-spacing-4);
+  gap: var(--ds-spacing-8);
 }
 
 .mobileRadio input:checked:hover {
-  background-color: var(--fds-radio-border-color);
+  background-color: var(--ds-radio-border-color);
 }
 
 .mobileRadio label {
@@ -73,11 +73,11 @@
 .mobileRadio span {
   display: flex;
   flex-direction: column;
-  gap: var(--fds-spacing-4);
+  gap: var(--ds-spacing-4);
 }
 
 .mobileRadio label div {
   display: flex;
   flex-direction: column;
-  gap: var(--fds-spacing-2);
+  gap: var(--ds-spacing-2);
 }

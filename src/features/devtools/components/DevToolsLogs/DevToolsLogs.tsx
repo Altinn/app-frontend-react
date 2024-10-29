@@ -50,8 +50,8 @@ export const DevToolsLogs = () => {
       <div className={classes.toolbar}>
         <Button
           onClick={clearLogs}
-          color={'second'}
-          size='small'
+          color='neutral'
+          size='sm'
           icon={true}
         >
           <TrashIcon
@@ -61,8 +61,8 @@ export const DevToolsLogs = () => {
         </Button>
         <Button
           onClick={saveLogs}
-          color={'second'}
-          size='small'
+          color='neutral'
+          size='sm'
           icon={true}
         >
           <DownloadIcon
@@ -72,7 +72,7 @@ export const DevToolsLogs = () => {
         </Button>
         <div className={classes.filterField}>
           <Textfield
-            size='small'
+            size='sm'
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder='Filtrer logger'
@@ -81,8 +81,8 @@ export const DevToolsLogs = () => {
 
         <Button
           onClick={() => toggleShow('error')}
-          size='small'
-          color='second'
+          size='sm'
+          color='neutral'
           variant={showLevels.error ? 'primary' : 'secondary'}
           icon={true}
         >
@@ -93,8 +93,8 @@ export const DevToolsLogs = () => {
         </Button>
         <Button
           onClick={() => toggleShow('warn')}
-          size='small'
-          color='second'
+          size='sm'
+          color='neutral'
           variant={showLevels.warn ? 'primary' : 'secondary'}
           icon={true}
         >
@@ -105,8 +105,8 @@ export const DevToolsLogs = () => {
         </Button>
         <Button
           onClick={() => toggleShow('info')}
-          size='small'
-          color='second'
+          size='sm'
+          color='neutral'
           variant={showLevels.info ? 'primary' : 'secondary'}
           icon={true}
         >

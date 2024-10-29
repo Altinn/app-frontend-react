@@ -69,7 +69,7 @@ export function AddressComponent({ node }: IAddressProps) {
               id={`address_address_${id}`}
               data-bindingkey={bindingKeys.address}
               error={hasValidationErrors(bindingValidations?.address)}
-              size={'small'}
+              size={'sm'}
               value={address}
               onChange={(ev) => setValue('address', ev.target.value)}
               onBlur={debounce}
@@ -99,7 +99,7 @@ export function AddressComponent({ node }: IAddressProps) {
                 id={`address_care_of_${id}`}
                 data-bindingkey={bindingKeys.careOf}
                 error={hasValidationErrors(bindingValidations?.careOf)}
-                size={'small'}
+                size={'sm'}
                 value={careOf}
                 onChange={(ev) => setValue('careOf', ev.target.value)}
                 onBlur={debounce}
@@ -130,7 +130,7 @@ export function AddressComponent({ node }: IAddressProps) {
               id={`address_zip_code_${id}`}
               data-bindingkey={bindingKeys.zipCode}
               error={hasValidationErrors(bindingValidations?.zipCode)}
-              size='small'
+              size='sm'
               value={zipCode}
               onChange={(ev) => setValue('zipCode', ev.target.value)}
               onBlur={debounce}
@@ -155,7 +155,7 @@ export function AddressComponent({ node }: IAddressProps) {
               id={`address_post_place_${id}`}
               data-bindingkey={bindingKeys.postPlace}
               error={hasValidationErrors(bindingValidations?.postPlace)}
-              size='small'
+              size='sm'
               value={postPlace}
               readOnly={true}
               required={required}
@@ -184,7 +184,7 @@ export function AddressComponent({ node }: IAddressProps) {
                 id={`address_house_number_${id}`}
                 data-bindingkey={bindingKeys.houseNumber}
                 error={hasValidationErrors(bindingValidations?.houseNumber)}
-                size={'small'}
+                size={'sm'}
                 value={houseNumber}
                 onChange={(ev) => setValue('houseNumber', ev.target.value)}
                 onBlur={debounce}

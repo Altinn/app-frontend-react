@@ -210,8 +210,24 @@ export function useActionAuthorization() {
 }
 
 export const buttonStyles: { [style in CBTypes.ButtonStyle]: { color: ButtonColor; variant: ButtonVariant } } = {
-  primary: { variant: 'primary', color: 'success' },
-  secondary: { variant: 'secondary', color: 'first' },
+  primary: { variant: 'primary', color: 'accent' }, //success
+  secondary: { variant: 'secondary', color: 'accent' },
+};
+
+const sizeMap: Record<string, 'sm' | 'md' | 'lg'> = {
+  small: 'sm',
+  medium: 'md',
+  large: 'lg',
+  sm: 'sm',
+  md: 'md',
+  lg: 'lg',
+};
+
+const colorMap: Record<string, ButtonColor> = {
+  first: 'accent',
+  second: 'neutral',
+  success: 'accent',
+  danger: 'danger',
 };
 
 export const CustomButtonComponent = ({ node }: Props) => {
@@ -275,8 +291,8 @@ export const CustomButtonComponent = ({ node }: Props) => {
         id={`custom-button-${id}`}
         disabled={disabled}
         onClick={onClick}
-        size={buttonSize}
-        color={buttonColor ?? style.color}
+        size={sizeMap[buttonSize ?? 'medium']}
+        color={colorMap[buttonColor ?? 'accent'] ?? style.color}
         variant={style.variant}
         aria-busy={isPending}
       >

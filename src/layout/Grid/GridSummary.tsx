@@ -1,7 +1,7 @@
 import React from 'react';
 import type { JSX, PropsWithChildren } from 'react';
 
-import { ErrorMessage, Heading, Table } from '@digdir/designsystemet-react';
+import { Heading, Table, ValidationMessage } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { LabelContent } from 'src/components/label/LabelContent';
@@ -348,13 +348,13 @@ function CellWithComponent({
       <div className={cn({ [classes.errorMessage]: errors.length > 0 })}></div>
       {errors.length > 0 &&
         errors.map(({ message }) => (
-          <ErrorMessage key={message.key}>
+          <ValidationMessage key={message.key}>
             <Lang
               id={message.key}
               params={message.params}
               node={node}
             ></Lang>
-          </ErrorMessage>
+          </ValidationMessage>
         ))}
     </CellComponent>
   );

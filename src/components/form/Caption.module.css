@@ -1,6 +1,6 @@
 .tableCaption {
   text-align: left;
-  padding-bottom: var(--fds-spacing-2);
+  padding-bottom: var(--ds-spacing-2);
 }
 
 .captionTitle {
@@ -10,5 +10,5 @@
 }
 
 .description {
-  padding-bottom: var(--fds-spacing-3);
+  padding-bottom: var(--ds-spacing-3);
 }

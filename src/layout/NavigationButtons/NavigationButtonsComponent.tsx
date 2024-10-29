@@ -120,7 +120,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
             <Button
               disabled={isSaving}
               ref={refNext}
-              size='small'
+              size='sm'
               onClick={onClickBackToSummary}
             >
               <Lang id={returnToViewText} />
@@ -132,7 +132,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
             <Button
               disabled={isSaving}
               ref={refNext}
-              size='small'
+              size='sm'
               onClick={onClickNext}
               // If we are showing a back to summary button, we want the "next" button to be secondary
               variant={showBackToSummaryButton ? 'secondary' : 'primary'}
@@ -146,7 +146,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
             <Button
               disabled={isSaving}
               ref={refPrev}
-              size='small'
+              size='sm'
               variant={showNextButton || showBackToSummaryButton ? 'secondary' : 'primary'}
               onClick={onClickPrevious}
             >

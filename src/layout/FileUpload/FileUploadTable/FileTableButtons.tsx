@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Button } from '@digdir/designsystemet-react';
-import { PencilIcon, TrashIcon } from '@navikt/aksel-icons';
+import { Delete, Edit } from '@navikt/ds-icons';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
@@ -76,9 +76,9 @@ export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpe
     >
       <Button
         className={classes.button}
-        size='small'
+        size='sm'
         variant='tertiary'
-        color={showEditButton ? 'second' : 'danger'}
+        color={showEditButton ? 'neutral' : 'danger'}
         onClick={() => (showEditButton ? handleEdit(index) : handleDelete())}
         data-testid={`attachment-delete-${index}`}
         aria-label={langAsString(showEditButton ? 'general.edit_alt' : 'general.delete')}
@@ -86,13 +86,13 @@ export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpe
       >
         {!mobileView && <Lang id={showEditButton ? 'general.edit_alt' : 'form_filler.file_uploader_list_delete'} />}
         {showEditButton ? (
-          <PencilIcon
+          <Edit
             fontSize='1rem'
             aria-hidden={true}
           />
         ) : (
-          <TrashIcon
-            fontSize='1rem'
+          <Delete
+            fontSize='1,5rem'
             aria-hidden={true}
           />
         )}

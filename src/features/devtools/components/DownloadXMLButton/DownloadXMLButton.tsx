@@ -90,7 +90,7 @@ const InnerDownloadXMLButton = () => {
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <Button
           variant='secondary'
-          size='small'
+          size='sm'
           onClick={downloadXML}
           disabled={disabled}
         >
@@ -113,7 +113,7 @@ const InnerDownloadXMLButton = () => {
                 onClick: (e) => e.preventDefault(),
               })}
               variant='secondary'
-              size='small'
+              size='sm'
               disabled={disabled}
             >
               {

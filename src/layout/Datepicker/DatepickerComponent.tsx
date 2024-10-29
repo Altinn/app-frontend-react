@@ -84,8 +84,8 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
                   aria-expanded={isDialogOpen}
                   aria-label={langAsString('date_picker.aria_label_icon')}
                   disabled={readOnly}
-                  color='first'
-                  size='small'
+                  color='accent'
+                  size='sm'
                 >
                   <CalendarIcon title={langAsString('date_picker.aria_label_icon')} />
                 </Button>
