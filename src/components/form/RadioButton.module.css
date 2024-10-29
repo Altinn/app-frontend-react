@@ -10,7 +10,7 @@
 
 .card {
   border-radius: 6px;
-  background-color: var(--ds-semantic-background-subtle);
+  background-color: var(--ds-color-neutral-background-subtle);
   width: 100%;
   padding: var(--ds-spacing-2);
   margin-bottom: var(--ds-spacing-3);
@@ -22,21 +22,21 @@
 }
 
 .card:hover {
-  background: var(--ds-semantic-surface-neutral-subtle-hover);
+  background: var(--ds-color-neutral-surface-hover);
 }
 
 .card:active {
-  background: var(--ds-semantic-border-neutral-subtle);
+  background: var(--ds-color-neutral-surface-active);
 }
 
 .card:is(:checked, :has(:checked)) {
-  background: var(--ds-semantic-surface-neutral-selected);
+  background: var(--ds-color-neutral-surface-default);
   box-shadow: 0 0 0 var(--ds-focus-border-width) var(--ds-semantic-border-first-active);
 }
 
 .card:has(:focus-visible) {
   --ds-focus-border-width: 3px;
-  background: var(--ds-semantic-surface-neutral-selected);
+  background: var(--ds-color-neutral-surface-default);
 
   box-shadow: 0 0 0 var(--ds-focus-border-width) var(--ds-inner-focus-border-color);
   outline: var(--ds-focus-border-width) solid var(--ds-outer-focus-border-color);
