@@ -22,13 +22,18 @@ type TableSummaryProps = {
 };
 
 export function TableSummary({ componentNode }: TableSummaryProps) {
-  const item = useNodeItem(componentNode);
-  const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
-  const { title } = item.textResourceBindings ?? {};
+  const { dataModelBindings, textResourceBindings, columns } = useNodeItem(componentNode, (item) => ({
+    dataModelBindings: item.dataModelBindings,
+    textResourceBindings: item.textResourceBindings,
+    columns: item.columns,
+  }));
+
+  const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
+  const { title } = textResourceBindings ?? {};
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
 
-  const data = formData.simpleBinding;
+  const data = formData.tableData;
 
   if (!Array.isArray(data)) {
     return null;
@@ -38,12 +43,12 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
     return null;
   }
   return (
-    <AppTable<IDataModelReference>
+    <AppTable<IDataModelReference[]>
       caption={title && <Caption title={<Lang id={title} />} />}
       data={data}
-      columns={item.columnConfig.map((config) => ({
+      columns={columns.map((config) => ({
         ...config,
-        header: langAsString(config.header),
+        header: <Lang id={config.header} />,
       }))}
       mobile={isMobile}
     />
@@ -60,7 +65,7 @@ export function TableComponent({ node }: TableComponentProps) {
   const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
 
-  const data = formData.simpleBinding;
+  const data = formData.tableData;
 
   if (!Array.isArray(data)) {
     return null;
@@ -78,20 +83,20 @@ export function TableComponent({ node }: TableComponentProps) {
         removeFromList({
           startAtIndex: idx,
           reference: {
-            dataType: item.dataModelBindings.simpleBinding.dataType,
-            field: item.dataModelBindings.simpleBinding.field,
+            dataType: item.dataModelBindings.tableData.dataType,
+            field: item.dataModelBindings.tableData.field,
           },
           callback: (_) => true,
         });
       },
-      buttonText: langAsString('general.delete'),
+      buttonText: <Lang id={'general.delete'} />,
       icon: <DeleteIcon />,
       color: 'danger',
     });
   }
 
   return (
-    <AppTable<IDataModelReference>
+    <AppTable<IDataModelReference[]>
       zebra={item.zebra}
       size={item.size}
       caption={
@@ -104,9 +109,9 @@ export function TableComponent({ node }: TableComponentProps) {
         )
       }
       data={data}
-      columns={item.columnConfig.map((config) => ({
+      columns={item.columns.map((config) => ({
         ...config,
-        header: langAsString(config.header),
+        header: <Lang id={config.header} />,
       }))}
       mobile={isMobile}
       actionButtons={actionButtons}

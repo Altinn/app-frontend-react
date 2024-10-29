@@ -19,10 +19,17 @@ export const Config = new CG.component({
   .extends(CG.common('LabeledComponentProps'))
   .extendTextResources(CG.common('TRBLabel'))
   .addProperty(new CG.prop('title', new CG.str()))
-  .addDataModelBinding(CG.common('IDataModelBindingsSimple'))
+  .addDataModelBinding(
+    new CG.obj(
+      new CG.prop(
+        'tableData',
+        new CG.dataModelBinding().setTitle('TableData').setDescription('Array of objects where the data is stored'),
+      ),
+    ).exportAs('IDataModelBindingsForTable'),
+  )
   .addProperty(
     new CG.prop(
-      'columnConfig',
+      'columns',
       new CG.arr(
         new CG.obj(
           new CG.prop('header', new CG.str()),
@@ -32,7 +39,7 @@ export const Config = new CG.component({
               .setTitle('Accessors')
               .setDescription('List of fields that should be included in the cell'),
           ),
-        ).exportAs('ColumnConfig'),
+        ).exportAs('Columns'),
       ),
     ),
   )
@@ -50,13 +57,4 @@ export const Config = new CG.component({
   )
   .addProperty(
     new CG.prop('size', new CG.enum('sm', 'md', 'lg').setTitle('Size').setDescription('Size of table.').optional()),
-  )
-  .addProperty(
-    new CG.prop(
-      'excludedChildren',
-      new CG.arr(new CG.enum('action', 'md', 'lg'))
-        .optional()
-        .setTitle('Excluded child components')
-        .setDescription("Array of component IDs that should not be shown in a repeating group's summary"),
-    ),
   );
