@@ -23,13 +23,17 @@ type TableSummaryProps = {
 };
 
 export function TableSummary({ componentNode }: TableSummaryProps) {
-  const item = useNodeItem(componentNode);
-  const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
-  const { title } = item.textResourceBindings ?? {};
-  const { langAsString } = useLanguage();
+  const { dataModelBindings, textResourceBindings, columns } = useNodeItem(componentNode, (item) => ({
+    dataModelBindings: item.dataModelBindings,
+    textResourceBindings: item.textResourceBindings,
+    columns: item.columns,
+  }));
+
+  const { formData } = useDataModelBindings(dataModelBindings, 1);
+  const { title } = textResourceBindings ?? {};
   const isMobile = useIsMobile();
 
-  const data = formData.simpleBinding;
+  const data = formData.tableData;
 
   if (!Array.isArray(data)) {
     return null;
@@ -39,12 +43,12 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
     return null;
   }
   return (
-    <AppTable<IDataModelReference>
+    <AppTable<IDataModelReference[]>
       caption={title && <Caption title={<Lang id={title} />} />}
       data={data}
-      columns={item.columnConfig.map((config) => ({
+      columns={columns.map((config) => ({
         ...config,
-        header: langAsString(config.header),
+        header: <Lang id={config.header} />,
       }))}
       mobile={isMobile}
     />
@@ -56,7 +60,6 @@ export function TableComponent({ node }: TableComponentProps) {
   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
   const removeFromList = FD.useRemoveFromListCallback();
   const { title, description, help } = item.textResourceBindings ?? {};
-  const { langAsString } = useLanguage();
   const { elementAsString } = useLanguage();
   const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
@@ -65,7 +68,7 @@ export function TableComponent({ node }: TableComponentProps) {
   const [editItemIndex, setEditItemIndex] = useState<number>(-1);
   const setMultiLeafValues = FD.useSetMultiLeafValues();
 
-  const data = formData.simpleBinding;
+  const data = formData.tableData;
 
   const actionButtons: TableActionButton[] = [];
 
@@ -75,13 +78,13 @@ export function TableComponent({ node }: TableComponentProps) {
         removeFromList({
           startAtIndex: idx,
           reference: {
-            dataType: item.dataModelBindings.simpleBinding.dataType,
-            field: item.dataModelBindings.simpleBinding.field,
+            dataType: item.dataModelBindings.tableData.dataType,
+            field: item.dataModelBindings.tableData.field,
           },
           callback: (_) => true,
         });
       },
-      buttonText: langAsString('general.delete'),
+      buttonText: <Lang id={'general.delete'} />,
       icon: <DeleteIcon />,
       color: 'danger',
     });
@@ -97,15 +100,15 @@ export function TableComponent({ node }: TableComponentProps) {
 
   return (
     <>
-      {showEdit && editItemIndex > -1 && formData.simpleBinding && formData.simpleBinding[editItemIndex] && (
+      {showEdit && editItemIndex > -1 && formData.tableData && formData.tableData[editItemIndex] && (
         <AddToListModal
-          dataModelReference={item.dataModelBindings.simpleBinding}
-          initialData={formData.simpleBinding[editItemIndex]}
+          dataModelReference={item.dataModelBindings.tableData}
+          initialData={formData.tableData[editItemIndex]}
           onChange={(formProps) => {
             const changes = Object.entries(formProps).map((entry) => ({
               reference: {
-                dataType: item.dataModelBindings.simpleBinding.dataType,
-                field: `${item.dataModelBindings.simpleBinding.field}[${editItemIndex}].${entry[0]}`,
+                dataType: item.dataModelBindings.tableData.dataType,
+                field: `${item.dataModelBindings.tableData.field}[${editItemIndex}].${entry[0]}`,
               },
               newValue: `${entry[1]}`,
             }));
@@ -119,7 +122,7 @@ export function TableComponent({ node }: TableComponentProps) {
         />
       )}
 
-      <AppTable<IDataModelReference>
+      <AppTable<IDataModelReference[]>
         zebra={item.zebra}
         size={item.size}
         caption={
@@ -132,9 +135,9 @@ export function TableComponent({ node }: TableComponentProps) {
           )
         }
         data={data}
-        columns={item.columnConfig.map((config) => ({
+        columns={item.columns.map((config) => ({
           ...config,
-          header: langAsString(config.header),
+          header: <Lang id={config.header} />,
         }))}
         mobile={isMobile}
         actionButtons={actionButtons}

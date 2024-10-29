@@ -9,7 +9,7 @@ import classes from 'src/app-components/table/Table.module.css';
 
 interface Column {
   /** Header text for the column */
-  header: string;
+  header: React.ReactNode;
   /** Keys of the data item to display in this column */
   accessors: string[];
   /** Optional function to render custom cell content */
@@ -18,7 +18,7 @@ interface Column {
 
 export interface TableActionButton {
   onClick: (rowIdx: number, rowData: object) => void;
-  buttonText: string;
+  buttonText: React.ReactNode;
   icon: React.ReactNode;
   color?: 'first' | 'second' | 'success' | 'danger' | undefined;
   variant?: 'tertiary' | 'primary' | 'secondary' | undefined;
@@ -135,7 +135,7 @@ export function AppTable<T extends object>({
               );
             })}
 
-            {actionButtons && actionButtons?.length > 0 && (
+            {actionButtons && actionButtons.length > 0 && (
               <Table.Cell>
                 <div className={classes.buttonContainer}>
                   {actionButtons?.map((button, idx) => (

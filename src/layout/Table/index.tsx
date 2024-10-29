@@ -8,9 +8,24 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Table extends TableDef {
-  validateDataModelBindings(_: LayoutValidationCtx<'Table'>): string[] {
+  validateDataModelBindings(ctx: LayoutValidationCtx<'Table'>): string[] {
+    const [errors, result] = this.validateDataModelBindingsAny(ctx, 'tableData', ['array']);
+    if (errors) {
+      return errors;
+    }
+
+    if (Array.isArray(result.items) && result?.items.length > 0) {
+      const innerType = result?.items[0];
+      if (typeof innerType !== 'object' || !innerType.type || innerType.type !== 'object') {
+        return [
+          `group-datamodellbindingen må peke på en liste av objekter. Bruk andre komponenter for å vise lister av strings eller tall.`,
+        ];
+      }
+    }
+
     return [];
   }
+
   getDisplayData(): string {
     return '';
   }
