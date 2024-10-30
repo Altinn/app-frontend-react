@@ -9,15 +9,9 @@ import {
 } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
+import { PANEL_VARIANTS } from 'src/app-components/panel/constants';
 import classes from 'src/app-components/panel/Panel.module.css';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-
-export const PANEL_VARIANTS = {
-  Info: 'info',
-  Warning: 'warning',
-  Error: 'error',
-  Success: 'success',
-} as const;
 
 type PanelVariant = (typeof PANEL_VARIANTS)[keyof typeof PANEL_VARIANTS];
 
