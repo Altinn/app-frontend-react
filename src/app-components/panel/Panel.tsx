@@ -95,7 +95,7 @@ export const Panel: React.FC<PanelProps> = ({
         )}
         <div className={classes.panelContent}>
           {title && <h2 className={classes.panelHeader}>{title}</h2>}
-          <div className={classes.panelBody}>{children}</div>
+          <div>{children}</div>
         </div>
       </div>
     </div>
