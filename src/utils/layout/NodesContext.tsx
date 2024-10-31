@@ -845,15 +845,15 @@ function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined
 
 export function isHidden(
   state: NodesContext,
-  node: LayoutNode | LayoutPage | undefined,
+  nodeOrId: LayoutNode | LayoutPage | undefined | string,
   _options?: IsHiddenOptions,
 ): boolean | undefined {
-  if (!node) {
+  if (!nodeOrId) {
     return undefined;
   }
 
-  if (node instanceof LayoutPage) {
-    return isHiddenPage(state, node, _options);
+  if (nodeOrId instanceof LayoutPage) {
+    return isHiddenPage(state, nodeOrId, _options);
   }
 
   const options = withDefaults(_options);
@@ -861,7 +861,9 @@ export function isHidden(
     return false;
   }
 
-  const hidden = state.nodeData[node.id]?.hidden;
+  const id = typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id;
+  const node = state.nodes?.findById(new TraversalTask(state, state.nodes, undefined, undefined), id);
+  const hidden = state.nodeData[id]?.hidden;
   if (hidden === undefined) {
     return undefined;
   }
@@ -870,12 +872,12 @@ export function isHidden(
     return true;
   }
 
-  if (state.hiddenViaRules[node.id]) {
+  if (state.hiddenViaRules[id]) {
     return true;
   }
 
-  const parent = node.parent;
-  if (parent instanceof BaseLayoutNode && 'isChildHidden' in parent.def && state.nodeData[parent.id]) {
+  const parent = node?.parent;
+  if (parent && parent instanceof BaseLayoutNode && 'isChildHidden' in parent.def && state.nodeData[parent.id]) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const childHidden = parent.def.isChildHidden(state.nodeData[parent.id] as any, node);
     if (childHidden) {
@@ -922,7 +924,7 @@ export const Hidden = {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     return Store.useDelayedSelector({
       mode: 'simple',
-      selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
+      selector: (node: LayoutNode | LayoutPage | string, options?: IsHiddenOptions) => (state) =>
         isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
     });
   },
@@ -960,10 +962,16 @@ export const Hidden = {
 export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
 export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
 
-export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefined>(node: N) => NodePickerReturns<N>;
+export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefined>(
+  node: N | string,
+) => NodePickerReturns<N>;
 type NodePickerReturns<N extends LayoutNode | undefined> = NodeDataFromNode<N> | undefined;
 
-function selectNodeData<N extends LayoutNode | undefined>(node: N, state: NodesContext): NodePickerReturns<N> {
+function selectNodeData<N extends LayoutNode | undefined>(node: N | string, state: NodesContext): NodePickerReturns<N> {
+  if (typeof node === 'string') {
+    return state.nodeData[node] as NodePickerReturns<N>;
+  }
+
   return (node ? state.nodeData[node.id] : undefined) as NodePickerReturns<N>;
 }
 

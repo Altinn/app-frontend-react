@@ -7,6 +7,7 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import classes from 'src/layout/Likert/Summary2/LikertSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
+import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -60,7 +61,7 @@ export function LikertSummary({ componentNode, emptyFieldText, isCompact }: Like
       {rows.map((row) => (
         <LikertRowSummary
           key={row?.uuid}
-          rowNode={row?.itemNode}
+          rowNodeId={row?.itemNodeId}
           emptyFieldText={emptyFieldText}
           readOnly={readOnly}
           isCompact={isCompact}
@@ -80,13 +81,14 @@ export function LikertSummary({ componentNode, emptyFieldText, isCompact }: Like
 }
 
 type LikertRowSummaryProps = {
-  rowNode?: LayoutNode<'LikertItem'>;
+  rowNodeId?: string;
   emptyFieldText?: string;
   readOnly?: boolean;
   isCompact?: boolean;
 };
 
-function LikertRowSummary({ rowNode, emptyFieldText, readOnly, isCompact }: LikertRowSummaryProps) {
+function LikertRowSummary({ rowNodeId, emptyFieldText, readOnly, isCompact }: LikertRowSummaryProps) {
+  const rowNode = useNode(rowNodeId) as LayoutNode<'LikertItem'> | undefined;
   const title = useNodeItem(rowNode, (i) => i.textResourceBindings?.title);
   const displayData = rowNode?.def.useDisplayData(rowNode);
   const validations = useUnifiedValidationsForNode(rowNode);

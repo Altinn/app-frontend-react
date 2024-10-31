@@ -13,14 +13,14 @@ import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import { GenericComponent } from 'src/layout/GenericComponent';
+import { GenericComponent, GenericComponentById } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
 import {
   isGridCellLabelFrom,
   isGridCellNode,
   isGridCellText,
   isGridRowHidden,
-  useNodesFromGrid,
+  useNodeIdsFromGrid,
 } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -288,7 +288,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
 function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
   const { textResourceBindings, id, labelSettings } = useNodeItem(node);
   const { title, description, help } = textResourceBindings ?? {};
-  const nodes = useNodesFromGrid(node);
+  const nodeIds = useNodeIdsFromGrid(node);
   const isHidden = Hidden.useIsHiddenSelector();
 
   return (
@@ -300,12 +300,12 @@ function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
       labelSettings={labelSettings}
       className={css.mobileFieldset}
     >
-      {nodes
-        .filter((child) => !isHidden(child))
-        .map((child) => (
-          <GenericComponent
-            key={child.id}
-            node={child}
+      {nodeIds
+        .filter((childId) => !isHidden(childId))
+        .map((childId) => (
+          <GenericComponentById
+            key={childId}
+            id={childId}
           />
         ))}
     </Fieldset>

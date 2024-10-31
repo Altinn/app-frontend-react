@@ -11,7 +11,7 @@ import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
@@ -68,10 +68,10 @@ export const RepeatingGroupSummary = ({
               spacing={6}
               alignItems='flex-start'
             >
-              {row?.items?.map((node) => (
-                <ComponentSummary
-                  key={node.id}
-                  componentNode={node}
+              {row?.itemIds?.map((nodeId) => (
+                <ComponentSummaryById
+                  key={nodeId}
+                  componentId={nodeId}
                 />
               ))}
             </Grid>

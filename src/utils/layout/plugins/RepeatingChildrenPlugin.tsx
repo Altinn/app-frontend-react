@@ -19,7 +19,7 @@ import type { BaseRow } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface RepChildrenRow extends BaseRow {
-  itemIds: string[] | undefined;
+  itemIds: string[];
 }
 
 interface Config<
