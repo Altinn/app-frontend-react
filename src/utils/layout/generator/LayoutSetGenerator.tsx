@@ -22,12 +22,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { Hidden, NodesInternal, useNodesWhenNotReady } from 'src/utils/layout/NodesContext';
 import type { CompExternal, CompExternalExact, CompTypes, ILayout } from 'src/layout/layout';
-import type {
-  BasicNodeGeneratorProps,
-  ChildClaimerProps,
-  ComponentProto,
-  ContainerGeneratorProps,
-} from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, ComponentProto, NodeGeneratorProps } from 'src/layout/LayoutComponent';
 import type { ChildClaim, ChildClaims, ChildClaimsMap } from 'src/utils/layout/generator/GeneratorContext';
 
 const style: React.CSSProperties = GeneratorDebug.displayState
@@ -144,7 +139,7 @@ function useChildClaims(layout: ILayout, getProto: (id: string) => ComponentProt
   }, []);
 
   const addClaim = useCallback(
-    (parentId: string, childId: string, pluginKey: string, metadata: unknown) => {
+    (parentId: string, childId: string, pluginKey: string) => {
       if (getProto(childId) === undefined) {
         window.logError(`Component '${childId}' (as referenced by '${parentId}') does not exist`);
         return;
@@ -160,7 +155,7 @@ function useChildClaims(layout: ILayout, getProto: (id: string) => ComponentProt
       // have to wait for the next render to get the updated state).
       mapRef.current[parentId] = {
         ...mapRef.current[parentId],
-        [childId]: { pluginKey, metadata },
+        [childId]: { pluginKey },
       };
       setChildren((prev) => ({ ...prev, map: mapRef.current }));
     },
@@ -285,10 +280,10 @@ function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
   return null;
 }
 
-function useFilteredClaims(claims: ChildClaims, pluginKey: string | undefined) {
+function useFilteredClaims(claims: ChildClaims | undefined, pluginKey: string | undefined) {
   return useMemo(() => {
     if (!pluginKey) {
-      return claims;
+      return claims ?? {};
     }
 
     const out: ChildClaims = {};
@@ -302,7 +297,7 @@ function useFilteredClaims(claims: ChildClaims, pluginKey: string | undefined) {
 }
 
 interface NodeChildrenProps {
-  claims: ChildClaims;
+  claims: ChildClaims | undefined;
   pluginKey: string | undefined;
 }
 
@@ -392,11 +387,10 @@ function ComponentClaimChildren({ component, claims, getProto }: ComponentClaimC
   // otherwise the page will not know if the first pass is done.
   useEffect(() => {
     if (def instanceof ContainerComponent) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const props: ChildClaimerProps<any, unknown> = {
+      const props: ChildClaimerProps<CompTypes> = {
         item: component,
-        claimChild: (pluginKey, childId, metadata) => {
-          addClaim(component.id, childId, pluginKey, metadata);
+        claimChild: (pluginKey, childId) => {
+          addClaim(component.id, childId, pluginKey);
         },
         getProto: (id) => {
           const proto = getProto(id);
@@ -430,21 +424,17 @@ interface ComponentProps {
   childClaims: ChildClaims | undefined;
 }
 
+const emptyObject = {};
 function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
   const def = getComponentDef(layout.type);
-  const props = useMemo(() => {
-    if (def instanceof ContainerComponent) {
-      const out: ContainerGeneratorProps = {
-        claim,
-        externalItem: layout,
-        childClaims: childClaims ?? {},
-      };
-      return out;
-    }
-
-    const out: BasicNodeGeneratorProps = { claim, externalItem: layout };
-    return out;
-  }, [def, claim, layout, childClaims]);
+  const props: NodeGeneratorProps = useMemo(
+    () => ({
+      claim,
+      externalItem: layout,
+      childClaims: childClaims ?? emptyObject,
+    }),
+    [claim, layout, childClaims],
+  );
 
   if (!layout.id && layout.type) {
     window.logError(`Encountered '${layout.type}' component with no ID (ignoring)`);
@@ -478,7 +468,6 @@ function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
       <h3>
         {layout.id} ({layout.type})
       </h3>
-      <span>{childClaims ? `Children: ${Object.keys(childClaims).join(', ')}` : 'No children'}</span>
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <Generator {...(props as any)} />
     </div>

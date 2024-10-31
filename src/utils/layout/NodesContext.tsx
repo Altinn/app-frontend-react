@@ -57,7 +57,6 @@ import type { DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/de
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
-import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
 import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -105,8 +104,6 @@ type ExtraHooks = AllFlat<{
 export interface AddNodeRequest<T extends CompTypes = CompTypes> {
   node: LayoutNode<T>;
   targetState: NodeData<T>;
-  claim: ChildClaim;
-  rowIndex: number | undefined;
 }
 
 export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeData<T>> {
@@ -148,7 +145,7 @@ export type NodesContext = {
 
   setNodes: (nodes: LayoutPages) => void;
   addNodes: (requests: AddNodeRequest[]) => void;
-  removeNode: (node: LayoutNode, claim: ChildClaim, rowIndex: number | undefined) => void;
+  removeNode: (node: LayoutNode) => void;
   setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
   addError: (error: string, node: LayoutPage | LayoutNode) => void;
   markHiddenViaRule: (hiddenFields: { [nodeId: string]: true }) => void;
@@ -215,22 +212,10 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
       set((state) => {
         const nodeData = { ...state.nodeData };
         const childrenMap = { ...state.childrenMap };
-        for (const { node, targetState, claim, rowIndex } of requests) {
+        for (const { node, targetState } of requests) {
           nodeData[node.id] = targetState;
 
           if (node.parent instanceof BaseLayoutNode) {
-            const additionalParentState = node.parent.def.addChild(
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              nodeData[node.parent.id] as any,
-              node,
-              claim,
-              rowIndex,
-            );
-            nodeData[node.parent.id] = {
-              ...nodeData[node.parent.id],
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              ...(additionalParentState as any),
-            };
             childrenMap[node.parent.id] = [...(childrenMap[node.parent.id] || [])];
             childrenMap[node.parent.id]!.push(node.id);
             childrenMap[node.parent.id] = [...new Set(childrenMap[node.parent.id]!)];
@@ -245,7 +230,7 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
           addRemoveCounter: state.addRemoveCounter + 1,
         };
       }),
-    removeNode: (node, claim, rowIndex) =>
+    removeNode: (node) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
         const childrenMap = { ...state.childrenMap };
@@ -254,18 +239,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
         }
 
         if (node.parent instanceof BaseLayoutNode && nodeData[node.parent.id]) {
-          const additionalParentState = node.parent.def.removeChild(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            nodeData[node.parent.id] as any,
-            node,
-            claim,
-            rowIndex,
-          );
-          nodeData[node.parent.id] = {
-            ...nodeData[node.parent.id],
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ...(additionalParentState as any),
-          };
           childrenMap[node.parent.id] = [...(childrenMap[node.parent.id] || [])];
           childrenMap[node.parent.id] = childrenMap[node.parent.id]!.filter((id) => id !== node.id);
         }

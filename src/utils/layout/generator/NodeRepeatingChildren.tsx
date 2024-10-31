@@ -19,12 +19,12 @@ import { useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
 import type { CompDef } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal } from 'src/layout/layout';
-import type { ChildClaims, ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
+import type { ChildClaims, ChildIdMutator, ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { RepChildrenRow } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 
 interface Props {
-  claims: ChildClaims;
+  claims: ChildClaims | undefined;
   internalProp: string;
   externalProp: string;
   binding: string;
@@ -43,6 +43,7 @@ export function NodeRepeatingChildren(props: Props) {
   );
 }
 
+const emptyObject = {};
 function NodeRepeatingChildrenWorker({
   claims,
   binding,
@@ -67,7 +68,7 @@ function NodeRepeatingChildrenWorker({
           <GenerateRow
             rowIndex={index}
             groupBinding={groupBinding}
-            claims={claims}
+            claims={claims ?? emptyObject}
             multiPageMapping={multiPageMapping}
             internalProp={internalProp}
             pluginKey={pluginKey}
@@ -121,6 +122,7 @@ const GenerateRow = React.memo(function GenerateRow({
       rowIndex={rowIndex}
       groupBinding={groupBinding}
       directMutators={directMutators}
+      idMutators={[mutateComponentIdPlain(rowIndex)]}
       recursiveMutators={recursiveMutators}
     >
       <MaintainRowUuid
@@ -211,6 +213,10 @@ function mutateMultiPageIndex(multiPageMapping: MultiPageMapping | undefined): C
       item['multiPageIndex'] = multiPageIndex;
     }
   };
+}
+
+export function mutateComponentIdPlain(rowIndex: number): ChildIdMutator {
+  return (id) => `${id}-${rowIndex}`;
 }
 
 export function mutateComponentId(rowIndex: number): ChildMutator {

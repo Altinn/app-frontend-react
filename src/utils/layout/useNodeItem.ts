@@ -2,8 +2,11 @@ import { useCallback, useMemo, useRef } from 'react';
 import type { MutableRefObject } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
+import { getComponentDef } from 'src/layout';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal, NodesReadiness } from 'src/utils/layout/NodesContext';
+import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
+import { typedBoolean } from 'src/utils/typing';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
@@ -102,18 +105,20 @@ export function useNodeDirectChildren(parent: LayoutNode, restriction?: Traversa
     const out = parent.def.pickDirectChildren(nodeData as any, restriction);
     if (!insideGenerator) {
       // If we're not inside the generator, we should make sure to only return values that make sense.
-      for (const child of out) {
-        if (!child) {
+      for (const childId of out) {
+        if (!childId) {
           // At least one child is undefined, meaning we're in the process of adding/removing nodes. Better to return
           // none than return a broken-up set of children.
           return emptyArray;
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const childNodeData = fullState.nodeData[child.id] as any;
+        const childNodeData = fullState.nodeData[childId] as any;
+        const def = childNodeData && getComponentDef(childNodeData.layout.type);
         if (
           !childNodeData ||
-          !child.def.stateIsReady(childNodeData) ||
-          !child.def.pluginStateIsReady(childNodeData, fullState)
+          !def ||
+          !def.stateIsReady(childNodeData) ||
+          !def.pluginStateIsReady(childNodeData, fullState)
         ) {
           // At least one child is not ready, so rendering these out would be worse than pretending there are none.
           return emptyArray;
@@ -121,8 +126,17 @@ export function useNodeDirectChildren(parent: LayoutNode, restriction?: Traversa
       }
     }
 
-    lastValue.current = out;
-    return out ?? emptyArray;
+    const rootNode = fullState.nodes;
+    if (!rootNode) {
+      return emptyArray;
+    }
+
+    const nodes = out
+      .map((id) => rootNode.findById(new TraversalTask(fullState, rootNode, undefined, undefined), id))
+      .filter(typedBoolean);
+
+    lastValue.current = nodes;
+    return nodes ?? emptyArray;
   });
 }
 

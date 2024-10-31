@@ -7,6 +7,7 @@ import { GeneratorCondition, GeneratorRunProvider, StageAddNodes } from 'src/uti
 import { GenerateNodeChildrenWithStaticLayout } from 'src/utils/layout/generator/LayoutSetGenerator';
 import {
   mutateComponentId,
+  mutateComponentIdPlain,
   mutateDataModelBindings,
   mutateMapping,
 } from 'src/utils/layout/generator/NodeRepeatingChildren';
@@ -128,6 +129,7 @@ const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding
   return (
     <GeneratorRowProvider
       rowIndex={rowIndex}
+      idMutators={[mutateComponentIdPlain(rowIndex)]}
       recursiveMutators={recursiveMutators}
       groupBinding={questionsBinding}
     >

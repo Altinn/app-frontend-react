@@ -19,7 +19,7 @@ import type { BaseRow } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface RepChildrenRow extends BaseRow {
-  items: LayoutNode[] | undefined;
+  itemIds: string[] | undefined;
 }
 
 interface Config<
@@ -150,7 +150,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     ];
   }
 
-  itemFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>) {
+  itemFactory({ item, idMutators }: DefPluginStateFactoryProps<ToInternal<E>>) {
     // Components with repeating children will have exactly _zero_ rows to begin with. We can't rely on
     // addChild() being called when there are no children, so to start off we'll have to initialize it all
     // with no rows to avoid later code crashing when there's no array of rows yet.
@@ -174,15 +174,15 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
         }
 
         const [, childId] = id.split(':', 2);
-        claimChild(childId, undefined);
+        claimChild(childId);
       } else {
-        claimChild(id, undefined);
+        claimChild(id);
       }
     }
   }
 
-  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: TraversalRestriction): LayoutNode[] {
-    const out: LayoutNode[] = [];
+  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: TraversalRestriction): string[] {
+    const out: string[] = [];
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rows = (state.item as any)[this.settings.internalProp] as Row<E>[];
@@ -195,70 +195,12 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
         continue;
       }
 
-      for (const child of row.items || []) {
+      for (const child of row.itemIds || []) {
         child && out.push(child);
       }
     }
 
     return out;
-  }
-
-  addChild(
-    state: DefPluginState<ToInternal<E>>,
-    childNode: LayoutNode,
-    _metadata: undefined,
-    index: number | undefined,
-  ): Partial<DefPluginState<ToInternal<E>>> {
-    const rowIndex = childNode.rowIndex;
-    if (rowIndex === undefined || rowIndex !== index) {
-      throw new Error(`Child node of repeating component missing 'rowIndex' property`);
-    }
-    const item = state.item;
-    const rows = (item && this.settings.internalProp in item ? [...item[this.settings.internalProp]] : []) as Row<E>[];
-    const items = [...(rows[rowIndex]?.items || [])];
-    items.push(childNode);
-
-    // The uuid is set separately, in the MaintainRowUuid component
-    rows[rowIndex] = { uuid: '', ...(rows[rowIndex] || {}), index, items };
-
-    return {
-      item: {
-        ...state.item,
-        [this.settings.internalProp]: rows,
-        [this.settings.externalProp]: undefined,
-      },
-    } as Partial<DefPluginState<ToInternal<E>>>;
-  }
-
-  removeChild(
-    state: DefPluginState<ToInternal<E>>,
-    childNode: LayoutNode,
-    _metadata: undefined,
-    index: number | undefined,
-  ): Partial<DefPluginState<ToInternal<E>>> {
-    const rowIndex = childNode.rowIndex;
-    if (rowIndex === undefined || rowIndex !== index) {
-      throw new Error(`Child node of repeating component missing 'rowIndex' property`);
-    }
-    const item = state.item;
-    const rows = (item && this.settings.internalProp in item ? [...item[this.settings.internalProp]] : []) as Row<E>[];
-    const items = [...(rows[rowIndex]?.items || [])];
-    const idx = items.findIndex((item) => item === childNode);
-    if (idx < 0) {
-      return {};
-    }
-    items.splice(idx, 1);
-
-    // The uuid is set separately, in the MaintainRowUuid component
-    rows[rowIndex] = { uuid: '', ...(rows[rowIndex] || {}), index, items };
-
-    return {
-      item: {
-        ...state.item,
-        [this.settings.internalProp]: rows,
-        [this.settings.externalProp]: undefined,
-      },
-    } as Partial<DefPluginState<ToInternal<E>>>;
   }
 
   isChildHidden(_state: DefPluginState<ToInternal<E>>, _childNode: LayoutNode): boolean {
