@@ -14,7 +14,7 @@ import type {
 import type { BaseRow } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
-interface LikertRow extends BaseRow {
+export interface LikertRow extends BaseRow {
   itemNodeId: string | undefined;
 }
 
