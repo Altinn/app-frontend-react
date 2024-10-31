@@ -13,7 +13,7 @@ import { PANEL_VARIANTS } from 'src/app-components/panel/constants';
 import classes from 'src/app-components/panel/Panel.module.css';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 
-type PanelVariant = (typeof PANEL_VARIANTS)[keyof typeof PANEL_VARIANTS];
+export type PanelVariant = (typeof PANEL_VARIANTS)[keyof typeof PANEL_VARIANTS];
 
 type PanelProps = PropsWithChildren<{
   variant: PanelVariant;
