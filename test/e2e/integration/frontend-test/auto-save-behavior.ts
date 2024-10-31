@@ -68,7 +68,7 @@ describe('Auto save behavior', () => {
 
     // NavigationBar
     cy.get(appFrontend.group.prefill.middels).check();
-    cy.get(appFrontend.navMenu).findByRole('button', { name: '2. repeating' }).click();
+    cy.get(appFrontend.navMenu).findByRole('button', { name: 'repeating' }).click();
     cy.wait('@saveFormData').then(() => {
       expect(formDataReqCounter).to.be.eq(3);
     });
