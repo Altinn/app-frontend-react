@@ -22,7 +22,7 @@ import { Validation } from 'src/features/validation/validationContext';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import type { TextReference } from 'src/features/language/useLanguage';
 
-const VALIDATION_TIMEOUT = 10;
+export const VALIDATION_TIMEOUT = 10;
 
 export function SchemaValidation({ dataType }: { dataType: string }) {
   const updateDataModelValidations = Validation.useUpdateDataModelValidations();
@@ -112,6 +112,11 @@ function SchemaFieldValidation({
   useEffect(() => () => updateFieldValidations(field, null), [updateFieldValidations, field]);
 
   useEffect(() => {
+    if (!schemaPath || !subSchema) {
+      // Field not found in schema, ignore it
+      return;
+    }
+
     if (data == null || data === '') {
       updateFieldValidations(field, null);
       return;
@@ -163,7 +168,7 @@ function SchemaFieldValidation({
       }
     }
 
-    updateFieldValidations(field, validations);
+    updateFieldValidations(field, validations?.length ? validations : null);
   }, [data, dataElementId, field, schemaPath, schema, subSchema, updateFieldValidations, validator]);
 
   return null;

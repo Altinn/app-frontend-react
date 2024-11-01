@@ -328,18 +328,23 @@ export function lookupPropertiesInSchema(schema: JSONSchema7, rootElementPath: s
   return properties;
 }
 
-export function lookupPathInSchema(props: Props): [string, JSONSchema7] {
+export function lookupPathInSchema(props: Props): [string | null, JSONSchema7 | null] {
   const { schema, rootElementPath, targetPointer } = props;
 
-  const traverser = new SimpleSchemaTraversal(schema, targetPointer, rootElementPath);
-  const parts = targetPointer.split('/').filter((part) => part !== '' && part !== '#');
-  for (const part of parts) {
-    const isIndex = /^\d+$/.test(part);
-    if (isIndex) {
-      traverser.gotoIndex(parseInt(part, 10));
-    } else {
-      traverser.gotoProperty(part);
+  try {
+    const traverser = new SimpleSchemaTraversal(schema, targetPointer, rootElementPath);
+    const parts = targetPointer.split('/').filter((part) => part !== '' && part !== '#');
+    for (const part of parts) {
+      const isIndex = /^\d+$/.test(part);
+      if (isIndex) {
+        traverser.gotoIndex(parseInt(part, 10));
+      } else {
+        traverser.gotoProperty(part);
+      }
     }
+    return [traverser.getCurrentSchemaPath(), traverser.getAsResolved()];
+  } catch {
+    window.logWarnOnce(`Unable to find ${targetPointer} in schema`);
+    return [null, null];
   }
-  return [traverser.getCurrentSchemaPath(), traverser.getAsResolved()];
 }

@@ -7,7 +7,7 @@ import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import * as UseBindingSchema from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { SchemaValidation } from 'src/features/validation/schemaValidation/SchemaValidation';
+import { SchemaValidation, VALIDATION_TIMEOUT } from 'src/features/validation/schemaValidation/SchemaValidation';
 import { Validation } from 'src/features/validation/validationContext';
 import type { IDataType } from 'src/types/shared';
 
@@ -254,7 +254,9 @@ describe('SchemaValidation', () => {
               },
             };
 
+            jest.useFakeTimers();
             jest.spyOn(FD, 'useDebounced').mockReturnValue(formData);
+            jest.spyOn(FD, 'useDebouncedPick').mockReturnValue(value);
             jest.spyOn(DataModels, 'useDataModelSchema').mockReturnValue(schema);
             jest.spyOn(DataModels, 'useDataElementIdForDataType').mockReturnValue(defaultMockDataElementId);
             jest.spyOn(UseBindingSchema, 'useDataModelType').mockReturnValue({} as IDataType);
@@ -265,6 +267,7 @@ describe('SchemaValidation', () => {
               .mockImplementation(() => updateDataModelValidations);
 
             render(<SchemaValidation dataType='mockDataType'></SchemaValidation>);
+            jest.advanceTimersByTime(VALIDATION_TIMEOUT);
 
             // If valid, expect empty validations object
             // If not valid, expect an object containing at least field and severity
