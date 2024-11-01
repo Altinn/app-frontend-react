@@ -1,5 +1,6 @@
 import React from 'react';
 import { NumericFormat, PatternFormat } from 'react-number-format';
+import type { NumericFormatProps, PatternFormatProps } from 'react-number-format';
 
 import { SearchField } from '@altinn/altinn-design-system';
 import { Paragraph, Textfield } from '@digdir/designsystemet-react';
@@ -22,33 +23,33 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 
+type SearchVariant = { type: 'search' };
+type TextVariant = { type: 'text' };
+type NumberVariant = { type: 'number'; format: NumericFormatProps };
+type PatternVariant = { type: 'pattern'; format: PatternFormatProps };
+type Variant = SearchVariant | TextVariant | NumberVariant | PatternVariant;
+
+function getVariantWithFormat(
+  type: 'text' | 'search' | undefined,
+  format: NumericFormatProps | PatternFormatProps | undefined,
+): Variant {
+  if (type === 'search') {
+    return { type: 'search' };
+  }
+  if (isPatternFormat(format)) {
+    return { type: 'pattern', format };
+  }
+  if (isNumberFormat(format)) {
+    return { type: 'number', format };
+  }
+  return { type: 'text' };
+}
+
 interface InputComponentProps extends Omit<TextfieldProps, 'prefix' | 'suffix'> {
   textOnly?: boolean;
   prefixText?: string;
   suffixText?: string;
 }
-
-const TextOnly: React.FunctionComponent<TextfieldProps> = ({ className, id, value }) => {
-  // If the value is null or empty string, we dont render anything to prevent an empty tabbable paragraph
-  if (value === null) {
-    return null;
-  }
-
-  if (typeof value === 'string' && value.length === 0) {
-    return null;
-  }
-
-  return (
-    <Paragraph
-      id={id}
-      size='small'
-      className={`${classes.textPadding} ${classes.focusable}  ${className}`}
-      tabIndex={0}
-    >
-      {value}
-    </Paragraph>
-  );
-};
 
 // We need to use this wrapped Textfield component because we have a conflict between the 'size' prop
 // of the TextField and the react-number-format components which also have a 'size' prop
@@ -57,7 +58,21 @@ const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) =
   const { size: _, textOnly, prefixText, suffixText, ...customProps } = props;
 
   if (textOnly) {
-    return <TextOnly {...customProps}></TextOnly>;
+    const { value, id, className } = customProps;
+    if (value === null || (typeof value === 'string' && value.length === 0)) {
+      return null;
+    }
+
+    return (
+      <Paragraph
+        id={id}
+        size='small'
+        className={`${classes.textPadding} ${classes.focusable}  ${className}`}
+        tabIndex={0}
+      >
+        {value}
+      </Paragraph>
+    );
   }
 
   return (
@@ -66,7 +81,7 @@ const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) =
       prefix={prefixText}
       suffix={suffixText}
       {...customProps}
-    ></Textfield>
+    />
   );
 };
 
@@ -76,7 +91,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
     readOnly,
     required,
     formatting,
-    variant,
+    variant: inputVariant,
     textResourceBindings,
     dataModelBindings,
     saveWhileTyping,
@@ -115,9 +130,21 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
     suffixText,
   };
 
-  const renderSpecificInputVariant = () => {
-    if (variant === 'search') {
-      return (
+  const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
+
+  return (
+    <ComponentStructureWrapper
+      node={node}
+      label={{
+        node,
+        textResourceBindings: {
+          ...textResourceBindings,
+          title: overrideDisplay?.renderLabel !== false ? textResourceBindings?.title : undefined,
+        },
+        renderLabelAs: 'label',
+      }}
+    >
+      {variant.type === 'search' && (
         <SearchField
           id={id}
           value={formValue}
@@ -128,11 +155,8 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
           data-testid={`${id}-${variant}`}
           onBlur={debounce}
         />
-      );
-    }
-
-    if (!reactNumberFormatConfig?.number) {
-      return (
+      )}
+      {variant.type === 'text' && (
         <TextfieldWrapped
           value={formValue}
           onChange={(event) => {
@@ -141,11 +165,8 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
           data-testid={`${id}-${variant}`}
           {...commonProps}
         />
-      );
-    }
-
-    if (isPatternFormat(reactNumberFormatConfig.number)) {
-      return (
+      )}
+      {variant.type === 'pattern' && (
         <PatternFormat
           value={formValue}
           onValueChange={(values, sourceInfo) => {
@@ -156,14 +177,11 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
           }}
           customInput={TextfieldWrapped as React.ComponentType}
           data-testid={`${id}-formatted-number-${variant}`}
-          {...reactNumberFormatConfig.number}
+          {...variant.format}
           {...commonProps}
         />
-      );
-    }
-
-    if (isNumberFormat(reactNumberFormatConfig.number)) {
-      return (
+      )}
+      {variant.type === 'number' && (
         <NumericFormat
           value={formValue}
           onValueChange={(values, sourceInfo) => {
@@ -190,28 +208,10 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
           }}
           customInput={TextfieldWrapped as React.ComponentType}
           data-testid={`${id}-formatted-number-${variant}`}
-          {...reactNumberFormatConfig.number}
+          {...variant.format}
           {...commonProps}
         />
-      );
-    }
-
-    return <></>;
-  };
-
-  return (
-    <ComponentStructureWrapper
-      node={node}
-      label={{
-        node,
-        textResourceBindings: {
-          ...textResourceBindings,
-          title: overrideDisplay?.renderLabel !== false ? textResourceBindings?.title : undefined,
-        },
-        renderLabelAs: 'label',
-      }}
-    >
-      {renderSpecificInputVariant()}
+      )}
     </ComponentStructureWrapper>
   );
 };
