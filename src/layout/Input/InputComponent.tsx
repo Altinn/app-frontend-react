@@ -113,23 +113,6 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
   const suffixText = textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined;
 
   const characterLimit = useCharacterLimit(maxLength);
-  const commonProps = {
-    'aria-label': ariaLabel,
-    'aria-describedby': textResourceBindings?.description ? getDescriptionId(id) : undefined,
-    autoComplete: autocomplete,
-    characterLimit: !readOnly ? characterLimit : undefined,
-    role: 'textbox',
-    className: formatting?.align ? classes[`text-align-${formatting.align}`] : '',
-    id,
-    readOnly,
-    error: !isValid,
-    required,
-    onBlur: debounce,
-    textOnly: overrideDisplay?.rowReadOnly && readOnly,
-    prefixText,
-    suffixText,
-  };
-
   const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
 
   return (
@@ -150,7 +133,20 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
           onChange={(event) => {
             setValue('simpleBinding', event.target.value);
           }}
-          {...commonProps}
+          aria-label={ariaLabel}
+          aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
+          autoComplete={autocomplete}
+          characterLimit={!readOnly ? characterLimit : undefined}
+          role='textbox'
+          className={formatting?.align ? classes[`text-align-${formatting.align}`] : ''}
+          id={id}
+          readOnly={readOnly}
+          error={!isValid}
+          required={required}
+          onBlur={debounce}
+          textOnly={overrideDisplay?.rowReadOnly && readOnly}
+          prefixText={prefixText}
+          suffixText={suffixText}
           type={variant.type}
         />
       )}
@@ -166,7 +162,16 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
           customInput={TextfieldWrapped as React.ComponentType}
           data-testid={`${id}-formatted-number-${variant}`}
           {...variant.format}
-          {...commonProps}
+          aria-label={ariaLabel}
+          aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
+          autoComplete={autocomplete}
+          role='textbox'
+          className={formatting?.align ? classes[`text-align-${formatting.align}`] : ''}
+          id={id}
+          readOnly={readOnly}
+          required={required}
+          onBlur={debounce}
+          prefix={prefixText}
         />
       )}
       {variant.type === 'number' && (
@@ -180,7 +185,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
             }
             setValue('simpleBinding', values.value);
           }}
-          onPaste={(event) => {
+          onPaste={(event: React.ClipboardEvent<HTMLInputElement>) => {
             /* This is a workaround for a react-number-format bug that
              * removes the decimal on paste.
              * We should be able to remove it when this issue gets fixed:
@@ -197,7 +202,16 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
           customInput={TextfieldWrapped as React.ComponentType}
           data-testid={`${id}-formatted-number-${variant}`}
           {...variant.format}
-          {...commonProps}
+          aria-label={ariaLabel}
+          aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
+          autoComplete={autocomplete}
+          role='textbox'
+          className={formatting?.align ? classes[`text-align-${formatting.align}`] : ''}
+          id={id}
+          readOnly={readOnly}
+          required={required}
+          onBlur={debounce}
+          prefix={prefixText}
         />
       )}
     </ComponentStructureWrapper>
