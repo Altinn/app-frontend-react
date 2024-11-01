@@ -10,7 +10,7 @@ type InputProps = {
   size?: 'sm' | 'md' | 'lg';
   prefix?: string;
   suffix?: string;
-  type?: 'search' | 'text';
+  type?: 'search' | 'text' | 'number';
   characterLimit?: CharacterLimitProps;
   error?: ReactNode;
   disabled?: boolean;
@@ -19,43 +19,34 @@ type InputProps = {
 } & Pick<HTMLAttributes<HTMLElement>, 'aria-describedby'> &
   Pick<
     InputHTMLAttributes<HTMLInputElement>,
-    'value' | 'className' | 'aria-label' | 'onChange' | 'autoComplete' | 'required' | 'onBlur'
+    | 'value'
+    | 'className'
+    | 'aria-label'
+    | 'onChange'
+    | 'autoComplete'
+    | 'required'
+    | 'onBlur'
+    | 'placeholder'
+    | 'inputMode'
+    | 'style'
   >;
 
 export function Input(props: InputProps) {
-  const {
-    size = 'sm',
-    prefix,
-    suffix,
-    type,
-    characterLimit,
-    error,
-    disabled,
-    id,
-    readOnly,
-    value,
-    className,
-    onChange,
-    'aria-label': ariaLabel,
-    'aria-describedby': ariaDescribedBy,
-    autoComplete,
-    required,
-    onBlur,
-  } = props;
+  const { size = 'sm', ...rest } = props;
 
-  if (readOnly) {
-    if (value === null || (typeof value === 'string' && value.length === 0)) {
+  if (props.readOnly) {
+    if (props.value === null || (typeof props.value === 'string' && props.value.length === 0)) {
       return null;
     }
 
     return (
       <Paragraph
-        id={id}
+        id={props.id}
         size='small'
-        className={`${classes.textPadding} ${classes.focusable} ${className}`}
+        className={`${classes.textPadding} ${classes.focusable} ${props.className}`}
         tabIndex={0}
       >
-        {value}
+        {props.value}
       </Paragraph>
     );
   }
@@ -63,22 +54,7 @@ export function Input(props: InputProps) {
   return (
     <Textfield
       size={size}
-      prefix={prefix}
-      suffix={suffix}
-      type={type}
-      onChange={onChange}
-      aria-label={ariaLabel}
-      aria-describedby={ariaDescribedBy}
-      autoComplete={autoComplete}
-      characterLimit={characterLimit}
-      className={className}
-      id={id}
-      readOnly={readOnly}
-      error={error}
-      required={required}
-      disabled={disabled}
-      onBlur={onBlur}
-      value={value}
+      {...rest}
     />
   );
 }
