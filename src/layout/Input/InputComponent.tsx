@@ -2,8 +2,6 @@ import React from 'react';
 import { NumericFormat, PatternFormat } from 'react-number-format';
 import type { NumericFormatProps, PatternFormatProps } from 'react-number-format';
 
-import { Paragraph, Textfield } from '@digdir/designsystemet-react';
-
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
@@ -15,8 +13,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IInputProps = PropsFromGenericComponent<'Input'>;
 
-import type { TextfieldProps } from '@digdir/designsystemet-react/dist/types/components/form/Textfield/Textfield';
-
+import { Input } from 'src/app-components/Input/Input';
 import { getDescriptionId } from 'src/components/label/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
@@ -43,47 +40,6 @@ function getVariantWithFormat(
   }
   return { type: 'text' };
 }
-
-interface InputComponentProps extends Omit<TextfieldProps, 'prefix' | 'suffix'> {
-  textOnly?: boolean;
-  prefixText?: string;
-  suffixText?: string;
-}
-
-// We need to use this wrapped Textfield component because we have a conflict between the 'size' prop
-// of the TextField and the react-number-format components which also have a 'size' prop
-// The prefix/suffix props from the design system also conflicts with react-number-format
-const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) => {
-  const { size: _, textOnly, prefixText, suffixText, type, ...customProps } = props;
-
-  if (textOnly) {
-    const { value, id, className } = customProps;
-    if (value === null || (typeof value === 'string' && value.length === 0)) {
-      return null;
-    }
-
-    return (
-      <Paragraph
-        id={id}
-        size='small'
-        className={`${classes.textPadding} ${classes.focusable} ${className}`}
-        tabIndex={0}
-      >
-        {value}
-      </Paragraph>
-    );
-  }
-
-  return (
-    <Textfield
-      size={'small'}
-      prefix={prefixText}
-      suffix={suffixText}
-      {...customProps}
-      type={type}
-    />
-  );
-};
 
 export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, overrideDisplay }) => {
   const {
@@ -128,7 +84,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
       }}
     >
       {(variant.type === 'search' || variant.type === 'text') && (
-        <TextfieldWrapped
+        <Input
           value={formValue}
           onChange={(event) => {
             setValue('simpleBinding', event.target.value);
@@ -137,21 +93,20 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
           aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
           autoComplete={autocomplete}
           characterLimit={!readOnly ? characterLimit : undefined}
-          role='textbox'
           className={formatting?.align ? classes[`text-align-${formatting.align}`] : ''}
           id={id}
-          readOnly={readOnly}
+          readOnly={overrideDisplay?.rowReadOnly || readOnly}
           error={!isValid}
           required={required}
           onBlur={debounce}
-          textOnly={overrideDisplay?.rowReadOnly && readOnly}
-          prefixText={prefixText}
-          suffixText={suffixText}
+          prefix={prefixText}
+          suffix={suffixText}
           type={variant.type}
         />
       )}
       {variant.type === 'pattern' && (
         <PatternFormat
+          id={id}
           value={formValue}
           onValueChange={(values, sourceInfo) => {
             if (sourceInfo.source === 'prop') {
@@ -159,15 +114,13 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
             }
             setValue('simpleBinding', values.value);
           }}
-          customInput={TextfieldWrapped as React.ComponentType}
-          data-testid={`${id}-formatted-number-${variant}`}
+          customInput={Input as React.ComponentType}
           {...variant.format}
+          data-testid={`${id}-formatted-number-${variant}`}
           aria-label={ariaLabel}
           aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
           autoComplete={autocomplete}
-          role='textbox'
           className={formatting?.align ? classes[`text-align-${formatting.align}`] : ''}
-          id={id}
           readOnly={readOnly}
           required={required}
           onBlur={debounce}
@@ -199,13 +152,12 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
               setValue('simpleBinding', pastedText);
             }
           }}
-          customInput={TextfieldWrapped as React.ComponentType}
+          customInput={Input as React.ComponentType}
           data-testid={`${id}-formatted-number-${variant}`}
           {...variant.format}
           aria-label={ariaLabel}
           aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
           autoComplete={autocomplete}
-          role='textbox'
           className={formatting?.align ? classes[`text-align-${formatting.align}`] : ''}
           id={id}
           readOnly={readOnly}
