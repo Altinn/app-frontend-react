@@ -46,7 +46,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
   const attachments = useAttachmentsFor(node);
-  const uploadAttachment = useAttachmentsUploader();
+  const uploadAttachments = useAttachmentsUploader();
 
   const validations = useUnifiedValidationsForNode(node).filter((v) => !('attachmentId' in v) || !v.attachmentId);
   const langTools = useLanguage();
@@ -95,9 +95,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
       return;
     }
     // we should upload all files, if any rejected files we should display an error
-    acceptedFiles.forEach(async (file: File) => {
-      await uploadAttachment({ file, node, dataModelBindings });
-    });
+    uploadAttachments({ files: acceptedFiles, node, dataModelBindings });
 
     if (acceptedFiles.length > 0) {
       setShowFileUpload(displayMode === 'simple' ? false : attachments.length < maxNumberOfAttachments);

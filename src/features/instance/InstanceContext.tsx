@@ -31,7 +31,7 @@ export interface InstanceContext {
   dataSources: IInstanceDataSources | null;
 
   // Methods/utilities
-  appendDataElement: (element: IData) => void;
+  appendDataElements: (element: IData[]) => void;
   mutateDataElement: (elementId: string, mutator: (element: IData) => IData) => void;
   removeDataElement: (elementId: string) => void;
 
@@ -53,12 +53,12 @@ const { Provider, useMemoSelector, useSelector, useLaxMemoSelector, useHasProvid
       instanceId: `${props.partyId}/${props.instanceGuid}`,
       data: undefined,
       dataSources: null,
-      appendDataElement: (element) =>
+      appendDataElements: (elements) =>
         set((state) => {
           if (!state.data) {
             throw new Error('Cannot append data element when instance data is not set');
           }
-          const next = { ...state.data, data: [...state.data.data, element] };
+          const next = { ...state.data, data: [...state.data.data, ...elements] };
           return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
         }),
       mutateDataElement: (elementId, mutator) =>
@@ -222,7 +222,7 @@ export const useLaxInstanceAllDataElements = () => useLaxInstance((state) => sta
 export const useLaxInstanceDataElements = (dataType: string | undefined) =>
   useLaxInstance((state) => state.data?.data.filter((d) => d.dataType === dataType)) ?? emptyArray;
 export const useLaxInstanceStatus = () => useLaxInstance((state) => state.data?.status);
-export const useLaxAppendDataElement = () => useLaxInstance((state) => state.appendDataElement);
+export const useLaxAppendDataElements = () => useLaxInstance((state) => state.appendDataElements);
 export const useLaxMutateDataElement = () => useLaxInstance((state) => state.mutateDataElement);
 export const useLaxRemoveDataElement = () => useLaxInstance((state) => state.removeDataElement);
 export const useLaxInstanceDataSources = () => useLaxInstance((state) => state.dataSources) ?? null;
@@ -231,7 +231,7 @@ export const useHasInstance = () => useHasProvider();
 
 export const useStrictInstanceRefetch = () => useSelector((state) => state.reFetch);
 export const useStrictInstanceId = () => useSelector((state) => state.instanceId);
-export const useStrictAppendDataElement = () => useSelector((state) => state.appendDataElement);
+export const useStrictAppendDataElements = () => useSelector((state) => state.appendDataElements);
 export const useStrictMutateDataElement = () => useSelector((state) => state.mutateDataElement);
 export const useStrictRemoveDataElement = () => useSelector((state) => state.removeDataElement);
 export const useStrictAllDataElements = () => useMemoSelector((state) => state.data?.data) ?? emptyArray;

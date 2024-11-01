@@ -115,6 +115,12 @@ export type BackendValidationIssueGroupListItem = {
   issues: BackendValidationIssue[];
 };
 
+export function backendValidationIssueGroupListToObject(
+  groupList: BackendValidationIssueGroupListItem[],
+): BackendValidationIssueGroups {
+  return Object.fromEntries(groupList.map(({ source, issues }) => [source, issues]));
+}
+
 /**
  * Storage format for backend validations.
  */

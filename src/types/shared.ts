@@ -290,3 +290,9 @@ export type IAuthContext = {
   read: boolean;
   write: boolean;
 } & { [action in IActionType]: boolean };
+
+export type ProblemDetails = {
+  title: string;
+  detail: string;
+  status: number;
+};

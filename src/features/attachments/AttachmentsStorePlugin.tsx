@@ -9,30 +9,35 @@ import type { AxiosError } from 'axios';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { isAttachmentUploaded } from 'src/features/attachments/index';
+import { isAttachmentUploaded, isDataPostError } from 'src/features/attachments/index';
 import { sortAttachmentsByName } from 'src/features/attachments/sortAttachments';
 import { FD } from 'src/features/formData/FormDataWrite';
+import { dataModelPairsToObject } from 'src/features/formData/types';
 import {
-  useLaxAppendDataElement,
+  useLaxAppendDataElements,
   useLaxInstanceId,
   useLaxMutateDataElement,
   useLaxRemoveDataElement,
 } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { type BackendValidationIssue, backendValidationIssueGroupListToObject } from 'src/features/validation';
 import { getValidationIssueMessage } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
+import { isAtLeastVersion } from 'src/utils/versionCompare';
+import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type {
+  DataPostResponse,
   FileUploaderNode,
   IAttachment,
   IAttachmentsMap,
   TemporaryAttachment,
   UploadedAttachment,
 } from 'src/features/attachments/index';
-import type { BackendValidationIssue } from 'src/features/validation';
+import type { FDActionResult } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
@@ -41,9 +46,18 @@ import type { NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
 
-export interface AttachmentActionUpload {
+type AttachmentUploadResult = {
   temporaryId: string;
-  file: File;
+  newDataElementId?: string;
+  newInstanceData?: IData;
+  error?: string;
+};
+
+export interface AttachmentActionUpload {
+  files: {
+    temporaryId: string;
+    file: File;
+  }[];
   node: FileUploaderNode;
   dataModelBindings: IDataModelBindingsSimple | IDataModelBindingsList | undefined;
 }
@@ -65,8 +79,7 @@ export type AttachmentsSelector = (node: FileUploaderNode) => IAttachment[];
 export interface AttachmentsStorePluginConfig {
   extraFunctions: {
     attachmentUpload: (action: AttachmentActionUpload) => void;
-    attachmentUploadFulfilled: (action: AttachmentActionUpload, result: IData) => void;
-    attachmentUploadRejected: (action: AttachmentActionUpload, error: string) => void;
+    attachmentUploadFinished: (action: AttachmentActionUpload, result: AttachmentUploadResult[]) => void;
 
     attachmentUpdate: (action: AttachmentActionUpdate) => void;
     attachmentUpdateFulfilled: (action: AttachmentActionUpdate) => void;
@@ -77,7 +90,11 @@ export interface AttachmentsStorePluginConfig {
     attachmentRemoveRejected: (action: AttachmentActionRemove, error: AxiosError) => void;
   };
   extraHooks: {
-    useAttachmentsUpload: () => (action: Omit<AttachmentActionUpload, 'temporaryId'>) => Promise<string | undefined>;
+    useAttachmentsUpload: () => (
+      action: Omit<AttachmentActionUpload, 'files'> & {
+        files: File[];
+      },
+    ) => Promise<void>;
     useAttachmentsUpdate: () => (action: AttachmentActionUpdate) => Promise<void>;
     useAttachmentsRemove: () => (action: AttachmentActionRemove) => Promise<boolean>;
 
@@ -97,44 +114,37 @@ type ProperData = NodeData<CompWithBehavior<'canHaveAttachments'>>;
 export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePluginConfig> {
   extraFunctions(set: NodeDataPluginSetState): AttachmentsStorePluginConfig['extraFunctions'] {
     return {
-      attachmentUpload: ({ file, node, temporaryId }) => {
+      attachmentUpload: ({ files, node }) => {
         set(
           nodesProduce((draft) => {
             const data = draft.nodeData[node.id] as ProperData;
-            data.attachments[temporaryId] = {
-              uploaded: false,
-              updating: false,
-              deleting: false,
-              data: {
-                temporaryId,
-                filename: file.name,
-                size: file.size,
-              },
-            } satisfies TemporaryAttachment;
+            for (const { file, temporaryId } of files) {
+              data.attachments[temporaryId] = {
+                uploaded: false,
+                updating: false,
+                deleting: false,
+                data: {
+                  temporaryId,
+                  filename: file.name,
+                  size: file.size,
+                },
+              } satisfies TemporaryAttachment;
+            }
           }),
         );
       },
-      attachmentUploadFulfilled: ({ temporaryId, node }, data) => {
+      attachmentUploadFinished: ({ node }, actualIds) => {
         set(
           nodesProduce((draft) => {
             const nodeData = draft.nodeData[node.id] as ProperData;
-            delete nodeData.attachments[temporaryId];
-            nodeData.attachments[data.id] = {
-              temporaryId,
-              uploaded: true,
-              updating: false,
-              deleting: false,
-              data,
-            } satisfies UploadedAttachment;
-          }),
-        );
-      },
-      attachmentUploadRejected: ({ node, temporaryId }, error) => {
-        set(
-          nodesProduce((draft) => {
-            const nodeData = draft.nodeData[node.id] as ProperData;
-            delete nodeData.attachments[temporaryId];
-            nodeData.attachmentsFailedToUpload[temporaryId] = error;
+            for (const { temporaryId, newDataElementId, error } of actualIds) {
+              if (newDataElementId) {
+                nodeData.attachments[newDataElementId] = nodeData.attachments[temporaryId];
+              } else if (error) {
+                nodeData.attachmentsFailedToUpload[temporaryId] = error;
+              }
+              delete nodeData.attachments[temporaryId];
+            }
           }),
         );
       },
@@ -219,73 +229,136 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
   extraHooks(store: NodesStoreFull): AttachmentsStorePluginConfig['extraHooks'] {
     return {
       useAttachmentsUpload() {
-        const appendDataElement = useLaxAppendDataElement();
-        const upload = store.useSelector((state) => state.attachmentUpload);
-        const fulfill = store.useSelector((state) => state.attachmentUploadFulfilled);
-        const reject = store.useSelector((state) => state.attachmentUploadRejected);
-        const { mutateAsync } = useAttachmentsUploadMutation();
-        const backendFeatures = useApplicationMetadata().features || {};
         const { langAsString, lang } = useLanguage();
-        const setLeafValue = FD.useSetLeafValue();
-        const appendToListUnique = FD.useAppendToListUnique();
+        const appendDataElements = useLaxAppendDataElements();
+        const upload = store.useSelector((state) => state.attachmentUpload);
+        const uploadFinished = store.useSelector((state) => state.attachmentUploadFinished);
+
+        const { mutateAsync: uploadAttachmentOld } = useAttachmentsUploadMutationOld();
+        const { mutateAsync: uploadAttachment } = useAttachmentsUploadMutation();
+
+        const applicationMetadata = useApplicationMetadata();
+        const supportsNewAttatchmentAPI = appSupportsNewAttatchmentAPI(applicationMetadata);
+        const backendFeatures = applicationMetadata.features ?? {};
+
+        const setAttachmentsInDataModel = useSetAttachmentInDataModel();
+        const { lock, unlock } = FD.useLocking('__attachment__upload__');
 
         return useCallback(
-          async (action: Omit<AttachmentActionUpload, 'temporaryId'>) => {
-            const temporaryId = uuidv4();
-            const fullAction: AttachmentActionUpload = { ...action, temporaryId };
+          async (action) => {
+            const fullAction: AttachmentActionUpload = {
+              ...action,
+              files: action.files.map((file) => ({ temporaryId: uuidv4(), file })),
+            };
             upload(fullAction);
 
-            try {
-              const reply = await mutateAsync({
-                dataTypeId: action.node.baseId,
-                file: action.file,
-              });
-              if (!reply || !reply.blobStoragePath) {
-                throw new Error('Failed to upload attachment');
-              }
-              if (action.dataModelBindings && 'list' in action.dataModelBindings) {
-                appendToListUnique({
-                  reference: action.dataModelBindings.list,
-                  newValue: reply.id,
-                });
-              } else if (action.dataModelBindings && 'simpleBinding' in action.dataModelBindings) {
-                setLeafValue({
-                  reference: action.dataModelBindings.simpleBinding,
-                  newValue: reply.id,
-                });
-              }
-              fulfill(fullAction, reply);
-              appendDataElement?.(reply);
+            if (supportsNewAttatchmentAPI) {
+              await lock();
+              const results: AttachmentUploadResult[] = [];
 
-              return reply.id;
-            } catch (err) {
-              reject(fullAction, err);
+              const updatedData: FDActionResult = { updatedDataModels: {}, updatedValidationIssues: {} };
 
-              if (backendFeatures.jsonObjectInDataResponse && isAxiosError(err) && Array.isArray(err.response?.data)) {
-                const validationIssues: BackendValidationIssue[] = err.response.data;
-                const message = validationIssues
-                  .map((issue) => getValidationIssueMessage(issue))
-                  .map(({ key, params }) => `- ${langAsString(key, params)}`)
-                  .join('\n');
-                toast(message, { type: 'error' });
-              } else {
-                toast(lang('form_filler.file_uploader_validation_error_upload'), { type: 'error' });
+              for (const { file, temporaryId } of fullAction.files) {
+                await uploadAttachment({
+                  dataTypeId: action.node.baseId,
+                  file,
+                })
+                  .then((reply) => {
+                    results.push({ temporaryId, newDataElementId: reply.newDataElementId });
+
+                    updatedData.instance = reply.instance;
+                    updatedData.updatedDataModels = {
+                      ...updatedData.updatedDataModels,
+                      ...dataModelPairsToObject(reply.newDataModels),
+                    };
+                    updatedData.updatedValidationIssues = {
+                      ...updatedData.updatedValidationIssues,
+                      ...backendValidationIssueGroupListToObject(reply.validationIssues),
+                    };
+                  })
+                  .catch((error) => {
+                    results.push({ temporaryId, error });
+                  });
               }
+              setAttachmentsInDataModel(
+                results
+                  .filter(({ newDataElementId }) => !!newDataElementId)
+                  .map(({ newDataElementId }) => newDataElementId!),
+                action.dataModelBindings,
+              );
+              uploadFinished(fullAction, results);
+              unlock(updatedData);
 
-              return undefined;
+              for (const { error } of results.filter(({ error }) => !!error)) {
+                // TODO: Gather and Improve error message
+                const reply = isAxiosError(error) ? error.response?.data : null;
+                if (isDataPostError(reply)) {
+                  const message = reply.uploadValidationIssues
+                    .map((issue) => getValidationIssueMessage(issue))
+                    .map(({ key, params }) => `- ${langAsString(key, params)}`)
+                    .join('\n');
+                  toast(message, { type: 'error' });
+                } else {
+                  toast(lang('form_filler.file_uploader_validation_error_upload'), { type: 'error' });
+                }
+              }
+            } else {
+              const results: AttachmentUploadResult[] = await Promise.all(
+                fullAction.files.map(({ file, temporaryId }) =>
+                  uploadAttachmentOld({ dataTypeId: action.node.baseId, file })
+                    .then((data) => {
+                      if (!data || !data.blobStoragePath) {
+                        return { temporaryId, error: 'Failed to upload attachment' };
+                      }
+                      return { temporaryId, newDataElementId: data.id, newInstanceData: data };
+                    })
+                    .catch((error) => ({ temporaryId, error })),
+                ),
+              );
+              setAttachmentsInDataModel(
+                results
+                  .filter(({ newDataElementId }) => !!newDataElementId)
+                  .map(({ newDataElementId }) => newDataElementId!),
+                action.dataModelBindings,
+              );
+              uploadFinished(fullAction, results);
+              appendDataElements?.(
+                results
+                  .filter(({ newInstanceData }) => !!newInstanceData)
+                  .map(({ newInstanceData }) => newInstanceData!),
+              );
+
+              for (const { error } of results.filter(({ error }) => !!error)) {
+                if (
+                  backendFeatures.jsonObjectInDataResponse &&
+                  isAxiosError(error) &&
+                  Array.isArray(error.response?.data)
+                ) {
+                  const validationIssues: BackendValidationIssue[] = error.response.data;
+                  const message = validationIssues
+                    .map((issue) => getValidationIssueMessage(issue))
+                    .map(({ key, params }) => `- ${langAsString(key, params)}`)
+                    .join('\n');
+                  toast(message, { type: 'error' });
+                } else {
+                  toast(lang('form_filler.file_uploader_validation_error_upload'), { type: 'error' });
+                }
+              }
             }
           },
           [
-            appendToListUnique,
-            backendFeatures.jsonObjectInDataResponse,
-            appendDataElement,
-            fulfill,
-            lang,
-            langAsString,
-            mutateAsync,
-            reject,
-            setLeafValue,
             upload,
+            supportsNewAttatchmentAPI,
+            lock,
+            setAttachmentsInDataModel,
+            uploadFinished,
+            unlock,
+            uploadAttachment,
+            langAsString,
+            lang,
+            appendDataElements,
+            uploadAttachmentOld,
+            backendFeatures.jsonObjectInDataResponse,
           ],
         );
       },
@@ -471,25 +544,77 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
   }
 }
 
-interface MutationVariables {
+function useSetAttachmentInDataModel() {
+  const setLeafValue = FD.useSetLeafValue();
+  const appendToListUnique = FD.useAppendToListUnique();
+  const debounce = FD.useDebounceImmediately();
+
+  return useCallback(
+    (attachmentIds: string[], dataModelBindings: IDataModelBindingsSimple | IDataModelBindingsList | undefined) => {
+      if (dataModelBindings && 'list' in dataModelBindings) {
+        for (const attachmentId of attachmentIds) {
+          appendToListUnique({
+            reference: dataModelBindings.list,
+            newValue: attachmentId,
+          });
+        }
+        debounce();
+      } else if (dataModelBindings && 'simpleBinding' in dataModelBindings) {
+        for (const attachmentId of attachmentIds) {
+          setLeafValue({
+            reference: dataModelBindings.simpleBinding,
+            newValue: attachmentId,
+          });
+        }
+        debounce();
+      }
+    },
+    [appendToListUnique, debounce, setLeafValue],
+  );
+}
+
+interface AttachmentUploadVariables {
   dataTypeId: string;
   file: File;
 }
 
-function useAttachmentsUploadMutation() {
-  const { doAttachmentUpload } = useAppMutations();
+function useAttachmentsUploadMutationOld() {
+  const { doAttachmentUploadOld } = useAppMutations();
   const instanceId = useLaxInstanceId();
 
-  const options: UseMutationOptions<IData, AxiosError, MutationVariables> = {
-    mutationFn: ({ dataTypeId, file }: MutationVariables) => {
+  const options: UseMutationOptions<IData, AxiosError, AttachmentUploadVariables> = {
+    mutationFn: ({ dataTypeId, file }) => {
       if (!instanceId) {
         throw new Error('Missing instanceId, cannot upload attachment');
       }
 
-      return doAttachmentUpload(instanceId, dataTypeId, file);
+      return doAttachmentUploadOld(instanceId, dataTypeId, file);
     },
     onError: (error: AxiosError) => {
       window.logError('Failed to upload attachment:\n', error.message);
+    },
+  };
+
+  return useMutation(options);
+}
+
+export function useAttachmentsUploadMutation() {
+  const { doAttachmentUpload } = useAppMutations();
+  const instanceId = useLaxInstanceId();
+  const language = useCurrentLanguage();
+
+  const options: UseMutationOptions<DataPostResponse, AxiosError, AttachmentUploadVariables> = {
+    mutationFn: ({ dataTypeId, file }) => {
+      if (!instanceId) {
+        throw new Error('Missing instanceId, cannot upload attachment');
+      }
+
+      return doAttachmentUpload(instanceId, dataTypeId, language, file);
+    },
+    onError: (error: AxiosError) => {
+      if (!isDataPostError(error.response?.data)) {
+        window.logError('Failed to upload attachment:\n', error.message);
+      }
     },
   };
 
@@ -549,4 +674,8 @@ function useAttachmentsRemoveMutation() {
       window.logError('Failed to delete attachment:\n', error);
     },
   });
+}
+
+export function appSupportsNewAttatchmentAPI({ altinnNugetVersion }: ApplicationMetadata) {
+  return !altinnNugetVersion || isAtLeastVersion({ actualVersion: altinnNugetVersion, minimumVersion: '8.5.0.153' });
 }
