@@ -229,11 +229,16 @@ class SimpleSchemaTraversal {
     }
 
     if (currentSchema && typeof currentSchema === 'object' && 'allOf' in currentSchema && currentSchema.allOf) {
-      const nonEmptyAllOf = currentSchema.allOf.filter(
-        (i) => i !== null && i !== undefined && Object.keys(i).length > 0,
-      );
+      const nonEmptyAllOf = currentSchema.allOf
+        .map((schema, index) => ({ schema, index }) as const)
+        .filter(({ schema }) => schema !== null && schema !== undefined && Object.keys(schema).length > 0);
+
       if (nonEmptyAllOf.length === 1) {
-        [currentSchema, currentSchemaPath] = this.resolveRef(nonEmptyAllOf[0], currentSchemaPath);
+        [currentSchema, currentSchemaPath] = this.resolveRef(nonEmptyAllOf[0].schema, [
+          ...currentSchemaPath,
+          'allOf',
+          `${nonEmptyAllOf[0].index}`,
+        ]);
       }
     }
 
@@ -243,8 +248,8 @@ class SimpleSchemaTraversal {
   public getAlternatives(_item = this.current, _path = this.currentSchemaPath): [JSONSchema7, string[]][] {
     const [item, currentSchemaPath] = this.resolveRef(_item, _path);
     const alternatives = [[item, currentSchemaPath]] as [JSONSchema7, string[]][];
-    const others = [item.allOf, item.anyOf, item.oneOf].map((list) =>
-      list?.map((i) => this.resolveRef(i, [...currentSchemaPath, 'allOf'])),
+    const others = ['allOf', 'anyOf', 'oneOf'].map((key) =>
+      item[key]?.map((schema: JSONSchema7, i: number) => this.resolveRef(schema, [...currentSchemaPath, key, `${i}`])),
     );
     for (const other of others) {
       for (const [_innerItem, _innerPath] of other || []) {

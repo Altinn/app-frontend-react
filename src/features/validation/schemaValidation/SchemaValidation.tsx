@@ -32,7 +32,8 @@ export function SchemaValidation({ dataType }: { dataType: string }) {
   const dataTypeDef = useDataModelType(dataType);
   const dataElementId = DataModels.useDataElementIdForDataType(dataType) ?? dataType; // stateless does not have dataElementId
 
-  const fields = Object.keys(dot.dot(formData)).filter((field) => !field.endsWith('altinnRowId'));
+  // This will not include group bindings, we should rather do this on a per component basis
+  const fields = Object.keys(dot.dot(formData));
 
   /**
    * Create a validator for the current schema and data type.
