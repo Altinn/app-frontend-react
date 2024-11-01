@@ -1,10 +1,15 @@
-import { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+
+import dot from 'dot-object';
+import type Ajv from 'ajv';
+import type { JSONSchema7 } from 'json-schema';
 
 import { FrontendValidationSource } from '..';
-import type { FieldValidations } from '..';
+import type { FieldValidation, FieldValidations } from '..';
 
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
-import { pointerToDotNotation } from 'src/features/datamodel/notations';
+import { dotNotationToPointer } from 'src/features/datamodel/notations';
+import { lookupPathInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useDataModelType } from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
 import {
@@ -14,8 +19,10 @@ import {
   getErrorTextKey,
 } from 'src/features/validation/schemaValidation/schemaValidationUtils';
 import { Validation } from 'src/features/validation/validationContext';
-import { getRootElementPath, getSchemaPart, getSchemaPartOldGenerator } from 'src/utils/schemaUtils';
+import { getRootElementPath } from 'src/utils/schemaUtils';
 import type { TextReference } from 'src/features/language/useLanguage';
+
+const VALIDATION_TIMEOUT = 10;
 
 export function SchemaValidation({ dataType }: { dataType: string }) {
   const updateDataModelValidations = Validation.useUpdateDataModelValidations();
@@ -24,6 +31,8 @@ export function SchemaValidation({ dataType }: { dataType: string }) {
   const schema = DataModels.useDataModelSchema(dataType);
   const dataTypeDef = useDataModelType(dataType);
   const dataElementId = DataModels.useDataElementIdForDataType(dataType) ?? dataType; // stateless does not have dataElementId
+
+  const fields = Object.keys(dot.dot(formData)).filter((field) => !field.endsWith('altinnRowId'));
 
   /**
    * Create a validator for the current schema and data type.
@@ -36,85 +45,126 @@ export function SchemaValidation({ dataType }: { dataType: string }) {
     return [createValidator(schema), getRootElementPath(schema, dataTypeDef)] as const;
   }, [schema, dataTypeDef]);
 
-  /**
-   * Perform validation using AJV schema validation.
-   */
+  const allValidations = useRef<FieldValidations>({});
+  const updateTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const updateFieldValidations = useCallback(
+    (field: string, validations: FieldValidation[] | null) => {
+      if (validations) {
+        allValidations.current[field] = validations;
+      } else {
+        delete allValidations.current[field];
+      }
+      clearTimeout(updateTimeout.current);
+      updateTimeout.current = setTimeout(
+        () => updateDataModelValidations('schema', dataElementId, structuredClone(allValidations.current)),
+        VALIDATION_TIMEOUT,
+      );
+    },
+    [dataElementId, updateDataModelValidations],
+  );
+
+  return (
+    <>
+      {validator &&
+        fields.map((field) => (
+          <SchemaFieldValidation
+            key={field}
+            field={field}
+            dataType={dataType}
+            dataElementId={dataElementId}
+            validator={validator}
+            schema={schema}
+            rootElementPath={rootElementPath}
+            updateFieldValidations={updateFieldValidations}
+          />
+        ))}
+    </>
+  );
+}
+
+function SchemaFieldValidation({
+  field,
+  dataType,
+  dataElementId,
+  validator,
+  schema,
+  rootElementPath,
+  updateFieldValidations,
+}: {
+  field: string;
+  dataType: string;
+  dataElementId: string;
+  validator: Ajv;
+  schema: JSONSchema7;
+  rootElementPath: string;
+  updateFieldValidations: (field: string, fieldValidations: FieldValidation[] | null) => void;
+}) {
+  const data = FD.useDebouncedPick({ field, dataType });
+
+  const targetPointer = dotNotationToPointer(field);
+  const [schemaPath, subSchema] = useMemo(
+    () => lookupPathInSchema({ rootElementPath, schema, targetPointer }),
+    [rootElementPath, schema, targetPointer],
+  );
+
+  // Remove validation if field disappears
+  useEffect(() => () => updateFieldValidations(field, null), [updateFieldValidations, field]);
+
   useEffect(() => {
-    if (validator && rootElementPath !== undefined && schema) {
-      const valid = validator.validate(`schema${rootElementPath}`, structuredClone(formData));
-      const validations: FieldValidations = {};
-      if (!valid) {
-        for (const error of validator.errors || []) {
-          /**
-           * Skip schema validation for empty fields and ignore required errors.
-           * JSON schema required does not work too well for our use case. The expectation that a missing field should give an error is not necessarily true,
-           * since it will not work in nested objects if the parent is also missing.
-           * Check if AVJ validation error is a oneOf error ("must match exactly one schema in oneOf").
-           * We don't currently support oneOf validation.
-           * These can be ignored, as there will be other, specific validation errors that actually
-           * from the specified sub-schemas that will trigger validation errors where relevant.
-           */
-          if (
-            error.data == null ||
-            error.data === '' ||
-            error.keyword === 'required' ||
-            error.keyword === 'oneOf' ||
-            error.params?.type === 'null'
-          ) {
-            continue;
-          }
+    if (data == null || data === '') {
+      updateFieldValidations(field, null);
+      return;
+    }
 
-          /**
-           * Get schema for the field that failed validation.
-           * Backward compatible if we are validating against a sub scheme.
-           */
-          const fieldSchema = rootElementPath
-            ? getSchemaPartOldGenerator(error.schemaPath, schema, rootElementPath)
-            : getSchemaPart(error.schemaPath, schema);
+    const valid = validator.validate(`schema#${schemaPath}`, data);
+    const validations: FieldValidation[] = [];
+    if (!valid) {
+      for (const error of validator.errors ?? []) {
+        /**
+         * Check if AVJ validation error is a oneOf error ("must match exactly one schema in oneOf").
+         * We don't currently support oneOf validation.
+         * These can be ignored, as there will be other, specific validation errors that actually
+         * from the specified sub-schemas that will trigger validation errors where relevant.
+         */
+        if (error.keyword === 'oneOf') {
+          continue;
+        }
 
-          /**
-           * Get TextReference for error message.
-           * Either a standardized language key or a custom error message from the schema.
-           */
-          const message: TextReference = fieldSchema?.errorMessage
-            ? { key: fieldSchema.errorMessage }
+        /**
+         * Get TextReference for error message.
+         * Either a standardized language key or a custom error message from the schema.
+         */
+        const message: TextReference =
+          'errorMessage' in subSchema && typeof subSchema.errorMessage === 'string'
+            ? { key: subSchema.errorMessage }
             : {
                 key: getErrorTextKey(error),
               };
 
-          const category = getErrorCategory(error);
+        const category = getErrorCategory(error);
 
-          /**
-           * Extract error parameters and add to message if available.
-           */
-          const errorParams = getErrorParams(error);
-          if (errorParams !== null) {
-            message['params'] = [errorParams];
-          }
-
-          /**
-           * Extract data model field from the error's instancePath
-           */
-          const field = pointerToDotNotation(error.instancePath);
-
-          if (!validations[field]) {
-            validations[field] = [];
-          }
-
-          validations[field].push({
-            message,
-            field,
-            dataElementId,
-            source: FrontendValidationSource.Schema,
-            category,
-            severity: 'error',
-          });
+        /**
+         * Extract error parameters and add to message if available.
+         */
+        const errorParams = getErrorParams(error);
+        if (errorParams !== null) {
+          message['params'] = [errorParams];
         }
-      }
 
-      updateDataModelValidations('schema', dataElementId, validations);
+        validations.push({
+          message,
+          field,
+          dataElementId,
+          source: FrontendValidationSource.Schema,
+          category,
+          severity: 'error',
+        });
+      }
     }
-  }, [dataElementId, formData, rootElementPath, schema, updateDataModelValidations, validator]);
+
+    updateFieldValidations(field, validations);
+  }, [data, dataElementId, field, schemaPath, schema, subSchema, updateFieldValidations, validator]);
 
   return null;
 }

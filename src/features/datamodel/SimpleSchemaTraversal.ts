@@ -19,6 +19,7 @@ interface Props {
 class SimpleSchemaTraversal {
   private current: JSONSchema7;
   private currentPath: string[] = [''];
+  private currentSchemaPath: string[] = [''];
 
   constructor(
     private fullSchema: JSONSchema7,
@@ -26,34 +27,39 @@ class SimpleSchemaTraversal {
     rootElementPath?: string,
   ) {
     this.current = rootElementPath ? this.lookupRef(rootElementPath) : fullSchema;
+    if (rootElementPath) {
+      this.currentSchemaPath = rootElementPath.replace(/^#/g, '').split('/');
+    }
   }
 
-  public get(item = this.current): JSONSchema7 {
-    const resolved = this.resolveRef(item);
-    if (resolved && Array.isArray(resolved.type)) {
-      const nonNullables = resolved.type.filter((type) => type !== 'null');
+  public get(item = this.current, path = this.currentSchemaPath): JSONSchema7 {
+    const [resolvedItem, resolvedPath] = this.resolveRef(item, path);
+    if (resolvedItem && Array.isArray(resolvedItem.type)) {
+      const nonNullables = resolvedItem.type.filter((type) => type !== 'null');
       if (nonNullables.length === 1) {
         return {
-          ...resolved,
+          ...resolvedItem,
           type: nonNullables[0],
         };
       }
     }
-    if (resolved && resolved.oneOf) {
-      const nonNullables = resolved.oneOf.filter((type) => type && this.resolveRef(type).type !== 'null');
+    if (resolvedItem && resolvedItem.oneOf) {
+      const nonNullables = resolvedItem.oneOf.filter(
+        (type) => type && this.resolveRef(type, resolvedPath)[0].type !== 'null',
+      );
       if (nonNullables.length === 1) {
-        return this.resolveRef(nonNullables[0]);
+        return this.resolveRef(nonNullables[0], resolvedPath)[0];
       }
     }
 
-    if (resolved && resolved.type === undefined && resolved.properties) {
+    if (resolvedItem && resolvedItem.type === undefined && resolvedItem.properties) {
       return {
-        ...resolved,
+        ...resolvedItem,
         type: 'object',
       };
     }
 
-    return resolved;
+    return resolvedItem;
   }
 
   public getAsResolved(item = this.current): JSONSchema7 {
@@ -62,7 +68,7 @@ class SimpleSchemaTraversal {
     const recursiveResolve = (obj: JSONSchema7 | JSONSchema7Definition) => {
       if (typeof obj === 'object' && !Array.isArray(obj)) {
         if (obj.$ref) {
-          const resolved = structuredClone(this.resolveRef(obj));
+          const [resolved] = structuredClone(this.resolveRef(obj));
           return recursiveResolve(resolved);
         }
         if (obj.properties) {
@@ -106,14 +112,20 @@ class SimpleSchemaTraversal {
     return this.currentPath.join('/');
   }
 
+  public getCurrentSchemaPath(): string {
+    return this.currentSchemaPath.join('/');
+  }
+
   public gotoProperty(property: string): this {
     const foundProperties: string[] = [];
     const alternatives = this.getAlternatives();
-    for (const alternative of alternatives) {
+    for (const [alternative, path] of alternatives) {
       if (alternative.properties) {
         if (alternative.properties[property]) {
           this.current = alternative.properties[property] as JSONSchema7;
           this.currentPath.push(property);
+          this.currentSchemaPath = structuredClone(path);
+          this.currentSchemaPath.push('properties', property);
           return this;
         }
 
@@ -147,18 +159,20 @@ class SimpleSchemaTraversal {
 
   public gotoIndex(index: number): this {
     const alternatives = this.getAlternatives();
-    for (const alternative of alternatives) {
+    for (const [alternative, path] of alternatives) {
       if (
         (alternative.type === 'array' || (Array.isArray(alternative.type) && alternative.type.includes('array'))) &&
         alternative.items
       ) {
         this.current = alternative.items as JSONSchema7;
         this.currentPath.push(`${index}`);
+        this.currentSchemaPath = structuredClone(path);
+        this.currentSchemaPath.push('items');
         return this;
       }
     }
 
-    const actual = alternatives.length === 1 ? this.get(alternatives[0]) : undefined;
+    const actual = alternatives.length === 1 ? this.get(alternatives[0][0]) : undefined;
     throw this.makeError('notAnArray', { actualType: typeof actual?.type === 'string' ? actual.type : undefined });
   }
 
@@ -174,15 +188,15 @@ class SimpleSchemaTraversal {
     return [false, ''];
   }
 
-  private isRepeatingGroup(alternatives: JSONSchema7[]): boolean {
-    return alternatives.some((alternative) => {
+  private isRepeatingGroup(alternatives: [JSONSchema7, string[]][]): boolean {
+    return alternatives.some(([alternative]) => {
       if (alternative.type === 'array' && alternative.items) {
         const items =
           typeof alternative.items === 'object' && !Array.isArray(alternative.items)
             ? this.resolveRef(alternative.items)
             : undefined;
 
-        if (typeof items === 'object' && (items.type === 'object' || items.properties)) {
+        if (typeof items === 'object' && (items[0].type === 'object' || items[0].properties)) {
           return true;
         }
       }
@@ -203,31 +217,40 @@ class SimpleSchemaTraversal {
    * Resolve $ref that points to another place in the schema (maybe recursive),
    * and resolve other rarities (like allOf that combines an empty schema)
    */
-  private resolveRef(item: JSONSchema7 | JSONSchema7Definition | undefined): JSONSchema7 {
-    let current = item as JSONSchema7;
-    while (current && typeof current === 'object' && '$ref' in current && current.$ref) {
-      current = this.lookupRef(current.$ref);
+  private resolveRef(
+    item: JSONSchema7 | JSONSchema7Definition | undefined,
+    schemaPath: string[] = this.currentSchemaPath,
+  ): [JSONSchema7, string[]] {
+    let currentSchema = item as JSONSchema7;
+    let currentSchemaPath = schemaPath;
+    while (currentSchema && typeof currentSchema === 'object' && '$ref' in currentSchema && currentSchema.$ref) {
+      currentSchemaPath = currentSchema.$ref!.replace(/^#/g, '').split('/');
+      currentSchema = this.lookupRef(currentSchema.$ref);
     }
 
-    if (current && typeof current === 'object' && 'allOf' in current && current.allOf) {
-      const nonEmptyAllOf = current.allOf.filter((i) => i !== null && i !== undefined && Object.keys(i).length > 0);
+    if (currentSchema && typeof currentSchema === 'object' && 'allOf' in currentSchema && currentSchema.allOf) {
+      const nonEmptyAllOf = currentSchema.allOf.filter(
+        (i) => i !== null && i !== undefined && Object.keys(i).length > 0,
+      );
       if (nonEmptyAllOf.length === 1) {
-        current = this.resolveRef(nonEmptyAllOf[0]);
+        [currentSchema, currentSchemaPath] = this.resolveRef(nonEmptyAllOf[0], currentSchemaPath);
       }
     }
 
-    return current;
+    return [currentSchema, currentSchemaPath];
   }
 
-  public getAlternatives(_item = this.current): JSONSchema7[] {
-    const item = this.resolveRef(_item);
-    const alternatives = [item];
-    const others = [item.allOf, item.anyOf, item.oneOf].map((list) => list?.map((i) => this.resolveRef(i)));
+  public getAlternatives(_item = this.current, _path = this.currentSchemaPath): [JSONSchema7, string[]][] {
+    const [item, currentSchemaPath] = this.resolveRef(_item, _path);
+    const alternatives = [[item, currentSchemaPath]] as [JSONSchema7, string[]][];
+    const others = [item.allOf, item.anyOf, item.oneOf].map((list) =>
+      list?.map((i) => this.resolveRef(i, [...currentSchemaPath, 'allOf'])),
+    );
     for (const other of others) {
-      for (const _innerItem of other || []) {
-        const innerItem = this.resolveRef(_innerItem);
+      for (const [_innerItem, _innerPath] of other || []) {
+        const [innerItem, innerPath] = this.resolveRef(_innerItem, _innerPath);
         if (typeof innerItem === 'object') {
-          const innerAlternatives = this.getAlternatives(innerItem);
+          const innerAlternatives = this.getAlternatives(innerItem, innerPath);
           alternatives.push(...innerAlternatives);
         }
       }
@@ -294,7 +317,7 @@ export function lookupPropertiesInSchema(schema: JSONSchema7, rootElementPath: s
 
   const alternatives = traverser.getAlternatives();
   const properties = new Set<string>();
-  for (const alternative of alternatives) {
+  for (const [alternative] of alternatives) {
     if (alternative.properties) {
       for (const key of Object.keys(alternative.properties)) {
         properties.add(key);
@@ -303,4 +326,20 @@ export function lookupPropertiesInSchema(schema: JSONSchema7, rootElementPath: s
   }
 
   return properties;
+}
+
+export function lookupPathInSchema(props: Props): [string, JSONSchema7] {
+  const { schema, rootElementPath, targetPointer } = props;
+
+  const traverser = new SimpleSchemaTraversal(schema, targetPointer, rootElementPath);
+  const parts = targetPointer.split('/').filter((part) => part !== '' && part !== '#');
+  for (const part of parts) {
+    const isIndex = /^\d+$/.test(part);
+    if (isIndex) {
+      traverser.gotoIndex(parseInt(part, 10));
+    } else {
+      traverser.gotoProperty(part);
+    }
+  }
+  return [traverser.getCurrentSchemaPath(), traverser.getAsResolved()];
 }
