@@ -2,7 +2,6 @@ import React from 'react';
 import { NumericFormat, PatternFormat } from 'react-number-format';
 import type { NumericFormatProps, PatternFormatProps } from 'react-number-format';
 
-import { SearchField } from '@altinn/altinn-design-system';
 import { Paragraph, Textfield } from '@digdir/designsystemet-react';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
@@ -55,7 +54,7 @@ interface InputComponentProps extends Omit<TextfieldProps, 'prefix' | 'suffix'> 
 // of the TextField and the react-number-format components which also have a 'size' prop
 // The prefix/suffix props from the design system also conflicts with react-number-format
 const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) => {
-  const { size: _, textOnly, prefixText, suffixText, ...customProps } = props;
+  const { size: _, textOnly, prefixText, suffixText, type, ...customProps } = props;
 
   if (textOnly) {
     const { value, id, className } = customProps;
@@ -67,7 +66,7 @@ const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) =
       <Paragraph
         id={id}
         size='small'
-        className={`${classes.textPadding} ${classes.focusable}  ${className}`}
+        className={`${classes.textPadding} ${classes.focusable} ${className}`}
         tabIndex={0}
       >
         {value}
@@ -81,6 +80,7 @@ const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) =
       prefix={prefixText}
       suffix={suffixText}
       {...customProps}
+      type={type}
     />
   );
 };
@@ -144,26 +144,14 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
         renderLabelAs: 'label',
       }}
     >
-      {variant.type === 'search' && (
-        <SearchField
-          id={id}
-          value={formValue}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue('simpleBinding', e.target.value)}
-          disabled={readOnly}
-          aria-label={ariaLabel}
-          aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
-          data-testid={`${id}-${variant}`}
-          onBlur={debounce}
-        />
-      )}
-      {variant.type === 'text' && (
+      {(variant.type === 'search' || variant.type === 'text') && (
         <TextfieldWrapped
           value={formValue}
           onChange={(event) => {
             setValue('simpleBinding', event.target.value);
           }}
-          data-testid={`${id}-${variant}`}
           {...commonProps}
+          type={variant.type}
         />
       )}
       {variant.type === 'pattern' && (
