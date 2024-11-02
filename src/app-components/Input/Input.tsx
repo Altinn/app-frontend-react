@@ -1,12 +1,10 @@
 import React from 'react';
 import type { HTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
 
-import { Paragraph, Textfield } from '@digdir/designsystemet-react';
+import { Textfield } from '@digdir/designsystemet-react';
 import type { CharacterLimitProps } from '@digdir/designsystemet-react/dist/types/components/form/CharacterCounter';
 
-import classes from 'src/app-components/Input/Input.module.css';
-
-type InputProps = {
+export type InputProps = {
   size?: 'sm' | 'md' | 'lg';
   prefix?: string;
   suffix?: string;
@@ -33,23 +31,6 @@ type InputProps = {
 
 export function Input(props: InputProps) {
   const { size = 'sm', ...rest } = props;
-
-  if (props.readOnly) {
-    if (props.value === null || (typeof props.value === 'string' && props.value.length === 0)) {
-      return null;
-    }
-
-    return (
-      <Paragraph
-        id={props.id}
-        size='small'
-        className={`${classes.textPadding} ${classes.focusable} ${props.className}`}
-        tabIndex={0}
-      >
-        {props.value}
-      </Paragraph>
-    );
-  }
 
   return (
     <Textfield

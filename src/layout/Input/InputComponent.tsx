@@ -13,11 +13,14 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IInputProps = PropsFromGenericComponent<'Input'>;
 
+import { Paragraph } from '@digdir/designsystemet-react';
+
 import { Input } from 'src/app-components/Input/Input';
 import { getDescriptionId } from 'src/components/label/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import type { InputProps } from 'src/app-components/Input/Input';
 
 type SearchVariant = { type: 'search' };
 type TextVariant = { type: 'text' };
@@ -39,6 +42,37 @@ function getVariantWithFormat(
     return { type: 'number', format };
   }
   return { type: 'text' };
+}
+
+function InputOrParagraph(props: InputProps & { textOnly?: boolean }) {
+  const { size: _, textOnly, prefix, suffix, type, ...customProps } = props;
+
+  if (textOnly) {
+    const { value, id, className } = customProps;
+    if (value === null || (typeof value === 'string' && value.length === 0)) {
+      return null;
+    }
+
+    return (
+      <Paragraph
+        id={id}
+        size='small'
+        className={`${classes.textPadding} ${classes.focusable} ${className}`}
+        tabIndex={0}
+      >
+        {value}
+      </Paragraph>
+    );
+  }
+
+  return (
+    <Input
+      prefix={prefix}
+      suffix={suffix}
+      {...customProps}
+      type={type}
+    />
+  );
 }
 
 export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, overrideDisplay }) => {
@@ -84,7 +118,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
       }}
     >
       {(variant.type === 'search' || variant.type === 'text') && (
-        <Input
+        <InputOrParagraph
           value={formValue}
           onChange={(event) => {
             setValue('simpleBinding', event.target.value);
@@ -95,7 +129,8 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
           characterLimit={!readOnly ? characterLimit : undefined}
           className={formatting?.align ? classes[`text-align-${formatting.align}`] : ''}
           id={id}
-          readOnly={overrideDisplay?.rowReadOnly || readOnly}
+          readOnly={readOnly}
+          textOnly={overrideDisplay?.rowReadOnly && readOnly}
           error={!isValid}
           required={required}
           onBlur={debounce}
@@ -163,7 +198,6 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
           readOnly={readOnly}
           required={required}
           onBlur={debounce}
-          prefix={prefixText}
         />
       )}
     </ComponentStructureWrapper>
