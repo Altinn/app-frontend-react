@@ -2,8 +2,10 @@ import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { isAfter, isBefore } from 'date-fns';
+import type { ErrorObject } from 'ajv';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
+import { runSchemaValidationOnlySimpleBinding } from 'src/features/validation/schemaValidation/jsonSchemaValidation';
 import { DatepickerDef } from 'src/layout/Datepicker/config.def.generated';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { DatepickerSummary } from 'src/layout/Datepicker/DatepickerSummary';
@@ -12,19 +14,17 @@ import { formatISOString, getDateConstraint, getDateFormat, strictParseISO } fro
 import { getDatepickerFormat } from 'src/utils/formatDateLocale';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type {
-  PropsFromGenericComponent,
-  ValidateComponent,
-  ValidationFilter,
-  ValidationFilterFunction,
-} from 'src/layout';
+  ComponentValidation,
+  NodeValidationDataSources,
+  SchemaValidationDataSources,
+} from 'src/features/validation';
+import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
-export class Datepicker extends DatepickerDef implements ValidateComponent<'Datepicker'>, ValidationFilter {
+export class Datepicker extends DatepickerDef implements ValidateComponent<'Datepicker'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Datepicker'>>(
     function LayoutComponentDatepickerRender(props, _): JSX.Element | null {
       return <DatepickerComponent {...props} />;
@@ -67,7 +67,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
 
   runComponentValidation(
     node: LayoutNode<'Datepicker'>,
-    { formDataSelector, currentLanguage, nodeDataSelector }: ValidationDataSources,
+    { formDataSelector, currentLanguage, nodeDataSelector }: NodeValidationDataSources,
   ): ComponentValidation[] {
     const field = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings?.simpleBinding, [node]);
     const data = field ? formDataSelector(field) : undefined;
@@ -120,21 +120,19 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     return validations;
   }
 
+  runSchemaValidation(
+    node: LayoutNode<'Datepicker'>,
+    schemaValidationDataSources: SchemaValidationDataSources,
+  ): ComponentValidation[] {
+    return runSchemaValidationOnlySimpleBinding(node, schemaValidationDataSources, this.schemaFormatFilter);
+  }
+
   /**
    * Datepicker has a custom format validation which give a better error message than what the schema provides.
    * Filter out the schema format vaildation to avoid duplicate error messages.
    */
-  private schemaFormatFilter(validation: BaseValidation): boolean {
-    return !(
-      validation.source === FrontendValidationSource.Schema && validation.message.key === 'validation_errors.pattern'
-    );
-  }
-
-  getValidationFilters(
-    _node: LayoutNode<'Datepicker'>,
-    _nodeDataSelector: NodeDataSelector,
-  ): ValidationFilterFunction[] {
-    return [this.schemaFormatFilter];
+  private schemaFormatFilter(error: ErrorObject): boolean {
+    return error.keyword !== 'format';
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Datepicker'>): string[] {

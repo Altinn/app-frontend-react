@@ -3,15 +3,20 @@ import type { JSX } from 'react';
 
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
 import { runEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
+import { runSchemaValidationOnlySimpleBinding } from 'src/features/validation/schemaValidation/jsonSchemaValidation';
 import { LikertItemDef } from 'src/layout/LikertItem/config.def.generated';
 import { LikertItemComponent } from 'src/layout/LikertItem/LikertItemComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type {
+  ComponentValidation,
+  EmptyFieldValidationDataSources,
+  SchemaValidationDataSources,
+} from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class LikertItem extends LikertItemDef {
   render = forwardRef<HTMLTableRowElement, PropsFromGenericComponent<'LikertItem'>>(
@@ -44,10 +49,17 @@ export class LikertItem extends LikertItemDef {
   }
 
   runEmptyFieldValidation(
-    node: BaseLayoutNode<'LikertItem'>,
-    validationDataSources: ValidationDataSources,
+    node: LayoutNode<'LikertItem'>,
+    validationDataSources: EmptyFieldValidationDataSources,
   ): ComponentValidation[] {
     return runEmptyFieldValidationOnlySimpleBinding(node, validationDataSources);
+  }
+
+  runSchemaValidation(
+    node: LayoutNode<'LikertItem'>,
+    validationDataSources: SchemaValidationDataSources,
+  ): ComponentValidation[] {
+    return runSchemaValidationOnlySimpleBinding(node, validationDataSources);
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'LikertItem'>): string[] {

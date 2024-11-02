@@ -1,5 +1,6 @@
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { AttachmentsSelector } from 'src/features/attachments/AttachmentsStorePlugin';
+import type { GetSchemaValidator } from 'src/features/datamodel/DataModelsProvider';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { DataElementHasErrorsSelector } from 'src/features/validation/validationContext';
@@ -218,7 +219,7 @@ export type ValidationsProcessedLast = {
 /**
  * Contains all the necessary elements from the store to run frontend validations.
  */
-export type ValidationDataSources = {
+export type NodeValidationDataSources = {
   currentLanguage: string;
   formDataSelector: FormDataSelector;
   invalidDataSelector: FormDataSelector;
@@ -228,6 +229,18 @@ export type ValidationDataSources = {
   dataElements: IData[];
   layoutSets: ILayoutSets;
   dataElementHasErrorsSelector: DataElementHasErrorsSelector;
+};
+
+export type EmptyFieldValidationDataSources = {
+  formDataSelector: FormDataSelector;
+  invalidDataSelector: FormDataSelector;
+  nodeDataSelector: NodeDataSelector;
+};
+
+export type SchemaValidationDataSources = {
+  formDataSelector: FormDataSelector;
+  nodeDataSelector: NodeDataSelector;
+  getSchemaValidator: GetSchemaValidator;
 };
 
 /**

@@ -46,6 +46,10 @@ export class Likert extends LikertDef {
     return [];
   }
 
+  runSchemaValidation(): ComponentValidation[] {
+    return [];
+  }
+
   isDataModelBindingsRequired(): boolean {
     return true;
   }

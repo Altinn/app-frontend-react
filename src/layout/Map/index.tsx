@@ -1,6 +1,8 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { runEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
+import { runSchemaValidationOnlySimpleBinding } from 'src/features/validation/schemaValidation/jsonSchemaValidation';
 import { MapDef } from 'src/layout/Map/config.def.generated';
 import { MapComponent } from 'src/layout/Map/MapComponent';
 import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
@@ -8,6 +10,11 @@ import { MapSummary } from 'src/layout/Map/Summary2/MapSummary';
 import { parseLocation } from 'src/layout/Map/utils';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
+import type {
+  ComponentValidation,
+  EmptyFieldValidationDataSources,
+  SchemaValidationDataSources,
+} from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Location } from 'src/layout/Map/config.generated';
@@ -43,6 +50,20 @@ export class Map extends MapDef {
         emptyFieldText={props.override?.emptyFieldText}
       />
     );
+  }
+
+  runEmptyFieldValidation(
+    node: LayoutNode<'Map'>,
+    validationDataSources: EmptyFieldValidationDataSources,
+  ): ComponentValidation[] {
+    return runEmptyFieldValidationOnlySimpleBinding(node, validationDataSources);
+  }
+
+  runSchemaValidation(
+    node: LayoutNode<'Map'>,
+    schemaValidationDataSources: SchemaValidationDataSources,
+  ): ComponentValidation[] {
+    return runSchemaValidationOnlySimpleBinding(node, schemaValidationDataSources);
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Map'>): string[] {

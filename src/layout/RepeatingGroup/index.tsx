@@ -1,9 +1,10 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, ValidationFilterFunction } from '..';
+import type { PropsFromGenericComponent, ValidateComponent, ValidateSchema } from '..';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
+import { validateListCountAgainstSchema } from 'src/features/validation/schemaValidation/jsonSchemaValidation';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer';
 import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
@@ -11,15 +12,21 @@ import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/Provider
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type {
+  ComponentValidation,
+  NodeValidationDataSources,
+  SchemaValidationDataSources,
+} from 'src/features/validation';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { GroupExpressions, RepGroupInternal, RepGroupRowExtras } from 'src/layout/RepeatingGroup/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeData } from 'src/utils/layout/types';
 
-export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
+export class RepeatingGroup
+  extends RepeatingGroupDef
+  implements ValidateComponent<'RepeatingGroup'>, ValidateSchema<'RepeatingGroup'>
+{
   render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>(
     function LayoutComponentRepeatingGroupRender(props, ref): JSX.Element | null {
       return (
@@ -99,7 +106,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
 
   runComponentValidation(
     node: LayoutNode<'RepeatingGroup'>,
-    { nodeDataSelector }: ValidationDataSources,
+    { nodeDataSelector }: NodeValidationDataSources,
   ): ComponentValidation[] {
     const dataModelBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
     if (!dataModelBindings) {
@@ -128,20 +135,26 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return validations;
   }
 
-  /**
-   * Repeating group has its own minCount property, so if set, we should filter out the minItems validation from schema.
-   */
-  private schemaMinItemsFilter(validation: BaseValidation): boolean {
-    return !(
-      validation.source === FrontendValidationSource.Schema && validation.message.key === 'validation_errors.minItems'
-    );
-  }
-
-  getValidationFilters(node: LayoutNode<'RepeatingGroup'>, selector: NodeDataSelector): ValidationFilterFunction[] {
-    if (selector((picker) => picker(node)?.item?.minCount ?? 0, [node]) > 0) {
-      return [this.schemaMinItemsFilter];
+  runSchemaValidation(
+    node: LayoutNode<'RepeatingGroup'>,
+    { formDataSelector, nodeDataSelector, getSchemaValidator }: SchemaValidationDataSources,
+  ): ComponentValidation[] {
+    const reference = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings.group, [node]);
+    if (!reference) {
+      return [];
     }
-    return [];
+
+    const skipMinimum = nodeDataSelector((picker) => typeof picker(node)?.layout.minCount === 'number', [node]);
+    const skipMaximum = nodeDataSelector((picker) => typeof picker(node)?.layout.maxCount === 'number', [node]);
+
+    return validateListCountAgainstSchema(
+      'group',
+      reference,
+      getSchemaValidator,
+      formDataSelector,
+      skipMinimum,
+      skipMaximum,
+    );
   }
 
   isDataModelBindingsRequired(): boolean {

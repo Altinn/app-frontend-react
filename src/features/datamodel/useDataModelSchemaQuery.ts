@@ -5,9 +5,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
-import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
-import { useDataModelType } from 'src/features/datamodel/useBindingSchema';
-import { getRootElementPath } from 'src/utils/schemaUtils';
+import { lookupBindingInSchema, lookupPathInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { SchemaLookupResult } from 'src/features/datamodel/SimpleSchemaTraversal';
 
@@ -22,16 +20,9 @@ export function useDataModelSchemaQueryDef(enabled: boolean, dataTypeId?: string
 }
 
 export const useDataModelSchemaQuery = (enabled: boolean, dataTypeId: string) => {
-  const dataType = useDataModelType(dataTypeId);
-
   const queryDef = useDataModelSchemaQueryDef(enabled, dataTypeId);
   const utils = useQuery({
     ...queryDef,
-    select: (schema) => {
-      const rootElementPath = getRootElementPath(schema, dataType);
-      const lookupTool = new SchemaLookupTool(schema, rootElementPath);
-      return { schema, lookupTool };
-    },
   });
 
   useEffect(() => {
@@ -50,7 +41,8 @@ export interface DataModelSchemaContext {
  * Simple caching lookup tool for finding the schema for a given binding/path
  */
 export class SchemaLookupTool {
-  private cache: Record<string, SchemaLookupResult> = {};
+  private schemaCache: Record<string, SchemaLookupResult> = {};
+  private schemaPathCache: Record<string, string | null> = {};
 
   constructor(
     private schema: JSONSchema7,
@@ -58,8 +50,8 @@ export class SchemaLookupTool {
   ) {}
 
   public getSchemaForPath(path: string): SchemaLookupResult {
-    if (path in this.cache) {
-      return this.cache[path];
+    if (path in this.schemaCache) {
+      return this.schemaCache[path];
     }
 
     const targetPointer = dotNotationToPointer(path);
@@ -69,7 +61,23 @@ export class SchemaLookupTool {
       targetPointer,
     });
 
-    this.cache[path] = result;
+    this.schemaCache[path] = result;
     return result;
+  }
+
+  public getSchemaPathForDataModelPath(path: string): string | null {
+    if (path in this.schemaPathCache) {
+      return this.schemaPathCache[path];
+    }
+
+    const targetPointer = dotNotationToPointer(path);
+    const schemaPath = lookupPathInSchema({
+      schema: this.schema,
+      rootElementPath: this.rootElementPath,
+      targetPointer,
+    });
+
+    this.schemaPathCache[path] = schemaPath;
+    return schemaPath;
   }
 }

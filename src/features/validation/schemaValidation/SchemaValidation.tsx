@@ -104,7 +104,7 @@ function SchemaFieldValidation({
   const data = FD.useDebouncedPick({ field, dataType });
 
   const targetPointer = dotNotationToPointer(field);
-  const [schemaPath, subSchema] = useMemo(
+  const schemaPath = useMemo(
     () => lookupPathInSchema({ rootElementPath, schema, targetPointer }),
     [rootElementPath, schema, targetPointer],
   );
@@ -113,7 +113,7 @@ function SchemaFieldValidation({
   useEffect(() => () => updateFieldValidations(field, null), [updateFieldValidations, field]);
 
   useEffect(() => {
-    if (!schemaPath || !subSchema) {
+    if (!schemaPath) {
       // Field not found in schema, ignore it
       return;
     }
@@ -142,8 +142,10 @@ function SchemaFieldValidation({
          * Either a standardized language key or a custom error message from the schema.
          */
         const message: TextReference =
-          'errorMessage' in subSchema && typeof subSchema.errorMessage === 'string'
-            ? { key: subSchema.errorMessage }
+          error.parentSchema &&
+          'errorMessage' in error.parentSchema &&
+          typeof error.parentSchema.errorMessage === 'string'
+            ? { key: error.parentSchema.errorMessage }
             : {
                 key: getErrorTextKey(error),
               };
@@ -170,7 +172,7 @@ function SchemaFieldValidation({
     }
 
     updateFieldValidations(field, validations?.length ? validations : null);
-  }, [data, dataElementId, field, schemaPath, schema, subSchema, updateFieldValidations, validator]);
+  }, [data, dataElementId, field, schemaPath, schema, updateFieldValidations, validator]);
 
   return null;
 }

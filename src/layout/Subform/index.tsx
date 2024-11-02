@@ -7,8 +7,8 @@ import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import {
   type ComponentValidation,
   FrontendValidationSource,
+  type NodeValidationDataSources,
   type SubformValidation,
-  type ValidationDataSources,
   ValidationMask,
 } from 'src/features/validation';
 import { SubformDef } from 'src/layout/Subform/config.def.generated';
@@ -90,7 +90,7 @@ export class Subform extends SubformDef implements ValidateComponent<'Subform'>,
       nodeDataSelector,
       layoutSets,
       dataElementHasErrorsSelector,
-    }: ValidationDataSources,
+    }: NodeValidationDataSources,
   ): ComponentValidation[] {
     const layoutSetName = nodeDataSelector((picker) => picker(node)?.layout.layoutSet, [node]);
     if (!layoutSetName) {

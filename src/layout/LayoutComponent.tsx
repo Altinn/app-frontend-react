@@ -8,6 +8,7 @@ import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { runEmptyFieldValidationAllBindings } from 'src/features/validation/nodeValidation/emptyFieldValidation';
+import { runSchemaValidationAllBindings } from 'src/features/validation/schemaValidation/jsonSchemaValidation';
 import { CompCategory } from 'src/layout/common';
 import { getComponentCapabilities } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
@@ -17,14 +18,18 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type {
+  ComponentValidation,
+  EmptyFieldValidationDataSources,
+  SchemaValidationDataSources,
+} from 'src/features/validation';
 import type {
   ComponentBase,
   FormComponentProps,
   IDataModelReference,
   SummarizableComponentProps,
 } from 'src/layout/common.generated';
-import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
+import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField, ValidateSchema } from 'src/layout/index';
 import type {
   CompExternalExact,
   CompIntermediate,
@@ -407,12 +412,22 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
 
 export abstract class FormComponent<Type extends CompTypes>
   extends _FormComponent<Type>
-  implements ValidateEmptyField<Type>
+  implements ValidateEmptyField<Type>, ValidateSchema<Type>
 {
   readonly category = CompCategory.Form;
 
-  runEmptyFieldValidation(node: LayoutNode<Type>, ValidationDataSources: ValidationDataSources): ComponentValidation[] {
-    return runEmptyFieldValidationAllBindings(node, ValidationDataSources);
+  runEmptyFieldValidation(
+    node: LayoutNode<Type>,
+    nodeValidationDataSources: EmptyFieldValidationDataSources,
+  ): ComponentValidation[] {
+    return runEmptyFieldValidationAllBindings(node, nodeValidationDataSources);
+  }
+
+  runSchemaValidation(
+    node: LayoutNode<Type>,
+    schemaValidationDataSources: SchemaValidationDataSources,
+  ): ComponentValidation[] {
+    return runSchemaValidationAllBindings(node, schemaValidationDataSources);
   }
 }
 

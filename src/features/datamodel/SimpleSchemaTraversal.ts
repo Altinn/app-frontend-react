@@ -12,63 +12,81 @@ interface Props {
   rootElementPath?: string;
 }
 
+type SchemaLocation = {
+  schema: JSONSchema7;
+  schemaPath: string[];
+};
+
+function isJsonSchema(schema: JSONSchema7Definition | null | undefined): schema is JSONSchema7 {
+  return schema != null && typeof schema !== 'boolean';
+}
+
 /**
  * A simple JSON schema traversal tool that can be used to lookup a binding in a schema to find the
  * corresponding JSON schema definition for that binding.
  */
 class SimpleSchemaTraversal {
-  private current: JSONSchema7;
+  private currentLocation: SchemaLocation;
   private currentPath: string[] = [''];
-  private currentSchemaPath: string[] = [''];
 
   constructor(
     private fullSchema: JSONSchema7,
     private targetPointer: string,
     rootElementPath?: string,
   ) {
-    this.current = rootElementPath ? this.lookupRef(rootElementPath) : fullSchema;
-    if (rootElementPath) {
-      this.currentSchemaPath = rootElementPath.replace(/^#/g, '').split('/');
-    }
+    this.currentLocation = rootElementPath ? this.lookupRef(rootElementPath) : { schema: fullSchema, schemaPath: [''] };
   }
 
-  public get(item = this.current, path = this.currentSchemaPath): JSONSchema7 {
-    const [resolvedItem, resolvedPath] = this.resolveRef(item, path);
-    if (resolvedItem && Array.isArray(resolvedItem.type)) {
-      const nonNullables = resolvedItem.type.filter((type) => type !== 'null');
+  public get(location = this.currentLocation): SchemaLocation {
+    const resolvedLocation = this.resolveRef(location);
+    if (resolvedLocation.schema && Array.isArray(resolvedLocation.schema.type)) {
+      const nonNullables = resolvedLocation.schema.type.filter((type) => type !== 'null');
       if (nonNullables.length === 1) {
         return {
-          ...resolvedItem,
-          type: nonNullables[0],
+          schema: {
+            ...resolvedLocation.schema,
+            type: nonNullables[0],
+          },
+          schemaPath: resolvedLocation.schemaPath,
         };
       }
     }
-    if (resolvedItem && resolvedItem.oneOf) {
-      const nonNullables = resolvedItem.oneOf.filter(
-        (type) => type && this.resolveRef(type, resolvedPath)[0].type !== 'null',
-      );
+    if (resolvedLocation.schema && resolvedLocation.schema.oneOf) {
+      const nonNullables = resolvedLocation.schema.oneOf
+        .map((schema, i) =>
+          schema && typeof schema !== 'boolean'
+            ? this.resolveRef({ schema, schemaPath: [...resolvedLocation.schemaPath, 'oneOf', `${i}`] })
+            : null,
+        )
+        .filter((location) => location !== null)
+        .filter((location) => location.schema.type !== 'null');
       if (nonNullables.length === 1) {
-        return this.resolveRef(nonNullables[0], resolvedPath)[0];
+        return this.resolveRef(nonNullables[0]);
       }
     }
 
-    if (resolvedItem && resolvedItem.type === undefined && resolvedItem.properties) {
+    if (resolvedLocation.schema && resolvedLocation.schema.type === undefined && resolvedLocation.schema.properties) {
       return {
-        ...resolvedItem,
-        type: 'object',
+        schema: {
+          ...resolvedLocation.schema,
+          type: 'object',
+        },
+        schemaPath: resolvedLocation.schemaPath,
       };
     }
 
-    return resolvedItem;
+    return resolvedLocation;
   }
 
-  public getAsResolved(item = this.current): JSONSchema7 {
-    const resolved = structuredClone(this.get(item));
+  public getAsResolved(location = this.currentLocation): JSONSchema7 {
+    const { schema } = structuredClone(this.get(location));
 
     const recursiveResolve = (obj: JSONSchema7 | JSONSchema7Definition) => {
       if (typeof obj === 'object' && !Array.isArray(obj)) {
         if (obj.$ref) {
-          const [resolved] = structuredClone(this.resolveRef(obj));
+          const { schema: resolved } = structuredClone(
+            this.resolveRef({ schema: obj, schemaPath: [] /* We don't care about the path in this case */ }),
+          );
           return recursiveResolve(resolved);
         }
         if (obj.properties) {
@@ -105,7 +123,7 @@ class SimpleSchemaTraversal {
       return obj;
     };
 
-    return recursiveResolve(resolved) as JSONSchema7;
+    return recursiveResolve(schema) as JSONSchema7;
   }
 
   public getCurrentPath(): string {
@@ -113,23 +131,24 @@ class SimpleSchemaTraversal {
   }
 
   public getCurrentSchemaPath(): string {
-    return this.currentSchemaPath.join('/');
+    return this.currentLocation.schemaPath.join('/');
   }
 
   public gotoProperty(property: string): this {
     const foundProperties: string[] = [];
     const alternatives = this.getAlternatives();
-    for (const [alternative, path] of alternatives) {
-      if (alternative.properties) {
-        if (alternative.properties[property]) {
-          this.current = alternative.properties[property] as JSONSchema7;
+    for (const location of alternatives) {
+      if (location.schema.properties) {
+        if (location.schema.properties[property]) {
+          this.currentLocation = {
+            schema: location.schema.properties[property] as JSONSchema7,
+            schemaPath: [...location.schemaPath, 'properties', property],
+          };
           this.currentPath.push(property);
-          this.currentSchemaPath = structuredClone(path);
-          this.currentSchemaPath.push('properties', property);
           return this;
         }
 
-        foundProperties.push(...Object.keys(alternative.properties));
+        foundProperties.push(...Object.keys(location.schema.properties));
       }
     }
 
@@ -159,21 +178,25 @@ class SimpleSchemaTraversal {
 
   public gotoIndex(index: number): this {
     const alternatives = this.getAlternatives();
-    for (const [alternative, path] of alternatives) {
+    for (const location of alternatives) {
       if (
-        (alternative.type === 'array' || (Array.isArray(alternative.type) && alternative.type.includes('array'))) &&
-        alternative.items
+        (location.schema.type === 'array' ||
+          (Array.isArray(location.schema.type) && location.schema.type.includes('array'))) &&
+        location.schema.items
       ) {
-        this.current = alternative.items as JSONSchema7;
+        this.currentLocation = {
+          schema: location.schema.items as JSONSchema7,
+          schemaPath: [...location.schemaPath, 'items'],
+        };
         this.currentPath.push(`${index}`);
-        this.currentSchemaPath = structuredClone(path);
-        this.currentSchemaPath.push('items');
         return this;
       }
     }
 
-    const actual = alternatives.length === 1 ? this.get(alternatives[0][0]) : undefined;
-    throw this.makeError('notAnArray', { actualType: typeof actual?.type === 'string' ? actual.type : undefined });
+    const actual = alternatives.length === 1 ? this.get(alternatives[0]) : undefined;
+    throw this.makeError('notAnArray', {
+      actualType: typeof actual?.schema.type === 'string' ? actual.schema.type : undefined,
+    });
   }
 
   private isMisCased(property: string, foundProperties: string[]): [boolean, string] {
@@ -188,12 +211,12 @@ class SimpleSchemaTraversal {
     return [false, ''];
   }
 
-  private isRepeatingGroup(alternatives: [JSONSchema7, string[]][]): boolean {
-    return alternatives.some(([alternative]) => {
-      if (alternative.type === 'array' && alternative.items) {
+  private isRepeatingGroup(alternatives: SchemaLocation[]): boolean {
+    return alternatives.some((location) => {
+      if (location.schema.type === 'array' && location.schema.items) {
         const items =
-          typeof alternative.items === 'object' && !Array.isArray(alternative.items)
-            ? this.resolveRef(alternative.items)
+          typeof location.schema.items === 'object' && !Array.isArray(location.schema.items)
+            ? this.resolveRef(location)
             : undefined;
 
         if (typeof items === 'object' && (items[0].type === 'object' || items[0].properties)) {
@@ -204,60 +227,67 @@ class SimpleSchemaTraversal {
     });
   }
 
-  private lookupRef(path: string): JSONSchema7 {
-    const resolved = pointer.get(this.fullSchema, path.replace(/^#/g, ''));
-    if (resolved) {
-      return resolved as JSONSchema7;
+  private lookupRef(ref: string): SchemaLocation {
+    const path = ref.replace(/^#/g, '');
+    const schema = pointer.get(this.fullSchema, path);
+    if (schema) {
+      return { schema: schema as JSONSchema7, schemaPath: path.split('/') };
     }
 
-    throw this.makeError('referenceError', { reference: path });
+    throw this.makeError('referenceError', { reference: ref });
   }
 
   /**
    * Resolve $ref that points to another place in the schema (maybe recursive),
    * and resolve other rarities (like allOf that combines an empty schema)
    */
-  private resolveRef(
-    item: JSONSchema7 | JSONSchema7Definition | undefined,
-    schemaPath: string[] = this.currentSchemaPath,
-  ): [JSONSchema7, string[]] {
-    let currentSchema = item as JSONSchema7;
-    let currentSchemaPath = schemaPath;
-    while (currentSchema && typeof currentSchema === 'object' && '$ref' in currentSchema && currentSchema.$ref) {
-      currentSchemaPath = currentSchema.$ref!.replace(/^#/g, '').split('/');
-      currentSchema = this.lookupRef(currentSchema.$ref);
+  private resolveRef(location = this.currentLocation): SchemaLocation {
+    let currentLocation = { ...location };
+    while (
+      currentLocation.schema &&
+      typeof currentLocation.schema === 'object' &&
+      '$ref' in currentLocation.schema &&
+      currentLocation.schema.$ref
+    ) {
+      currentLocation = this.lookupRef(currentLocation.schema.$ref);
     }
 
-    if (currentSchema && typeof currentSchema === 'object' && 'allOf' in currentSchema && currentSchema.allOf) {
-      const nonEmptyAllOf = currentSchema.allOf
-        .map((schema, index) => ({ schema, index }) as const)
-        .filter(({ schema }) => schema !== null && schema !== undefined && Object.keys(schema).length > 0);
+    if (
+      currentLocation.schema &&
+      typeof currentLocation.schema === 'object' &&
+      'allOf' in currentLocation.schema &&
+      currentLocation.schema.allOf
+    ) {
+      const nonEmptyAllOf = currentLocation.schema.allOf
+        .map((schema, index) => ({ schema, schemaPath: [...currentLocation.schemaPath, 'allOf', `${index}`] }))
+        .filter(({ schema }) => isJsonSchema(schema) && Object.keys(schema).length > 0);
 
       if (nonEmptyAllOf.length === 1) {
-        [currentSchema, currentSchemaPath] = this.resolveRef(nonEmptyAllOf[0].schema, [
-          ...currentSchemaPath,
-          'allOf',
-          `${nonEmptyAllOf[0].index}`,
-        ]);
+        currentLocation = this.resolveRef(nonEmptyAllOf[0] as SchemaLocation);
       }
     }
 
-    return [currentSchema, currentSchemaPath];
+    return currentLocation;
   }
 
-  public getAlternatives(_item = this.current, _path = this.currentSchemaPath): [JSONSchema7, string[]][] {
-    const [item, currentSchemaPath] = this.resolveRef(_item, _path);
-    const alternatives = [[item, currentSchemaPath]] as [JSONSchema7, string[]][];
-    const others = ['allOf', 'anyOf', 'oneOf'].map((key) =>
-      item[key]?.map((schema: JSONSchema7, i: number) => this.resolveRef(schema, [...currentSchemaPath, key, `${i}`])),
+  public getAlternatives(location = this.currentLocation): SchemaLocation[] {
+    const currentLocation = this.resolveRef(location);
+    const alternatives = [currentLocation];
+    const others: SchemaLocation[] = ['allOf', 'anyOf', 'oneOf'].flatMap(
+      (key: 'allOf' | 'anyOf' | 'oneOf') =>
+        currentLocation.schema[key]
+          ?.map((schema, i) =>
+            isJsonSchema(schema)
+              ? this.resolveRef({ schema, schemaPath: [...currentLocation.schemaPath, key, `${i}`] })
+              : null,
+          )
+          .filter((other) => other !== null) ?? [],
     );
     for (const other of others) {
-      for (const [_innerItem, _innerPath] of other || []) {
-        const [innerItem, innerPath] = this.resolveRef(_innerItem, _innerPath);
-        if (typeof innerItem === 'object') {
-          const innerAlternatives = this.getAlternatives(innerItem, innerPath);
-          alternatives.push(...innerAlternatives);
-        }
+      const innerLocation = this.resolveRef(other);
+      if (typeof innerLocation.schema === 'object') {
+        const innerAlternatives = this.getAlternatives(innerLocation);
+        alternatives.push(...innerAlternatives);
       }
     }
 
@@ -322,9 +352,9 @@ export function lookupPropertiesInSchema(schema: JSONSchema7, rootElementPath: s
 
   const alternatives = traverser.getAlternatives();
   const properties = new Set<string>();
-  for (const [alternative] of alternatives) {
-    if (alternative.properties) {
-      for (const key of Object.keys(alternative.properties)) {
+  for (const location of alternatives) {
+    if (location.schema.properties) {
+      for (const key of Object.keys(location.schema.properties)) {
         properties.add(key);
       }
     }
@@ -333,7 +363,7 @@ export function lookupPropertiesInSchema(schema: JSONSchema7, rootElementPath: s
   return properties;
 }
 
-export function lookupPathInSchema(props: Props): [string | null, JSONSchema7 | null] {
+export function lookupPathInSchema(props: Props): string | null {
   const { schema, rootElementPath, targetPointer } = props;
 
   try {
@@ -347,9 +377,9 @@ export function lookupPathInSchema(props: Props): [string | null, JSONSchema7 | 
         traverser.gotoProperty(part);
       }
     }
-    return [traverser.getCurrentSchemaPath(), traverser.getAsResolved()];
+    return traverser.getCurrentSchemaPath();
   } catch {
     window.logWarnOnce(`Unable to find ${targetPointer} in schema`);
-    return [null, null];
+    return null;
   }
 }

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
+import type Ajv from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
@@ -12,8 +13,8 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useCustomValidationConfigQuery } from 'src/features/customValidation/useCustomValidationQuery';
 import { UpdateDataElementIdsForCypress } from 'src/features/datamodel/DataElementIdsForCypress';
-import { useCurrentDataModelName, useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
-import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSchemaQuery';
+import { useCurrentDataModelName, useDataModelType, useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { SchemaLookupTool, useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSchemaQuery';
 import {
   getAllReferencedDataTypes,
   isDataTypeWritable,
@@ -25,10 +26,11 @@ import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceAllDataElements, useLaxInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
+import { createValidator } from 'src/features/validation/schemaValidation/schemaValidationUtils';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { HttpStatusCodes } from 'src/utils/network/networking';
-import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
+import { getRootElementPath } from 'src/utils/schemaUtils';
 import type { IExpressionValidations } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 
@@ -39,6 +41,7 @@ interface DataModelsState {
   initialData: { [dataType: string]: object };
   dataElementIds: { [dataType: string]: string | null };
   schemas: { [dataType: string]: JSONSchema7 };
+  validators: { [dataType: string]: Ajv };
   schemaLookup: { [dataType: string]: SchemaLookupTool };
   expressionValidationConfigs: { [dataType: string]: IExpressionValidations | null };
   error: Error | null;
@@ -47,7 +50,7 @@ interface DataModelsState {
 interface DataModelsMethods {
   setDataTypes: (allDataTypes: string[], writableDataTypes: string[], defaultDataType: string | undefined) => void;
   setInitialData: (dataType: string, initialData: object, dataElementId: string | null) => void;
-  setDataModelSchema: (dataType: string, schema: JSONSchema7, lookupTool: SchemaLookupTool) => void;
+  setDataModelSchema: (dataType: string, schema: JSONSchema7, lookupTool: SchemaLookupTool, validator: Ajv) => void;
   setExpressionValidationConfig: (dataType: string, config: IExpressionValidations | null) => void;
   setError: (error: Error) => void;
 }
@@ -61,6 +64,7 @@ function initialCreateStore() {
     dataElementIds: {},
     initialValidations: null,
     schemas: {},
+    validators: {},
     schemaLookup: {},
     expressionValidationConfigs: {},
     error: null,
@@ -80,7 +84,7 @@ function initialCreateStore() {
         },
       }));
     },
-    setDataModelSchema: (dataType, schema, lookupTool) => {
+    setDataModelSchema: (dataType, schema, lookupTool, validator) => {
       set((state) => ({
         schemas: {
           ...state.schemas,
@@ -89,6 +93,10 @@ function initialCreateStore() {
         schemaLookup: {
           ...state.schemaLookup,
           [dataType]: lookupTool,
+        },
+        validators: {
+          ...state.validators,
+          [dataType]: validator,
         },
       }));
     },
@@ -266,18 +274,22 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
 }
 
 function LoadSchema({ dataType }: LoaderProps) {
+  const dataTypeDef = useDataModelType(dataType);
   const setDataModelSchema = useSelector((state) => state.setDataModelSchema);
   const setError = useSelector((state) => state.setError);
   // No need to load schema in PDF
   // Edit: Since #2244, layout and data model binding validations work differently, so enabling schema loading to make things work for now.
   // const enabled = !useIsPdf();
-  const { data, error } = useDataModelSchemaQuery(true, dataType);
+  const { data: schema, error } = useDataModelSchemaQuery(true, dataType);
 
   useEffect(() => {
-    if (data) {
-      setDataModelSchema(dataType, data.schema, data.lookupTool);
+    if (schema) {
+      const rootElementPath = getRootElementPath(schema, dataTypeDef);
+      const lookupTool = new SchemaLookupTool(schema, rootElementPath);
+      const validator = createValidator(schema);
+      setDataModelSchema(dataType, schema, lookupTool, validator);
     }
-  }, [data, dataType, setDataModelSchema]);
+  }, [schema, dataType, setDataModelSchema, dataTypeDef]);
 
   useEffect(() => {
     error && setError(error);
@@ -305,6 +317,8 @@ function LoadExpressionValidationConfig({ dataType }: LoaderProps) {
 
   return null;
 }
+
+export type GetSchemaValidator = ReturnType<typeof DataModels.useGetSchemaValidator>;
 
 const emptyArray = [];
 export const DataModels = {
@@ -340,6 +354,19 @@ export const DataModels = {
   useGetDataElementIdForDataType: () => {
     const dataElementIds = useMemoSelector((state) => state.dataElementIds);
     return useCallback((dataType: string) => dataElementIds[dataType], [dataElementIds]);
+  },
+
+  useGetSchemaValidator: () => {
+    const validators = useMemoSelector((state) => state.validators);
+    const lookupTools = useMemoSelector((state) => state.schemaLookup);
+
+    return useCallback(
+      (dataType: string) => ({
+        validator: validators[dataType],
+        lookupTool: lookupTools[dataType],
+      }),
+      [lookupTools, validators],
+    );
   },
 
   useDataElementIds: () => useSelector((state) => state.dataElementIds),

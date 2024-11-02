@@ -8,7 +8,7 @@ import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidation, NodeValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
@@ -41,7 +41,7 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
 
   runComponentValidation(
     node: LayoutNode<'Address'>,
-    { formDataSelector, nodeDataSelector }: ValidationDataSources,
+    { formDataSelector, nodeDataSelector }: NodeValidationDataSources,
   ): ComponentValidation[] {
     const dataModelBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
     if (!dataModelBindings) {

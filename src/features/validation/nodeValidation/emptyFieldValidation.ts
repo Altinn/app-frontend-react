@@ -1,7 +1,7 @@
 import {
   type ComponentValidation,
+  type EmptyFieldValidationDataSources,
   FrontendValidationSource,
-  type ValidationDataSources,
   ValidationMask,
 } from 'src/features/validation';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
@@ -15,7 +15,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  */
 export function runEmptyFieldValidationAllBindings<Type extends CompTypes>(
   node: LayoutNode<Type>,
-  { formDataSelector, invalidDataSelector, nodeDataSelector }: ValidationDataSources,
+  { formDataSelector, invalidDataSelector, nodeDataSelector }: EmptyFieldValidationDataSources,
 ): ComponentValidation[] {
   const required = nodeDataSelector(
     (picker) => {
@@ -63,7 +63,7 @@ export function runEmptyFieldValidationAllBindings<Type extends CompTypes>(
  */
 export function runEmptyFieldValidationOnlySimpleBinding<Type extends CompWithBinding<'simpleBinding'>>(
   node: LayoutNode<Type>,
-  { formDataSelector, invalidDataSelector, nodeDataSelector }: ValidationDataSources,
+  { formDataSelector, invalidDataSelector, nodeDataSelector }: EmptyFieldValidationDataSources,
 ): ComponentValidation[] {
   const required = nodeDataSelector(
     (picker) => {
