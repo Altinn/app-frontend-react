@@ -4,7 +4,7 @@ import type { GetSchemaValidator } from 'src/features/datamodel/DataModelsProvid
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { DataElementHasErrorsSelector } from 'src/features/validation/validationContext';
-import type { FormDataSelector } from 'src/layout';
+import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { ILayoutSets } from 'src/layout/common.generated';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -239,6 +239,7 @@ export type EmptyFieldValidationDataSources = {
 
 export type SchemaValidationDataSources = {
   formDataSelector: FormDataSelector;
+  formDataRowsSelector: FormDataRowsSelector;
   nodeDataSelector: NodeDataSelector;
   getSchemaValidator: GetSchemaValidator;
 };

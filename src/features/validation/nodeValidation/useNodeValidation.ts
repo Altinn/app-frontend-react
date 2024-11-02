@@ -24,6 +24,7 @@ export function useNodeValidation(
   shouldValidate: boolean,
 ): { validations: AnyValidation[]; processedLast: ValidationsProcessedLast } {
   const formDataSelector = FD.useDebouncedSelector();
+  const formDataRowsSelector = FD.useDebouncedRowsSelector();
   const invalidDataSelector = FD.useInvalidDebouncedSelector();
   const attachmentsSelector = useAttachmentsSelector();
   const currentLanguage = useCurrentLanguage();
@@ -89,11 +90,12 @@ export function useNodeValidation(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const validations = node.def.runSchemaValidation(node as any, {
       formDataSelector,
+      formDataRowsSelector,
       nodeDataSelector,
       getSchemaValidator,
     });
     return validations.length ? validations : emptyArray;
-  }, [formDataSelector, getSchemaValidator, node, nodeDataSelector, shouldValidate]);
+  }, [formDataRowsSelector, formDataSelector, getSchemaValidator, node, nodeDataSelector, shouldValidate]);
 
   const backendValidations = useMemo(() => {
     if (!shouldValidate) {

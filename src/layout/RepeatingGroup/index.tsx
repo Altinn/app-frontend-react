@@ -137,7 +137,7 @@ export class RepeatingGroup
 
   runSchemaValidation(
     node: LayoutNode<'RepeatingGroup'>,
-    { formDataSelector, nodeDataSelector, getSchemaValidator }: SchemaValidationDataSources,
+    { formDataRowsSelector, nodeDataSelector, getSchemaValidator }: SchemaValidationDataSources,
   ): ComponentValidation[] {
     const reference = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings.group, [node]);
     if (!reference) {
@@ -151,7 +151,7 @@ export class RepeatingGroup
       'group',
       reference,
       getSchemaValidator,
-      formDataSelector,
+      formDataRowsSelector,
       skipMinimum,
       skipMaximum,
     );

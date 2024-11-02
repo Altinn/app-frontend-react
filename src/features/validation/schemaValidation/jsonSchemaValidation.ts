@@ -13,8 +13,8 @@ import {
   getErrorParams,
   getErrorTextKey,
 } from 'src/features/validation/schemaValidation/schemaValidationUtils';
-import { type FormDataSelector } from 'src/layout';
 import type { TextReference } from 'src/features/language/useLanguage';
+import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompTypes, CompWithBinding } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -59,7 +59,7 @@ export function validateListCountAgainstSchema(
   bindingKey: string,
   { field, dataType }: IDataModelReference,
   getSchemaValidator: GetSchemaValidator,
-  formDataSelector: FormDataSelector,
+  formDataRowsSelector: FormDataRowsSelector,
   // Skip min/max can be set to avoid duplicate validations from schema
   skipMinimum = false,
   skipMaxmimum = false,
@@ -69,7 +69,7 @@ export function validateListCountAgainstSchema(
   }
 
   const { lookupTool } = getSchemaValidator(dataType);
-  const data = formDataSelector({ field, dataType }) as unknown[] | undefined;
+  const data = formDataRowsSelector({ field, dataType });
   const [resolvedSchema] = lookupTool.getSchemaForPath(field);
   if (!resolvedSchema) {
     return [];
