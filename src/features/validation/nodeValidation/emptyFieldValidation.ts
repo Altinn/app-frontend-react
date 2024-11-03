@@ -5,9 +5,11 @@ import {
   ValidationMask,
 } from 'src/features/validation';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
+import type { FormDataSelector } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompTypes, CompWithBinding } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 /**
  * Default implementation of runEmptyFieldValidation
@@ -32,26 +34,9 @@ export function runEmptyFieldValidationAllBindings<Type extends CompTypes>(
   const validations: ComponentValidation[] = [];
 
   for (const [bindingKey, reference] of Object.entries(dataModelBindings as Record<string, IDataModelReference>)) {
-    const data = formDataSelector(reference) ?? invalidDataSelector(reference);
-    const asString =
-      typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
-    const trb = nodeDataSelector((picker) => picker(node)?.item?.textResourceBindings, [node]);
-
-    if (asString.length === 0) {
-      const key =
-        trb && 'requiredValidation' in trb && trb.requiredValidation
-          ? trb.requiredValidation
-          : 'form_filler.error_required';
-      const fieldReference = { key: getFieldNameKey(trb, bindingKey), makeLowerCase: true };
-
-      validations.push({
-        source: FrontendValidationSource.EmptyField,
-        bindingKey,
-        message: { key, params: [fieldReference] },
-        severity: 'error',
-        category: ValidationMask.Required,
-      });
-    }
+    validations.push(
+      ...validateRequiredField(node, bindingKey, reference, formDataSelector, invalidDataSelector, nodeDataSelector),
+    );
   }
   return validations;
 }
@@ -77,8 +62,24 @@ export function runEmptyFieldValidationOnlySimpleBinding<Type extends CompWithBi
     return [];
   }
 
-  const validations: ComponentValidation[] = [];
+  return validateRequiredField(
+    node,
+    'simpleBinding',
+    reference,
+    formDataSelector,
+    invalidDataSelector,
+    nodeDataSelector,
+  );
+}
 
+function validateRequiredField(
+  node: LayoutNode,
+  bindingKey: string,
+  reference: IDataModelReference,
+  formDataSelector: FormDataSelector,
+  invalidDataSelector: FormDataSelector,
+  nodeDataSelector: NodeDataSelector,
+): ComponentValidation[] {
   const data = formDataSelector(reference) ?? invalidDataSelector(reference);
   const asString =
     typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
@@ -89,15 +90,17 @@ export function runEmptyFieldValidationOnlySimpleBinding<Type extends CompWithBi
       trb && 'requiredValidation' in trb && trb.requiredValidation
         ? trb.requiredValidation
         : 'form_filler.error_required';
-    const fieldReference = { key: getFieldNameKey(trb, 'simpleBinding'), makeLowerCase: true };
+    const fieldReference = { key: getFieldNameKey(trb, bindingKey), makeLowerCase: true };
 
-    validations.push({
-      source: FrontendValidationSource.EmptyField,
-      bindingKey: 'simpleBinding',
-      message: { key, params: [fieldReference] },
-      severity: 'error',
-      category: ValidationMask.Required,
-    });
+    return [
+      {
+        source: FrontendValidationSource.EmptyField,
+        bindingKey,
+        message: { key, params: [fieldReference] },
+        severity: 'error',
+        category: ValidationMask.Required,
+      },
+    ];
   }
-  return validations;
+  return [];
 }

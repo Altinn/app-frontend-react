@@ -7,6 +7,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
+import { runInvalidDataValidationAllBindings } from 'src/features/validation/invalidDataValidation/nodeInvalidDataValidation';
 import { runEmptyFieldValidationAllBindings } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { runSchemaValidationAllBindings } from 'src/features/validation/schemaValidation/jsonSchemaValidation';
 import { CompCategory } from 'src/layout/common';
@@ -21,6 +22,7 @@ import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
 import type {
   ComponentValidation,
   EmptyFieldValidationDataSources,
+  InvalidDataValidationDataSources,
   SchemaValidationDataSources,
 } from 'src/features/validation';
 import type {
@@ -29,7 +31,13 @@ import type {
   IDataModelReference,
   SummarizableComponentProps,
 } from 'src/layout/common.generated';
-import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField, ValidateSchema } from 'src/layout/index';
+import type {
+  FormDataSelector,
+  PropsFromGenericComponent,
+  ValidateEmptyField,
+  ValidateInvalidData,
+  ValidateSchema,
+} from 'src/layout/index';
 import type {
   CompExternalExact,
   CompIntermediate,
@@ -412,7 +420,7 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
 
 export abstract class FormComponent<Type extends CompTypes>
   extends _FormComponent<Type>
-  implements ValidateEmptyField<Type>, ValidateSchema<Type>
+  implements ValidateEmptyField<Type>, ValidateSchema<Type>, ValidateInvalidData<Type>
 {
   readonly category = CompCategory.Form;
 
@@ -428,6 +436,13 @@ export abstract class FormComponent<Type extends CompTypes>
     schemaValidationDataSources: SchemaValidationDataSources,
   ): ComponentValidation[] {
     return runSchemaValidationAllBindings(node, schemaValidationDataSources);
+  }
+
+  runInvalidDataValidation(
+    node: LayoutNode<Type>,
+    invalidDataValidationDataSources: InvalidDataValidationDataSources,
+  ): ComponentValidation[] {
+    return runInvalidDataValidationAllBindings(node, invalidDataValidationDataSources);
   }
 }
 

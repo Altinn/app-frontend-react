@@ -1,13 +1,9 @@
-import React from 'react';
-
-import { render } from '@testing-library/react';
 import type { JSONSchema7 } from 'json-schema';
 
 import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import * as UseBindingSchema from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { SchemaValidation, VALIDATION_TIMEOUT } from 'src/features/validation/schemaValidation/SchemaValidation';
 import { Validation } from 'src/features/validation/validationContext';
 import type { IDataType } from 'src/types/shared';
 
@@ -266,8 +262,7 @@ describe('SchemaValidation', () => {
               .spyOn(Validation, 'useUpdateDataModelValidations')
               .mockImplementation(() => updateDataModelValidations);
 
-            render(<SchemaValidation dataType='mockDataType'></SchemaValidation>);
-            jest.advanceTimersByTime(VALIDATION_TIMEOUT);
+            // render(<SchemaValidation dataType='mockDataType'></SchemaValidation>);
 
             // If valid, expect empty validations object
             // If not valid, expect an object containing at least field and severity

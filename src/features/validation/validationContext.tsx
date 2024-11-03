@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -29,7 +29,6 @@ import {
   appSupportsIncrementalValidationFeatures,
   useShouldValidateInitial,
 } from 'src/features/validation/backendValidation/backendValidationUtils';
-import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
 import { hasValidationErrors, mergeFieldValidations, selectValidations } from 'src/features/validation/utils';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
@@ -39,8 +38,6 @@ interface Internals {
   individualValidations: {
     backend: DataModelValidations;
     expression: DataModelValidations;
-    schema: DataModelValidations;
-    invalidData: DataModelValidations;
   };
   processedLast: ValidationsProcessedLast; // This should only be used to check if we have finished processing the last validations from backend so that we know if the validation state is up to date
   /**
@@ -81,8 +78,6 @@ function initialCreateStore() {
       individualValidations: {
         backend: {},
         expression: {},
-        schema: {},
-        invalidData: {},
       },
       processedLast: {
         initial: undefined,
@@ -94,8 +89,6 @@ function initialCreateStore() {
             state.individualValidations[key][dataElementId] = validations;
             state.state.dataModels[dataElementId] = mergeFieldValidations(
               state.individualValidations.backend[dataElementId],
-              state.individualValidations.invalidData[dataElementId],
-              state.individualValidations.schema[dataElementId],
               state.individualValidations.expression[dataElementId],
             );
           }
@@ -126,8 +119,6 @@ function initialCreateStore() {
             for (const dataElementId of keys) {
               state.state.dataModels[dataElementId] = mergeFieldValidations(
                 state.individualValidations.backend[dataElementId],
-                state.individualValidations.invalidData[dataElementId],
-                state.individualValidations.schema[dataElementId],
                 state.individualValidations.expression[dataElementId],
               );
             }
@@ -152,11 +143,6 @@ export function ValidationProvider({ children }: PropsWithChildren) {
   const writableDataTypes = DataModels.useWritableDataTypes();
   return (
     <Provider>
-      {writableDataTypes.map((dataType) => (
-        <Fragment key={dataType}>
-          <InvalidDataValidation dataType={dataType} />
-        </Fragment>
-      ))}
       <BackendValidation dataTypes={writableDataTypes} />
       <ManageShowAllErrors />
       {children}

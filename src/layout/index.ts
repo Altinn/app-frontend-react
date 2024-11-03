@@ -6,6 +6,7 @@ import type { DisplayData } from 'src/features/displayData';
 import type {
   ComponentValidation,
   EmptyFieldValidationDataSources,
+  InvalidDataValidationDataSources,
   NodeValidationDataSources,
   SchemaValidationDataSources,
 } from 'src/features/validation';
@@ -110,6 +111,19 @@ export interface ValidateSchema<Type extends CompTypes> {
 
 export function implementsValidateSchema<Def extends CompDef>(def: Def): def is Def & ValidateSchema<TypeFromDef<Def>> {
   return 'runSchemaValidation' in def;
+}
+
+export interface ValidateInvalidData<Type extends CompTypes> {
+  runInvalidDataValidation: (
+    node: LayoutNode<Type>,
+    validationContext: InvalidDataValidationDataSources,
+  ) => ComponentValidation[];
+}
+
+export function implementsValidateInvalidData<Def extends CompDef>(
+  def: Def,
+): def is Def & ValidateInvalidData<TypeFromDef<Def>> {
+  return 'runInvalidDataValidation' in def;
 }
 
 export interface ValidateComponent<Type extends CompTypes> {

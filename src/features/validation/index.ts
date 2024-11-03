@@ -244,6 +244,11 @@ export type SchemaValidationDataSources = {
   getSchemaValidator: GetSchemaValidator;
 };
 
+export type InvalidDataValidationDataSources = {
+  invalidDataSelector: FormDataSelector;
+  nodeDataSelector: NodeDataSelector;
+};
+
 /**
  * This format is used by the backend to send validation issues to the frontend.
  */

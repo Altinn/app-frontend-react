@@ -543,6 +543,8 @@ const useWaitForSave = () => {
 const emptyObject = {};
 const emptyArray = [];
 
+const makeCacheKey = ({ dataType, field }: IDataModelReference) => [dataType, field];
+
 const debouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
   dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
 const invalidDebouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
@@ -565,10 +567,14 @@ export const FD = {
    * pretend to have the full data model available to look up values from.
    */
   useDebouncedSelector(): FormDataSelector {
-    return useDelayedSelector({
-      mode: 'simple',
-      selector: debouncedSelector,
-    });
+    return useDelayedSelector(
+      {
+        mode: 'simple',
+        selector: debouncedSelector,
+      },
+      [],
+      makeCacheKey,
+    );
   },
 
   /**
@@ -577,20 +583,28 @@ export const FD = {
    * inside them (and re-render if that data changes).
    */
   useDebouncedRowsSelector(): FormDataRowsSelector {
-    return useDelayedSelector({
-      mode: 'simple',
-      selector: debouncedRowSelector,
-    });
+    return useDelayedSelector(
+      {
+        mode: 'simple',
+        selector: debouncedRowSelector,
+      },
+      [],
+      makeCacheKey,
+    );
   },
 
   /**
    * Same as useDebouncedSelector(), but for invalid data.
    */
   useInvalidDebouncedSelector(): FormDataSelector {
-    return useDelayedSelector({
-      mode: 'simple',
-      selector: invalidDebouncedSelector,
-    });
+    return useDelayedSelector(
+      {
+        mode: 'simple',
+        selector: invalidDebouncedSelector,
+      },
+      [],
+      makeCacheKey,
+    );
   },
 
   /**
@@ -606,10 +620,14 @@ export const FD = {
    * provider is not present.
    */
   useLaxDebouncedSelector(): FormDataSelector | typeof ContextNotProvided {
-    return useLaxDelayedSelector({
-      mode: 'simple',
-      selector: debouncedSelector,
-    });
+    return useLaxDelayedSelector(
+      {
+        mode: 'simple',
+        selector: debouncedSelector,
+      },
+      [],
+      makeCacheKey,
+    );
   },
 
   /**

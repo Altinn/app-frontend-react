@@ -8,7 +8,12 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceAllDataElements } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { Validation } from 'src/features/validation/validationContext';
-import { implementsValidateComponent, implementsValidateEmptyField, implementsValidateSchema } from 'src/layout';
+import {
+  implementsValidateComponent,
+  implementsValidateEmptyField,
+  implementsValidateInvalidData,
+  implementsValidateSchema,
+} from 'src/layout';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { AnyValidation, ComponentValidation, ValidationsProcessedLast } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
@@ -97,6 +102,18 @@ export function useNodeValidation(
     return validations.length ? validations : emptyArray;
   }, [formDataRowsSelector, formDataSelector, getSchemaValidator, node, nodeDataSelector, shouldValidate]);
 
+  const invalidDataValidations = useMemo(() => {
+    if (!shouldValidate || !implementsValidateInvalidData(node.def)) {
+      return emptyArray;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const validations = node.def.runInvalidDataValidation(node as any, {
+      invalidDataSelector,
+      nodeDataSelector,
+    });
+    return validations.length ? validations : emptyArray;
+  }, [invalidDataSelector, node, nodeDataSelector, shouldValidate]);
+
   const backendValidations = useMemo(() => {
     if (!shouldValidate) {
       return emptyArray;
@@ -131,10 +148,18 @@ export function useNodeValidation(
         ...emptyFieldValidations,
         ...componentValidations,
         ...schemaValidations,
+        ...invalidDataValidations,
         ...backendValidations,
       ];
 
       return validations.length ? validations : emptyArray;
-    }, [backendValidations, componentValidations, emptyFieldValidations, schemaValidations, shouldValidate]),
+    }, [
+      backendValidations,
+      componentValidations,
+      emptyFieldValidations,
+      invalidDataValidations,
+      schemaValidations,
+      shouldValidate,
+    ]),
   };
 }
