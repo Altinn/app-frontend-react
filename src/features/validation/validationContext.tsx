@@ -237,25 +237,35 @@ export type ValidationSelector = ReturnType<typeof Validation.useSelector>;
 export type ValidationDataModelSelector = ReturnType<typeof Validation.useDataModelSelector>;
 export type DataElementHasErrorsSelector = ReturnType<typeof Validation.useDataElementHasErrorsSelector>;
 
+const dataModelSelector = (field: string, dataElementId: string) => (state: ValidationContext) =>
+  state.dataModelValidations[dataElementId]?.[field];
+
+const dataElementHasErrorsSelector = (dataElementId: string) => (state: ValidationContext) => {
+  const dataElementValidations = state.dataModelValidations[dataElementId];
+  for (const fieldValidations of Object.values(dataElementValidations ?? {})) {
+    for (const validation of fieldValidations) {
+      if (validation.severity === 'error') {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
 export const Validation = {
   // Selectors. These are memoized, so they won't cause a re-render unless the selected fields change.
   useSelector: () => useDS((state) => state),
-  useDataModelSelector: () => useDS((state) => state.dataModelValidations),
+  // useDataModelSelector: () => useDS((state) => state.dataModelValidations),
+  useDataModelSelector: () =>
+    useDelayedSelector({
+      mode: 'simple',
+      selector: dataModelSelector,
+    }),
 
   useDataElementHasErrorsSelector: () =>
     useDelayedSelector({
       mode: 'simple',
-      selector: (dataElementId: string) => (state) => {
-        const dataElementValidations = state.dataModelValidations[dataElementId];
-        for (const fieldValidations of Object.values(dataElementValidations ?? {})) {
-          for (const validation of fieldValidations) {
-            if (validation.severity === 'error') {
-              return true;
-            }
-          }
-        }
-        return false;
-      },
+      selector: dataElementHasErrorsSelector,
     }),
 
   useShowAllBackendErrors: () => useSelector((state) => state.showAllBackendErrors),

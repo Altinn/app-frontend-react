@@ -73,16 +73,21 @@ function initialCreateStore() {
       set(() => ({ allDataTypes, writableDataTypes, defaultDataType }));
     },
     setInitialData: (dataType, initialData, dataElementId) => {
-      set((state) => ({
-        initialData: {
-          ...state.initialData,
-          [dataType]: initialData,
-        },
-        dataElementIds: {
-          ...state.dataElementIds,
-          [dataType]: dataElementId,
-        },
-      }));
+      set((state) =>
+        // Don't set this more than once
+        !state.initialData[dataType]
+          ? {
+              initialData: {
+                ...state.initialData,
+                [dataType]: initialData,
+              },
+              dataElementIds: {
+                ...state.dataElementIds,
+                [dataType]: dataElementId,
+              },
+            }
+          : {},
+      );
     },
     setDataModelSchema: (dataType, schema, lookupTool, validator) => {
       set((state) => ({

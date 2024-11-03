@@ -142,10 +142,7 @@ export function useNodeValidation(
       (dataModelBindings ?? {}) as Record<string, IDataModelReference>,
     )) {
       const dataElementId = getDataElementIdForDataType(dataType) ?? dataType; // stateless does not have dataElementId
-      const fieldValidations = dataModelValidationsSelector(
-        (dataModels) => dataModels[dataElementId]?.[field],
-        [dataType, field],
-      );
+      const fieldValidations = dataModelValidationsSelector(field, dataElementId);
       if (fieldValidations) {
         validations.push(...fieldValidations.map((v) => ({ ...v, bindingKey })));
       }
