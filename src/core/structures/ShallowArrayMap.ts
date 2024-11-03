@@ -89,23 +89,24 @@ export class ShallowArrayMap<T> {
     map.delete(key[keyLength - 1]);
   }
 
-  public values(): T[] {
-    return this.entries().map(([, value]) => value);
-  }
-
-  public entries(): [unknown[], T][] {
-    const out: [unknown[], T][] = [];
+  public *values() {
     for (const map of this.data) {
       if (!map) {
         continue;
       }
 
-      this.recurseMap(map, (key, value: T) => {
-        out.push([key, value]);
-      });
+      yield* this.recurseMapValues(map);
     }
+  }
 
-    return out;
+  public *entries() {
+    for (const map of this.data) {
+      if (!map) {
+        continue;
+      }
+
+      yield* this.recurseMapEntries(map);
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -124,17 +125,29 @@ export class ShallowArrayMap<T> {
     return !!map && map instanceof Map && '__shallowArrayMap' in map && map.__shallowArrayMap === true;
   }
 
-  private recurseMap(
+  private *recurseMapEntries(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     map: Map<any, any>,
-    callback: (key: unknown[], value: unknown) => void,
     parentKey: unknown[] = [],
-  ): void {
+  ) {
     for (const [key, value] of map.entries()) {
       if (this.isShallowArrayMap(value)) {
-        this.recurseMap(value, callback, [...parentKey, key]);
+        yield* this.recurseMapEntries(value, [...parentKey, key]);
       } else {
-        callback([...parentKey, key], value);
+        yield [[...parentKey, key], value];
+      }
+    }
+  }
+
+  private *recurseMapValues(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    map: Map<any, any>,
+  ) {
+    for (const value of map.values()) {
+      if (this.isShallowArrayMap(value)) {
+        yield* this.recurseMapValues(value);
+      } else {
+        yield value;
       }
     }
   }

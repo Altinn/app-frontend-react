@@ -547,6 +547,15 @@ const debouncedSelector = (reference: IDataModelReference) => (state: FormDataCo
   dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
 const invalidDebouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
   dot.pick(reference.field, state.dataModels[reference.dataType].invalidDebouncedCurrentData);
+const debouncedRowSelector = (reference: IDataModelReference) => (state: FormDataContext) => {
+  const rawRows = dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
+  if (!Array.isArray(rawRows) || !rawRows.length) {
+    return emptyArray;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
+};
 
 export const FD = {
   /**
@@ -570,15 +579,7 @@ export const FD = {
   useDebouncedRowsSelector(): FormDataRowsSelector {
     return useDelayedSelector({
       mode: 'simple',
-      selector: (reference: IDataModelReference) => (state) => {
-        const rawRows = dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
-        if (!Array.isArray(rawRows) || !rawRows.length) {
-          return emptyArray;
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
-      },
+      selector: debouncedRowSelector,
     });
   },
 

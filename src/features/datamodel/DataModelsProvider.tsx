@@ -120,7 +120,7 @@ function initialCreateStore() {
   }));
 }
 
-const { Provider, useSelector, useMemoSelector, useLaxMemoSelector, useSelectorAsRef } = createZustandContext({
+const { Provider, useSelector, useLaxSelector, useSelectorAsRef } = createZustandContext({
   name: 'DataModels',
   required: true,
   initialCreateStore,
@@ -324,12 +324,12 @@ const emptyArray = [];
 export const DataModels = {
   useFullStateRef: () => useSelectorAsRef((state) => state),
 
-  useLaxDefaultDataType: () => useLaxMemoSelector((state) => state.defaultDataType),
+  useLaxDefaultDataType: () => useLaxSelector((state) => state.defaultDataType),
 
   // The following hooks use emptyArray if the value is null, so cannot be used to determine whether or not the datamodels are finished loading
-  useReadableDataTypes: () => useMemoSelector((state) => state.allDataTypes ?? emptyArray),
-  useLaxReadableDataTypes: () => useLaxMemoSelector((state) => state.allDataTypes ?? emptyArray),
-  useWritableDataTypes: () => useMemoSelector((state) => state.writableDataTypes ?? emptyArray),
+  useReadableDataTypes: () => useSelector((state) => state.allDataTypes ?? emptyArray),
+  useLaxReadableDataTypes: () => useLaxSelector((state) => state.allDataTypes ?? emptyArray),
+  useWritableDataTypes: () => useSelector((state) => state.writableDataTypes ?? emptyArray),
 
   useDataModelSchema: (dataType: string) => useSelector((state) => state.schemas[dataType]),
 
@@ -347,18 +347,18 @@ export const DataModels = {
     useSelector((state) => state.expressionValidationConfigs[dataType]),
 
   useDefaultDataElementId: () =>
-    useMemoSelector((state) => (state.defaultDataType ? state.dataElementIds[state.defaultDataType] : null)),
+    useSelector((state) => (state.defaultDataType ? state.dataElementIds[state.defaultDataType] : null)),
 
-  useDataElementIdForDataType: (dataType: string) => useMemoSelector((state) => state.dataElementIds[dataType]),
+  useDataElementIdForDataType: (dataType: string) => useSelector((state) => state.dataElementIds[dataType]),
 
   useGetDataElementIdForDataType: () => {
-    const dataElementIds = useMemoSelector((state) => state.dataElementIds);
+    const dataElementIds = useSelector((state) => state.dataElementIds);
     return useCallback((dataType: string) => dataElementIds[dataType], [dataElementIds]);
   },
 
   useGetSchemaValidator: () => {
-    const validators = useMemoSelector((state) => state.validators);
-    const lookupTools = useMemoSelector((state) => state.schemaLookup);
+    const validators = useSelector((state) => state.validators);
+    const lookupTools = useSelector((state) => state.schemaLookup);
 
     return useCallback(
       (dataType: string) => ({
