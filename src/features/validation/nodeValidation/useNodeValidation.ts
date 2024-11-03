@@ -11,10 +11,12 @@ import { Validation } from 'src/features/validation/validationContext';
 import {
   implementsValidateComponent,
   implementsValidateEmptyField,
+  implementsValidateExpression,
   implementsValidateInvalidData,
   implementsValidateSchema,
 } from 'src/layout';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { AnyValidation, ComponentValidation, ValidationsProcessedLast } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -41,6 +43,8 @@ export function useNodeValidation(
   const getSchemaValidator = DataModels.useGetSchemaValidator();
   const dataModelValidationsSelector = Validation.useDataModelSelector();
   const getDataElementIdForDataType = DataModels.useGetDataElementIdForDataType();
+  const expressionDataSources = useExpressionDataSources();
+  const getExpressionValidationConfig = DataModels.useGetExpressionValidationConfig();
   const processedLast = Validation.useProcessedLast();
 
   const emptyFieldValidations = useMemo(() => {
@@ -114,6 +118,18 @@ export function useNodeValidation(
     return validations.length ? validations : emptyArray;
   }, [invalidDataSelector, node, nodeDataSelector, shouldValidate]);
 
+  const expressionValidations = useMemo(() => {
+    if (!shouldValidate || !implementsValidateExpression(node.def)) {
+      return emptyArray;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const validations = node.def.runExpressionValidation(node as any, {
+      expressionDataSources,
+      getExpressionValidationConfig,
+    });
+    return validations.length ? validations : emptyArray;
+  }, [expressionDataSources, getExpressionValidationConfig, node, shouldValidate]);
+
   const backendValidations = useMemo(() => {
     if (!shouldValidate) {
       return emptyArray;
@@ -149,6 +165,7 @@ export function useNodeValidation(
         ...componentValidations,
         ...schemaValidations,
         ...invalidDataValidations,
+        ...expressionValidations,
         ...backendValidations,
       ];
 
@@ -157,6 +174,7 @@ export function useNodeValidation(
       backendValidations,
       componentValidations,
       emptyFieldValidations,
+      expressionValidations,
       invalidDataValidations,
       schemaValidations,
       shouldValidate,

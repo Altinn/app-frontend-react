@@ -6,7 +6,7 @@ import {
 } from '..';
 
 import type { IDataModelReference } from 'src/layout/common.generated';
-import type { CompTypes, CompWithBinding } from 'src/layout/layout';
+import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 function isScalar(value: unknown): value is string | number | boolean {
@@ -36,28 +36,4 @@ export function runInvalidDataValidationAllBindings<Type extends CompTypes>(
     }
   }
   return validations;
-}
-
-export function runInvalidDataValidationOnlySimpleBinding<Type extends CompWithBinding<'simpleBinding'>>(
-  node: LayoutNode<Type>,
-  { invalidDataSelector, nodeDataSelector }: InvalidDataValidationDataSources,
-): ComponentValidation[] {
-  const reference = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings.simpleBinding, [node]);
-  if (!reference) {
-    return [];
-  }
-
-  if (isScalar(invalidDataSelector(reference))) {
-    return [
-      {
-        source: FrontendValidationSource.InvalidData,
-        message: { key: 'validation_errors.pattern' },
-        severity: 'error',
-        bindingKey: 'simpleBinding',
-        category: ValidationMask.Schema, // Use same visibility as schema validations
-      },
-    ];
-  }
-
-  return [];
 }

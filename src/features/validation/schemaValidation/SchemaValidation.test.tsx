@@ -4,7 +4,6 @@ import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import * as UseBindingSchema from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { Validation } from 'src/features/validation/validationContext';
 import type { IDataType } from 'src/types/shared';
 
 describe('SchemaValidation', () => {
@@ -13,7 +12,7 @@ describe('SchemaValidation', () => {
       jest.spyOn(FD, 'useDebounced').mockRestore();
       jest.spyOn(DataModels, 'useDataModelSchema').mockRestore();
       jest.spyOn(UseBindingSchema, 'useDataModelType').mockRestore();
-      jest.spyOn(Validation, 'useUpdateDataModelValidations').mockRestore();
+      // jest.spyOn(Validation, 'useUpdateDataModelValidations').mockRestore();
     });
 
     const formatTests = [
@@ -258,9 +257,9 @@ describe('SchemaValidation', () => {
             jest.spyOn(UseBindingSchema, 'useDataModelType').mockReturnValue({} as IDataType);
 
             const updateDataModelValidations = jest.fn();
-            jest
-              .spyOn(Validation, 'useUpdateDataModelValidations')
-              .mockImplementation(() => updateDataModelValidations);
+            // jest
+            //   .spyOn(Validation, 'useUpdateDataModelValidations')
+            //   .mockImplementation(() => updateDataModelValidations);
 
             // render(<SchemaValidation dataType='mockDataType'></SchemaValidation>);
 

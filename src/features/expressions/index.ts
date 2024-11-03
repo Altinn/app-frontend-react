@@ -32,6 +32,7 @@ export interface EvalExprOptions {
   onBeforeFunctionCall?: BeforeFuncCallback;
   onAfterFunctionCall?: AfterFuncCallback;
   positionalArguments?: ExprPositionalArgs;
+  defaultDataType?: string;
 }
 
 export type SimpleEval<T extends ExprVal> = (
@@ -47,6 +48,7 @@ export type EvaluateExpressionParams = {
   node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext;
   dataSources: ExpressionDataSources;
   positionalArguments?: ExprPositionalArgs;
+  defaultDataType?: string;
 };
 
 /**
@@ -87,6 +89,7 @@ export function evalExpr(
     node,
     dataSources,
     positionalArguments: options?.positionalArguments,
+    defaultDataType: options?.defaultDataType,
   };
 
   try {

@@ -7,7 +7,7 @@ import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
-import { Validation } from 'src/features/validation/validationContext';
+// import { Validation } from 'src/features/validation/validationContext';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import * as NodesContext from 'src/utils/layout/NodesContext';
 import type { FieldValidations, IExpressionValidationConfig } from 'src/features/validation';
@@ -72,7 +72,7 @@ describe('Expression validation shared tests', () => {
     jest.spyOn(FD, 'useDebounced').mockRestore();
     jest.spyOn(DataModels, 'useExpressionValidationConfig').mockRestore();
     jest.spyOn(NodesContext, 'useNodes').mockRestore();
-    jest.spyOn(Validation, 'useUpdateDataModelValidations').mockRestore();
+    // jest.spyOn(Validation, 'useUpdateDataModelValidations').mockRestore();
   });
 
   const sharedTests = getSharedTests();
@@ -82,7 +82,7 @@ describe('Expression validation shared tests', () => {
     const updateDataModelValidations = jest.fn((_key, _dataType, validations: FieldValidations) => {
       result = validations;
     });
-    jest.spyOn(Validation, 'useUpdateDataModelValidations').mockImplementation(() => updateDataModelValidations);
+    // jest.spyOn(Validation, 'useUpdateDataModelValidations').mockImplementation(() => updateDataModelValidations);
 
     await renderWithInstanceAndLayout({
       renderer: () => <ExpressionValidation />,

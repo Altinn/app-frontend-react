@@ -22,7 +22,6 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
 import { MaintainInitialValidationsInNodesContext } from 'src/features/validation/backendValidation/BackendValidation';
 import { useGetCachedInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import {
   LoadingBlockerWaitForValidation,
   ProvideWaitForValidation,
@@ -496,7 +495,6 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => {
         </BlockUntilAlmostReady>
         <BlockUntilLoaded>
           <ProvideWaitForValidation />
-          <ExpressionValidation />
           <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
         </BlockUntilLoaded>
         <IndicateReadiness />

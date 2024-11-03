@@ -319,6 +319,7 @@ function LoadExpressionValidationConfig({ dataType }: LoaderProps) {
 }
 
 export type GetSchemaValidator = ReturnType<typeof DataModels.useGetSchemaValidator>;
+export type GetExpressionValidationConfig = ReturnType<typeof DataModels.useGetExpressionValidationConfig>;
 
 const emptyArray = [];
 export const DataModels = {
@@ -345,6 +346,11 @@ export const DataModels = {
 
   useExpressionValidationConfig: (dataType: string) =>
     useSelector((state) => state.expressionValidationConfigs[dataType]),
+
+  useGetExpressionValidationConfig: () => {
+    const expressionValidationConfigs = useSelector((state) => state.expressionValidationConfigs);
+    return useCallback((dataType: string) => expressionValidationConfigs[dataType], [expressionValidationConfigs]);
+  },
 
   useDefaultDataElementId: () =>
     useSelector((state) => (state.defaultDataType ? state.dataElementIds[state.defaultDataType] : null)),

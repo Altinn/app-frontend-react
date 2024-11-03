@@ -1,5 +1,7 @@
+import { useCallback, useMemo } from 'react';
+
 import { skipToken, useQueries, useQuery } from '@tanstack/react-query';
-import type { UseQueryOptions } from '@tanstack/react-query';
+import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { fetchExternalApi } from 'src/queries/queries';
@@ -20,31 +22,38 @@ function getExternalApiQueryDef({
   };
 }
 
-export function useExternalApis(ids: string[]): ExternalApisResult {
+export function useExternalApis(ids: string[] | undefined): ExternalApisResult {
   const instanceId = useLaxInstanceId();
-  const queries = ids.map((externalApiId) => ({
-    ...getExternalApiQueryDef({ externalApiId, instanceId }),
-  }));
+  const queries = useMemo(
+    () =>
+      (ids ?? []).map((externalApiId) => ({
+        ...getExternalApiQueryDef({ externalApiId, instanceId }),
+      })),
+    [ids, instanceId],
+  );
 
   return useQueries({
     queries,
-    combine: (results) => {
-      const data: Record<string, unknown> = {};
-      const errors: Record<string, Error> = {};
+    combine: useCallback(
+      (results: UseQueryResult<unknown, Error>[]) => {
+        const data: Record<string, unknown> = {};
+        const errors: Record<string, Error> = {};
 
-      ids.forEach((externalApiId, idx) => {
-        data[externalApiId] = results[idx].data;
-        if (results[idx].error) {
-          errors[externalApiId] = results[idx].error;
-        }
-      });
+        ids?.forEach((externalApiId, idx) => {
+          data[externalApiId] = results[idx].data;
+          if (results[idx].error) {
+            errors[externalApiId] = results[idx].error;
+          }
+        });
 
-      Object.entries(errors).forEach(([id, error]) => {
-        window.logErrorOnce(`Failed to fetch external API ${id}`, error);
-      });
+        Object.entries(errors).forEach(([id, error]) => {
+          window.logErrorOnce(`Failed to fetch external API ${id}`, error);
+        });
 
-      return { data, errors };
-    },
+        return { data, errors };
+      },
+      [ids],
+    ),
   });
 }
 

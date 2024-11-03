@@ -5,7 +5,7 @@ import { FrontendValidationSource, ValidationMask } from '..';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { evalExpr } from 'src/features/expressions';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { Validation } from 'src/features/validation/validationContext';
+// import { Validation } from 'src/features/validation/validationContext';
 import { getKeyWithoutIndex } from 'src/utils/databindings';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
@@ -30,7 +30,7 @@ export function ExpressionValidation() {
 }
 
 function IndividualExpressionValidation({ dataType }: { dataType: string }) {
-  const updateDataModelValidations = Validation.useUpdateDataModelValidations();
+  // const updateDataModelValidations = Validation.useUpdateDataModelValidations();
   const formData = FD.useDebounced(dataType);
   const expressionValidationConfig = DataModels.useExpressionValidationConfig(dataType);
   const dataSources = useExpressionDataSources();
@@ -102,13 +102,13 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
         }
       }
 
-      updateDataModelValidations('expression', dataElementId, validations);
+      // updateDataModelValidations('expression', dataElementId, validations);
     }
   }, [
     expressionValidationConfig,
     formData,
     dataElementId,
-    updateDataModelValidations,
+    // updateDataModelValidations,
     allNodes,
     nodeDataSelector,
     dataSources,

@@ -43,7 +43,7 @@ export function useTaskErrors(): {
     const boundErrorIds = new Set(formErrors.filter(hasBackendValidationId).map((v) => v.backendValidationId));
 
     // Unbound field errors
-    const dataModels = selector((state) => state.state.dataModels, []);
+    const dataModels = selector((state) => state.dataModelValidations, []);
     for (const fields of Object.values(dataModels)) {
       for (const field of Object.values(fields)) {
         allBackendErrors.push(
@@ -58,7 +58,7 @@ export function useTaskErrors(): {
     // Task errors
     allBackendErrors.push(
       ...validationsOfSeverity(
-        selector((state) => state.state.task, []),
+        selector((state) => state.taskValidations, []),
         'error',
       ),
     );

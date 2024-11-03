@@ -7,6 +7,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
+import { runExpressionValidationAllBindings } from 'src/features/validation/expressionValidation/nodeExpressionValidation';
 import { runInvalidDataValidationAllBindings } from 'src/features/validation/invalidDataValidation/nodeInvalidDataValidation';
 import { runEmptyFieldValidationAllBindings } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { runSchemaValidationAllBindings } from 'src/features/validation/schemaValidation/jsonSchemaValidation';
@@ -22,6 +23,7 @@ import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
 import type {
   ComponentValidation,
   EmptyFieldValidationDataSources,
+  ExpressionValidationDataSources,
   InvalidDataValidationDataSources,
   SchemaValidationDataSources,
 } from 'src/features/validation';
@@ -35,6 +37,7 @@ import type {
   FormDataSelector,
   PropsFromGenericComponent,
   ValidateEmptyField,
+  ValidateExpression,
   ValidateInvalidData,
   ValidateSchema,
 } from 'src/layout/index';
@@ -420,7 +423,7 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
 
 export abstract class FormComponent<Type extends CompTypes>
   extends _FormComponent<Type>
-  implements ValidateEmptyField<Type>, ValidateSchema<Type>, ValidateInvalidData<Type>
+  implements ValidateEmptyField<Type>, ValidateSchema<Type>, ValidateInvalidData<Type>, ValidateExpression<Type>
 {
   readonly category = CompCategory.Form;
 
@@ -443,6 +446,13 @@ export abstract class FormComponent<Type extends CompTypes>
     invalidDataValidationDataSources: InvalidDataValidationDataSources,
   ): ComponentValidation[] {
     return runInvalidDataValidationAllBindings(node, invalidDataValidationDataSources);
+  }
+
+  runExpressionValidation(
+    node: LayoutNode<Type>,
+    expressionValidationDataSources: ExpressionValidationDataSources,
+  ): ComponentValidation[] {
+    return runExpressionValidationAllBindings(node, expressionValidationDataSources);
   }
 }
 

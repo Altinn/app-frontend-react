@@ -1,6 +1,6 @@
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { AttachmentsSelector } from 'src/features/attachments/AttachmentsStorePlugin';
-import type { GetSchemaValidator } from 'src/features/datamodel/DataModelsProvider';
+import type { GetExpressionValidationConfig, GetSchemaValidator } from 'src/features/datamodel/DataModelsProvider';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { DataElementHasErrorsSelector } from 'src/features/validation/validationContext';
@@ -9,6 +9,7 @@ import type { ILayoutSets } from 'src/layout/common.generated';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
+import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 export enum FrontendValidationSource {
   EmptyField = '__empty_field__',
@@ -77,7 +78,8 @@ export type NodeVisibility = 'visible' | 'showAll' | number;
 export type WaitForValidation = (forceSave?: boolean) => Promise<void>;
 
 export type ValidationContext = {
-  state: ValidationState;
+  taskValidations: BaseValidation[];
+  dataModelValidations: DataModelValidations;
   validating: WaitForValidation | undefined;
 
   /**
@@ -86,11 +88,6 @@ export type ValidationContext = {
    */
   setShowAllBackendErrors: (showAllErrors: boolean) => void;
   showAllBackendErrors: boolean;
-};
-
-export type ValidationState = {
-  task: BaseValidation[];
-  dataModels: DataModelValidations;
 };
 
 export type DataModelValidations = {
@@ -247,6 +244,11 @@ export type SchemaValidationDataSources = {
 export type InvalidDataValidationDataSources = {
   invalidDataSelector: FormDataSelector;
   nodeDataSelector: NodeDataSelector;
+};
+
+export type ExpressionValidationDataSources = {
+  expressionDataSources: ExpressionDataSources;
+  getExpressionValidationConfig: GetExpressionValidationConfig;
 };
 
 /**

@@ -67,7 +67,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
   const currentLayoutSet = useCurrentLayoutSet() ?? null;
   const readableDataModels = DataModels.useReadableDataTypes();
 
-  const externalApiIds = useApplicationMetadata().externalApiIds ?? [];
+  const externalApiIds = useApplicationMetadata().externalApiIds;
   const externalApis = useExternalApis(externalApiIds);
 
   return useMemo(

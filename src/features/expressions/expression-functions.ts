@@ -269,7 +269,7 @@ export const ExprFunctions = {
         throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataModel null`);
       }
 
-      const dataType = maybeDataType ?? this.dataSources.currentLayoutSet?.dataType;
+      const dataType = maybeDataType ?? this.defaultDataType ?? this.dataSources.currentLayoutSet?.dataType;
       if (!dataType) {
         throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataType undefined`);
       }
@@ -546,7 +546,7 @@ export const ExprFunctions = {
         throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataModel null`);
       }
 
-      const dataType = this.dataSources.currentLayoutSet?.dataType;
+      const dataType = this.defaultDataType ?? this.dataSources.currentLayoutSet?.dataType;
       if (!dataType) {
         throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataType undefined`);
       }
