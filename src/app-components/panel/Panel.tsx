@@ -79,15 +79,9 @@ export const Panel: React.FC<PanelProps> = ({
         [classes.panelMobileLayout]: isMobileLayout,
       })}
     >
-      <div
-        data-testid='panel-content-wrapper'
-        className={cn(classes.panelContentWrapper, classes[`panelContentWrapper_${variant}`])}
-      >
+      <div className={cn(classes.panelContentWrapper, classes[`panelContentWrapper_${variant}`])}>
         {showIcon && (
-          <div
-            data-testid='panel-icon-wrapper'
-            className={cn(classes.panelIconWrapper, classes[`panelIconWrapper_${variant}`])}
-          >
+          <div className={cn(classes.panelIconWrapper, classes[`panelIconWrapper_${variant}`])}>
             <PanelIcon
               isMobileLayout={isMobileLayout}
               variant={variant}
