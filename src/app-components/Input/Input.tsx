@@ -4,6 +4,8 @@ import type { InputHTMLAttributes, ReactNode } from 'react';
 import { Textfield } from '@digdir/designsystemet-react';
 import type { CharacterLimitProps } from '@digdir/designsystemet-react/dist/types/components/form/CharacterCounter';
 
+import 'src/app-components/Input/Input.module.css';
+
 export type InputProps = {
   size?: 'sm' | 'md' | 'lg';
   prefix?: string;
