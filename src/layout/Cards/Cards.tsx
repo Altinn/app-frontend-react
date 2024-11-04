@@ -54,7 +54,7 @@ export const Cards = ({ node }: ICardsProps) => {
               </Card.Header>
             )}
             {card.description && (
-              <Card.Content>
+              <Card.Content style={{ flex: '1 0 auto' }}>
                 <Lang id={card.description} />
               </Card.Content>
             )}

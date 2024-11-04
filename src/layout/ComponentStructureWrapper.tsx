@@ -29,16 +29,23 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;
   const showValidationMessages = layoutComponent.renderDefaultValidations();
 
-  const componentWithValidations = (
-    <Grid
-      item
-      id={`form-content-${node.id}`}
-      {...gridBreakpoints(grid?.innerGrid)}
-    >
-      {children}
-      {showValidationMessages && <AllComponentValidations node={node} />}
-    </Grid>
-  );
+  let componentWithValidations;
+
+  //grid creates a div outside of the video and audio component div with border-bottom: 8px
+  if (node.type === 'Video' || node.type === 'Audio') {
+    componentWithValidations = children;
+  } else {
+    componentWithValidations = (
+      <Grid
+        item
+        id={`form-content-${node.id}`}
+        {...gridBreakpoints(grid?.innerGrid)}
+      >
+        {children}
+        {showValidationMessages && <AllComponentValidations node={node} />}
+      </Grid>
+    );
+  }
 
   return label ? <Label {...label}>{componentWithValidations}</Label> : componentWithValidations;
 }
