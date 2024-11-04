@@ -5,7 +5,6 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import classes from 'src/layout/Panel/OldPanel.module.css';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
@@ -35,7 +34,6 @@ export const PanelComponent = ({ node }: IPanelProps) => {
         condition={fullWidth}
         wrapper={(child) => (
           <FullWidthWrapper
-            className={classes.panelPadding}
             isOnBottom={isOnBottom}
             isOnTop={isOnTop}
           >
