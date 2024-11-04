@@ -34,7 +34,10 @@ function StoreValidationsInNodeWorker() {
   const { validations: freshValidations, processedLast } = useNodeValidation(node, shouldValidate);
   const validations = useUpdatedValidations(freshValidations, node);
 
-  const shouldSetValidations = NodesInternal.useNodeData(node, (data) => !deepEqual(data.validations, validations));
+  const shouldSetValidations = NodesInternal.useNodeData(
+    node,
+    (data) => data.validations !== validations && !deepEqual(data.validations, validations),
+  );
   NodesStateQueue.useSetNodeProp(
     { node, prop: 'validations', value: validations },
     shouldSetValidations && shouldValidate,
