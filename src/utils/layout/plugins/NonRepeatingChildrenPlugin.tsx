@@ -108,11 +108,13 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     return `<${GenerateNodeChildren} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
   }
 
-  itemFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>) {
-    // Components with children may also have _zero_ children, but the internal prop has to contain an array still.
+  itemFactory({ idMutators, item }: DefPluginStateFactoryProps<ToInternal<E>>) {
+    const raw = (item[this.settings.externalProp] ?? []) as string[];
+    const children = raw.map((childId) => idMutators.reduce((id, mutator) => mutator(id), childId));
+
     return {
       [this.settings.externalProp]: undefined,
-      [this.settings.internalProp]: [],
+      [this.settings.internalProp]: children,
     } as DefPluginExtraInItem<ToInternal<E>>;
   }
 

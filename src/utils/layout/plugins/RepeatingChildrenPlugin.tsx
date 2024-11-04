@@ -6,6 +6,7 @@ import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { TypesFromCategory } from 'src/layout/layout';
+import type { ChildIdMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type {
@@ -79,12 +80,16 @@ type ToInternal<E extends ExternalConfig> = Config<
 
 type Row<E extends ExternalConfig> = (RepChildrenRow & E['extraRowState']) | undefined;
 
-export class RepeatingChildrenPlugin<E extends ExternalConfig>
+export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultConfig>
   extends NodeDefPlugin<ToInternal<E>>
   implements NodeDefChildrenPlugin<ToInternal<E>>
 {
-  protected settings: Combined<E>;
+  public settings: Combined<E>;
+  public rawChildren: string[] = [];
+  public idMutators: ChildIdMutator[] = [];
+
   protected component: ComponentConfig | undefined;
+
   constructor(settings: E) {
     super({
       ...defaultConfig,
@@ -128,16 +133,9 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
       import: 'NodeRepeatingChildren',
       from: 'src/utils/layout/generator/NodeRepeatingChildren',
     });
-    const multiPageSupport = this.settings.multiPageSupport === false ? 'false' : `'${this.settings.multiPageSupport}'`;
     return `
-      <${NodeRepeatingChildren}
-        claims={props.childClaims}
-        binding={'${this.settings.dataModelGroupBinding}'}
-        internalProp={'${this.settings.internalProp}'}
-        externalProp={'${this.settings.externalProp}'}
-        multiPageSupport={${multiPageSupport}}
-        pluginKey='${this.getKey()}'
-      />`.trim();
+      <${NodeRepeatingChildren} claims={props.childClaims} plugin={this.plugins['${this.getKey()}'] as any} />
+    `.trim();
   }
 
   extraMethodsInDef(): string[] {
@@ -153,14 +151,13 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
   }
 
   itemFactory({ item, idMutators }: DefPluginStateFactoryProps<ToInternal<E>>) {
-    // Components with repeating children will have exactly _zero_ rows to begin with. We can't rely on
-    // addChild() being called when there are no children, so to start off we'll have to initialize it all
-    // with no rows to avoid later code crashing when there's no array of rows yet.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.rawChildren = ((item as any)[this.settings.externalProp] ?? []) as string[];
+    this.idMutators = idMutators;
 
     let lastMultiPageIndex: number | undefined = undefined;
     if (this.settings.multiPageSupport !== false) {
       lastMultiPageIndex = 0;
-      // TODO: Implement
     }
 
     return {

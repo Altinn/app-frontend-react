@@ -451,7 +451,7 @@ function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
     return null;
   }
 
-  const Generator = def.renderNodeGenerator;
+  const Generator = def.renderNodeGenerator.bind(def);
 
   if (!GeneratorDebug.displayState) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

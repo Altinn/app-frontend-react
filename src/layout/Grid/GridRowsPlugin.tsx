@@ -137,7 +137,7 @@ export class GridRowsPlugin<E extends ExternalConfig>
 
   itemFactory({ item, idMutators }: DefPluginStateFactoryProps<ToInternal<E>>) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const external = (item as any)[this.settings.externalProp] as GridRows;
+    const external = ((item as any)[this.settings.externalProp] ?? []) as GridRows;
     const internal: GridRowsInternal = [];
 
     for (const row of external.values()) {

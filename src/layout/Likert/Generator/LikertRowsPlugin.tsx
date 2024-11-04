@@ -29,6 +29,10 @@ interface Config {
 }
 
 export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefChildrenPlugin<Config> {
+  public settings = {
+    internalProp: 'rows',
+  };
+
   makeImport() {
     return new CG.import({
       import: 'LikertRowsPlugin',
@@ -43,7 +47,7 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
       import: 'LikertGeneratorChildren',
       from: 'src/layout/Likert/Generator/LikertGeneratorChildren',
     });
-    return `<${LikertGeneratorChildren} />`;
+    return `<${LikertGeneratorChildren} plugin={this.plugins['${this.getKey()}']} />`;
   }
 
   itemFactory(_props: DefPluginStateFactoryProps<Config>) {

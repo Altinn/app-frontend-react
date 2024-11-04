@@ -14,21 +14,26 @@ import {
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternalExact, CompIntermediate } from 'src/layout/layout';
+import type { LikertRowsPlugin } from 'src/layout/Likert/Generator/LikertRowsPlugin';
 import type { ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function LikertGeneratorChildren() {
+interface Props {
+  plugin: LikertRowsPlugin;
+}
+
+export function LikertGeneratorChildren({ plugin }: Props) {
   return (
     <GeneratorCondition
       stage={StageAddNodes}
       mustBeAdded='parent'
     >
-      <LikertGeneratorChildrenWorker />
+      <LikertGeneratorChildrenWorker plugin={plugin} />
     </GeneratorCondition>
   );
 }
 
-function LikertGeneratorChildrenWorker() {
+function LikertGeneratorChildrenWorker({ plugin }: Props) {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<'Likert'>;
   const questionsBinding = item?.dataModelBindings?.questions;
   const rows = FD.useFreshRows(questionsBinding);
@@ -45,6 +50,7 @@ function LikertGeneratorChildrenWorker() {
             rowIndex={row.index}
             rowUuid={row.uuid}
             questionsBinding={questionsBinding}
+            plugin={plugin}
           />
         </GeneratorRunProvider>
       ))}
@@ -56,9 +62,10 @@ interface GenerateRowProps {
   rowIndex: number;
   rowUuid: string;
   questionsBinding: IDataModelReference;
+  plugin: LikertRowsPlugin;
 }
 
-const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding }: GenerateRowProps) {
+const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding, plugin }: GenerateRowProps) {
   const parentItem = GeneratorInternal.useIntermediateItem() as CompIntermediate<'Likert'>;
   const node = GeneratorInternal.useParent() as LayoutNode<'Likert'>;
   const removeRow = NodesInternal.useRemoveRow();
@@ -121,9 +128,9 @@ const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding
 
   useEffect(
     () => () => {
-      removeRow(node, 'rows');
+      removeRow(node, plugin);
     },
-    [node, removeRow],
+    [node, plugin, removeRow],
   );
 
   return (
