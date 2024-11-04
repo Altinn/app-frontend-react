@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Grid } from '@material-ui/core';
 
+import { PANEL_VARIANT } from 'src/app-components/panel/constants';
 import { Panel } from 'src/app-components/panel/Panel';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
@@ -36,7 +37,7 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
       <FullWidthWrapper isOnBottom={true}>
         <Panel
           title={<Lang id={'form_filler.error_report_header'} />}
-          variant='error'
+          variant={PANEL_VARIANT.Error}
         >
           <Grid
             container={true}

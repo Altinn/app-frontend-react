@@ -1,4 +1,4 @@
-import { PANEL_VARIANTS } from 'src/app-components/panel/constants';
+import { PANEL_VARIANT } from 'src/app-components/panel/constants';
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
@@ -34,7 +34,7 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'variant',
-      new CG.enum(...Object.values(PANEL_VARIANTS))
+      new CG.enum(...Object.values(PANEL_VARIANT))
         .optional()
         .setTitle('Panel variant')
         .setDescription('Change the look of the panel')

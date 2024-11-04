@@ -1,6 +1,7 @@
 import React from 'react';
 import type { JSX } from 'react';
 
+import { PANEL_VARIANT } from 'src/app-components/panel/constants';
 import { Panel } from 'src/app-components/panel/Panel';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -23,7 +24,7 @@ export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => 
   if (isSrcDocUnsupported) {
     return (
       <Panel
-        variant='error'
+        variant={PANEL_VARIANT.Error}
         showIcon={true}
         title={<Lang id={'iframe_component.unsupported_browser_title'} />}
       >

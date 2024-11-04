@@ -10,11 +10,11 @@ import {
 } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
-import { PANEL_VARIANTS } from 'src/app-components/panel/constants';
+import { PANEL_VARIANT } from 'src/app-components/panel/constants';
 import classes from 'src/app-components/panel/Panel.module.css';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 
-export type PanelVariant = (typeof PANEL_VARIANTS)[keyof typeof PANEL_VARIANTS];
+export type PanelVariant = (typeof PANEL_VARIANT)[keyof typeof PANEL_VARIANT];
 
 type PanelProps = PropsWithChildren<{
   variant: PanelVariant;
@@ -32,28 +32,28 @@ function PanelIcon({ isMobileLayout, variant }: PanelIconProps) {
   const fontSize = isMobileLayout ? '2rem' : '3rem';
 
   switch (variant) {
-    case PANEL_VARIANTS.Info:
+    case PANEL_VARIANT.Info:
       return (
         <InformationSquareIcon
           title='info'
           fontSize={fontSize}
         />
       );
-    case PANEL_VARIANTS.Warning:
+    case PANEL_VARIANT.Warning:
       return (
         <ExclamationmarkTriangleIcon
           title='warning'
           fontSize={fontSize}
         />
       );
-    case PANEL_VARIANTS.Error:
+    case PANEL_VARIANT.Error:
       return (
         <XMarkOctagonIcon
           title='error'
           fontSize={fontSize}
         />
       );
-    case PANEL_VARIANTS.Success:
+    case PANEL_VARIANT.Success:
       return (
         <CheckmarkCircleIcon
           title='success'

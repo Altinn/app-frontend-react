@@ -1,4 +1,4 @@
-export const PANEL_VARIANTS = {
+export const PANEL_VARIANT = {
   Info: 'info',
   Warning: 'warning',
   Error: 'error',
