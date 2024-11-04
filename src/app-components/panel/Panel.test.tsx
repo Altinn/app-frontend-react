@@ -30,7 +30,7 @@ describe('Panel', () => {
         Panel Content
       </Panel>,
     );
-    expect(screen.queryByTitle('info')).not.toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: 'info' })).not.toBeInTheDocument();
   });
 
   it('should not show icon when showIcon is false', () => {
@@ -43,7 +43,7 @@ describe('Panel', () => {
         Panel Content
       </Panel>,
     );
-    expect(screen.queryByTitle('info')).not.toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: 'info' })).not.toBeInTheDocument();
   });
 
   it.each<PanelVariant>(['info', 'warning', 'error', 'success'])(
@@ -58,7 +58,7 @@ describe('Panel', () => {
           Panel Content
         </Panel>,
       );
-      expect(screen.getByTitle(variant)).toBeInTheDocument;
+      expect(screen.queryByRole('img', { name: variant })).toBeInTheDocument;
     },
   );
 });
