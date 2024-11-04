@@ -25,7 +25,8 @@ export const PanelComponent = ({ node }: IPanelProps) => {
     return { isOnBottom, isOnTop };
   }, node);
 
-  if (!textResourceBindings) {
+  if (!textResourceBindings?.body && !textResourceBindings?.title) {
+    window.logWarn('Unable to render panel component: no text resource binding found.');
     return null;
   }
 
@@ -43,7 +44,7 @@ export const PanelComponent = ({ node }: IPanelProps) => {
         )}
       >
         <Panel
-          title={textResourceBindings.title ? <Lang id={textResourceBindings.title} /> : undefined}
+          title={<Lang id={textResourceBindings.title} />}
           showIcon={showIcon ?? true}
           variant={variant ?? PANEL_VARIANT.Info}
           forceMobileLayout={!fullWidth}
