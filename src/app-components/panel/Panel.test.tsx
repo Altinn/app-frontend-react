@@ -2,6 +2,7 @@ import React from 'react';
 
 import { render, screen } from '@testing-library/react';
 
+import { PANEL_VARIANT } from 'src/app-components/panel/constants';
 import { Panel } from 'src/app-components/panel/Panel';
 import type { PanelVariant } from 'src/app-components/panel/Panel';
 
@@ -11,7 +12,7 @@ describe('Panel', () => {
   it('should show title and content', () => {
     render(
       <Panel
-        variant='info'
+        variant={PANEL_VARIANT.Info}
         title={<MockLang text='Panel Title' />}
       >
         Panel Content
@@ -24,7 +25,7 @@ describe('Panel', () => {
   it('should not show icon when showIcon is not set', () => {
     render(
       <Panel
-        variant='info'
+        variant={PANEL_VARIANT.Info}
         title={<MockLang text='Panel Title' />}
       >
         Panel Content
@@ -36,7 +37,7 @@ describe('Panel', () => {
   it('should not show icon when showIcon is false', () => {
     render(
       <Panel
-        variant='info'
+        variant={PANEL_VARIANT.Info}
         title={<MockLang text='Panel Title' />}
         showIcon={false}
       >

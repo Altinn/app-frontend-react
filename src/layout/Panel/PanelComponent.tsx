@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { PANEL_VARIANT } from 'src/app-components/panel/constants';
 import { Panel } from 'src/app-components/panel/Panel';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
@@ -44,7 +45,7 @@ export const PanelComponent = ({ node }: IPanelProps) => {
         <Panel
           title={textResourceBindings.title ? <Lang id={textResourceBindings.title} /> : undefined}
           showIcon={showIcon ?? true}
-          variant={variant ?? 'info'}
+          variant={variant ?? PANEL_VARIANT.Info}
           forceMobileLayout={!fullWidth}
         >
           <Lang id={textResourceBindings.body} />
