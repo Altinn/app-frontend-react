@@ -45,7 +45,7 @@ export const PanelComponent = ({ node }: IPanelProps) => {
       >
         <Panel
           title={textResourceBindings.title ? <Lang id={textResourceBindings.title} /> : undefined}
-          showIcon={showIcon}
+          showIcon={showIcon ?? true}
           variant={variant ?? 'info'}
           forceMobileLayout={!fullWidth}
         >

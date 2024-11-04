@@ -36,7 +36,6 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
       <FullWidthWrapper isOnBottom={true}>
         <Panel
           title={<Lang id={'form_filler.error_report_header'} />}
-          showIcon={false}
           variant='error'
         >
           <Grid

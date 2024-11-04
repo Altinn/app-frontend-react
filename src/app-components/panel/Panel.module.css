@@ -54,7 +54,6 @@
 .panelIconWrapper {
   display: flex;
   flex: none;
-  align-items: center;
 }
 
 .panelIconWrapper_success svg {

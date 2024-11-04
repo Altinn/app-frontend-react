@@ -1,6 +1,7 @@
 import React from 'react';
 import type { JSX, PropsWithChildren } from 'react';
 
+import { Heading } from '@digdir/designsystemet-react';
 import {
   CheckmarkCircleIcon,
   ExclamationmarkTriangleIcon,
@@ -28,7 +29,7 @@ type PanelIconProps = {
 };
 
 function PanelIcon({ isMobileLayout, variant }: PanelIconProps) {
-  const fontSize = isMobileLayout ? '2rem' : '3.5rem';
+  const fontSize = isMobileLayout ? '2rem' : '3rem';
 
   switch (variant) {
     case PANEL_VARIANTS.Info:
@@ -94,7 +95,15 @@ export const Panel: React.FC<PanelProps> = ({
           </div>
         )}
         <div className={classes.panelContent}>
-          {title && <h2 className={classes.panelHeader}>{title}</h2>}
+          {title && (
+            <Heading
+              level={3}
+              size={isMobileLayout ? 'xs' : 'md'}
+              className={classes.panelHeader}
+            >
+              {title}
+            </Heading>
+          )}
           <div>{children}</div>
         </div>
       </div>
