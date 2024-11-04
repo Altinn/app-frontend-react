@@ -133,37 +133,30 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
     >
       {(variant.type === 'search' || variant.type === 'text') && (
         <InputOrParagraph
+          id={id}
           value={formValue}
-          onChange={(event) => {
-            setValue('simpleBinding', event.target.value);
-          }}
           aria-label={ariaLabel}
           aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
           autoComplete={autocomplete}
-          characterLimit={!readOnly ? characterLimit : undefined}
           className={formatting?.align ? classes[`text-align-${formatting.align}`] : ''}
-          id={id}
           readOnly={readOnly}
-          textOnly={overrideDisplay?.rowReadOnly && readOnly}
-          error={!isValid}
           required={required}
           onBlur={debounce}
+          error={!isValid}
+          textOnly={overrideDisplay?.rowReadOnly && readOnly}
           prefix={prefixText}
           suffix={suffixText}
           type={variant.type}
+          characterLimit={!readOnly ? characterLimit : undefined}
+          onChange={(event) => {
+            setValue('simpleBinding', event.target.value);
+          }}
         />
       )}
       {variant.type === 'pattern' && (
         <FormattedInput
           id={id}
           value={formValue}
-          onValueChange={(values, sourceInfo) => {
-            if (sourceInfo.source === 'prop') {
-              return;
-            }
-            setValue('simpleBinding', values.value);
-          }}
-          {...variant.format}
           data-testid={`${id}-formatted-number-${variant}`}
           aria-label={ariaLabel}
           aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
@@ -172,11 +165,30 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
           readOnly={readOnly}
           required={required}
           onBlur={debounce}
+          error={!isValid}
+          {...variant.format}
+          onValueChange={(values, sourceInfo) => {
+            if (sourceInfo.source === 'prop') {
+              return;
+            }
+            setValue('simpleBinding', values.value);
+          }}
           prefix={prefixText}
         />
       )}
       {variant.type === 'number' && (
         <NumericInput
+          id={id}
+          value={formValue}
+          data-testid={`${id}-formatted-number-${variant}`}
+          aria-label={ariaLabel}
+          aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
+          autoComplete={autocomplete}
+          className={formatting?.align ? classes[`text-align-${formatting.align}`] : ''}
+          readOnly={readOnly}
+          required={required}
+          onBlur={debounce}
+          error={!isValid}
           onValueChange={(values, sourceInfo) => {
             if (sourceInfo.source === 'prop') {
               // Do not update the value if the change is from props (i.e. let's not send form data updates when
@@ -185,7 +197,6 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
             }
             setValue('simpleBinding', values.value);
           }}
-          value={formValue}
           onPaste={(event: React.ClipboardEvent<HTMLInputElement>) => {
             /* This is a workaround for a react-number-format bug that
              * removes the decimal on paste.
@@ -201,15 +212,6 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
             }
           }}
           {...variant.format}
-          data-testid={`${id}-formatted-number-${variant}`}
-          aria-label={ariaLabel}
-          aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
-          autoComplete={autocomplete}
-          className={formatting?.align ? classes[`text-align-${formatting.align}`] : ''}
-          id={id}
-          readOnly={readOnly}
-          required={required}
-          onBlur={debounce}
         />
       )}
     </ComponentStructureWrapper>
