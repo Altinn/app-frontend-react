@@ -259,6 +259,7 @@ export const PartySelection = () => {
         className={classes.partySearchFieldContainer}
       >
         <Input
+          size='md'
           aria-label={langAsString('party_selection.search_placeholder')}
           placeholder={langAsString('party_selection.search_placeholder')}
           onChange={onFilterStringChange}
