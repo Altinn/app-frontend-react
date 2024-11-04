@@ -73,21 +73,16 @@ function initialCreateStore() {
       set(() => ({ allDataTypes, writableDataTypes, defaultDataType }));
     },
     setInitialData: (dataType, initialData, dataElementId) => {
-      set((state) =>
-        // Don't set this more than once
-        !state.initialData[dataType]
-          ? {
-              initialData: {
-                ...state.initialData,
-                [dataType]: initialData,
-              },
-              dataElementIds: {
-                ...state.dataElementIds,
-                [dataType]: dataElementId,
-              },
-            }
-          : {},
-      );
+      set((state) => ({
+        initialData: {
+          ...state.initialData,
+          [dataType]: initialData,
+        },
+        dataElementIds: {
+          ...state.dataElementIds,
+          [dataType]: dataElementId,
+        },
+      }));
     },
     setDataModelSchema: (dataType, schema, lookupTool, validator) => {
       set((state) => ({
@@ -191,24 +186,39 @@ function DataModelsLoader() {
     setDataTypes(allValidDataTypes, writableDataTypes, defaultDataType);
   }, [applicationMetadata, defaultDataType, isStateless, layouts, setDataTypes, dataElements]);
 
+  const initialDataDone = useSelector((state) => Object.keys(state.initialData));
+  const schemaDone = useSelector((state) => Object.keys(state.schemas));
+  const validationConfigDone = useSelector((state) => Object.keys(state.expressionValidationConfigs));
+
   // We should load form data and schema for all referenced data models, schema is used for dataModelBinding validation which we want to do even if it is readonly
   // We only need to load expression validation config for data types that are not readonly. Additionally, backend will error if we try to validate a model we are not supposed to
   return (
     <>
-      {allDataTypes?.map((dataType) => (
-        <React.Fragment key={dataType}>
+      {allDataTypes
+        ?.filter((dataType) => !initialDataDone.includes(dataType))
+        .map((dataType) => (
           <LoadInitialData
+            key={dataType}
             dataType={dataType}
             overrideDataElement={dataType === overriddenDataType ? overriddenDataElement : undefined}
           />
-          <LoadSchema dataType={dataType} />
-        </React.Fragment>
-      ))}
-      {writableDataTypes?.map((dataType) => (
-        <React.Fragment key={dataType}>
-          <LoadExpressionValidationConfig dataType={dataType} />
-        </React.Fragment>
-      ))}
+        ))}
+      {allDataTypes
+        ?.filter((dataType) => !schemaDone.includes(dataType))
+        .map((dataType) => (
+          <LoadSchema
+            key={dataType}
+            dataType={dataType}
+          />
+        ))}
+      {writableDataTypes
+        ?.filter((dataType) => !validationConfigDone.includes(dataType))
+        .map((dataType) => (
+          <LoadExpressionValidationConfig
+            key={dataType}
+            dataType={dataType}
+          />
+        ))}
     </>
   );
 }
