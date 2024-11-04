@@ -91,7 +91,7 @@ export const Panel: React.FC<PanelProps> = ({
         <div className={classes.panelContent}>
           {title && (
             <Heading
-              level={3}
+              level={2}
               size={isMobileLayout ? 'xs' : 'md'}
               className={classes.panelHeader}
             >
