@@ -25,16 +25,17 @@ export interface RegistryCommitQueues {
 }
 
 export function useGetAwaitingCommits() {
-  const toCommit = GeneratorInternal.useCommitQueue();
+  const registry = GeneratorInternal.useRegistry();
 
-  return useCallback(
-    () =>
+  return useCallback(() => {
+    const toCommit = registry.current.toCommit;
+    return (
       toCommit.addNodes.length +
       toCommit.setNodeProps.length +
       toCommit.setRowExtras.length +
-      toCommit.setPageProps.length,
-    [toCommit],
-  );
+      toCommit.setPageProps.length
+    );
+  }, [registry]);
 }
 
 export function useCommit() {
@@ -42,9 +43,10 @@ export function useCommit() {
   const setNodeProps = NodesInternal.useSetNodeProps();
   const setPageProps = NodesInternal.useSetPageProps();
   const setRowExtras = NodesInternal.useSetRowExtras();
-  const toCommit = GeneratorInternal.useCommitQueue();
+  const registry = GeneratorInternal.useRegistry();
 
   return useCallback(() => {
+    const toCommit = registry.current.toCommit;
     if (toCommit.addNodes.length) {
       generatorLog('logCommits', 'Committing', toCommit.addNodes.length, 'addNodes requests');
       addNodes(toCommit.addNodes);
@@ -85,14 +87,15 @@ export function useCommit() {
 
     updateCommitsPendingInBody(toCommit);
     return changes;
-  }, [addNodes, setNodeProps, setRowExtras, toCommit, setPageProps]);
+  }, [addNodes, setNodeProps, setRowExtras, setPageProps, registry]);
 }
 
 export function SetWaitForCommits() {
   const setWaitForCommits = NodesInternal.useSetWaitForCommits();
-  const toCommit = GeneratorInternal.useCommitQueue();
+  const registry = GeneratorInternal.useRegistry();
 
   const waitForCommits = useCallback(async () => {
+    const toCommit = registry.current.toCommit;
     let didWait = false;
     while (Object.values(toCommit).some((arr) => arr.length > 0)) {
       await new Promise((resolve) => setTimeout(resolve, 4));
@@ -103,7 +106,7 @@ export function SetWaitForCommits() {
     if (didWait) {
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
-  }, [toCommit]);
+  }, [registry]);
 
   useEffect(() => {
     setWaitForCommits(waitForCommits);
@@ -137,7 +140,7 @@ function useAddToQueue<T extends keyof RegistryCommitQueues>(
   condition: boolean,
 ) {
   const registry = GeneratorInternal.useRegistry();
-  const toCommit = GeneratorInternal.useCommitQueue();
+  const toCommit = registry.current.toCommit;
   const commit = useCommitWhenFinished();
 
   if (condition) {

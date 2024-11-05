@@ -173,7 +173,6 @@ export function GeneratorGlobalProvider({ children, ...rest }: PropsWithChildren
 export const GeneratorInternal = {
   useIsInsideGenerator: () => useCtx().depth > 0,
   useRegistry: () => useCtx().registry,
-  useCommitQueue: () => useCtx().registry.current.toCommit,
   useIdMutators: () => useCtx().idMutators ?? emptyArray,
   useDirectMutators: () => useCtx().directMutators ?? emptyArray,
   useRecursiveMutators: () => useCtx().recursiveMutators ?? emptyArray,
