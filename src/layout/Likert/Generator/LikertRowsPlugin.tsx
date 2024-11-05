@@ -42,6 +42,10 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
 
   addToComponent(_component: ComponentConfig): void {}
 
+  makeConstructorArgs(_asGenericArgs = false): string {
+    return '';
+  }
+
   extraNodeGeneratorChildren(): string {
     const LikertGeneratorChildren = new CG.import({
       import: 'LikertGeneratorChildren',
