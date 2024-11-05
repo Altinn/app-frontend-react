@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 
 import dot from 'dot-object';
+import deepEqual from 'fast-deep-equal';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
@@ -156,6 +157,7 @@ function ResolveRowExpressions({ plugin }: ResolveRowProps) {
   const def = useDef(item!.type);
   const extras = useMemoDeepEqual(
     () => ({
+      index: rowIndex,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ...((def as CompDef).evalExpressionsForRow(props as any) ?? {}),
       ...plugin.addRowProps(internal, rowIndex),
@@ -163,7 +165,16 @@ function ResolveRowExpressions({ plugin }: ResolveRowProps) {
     [def, props, plugin, rowIndex, internal],
   );
 
-  NodesStateQueue.useSetRowExtras({ node, rowIndex, plugin, extras });
+  const isSet = NodesInternal.useNodeData(node, (data) => {
+    const { uuid: _uuid, ...row } =
+      (data.item?.[plugin.settings.internalProp]?.find(
+        (row: RepChildrenRow) => row.index === rowIndex,
+      ) as RepChildrenRow) ?? {};
+
+    return deepEqual(row, extras);
+  });
+
+  NodesStateQueue.useSetRowExtras({ node, rowIndex, plugin, extras }, !isSet);
 
   return null;
 }
