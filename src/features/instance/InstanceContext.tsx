@@ -44,64 +44,65 @@ export type ChangeInstanceData = (callback: (instance: IInstance | undefined) =>
 
 type InstanceStoreProps = Pick<InstanceContext, 'partyId' | 'instanceGuid'>;
 
-const { Provider, useMemoSelector, useSelector, useLaxMemoSelector, useHasProvider } = createZustandContext({
-  name: 'InstanceContext',
-  required: true,
-  initialCreateStore: (props: InstanceStoreProps) =>
-    createStore<InstanceContext>((set) => ({
-      ...props,
-      instanceId: `${props.partyId}/${props.instanceGuid}`,
-      data: undefined,
-      dataSources: null,
-      appendDataElement: (element) =>
-        set((state) => {
-          if (!state.data) {
-            throw new Error('Cannot append data element when instance data is not set');
-          }
-          const next = { ...state.data, data: [...state.data.data, element] };
-          return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
-        }),
-      mutateDataElement: (elementId, mutator) =>
-        set((state) => {
-          if (!state.data) {
-            throw new Error('Cannot mutate data element when instance data is not set');
-          }
-          const next = {
-            ...state.data,
-            data: state.data.data.map((element) => (element.id === elementId ? mutator(element) : element)),
-          };
-          return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
-        }),
-      removeDataElement: (elementId) =>
-        set((state) => {
-          if (!state.data) {
-            throw new Error('Cannot remove data element when instance data is not set');
-          }
-          const next = { ...state.data, data: state.data.data.filter((element) => element.id !== elementId) };
-          return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
-        }),
-      changeData: (callback) =>
-        set((state) => {
-          const next = callback(state.data);
-          const clean = cleanUpInstanceData(next);
-          if (clean && !deepEqual(state.data, clean)) {
+const { Provider, useMemoSelector, useSelector, useLaxMemoSelector, useHasProvider, useStore, useLaxDelayedSelector } =
+  createZustandContext({
+    name: 'InstanceContext',
+    required: true,
+    initialCreateStore: (props: InstanceStoreProps) =>
+      createStore<InstanceContext>((set) => ({
+        ...props,
+        instanceId: `${props.partyId}/${props.instanceGuid}`,
+        data: undefined,
+        dataSources: null,
+        appendDataElement: (element) =>
+          set((state) => {
+            if (!state.data) {
+              throw new Error('Cannot append data element when instance data is not set');
+            }
+            const next = { ...state.data, data: [...state.data.data, element] };
             return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
-          }
-          return {};
-        }),
-      reFetch: async () => {
-        throw new Error('reFetch not implemented yet');
-      },
-      setReFetch: (reFetch) =>
-        set({
-          reFetch: async () => {
-            const result = await reFetch();
-            set((state) => ({ ...state, data: result.data, dataSources: buildInstanceDataSources(result.data) }));
-            return result;
-          },
-        }),
-    })),
-});
+          }),
+        mutateDataElement: (elementId, mutator) =>
+          set((state) => {
+            if (!state.data) {
+              throw new Error('Cannot mutate data element when instance data is not set');
+            }
+            const next = {
+              ...state.data,
+              data: state.data.data.map((element) => (element.id === elementId ? mutator(element) : element)),
+            };
+            return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
+          }),
+        removeDataElement: (elementId) =>
+          set((state) => {
+            if (!state.data) {
+              throw new Error('Cannot remove data element when instance data is not set');
+            }
+            const next = { ...state.data, data: state.data.data.filter((element) => element.id !== elementId) };
+            return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
+          }),
+        changeData: (callback) =>
+          set((state) => {
+            const next = callback(state.data);
+            const clean = cleanUpInstanceData(next);
+            if (clean && !deepEqual(state.data, clean)) {
+              return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
+            }
+            return {};
+          }),
+        reFetch: async () => {
+          throw new Error('reFetch not implemented yet');
+        },
+        setReFetch: (reFetch) =>
+          set({
+            reFetch: async () => {
+              const result = await reFetch();
+              set((state) => ({ ...state, data: result.data, dataSources: buildInstanceDataSources(result.data) }));
+              return result;
+            },
+          }),
+      })),
+  });
 
 // Also used for prefetching @see appPrefetcher.ts
 export function useInstanceDataQueryDef(
@@ -219,8 +220,6 @@ export const useLaxInstanceId = () => useLaxInstance((state) => state.instanceId
 export const useLaxInstanceData = <U,>(selector: (data: IInstance) => U) =>
   useLaxInstance((state) => (state.data ? selector(state.data) : undefined));
 export const useLaxInstanceAllDataElements = () => useLaxInstance((state) => state.data?.data) ?? emptyArray;
-export const useLaxInstanceDataElements = (dataType: string | undefined) =>
-  useLaxInstance((state) => state.data?.data.filter((d) => d.dataType === dataType)) ?? emptyArray;
 export const useLaxInstanceStatus = () => useLaxInstance((state) => state.data?.status);
 export const useLaxAppendDataElement = () => useLaxInstance((state) => state.appendDataElement);
 export const useLaxMutateDataElement = () => useLaxInstance((state) => state.mutateDataElement);
@@ -228,6 +227,24 @@ export const useLaxRemoveDataElement = () => useLaxInstance((state) => state.rem
 export const useLaxInstanceDataSources = () => useLaxInstance((state) => state.dataSources) ?? null;
 export const useLaxChangeInstance = (): ChangeInstanceData | undefined => useLaxInstance((state) => state.changeData);
 export const useHasInstance = () => useHasProvider();
+
+/** Beware that in later versions, this will re-render your component after every save, as
+ * the backend sends us updated instance data */
+export const useLaxInstanceDataElements = (dataType: string | undefined) =>
+  useLaxInstance((state) => state.data?.data.filter((d) => d.dataType === dataType)) ?? emptyArray;
+
+export type DataElementSelector = <U>(selector: (data: IData[]) => U, deps: unknown[]) => U | typeof ContextNotProvided;
+export const useLaxDataElementsSelector = (): DataElementSelector =>
+  useLaxDelayedSelector({
+    mode: 'innerSelector',
+    makeArgs: (state) => [state.data?.data ?? emptyArray],
+  });
+
+/** Like useLaxInstanceAllDataElements, but will never re-render when the data changes */
+export const useLaxInstanceAllDataElementsNow = () => {
+  const store = useStore();
+  return store.getState().data?.data ?? emptyArray;
+};
 
 export const useStrictInstanceRefetch = () => useSelector((state) => state.reFetch);
 export const useStrictInstanceId = () => useSelector((state) => state.instanceId);
