@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { getLikertStartStopIndex } from 'src/utils/formLayout';
+import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorCondition, GeneratorRunProvider, StageAddNodes } from 'src/utils/layout/generator/GeneratorStages';
 import { GenerateNodeChildrenWithStaticLayout } from 'src/utils/layout/generator/LayoutSetGenerator';
@@ -14,7 +15,7 @@ import {
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternalExact, CompIntermediate } from 'src/layout/layout';
-import type { LikertRowsPlugin } from 'src/layout/Likert/Generator/LikertRowsPlugin';
+import type { LikertRow, LikertRowsPlugin } from 'src/layout/Likert/Generator/LikertRowsPlugin';
 import type { ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -144,8 +145,38 @@ const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding
         claims={childClaims}
         staticLayoutMap={layoutMap}
       />
+      <MaintainReferences
+        binding={questionsBinding}
+        plugin={plugin}
+        childId={childId}
+      />
     </GeneratorRowProvider>
   );
 });
+
+interface MaintainReferencesProps {
+  binding: IDataModelReference;
+  plugin: LikertRowsPlugin;
+  childId: string;
+}
+
+function MaintainReferences({ binding, plugin, childId }: MaintainReferencesProps) {
+  const parent = GeneratorInternal.useParent() as LayoutNode;
+  const rowIndex = GeneratorInternal.useRowIndex() as number;
+  const rowUuid = FD.useFreshRowUuid(binding, rowIndex) as string;
+
+  const existingUuid = NodesInternal.useNodeData(
+    parent,
+    (data) =>
+      data.item?.[plugin.settings.internalProp]?.find((row: LikertRow | undefined) => row && row.index === rowIndex)
+        ?.uuid,
+  );
+
+  const isSet = rowUuid === existingUuid;
+  const extras = { uuid: rowUuid, itemNodeId: `${childId}-${rowIndex}` } satisfies Partial<LikertRow>;
+  NodesStateQueue.useSetRowExtras({ node: parent, rowIndex: rowIndex!, plugin, extras }, !isSet);
+
+  return null;
+}
 
 GenerateRow.displayName = 'GenerateRow';

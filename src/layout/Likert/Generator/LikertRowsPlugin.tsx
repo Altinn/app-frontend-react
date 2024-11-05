@@ -55,8 +55,6 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
   }
 
   itemFactory(_props: DefPluginStateFactoryProps<Config>) {
-    // TODO: Store mutators or otherwise make sure we know about our children later
-
     // Likert will have exactly _zero_ rows to begin with. We can't rely on addChild() being called when there are
     // no children, so to start off we'll have to initialize it all with no rows to avoid later code crashing
     // when there's no array of rows yet.

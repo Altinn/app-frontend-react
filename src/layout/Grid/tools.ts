@@ -70,5 +70,5 @@ export function isGridCellEmpty(cell: GridCellInternal | GridCell): boolean {
 }
 
 export function isGridCellNode(cell: GridCellInternal): cell is GridCellNode {
-  return !!(cell && 'node' in cell && cell.node);
+  return !!(cell && 'nodeId' in cell && cell.nodeId);
 }
