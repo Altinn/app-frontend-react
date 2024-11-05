@@ -56,7 +56,7 @@ function getVariantWithFormat(
 
 export type IInputProps = PropsFromGenericComponent<'Input'>;
 
-export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, overrideDisplay }) => {
+export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node' | 'overrideDisplay'>) => {
   const {
     id,
     readOnly,
@@ -69,17 +69,12 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
     autocomplete,
     maxLength,
   } = useNodeItem(node);
-
   const {
     formData: { simpleBinding: formValue },
     setValue,
   } = useDataModelBindings(dataModelBindings, saveWhileTyping);
-
   const { langAsString } = useLanguage();
-
-  const reactNumberFormatConfig = useMapToReactNumberConfig(formatting, formValue);
   const characterLimit = useCharacterLimit(maxLength);
-  const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
 
   const inputProps: InputProps = {
     id,
@@ -97,19 +92,13 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
     characterLimit: !readOnly ? characterLimit : undefined,
   };
 
-  return (
-    <ComponentStructureWrapper
-      node={node}
-      label={{
-        node,
-        textResourceBindings: {
-          ...textResourceBindings,
-          title: overrideDisplay?.renderLabel !== false ? textResourceBindings?.title : undefined,
-        },
-        renderLabelAs: 'label',
-      }}
-    >
-      {(variant.type === 'search' || variant.type === 'text') && (
+  const reactNumberFormatConfig = useMapToReactNumberConfig(formatting, formValue);
+  const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
+
+  switch (variant.type) {
+    case 'search':
+    case 'text':
+      return (
         <Input
           {...inputProps}
           value={formValue}
@@ -118,14 +107,14 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
             setValue('simpleBinding', event.target.value);
           }}
         />
-      )}
-      {variant.type === 'pattern' && (
+      );
+    case 'pattern':
+      return (
         <FormattedInput
           {...inputProps}
-          type='text'
-          value={formValue}
-          data-testid={`${id}-formatted-number-${variant}`}
           {...variant.format}
+          value={formValue}
+          type='text'
           onValueChange={(values, sourceInfo) => {
             if (sourceInfo.source === 'prop') {
               return;
@@ -133,13 +122,14 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
             setValue('simpleBinding', values.value);
           }}
         />
-      )}
-      {variant.type === 'number' && (
+      );
+    case 'number':
+      return (
         <NumericInput
           {...inputProps}
-          type='text'
+          {...variant.format}
           value={formValue}
-          data-testid={`${id}-formatted-number-${variant}`}
+          type='text'
           onValueChange={(values, sourceInfo) => {
             if (sourceInfo.source === 'prop') {
               // Do not update the value if the change is from props (i.e. let's not send form data updates when
@@ -162,9 +152,30 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
               setValue('simpleBinding', pastedText);
             }
           }}
-          {...variant.format}
         />
-      )}
+      );
+  }
+};
+
+export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, overrideDisplay }) => {
+  const { textResourceBindings } = useNodeItem(node);
+
+  return (
+    <ComponentStructureWrapper
+      node={node}
+      label={{
+        node,
+        textResourceBindings: {
+          ...textResourceBindings,
+          title: overrideDisplay?.renderLabel !== false ? textResourceBindings?.title : undefined,
+        },
+        renderLabelAs: 'label',
+      }}
+    >
+      <InputVariant
+        node={node}
+        overrideDisplay={overrideDisplay}
+      />
     </ComponentStructureWrapper>
   );
 };
