@@ -9,7 +9,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
+import type { ButtonColor, ButtonVariant } from 'src/app-components/button/Button';
 import type { LinkStyle } from 'src/layout/Link/config.generated';
 
 export const buttonStyles: {
