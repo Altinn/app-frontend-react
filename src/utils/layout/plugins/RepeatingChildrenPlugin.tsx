@@ -157,7 +157,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
     return this.settings.multiPageSupport !== false && dot.pick(this.settings.multiPageSupport, item) === true;
   }
 
-  itemFactory({ item, idMutators }: DefPluginStateFactoryProps<ToInternal<E>>) {
+  itemFactory({ item, idMutators }: DefPluginStateFactoryProps<ToInternal<E>>): DefPluginExtraInItem<ToInternal<E>> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rawChildren = ((item as any)[this.settings.externalProp] ?? []) as string[];
 
