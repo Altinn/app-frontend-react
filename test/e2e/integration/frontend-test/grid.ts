@@ -50,11 +50,7 @@ describe('Grid component', () => {
       .eq(5)
       .findByRole('textbox', { name: /Prosentandel av gjeld i kredittkort/i })
       .type('5');
-    cy.get(appFrontend.grid.grid)
-      .find('tr')
-      .eq(6)
-      .findByRole('textbox', { name: /Utregnet totalprosent/i })
-      .should('have.value', '85 %');
+    cy.get(appFrontend.grid.grid).find('tr').eq(6).findByText('85 %');
     cy.get(appFrontend.grid.bolig.percentComponent).should('not.contain.text', 'Prosentandel av gjeld i boliglån');
     cy.get(appFrontend.errorReport).should('not.exist');
 
