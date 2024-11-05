@@ -14,6 +14,7 @@ import classes from 'src/layout/Input/InputComponent.module.css';
 import { isNumberFormat, isPatternFormat } from 'src/layout/Input/number-format-helpers';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { InputProps } from 'src/app-components/Input/Input';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type {
   NumberFormatProps as NumberFormatPropsCG,
@@ -68,24 +69,33 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
     autocomplete,
     maxLength,
   } = useNodeItem(node);
-  const isValid = useIsValid(node);
+
   const {
     formData: { simpleBinding: formValue },
     setValue,
   } = useDataModelBindings(dataModelBindings, saveWhileTyping);
-  const debounce = FD.useDebounceImmediately();
 
   const { langAsString } = useLanguage();
 
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting, formValue);
-  const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;
-  const prefixText = textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined;
-  const suffixText = textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined;
-
   const characterLimit = useCharacterLimit(maxLength);
   const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
-  const textOnly = overrideDisplay?.rowReadOnly && readOnly;
-  const className = formatting?.align ? classes[`text-align-${formatting.align}`] : '';
+
+  const inputProps: InputProps = {
+    id,
+    'aria-label': overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined,
+    'aria-describedby': textResourceBindings?.description ? getDescriptionId(id) : undefined,
+    autoComplete: autocomplete,
+    className: formatting?.align ? classes[`text-align-${formatting.align}`] : '',
+    readOnly,
+    textOnly: overrideDisplay?.rowReadOnly && readOnly,
+    required,
+    onBlur: FD.useDebounceImmediately(),
+    error: !useIsValid(node),
+    prefix: textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined,
+    suffix: textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined,
+    characterLimit: !readOnly ? characterLimit : undefined,
+  };
 
   return (
     <ComponentStructureWrapper
@@ -101,21 +111,9 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
     >
       {(variant.type === 'search' || variant.type === 'text') && (
         <Input
-          id={id}
+          {...inputProps}
           value={formValue}
-          aria-label={ariaLabel}
-          aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
-          autoComplete={autocomplete}
-          className={className}
-          readOnly={readOnly}
-          textOnly={textOnly}
-          required={required}
-          onBlur={debounce}
-          error={!isValid}
-          prefix={prefixText}
-          suffix={suffixText}
           type={variant.type}
-          characterLimit={!readOnly ? characterLimit : undefined}
           onChange={(event) => {
             setValue('simpleBinding', event.target.value);
           }}
@@ -123,18 +121,10 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
       )}
       {variant.type === 'pattern' && (
         <FormattedInput
-          id={id}
+          {...inputProps}
+          type='text'
           value={formValue}
           data-testid={`${id}-formatted-number-${variant}`}
-          aria-label={ariaLabel}
-          aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
-          autoComplete={autocomplete}
-          className={className}
-          readOnly={readOnly}
-          required={required}
-          onBlur={debounce}
-          error={!isValid}
-          textOnly={textOnly}
           {...variant.format}
           onValueChange={(values, sourceInfo) => {
             if (sourceInfo.source === 'prop') {
@@ -142,23 +132,14 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
             }
             setValue('simpleBinding', values.value);
           }}
-          prefix={prefixText}
         />
       )}
       {variant.type === 'number' && (
         <NumericInput
-          id={id}
+          {...inputProps}
+          type='text'
           value={formValue}
           data-testid={`${id}-formatted-number-${variant}`}
-          aria-label={ariaLabel}
-          aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
-          autoComplete={autocomplete}
-          className={className}
-          readOnly={readOnly}
-          textOnly={textOnly}
-          required={required}
-          onBlur={debounce}
-          error={!isValid}
           onValueChange={(values, sourceInfo) => {
             if (sourceInfo.source === 'prop') {
               // Do not update the value if the change is from props (i.e. let's not send form data updates when

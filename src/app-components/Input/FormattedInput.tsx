@@ -5,7 +5,9 @@ import type { PatternFormatProps } from 'react-number-format';
 import { Input } from 'src/app-components/Input/Input';
 import type { InputProps } from 'src/app-components/Input/Input';
 
-export function FormattedInput(props: Omit<PatternFormatProps, 'customInput' | 'size'> & InputProps) {
+export function FormattedInput(
+  props: Omit<PatternFormatProps, 'customInput' | 'size'> & Omit<InputProps, 'type' | 'value'>,
+) {
   return (
     <PatternFormat
       {...props}
