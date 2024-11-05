@@ -4,6 +4,7 @@ import { typedBoolean } from 'src/utils/typing';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { IDataModelBindingsLikert } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type {
   DefPluginChildClaimerProps,
   DefPluginExtraInItem,
@@ -76,5 +77,15 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
 
   isChildHidden(_state: DefPluginState<Config>, _childNode: LayoutNode): boolean {
     return false;
+  }
+
+  stateIsReady(state: DefPluginState<Config>, fullState: NodesContext): boolean {
+    if (!super.stateIsReady(state, fullState)) {
+      return false;
+    }
+
+    const internalProp = this.settings.internalProp;
+    const rows = state.item?.[internalProp] as (LikertRow | undefined)[];
+    return rows?.every((row) => (row ? row.uuid !== undefined && row.itemNodeId !== undefined : true)) ?? false;
   }
 }
