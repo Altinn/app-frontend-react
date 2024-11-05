@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 import type { StoreApi } from 'zustand';
@@ -40,45 +40,42 @@ export function useDelayedSelector<C extends DSConfig>({
   const [renderCount, forceRerender] = useState(0);
   const lastReRenderValue = useRef<unknown>(undefined);
 
-  useEffect(
+  const subscribe = useCallback(
     () => {
       if (store === ContextNotProvided) {
         return;
       }
+      const unsubscribe = store.subscribe((state) => {
+        if (!selectorsCalled.current) {
+          return;
+        }
 
-      return (
-        selectorsCalled.current &&
-        store.subscribe((state) => {
-          if (!selectorsCalled.current) {
-            return;
-          }
+        let stateChanged = true;
+        if (onlyReRenderWhen) {
+          stateChanged = onlyReRenderWhen(state, lastReRenderValue.current, (v) => {
+            lastReRenderValue.current = v;
+          });
+        }
+        if (!stateChanged) {
+          return;
+        }
 
-          let stateChanged = true;
-          if (onlyReRenderWhen) {
-            stateChanged = onlyReRenderWhen(state, lastReRenderValue.current, (v) => {
-              lastReRenderValue.current = v;
-            });
+        // When the state changes, we run all the known selectors again to figure out if anything changed. If it
+        // did change, we'll clear the list of selectors to force a re-render.
+        const selectors = selectorsCalled.current.values();
+        let changed = false;
+        for (const { fullSelector, value } of selectors) {
+          if (!equalityFn(value, fullSelector(state))) {
+            changed = true;
+            break;
           }
-          if (!stateChanged) {
-            return;
-          }
-
-          // When the state changes, we run all the known selectors again to figure out if anything changed. If it
-          // did change, we'll clear the list of selectors to force a re-render.
-          const selectors = selectorsCalled.current.values();
-          let changed = false;
-          for (const { fullSelector, value } of selectors) {
-            if (!equalityFn(value, fullSelector(state))) {
-              changed = true;
-              break;
-            }
-          }
-          if (changed) {
-            selectorsCalled.current = undefined;
-            forceRerender((prev) => prev + 1);
-          }
-        })
-      );
+        }
+        if (changed) {
+          selectorsCalled.current = undefined;
+          unsubscribe();
+          forceRerender((prev) => prev + 1);
+        }
+      });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [store],
@@ -113,6 +110,7 @@ export function useDelayedSelector<C extends DSConfig>({
       // since we know it would not exist if we just created it.
       if (!selectorsCalled.current) {
         selectorsCalled.current = new ShallowArrayMap();
+        subscribe();
       }
 
       const state = store.getState();
