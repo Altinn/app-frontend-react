@@ -1,12 +1,12 @@
 import React from 'react';
 
+import { Button } from 'src/app-components/button/Button';
 import { useSetReturnToView } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
-import { WrappedButton } from 'src/layout/Button/WrappedButton';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { ProcessTaskType } from 'src/types';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -67,17 +67,19 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   return (
     <ComponentStructureWrapper node={node}>
       <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
-        <WrappedButton
-          nodeId={node.id}
+        <Button
+          id={node.id}
           onClick={submitTask}
-          busyWithId={busyWithId}
-          disabled={disabled}
+          isLoading={busyWithId === node.id}
+          disabled={disabled || !!busyWithId}
           color='success'
           variant='primary'
-          message={attachmentsPending ? langAsString('general.wait_for_attachments') : undefined}
         >
           <Lang id={item.textResourceBindings?.title} />
-        </WrappedButton>
+        </Button>
+        {attachmentsPending && (
+          <span style={{ position: 'absolute' }}>{langAsString('general.wait_for_attachments')}</span>
+        )}
       </div>
     </ComponentStructureWrapper>
   );

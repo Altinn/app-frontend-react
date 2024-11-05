@@ -1,11 +1,12 @@
 import React from 'react';
 
+import { Button } from 'src/app-components/button/Button';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
-import { type BaseButtonProps, WrappedButton } from 'src/layout/Button/WrappedButton';
+import type { ButtonProps } from 'src/app-components/button/Button';
 
-type IConfirmButtonProps = Omit<BaseButtonProps, 'onClick'>;
+type IConfirmButtonProps = Omit<ButtonProps, 'onClick' | 'id'> & { nodeId: string };
 
 export const ConfirmButton = (props: IConfirmButtonProps) => {
   const { actions } = useLaxProcessData()?.currentTask || {};
@@ -21,16 +22,17 @@ export const ConfirmButton = (props: IConfirmButtonProps) => {
 
   return (
     <div style={{ marginTop: 'var(--button-margin-top)' }}>
-      <WrappedButton
+      <Button
+        id={nodeId}
         {...props}
-        busyWithId={processNextBusyId}
+        isLoading={!!processNextBusyId}
         onClick={handleConfirmClick}
         disabled={disabled}
         color='success'
         variant='primary'
       >
         <Lang id={'confirm.button_text'} />
-      </WrappedButton>
+      </Button>
     </div>
   );
 };
