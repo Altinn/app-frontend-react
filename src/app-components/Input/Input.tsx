@@ -45,7 +45,7 @@ export function Input(props: InputProps) {
     return (
       <Paragraph
         id={id}
-        size='small'
+        size={size}
         className={`${classes.textPadding} ${classes.focusable} ${className}`}
         tabIndex={0}
       >
