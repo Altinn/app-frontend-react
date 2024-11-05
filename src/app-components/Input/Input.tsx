@@ -4,18 +4,20 @@ import type { InputHTMLAttributes, ReactNode } from 'react';
 import { Textfield } from '@digdir/designsystemet-react';
 import type { CharacterLimitProps } from '@digdir/designsystemet-react/dist/types/components/form/CharacterCounter';
 
+import type { InputType } from 'src/app-components/Input/constants';
+
 import 'src/app-components/Input/Input.module.css';
 
 export type InputProps = {
   size?: 'sm' | 'md' | 'lg';
   prefix?: string;
   suffix?: string;
-  type?: 'search' | 'text' | 'number';
   characterLimit?: CharacterLimitProps;
   error?: ReactNode;
   disabled?: boolean;
   id?: string;
   readOnly?: boolean;
+  type?: InputType;
 } & Pick<
   InputHTMLAttributes<HTMLInputElement>,
   | 'value'
