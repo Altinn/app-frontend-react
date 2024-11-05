@@ -11,6 +11,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type {
   DefPluginChildClaimerProps,
+  DefPluginCompExternal,
   DefPluginExtraInItem,
   DefPluginState,
   DefPluginStateFactoryProps,
@@ -21,6 +22,12 @@ import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface RepChildrenRow extends BaseRow {
   itemIds: string[];
+}
+
+export interface RepChildrenInternalState {
+  lastMultiPageIndex?: number;
+  rawChildren: string[];
+  idMutators: ChildIdMutator[];
 }
 
 interface Config<
@@ -36,9 +43,7 @@ interface Config<
   };
   extraInItem: { [key in ExternalProp]: undefined } & {
     [key in InternalProp]: ((RepChildrenRow & Extras) | undefined)[];
-  } & {
-    lastMultiPageIndex?: number;
-  };
+  } & { internal: RepChildrenInternalState };
 }
 
 export interface ExternalConfig {
@@ -85,8 +90,6 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
   implements NodeDefChildrenPlugin<ToInternal<E>>
 {
   public settings: Combined<E>;
-  public rawChildren: string[] = [];
-  public idMutators: ChildIdMutator[] = [];
 
   protected component: ComponentConfig | undefined;
 
@@ -150,26 +153,52 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
     ];
   }
 
+  private usesMultiPage(item: DefPluginCompExternal<ToInternal<E>>): boolean {
+    return this.settings.multiPageSupport !== false && dot.pick(this.settings.multiPageSupport, item) === true;
+  }
+
   itemFactory({ item, idMutators }: DefPluginStateFactoryProps<ToInternal<E>>) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.rawChildren = ((item as any)[this.settings.externalProp] ?? []) as string[];
-    this.idMutators = idMutators;
+    const rawChildren = ((item as any)[this.settings.externalProp] ?? []) as string[];
 
+    const multiPage = this.usesMultiPage(item as DefPluginCompExternal<ToInternal<E>>);
     let lastMultiPageIndex: number | undefined = undefined;
-    if (this.settings.multiPageSupport !== false) {
+    if (multiPage) {
       lastMultiPageIndex = 0;
+      for (const id of rawChildren) {
+        const [pageIndex] = id.split(':', 2);
+        lastMultiPageIndex = Math.max(lastMultiPageIndex, parseInt(pageIndex, 10));
+      }
     }
 
     return {
       [this.settings.externalProp]: undefined,
       [this.settings.internalProp]: [],
-      lastMultiPageIndex,
+      internal: { lastMultiPageIndex, rawChildren, idMutators },
     } as DefPluginExtraInItem<ToInternal<E>>;
   }
 
+  addRowProps(internal: RepChildrenInternalState | undefined, rowIndex: number): Partial<RepChildrenRow> {
+    if (!internal) {
+      return {};
+    }
+
+    const children = internal.rawChildren
+      .map((childId) => {
+        if (internal.lastMultiPageIndex !== undefined) {
+          const [, cleanId] = childId.split(':', 2);
+          return cleanId;
+        }
+        return childId;
+      })
+      .map((childId) => internal.idMutators.reduce((id, mutator) => mutator(id), childId))
+      .map((id) => `${id}-${rowIndex}`);
+
+    return { itemIds: children };
+  }
+
   claimChildren({ claimChild, item }: DefPluginChildClaimerProps<ToInternal<E>>): void {
-    const multiPage =
-      this.settings.multiPageSupport !== false && dot.pick(this.settings.multiPageSupport, item) === true;
+    const multiPage = this.usesMultiPage(item);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     for (const id of (item as any)[this.settings.externalProp]) {
@@ -223,6 +252,6 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
 
     const internalProp = this.settings.internalProp;
     const rows = state.item?.[internalProp] as Row<E>[] | undefined;
-    return rows?.every((row) => row && row.uuid !== undefined) ?? false;
+    return rows?.every((row) => row && row.uuid !== undefined && row.itemIds !== undefined) ?? false;
   }
 }

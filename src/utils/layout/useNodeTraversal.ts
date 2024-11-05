@@ -41,6 +41,13 @@ export class TraversalTask {
   }
 
   /**
+   * Get the node object for a given ID
+   */
+  public getNode(id: string): LayoutNode | undefined {
+    return this.state.nodes?.findById(this.removeRestrictions(), id);
+  }
+
+  /**
    * Filter a node based on the matcher
    */
   public passesMatcher(node: Node): boolean {
@@ -77,6 +84,13 @@ export class TraversalTask {
    */
   public addRestriction(restriction: TraversalRestriction | undefined): TraversalTask {
     return new TraversalTask(this.state, this.rootNode, this.matcher, restriction);
+  }
+
+  /**
+   * Convert this task and remove any restrictions and matchers
+   */
+  public removeRestrictions(): TraversalTask {
+    return new TraversalTask(this.state, this.rootNode, undefined, undefined);
   }
 }
 

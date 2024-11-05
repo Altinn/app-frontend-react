@@ -27,7 +27,7 @@ function useRepeatingGroupEditRowState(
   node: LayoutNode<'RepeatingGroup'>,
 ): RepeatingGroupEditRowContext & { setMultiPageIndex: (index: number) => void } {
   const edit = useNodeItem(node, (i) => i.edit);
-  const lastPage = useNodeItem(node, (i) => i.lastMultiPageIndex) ?? 0;
+  const lastPage = useNodeItem(node, (i) => i.internal.lastMultiPageIndex) ?? 0;
   const multiPageEnabled = edit?.multiPage ?? false;
   const [multiPageIndex, setMultiPageIndex] = useState(0);
 

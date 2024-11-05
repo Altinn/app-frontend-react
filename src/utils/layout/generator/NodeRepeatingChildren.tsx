@@ -21,7 +21,11 @@ import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal } from 'src/layout/layout';
 import type { ChildClaims, ChildIdMutator, ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { RepChildrenRow, RepeatingChildrenPlugin } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
+import type {
+  RepChildrenInternalState,
+  RepChildrenRow,
+  RepeatingChildrenPlugin,
+} from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 
 interface Props {
   claims: ChildClaims | undefined;
@@ -137,19 +141,29 @@ interface ResolveRowProps {
 }
 
 function ResolveRowExpressions({ plugin }: ResolveRowProps) {
-  const parent = GeneratorInternal.useParent() as LayoutNode;
-  const rowIndex = GeneratorInternal.useRowIndex();
-  const nodeChildren = useNodeDirectChildren(parent as LayoutNode, rowIndex);
+  const node = GeneratorInternal.useParent() as LayoutNode;
+  const rowIndex = GeneratorInternal.useRowIndex()!;
+  const nodeChildren = useNodeDirectChildren(node, rowIndex);
   const firstChild = nodeChildren ? nodeChildren[0] : undefined;
 
+  const internal = NodesInternal.useNodeData(
+    node,
+    (d) => (d.item as unknown as { internal: RepChildrenInternalState } | undefined)?.internal,
+  );
   const item = GeneratorInternal.useIntermediateItem();
   const props = useExpressionResolverProps(firstChild, item as CompExternal, rowIndex);
 
   const def = useDef(item!.type);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const resolvedRowExtras = useMemoDeepEqual(() => (def as CompDef).evalExpressionsForRow(props as any), [def, props]);
+  const extras = useMemoDeepEqual(
+    () => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ...((def as CompDef).evalExpressionsForRow(props as any) ?? {}),
+      ...plugin.addRowProps(internal, rowIndex),
+    }),
+    [def, props, plugin, rowIndex, internal],
+  );
 
-  NodesStateQueue.useSetRowExtras({ node: parent, rowIndex: rowIndex!, plugin, extras: resolvedRowExtras });
+  NodesStateQueue.useSetRowExtras({ node, rowIndex, plugin, extras });
 
   return null;
 }

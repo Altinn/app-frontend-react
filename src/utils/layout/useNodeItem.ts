@@ -101,6 +101,10 @@ export function useNodeDirectChildren(parent: LayoutNode, restriction?: Traversa
     if (readiness !== NodesReadiness.Ready && !insideGenerator && lastValue.current) {
       return lastValue.current;
     }
+    // if (parent.id === 'mainGroup') {
+    //   debugger;
+    // }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const out = parent.def.pickDirectChildren(nodeData as any, restriction);
     if (!insideGenerator) {

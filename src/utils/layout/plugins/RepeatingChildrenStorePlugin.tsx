@@ -9,17 +9,19 @@ import type { NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepChildrenRow, RepeatingChildrenPlugin } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 
+type Plugin = RepeatingChildrenPlugin | LikertRowsPlugin;
+
 export interface SetRowExtrasRequest<T extends CompTypes = CompTypes> {
   node: LayoutNode<T>;
   rowIndex: number;
-  plugin: RepeatingChildrenPlugin;
+  plugin: Plugin;
   extras: unknown;
 }
 
 export interface RepeatingChildrenStorePluginConfig {
   extraFunctions: {
     setRowExtras: (requests: SetRowExtrasRequest[]) => void;
-    removeRow: (node: LayoutNode, plugin: RepeatingChildrenPlugin | LikertRowsPlugin) => void;
+    removeRow: (node: LayoutNode, plugin: Plugin) => void;
   };
   extraHooks: {
     useSetRowExtras: () => RepeatingChildrenStorePluginConfig['extraFunctions']['setRowExtras'];
@@ -39,30 +41,24 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
               throw new Error('Extras must be an object');
             }
 
-            const thisNode = nodeData[node.id];
-            if (!thisNode) {
+            const internalProp = plugin.settings.internalProp;
+            const data = nodeData[node.id];
+            const existingRows = data && data.item && (data.item[internalProp] as RepChildrenRow[] | undefined);
+            if (!existingRows) {
               continue;
             }
 
-            const { internalProp } = plugin.settings;
-            const existingRows = thisNode.item && (thisNode.item[internalProp] as RepChildrenRow[] | undefined);
-            if (!existingRows || !existingRows[rowIndex]) {
-              continue;
-            }
-
-            const existingRow = existingRows ? existingRows[rowIndex] : undefined;
+            const existingRow = existingRows ? existingRows[rowIndex] : {};
             const nextRow = { ...existingRow, ...extras, index: rowIndex } as RepChildrenRow;
-            if (existingRows && existingRow && deepEqual(existingRow, nextRow)) {
+            if (deepEqual(existingRow, nextRow)) {
               continue;
             }
 
-            if (rowIndex !== undefined) {
-              changes = true;
-              const newRows = [...(existingRows || [])];
-              newRows[rowIndex] = nextRow;
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
-            }
+            changes = true;
+            const newRows = [...(existingRows || [])];
+            newRows[rowIndex] = nextRow;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            nodeData[node.id] = { ...data, item: { ...data.item, [internalProp]: newRows } as any };
           }
 
           return changes ? { nodeData, readiness: NodesReadiness.NotReady } : {};

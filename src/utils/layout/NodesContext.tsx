@@ -362,7 +362,10 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
       })),
 
     reset: (validationsProcessedLast: ValidationsProcessedLast) =>
-      set(() => ({ ...structuredClone(defaultState), validationsProcessedLast })),
+      set(() => {
+        generatorLog('logReadiness', 'Resetting state');
+        return { ...structuredClone(defaultState), validationsProcessedLast };
+      }),
 
     waitForCommits: undefined,
     setWaitForCommits: (waitForCommits) => set(() => ({ waitForCommits })),
