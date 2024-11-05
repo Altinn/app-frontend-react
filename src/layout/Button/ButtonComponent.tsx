@@ -6,7 +6,7 @@ import { useProcessNavigation } from 'src/features/instance/ProcessNavigationCon
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
-import { SubmitButton } from 'src/layout/Button/SubmitButton';
+import { WrappedButton } from 'src/layout/Button/WrappedButton';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { ProcessTaskType } from 'src/types';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -67,15 +67,17 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   return (
     <ComponentStructureWrapper node={node}>
       <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
-        <SubmitButton
+        <WrappedButton
           nodeId={node.id}
           onClick={submitTask}
           busyWithId={busyWithId}
           disabled={disabled}
+          color='success'
+          variant='primary'
           message={attachmentsPending ? langAsString('general.wait_for_attachments') : undefined}
         >
           <Lang id={item.textResourceBindings?.title} />
-        </SubmitButton>
+        </WrappedButton>
       </div>
     </ComponentStructureWrapper>
   );

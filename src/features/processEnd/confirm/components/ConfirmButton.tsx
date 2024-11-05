@@ -3,8 +3,7 @@ import React from 'react';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
-import { SubmitButton } from 'src/layout/Button/SubmitButton';
-import type { BaseButtonProps } from 'src/layout/Button/WrappedButton';
+import { type BaseButtonProps, WrappedButton } from 'src/layout/Button/WrappedButton';
 
 type IConfirmButtonProps = Omit<BaseButtonProps, 'onClick'>;
 
@@ -22,14 +21,16 @@ export const ConfirmButton = (props: IConfirmButtonProps) => {
 
   return (
     <div style={{ marginTop: 'var(--button-margin-top)' }}>
-      <SubmitButton
+      <WrappedButton
         {...props}
         busyWithId={processNextBusyId}
         onClick={handleConfirmClick}
         disabled={disabled}
+        color='success'
+        variant='primary'
       >
         <Lang id={'confirm.button_text'} />
-      </SubmitButton>
+      </WrappedButton>
     </div>
   );
 };
