@@ -54,6 +54,10 @@ export class TabsPlugin<Type extends CompTypes>
     return `'${this.component!.type}'`;
   }
 
+  getKey(): string {
+    return 'TabsPlugin';
+  }
+
   claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<Config<Type>>): void {
     for (const tab of (item.tabs || []).values()) {
       for (const child of tab.children.values()) {

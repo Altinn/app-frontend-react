@@ -74,7 +74,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
   }
 
   getKey(): string {
-    return [this.constructor.name, this.settings.externalProp].join('/');
+    return ['NonRepeatingChildrenPlugin', this.settings.externalProp].join('/');
   }
 
   makeConstructorArgs(asGenericArgs = false): string {

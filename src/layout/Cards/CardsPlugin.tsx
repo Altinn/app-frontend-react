@@ -51,6 +51,10 @@ export class CardsPlugin<Type extends CompTypes>
     }
   }
 
+  getKey(): string {
+    return 'CardsPlugin';
+  }
+
   makeGenericArgs(): string {
     return `'${this.component!.type}'`;
   }

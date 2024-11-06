@@ -108,7 +108,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
   }
 
   getKey(): string {
-    return [this.constructor.name, this.settings.externalProp].join('/');
+    return ['RepeatingChildrenPlugin', this.settings.externalProp].join('/');
   }
 
   makeConstructorArgs(asGenericArgs = false): string {
