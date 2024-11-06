@@ -29,10 +29,9 @@ export function useNodeItem<N extends LayoutNode | undefined>(
   selector?: undefined,
 ): N extends undefined ? undefined : NodeItemFromNode<N>;
 // eslint-disable-next-line no-redeclare
-export function useNodeItem(node: never, selector: never): never {
-  const lastItem = useRef<CompInternal | undefined>(undefined);
+export function useNodeItem(node: LayoutNode | undefined, selector: never): unknown {
   const insideGenerator = GeneratorInternal.useIsInsideGenerator();
-  return NodesInternal.useNodeData(node, (data: NodeData, readiness) => {
+  return NodesInternal.useNodeData(node, (data: NodeData, readiness, fullState) => {
     if (insideGenerator) {
       throw new Error(
         'useNodeItem() should not be used inside the node generator, it would most likely just crash when ' +
@@ -45,12 +44,9 @@ export function useNodeItem(node: never, selector: never): never {
     let item: CompInternal | undefined;
     if (readiness === NodesReadiness.Ready && data.item) {
       item = data.item;
-      lastItem.current = item;
-    } else if (lastItem.current) {
-      item = lastItem.current;
-    } else {
-      // This is possibly stale state, or in the process of being updated, but it's better than failing hard.
-      item = data.item;
+    } else if (node) {
+      // The node context is not ready yet, let's select from the previous node state if available.
+      item = fullState.prevNodeData?.[node.id]?.item ?? data.item ?? undefined;
     }
 
     if (!item) {
