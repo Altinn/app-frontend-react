@@ -16,20 +16,20 @@ export interface ButtonProps {
 export type ButtonVariant = Parameters<typeof DesignSystemButton>[0]['variant'];
 export type ButtonColor = Parameters<typeof DesignSystemButton>[0]['color'];
 
-export const Button = ({ children, isLoading = false, ...props }: PropsWithChildren<ButtonProps>) => (
+export const Button = ({ children, isLoading = false, size = 'sm', ...props }: PropsWithChildren<ButtonProps>) => (
   <DesignSystemButton
     id={props.id}
     disabled={props.disabled || isLoading}
     variant={props.variant}
     color={props.color}
-    size={props.size}
+    size={size}
     onClick={props.onClick}
   >
     {isLoading && (
       <Spinner
         aria-hidden='true'
         color={props.color}
-        data-size={props.size}
+        size={size === 'lg' ? 'sm' : 'xs'}
         title='button-spinner-loading'
       />
     )}

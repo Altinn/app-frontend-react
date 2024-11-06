@@ -35,6 +35,8 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
       id={props.node.id}
       onClick={onClick}
       isLoading={isLoading}
+      variant='secondary'
+      color='first'
     >
       {children}
     </Button>
