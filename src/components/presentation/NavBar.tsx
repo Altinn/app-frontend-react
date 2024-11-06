@@ -108,7 +108,6 @@ export const NavBar = ({ type }: INavBarProps) => {
         )}
         {!hideCloseButton && (
           <Button
-            data-testid='form-close-button'
             className={classes.buttonMargin}
             onClick={handleModalCloseButton}
             variant='tertiary'
