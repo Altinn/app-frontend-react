@@ -72,7 +72,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             }
           }
 
-          return changes ? { nodeData, readiness: NodesReadiness.NotReady } : {};
+          return changes ? { nodeData, readiness: NodesReadiness.NotReady, prevNodeData: state.nodeData } : {};
         });
       },
       setRowUuids: (requests) => {
@@ -109,7 +109,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             }
           }
 
-          return changes ? { nodeData, readiness: NodesReadiness.NotReady } : {};
+          return changes ? { nodeData, readiness: NodesReadiness.NotReady, prevNodeData: state.nodeData } : {};
         });
       },
       removeRow: (node, internalProp) => {
@@ -142,7 +142,12 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
 
-          return { nodeData, readiness: NodesReadiness.NotReady, addRemoveCounter: state.addRemoveCounter + 1 };
+          return {
+            nodeData,
+            readiness: NodesReadiness.NotReady,
+            addRemoveCounter: state.addRemoveCounter + 1,
+            prevNodeData: state.nodeData,
+          };
         });
       },
     };

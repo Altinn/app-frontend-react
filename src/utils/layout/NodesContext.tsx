@@ -139,6 +139,7 @@ export type NodesContext = {
   nodes: LayoutPages | undefined;
   pagesData: PagesData;
   nodeData: { [key: string]: NodeData };
+  prevNodeData: { [key: string]: NodeData } | undefined; // Earlier node data from before the state became non-ready
   childrenMap: { [key: string]: string[] | undefined };
   hiddenViaRules: { [key: string]: true | undefined };
   hiddenViaRulesRan: boolean;
@@ -190,6 +191,7 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
       pages: {},
     },
     nodeData: {},
+    prevNodeData: {},
     childrenMap: {},
     hiddenViaRules: {},
     hiddenViaRulesRan: false,
@@ -323,6 +325,7 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
           // We need to mark the data as not ready as soon as an error is added, because GeneratorErrorBoundary
           // may need to remove the failing node from the tree before any more node traversal can happen safely.
           state.readiness = NodesReadiness.NotReady;
+          state.prevNodeData = state.nodeData;
 
           state.hasErrors = true;
         }),
@@ -342,6 +345,7 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
             errors: undefined,
           };
           state.readiness = NodesReadiness.NotReady;
+          state.prevNodeData = state.nodeData;
           state.addRemoveCounter += 1;
         }),
       ),
@@ -362,7 +366,8 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
       set((state) => {
         if (state.readiness !== readiness) {
           generatorLog('logReadiness', `Marking state as ${readiness}: ${reason}`);
-          return { readiness };
+          const prevNodeData = state.readiness === NodesReadiness.Ready ? undefined : state.nodeData;
+          return { readiness, prevNodeData };
         }
         return {};
       }),
@@ -374,6 +379,7 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
 
         return {
           readiness: NodesReadiness.WaitingUntilLastSaveHasProcessed,
+          prevNodeData: state.nodeData,
           validationsProcessedLast: {
             ...state.validationsProcessedLast,
             incremental: result.validationIssues,
@@ -389,7 +395,10 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
       })),
 
     reset: (validationsProcessedLast: ValidationsProcessedLast) =>
-      set(() => ({ ...structuredClone(defaultState), validationsProcessedLast })),
+      set(() => {
+        generatorLog('logReadiness', 'Resetting state');
+        return { ...structuredClone(defaultState), validationsProcessedLast };
+      }),
 
     waitForCommits: undefined,
     setWaitForCommits: (waitForCommits) => set(() => ({ waitForCommits })),
