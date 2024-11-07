@@ -66,7 +66,7 @@ describe('FileUploadComponent', () => {
       const file = new File(['(⌐□_□)'], attachment?.filename || '', { type: attachment.contentType });
 
       const fileInput = screen
-        .getByRole('button', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i })
+        .getByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i })
         .querySelector('input') as HTMLInputElement;
       await userEvent.upload(fileInput, file);
 
@@ -123,7 +123,7 @@ describe('FileUploadComponent', () => {
       });
 
       expect(
-        screen.queryByRole('button', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i }),
+        screen.queryByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i }),
       ).not.toBeInTheDocument();
     });
 
@@ -134,7 +134,7 @@ describe('FileUploadComponent', () => {
       });
 
       expect(
-        screen.getByRole('button', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i }),
+        screen.getByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i }),
       ).toBeInTheDocument();
     });
 
@@ -145,7 +145,7 @@ describe('FileUploadComponent', () => {
       });
 
       expect(
-        screen.queryByRole('button', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i }),
+        screen.queryByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i }),
       ).not.toBeInTheDocument();
     });
   });
@@ -177,7 +177,7 @@ describe('FileUploadWithTagComponent', () => {
       const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
 
       const dropZone = screen
-        .getByRole('button', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i })
+        .getByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i })
         .querySelector('input') as HTMLInputElement;
       await userEvent.upload(dropZone, file);
 
@@ -257,7 +257,7 @@ describe('FileUploadWithTagComponent', () => {
       const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
 
       const dropZone = screen
-        .getByRole('button', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i })
+        .getByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i })
         .querySelector('input') as HTMLInputElement;
       await userEvent.upload(dropZone, file);
 
@@ -318,7 +318,7 @@ describe('FileUploadWithTagComponent', () => {
       });
 
       expect(
-        screen.getByRole('button', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i })
+        screen.getByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i })
           .textContent,
       ).toMatch('Dra og slipp eller let etter filTillatte filformater er: alle');
     });
