@@ -19,16 +19,44 @@ on:
 
 jobs:
   internal:
+    runs-on: ubuntu-latest
     if: |
       github.repository_owner == 'Altinn' &&
       (github.event_name != 'pull_request' && github.event.repository.fork == false) ||
       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
 
+
+  install:
     runs-on: ubuntu-latest
+    needs: internal
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: yarn --immutable
+
+      - name: Cypress install
+        uses: cypress-io/github-action@v6
+        with:
+          # Disable running of tests within install job
+          runTests: false
+          build: yarn run build
+
+      - name: Save build folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          if-no-files-found: error
+          path: dist
+
+  cypress-run:
+    runs-on: ubuntu-latest
+    needs: install
     strategy:
       fail-fast: false
       matrix:
-        machines: [1, 2, 3]
+        containers: [1, 2, 3]
     name: Internal
 
     steps:
@@ -38,29 +66,13 @@ jobs:
       - name: Increase file watchers
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
-      - uses: actions/setup-node@v4
+      - name: Download the build folder
+        uses: actions/download-artifact@v4
         with:
-          node-version: '20'
+          name: build
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
-
-      - uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install dependencies
-        run: yarn --immutable
-
-      - name: Build
-        run: yarn build
-
-      - name: Run tests
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
         env:
           CYPRESS_PROJECT_ID: y2jhp6
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -68,19 +80,16 @@ jobs:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
           PERCY_PARALLEL_TOTAL: 3
           PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
-        run: "
-          npx cypress verify\n
-          bash -c 'yarn serve 8080 >/dev/null &'\n
-          bash -c 'npx percy exec --parallel -- npx cypress run
-            --spec test/e2e/integration
-            --env environment=tt02
-            --record
-            --parallel
-            --tag \"altinn-app-frontend\"
-            --group altinn-app-frontend
-            --browser chrome
-            --ci-build-id $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT'
-        "
+        with:
+          record: true
+          parallel: true
+          group: altinn-app-frontend
+          tag: altinn-app-frontend
+          browser: chrome
+          ci-build-id: ${{ github.run_id }}-${{ github.run_attempt }}
+          spec: test/e2e/integration
+          env: environment=tt02
+          # start: npx cypress run
 
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -138,7 +147,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: redux-state-history
+          name: external-logs
           path: |
             test/logs/*
             test/screenshots/*
