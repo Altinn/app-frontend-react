@@ -13,7 +13,19 @@ export type ButtonProps = {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   icon?: boolean;
-} & Pick<ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label' | 'onClick' | 'style' | 'tabIndex'>;
+} & Pick<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  | 'aria-label'
+  | 'onClick'
+  | 'style'
+  | 'tabIndex'
+  | 'onMouseDown'
+  | 'aria-controls'
+  | 'aria-haspopup'
+  | 'aria-expanded'
+  | 'aria-labelledby'
+  | 'aria-describedby'
+>;
 
 export type ButtonVariant = Parameters<typeof DesignSystemButton>[0]['variant'];
 export type ButtonColor = Parameters<typeof DesignSystemButton>[0]['color'];
@@ -25,13 +37,19 @@ export const Button = ({
   variant = 'primary',
   color, // TODO: set default to 'accent' when design system is updated
   size = 'sm',
-  onClick,
   className,
   icon,
   isLoading = false,
   'aria-label': ariaLabel,
+  'aria-controls': ariaControls,
+  'aria-haspopup': ariaHasPopup,
+  'aria-expanded': ariaExpanded,
+  'aria-labelledby': ariaLabelledBy,
+  'aria-describedby': ariaDescribedBy,
   style,
   tabIndex,
+  onClick,
+  onMouseDown,
   children,
 }: PropsWithChildren<ButtonProps>) => (
   <DesignSystemButton
@@ -41,12 +59,19 @@ export const Button = ({
     variant={variant}
     color={color}
     size={size}
-    onClick={onClick}
     icon={icon}
     className={className}
     aria-label={ariaLabel}
     style={style}
     tabIndex={tabIndex}
+    onClick={onClick}
+    onMouseDown={onMouseDown}
+    aria-busy={isLoading}
+    aria-controls={ariaControls}
+    aria-haspopup={ariaHasPopup}
+    aria-expanded={ariaExpanded}
+    aria-labelledby={ariaLabelledBy}
+    aria-describedby={ariaDescribedBy}
   >
     {isLoading && (
       <Spinner

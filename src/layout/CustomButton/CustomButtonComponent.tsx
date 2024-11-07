@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
 
-import { Button } from '@digdir/designsystemet-react';
 import { useMutation } from '@tanstack/react-query';
 
+import { Button } from 'src/app-components/button/Button';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -214,8 +214,27 @@ export const buttonStyles: { [style in CBTypes.ButtonStyle]: { color: ButtonColo
   secondary: { variant: 'secondary', color: 'first' },
 };
 
+function toShorthandSize(size?: CBTypes.ButtonSize): 'sm' | 'md' | 'lg' | undefined {
+  if (!size) {
+    return undefined;
+  }
+
+  switch (size) {
+    case 'sm':
+    case 'small':
+      return 'sm';
+    case 'md':
+    case 'medium':
+      return 'md';
+    case 'lg':
+    case 'large':
+      return 'lg';
+  }
+}
+
 export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, actions, id, buttonColor, buttonSize, buttonStyle } = useNodeItem(node);
+
   const lockTools = FD.useLocking(id);
   const { isAuthorized } = useActionAuthorization();
   const { handleClientActions } = useHandleClientActions();
@@ -275,10 +294,10 @@ export const CustomButtonComponent = ({ node }: Props) => {
         id={`custom-button-${id}`}
         disabled={disabled}
         onClick={onClick}
-        size={buttonSize}
+        size={toShorthandSize(buttonSize)}
         color={buttonColor ?? style.color}
         variant={style.variant}
-        aria-busy={isPending}
+        isLoading={isPending}
       >
         <Lang id={buttonText} />
       </Button>

@@ -37,7 +37,6 @@ export function ActionButtonComponent({ node }: IActionButton) {
   return (
     <ComponentStructureWrapper node={node}>
       <Button
-        size='sm'
         id={`action-button-${id}`}
         variant={variant}
         color={color}

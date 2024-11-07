@@ -73,7 +73,6 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
           isLoading={busyWithId === node.id}
           disabled={disabled || !!busyWithId}
           color='success'
-          variant='primary'
         >
           <Lang id={item.textResourceBindings?.title} />
         </Button>
