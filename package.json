@@ -23,7 +23,7 @@
     "test:clear-cache": "jest --clearCache",
     "cy:open": "cypress open --env environment=tt02",
     "cy:run": "cypress run --env environment=tt02",
-    "cy:parallel": "cypress-parallel -s cy:run -t 3 -d test/e2e/integration/frontend-test",
+    "cy:parallel": "cypress-parallel -s cy:run -t 3 -d test/e2e/integration",
     "tsc": "yarn gen && tsc && tsc --project test/tsconfig.json",
     "tsc:watch": "yarn gen && tsc --watch",
     "tsc:watch:cypress": "yarn gen && tsc --watch --project test/tsconfig.json",

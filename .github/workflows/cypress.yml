@@ -71,11 +71,8 @@ jobs:
         run: "
           npx cypress verify\n
           bash -c 'yarn serve 8080 >/dev/null &'\n
-          bash -c 'npx percy exec --parallel -- npx cypress run
-            --spec test/e2e/integration
-            --env environment=tt02
+          bash -c 'npx percy exec -- yarn run cy:parallel -a
             --record
-            --parallel
             --tag \"altinn-app-frontend\"
             --group altinn-app-frontend
             --browser chrome
