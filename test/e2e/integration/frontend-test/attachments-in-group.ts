@@ -36,7 +36,7 @@ describe('Repeating group attachments', () => {
 
   beforeEach(() => {
     cy.goto('group');
-    cy.get(appFrontend.nextButton).click();
+    cy.findByRole('button', { name: /Neste/ }).click();
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     addNewRow();
     gotoSecondPage();
@@ -75,9 +75,10 @@ describe('Repeating group attachments', () => {
     const attachment = item.attachments(idx);
     if (attachment.tagSelector !== undefined && attachment.tagSave !== undefined) {
       cy.dsSelect(attachment.tagSelector, 'Altinn');
-      // cy.findByRole('option', { name: 'Altinn' }).click();
-      cy.findByRole('button', { name: 'Lagre 1234' }).click();
-      cy.get(attachment.tagSave).click();
+      cy.findByRole('option', { name: 'Altinn' }).click();
+      cy.get('save-button-subGroup-0').click();
+      // cy.findByRole('button', { name: 'save-button-subGroup-0' }).click();
+      // cy.get(attachment.tagSave).click();
     }
 
     cy.get(attachment.status).should('contain.text', texts.finishedUploading);

@@ -13,6 +13,7 @@ export type ButtonProps = {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   icon?: boolean;
+  ref?: React.RefObject<HTMLButtonElement>;
 } & Pick<
   ButtonHTMLAttributes<HTMLButtonElement>,
   | 'aria-label'
@@ -46,6 +47,7 @@ export const Button = ({
   'aria-expanded': ariaExpanded,
   'aria-labelledby': ariaLabelledBy,
   'aria-describedby': ariaDescribedBy,
+  ref,
   style,
   tabIndex,
   onClick,
@@ -72,6 +74,7 @@ export const Button = ({
     aria-expanded={ariaExpanded}
     aria-labelledby={ariaLabelledBy}
     aria-describedby={ariaDescribedBy}
+    ref={ref}
   >
     {isLoading && (
       <Spinner

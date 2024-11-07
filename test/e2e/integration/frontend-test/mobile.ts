@@ -114,7 +114,7 @@ function testListMobile() {
     cy.findByRole('radio', { name: /caroline/i }).check();
     cy.findByRole('radio', { name: /caroline/i }).should('be.checked');
   });
-  cy.get(appFrontend.nextButton).click();
+  cy.findByRole('button', { name: /Neste/ }).click();
   sendIn();
 }
 
@@ -123,7 +123,7 @@ function testListTablet() {
     cy.findByRole('row', { name: /caroline/i }).click();
     cy.findByRole('radio', { name: /caroline/i }).should('be.checked');
   });
-  cy.get(appFrontend.nextButton).click();
+  cy.findByRole('button', { name: /Neste/ }).click();
   sendIn();
 }
 

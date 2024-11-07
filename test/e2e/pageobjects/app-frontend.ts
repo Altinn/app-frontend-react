@@ -37,7 +37,6 @@ export class AppFrontend {
   //Common
   public loadingAnimation = 'rect[role="presentation"]';
   public header = '#main-content > header';
-  public backButton = '[data-testid="form-back-button"]';
   public attachmentIcon = '.reg-attachment';
   public sendinButton = '#sendInButton';
   public instantiationButton = '#instantiation-button';
@@ -63,7 +62,6 @@ export class AppFrontend {
   public navMobileMenu = 'nav[data-testid=NavigationBar] button';
   public navButtons = '[data-testid=NavigationButtons]';
   public startAgain = '#startAgain';
-  public nextButton = `[data-testid=NavigationButtons] button:contains("${texts.next}")`;
   public prevButton = `[data-testid=NavigationButtons] button:contains("${texts.prev}")`;
   public backToSummaryButton = `[data-testid=NavigationButtons] button:contains("${texts.backToSummary}")`;
 
@@ -179,8 +177,7 @@ export class AppFrontend {
     mobilenummer: '#mobilnummer',
     sources: '#sources',
     uploadingAnimation: '[id*="loader"]',
-    popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
-    popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
+    deleteAttachment: '[data-testid^="attachment-delete"]',
     uploadedTable: '#file-upload-table',
     downloadAttachment: '[data-testid="attachment-download"]',
     fileUploadSuccess: '[data-testid="status-success"]',
@@ -232,8 +229,6 @@ export class AppFrontend {
     options: '#reduxOptions',
     optionsDynamic: '#reduxOptions-expressions',
     hideRepeatingGroupRow: '#hideRepeatingGroupRow',
-    popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
-    popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
     edit: '[data-testid=edit-button]',
     delete: '[data-testid=delete-button]',
     hideCommentField: '[id^="hideComment"]',

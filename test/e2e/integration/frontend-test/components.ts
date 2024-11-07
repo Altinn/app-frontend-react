@@ -84,8 +84,10 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.fileUploadSuccess).should('exist');
     cy.snapshot('components:attachment');
-    cy.findByRole('button', { name: /slett/i }).click();
-    cy.findByRole('button', { name: /slett/i }).should('not.exist');
+    cy.get(appFrontend.changeOfName.deleteAttachment).click();
+    cy.get(appFrontend.changeOfName.deleteAttachment).should('not.exist');
+    // cy.findByRole('button', { name: /slett/i }).click();
+    // cy.findByRole('button', { name: /slett/i }).should('not.exist');
     cy.get('[role=alert]').should('not.exist');
   });
 
@@ -556,15 +558,15 @@ describe('UI Components', () => {
 
     cy.get('#form-content-button-group1').within(() => {
       cy.get(appFrontend.printButton).should('be.visible');
-      cy.get(appFrontend.nextButton).should('be.visible');
+      cy.findByRole('button', { name: /Neste/ }).should('be.visible');
     });
 
     // Check that the buttons are moved inside the error paper
-    cy.get(appFrontend.nextButton).click();
+    cy.findByRole('button', { name: /Neste/ }).click();
     cy.get(appFrontend.errorReport).within(() => {
       cy.get('#form-content-button-group1').within(() => {
         cy.get(appFrontend.printButton).should('be.visible');
-        cy.get(appFrontend.nextButton).should('be.visible');
+        cy.findByRole('button', { name: /Neste/ }).should('be.visible');
       });
     });
   });

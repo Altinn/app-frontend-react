@@ -10,7 +10,7 @@ const mui = new Common();
 describe('Group', () => {
   const init = () => {
     cy.goto('group');
-    cy.get(appFrontend.nextButton).click();
+    cy.findByRole('button', { name: /Neste/ }).click();
     cy.get(appFrontend.group.showGroupToContinue).should('be.visible');
   };
 
@@ -178,7 +178,7 @@ describe('Group', () => {
       cy.get(appFrontend.group.saveMainGroup).clickAndGone();
 
       if (parseInt(idx) < rowsToAdd.length - 1) {
-        cy.get(appFrontend.nextButton).click();
+        cy.findByRole('button', { name: /Neste/ }).click();
         cy.get(appFrontend.fieldValidation('mainGroup')).should('have.text', texts.minCountError);
       } else {
         cy.get(appFrontend.fieldValidation('mainGroup')).should('not.exist');
@@ -186,7 +186,7 @@ describe('Group', () => {
     }
 
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).first().click();
-    cy.get(appFrontend.nextButton).click();
+    cy.findByRole('button', { name: /Neste/ }).click();
     cy.get(appFrontend.fieldValidation('mainGroup')).should('have.text', texts.minCountError);
   });
 
@@ -257,7 +257,7 @@ describe('Group', () => {
     expectRows();
 
     function checkPrefills(items: { [key in keyof typeof appFrontend.group.prefill]?: boolean }) {
-      cy.get(appFrontend.prevButton).click();
+      cy.findByRole('button', { name: /Tilbake/ }).click();
       for (const item of Object.keys(items)) {
         if (items[item] === true) {
           cy.get(appFrontend.group.prefill[item]).check();
@@ -265,7 +265,7 @@ describe('Group', () => {
           cy.get(appFrontend.group.prefill[item]).uncheck();
         }
       }
-      cy.get(appFrontend.nextButton).click();
+      cy.findByRole('button', { name: /Neste/ }).click();
     }
 
     checkPrefills({ liten: true });
@@ -448,18 +448,18 @@ describe('Group', () => {
     cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
     cy.snapshot('group: delete-warning-popup');
 
-    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverCancelButton).click({ force: true });
+    cy.findByRole('button', { name: 'Avbryt' }).click({ force: true });
     cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
-    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverDeleteButton).click({ force: true });
+    cy.findByRole('button', { name: /Ja, slett raden/ }).click({ force: true });
 
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').should('have.length', 0);
 
     // Navigate to main group and test delete warning popup cancel and confirm
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.back).click();
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).click();
-    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.popOverCancelButton).click();
+    cy.findByRole('button', { name: 'Avbryt' }).click();
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).click();
-    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.popOverDeleteButton).click();
+    cy.findByRole('button', { name: /Ja, slett raden/ }).click();
 
     cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
   });
@@ -583,7 +583,7 @@ describe('Group', () => {
 
   it('should be able to customize the add button in repeating groups', () => {
     cy.goto('group');
-    cy.get(appFrontend.nextButton).click();
+    cy.findByRole('button', { name: /Neste/ }).click();
     cy.changeLayout((c) => {
       if (c.type === 'RepeatingGroup' && c.id === 'mainGroup' && c.textResourceBindings) {
         c.textResourceBindings.add_button_full = 'Hello World';
