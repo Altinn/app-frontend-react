@@ -1,9 +1,6 @@
-import { useMemo } from 'react';
-
 import { createHookContext } from 'src/core/contexts/hookContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
-import { useAttachmentsSelector } from 'src/features/attachments/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { useCurrentLayoutSet } from 'src/features/form/layoutSets/useCurrentLayoutSet';
@@ -12,7 +9,7 @@ import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
-import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
+import { useShallowObjectMemo } from 'src/hooks/useShallowObjectMemo';
 import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import { useInnerNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
@@ -37,8 +34,8 @@ export const GeneratorData = {
 function useExpressionDataSources(): ExpressionDataSources {
   const formDataSelector = FD.useDebouncedSelector();
   const formDataRowsSelector = FD.useDebouncedRowsSelector();
-  const attachmentsSelector = useAttachmentsSelector();
-  const optionsSelector = useNodeOptionsSelector();
+  const attachmentsSelector = NodesInternal.useAttachmentsSelector();
+  const optionsSelector = NodesInternal.useNodeOptionsSelector();
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
 
   const process = useLaxProcessData();
@@ -61,44 +58,23 @@ function useExpressionDataSources(): ExpressionDataSources {
     nodeDataSelector,
   );
 
-  return useMemo(
-    () => ({
-      formDataSelector,
-      formDataRowsSelector,
-      attachmentsSelector,
-      process,
-      optionsSelector,
-      applicationSettings,
-      instanceDataSources,
-      langToolsSelector,
-      currentLanguage,
-      isHiddenSelector,
-      nodeFormDataSelector,
-      nodeDataSelector,
-      nodeTraversal,
-      transposeSelector,
-      currentLayoutSet,
-      externalApis,
-      dataModelNames,
-    }),
-    [
-      formDataSelector,
-      formDataRowsSelector,
-      attachmentsSelector,
-      process,
-      optionsSelector,
-      applicationSettings,
-      instanceDataSources,
-      langToolsSelector,
-      currentLanguage,
-      isHiddenSelector,
-      nodeFormDataSelector,
-      nodeDataSelector,
-      nodeTraversal,
-      transposeSelector,
-      currentLayoutSet,
-      externalApis,
-      dataModelNames,
-    ],
-  );
+  return useShallowObjectMemo({
+    formDataSelector,
+    formDataRowsSelector,
+    attachmentsSelector,
+    process,
+    optionsSelector,
+    applicationSettings,
+    instanceDataSources,
+    langToolsSelector,
+    currentLanguage,
+    isHiddenSelector,
+    nodeFormDataSelector,
+    nodeDataSelector,
+    nodeTraversal,
+    transposeSelector,
+    currentLayoutSet,
+    externalApis,
+    dataModelNames,
+  });
 }
