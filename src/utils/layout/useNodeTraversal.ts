@@ -93,13 +93,6 @@ export class TraversalTask {
   public addRestriction(restriction: TraversalRestriction | undefined): TraversalTask {
     return new TraversalTask(this.state, this.rootNode, this.matcher, restriction);
   }
-
-  /**
-   * Convert this task and remove any restrictions and matchers
-   */
-  public removeRestrictions(): TraversalTask {
-    return new TraversalTask(this.state, this.rootNode, undefined, undefined);
-  }
 }
 
 export class NodeTraversal<T extends Node = LayoutPages> {
