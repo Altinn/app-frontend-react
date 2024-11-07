@@ -93,7 +93,7 @@ function pickFirstNodes(
     (picker) =>
       picker(node)
         ?.item?.rows.filter(typedBoolean)
-        .map((row) => row.itemIds[0]) ?? [],
+        .map((row) => row && row.itemIds && row.itemIds[0]) ?? [],
     [node],
   );
 
