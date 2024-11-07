@@ -203,10 +203,7 @@ export class NodeTraversal<T extends Node = LayoutPages> {
       throw new Error('Cannot call findById() on a LayoutNode object');
     }
 
-    return (this.target as LayoutPage | LayoutPages).findById(
-      new TraversalTask(this.state, this.rootNode, undefined, undefined),
-      id,
-    );
+    return this.rootNode.findById(id);
   }
 }
 
