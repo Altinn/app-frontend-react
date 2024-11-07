@@ -54,7 +54,7 @@ describe('UI Components', () => {
     }).as('uploadWithDelay');
 
     cy.goto('changename');
-    cy.findByRole('button', {
+    cy.findByRole('presentation', {
       name: /Last opp eventuell dokumentasjon for ditt nye navn/i,
     }).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
@@ -77,15 +77,15 @@ describe('UI Components', () => {
       }
     });
     cy.goto('changename');
-    cy.findByRole('button', {
+    cy.findByRole('presentation', {
       name: /Last opp eventuell dokumentasjon for ditt nye navn/i,
     }).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.fileUploadSuccess).should('exist');
     cy.snapshot('components:attachment');
-    cy.get(appFrontend.changeOfName.deleteAttachment).click();
-    cy.get(appFrontend.changeOfName.deleteAttachment).should('not.exist');
+    cy.findByRole('button', { name: /slett/i }).click();
+    cy.findByRole('button', { name: /slett/i }).should('not.exist');
     cy.get('[role=alert]').should('not.exist');
   });
 
@@ -97,7 +97,7 @@ describe('UI Components', () => {
       });
     }).as('uploadWithDelay');
 
-    cy.findByRole('button', {
+    cy.findByRole('presentation', {
       name: /Last opp eventuell dokumentasjon for ditt nye navn/i,
     }).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
@@ -199,11 +199,11 @@ describe('UI Components', () => {
     for (const { uploader, shouldExist } of components) {
       cy.get(uploader).selectFile('test/e2e/fixtures/test.pdf', { force: true });
       cy.get(appFrontend.changeOfName.fileUploadSuccess).should('exist');
-      cy.get(appFrontend.changeOfName.deleteAttachment).click();
-      cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+      cy.findByRole('button', { name: /slett/i }).click();
+      cy.findByRole('button', { name: /avbryt/i }).click();
       cy.get(shouldExist).should('exist');
-      cy.get(appFrontend.changeOfName.deleteAttachment).click();
-      cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+      cy.findByRole('button', { name: /slett/i }).click();
+      cy.findByRole('button', { name: /ja, slett vedlegg/i }).click();
       cy.get(shouldExist).should('not.exist');
     }
   });
@@ -408,11 +408,11 @@ describe('UI Components', () => {
     cy.findByRole('radio', { name: /Gårdsbruk/ }).check();
     //makes sure that textresources from active radiobutton are displayed in the alert dialog
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil endre fra Slektskap?');
-    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.findByRole('button', { name: /Avbryt/ }).click();
     cy.findByRole('radio', { name: /Slektskap/ }).should('be.checked');
 
     cy.findByRole('radio', { name: /Gårdsbruk/ }).check();
-    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.findByRole('button', { name: /Bekreft/ }).click();
     cy.findByRole('radio', { name: /Gårdsbruk/ }).should('be.checked');
   });
 
@@ -430,13 +430,13 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.sources).click();
     cy.findByRole('option', { name: /digitaliseringsdirektoratet/i }).click();
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil endre til Digitaliseringsdirektoratet?');
-    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.findByRole('button', { name: /Avbryt/ }).click();
     cy.get(appFrontend.changeOfName.sources).should('have.value', 'Altinn');
 
     cy.get(appFrontend.changeOfName.sources).click();
     cy.findByRole('option', { name: /digitaliseringsdirektoratet/i }).click();
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil endre til Digitaliseringsdirektoratet?');
-    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.findByRole('button', { name: /Bekreft/ }).click();
     cy.get(appFrontend.changeOfName.sources).should('have.value', 'Digitaliseringsdirektoratet');
   });
 
@@ -463,24 +463,24 @@ describe('UI Components', () => {
 
     cy.findByRole('button', { name: /slett grønn/i, hidden: true }).click();
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil slette Grønn?');
-    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.findByRole('button', { name: /Avbryt/ }).click();
     cy.findByRole('button', { name: /slett grønn/i, hidden: true }).should('be.visible');
 
     cy.findByRole('button', { name: /slett gul/i, hidden: true }).click();
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil slette Gul?');
-    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.findByRole('button', { name: /Bekreft/ }).click();
     cy.findByRole('button', { name: /slett gul/i, hidden: true }).should('not.exist');
 
     cy.findByRole('button', { name: /fjern alle valgte/i, hidden: true }).click();
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil slette Blå, Cyan, Grønn?');
-    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.findByRole('button', { name: /Avbryt/ }).click();
     cy.findByRole('button', { name: /slett blå/i, hidden: true }).should('be.visible');
     cy.findByRole('button', { name: /slett cyan/i, hidden: true }).should('be.visible');
     cy.findByRole('button', { name: /slett grønn/i, hidden: true }).should('be.visible');
 
     cy.findByRole('button', { name: /fjern alle valgte/i, hidden: true }).click();
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil slette Blå, Cyan, Grønn?');
-    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.findByRole('button', { name: /Bekreft/ }).click();
     cy.findByRole('button', { name: /slett blå/i, hidden: true }).should('not.exist');
     cy.findByRole('button', { name: /slett cyan/i, hidden: true }).should('not.exist');
     cy.findByRole('button', { name: /slett grønn/i, hidden: true }).should('not.exist');
@@ -497,10 +497,10 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.newFirstName).type('Per');
     cy.get(appFrontend.changeOfName.newFirstName).blur();
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').dblclick();
-    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.findByRole('button', { name: /Avbryt/ }).click();
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
-    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.findByRole('button', { name: /Bekreft/ }).click();
     cy.get(appFrontend.changeOfName.reasons).should('not.exist');
   });
 
