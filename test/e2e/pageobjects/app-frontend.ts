@@ -179,7 +179,6 @@ export class AppFrontend {
     mobilenummer: '#mobilnummer',
     sources: '#sources',
     uploadingAnimation: '[id*="loader"]',
-    deleteAttachment: '[data-testid^="attachment-delete"]',
     popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
     popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
     uploadedTable: '#file-upload-table',

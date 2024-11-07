@@ -97,6 +97,7 @@ function fillOutGroup() {
   cy.wait('@upload');
   cy.waitUntilNodesReady();
   cy.dsSelect(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector!, 'Altinn');
+  cy.findByRole('button', { name: 'Lagre' }).click();
   cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSave!).click();
   cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector!).should('not.exist');
 
