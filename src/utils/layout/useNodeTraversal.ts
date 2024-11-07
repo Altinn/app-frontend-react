@@ -52,7 +52,7 @@ export class TraversalTask {
    * Get the node object for a given ID
    */
   public getNode(id: string): LayoutNode | undefined {
-    return this.state.nodes?.findById(this.removeRestrictions(), id);
+    return this.state.nodes?.findById(id);
   }
 
   /**
