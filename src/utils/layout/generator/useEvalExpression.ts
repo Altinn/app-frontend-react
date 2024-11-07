@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
 import { ExprValidation } from 'src/features/expressions/validation';
+import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { ExprConfig, ExprVal, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -43,7 +43,7 @@ export function useEvalExpression<V extends ExprVal>(
   defaultValue: ExprValToActual<V>,
   enabled = true,
 ) {
-  const allDataSources = useExpressionDataSources();
+  const allDataSources = GeneratorData.useExpressionDataSources();
 
   return useMemo(() => {
     if (!enabled) {

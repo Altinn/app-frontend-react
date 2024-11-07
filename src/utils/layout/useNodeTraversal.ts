@@ -310,6 +310,13 @@ function throwOrReturn<R>(value: R, strictness: Strictness) {
  */
 function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: Strict) {
   const nodes = useNodesLax();
+  return useInnerNodeTraversalSelectorProto(strictness, nodes);
+}
+
+function useInnerNodeTraversalSelectorProto<Strict extends Strictness>(
+  strictness: Strict,
+  nodes: ReturnType<typeof useNodesLax>,
+) {
   const selectState = NodesInternal.useDataSelectorForTraversal();
 
   return useCallback(
@@ -334,6 +341,10 @@ function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: St
 
 export function useNodeTraversalSelector() {
   return useNodeTraversalSelectorProto(Strictness.throwError);
+}
+
+export function useInnerNodeTraversalSelector(nodes: ReturnType<typeof useNodesLax>) {
+  return useInnerNodeTraversalSelectorProto(Strictness.throwError, nodes);
 }
 
 export type NodeTraversalSelector = ReturnType<typeof useNodeTraversalSelector>;

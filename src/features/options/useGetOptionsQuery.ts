@@ -8,7 +8,7 @@ import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
 import { resolveQueryParameters } from 'src/features/options/evalQueryParameters';
-import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
@@ -45,7 +45,7 @@ export const useGetOptionsUrl = (
   const mappingResult = FD.useMapping(mapping);
   const language = useCurrentLanguage();
   const instanceId = useLaxInstanceId();
-  const dataSources = useExpressionDataSources();
+  const dataSources = GeneratorData.useExpressionDataSources();
   const resolvedQueryParameters = resolveQueryParameters(queryParameters, node, dataSources);
 
   return optionsId

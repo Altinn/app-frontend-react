@@ -36,6 +36,7 @@ import { getComponentDef } from 'src/layout';
 import { useGetAwaitingCommits } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorGlobalProvider, GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import {
   createStagesStore,
   GeneratorStages,
@@ -487,7 +488,9 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => {
       <ProvideGlobalContext registry={registry}>
         <GeneratorStagesEffects />
         <GeneratorValidationProvider>
-          <LayoutSetGenerator />
+          <GeneratorData.Provider>
+            <LayoutSetGenerator />
+          </GeneratorData.Provider>
         </GeneratorValidationProvider>
         <MarkAsReady />
         {window.Cypress && <UpdateAttachmentsForCypress />}
@@ -947,6 +950,9 @@ export const Hidden = {
   },
   useIsHiddenSelector() {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
+    return Hidden.useInnerIsHiddenSelector(forcedVisibleByDevTools);
+  },
+  useInnerIsHiddenSelector(forcedVisibleByDevTools: boolean) {
     return Store.useDelayedSelector({
       mode: 'simple',
       selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
