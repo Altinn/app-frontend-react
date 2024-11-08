@@ -29,6 +29,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: List all files
+        run: ls -R
+
       - name: Install dependencies
         run: yarn --immutable
 
@@ -38,9 +41,6 @@ jobs:
           # Disable running of tests within install job
           runTests: false
           build: yarn run build
-
-      - name: List all files
-        run: ls -R
 
       - name: List all files in dist
         run: ls -R dist
@@ -63,6 +63,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            test
+            .yarn
 
       - name: Increase file watchers
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
