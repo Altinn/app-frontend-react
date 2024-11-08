@@ -447,7 +447,7 @@ describe('Validation', () => {
 
     // These components are not editable in the table yet, so even though the edit button
     // is gone now, they're not to be found.
-    cy.get(appFrontend.group.edit).should('not.exist');
+    cy.findByRole('button', { name: /Rediger/ }).should('not.exist');
     cy.get(appFrontend.group.row(0).currentValue).should('not.exist');
     cy.get(appFrontend.group.row(2).currentValue).should('not.exist');
     cy.get(appFrontend.group.row(0).newValue).should('not.exist');

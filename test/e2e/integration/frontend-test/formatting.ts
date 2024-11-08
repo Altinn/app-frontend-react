@@ -73,7 +73,7 @@ describe('Formatting', () => {
 
       for (const lang of ['en', 'nb'] as const) {
         changeToLang(lang);
-        cy.get(appFrontend.group.edit).click();
+        cy.findByRole('button', { name: /Rediger/ }).click();
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces(expected[lang]);
         cy.get(appFrontend.group.saveMainGroup).clickAndGone();
         cy.findByText(expected[lang]);

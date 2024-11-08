@@ -71,11 +71,11 @@ describe('Group', () => {
       cy.addItemToGroup(1, 2, 'automation', openByDefault);
       cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').first().should('have.text', 'NOK 1');
       cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').eq(1).should('have.text', 'NOK 2');
-      cy.get(appFrontend.group.mainGroup).find(appFrontend.group.edit).click();
+      cy.findByRole('button', { name: 'Rediger NOK 1' }).click();
       cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
       cy.get(appFrontend.group.subGroup).find('td').first().invoke('text').should('equal', 'automation');
-      cy.get(appFrontend.group.subGroup).find(appFrontend.group.edit).click();
-      cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
+      cy.findByRole('button', { name: 'Rediger automation' }).click();
+      cy.findByRole('button', { name: 'Slett-automation' }).click();
 
       // This test used to make sure deleted rows were re-added automatically, but that is no longer the case.
       cy.get(appFrontend.group.subGroup).find(mui.tableElement).should('have.length', 0);
@@ -83,7 +83,7 @@ describe('Group', () => {
       cy.get(appFrontend.group.comments).should('not.exist');
 
       cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.back).click();
-      cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).click();
+      cy.findByRole('button', { name: 'Slett-NOK 1' }).click();
 
       cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
       cy.get(appFrontend.group.saveMainGroup).should('not.exist');
@@ -949,7 +949,7 @@ describe('Group', () => {
     showSomeRows();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 2);
     assertGroupLabelAsCaption(2);
-    cy.get(appFrontend.group.edit).should('not.exist');
+    cy.findByRole('button', { name: /Rediger/ }).should('not.exist');
 
     hideAllRows();
     assertGroupLabelAsCaption(0);
