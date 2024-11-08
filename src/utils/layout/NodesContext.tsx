@@ -871,7 +871,7 @@ export function isHidden(
   }
 
   const id = typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id;
-  const node = state.nodes?.findById(new TraversalTask(state, state.nodes, undefined, undefined), id);
+  const node = state.nodes?.findById(id);
   const hidden = state.nodeData[id]?.hidden;
   if (hidden === undefined) {
     return undefined;

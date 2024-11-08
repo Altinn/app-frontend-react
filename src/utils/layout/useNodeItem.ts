@@ -5,7 +5,6 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { getComponentDef } from 'src/layout';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal, NodesReadiness } from 'src/utils/layout/NodesContext';
-import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 import { typedBoolean } from 'src/utils/typing';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector } from 'src/layout';
@@ -131,9 +130,7 @@ export function useNodeDirectChildren(parent: LayoutNode, restriction?: Traversa
       return emptyArray;
     }
 
-    const nodes = out
-      .map((id) => rootNode.findById(new TraversalTask(fullState, rootNode, undefined, undefined), id))
-      .filter(typedBoolean);
+    const nodes = out.map((id) => rootNode.findById(id)).filter(typedBoolean);
 
     lastValue.current = nodes;
     return nodes ?? emptyArray;
