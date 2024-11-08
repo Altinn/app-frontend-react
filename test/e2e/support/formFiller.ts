@@ -124,7 +124,7 @@ function fillOutLikert() {
 
 function fillOutList() {
   cy.get(dataListPage.tableBody).contains('Caroline').closest('tr').click();
-  cy.findByRole('button', { name: /Neste side i tabell/ }).click();
+  cy.findByRole('button', { name: 'Neste' }).click();
 }
 
 const functionMap: { [key in FillableFrontendTasks]: () => void } = {
