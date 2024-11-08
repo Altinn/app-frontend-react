@@ -61,9 +61,9 @@ function NodeRepeatingChildrenWorker({
   );
 
   return (
-    <>
+    <GeneratorRunProvider>
       {Array.from({ length: numRows }).map((_, index) => (
-        <GeneratorRunProvider key={index}>
+        <div key={index}>
           <GenerateRow
             rowIndex={index}
             groupBinding={groupBinding}
@@ -72,9 +72,9 @@ function NodeRepeatingChildrenWorker({
             internalProp={internalProp}
             pluginKey={pluginKey}
           />
-        </GeneratorRunProvider>
+        </div>
       ))}
-    </>
+    </GeneratorRunProvider>
   );
 }
 
