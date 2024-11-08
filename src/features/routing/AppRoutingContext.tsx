@@ -33,9 +33,9 @@ interface Context {
   navigateRef: MutableRefObject<ReturnType<typeof useNativeNavigate>>;
 }
 
-function newStore() {
+function newStore({ initialLocation }: { initialLocation: string | undefined }) {
   return createStore<Context>((set) => ({
-    hash: `${window.location.hash}`,
+    hash: initialLocation ? initialLocation : `${window.location.hash}`,
     updateHash: (hash: string) => set({ hash }),
     effectCallback: null,
     setEffectCallback: (effectCallback: NavigationEffectCb) => set({ effectCallback }),
@@ -44,13 +44,13 @@ function newStore() {
   }));
 }
 
-const { Provider, useSelector, useStaticSelector, useMemoSelector } = createZustandContext<ReturnType<typeof newStore>>(
-  {
-    name: 'AppRouting',
-    required: true,
-    initialCreateStore: newStore,
-  },
-);
+const { Provider, useSelector, useStaticSelector, useMemoSelector, useStore } = createZustandContext<
+  ReturnType<typeof newStore>
+>({
+  name: 'AppRouting',
+  required: true,
+  initialCreateStore: newStore,
+});
 
 /**
  * This provider is responsible for keeping track of the URL (hash) and providing hooks to read it. It fixes a
@@ -70,8 +70,12 @@ const { Provider, useSelector, useStaticSelector, useMemoSelector } = createZust
  * the wrong state (and thus rendered the wrong thing) at first, only to correct itself after the useEffect had run.
  */
 export function AppRoutingProvider({ children }: PropsWithChildren) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const location = window.inUnitTest ? useLocation() : undefined;
+  const initialLocation = location ? location.pathname + location.search : undefined;
+
   return (
-    <Provider>
+    <Provider initialLocation={initialLocation}>
       <UpdateHash />
       <UpdateNavigate />
       {children}
@@ -79,12 +83,14 @@ export function AppRoutingProvider({ children }: PropsWithChildren) {
   );
 }
 
-function getPath(): string {
-  return window.location.hash.slice(1).split('?')[0];
+function getPath(hashFromState: string): string {
+  const hash = window.inUnitTest ? `#${hashFromState}` : window.location.hash;
+  return hash.slice(1).split('?')[0];
 }
 
-function getSearch(): string {
-  return window.location.hash.split('?')[1] ?? '';
+function getSearch(hashFromState: string): string {
+  const hash = window.inUnitTest ? hashFromState : window.location.hash;
+  return hash.split('?')[1] ?? '';
 }
 
 /**
@@ -99,30 +105,31 @@ class OnDemandRef<T> {
   }
 }
 
-function useStaticRef<T>(getter: () => T) {
-  return new OnDemandRef(getter) as { current: T };
+function useStaticRef<T>(getter: (state: Context) => T) {
+  const store = useStore();
+  return new OnDemandRef(() => getter(store.getState())) as { current: T };
 }
 
-export const useQueryKeysAsStringAsRef = () => useStaticRef(() => getSearch());
-export const useAllNavigationParamsAsRef = () => useStaticRef(() => matchParams(getPath()));
+export const useQueryKeysAsStringAsRef = () => useStaticRef((s) => getSearch(s.hash));
+export const useAllNavigationParamsAsRef = () => useStaticRef((s) => matchParams(getPath(s.hash)));
 
 export const useNavigationParam = <T extends keyof PathParams>(key: T) =>
-  useSelector(() => {
-    const path = getPath();
+  useSelector((s) => {
+    const path = getPath(s.hash);
     const matches = matchers.map((matcher) => matchPath(matcher, path));
     return paramFrom(matches, key) as PathParams[T];
   });
 
-export const useNavigationPath = () => useSelector(() => getPath());
-export const useNavigationParams = () => useMemoSelector(() => matchParams(getPath()));
+export const useNavigationPath = () => useSelector((s) => getPath(s.hash));
+export const useNavigationParams = () => useMemoSelector((s) => matchParams(getPath(s.hash)));
 export const useNavigationEffect = () => useSelector((ctx) => ctx.effectCallback);
 export const useSetNavigationEffect = () => useSelector((ctx) => ctx.setEffectCallback);
-export const useQueryKeysAsString = () => useSelector(() => getSearch());
-export const useQueryKey = (key: SearchParams) => useSelector(() => new URLSearchParams(getSearch()).get(key));
+export const useQueryKeysAsString = () => useSelector((s) => getSearch(s.hash));
+export const useQueryKey = (key: SearchParams) => useSelector((s) => new URLSearchParams(getSearch(s.hash)).get(key));
 
 export const useIsSubformPage = () =>
-  useSelector(() => {
-    const path = getPath();
+  useSelector((s) => {
+    const path = getPath(s.hash);
     const matches = matchers.map((matcher) => matchPath(matcher, path));
     return !!paramFrom(matches, 'mainPageKey');
   });
@@ -172,7 +179,8 @@ function matchParams(path: string): PathParams {
  */
 function UpdateHash() {
   const updateHash = useStaticSelector((ctx) => ctx.updateHash);
-  const hash = useLocation().hash;
+  const location = useLocation();
+  const hash = location.pathname + location.search;
 
   useEffect(() => {
     updateHash(hash);
