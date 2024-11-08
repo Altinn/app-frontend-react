@@ -76,7 +76,7 @@ jobs:
           PERCY_PARALLEL_TOTAL: 3
           PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
         with:
-          start: yarn serve
+          start: npx http-server dist --cors='*'
           wait-on: 'http://localhost:8080'
           wait-on-timeout: 120
           record: true
