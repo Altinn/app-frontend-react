@@ -316,7 +316,7 @@ describe('Validation', () => {
   it('List component: validation messages should only show up once', () => {
     cy.goto('datalist');
     cy.get(dataListPage.tableBody).first().first().contains('Caroline');
-    cy.findByRole('button', { name: /Neste/ }).click();
+    cy.findByRole('button', { name: 'Neste' }).click();
     cy.get(appFrontend.errorReport)
       .should('be.inViewport')
       .should('contain.text', texts.errorReport)
