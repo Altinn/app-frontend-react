@@ -77,8 +77,8 @@ jobs:
           name: dist
           path: dist
 
-      - name: Confirm dist folder
-        run: ls dist
+      - name: Display structure of downloaded files
+        run: ls -R
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
