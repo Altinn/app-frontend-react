@@ -42,7 +42,7 @@ jobs:
       - name: Save build folder
         uses: actions/upload-artifact@v4
         with:
-          name: build
+          name: dist
           if-no-files-found: error
           path: dist
 
@@ -64,7 +64,7 @@ jobs:
       - name: Download the build folder
         uses: actions/download-artifact@v4
         with:
-          name: build
+          name: dist
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
@@ -76,7 +76,7 @@ jobs:
           PERCY_PARALLEL_TOTAL: 3
           PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
         with:
-          start: yarn serve 8080
+          start: yarn serve
           wait-on: 'http://localhost:8080'
           wait-on-timeout: 120
           record: true
