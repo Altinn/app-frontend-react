@@ -44,12 +44,31 @@ function newStore() {
   }));
 }
 
-const { Provider, useSelector, useStaticSelector } = createZustandContext<ReturnType<typeof newStore>>({
-  name: 'AppRouting',
-  required: true,
-  initialCreateStore: newStore,
-});
+const { Provider, useSelector, useStaticSelector, useMemoSelector } = createZustandContext<ReturnType<typeof newStore>>(
+  {
+    name: 'AppRouting',
+    required: true,
+    initialCreateStore: newStore,
+  },
+);
 
+/**
+ * This provider is responsible for keeping track of the URL (hash) and providing hooks to read it. It fixes a
+ * fundamental issue with the react-router-dom library, where every hook reading the URL will cause a re-render
+ * regardless of whether the part of the URL you were actually interested in has changed or not. That includes
+ * the useNavigate() hook, which re-renders your component every time you navigate to a new URL - just so that it
+ * can support relative navigation.
+ *
+ * This wrapper solves this by making sure both of these use-cases gives you the most up-to-date URL:
+ *  1. When rendering a new component for the first time, caused by a route change, the URL is read from the current
+ *     window.location.hash (not from the zustand store).
+ *  2. When the URL changes after the component has been rendered, all selectors will re-run and only re-render the
+ *     component if the part of the URL they are interested in has changed (based on the zustand equality check).
+ *
+ * In an earlier iteration this read the URL parts from the zustand store as well, and updated them in a useEffect,
+ * but that caused the store to be out of sync with the actual URL - which in turn lead to some components getting
+ * the wrong state (and thus rendered the wrong thing) at first, only to correct itself after the useEffect had run.
+ */
 export function AppRoutingProvider({ children }: PropsWithChildren) {
   return (
     <Provider>
@@ -58,6 +77,14 @@ export function AppRoutingProvider({ children }: PropsWithChildren) {
       {children}
     </Provider>
   );
+}
+
+function getPath(): string {
+  return window.location.hash.slice(1).split('?')[0];
+}
+
+function getSearch(): string {
+  return window.location.hash.split('?')[1] ?? '';
 }
 
 /**
@@ -76,15 +103,6 @@ function useStaticRef<T>(getter: () => T) {
   return new OnDemandRef(getter) as { current: T };
 }
 
-function getPath(): string {
-  const path = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
-  return path.split('?')[0];
-}
-
-function getSearch(): string {
-  return window.location.hash.split('?')[1] ?? '';
-}
-
 export const useQueryKeysAsStringAsRef = () => useStaticRef(() => getSearch());
 export const useAllNavigationParamsAsRef = () => useStaticRef(() => matchParams(getPath()));
 
@@ -96,7 +114,7 @@ export const useNavigationParam = <T extends keyof PathParams>(key: T) =>
   });
 
 export const useNavigationPath = () => useSelector(() => getPath());
-export const useNavigationParams = () => useSelector(() => matchParams(getPath()));
+export const useNavigationParams = () => useMemoSelector(() => matchParams(getPath()));
 export const useNavigationEffect = () => useSelector((ctx) => ctx.effectCallback);
 export const useSetNavigationEffect = () => useSelector((ctx) => ctx.setEffectCallback);
 export const useQueryKeysAsString = () => useSelector(() => getSearch());
@@ -147,6 +165,11 @@ function matchParams(path: string): PathParams {
   };
 }
 
+/**
+ * The URL hash is saved into the zustand store, but it's never read from there. This just serves to trigger the
+ * selectors to re-run when the hash changes, thus making the hooks that depend on the hash re-run and figure out
+ * if components should re-render based on URL changes.
+ */
 function UpdateHash() {
   const updateHash = useStaticSelector((ctx) => ctx.updateHash);
   const hash = useLocation().hash;
