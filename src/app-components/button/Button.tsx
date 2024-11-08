@@ -14,6 +14,7 @@ export type ButtonProps = {
   className?: string;
   icon?: boolean;
   ref?: React.RefObject<HTMLButtonElement>;
+  fullWidth?: boolean;
 } & Pick<
   ButtonHTMLAttributes<HTMLButtonElement>,
   | 'aria-label'
@@ -26,6 +27,7 @@ export type ButtonProps = {
   | 'aria-expanded'
   | 'aria-labelledby'
   | 'aria-describedby'
+  | 'onKeyUp'
 >;
 
 export type ButtonVariant = Parameters<typeof DesignSystemButton>[0]['variant'];
@@ -50,6 +52,7 @@ export const Button = ({
   ref,
   style,
   tabIndex,
+  fullWidth,
   onClick,
   onMouseDown,
   children,
@@ -75,6 +78,7 @@ export const Button = ({
     aria-labelledby={ariaLabelledBy}
     aria-describedby={ariaDescribedBy}
     ref={ref}
+    fullWidth={fullWidth}
   >
     {isLoading && (
       <Spinner

@@ -1,11 +1,11 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { Button } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
+import { Button } from 'src/app-components/button/Button';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -129,7 +129,6 @@ function RepeatingGroupsEditContainerInternal({
             <Button
               variant='tertiary'
               color='danger'
-              size='small'
               disabled={isDeleting(editId)}
               onClick={() => deleteRow({ index: row.index, uuid: row.uuid })}
               data-testid='delete-button'
@@ -182,7 +181,6 @@ function RepeatingGroupsEditContainerInternal({
               {hasPrevMultiPage && (
                 <Grid item={true}>
                   <Button
-                    size='small'
                     variant='tertiary'
                     color='second'
                     onClick={() => prevMultiPage()}
@@ -199,7 +197,6 @@ function RepeatingGroupsEditContainerInternal({
               {hasNextMultiPage && (
                 <Grid item={true}>
                   <Button
-                    size='small'
                     variant='tertiary'
                     color='second'
                     onClick={() => nextMultiPage()}
@@ -227,7 +224,6 @@ function RepeatingGroupsEditContainerInternal({
                   onClick={() => openNextForEditing()}
                   variant='primary'
                   color='first'
-                  size='small'
                   disabled={!isFresh}
                 >
                   <Lang id={texts?.save_and_next_button ? texts?.save_and_next_button : 'general.save_and_next'} />
@@ -241,7 +237,6 @@ function RepeatingGroupsEditContainerInternal({
                   onClick={() => closeForEditing({ index: row.index, uuid: row.uuid })}
                   variant={saveAndNextButtonVisible ? 'secondary' : 'primary'}
                   color='first'
-                  size='small'
                   disabled={!isFresh}
                 >
                   <Lang id={texts?.save_button ? texts?.save_button : 'general.save_and_close'} />
