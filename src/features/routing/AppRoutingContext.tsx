@@ -95,6 +95,7 @@ export const useNavigationParam = <T extends keyof PathParams>(key: T) =>
     return paramFrom(matches, key) as PathParams[T];
   });
 
+export const useNavigationPath = () => useSelector(() => getPath());
 export const useNavigationParams = () => useSelector(() => matchParams(getPath()));
 export const useNavigationEffect = () => useSelector((ctx) => ctx.effectCallback);
 export const useSetNavigationEffect = () => useSelector((ctx) => ctx.setEffectCallback);

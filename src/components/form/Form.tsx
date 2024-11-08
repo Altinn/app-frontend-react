@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useLocation } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 import deepEqual from 'fast-deep-equal';
@@ -21,6 +20,7 @@ import {
   SearchParams,
   useNavigate,
   useNavigationParam,
+  useNavigationPath,
   useQueryKey,
   useQueryKeysAsString,
   useQueryKeysAsStringAsRef,
@@ -160,7 +160,7 @@ export function FormFirstPage() {
   const navigate = useNavigate();
   const startUrl = useStartUrl();
 
-  const currentLocation = `${useLocation().pathname}${useQueryKeysAsString()}`;
+  const currentLocation = `${useNavigationPath()}${useQueryKeysAsString()}`;
 
   useEffect(() => {
     if (currentLocation !== startUrl) {
@@ -182,7 +182,6 @@ function useRedirectToStoredPage() {
   const instanceGuid = useNavigationParam('instanceGuid');
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const applicationMetadataId = useApplicationMetadata()?.id;
-  const location = useLocation().pathname;
 
   const instanceId = `${partyId}/${instanceGuid}`;
   const currentViewCacheKey = instanceId || applicationMetadataId;
@@ -195,7 +194,7 @@ function useRedirectToStoredPage() {
         navigateToPage(lastVisitedPage, { replace: true });
       }
     }
-  }, [pageKey, currentViewCacheKey, isValidPageId, location, navigateToPage]);
+  }, [pageKey, currentViewCacheKey, isValidPageId, navigateToPage]);
 }
 
 /**
