@@ -75,11 +75,7 @@ describe('Repeating group attachments', () => {
     const attachment = item.attachments(idx);
     if (attachment.tagSelector !== undefined && attachment.tagSave !== undefined) {
       cy.dsSelect(attachment.tagSelector, 'Altinn');
-      // cy.findByRole('option', { name: 'Altinn' }).click();
       cy.findByRole('button', { name: 'Lagre' }).click();
-      // cy.get('save-button-subGroup-0').click();
-      // cy.findByRole('button', { name: 'save-button-subGroup-0' }).click();
-      // cy.get(attachment.tagSave).click();
     }
 
     cy.get(attachment.status).should('contain.text', texts.finishedUploading);
