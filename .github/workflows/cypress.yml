@@ -20,9 +20,6 @@ on:
 jobs:
   install:
     name: Internal
-    env:
-      CYPRESS_PROJECT_ID: y2jhp6
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     if: |
       github.repository_owner == 'Altinn' &&
       (github.event_name != 'pull_request' && github.event.repository.fork == false) ||
@@ -42,6 +39,12 @@ jobs:
           runTests: false
           build: yarn run build
 
+      - name: List all files
+        run: ls -R
+
+      - name: List all files in dist
+        run: ls -R dist
+
       - name: Save build folder
         uses: actions/upload-artifact@v4
         with:
@@ -57,13 +60,6 @@ jobs:
       fail-fast: false
       matrix:
         containers: [1, 2, 3]
-    env:
-      CYPRESS_PROJECT_ID: y2jhp6
-      CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
-      PERCY_PARALLEL_TOTAL: 3
-      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -81,6 +77,13 @@ jobs:
         run: ls -R
 
       - name: Cypress run
+        env:
+          CYPRESS_PROJECT_ID: y2jhp6
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+          PERCY_PARALLEL_TOTAL: 3
+          PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
         uses: cypress-io/github-action@v6
         with:
           start: npx http-server dist --cors='*'
