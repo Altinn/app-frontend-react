@@ -5,7 +5,6 @@ import type { MutableRefObject, PropsWithChildren } from 'react';
 import { createStore } from 'zustand';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
-import type { SearchParams } from 'src/hooks/useNavigatePage';
 
 export type NavigationEffectCb = () => void;
 
@@ -17,6 +16,13 @@ interface PathParams {
   componentId?: string;
   dataElementId?: string;
   mainPageKey?: string;
+}
+
+export enum SearchParams {
+  FocusComponentId = 'focusComponentId',
+  ExitSubform = 'exitSubform',
+  Validate = 'validate',
+  Pdf = 'pdf',
 }
 
 interface Context {

@@ -8,6 +8,7 @@ import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutS
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/ProcessContext';
 import {
+  SearchParams,
   useAllNavigationParamsAsRef,
   useNavigate as useCtxNavigate,
   useNavigationParam,
@@ -34,13 +35,6 @@ export interface NavigateToPageOptions {
 export enum TaskKeys {
   ProcessEnd = 'ProcessEnd',
   CustomReceipt = 'CustomReceipt',
-}
-
-export enum SearchParams {
-  FocusComponentId = 'focusComponentId',
-  ExitSubform = 'exitSubform',
-  Validate = 'validate',
-  Pdf = 'pdf',
 }
 
 const emptyArray: never[] = [];
