@@ -48,6 +48,7 @@ jobs:
 
   cypress-run:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: install
     strategy:
       fail-fast: false
@@ -75,6 +76,9 @@ jobs:
           PERCY_PARALLEL_TOTAL: 3
           PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
         with:
+          start: yarn serve 8080
+          wait-on: 'http://localhost:8080'
+          wait-on-timeout: 120
           record: true
           parallel: true
           group: altinn-app-frontend
@@ -83,7 +87,6 @@ jobs:
           ci-build-id: ${{ github.run_id }}-${{ github.run_attempt }}
           spec: test/e2e/integration
           env: environment=tt02
-          # start: npx cypress run
 
       - uses: actions/upload-artifact@v4
         if: failure()
