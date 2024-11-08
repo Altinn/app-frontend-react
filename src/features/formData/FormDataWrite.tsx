@@ -10,7 +10,7 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
-import { useCurrentDataModelName, useGetDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { useGetDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
@@ -705,17 +705,17 @@ export const FD = {
    */
   useMapping: <D extends 'string' | 'raw' = 'string'>(
     mapping: IMapping | undefined,
+    defaultDataType: string | undefined,
     dataAs?: D,
-  ): D extends 'raw' ? { [key: string]: FDValue } : { [key: string]: string } => {
-    const currentDataType = useCurrentDataModelName();
-    return useMemoSelector((s) => {
+  ): D extends 'raw' ? { [key: string]: FDValue } : { [key: string]: string } =>
+    useMemoSelector((s) => {
       const realDataAs = dataAs || 'string';
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const out: any = {};
-      if (mapping && currentDataType) {
+      if (mapping && defaultDataType) {
         for (const key of Object.keys(mapping)) {
           const outputKey = mapping[key];
-          const value = dot.pick(key, s.dataModels[currentDataType].debouncedCurrentData);
+          const value = dot.pick(key, s.dataModels[defaultDataType].debouncedCurrentData);
 
           if (realDataAs === 'raw') {
             out[outputKey] = value;
@@ -729,8 +729,7 @@ export const FD = {
         }
       }
       return out;
-    });
-  },
+    }),
 
   /**
    * This returns the raw method for setting a value in the form data. This is useful if you want to

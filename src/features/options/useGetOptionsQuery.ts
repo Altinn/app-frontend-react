@@ -42,7 +42,7 @@ export const useGetOptionsUrl = (
   queryParameters?: IQueryParameters,
   secure?: boolean,
 ): string | undefined => {
-  const mappingResult = FD.useMapping(mapping);
+  const mappingResult = FD.useMapping(mapping, GeneratorData.useDefaultDataType());
   const language = useCurrentLanguage();
   const instanceId = useLaxInstanceId();
   const dataSources = GeneratorData.useExpressionDataSources();

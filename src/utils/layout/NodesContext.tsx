@@ -14,7 +14,6 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
 import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStorePlugin';
 import { UpdateAttachmentsForCypress } from 'src/features/attachments/UpdateAttachmentsForCypress';
-import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { HiddenComponentsProvider } from 'src/features/form/dynamics/HiddenComponentsProvider';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
@@ -926,15 +925,15 @@ function makeOptions(forcedVisibleByDevTools: boolean, options?: AccessibleIsHid
 export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
   useIsHidden(node: LayoutNode | LayoutPage | undefined, options?: AccessibleIsHiddenOptions) {
-    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
     return WhenReady.useMemoSelector((s) => isHidden(s, node, makeOptions(forcedVisibleByDevTools, options)));
   },
   useIsHiddenPage(page: LayoutPage | string | undefined, options?: AccessibleIsHiddenOptions) {
-    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
     return WhenReady.useMemoSelector((s) => isHiddenPage(s, page, makeOptions(forcedVisibleByDevTools, options)));
   },
   useIsHiddenPageSelector() {
-    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
     return Store.useDelayedSelector({
       mode: 'simple',
       selector: (page: LayoutPage | string) => (state) =>
@@ -942,17 +941,14 @@ export const Hidden = {
     });
   },
   useHiddenPages(): Set<string> {
-    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
     const hiddenPages = WhenReady.useLaxMemoSelector((s) =>
       Object.keys(s.pagesData.pages).filter((key) => isHiddenPage(s, key, makeOptions(forcedVisibleByDevTools))),
     );
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
   },
   useIsHiddenSelector() {
-    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return Hidden.useInnerIsHiddenSelector(forcedVisibleByDevTools);
-  },
-  useInnerIsHiddenSelector(forcedVisibleByDevTools: boolean) {
+    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
     return Store.useDelayedSelector({
       mode: 'simple',
       selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
@@ -963,12 +959,6 @@ export const Hidden = {
   /**
    * The next ones are primarily for internal use:
    */
-  useIsForcedVisibleByDevTools() {
-    const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
-    const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
-
-    return devToolsIsOpen && devToolsHiddenComponents !== 'hide';
-  },
   useIsPageInOrder(pageKey: string) {
     const currentView = useCurrentView();
     const maybeLayoutSettings = useLaxLayoutSettings();

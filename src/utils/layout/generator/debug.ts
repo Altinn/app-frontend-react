@@ -3,8 +3,8 @@ export const GeneratorDebug = {
   displayState: debugAll,
   displayReadiness: debugAll,
   logReadiness: debugAll,
-  logStages: debugAll || true,
-  logCommits: debugAll || true,
+  logStages: debugAll,
+  logCommits: debugAll,
 };
 
 export const generatorLog = (logType: keyof typeof GeneratorDebug, ...messages: unknown[]) => {

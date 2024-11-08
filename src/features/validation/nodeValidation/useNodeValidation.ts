@@ -2,13 +2,13 @@ import { useMemo } from 'react';
 
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useAttachmentsSelector } from 'src/features/attachments/hooks';
-import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxDataElementsSelector } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { Validation } from 'src/features/validation/validationContext';
 import { implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
+import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type {
   AnyValidation,
@@ -32,8 +32,9 @@ export function useNodeValidation(
   const dataModelSelector = Validation.useDataModelSelector();
   const validationDataSources = useValidationDataSources();
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
-  const getDataElementIdForDataType = DataModels.useGetDataElementIdForDataType();
-  const processedLast = Validation.useProcessedLast();
+
+  const getDataElementIdForDataType = GeneratorData.useGetDataElementIdForDataType();
+  const processedLast = GeneratorData.useValidationsProcessedLast();
 
   return {
     processedLast,

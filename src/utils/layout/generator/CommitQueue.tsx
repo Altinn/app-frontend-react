@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 
 import { generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { NODES_TICK_TIMEOUT, StageFinished } from 'src/utils/layout/generator/GeneratorStages';
 import {
   type AddNodeRequest,
@@ -152,7 +153,7 @@ function useAddToQueue<T extends keyof RegistryCommitQueues>(
 ) {
   const registry = GeneratorInternal.useRegistry();
   const toCommit = registry.current.toCommit;
-  const commit = useCommitWhenFinished();
+  const commit = GeneratorData.useCommitWhenFinished();
 
   if (condition) {
     registry.current.toCommitCount += 1;
@@ -172,7 +173,7 @@ function useAddToQueue<T extends keyof RegistryCommitQueues>(
  * up (setTimeout is slow, at least when debugging), we'll set a timeout once if this selector find out the generator
  * has finished.
  */
-function useCommitWhenFinished() {
+export function useCommitWhenFinished() {
   const commit = useCommit();
   const registry = GeneratorInternal.useRegistry();
   const stateRef = NodesStore.useSelectorAsRef((s) => s.stages);
