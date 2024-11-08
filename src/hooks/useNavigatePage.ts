@@ -40,6 +40,7 @@ export enum SearchParams {
   FocusComponentId = 'focusComponentId',
   ExitSubform = 'exitSubform',
   Validate = 'validate',
+  Pdf = 'pdf',
 }
 
 const emptyArray: never[] = [];
@@ -125,10 +126,10 @@ export const useStartUrl = (forcedTaskId?: string) => {
   const queryKeys = useQueryKeysAsString();
   const order = usePageOrder();
   // This needs up to date params, so using the native hook that re-renders often
-  // However, this hook is only used in cases where we immediatly navigate to a different path
+  // However, this hook is only used in cases where we immediately navigate to a different path
   // so it does not make a difference here.
-  const { partyId, instanceGuid, taskId, isSubformPage, mainPageKey, componentId, dataElementId } =
-    useNavigationParams();
+  const { partyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = useNavigationParams();
+  const isSubformPage = !!mainPageKey;
   const taskType = useGetTaskTypeById()(taskId);
   const isStateless = useApplicationMetadata().isStatelessApp;
 
@@ -353,7 +354,7 @@ export function useNavigatePage() {
   }, [getPreviousPage, navigateToPage]);
 
   const exitSubform = async () => {
-    if (!navParams.current.isSubformPage || !navParams.current.mainPageKey) {
+    if (!navParams.current.mainPageKey) {
       window.logWarn('Tried to close subform page while not in a subform.');
       return;
     }
