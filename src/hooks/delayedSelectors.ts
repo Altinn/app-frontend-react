@@ -16,6 +16,12 @@ type TypeFromConf<C extends DSConfig> = C extends DSConfig<infer T> ? T : never;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ModeFromConf<C extends DSConfig> = C extends DSConfig<any, infer M> ? M : never;
 
+type Internal<C extends DSConfig> = {
+  selectorsCalled: SelectorMap<C> | null;
+  lastReRenderValue: unknown | null;
+  unsubscribe: (() => void) | null;
+};
+
 /**
  * A complex hook that returns a function you can use to select a value at some point in the future. If you never
  * select any values from the store, the store will not be subscribed to, and the component will not re-render when
@@ -36,25 +42,28 @@ export function useDelayedSelector<C extends DSConfig>({
   equalityFn = deepEqual,
   onlyReRenderWhen,
 }: DSProps<C>): DSReturn<C> {
-  const selectorsCalled = useRef<SelectorMap<C>>();
   const [renderCount, forceRerender] = useState(0);
-  const lastReRenderValue = useRef<unknown>(undefined);
-  const unsubscribe = useRef<() => void>();
+  const internal = useRef<Internal<C>>({
+    selectorsCalled: null,
+    lastReRenderValue: null,
+    unsubscribe: null,
+  });
 
-  useEffect(() => () => unsubscribe.current?.(), []);
+  useEffect(() => () => internal.current.unsubscribe?.(), []);
 
   const subscribe = useCallback(
     () =>
       store !== ContextNotProvided
         ? store.subscribe((state) => {
-            if (!selectorsCalled.current) {
+            const s = internal.current;
+            if (!s.selectorsCalled) {
               return;
             }
 
             let stateChanged = true;
             if (onlyReRenderWhen) {
-              stateChanged = onlyReRenderWhen(state, lastReRenderValue.current, (v) => {
-                lastReRenderValue.current = v;
+              stateChanged = onlyReRenderWhen(state, s.lastReRenderValue, (v) => {
+                s.lastReRenderValue = v;
               });
             }
             if (!stateChanged) {
@@ -63,7 +72,7 @@ export function useDelayedSelector<C extends DSConfig>({
 
             // When the state changes, we run all the known selectors again to figure out if anything changed. If it
             // did change, we'll clear the list of selectors to force a re-render.
-            const selectors = selectorsCalled.current.values();
+            const selectors = s.selectorsCalled.values();
             let changed = false;
             for (const { fullSelector, value } of selectors) {
               if (!equalityFn(value, fullSelector(state))) {
@@ -72,11 +81,11 @@ export function useDelayedSelector<C extends DSConfig>({
               }
             }
             if (changed) {
-              selectorsCalled.current = undefined;
+              s.selectorsCalled = null;
               forceRerender((prev) => prev + 1);
             }
           })
-        : undefined,
+        : null,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [store],
   );
@@ -89,6 +98,7 @@ export function useDelayedSelector<C extends DSConfig>({
         }
         return ContextNotProvided;
       }
+      const s = internal.current;
 
       if (isNaN(renderCount)) {
         // This should not happen, and this piece of code looks a bit out of place. This really is only here
@@ -97,7 +107,7 @@ export function useDelayedSelector<C extends DSConfig>({
       }
 
       const cacheKey = makeCacheKey(args);
-      const prev = selectorsCalled.current?.get(cacheKey);
+      const prev = s.selectorsCalled?.get(cacheKey);
       if (prev) {
         // Performance-wise we could also just have called the selector here, it doesn't really matter. What is
         // important however, is that we let developers know as early as possible if they forgot to include a dependency
@@ -108,11 +118,11 @@ export function useDelayedSelector<C extends DSConfig>({
 
       // We don't need to initialize the arraymap before checking for the previous value,
       // since we know it would not exist if we just created it.
-      if (!selectorsCalled.current) {
-        selectorsCalled.current = new ShallowArrayMap();
+      if (!s.selectorsCalled) {
+        s.selectorsCalled = new ShallowArrayMap();
       }
-      if (!unsubscribe.current) {
-        unsubscribe.current = subscribe();
+      if (!s.unsubscribe) {
+        s.unsubscribe = subscribe();
       }
 
       const state = store.getState();
@@ -121,7 +131,7 @@ export function useDelayedSelector<C extends DSConfig>({
         const { selector } = mode as SimpleArgMode;
         const fullSelector: Selector<TypeFromConf<C>, unknown> = (state) => selector(...args)(state);
         const value = fullSelector(state);
-        selectorsCalled.current.set(cacheKey, { fullSelector, value });
+        s.selectorsCalled.set(cacheKey, { fullSelector, value });
         return value;
       }
 
@@ -137,7 +147,7 @@ export function useDelayedSelector<C extends DSConfig>({
         };
 
         const value = fullSelector(state);
-        selectorsCalled.current.set(cacheKey, { fullSelector, value });
+        s.selectorsCalled.set(cacheKey, { fullSelector, value });
         return value;
       }
 
