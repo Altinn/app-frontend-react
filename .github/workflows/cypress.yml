@@ -66,6 +66,9 @@ jobs:
         with:
           name: dist
 
+      - name: Confirm dist folder
+        run: ls dist || echo "dist folder not found"
+
       - name: Cypress run
         uses: cypress-io/github-action@v6
         env:
