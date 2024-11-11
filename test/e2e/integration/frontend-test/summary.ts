@@ -331,7 +331,7 @@ describe('Summary', () => {
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').check();
     // Add data
-    cy.get(appFrontend.group.row(0).editBtn).click();
+    cy.findByRole('button', { name: 'Se innhold NOK 1' }).click();
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
 
     cy.get(appFrontend.group.comments).type('first comment');

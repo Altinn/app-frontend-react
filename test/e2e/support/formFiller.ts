@@ -72,7 +72,9 @@ function fillOutGroup() {
   cy.findByRole('button', { name: /Neste/ }).click();
   cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
   cy.addItemToGroup(1, 2, 'automation');
-  cy.get(appFrontend.group.row(0).editBtn).click();
+  cy.findAllByRole('button', { name: /Rediger/ })
+    .eq(0)
+    .click();
   cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
   cy.get(appFrontend.group.row(0).uploadSingle.dropZone).selectFile(mkFile('attachment-in-single.pdf'), {
     force: true,

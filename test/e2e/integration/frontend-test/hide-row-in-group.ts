@@ -148,7 +148,7 @@ it('"save and next"-button should open row 3 when row 2 is hidden', () => {
   });
   cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
   cy.get(appFrontend.group.hideRepeatingGroupRow).type('5');
-  cy.get(appFrontend.group.row(0).editBtn).click();
+  cy.findByRole('button', { name: 'Rediger NOK 1' }).click();
   cy.get(appFrontend.group.saveAndNextMainGroup).click();
   cy.get(appFrontend.group.currentValue).should('have.value', 'NOK 2');
   cy.get(appFrontend.group.saveAndNextMainGroup).should('not.exist');
