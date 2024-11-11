@@ -7,15 +7,15 @@ import { PDFGeneratorPreview } from 'src/features/devtools/components/PDFPreview
 import classes from 'src/features/devtools/components/PDFPreviewButton/PDFPreview.module.css';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
-import { useIsLocalOrStaging } from 'src/hooks/useIsDev';
+import { useIsStudioPreview } from 'src/hooks/useIsDev';
 import { ProcessTaskType } from 'src/types';
 
 export const PDFPreviewButton = () => {
   const taskType = useTaskTypeFromBackend();
   const setPdfPreview = useDevToolsStore((state) => state.actions.setPdfPreview);
 
-  // PDF generator is not available in altinn studio preview, and the preview API is disabled in production
-  const isLocalOrStaging = useIsLocalOrStaging();
+  // PDF generator is not available in altinn studio preview
+  const isStudioPreview = useIsStudioPreview();
 
   return (
     <Fieldset
@@ -45,7 +45,7 @@ export const PDFPreviewButton = () => {
         }
         Forhåndsvis PDF
       </Button>
-      {isLocalOrStaging && <PDFGeneratorPreview />}
+      {!isStudioPreview && <PDFGeneratorPreview />}
     </Fieldset>
   );
 };
