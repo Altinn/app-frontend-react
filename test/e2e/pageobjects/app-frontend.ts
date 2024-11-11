@@ -175,7 +175,6 @@ export class AppFrontend {
     mobilenummer: '#mobilnummer',
     sources: '#sources',
     uploadingAnimation: '[id*="loader"]',
-    deleteAttachment: '[data-testid^="attachment-delete"]',
     uploadedTable: '#file-upload-table',
     downloadAttachment: '[data-testid="attachment-download"]',
     fileUploadSuccess: '[data-testid="status-success"]',
@@ -376,12 +375,11 @@ export function makeUploaderSelectors<T extends Type>(
     attachments: (idx) => ({
       name: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(1)`,
       status: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(${statusIdx})`,
-      deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) [data-testid^="attachment-delete"]`,
+      deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button:contains("Slett")`,
       ...(type === 'tagged' && {
         tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) input`,
         tagSave: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[id^=attachment-save-tag-button]`,
         editBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) td:last-of-type button:contains("Rediger")`,
-        deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button:contains("Slett")`,
       }),
     }),
     addMoreBtn: `#altinn-fileuploader-${id}-${row} > button`,

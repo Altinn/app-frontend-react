@@ -250,7 +250,6 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                   color='second'
                   onClick={() => toggleEditing({ index: row.index, uuid: row.uuid })}
                   aria-label={`${editButtonText} ${firstCellData ?? ''}`}
-                  data-testid='edit-button'
                   className={classes.tableButton}
                   disabled={!isFresh}
                 >
@@ -309,7 +308,6 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                 icon={!isEditingRow && mobileViewSmall}
                 onClick={() => toggleEditing({ index, uuid })}
                 aria-label={`${editButtonText} ${firstCellData ?? ''}`}
-                data-testid='edit-button'
                 className={classes.tableButton}
               >
                 {(isEditingRow || !mobileViewSmall) && editButtonText}
@@ -416,7 +414,6 @@ function DeleteElement({
         disabled={isDeletingRow || disabled}
         onClick={() => handleDelete({ index, uuid })}
         aria-label={`${deleteButtonText}-${firstCellData}`}
-        data-testid='delete-button'
         icon={!children}
         className={classes.tableButton}
       >

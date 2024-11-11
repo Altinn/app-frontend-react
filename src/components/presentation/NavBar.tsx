@@ -63,7 +63,6 @@ export const NavBar = ({ type }: INavBarProps) => {
       <div>
         {showBackArrow && (
           <Button
-            data-testid='form-back-button'
             className={classes.buttonMargin}
             onClick={handleBackArrowButton}
             variant='tertiary'

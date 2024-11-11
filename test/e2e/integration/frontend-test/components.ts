@@ -84,10 +84,9 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.fileUploadSuccess).should('exist');
     cy.snapshot('components:attachment');
-    cy.get(appFrontend.changeOfName.deleteAttachment).click();
-    cy.get(appFrontend.changeOfName.deleteAttachment).should('not.exist');
-    // cy.findByRole('button', { name: /slett/i }).click();
-    // cy.findByRole('button', { name: /slett/i }).should('not.exist');
+
+    cy.findByRole('button', { name: 'Slett vedlegg' }).click();
+    cy.findByRole('button', { name: 'Slett vedlegg' }).should('not.exist');
     cy.get('[role=alert]').should('not.exist');
   });
 
@@ -201,11 +200,13 @@ describe('UI Components', () => {
     for (const { uploader, shouldExist } of components) {
       cy.get(uploader).selectFile('test/e2e/fixtures/test.pdf', { force: true });
       cy.get(appFrontend.changeOfName.fileUploadSuccess).should('exist');
-      cy.findByRole('button', { name: /slett/i }).click();
-      cy.findByRole('button', { name: /avbryt/i }).click();
+
+      cy.findByRole('button', { name: 'Slett vedlegg' }).click();
+      cy.findByRole('button', { name: 'Avbryt' }).click();
       cy.get(shouldExist).should('exist');
-      cy.findByRole('button', { name: /slett/i }).click();
-      cy.findByRole('button', { name: /ja, slett vedlegg/i }).click();
+
+      cy.findByRole('button', { name: 'Slett vedlegg' }).click();
+      cy.findByRole('button', { name: 'Ja, slett vedlegg' }).click({ force: true });
       cy.get(shouldExist).should('not.exist');
     }
   });

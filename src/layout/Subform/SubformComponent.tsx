@@ -257,7 +257,6 @@ function SubformTableRow({
             size='small'
             onClick={async () => navigate(`${node.id}/${id}${hasErrors ? '?validate=true' : ''}`)}
             aria-label={editButtonText}
-            data-testid='edit-button'
             className={classes.tableButton}
           >
             {editButtonText}
@@ -278,7 +277,6 @@ function SubformTableRow({
               size='small'
               onClick={async () => await deleteEntry()}
               aria-label={deleteButtonText}
-              data-testid='delete-button'
               className={classes.tableButton}
             >
               {deleteButtonText}

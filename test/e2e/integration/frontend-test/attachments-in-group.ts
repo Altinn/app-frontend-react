@@ -336,9 +336,15 @@ describe('Repeating group attachments', () => {
     cy.get(appFrontend.group.row(1).editBtn).click();
     gotoSecondPage();
     cy.get(appFrontend.group.row(1).nestedGroup.row(1).editBtn).click();
-    cy.get(appFrontend.group.row(1).nestedGroup.row(1).uploadTagMulti.attachments(1).editBtn || '').click();
+    cy.get('#form-content-subUploader-1-1').within(() => {
+      cy.findByRole('row', { name: /nested-row1-sub1-2/ }).within(() => {
+        cy.findByRole('button', { name: 'Rediger' }).click();
+      });
+    });
+    cy.get('#form-content-subUploader-1-1').within(() => {
+      cy.findByRole('button', { name: 'Slett vedlegg' }).click();
+    });
 
-    cy.get(appFrontend.group.row(1).nestedGroup.row(1).uploadTagMulti.attachments(1).deleteBtn).click();
     deletedAttachmentNames.push(filenames[1].nested[1][1]);
     waitForFormDataSave();
 
