@@ -10,7 +10,7 @@ describe('saving multiple data models', () => {
   });
 
   it('Calls save on individual data models', () => {
-    cy.intercept('PATCH', '**/data').as('saveFormData');
+    cy.intercept('PATCH', '**/data*').as('saveFormData');
 
     cy.findByRole('textbox', { name: /tekstfelt 1/i }).type('første');
     cy.findByRole('textbox', { name: /tekstfelt 1/i }).clear();
@@ -64,7 +64,7 @@ describe('saving multiple data models', () => {
     const today = new Date();
     const age1 = 36;
     const y1 = today.getFullYear() - age1;
-    const m = today.getMonth().toString().padStart(2, '0');
+    const m = (today.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
     const d = today.getDate().toString().padStart(2, '0');
     const age2 = 25;
     const y2 = today.getFullYear() - age2;
@@ -173,20 +173,20 @@ describe('saving multiple data models', () => {
 
   it('List component with search', () => {
     cy.gotoNavPage('Side6');
-    cy.findByRole('textbox', { name: /søk/i }).type('Snekker');
+    cy.findByRole('searchbox', { name: /søk/i }).type('Snekker');
     cy.findAllByRole('radio').should('have.length', 1);
-    cy.findByRole('textbox', { name: /søk/i }).clear();
-    cy.findByRole('textbox', { name: /søk/i }).type('Utvikler');
+    cy.findByRole('searchbox', { name: /søk/i }).clear();
+    cy.findByRole('searchbox', { name: /søk/i }).type('Utvikler');
     cy.findAllByRole('radio').should('have.length', 2);
     cy.findByRole('radio', { name: /johanne/i }).dsCheck();
     cy.findByRole('radio', { name: /johanne/i }).should('be.checked');
-    cy.findByRole('textbox', { name: /søk/i }).clear();
+    cy.findByRole('searchbox', { name: /søk/i }).clear();
     cy.findAllByRole('radio').should('have.length', 5);
     cy.findByRole('radio', { name: /johanne/i }).should('be.checked');
   });
 
   it('Likert component', () => {
-    cy.intercept('PATCH', '**/data').as('saveFormData');
+    cy.intercept('PATCH', '**/data*').as('saveFormData');
     cy.gotoNavPage('Side4');
 
     // The 'choose-sector' radio component has a 'preselectedOptionIndex' which will auto-select an option before
@@ -217,7 +217,7 @@ describe('saving multiple data models', () => {
   });
 
   it('Dynamic options', () => {
-    cy.intercept('PATCH', '**/data').as('saveFormData');
+    cy.intercept('PATCH', '**/data*').as('saveFormData');
     cy.gotoNavPage('Side2');
 
     // The 'choose-sector' radio component has a 'preselectedOptionIndex' which will auto-select an option before

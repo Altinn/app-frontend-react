@@ -109,6 +109,12 @@ export interface AddNodeRequest<T extends CompTypes = CompTypes> {
   rowIndex: number | undefined;
 }
 
+export interface RemoveNodeRequest<T extends CompTypes = CompTypes> {
+  node: LayoutNode<T>;
+  claim: ChildClaim;
+  rowIndex: number | undefined;
+}
+
 export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeData<T>> {
   node: LayoutNode<T>;
   prop: K;
@@ -148,7 +154,7 @@ export type NodesContext = {
 
   setNodes: (nodes: LayoutPages) => void;
   addNodes: (requests: AddNodeRequest[]) => void;
-  removeNode: (node: LayoutNode, claim: ChildClaim, rowIndex: number | undefined) => void;
+  removeNodes: (request: RemoveNodeRequest[]) => void;
   setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
   addError: (error: string, node: LayoutPage | LayoutNode) => void;
   markHiddenViaRule: (hiddenFields: { [nodeId: string]: true }) => void;
@@ -245,33 +251,37 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
           addRemoveCounter: state.addRemoveCounter + 1,
         };
       }),
-    removeNode: (node, claim, rowIndex) =>
+    removeNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
         const childrenMap = { ...state.childrenMap };
-        if (!nodeData[node.id]) {
-          return {};
+
+        for (const { node, claim, rowIndex } of requests) {
+          if (!nodeData[node.id]) {
+            continue;
+          }
+
+          if (node.parent instanceof BaseLayoutNode && nodeData[node.parent.id]) {
+            const additionalParentState = node.parent.def.removeChild(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              nodeData[node.parent.id] as any,
+              node,
+              claim,
+              rowIndex,
+            );
+            nodeData[node.parent.id] = {
+              ...nodeData[node.parent.id],
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              ...(additionalParentState as any),
+            };
+            childrenMap[node.parent.id] = [...(childrenMap[node.parent.id] || [])];
+            childrenMap[node.parent.id] = childrenMap[node.parent.id]!.filter((id) => id !== node.id);
+          }
+
+          delete nodeData[node.id];
+          node.page._removeChild(node);
         }
 
-        if (node.parent instanceof BaseLayoutNode && nodeData[node.parent.id]) {
-          const additionalParentState = node.parent.def.removeChild(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            nodeData[node.parent.id] as any,
-            node,
-            claim,
-            rowIndex,
-          );
-          nodeData[node.parent.id] = {
-            ...nodeData[node.parent.id],
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ...(additionalParentState as any),
-          };
-          childrenMap[node.parent.id] = [...(childrenMap[node.parent.id] || [])];
-          childrenMap[node.parent.id] = childrenMap[node.parent.id]!.filter((id) => id !== node.id);
-        }
-
-        delete nodeData[node.id];
-        node.page._removeChild(node);
         return {
           nodeData,
           childrenMap,
@@ -557,10 +567,6 @@ function IndicateReadiness() {
     // Doing this in a selector instead of a useEffect() so that we don't have to re-render
     document.body.setAttribute('data-nodes-ready', ready.toString());
 
-    if (!GeneratorDebug.displayReadiness) {
-      return [null, null];
-    }
-
     return [s.readiness, s.hiddenViaRulesRan];
   });
 
@@ -809,7 +815,7 @@ export function useNode<T extends string | undefined | LayoutNode>(id: T): RetVa
       return id;
     }
 
-    return state.nodes.findById(new TraversalTask(state, state.nodes, undefined, undefined), id);
+    return state.nodes.findById(id);
   });
   return node as RetValFromNode<T>;
 }
@@ -1197,15 +1203,15 @@ export const NodesInternal = {
   useHasErrors: () => Store.useSelector((s) => s.hasErrors),
 
   useStore: () => Store.useStore(),
-  useSetNodeProps: () => Store.useSelector((s) => s.setNodeProps),
-  useSetNodes: () => Store.useSelector((s) => s.setNodes),
-  useAddPage: () => Store.useSelector((s) => s.addPage),
-  useSetPageProps: () => Store.useSelector((s) => s.setPageProps),
-  useAddNodes: () => Store.useSelector((s) => s.addNodes),
-  useRemoveNode: () => Store.useSelector((s) => s.removeNode),
-  useAddError: () => Store.useSelector((s) => s.addError),
-  useMarkHiddenViaRule: () => Store.useSelector((s) => s.markHiddenViaRule),
-  useSetWaitForCommits: () => Store.useSelector((s) => s.setWaitForCommits),
+  useSetNodeProps: () => Store.useStaticSelector((s) => s.setNodeProps),
+  useSetNodes: () => Store.useStaticSelector((s) => s.setNodes),
+  useAddPage: () => Store.useStaticSelector((s) => s.addPage),
+  useSetPageProps: () => Store.useStaticSelector((s) => s.setPageProps),
+  useAddNodes: () => Store.useStaticSelector((s) => s.addNodes),
+  useRemoveNodes: () => Store.useStaticSelector((s) => s.removeNodes),
+  useAddError: () => Store.useStaticSelector((s) => s.addError),
+  useMarkHiddenViaRule: () => Store.useStaticSelector((s) => s.markHiddenViaRule),
+  useSetWaitForCommits: () => Store.useStaticSelector((s) => s.setWaitForCommits),
 
   ...(Object.values(StorePlugins)
     .map((plugin) => plugin.extraHooks(Store))
