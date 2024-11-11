@@ -93,9 +93,7 @@ export function AppTable<T extends object>({
                   <Table.Cell
                     key={colIndex}
                     data-header-title={col.header}
-                  >
-                    -
-                  </Table.Cell>
+                  />
                 );
               }
 
