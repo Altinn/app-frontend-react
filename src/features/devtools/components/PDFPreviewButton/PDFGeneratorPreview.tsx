@@ -4,14 +4,15 @@ import { Button, Modal, Spinner } from '@digdir/designsystemet-react';
 import { FilePdfIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/features/devtools/components/PDFPreviewButton/PDFPreview.module.css';
-import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
+import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsLocalOrStaging } from 'src/hooks/useIsDev';
 import { ProcessTaskType } from 'src/types';
 import { getPdfPreviewUrl } from 'src/utils/urls/appUrlHelper';
 
-export function PDFGeneratorPreview() {
+export function PDFGeneratorPreview({ buttonTitle }: { buttonTitle?: string }) {
   const modalRef = React.useRef<HTMLDialogElement>(null);
   const abortRef = React.useRef<AbortController | null>(null);
 
@@ -19,11 +20,13 @@ export function PDFGeneratorPreview() {
   const [errorText, setErrorText] = React.useState<string | null>(null);
 
   const taskType = useTaskTypeFromBackend();
-  const instanceId = useLaxInstanceId();
+  const instanceId = useLaxInstance((state) => state.instanceId);
   const language = useCurrentLanguage();
   const isLocalOrStaging = useIsLocalOrStaging();
 
   const disabled = taskType !== ProcessTaskType.Data || !instanceId || !isLocalOrStaging;
+
+  const { langAsString } = useLanguage();
 
   async function generatePDF() {
     if (disabled) {
@@ -69,7 +72,7 @@ export function PDFGeneratorPreview() {
             aria-hidden
           />
         }
-        Generer PDF
+        {buttonTitle ? langAsString(buttonTitle) : 'Generer PDF'}
       </Button>
       <Modal
         ref={modalRef}
