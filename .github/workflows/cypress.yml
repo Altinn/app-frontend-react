@@ -81,7 +81,7 @@ jobs:
           # quote the url to be safe against YML parsing surprises
           start: 'npx http-server dist --cors="*" -p 8080'
           wait-on: 'http://localhost:8080'
-          command-prefix: 'percy exec -- npx'
+          command-prefix: 'percy exec --parallel -- npx'
           record: true
           parallel: true
           group: altinn-app-frontend
