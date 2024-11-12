@@ -68,6 +68,15 @@ jobs:
           name: dist
           path: dist
 
+      - name: Set Percy command based on PR draft status
+        shell: bash
+        run: |
+          if [ "${{ github.event.pull_request.draft }}" == "false" ]; then
+            echo "PERCY_COMMAND=percy exec --parallel -- npx" >> $GITHUB_ENV
+          else
+            echo "PERCY_COMMAND=npx" >> $GITHUB_ENV
+          fi
+
       - name: Cypress run
         env:
           CYPRESS_PROJECT_ID: y2jhp6
@@ -76,12 +85,13 @@ jobs:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
           PERCY_PARALLEL_TOTAL: 6
           PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+          IS_PR_DRAFT: ${{ github.event.pull_request.draft }}
         uses: cypress-io/github-action@v6
         with:
           # quote the url to be safe against YML parsing surprises
           start: 'npx http-server dist --cors="*" -p 8080'
           wait-on: 'http://localhost:8080'
-          command-prefix: 'percy exec --parallel -- npx'
+          command-prefix: ${{ env.PERCY_COMMAND }}
           record: true
           parallel: true
           group: altinn-app-frontend
