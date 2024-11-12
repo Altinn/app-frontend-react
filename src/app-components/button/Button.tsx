@@ -17,11 +17,12 @@ export type ButtonProps = {
   fullWidth?: boolean;
 } & Pick<
   ButtonHTMLAttributes<HTMLButtonElement>,
-  | 'aria-label'
   | 'onClick'
   | 'style'
   | 'tabIndex'
   | 'onMouseDown'
+  | 'aria-label'
+  | 'aria-busy'
   | 'aria-controls'
   | 'aria-haspopup'
   | 'aria-expanded'
@@ -45,6 +46,7 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
     icon,
     isLoading = false,
     'aria-label': ariaLabel,
+    'aria-busy': ariaBusy,
     'aria-controls': ariaControls,
     'aria-haspopup': ariaHasPopup,
     'aria-expanded': ariaExpanded,
@@ -74,7 +76,7 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
       tabIndex={tabIndex}
       onClick={onClick}
       onMouseDown={onMouseDown}
-      aria-busy={isLoading}
+      aria-busy={ariaBusy}
       aria-controls={ariaControls}
       aria-haspopup={ariaHasPopup}
       aria-expanded={ariaExpanded}

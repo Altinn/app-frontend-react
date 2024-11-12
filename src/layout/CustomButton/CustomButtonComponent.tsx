@@ -215,10 +215,6 @@ export const buttonStyles: { [style in CBTypes.ButtonStyle]: { color: ButtonColo
 };
 
 function toShorthandSize(size?: CBTypes.ButtonSize): 'sm' | 'md' | 'lg' | undefined {
-  if (!size) {
-    return undefined;
-  }
-
   switch (size) {
     case 'sm':
     case 'small':
@@ -229,6 +225,8 @@ function toShorthandSize(size?: CBTypes.ButtonSize): 'sm' | 'md' | 'lg' | undefi
     case 'lg':
     case 'large':
       return 'lg';
+    default:
+      return 'md';
   }
 }
 

@@ -160,6 +160,7 @@ function AddButton() {
   return (
     <Button
       id={`add-button-${id}`}
+      size='md'
       onClick={async () => {
         const newRow = await addRow();
         newRow.index !== undefined && triggerFocus(newRow.index);

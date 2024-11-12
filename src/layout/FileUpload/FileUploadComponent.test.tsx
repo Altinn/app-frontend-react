@@ -95,7 +95,7 @@ describe('FileUploadComponent', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Slett' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Slett vedlegg' })).toBeInTheDocument();
       });
 
       await deleteAttachment();
@@ -111,7 +111,7 @@ describe('FileUploadComponent', () => {
       });
 
       expect(mutations.doAttachmentRemove.mock).toHaveBeenCalledTimes(1);
-      expect(screen.queryByRole('button', { name: 'Slett' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Slett vedlegg' })).not.toBeInTheDocument();
     });
   });
 
@@ -156,7 +156,7 @@ async function openEdit() {
 }
 
 async function deleteAttachment() {
-  await userEvent.click(screen.getByRole('button', { name: 'Slett' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Slett vedlegg' }));
 }
 
 async function selectTag(tagName: string = 'Tag 1') {
