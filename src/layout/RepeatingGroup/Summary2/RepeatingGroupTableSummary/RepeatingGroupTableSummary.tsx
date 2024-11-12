@@ -45,7 +45,6 @@ export const RepeatingGroupTableSummary = ({
   const childNodes = useTableNodes(componentNode, 0);
   const { tableColumns } = useNodeItem(componentNode);
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
-  const displayDataProps = useDisplayDataProps();
 
   if (rows.length === 0) {
     return (
