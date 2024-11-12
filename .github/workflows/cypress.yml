@@ -14,6 +14,11 @@ on:
       - 'test/**'
       - 'yarn.lock'
       - '.github/workflows/cypress.yml'
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
 
   workflow_dispatch:
 
