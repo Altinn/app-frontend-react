@@ -47,7 +47,7 @@ export const RepeatingGroupSummary = ({
     );
   }
 
-  if (display === 'table') {
+  if (display === 'table' && componentNode) {
     return <RepeatingGroupTableSummary componentNode={componentNode} />;
   }
 

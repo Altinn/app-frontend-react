@@ -7,21 +7,22 @@ import cn from 'classnames';
 import { Caption } from 'src/components/form/Caption';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
-import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
+import tableClasses from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary.module.css';
+import { RepeatingGroupTableTitle, useTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const RepeatingGroupTableSummary = ({
   componentNode,
@@ -42,7 +43,6 @@ export const RepeatingGroupTableSummary = ({
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
   const childNodes = useTableNodes(componentNode, 0);
-  const isNested = componentNode.parent instanceof BaseLayoutNode;
   const { tableColumns } = useNodeItem(componentNode);
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
   const displayDataProps = useDisplayDataProps();
@@ -61,15 +61,15 @@ export const RepeatingGroupTableSummary = ({
 
   return (
     <div
-      className={cn(classes.summaryWrapper, { [classes.nestedSummaryWrapper]: isNested })}
+      className={cn(classes.summaryWrapper)}
       data-testid={'summary-repeating-group-component'}
     >
-      <Table>
+      <Table className={isSmall && tableClasses.mobileTable}>
         <Caption title={<Lang id={title} />} />
         <Table.Head>
           <Table.Row>
             {childNodes.map((childNode) => (
-              <TitleCell
+              <HeaderCell
                 key={childNode.id}
                 node={childNode}
                 columnSettings={columnSettings}
@@ -88,12 +88,13 @@ export const RepeatingGroupTableSummary = ({
           {rows.map((row) => (
             <Table.Row key={row?.uuid}>
               {childNodes.map((node) => (
-                <Table.Cell key={node.id}>
-                  {'getDisplayData' in node.def && node.def.getDisplayData(node as never, displayDataProps)}
-                </Table.Cell>
+                <DataCell
+                  node={node}
+                  key={node.id}
+                />
               ))}
-              {!pdfModeActive && !isSmall && (
-                <Table.Cell align='right'>
+              {!pdfModeActive && (
+                <Table.Cell className={tableClasses.buttonCell}>
                   {row?.items && row?.items?.length > 0 && (
                     <EditButton
                       componentNode={childNodes[0]}
@@ -123,7 +124,7 @@ export const RepeatingGroupTableSummary = ({
   );
 };
 
-function TitleCell({ node, columnSettings }: { node: LayoutNode; columnSettings: ITableColumnFormatting }) {
+function HeaderCell({ node, columnSettings }: { node: LayoutNode; columnSettings: ITableColumnFormatting }) {
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
   return (
     <Table.HeaderCell
@@ -135,5 +136,19 @@ function TitleCell({ node, columnSettings }: { node: LayoutNode; columnSettings:
         columnSettings={columnSettings}
       />
     </Table.HeaderCell>
+  );
+}
+
+function DataCell({ node }) {
+  const { langAsString } = useLanguage();
+  const displayDataProps = useDisplayDataProps();
+  const headerTitle = langAsString(useTableTitle(node));
+  return (
+    <Table.Cell
+      key={node.id}
+      data-header-title={headerTitle}
+    >
+      {'getDisplayData' in node.def && node.def.getDisplayData(node as never, displayDataProps)}
+    </Table.Cell>
   );
 }
