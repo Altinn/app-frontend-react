@@ -19,11 +19,7 @@ on:
 
 jobs:
   install:
-    name: Internal
-    if: |
-      github.repository_owner == 'Altinn' &&
-      (github.event_name != 'pull_request' && github.event.repository.fork == false) ||
-      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    name: Install
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,7 +42,12 @@ jobs:
           if-no-files-found: error
           path: dist
 
-  cypress-run:
+  cypress-run-internal:
+    name: Cypress Run Internal
+    if: |
+      github.repository_owner == 'Altinn' &&
+      (github.event_name != 'pull_request' && github.event.repository.fork == false) ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: install
@@ -78,7 +79,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           # quote the url to be safe against YML parsing surprises
-          start: 'npx http-server dist --cors="*"'
+          start: 'npx http-server dist --cors="*" -p 8080'
           wait-on: 'http://localhost:8080'
           command-prefix: 'percy exec -- npx'
           record: true
@@ -96,13 +97,14 @@ jobs:
           name: logs
           path: test/logs/*
 
-  external:
+  external-cypress-run:
+    name: Cypress Run External
     if: |
-     github.repository_owner == 'Altinn' &&
-     (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true)
+      github.repository_owner == 'Altinn' &&
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true)
 
     runs-on: ubuntu-latest
-    name: External
+    needs: install
 
     steps:
       - name: Checkout
@@ -111,37 +113,19 @@ jobs:
       - name: Increase file watchers
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
-      - uses: actions/setup-node@v4
+      - name: Download the build folder
+        uses: actions/download-artifact@v4
         with:
-          node-version: '20'
+          name: dist
+          path: dist
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
-
-      - uses: actions/cache@v4
-        id: yarn-cache
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install dependencies
-        run: yarn --immutable
-
-      - name: Build
-        run: yarn build
-
-      - name: Verify cypress and run tests
-        run: "
-          npx cypress verify\n
-          bash -c 'yarn serve 8080 >/dev/null &'\n
-         bash -c 'npx cypress run
-              --spec test/e2e/integration
-              --config watchForFileChanges=false
-              --env environment=tt02'
-        "
+          start: 'npx http-server dist --cors="*" -p 8080'
+          browser: chrome
+          spec: test/e2e/integration
+          env: environment=tt02
 
       - uses: actions/upload-artifact@v4
         if: failure()
