@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
@@ -118,7 +118,6 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem }: CommonPr
     pageKey,
     idMutators,
   } satisfies StateFactoryProps<T>;
-  const removeNode = NodesInternal.useRemoveNode();
   const isAdded = NodesInternal.useIsAdded(node);
 
   NodesStateQueue.useAddNode(
@@ -130,13 +129,7 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem }: CommonPr
     !isAdded,
   );
 
-  const nodeRef = useAsRef(node);
-  useEffect(
-    () => () => {
-      removeNode(nodeRef.current);
-    },
-    [removeNode, nodeRef],
-  );
+  NodesStateQueue.useRemoveNode({ node });
 
   return null;
 }

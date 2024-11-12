@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { Fragment, useEffect, useMemo } from 'react';
 
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
@@ -57,9 +57,15 @@ function NodeRepeatingChildrenWorker({ claims, plugin }: Props) {
   );
 
   return (
-    <>
+    <GeneratorRunProvider>
       {Array.from({ length: numRows }).map((_, index) => (
-        <GeneratorRunProvider key={index}>
+        <Fragment key={index}>
+          {/* Do not remove this space.
+              React's `getHostSibling` function can be very slow for renderless components,
+              this will make sure it finds the sibling immediately by adding a `HostText` fiber-node directly below.
+              The space will be added to the DOM, but should not be visible.
+              See https://github.com/facebook/react/blob/ed15d5007ca7ee4d61294c741ce3e858d3c1d461/packages/react-reconciler/src/ReactFiberCommitHostEffects.js#L222-L226
+          */}{' '}
           <GenerateRow
             rowIndex={index}
             groupBinding={groupBinding}
@@ -67,9 +73,9 @@ function NodeRepeatingChildrenWorker({ claims, plugin }: Props) {
             multiPageMapping={multiPageMapping}
             plugin={plugin}
           />
-        </GeneratorRunProvider>
+        </Fragment>
       ))}
-    </>
+    </GeneratorRunProvider>
   );
 }
 
