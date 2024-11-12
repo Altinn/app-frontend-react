@@ -74,7 +74,7 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
-          PERCY_PARALLEL_TOTAL: 3
+          PERCY_PARALLEL_TOTAL: 6
           PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
         uses: cypress-io/github-action@v6
         with:
