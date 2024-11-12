@@ -110,7 +110,7 @@ jobs:
           name: logs
           path: test/logs/*
 
-  external-cypress-run:
+  cypress-run-external:
     name: Cypress Run External
     if: |
       github.repository_owner == 'Altinn' &&
