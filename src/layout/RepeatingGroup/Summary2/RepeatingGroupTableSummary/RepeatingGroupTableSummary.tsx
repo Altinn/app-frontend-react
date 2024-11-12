@@ -96,7 +96,7 @@ export const RepeatingGroupTableSummary = ({
                 <Table.Cell align='right'>
                   {row?.items && row?.items?.length > 0 && (
                     <EditButton
-                      componentNode={row?.items && row?.items[0]}
+                      componentNode={childNodes[0]}
                       summaryComponentId=''
                     />
                   )}
