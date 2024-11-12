@@ -261,6 +261,7 @@ function InstanceSelection() {
         {!mobileView && renderTable()}
         <div className={classes.startNewButtonContainer}>
           <Button
+            size='md'
             onClick={() => {
               if (currentParty) {
                 storeCallback(focusMainContent);

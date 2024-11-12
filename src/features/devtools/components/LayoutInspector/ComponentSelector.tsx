@@ -129,7 +129,6 @@ export function ComponentSelector({ type }: ComponentSelectorProps) {
   return (
     <Button
       title={type === 'node' ? 'Velg en komponent' : 'Velg en layout-komponent'}
-      size='sm'
       onClick={toggle}
       variant={active ? 'primary' : 'tertiary'}
       color='second'

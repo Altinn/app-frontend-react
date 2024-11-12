@@ -15,7 +15,6 @@ export function EditIconButton({ id, label, onClick }: IEditIconButtonProps) {
   return (
     <Button
       className={classes.editButton}
-      size='sm'
       id={id}
       variant='tertiary'
       onClick={onClick}

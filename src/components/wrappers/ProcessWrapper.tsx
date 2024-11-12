@@ -60,6 +60,7 @@ function NavigationError({ label }: NavigationErrorProps) {
           <div className={classes.navigationError}>
             <Button
               variant='secondary'
+              size='md'
               onClick={() => {
                 navigateToTask(currentTaskId);
               }}

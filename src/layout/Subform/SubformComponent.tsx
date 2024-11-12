@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Button, Spinner, Table } from '@digdir/designsystemet-react';
+import { Spinner, Table } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 import dot from 'dot-object';
 
+import { Button } from 'src/app-components/button/Button';
 import { Caption } from 'src/components/form/Caption';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
@@ -143,8 +144,9 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
         {showAddButton && (
           <div className={classes.addButton}>
             <Button
-              disabled={isAdding}
               id={`subform-${id}-add-button`}
+              size='md'
+              disabled={isAdding}
               onClick={async () => await addEntry()}
               onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
                 const allowedKeys = ['enter', ' ', 'spacebar'];
@@ -254,7 +256,6 @@ function SubformTableRow({
             disabled={isDeleting}
             variant='tertiary'
             color='second'
-            size='small'
             onClick={async () => navigate(`${node.id}/${id}${hasErrors ? '?validate=true' : ''}`)}
             aria-label={editButtonText}
             className={classes.tableButton}
@@ -274,7 +275,6 @@ function SubformTableRow({
               disabled={isDeleting}
               variant='tertiary'
               color='danger'
-              size='small'
               onClick={async () => await deleteEntry()}
               aria-label={deleteButtonText}
               className={classes.tableButton}
