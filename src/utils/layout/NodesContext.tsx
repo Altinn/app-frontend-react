@@ -108,6 +108,7 @@ export interface AddNodeRequest<T extends CompTypes = CompTypes> {
 
 export interface RemoveNodeRequest<T extends CompTypes = CompTypes> {
   node: LayoutNode<T>;
+  layouts: ILayouts;
 }
 
 export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeData<T>> {
@@ -146,6 +147,7 @@ export type NodesContext = {
   hiddenViaRulesRan: boolean;
   validationsProcessedLast: ValidationsProcessedLast;
 
+  layouts: ILayouts | undefined; // Used to detect if the layouts have changed
   stages: GeneratorStagesContext;
 
   setNodes: (nodes: LayoutPages) => void;
@@ -161,7 +163,7 @@ export type NodesContext = {
   onSaveFinished: (result: FDSaveFinished) => void;
   setLatestInitialValidations: (validations: ValidationsProcessedLast['initial']) => void;
 
-  reset: (validationsProcessedLast: ValidationsProcessedLast) => void;
+  reset: (layouts: ILayouts, validationsProcessedLast: ValidationsProcessedLast) => void;
 
   waitForCommits: undefined | (() => Promise<void>);
   setWaitForCommits: (waitForCommits: () => Promise<void>) => void;
@@ -202,6 +204,7 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
   return createStore<NodesContext>((set) => ({
     ...defaultState,
 
+    layouts: undefined,
     stages: createStagesStore(registry, set),
 
     markHiddenViaRule: (newState) =>
@@ -241,8 +244,15 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
         const nodeData = { ...state.nodeData };
         const childrenMap = { ...state.childrenMap };
 
-        for (const { node } of requests) {
+        let count = 0;
+        for (const { node, layouts } of requests) {
           if (!nodeData[node.id]) {
+            continue;
+          }
+
+          if (layouts !== state.layouts) {
+            // The layouts have changed since the request was added, so there's no need to remove the node (it was
+            // automatically removed when resetting the NodesContext state upon the layout change)
             continue;
           }
 
@@ -253,6 +263,11 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
 
           delete nodeData[node.id];
           node.page._removeChild(node);
+          count += 1;
+        }
+
+        if (count === 0) {
+          return {};
         }
 
         return {
@@ -375,10 +390,10 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
         },
       })),
 
-    reset: (validationsProcessedLast: ValidationsProcessedLast) =>
+    reset: (layouts, validationsProcessedLast: ValidationsProcessedLast) =>
       set(() => {
         generatorLog('logReadiness', 'Resetting state');
-        return { ...structuredClone(defaultState), validationsProcessedLast };
+        return { ...structuredClone(defaultState), layouts, validationsProcessedLast };
       }),
 
     waitForCommits: undefined,
@@ -497,7 +512,7 @@ export const NodesProvider = ({ children }: React.PropsWithChildren) => {
 
 function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ registry: MutableRefObject<Registry> }>) {
   const latestLayouts = useLayouts();
-  const [layouts, setLayouts] = useState<ILayouts>(latestLayouts);
+  const layouts = Store.useSelector((s) => s.layouts);
   const markNotReady = NodesInternal.useMarkNotReady();
   const reset = Store.useSelector((s) => s.reset);
   const processedLast = Validation.useProcessedLastRef();
@@ -505,14 +520,13 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   useEffect(() => {
     if (layouts !== latestLayouts) {
       markNotReady('new layouts');
-      setLayouts(latestLayouts);
-      reset(processedLast.current);
+      reset(latestLayouts, processedLast.current);
     }
   }, [latestLayouts, layouts, markNotReady, reset, processedLast]);
 
   const layoutMap = useMemo(() => {
     const out: { [id: string]: CompExternal } = {};
-    for (const page of Object.values(layouts)) {
+    for (const page of Object.values(latestLayouts)) {
       if (!page) {
         continue;
       }
@@ -522,7 +536,7 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
     }
 
     return out;
-  }, [layouts]);
+  }, [latestLayouts]);
 
   if (layouts !== latestLayouts) {
     // You changed the layouts, possibly by using devtools. Hold on while we re-generate!
