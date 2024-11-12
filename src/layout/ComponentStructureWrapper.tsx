@@ -31,8 +31,10 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
 
   const componentWithValidations = (
     <Grid
+      container
       item
       id={`form-content-${node.id}`}
+      style={{ display: 'flex', flexDirection: 'column' }}
       {...gridBreakpoints(grid?.innerGrid)}
     >
       {children}
