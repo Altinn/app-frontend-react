@@ -73,8 +73,6 @@ jobs:
         run: |
           if [ "${{ github.event.pull_request.draft }}" == "false" ]; then
             echo "PERCY_COMMAND=percy exec --parallel -- npx" >> $GITHUB_ENV
-          else
-            echo "PERCY_COMMAND=npx" >> $GITHUB_ENV
           fi
 
       - name: Cypress run
