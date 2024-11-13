@@ -1039,9 +1039,13 @@ export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefi
 ) => NodePickerReturns<N>;
 type NodePickerReturns<N extends LayoutNode | undefined> = NodeDataFromNode<N> | undefined;
 
-function selectNodeData<N extends LayoutNode | undefined>(node: N | string, state: NodesContext): NodePickerReturns<N> {
+function selectNodeData<N extends LayoutNode | undefined>(
+  node: N | string,
+  state: NodesContext,
+  alwaysUseFreshData = false,
+): NodePickerReturns<N> {
   const source =
-    state.readiness === NodesReadiness.Ready
+    state.readiness === NodesReadiness.Ready || alwaysUseFreshData
       ? state.nodeData
       : state.prevNodeData && Object.keys(state.prevNodeData).length > 0
         ? state.prevNodeData
@@ -1058,8 +1062,9 @@ function getNodeData<N extends LayoutNode | undefined, Out>(
   node: N | string,
   state: NodesContext,
   selector: (nodeData: NodeDataFromNode<N>) => Out,
+  alwaysUseFreshData = false,
 ) {
-  return node ? selector(selectNodeData(node, state) as NodeDataFromNode<N>) : undefined;
+  return node ? selector(selectNodeData(node, state, alwaysUseFreshData) as NodeDataFromNode<N>) : undefined;
 }
 
 /**
@@ -1224,9 +1229,10 @@ export const NodesInternal = {
   ): () => Out | undefined {
     const store = Store.useStore();
     const selectorRef = useAsRef(selector);
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return useCallback(
-      () => getNodeData(node, store.getState(), (nodeData) => selectorRef.current(nodeData)),
-      [store, node, selectorRef],
+      () => getNodeData(node, store.getState(), (nodeData) => selectorRef.current(nodeData), insideGenerator),
+      [store, node, selectorRef, insideGenerator],
     );
   },
   useWaitForNodeData<RetVal, N extends LayoutNode | undefined, Out>(
@@ -1250,16 +1256,20 @@ export const NodesInternal = {
       [waitForState, node, selector],
     );
   },
-  useNodeDataSelector: () =>
-    Store.useDelayedSelector({
+  useNodeDataSelector: () => {
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return Store.useDelayedSelector({
       mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
-    }),
-  useLaxNodeDataSelector: () =>
-    Store.useLaxDelayedSelector({
+      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+    });
+  },
+  useLaxNodeDataSelector: () => {
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return Store.useLaxDelayedSelector({
       mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
-    }),
+      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+    });
+  },
   useTypeFromId: (id: string) => Store.useSelector((s) => s.nodeData[id]?.layout.type),
   useIsAdded: (node: LayoutNode | LayoutPage | undefined) =>
     Store.useSelector((s) => {
