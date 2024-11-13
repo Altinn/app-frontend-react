@@ -1,10 +1,8 @@
-import { useCallback, useMemo, useRef } from 'react';
-import type { MutableRefObject } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
-import { getComponentDef } from 'src/layout';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { NodesInternal, NodesReadiness } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { typedBoolean } from 'src/utils/typing';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector } from 'src/layout';
@@ -29,52 +27,27 @@ export function useNodeItem<N extends LayoutNode | undefined>(
 ): N extends undefined ? undefined : NodeItemFromNode<N>;
 // eslint-disable-next-line no-redeclare
 export function useNodeItem(node: LayoutNode | undefined, selector: never): unknown {
-  const insideGenerator = GeneratorInternal.useIsInsideGenerator();
-  return NodesInternal.useNodeData(node, (data: NodeData, readiness, fullState) => {
-    if (insideGenerator) {
-      throw new Error(
-        'useNodeItem() should not be used inside the node generator, it would most likely just crash when ' +
-          'the item is undefined. Instead, use GeneratorInternal.useIntermediateItem() to get the item before ' +
-          'expressions have run, or use a more specific selector in NodesInternal.useNodeData() which will ' +
-          'make you handle the undefined item.',
-      );
-    }
+  if (GeneratorInternal.useIsInsideGenerator()) {
+    throw new Error(
+      'useNodeItem() should not be used inside the node generator, it would most likely just crash when ' +
+        'the item is undefined. Instead, use GeneratorInternal.useIntermediateItem() to get the item before ' +
+        'expressions have run, or use a more specific selector in NodesInternal.useNodeData() which will ' +
+        'make you handle the undefined item.',
+    );
+  }
 
-    let item: CompInternal | undefined;
-    if (readiness === NodesReadiness.Ready && data.item) {
-      item = data.item;
-    } else if (node) {
-      // The node context is not ready yet, let's select from the previous node state if available.
-      item = fullState.prevNodeData?.[node.id]?.item ?? data.item ?? undefined;
-    }
-
-    if (!item) {
+  return NodesInternal.useNodeData(node, (data: NodeData, readiness) => {
+    if (!data?.item) {
       throw new Error(
-        `Node item is undefined. This should normally not happen, but might happen if you select data in new ` +
-          `components while the node state is in the process of being updated (readiness is '${readiness}'). `,
+        `Node item for '${node?.id}' is undefined. This should normally not happen, but might happen if you ` +
+          `select data in new components while the node state is in the process of being updated ` +
+          `(readiness is '${readiness}'). `,
       );
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return selector ? (selector as any)(item) : item;
+    return selector ? (selector as any)(data.item) : data.item;
   });
-}
-
-export function useNodeItemRef<N extends LayoutNode | undefined, Out>(
-  node: N,
-  selector: (item: NodeItemFromNode<N>) => Out,
-): MutableRefObject<Out>;
-// eslint-disable-next-line no-redeclare
-export function useNodeItemRef<N extends LayoutNode | undefined>(
-  node: N,
-  selector?: undefined,
-): MutableRefObject<NodeItemFromNode<N>>;
-// eslint-disable-next-line no-redeclare
-export function useNodeItemRef(node: never, selector: never): never {
-  return NodesInternal.useNodeDataRef(node, (node: NodeData) =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    selector ? (selector as any)(node.item) : node.item,
-  ) as never;
 }
 
 const selectNodeItem = <T extends CompTypes>(data: NodeData<T>): CompInternal<T> | undefined =>
@@ -90,50 +63,15 @@ export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
 
 const emptyArray: LayoutNode[] = [];
 export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): LayoutNode[] {
-  const insideGenerator = GeneratorInternal.useIsInsideGenerator();
-  const lastValue = useRef<LayoutNode[] | undefined>(undefined);
-  return NodesInternal.useNodeData(parent, (nodeData, readiness, fullState) => {
-    if (readiness !== NodesReadiness.Ready && !insideGenerator && lastValue.current) {
-      return lastValue.current;
-    }
-    // if (parent.id === 'mainGroup') {
-    //   debugger;
-    // }
-
+  return NodesInternal.useNodeData(parent, (nodeData, _, fullState) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const out = parent.def.pickDirectChildren(nodeData as any, restriction);
-    if (!insideGenerator) {
-      // If we're not inside the generator, we should make sure to only return values that make sense.
-      for (const childId of out) {
-        if (!childId) {
-          // At least one child is undefined, meaning we're in the process of adding/removing nodes. Better to return
-          // none than return a broken-up set of children.
-          return emptyArray;
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const childNodeData = fullState.nodeData[childId] as any;
-        const def = childNodeData && getComponentDef(childNodeData.layout.type);
-        if (
-          !childNodeData ||
-          !def ||
-          !def.stateIsReady(childNodeData) ||
-          !def.pluginStateIsReady(childNodeData, fullState)
-        ) {
-          // At least one child is not ready, so rendering these out would be worse than pretending there are none.
-          return emptyArray;
-        }
-      }
-    }
-
     const rootNode = fullState.nodes;
     if (!rootNode) {
       return emptyArray;
     }
 
-    const nodes = out.map((id) => rootNode.findById(id)).filter(typedBoolean);
-
-    lastValue.current = nodes;
-    return nodes ?? emptyArray;
+    return out?.map((id) => rootNode.findById(id)).filter(typedBoolean) ?? emptyArray;
   });
 }
 
