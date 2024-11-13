@@ -321,8 +321,7 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
 
           // We need to mark the data as not ready as soon as an error is added, because GeneratorErrorBoundary
           // may need to remove the failing node from the tree before any more node traversal can happen safely.
-          state.readiness = NodesReadiness.NotReady;
-          state.prevNodeData = state.nodeData;
+          setReadiness({ state, target: NodesReadiness.NotReady, reason: `Error added`, mutate: true });
 
           state.hasErrors = true;
         }),
@@ -341,9 +340,13 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
             inOrder: true,
             errors: undefined,
           };
-          state.readiness = NodesReadiness.NotReady;
-          state.prevNodeData = state.nodeData;
-          state.addRemoveCounter += 1;
+          setReadiness({
+            state,
+            target: NodesReadiness.NotReady,
+            reason: `New page added`,
+            mutate: true,
+            newNodes: true,
+          });
         }),
       ),
     setPageProps: (requests) =>
@@ -360,14 +363,7 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
         return { pagesData: { type: 'pages', pages: pageData } };
       }),
     markReady: (reason, readiness = NodesReadiness.Ready) =>
-      set((state) => {
-        if (state.readiness !== readiness) {
-          generatorLog('logReadiness', `Marking state as ${readiness}: ${reason}`);
-          const prevNodeData = state.readiness === NodesReadiness.Ready ? undefined : state.nodeData;
-          return { readiness, prevNodeData };
-        }
-        return {};
-      }),
+      set((state) => setReadiness({ state, target: readiness, reason })),
     onSaveFinished: (result) =>
       set((state) => {
         if (state.readiness !== NodesReadiness.WaitingUntilLastSaveHasProcessed) {
@@ -405,6 +401,51 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
       .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraFunctions),
   }));
 }
+
+interface SetReadinessProps {
+  state: NodesContext;
+  target: NodesReadiness;
+  reason: string;
+  newNodes?: boolean;
+  mutate?: boolean;
+}
+
+/**
+ * Helper function to set new readiness state. Never try to set a new readiness without going through this function.
+ */
+export function setReadiness({
+  state,
+  target,
+  reason,
+  newNodes = false,
+  mutate = false,
+}: SetReadinessProps): Partial<NodesContext> {
+  const toSet: Partial<NodesContext> = {};
+  if (state.readiness !== target) {
+    generatorLog('logReadiness', `Marking state as ${target}: ${reason}`);
+    toSet.readiness = target;
+    if (target !== NodesReadiness.Ready && state.readiness === NodesReadiness.Ready) {
+      // Making a copy of the nodeData from when the state was ready last, so that selectors can continue running
+      // with the old data until the new data is ready. This should also make sure it doesn't accidentally copy
+      // non-ready state if the readiness changes multiple times before becoming ready again.
+      toSet.prevNodeData = state.nodeData;
+    } else if (target === NodesReadiness.Ready) {
+      toSet.prevNodeData = undefined;
+    }
+    if (newNodes) {
+      toSet.addRemoveCounter = state.addRemoveCounter + 1;
+    }
+  }
+
+  if (mutate) {
+    for (const key in toSet) {
+      state[key] = toSet[key];
+    }
+  }
+
+  return toSet;
+}
+
 const Store = createZustandContext<NodesContextStore, NodesContext>({
   name: 'Nodes',
   required: true,

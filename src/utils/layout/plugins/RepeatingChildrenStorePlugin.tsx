@@ -1,6 +1,6 @@
 import deepEqual from 'fast-deep-equal';
 
-import { NodesReadiness } from 'src/utils/layout/NodesContext';
+import { NodesReadiness, setReadiness } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { CompTypes } from 'src/layout/layout';
 import type { LikertRowsPlugin } from 'src/layout/Likert/Generator/LikertRowsPlugin';
@@ -61,7 +61,9 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             nodeData[node.id] = { ...data, item: { ...data.item, [internalProp]: newRows } as any };
           }
 
-          return changes ? { nodeData, readiness: NodesReadiness.NotReady, prevNodeData: state.nodeData } : {};
+          return changes
+            ? { nodeData, ...setReadiness({ state, target: NodesReadiness.NotReady, reason: 'Row extras set' }) }
+            : {};
         });
       },
       removeRow: (node, plugin) => {
@@ -97,9 +99,7 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
 
           return {
             nodeData,
-            readiness: NodesReadiness.NotReady,
-            addRemoveCounter: state.addRemoveCounter + 1,
-            prevNodeData: state.nodeData,
+            ...setReadiness({ state, target: NodesReadiness.NotReady, reason: 'Row removed', newNodes: true }),
           };
         });
       },
