@@ -55,13 +55,14 @@ export const GeneratorData = {
 };
 
 function useExpressionDataSources(): ExpressionDataSources {
-  const selectors = useMultipleDelayedSelectors({
-    formDataSelector: FD.useDebouncedSelectorProto(),
-    formDataRowsSelector: FD.useDebouncedRowsSelectorProto(),
-    attachmentsSelector: NodesInternal.useAttachmentsSelectorProto(),
-    optionsSelector: NodesInternal.useNodeOptionsSelectorProto(),
-    nodeDataSelector: NodesInternal.useNodeDataSelectorProto(),
-  });
+  const [formDataSelector, formDataRowsSelector, attachmentsSelector, optionsSelector, nodeDataSelector] =
+    useMultipleDelayedSelectors(
+      FD.useDebouncedSelectorProto(),
+      FD.useDebouncedRowsSelectorProto(),
+      NodesInternal.useAttachmentsSelectorProto(),
+      NodesInternal.useNodeOptionsSelectorProto(),
+      NodesInternal.useNodeDataSelectorProto(),
+    );
 
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
@@ -74,21 +75,21 @@ function useExpressionDataSources(): ExpressionDataSources {
 
   const isHiddenSelector = Hidden.useIsHiddenSelector();
   const nodeTraversal = useInnerNodeTraversalSelector(hooks.useNodes());
-  const transposeSelector = useInnerDataModelBindingTranspose(selectors.nodeDataSelector);
-  const nodeFormDataSelector = useInnerNodeFormDataSelector(selectors.nodeDataSelector, selectors.formDataSelector);
+  const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
+  const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
     hooks.useDefaultDataType(),
     dataModelNames,
-    selectors.formDataSelector,
-    selectors.nodeDataSelector,
+    formDataSelector,
+    nodeDataSelector,
   );
 
   return useShallowObjectMemo({
-    formDataSelector: selectors.formDataSelector,
-    formDataRowsSelector: selectors.formDataRowsSelector,
-    attachmentsSelector: selectors.attachmentsSelector,
-    optionsSelector: selectors.optionsSelector,
-    nodeDataSelector: selectors.nodeDataSelector,
+    formDataSelector,
+    formDataRowsSelector,
+    attachmentsSelector,
+    optionsSelector,
+    nodeDataSelector,
     process,
     applicationSettings,
     instanceDataSources,
@@ -105,26 +106,33 @@ function useExpressionDataSources(): ExpressionDataSources {
 }
 
 function useValidationDataSources(): ValidationDataSources {
-  const selectors = useMultipleDelayedSelectors({
-    formDataSelector: FD.useDebouncedSelectorProto(),
-    invalidDataSelector: FD.useInvalidDebouncedSelectorProto(),
-    attachmentsSelector: NodesInternal.useAttachmentsSelectorProto(),
-    nodeDataSelector: NodesInternal.useNodeDataSelectorProto(),
-    dataElementsSelector: useLaxDataElementsSelectorProto(),
-    dataElementHasErrorsSelector: Validation.useDataElementHasErrorsSelectorProto(),
-  });
+  const [
+    formDataSelector,
+    invalidDataSelector,
+    attachmentsSelector,
+    nodeDataSelector,
+    dataElementsSelector,
+    dataElementHasErrorsSelector,
+  ] = useMultipleDelayedSelectors(
+    FD.useDebouncedSelectorProto(),
+    FD.useInvalidDebouncedSelectorProto(),
+    NodesInternal.useAttachmentsSelectorProto(),
+    NodesInternal.useNodeDataSelectorProto(),
+    useLaxDataElementsSelectorProto(),
+    Validation.useDataElementHasErrorsSelectorProto(),
+  );
 
   const currentLanguage = useCurrentLanguage();
   const applicationMetadata = useApplicationMetadata();
   const layoutSets = useLayoutSets();
 
   return useShallowObjectMemo({
-    formDataSelector: selectors.formDataSelector,
-    invalidDataSelector: selectors.invalidDataSelector,
-    attachmentsSelector: selectors.attachmentsSelector,
-    nodeDataSelector: selectors.nodeDataSelector,
-    dataElementsSelector: selectors.dataElementsSelector,
-    dataElementHasErrorsSelector: selectors.dataElementHasErrorsSelector,
+    formDataSelector,
+    invalidDataSelector,
+    attachmentsSelector,
+    nodeDataSelector,
+    dataElementsSelector,
+    dataElementHasErrorsSelector,
     currentLanguage,
     applicationMetadata,
     layoutSets,

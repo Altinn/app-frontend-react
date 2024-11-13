@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import type { MutableRefObject } from 'react';
+import { useRef, useSyncExternalStore } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 import type { StoreApi } from 'zustand';
@@ -17,12 +16,6 @@ type TypeFromConf<C extends DSConfig> = C extends DSConfig<infer T> ? T : never;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ModeFromConf<C extends DSConfig> = C extends DSConfig<any, infer M> ? M : never;
 
-type Internal<C extends DSConfig> = {
-  selectorsCalled: SelectorMap<C> | null;
-  lastReRenderValue: unknown | null;
-  unsubscribe: (() => void) | null;
-};
-
 /**
  * A complex hook that returns a function you can use to select a value at some point in the future. If you never
  * select any values from the store, the store will not be subscribed to, and the component will not re-render when
@@ -34,133 +27,25 @@ type Internal<C extends DSConfig> = {
  * because the function itself will be recreated every time the component re-renders, and the function
  * will not be able to be used as a cache key.
  */
-export function useDelayedSelector<C extends DSConfig>({
-  store,
-  deps = [],
-  strictness,
-  mode,
-  makeCacheKey = mode.mode === 'simple' ? defaultMakeCacheKey : defaultMakeCacheKeyForInnerSelector,
-  equalityFn = deepEqual,
-  onlyReRenderWhen,
-}: DSProps<C>): DSReturn<C> {
-  const [renderCount, forceRerender] = useState(0);
-  const internal = useRef<Internal<C>>({
-    selectorsCalled: null,
-    lastReRenderValue: null,
-    unsubscribe: null,
-  });
+export function useDelayedSelector<C extends DSConfig>(props: DSProps<C>): DSReturn<C> {
+  const state = useRef(new SingleDelayedSelectorController(props));
 
-  useEffect(() => () => internal.current.unsubscribe?.(), []);
+  // Check if any deps have changed
+  state.current.checkDeps(props);
 
-  const subscribe = useCallback(
-    () =>
-      store !== ContextNotProvided
-        ? store.subscribe((state) => {
-            const s = internal.current;
-            if (!s.selectorsCalled) {
-              return;
-            }
-
-            let stateChanged = true;
-            if (onlyReRenderWhen) {
-              stateChanged = onlyReRenderWhen(state, s.lastReRenderValue, (v) => {
-                s.lastReRenderValue = v;
-              });
-            }
-            if (!stateChanged) {
-              return;
-            }
-
-            // When the state changes, we run all the known selectors again to figure out if anything changed. If it
-            // did change, we'll clear the list of selectors to force a re-render.
-            const selectors = s.selectorsCalled.values();
-            let changed = false;
-            for (const { fullSelector, value } of selectors) {
-              if (!equalityFn(value, fullSelector(state))) {
-                changed = true;
-                break;
-              }
-            }
-            if (changed) {
-              s.selectorsCalled = null;
-              forceRerender((prev) => prev + 1);
-            }
-          })
-        : null,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [store],
-  );
-
-  return useCallback(
-    (...args: unknown[]) => {
-      if (store === ContextNotProvided) {
-        if (strictness === SelectorStrictness.throwWhenNotProvided) {
-          throw new Error('useDelayedSelector: store not provided');
-        }
-        return ContextNotProvided;
-      }
-      const s = internal.current;
-
-      if (isNaN(renderCount)) {
-        // This should not happen, and this piece of code looks a bit out of place. This really is only here
-        // to make sure the callback is re-created and the component re-renders when the store changes.
-        throw new Error('useDelayedSelector: renderCount is NaN');
-      }
-
-      const cacheKey = makeCacheKey(args);
-      const prev = s.selectorsCalled?.get(cacheKey);
-      if (prev) {
-        // Performance-wise we could also just have called the selector here, it doesn't really matter. What is
-        // important however, is that we let developers know as early as possible if they forgot to include a dependency
-        // or otherwise used the hook incorrectly, so we'll make sure to return the value to them here even if it
-        // could be stale (but only when improperly used).
-        return prev.value;
-      }
-
-      // We don't need to initialize the arraymap before checking for the previous value,
-      // since we know it would not exist if we just created it.
-      if (!s.selectorsCalled) {
-        s.selectorsCalled = new ShallowArrayMap();
-      }
-      if (!s.unsubscribe) {
-        s.unsubscribe = subscribe();
-      }
-
-      const state = store.getState();
-
-      if (mode.mode === 'simple') {
-        const { selector } = mode as SimpleArgMode;
-        const fullSelector: Selector<TypeFromConf<C>, unknown> = (state) => selector(...args)(state);
-        const value = fullSelector(state);
-        s.selectorsCalled.set(cacheKey, { fullSelector, value });
-        return value;
-      }
-
-      if (mode.mode === 'innerSelector') {
-        const { makeArgs } = mode as InnerSelectorMode;
-        if (typeof args[0] !== 'function' || !Array.isArray(args[1]) || args.length !== 2) {
-          throw new Error('useDelayedSelector: innerSelector must be a function');
-        }
-        const fullSelector: Selector<TypeFromConf<C>, unknown> = (state) => {
-          const innerArgs = makeArgs(state);
-          const innerSelector = args[0] as (...args: typeof innerArgs) => unknown;
-          return innerSelector(...innerArgs);
-        };
-
-        const value = fullSelector(state);
-        s.selectorsCalled.set(cacheKey, { fullSelector, value });
-        return value;
-      }
-
-      throw new Error('useDelayedSelector: invalid mode');
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [store, renderCount, ...deps],
-  ) as DSReturn<C>;
+  return useSyncExternalStore(state.current.subscribe, state.current.getSnapshot);
 }
 
-class DelayedSelectorProto<C extends DSConfig> {
-  private name: string | undefined;
+export function useMultipleDelayedSelectors<P extends MultiDSProps>(...props: P): { [I in keyof P]: DSReturn<P[I]> } {
+  const state = useRef(new MultiDelayedSelectorController(props));
+
+  // Check if any deps have changed
+  state.current.checkDeps(props);
+
+  return useSyncExternalStore(state.current.subscribe, state.current.getSnapshot);
+}
+
+abstract class BaseDelayedSelector<C extends DSConfig> {
   private store: C['store'];
   private strictness: C['strictness'];
   private mode: C['mode'];
@@ -170,29 +55,20 @@ class DelayedSelectorProto<C extends DSConfig> {
   private onlyReRenderWhen: OnlyReRenderWhen<TypeFromConf<C>, unknown> | undefined;
   private deps: unknown[] | undefined;
 
+  protected selectorFunc = ((...args: unknown[]) => this.selector(...args)) as DSReturn<C>;
   private lastReRenderValue: unknown = null;
   private selectorsCalled: SelectorMap<C> | null = null;
   private unsubscribeMethod: (() => void) | null = null;
 
-  private changeCount = 0;
-  private lastSelectChangeCount = 0;
-
-  private onChange: (lastSelectChangeCount: number, name?: string) => void;
-
-  constructor(
-    {
-      store,
-      strictness,
-      mode,
-      makeCacheKey = mode.mode === 'simple' ? defaultMakeCacheKey : defaultMakeCacheKeyForInnerSelector,
-      equalityFn = deepEqual,
-      onlyReRenderWhen,
-      deps,
-    }: DSProps<C>,
-    onChange: (lastSelectChangeCount: number, name?: string) => void,
-    name?: string,
-  ) {
-    this.name = name;
+  constructor({
+    store,
+    strictness,
+    mode,
+    makeCacheKey = mode.mode === 'simple' ? defaultMakeCacheKey : defaultMakeCacheKeyForInnerSelector,
+    equalityFn = deepEqual,
+    onlyReRenderWhen,
+    deps,
+  }: DSProps<C>) {
     this.store = store;
     this.strictness = strictness;
     this.mode = mode;
@@ -200,22 +76,6 @@ class DelayedSelectorProto<C extends DSConfig> {
     this.equalityFn = equalityFn;
     this.onlyReRenderWhen = onlyReRenderWhen;
     this.deps = deps;
-    this.onChange = onChange;
-  }
-
-  public unsubscribe() {
-    if (this.unsubscribeMethod) {
-      this.unsubscribeMethod();
-      this.unsubscribeMethod = null;
-    }
-  }
-
-  public getSelector() {
-    return ((...args: unknown[]) => this.selector(...args)) as DSReturn<C>;
-  }
-
-  public setChangeCount(i: number) {
-    this.changeCount = i;
   }
 
   public checkDeps(newProps: DSProps<C>) {
@@ -238,13 +98,28 @@ class DelayedSelectorProto<C extends DSConfig> {
       this.onlyReRenderWhen = onlyReRenderWhen;
       this.deps = deps;
 
-      this.selectorsCalled = null;
-      this.unsubscribe();
-      this.onChange(this.lastSelectChangeCount);
+      this.updateSelector();
     }
   }
 
-  private subscribe() {
+  protected abstract onUpdateSelector(): void;
+  protected onCallSelector() {}
+
+  private updateSelector() {
+    this.selectorsCalled = null;
+    this.unsubscribeFromStore();
+    this.selectorFunc = ((...args: unknown[]) => this.selector(...args)) as DSReturn<C>;
+    this.onUpdateSelector();
+  }
+
+  public unsubscribeFromStore() {
+    if (this.unsubscribeMethod) {
+      this.unsubscribeMethod();
+      this.unsubscribeMethod = null;
+    }
+  }
+
+  private subscribeToStore() {
     if (this.store === ContextNotProvided) {
       return null;
     }
@@ -274,14 +149,12 @@ class DelayedSelectorProto<C extends DSConfig> {
         }
       }
       if (changed) {
-        this.selectorsCalled = null;
-        this.unsubscribe();
-        this.onChange(this.lastSelectChangeCount, this.name);
+        this.updateSelector();
       }
     });
   }
 
-  public selector(...args: unknown[]) {
+  private selector(...args: unknown[]) {
     if (this.store === ContextNotProvided) {
       if (this.strictness === SelectorStrictness.throwWhenNotProvided) {
         throw new Error('useDelayedSelector: store not provided');
@@ -289,7 +162,7 @@ class DelayedSelectorProto<C extends DSConfig> {
       return ContextNotProvided;
     }
 
-    this.lastSelectChangeCount = this.changeCount;
+    this.onCallSelector();
 
     const cacheKey = this.makeCacheKey(args);
     const prev = this.selectorsCalled?.get(cacheKey);
@@ -307,7 +180,7 @@ class DelayedSelectorProto<C extends DSConfig> {
       this.selectorsCalled = new ShallowArrayMap();
     }
     if (!this.unsubscribeMethod) {
-      this.unsubscribeMethod = this.subscribe();
+      this.unsubscribeMethod = this.subscribeToStore();
     }
 
     const state = this.store.getState();
@@ -340,174 +213,87 @@ class DelayedSelectorProto<C extends DSConfig> {
   }
 }
 
-type MDSProps = {
-  [name: string]: DSProps<DSConfig>;
-};
+class SingleDelayedSelectorController<C extends DSConfig> extends BaseDelayedSelector<C> {
+  private triggerRender: () => void;
 
-type MDSSTate<P extends MDSProps> = {
-  changeCount: number;
-  delayedSelectors: { [name in keyof P]?: DelayedSelectorProto<P[name]> };
-  snapshot: { [name in keyof P]: DSReturn<P[name]> };
-  subscribe: (callback: () => void) => () => void;
-  getSnapshot: () => { [name in keyof P]: DSReturn<P[name]> };
-  forceRerender: () => void;
-  hasDeps: (keyof P)[];
-};
-
-function initMultiSelectorState<P extends MDSProps>(props: P, state: MutableRefObject<MDSSTate<P>>): MDSSTate<P> {
-  const subscribe = (callback: () => void) => {
-    state.current.forceRerender = callback;
-    return () => Object.values(state.current.delayedSelectors).forEach((ds) => ds?.unsubscribe());
+  public getSnapshot = () => this.selectorFunc;
+  public subscribe = (callback: () => void) => {
+    this.triggerRender = callback;
+    return () => this.unsubscribeFromStore;
   };
 
-  const getSnapshot = () => state.current.snapshot;
+  protected onUpdateSelector(): void {
+    this.triggerRender();
+  }
+}
 
-  const onChange = (lastSelectRenderCount: number, name?: string) => {
+class MultiDelayedSelector<C extends DSConfig> extends BaseDelayedSelector<C> {
+  private changeCount = 0;
+  private lastSelectChangeCount = 0;
+  private onChange: (lastSelectChangeCount: number) => void;
+
+  constructor(props: DSProps<C>, onChange: (lastSelectChangeCount: number) => void) {
+    super(props);
+    this.onChange = onChange;
+  }
+
+  public getSelectorFunc() {
+    return this.selectorFunc;
+  }
+
+  public setChangeCount(count: number) {
+    this.changeCount = count;
+  }
+
+  protected onCallSelector(): void {
+    this.lastSelectChangeCount = this.changeCount;
+  }
+
+  protected onUpdateSelector(): void {
+    this.onChange(this.lastSelectChangeCount);
+  }
+}
+
+class MultiDelayedSelectorController<P extends MultiDSProps> {
+  private changeCount = 0;
+  private controllers: MultiDelayedSelector<DSConfig>[] = [];
+  private selectorFuncs: DSReturn<DSConfig>[] = [];
+  private triggerRender: () => void;
+
+  constructor(props: P) {
+    for (let i = 0; i < props.length; i++) {
+      const MDS = new MultiDelayedSelector(props[i], (lastSelectChangeCount: number) =>
+        this.onUpdateSelector(i, lastSelectChangeCount),
+      );
+      this.controllers.push(MDS);
+      this.selectorFuncs.push(MDS.getSelectorFunc());
+    }
+  }
+
+  public getSnapshot = () => this.selectorFuncs as { [I in keyof P]: DSReturn<P[I]> };
+
+  public subscribe = (callback: () => void) => {
+    this.triggerRender = callback;
+    return () => this.controllers.forEach((c) => c.unsubscribeFromStore());
+  };
+
+  public checkDeps(newProps: P) {
+    for (let i = 0; i < newProps.length; i++) {
+      this.controllers[i].checkDeps(newProps[i]);
+    }
+  }
+
+  private onUpdateSelector(index: number, lastSelectChangeCount: number): void {
     // Prevent multiple re-renders at the same time
-    state.current.snapshot[name as keyof P] = state.current.delayedSelectors[name as keyof P]!.getSelector();
-    if (lastSelectRenderCount === state.current.changeCount) {
-      state.current.snapshot = { ...state.current.snapshot };
-      state.current.forceRerender();
+    this.selectorFuncs[index] = this.controllers[index].getSelectorFunc();
+    if (lastSelectChangeCount === this.changeCount) {
+      this.selectorFuncs = [...this.selectorFuncs];
+      this.triggerRender();
     }
-    state.current.changeCount += 1;
-    Object.values(state.current.delayedSelectors).forEach((ds) => ds.setChangeCount(state.current.changeCount));
-  };
-
-  // const [delayedSelectors, snapshot, hasDeps] = makeDelayedSelectors(props, onChange);
-
-  const initialSnapshot = {};
-  const hasDeps: (keyof P)[] = [];
-  for (const name in props) {
-    const prop = props[name];
-    !!prop.deps && hasDeps.push(name);
-    initialSnapshot[name as string] = (...args: unknown[]) => {
-      let delayedSelector = state.current.delayedSelectors[name];
-      if (!delayedSelector) {
-        delayedSelector = new DelayedSelectorProto(prop, onChange, name) as DelayedSelectorProto<P[typeof name]>;
-        state.current.delayedSelectors[name] = delayedSelector;
-      }
-      return delayedSelector.selector(...args);
-    };
+    this.changeCount += 1;
+    this.controllers.forEach((ds) => ds.setChangeCount(this.changeCount));
   }
-
-  return {
-    changeCount: 0,
-    delayedSelectors: {},
-    snapshot: initialSnapshot as { [name in keyof P]: DSReturn<P[name]> },
-    subscribe,
-    getSnapshot,
-    forceRerender: () => {},
-    hasDeps,
-  };
 }
-
-export function useMultipleDelayedSelectors<P extends MDSProps>(props: P) {
-  const state: MutableRefObject<MDSSTate<P>> = useRef(
-    initMultiSelectorState(props, {
-      get current() {
-        return state.current;
-      },
-    }),
-  );
-
-  // Check if any deps have changed
-  if (state.current.hasDeps.length) {
-    for (const name of state.current.hasDeps) {
-      state.current.delayedSelectors[name]?.checkDeps(props[name] as never);
-    }
-  }
-
-  return useSyncExternalStore(state.current.subscribe, state.current.getSnapshot) as {
-    [name in keyof P]: DSReturn<P[name]>;
-  };
-}
-
-type DSSTate<C extends DSConfig> = {
-  delayedSelector?: DelayedSelectorProto<C>;
-  snapshot: DSReturn<C>;
-  subscribe: (callback: () => void) => () => void;
-  getSnapshot: () => DSReturn<C>;
-  forceRerender: () => void;
-  hasDeps: boolean;
-};
-
-function initSelectorState<C extends DSConfig>(props: DSProps<C>, state: MutableRefObject<DSSTate<C>>): DSSTate<C> {
-  const subscribe = (callback: () => void) => {
-    state.current.forceRerender = callback;
-    return () => state.current.delayedSelector?.unsubscribe();
-  };
-
-  const getSnapshot = () => state.current.snapshot;
-
-  const onChange = () => {
-    state.current.snapshot = state.current.delayedSelector!.getSelector();
-    state.current.forceRerender();
-  };
-
-  const initialSnapshot = (...args: unknown[]) => {
-    let delayedSelector = state.current.delayedSelector;
-    if (!delayedSelector) {
-      delayedSelector = new DelayedSelectorProto(props, onChange);
-      state.current.delayedSelector = delayedSelector;
-    }
-    return delayedSelector.selector(...args);
-  };
-
-  const hasDeps = !!props.deps;
-
-  return {
-    snapshot: initialSnapshot as DSReturn<C>,
-    subscribe,
-    getSnapshot,
-    forceRerender: () => {},
-    hasDeps,
-  };
-}
-
-export function useDelayedSelector2<C extends DSConfig>(props: DSProps<C>): DSReturn<C> {
-  const state: MutableRefObject<DSSTate<C>> = useRef(
-    initSelectorState(props, {
-      get current() {
-        return state.current;
-      },
-    }),
-  );
-
-  // Check if any deps have changed
-  if (state.current.hasDeps) {
-    state.current.delayedSelector?.checkDeps(props);
-  }
-
-  return useSyncExternalStore(state.current.subscribe, state.current.getSnapshot);
-}
-
-// function makeDelayedSelectors<P extends MDSProps>(props: P, onChange: (lastSelectRenderCount: number) => void) {
-//   const delayedSelectors = {};
-//   const selectors = {};
-//   const hasDeps: (keyof P)[] = [];
-//   for (const name in props) {
-//     const prop = props[name];
-//     !!prop.deps && hasDeps.push(name);
-//     const ds = new DelayedSelectorProto(prop, onChange, name);
-//     delayedSelectors[name as string] = ds;
-//     selectors[name as string] = ds.getSelector();
-//   }
-//   return [delayedSelectors, selectors, hasDeps] as [
-//     MDSSTate<P>['delayedSelectors'],
-//     MDSSTate<P>['snapshot'],
-//     (keyof P)[],
-//   ];
-// }
-//
-// function getFreshSelectors<P extends MDSProps>(delayedSelectors: {
-//   [name in keyof P]?: DelayedSelectorProto<P[name]>;
-// }) {
-//   const selectors = {};
-//   for (const name in delayedSelectors) {
-//     selectors[name as string] = delayedSelectors[name]?.getSelector();
-//   }
-//   return selectors as MDSSTate<P>['snapshot'];
-// }
 
 function arrayShallowEqual(a: unknown[], b?: unknown[]) {
   if (a.length !== b?.length) {
@@ -597,6 +383,8 @@ export interface DSProps<C extends DSConfig> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deps?: any[];
 }
+
+type MultiDSProps = DSProps<DSConfig>[];
 
 export type DSReturn<C extends DSConfig> =
   ModeFromConf<C> extends SimpleArgMode

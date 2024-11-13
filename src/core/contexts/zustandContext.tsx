@@ -6,7 +6,7 @@ import { createStore, useStore } from 'zustand';
 import type { StoreApi } from 'zustand';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
-import { SelectorStrictness, useDelayedSelector2 } from 'src/hooks/delayedSelectors';
+import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import type { CreateContextProps } from 'src/core/contexts/context';
 import type { DSConfig, DSMode, DSProps, DSReturn } from 'src/hooks/delayedSelectors';
 
@@ -147,7 +147,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     deps?: any[],
   ): DSReturn<DSConfig<Type, Mode, SelectorStrictness.returnWhenNotProvided>> =>
-    useDelayedSelector2({
+    useDelayedSelector({
       store: useLaxCtx(),
       strictness: SelectorStrictness.returnWhenNotProvided,
       mode,
@@ -158,7 +158,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     mode: Mode,
     deps?: unknown[],
   ): DSReturn<DSConfig<Type, Mode, SelectorStrictness.throwWhenNotProvided>> =>
-    useDelayedSelector2({
+    useDelayedSelector({
       store: useCtx(),
       strictness: SelectorStrictness.throwWhenNotProvided,
       mode,
