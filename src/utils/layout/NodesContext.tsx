@@ -482,22 +482,22 @@ function whenReadySelector<T>(
  */
 const Conditionally = {
   useSelector: <T,>(selector: (state: NodesContext) => T): T | undefined => {
-    const isGenerating = GeneratorStages.useIsGenerating();
+    const isGenerating = GeneratorInternal.useIsInsideGenerator();
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return isGenerating ? Store.useSelector(selector) : WhenReady.useSelector(selector);
   },
   useMemoSelector: <T,>(selector: (state: NodesContext) => T): T | undefined => {
-    const isGenerating = GeneratorStages.useIsGenerating();
+    const isGenerating = GeneratorInternal.useIsInsideGenerator();
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return isGenerating ? Store.useMemoSelector(selector) : WhenReady.useMemoSelector(selector);
   },
   useLaxSelector: <T,>(selector: (state: NodesContext) => T): T | typeof ContextNotProvided => {
-    const isGenerating = GeneratorStages.useIsGenerating();
+    const isGenerating = GeneratorInternal.useIsInsideGenerator();
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return isGenerating ? Store.useLaxSelector(selector) : WhenReady.useLaxSelector(selector);
   },
   useLaxMemoSelector: <T,>(selector: (state: NodesContext) => T): T | typeof ContextNotProvided => {
-    const isGenerating = GeneratorStages.useIsGenerating();
+    const isGenerating = GeneratorInternal.useIsInsideGenerator();
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return isGenerating ? Store.useLaxMemoSelector(selector) : WhenReady.useLaxMemoSelector(selector);
   },
