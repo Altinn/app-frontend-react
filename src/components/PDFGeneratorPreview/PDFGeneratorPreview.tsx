@@ -72,7 +72,7 @@ export function PDFGeneratorPreview({ buttonTitle }: { buttonTitle?: string }) {
             aria-hidden
           />
         }
-        {buttonTitle ? langAsString(buttonTitle) : 'Generer PDF'}
+        {buttonTitle ? langAsString(buttonTitle) : 'Forhåndsvis PDF'}
       </Button>
       <Modal
         ref={modalRef}

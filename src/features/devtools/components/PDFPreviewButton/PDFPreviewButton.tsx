@@ -3,7 +3,7 @@ import React from 'react';
 import { Button, Fieldset } from '@digdir/designsystemet-react';
 import { FilePdfIcon } from '@navikt/aksel-icons';
 
-import { PDFGeneratorPreview } from 'src/features/devtools/components/PDFPreviewButton/PDFGeneratorPreview';
+import { PDFGeneratorPreview } from 'src/components/PDFGeneratorPreview/PDFGeneratorPreview';
 import classes from 'src/features/devtools/components/PDFPreviewButton/PDFPreview.module.css';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
