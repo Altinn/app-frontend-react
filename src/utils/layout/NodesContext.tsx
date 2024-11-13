@@ -30,6 +30,7 @@ import {
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
+import { useAsRef } from 'src/hooks/useAsRef';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
@@ -860,20 +861,19 @@ type RetValFromNode<T extends MaybeNode> = T extends LayoutNode
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
 export function useNode<T extends string | undefined | LayoutNode>(id: T): RetValFromNode<T> {
+  const lastValue = useRef<LayoutNode | null | undefined | typeof NeverInitialized>(NeverInitialized);
   const node = Store.useSelector((state) => {
-    if (!id) {
+    if (!id || !state?.nodes) {
       return undefined;
     }
 
-    if (!state?.nodes) {
-      return undefined;
+    if (state.readiness !== NodesReadiness.Ready && lastValue.current !== NeverInitialized) {
+      return lastValue.current;
     }
 
-    if (id instanceof BaseLayoutNode) {
-      return id;
-    }
-
-    return state.nodes.findById(id);
+    const node = id instanceof BaseLayoutNode ? id : state.nodes.findById(id);
+    lastValue.current = node;
+    return node;
   });
   return node as RetValFromNode<T>;
 }
@@ -1055,11 +1055,37 @@ export const Hidden = {
 export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
 export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
 
-export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefined>(node: N) => NodePickerReturns<N>;
+export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefined>(
+  node: N | string,
+) => NodePickerReturns<N>;
 type NodePickerReturns<N extends LayoutNode | undefined> = NodeDataFromNode<N> | undefined;
 
-function selectNodeData<N extends LayoutNode | undefined>(node: N, state: NodesContext): NodePickerReturns<N> {
-  return (node ? state.nodeData[node.id] : undefined) as NodePickerReturns<N>;
+function selectNodeData<N extends LayoutNode | undefined>(
+  node: N | string,
+  state: NodesContext,
+  alwaysUseFreshData = false,
+): NodePickerReturns<N> {
+  const source =
+    state.readiness === NodesReadiness.Ready || alwaysUseFreshData
+      ? state.nodeData
+      : state.prevNodeData && Object.keys(state.prevNodeData).length > 0
+        ? state.prevNodeData
+        : state.nodeData;
+
+  if (typeof node === 'string') {
+    return source[node] as NodePickerReturns<N>;
+  }
+
+  return (node ? source[node.id] : undefined) as NodePickerReturns<N>;
+}
+
+function getNodeData<N extends LayoutNode | undefined, Out>(
+  node: N | string,
+  state: NodesContext,
+  selector: (nodeData: NodeDataFromNode<N>) => Out,
+  alwaysUseFreshData = false,
+) {
+  return node ? selector(selectNodeData(node, state, alwaysUseFreshData) as NodeDataFromNode<N>) : undefined;
 }
 
 /**
@@ -1203,18 +1229,32 @@ export const NodesInternal = {
     node: N,
     selector: (nodeData: NodeDataFromNode<N>, readiness: NodesReadiness, fullState: NodesContext) => Out,
   ) {
-    return Conditionally.useMemoSelector((s) =>
-      node && s.nodeData[node.id] ? selector(s.nodeData[node.id] as NodeDataFromNode<N>, s.readiness, s) : undefined,
-    ) as N extends undefined ? Out | undefined : Out;
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return Conditionally.useMemoSelector((s) => {
+      if (!node) {
+        return undefined;
+      }
+      const data =
+        insideGenerator && s.nodeData[node.id]
+          ? s.nodeData[node.id]
+          : s.readiness === NodesReadiness.Ready
+            ? s.nodeData[node.id]
+            : (s.prevNodeData?.[node.id] ?? s.nodeData[node.id]);
+
+      return data ? selector(data as NodeDataFromNode<N>, s.readiness, s) : undefined;
+    }) as N extends undefined ? Out | undefined : Out;
   },
-  useNodeDataRef<N extends LayoutNode | undefined, Out>(
+  useGetNodeData<N extends LayoutNode | undefined, Out>(
     node: N,
     selector: (state: NodeDataFromNode<N>) => Out,
-  ): React.MutableRefObject<N extends undefined ? Out | undefined : Out> {
-    return Store.useSelectorAsRef(
-      (s) => (node && s.nodeData[node.id] ? selector(s.nodeData[node.id] as NodeDataFromNode<N>) : undefined),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ) as any;
+  ): () => Out | undefined {
+    const store = Store.useStore();
+    const selectorRef = useAsRef(selector);
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return useCallback(
+      () => getNodeData(node, store.getState(), (nodeData) => selectorRef.current(nodeData), insideGenerator),
+      [store, node, selectorRef, insideGenerator],
+    );
   },
   useWaitForNodeData<RetVal, N extends LayoutNode | undefined, Out>(
     node: N,
@@ -1237,16 +1277,20 @@ export const NodesInternal = {
       [waitForState, node, selector],
     );
   },
-  useNodeDataSelector: () =>
-    Store.useDelayedSelector({
+  useNodeDataSelector: () => {
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return Store.useDelayedSelector({
       mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
-    }),
-  useLaxNodeDataSelector: () =>
-    Store.useLaxDelayedSelector({
+      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+    });
+  },
+  useLaxNodeDataSelector: () => {
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return Store.useLaxDelayedSelector({
       mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
-    }),
+      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+    });
+  },
   useTypeFromId: (id: string) => Store.useSelector((s) => s.nodeData[id]?.layout.type),
   useIsAdded: (node: LayoutNode | LayoutPage | undefined) =>
     Store.useSelector((s) => {
