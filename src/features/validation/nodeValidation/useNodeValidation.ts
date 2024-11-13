@@ -30,7 +30,7 @@ export function useNodeValidation(
   shouldValidate: boolean,
 ): { validations: AnyValidation[]; processedLast: ValidationsProcessedLast } {
   const dataModelSelector = Validation.useDataModelSelector();
-  const validationDataSources = useValidationDataSources();
+  const validationDataSources = GeneratorData.useValidationDataSources();
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
 
   const getDataElementIdForDataType = GeneratorData.useGetDataElementIdForDataType();

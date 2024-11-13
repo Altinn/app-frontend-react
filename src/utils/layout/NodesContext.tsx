@@ -1185,6 +1185,11 @@ export const NodesInternal = {
       mode: 'innerSelector',
       makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
     }),
+  useNodeDataSelectorProto: () =>
+    Store.useDelayedSelectorProto({
+      mode: 'innerSelector',
+      makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
+    }),
   useTypeFromId: (id: string) => Store.useSelector((s) => s.nodeData[id]?.layout.type),
   useIsAdded: (node: LayoutNode | LayoutPage | undefined) =>
     Store.useSelector((s) => {

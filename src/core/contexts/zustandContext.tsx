@@ -6,9 +6,9 @@ import { createStore, useStore } from 'zustand';
 import type { StoreApi } from 'zustand';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
-import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
+import { SelectorStrictness, useDelayedSelector2 } from 'src/hooks/delayedSelectors';
 import type { CreateContextProps } from 'src/core/contexts/context';
-import type { DSConfig, DSMode, DSReturn } from 'src/hooks/delayedSelectors';
+import type { DSConfig, DSMode, DSProps, DSReturn } from 'src/hooks/delayedSelectors';
 
 type ExtractFromStoreApi<T> = T extends StoreApi<infer U> ? Exclude<U, void> : never;
 
@@ -147,7 +147,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     deps?: any[],
   ): DSReturn<DSConfig<Type, Mode, SelectorStrictness.returnWhenNotProvided>> =>
-    useDelayedSelector({
+    useDelayedSelector2({
       store: useLaxCtx(),
       strictness: SelectorStrictness.returnWhenNotProvided,
       mode,
@@ -158,12 +158,28 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     mode: Mode,
     deps?: unknown[],
   ): DSReturn<DSConfig<Type, Mode, SelectorStrictness.throwWhenNotProvided>> =>
-    useDelayedSelector({
+    useDelayedSelector2({
       store: useCtx(),
       strictness: SelectorStrictness.throwWhenNotProvided,
       mode,
       deps,
     });
+
+  const useDSProto = <Mode extends DSMode<Type>>(
+    mode: Mode,
+  ): DSProps<DSConfig<Type, Mode, SelectorStrictness.throwWhenNotProvided>> => ({
+    store: useCtx(),
+    strictness: SelectorStrictness.throwWhenNotProvided,
+    mode,
+  });
+
+  const useLaxDSProto = <Mode extends DSMode<Type>>(
+    mode: Mode,
+  ): DSProps<DSConfig<Type, Mode, SelectorStrictness.returnWhenNotProvided>> => ({
+    store: useLaxCtx(),
+    strictness: SelectorStrictness.returnWhenNotProvided,
+    mode,
+  });
 
   return {
     Provider: MyProvider,
@@ -175,6 +191,8 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     useLaxSelector,
     useDelayedSelector: useDS,
     useLaxDelayedSelector: useLaxDS,
+    useDelayedSelectorProto: useDSProto,
+    useLaxDelayedSelectorProto: useLaxDSProto,
     useHasProvider,
     useStore: useCtx,
     useLaxStore: useLaxCtx,

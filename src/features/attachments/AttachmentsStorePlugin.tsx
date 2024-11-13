@@ -33,6 +33,7 @@ import type {
   UploadedAttachment,
 } from 'src/features/attachments/index';
 import type { BackendValidationIssue } from 'src/features/validation';
+import type { DSConfig, DSProps } from 'src/hooks/delayedSelectors';
 import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
@@ -83,6 +84,7 @@ export interface AttachmentsStorePluginConfig {
 
     useAttachments: (node: FileUploaderNode) => IAttachment[];
     useAttachmentsSelector: () => AttachmentsSelector;
+    useAttachmentsSelectorProto: () => DSProps<DSConfig>;
     useWaitUntilUploaded: () => (node: FileUploaderNode, attachment: TemporaryAttachment) => Promise<IData | false>;
 
     useHasPendingAttachments: () => boolean;
@@ -398,6 +400,21 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             return emptyArray;
           },
         }) satisfies AttachmentsSelector;
+      },
+      useAttachmentsSelectorProto() {
+        return store.useDelayedSelectorProto({
+          mode: 'simple',
+          selector: (node: LayoutNode) => (state) => {
+            const nodeData = state.nodeData[node.id];
+            if (!nodeData) {
+              return emptyArray;
+            }
+            if (nodeData && 'attachments' in nodeData) {
+              return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
+            }
+            return emptyArray;
+          },
+        });
       },
       useWaitUntilUploaded() {
         const zustandStore = store.useStore();

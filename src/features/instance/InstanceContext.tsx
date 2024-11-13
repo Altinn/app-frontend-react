@@ -52,6 +52,7 @@ const {
   useHasProvider,
   useLaxStore,
   useLaxDelayedSelector,
+  useLaxDelayedSelectorProto,
 } = createZustandContext({
   name: 'InstanceContext',
   required: true,
@@ -243,6 +244,11 @@ export const useLaxInstanceDataElements = (dataType: string | undefined) =>
 export type DataElementSelector = <U>(selector: (data: IData[]) => U, deps: unknown[]) => U | typeof ContextNotProvided;
 export const useLaxDataElementsSelector = (): DataElementSelector =>
   useLaxDelayedSelector({
+    mode: 'innerSelector',
+    makeArgs: (state) => [state.data?.data ?? emptyArray],
+  });
+export const useLaxDataElementsSelectorProto = () =>
+  useLaxDelayedSelectorProto({
     mode: 'innerSelector',
     makeArgs: (state) => [state.data?.data ?? emptyArray],
   });

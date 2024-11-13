@@ -142,12 +142,20 @@ function initialCreateStore() {
   );
 }
 
-const { Provider, useSelector, useLaxSelector, useSelectorAsRef, useStore, useLaxSelectorAsRef, useDelayedSelector } =
-  createZustandContext({
-    name: 'Validation',
-    required: true,
-    initialCreateStore,
-  });
+const {
+  Provider,
+  useSelector,
+  useLaxSelector,
+  useSelectorAsRef,
+  useStore,
+  useLaxSelectorAsRef,
+  useDelayedSelector,
+  useDelayedSelectorProto,
+} = createZustandContext({
+  name: 'Validation',
+  required: true,
+  initialCreateStore,
+});
 
 export function ValidationProvider({ children }: PropsWithChildren) {
   const writableDataTypes = DataModels.useWritableDataTypes();
@@ -321,6 +329,22 @@ export const Validation = {
 
   useDataElementHasErrorsSelector: () =>
     useDelayedSelector({
+      mode: 'simple',
+      selector: (dataElementId: string) => (state) => {
+        const dataElementValidations = state.state.dataModels[dataElementId];
+        for (const fieldValidations of Object.values(dataElementValidations ?? {})) {
+          for (const validation of fieldValidations) {
+            if (validation.severity === 'error') {
+              return true;
+            }
+          }
+        }
+        return false;
+      },
+    }),
+
+  useDataElementHasErrorsSelectorProto: () =>
+    useDelayedSelectorProto({
       mode: 'simple',
       selector: (dataElementId: string) => (state) => {
         const dataElementValidations = state.state.dataModels[dataElementId];

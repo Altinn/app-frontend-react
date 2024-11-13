@@ -64,6 +64,7 @@ const {
   useLaxMemoSelector,
   useLaxDelayedSelector,
   useDelayedSelector,
+  useDelayedSelectorProto,
   useLaxSelector,
   useLaxStore,
   useStore,
@@ -562,6 +563,13 @@ export const FD = {
     });
   },
 
+  useDebouncedSelectorProto() {
+    return useDelayedSelectorProto({
+      mode: 'simple',
+      selector: debouncedSelector,
+    });
+  },
+
   /**
    * The same as useDebouncedSelector(), but will return BaseRow[] instead of the raw data. This is useful if you
    * just want to fetch the number of rows, and the indexes/uuids of those rows, without fetching the actual data
@@ -582,11 +590,33 @@ export const FD = {
     });
   },
 
+  useDebouncedRowsSelectorProto() {
+    return useDelayedSelectorProto({
+      mode: 'simple',
+      selector: (reference: IDataModelReference) => (state) => {
+        const rawRows = dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
+        if (!Array.isArray(rawRows) || !rawRows.length) {
+          return emptyArray;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
+      },
+    });
+  },
+
   /**
    * Same as useDebouncedSelector(), but for invalid data.
    */
   useInvalidDebouncedSelector(): FormDataSelector {
     return useDelayedSelector({
+      mode: 'simple',
+      selector: invalidDebouncedSelector,
+    });
+  },
+
+  useInvalidDebouncedSelectorProto() {
+    return useDelayedSelectorProto({
       mode: 'simple',
       selector: invalidDebouncedSelector,
     });
