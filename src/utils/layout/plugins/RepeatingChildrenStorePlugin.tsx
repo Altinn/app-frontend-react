@@ -111,7 +111,9 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             }
           }
 
-          return changes ? { nodeData, readiness: NodesReadiness.NotReady, prevNodeData: state.nodeData } : {};
+          return changes
+            ? { nodeData, ...setReadiness({ state, target: NodesReadiness.NotReady, reason: 'New row UUIDs' }) }
+            : {};
         });
       },
       removeRow: (node, internalProp) => {
