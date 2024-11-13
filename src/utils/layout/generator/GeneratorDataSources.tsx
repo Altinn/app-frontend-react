@@ -7,7 +7,7 @@ import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSet } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxDataElementsSelectorProto, useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
+import { useLaxDataElementsSelectorProps, useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
@@ -64,13 +64,13 @@ function useExpressionDataSources(): ExpressionDataSources {
     dataSelectorForTraversal,
     isHiddenSelector,
   ] = useMultipleDelayedSelectors(
-    FD.useDebouncedSelectorProto(),
-    FD.useDebouncedRowsSelectorProto(),
-    NodesInternal.useAttachmentsSelectorProto(),
-    NodesInternal.useNodeOptionsSelectorProto(),
-    NodesInternal.useNodeDataSelectorProto(),
-    NodesInternal.useDataSelectorForTraversalProto(),
-    Hidden.useIsHiddenSelectorProto(),
+    FD.useDebouncedSelectorProps(),
+    FD.useDebouncedRowsSelectorProps(),
+    NodesInternal.useAttachmentsSelectorProps(),
+    NodesInternal.useNodeOptionsSelectorProps(),
+    NodesInternal.useNodeDataSelectorProps(),
+    NodesInternal.useDataSelectorForTraversalProps(),
+    Hidden.useIsHiddenSelectorProps(),
   );
 
   const process = useLaxProcessData();
@@ -122,12 +122,12 @@ function useValidationDataSources(): ValidationDataSources {
     dataElementsSelector,
     dataElementHasErrorsSelector,
   ] = useMultipleDelayedSelectors(
-    FD.useDebouncedSelectorProto(),
-    FD.useInvalidDebouncedSelectorProto(),
-    NodesInternal.useAttachmentsSelectorProto(),
-    NodesInternal.useNodeDataSelectorProto(),
-    useLaxDataElementsSelectorProto(),
-    Validation.useDataElementHasErrorsSelectorProto(),
+    FD.useDebouncedSelectorProps(),
+    FD.useInvalidDebouncedSelectorProps(),
+    NodesInternal.useAttachmentsSelectorProps(),
+    NodesInternal.useNodeDataSelectorProps(),
+    useLaxDataElementsSelectorProps(),
+    Validation.useDataElementHasErrorsSelectorProps(),
   );
 
   const currentLanguage = useCurrentLanguage();

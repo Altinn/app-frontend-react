@@ -150,7 +150,7 @@ const {
   useStore,
   useLaxSelectorAsRef,
   useDelayedSelector,
-  useDelayedSelectorProto,
+  useDelayedSelectorProps,
 } = createZustandContext({
   name: 'Validation',
   required: true,
@@ -316,6 +316,18 @@ function useDS<U>(outerSelector: (state: ValidationContext) => U) {
   });
 }
 
+const dataElementHasErrorsSelector = (dataElementId: string) => (state: ValidationContext) => {
+  const dataElementValidations = state.state.dataModels[dataElementId];
+  for (const fieldValidations of Object.values(dataElementValidations ?? {})) {
+    for (const validation of fieldValidations) {
+      if (validation.severity === 'error') {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
 export type ValidationSelector = ReturnType<typeof Validation.useSelector>;
 export type ValidationDataModelSelector = ReturnType<typeof Validation.useDataModelSelector>;
 export type DataElementHasErrorsSelector = ReturnType<typeof Validation.useDataElementHasErrorsSelector>;
@@ -330,33 +342,13 @@ export const Validation = {
   useDataElementHasErrorsSelector: () =>
     useDelayedSelector({
       mode: 'simple',
-      selector: (dataElementId: string) => (state) => {
-        const dataElementValidations = state.state.dataModels[dataElementId];
-        for (const fieldValidations of Object.values(dataElementValidations ?? {})) {
-          for (const validation of fieldValidations) {
-            if (validation.severity === 'error') {
-              return true;
-            }
-          }
-        }
-        return false;
-      },
+      selector: dataElementHasErrorsSelector,
     }),
 
-  useDataElementHasErrorsSelectorProto: () =>
-    useDelayedSelectorProto({
+  useDataElementHasErrorsSelectorProps: () =>
+    useDelayedSelectorProps({
       mode: 'simple',
-      selector: (dataElementId: string) => (state) => {
-        const dataElementValidations = state.state.dataModels[dataElementId];
-        for (const fieldValidations of Object.values(dataElementValidations ?? {})) {
-          for (const validation of fieldValidations) {
-            if (validation.severity === 'error') {
-              return true;
-            }
-          }
-        }
-        return false;
-      },
+      selector: dataElementHasErrorsSelector,
     }),
 
   useShowAllBackendErrors: () => useSelector((state) => state.showAllBackendErrors),

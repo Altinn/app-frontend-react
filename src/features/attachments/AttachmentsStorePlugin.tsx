@@ -84,7 +84,7 @@ export interface AttachmentsStorePluginConfig {
 
     useAttachments: (node: FileUploaderNode) => IAttachment[];
     useAttachmentsSelector: () => AttachmentsSelector;
-    useAttachmentsSelectorProto: () => DSProps<DSConfig>;
+    useAttachmentsSelectorProps: () => DSProps<DSConfig>;
     useWaitUntilUploaded: () => (node: FileUploaderNode, attachment: TemporaryAttachment) => Promise<IData | false>;
 
     useHasPendingAttachments: () => boolean;
@@ -389,31 +389,13 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       useAttachmentsSelector() {
         return store.useDelayedSelector({
           mode: 'simple',
-          selector: (node: LayoutNode) => (state) => {
-            const nodeData = state.nodeData[node.id];
-            if (!nodeData) {
-              return emptyArray;
-            }
-            if (nodeData && 'attachments' in nodeData) {
-              return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
-            }
-            return emptyArray;
-          },
+          selector: attachmentSelector,
         }) satisfies AttachmentsSelector;
       },
-      useAttachmentsSelectorProto() {
-        return store.useDelayedSelectorProto({
+      useAttachmentsSelectorProps() {
+        return store.useDelayedSelectorProps({
           mode: 'simple',
-          selector: (node: LayoutNode) => (state) => {
-            const nodeData = state.nodeData[node.id];
-            if (!nodeData) {
-              return emptyArray;
-            }
-            if (nodeData && 'attachments' in nodeData) {
-              return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
-            }
-            return emptyArray;
-          },
+          selector: attachmentSelector,
         });
       },
       useWaitUntilUploaded() {
@@ -512,6 +494,17 @@ function useAttachmentsUploadMutation() {
 
   return useMutation(options);
 }
+
+const attachmentSelector = (node: LayoutNode) => (state: NodesContext) => {
+  const nodeData = state.nodeData[node.id];
+  if (!nodeData) {
+    return emptyArray;
+  }
+  if (nodeData && 'attachments' in nodeData) {
+    return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
+  }
+  return emptyArray;
+};
 
 function useAttachmentsAddTagMutation() {
   const { doAttachmentAddTag } = useAppMutations();

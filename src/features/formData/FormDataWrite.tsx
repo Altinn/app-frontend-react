@@ -64,7 +64,7 @@ const {
   useLaxMemoSelector,
   useLaxDelayedSelector,
   useDelayedSelector,
-  useDelayedSelectorProto,
+  useDelayedSelectorProps,
   useLaxSelector,
   useLaxStore,
   useStore,
@@ -549,6 +549,15 @@ const debouncedSelector = (reference: IDataModelReference) => (state: FormDataCo
 const invalidDebouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
   dot.pick(reference.field, state.dataModels[reference.dataType].invalidDebouncedCurrentData);
 
+const debouncedRowSelector = (reference: IDataModelReference) => (state: FormDataContext) => {
+  const rawRows = dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
+  if (!Array.isArray(rawRows) || !rawRows.length) {
+    return emptyArray;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
+};
+
 export const FD = {
   /**
    * Gives you a selector function that can be used to look up paths in the data model. This is similar to
@@ -563,8 +572,8 @@ export const FD = {
     });
   },
 
-  useDebouncedSelectorProto() {
-    return useDelayedSelectorProto({
+  useDebouncedSelectorProps() {
+    return useDelayedSelectorProps({
       mode: 'simple',
       selector: debouncedSelector,
     });
@@ -578,30 +587,14 @@ export const FD = {
   useDebouncedRowsSelector(): FormDataRowsSelector {
     return useDelayedSelector({
       mode: 'simple',
-      selector: (reference: IDataModelReference) => (state) => {
-        const rawRows = dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
-        if (!Array.isArray(rawRows) || !rawRows.length) {
-          return emptyArray;
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
-      },
+      selector: debouncedRowSelector,
     });
   },
 
-  useDebouncedRowsSelectorProto() {
-    return useDelayedSelectorProto({
+  useDebouncedRowsSelectorProps() {
+    return useDelayedSelectorProps({
       mode: 'simple',
-      selector: (reference: IDataModelReference) => (state) => {
-        const rawRows = dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
-        if (!Array.isArray(rawRows) || !rawRows.length) {
-          return emptyArray;
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
-      },
+      selector: debouncedRowSelector,
     });
   },
 
@@ -615,8 +608,8 @@ export const FD = {
     });
   },
 
-  useInvalidDebouncedSelectorProto() {
-    return useDelayedSelectorProto({
+  useInvalidDebouncedSelectorProps() {
+    return useDelayedSelectorProps({
       mode: 'simple',
       selector: invalidDebouncedSelector,
     });

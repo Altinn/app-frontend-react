@@ -165,7 +165,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
       deps,
     });
 
-  const useDSProto = <Mode extends DSMode<Type>>(
+  const useDSProps = <Mode extends DSMode<Type>>(
     mode: Mode,
     deps?: unknown[],
   ): DSProps<DSConfig<Type, Mode, SelectorStrictness.throwWhenNotProvided>> => ({
@@ -175,7 +175,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     deps,
   });
 
-  const useLaxDSProto = <Mode extends DSMode<Type>>(
+  const useLaxDSProps = <Mode extends DSMode<Type>>(
     mode: Mode,
     deps?: unknown[],
   ): DSProps<DSConfig<Type, Mode, SelectorStrictness.returnWhenNotProvided>> => ({
@@ -195,8 +195,8 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     useLaxSelector,
     useDelayedSelector: useDS,
     useLaxDelayedSelector: useLaxDS,
-    useDelayedSelectorProto: useDSProto,
-    useLaxDelayedSelectorProto: useLaxDSProto,
+    useDelayedSelectorProps: useDSProps,
+    useLaxDelayedSelectorProps: useLaxDSProps,
     useHasProvider,
     useStore: useCtx,
     useLaxStore: useLaxCtx,

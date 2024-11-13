@@ -944,11 +944,14 @@ export const Hidden = {
   },
   useIsHiddenPageSelector() {
     const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
-    return Store.useDelayedSelector({
-      mode: 'simple',
-      selector: (page: LayoutPage | string) => (state) =>
-        isHiddenPage(state, page, makeOptions(forcedVisibleByDevTools)),
-    });
+    return Store.useDelayedSelector(
+      {
+        mode: 'simple',
+        selector: (page: LayoutPage | string) => (state) =>
+          isHiddenPage(state, page, makeOptions(forcedVisibleByDevTools)),
+      },
+      [forcedVisibleByDevTools],
+    );
   },
   useHiddenPages(): Set<string> {
     const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
@@ -968,9 +971,9 @@ export const Hidden = {
       [forcedVisibleByDevTools],
     );
   },
-  useIsHiddenSelectorProto() {
+  useIsHiddenSelectorProps() {
     const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
-    return Store.useDelayedSelectorProto(
+    return Store.useDelayedSelectorProps(
       {
         mode: 'simple',
         selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
@@ -1050,7 +1053,7 @@ export const NodesInternal = {
       } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
     });
   },
-  useDataSelectorForTraversalProto(): DSProps<{
+  useDataSelectorForTraversalProps(): DSProps<{
     store: StoreApi<NodesContext> | typeof ContextNotProvided;
     strictness: SelectorStrictness.returnWhenNotProvided;
     mode: InnerSelectorMode<NodesContext, [NodesContext]>;
@@ -1223,8 +1226,8 @@ export const NodesInternal = {
       mode: 'innerSelector',
       makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
     }),
-  useNodeDataSelectorProto: () =>
-    Store.useDelayedSelectorProto({
+  useNodeDataSelectorProps: () =>
+    Store.useDelayedSelectorProps({
       mode: 'innerSelector',
       makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
     }),
