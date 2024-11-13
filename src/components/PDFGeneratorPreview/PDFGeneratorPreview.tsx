@@ -6,13 +6,20 @@ import { FilePdfIcon } from '@navikt/aksel-icons';
 import classes from 'src/features/devtools/components/PDFPreviewButton/PDFPreview.module.css';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
+import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsLocalOrStaging } from 'src/hooks/useIsDev';
 import { ProcessTaskType } from 'src/types';
 import { getPdfPreviewUrl } from 'src/utils/urls/appUrlHelper';
 
-export function PDFGeneratorPreview({ buttonTitle }: { buttonTitle?: string }) {
+export function PDFGeneratorPreview({
+  buttonTitle,
+  showErrorDetails,
+}: {
+  buttonTitle?: string;
+  showErrorDetails?: boolean;
+}) {
   const modalRef = React.useRef<HTMLDialogElement>(null);
   const abortRef = React.useRef<AbortController | null>(null);
 
@@ -72,7 +79,7 @@ export function PDFGeneratorPreview({ buttonTitle }: { buttonTitle?: string }) {
             aria-hidden
           />
         }
-        {buttonTitle ? langAsString(buttonTitle) : 'Forhåndsvis PDF'}
+        {buttonTitle ? langAsString(buttonTitle) : langAsString('pdfPreview.defaultButtonText')}
       </Button>
       <Modal
         ref={modalRef}
@@ -87,21 +94,24 @@ export function PDFGeneratorPreview({ buttonTitle }: { buttonTitle?: string }) {
             src={blobUrl}
           />
         ) : errorText ? (
-          <>
-            <Modal.Header>PDF-generering feilet</Modal.Header>
+          <div style={{ textAlign: 'center' }}>
+            <Modal.Header>
+              <Lang id={'pdfPreview.error'} />
+            </Modal.Header>
             <Modal.Content>
-              {errorText.split('\n').map((line) => (
-                <>
-                  {line}
-                  <br />
-                </>
-              ))}
+              {showErrorDetails &&
+                errorText.split('\n').map((line) => (
+                  <>
+                    {line}
+                    <br />
+                  </>
+                ))}
             </Modal.Content>
-          </>
+          </div>
         ) : (
           <div className={classes.loading}>
             <Spinner
-              title='Laster...'
+              title={langAsString('general.loading')}
               size='xlarge'
             />
           </div>

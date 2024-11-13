@@ -45,7 +45,12 @@ export const PDFPreviewButton = () => {
         }
         Forhåndsvis PDF
       </Button>
-      {!isStudioPreview && <PDFGeneratorPreview />}
+      {!isStudioPreview && (
+        <PDFGeneratorPreview
+          showErrorDetails={true}
+          buttonTitle={'Generer PDF'}
+        />
+      )}
     </Fieldset>
   );
 };
