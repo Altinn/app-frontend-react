@@ -98,7 +98,10 @@ abstract class BaseDelayedSelector<C extends DSConfig> {
       this.onlyReRenderWhen = onlyReRenderWhen;
       this.deps = deps;
 
-      this.updateSelector();
+      // No need to trigger re-render if no selectors have been called
+      if (this.selectorsCalled) {
+        this.updateSelector();
+      }
     }
   }
 

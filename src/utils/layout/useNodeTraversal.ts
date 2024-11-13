@@ -310,15 +310,15 @@ function throwOrReturn<R>(value: R, strictness: Strictness) {
  */
 function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: Strict) {
   const nodes = useNodesLax();
-  return useInnerNodeTraversalSelectorProto(strictness, nodes);
+  const nodeDataSelectorForTraversal = NodesInternal.useDataSelectorForTraversal();
+  return useInnerNodeTraversalSelectorProto(strictness, nodes, nodeDataSelectorForTraversal);
 }
 
 function useInnerNodeTraversalSelectorProto<Strict extends Strictness>(
   strictness: Strict,
   nodes: ReturnType<typeof useNodesLax>,
+  nodeDataSelectorForTraversal: ReturnType<typeof NodesInternal.useDataSelectorForTraversal>,
 ) {
-  const selectState = NodesInternal.useDataSelectorForTraversal();
-
   return useCallback(
     <U>(
       innerSelector: (traverser: NodeTraversalFromRoot) => InnerSelectorReturns<Strict, U>,
@@ -328,14 +328,14 @@ function useInnerNodeTraversalSelectorProto<Strict extends Strictness>(
         return throwOrReturn(ContextNotProvided, strictness) as InnerSelectorReturns<Strict, U>;
       }
 
-      const value = selectState(
+      const value = nodeDataSelectorForTraversal(
         (state) => innerSelector(new NodeTraversal(state, nodes, nodes)) as InnerSelectorReturns<Strict, U>,
         [innerSelector.toString(), ...deps],
       );
 
       return throwOrReturn(value, strictness) as InnerSelectorReturns<Strict, U>;
     },
-    [selectState, nodes, strictness],
+    [nodeDataSelectorForTraversal, nodes, strictness],
   );
 }
 
@@ -343,8 +343,11 @@ export function useNodeTraversalSelector() {
   return useNodeTraversalSelectorProto(Strictness.throwError);
 }
 
-export function useInnerNodeTraversalSelector(nodes: ReturnType<typeof useNodesLax>) {
-  return useInnerNodeTraversalSelectorProto(Strictness.throwError, nodes);
+export function useInnerNodeTraversalSelector(
+  nodes: ReturnType<typeof useNodesLax>,
+  nodeDataSelectorForTraversal: ReturnType<typeof NodesInternal.useDataSelectorForTraversal>,
+) {
+  return useInnerNodeTraversalSelectorProto(Strictness.throwError, nodes, nodeDataSelectorForTraversal);
 }
 
 export type NodeTraversalSelector = ReturnType<typeof useNodeTraversalSelector>;

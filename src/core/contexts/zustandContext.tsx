@@ -167,18 +167,22 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
 
   const useDSProto = <Mode extends DSMode<Type>>(
     mode: Mode,
+    deps?: unknown[],
   ): DSProps<DSConfig<Type, Mode, SelectorStrictness.throwWhenNotProvided>> => ({
     store: useCtx(),
     strictness: SelectorStrictness.throwWhenNotProvided,
     mode,
+    deps,
   });
 
   const useLaxDSProto = <Mode extends DSMode<Type>>(
     mode: Mode,
+    deps?: unknown[],
   ): DSProps<DSConfig<Type, Mode, SelectorStrictness.returnWhenNotProvided>> => ({
     store: useLaxCtx(),
     strictness: SelectorStrictness.returnWhenNotProvided,
     mode,
+    deps,
   });
 
   return {

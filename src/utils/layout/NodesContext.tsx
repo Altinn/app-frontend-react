@@ -53,7 +53,7 @@ import type { FDSaveFinished } from 'src/features/formData/FormDataWriteStateMac
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
-import type { DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
+import type { DSProps, DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
@@ -959,11 +959,25 @@ export const Hidden = {
   },
   useIsHiddenSelector() {
     const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
-    return Store.useDelayedSelector({
-      mode: 'simple',
-      selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
-        isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
-    });
+    return Store.useDelayedSelector(
+      {
+        mode: 'simple',
+        selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
+          isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
+      },
+      [forcedVisibleByDevTools],
+    );
+  },
+  useIsHiddenSelectorProto() {
+    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    return Store.useDelayedSelectorProto(
+      {
+        mode: 'simple',
+        selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
+          isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
+      },
+      [forcedVisibleByDevTools],
+    );
   },
 
   /**
@@ -1035,6 +1049,30 @@ export const NodesInternal = {
         makeArgs: (state) => [state],
       } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
     });
+  },
+  useDataSelectorForTraversalProto(): DSProps<{
+    store: StoreApi<NodesContext> | typeof ContextNotProvided;
+    strictness: SelectorStrictness.returnWhenNotProvided;
+    mode: InnerSelectorMode<NodesContext, [NodesContext]>;
+  }> {
+    return {
+      store: Store.useLaxStore(),
+      strictness: SelectorStrictness.returnWhenNotProvided,
+      onlyReRenderWhen: ((state, lastValue, setNewValue) => {
+        if (state.readiness !== NodesReadiness.Ready) {
+          return false;
+        }
+        if (lastValue !== state.addRemoveCounter) {
+          setNewValue(state.addRemoveCounter);
+          return true;
+        }
+        return false;
+      }) satisfies OnlyReRenderWhen<NodesContext, number>,
+      mode: {
+        mode: 'innerSelector',
+        makeArgs: (state) => [state],
+      } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
+    };
   },
   useIsReady() {
     const isReady = Store.useLaxSelector((s) => s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan);

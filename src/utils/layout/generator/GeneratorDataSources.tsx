@@ -55,14 +55,23 @@ export const GeneratorData = {
 };
 
 function useExpressionDataSources(): ExpressionDataSources {
-  const [formDataSelector, formDataRowsSelector, attachmentsSelector, optionsSelector, nodeDataSelector] =
-    useMultipleDelayedSelectors(
-      FD.useDebouncedSelectorProto(),
-      FD.useDebouncedRowsSelectorProto(),
-      NodesInternal.useAttachmentsSelectorProto(),
-      NodesInternal.useNodeOptionsSelectorProto(),
-      NodesInternal.useNodeDataSelectorProto(),
-    );
+  const [
+    formDataSelector,
+    formDataRowsSelector,
+    attachmentsSelector,
+    optionsSelector,
+    nodeDataSelector,
+    dataSelectorForTraversal,
+    isHiddenSelector,
+  ] = useMultipleDelayedSelectors(
+    FD.useDebouncedSelectorProto(),
+    FD.useDebouncedRowsSelectorProto(),
+    NodesInternal.useAttachmentsSelectorProto(),
+    NodesInternal.useNodeOptionsSelectorProto(),
+    NodesInternal.useNodeDataSelectorProto(),
+    NodesInternal.useDataSelectorForTraversalProto(),
+    Hidden.useIsHiddenSelectorProto(),
+  );
 
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
@@ -73,8 +82,7 @@ function useExpressionDataSources(): ExpressionDataSources {
   const dataModelNames = hooks.useReadableDataTypes();
   const externalApis = hooks.useExternalApis();
 
-  const isHiddenSelector = Hidden.useIsHiddenSelector();
-  const nodeTraversal = useInnerNodeTraversalSelector(hooks.useNodes());
+  const nodeTraversal = useInnerNodeTraversalSelector(hooks.useNodes(), dataSelectorForTraversal);
   const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
   const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
