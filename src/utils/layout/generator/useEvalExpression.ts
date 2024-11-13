@@ -7,6 +7,7 @@ import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ExprConfig, ExprVal, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 export function useEvalExpressionInGenerator<V extends ExprVal>(
   type: V,
@@ -14,8 +15,9 @@ export function useEvalExpressionInGenerator<V extends ExprVal>(
   expr: ExprValToActualOrExpr<V> | undefined,
   defaultValue: ExprValToActual<V>,
 ) {
+  const dataSources = GeneratorData.useExpressionDataSources();
   const enabled = GeneratorStages.useIsDoneAddingNodes();
-  return useEvalExpression(type, node, expr, defaultValue, enabled);
+  return useEvalExpression(type, node, expr, defaultValue, dataSources, enabled);
 }
 
 /**
@@ -41,10 +43,9 @@ export function useEvalExpression<V extends ExprVal>(
   node: LayoutNode | LayoutPage,
   expr: ExprValToActualOrExpr<V> | undefined,
   defaultValue: ExprValToActual<V>,
+  dataSources: ExpressionDataSources,
   enabled = true,
 ) {
-  const allDataSources = GeneratorData.useExpressionDataSources();
-
   return useMemo(() => {
     if (!enabled) {
       return defaultValue;
@@ -61,6 +62,6 @@ export function useEvalExpression<V extends ExprVal>(
       defaultValue,
     };
 
-    return evalExpr(expr, node, allDataSources, { config, errorIntroText });
-  }, [enabled, allDataSources, defaultValue, expr, node, type]);
+    return evalExpr(expr, node, dataSources, { config, errorIntroText });
+  }, [enabled, dataSources, defaultValue, expr, node, type]);
 }
