@@ -76,7 +76,7 @@ export const RepeatingGroupTableSummary = ({
             ))}
             {!pdfModeActive && !isSmall && (
               <Table.HeaderCell>
-                <span className={classes.visuallyHidden}>
+                <span className={tableClasses.visuallyHidden}>
                   <Lang id={'general.edit'} />
                 </span>
               </Table.HeaderCell>
@@ -93,7 +93,10 @@ export const RepeatingGroupTableSummary = ({
                 />
               ))}
               {!pdfModeActive && (
-                <Table.Cell className={tableClasses.buttonCell}>
+                <Table.Cell
+                  align={'right'}
+                  className={tableClasses.buttonCell}
+                >
                   {row?.items && row?.items?.length > 0 && (
                     <EditButton
                       componentNode={childNodes[0]}
