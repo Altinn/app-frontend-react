@@ -143,7 +143,6 @@ export type NodesContext = {
   pagesData: PagesData;
   nodeData: { [key: string]: NodeData };
   prevNodeData: { [key: string]: NodeData } | undefined; // Earlier node data from before the state became non-ready
-  childrenMap: { [key: string]: string[] | undefined };
   hiddenViaRules: { [key: string]: true | undefined };
   hiddenViaRulesRan: boolean;
   validationsProcessedLast: ValidationsProcessedLast;
@@ -196,7 +195,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
     },
     nodeData: {},
     prevNodeData: {},
-    childrenMap: {},
     hiddenViaRules: {},
     hiddenViaRulesRan: false,
     validationsProcessedLast,
@@ -221,21 +219,13 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
     addNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        const childrenMap = { ...state.childrenMap };
         for (const { node, targetState } of requests) {
           nodeData[node.id] = targetState;
-
-          if (node.parent instanceof BaseLayoutNode) {
-            childrenMap[node.parent.id] = [...(childrenMap[node.parent.id] || [])];
-            childrenMap[node.parent.id]!.push(node.id);
-            childrenMap[node.parent.id] = [...new Set(childrenMap[node.parent.id]!)];
-          }
-
           node.page._addChild(node);
         }
+
         return {
           nodeData,
-          childrenMap,
           readiness: NodesReadiness.NotReady,
           addRemoveCounter: state.addRemoveCounter + 1,
         };
@@ -243,7 +233,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
     removeNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        const childrenMap = { ...state.childrenMap };
 
         let count = 0;
         for (const { node, layouts } of requests) {
@@ -257,11 +246,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
             continue;
           }
 
-          if (node.parent instanceof BaseLayoutNode && nodeData[node.parent.id]) {
-            childrenMap[node.parent.id] = [...(childrenMap[node.parent.id] || [])];
-            childrenMap[node.parent.id] = childrenMap[node.parent.id]!.filter((id) => id !== node.id);
-          }
-
           delete nodeData[node.id];
           node.page._removeChild(node);
           count += 1;
@@ -273,7 +257,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
 
         return {
           nodeData,
-          childrenMap,
           readiness: NodesReadiness.NotReady,
           addRemoveCounter: state.addRemoveCounter + 1,
         };
