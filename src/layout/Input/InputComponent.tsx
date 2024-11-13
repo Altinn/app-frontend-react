@@ -1,17 +1,24 @@
 import React from 'react';
 
+import { HelpText } from '@digdir/designsystemet-react';
+import { Grid } from '@material-ui/core';
+
 import { FormattedInput } from 'src/app-components/Input/FormattedInput';
 import { Input } from 'src/app-components/Input/Input';
 import { NumericInput } from 'src/app-components/Input/NumericInput';
+import { Label } from 'src/app-components/Label/Label';
+import { Description } from 'src/components/form/Description';
 import { getDescriptionId } from 'src/components/label/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Input/InputComponent.module.css';
 import { isNumberFormat, isPatternFormat } from 'src/layout/Input/number-format-helpers';
+import { gridBreakpoints } from 'src/utils/formComponentUtils';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { InputProps } from 'src/app-components/Input/Input';
@@ -158,24 +165,37 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
 };
 
 export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, overrideDisplay }) => {
-  const { textResourceBindings } = useNodeItem(node);
+  const { langAsString } = useLanguage();
+  const { textResourceBindings, grid, id } = useNodeItem(node);
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      label={{
-        node,
-        textResourceBindings: {
-          ...textResourceBindings,
-          title: overrideDisplay?.renderLabel !== false ? textResourceBindings?.title : undefined,
-        },
-        renderLabelAs: 'label',
-      }}
-    >
-      <InputVariant
-        node={node}
-        overrideDisplay={overrideDisplay}
-      />
-    </ComponentStructureWrapper>
+    <>
+      <Grid
+        item
+        {...gridBreakpoints(grid?.labelGrid)}
+      >
+        <Label
+          htmlFor={id}
+          label={langAsString(textResourceBindings?.title)}
+          help={
+            textResourceBindings?.help ? (
+              <HelpText
+                id={`${id}-helptext`}
+                title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
+              >
+                <Lang id={textResourceBindings?.help} />
+              </HelpText>
+            ) : undefined
+          }
+        />
+        {textResourceBindings?.description && <Description description={textResourceBindings?.description} />}
+      </Grid>
+      <ComponentStructureWrapper node={node}>
+        <InputVariant
+          node={node}
+          overrideDisplay={overrideDisplay}
+        />
+      </ComponentStructureWrapper>
+    </>
   );
 };

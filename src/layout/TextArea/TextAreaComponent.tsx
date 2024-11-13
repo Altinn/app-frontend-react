@@ -1,13 +1,18 @@
 import React from 'react';
 
-import { Textarea } from '@digdir/designsystemet-react';
+import { HelpText, Textarea } from '@digdir/designsystemet-react';
+import { Grid } from '@material-ui/core';
 
+import { Label } from 'src/app-components/Label/Label';
+import { Description } from 'src/components/form/Description';
 import { getDescriptionId } from 'src/components/label/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import { gridBreakpoints } from 'src/utils/formComponentUtils';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -19,7 +24,7 @@ export type ITextAreaProps = Readonly<PropsFromGenericComponent<'TextArea'>>;
 export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
   const { langAsString } = useLanguage();
   const isValid = useIsValid(node);
-  const { id, readOnly, textResourceBindings, dataModelBindings, saveWhileTyping, autocomplete, maxLength } =
+  const { id, readOnly, textResourceBindings, dataModelBindings, saveWhileTyping, autocomplete, maxLength, grid } =
     useNodeItem(node);
   const characterLimit = useCharacterLimit(maxLength);
   const {
@@ -29,28 +34,47 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
   const debounce = FD.useDebounceImmediately();
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      label={{ node, renderLabelAs: 'label' }}
-    >
-      <Textarea
-        id={id}
-        onChange={(e) => setValue('simpleBinding', e.target.value)}
-        onBlur={debounce}
-        readOnly={readOnly}
-        characterLimit={!readOnly ? characterLimit : undefined}
-        error={!isValid}
-        value={value}
-        data-testid={id}
-        aria-describedby={
-          overrideDisplay?.renderedInTable !== true && textResourceBindings?.description
-            ? getDescriptionId(id)
-            : undefined
-        }
-        aria-label={overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined}
-        autoComplete={autocomplete}
-        style={{ height: '150px' }}
-      />
-    </ComponentStructureWrapper>
+    <>
+      <Grid
+        item
+        {...gridBreakpoints(grid?.labelGrid)}
+      >
+        <Label
+          htmlFor={id}
+          label={langAsString(textResourceBindings?.title)}
+          help={
+            textResourceBindings?.help ? (
+              <HelpText
+                id={`${id}-helptext`}
+                title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
+              >
+                <Lang id={textResourceBindings?.help} />
+              </HelpText>
+            ) : undefined
+          }
+        />
+        {textResourceBindings?.description && <Description description={textResourceBindings?.description} />}
+      </Grid>
+      <ComponentStructureWrapper node={node}>
+        <Textarea
+          id={id}
+          onChange={(e) => setValue('simpleBinding', e.target.value)}
+          onBlur={debounce}
+          readOnly={readOnly}
+          characterLimit={!readOnly ? characterLimit : undefined}
+          error={!isValid}
+          value={value}
+          data-testid={id}
+          aria-describedby={
+            overrideDisplay?.renderedInTable !== true && textResourceBindings?.description
+              ? getDescriptionId(id)
+              : undefined
+          }
+          aria-label={overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined}
+          autoComplete={autocomplete}
+          style={{ height: '150px' }}
+        />
+      </ComponentStructureWrapper>
+    </>
   );
 }
