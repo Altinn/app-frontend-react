@@ -3,7 +3,7 @@ import React from 'react';
 import type { PropsFromGenericComponent } from '..';
 
 import { PDFGeneratorPreview } from 'src/components/PDFGeneratorPreview/PDFGeneratorPreview';
-import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useStrictInstanceId } from 'src/features/instance/InstanceContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { NodeValidationProps } from 'src/layout/layout';
@@ -11,7 +11,7 @@ import type { NodeValidationProps } from 'src/layout/layout';
 export type IActionButton = PropsFromGenericComponent<'PDFPreviewButton'>;
 
 export function PDFPreviewButtonRenderLayoutValidator({ node }: NodeValidationProps<'PDFPreviewButton'>) {
-  const instanceId = useLaxInstance((state) => state.instanceId);
+  const instanceId = useStrictInstanceId();
 
   const addError = NodesInternal.useAddError();
 
