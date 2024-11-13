@@ -94,15 +94,10 @@ export const RepeatingGroupTableSummary = ({
               ))}
               {!pdfModeActive && (
                 <Table.Cell
-                  align={'right'}
+                  align='right'
                   className={tableClasses.buttonCell}
                 >
-                  {row?.items && row?.items?.length > 0 && (
-                    <EditButton
-                      componentNode={childNodes[0]}
-                      summaryComponentId=''
-                    />
-                  )}
+                  {row?.items && row?.items?.length > 0 && <EditButton componentNode={childNodes[0]} />}
                 </Table.Cell>
               )}
             </Table.Row>
