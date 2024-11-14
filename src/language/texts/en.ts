@@ -115,6 +115,8 @@ export function en() {
       zipCode: 'Zip Code',
       no_options_found: 'No matches found',
       clear_selection: 'Clear selection',
+      person_lookup_ssn: 'national ID number/D-number',
+      person_lookup_name: 'name',
     },
     navigation: {
       main: 'App navigation',
@@ -311,6 +313,10 @@ export function en() {
         total: 'Total',
         vat: 'VAT',
       },
+    },
+    person_lookup: {
+      validation_error_name_too_short: "The name can't be shorter than 2 characters",
+      validation_error_ssn: 'The national ID number/D-number is invalid.',
     },
     helptext: {
       button_title: 'Help',

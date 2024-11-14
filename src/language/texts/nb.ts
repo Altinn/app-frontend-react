@@ -115,6 +115,8 @@ export function nb(): FixedLanguageList {
       zipCode: 'Postnr',
       no_options_found: 'Fant ingen treff',
       clear_selection: 'Fjern alle valgte',
+      person_lookup_ssn: 'fødselsnummer',
+      person_lookup_name: 'navn',
     },
     navigation: {
       main: 'Appnavigasjon',
@@ -312,6 +314,10 @@ export function nb(): FixedLanguageList {
         total: 'Totalt',
         vat: 'MVA',
       },
+    },
+    person_lookup: {
+      validation_error_name_too_short: 'Etternavn må være minst 2 tegn langt',
+      validation_error_ssn: 'Fødselsnummeret/D-nummeret er ugyldig.',
     },
     helptext: {
       button_title: 'Hjelp',
