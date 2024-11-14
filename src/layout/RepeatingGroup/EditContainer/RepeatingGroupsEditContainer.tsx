@@ -259,6 +259,10 @@ function ChildComponent({
   tableColumns: CompInternal<'RepeatingGroup'>['tableColumns'] | undefined;
 }) {
   const node = useNode(nodeId);
+  if (!node) {
+    return null;
+  }
+
   const isOnOtherMultiPage = multiPageEnabled && node.multiPageIndex !== multiPageIndex;
   if (isOnOtherMultiPage) {
     return null;
