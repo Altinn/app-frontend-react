@@ -808,17 +808,6 @@ function NodesLoader() {
   return <Loader reason='nodes' />;
 }
 
-type MaybeNode = string | undefined | null | LayoutNode;
-type RetValFromNode<T extends MaybeNode> = T extends LayoutNode
-  ? T
-  : T extends undefined
-    ? undefined
-    : T extends null
-      ? null
-      : T extends string
-        ? LayoutNode
-        : never;
-
 /**
  * Use the expression context. This will return a LayoutPages object containing the full tree of resolved
  * nodes (meaning, instances of layout components in a tree, with their expressions evaluated and resolved to
@@ -826,8 +815,8 @@ type RetValFromNode<T extends MaybeNode> = T extends LayoutNode
  *
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
-export function useNode<T extends string | undefined | LayoutNode>(id: T): RetValFromNode<T> {
-  const lastValue = useRef<LayoutNode | null | undefined | typeof NeverInitialized>(NeverInitialized);
+export function useNode<T extends string | undefined | LayoutNode>(id: T): LayoutNode | undefined {
+  const lastValue = useRef<LayoutNode | undefined | typeof NeverInitialized>(NeverInitialized);
   const node = Store.useSelector((state) => {
     if (!id || !state?.nodes) {
       return undefined;
@@ -841,7 +830,7 @@ export function useNode<T extends string | undefined | LayoutNode>(id: T): RetVa
     lastValue.current = node;
     return node;
   });
-  return node as RetValFromNode<T>;
+  return node ?? undefined;
 }
 
 export const useGetPage = (pageId: string | undefined) =>

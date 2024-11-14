@@ -36,6 +36,10 @@ export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'Button
 
 function Child({ id }: { id: string }) {
   const node = useNode(id);
+  if (!node) {
+    return null;
+  }
+
   return (
     <div
       key={node.id}

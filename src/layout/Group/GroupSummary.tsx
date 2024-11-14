@@ -51,8 +51,11 @@ function ChildComponent({
   summaryOverride,
 }: { id: string } & Pick<GroupComponentSummaryProps, 'hierarchyLevel' | 'summaryOverride'>) {
   const child = useNode(id);
+  if (!child) {
+    return null;
+  }
 
-  if (child?.isType('Group')) {
+  if (child.isType('Group')) {
     return (
       <Grid item>
         <GroupSummary

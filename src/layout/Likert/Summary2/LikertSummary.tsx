@@ -87,27 +87,44 @@ type LikertRowSummaryProps = {
   isCompact?: boolean;
 };
 
-function LikertRowSummary({ rowNodeId, emptyFieldText, readOnly, isCompact }: LikertRowSummaryProps) {
-  const rowNode = useNode(rowNodeId) as LayoutNode<'LikertItem'> | undefined;
-  const title = useNodeItem(rowNode, (i) => i.textResourceBindings?.title);
-  const displayData = rowNode?.def.useDisplayData(rowNode);
-  const validations = useUnifiedValidationsForNode(rowNode);
-  const errors = validationsOfSeverity(validations, 'error');
+function LikertRowSummary(props: LikertRowSummaryProps) {
+  const rowNode = useNode(props.rowNodeId) as LayoutNode | undefined;
 
-  if (!rowNode) {
+  if (!rowNode || !rowNode.isType('LikertItem')) {
     return null;
   }
+
+  return (
+    <LikertRowSummaryInner
+      node={rowNode}
+      {...props}
+    />
+  );
+}
+
+function LikertRowSummaryInner({
+  node,
+  emptyFieldText,
+  readOnly,
+  isCompact,
+}: LikertRowSummaryProps & {
+  node: LayoutNode<'LikertItem'>;
+}) {
+  const title = useNodeItem(node, (i) => i.textResourceBindings?.title);
+  const displayData = node.def.useDisplayData(node);
+  const validations = useUnifiedValidationsForNode(node);
+  const errors = validationsOfSeverity(validations, 'error');
 
   return (
     <SingleValueSummary
       title={
         <Lang
           id={title}
-          node={rowNode}
+          node={node}
         />
       }
       isCompact={isCompact}
-      componentNode={rowNode}
+      componentNode={node}
       displayData={displayData}
       errors={errors}
       hideEditButton={readOnly}

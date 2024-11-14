@@ -335,9 +335,9 @@ function CellWithComponent({
   const errors = validationsOfSeverity(validations, 'error');
   const isHidden = Hidden.useIsHidden(node);
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
-  const { textResourceBindings } = useNodeItem(node);
+  const { textResourceBindings } = useNodeItem(node) ?? {};
 
-  if (isHidden) {
+  if (isHidden || !node) {
     return <CellComponent />;
   }
 
@@ -400,10 +400,14 @@ function CellWithLabel({ cell, columnStyleOptions, isHeader = false, headerTitle
     | ITextResourceBindings
     | undefined;
   const title = trb && 'title' in trb ? trb.title : undefined;
-  const required = (referenceComponent && 'required' in refItem && refItem.required) ?? false;
-  const componentId = refItem.id ?? refItem.baseComponentId;
+  const required = (referenceComponent && refItem && 'required' in refItem && refItem.required) ?? false;
+  const componentId = refItem?.id ?? refItem?.baseComponentId;
 
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
+
+  if (!componentId) {
+    return <CellComponent />;
+  }
 
   return (
     <CellComponent

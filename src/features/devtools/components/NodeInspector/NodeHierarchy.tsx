@@ -58,8 +58,8 @@ const GridRowList = ({ rows, onClick, text, selected }: IGridRowsRenderer) => (
 
 export const NodeHierarchyItem = ({ nodeId, onClick, selected }: INodeHierarchyItemProps) => {
   const node = useNode(nodeId);
-  const nodeType = node.type;
-  const nodeMultiPageIndex = node.multiPageIndex;
+  const nodeType = node?.type;
+  const nodeMultiPageIndex = node?.multiPageIndex;
   const { onMouseEnter, onMouseLeave } = useComponentHighlighter(nodeId, false);
   const children = useNodeDirectChildren(node);
   const hasChildren = children.length > 0;
@@ -67,10 +67,14 @@ export const NodeHierarchyItem = ({ nodeId, onClick, selected }: INodeHierarchyI
 
   const el = useRef<HTMLLIElement>(null);
   useEffect(() => {
-    if (node.id === selected && el.current) {
+    if (node?.id === selected && el.current) {
       el.current.scrollIntoView({ block: 'nearest' });
     }
   }, [node, selected]);
+
+  if (!node) {
+    return null;
+  }
 
   return (
     <>
@@ -117,7 +121,7 @@ export const NodeHierarchyItem = ({ nodeId, onClick, selected }: INodeHierarchyI
 
 function RepeatingGroupExtensions({ nodeId, selected, onClick }: INodeHierarchyItemProps) {
   const node = useNode(nodeId);
-  const isRepGroup = node.isType('RepeatingGroup');
+  const isRepGroup = node?.isType('RepeatingGroup');
   const nodeItem = useNodeItem(node) as CompInternal<'RepeatingGroup'>;
 
   if (!isRepGroup) {

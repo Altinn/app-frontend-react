@@ -62,17 +62,26 @@ export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
 }
 
 const emptyArray: LayoutNode[] = [];
-export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): LayoutNode[] {
-  return NodesInternal.useNodeData(parent, (nodeData, _, fullState) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const out = parent.def.pickDirectChildren(nodeData as any, restriction);
-    const rootNode = fullState.nodes;
-    if (!rootNode) {
-      return emptyArray;
-    }
+export function useNodeDirectChildren(
+  parent: LayoutNode | undefined,
+  restriction?: TraversalRestriction,
+): LayoutNode[] {
+  return (
+    NodesInternal.useNodeData(parent, (nodeData, _, fullState) => {
+      if (!parent) {
+        return emptyArray;
+      }
 
-    return out?.map((id) => rootNode.findById(id)).filter(typedBoolean) ?? emptyArray;
-  });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const out = parent.def.pickDirectChildren(nodeData as any, restriction);
+      const rootNode = fullState.nodes;
+      if (!rootNode) {
+        return emptyArray;
+      }
+
+      return out?.map((id) => rootNode.findById(id)).filter(typedBoolean);
+    }) ?? emptyArray
+  );
 }
 
 type NodeFormData<N extends LayoutNode | undefined> = N extends undefined
