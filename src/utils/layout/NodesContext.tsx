@@ -20,6 +20,7 @@ import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
+import { useIsCurrentView } from 'src/features/routing/AppRoutingContext';
 import { MaintainInitialValidationsInNodesContext } from 'src/features/validation/backendValidation/BackendValidation';
 import { useGetCachedInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
@@ -31,7 +32,6 @@ import {
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useAsRef } from 'src/hooks/useAsRef';
-import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
 import { useGetAwaitingCommits } from 'src/utils/layout/generator/CommitQueue';
@@ -989,12 +989,12 @@ export const Hidden = {
     return devToolsIsOpen && devToolsHiddenComponents !== 'hide';
   },
   useIsPageInOrder(pageKey: string) {
-    const currentView = useCurrentView();
+    const isCurrentView = useIsCurrentView(pageKey);
     const maybeLayoutSettings = useLaxLayoutSettings();
     const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? [] : maybeLayoutSettings.pages.order;
     const layoutSettings = useLayoutSettings();
 
-    if (pageKey === currentView) {
+    if (isCurrentView) {
       // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
       // code caused this to be the current view even if it's not in the common order.
       return true;

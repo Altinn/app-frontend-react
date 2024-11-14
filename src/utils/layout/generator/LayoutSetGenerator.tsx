@@ -20,7 +20,7 @@ import {
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import { Hidden, NodesInternal, useNodesWhenNotReady } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal, NodesStore, useNodesWhenNotReady } from 'src/utils/layout/NodesContext';
 import type { CompExternal, CompExternalExact, CompTypes, ILayout } from 'src/layout/layout';
 import type { ChildClaimerProps, ComponentProto, NodeGeneratorProps } from 'src/layout/LayoutComponent';
 import type { ChildClaim, ChildClaims, ChildClaimsMap } from 'src/utils/layout/generator/GeneratorContext';
@@ -274,8 +274,11 @@ function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
   const inOrder = Hidden.useIsPageInOrder(name);
   const hidden = useIsHiddenPage(page);
 
-  NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'hidden', value: hidden });
-  NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'inOrder', value: inOrder });
+  const hiddenIsSet = NodesStore.useSelector((state) => state.pagesData.pages[name]?.hidden === hidden);
+  const inOrderIsSet = NodesStore.useSelector((state) => state.pagesData.pages[name]?.inOrder === inOrder);
+
+  NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'hidden', value: hidden }, !hiddenIsSet);
+  NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'inOrder', value: inOrder }, !inOrderIsSet);
 
   return null;
 }
