@@ -222,7 +222,7 @@ class SingleDelayedSelectorController<C extends DSConfig> extends BaseDelayedSel
   public getSnapshot = () => this.selectorFunc;
   public subscribe = (callback: () => void) => {
     this.triggerRender = callback;
-    return () => this.unsubscribeFromStore;
+    return () => this.unsubscribeFromStore();
   };
 
   protected onUpdateSelector(): void {
