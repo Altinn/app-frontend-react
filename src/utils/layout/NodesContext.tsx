@@ -1031,29 +1031,32 @@ type NodePickerReturns<N extends LayoutNode | undefined> = NodeDataFromNode<N> |
 function selectNodeData<N extends LayoutNode | undefined>(
   node: N | string,
   state: NodesContext,
-  alwaysUseFreshData = false,
+  preferFreshData = false,
 ): NodePickerReturns<N> {
-  const source =
-    state.readiness === NodesReadiness.Ready || alwaysUseFreshData
-      ? state.nodeData
-      : state.prevNodeData && Object.keys(state.prevNodeData).length > 0
-        ? state.prevNodeData
-        : state.nodeData;
-
-  if (typeof node === 'string') {
-    return source[node] as NodePickerReturns<N>;
+  const nodeId = typeof node === 'string' ? node : node?.id;
+  if (!nodeId) {
+    return undefined;
   }
 
-  return (node ? source[node.id] : undefined) as NodePickerReturns<N>;
+  const data =
+    state.readiness === NodesReadiness.Ready
+      ? state.nodeData[nodeId] // Always use fresh data when ready
+      : preferFreshData && state.nodeData[nodeId]?.item?.id // Only allow getting fresh data when not ready if item is set
+        ? state.nodeData[nodeId]
+        : state.prevNodeData?.[nodeId]
+          ? state.prevNodeData[nodeId]
+          : state.nodeData[nodeId]; // Fall back to fresh data if prevNodeData is not set
+
+  return data as NodePickerReturns<N>;
 }
 
 function getNodeData<N extends LayoutNode | undefined, Out>(
   node: N | string,
   state: NodesContext,
   selector: (nodeData: NodeDataFromNode<N>) => Out,
-  alwaysUseFreshData = false,
+  preferFreshData = false,
 ) {
-  return node ? selector(selectNodeData(node, state, alwaysUseFreshData) as NodeDataFromNode<N>) : undefined;
+  return node ? selector(selectNodeData(node, state, preferFreshData) as NodeDataFromNode<N>) : undefined;
 }
 
 /**
