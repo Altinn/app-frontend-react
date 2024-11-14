@@ -468,6 +468,7 @@ function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
       <h3>
         {layout.id} ({layout.type})
       </h3>
+      <span>{childClaims ? `Children: ${Object.keys(childClaims).join(', ')}` : 'No children'}</span>
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <Generator {...(props as any)} />
     </div>
