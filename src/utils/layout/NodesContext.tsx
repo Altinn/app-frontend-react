@@ -424,9 +424,9 @@ export type NodesStoreFull = typeof Store;
  * data.
  */
 const WhenReady = {
-  useSelector: <T,>(selector: (state: NodesContext) => T): T | undefined => {
+  useSelector: <T,>(selector: (state: NodesContext) => T, or?: unknown[]): T | undefined => {
     const prevValue = useRef<T | typeof NeverInitialized>(NeverInitialized);
-    return Store.useSelector((state) => whenReadySelector(state, selector, prevValue));
+    return Store.useSelector((state) => whenReadySelector(state, selector, prevValue, or));
   },
   useMemoSelector: <T,>(selector: (state: NodesContext) => T): T | undefined => {
     const prevValue = useRef<T | typeof NeverInitialized>(NeverInitialized);
@@ -447,8 +447,13 @@ function whenReadySelector<T>(
   state: NodesContext,
   selector: (state: NodesContext) => T,
   prevValue: MutableRefObject<T | typeof NeverInitialized>,
+  or?: unknown[],
 ) {
-  if (state.readiness === NodesReadiness.Ready || prevValue.current === NeverInitialized) {
+  if (
+    state.readiness === NodesReadiness.Ready ||
+    prevValue.current === NeverInitialized ||
+    or?.includes(prevValue.current)
+  ) {
     const value = selector(state);
     prevValue.current = value;
     return value;
@@ -834,7 +839,9 @@ export const useGetPage = (pageId: string | undefined) =>
     return state.nodes.findLayout(new TraversalTask(state, state.nodes, undefined, undefined), pageId);
   });
 
-export const useNodes = () => WhenReady.useSelector((s) => s.nodes!);
+export const useNodes = () => WhenReady.useSelector((s) => s.nodes);
+// This will rerender until it is no longer undefined, at that point it only rerenders when ready
+export const useNodesWhenReadyOrInit = () => WhenReady.useSelector((s) => s.nodes, [undefined]);
 export const useNodesWhenNotReady = () => Store.useSelector((s) => s.nodes);
 export const useNodesLax = () => WhenReady.useLaxSelector((s) => s.nodes);
 

@@ -15,7 +15,7 @@ import { Validation } from 'src/features/validation/validationContext';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowObjectMemo } from 'src/hooks/useShallowObjectMemo';
 import { useCommitWhenFinished } from 'src/utils/layout/generator/CommitQueue';
-import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal, useNodesWhenReadyOrInit } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import { useInnerNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import { useInnerNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
@@ -28,7 +28,7 @@ const { Provider, hooks } = createHookContext({
   useDefaultDataType: () => DataModels.useDefaultDataType(),
   useReadableDataTypes: () => DataModels.useReadableDataTypes(),
   useExternalApis: () => useExternalApis(useApplicationMetadata().externalApiIds ?? []),
-  useNodes: () => useNodes(),
+  useNodes: () => useNodesWhenReadyOrInit(),
   useIsForcedVisibleByDevTools: () => {
     const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
     const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
@@ -81,7 +81,6 @@ function useExpressionDataSources(): ExpressionDataSources {
   const currentLayoutSet = hooks.useCurrentLayoutSet() ?? null;
   const dataModelNames = hooks.useReadableDataTypes();
   const externalApis = hooks.useExternalApis();
-
   const nodeTraversal = useInnerNodeTraversalSelector(hooks.useNodes(), dataSelectorForTraversal);
   const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
   const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
