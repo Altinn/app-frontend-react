@@ -65,7 +65,6 @@ describe('Summary', () => {
     cy.dsSelect(appFrontend.changeOfName.uploadWithTag.tagsDropDown, 'Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
 
-    // cy.findByRole( 'button', { name: /Tilbake til oppsummering/ }).click();
     cy.findByRole('button', { name: /tilbake til oppsummering/i }).click();
     cy.navPage('summary').should('have.attr', 'aria-current', 'page');
 
