@@ -30,6 +30,10 @@ function Child({
 }: { nodeId: string; isLast: boolean } & Omit<SummaryRendererProps<'Grid'>, 'targetNode'>) {
   const node = useNode(nodeId);
 
+  if (!node || !('renderSummary' in node.def)) {
+    return null;
+  }
+
   return (
     <SummaryComponent
       summaryNode={summaryNode}
