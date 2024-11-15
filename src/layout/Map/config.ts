@@ -123,7 +123,9 @@ export const Config = new CG.component({
               .setTitle('Maximum Zoom Level')
               .setDescription('The maximum zoom level for the WMS layer'),
           ),
-        ).exportAs('MapLayersWMS'),
+        )
+          .exportAs('MapLayersWMS')
+          .setDescription('WMS-type map layers'),
       ).optional(),
     ),
   )
