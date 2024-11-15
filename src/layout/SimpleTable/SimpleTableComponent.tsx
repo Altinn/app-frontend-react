@@ -15,10 +15,10 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type TableComponentProps = PropsFromGenericComponent<'Table'>;
+type TableComponentProps = PropsFromGenericComponent<'SimpleTable'>;
 
 type TableSummaryProps = {
-  componentNode: LayoutNode<'Table'>;
+  componentNode: LayoutNode<'SimpleTable'>;
 };
 
 export function TableSummary({ componentNode }: TableSummaryProps) {
@@ -30,7 +30,6 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
 
   const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
   const { title } = textResourceBindings ?? {};
-  const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
 
   const data = formData.tableData;
@@ -55,12 +54,11 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
   );
 }
 
-export function TableComponent({ node }: TableComponentProps) {
+export function SimpleTableComponent({ node }: TableComponentProps) {
   const item = useNodeItem(node);
   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
   const removeFromList = FD.useRemoveFromListCallback();
   const { title, description, help } = item.textResourceBindings ?? {};
-  const { langAsString } = useLanguage();
   const { elementAsString } = useLanguage();
   const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
