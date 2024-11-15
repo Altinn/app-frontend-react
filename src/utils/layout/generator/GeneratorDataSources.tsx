@@ -15,7 +15,7 @@ import { Validation } from 'src/features/validation/validationContext';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowObjectMemo } from 'src/hooks/useShallowObjectMemo';
 import { useCommitWhenFinished } from 'src/utils/layout/generator/CommitQueue';
-import { Hidden, NodesInternal, useNodesWhenReadyOrInit } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import { useInnerNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import { useInnerNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
@@ -28,10 +28,7 @@ const { Provider, hooks } = createHookContext({
   useDefaultDataType: () => DataModels.useDefaultDataType(),
   useReadableDataTypes: () => DataModels.useReadableDataTypes(),
   useExternalApis: () => useExternalApis(useApplicationMetadata().externalApiIds ?? []),
-  useNodes: () => useNodesWhenReadyOrInit(),
-  useIsForcedVisibleByDevTools: () => {
-    return useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide');
-  },
+  useIsForcedVisibleByDevTools: () => useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide'),
 
   useGetDataElementIdForDataType: () => DataModels.useGetDataElementIdForDataType(),
   useValidationsProcessedLast: () => Validation.useProcessedLast(),
@@ -79,7 +76,7 @@ function useExpressionDataSources(): ExpressionDataSources {
   const currentLayoutSet = hooks.useCurrentLayoutSet() ?? null;
   const dataModelNames = hooks.useReadableDataTypes();
   const externalApis = hooks.useExternalApis();
-  const nodeTraversal = useInnerNodeTraversalSelector(hooks.useNodes(), dataSelectorForTraversal);
+  const nodeTraversal = useInnerNodeTraversalSelector(useNodes(), dataSelectorForTraversal);
   const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
   const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(

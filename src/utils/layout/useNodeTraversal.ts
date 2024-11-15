@@ -248,7 +248,7 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
 
   const out = dataSelector(
     (state) => {
-      if (!nodes || nodes === ContextNotProvided) {
+      if (!nodes) {
         return ContextNotProvided;
       }
 
@@ -332,7 +332,7 @@ function useInnerNodeTraversalSelectorProto<Strict extends Strictness>(
       innerSelector: (traverser: NodeTraversalFromRoot) => InnerSelectorReturns<Strict, U>,
       deps: unknown[],
     ): InnerSelectorReturns<Strict, U> => {
-      if (!nodes || nodes === ContextNotProvided) {
+      if (!nodes) {
         return throwOrReturn(ContextNotProvided, strictness) as InnerSelectorReturns<Strict, U>;
       }
 
