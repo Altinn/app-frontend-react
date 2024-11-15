@@ -232,6 +232,7 @@ export function useRegistry() {
     toCommitCount: 0,
     toCommit: {
       addNodes: [],
+      removeNodes: [],
       setNodeProps: [],
       setRowExtras: [],
       setRowUuid: [],
@@ -387,7 +388,6 @@ function WhenTickIsSet({ children }: PropsWithChildren) {
 export const GeneratorStages = {
   useIsDoneAddingNodes: () => useIsStageAtLeast(StageAddNodes),
   useIsFinished: () => NodesStore.useMemoSelector((state) => state.stages.currentStage === StageFinished),
-  useIsGenerating: () => NodesStore.useHasProvider(),
 };
 
 /**
