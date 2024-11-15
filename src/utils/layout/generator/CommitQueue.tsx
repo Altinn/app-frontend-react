@@ -187,7 +187,7 @@ function useRemoveNode(request: Omit<RemoveNodeRequest, 'layouts'>) {
   const registry = GeneratorInternal.useRegistry();
   const toCommit = registry.current.toCommit;
   const ref = useAsRef(request);
-  const commit = useCommitWhenFinished();
+  const commit = GeneratorData.useCommitWhenFinished();
 
   useEffect(() => {
     const reg = registry.current;
