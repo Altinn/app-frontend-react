@@ -67,14 +67,20 @@ function initialCreateStore() {
     writableDataTypes: null,
     initialData: {},
     dataElementIds: {},
-    initialValidations: null,
     schemas: {},
     schemaLookup: {},
     expressionValidationConfigs: {},
     error: null,
 
     setDataTypes: (allDataTypes, writableDataTypes, defaultDataType, layoutSetId) => {
-      set(() => ({ allDataTypes, writableDataTypes, defaultDataType, layoutSetId }));
+      set(() => ({
+        allDataTypes,
+        writableDataTypes,
+        defaultDataType,
+        layoutSetId,
+        initialData: {},
+        dataElementIds: {},
+      }));
     },
     setInitialData: (dataType, initialData, dataElementId) => {
       set((state) => ({
