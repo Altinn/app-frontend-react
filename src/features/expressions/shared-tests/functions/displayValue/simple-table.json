@@ -1,11 +1,11 @@
 {
-  "name": "Display value of RepeatingGroup component",
+  "name": "Display value of SimpleTable component",
   "expression": [
     "displayValue",
-    "table"
+    "simple-table"
   ],
   "context": {
-    "component": "table",
+    "component": "simple-table",
     "currentLayout": "Page"
   },
   "expects": "",
@@ -15,8 +15,8 @@
       "data": {
         "layout": [
           {
-            "id": "table",
-            "type": "Table",
+            "id": "simple-table",
+            "type": "SimpleTable",
             "children": []
           }
         ]
