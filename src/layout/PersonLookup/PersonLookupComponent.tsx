@@ -51,15 +51,12 @@ const schema: JSONSchemaType<Person> = {
   },
   required: ['name', 'ssn'],
 };
+const validate = ajv.compile(schema);
 
 export function PersonLookupComponent({ node }: PropsFromGenericComponent<'PersonLookup'>) {
   const { id, dataModelBindings, required } = useNodeItem(node);
   const [localSsn, setLocalSsn] = useState('');
   const [localName, setLocalName] = useState('');
-  const [ssnErrors, setSsnErrors] = useState<string[]>();
-  const [nameErrors, setNameErrors] = useState<string[]>();
-
-  const validate = ajv.compile(schema);
 
   const {
     formData: { person_lookup_ssn, person_lookup_name },
@@ -81,21 +78,18 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
 
   function validateInput({ name, ssn }: Person) {
     const isValid = validate({ name, ssn });
-    setSsnErrors(
-      validate.errors
-        ?.filter((error) => error.instancePath === '/ssn')
-        .map((error) => error.message)
-        .filter((it) => it != null),
-    );
-    setNameErrors(
-      validate.errors
-        ?.filter((error) => error.instancePath === '/name')
-        .map((error) => error.message)
-        .filter((it) => it != null),
-    );
 
     return isValid;
   }
+
+  const ssnErrors = validate.errors
+    ?.filter((error) => error.instancePath === '/ssn')
+    .map((error) => error.message)
+    .filter((it) => it != null);
+  const nameErrors = validate.errors
+    ?.filter((error) => error.instancePath === '/name')
+    .map((error) => error.message)
+    .filter((it) => it != null);
 
   async function handleSubmit() {
     const isValid = validateInput({ name: localName, ssn: localSsn });
