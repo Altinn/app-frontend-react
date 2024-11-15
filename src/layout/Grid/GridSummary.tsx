@@ -115,7 +115,10 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
             size='xs'
             level={4}
           >
-            <Lang id={title} />
+            <Lang
+              id={title}
+              node={componentNode}
+            />
           </Heading>
         </caption>
       )}
@@ -418,13 +421,15 @@ function getComponentCellData(
   } else if (textResourceBindings && 'title' in textResourceBindings) {
     return <Lang id={textResourceBindings.title} />;
   } else {
-    <GenericComponent
-      node={node}
-      overrideDisplay={{
-        renderLabel: false,
-        renderLegend: false,
-        renderedInTable: true,
-      }}
-    />;
+    return (
+      <GenericComponent
+        node={node}
+        overrideDisplay={{
+          renderLabel: false,
+          renderLegend: false,
+          renderedInTable: true,
+        }}
+      />
+    );
   }
 }

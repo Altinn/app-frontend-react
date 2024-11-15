@@ -19,12 +19,14 @@ import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { getFormDataQueryKey } from 'src/features/formData/useFormDataQuery';
 import { useLaxChangeInstance, useLaxInstanceId } from 'src/features/instance/InstanceContext';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/features/validation';
 import { useIsUpdatingInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { doPatchMultipleFormData } from 'src/queries/queries';
 import { getMultiPatchUrl } from 'src/utils/urls/appUrlHelper';
+import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
@@ -84,6 +86,7 @@ function useFormDataSaveMutation() {
   const getDataModelUrl = useGetDataModelUrl();
   const instanceId = useLaxInstanceId();
   const multiPatchUrl = instanceId ? getMultiPatchUrl(instanceId) : undefined;
+  const currentLanguage = useAsRef(useCurrentLanguage());
   const dataModelsRef = useAsRef(useSelector((state) => state.dataModels));
   const saveFinished = useSelector((s) => s.saveFinished);
   const cancelSave = useSelector((s) => s.cancelSave);
@@ -194,11 +197,14 @@ function useFormDataSaveMutation() {
             return;
           }
 
-          const { newDataModels, validationIssues, instance } = await doPatchMultipleFormData(multiPatchUrl, {
-            patches,
-            // Ignore validations that require layout parsing in the backend which will slow down requests significantly
-            ignoredValidators: IgnoredValidators,
-          });
+          const { newDataModels, validationIssues, instance } = await doPatchMultipleFormData(
+            getUrlWithLanguage(multiPatchUrl, currentLanguage.current),
+            {
+              patches,
+              // Ignore validations that require layout parsing in the backend which will slow down requests significantly
+              ignoredValidators: IgnoredValidators,
+            },
+          );
 
           const dataModelChanges: UpdatedDataModel[] = [];
           for (const { dataElementId, data } of newDataModels) {
@@ -272,7 +278,7 @@ function useFormDataSaveMutation() {
   };
 }
 
-function useIsSaving() {
+export function useIsSaving() {
   return (
     useIsMutating({
       mutationKey: ['saveFormData'],
@@ -533,6 +539,23 @@ const useWaitForSave = () => {
     [requestSave, dataTypes, waitFor],
   );
 };
+
+function getFreshNumRows(state: FormDataContext, reference: IDataModelReference | undefined) {
+  if (!reference) {
+    return 0;
+  }
+
+  const model = state.dataModels[reference.dataType];
+  if (!model) {
+    return 0;
+  }
+  const rawRows = dot.pick(reference.field, model.currentData);
+  if (!Array.isArray(rawRows) || !rawRows.length) {
+    return 0;
+  }
+
+  return rawRows.length;
+}
 
 const emptyObject = {};
 const emptyArray = [];
@@ -826,23 +849,15 @@ export const FD = {
    * Returns the number of rows in a repeating group. This will always be 'fresh', meaning it will update immediately
    * when a new row is added/removed.
    */
-  useFreshNumRows: (reference: IDataModelReference | undefined): number =>
-    useMemoSelector((s) => {
-      if (!reference) {
-        return 0;
-      }
+  useFreshNumRows: (ref: IDataModelReference | undefined) => useMemoSelector((s) => getFreshNumRows(s, ref)),
 
-      const model = s.dataModels[reference.dataType];
-      if (!model) {
-        return 0;
-      }
-      const rawRows = dot.pick(reference.field, model.currentData);
-      if (!Array.isArray(rawRows) || !rawRows.length) {
-        return 0;
-      }
-
-      return rawRows.length;
-    }),
+  /**
+   * Same as the above, but returns a non-reactive function you can call to check the number of rows.
+   */
+  useGetFreshNumRows: (): ((reference: IDataModelReference | undefined) => number) => {
+    const store = useStore();
+    return useCallback((reference) => getFreshNumRows(store.getState(), reference), [store]);
+  },
 
   /**
    * Get the UUID of a row in a repeating group. This will always be 'fresh', meaning it will update immediately when

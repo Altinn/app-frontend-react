@@ -1,0 +1,19 @@
+name: 'Label Check'
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled]
+
+jobs:
+  check-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels;
+            const required_labels = ['kind/breaking-change', 'kind/product-feature', 'kind/bug', 'kind/other', 'kind/dependencies', 'ignore-for-release'];
+            const hasMatchingLabel = labels.some((label) => required_labels.includes(label.name));
+            if (!hasMatchingLabel) {
+              core.setFailed('The PR must have one of the following labels:\n- ' + required_labels.join('\n- '));
+            }

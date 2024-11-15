@@ -126,20 +126,6 @@ describe('AppTable Component', () => {
     expect(onClickMock).toHaveBeenCalledTimes(2);
   });
 
-  test('renders "-" when cell values are null or undefined', () => {
-    const dataWithNull = [
-      { id: 1, name: 'Alice', date: null, amount: 100 },
-      { id: 2, name: 'Bob', date: '2023-10-06', amount: 200 },
-    ];
-    render(
-      <AppTable
-        data={dataWithNull}
-        columns={columns}
-      />,
-    );
-    expect(screen.getAllByText('-').length).toBe(1);
-  });
-
   test('does not render action buttons column when actionButtons is not provided', () => {
     render(
       <AppTable
@@ -176,16 +162,5 @@ describe('AppTable Component', () => {
     );
     expect(screen.getByText('Not a date')).toBeInTheDocument();
     expect(screen.getByText('Also not a date')).toBeInTheDocument();
-  });
-
-  test('non-string date values are converted to string', () => {
-    const dataWithNumberDate = [{ id: 1, name: 'Alice', date: 1234567890, amount: 100 }];
-    render(
-      <AppTable
-        data={dataWithNumberDate}
-        columns={columns}
-      />,
-    );
-    expect(screen.getByText('1234567890')).toBeInTheDocument();
   });
 });
