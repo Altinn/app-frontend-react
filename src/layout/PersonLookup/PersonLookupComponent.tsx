@@ -134,7 +134,6 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
             htmlFor={`${id}_ssn`}
             label='Fødselsnummer'
             required={required}
-            readonly={hasSuccessfullyFetched}
           />
           {hasSuccessfullyFetched && <Description description='Fra folkeregisteret' />}
         </div>
@@ -155,7 +154,6 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
             htmlFor={`${id}_name`}
             required={required}
             label='Etternavn'
-            readonly={hasSuccessfullyFetched}
           />
           {hasSuccessfullyFetched && <Description description='Fra folkeregisteret' />}
         </div>
