@@ -214,7 +214,7 @@ export const buttonStyles: { [style in CBTypes.ButtonStyle]: { color: ButtonColo
   secondary: { variant: 'secondary', color: 'first' },
 };
 
-function toShorthandSize(size?: CBTypes.ButtonSize): 'sm' | 'md' | 'lg' | undefined {
+function toShorthandSize(size?: CBTypes.ButtonSize): 'sm' | 'md' | 'lg' {
   switch (size) {
     case 'sm':
     case 'small':
