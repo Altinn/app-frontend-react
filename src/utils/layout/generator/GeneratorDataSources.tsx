@@ -30,9 +30,7 @@ const { Provider, hooks } = createHookContext({
   useExternalApis: () => useExternalApis(useApplicationMetadata().externalApiIds ?? []),
   useNodes: () => useNodesWhenReadyOrInit(),
   useIsForcedVisibleByDevTools: () => {
-    const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
-    const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
-    return devToolsIsOpen && devToolsHiddenComponents !== 'hide';
+    return useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide');
   },
 
   useGetDataElementIdForDataType: () => DataModels.useGetDataElementIdForDataType(),
