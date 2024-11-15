@@ -55,23 +55,22 @@ export function useCommit() {
 
   return useCallback(() => {
     const toCommit = registry.current.toCommit;
+    let changes = false;
+
     if (toCommit.addNodes.length) {
       generatorLog('logCommits', 'Committing', toCommit.addNodes.length, 'addNodes requests');
       addNodes(toCommit.addNodes);
       toCommit.addNodes.length = 0; // This truncates the array, but keeps the reference
-      updateCommitsPendingInBody(toCommit);
-      return true;
+      changes = true;
     }
 
     if (toCommit.removeNodes.length) {
       generatorLog('logCommits', 'Committing', toCommit.removeNodes.length, 'removeNodes requests');
       removeNodes(toCommit.removeNodes);
       toCommit.removeNodes.length = 0;
-      updateCommitsPendingInBody(toCommit);
-      return true;
+      changes = true;
     }
 
-    let changes = false;
     if (toCommit.setNodeProps.length) {
       generatorLog('logCommits', 'Committing', toCommit.setNodeProps.length, 'setNodeProps requests:', () => {
         const counts = {};
