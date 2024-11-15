@@ -478,6 +478,7 @@ Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator, 
 
 Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
   cy.log('Changing current layout');
+  cy.waitUntilSaved();
   cy.window().then((win) => {
     const activeData = win.queryClient.getQueryCache().findAll({ type: 'active' });
     for (const query of activeData) {
