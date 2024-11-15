@@ -4,6 +4,8 @@ import type { PropsWithChildren } from 'react';
 import { Button as DesignSystemButton, Spinner } from '@digdir/designsystemet-react';
 import type { ButtonProps as DesignSystemButtonProps } from '@digdir/designsystemet-react';
 
+import { useLanguage } from 'src/features/language/useLanguage';
+
 export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | undefined;
 export type ButtonColor = 'first' | 'second' | 'success' | 'danger' | undefined;
 
@@ -38,6 +40,7 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
   { id, disabled, isLoading = false, variant = 'primary', color = 'first', size = 'sm', children, ...props },
   ref,
 ) {
+  const { langAsString } = useLanguage();
   return (
     <DesignSystemButton
       id={id}
@@ -53,7 +56,7 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
           aria-hidden='true'
           color={color}
           size={size === 'lg' ? 'sm' : 'xs'}
-          title='Laster innhold'
+          title={langAsString('general.loading')}
         />
       )}
       {children}
