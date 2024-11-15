@@ -239,13 +239,14 @@ function DateField({ fieldKey, formData, handleChange, required, locale }: DateF
           onClick={() => setIsDialogOpen(!isDialogOpen)}
           asChild={true}
         >
-          <DatePickerInput
-            id={fieldKey}
-            value={(formData[fieldKey] as string) || ''}
-            isDialogOpen={isDialogOpen}
-            formatString={dateFormat}
-            onClick={() => setIsDialogOpen(!isDialogOpen)}
-          />
+          {isDialogOpen && (
+            <DatePickerInput
+              id={fieldKey}
+              datepickerFormat={dateFormat}
+              timeStamp={false}
+              value={(formData[fieldKey] as string) || ''}
+            />
+          )}
         </Popover.Trigger>
         <Popover.Content
           className={styles.calendarWrapper}
