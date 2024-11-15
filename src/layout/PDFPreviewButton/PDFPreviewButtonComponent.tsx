@@ -19,7 +19,7 @@ export function PDFPreviewButtonRenderLayoutValidator({ node }: NodeValidationPr
 
   const applicationMetadata = useApplicationMetadata();
 
-  const minimumBackendVersion = '8.5.0.0';
+  const minimumBackendVersion = '8.5.0.157';
 
   const backendVersionOK = isAtLeastVersion({
     actualVersion: applicationMetadata.altinnNugetVersion ?? '',
