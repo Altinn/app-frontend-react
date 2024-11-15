@@ -1,5 +1,14 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { AttributionControl, GeoJSON, MapContainer, Marker, TileLayer, Tooltip, useMapEvent } from 'react-leaflet';
+import {
+  AttributionControl,
+  GeoJSON,
+  MapContainer,
+  Marker,
+  TileLayer,
+  Tooltip,
+  useMapEvent,
+  WMSTileLayer,
+} from 'react-leaflet';
 
 import cn from 'classnames';
 import { icon, type Map as LeafletMap } from 'leaflet';
@@ -68,6 +77,7 @@ export function Map({
   const {
     readOnly,
     layers: customLayers,
+    wmsLayers: customWmsLayers,
     centerLocation: customCenterLocation,
     zoom: customZoom,
     geometryType,
@@ -76,6 +86,7 @@ export function Map({
   const isPdf = useIsPdf();
   const isInteractive = !readOnly && !isSummary;
   const layers = customLayers ?? DefaultMapLayers;
+  const wmsLayers = customWmsLayers ?? [];
   const markerLocationIsValid = isLocationValid(markerLocation);
 
   const geometries = useMemo(() => {
@@ -135,6 +146,23 @@ export function Map({
           url={layer.url}
           attribution={layer.attribution}
           subdomains={layer.subdomains ? layer.subdomains : []}
+        />
+      ))}
+      {wmsLayers.map((layer, i) => (
+        <WMSTileLayer
+          key={i}
+          url={layer.url}
+          attribution={layer.attribution}
+          subdomains={layer.subdomains ? layer.subdomains : []}
+          layers={layer.layers}
+          format={layer.format ?? 'image/jpeg'}
+          version={layer.version ?? '1.1.1'}
+          opacity={layer.opacity ?? 1.0}
+          zoomOffset={layer.zoomOffset ?? 0}
+          transparent={layer.transparent ?? false}
+          uppercase={layer.uppercase ?? false}
+          minZoom={layer.minZoom ?? 0}
+          maxZoom={layer.maxZoom ?? 18}
         />
       ))}
       {geometries?.map(({ altinnRowId, data, label }) => (
