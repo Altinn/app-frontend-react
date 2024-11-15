@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Ajv, type JSONSchemaType } from 'ajv';
 import addErrors from 'ajv-errors';
+import type { QueryFunctionContext } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/button/Button';
 import { Input } from 'src/app-components/Input/Input';
@@ -15,6 +16,11 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import classes from 'src/layout/PersonLookup/PersonLookupComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
+
+/*
+TODO: Implement actual request
+TODO: Handle API errors
+*/
 
 const personLookupKeys = {
   lookup: (ssn: string | number, name: string) => ['personLookup', ssn, name],
@@ -53,6 +59,16 @@ const schema: JSONSchemaType<Person> = {
 };
 const validate = ajv.compile(schema);
 
+async function fetchPerson({ queryKey }: QueryFunctionContext<ReturnType<(typeof personLookupKeys)['lookup']>>) {
+  const [ssn, name] = queryKey;
+  if (!ssn || !name) {
+    throw new Error('Missing ssn or name');
+  }
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
+  return { name: `Ola ${name}`, ssn };
+}
+
 export function PersonLookupComponent({ node }: PropsFromGenericComponent<'PersonLookup'>) {
   const { id, dataModelBindings, required } = useNodeItem(node);
   const [localSsn, setLocalSsn] = useState('');
@@ -65,13 +81,7 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
 
   const { refetch: performLookup, isFetching } = useQuery({
     queryKey: personLookupKeys.lookup(localSsn, localName),
-    queryFn: async () => {
-      if (!localSsn || !localName) {
-        throw new Error('Missing ssn or name');
-      }
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      return { name: `Ola ${localName}`, ssn: localSsn };
-    },
+    queryFn: fetchPerson,
     enabled: false,
     gcTime: 0,
   });
