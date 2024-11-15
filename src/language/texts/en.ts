@@ -317,6 +317,8 @@ export function en() {
     person_lookup: {
       validation_error_name_too_short: "The name can't be shorter than 2 characters",
       validation_error_ssn: 'The national ID number/D-number is invalid.',
+      validation_error_not_found:
+        'No person is registered with this combination of national ID number/D-number and name. Please check the fields and try again. \n\nNote: After 5 failed attempts, the search functionality will be temporarily locked.',
     },
     helptext: {
       button_title: 'Help',

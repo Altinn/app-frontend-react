@@ -318,6 +318,8 @@ export function nn(): FixedLanguageList {
     person_lookup: {
       validation_error_name_too_short: 'Etternamn må vere minst 2 teikn lange.',
       validation_error_ssn: 'Fødselsnummeret/D-nummeret er ugyldig.',
+      validation_error_not_found:
+        'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. \n\nMerk: Etter 5 feilforsøk blir søkemoglegheita mellombels sperra.',
     },
     helptext: {
       button_title: 'Hjelp',
