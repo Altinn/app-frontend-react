@@ -1,7 +1,10 @@
 import { Ajv, type JSONSchemaType } from 'ajv';
 import addErrors from 'ajv-errors';
 
-import type { Person } from 'src/layout/PersonLookup/PersonLookupComponent';
+import type { Person, PersonLookupResponse } from 'src/layout/PersonLookup/PersonLookupComponent';
+
+const ajv = new Ajv({ allErrors: true });
+addErrors(ajv);
 
 /**
  * @see https://github.com/navikt/k9-punsj-frontend/blob/435a445a14797dee5c19fb1c1a70c323c3f4187c/src/app/rules/IdentRules.ts
@@ -13,9 +16,6 @@ const REGEX_FNR =
  */
 const REGEX_DNR =
   /^((((4[1-9]|[56]\d|70)(0[469]|11)|(4[1-9]|[56]\d|7[01])(0[13578]|1[02])|((4[1-9]|5\d|6[0-8])02))\d{2})|6902([02468][048]|[13579][26]))\d{5}$/;
-
-const ajv = new Ajv({ allErrors: true });
-addErrors(ajv);
 
 const ssnSchema: JSONSchemaType<Pick<Person, 'ssn'>> = {
   type: 'object',
@@ -39,3 +39,34 @@ const nameSchema: JSONSchemaType<Pick<Person, 'name'>> = {
 
 export const validateSsn = ajv.compile(ssnSchema);
 export const validateName = ajv.compile(nameSchema);
+
+const personLookupResponseSchema: JSONSchemaType<PersonLookupResponse> = {
+  type: 'object',
+  oneOf: [
+    {
+      properties: {
+        success: { const: false },
+        personDetails: { type: 'null' },
+      },
+      required: ['success', 'personDetails'],
+    },
+    {
+      properties: {
+        success: { const: true },
+        personDetails: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            ssn: { type: 'string' },
+          },
+          required: ['name', 'ssn'],
+          additionalProperties: true,
+        },
+      },
+      required: ['success', 'personDetails'],
+    },
+  ],
+  required: ['success', 'personDetails'],
+};
+
+export const validatePersonLookupResponse = ajv.compile(personLookupResponseSchema);

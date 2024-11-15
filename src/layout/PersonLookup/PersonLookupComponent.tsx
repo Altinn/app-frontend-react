@@ -13,34 +13,61 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/PersonLookup/PersonLookupComponent.module.css';
-import { validateName, validateSsn } from 'src/layout/PersonLookup/validation';
+import { validateName, validatePersonLookupResponse, validateSsn } from 'src/layout/PersonLookup/validation';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { httpPost } from 'src/utils/network/networking';
+import { appPath } from 'src/utils/urls/appUrlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 /*
-TODO: Implement actual request
 TODO: Handle API errors.
 */
 
 const personLookupKeys = {
-  lookup: (ssn: string | number, name: string) => [{ scope: 'personLookup', ssn, name }],
+  lookup: (ssn: string, name: string) => [{ scope: 'personLookup', ssn, name }],
 } as const;
 
 export type Person = {
   name: string;
   ssn: string;
 };
+export type PersonLookupResponse = { success: false; personDetails: null } | { success: true; personDetails: Person };
 
 async function fetchPerson({
   queryKey: [{ ssn, name }],
-}: QueryFunctionContext<ReturnType<(typeof personLookupKeys)['lookup']>>) {
-  // throw new Error('person_lookup.validation_error_not_found');
+}: QueryFunctionContext<ReturnType<(typeof personLookupKeys)['lookup']>>): Promise<
+  { person: Person; error: null } | { person: null; error: string }
+> {
   if (!ssn || !name) {
     throw new Error('Missing ssn or name');
   }
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  const body = { socialSecurityNumber: ssn, lastName: name };
+  const url = `${appPath}/api/v1/lookup/person`;
 
-  return { name: `Ola ${name}`, ssn };
+  try {
+    const response = await httpPost(url, undefined, body);
+    const data = response.data;
+
+    if (!validatePersonLookupResponse(data)) {
+      return { person: null, error: 'Vi fikk ikke den responsen vi forventet fra serveren. Ta kontakt med support.' }; // TODO: create text resource
+    }
+
+    if (!data.success) {
+      return { person: null, error: 'person_lookup.validation_error_not_found' };
+    }
+
+    return { person: data.personDetails, error: null };
+  } catch (error) {
+    if (error.response.status === 403) {
+      return { person: null, error: 'person_lookup.validation_error_forbidden' }; // TODO: create text resource not high enough auth level?
+    }
+    // TODO: expose this status from app-lib?
+    if (error.response.status === 429) {
+      return { person: null, error: 'person_lookup.validation_error_too_many_requests' }; // TODO: create text resource
+    }
+
+    return { person: null, error: 'person_lookup.unknown_error' }; // TODO: create text resource
+  }
 }
 
 export function PersonLookupComponent({ node }: PropsFromGenericComponent<'PersonLookup'>) {
@@ -56,9 +83,9 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
   } = useDataModelBindings(dataModelBindings);
 
   const {
+    data,
     refetch: performLookup,
     isFetching,
-    error: apiError,
   } = useQuery({
     queryKey: personLookupKeys.lookup(tempSsn, tempName),
     queryFn: fetchPerson,
@@ -102,10 +129,10 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
       return;
     }
 
-    const { data, error } = await performLookup();
-    if (data && !error) {
-      setValue('person_lookup_name', data.name);
-      setValue('person_lookup_ssn', data.ssn);
+    const { data } = await performLookup();
+    if (data?.person) {
+      setValue('person_lookup_name', data.person.name);
+      setValue('person_lookup_ssn', data.person.ssn);
     }
   }
 
@@ -183,12 +210,12 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
             </Button>
           )}
         </div>
-        {apiError && (
+        {data?.error && (
           <ErrorMessage
             size='small'
             style={{ gridArea: 'apiError' }}
           >
-            <Lang id={apiError.message} />
+            <Lang id={data.error} />
           </ErrorMessage>
         )}
       </div>
