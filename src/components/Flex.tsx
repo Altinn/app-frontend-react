@@ -27,7 +27,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
     className,
     spacing,
     direction = 'column',
-    justifyContent = 'space-evenly',
+    justifyContent = 'start',
     alignItems = 'start',
     style,
     size,
@@ -45,13 +45,14 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
         {...rest}
         style={{
           display: container ? 'flex' : 'block',
+          boxSizing: 'border-box',
           flexDirection: direction,
           gap: spacing ? `${spacing * 0.25}rem` : undefined,
           justifyContent,
           alignItems,
           ...style,
         }}
-        className={cn(className, xsClass, smClass, mdClass, lgClass)}
+        className={cn(classes.default, classes.default, xsClass, smClass, mdClass, lgClass, className)}
       >
         {children}
       </div>

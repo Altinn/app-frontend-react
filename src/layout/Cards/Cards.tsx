@@ -22,14 +22,14 @@ function parseSize(size: string | undefined, defaultValue: string): string {
 
 export const Cards = ({ node }: ICardsProps) => {
   const { cardsInternal, minMediaHeight, minWidth, color, mediaPosition: _mediaPosition } = useNodeItem(node);
-  const processedMinWidth = parseSize(minWidth, '250px');
   const processedMinMediaHeight = parseSize(minMediaHeight, '150px');
   const mediaPosition = _mediaPosition ?? 'top';
 
   const cardContainer: CSSProperties = {
-    display: 'grid',
-    gap: '28px',
-    gridTemplateColumns: `repeat(auto-fit, minmax(${processedMinWidth}, 1fr))`,
+    minWidth: parseSize(minWidth, '250px'),
+    // display: 'grid',
+    // gap: '28px',
+    // gridTemplateColumns: `repeat(auto-fit, minmax(${processedMinWidth}, 1fr))`,
   };
 
   return (

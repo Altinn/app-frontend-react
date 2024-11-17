@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 
-import { Grid } from '@material-ui/core';
 import classNames from 'classnames';
 
+import { Flex } from 'src/components/Flex';
 import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { useIsDev } from 'src/hooks/useIsDev';
@@ -223,20 +223,19 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
 
   return (
     <FormComponentContextProvider value={formComponentContext}>
-      <Grid
+      <Flex
         data-componentbaseid={node.baseId}
         data-componentid={node.id}
         data-componenttype={node.type}
         ref={containerDivRef}
         item
         container
-        {...calculateGridBreakpoints(grid)}
+        size={calculateGridBreakpoints(grid)}
         key={`grid-${id}`}
         className={classNames(classes.container, gridToClasses(grid?.labelGrid, classes), pageBreakStyles(pageBreak))}
-        alignItems='flex-start'
       >
         <RenderComponent {...componentProps} />
-      </Grid>
+      </Flex>
     </FormComponentContextProvider>
   );
 }

@@ -15,12 +15,14 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 type ComponentStructureWrapperProps<Type extends CompTypes> = {
   node: LayoutNode<Type>;
   label?: LabelProps;
+  style?: React.CSSProperties;
 };
 
 export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   node,
   children,
   label,
+  style,
 }: PropsWithChildren<ComponentStructureWrapperProps<Type>>) {
   const overrideItemProps = useFormComponentCtx()?.overrideItemProps;
   const _grid = useNodeItem(node, (i) => i.grid);
@@ -34,6 +36,7 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
       item
       id={`form-content-${node.id}`}
       size={breakPoints}
+      style={style}
     >
       {children}
       {showValidationMessages && <AllComponentValidations node={node} />}

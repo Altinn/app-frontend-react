@@ -70,7 +70,7 @@ export function Label(props: LabelProps) {
     case 'legend': {
       return (
         <Fieldset
-          className={cn(classes.fieldWrapper, classes.fullWidth)}
+          className={cn(classes.fieldWrapper, classes.fullWidth, className)}
           legend={
             <Label
               {...propsWithoutChildren}
@@ -126,14 +126,7 @@ export function Label(props: LabelProps) {
 }
 
 function LabelGridItemWrapper({ children, labelGrid }: PropsWithChildren<{ labelGrid?: IGridStyling }>) {
-  return (
-    <Flex
-      item
-      size={calculateGridBreakpoints(labelGrid)}
-    >
-      {children}
-    </Flex>
-  );
+  return <Flex size={calculateGridBreakpoints(labelGrid)}>{children}</Flex>;
 }
 
 export function getLabelId(nodeId: string) {
