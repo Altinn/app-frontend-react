@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { Grid } from '@material-ui/core';
-
 import { PANEL_VARIANT } from 'src/app-components/panel/constants';
 import { Panel } from 'src/app-components/panel/Panel';
+import { Flex } from 'src/components/Flex';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
@@ -39,16 +38,13 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
           title={<Lang id='form_filler.error_report_header' />}
           variant={PANEL_VARIANT.Error}
         >
-          <Grid
+          <Flex
             container={true}
             item={true}
             spacing={6}
             alignItems='flex-start'
           >
-            <Grid
-              item
-              xs={12}
-            >
+            <Flex item>
               <ul className={classes.errorList}>
                 {taskErrors.map((error) => (
                   <li
@@ -68,14 +64,14 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
                   />
                 ))}
               </ul>
-            </Grid>
+            </Flex>
             {renderIds.map((id) => (
               <GenericComponentById
                 key={id}
                 id={id}
               />
             ))}
-          </Grid>
+          </Flex>
         </Panel>
       </FullWidthWrapper>
     </div>

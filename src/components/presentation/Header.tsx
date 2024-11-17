@@ -2,8 +2,8 @@ import React from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
+import { Flex } from 'src/components/Flex';
 import classes from 'src/components/presentation/Header.module.css';
 import { useAppName, useAppOwner, useHasAppTextsYet } from 'src/core/texts/appTexts';
 import { useDisplayAppOwnerNameInHeader } from 'src/hooks/useAppLogo';
@@ -18,30 +18,23 @@ interface IInnerHeaderProps extends IHeaderProps {
 
 const InnerHeader = ({ header, aboveHeader, children }: IInnerHeaderProps) => (
   <header className={classes.wrapper}>
-    <Grid
+    <Flex
       container
       direction='row'
-      justifyContent='space-between'
       spacing={4}
+      justifyContent='space-between'
+      alignItems='space-between'
     >
-      <Grid item>
-        {aboveHeader && (
-          <Grid item>
-            <span>{aboveHeader}</span>
-          </Grid>
-        )}
-        <Grid item>
-          <Heading
-            level={1}
-            size='medium'
-            data-testid='presentation-heading'
-          >
-            {header}
-          </Heading>
-        </Grid>
-      </Grid>
+      {aboveHeader && <span>{aboveHeader}</span>}
+      <Heading
+        level={1}
+        size='medium'
+        data-testid='presentation-heading'
+      >
+        {header}
+      </Heading>
       {children}
-    </Grid>
+    </Flex>
   </header>
 );
 

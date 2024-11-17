@@ -3,7 +3,6 @@ import type { PropsWithChildren } from 'react';
 
 import cn from 'classnames';
 
-import { Flex } from 'src/components/Flex';
 import { LogoColor } from 'src/components/logo/AltinnLogo';
 import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPaper';
 import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
@@ -36,7 +35,11 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
   const userParty = useProfile()?.party;
   const { expandedWidth } = useUiConfigContext();
 
-  const realHeader = header || (type === ProcessTaskType.Archived ? <Lang id='receipt.receipt' /> : undefined);
+  const { showProgress } = usePageSettings();
+  const isProgressEnabled = type !== ProcessTaskType.Archived && showProgress;
+  const showProgressBar = isProgressEnabled && showProgress;
+
+  const realHeader = header || (type === ProcessTaskType.Archived ? <Lang id={'receipt.receipt'} /> : undefined);
 
   const isProcessStepsArchived = Boolean(type === ProcessTaskType.Archived);
   const backgroundColor = isProcessStepsArchived
@@ -71,9 +74,7 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
               className={classes.modal}
               tabIndex={-1}
             >
-              <Header header={realHeader}>
-                <ProgressBar type={type} />
-              </Header>
+              <Header header={realHeader}>{showProgressBar && <Progress />}</Header>
               <div className={classes.modalBody}>{children}</div>
             </section>
           </main>
@@ -83,21 +84,6 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
     </RenderStart>
   );
 };
-
-function ProgressBar({ type }: { type: ProcessTaskType | PresentationType }) {
-  const { showProgress } = usePageSettings();
-  const enabled = type !== ProcessTaskType.Archived && showProgress;
-
-  if (!enabled) {
-    return null;
-  }
-
-  return (
-    <Flex aria-live='polite'>
-      <Progress />
-    </Flex>
-  );
-}
 
 const { Provider: PresentationProvider, useHasProvider } = createContext<undefined>({
   name: 'Presentation',
