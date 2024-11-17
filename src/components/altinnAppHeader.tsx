@@ -37,6 +37,7 @@ export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
         position='static'
         className={classes.default}
       >
+        hei
         <Toolbar className={classes.toolbarContainer}>
           <Flex className={classes.logo}>
             <AltinnLogo color={LogoColor.blueDark} />

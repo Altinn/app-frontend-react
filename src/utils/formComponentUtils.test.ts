@@ -1,11 +1,6 @@
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
-import {
-  calculateGridBreakpoints,
-  getColumnStyles,
-  getFieldName,
-  smartLowerCaseFirst,
-} from 'src/utils/formComponentUtils';
-import type { IGridStyling, ITableColumnProperties } from 'src/layout/common.generated';
+import { getColumnStyles, getFieldName, smartLowerCaseFirst } from 'src/utils/formComponentUtils';
+import type { ITableColumnProperties } from 'src/layout/common.generated';
 
 describe('formComponentUtils', () => {
   describe('getFieldName', () => {
@@ -74,50 +69,6 @@ describe('formComponentUtils', () => {
       { input: '', expected: '' },
     ])('Should convert $input to $expected', ({ input, expected }) => {
       expect(smartLowerCaseFirst(input)).toEqual(expected);
-    });
-  });
-
-  describe('gridBreakpoints', () => {
-    const defaultGrid: IGridStyling = {
-      xs: 12,
-    };
-    it('should return default values when no params are passed', () => {
-      const expected = { ...defaultGrid };
-      const result = calculateGridBreakpoints();
-      expect(result).toEqual(expected);
-    });
-
-    it('should return xs value even if it is not passed', () => {
-      const passValues: IGridStyling = { sm: 4, lg: 8 };
-      const expected: IGridStyling = {
-        ...defaultGrid,
-        ...passValues,
-      };
-      const result = calculateGridBreakpoints(passValues);
-      expect(result).toEqual(expected);
-    });
-
-    it('should return all the sizes that are passed', () => {
-      const passValues: IGridStyling = {
-        xs: 1,
-        sm: 2,
-        md: 3,
-        lg: 4,
-        xl: 5,
-      };
-      const result = calculateGridBreakpoints(passValues);
-      expect(result).toEqual(passValues);
-    });
-
-    it('should not return sizes that not are passed, except xs', () => {
-      const passValues: IGridStyling = {
-        sm: 2,
-        xl: 5,
-      };
-      const result = calculateGridBreakpoints(passValues);
-      expect(result.xs).toBe(12);
-      expect(result.md).toBeUndefined();
-      expect(result.lg).toBeUndefined();
     });
   });
 

@@ -8,7 +8,6 @@ import type { ExprResolved } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type {
   IDataModelBindingsList,
-  IGridStyling,
   IPageBreak,
   ITableColumnFormatting,
   ITableColumnProperties,
@@ -135,17 +134,6 @@ export function smartLowerCaseFirst(text: string | undefined): string | undefine
 
   return lowerCaseFirst(text, firstLetterIdx);
 }
-
-export const calculateGridBreakpoints = (grid?: IGridStyling): IGridStyling => {
-  const { xs, sm, md, lg, xl } = grid ?? {};
-  return {
-    ...(xs && { xs }),
-    ...(sm && { sm }),
-    ...(md && { md }),
-    ...(lg && { lg }),
-    ...(xl && { xl }),
-  };
-};
 
 export const pageBreakStyles = (pageBreak: ExprResolved<IPageBreak> | undefined) => {
   if (!pageBreak) {

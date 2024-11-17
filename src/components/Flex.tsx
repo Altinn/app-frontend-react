@@ -24,23 +24,26 @@ type Props = PropsWithChildren<{
   React.HTMLAttributes<HTMLDivElement>;
 
 export const Flex = forwardRef<HTMLDivElement, Props>(
-  ({
-    id,
-    children,
-    className,
-    gap,
-    rowGap,
-    columnGap,
-    direction = 'row',
-    justifyContent = 'start',
-    alignItems = 'start',
-    flexWrap = 'wrap',
-    style,
-    size,
-    item,
-    container,
-    ...rest
-  }: Props) => {
+  (
+    {
+      id,
+      children,
+      className,
+      gap,
+      rowGap,
+      columnGap,
+      direction = 'row',
+      justifyContent = 'start',
+      alignItems = 'start',
+      flexWrap = 'wrap',
+      style,
+      size,
+      item,
+      container,
+      ...rest
+    },
+    ref,
+  ) => {
     const xsClass = classes[`col-xs-${size?.xs ?? 12}`];
     const smClass = size?.sm ? classes[`col-sm-${size.sm}`] : '';
     const mdClass = size?.md ? classes[`col-md-${size.md}`] : '';
@@ -53,6 +56,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
     return (
       <div
         id={id}
+        ref={ref}
         {...rest}
         style={{
           display: container ? 'flex' : 'block',

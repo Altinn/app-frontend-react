@@ -6,7 +6,7 @@ import { Flex } from 'src/components/Flex';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
 import { useSummary2Store } from 'src/layout/Summary2/summaryStoreContext';
-import { calculateGridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
+import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -77,7 +77,7 @@ export function ComponentSummary({ componentNode }: ComponentSummaryProps) {
     <Flex
       // item={true} // TODO: what are the consequences of removing this?
       className={cn(pageBreakStyles(componentNodeItem?.pageBreak), classes.summaryItem)}
-      size={calculateGridBreakpoints(componentNodeItem.grid)}
+      size={componentNodeItem.grid}
     >
       {renderedComponent}
     </Flex>
