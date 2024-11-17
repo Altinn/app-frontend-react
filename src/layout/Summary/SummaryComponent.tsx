@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
 import { Flex } from 'src/components/Flex';
@@ -101,14 +100,9 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
     : (summaryNode?.id ?? targetNode?.id ?? 'unknown');
 
   return (
-    <Grid
+    <Flex
       ref={ref}
-      item={true}
-      xs={displayGrid?.xs || 12}
-      sm={displayGrid?.sm || false}
-      md={displayGrid?.md || false}
-      lg={displayGrid?.lg || false}
-      xl={displayGrid?.xl || false}
+      size={displayGrid}
       data-testid={`summary-${summaryTestId}`}
       data-componentid={summaryNode?.id ?? `summary-${targetNode?.id}`}
       data-componentbaseid={summaryNode?.baseId ?? `summary-${targetNode.id}`}
@@ -164,6 +158,6 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
           </Flex>
         ) : null}
       </Flex>
-    </Grid>
+    </Flex>
   );
 });

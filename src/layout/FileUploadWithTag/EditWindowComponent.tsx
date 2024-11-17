@@ -1,28 +1,28 @@
 import React, { useState } from 'react';
 
 import { Combobox } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 import deepEqual from 'fast-deep-equal';
 
 import { Button } from 'src/app-components/button/Button';
 import { AltinnLoader } from 'src/components/AltinnLoader';
+import { Flex } from 'src/components/Flex';
+import type { IAttachment } from 'src/features/attachments';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { useAttachmentsUpdater } from 'src/features/attachments/hooks';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import { useOnAttachmentSave } from 'src/features/validation/callbacks/onAttachmentSave';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useAttachmentValidations } from 'src/features/validation/selectors/attachmentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
+import type { PropsFromGenericComponent } from 'src/layout';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { IAttachment } from 'src/features/attachments';
-import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { PropsFromGenericComponent } from 'src/layout';
 
 export interface EditWindowProps {
   node: PropsFromGenericComponent<'FileUploadWithTag'>['node'];
@@ -87,14 +87,13 @@ export function EditWindowComponent({
       id={`attachment-edit-window-${uniqueId}`}
       className={classes.editContainer}
     >
-      <Grid
+      <Flex
         justifyContent='space-between'
         container={true}
-        spacing={0}
         direction='row'
         style={{ flexWrap: 'nowrap' }}
       >
-        <Grid
+        <div
           className={classes.textContainer}
           style={{ flexShrink: 1 }}
         >
@@ -102,8 +101,8 @@ export function EditWindowComponent({
             attachment={attachment}
             mobileView={mobileView}
           />
-        </Grid>
-        <Grid
+        </div>
+        <div
           className={classes.textContainer}
           style={{ flexShrink: 0 }}
         >
@@ -134,11 +133,12 @@ export function EditWindowComponent({
               />
             </div>
           </div>
-        </Grid>
-      </Grid>
-      <Grid
+        </div>
+      </Flex>
+      <Flex
         container
         direction='column'
+        alignItems='center'
         className={classes.gap}
       >
         {textResourceBindings?.tagTitle && (
@@ -159,17 +159,11 @@ export function EditWindowComponent({
             }}
           />
         ) : (
-          <Grid
+          <Flex
             container
-            direction='row'
-            wrap='wrap'
             className={classes.gap}
           >
-            <Grid
-              item={true}
-              style={{ minWidth: '150px' }}
-              xs
-            >
+            <div style={{ minWidth: '150px', flexGrow: 1 }}>
               <Combobox
                 id={`attachment-tag-dropdown-${uniqueId}`}
                 size='sm'
@@ -200,11 +194,8 @@ export function EditWindowComponent({
                   </Combobox.Option>
                 ))}
               </Combobox>
-            </Grid>
-            <Grid
-              item={true}
-              xs='auto'
-            >
+            </div>
+            <div>
               {attachment.updating ? (
                 <AltinnLoader
                   id={`attachment-loader-update-${uniqueId}`}
@@ -222,10 +213,10 @@ export function EditWindowComponent({
                   <Lang id='general.save' />
                 </Button>
               )}
-            </Grid>
-          </Grid>
+            </div>
+          </Flex>
         )}
-      </Grid>
+      </Flex>
       {hasErrors ? (
         <div
           style={{

@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { Grid, makeStyles } from '@material-ui/core';
-
+import { Flex } from 'src/components/Flex';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -13,16 +12,9 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IImageProps = PropsFromGenericComponent<'Image'>;
 
-const useStyles = makeStyles({
-  spacing: {
-    letterSpacing: '0.3px',
-  },
-});
-
 export function ImageComponent({ node }: IImageProps) {
   const { langAsString } = useLanguage();
   const { id, image, textResourceBindings } = useNodeItem(node);
-  const classes = useStyles();
   const languageKey = useCurrentLanguage();
   const width = image?.width ?? '100%';
   const align = image?.align ?? 'center';
@@ -54,33 +46,25 @@ export function ImageComponent({ node }: IImageProps) {
 
   return (
     <ComponentStructureWrapper node={node}>
-      <Grid
+      <Flex
         container
-        direction='row'
         justifyContent={align}
-        spacing={2}
+        gap={2}
       >
-        <Grid item={true}>
-          <InnerImage
-            id={id}
-            renderSvg={renderSvg}
-            altText={altText}
-            imgSrc={imgSrc}
-            width={width}
-          />
-        </Grid>
+        <InnerImage
+          id={id}
+          renderSvg={renderSvg}
+          altText={altText}
+          imgSrc={imgSrc}
+          width={width}
+        />
         {textResourceBindings?.help && (
-          <Grid
-            item={true}
-            className={classes.spacing}
-          >
-            <HelpTextContainer
-              helpText={<Lang id={textResourceBindings.help} />}
-              title={altText}
-            />
-          </Grid>
+          <HelpTextContainer
+            helpText={<Lang id={textResourceBindings.help} />}
+            title={altText}
+          />
         )}
-      </Grid>
+      </Flex>
     </ComponentStructureWrapper>
   );
 }

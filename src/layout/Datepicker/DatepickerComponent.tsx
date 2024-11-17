@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-import { Grid } from '@material-ui/core';
 import { CalendarIcon } from '@navikt/aksel-icons';
 import { formatDate, isValid as isValidDate } from 'date-fns';
 
@@ -86,54 +85,48 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
     >
       <ComponentStructureWrapper node={node}>
         <div className={styles.calendarGrid}>
-          <Grid
-            container
-            item
-            xs={12}
-          >
-            <div className={styles.calendarInputWrapper}>
-              <DatePickerInput
+          <div className={styles.calendarInputWrapper}>
+            <DatePickerInput
+              id={id}
+              value={value}
+              datepickerFormat={dateFormat}
+              timeStamp={timeStamp}
+              onValueChange={handleInputValueChange}
+              readOnly={readOnly}
+            />
+            <DatePickerDialog
+              isDialogOpen={isDialogOpen}
+              setIsDialogOpen={setIsDialogOpen}
+              trigger={
+                <Button
+                  id={`${id}-button`}
+                  variant='tertiary'
+                  icon={true}
+                  aria-controls='dialog'
+                  aria-haspopup='dialog'
+                  onClick={() => setIsDialogOpen(!isDialogOpen)}
+                  aria-expanded={isDialogOpen}
+                  aria-label={langAsString('date_picker.aria_label_icon')}
+                  disabled={readOnly}
+                  color='first'
+                >
+                  <CalendarIcon title={langAsString('date_picker.aria_label_icon')} />
+                </Button>
+              }
+            >
+              <DatePickerCalendar
                 id={id}
-                value={value}
-                datepickerFormat={dateFormat}
-                timeStamp={timeStamp}
-                onValueChange={handleInputValueChange}
-                readOnly={readOnly}
+                locale={languageLocale}
+                selectedDate={dayPickerDate}
+                isOpen={isDialogOpen}
+                onSelect={handleDayPickerSelect}
+                minDate={calculatedMinDate}
+                maxDate={calculatedMaxDate}
+                required={required}
+                autoFocus={isMobile}
               />
-              <DatePickerDialog
-                isDialogOpen={isDialogOpen}
-                setIsDialogOpen={setIsDialogOpen}
-                trigger={
-                  <Button
-                    id={`${id}-button`}
-                    variant='tertiary'
-                    icon={true}
-                    aria-controls='dialog'
-                    aria-haspopup='dialog'
-                    onClick={() => setIsDialogOpen(!isDialogOpen)}
-                    aria-expanded={isDialogOpen}
-                    aria-label={langAsString('date_picker.aria_label_icon')}
-                    disabled={readOnly}
-                    color='first'
-                  >
-                    <CalendarIcon title={langAsString('date_picker.aria_label_icon')} />
-                  </Button>
-                }
-              >
-                <DatePickerCalendar
-                  id={id}
-                  locale={languageLocale}
-                  selectedDate={dayPickerDate}
-                  isOpen={isDialogOpen}
-                  onSelect={handleDayPickerSelect}
-                  minDate={calculatedMinDate}
-                  maxDate={calculatedMaxDate}
-                  required={required}
-                  autoFocus={isMobile}
-                />
-              </DatePickerDialog>
-            </div>
-          </Grid>
+            </DatePickerDialog>
+          </div>
           <span className={`${styles.formatText} no-visual-testing`}>
             {langAsString('date_picker.format_text', [formatDate(new Date(), dateFormat)])}
           </span>

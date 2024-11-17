@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { Grid } from '@material-ui/core';
-
 import type { PropsFromGenericComponent } from '..';
 
+import { Flex } from 'src/components/Flex';
 import classes from 'src/layout/ButtonGroup/ButtonGroupComponent.module.css';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -17,8 +16,7 @@ export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'Button
       node={node}
       label={{ node, renderLabelAs: 'legend' }}
     >
-      <Grid
-        item
+      <Flex
         container
         alignItems='center'
         className={classes.container}
@@ -29,7 +27,7 @@ export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'Button
             id={id}
           />
         ))}
-      </Grid>
+      </Flex>
     </ComponentStructureWrapper>
   );
 }
