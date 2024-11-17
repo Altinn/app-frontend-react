@@ -5,7 +5,6 @@ import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/components/AltinnAppHeader.module.css';
 import { CircleIcon } from 'src/components/CircleIcon';
-import { Flex } from 'src/components/Flex';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
 import { Lang } from 'src/features/language/Lang';
@@ -37,11 +36,8 @@ export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
         position='static'
         className={classes.default}
       >
-        hei
         <Toolbar className={classes.toolbarContainer}>
-          <Flex className={classes.logo}>
-            <AltinnLogo color={LogoColor.blueDark} />
-          </Flex>
+          <AltinnLogo color={LogoColor.blueDark} />
           {party && (
             <ul className={classes.headerLinkList}>
               <li className={classes.headerLink}>
