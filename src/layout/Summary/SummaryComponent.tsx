@@ -115,7 +115,7 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
       className={cn(pageBreakStyles(pageBreak))}
     >
       <Flex
-        direction='column'
+        container
         className={cn({
           [classes.border]: !display?.hideBottomBorder && shouldShowBorder,
         })}
@@ -134,7 +134,7 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
         )}
         {errors.length && targetItem.type !== 'Group' && !display?.hideValidationMessages ? (
           <Flex
-            direction='column'
+            container
             style={{ paddingTop: '12px' }}
             spacing={4}
           >

@@ -40,7 +40,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
       data-componentid={node.id}
       data-componentbaseid={node.baseId}
       ref={ref}
-      direction='column'
+      container
     >
       {(!mode || mode === 'showTable') && <ModeOnlyTable />}
       {mode === 'onlyTable' && <ModeOnlyTable />}

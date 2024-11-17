@@ -28,7 +28,7 @@ export const AltinnCollapsableList = ({
   }
 
   return (
-    <Flex direction='column'>
+    <Flex container>
       <Flex
         onClick={onClickExpand}
         onKeyPress={onKeyPress}

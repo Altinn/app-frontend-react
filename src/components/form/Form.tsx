@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 
+import Grid from '@material-ui/core/Grid';
+
 import { Flex } from 'src/components/Flex';
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
@@ -123,10 +125,27 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
       )}
 
       <Flex
-        direction='column'
+        container
         spacing={6}
-        alignItems='flex-start'
+        alignItems='start'
+        justifyContent='start'
       >
+        <Flex
+          style={{ backgroundColor: 'blue' }}
+          size={{ xs: 6 }}
+        >
+          hei
+        </Flex>
+
+        <div style={{ width: '100%' }}>
+          <Grid
+            container
+            xs={6}
+            style={{ backgroundColor: 'pink' }}
+          >
+            grid
+          </Grid>
+        </div>
         {mainIds.map((id) => (
           <GenericComponentById
             key={id}

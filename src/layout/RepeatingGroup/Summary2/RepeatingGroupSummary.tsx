@@ -71,7 +71,7 @@ export const RepeatingGroupSummary = ({
             {index != 0 && <hr className={classes.rowDivider} />}
             <Flex
               key={row?.uuid}
-              direction='column'
+              container
               spacing={6}
               alignItems='flex-start'
             >

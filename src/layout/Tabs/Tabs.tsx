@@ -62,9 +62,8 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
             className={classes.tabContent}
           >
             <Flex
-              direction='column'
+              container
               spacing={6}
-              alignItems='flex-start'
             >
               {tab.childIds.filter(typedBoolean).map((nodeId) => (
                 <GenericComponentById

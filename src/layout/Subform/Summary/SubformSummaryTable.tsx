@@ -143,7 +143,7 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
     <ComponentStructureWrapper node={targetNode}>
       <Flex
         id={targetNode.id}
-        direction='column'
+        container
         data-componentid={targetNode.id}
         data-componentbaseid={targetNode.baseId}
       >

@@ -48,9 +48,8 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
               />
             </Heading>
             <Flex
-              direction='column'
+              container
               spacing={6}
-              alignItems='flex-start'
             >
               {tab.childIds.filter(typedBoolean).map((nodeId) => (
                 <ComponentSummaryById

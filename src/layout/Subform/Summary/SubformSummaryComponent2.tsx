@@ -82,7 +82,7 @@ const DoSummaryWrapper = ({
     <div className={classes.summaryWrapperMargin}>
       <FormProvider>
         <Flex
-          direction='column'
+          container
           spacing={6}
           alignItems='flex-start'
         >

@@ -74,7 +74,7 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
     <ComponentStructureWrapper node={node}>
       <Flex
         id={node.id}
-        direction='column'
+        container
         data-componentid={node.id}
         data-componentbaseid={node.baseId}
       >

@@ -184,7 +184,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
       ) : (
         <Table.Cell className={classes.mobileTableCell}>
           <Flex
-            direction='column'
+            container
             spacing={6}
           >
             {tableNodes.map(
@@ -192,7 +192,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                 !isEditingRow &&
                 (shouldEditInTable(editForGroup, n, columnSettings) ? (
                   <Flex
-                    direction='column'
+                    container
                     key={n.id}
                     ref={(ref) => refSetter && refSetter(index, `component-${n.id}`, ref)}
                   >
@@ -205,7 +205,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                   </Flex>
                 ) : (
                   <Flex
-                    direction='column'
+                    container
                     key={n.id}
                   >
                     <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>

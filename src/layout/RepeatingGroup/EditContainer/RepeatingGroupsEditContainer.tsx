@@ -119,7 +119,7 @@ function RepeatingGroupsEditContainerInternal({
     >
       {editForRow?.deleteButton !== false && editForGroup?.mode === 'showAll' && (
         <Flex
-          direction='column'
+          container
           alignItems='flex-end'
           spacing={6}
         >
