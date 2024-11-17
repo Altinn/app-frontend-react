@@ -17,6 +17,7 @@ type Props = PropsWithChildren<{
   alignItems?: CSSProperties['alignItems'];
   container?: boolean;
   item?: boolean;
+  flexWrap?: CSSProperties['flexWrap'];
 }> &
   React.HTMLAttributes<HTMLDivElement>;
 
@@ -32,6 +33,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
     style,
     size,
     container,
+    flexWrap,
     ...rest
   }: Props) => {
     const xsClass = size?.xs ? classes[`col-xs-${size.xs}`] : '';
@@ -48,6 +50,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
           boxSizing: 'border-box',
           flexDirection: direction,
           gap: spacing ? `${spacing * 0.25}rem` : undefined,
+          flexWrap,
           justifyContent,
           alignItems,
           ...style,
