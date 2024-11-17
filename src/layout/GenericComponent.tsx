@@ -9,7 +9,7 @@ import { useIsDev } from 'src/hooks/useIsDev';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
+import { calculateGridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { ComponentErrorBoundary } from 'src/utils/layout/ComponentErrorBoundary';
 import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -230,7 +230,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         ref={containerDivRef}
         item
         container
-        {...gridBreakpoints(grid)}
+        {...calculateGridBreakpoints(grid)}
         key={`grid-${id}`}
         className={classNames(classes.container, gridToClasses(grid?.labelGrid, classes), pageBreakStyles(pageBreak))}
         alignItems='flex-start'

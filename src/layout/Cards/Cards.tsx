@@ -2,8 +2,8 @@ import React from 'react';
 import type { CSSProperties } from 'react';
 
 import { Card } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
+import { Flex } from 'src/components/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -59,31 +59,23 @@ export const Cards = ({ node }: ICardsProps) => {
               </Card.Content>
             )}
             {card.childIds && card.childIds.length > 0 && (
-              <Grid
+              <Flex
                 container={true}
                 item={true}
-                direction='row'
                 spacing={6}
               >
-                <Grid
-                  container={true}
-                  alignItems='flex-start'
-                  item={true}
-                  spacing={6}
+                <CardProvider
+                  node={node}
+                  renderedInMedia={false}
                 >
-                  <CardProvider
-                    node={node}
-                    renderedInMedia={false}
-                  >
-                    {card.childIds.map((childId, idx) => (
-                      <GenericComponentById
-                        key={idx}
-                        id={childId}
-                      />
-                    ))}
-                  </CardProvider>
-                </Grid>
-              </Grid>
+                  {card.childIds.map((childId, idx) => (
+                    <GenericComponentById
+                      key={idx}
+                      id={childId}
+                    />
+                  ))}
+                </CardProvider>
+              </Flex>
             )}
             {card.footer && (
               <Card.Footer>

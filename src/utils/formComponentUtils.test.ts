@@ -1,5 +1,10 @@
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
-import { getColumnStyles, getFieldName, gridBreakpoints, smartLowerCaseFirst } from 'src/utils/formComponentUtils';
+import {
+  calculateGridBreakpoints,
+  getColumnStyles,
+  getFieldName,
+  smartLowerCaseFirst,
+} from 'src/utils/formComponentUtils';
 import type { IGridStyling, ITableColumnProperties } from 'src/layout/common.generated';
 
 describe('formComponentUtils', () => {
@@ -78,7 +83,7 @@ describe('formComponentUtils', () => {
     };
     it('should return default values when no params are passed', () => {
       const expected = { ...defaultGrid };
-      const result = gridBreakpoints();
+      const result = calculateGridBreakpoints();
       expect(result).toEqual(expected);
     });
 
@@ -88,7 +93,7 @@ describe('formComponentUtils', () => {
         ...defaultGrid,
         ...passValues,
       };
-      const result = gridBreakpoints(passValues);
+      const result = calculateGridBreakpoints(passValues);
       expect(result).toEqual(expected);
     });
 
@@ -100,7 +105,7 @@ describe('formComponentUtils', () => {
         lg: 4,
         xl: 5,
       };
-      const result = gridBreakpoints(passValues);
+      const result = calculateGridBreakpoints(passValues);
       expect(result).toEqual(passValues);
     });
 
@@ -109,7 +114,7 @@ describe('formComponentUtils', () => {
         sm: 2,
         xl: 5,
       };
-      const result = gridBreakpoints(passValues);
+      const result = calculateGridBreakpoints(passValues);
       expect(result.xs).toBe(12);
       expect(result.md).toBeUndefined();
       expect(result.lg).toBeUndefined();

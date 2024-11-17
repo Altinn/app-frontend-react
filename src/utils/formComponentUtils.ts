@@ -136,7 +136,7 @@ export function smartLowerCaseFirst(text: string | undefined): string | undefine
   return lowerCaseFirst(text, firstLetterIdx);
 }
 
-export const gridBreakpoints = (grid?: IGridStyling) => {
+export const calculateGridBreakpoints = (grid?: IGridStyling): IGridStyling => {
   const { xs, sm, md, lg, xl } = grid ?? {};
   return {
     xs: xs ?? 12,

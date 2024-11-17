@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
+import { Flex } from 'src/components/Flex';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
 import { useSummary2Store } from 'src/layout/Summary2/summaryStoreContext';
-import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
+import { calculateGridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -45,7 +45,9 @@ export function ComponentSummary({ componentNode }: ComponentSummaryProps) {
 
   const isHidden = Hidden.useIsHidden(componentNode);
 
-  const noUserInput = Object.values(formData).every((value) => value?.length < 1);
+  const noUserInput = Object.values(formData).every(
+    (value) => value && (Array.isArray(value) || typeof value === 'string') && value.length < 1, // FIXME: improve TS to understand what type value is
+  );
 
   const renderedComponent = componentNode.def.renderSummary2
     ? componentNode.def.renderSummary2({
@@ -72,12 +74,12 @@ export function ComponentSummary({ componentNode }: ComponentSummaryProps) {
   }
 
   return (
-    <Grid
+    <Flex
       item={true}
       className={cn(pageBreakStyles(componentNodeItem?.pageBreak), classes.summaryItem)}
-      {...gridBreakpoints(componentNodeItem.grid)}
+      size={calculateGridBreakpoints(componentNodeItem.grid)}
     >
       {renderedComponent}
-    </Grid>
+    </Flex>
   );
 }

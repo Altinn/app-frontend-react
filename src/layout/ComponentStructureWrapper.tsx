@@ -1,12 +1,11 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { Grid } from '@material-ui/core';
-
+import { Flex } from 'src/components/Flex';
 import { Label } from 'src/components/label/Label';
 import { AllComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useFormComponentCtx } from 'src/layout/FormComponentContext';
-import { gridBreakpoints } from 'src/utils/formComponentUtils';
+import { calculateGridBreakpoints } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LabelProps } from 'src/components/label/Label';
 import type { CompTypes } from 'src/layout/layout';
@@ -28,16 +27,17 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   const grid = overrideItemProps?.grid ?? _grid;
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;
   const showValidationMessages = layoutComponent.renderDefaultValidations();
+  const breakPoints = calculateGridBreakpoints(grid?.innerGrid);
 
   const componentWithValidations = (
-    <Grid
+    <Flex
       item
       id={`form-content-${node.id}`}
-      {...gridBreakpoints(grid?.innerGrid)}
+      size={breakPoints}
     >
       {children}
       {showValidationMessages && <AllComponentValidations node={node} />}
-    </Grid>
+    </Flex>
   );
 
   return label ? <Label {...label}>{componentWithValidations}</Label> : componentWithValidations;
