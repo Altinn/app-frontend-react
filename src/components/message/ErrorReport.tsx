@@ -39,32 +39,29 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
           variant={PANEL_VARIANT.Error}
         >
           <Flex
-            container={true}
-            item={true}
+            container
             spacing={6}
             alignItems='flex-start'
           >
-            <Flex item>
-              <ul className={classes.errorList}>
-                {taskErrors.map((error) => (
-                  <li
-                    key={getUniqueKeyFromObject(error)}
-                    style={{ listStyleImage: listStyleImg }}
-                  >
-                    <Lang
-                      id={error.message.key}
-                      params={error.message.params}
-                    />
-                  </li>
-                ))}
-                {formErrors.map((error) => (
-                  <Error
-                    key={getUniqueKeyFromObject(error)}
-                    error={error}
+            <ul className={classes.errorList}>
+              {taskErrors.map((error) => (
+                <li
+                  key={getUniqueKeyFromObject(error)}
+                  style={{ listStyleImage: listStyleImg }}
+                >
+                  <Lang
+                    id={error.message.key}
+                    params={error.message.params}
                   />
-                ))}
-              </ul>
-            </Flex>
+                </li>
+              ))}
+              {formErrors.map((error) => (
+                <Error
+                  key={getUniqueKeyFromObject(error)}
+                  error={error}
+                />
+              ))}
+            </ul>
             {renderIds.map((id) => (
               <GenericComponentById
                 key={id}

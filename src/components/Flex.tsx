@@ -27,16 +27,17 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
     children,
     className,
     spacing,
-    direction = 'column',
+    direction = 'row',
     justifyContent = 'start',
     alignItems = 'start',
+    flexWrap = 'wrap',
     style,
     size,
+    item,
     container,
-    flexWrap,
     ...rest
   }: Props) => {
-    const xsClass = size?.xs ? classes[`col-xs-${size.xs}`] : '';
+    const xsClass = classes[`col-xs-${size?.xs ?? 12}`];
     const smClass = size?.sm ? classes[`col-sm-${size.sm}`] : '';
     const mdClass = size?.md ? classes[`col-md-${size.md}`] : '';
     const lgClass = size?.lg ? classes[`col-lg-${size.lg}`] : '';
@@ -55,7 +56,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
           alignItems,
           ...style,
         }}
-        className={cn(classes.default, classes.default, xsClass, smClass, mdClass, lgClass, className)}
+        className={cn(xsClass, smClass, mdClass, lgClass, className, { [classes.item]: item })}
       >
         {children}
       </div>

@@ -125,8 +125,6 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
       <Flex
         container
         spacing={6}
-        alignItems='start'
-        justifyContent='start'
       >
         {mainIds.map((id) => (
           <GenericComponentById

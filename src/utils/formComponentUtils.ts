@@ -139,7 +139,7 @@ export function smartLowerCaseFirst(text: string | undefined): string | undefine
 export const calculateGridBreakpoints = (grid?: IGridStyling): IGridStyling => {
   const { xs, sm, md, lg, xl } = grid ?? {};
   return {
-    xs: xs ?? 12,
+    ...(xs && { xs }),
     ...(sm && { sm }),
     ...(md && { md }),
     ...(lg && { lg }),

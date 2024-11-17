@@ -75,7 +75,7 @@ export function ComponentSummary({ componentNode }: ComponentSummaryProps) {
 
   return (
     <Flex
-      item={true}
+      // item={true} // TODO: what are the consequences of removing this?
       className={cn(pageBreakStyles(componentNodeItem?.pageBreak), classes.summaryItem)}
       size={calculateGridBreakpoints(componentNodeItem.grid)}
     >

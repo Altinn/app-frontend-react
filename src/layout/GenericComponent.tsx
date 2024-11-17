@@ -9,11 +9,10 @@ import { useIsDev } from 'src/hooks/useIsDev';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import { calculateGridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
+import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { ComponentErrorBoundary } from 'src/utils/layout/ComponentErrorBoundary';
 import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
 import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
@@ -228,31 +227,15 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         data-componentid={node.id}
         data-componenttype={node.type}
         ref={containerDivRef}
-        item
-        container
-        size={calculateGridBreakpoints(grid)}
+        size={grid}
         key={`grid-${id}`}
-        className={classNames(classes.container, gridToClasses(grid?.labelGrid, classes), pageBreakStyles(pageBreak))}
+        className={classNames(classes.container, pageBreakStyles(pageBreak))}
       >
         <RenderComponent {...componentProps} />
       </Flex>
     </FormComponentContextProvider>
   );
 }
-
-const gridToClasses = (labelGrid: IGridStyling | undefined, classes: { [key: string]: string }) => {
-  if (!labelGrid) {
-    return {};
-  }
-
-  return {
-    [classes.xs]: labelGrid.xs !== undefined && labelGrid.xs !== 'auto' && labelGrid.xs > 0 && labelGrid.xs < 12,
-    [classes.sm]: labelGrid.sm !== undefined && labelGrid.sm !== 'auto' && labelGrid.sm > 0 && labelGrid.sm < 12,
-    [classes.md]: labelGrid.md !== undefined && labelGrid.md !== 'auto' && labelGrid.md > 0 && labelGrid.md < 12,
-    [classes.lg]: labelGrid.lg !== undefined && labelGrid.lg !== 'auto' && labelGrid.lg > 0 && labelGrid.lg < 12,
-    [classes.xl]: labelGrid.xl !== undefined && labelGrid.xl !== 'auto' && labelGrid.xl > 0 && labelGrid.xl < 12,
-  };
-};
 
 const ErrorList = ({ node, errors }: { node: LayoutNode; errors: string[] }) => {
   const id = node.id;

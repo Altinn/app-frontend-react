@@ -22,7 +22,7 @@ export const TextComponent = ({ node }: PropsFromGenericComponent<'Text'>) => {
       <Flex
         container
         direction={direction === 'vertical' ? 'column' : 'row'}
-        style={{ whiteSpace: 'nowrap' }}
+        justifyContent='space-between'
       >
         <Label
           node={node}

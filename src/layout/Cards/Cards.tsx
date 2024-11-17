@@ -1,4 +1,5 @@
 import React from 'react';
+import type { CSSProperties } from 'react';
 
 import { Card } from '@digdir/designsystemet-react';
 
@@ -25,15 +26,16 @@ export const Cards = ({ node }: ICardsProps) => {
   const mediaPosition = _mediaPosition ?? 'top';
   const processedMinWidth = parseSize(minWidth, '250px');
 
+  const cardContainer: CSSProperties = {
+    display: 'grid',
+    gap: '28px',
+    gridTemplateColumns: `repeat(auto-fit, minmax(${processedMinWidth}, 1fr))`,
+    width: '100%',
+  };
+
   return (
     <ComponentStructureWrapper node={node}>
-      <Flex
-        container
-        direction='row'
-        spacing={7}
-        flexWrap='wrap'
-        justifyContent='space-between'
-      >
+      <div style={cardContainer}>
         {cardsInternal.map((card, idx) => (
           <Card
             key={idx}
@@ -60,8 +62,9 @@ export const Cards = ({ node }: ICardsProps) => {
             {card.childIds && card.childIds.length > 0 && (
               <Flex
                 container
-                item
-                spacing={6}
+                justifyContent='flex-start'
+                spacing={2}
+                style={{ flex: 0 }}
               >
                 <CardProvider
                   node={node}
@@ -90,7 +93,7 @@ export const Cards = ({ node }: ICardsProps) => {
             )}
           </Card>
         ))}
-      </Flex>
+      </div>
     </ComponentStructureWrapper>
   );
 };

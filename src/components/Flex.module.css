@@ -1,7 +1,5 @@
-/* Default (xs breakpoint) */
-.default {
-  flex: 0 0 100%; /* Default to full-width */
-  width: 100%;
+.item {
+  flex: 0;
 }
 
 /* Extra small (xs breakpoint) */

@@ -5,7 +5,6 @@ import { Flex } from 'src/components/Flex';
 import { Label } from 'src/components/label/Label';
 import { AllComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useFormComponentCtx } from 'src/layout/FormComponentContext';
-import { calculateGridBreakpoints } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LabelProps } from 'src/components/label/Label';
 import type { CompTypes } from 'src/layout/layout';
@@ -29,13 +28,12 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   const grid = overrideItemProps?.grid ?? _grid;
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;
   const showValidationMessages = layoutComponent.renderDefaultValidations();
-  const breakPoints = calculateGridBreakpoints(grid?.innerGrid);
 
   const componentWithValidations = (
     <Flex
-      item
+      container
       id={`form-content-${node.id}`}
-      size={breakPoints}
+      size={grid?.innerGrid}
       style={style}
     >
       {children}

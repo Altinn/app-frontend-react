@@ -9,7 +9,6 @@ import { Flex } from 'src/components/Flex';
 import classes from 'src/components/label/Label.module.css';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { useFormComponentCtx } from 'src/layout/FormComponentContext';
-import { calculateGridBreakpoints } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LabelContentProps } from 'src/components/label/LabelContent';
 import type { ExprResolved } from 'src/features/expressions/types';
@@ -126,7 +125,7 @@ export function Label(props: LabelProps) {
 }
 
 function LabelGridItemWrapper({ children, labelGrid }: PropsWithChildren<{ labelGrid?: IGridStyling }>) {
-  return <Flex size={calculateGridBreakpoints(labelGrid)}>{children}</Flex>;
+  return <Flex size={labelGrid}>{children}</Flex>;
 }
 
 export function getLabelId(nodeId: string) {

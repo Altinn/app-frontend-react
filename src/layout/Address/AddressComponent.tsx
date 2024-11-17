@@ -81,10 +81,7 @@ export function AddressComponent({ node }: IAddressProps) {
             />
           }
         >
-          <Flex
-            item
-            id={`form-content-${id}`}
-          >
+          <Flex id={`form-content-${id}`}>
             <Input
               id={`address_address_${id}`}
               data-bindingkey={bindingKeys.address}
@@ -116,10 +113,7 @@ export function AddressComponent({ node }: IAddressProps) {
               />
             }
           >
-            <Flex
-              item
-              id={`form-content-${id}`}
-            >
+            <Flex id={`form-content-${id}`}>
               <Input
                 id={`address_care_of_${id}`}
                 data-bindingkey={bindingKeys.careOf}
@@ -138,13 +132,9 @@ export function AddressComponent({ node }: IAddressProps) {
 
       <Flex
         container
-        direction='row'
         spacing={6}
       >
-        <Flex
-          item
-          className={`${classes.addressComponentZipCode} ${classes.addressComponentSmallInputs}`}
-        >
+        <Flex className={`${classes.addressComponentZipCode} ${classes.addressComponentSmallInputs}`}>
           <Label
             htmlFor={`address_zip_code_${id}`}
             label={langAsString(textResourceBindings?.zipCodeTitle ?? 'address_component.zip_code')}
@@ -172,10 +162,7 @@ export function AddressComponent({ node }: IAddressProps) {
             />
           </Label>
         </Flex>
-        <Flex
-          item
-          className={classes.addressComponentPostplace}
-        >
+        <Flex className={classes.addressComponentPostplace}>
           <Label
             htmlFor={`address_post_place_${id}`}
             label={langAsString(textResourceBindings?.postPlaceTitle ?? 'address_component.post_place')}
