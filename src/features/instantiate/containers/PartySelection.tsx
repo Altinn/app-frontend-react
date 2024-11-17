@@ -3,12 +3,13 @@ import { Helmet } from 'react-helmet-async';
 import { useMatch } from 'react-router-dom';
 
 import { LegacyCheckbox } from '@digdir/design-system-react';
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
 import { PlusIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/button/Button';
 import { Input } from 'src/app-components/Input/Input';
 import { AltinnParty } from 'src/components/altinnParty';
+import { Flex } from 'src/components/Flex';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
@@ -131,18 +132,20 @@ export const PartySelection = () => {
           />
         ))}
         {hasMoreParties ? (
-          <Button
-            variant='secondary'
-            onClick={() => setNumberOfPartiesShown(numberOfPartiesShown + 4)}
-          >
-            {
-              <PlusIcon
-                fontSize='1rem'
-                aria-hidden
-              />
-            }
-            {langAsString('party_selection.load_more')}
-          </Button>
+          <div>
+            <Button
+              variant='secondary'
+              onClick={() => setNumberOfPartiesShown(numberOfPartiesShown + 4)}
+            >
+              {
+                <PlusIcon
+                  fontSize='1rem'
+                  aria-hidden
+                />
+              }
+              {langAsString('party_selection.load_more')}
+            </Button>
+          </div>
         ) : null}
       </>
     );
@@ -231,14 +234,7 @@ export const PartySelection = () => {
       <Helmet>
         <title>{`${getPageTitle(appName, langAsString('party_selection.header'), appOwner)}`}</title>
       </Helmet>
-      <Grid
-        container={true}
-        direction='row'
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-        }}
-      >
+      <Flex container>
         <Typography
           variant='h1'
           className={classes.partySelectionTitle}
@@ -246,77 +242,51 @@ export const PartySelection = () => {
           {langAsString('party_selection.header')}
         </Typography>
         {templateErrorMessage()}
-      </Grid>
-      <Grid
-        container={true}
-        direction='column'
+      </Flex>
+      <Input
+        size='md'
+        aria-label={langAsString('party_selection.search_placeholder')}
+        placeholder={langAsString('party_selection.search_placeholder')}
+        onChange={onFilterStringChange}
         className={classes.partySearchFieldContainer}
-      >
-        <Input
-          size='md'
-          aria-label={langAsString('party_selection.search_placeholder')}
-          placeholder={langAsString('party_selection.search_placeholder')}
-          onChange={onFilterStringChange}
-          value={filterString}
-          inputMode='search'
-        />
-      </Grid>
-      <Grid
-        container={true}
+        value={filterString}
+        inputMode='search'
+      />
+      <Flex
+        container
         direction='column'
       >
-        <Grid
-          container={true}
+        <Flex
+          container
           justifyContent='space-between'
-          direction='row'
         >
-          <Grid item={true}>
-            <Typography className={classes.partySelectionSubTitle}>
-              {langAsString('party_selection.subheader')}
-            </Typography>
-          </Grid>
+          <Typography className={classes.partySelectionSubTitle}>
+            {langAsString('party_selection.subheader')}
+          </Typography>
 
-          <Grid item={true}>
-            <Grid
-              container={true}
-              direction='row'
+          <div>
+            <Flex
+              container
+              className={classes.partySelectionCheckbox}
+              columnGap={4}
             >
-              <Grid
-                item={true}
-                className={classes.partySelectionCheckbox}
-              >
-                <Grid
-                  container={true}
-                  direction='row'
-                >
-                  <LegacyCheckbox
-                    checked={showDeleted}
-                    onChange={toggleShowDeleted}
-                    label={langAsString('party_selection.show_deleted')}
-                  />
-                </Grid>
-              </Grid>
-              <Grid
-                item={true}
-                className={classes.partySelectionCheckbox}
-              >
-                <Grid
-                  container={true}
-                  direction='row'
-                >
-                  <LegacyCheckbox
-                    checked={showSubUnits}
-                    onChange={toggleShowSubUnits}
-                    label={langAsString('party_selection.show_sub_unit')}
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
+              <LegacyCheckbox
+                checked={showDeleted}
+                onChange={toggleShowDeleted}
+                label={langAsString('party_selection.show_deleted')}
+              />
+
+              <LegacyCheckbox
+                checked={showSubUnits}
+                onChange={toggleShowSubUnits}
+                label={langAsString('party_selection.show_sub_unit')}
+              />
+            </Flex>
+          </div>
+        </Flex>
         {renderParties()}
         {errorCode === 'explained' && (
-          <Grid style={{ padding: 12 }}>
+          <Flex style={{ padding: 12 }}>
             <Typography
               variant='h2'
               style={{ fontSize: '1.5rem', fontWeight: '500', marginBottom: 12 }}
@@ -332,9 +302,9 @@ export const PartySelection = () => {
                 }
               />
             </Typography>
-          </Grid>
+          </Flex>
         )}
-      </Grid>
+      </Flex>
     </InstantiationContainer>
   );
 };

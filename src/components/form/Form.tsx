@@ -114,6 +114,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
       <Helmet>
         <title>{`${getPageTitle(appName, hasSetCurrentPageId ? langAsString(currentPageId) : undefined, appOwner)}`}</title>
       </Helmet>
+
       <ErrorProcessing setFormState={setFormState} />
       {hasRequired && (
         <MessageBanner
