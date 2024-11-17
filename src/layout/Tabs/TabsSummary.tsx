@@ -49,7 +49,7 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
             </Heading>
             <Flex
               container
-              spacing={6}
+              gap={6}
             >
               {tab.childIds.filter(typedBoolean).map((nodeId) => (
                 <ComponentSummaryById

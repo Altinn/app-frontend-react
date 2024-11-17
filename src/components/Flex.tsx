@@ -11,7 +11,9 @@ type Spacing = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
 type Props = PropsWithChildren<{
   className?: string;
   size?: IGridStyling;
-  spacing?: Spacing;
+  gap?: Spacing;
+  rowGap?: Spacing;
+  columnGap?: Spacing;
   direction?: CSSProperties['flexDirection'];
   justifyContent?: CSSProperties['justifyContent'];
   alignItems?: CSSProperties['alignItems'];
@@ -26,7 +28,9 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
     id,
     children,
     className,
-    spacing,
+    gap,
+    rowGap,
+    columnGap,
     direction = 'row',
     justifyContent = 'start',
     alignItems = 'start',
@@ -42,6 +46,10 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
     const mdClass = size?.md ? classes[`col-md-${size.md}`] : '';
     const lgClass = size?.lg ? classes[`col-lg-${size.lg}`] : '';
 
+    function spaceToRem(space?: Spacing) {
+      return space ? `${space * 0.25}rem` : undefined;
+    }
+
     return (
       <div
         id={id}
@@ -50,7 +58,9 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
           display: container ? 'flex' : 'block',
           boxSizing: 'border-box',
           flexDirection: direction,
-          gap: spacing ? `${spacing * 0.25}rem` : undefined,
+          gap: spaceToRem(gap),
+          rowGap: spaceToRem(rowGap),
+          columnGap: spaceToRem(columnGap),
           flexWrap,
           justifyContent,
           alignItems,

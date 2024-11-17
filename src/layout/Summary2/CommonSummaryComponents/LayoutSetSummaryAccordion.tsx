@@ -33,7 +33,7 @@ export function LayoutSetSummaryAccordion({ filteredPages }: LayoutSetAccordionS
           <Accordion.Content>
             <Flex
               container
-              spacing={6}
+              gap={6}
             >
               <PageSummary
                 pageId={layoutId}

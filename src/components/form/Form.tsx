@@ -124,7 +124,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
 
       <Flex
         container
-        spacing={6}
+        rowGap={6}
       >
         {mainIds.map((id) => (
           <GenericComponentById

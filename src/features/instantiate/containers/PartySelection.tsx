@@ -131,21 +131,18 @@ export const PartySelection = () => {
           />
         ))}
         {hasMoreParties ? (
-          <Grid
-            container={true}
-            direction='row'
+          <Button
+            variant='secondary'
+            onClick={() => setNumberOfPartiesShown(numberOfPartiesShown + 4)}
           >
-            <Button
-              variant='secondary'
-              onClick={() => setNumberOfPartiesShown(numberOfPartiesShown + 4)}
-            >
+            {
               <PlusIcon
                 fontSize='1rem'
                 aria-hidden
               />
-              {langAsString('party_selection.load_more')}
-            </Button>
-          </Grid>
+            }
+            {langAsString('party_selection.load_more')}
+          </Button>
         ) : null}
       </>
     );

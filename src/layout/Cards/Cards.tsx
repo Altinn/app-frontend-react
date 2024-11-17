@@ -63,7 +63,7 @@ export const Cards = ({ node }: ICardsProps) => {
               <Flex
                 container
                 justifyContent='flex-start'
-                spacing={2}
+                rowGap={2}
                 style={{ flex: 0 }}
               >
                 <CardProvider

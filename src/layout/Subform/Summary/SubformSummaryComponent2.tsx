@@ -83,7 +83,7 @@ const DoSummaryWrapper = ({
       <FormProvider>
         <Flex
           container
-          spacing={6}
+          gap={6}
           alignItems='flex-start'
         >
           <Flex>

@@ -132,7 +132,7 @@ export function AddressComponent({ node }: IAddressProps) {
 
       <Flex
         container
-        spacing={6}
+        gap={6}
       >
         <Flex className={`${classes.addressComponentZipCode} ${classes.addressComponentSmallInputs}`}>
           <Label

@@ -72,7 +72,7 @@ export const RepeatingGroupSummary = ({
             <Flex
               key={row?.uuid}
               container
-              spacing={6}
+              gap={6}
               alignItems='flex-start'
             >
               {row?.itemIds?.map((nodeId) => (

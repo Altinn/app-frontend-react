@@ -136,7 +136,7 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
           <Flex
             container
             style={{ paddingTop: '12px' }}
-            spacing={4}
+            gap={4}
           >
             {errors.map(({ message }) => (
               <ErrorPaper
