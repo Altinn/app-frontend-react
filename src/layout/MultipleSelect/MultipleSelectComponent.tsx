@@ -100,6 +100,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
             clearButtonLabel={langAsString('form_filler.clear_selection')}
             aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             className={comboboxClasses.container}
+            style={{ width: '100%' }}
           >
             <Combobox.Empty>
               <Lang id='form_filler.no_options_found' />

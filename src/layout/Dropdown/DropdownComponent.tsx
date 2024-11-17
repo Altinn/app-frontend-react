@@ -100,6 +100,7 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
             label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             className={comboboxClasses.container}
+            style={{ width: '100%' }}
           >
             <Combobox.Empty>
               <Lang id='form_filler.no_options_found' />

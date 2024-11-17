@@ -77,7 +77,7 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
           }
           aria-label={overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined}
           autoComplete={autocomplete}
-          style={{ height: '150px' }}
+          style={{ height: '150px', width: '100%' }}
         />
       </ComponentStructureWrapper>
     </Label>
