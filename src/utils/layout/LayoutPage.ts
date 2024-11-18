@@ -15,6 +15,8 @@ export class LayoutPage implements LayoutObject {
   private allChildren: LayoutNode[] = [];
   private allChildIds = new Set<string>();
 
+  private _directChildren: LayoutNode[] = [];
+
   /**
    * Adds a child to the collection. For internal use only.
    */
@@ -23,6 +25,12 @@ export class LayoutPage implements LayoutObject {
       this.layoutSet.registerNode(child);
       this.allChildIds.add(child.id);
       this.allChildren.push(child);
+
+      // Direct children of a layout page are always static.
+      // Only children of components like repeating groups are dynamic
+      if (child.parent === this) {
+        this._directChildren.push(child);
+      }
     }
   }
 
@@ -54,7 +62,7 @@ export class LayoutPage implements LayoutObject {
   }
 
   protected directChildren(_task: TraversalTask): LayoutNode[] {
-    return this.allChildren.filter((node) => node.parent === this);
+    return this._directChildren;
   }
 
   public firstChild(task: TraversalTask): LayoutNode | undefined {
