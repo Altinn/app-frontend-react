@@ -49,7 +49,7 @@ async function fetchPerson({
     const data = response.data;
 
     if (!validatePersonLookupResponse(data)) {
-      return { person: null, error: 'Vi fikk ikke den responsen vi forventet fra serveren. Ta kontakt med support.' }; // TODO: create text resource
+      return { person: null, error: 'person_lookup.validation_error_no_response_from_server' };
     }
 
     if (!data.success) {
@@ -59,14 +59,14 @@ async function fetchPerson({
     return { person: data.personDetails, error: null };
   } catch (error) {
     if (error.response.status === 403) {
-      return { person: null, error: 'person_lookup.validation_error_forbidden' }; // TODO: create text resource not high enough auth level?
+      return { person: null, error: 'person_lookup.validation_error_forbidden' };
     }
     // TODO: expose this status from app-lib?
     if (error.response.status === 429) {
-      return { person: null, error: 'person_lookup.validation_error_too_many_requests' }; // TODO: create text resource
+      return { person: null, error: 'person_lookup.validation_error_too_many_requests' };
     }
 
-    return { person: null, error: 'person_lookup.unknown_error' }; // TODO: create text resource
+    return { person: null, error: 'person_lookup.unknown_error' };
   }
 }
 

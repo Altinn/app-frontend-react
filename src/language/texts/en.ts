@@ -319,6 +319,11 @@ export function en() {
       validation_error_ssn: 'The national ID number/D-number is invalid.',
       validation_error_not_found:
         'No person is registered with this combination of national ID number/D-number and name. Please check the fields and try again. \n\nNote: After 5 failed attempts, the search functionality will be temporarily locked.',
+      validation_error_too_many_requests: 'Too many requests. Please try again later.',
+      validation_error_forbidden:
+        'You do not have permission to perform this action. A security level of minimum 2 is required.',
+      validation_error_no_response_from_server: 'No response from server. Please try again later.',
+      unknown_error: 'An unknown error occurred. Please try again later.',
     },
     helptext: {
       button_title: 'Help',
