@@ -53,7 +53,8 @@ interface DataModelsMethods {
     defaultDataType: string | undefined,
     layoutSetId: string | undefined,
   ) => void;
-  setInitialData: (dataType: string, initialData: object, dataElementId: string | null) => void;
+  setInitialData: (dataType: string, initialData: object) => void;
+  setDataElementId: (dataType: string, dataElementId: string | null) => void;
   setDataModelSchema: (dataType: string, schema: JSONSchema7, lookupTool: SchemaLookupTool) => void;
   setExpressionValidationConfig: (dataType: string, config: IExpressionValidations | null) => void;
   setError: (error: Error) => void;
@@ -78,16 +79,18 @@ function initialCreateStore() {
         writableDataTypes,
         defaultDataType,
         layoutSetId,
-        initialData: {},
-        dataElementIds: {},
       }));
     },
-    setInitialData: (dataType, initialData, dataElementId) => {
+    setInitialData: (dataType, initialData) => {
       set((state) => ({
         initialData: {
           ...state.initialData,
           [dataType]: initialData,
         },
+      }));
+    },
+    setDataElementId: (dataType, dataElementId) => {
+      set((state) => ({
         dataElementIds: {
           ...state.dataElementIds,
           [dataType]: dataElementId,
@@ -193,39 +196,29 @@ function DataModelsLoader() {
     setDataTypes(allValidDataTypes, writableDataTypes, defaultDataType, layoutSetId);
   }, [applicationMetadata, defaultDataType, isStateless, layouts, setDataTypes, dataElements, layoutSetId]);
 
-  const initialDataDone = useSelector((state) => Object.keys(state.initialData));
-  const schemaDone = useSelector((state) => Object.keys(state.schemas));
-  const validationConfigDone = useSelector((state) => Object.keys(state.expressionValidationConfigs));
-
   // We should load form data and schema for all referenced data models, schema is used for dataModelBinding validation which we want to do even if it is readonly
   // We only need to load expression validation config for data types that are not readonly. Additionally, backend will error if we try to validate a model we are not supposed to
   return (
     <>
-      {allDataTypes
-        ?.filter((dataType) => !initialDataDone.includes(dataType))
-        .map((dataType) => (
-          <LoadInitialData
-            key={dataType}
-            dataType={dataType}
-            overrideDataElement={dataType === overriddenDataType ? overriddenDataElement : undefined}
-          />
-        ))}
-      {allDataTypes
-        ?.filter((dataType) => !schemaDone.includes(dataType))
-        .map((dataType) => (
-          <LoadSchema
-            key={dataType}
-            dataType={dataType}
-          />
-        ))}
-      {writableDataTypes
-        ?.filter((dataType) => !validationConfigDone.includes(dataType))
-        .map((dataType) => (
-          <LoadExpressionValidationConfig
-            key={dataType}
-            dataType={dataType}
-          />
-        ))}
+      {allDataTypes?.map((dataType) => (
+        <LoadInitialData
+          key={dataType}
+          dataType={dataType}
+          overrideDataElement={dataType === overriddenDataType ? overriddenDataElement : undefined}
+        />
+      ))}
+      {allDataTypes?.map((dataType) => (
+        <LoadSchema
+          key={dataType}
+          dataType={dataType}
+        />
+      ))}
+      {writableDataTypes?.map((dataType) => (
+        <LoadExpressionValidationConfig
+          key={dataType}
+          dataType={dataType}
+        />
+      ))}
     </>
   );
 }
@@ -283,6 +276,7 @@ interface LoaderProps {
 
 function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { overrideDataElement?: string }) {
   const setInitialData = useSelector((state) => state.setInitialData);
+  const setDataElementId = useSelector((state) => state.setDataElementId);
   const setError = useSelector((state) => state.setError);
   const dataElements = useLaxInstanceDataElements(dataType);
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
@@ -290,9 +284,13 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const { data, error } = useFormDataQuery(url);
   useEffect(() => {
     if (data && url) {
-      setInitialData(dataType, data, dataElementId ?? null);
+      setInitialData(dataType, data);
     }
-  }, [data, dataElementId, dataType, setInitialData, url]);
+  }, [data, dataType, setInitialData, url]);
+
+  useEffect(() => {
+    setDataElementId(dataType, dataElementId ?? null);
+  }, [dataElementId, dataType, setDataElementId]);
 
   useEffect(() => {
     error && setError(error);

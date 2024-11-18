@@ -148,7 +148,6 @@ export function useBackendValidationQuery(enabled: boolean) {
     queryKey,
     queryFn,
     enabled,
-    staleTime: 0,
     gcTime: 0,
   });
 
