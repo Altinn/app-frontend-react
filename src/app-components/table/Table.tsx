@@ -40,10 +40,7 @@ interface DataTableProps<T> {
   zebra?: boolean;
 }
 
-function formatValue(value: unknown): string {
-  if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No';
-  }
+function formatIfDate(value: unknown): string {
   if (typeof value === 'string') {
     const parsedDate = parseISO(value);
     if (isValid(parsedDate)) {
@@ -117,7 +114,7 @@ export function AppTable<T extends object>({
                     data-header-title={col.header}
                     key={colIndex}
                   >
-                    {cellValues.map(formatValue)}
+                    {cellValues.map(formatIfDate)}
                   </Table.Cell>
                 );
               }
@@ -128,7 +125,7 @@ export function AppTable<T extends object>({
                   data-header-title={col.header}
                 >
                   <ul>
-                    {cellValues.map(formatValue).map((value, idx) => (
+                    {cellValues.map(formatIfDate).map((value, idx) => (
                       <li key={idx}>{value}</li>
                     ))}
                   </ul>

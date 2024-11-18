@@ -124,10 +124,7 @@ export const RepeatingGroupTableSummary = ({
 function HeaderCell({ node, columnSettings }: { node: LayoutNode; columnSettings: ITableColumnFormatting }) {
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
   return (
-    <Table.HeaderCell
-      className={classes.tableCellFormatting}
-      style={style}
-    >
+    <Table.HeaderCell style={style}>
       <RepeatingGroupTableTitle
         node={node}
         columnSettings={columnSettings}
