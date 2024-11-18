@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { Delete as DeleteIcon } from '@navikt/ds-icons';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
 
 import { AppTable } from 'src/app-components/table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
@@ -10,7 +10,7 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import { isJSONSchema7Definition } from 'src/layout/AddToList/AddToList';
+import { AddToListModal, isJSONSchema7Definition } from 'src/layout/AddToList/AddToList';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { TableActionButton } from 'src/app-components/table/Table';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -84,6 +84,11 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
 
   const { schemaLookup } = DataModels.useFullStateRef().current;
 
+  const [showEdit, setShowEdit] = useState(false);
+
+  const [editItemIndex, setEditItemIndex] = useState<number>(-1);
+  const setMultiLeafValues = FD.useSetMultiLeafValues();
+
   const schema = schemaLookup[item.dataModelBindings.tableData.dataType].getSchemaForPath(
     item.dataModelBindings.tableData.field,
   )[0];
@@ -118,31 +123,66 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
       icon: <DeleteIcon />,
       color: 'danger',
     });
+
+    actionButtons.push({
+      onClick: (idx, _) => {
+        setEditItemIndex(idx);
+        setShowEdit(true);
+      },
+      buttonText: <Lang id={'general.edit'} />,
+      icon: <EditIcon />,
+      variant: 'tertiary',
+      color: 'second',
+    });
   }
 
   return (
-    <AppTable
-      zebra={item.zebra}
-      size={item.size}
-      schema={schema}
-      caption={
-        title && (
-          <Caption
-            title={<Lang id={title} />}
-            description={description && <Lang id={description} />}
-            helpText={help ? { text: <Lang id={help} />, accessibleTitle } : undefined}
-          />
-        )
-      }
-      data={data}
-      columns={item.columns.map((config) => ({
-        ...config,
-        header: <Lang id={config.header} />,
-      }))}
-      mobile={isMobile}
-      actionButtons={actionButtons}
-      actionButtonHeader={<Lang id={'general.action'} />}
-    />
+    <>
+      {showEdit && editItemIndex > -1 && formData.tableData && formData.tableData[editItemIndex] && (
+        <AddToListModal
+          dataModelReference={item.dataModelBindings.tableData}
+          initialData={formData.tableData[editItemIndex]}
+          onChange={(formProps) => {
+            const changes = Object.entries(formProps).map((entry) => ({
+              reference: {
+                dataType: item.dataModelBindings.tableData.dataType,
+                field: `${item.dataModelBindings.tableData.field}[${editItemIndex}].${entry[0]}`,
+              },
+              newValue: `${entry[1]}`,
+            }));
+            setMultiLeafValues({ changes });
+            setEditItemIndex(-1);
+            setShowEdit(false);
+          }}
+          onInteractOutside={() => {
+            setShowEdit(false);
+          }}
+        />
+      )}
+
+      <AppTable
+        zebra={item.zebra}
+        size={item.size}
+        schema={schema}
+        caption={
+          title && (
+            <Caption
+              title={<Lang id={title} />}
+              description={description && <Lang id={description} />}
+              helpText={help ? { text: <Lang id={help} />, accessibleTitle } : undefined}
+            />
+          )
+        }
+        data={data}
+        columns={item.columns.map((config) => ({
+          ...config,
+          header: <Lang id={config.header} />,
+        }))}
+        mobile={isMobile}
+        actionButtons={actionButtons}
+        actionButtonHeader={<Lang id={'general.action'} />}
+      />
+    </>
   );
 }
 

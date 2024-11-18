@@ -41,7 +41,10 @@ export const Config = new CG.component({
           ),
           new CG.prop(
             'component',
-            new CG.enum('radio', 'checkbox').setTitle('Component').setDescription('Alternative component rendring'),
+            new CG.enum('radio', 'checkbox')
+              .optional()
+              .setTitle('Component')
+              .setDescription('Alternative component rendring'),
           ),
         ).exportAs('Columns'),
       ),
