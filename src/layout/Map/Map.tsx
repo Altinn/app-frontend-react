@@ -77,7 +77,6 @@ export function Map({
   const {
     readOnly,
     layers: customLayers,
-    wmsLayers: customWmsLayers,
     centerLocation: customCenterLocation,
     zoom: customZoom,
     geometryType,
@@ -86,7 +85,6 @@ export function Map({
   const isPdf = useIsPdf();
   const isInteractive = !readOnly && !isSummary;
   const layers = customLayers ?? DefaultMapLayers;
-  const wmsLayers = customWmsLayers ?? [];
   const markerLocationIsValid = isLocationValid(markerLocation);
 
   const geometries = useMemo(() => {
@@ -140,31 +138,32 @@ export function Map({
       attributionControl={false}
     >
       {setMarkerLocation && isInteractive && <MapClickHandler onClick={setMarkerLocation} />}
-      {layers.map((layer, i) => (
-        <TileLayer
-          key={i}
-          url={layer.url}
-          attribution={layer.attribution}
-          subdomains={layer.subdomains ? layer.subdomains : []}
-        />
-      ))}
-      {wmsLayers.map((layer, i) => (
-        <WMSTileLayer
-          key={i}
-          url={layer.url}
-          attribution={layer.attribution}
-          subdomains={layer.subdomains ? layer.subdomains : []}
-          layers={layer.layers}
-          format={layer.format ?? 'image/jpeg'}
-          version={layer.version ?? '1.1.1'}
-          opacity={layer.opacity ?? 1.0}
-          zoomOffset={layer.zoomOffset ?? 0}
-          transparent={layer.transparent ?? false}
-          uppercase={layer.uppercase ?? false}
-          minZoom={layer.minZoom ?? 0}
-          maxZoom={layer.maxZoom ?? 18}
-        />
-      ))}
+      {layers.map((layer, i) =>
+        layer.type === 'WMS' ? (
+          <WMSTileLayer
+            key={i}
+            url={layer.url}
+            attribution={layer.attribution}
+            subdomains={layer.subdomains ? layer.subdomains : []}
+            layers={layer.layers}
+            format={layer.format ?? 'image/jpeg'}
+            version={layer.version ?? '1.1.1'}
+            transparent={layer.transparent ?? false}
+            uppercase={layer.uppercase ?? false}
+            minZoom={layer.minZoom ?? 0}
+            maxZoom={layer.maxZoom ?? 18}
+          />
+        ) : (
+          <TileLayer
+            key={i}
+            url={layer.url}
+            attribution={layer.attribution}
+            subdomains={layer.subdomains ? layer.subdomains : []}
+            minZoom={layer.minZoom ?? 0}
+            maxZoom={layer.maxZoom ?? 18}
+          />
+        ),
+      )}
       {geometries?.map(({ altinnRowId, data, label }) => (
         <GeoJSON
           key={altinnRowId}
