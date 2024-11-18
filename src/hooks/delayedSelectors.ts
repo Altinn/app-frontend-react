@@ -217,16 +217,28 @@ abstract class BaseDelayedSelector<C extends DSConfig> {
 }
 
 class SingleDelayedSelectorController<C extends DSConfig> extends BaseDelayedSelector<C> {
-  private triggerRender: () => void;
+  // Subscription does not happen synchronously, but as an effect, meaning that there is a window of time
+  // where selectors could be used (and updated) before we have the ability to trigger a re-render.
+  // See: https://github.com/facebook/react/blob/92c0f5f85fed42024b17bf6595291f9f5d6e8734/packages/react-reconciler/src/ReactFiberHooks.js#L1715-L1716
+  private triggerRender: (() => void) | null = null;
+  private shouldTriggerOnSubscribe = false;
 
   public getSnapshot = () => this.selectorFunc;
   public subscribe = (callback: () => void) => {
     this.triggerRender = callback;
+    if (this.shouldTriggerOnSubscribe) {
+      this.triggerRender();
+      this.shouldTriggerOnSubscribe = false;
+    }
     return () => this.unsubscribeFromStore();
   };
 
   protected onUpdateSelector(): void {
-    this.triggerRender();
+    if (this.triggerRender) {
+      this.triggerRender();
+    } else {
+      this.shouldTriggerOnSubscribe = true;
+    }
   }
 }
 
@@ -258,10 +270,15 @@ class MultiDelayedSelector<C extends DSConfig> extends BaseDelayedSelector<C> {
 }
 
 class MultiDelayedSelectorController<P extends MultiDSProps> {
+  // Subscription does not happen synchronously, but as an effect, meaning that there is a window of time
+  // where selectors could be used (and updated) before we have the ability to trigger a re-render.
+  // See: https://github.com/facebook/react/blob/92c0f5f85fed42024b17bf6595291f9f5d6e8734/packages/react-reconciler/src/ReactFiberHooks.js#L1715-L1716
+  private triggerRender: (() => void) | null = null;
+  private shouldTriggerOnSubscribe = false;
+
   private changeCount = 0;
   private controllers: MultiDelayedSelector<DSConfig>[] = [];
   private selectorFuncs: DSReturn<DSConfig>[] = [];
-  private triggerRender: () => void;
 
   constructor(props: P) {
     for (let i = 0; i < props.length; i++) {
@@ -277,6 +294,10 @@ class MultiDelayedSelectorController<P extends MultiDSProps> {
 
   public subscribe = (callback: () => void) => {
     this.triggerRender = callback;
+    if (this.shouldTriggerOnSubscribe) {
+      this.triggerRender();
+      this.shouldTriggerOnSubscribe = false;
+    }
     return () => this.controllers.forEach((c) => c.unsubscribeFromStore());
   };
 
@@ -291,7 +312,11 @@ class MultiDelayedSelectorController<P extends MultiDSProps> {
     this.selectorFuncs[index] = this.controllers[index].getSelectorFunc();
     if (lastSelectChangeCount === this.changeCount) {
       this.selectorFuncs = [...this.selectorFuncs];
-      this.triggerRender();
+      if (this.triggerRender) {
+        this.triggerRender();
+      } else {
+        this.shouldTriggerOnSubscribe = true;
+      }
     }
     this.changeCount += 1;
     this.controllers.forEach((ds) => ds.setChangeCount(this.changeCount));
