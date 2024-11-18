@@ -220,6 +220,7 @@ export function FieldRenderer({
               <Radio
                 key={value}
                 value={value}
+                checked={formData[fieldKey] === value}
                 onChange={(e) => {
                   handleChange(fieldKey, e.target.value);
                 }}
