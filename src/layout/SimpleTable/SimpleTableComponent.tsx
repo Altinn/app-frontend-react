@@ -177,6 +177,7 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
         columns={item.columns.map((config) => ({
           ...config,
           header: <Lang id={config.header} />,
+          renderCell: config.component ? (thing) => <div>{thing}</div> : undefined,
         }))}
         mobile={isMobile}
         actionButtons={actionButtons}
@@ -185,8 +186,6 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
     </>
   );
 }
-
-//
 // import { Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
 //
 // import { AppTable } from 'src/app-components/table/Table';

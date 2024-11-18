@@ -39,12 +39,18 @@ export const Config = new CG.component({
               .setTitle('Accessors')
               .setDescription('List of fields that should be included in the cell'),
           ),
+          new CG.prop('enableInlineEditing', new CG.bool().optional().setTitle('Enable inline editing')),
           new CG.prop(
             'component',
-            new CG.enum('radio', 'checkbox')
+            new CG.obj(
+              new CG.prop('type', new CG.enum('radio')),
+              new CG.prop(
+                'options',
+                new CG.arr(new CG.obj(new CG.prop('label', new CG.str()), new CG.prop('value', new CG.str()))),
+              ),
+            )
               .optional()
-              .setTitle('Component')
-              .setDescription('Alternative component rendring'),
+              .setTitle('Specify component to render'),
           ),
         ).exportAs('Columns'),
       ),

@@ -7,6 +7,7 @@ import { isValid, parseISO } from 'date-fns';
 import { pick } from 'dot-object';
 import type { JSONSchema7 } from 'json-schema';
 
+import { FieldRenderer } from 'src/app-components/DynamicForm/DynamicForm';
 import classes from 'src/app-components/table/Table.module.css';
 
 export type FormDataValue = string | number | boolean | null | FormDataValue[] | { [key: string]: FormDataValue };
@@ -19,6 +20,7 @@ interface Column {
   header: React.ReactNode;
   accessors: string[];
   renderCell?: (values: FormDataValue[], rowData: FormDataObject) => React.ReactNode;
+  enableInlineEditing?: boolean;
 }
 
 export interface TableActionButton {
@@ -119,6 +121,44 @@ export function AppTable({
               const cellValues = col.accessors
                 .map((accessor) => pick(accessor, rowData) as FormDataValue)
                 .filter((value) => value != null);
+
+              // console.log('col');
+              // console.log(JSON.stringify(col, null, 2));
+
+              if (col.enableInlineEditing && col.accessors.length === 1) {
+                const key = col.accessors[0];
+
+                console.log('schema', JSON.stringify(schema, null, 2));
+                //
+                // console.log('key', key);
+
+                console.log('data', JSON.stringify(data, null, 2));
+
+                console.log('data[colIndex]', data[rowIndex]);
+
+                console.log('colIndex', rowIndex);
+
+                return (
+                  <Table.Cell
+                    key={colIndex}
+                    data-header-title={col.header}
+                  >
+                    <FieldRenderer
+                      key={`${rowIndex}-${key}`}
+                      fieldKey={key}
+                      // @ts-ignore
+                      fieldSchema={schema.items.properties![key]}
+                      formData={data[rowIndex]}
+                      handleChange={(e) => {
+                        console.log('change', e);
+                      }}
+                      schema={schema}
+                    />
+                  </Table.Cell>
+                );
+
+                // return <pre>{JSON.stringify(schema, null, 2)}</pre>;
+              }
 
               if (cellValues.length === 0) {
                 return (
