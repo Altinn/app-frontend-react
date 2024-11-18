@@ -75,27 +75,6 @@ export const Config = new CG.component({
               .setDescription('The version of the WMS standard to use'),
           ),
           new CG.prop(
-            'opacity',
-            new CG.num()
-              .optional({ default: 1.0 })
-              .setTitle('Layer Opacity')
-              .setDescription('The opacity of the WMS layer, ranging from 0 (fully transparent) to 1 (fully opaque)'),
-          ),
-          new CG.prop(
-            'zoomOffset',
-            new CG.num()
-              .optional({ default: 0 })
-              .setTitle('Zoom Offset')
-              .setDescription('The zoom offset for the WMS layer'),
-          ),
-          new CG.prop(
-            'tileSize',
-            new CG.num()
-              .optional({ default: 2048 })
-              .setTitle('Tile Size')
-              .setDescription('The size of the tiles in pixels'),
-          ),
-          new CG.prop(
             'transparent',
             new CG.bool()
               .optional({ default: false })
@@ -114,18 +93,16 @@ export const Config = new CG.component({
             new CG.num()
               .optional({ default: 0 })
               .setTitle('Minimum Zoom Level')
-              .setDescription('The minimum zoom level for the WMS layer'),
+              .setDescription('The minimum zoom level for the layer'),
           ),
           new CG.prop(
             'maxZoom',
             new CG.num()
               .optional({ default: 18 })
               .setTitle('Maximum Zoom Level')
-              .setDescription('The maximum zoom level for the WMS layer'),
+              .setDescription('The maximum zoom level for the layer'),
           ),
-        )
-          .exportAs('MapLayersWMS')
-          .setDescription('WMS-type map layers'),
+        ).exportAs('MapLayersWMS'),
       ).optional(),
     ),
   )
