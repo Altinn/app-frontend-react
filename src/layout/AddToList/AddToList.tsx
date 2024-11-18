@@ -15,7 +15,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 type AddToListProps = PropsFromGenericComponent<'AddToList'>;
 
-function isJSONSchema7Definition(obj: unknown): obj is JSONSchema7 {
+export function isJSONSchema7Definition(obj: unknown): obj is JSONSchema7 {
   if (typeof obj === 'boolean') {
     return true;
   }

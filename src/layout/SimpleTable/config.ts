@@ -39,6 +39,10 @@ export const Config = new CG.component({
               .setTitle('Accessors')
               .setDescription('List of fields that should be included in the cell'),
           ),
+          new CG.prop(
+            'component',
+            new CG.enum('radio', 'checkbox').setTitle('Component').setDescription('Alternative component rendring'),
+          ),
         ).exportAs('Columns'),
       ),
     ),

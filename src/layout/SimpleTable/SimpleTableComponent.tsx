@@ -4,15 +4,16 @@ import { Delete as DeleteIcon } from '@navikt/ds-icons';
 
 import { AppTable } from 'src/app-components/table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
+import { isJSONSchema7Definition } from 'src/layout/AddToList/AddToList';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { TableActionButton } from 'src/app-components/table/Table';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type TableComponentProps = PropsFromGenericComponent<'SimpleTable'>;
@@ -32,6 +33,12 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
   const { title } = textResourceBindings ?? {};
   const isMobile = useIsMobile();
 
+  const { schemaLookup } = DataModels.useFullStateRef().current;
+
+  const schema = schemaLookup[dataModelBindings.tableData.dataType].getSchemaForPath(
+    dataModelBindings.tableData.field,
+  )[0];
+
   const data = formData.tableData;
 
   if (!Array.isArray(data)) {
@@ -41,8 +48,18 @@ export function TableSummary({ componentNode }: TableSummaryProps) {
   if (data.length < 1) {
     return null;
   }
+
+  if (!schema?.items) {
+    return null;
+  }
+
+  if (!isJSONSchema7Definition(schema?.items)) {
+    return null;
+  }
+
   return (
-    <AppTable<IDataModelReference[]>
+    <AppTable
+      schema={schema}
       caption={title && <Caption title={<Lang id={title} />} />}
       data={data}
       columns={columns.map((config) => ({
@@ -65,11 +82,21 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
 
   const data = formData.tableData;
 
+  const { schemaLookup } = DataModels.useFullStateRef().current;
+
+  const schema = schemaLookup[item.dataModelBindings.tableData.dataType].getSchemaForPath(
+    item.dataModelBindings.tableData.field,
+  )[0];
+
   if (!Array.isArray(data)) {
     return null;
   }
 
   if (data.length < 1) {
+    return null;
+  }
+
+  if (!isJSONSchema7Definition(schema?.items)) {
     return null;
   }
 
@@ -94,9 +121,10 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
   }
 
   return (
-    <AppTable<IDataModelReference[]>
+    <AppTable
       zebra={item.zebra}
       size={item.size}
+      schema={schema}
       caption={
         title && (
           <Caption
