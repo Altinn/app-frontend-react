@@ -219,7 +219,7 @@ interface DateFieldProps {
 
 function DateField({ fieldKey, formData, handleChange, required, locale }: DateFieldProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(true);
   const currentLocale = getLocale(locale ?? 'nb');
   const dateFormat = getDateFormat('dd.MM.yyyy', currentLocale.code);
 
