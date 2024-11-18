@@ -4,7 +4,7 @@ import { ErrorMessage, Table } from '@digdir/designsystemet-react';
 import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
-import { Caption } from 'src/components/form/Caption';
+import { Caption } from 'src/components/form/caption/Caption';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -63,7 +63,7 @@ export const RepeatingGroupTableSummary = ({
       className={cn(classes.summaryWrapper)}
       data-testid={'summary-repeating-group-component'}
     >
-      <Table className={isSmall && tableClasses.mobileTable}>
+      <Table className={isSmall ? tableClasses.mobileTable : undefined}>
         <Caption title={<Lang id={title} />} />
         <Table.Head>
           <Table.Row>
@@ -97,7 +97,7 @@ export const RepeatingGroupTableSummary = ({
                   align='right'
                   className={tableClasses.buttonCell}
                 >
-                  {row?.items && row?.items?.length > 0 && <EditButton componentNode={childNodes[0]} />}
+                  {row?.itemIds && row?.itemIds?.length > 0 && <EditButton componentNode={childNodes[0]} />}
                 </Table.Cell>
               )}
             </Table.Row>
@@ -124,10 +124,7 @@ export const RepeatingGroupTableSummary = ({
 function HeaderCell({ node, columnSettings }: { node: LayoutNode; columnSettings: ITableColumnFormatting }) {
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
   return (
-    <Table.HeaderCell
-      className={classes.tableCellFormatting}
-      style={style}
-    >
+    <Table.HeaderCell style={style}>
       <RepeatingGroupTableTitle
         node={node}
         columnSettings={columnSettings}
