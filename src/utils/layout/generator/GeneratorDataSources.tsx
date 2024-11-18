@@ -104,7 +104,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     currentLayoutSet,
     externalApis,
     dataModelNames,
-  }) as ExpressionDataSources;
+  });
 }
 
 function useValidationDataSources(): ValidationDataSources {
@@ -138,5 +138,5 @@ function useValidationDataSources(): ValidationDataSources {
     currentLanguage,
     applicationMetadata,
     layoutSets,
-  }) as ValidationDataSources;
+  });
 }

@@ -1,6 +1,6 @@
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { DSConfig, DSProps } from 'src/hooks/delayedSelectors';
+import type { DSPropsForSimpleSelector } from 'src/hooks/delayedSelectors';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
@@ -17,7 +17,7 @@ export interface OptionsStorePluginConfig {
   extraHooks: {
     useNodeOptions: NodeOptionsSelector;
     useNodeOptionsSelector: () => NodeOptionsSelector;
-    useNodeOptionsSelectorProps: () => DSProps<DSConfig>;
+    useNodeOptionsSelectorProps: () => DSPropsForSimpleSelector<NodesContext, NodeOptionsSelector>;
   };
 }
 
