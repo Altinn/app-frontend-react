@@ -320,6 +320,11 @@ export function nb(): FixedLanguageList {
       validation_error_ssn: 'Fødselsnummeret/D-nummeret er ugyldig.',
       validation_error_not_found:
         'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og navn. Vennligst kontroller feltene og prøv igjen. \n\nMerk: Etter 5 feilforsøk blir søkemuligheten midlertidig sperret.',
+      validation_error_too_many_requests: 'Du har nådd grensen for antall søk. Vennligst prøv igjen senere.',
+      validation_error_forbidden:
+        'Du har ikke tilgang til å søke på denne personen. Sikkerhetsnivå 2 eller høyere kreves.',
+      validation_error_no_response_from_server: 'Ingen respons fra serveren. Vennligst prøv igjen senere.',
+      unknown_error: 'Ukjent feil. Vennligst prøv igjen senere.',
     },
     helptext: {
       button_title: 'Hjelp',
