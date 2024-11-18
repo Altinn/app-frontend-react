@@ -218,6 +218,7 @@ export function FieldRenderer({
           <div key={fieldKey}>
             {component?.options.map(({ label, value }) => (
               <Radio
+                size='sm'
                 key={value}
                 value={value}
                 checked={formData[fieldKey] === value}
