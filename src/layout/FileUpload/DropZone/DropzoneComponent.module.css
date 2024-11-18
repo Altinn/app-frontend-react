@@ -25,6 +25,12 @@
   font-size: 1rem;
 }
 
+.fileUpload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .fileUploadInvalid:focus {
   border-style: solid !important;
   outline-color: #e23b53 !important;

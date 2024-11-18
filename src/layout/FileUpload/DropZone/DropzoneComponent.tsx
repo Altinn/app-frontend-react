@@ -102,7 +102,7 @@ export function DropzoneComponent({
             : `${maxSizeLabelId} ${dragLabelId} ${formatLabelId}`;
 
           return (
-            <button
+            <div
               {...getRootProps({
                 onClick,
               })}
@@ -147,7 +147,7 @@ export function DropzoneComponent({
                     : ` ${langAsString('form_filler.file_upload_valid_file_format_all')}`}
                 </span>
               </div>
-            </button>
+            </div>
           );
         }}
       </DropZone>
