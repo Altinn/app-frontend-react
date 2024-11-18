@@ -138,11 +138,12 @@ export const NodesStateQueue = {
   useAddNode: (req: AddNodeRequest, condition = true) => useAddToQueue('addNodes', false, req, condition),
   useRemoveNode: (req: Omit<RemoveNodeRequest, 'layouts'>) => useRemoveNode(req),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  useSetNodeProp: (req: SetNodePropRequest<any, any>, condition = true) =>
+  useSetNodeProp: (req: SetNodePropRequest<any, any>, condition: boolean) =>
     useAddToQueue('setNodeProps', true, req, condition),
-  useSetRowExtras: (req: SetRowExtrasRequest, condition = true) => useAddToQueue('setRowExtras', true, req, condition),
+  useSetRowExtras: (req: SetRowExtrasRequest, condition: boolean) =>
+    useAddToQueue('setRowExtras', true, req, condition),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  useSetPageProp: (req: SetPagePropRequest<any>, condition = true) =>
+  useSetPageProp: (req: SetPagePropRequest<any>, condition: boolean) =>
     useAddToQueue('setPageProps', true, req, condition),
 };
 

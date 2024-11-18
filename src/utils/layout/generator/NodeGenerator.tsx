@@ -1,6 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import deepEqual from 'fast-deep-equal';
+
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
@@ -144,7 +146,21 @@ function ResolveExpressions<T extends CompTypes>({ node, intermediateItem }: Com
     [def, resolverProps],
   );
 
-  NodesStateQueue.useSetNodeProp({ node, prop: 'item', value: resolved, partial: true });
+  const isSet = NodesInternal.useNodeData(node, (data) => {
+    if (!data.item) {
+      return false;
+    }
+
+    for (const key in resolved) {
+      if (!deepEqual(data.item[key], resolved[key])) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  NodesStateQueue.useSetNodeProp({ node, prop: 'item', value: resolved, partial: true }, !isSet);
 
   return (
     <>{GeneratorDebug.displayState && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolved, null, 2)}</pre>}</>
