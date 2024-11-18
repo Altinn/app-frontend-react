@@ -216,7 +216,6 @@ export function FieldRenderer({
       case 'radio':
         return (
           <div key={fieldKey}>
-            <pre>{JSON.stringify(formData[fieldKey])}</pre>
             {component?.options.map(({ label, value }) => (
               <Radio
                 key={value}

@@ -137,11 +137,11 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
     });
   }
 
-  function handleChange(formProps) {
+  function handleChange(formProps, itemIndex: number) {
     const changes = Object.entries(formProps).map((entry) => ({
       reference: {
         dataType: item.dataModelBindings.tableData.dataType,
-        field: `${item.dataModelBindings.tableData.field}[${editItemIndex}].${entry[0]}`,
+        field: `${item.dataModelBindings.tableData.field}[${itemIndex}].${entry[0]}`,
       },
       newValue: `${entry[1]}`,
     }));
@@ -156,7 +156,9 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
         <AddToListModal
           dataModelReference={item.dataModelBindings.tableData}
           initialData={formData.tableData[editItemIndex]}
-          onChange={(formProps) => handleChange(formProps)}
+          onChange={(formProps) => {
+            handleChange(formProps, editItemIndex);
+          }}
           onInteractOutside={() => {
             setShowEdit(false);
           }}
@@ -190,17 +192,8 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
                   formData={data[rowIndex]}
                   component={config.component}
                   handleChange={(fieldName, value) => {
-                    console.log('formProps, ', fieldName);
-                    console.log('DATAAAA, ', JSON.stringify(data, null, 2));
-                    console.log(
-                      'VALUEE, ',
-                      JSON.stringify(
-                        { ...data, [`${rowIndex}`]: { ...data[rowIndex], [`${fieldName}`]: value } },
-                        null,
-                        2,
-                      ),
-                    );
-                    handleChange({ ...data, [`${rowIndex}`]: { ...data[rowIndex], [`${fieldName}`]: value } });
+                    const nextValue = data.find((_, idx) => idx !== rowIndex);
+                    handleChange({ ...nextValue, [`${fieldName}`]: value }, rowIndex);
                   }}
                   schema={schema}
                 />
