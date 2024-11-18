@@ -234,7 +234,8 @@ function getValidations({ state, node, mask, severity, includeHidden = false }: 
     return emptyArray;
   }
 
-  if (!includeHidden && (!node || isHidden(state, node, hiddenOptions))) {
+  const nodes = node.page.layoutSet;
+  if (!includeHidden && (!node || isHidden(state, node, nodes, hiddenOptions))) {
     return emptyArray;
   }
 

@@ -68,19 +68,15 @@ export function useNodeDirectChildren(
   restriction?: TraversalRestriction,
 ): LayoutNode[] {
   return (
-    NodesInternal.useNodeData(parent, (nodeData, _, fullState) => {
+    NodesInternal.useNodeData(parent, (nodeData) => {
       if (!parent) {
         return emptyArray;
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const out = parent.def.pickDirectChildren(nodeData as any, restriction);
-      const rootNode = fullState.nodes;
-      if (!rootNode) {
-        return emptyArray;
-      }
-
-      return out?.map((id) => rootNode.findById(id)).filter(typedBoolean);
+      const nodes = parent.page.layoutSet;
+      return out?.map((id) => nodes.findById(id)).filter(typedBoolean);
     }) ?? emptyArray
   );
 }
