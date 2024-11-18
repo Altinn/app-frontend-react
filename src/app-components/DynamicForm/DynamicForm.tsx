@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { Popover, Textfield } from '@digdir/designsystemet-react';
+import { Popover, Radio, Textfield } from '@digdir/designsystemet-react';
 import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
 import styles from 'src/layout/Datepicker/Calendar.module.css';
@@ -57,22 +57,31 @@ export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFo
   return <form>{renderFields(schema)}</form>;
 }
 
+interface Component {
+  type: string;
+  options: { label: string; value: string }[];
+}
+
 interface FieldRendererProps {
+  rowIndex?: number;
   fieldKey: string;
   fieldSchema: JSONSchema7Definition;
   formData: FormDataObject;
   handleChange: (key: string, value: FormDataValue) => void;
   schema: JSONSchema7;
+  component?: Component;
   renderFields?: (currentSchema: JSONSchema7) => React.ReactNode | null;
   locale?: string;
 }
 
 export function FieldRenderer({
+  rowIndex,
   fieldKey,
   fieldSchema,
   formData,
   handleChange,
   schema,
+  component,
   renderFields,
   locale,
 }: FieldRendererProps) {
@@ -80,6 +89,7 @@ export function FieldRenderer({
     return null;
   } else {
     const { type, format, enum: enumOptions } = fieldSchema;
+    const renderType = component?.type || type;
     const label = fieldSchema.title || fieldKey;
     const required = schema.required?.includes(fieldKey);
 
@@ -111,7 +121,7 @@ export function FieldRenderer({
       );
     }
 
-    switch (type) {
+    switch (renderType) {
       case 'string':
         if (format === 'date') {
           return (
@@ -201,6 +211,24 @@ export function FieldRenderer({
               <legend>{label}</legend>
               {renderFields && renderFields(fieldSchema)}
             </fieldset>
+          </div>
+        );
+      case 'radio':
+        return (
+          <div key={fieldKey}>
+            <pre>{JSON.stringify(formData[fieldKey])}</pre>
+            {component?.options.map(({ label, value }) => (
+              <Radio
+                key={value}
+                value={value}
+                onChange={(e) => {
+                  handleChange(fieldKey, e.target.value);
+                }}
+                name={`${fieldKey}-${rowIndex}`}
+              >
+                {label}
+              </Radio>
+            ))}
           </div>
         );
       default:

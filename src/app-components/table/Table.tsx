@@ -7,7 +7,6 @@ import { isValid, parseISO } from 'date-fns';
 import { pick } from 'dot-object';
 import type { JSONSchema7 } from 'json-schema';
 
-import { FieldRenderer } from 'src/app-components/DynamicForm/DynamicForm';
 import classes from 'src/app-components/table/Table.module.css';
 
 export type FormDataValue = string | number | boolean | null | FormDataValue[] | { [key: string]: FormDataValue };
@@ -19,7 +18,7 @@ export interface FormDataObject {
 interface Column {
   header: React.ReactNode;
   accessors: string[];
-  renderCell?: (values: FormDataValue[], rowData: FormDataObject) => React.ReactNode;
+  renderCell?: (values: FormDataValue[], rowData: FormDataObject, rowIndex: number) => React.ReactNode;
   enableInlineEditing?: boolean;
 }
 
@@ -138,25 +137,6 @@ export function AppTable({
 
                 console.log('colIndex', rowIndex);
 
-                return (
-                  <Table.Cell
-                    key={colIndex}
-                    data-header-title={col.header}
-                  >
-                    <FieldRenderer
-                      key={`${rowIndex}-${key}`}
-                      fieldKey={key}
-                      // @ts-ignore
-                      fieldSchema={schema.items.properties![key]}
-                      formData={data[rowIndex]}
-                      handleChange={(e) => {
-                        console.log('change', e);
-                      }}
-                      schema={schema}
-                    />
-                  </Table.Cell>
-                );
-
                 // return <pre>{JSON.stringify(schema, null, 2)}</pre>;
               }
 
@@ -175,7 +155,7 @@ export function AppTable({
                     key={colIndex}
                     data-header-title={col.header}
                   >
-                    {col.renderCell(cellValues, rowData)}
+                    {col.renderCell(cellValues, rowData, rowIndex)}
                   </Table.Cell>
                 );
               }

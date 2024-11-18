@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
 
+import { FieldRenderer } from 'src/app-components/DynamicForm/DynamicForm';
 import { AppTable } from 'src/app-components/table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
@@ -136,24 +137,26 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
     });
   }
 
+  function handleChange(formProps) {
+    const changes = Object.entries(formProps).map((entry) => ({
+      reference: {
+        dataType: item.dataModelBindings.tableData.dataType,
+        field: `${item.dataModelBindings.tableData.field}[${editItemIndex}].${entry[0]}`,
+      },
+      newValue: `${entry[1]}`,
+    }));
+    setMultiLeafValues({ changes });
+    setEditItemIndex(-1);
+    setShowEdit(false);
+  }
+
   return (
     <>
       {showEdit && editItemIndex > -1 && formData.tableData && formData.tableData[editItemIndex] && (
         <AddToListModal
           dataModelReference={item.dataModelBindings.tableData}
           initialData={formData.tableData[editItemIndex]}
-          onChange={(formProps) => {
-            const changes = Object.entries(formProps).map((entry) => ({
-              reference: {
-                dataType: item.dataModelBindings.tableData.dataType,
-                field: `${item.dataModelBindings.tableData.field}[${editItemIndex}].${entry[0]}`,
-              },
-              newValue: `${entry[1]}`,
-            }));
-            setMultiLeafValues({ changes });
-            setEditItemIndex(-1);
-            setShowEdit(false);
-          }}
+          onChange={(formProps) => handleChange(formProps)}
           onInteractOutside={() => {
             setShowEdit(false);
           }}
@@ -177,7 +180,32 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
         columns={item.columns.map((config) => ({
           ...config,
           header: <Lang id={config.header} />,
-          renderCell: config.component ? (thing) => <div>{thing}</div> : undefined,
+          renderCell: config.component
+            ? (values, rowData, rowIndex) => (
+                <FieldRenderer
+                  rowIndex={rowIndex}
+                  fieldKey={config.accessors[0]}
+                  // @ts-ignore
+                  fieldSchema={schema.items.properties![config.accessors[0]]}
+                  formData={data[rowIndex]}
+                  component={config.component}
+                  handleChange={(fieldName, value) => {
+                    console.log('formProps, ', fieldName);
+                    console.log('DATAAAA, ', JSON.stringify(data, null, 2));
+                    console.log(
+                      'VALUEE, ',
+                      JSON.stringify(
+                        { ...data, [`${rowIndex}`]: { ...data[rowIndex], [`${fieldName}`]: value } },
+                        null,
+                        2,
+                      ),
+                    );
+                    handleChange({ ...data, [`${rowIndex}`]: { ...data[rowIndex], [`${fieldName}`]: value } });
+                  }}
+                  schema={schema}
+                />
+              )
+            : undefined,
         }))}
         mobile={isMobile}
         actionButtons={actionButtons}
