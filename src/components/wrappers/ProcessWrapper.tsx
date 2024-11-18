@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 
@@ -21,8 +21,19 @@ import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { useNavigate, useNavigationParam, useQueryKeysAsString } from 'src/features/routing/AppRoutingContext';
-import { TaskKeys, useIsCurrentTask, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
+import {
+  useNavigate,
+  useNavigationParam,
+  useNavigationPath,
+  useQueryKeysAsString,
+} from 'src/features/routing/AppRoutingContext';
+import {
+  TaskKeys,
+  useIsCurrentTask,
+  useIsValidTaskId,
+  useNavigateToTask,
+  useStartUrl,
+} from 'src/hooks/useNavigatePage';
 import { implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
@@ -36,7 +47,7 @@ interface NavigationErrorProps {
 
 function NavigationError({ label }: NavigationErrorProps) {
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-  const { navigateToTask } = useNavigatePage();
+  const navigateToTask = useNavigateToTask();
 
   const appName = useAppName();
   const appOwner = useAppOwner();
@@ -87,7 +98,7 @@ export function NavigateToStartUrl() {
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const startUrl = useStartUrl(currentTaskId);
 
-  const currentLocation = `${useLocation().pathname}${useQueryKeysAsString()}`;
+  const currentLocation = `${useNavigationPath()}${useQueryKeysAsString()}`;
 
   useEffect(() => {
     if (currentLocation !== startUrl) {
@@ -100,7 +111,7 @@ export function NavigateToStartUrl() {
 
 export const ProcessWrapper = () => {
   const isCurrentTask = useIsCurrentTask();
-  const { isValidTaskId } = useNavigatePage();
+  const isValidTaskId = useIsValidTaskId();
   const taskIdParam = useNavigationParam('taskId');
   const taskType = useGetTaskTypeById()(taskIdParam);
   const realTaskType = useRealTaskType();

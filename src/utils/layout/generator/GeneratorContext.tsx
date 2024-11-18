@@ -1,18 +1,18 @@
 import React, { useMemo } from 'react';
 import type { MutableRefObject, PropsWithChildren } from 'react';
 
-import { createContext } from 'src/core/contexts/context';
+import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal, CompIntermediate, CompIntermediateExact, CompTypes, ILayouts } from 'src/layout/layout';
 import type { Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
+export type ChildIdMutator = (id: string) => string;
 export type ChildMutator<T extends CompTypes = CompTypes> = (item: CompIntermediate<T>) => void;
 
 export interface ChildClaim {
   pluginKey?: string;
-  metadata?: unknown;
 }
 
 export interface ChildClaims {
@@ -29,18 +29,19 @@ type PageProviderProps = Pick<GeneratorContext, 'childrenMap'> & {
   parent: LayoutPage;
 };
 
-type NodeGeneratorProps = Pick<GeneratorContext, 'directMutators' | 'recursiveMutators'> & {
+type NodeGeneratorProps = Pick<GeneratorContext, 'idMutators' | 'directMutators' | 'recursiveMutators'> & {
   item: CompIntermediateExact<CompTypes>;
   parent: LayoutNode;
 };
 
-type RowGeneratorProps = Pick<GeneratorContext, 'directMutators' | 'recursiveMutators'> & {
+type RowGeneratorProps = Pick<GeneratorContext, 'idMutators' | 'directMutators' | 'recursiveMutators'> & {
   groupBinding: IDataModelReference;
   rowIndex: number;
 };
 
 interface GeneratorContext {
   registry: MutableRefObject<Registry>;
+  idMutators?: ChildIdMutator[];
   directMutators?: ChildMutator[];
   recursiveMutators?: ChildMutator[];
   layouts: ILayouts;
@@ -58,7 +59,7 @@ interface GeneratorContext {
   depth: number; // Depth is 1 for top level nodes, 2 for children of top level nodes, etc.
 }
 
-const { Provider, useCtx } = createContext<GeneratorContext>({
+const { Provider, useCtx, useLaxCtx } = createContext<GeneratorContext>({
   name: 'Generator',
   required: true,
 });
@@ -84,6 +85,7 @@ export function GeneratorNodeProvider({ children, ...rest }: PropsWithChildren<N
       directMutators: rest.directMutators ?? emptyArray,
       row: parent.row ?? undefined,
 
+      idMutators: parent.idMutators ? [...parent.idMutators, ...(rest.idMutators ?? [])] : rest.idMutators,
       recursiveMutators: parent.recursiveMutators
         ? [...parent.recursiveMutators, ...(rest.recursiveMutators ?? [])]
         : rest.recursiveMutators,
@@ -127,6 +129,7 @@ export function GeneratorRowProvider({
   rowIndex,
   groupBinding,
   directMutators,
+  idMutators,
   recursiveMutators,
 }: PropsWithChildren<RowGeneratorProps>) {
   const parent = useCtx();
@@ -141,11 +144,12 @@ export function GeneratorRowProvider({
 
       // Direct mutators and rows are not meant to be inherited, if none are passed to us directly we'll reset
       directMutators: directMutators ?? emptyArray,
+      idMutators: parent.idMutators ? [...parent.idMutators, ...(idMutators ?? [])] : idMutators,
       recursiveMutators: parent.recursiveMutators
         ? [...parent.recursiveMutators, ...(recursiveMutators ?? [])]
         : recursiveMutators,
     }),
-    [parent, directMutators, recursiveMutators, rowIndex, groupBinding],
+    [parent, rowIndex, groupBinding, directMutators, idMutators, recursiveMutators],
   );
   return <Provider value={value}>{children}</Provider>;
 }
@@ -167,8 +171,12 @@ export function GeneratorGlobalProvider({ children, ...rest }: PropsWithChildren
 }
 
 export const GeneratorInternal = {
-  useIsInsideGenerator: () => useCtx().depth > 0,
+  useIsInsideGenerator: () => {
+    const ctx = useLaxCtx();
+    return ctx === ContextNotProvided ? false : ctx.depth > 0;
+  },
   useRegistry: () => useCtx().registry,
+  useIdMutators: () => useCtx().idMutators ?? emptyArray,
   useDirectMutators: () => useCtx().directMutators ?? emptyArray,
   useRecursiveMutators: () => useCtx().recursiveMutators ?? emptyArray,
   useDepth: () => useCtx().depth,
