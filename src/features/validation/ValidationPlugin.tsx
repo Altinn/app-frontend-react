@@ -3,14 +3,8 @@ import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { ComponentValidation } from 'src/features/validation/index';
 import type { CompCategory } from 'src/layout/common';
-import type { CompIntermediate, TypesFromCategory } from 'src/layout/layout';
-import type { Registry } from 'src/utils/layout/generator/GeneratorStages';
-import type { NodesContext } from 'src/utils/layout/NodesContext';
-import type {
-  DefPluginExtraState,
-  DefPluginState,
-  DefPluginStateFactoryProps,
-} from 'src/utils/layout/plugins/NodeDefPlugin';
+import type { TypesFromCategory } from 'src/layout/layout';
+import type { DefPluginExtraState, DefPluginStateFactoryProps } from 'src/utils/layout/plugins/NodeDefPlugin';
 
 interface Config {
   componentType: TypesFromCategory<CompCategory.Form | CompCategory.Container>;
@@ -59,13 +53,5 @@ export class ValidationPlugin extends NodeDefPlugin<Config> {
     });
 
     return `<${StoreValidationsInNode} />`;
-  }
-
-  stateIsReady(state: DefPluginState<Config>, fullState: NodesContext, registry: Registry): boolean {
-    const nodeId = (state.layout as CompIntermediate).id;
-    return (
-      registry.validationsProcessed[nodeId]?.initial === fullState.validationsProcessedLast.initial &&
-      registry.validationsProcessed[nodeId]?.incremental === fullState.validationsProcessedLast.incremental
-    );
   }
 }
