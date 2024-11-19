@@ -77,6 +77,10 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
       result,
     };
 
+    if (result.length === 0) {
+      return emptyArray;
+    }
+
     if (prevResult && deepEqual(prevResult, result)) {
       return prevResult;
     }
