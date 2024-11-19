@@ -84,17 +84,14 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   });
 
   if (!currentPageId || !isValidPageId(currentPageId)) {
-    return <FormFirstPage renderPresentation={false} />;
+    return <FormFirstPage />;
   }
 
   if (mainIds === undefined) {
     return (
       <>
         <ErrorProcessing setFormState={setFormState} />
-        <Loader
-          reason='form-ids'
-          renderPresentation={false}
-        />
+        <Loader reason='form-ids' />
       </>
     );
   }
@@ -155,7 +152,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   );
 }
 
-export function FormFirstPage({ renderPresentation = true }: { renderPresentation?: boolean }) {
+export function FormFirstPage() {
   const navigate = useNavigate();
   const startUrl = useStartUrl();
 
@@ -167,12 +164,7 @@ export function FormFirstPage({ renderPresentation = true }: { renderPresentatio
     }
   }, [currentLocation, navigate, startUrl]);
 
-  return (
-    <Loader
-      reason='navigate-to-start'
-      renderPresentation={renderPresentation}
-    />
-  );
+  return <Loader reason='navigate-to-start' />;
 }
 
 /**
