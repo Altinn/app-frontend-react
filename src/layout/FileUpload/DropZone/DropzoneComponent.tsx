@@ -120,26 +120,20 @@ export function DropzoneComponent({
                   className={classes.uploadIcon}
                   aria-hidden
                 />
-                <span
-                  id={dragLabelId}
-                  className={classes.fileUploadTextBold}
-                >
+                <b id={dragLabelId}>
                   {isMobile ? (
                     <Lang id='form_filler.file_uploader_upload' />
                   ) : (
                     <>
                       <Lang id={'form_filler.file_uploader_drag'} />
-                      <span className={cn(classes.fileUploadTextBold, classes.blueUnderLine)}>
+                      <span className={cn(classes.blueUnderLine)}>
                         {' '}
                         <Lang id='form_filler.file_uploader_find' />
                       </span>
                     </>
                   )}
-                </span>
-                <span
-                  id={formatLabelId}
-                  className={classes.fileUploadText}
-                >
+                </b>
+                <span id={formatLabelId}>
                   <Lang id='form_filler.file_uploader_valid_file_format' />
                   {hasCustomFileEndings
                     ? ` ${validFileEndings}`
