@@ -15,74 +15,20 @@ import { AddToListModal, isJSONSchema7Definition } from 'src/layout/AddToList/Ad
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { TableActionButton } from 'src/app-components/table/Table';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type TableComponentProps = PropsFromGenericComponent<'SimpleTable'>;
 
-type TableSummaryProps = {
-  componentNode: LayoutNode<'SimpleTable'>;
-};
-
-export function TableSummary({ componentNode }: TableSummaryProps) {
-  const { dataModelBindings, textResourceBindings, columns } = useNodeItem(componentNode, (item) => ({
-    dataModelBindings: item.dataModelBindings,
-    textResourceBindings: item.textResourceBindings,
-    columns: item.columns,
-  }));
-
-  const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
-  const { title } = textResourceBindings ?? {};
-  const isMobile = useIsMobile();
-
-  const { schemaLookup } = DataModels.useFullStateRef().current;
-
-  const schema = schemaLookup[dataModelBindings.tableData.dataType].getSchemaForPath(
-    dataModelBindings.tableData.field,
-  )[0];
-
-  const data = formData.tableData;
-
-  if (!Array.isArray(data)) {
-    return null;
-  }
-
-  if (data.length < 1) {
-    return null;
-  }
-
-  if (!schema?.items) {
-    return null;
-  }
-
-  if (!isJSONSchema7Definition(schema?.items)) {
-    return null;
-  }
-
-  return (
-    <AppTable
-      schema={schema}
-      caption={title && <Caption title={<Lang id={title} />} />}
-      data={data}
-      columns={columns.map((config) => ({
-        ...config,
-        header: <Lang id={config.header} />,
-      }))}
-      mobile={isMobile}
-    />
-  );
-}
-
 export function SimpleTableComponent({ node }: TableComponentProps) {
   const item = useNodeItem(node);
+
   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
+
   const removeFromList = FD.useRemoveFromListCallback();
   const { title, description, help } = item.textResourceBindings ?? {};
   const { elementAsString } = useLanguage();
   const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
-
   const data = formData.tableData;
-
   const { schemaLookup } = DataModels.useFullStateRef().current;
 
   const [showEdit, setShowEdit] = useState(false);
@@ -138,18 +84,25 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
   }
 
   function handleChange(formProps, itemIndex: number) {
-    const changes = Object.entries(formProps).map((entry) => ({
-      reference: {
-        dataType: item.dataModelBindings.tableData.dataType,
-        field: `${item.dataModelBindings.tableData.field}[${itemIndex}].${entry[0]}`,
-      },
-      newValue: `${entry[1]}`,
-    }));
-    setMultiLeafValues({ changes });
-    setEditItemIndex(-1);
-    setShowEdit(false);
-  }
+    // Filter changes by comparing formProps with the original formData
+    const changes = Object.entries(formProps)
+      .filter(([key, value]) => {
+        // @ts-ignore
+        const originalValue = formData.tableData[itemIndex]?.[key];
+        return originalValue !== value; // Only include changes
+      })
+      .map(([key, value]) => ({
+        reference: {
+          dataType: item.dataModelBindings.tableData.dataType,
+          field: `${item.dataModelBindings.tableData.field}[${itemIndex}].${key}`,
+        },
+        newValue: `${value}`,
+      }));
 
+    if (changes.length > 0) {
+      setMultiLeafValues({ changes });
+    }
+  }
   return (
     <>
       {showEdit && editItemIndex > -1 && formData.tableData && formData.tableData[editItemIndex] && (
@@ -158,6 +111,8 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
           initialData={formData.tableData[editItemIndex]}
           onChange={(formProps) => {
             handleChange(formProps, editItemIndex);
+            setEditItemIndex(-1);
+            setShowEdit(false);
           }}
           onInteractOutside={() => {
             setShowEdit(false);
@@ -192,8 +147,9 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
                   formData={data[rowIndex]}
                   component={config.component}
                   handleChange={(fieldName, value) => {
-                    const nextValue = data.find((_, idx) => idx !== rowIndex);
-                    handleChange({ ...nextValue, [`${fieldName}`]: value }, rowIndex);
+                    const valueToUpdate = data.find((_, idx) => idx === rowIndex);
+                    const nextValue = { ...valueToUpdate, [`${fieldName}`]: value };
+                    handleChange(nextValue, rowIndex);
                   }}
                   schema={schema}
                 />
@@ -207,119 +163,3 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
     </>
   );
 }
-// import { Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
-//
-// import { AppTable } from 'src/app-components/table/Table';
-// import { FD } from 'src/features/formData/FormDataWrite';
-// import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-// import { AddToListModal } from 'src/layout/AddToList/AddToList';
-// import type { PropsFromGenericComponent } from 'src/layout';
-//
-// type TableComponentProps = PropsFromGenericComponent<'Table'>;
-//
-// type TableSummaryProps = {
-//   componentNode: LayoutNode<'Table'>;
-// };
-//
-// export function TableSummary({ componentNode }: TableSummaryProps) {
-//   const item = useNodeItem(componentNode);
-//   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
-//   const { langAsString } = useLanguage();
-//   const isMobile = useIsMobile();
-//
-//   const data = formData.simpleBinding as IDataModelReference[];
-//   if (data.length < 1) {
-//     return null;
-//   }
-//   return (
-//     <AppTable<IDataModelReference>
-//       data={data}
-//       columns={item.columnConfig.map((config) => ({
-//         ...config,
-//         header: langAsString(config.header),
-//       }))}
-//       mobile={isMobile}
-//     />
-//   );
-// }
-//
-// export function TableComponent({ node }: TableComponentProps) {
-//   const item = useNodeItem(node);
-//   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
-//   const removeFromList = FD.useRemoveFromListCallback();
-//   const { langAsString } = useLanguage();
-//   const isMobile = useIsMobile();
-//
-//   const [showEdit, setShowEdit] = useState(false);
-//
-//   const [editItemIndex, setEditItemIndex] = useState<number>(-1);
-//   const setMultiLeafValues = FD.useSetMultiLeafValues();
-//
-//   const data = formData.simpleBinding as IDataModelReference[];
-//   if (data.length < 1) {
-//     return null;
-//   }
-//
-//   return (
-//     <>
-//       {showEdit && editItemIndex > -1 && formData.simpleBinding && formData.simpleBinding[editItemIndex] && (
-//         <AddToListModal
-//           dataModelReference={item.dataModelBindings.simpleBinding}
-//           initialData={formData.simpleBinding[editItemIndex]}
-//           onChange={(formProps) => {
-//             const changes = Object.entries(formProps).map((entry) => ({
-//               reference: {
-//                 dataType: item.dataModelBindings.simpleBinding.dataType,
-//                 field: `${item.dataModelBindings.simpleBinding.field}[${editItemIndex}].${entry[0]}`,
-//               },
-//               newValue: `${entry[1]}`,
-//             }));
-//             setMultiLeafValues({ changes });
-//             setEditItemIndex(-1);
-//             setShowEdit(false);
-//           }}
-//           onInteractOutside={() => {
-//             setShowEdit(false);
-//           }}
-//         />
-//       )}
-//
-//       <AppTable<IDataModelReference>
-//         data={data}
-//         columns={item.columnConfig.map((config) => ({
-//           ...config,
-//           header: langAsString(config.header),
-//         }))}
-//         mobile={isMobile}
-//         actionButtons={[
-//           {
-//             onClick: (idx) => {
-//               removeFromList({
-//                 startAtIndex: idx,
-//                 reference: {
-//                   dataType: item.dataModelBindings.simpleBinding.dataType,
-//                   field: item.dataModelBindings.simpleBinding.field,
-//                 },
-//                 callback: (_) => true,
-//               });
-//             },
-//             buttonText: langAsString('general.delete'),
-//             icon: <DeleteIcon />,
-//             color: 'danger',
-//           },
-//           {
-//             onClick: (idx, _) => {
-//               setEditItemIndex(idx);
-//               setShowEdit(true);
-//             },
-//             buttonText: langAsString('general.edit'),
-//             icon: <EditIcon />,
-//             variant: 'tertiary',
-//             color: 'second',
-//           },
-//         ]}
-//         actionButtonHeader={<Lang id={'general.action'} />}
-//       />
-//     </>
-//   );
-// }
