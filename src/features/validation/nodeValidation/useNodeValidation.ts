@@ -1,12 +1,8 @@
-import { useRef } from 'react';
-
-import deepEqual from 'fast-deep-equal';
-
 import { Validation } from 'src/features/validation/validationContext';
 import { implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
-import type { AnyValidation, BaseValidation, ValidationDataSources } from 'src/features/validation';
+import type { AnyValidation, BaseValidation } from 'src/features/validation';
 import type { CompDef, ValidationFilter } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -23,29 +19,11 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
   const dataSources = GeneratorData.useValidationDataSources();
   const getDataElementIdForDataType = GeneratorData.useGetDataElementIdForDataType();
   const dataModelBindings = GeneratorInternal.useIntermediateItem()?.dataModelBindings;
-
-  const prevRun = useRef<
-    | {
-        dataSources: ValidationDataSources;
-        result: AnyValidation[];
-      }
-    | undefined
-  >(undefined);
+  const bindings = Object.entries((dataModelBindings ?? {}) as Record<string, IDataModelReference>);
 
   return Validation.useFullState((state) => {
     if (!shouldValidate) {
       return emptyArray;
-    }
-    const nodeProcessedLast = registry.current.validationsProcessed[node.id];
-    const reSelectFromFields = nodeProcessedLast
-      ? nodeProcessedLast.initial !== state.processedLast.initial ||
-        nodeProcessedLast.incremental !== state.processedLast.incremental
-      : true;
-    const reSelectFromNode = prevRun.current ? prevRun.current.dataSources !== dataSources : true;
-    if (!reSelectFromNode && !reSelectFromFields && prevRun.current) {
-      // This runs every time the validation context changes. For performance reasons we want to avoid running all
-      // validations unless the state we care about has changed (or, if the data sources have changed).
-      return prevRun.current.result;
     }
 
     const validations: AnyValidation[] = [];
@@ -59,9 +37,7 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
       validations.push(...node.def.runComponentValidation(node as any, dataSources));
     }
 
-    for (const [bindingKey, { dataType, field }] of Object.entries(
-      (dataModelBindings ?? {}) as Record<string, IDataModelReference>,
-    )) {
+    for (const [bindingKey, { dataType, field }] of bindings) {
       const dataElementId = getDataElementIdForDataType(dataType) ?? dataType; // stateless does not have dataElementId
       const fieldValidations = state.state.dataModels[dataElementId]?.[field];
       if (fieldValidations) {
@@ -70,19 +46,10 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
     }
 
     const result = filter(validations, node, dataSources.nodeDataSelector);
-    const prevResult = prevRun.current?.result;
     registry.current.validationsProcessed[node.id] = state.processedLast;
-    prevRun.current = {
-      dataSources,
-      result,
-    };
 
     if (result.length === 0) {
       return emptyArray;
-    }
-
-    if (prevResult && deepEqual(prevResult, result)) {
-      return prevResult;
     }
 
     return result;
