@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { shouldValidateNode } from 'src/features/validation/StoreValidationsInNode';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesStore } from 'src/utils/layout/NodesContext';
 import type { ValidationsProcessedLast } from 'src/features/validation';
@@ -15,16 +16,19 @@ export function useWaitForNodesToValidate() {
       const cancel = window.cancelIdleCallback || window.cancelAnimationFrame;
 
       function check(): boolean {
-        const nodeIds = Object.keys(nodesStore.getState().nodeData);
+        const allNodeData = nodesStore.getState().nodeData;
+        const nodeIds = Object.keys(allNodeData);
         for (const nodeId of nodeIds) {
+          const nodeData = allNodeData[nodeId];
+          if (!nodeData || !('validations' in nodeData) || !shouldValidateNode(nodeData.layout)) {
+            // Node does not support validation
+            continue;
+          }
+
           const lastValidations = registry.current.validationsProcessed[nodeId];
-          if (
-            !(
-              lastValidations &&
-              lastValidations.initial === processedLast.initial &&
-              lastValidations.incremental === processedLast.incremental
-            )
-          ) {
+          const initialIsLatest = lastValidations?.initial === processedLast.initial;
+          const incrementalIsLatest = lastValidations?.incremental === processedLast.incremental;
+          if (!(lastValidations && initialIsLatest && incrementalIsLatest)) {
             return false;
           }
         }

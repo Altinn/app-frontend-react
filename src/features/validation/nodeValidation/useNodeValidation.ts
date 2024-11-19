@@ -23,9 +23,10 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
   const registry = GeneratorInternal.useRegistry();
   const validationDataSources = GeneratorData.useValidationDataSources();
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
-
   const getDataElementIdForDataType = GeneratorData.useGetDataElementIdForDataType();
+  const dataModelBindings = GeneratorInternal.useIntermediateItem()?.dataModelBindings;
 
+  const validationDataSourcesRef = useRef(validationDataSources);
   const prevValue = useRef<AnyValidation[] | undefined>(undefined);
 
   return Validation.useFullState((state) => {
@@ -33,7 +34,14 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
       return emptyArray;
     }
     const prevProcessedLast = registry.current.validationsProcessed[node.id];
-    if (prevProcessedLast === state.processedLast && prevValue.current) {
+    const reSelectFromValidationState = prevProcessedLast
+      ? prevProcessedLast.initial !== state.processedLast.initial ||
+        prevProcessedLast.incremental !== state.processedLast.incremental
+      : true;
+    const reSelectFromNode = validationDataSourcesRef.current !== validationDataSources;
+    if (!reSelectFromNode && !reSelectFromValidationState && prevValue.current) {
+      // This runs every time the validation context changes. For performance reasons we want to avoid running all
+      // validations unless the state we care about has changed (or, if the data sources have changed).
       return prevValue.current;
     }
 
@@ -48,10 +56,6 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
       validations.push(...node.def.runComponentValidation(node as any, validationDataSources));
     }
 
-    const dataModelBindings = validationDataSources.nodeDataSelector(
-      (picker) => picker(node)?.layout.dataModelBindings,
-      [node],
-    );
     for (const [bindingKey, { dataType, field }] of Object.entries(
       (dataModelBindings ?? {}) as Record<string, IDataModelReference>,
     )) {
@@ -64,6 +68,7 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
 
     const out = filter(validations, node, nodeDataSelector);
     registry.current.validationsProcessed[node.id] = state.processedLast;
+    validationDataSourcesRef.current = validationDataSources;
 
     if (prevValue.current && deepEqual(prevValue.current, out)) {
       return prevValue.current;

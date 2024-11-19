@@ -10,7 +10,7 @@ import { GeneratorCondition, StageFormValidation } from 'src/utils/layout/genera
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { AnyValidation, AttachmentValidation } from 'src/features/validation/index';
 import type { CompCategory } from 'src/layout/common';
-import type { TypesFromCategory } from 'src/layout/layout';
+import type { CompIntermediate, TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function StoreValidationsInNode() {
@@ -29,7 +29,7 @@ type Node = LayoutNode<TypesFromCategory<CompCategory.Form | CompCategory.Contai
 function StoreValidationsInNodeWorker() {
   const item = GeneratorInternal.useIntermediateItem()!;
   const node = GeneratorInternal.useParent() as Node;
-  const shouldValidate = !('renderAsSummary' in item && item.renderAsSummary);
+  const shouldValidate = shouldValidateNode(item);
 
   const freshValidations = useNodeValidation(node, shouldValidate);
   const validations = useUpdatedValidations(freshValidations, node);
@@ -81,4 +81,8 @@ function useUpdatedValidations(validations: AnyValidation[], node: Node) {
 
     return copy;
   });
+}
+
+export function shouldValidateNode(item: CompIntermediate): boolean {
+  return !('renderAsSummary' in item && item.renderAsSummary);
 }
