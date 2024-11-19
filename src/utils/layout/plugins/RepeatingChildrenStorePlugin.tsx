@@ -37,8 +37,10 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
         set((state) => {
           let changes = false;
           const nodeData = { ...state.nodeData };
-          const nodeRows: { [nodeId: string]: { newRows: RepChildrenRow[]; data: NodeData; internalProp: string } } =
-            {};
+          const nodeRows: {
+            [nodeId: string]: { newRows: (RepChildrenRow | undefined)[]; data: NodeData; internalProp: string };
+          } = {};
+
           for (const { node, rowIndex, plugin, extras } of requests) {
             if (typeof extras !== 'object' || !extras) {
               throw new Error('Extras must be an object');
@@ -46,12 +48,13 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
 
             const internalProp = plugin.settings.internalProp;
             const data = nodeData[node.id];
-            const existingRows = data && data.item && (data.item[internalProp] as RepChildrenRow[] | undefined);
+            const existingRows =
+              data && data.item && (data.item[internalProp] as (RepChildrenRow | undefined)[] | undefined);
             if (!existingRows) {
               continue;
             }
 
-            const existingRow = existingRows[rowIndex];
+            const existingRow = existingRows[rowIndex] ?? ({} as RepChildrenRow);
             const nextRow = { ...existingRow, ...extras, index: rowIndex } as RepChildrenRow;
             if (deepEqual(existingRow, nextRow)) {
               continue;
