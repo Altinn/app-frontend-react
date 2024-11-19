@@ -31,7 +31,7 @@ function StoreValidationsInNodeWorker() {
   const node = GeneratorInternal.useParent() as Node;
   const shouldValidate = !('renderAsSummary' in item && item.renderAsSummary);
 
-  const { validations: freshValidations, processedLast } = useNodeValidation(node, shouldValidate);
+  const freshValidations = useNodeValidation(node, shouldValidate);
   const validations = useUpdatedValidations(freshValidations, node);
 
   const shouldSetValidations = NodesInternal.useNodeData(node, (data) => !deepEqual(data.validations, validations));
@@ -54,15 +54,6 @@ function StoreValidationsInNodeWorker() {
   NodesStateQueue.useSetNodeProp(
     { node, prop: 'validationVisibility', value: visibilityToSet },
     visibilityToSet !== undefined,
-  );
-
-  const shouldSetProcessedLast = NodesInternal.useNodeData(
-    node,
-    (data) => data.validationsProcessedLast !== processedLast,
-  );
-  NodesStateQueue.useSetNodeProp(
-    { node, prop: 'validationsProcessedLast', value: processedLast, force: true },
-    shouldSetProcessedLast,
   );
 
   return null;

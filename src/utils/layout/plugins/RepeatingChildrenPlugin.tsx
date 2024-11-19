@@ -7,6 +7,7 @@ import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { TypesFromCategory } from 'src/layout/layout';
 import type { ChildIdMutator } from 'src/utils/layout/generator/GeneratorContext';
+import type { Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type {
@@ -245,8 +246,8 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
     return false;
   }
 
-  stateIsReady(state: DefPluginState<ToInternal<E>>, fullState: NodesContext): boolean {
-    if (!super.stateIsReady(state, fullState)) {
+  stateIsReady(state: DefPluginState<ToInternal<E>>, fullState: NodesContext, registry: Registry): boolean {
+    if (!super.stateIsReady(state, fullState, registry)) {
       return false;
     }
 

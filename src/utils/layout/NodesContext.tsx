@@ -518,12 +518,12 @@ const {
 
 export const NodesProvider = ({ children }: React.PropsWithChildren) => {
   const registry = useRegistry();
-  const processedLast = Validation.useProcessedLastRef();
+  const getProcessedLast = Validation.useGetProcessedLast();
 
   return (
     <Store.Provider
       registry={registry}
-      validationsProcessedLast={processedLast.current}
+      validationsProcessedLast={getProcessedLast()}
     >
       <ProvideGlobalContext registry={registry}>
         <GeneratorStagesEffects />
@@ -551,7 +551,7 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const layouts = Store.useSelector((s) => s.layouts);
   const markNotReady = NodesInternal.useMarkNotReady();
   const reset = Store.useSelector((s) => s.reset);
-  const processedLast = Validation.useProcessedLastRef();
+  const getProcessedLast = Validation.useGetProcessedLast();
   const pagesRef = useRef<LayoutPages>();
   if (!pagesRef.current) {
     pagesRef.current = new LayoutPages();
@@ -561,9 +561,9 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
     if (layouts !== latestLayouts) {
       markNotReady('new layouts');
       pagesRef.current = new LayoutPages();
-      reset(latestLayouts, processedLast.current);
+      reset(latestLayouts, getProcessedLast());
     }
-  }, [latestLayouts, layouts, markNotReady, reset, processedLast]);
+  }, [latestLayouts, layouts, markNotReady, reset, getProcessedLast]);
 
   const layoutMap = useMemo(() => {
     const out: { [id: string]: CompExternal } = {};
@@ -666,6 +666,7 @@ function MarkAsReady() {
  * have been added.
  */
 function InnerMarkAsReady() {
+  const store = Store.useStore();
   const markReady = Store.useSelector((s) => s.markReady);
   const readiness = Store.useSelector((s) => s.readiness);
   const hiddenViaRulesRan = Store.useSelector((s) => s.hiddenViaRulesRan);
@@ -693,21 +694,7 @@ function InnerMarkAsReady() {
       return false;
     }
 
-    for (const nodeData of Object.values(state.nodeData)) {
-      const def = getComponentDef(nodeData.layout.type) as LayoutComponent;
-      const nodeReady = def.stateIsReady(nodeData);
-      const pluginsReady = def.pluginStateIsReady(nodeData, state);
-      if (!nodeReady || !pluginsReady) {
-        generatorLog(
-          'logReadiness',
-          `Node ${nodeData.layout.id} is not ready yet because of ` +
-            `${nodeReady ? 'plugins' : pluginsReady ? 'node' : 'both node and plugins'}`,
-        );
-        return false;
-      }
-    }
-
-    return true;
+    return areAllNodesReady(state, registry.current);
   });
 
   const maybeReady = checkNodeStates && nodeStateReady;
@@ -719,20 +706,42 @@ function InnerMarkAsReady() {
       // isn't ready.
       return setIdleInterval(registry, () => {
         const awaiting = getAwaitingCommits();
-        if (awaiting === 0) {
-          markReady('idle and nothing to commit');
-          return true;
+        if (awaiting > 0) {
+          generatorLog('logReadiness', `Not quite ready yet (waiting for ${awaiting} commits)`);
+          return false;
         }
 
-        generatorLog('logReadiness', `Not quite ready yet (waiting for ${awaiting} commits)`);
-        return false;
+        if (!areAllNodesReady(store.getState(), registry.current)) {
+          return false;
+        }
+
+        markReady('idle, nothing to commit, all nodes ready');
+        return true;
       });
     }
 
     return () => undefined;
-  }, [maybeReady, getAwaitingCommits, markReady, registry]);
+  }, [maybeReady, getAwaitingCommits, markReady, registry, store]);
 
   return null;
+}
+
+function areAllNodesReady(state: NodesContext, registry: Registry) {
+  for (const nodeData of Object.values(state.nodeData)) {
+    const def = getComponentDef(nodeData.layout.type) as LayoutComponent;
+    const nodeReady = def.stateIsReady(nodeData);
+    const pluginsReady = def.pluginStateIsReady(nodeData, state, registry);
+    if (!nodeReady || !pluginsReady) {
+      generatorLog(
+        'logReadiness',
+        `Node ${nodeData.layout.id} is not ready yet because of ` +
+          `${nodeReady ? 'plugins' : pluginsReady ? 'node' : 'both node and plugins'}`,
+      );
+      return false;
+    }
+  }
+
+  return true;
 }
 
 const IDLE_COUNTDOWN = 3;

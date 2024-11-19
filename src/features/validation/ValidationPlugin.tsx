@@ -1,9 +1,10 @@
 import { CG } from 'src/codegen/CG';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
-import type { ComponentValidation, ValidationsProcessedLast } from 'src/features/validation/index';
+import type { ComponentValidation } from 'src/features/validation/index';
 import type { CompCategory } from 'src/layout/common';
-import type { TypesFromCategory } from 'src/layout/layout';
+import type { CompIntermediate, TypesFromCategory } from 'src/layout/layout';
+import type { Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type {
   DefPluginExtraState,
@@ -16,7 +17,6 @@ interface Config {
   extraState: {
     validations: ComponentValidation[];
     validationVisibility: number;
-    validationsProcessedLast: ValidationsProcessedLast;
   };
 }
 
@@ -49,7 +49,6 @@ export class ValidationPlugin extends NodeDefPlugin<Config> {
     return {
       validations: [],
       validationVisibility: 0,
-      validationsProcessedLast: { initial: undefined, incremental: undefined },
     };
   }
 
@@ -62,10 +61,11 @@ export class ValidationPlugin extends NodeDefPlugin<Config> {
     return `<${StoreValidationsInNode} />`;
   }
 
-  stateIsReady(state: DefPluginState<Config>, fullState: NodesContext): boolean {
+  stateIsReady(state: DefPluginState<Config>, fullState: NodesContext, registry: Registry): boolean {
+    const nodeId = (state.layout as CompIntermediate).id;
     return (
-      state.validationsProcessedLast.initial === fullState.validationsProcessedLast.initial &&
-      state.validationsProcessedLast.incremental === fullState.validationsProcessedLast.incremental
+      registry.validationsProcessed[nodeId]?.initial === fullState.validationsProcessedLast.initial &&
+      registry.validationsProcessed[nodeId]?.incremental === fullState.validationsProcessedLast.incremental
     );
   }
 }

@@ -3,6 +3,7 @@ import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import { typedBoolean } from 'src/utils/typing';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { IDataModelBindingsLikert } from 'src/layout/common.generated';
+import type { Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type {
@@ -83,8 +84,8 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
     return false;
   }
 
-  stateIsReady(state: DefPluginState<Config>, fullState: NodesContext): boolean {
-    if (!super.stateIsReady(state, fullState)) {
+  stateIsReady(state: DefPluginState<Config>, fullState: NodesContext, registry: Registry): boolean {
+    if (!super.stateIsReady(state, fullState, registry)) {
       return false;
     }
 

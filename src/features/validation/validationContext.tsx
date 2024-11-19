@@ -333,8 +333,6 @@ export type ValidationDataModelSelector = ReturnType<typeof Validation.useDataMo
 export type DataElementHasErrorsSelector = ReturnType<typeof Validation.useDataElementHasErrorsSelector>;
 
 export const Validation = {
-  useFullStateRef: () => useSelectorAsRef((state) => state.state),
-
   // Selectors. These are memoized, so they won't cause a re-render unless the selected fields change.
   useSelector: () => useDS((state) => state),
   useDataModelSelector: () => useDS((state) => state.state.dataModels),
@@ -364,8 +362,12 @@ export const Validation = {
   useUpdateDataModelValidations: () => useSelector((state) => state.updateDataModelValidations),
   useUpdateBackendValidations: () => useSelector((state) => state.updateBackendValidations),
 
-  useProcessedLast: () => useSelector((state) => state.processedLast),
-  useProcessedLastRef: () => useSelectorAsRef((state) => state.processedLast),
+  useFullState: <U,>(selector: (state: ValidationContext & Internals) => U): U =>
+    useSelector((state) => selector(state)),
+  useGetProcessedLast: () => {
+    const store = useStore();
+    return useCallback(() => store.getState().processedLast, [store]);
+  },
 
   useRef: () => useSelectorAsRef((state) => state),
   useLaxRef: () => useLaxSelectorAsRef((state) => state),
