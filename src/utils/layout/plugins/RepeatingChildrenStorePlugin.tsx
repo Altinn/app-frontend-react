@@ -8,6 +8,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepChildrenRow, RepeatingChildrenPlugin } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
+import type { NodeData } from 'src/utils/layout/types';
 
 type Plugin = RepeatingChildrenPlugin | LikertRowsPlugin;
 
@@ -36,6 +37,8 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
         set((state) => {
           let changes = false;
           const nodeData = { ...state.nodeData };
+          const nodeRows: { [nodeId: string]: { newRows: RepChildrenRow[]; data: NodeData; internalProp: string } } =
+            {};
           for (const { node, rowIndex, plugin, extras } of requests) {
             if (typeof extras !== 'object' || !extras) {
               throw new Error('Extras must be an object');
@@ -48,17 +51,22 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
               continue;
             }
 
-            const existingRow = existingRows ? existingRows[rowIndex] : {};
+            const existingRow = existingRows[rowIndex];
             const nextRow = { ...existingRow, ...extras, index: rowIndex } as RepChildrenRow;
             if (deepEqual(existingRow, nextRow)) {
               continue;
             }
 
             changes = true;
-            const newRows = [...(existingRows || [])];
-            newRows[rowIndex] = nextRow;
+            if (!nodeRows[node.id]) {
+              nodeRows[node.id] = { newRows: [...(existingRows || [])], data, internalProp };
+            }
+            nodeRows[node.id].newRows[rowIndex] = nextRow;
+          }
+
+          for (const [nodeId, { newRows, data, internalProp }] of Object.entries(nodeRows)) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            nodeData[node.id] = { ...data, item: { ...data.item, [internalProp]: newRows } as any };
+            nodeData[nodeId] = { ...data, item: { ...data.item, [internalProp]: newRows } as any };
           }
 
           return changes
