@@ -6,8 +6,7 @@ import { Validation } from 'src/features/validation/validationContext';
 import { implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type { AnyValidation, BaseValidation } from 'src/features/validation';
+import type { AnyValidation, BaseValidation, ValidationDataSources } from 'src/features/validation';
 import type { CompDef, ValidationFilter } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -21,39 +20,43 @@ const emptyArray: AnyValidation[] = [];
  */
 export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): AnyValidation[] {
   const registry = GeneratorInternal.useRegistry();
-  const validationDataSources = GeneratorData.useValidationDataSources();
-  const nodeDataSelector = NodesInternal.useNodeDataSelector();
+  const dataSources = GeneratorData.useValidationDataSources();
   const getDataElementIdForDataType = GeneratorData.useGetDataElementIdForDataType();
   const dataModelBindings = GeneratorInternal.useIntermediateItem()?.dataModelBindings;
 
-  const validationDataSourcesRef = useRef(validationDataSources);
-  const prevValue = useRef<AnyValidation[] | undefined>(undefined);
+  const prevRun = useRef<
+    | {
+        dataSources: ValidationDataSources;
+        result: AnyValidation[];
+      }
+    | undefined
+  >(undefined);
 
   return Validation.useFullState((state) => {
     if (!shouldValidate) {
       return emptyArray;
     }
-    const prevProcessedLast = registry.current.validationsProcessed[node.id];
-    const reSelectFromValidationState = prevProcessedLast
-      ? prevProcessedLast.initial !== state.processedLast.initial ||
-        prevProcessedLast.incremental !== state.processedLast.incremental
+    const nodeProcessedLast = registry.current.validationsProcessed[node.id];
+    const reSelectFromFields = nodeProcessedLast
+      ? nodeProcessedLast.initial !== state.processedLast.initial ||
+        nodeProcessedLast.incremental !== state.processedLast.incremental
       : true;
-    const reSelectFromNode = validationDataSourcesRef.current !== validationDataSources;
-    if (!reSelectFromNode && !reSelectFromValidationState && prevValue.current) {
+    const reSelectFromNode = prevRun.current ? prevRun.current.dataSources !== dataSources : true;
+    if (!reSelectFromNode && !reSelectFromFields && prevRun.current) {
       // This runs every time the validation context changes. For performance reasons we want to avoid running all
       // validations unless the state we care about has changed (or, if the data sources have changed).
-      return prevValue.current;
+      return prevRun.current.result;
     }
 
     const validations: AnyValidation[] = [];
     if (implementsValidateEmptyField(node.def)) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      validations.push(...node.def.runEmptyFieldValidation(node as any, validationDataSources));
+      validations.push(...node.def.runEmptyFieldValidation(node as any, dataSources));
     }
 
     if (implementsValidateComponent(node.def)) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      validations.push(...node.def.runComponentValidation(node as any, validationDataSources));
+      validations.push(...node.def.runComponentValidation(node as any, dataSources));
     }
 
     for (const [bindingKey, { dataType, field }] of Object.entries(
@@ -66,16 +69,19 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
       }
     }
 
-    const out = filter(validations, node, nodeDataSelector);
+    const result = filter(validations, node, dataSources.nodeDataSelector);
+    const prevResult = prevRun.current?.result;
     registry.current.validationsProcessed[node.id] = state.processedLast;
-    validationDataSourcesRef.current = validationDataSources;
+    prevRun.current = {
+      dataSources,
+      result,
+    };
 
-    if (prevValue.current && deepEqual(prevValue.current, out)) {
-      return prevValue.current;
+    if (prevResult && deepEqual(prevResult, result)) {
+      return prevResult;
     }
 
-    prevValue.current = out;
-    return out;
+    return result;
   });
 }
 
