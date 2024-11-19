@@ -305,11 +305,6 @@ export class ComponentConfig {
       from: 'src/utils/layout/NodesContext',
     });
 
-    const Registry = new CG.import({
-      import: 'Registry',
-      from: 'src/utils/layout/generator/GeneratorStages',
-    });
-
     const isFormComponent = this.config.category === CompCategory.Form;
     const isSummarizable = this.behaviors.isSummarizable;
 
@@ -394,7 +389,7 @@ export class ComponentConfig {
       const extraInEval = plugin.extraInEvalExpressions();
       extraInEval && evalLines.push(extraInEval);
 
-      readyCheckers.push(`${pluginRef(plugin)}.stateIsReady(state as any, fullState, registry)`);
+      readyCheckers.push(`${pluginRef(plugin)}.stateIsReady(state as any, fullState)`);
     }
 
     if (readyCheckers.length === 0) {
@@ -406,7 +401,7 @@ export class ComponentConfig {
       );
     } else {
       additionalMethods.push(
-        `pluginStateIsReady(state: ${NodeData}<'${this.type}'>, fullState: ${NodesContext}, registry: ${Registry}): boolean {
+        `pluginStateIsReady(state: ${NodeData}<'${this.type}'>, fullState: ${NodesContext}): boolean {
           return ${readyCheckers.join(' && ')};
         }`,
       );

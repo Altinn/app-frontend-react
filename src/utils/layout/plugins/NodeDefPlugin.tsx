@@ -4,7 +4,6 @@ import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImpor
 import type { SerializableSetting } from 'src/codegen/SerializableSetting';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver } from 'src/layout/LayoutComponent';
-import type { Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type { BaseNodeData, StateFactoryProps } from 'src/utils/layout/types';
@@ -195,7 +194,7 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
    * Checks if the state is ready. This can be overridden to add custom checks to ensure the state in this plugin
    * is ready for use.
    */
-  stateIsReady(_state: DefPluginState<Config>, _fullState: NodesContext, _registry: Registry): boolean {
+  stateIsReady(_state: DefPluginState<Config>, _fullState: NodesContext): boolean {
     return true;
   }
 

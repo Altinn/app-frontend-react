@@ -645,7 +645,7 @@ function MarkAsReady() {
       return false;
     }
 
-    return areAllNodesReady(state, registry.current);
+    return areAllNodesReady(state);
   });
 
   const maybeReady = checkNodeStates && nodeStateReady;
@@ -662,11 +662,7 @@ function MarkAsReady() {
           return false;
         }
 
-        if (!areAllNodesReady(store.getState(), registry.current)) {
-          return false;
-        }
-
-        markReady('idle, nothing to commit, all nodes ready');
+        markReady('idle, nothing to commit');
         return true;
       });
     }
@@ -677,11 +673,11 @@ function MarkAsReady() {
   return null;
 }
 
-function areAllNodesReady(state: NodesContext, registry: Registry) {
+function areAllNodesReady(state: NodesContext) {
   for (const nodeData of Object.values(state.nodeData)) {
     const def = getComponentDef(nodeData.layout.type) as LayoutComponent;
     const nodeReady = def.stateIsReady(nodeData);
-    const pluginsReady = def.pluginStateIsReady(nodeData, state, registry);
+    const pluginsReady = def.pluginStateIsReady(nodeData, state);
     if (!nodeReady || !pluginsReady) {
       generatorLog(
         'logReadiness',
