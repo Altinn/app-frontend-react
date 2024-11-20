@@ -74,7 +74,9 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
             ) : undefined
           }
         />
-        {textResourceBindings?.description && <Description description={textResourceBindings?.description} />}
+        {textResourceBindings?.description && (
+          <Description description={<Lang id={textResourceBindings?.description} />} />
+        )}
       </Grid>
       <ComponentStructureWrapper node={node}>
         <Textarea

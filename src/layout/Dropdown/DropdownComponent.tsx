@@ -101,7 +101,9 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
                 ) : undefined
               }
             />
-            {textResourceBindings?.description && <Description description={textResourceBindings?.description} />}
+            {textResourceBindings?.description && (
+              <Description description={<Lang id={textResourceBindings?.description} />} />
+            )}
           </Grid>
         )}
         <ComponentStructureWrapper node={node}>

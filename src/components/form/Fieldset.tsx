@@ -53,13 +53,13 @@ export const Fieldset = ({
         </div>
       }
       description={
-        description && (
+        description ? (
           <Description
             componentId={id}
             description={description}
             className={classes.description}
           />
-        )
+        ) : null
       }
       {...rest}
     >
