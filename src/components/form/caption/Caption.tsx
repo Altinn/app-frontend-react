@@ -50,9 +50,8 @@ export const Caption = ({
         {title}
         <RequiredIndicator required={required} />
         <OptionalIndicator
-          labelSettings={labelSettings}
           readOnly={false}
-          required={required}
+          optional={!required && !!labelSettings?.optionalIndicator}
         />
       </div>
     </DesignsystemetLabel>

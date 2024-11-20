@@ -4,14 +4,29 @@ import type { PropsWithChildren, ReactElement } from 'react';
 import { Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
 import type { LabelProps as DesignsystemetLabelProps } from '@digdir/designsystemet-react';
 
+type RequiredIndicatorProps =
+  | { required: true; requiredIndicator: ReactElement }
+  | { required?: false; requiredIndicator?: ReactElement };
+
 type LabelProps = {
   label: string;
-  required?: boolean;
+  optionalIndicator?: ReactElement;
   help?: ReactElement;
   className?: string;
-} & Pick<DesignsystemetLabelProps, 'htmlFor' | 'style'>;
+} & RequiredIndicatorProps &
+  Pick<DesignsystemetLabelProps, 'htmlFor' | 'style'>;
 
-export function Label({ label, required, htmlFor, style, help, className, children }: PropsWithChildren<LabelProps>) {
+export function Label({
+  label,
+  required,
+  requiredIndicator,
+  optionalIndicator,
+  htmlFor,
+  style,
+  help,
+  className,
+  children,
+}: PropsWithChildren<LabelProps>) {
   if (!label) {
     return children;
   }
@@ -26,7 +41,8 @@ export function Label({ label, required, htmlFor, style, help, className, childr
     >
       <div style={{ display: 'flex', gap: '0.5rem' }}>
         {label}
-        {required && ' *'}
+        {required && requiredIndicator}
+        {!required && optionalIndicator}
         {help}
       </div>
       {children}

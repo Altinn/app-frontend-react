@@ -7,6 +7,8 @@ import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { Description } from 'src/components/form/Description';
+import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
+import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -24,7 +26,7 @@ export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
 export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSelectProps) {
   const item = useNodeItem(node);
   const isValid = useIsValid(node);
-  const { id, readOnly, textResourceBindings, alertOnChange, grid } = item;
+  const { id, readOnly, textResourceBindings, alertOnChange, grid, required, labelSettings } = item;
   const { options, isFetching, selectedValues, setData } = useGetOptions(node, 'multi');
   const debounce = FD.useDebounceImmediately();
   const { langAsString, lang } = useLanguage(node);
@@ -77,6 +79,14 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
           <Label
             htmlFor={id}
             label={langAsString(textResourceBindings?.title)}
+            required={required}
+            requiredIndicator={<RequiredIndicator required={required} />}
+            optionalIndicator={
+              <OptionalIndicator
+                optional={!required && !!labelSettings?.optionalIndicator}
+                readOnly={readOnly}
+              />
+            }
             help={
               textResourceBindings?.help ? (
                 <HelpText

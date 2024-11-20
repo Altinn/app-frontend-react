@@ -8,6 +8,8 @@ import { formatDate, isValid as isValidDate } from 'date-fns';
 import { Button } from 'src/app-components/button/Button';
 import { Label } from 'src/app-components/Label/Label';
 import { Description } from 'src/components/form/Description';
+import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
+import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -42,6 +44,7 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
     dataModelBindings,
     textResourceBindings,
     grid,
+    labelSettings,
   } = useNodeItem(node);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -75,6 +78,14 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
         <Label
           htmlFor={id}
           label={langAsString(textResourceBindings?.title)}
+          required={required}
+          requiredIndicator={<RequiredIndicator required={required} />}
+          optionalIndicator={
+            <OptionalIndicator
+              optional={!required && !!labelSettings?.optionalIndicator}
+              readOnly={readOnly}
+            />
+          }
           help={
             textResourceBindings?.help ? (
               <HelpText

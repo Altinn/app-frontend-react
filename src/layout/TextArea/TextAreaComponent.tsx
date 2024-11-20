@@ -5,6 +5,8 @@ import { Grid } from '@material-ui/core';
 
 import { Label } from 'src/app-components/Label/Label';
 import { Description } from 'src/components/form/Description';
+import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
+import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getDescriptionId } from 'src/components/label/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
@@ -24,8 +26,18 @@ export type ITextAreaProps = Readonly<PropsFromGenericComponent<'TextArea'>>;
 export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
   const { langAsString } = useLanguage();
   const isValid = useIsValid(node);
-  const { id, readOnly, textResourceBindings, dataModelBindings, saveWhileTyping, autocomplete, maxLength, grid } =
-    useNodeItem(node);
+  const {
+    id,
+    readOnly,
+    textResourceBindings,
+    dataModelBindings,
+    saveWhileTyping,
+    autocomplete,
+    maxLength,
+    grid,
+    required,
+    labelSettings,
+  } = useNodeItem(node);
   const characterLimit = useCharacterLimit(maxLength);
   const {
     formData: { simpleBinding: value },
@@ -42,6 +54,14 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
         <Label
           htmlFor={id}
           label={langAsString(textResourceBindings?.title)}
+          required={required}
+          requiredIndicator={<RequiredIndicator required={required} />}
+          optionalIndicator={
+            <OptionalIndicator
+              optional={!required && !!labelSettings?.optionalIndicator}
+              readOnly={readOnly}
+            />
+          }
           help={
             textResourceBindings?.help ? (
               <HelpText

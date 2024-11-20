@@ -8,6 +8,8 @@ import { Input } from 'src/app-components/Input/Input';
 import { NumericInput } from 'src/app-components/Input/NumericInput';
 import { Label } from 'src/app-components/Label/Label';
 import { Description } from 'src/components/form/Description';
+import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
+import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getDescriptionId } from 'src/components/label/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
@@ -166,7 +168,7 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
 
 export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, overrideDisplay }) => {
   const { langAsString } = useLanguage();
-  const { textResourceBindings, grid, id } = useNodeItem(node);
+  const { textResourceBindings, grid, id, required, readOnly, labelSettings } = useNodeItem(node);
 
   return (
     <>
@@ -177,6 +179,14 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
         <Label
           htmlFor={id}
           label={langAsString(textResourceBindings?.title)}
+          required={required}
+          requiredIndicator={<RequiredIndicator required={required} />}
+          optionalIndicator={
+            <OptionalIndicator
+              optional={!required && !!labelSettings?.optionalIndicator}
+              readOnly={readOnly}
+            />
+          }
           help={
             textResourceBindings?.help ? (
               <HelpText
