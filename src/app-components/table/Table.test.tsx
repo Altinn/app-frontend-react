@@ -29,7 +29,6 @@ const actionButtons = [
   },
 ];
 
-// JSON Schema
 const schema: JSONSchema7 = {
   type: 'object',
   properties: {

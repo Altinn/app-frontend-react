@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Button, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
-import { isValid, parseISO } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { pick } from 'dot-object';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -52,7 +52,7 @@ function formatValue(value: FormDataValue): string {
   if (typeof value === 'string') {
     const parsedDate = parseISO(value);
     if (isValid(parsedDate)) {
-      //return format(parsedDate, 'dd.MM.yyyy');
+      return format(parsedDate, 'dd.MM.yyyy');
     }
     return value;
   }
