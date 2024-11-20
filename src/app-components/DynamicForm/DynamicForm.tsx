@@ -17,7 +17,7 @@ export interface DynamicFormProps {
   locale?: string;
 }
 
-export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFormProps) {
+export function DynamicForm({ schema, onChange, initialData }: DynamicFormProps) {
   const [formData, setFormData] = useState<FormDataObject>(initialData || {});
 
   useEffect(() => {
