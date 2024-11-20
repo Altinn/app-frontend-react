@@ -6,6 +6,7 @@ import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 import { CircleIcon } from 'src/components/CircleIcon';
 import classes from 'src/components/organisms/AltinnAppHeaderMenu.module.css';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { logoutUrlAltinn } from 'src/utils/urls/urlHelper';
 import type { IParty } from 'src/types/shared';
 
@@ -15,6 +16,8 @@ export interface IAltinnAppHeaderMenuProps {
 }
 
 export function AltinnAppHeaderMenu({ party, logoColor }: IAltinnAppHeaderMenuProps) {
+  const { langAsString } = useLanguage();
+
   if (!party) {
     return null;
   }
@@ -26,6 +29,7 @@ export function AltinnAppHeaderMenu({ party, logoColor }: IAltinnAppHeaderMenuPr
           size='sm'
           variant='tertiary'
           style={{ padding: 0 }}
+          aria-label={langAsString('general.header_profile_icon_label')}
         >
           <CircleIcon
             size='1.5rem'
