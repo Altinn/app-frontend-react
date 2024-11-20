@@ -2,7 +2,10 @@ import React from 'react';
 import type { PropsWithChildren, ReactElement } from 'react';
 
 import { Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
+import cn from 'classnames';
 import type { LabelProps as DesignsystemetLabelProps } from '@digdir/designsystemet-react';
+
+import classes from 'src/app-components/Label/Label.module.css';
 
 type RequiredIndicatorProps =
   | { required: true; requiredIndicator: ReactElement }
@@ -32,20 +35,20 @@ export function Label({
   }
 
   return (
-    <DesignsystemetLabel
-      weight='medium'
-      size='md'
-      htmlFor={htmlFor}
-      className={className}
-      style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', ...style }}
-    >
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
+    <>
+      <DesignsystemetLabel
+        weight='medium'
+        size='md'
+        htmlFor={htmlFor}
+        className={cn(classes.label, className)}
+        style={style}
+      >
         {label}
         {required && requiredIndicator}
         {!required && optionalIndicator}
         {help}
-      </div>
+      </DesignsystemetLabel>
       {children}
-    </DesignsystemetLabel>
+    </>
   );
 }
