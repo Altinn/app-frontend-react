@@ -3,11 +3,13 @@ import { useCallback, useMemo } from 'react';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { typedBoolean } from 'src/utils/typing';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeData, NodeItemFromNode } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
@@ -61,12 +63,21 @@ export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
 }
 
 const emptyArray: LayoutNode[] = [];
-export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): LayoutNode[] {
-  return NodesInternal.useNodeData(
-    parent,
-    (nodeData) =>
+export function useNodeDirectChildren(
+  parent: LayoutNode | undefined,
+  restriction?: TraversalRestriction,
+): LayoutNode[] {
+  return (
+    NodesInternal.useNodeData(parent, (nodeData) => {
+      if (!parent) {
+        return emptyArray;
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      parent.def.pickDirectChildren(nodeData as any, restriction) ?? emptyArray,
+      const out = parent.def.pickDirectChildren(nodeData as any, restriction);
+      const nodes = parent.page.layoutSet;
+      return out?.map((id) => nodes.findById(id)).filter(typedBoolean);
+    }) ?? emptyArray
   );
 }
 
@@ -90,6 +101,9 @@ export function useNodeFormDataSelector() {
   const nodeSelector = NodesInternal.useNodeDataSelector();
   const formDataSelector = FD.useDebouncedSelector();
 
+  return useInnerNodeFormDataSelector(nodeSelector, formDataSelector);
+}
+export function useInnerNodeFormDataSelector(nodeSelector: NodeDataSelector, formDataSelector: FormDataSelector) {
   return useCallback(
     <N extends LayoutNode | undefined>(node: N): NodeFormData<N> => {
       const dataModelBindings = nodeSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);

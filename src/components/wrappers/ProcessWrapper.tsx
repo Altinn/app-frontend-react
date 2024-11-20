@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Route, Routes } from 'react-router-dom';
 
-import { Button } from '@digdir/designsystemet-react';
 import Grid from '@material-ui/core/Grid';
 
+import { Button } from 'src/app-components/button/Button';
 import { Form, FormFirstPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
@@ -27,7 +27,13 @@ import {
   useNavigationPath,
   useQueryKeysAsString,
 } from 'src/features/routing/AppRoutingContext';
-import { TaskKeys, useIsCurrentTask, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
+import {
+  TaskKeys,
+  useIsCurrentTask,
+  useIsValidTaskId,
+  useNavigateToTask,
+  useStartUrl,
+} from 'src/hooks/useNavigatePage';
 import { implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
@@ -41,7 +47,7 @@ interface NavigationErrorProps {
 
 function NavigationError({ label }: NavigationErrorProps) {
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-  const { navigateToTask } = useNavigatePage();
+  const navigateToTask = useNavigateToTask();
 
   const appName = useAppName();
   const appOwner = useAppOwner();
@@ -65,6 +71,7 @@ function NavigationError({ label }: NavigationErrorProps) {
           <div className={classes.navigationError}>
             <Button
               variant='secondary'
+              size='md'
               onClick={() => {
                 navigateToTask(currentTaskId);
               }}
@@ -104,7 +111,7 @@ export function NavigateToStartUrl() {
 
 export const ProcessWrapper = () => {
   const isCurrentTask = useIsCurrentTask();
-  const { isValidTaskId } = useNavigatePage();
+  const isValidTaskId = useIsValidTaskId();
   const taskIdParam = useNavigationParam('taskId');
   const taskType = useGetTaskTypeById()(taskIdParam);
   const realTaskType = useRealTaskType();

@@ -235,7 +235,6 @@ export function useRegistry() {
       removeNodes: [],
       setNodeProps: [],
       setRowExtras: [],
-      setRowUuid: [],
       setPageProps: [],
     },
     commitTimeout: null,
@@ -397,9 +396,7 @@ export const GeneratorStages = {
  * finished).
  */
 function useInitialRunNum() {
-  const runNumberRef = NodesStore.useSelectorAsRef((state) => state.stages.runNum);
-
-  const ref = useRef(runNumberRef.current);
+  const ref = useRef(NodesStore.useStaticSelector((state) => state.stages.runNum));
   return ref.current;
 }
 
