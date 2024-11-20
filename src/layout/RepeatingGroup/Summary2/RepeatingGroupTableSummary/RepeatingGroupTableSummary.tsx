@@ -63,7 +63,7 @@ export const RepeatingGroupTableSummary = ({
       className={cn(classes.summaryWrapper)}
       data-testid={'summary-repeating-group-component'}
     >
-      <Table className={isSmall && tableClasses.mobileTable}>
+      <Table className={isSmall ? tableClasses.mobileTable : undefined}>
         <Caption title={<Lang id={title} />} />
         <Table.Head>
           <Table.Row>
@@ -97,7 +97,7 @@ export const RepeatingGroupTableSummary = ({
                   align='right'
                   className={tableClasses.buttonCell}
                 >
-                  {row?.items && row?.items?.length > 0 && <EditButton componentNode={childNodes[0]} />}
+                  {row?.itemIds && row?.itemIds?.length > 0 && <EditButton componentNode={childNodes[0]} />}
                 </Table.Cell>
               )}
             </Table.Row>
