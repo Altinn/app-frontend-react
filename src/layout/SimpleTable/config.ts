@@ -69,5 +69,11 @@ export const Config = new CG.component({
     ),
   )
   .addProperty(
+    new CG.prop(
+      'enableEdit',
+      new CG.bool().setTitle('Enable delete').setDescription('If true, will allow user to edit row').optional(),
+    ),
+  )
+  .addProperty(
     new CG.prop('size', new CG.enum('sm', 'md', 'lg').setTitle('Size').setDescription('Size of table.').optional()),
   );

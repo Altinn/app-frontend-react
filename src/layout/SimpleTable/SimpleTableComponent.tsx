@@ -11,18 +11,17 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import { AddToListModal, isJSONSchema7Definition } from 'src/layout/AddToList/AddToList';
+import { AddToListModal } from 'src/layout/AddToList/AddToList';
+import { isFormDataObjectArray, isValidItemsSchema } from 'src/layout/SimpleTable/typeguards';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { TableActionButton } from 'src/app-components/table/Table';
+import type { FormDataObject, TableActionButton } from 'src/app-components/table/Table';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 type TableComponentProps = PropsFromGenericComponent<'SimpleTable'>;
 
 export function SimpleTableComponent({ node }: TableComponentProps) {
   const item = useNodeItem(node);
-
   const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
-
   const removeFromList = FD.useRemoveFromListCallback();
   const { title, description, help } = item.textResourceBindings ?? {};
   const { elementAsString } = useLanguage();
@@ -30,27 +29,13 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
   const isMobile = useIsMobile();
   const data = formData.tableData;
   const { schemaLookup } = DataModels.useFullStateRef().current;
-
   const [showEdit, setShowEdit] = useState(false);
-
   const [editItemIndex, setEditItemIndex] = useState<number>(-1);
   const setMultiLeafValues = FD.useSetMultiLeafValues();
 
   const schema = schemaLookup[item.dataModelBindings.tableData.dataType].getSchemaForPath(
     item.dataModelBindings.tableData.field,
   )[0];
-
-  if (!Array.isArray(data)) {
-    return null;
-  }
-
-  if (data.length < 1) {
-    return null;
-  }
-
-  if (!isJSONSchema7Definition(schema?.items)) {
-    return null;
-  }
 
   const actionButtons: TableActionButton[] = [];
 
@@ -70,7 +55,9 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
       icon: <DeleteIcon />,
       color: 'danger',
     });
+  }
 
+  if (item.enableEdit) {
     actionButtons.push({
       onClick: (idx, _) => {
         setEditItemIndex(idx);
@@ -84,12 +71,16 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
   }
 
   function handleChange(formProps, itemIndex: number) {
-    // Filter changes by comparing formProps with the original formData
+    if (!isFormDataObjectArray(formData.tableData)) {
+      return;
+    }
+
+    const existingData = formData.tableData as FormDataObject[];
+
     const changes = Object.entries(formProps)
       .filter(([key, value]) => {
-        // @ts-ignore
-        const originalValue = formData.tableData[itemIndex]?.[key];
-        return originalValue !== value; // Only include changes
+        const originalValue = existingData[itemIndex]?.[key];
+        return originalValue !== value;
       })
       .map(([key, value]) => ({
         reference: {
@@ -103,6 +94,21 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
       setMultiLeafValues({ changes });
     }
   }
+
+  if (!Array.isArray(data)) {
+    return null;
+  }
+
+  if (data.length < 1) {
+    return null;
+  }
+
+  if (!isValidItemsSchema(schema?.items)) {
+    return null;
+  }
+
+  const itemSchema = schema.items;
+
   return (
     <>
       {showEdit && editItemIndex > -1 && formData.tableData && formData.tableData[editItemIndex] && (
@@ -134,27 +140,28 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
           )
         }
         data={data}
+        stickyHeader={true}
         columns={item.columns.map((config) => ({
           ...config,
           header: <Lang id={config.header} />,
-          renderCell: config.component
-            ? (values, rowData, rowIndex) => (
-                <FieldRenderer
-                  rowIndex={rowIndex}
-                  fieldKey={config.accessors[0]}
-                  // @ts-ignore
-                  fieldSchema={schema.items.properties![config.accessors[0]]}
-                  formData={data[rowIndex]}
-                  component={config.component}
-                  handleChange={(fieldName, value) => {
-                    const valueToUpdate = data.find((_, idx) => idx === rowIndex);
-                    const nextValue = { ...valueToUpdate, [`${fieldName}`]: value };
-                    handleChange(nextValue, rowIndex);
-                  }}
-                  schema={schema}
-                />
-              )
-            : undefined,
+          renderCell:
+            config.component || config.enableInlineEditing
+              ? (values, rowData, rowIndex) => (
+                  <FieldRenderer
+                    rowIndex={rowIndex}
+                    fieldKey={config.accessors[0]}
+                    fieldSchema={itemSchema.properties[config.accessors[0]]}
+                    formData={data[rowIndex]}
+                    component={config.component}
+                    handleChange={(fieldName, value) => {
+                      const valueToUpdate = data.find((_, idx) => idx === rowIndex);
+                      const nextValue = { ...valueToUpdate, [`${fieldName}`]: value };
+                      handleChange(nextValue, rowIndex);
+                    }}
+                    schema={schema}
+                  />
+                )
+              : undefined,
         }))}
         mobile={isMobile}
         actionButtons={actionButtons}

@@ -39,6 +39,7 @@ interface DataTableProps {
   mobile?: boolean;
   size?: 'sm' | 'md' | 'lg';
   zebra?: boolean;
+  stickyHeader?: boolean;
 }
 
 function formatValue(value: FormDataValue): string {
@@ -77,19 +78,8 @@ export function AppTable({
   actionButtonHeader,
   size,
   zebra,
+  stickyHeader,
 }: DataTableProps) {
-  // const ajv = new Ajv();
-  //
-  // console.log(JSON.stringify(schema, null, 2));
-
-  // const validate = ajv.compile(schema);
-  // const isValid = validate(data);
-  //
-  // if (!isValid) {
-  //   console.error('Data validation failed:', validate.errors);
-  //   return <div>Data validation error</div>;
-  // }
-
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
 
   return (
@@ -97,12 +87,18 @@ export function AppTable({
       size={size || 'sm'}
       className={cn(classes.table, { [classes.mobileTable]: mobile })}
       zebra={zebra}
+      stickyHeader={stickyHeader}
     >
       {caption}
       <Table.Head>
         <Table.Row>
           {columns.map((col, index) => (
-            <Table.HeaderCell key={index}>{col.header}</Table.HeaderCell>
+            <Table.HeaderCell
+              style={stickyHeader ? { zIndex: 2 } : {}}
+              key={index}
+            >
+              {col.header}
+            </Table.HeaderCell>
           ))}
           {actionButtons && actionButtons.length > 0 && (
             <Table.HeaderCell>

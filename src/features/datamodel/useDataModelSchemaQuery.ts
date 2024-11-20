@@ -58,6 +58,9 @@ export class SchemaLookupTool {
   ) {}
 
   public getSchemaForPath(path: string): SchemaLookupResult {
+    // console.log('this.cache');
+    // console.log(JSON.stringify(this.cache, null, 2));
+
     if (path in this.cache) {
       return this.cache[path];
     }

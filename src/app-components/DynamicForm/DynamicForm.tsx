@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
-import { Popover, Radio, Textfield } from '@digdir/designsystemet-react';
+import { Radio, Textfield } from '@digdir/designsystemet-react';
+import { isValid, parseISO } from 'date-fns';
 import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
-
-import styles from 'src/layout/Datepicker/Calendar.module.css';
-import { DatePickerCalendar } from 'src/layout/Datepicker/DatePickerCalendar';
-import { DatePickerInput } from 'src/layout/Datepicker/DatePickerInput';
-import { getDateFormat, getLocale, getSaveFormattedDateString } from 'src/utils/dateHelpers';
 
 export type FormDataValue = string | number | boolean | null | FormDataValue[] | { [key: string]: FormDataValue };
 
@@ -32,7 +28,6 @@ export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFo
 
   const handleChange = (key: string, value: FormDataValue) => {
     const newData = { ...formData, [key]: value };
-    // setFormData(newData);
     onChange(newData);
   };
 
@@ -47,7 +42,6 @@ export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFo
           handleChange={handleChange}
           schema={schema}
           renderFields={renderFields}
-          locale={locale}
         />
       ));
     }
@@ -71,8 +65,12 @@ interface FieldRendererProps {
   schema: JSONSchema7;
   component?: Component;
   renderFields?: (currentSchema: JSONSchema7) => React.ReactNode | null;
-  locale?: string;
 }
+
+const isValidDate = (dateString: string) => {
+  const parsedValue = parseISO(dateString);
+  return isValid(parsedValue);
+};
 
 export function FieldRenderer({
   rowIndex,
@@ -83,7 +81,6 @@ export function FieldRenderer({
   schema,
   component,
   renderFields,
-  locale,
 }: FieldRendererProps) {
   if (typeof fieldSchema === 'boolean') {
     return null;
@@ -123,14 +120,16 @@ export function FieldRenderer({
 
     switch (renderType) {
       case 'string':
-        if (format === 'date') {
+        if (format === 'date' || isValidDate(formData[fieldKey] as string)) {
           return (
-            <DateField
-              fieldKey={fieldKey}
-              formData={formData}
-              handleChange={handleChange}
+            <Textfield
+              description=''
+              error=''
+              size='sm'
               required={required}
-              locale={locale}
+              value={(formData[fieldKey] as string) || ''}
+              onChange={(e) => handleChange(fieldKey, e.target.value)}
+              type={'date'}
             />
           );
         }
@@ -236,69 +235,4 @@ export function FieldRenderer({
         return null;
     }
   }
-}
-
-interface DateFieldProps {
-  fieldKey: string;
-  formData: FormDataObject;
-  handleChange: (key: string, value: FormDataValue) => void;
-  required?: boolean;
-  locale?: string;
-}
-
-function DateField({ fieldKey, formData, handleChange, required, locale }: DateFieldProps) {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isDialogOpen, setIsDialogOpen] = useState(true);
-  const currentLocale = getLocale(locale ?? 'nb');
-  const dateFormat = getDateFormat('dd.MM.yyyy', currentLocale.code);
-
-  return (
-    <div
-      key={fieldKey}
-      style={{ marginBottom: '10px' }}
-    >
-      <Popover
-        portal={false}
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        size='lg'
-        placement='top'
-      >
-        <Popover.Trigger
-          onClick={() => setIsDialogOpen(!isDialogOpen)}
-          asChild={true}
-        >
-          {isDialogOpen && (
-            <DatePickerInput
-              id={fieldKey}
-              datepickerFormat={dateFormat}
-              timeStamp={false}
-              value={(formData[fieldKey] as string) || ''}
-            />
-          )}
-        </Popover.Trigger>
-        <Popover.Content
-          className={styles.calendarWrapper}
-          aria-modal
-          autoFocus={true}
-        >
-          <DatePickerCalendar
-            id={`id-${DatePickerCalendar}`}
-            locale={currentLocale.code}
-            selectedDate={selectedDate}
-            isOpen={isDialogOpen}
-            onSelect={(date: Date) => {
-              setSelectedDate(date);
-              const formattedDate = getSaveFormattedDateString(date, false);
-              handleChange(fieldKey, formattedDate);
-              setIsDialogOpen(!isDialogOpen);
-            }}
-            required={required}
-            maxDate={new Date(new Date().setFullYear(new Date().getFullYear() + 100))}
-            minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 100))}
-          />
-        </Popover.Content>
-      </Popover>
-    </div>
-  );
 }
