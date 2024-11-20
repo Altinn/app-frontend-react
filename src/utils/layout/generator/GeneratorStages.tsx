@@ -402,7 +402,7 @@ function useInitialRunNum() {
 function useShouldRenderOrRun(stage: Stage, isNew: boolean, restartReason: 'hook' | 'component') {
   const initialRun = useInitialRunNum();
 
-  const [shouldRenderOrRun, shouldRestart] = NodesStore.useMemoSelector((state) => {
+  const [shouldRenderOrRun, shouldRestart] = NodesStore.useShallowSelector((state) => {
     if (isNew && state.stages.currentStage === StageFinished) {
       return [false, true];
     }
@@ -415,7 +415,6 @@ function useShouldRenderOrRun(stage: Stage, isNew: boolean, restartReason: 'hook
 
   // When new hooks and components are registered and the stages have finished (typically when a new
   // row in a repeating group is added, and thus new nodes are being generated), restart the stages.
-  const restart = NodesStore.useStaticSelector((state) => state.stages.restart);
   const store = NodesStore.useStore();
   useEffect(() => {
     const state = store.getState();
@@ -426,9 +425,9 @@ function useShouldRenderOrRun(stage: Stage, isNew: boolean, restartReason: 'hook
     const isOnLastStage = state.stages.currentStage === List[List.length - 1];
 
     if (shouldRestart && isOnLastStage) {
-      restart(restartReason);
+      state.stages.restart(restartReason);
     }
-  }, [restart, restartReason, shouldRestart, store]);
+  }, [restartReason, shouldRestart, store]);
 
   return shouldRenderOrRun;
 }
