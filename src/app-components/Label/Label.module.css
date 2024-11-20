@@ -2,4 +2,5 @@
   padding-bottom: var(--fds-spacing-2);
   display: flex;
   gap: var(--fds-spacing-1);
+  align-items: center;
 }
