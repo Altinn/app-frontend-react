@@ -98,10 +98,12 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
                 </HelpText>
               ) : undefined
             }
+            description={
+              textResourceBindings?.description ? (
+                <Description description={<Lang id={textResourceBindings?.description} />} />
+              ) : undefined
+            }
           />
-          {textResourceBindings?.description && (
-            <Description description={<Lang id={textResourceBindings?.description} />} />
-          )}
         </Grid>
         <ComponentStructureWrapper node={node}>
           <Combobox

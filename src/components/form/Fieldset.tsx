@@ -59,7 +59,7 @@ export const Fieldset = ({
             description={description}
             className={classes.description}
           />
-        ) : null
+        ) : undefined
       }
       {...rest}
     >

@@ -15,6 +15,7 @@ type LabelProps = {
   label: string;
   optionalIndicator?: ReactElement;
   help?: ReactElement;
+  description?: ReactElement;
   className?: string;
 } & RequiredIndicatorProps &
   Pick<DesignsystemetLabelProps, 'htmlFor' | 'style'>;
@@ -27,6 +28,7 @@ export function Label({
   htmlFor,
   style,
   help,
+  description,
   className,
   children,
 }: PropsWithChildren<LabelProps>) {
@@ -40,7 +42,7 @@ export function Label({
         weight='medium'
         size='md'
         htmlFor={htmlFor}
-        className={cn(classes.label, className)}
+        className={cn({ [classes.bottomPadding]: !description }, classes.label, className)}
         style={style}
       >
         {label}
@@ -48,6 +50,7 @@ export function Label({
         {!required && optionalIndicator}
         {help}
       </DesignsystemetLabel>
+      {description && <span className={classes.bottomPadding}>{description}</span>}
       {children}
     </>
   );

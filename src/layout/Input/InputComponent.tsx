@@ -201,10 +201,12 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
                 </HelpText>
               ) : undefined
             }
+            description={
+              textResourceBindings?.description ? (
+                <Description description={<Lang id={textResourceBindings?.description} />} />
+              ) : undefined
+            }
           />
-          {textResourceBindings?.description && (
-            <Description description={<Lang id={textResourceBindings?.description} />} />
-          )}
         </Grid>
       )}
       <ComponentStructureWrapper node={node}>
