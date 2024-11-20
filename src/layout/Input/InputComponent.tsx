@@ -170,36 +170,40 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
   const { langAsString } = useLanguage();
   const { textResourceBindings, grid, id, required, readOnly, labelSettings } = useNodeItem(node);
 
+  const renderLabel = overrideDisplay?.renderLabel ?? true;
+
   return (
     <>
-      <Grid
-        item
-        {...gridBreakpoints(grid?.labelGrid)}
-      >
-        <Label
-          htmlFor={id}
-          label={langAsString(textResourceBindings?.title)}
-          required={required}
-          requiredIndicator={<RequiredIndicator required={required} />}
-          optionalIndicator={
-            <OptionalIndicator
-              optional={!required && !!labelSettings?.optionalIndicator}
-              readOnly={readOnly}
-            />
-          }
-          help={
-            textResourceBindings?.help ? (
-              <HelpText
-                id={`${id}-helptext`}
-                title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
-              >
-                <Lang id={textResourceBindings?.help} />
-              </HelpText>
-            ) : undefined
-          }
-        />
-        {textResourceBindings?.description && <Description description={textResourceBindings?.description} />}
-      </Grid>
+      {renderLabel && (
+        <Grid
+          item
+          {...gridBreakpoints(grid?.labelGrid)}
+        >
+          <Label
+            htmlFor={id}
+            label={langAsString(textResourceBindings?.title)}
+            required={required}
+            requiredIndicator={<RequiredIndicator required={required} />}
+            optionalIndicator={
+              <OptionalIndicator
+                optional={!required && !!labelSettings?.optionalIndicator}
+                readOnly={readOnly}
+              />
+            }
+            help={
+              textResourceBindings?.help ? (
+                <HelpText
+                  id={`${id}-helptext`}
+                  title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
+                >
+                  <Lang id={textResourceBindings?.help} />
+                </HelpText>
+              ) : undefined
+            }
+          />
+          {textResourceBindings?.description && <Description description={textResourceBindings?.description} />}
+        </Grid>
+      )}
       <ComponentStructureWrapper node={node}>
         <InputVariant
           node={node}
