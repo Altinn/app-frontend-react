@@ -186,8 +186,9 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
             requiredIndicator={<RequiredIndicator required={required} />}
             optionalIndicator={
               <OptionalIndicator
-                optional={!required && !!labelSettings?.optionalIndicator}
                 readOnly={readOnly}
+                required={required}
+                showOptionalMarking={!!labelSettings?.optionalIndicator}
               />
             }
             help={

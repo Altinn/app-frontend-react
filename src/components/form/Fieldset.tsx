@@ -41,7 +41,8 @@ export const Fieldset = ({
           <RequiredIndicator required={required} />
           <OptionalIndicator
             readOnly={false}
-            optional={!required && !!labelSettings?.optionalIndicator}
+            required={required}
+            showOptionalMarking={!!labelSettings?.optionalIndicator}
           />
           {helpText && (
             <HelpTextContainer

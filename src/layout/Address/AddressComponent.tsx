@@ -61,7 +61,6 @@ export function AddressComponent({ node }: IAddressProps) {
   const slowZip = typeof zipCodeDebounced === 'string' ? zipCodeDebounced : undefined;
   const postPlaceQueryData = usePostPlaceQuery(slowZip, !hasValidationErrors(bindingValidations?.zipCode));
   useEffect(() => updatePostPlace(postPlaceQueryData), [postPlaceQueryData, updatePostPlace]);
-  const optional = !required && !!labelSettings?.optionalIndicator;
 
   return (
     <div
@@ -77,7 +76,8 @@ export function AddressComponent({ node }: IAddressProps) {
           optionalIndicator={
             <OptionalIndicator
               readOnly={readOnly}
-              optional={optional}
+              required={required}
+              showOptionalMarking={!!labelSettings?.optionalIndicator}
             />
           }
         >
@@ -112,7 +112,8 @@ export function AddressComponent({ node }: IAddressProps) {
             optionalIndicator={
               <OptionalIndicator
                 readOnly={readOnly}
-                optional={optional}
+                required={required}
+                showOptionalMarking={!!labelSettings?.optionalIndicator}
               />
             }
           >
@@ -153,7 +154,8 @@ export function AddressComponent({ node }: IAddressProps) {
             optionalIndicator={
               <OptionalIndicator
                 readOnly={readOnly}
-                optional={optional}
+                required={required}
+                showOptionalMarking={!!labelSettings?.optionalIndicator}
               />
             }
           >
@@ -183,7 +185,8 @@ export function AddressComponent({ node }: IAddressProps) {
             optionalIndicator={
               <OptionalIndicator
                 readOnly={readOnly}
-                optional={optional}
+                required={required}
+                showOptionalMarking={!!labelSettings?.optionalIndicator}
               />
             }
           >
@@ -213,7 +216,8 @@ export function AddressComponent({ node }: IAddressProps) {
             optionalIndicator={
               <OptionalIndicator
                 readOnly={readOnly}
-                optional={optional}
+                required={required}
+                showOptionalMarking={!!labelSettings?.optionalIndicator}
               />
             }
             help={

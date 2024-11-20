@@ -48,7 +48,8 @@ export function LabelContent({
           <RequiredIndicator required={required} />
           <OptionalIndicator
             readOnly={readOnly}
-            optional={!required && !!labelSettings?.optionalIndicator}
+            required={required}
+            showOptionalMarking={!!labelSettings?.optionalIndicator}
           />
         </span>
         {help && (

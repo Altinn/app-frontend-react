@@ -83,8 +83,9 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
             requiredIndicator={<RequiredIndicator required={required} />}
             optionalIndicator={
               <OptionalIndicator
-                optional={!required && !!labelSettings?.optionalIndicator}
                 readOnly={readOnly}
+                required={required}
+                showOptionalMarking={!!labelSettings?.optionalIndicator}
               />
             }
             help={
