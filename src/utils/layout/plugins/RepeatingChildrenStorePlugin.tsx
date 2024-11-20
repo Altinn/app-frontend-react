@@ -8,7 +8,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepChildrenRow, RepeatingChildrenPlugin } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
-import type { NodeData } from 'src/utils/layout/types';
 
 type Plugin = RepeatingChildrenPlugin | LikertRowsPlugin;
 
@@ -37,8 +36,8 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
         set((state) => {
           let changes = false;
           const nodeData = { ...state.nodeData };
-          const nodeRows: {
-            [nodeId: string]: { newRows: (RepChildrenRow | undefined)[]; data: NodeData; internalProp: string };
+          const newPartialItems: {
+            [nodeId: string]: { [internalProp: string]: (RepChildrenRow | undefined)[] | undefined } | undefined;
           } = {};
 
           for (const { node, rowIndex, plugin, extras } of requests) {
@@ -48,8 +47,10 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
 
             const internalProp = plugin.settings.internalProp;
             const data = nodeData[node.id];
+
             const existingRows =
-              data && data.item && (data.item[internalProp] as (RepChildrenRow | undefined)[] | undefined);
+              newPartialItems[node.id]?.[internalProp] ??
+              (data?.item?.[internalProp] as (RepChildrenRow | undefined)[] | undefined);
             if (!existingRows) {
               continue;
             }
@@ -61,15 +62,15 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
             }
 
             changes = true;
-            if (!nodeRows[node.id]) {
-              nodeRows[node.id] = { newRows: [...(existingRows || [])], data, internalProp };
-            }
-            nodeRows[node.id].newRows[rowIndex] = nextRow;
+            newPartialItems[node.id] ??= {};
+            newPartialItems[node.id]![internalProp] ??= [...(existingRows || [])];
+            newPartialItems[node.id]![internalProp]![rowIndex] = nextRow;
           }
 
-          for (const [nodeId, { newRows, data, internalProp }] of Object.entries(nodeRows)) {
+          for (const [nodeId, partialItem] of Object.entries(newPartialItems)) {
+            const data = nodeData[nodeId];
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            nodeData[nodeId] = { ...data, item: { ...data.item, [internalProp]: newRows } as any };
+            nodeData[nodeId] = { ...data, item: { ...data.item, ...partialItem } as any };
           }
 
           return changes
