@@ -6,8 +6,8 @@ import type { JSONSchema7 } from 'json-schema';
 import { AppTable } from 'src/app-components/table/Table';
 
 const data = [
-  { id: 1, name: 'Alice', date: '2023-10-05', amount: 100 },
-  { id: 2, name: 'Bob', date: '2023-10-06', amount: 200 },
+  { id: 1, name: 'Alice', date: '05.10.2023', amount: 100 },
+  { id: 2, name: 'Bob', date: '06.10.2023', amount: 200 },
 ];
 
 const columns = [
