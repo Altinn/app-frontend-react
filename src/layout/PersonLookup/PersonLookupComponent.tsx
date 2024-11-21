@@ -19,10 +19,6 @@ import { httpPost } from 'src/utils/network/networking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-/*
-TODO: Handle API errors.
-*/
-
 const personLookupKeys = {
   lookup: (ssn: string, name: string) => [{ scope: 'personLookup', ssn, name }],
 } as const;
@@ -61,7 +57,6 @@ async function fetchPerson({
     if (error.response.status === 403) {
       return { person: null, error: 'person_lookup.validation_error_forbidden' };
     }
-    // TODO: expose this status from app-lib?
     if (error.response.status === 429) {
       return { person: null, error: 'person_lookup.validation_error_too_many_requests' };
     }
