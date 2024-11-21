@@ -87,8 +87,8 @@ describe('AppTable Component', () => {
         schema={schema}
       />,
     );
-    expect(screen.getByText('2023-10-05')).toBeInTheDocument();
-    expect(screen.getByText('2023-10-06')).toBeInTheDocument();
+    expect(screen.getByText('05.10.2023')).toBeInTheDocument();
+    expect(screen.getByText('06.10.2023')).toBeInTheDocument();
   });
 
   test('uses renderCell function when provided', () => {
