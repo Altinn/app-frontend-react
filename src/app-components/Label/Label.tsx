@@ -48,7 +48,7 @@ export function Label({
     >
       <Grid
         item
-        {...grid}
+        {...(grid ?? { xs: 12 })}
       >
         <span className={classes.labelAndDescWrapper}>
           <DesignsystemetLabel
