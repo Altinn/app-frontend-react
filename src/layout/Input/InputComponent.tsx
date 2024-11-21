@@ -1,18 +1,12 @@
 import React from 'react';
 
-import { HelpText } from '@digdir/designsystemet-react';
-
 import { FormattedInput } from 'src/app-components/Input/FormattedInput';
 import { Input } from 'src/app-components/Input/Input';
 import { NumericInput } from 'src/app-components/Input/NumericInput';
 import { Label } from 'src/app-components/Label/Label';
-import { Description } from 'src/components/form/Description';
-import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
-import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getDescriptionId } from 'src/components/label/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
@@ -20,6 +14,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import classes from 'src/layout/Input/InputComponent.module.css';
 import { isNumberFormat, isPatternFormat } from 'src/layout/Input/number-format-helpers';
 import { useCharacterLimit } from 'src/utils/inputUtils';
+import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { InputProps } from 'src/app-components/Input/Input';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -165,43 +160,27 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
 };
 
 export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, overrideDisplay }) => {
-  const { langAsString } = useLanguage();
   const { textResourceBindings, grid, id, required, readOnly, labelSettings } = useNodeItem(node);
 
-  const label =
-    (overrideDisplay?.renderLabel ?? true) && overrideDisplay?.renderedInTable !== true
-      ? langAsString(textResourceBindings?.title)
-      : undefined;
+  const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
+    useLabel({
+      overrideDisplay,
+      textResourceBindings,
+      readOnly,
+      required,
+      showOptionalMarking: !!labelSettings?.optionalIndicator,
+    });
 
   return (
     <Label
       htmlFor={id}
-      label={label}
+      label={labelText}
       grid={grid?.labelGrid}
       required={required}
-      requiredIndicator={<RequiredIndicator required={required} />}
-      optionalIndicator={
-        <OptionalIndicator
-          readOnly={readOnly}
-          required={required}
-          showOptionalMarking={!!labelSettings?.optionalIndicator}
-        />
-      }
-      help={
-        textResourceBindings?.help ? (
-          <HelpText
-            id={`${id}-helptext`}
-            title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
-          >
-            <Lang id={textResourceBindings?.help} />
-          </HelpText>
-        ) : undefined
-      }
-      description={
-        textResourceBindings?.description ? (
-          <Description description={<Lang id={textResourceBindings?.description} />} />
-        ) : undefined
-      }
+      requiredIndicator={getRequiredComponent()}
+      optionalIndicator={getOptionalComponent()}
+      help={getHelpTextComponent()}
+      description={getDescriptionComponent()}
     >
       <ComponentStructureWrapper node={node}>
         <InputVariant

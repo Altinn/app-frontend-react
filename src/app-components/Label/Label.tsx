@@ -1,5 +1,5 @@
 import React from 'react';
-import type { PropsWithChildren, ReactElement } from 'react';
+import type { JSX, PropsWithChildren, ReactElement } from 'react';
 
 import { Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
 import { Grid, type GridProps } from '@material-ui/core';
@@ -10,10 +10,6 @@ import classes from 'src/app-components/Label/Label.module.css';
 
 type GridSize = Pick<GridProps, 'xs' | 'sm' | 'md' | 'lg' | 'xl'>;
 
-type RequiredIndicatorProps =
-  | { required: true; requiredIndicator: ReactElement }
-  | { required?: false; requiredIndicator?: ReactElement };
-
 type LabelProps = {
   label: string | undefined;
   optionalIndicator?: ReactElement;
@@ -21,8 +17,9 @@ type LabelProps = {
   description?: ReactElement;
   className?: string;
   grid?: GridSize;
-} & RequiredIndicatorProps &
-  Pick<DesignsystemetLabelProps, 'htmlFor' | 'style'>;
+  required?: boolean;
+  requiredIndicator?: JSX.Element;
+} & Pick<DesignsystemetLabelProps, 'htmlFor' | 'style'>;
 
 export function Label({
   label,

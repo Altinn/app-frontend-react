@@ -1,19 +1,16 @@
 import React from 'react';
 
-import { HelpText, Textarea } from '@digdir/designsystemet-react';
+import { Textarea } from '@digdir/designsystemet-react';
 
 import { Label } from 'src/app-components/Label/Label';
-import { Description } from 'src/components/form/Description';
-import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
-import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getDescriptionId } from 'src/components/label/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { useCharacterLimit } from 'src/utils/inputUtils';
+import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -43,40 +40,25 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
   } = useDataModelBindings(dataModelBindings, saveWhileTyping);
   const debounce = FD.useDebounceImmediately();
 
-  const label =
-    (overrideDisplay?.renderLabel ?? true) && overrideDisplay?.renderedInTable !== true
-      ? langAsString(textResourceBindings?.title)
-      : undefined;
+  const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
+    useLabel({
+      overrideDisplay,
+      textResourceBindings,
+      readOnly,
+      required,
+      showOptionalMarking: !!labelSettings?.optionalIndicator,
+    });
 
   return (
     <Label
       htmlFor={id}
-      label={label}
+      label={labelText}
       grid={grid?.labelGrid}
       required={required}
-      requiredIndicator={<RequiredIndicator required={required} />}
-      optionalIndicator={
-        <OptionalIndicator
-          readOnly={readOnly}
-          required={required}
-          showOptionalMarking={!!labelSettings?.optionalIndicator}
-        />
-      }
-      help={
-        textResourceBindings?.help ? (
-          <HelpText
-            id={`${id}-helptext`}
-            title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
-          >
-            <Lang id={textResourceBindings?.help} />
-          </HelpText>
-        ) : undefined
-      }
-      description={
-        textResourceBindings?.description ? (
-          <Description description={<Lang id={textResourceBindings?.description} />} />
-        ) : undefined
-      }
+      requiredIndicator={getRequiredComponent()}
+      optionalIndicator={getOptionalComponent()}
+      help={getHelpTextComponent()}
+      description={getDescriptionComponent()}
     >
       <ComponentStructureWrapper node={node}>
         <Textarea

@@ -2,15 +2,11 @@ import React from 'react';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 
-type OptionalIndicatorProps = {
+export type OptionalIndicatorProps = {
   readOnly?: boolean;
-} & (
-  | {
-      required: true;
-      showOptionalMarking?: boolean;
-    }
-  | { required?: false; showOptionalMarking: boolean }
-);
+  required?: boolean;
+  showOptionalMarking?: boolean;
+};
 
 export const OptionalIndicator = ({ readOnly, required, showOptionalMarking }: OptionalIndicatorProps) => {
   const { langAsString } = useLanguage();
