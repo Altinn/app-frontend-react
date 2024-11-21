@@ -75,7 +75,7 @@ export const ConfirmPage = ({ instance, instanceOwnerParty, appName, application
         titleSubmitted={<Lang id='confirm.answers' />}
         pdf={filterDisplayPdfAttachments(instance?.data ?? [])}
       />
-      <ConfirmButton nodeId={'confirm-button'} />
+      <ConfirmButton nodeId='confirm-button' />
       <ReadyForPrint type='load' />
     </>
   );
@@ -102,7 +102,7 @@ const ConfirmButton = (props: { nodeId: string }) => {
         disabled={disabled}
         color='success'
       >
-        <Lang id={'confirm.button_text'} />
+        <Lang id='confirm.button_text' />
       </Button>
     </div>
   );

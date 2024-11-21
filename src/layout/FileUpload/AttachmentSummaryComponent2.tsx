@@ -44,7 +44,7 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
       {filteredAttachments.length === 0 ? (
         <Paragraph asChild>
           <span className={classes.emptyField}>
-            <Lang id={'general.empty_summary'} />
+            <Lang id='general.empty_summary' />
           </span>
         </Paragraph>
       ) : (

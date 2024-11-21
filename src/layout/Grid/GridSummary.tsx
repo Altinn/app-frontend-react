@@ -164,7 +164,7 @@ export function GridRowRenderer(props: GridRowProps) {
       {!pdfModeActive && row.header && !isSmall && (
         <Table.HeaderCell>
           <span className={classes.visuallyHidden}>
-            <Lang id={'general.edit'} />
+            <Lang id='general.edit' />
           </span>
         </Table.HeaderCell>
       )}
