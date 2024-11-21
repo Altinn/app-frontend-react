@@ -42,12 +42,14 @@ export function Label({
         weight='medium'
         size='md'
         htmlFor={htmlFor}
-        className={cn({ [classes.bottomPadding]: !description }, classes.label, className)}
+        className={cn(classes.bottomPadding, classes.label, className)}
         style={style}
       >
-        {label}
-        {required && requiredIndicator}
-        {!required && optionalIndicator}
+        <div>
+          {label}
+          {required && requiredIndicator}
+          {!required && optionalIndicator}
+        </div>
         {help}
       </DesignsystemetLabel>
       {description && <span className={classes.bottomPadding}>{description}</span>}
