@@ -724,7 +724,7 @@ describe('Validation', () => {
     cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 6);
     cy.findByText('Du må fylle ut dato for navneendring').click();
-    cy.findByRole('textbox', { name: /når vil du at navnendringen skal skje\? \*/i }).should('be.visible');
+    cy.findByRole('textbox', { name: /når vil du at navnendringen skal skje\?\*/i }).should('be.visible');
   });
 
   describe('Falsy values', () => {
@@ -751,7 +751,7 @@ describe('Validation', () => {
       });
       cy.goto('message');
 
-      cy.findByRole('textbox', { name: 'Input with falsy value *' }).type('0');
+      cy.findByRole('textbox', { name: 'Input with falsy value*' }).type('0');
       cy.findByRole('button', { name: 'Send inn' }).click();
 
       // Content from next page
