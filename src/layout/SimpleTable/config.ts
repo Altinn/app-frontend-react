@@ -39,6 +39,19 @@ export const Config = new CG.component({
               .setTitle('Accessors')
               .setDescription('List of fields that should be included in the cell'),
           ),
+          new CG.prop('enableInlineEditing', new CG.bool().optional().setTitle('Enable inline editing')),
+          new CG.prop(
+            'component',
+            new CG.obj(
+              new CG.prop('type', new CG.enum('radio')),
+              new CG.prop(
+                'options',
+                new CG.arr(new CG.obj(new CG.prop('label', new CG.str()), new CG.prop('value', new CG.str()))),
+              ),
+            )
+              .optional()
+              .setTitle('Specify component to render'),
+          ),
         ).exportAs('Columns'),
       ),
     ),
@@ -53,6 +66,12 @@ export const Config = new CG.component({
     new CG.prop(
       'enableDelete',
       new CG.bool().setTitle('Enable delete').setDescription('If true, will allow user to delete row').optional(),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'enableEdit',
+      new CG.bool().setTitle('Enable delete').setDescription('If true, will allow user to edit row').optional(),
     ),
   )
   .addProperty(
