@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-import { Button, Textfield } from '@digdir/designsystemet-react';
 import {
   DownloadIcon,
   ExclamationmarkTriangleFillIcon,
@@ -9,6 +8,8 @@ import {
   XMarkOctagonFillIcon,
 } from '@navikt/aksel-icons';
 
+import { Button } from 'src/app-components/button/Button';
+import { Input } from 'src/app-components/Input/Input';
 import classes from 'src/features/devtools/components/DevToolsLogs/DevToolsLogs.module.css';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 
@@ -50,8 +51,7 @@ export const DevToolsLogs = () => {
       <div className={classes.toolbar}>
         <Button
           onClick={clearLogs}
-          color={'second'}
-          size='small'
+          color='second'
           icon={true}
         >
           <TrashIcon
@@ -61,8 +61,7 @@ export const DevToolsLogs = () => {
         </Button>
         <Button
           onClick={saveLogs}
-          color={'second'}
-          size='small'
+          color='second'
           icon={true}
         >
           <DownloadIcon
@@ -71,8 +70,7 @@ export const DevToolsLogs = () => {
           />
         </Button>
         <div className={classes.filterField}>
-          <Textfield
-            size='small'
+          <Input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder='Filtrer logger'
@@ -81,7 +79,6 @@ export const DevToolsLogs = () => {
 
         <Button
           onClick={() => toggleShow('error')}
-          size='small'
           color='second'
           variant={showLevels.error ? 'primary' : 'secondary'}
           icon={true}
@@ -93,7 +90,6 @@ export const DevToolsLogs = () => {
         </Button>
         <Button
           onClick={() => toggleShow('warn')}
-          size='small'
           color='second'
           variant={showLevels.warn ? 'primary' : 'secondary'}
           icon={true}
@@ -105,7 +101,6 @@ export const DevToolsLogs = () => {
         </Button>
         <Button
           onClick={() => toggleShow('info')}
-          size='small'
           color='second'
           variant={showLevels.info ? 'primary' : 'secondary'}
           icon={true}

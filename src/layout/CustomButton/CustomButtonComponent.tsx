@@ -1,15 +1,15 @@
 import React, { useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
 
-import { Button } from '@digdir/designsystemet-react';
 import { useMutation } from '@tanstack/react-query';
 
+import { Button } from 'src/app-components/button/Button';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -17,9 +17,9 @@ import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { promisify } from 'src/utils/promisify';
+import type { ButtonColor, ButtonVariant } from 'src/app-components/button/Button';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
 import type * as CBTypes from 'src/layout/CustomButton/config.generated';
 import type { ClientActionHandlers } from 'src/layout/CustomButton/typeHelpers';
 import type { IInstance, IUserAction } from 'src/types/shared';
@@ -67,7 +67,7 @@ const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerA
 function useHandleClientActions(): UseHandleClientActions {
   const { navigateToPage, navigateToNextPage, navigateToPreviousPage, exitSubform } = useNavigatePage();
   const mainPageKey = useNavigationParam('mainPageKey');
-  const isSubformPage = useNavigationParam('isSubformPage');
+  const isSubformPage = useIsSubformPage();
 
   const frontendActions: ClientActionHandlers = useMemo(
     () => ({
@@ -214,8 +214,25 @@ export const buttonStyles: { [style in CBTypes.ButtonStyle]: { color: ButtonColo
   secondary: { variant: 'secondary', color: 'first' },
 };
 
+function toShorthandSize(size?: CBTypes.ButtonSize): 'sm' | 'md' | 'lg' {
+  switch (size) {
+    case 'sm':
+    case 'small':
+      return 'sm';
+    case 'md':
+    case 'medium':
+      return 'md';
+    case 'lg':
+    case 'large':
+      return 'lg';
+    default:
+      return 'md';
+  }
+}
+
 export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, actions, id, buttonColor, buttonSize, buttonStyle } = useNodeItem(node);
+
   const lockTools = FD.useLocking(id);
   const { isAuthorized } = useActionAuthorization();
   const { handleClientActions } = useHandleClientActions();
@@ -275,10 +292,10 @@ export const CustomButtonComponent = ({ node }: Props) => {
         id={`custom-button-${id}`}
         disabled={disabled}
         onClick={onClick}
-        size={buttonSize}
+        size={toShorthandSize(buttonSize)}
         color={buttonColor ?? style.color}
         variant={style.variant}
-        aria-busy={isPending}
+        isLoading={isPending}
       >
         <Lang id={buttonText} />
       </Button>

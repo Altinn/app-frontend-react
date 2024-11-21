@@ -11,24 +11,14 @@ import {
   GeneratorErrorBoundary,
   useGeneratorErrorBoundaryNodeRef,
 } from 'src/utils/layout/generator/GeneratorErrorBoundary';
-import {
-  GeneratorCondition,
-  GeneratorStages,
-  StageAddNodes,
-  StageMarkHidden,
-} from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorCondition, StageAddNodes, StageMarkHidden } from 'src/utils/layout/generator/GeneratorStages';
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import { Hidden, NodesInternal, useNodesWhenNotReady } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal, NodesStore, useNodes } from 'src/utils/layout/NodesContext';
 import type { CompExternal, CompExternalExact, CompTypes, ILayout } from 'src/layout/layout';
-import type {
-  BasicNodeGeneratorProps,
-  ChildClaimerProps,
-  ComponentProto,
-  ContainerGeneratorProps,
-} from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, ComponentProto, NodeGeneratorProps } from 'src/layout/LayoutComponent';
 import type { ChildClaim, ChildClaims, ChildClaimsMap } from 'src/utils/layout/generator/GeneratorContext';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 const style: React.CSSProperties = GeneratorDebug.displayState
   ? {
@@ -53,11 +43,10 @@ interface ChildrenState {
 
 export function LayoutSetGenerator() {
   const layouts = GeneratorInternal.useLayouts();
-  const pages = useMemo(() => new LayoutPages(), []);
+  const pages = useNodes();
 
   const children = (
     <>
-      <SaveFinishedNodesToStore pages={pages} />
       <ExportStores />
       {GeneratorDebug.displayState && <h1>Node generator</h1>}
       {layouts &&
@@ -81,23 +70,7 @@ export function LayoutSetGenerator() {
     </>
   );
 
-  return GeneratorDebug.displayState ? <div style={style}>{children}</div> : children;
-}
-
-function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
-  const existingNodes = useNodesWhenNotReady();
-  const setNodes = NodesInternal.useSetNodes();
-  const isFinishedAddingNodes = GeneratorStages.useIsDoneAddingNodes();
-  const numPages = Object.keys(GeneratorInternal.useLayouts()).length;
-  const shouldSet = existingNodes !== pages && pages && (isFinishedAddingNodes || numPages === 0);
-
-  useEffect(() => {
-    if (shouldSet) {
-      setNodes(pages);
-    }
-  }, [pages, setNodes, shouldSet]);
-
-  return null;
+  return <div style={style}>{children}</div>;
 }
 
 function ExportStores() {
@@ -144,7 +117,7 @@ function useChildClaims(layout: ILayout, getProto: (id: string) => ComponentProt
   }, []);
 
   const addClaim = useCallback(
-    (parentId: string, childId: string, pluginKey: string, metadata: unknown) => {
+    (parentId: string, childId: string, pluginKey: string) => {
       if (getProto(childId) === undefined) {
         window.logError(`Component '${childId}' (as referenced by '${parentId}') does not exist`);
         return;
@@ -160,7 +133,7 @@ function useChildClaims(layout: ILayout, getProto: (id: string) => ComponentProt
       // have to wait for the next render to get the updated state).
       mapRef.current[parentId] = {
         ...mapRef.current[parentId],
-        [childId]: { pluginKey, metadata },
+        [childId]: { pluginKey },
       };
       setChildren((prev) => ({ ...prev, map: mapRef.current }));
     },
@@ -279,16 +252,19 @@ function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
   const inOrder = Hidden.useIsPageInOrder(name);
   const hidden = useIsHiddenPage(page);
 
-  NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'hidden', value: hidden });
-  NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'inOrder', value: inOrder });
+  const hiddenIsSet = NodesStore.useSelector((state) => state.pagesData.pages[name]?.hidden === hidden);
+  const inOrderIsSet = NodesStore.useSelector((state) => state.pagesData.pages[name]?.inOrder === inOrder);
+
+  NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'hidden', value: hidden }, !hiddenIsSet);
+  NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'inOrder', value: inOrder }, !inOrderIsSet);
 
   return null;
 }
 
-function useFilteredClaims(claims: ChildClaims, pluginKey: string | undefined) {
+function useFilteredClaims(claims: ChildClaims | undefined, pluginKey: string | undefined) {
   return useMemo(() => {
     if (!pluginKey) {
-      return claims;
+      return claims ?? {};
     }
 
     const out: ChildClaims = {};
@@ -302,7 +278,7 @@ function useFilteredClaims(claims: ChildClaims, pluginKey: string | undefined) {
 }
 
 interface NodeChildrenProps {
-  claims: ChildClaims;
+  claims: ChildClaims | undefined;
   pluginKey: string | undefined;
 }
 
@@ -392,11 +368,10 @@ function ComponentClaimChildren({ component, claims, getProto }: ComponentClaimC
   // otherwise the page will not know if the first pass is done.
   useEffect(() => {
     if (def instanceof ContainerComponent) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const props: ChildClaimerProps<any, unknown> = {
+      const props: ChildClaimerProps<CompTypes> = {
         item: component,
-        claimChild: (pluginKey, childId, metadata) => {
-          addClaim(component.id, childId, pluginKey, metadata);
+        claimChild: (pluginKey, childId) => {
+          addClaim(component.id, childId, pluginKey);
         },
         getProto: (id) => {
           const proto = getProto(id);
@@ -430,21 +405,17 @@ interface ComponentProps {
   childClaims: ChildClaims | undefined;
 }
 
+const emptyObject = {};
 function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
   const def = getComponentDef(layout.type);
-  const props = useMemo(() => {
-    if (def instanceof ContainerComponent) {
-      const out: ContainerGeneratorProps = {
-        claim,
-        externalItem: layout,
-        childClaims: childClaims ?? {},
-      };
-      return out;
-    }
-
-    const out: BasicNodeGeneratorProps = { claim, externalItem: layout };
-    return out;
-  }, [def, claim, layout, childClaims]);
+  const props: NodeGeneratorProps = useMemo(
+    () => ({
+      claim,
+      externalItem: layout,
+      childClaims: childClaims ?? emptyObject,
+    }),
+    [claim, layout, childClaims],
+  );
 
   if (!layout.id && layout.type) {
     window.logError(`Encountered '${layout.type}' component with no ID (ignoring)`);
@@ -461,7 +432,7 @@ function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
     return null;
   }
 
-  const Generator = def.renderNodeGenerator;
+  const Generator = def.renderNodeGenerator.bind(def);
 
   if (!GeneratorDebug.displayState) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

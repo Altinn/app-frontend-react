@@ -1,14 +1,15 @@
-import { useCallback, useMemo, useRef } from 'react';
-import type { MutableRefObject } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { NodesInternal, NodesReadiness } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { typedBoolean } from 'src/utils/typing';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeData, NodeItemFromNode } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
@@ -26,57 +27,28 @@ export function useNodeItem<N extends LayoutNode | undefined>(
   selector?: undefined,
 ): N extends undefined ? undefined : NodeItemFromNode<N>;
 // eslint-disable-next-line no-redeclare
-export function useNodeItem(node: never, selector: never): never {
-  const lastItem = useRef<CompInternal | undefined>(undefined);
-  const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+export function useNodeItem(node: LayoutNode | undefined, selector: never): unknown {
+  if (GeneratorInternal.useIsInsideGenerator()) {
+    throw new Error(
+      'useNodeItem() should not be used inside the node generator, it would most likely just crash when ' +
+        'the item is undefined. Instead, use GeneratorInternal.useIntermediateItem() to get the item before ' +
+        'expressions have run, or use a more specific selector in NodesInternal.useNodeData() which will ' +
+        'make you handle the undefined item.',
+    );
+  }
+
   return NodesInternal.useNodeData(node, (data: NodeData, readiness) => {
-    if (insideGenerator) {
+    if (!data?.item) {
       throw new Error(
-        'useNodeItem() should not be used inside the node generator, it would most likely just crash when ' +
-          'the item is undefined. Instead, use GeneratorInternal.useIntermediateItem() to get the item before ' +
-          'expressions have run, or use a more specific selector in NodesInternal.useNodeData() which will ' +
-          'make you handle the undefined item.',
-      );
-    }
-
-    let item: CompInternal | undefined;
-    if (readiness === NodesReadiness.Ready && data.item) {
-      item = data.item;
-      lastItem.current = item;
-    } else if (lastItem.current) {
-      item = lastItem.current;
-    } else {
-      // This is possibly stale state, or in the process of being updated, but it's better than failing hard.
-      item = data.item;
-    }
-
-    if (!item) {
-      throw new Error(
-        `Node item is undefined. This should normally not happen, but might happen if you select data in new ` +
-          `components while the node state is in the process of being updated (readiness is '${readiness}'). `,
+        `Node item for '${node?.id}' is undefined. This should normally not happen, but might happen if you ` +
+          `select data in new components while the node state is in the process of being updated ` +
+          `(readiness is '${readiness}'). `,
       );
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return selector ? (selector as any)(item) : item;
+    return selector ? (selector as any)(data.item) : data.item;
   });
-}
-
-export function useNodeItemRef<N extends LayoutNode | undefined, Out>(
-  node: N,
-  selector: (item: NodeItemFromNode<N>) => Out,
-): MutableRefObject<Out>;
-// eslint-disable-next-line no-redeclare
-export function useNodeItemRef<N extends LayoutNode | undefined>(
-  node: N,
-  selector?: undefined,
-): MutableRefObject<NodeItemFromNode<N>>;
-// eslint-disable-next-line no-redeclare
-export function useNodeItemRef(node: never, selector: never): never {
-  return NodesInternal.useNodeDataRef(node, (node: NodeData) =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    selector ? (selector as any)(node.item) : node.item,
-  ) as never;
 }
 
 const selectNodeItem = <T extends CompTypes>(data: NodeData<T>): CompInternal<T> | undefined =>
@@ -91,39 +63,22 @@ export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
 }
 
 const emptyArray: LayoutNode[] = [];
-export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): LayoutNode[] {
-  const insideGenerator = GeneratorInternal.useIsInsideGenerator();
-  const lastValue = useRef<LayoutNode[] | undefined>(undefined);
-  return NodesInternal.useNodeData(parent, (nodeData, readiness, fullState) => {
-    if (readiness !== NodesReadiness.Ready && !insideGenerator && lastValue.current) {
-      return lastValue.current;
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const out = parent.def.pickDirectChildren(nodeData as any, restriction);
-    if (!insideGenerator) {
-      // If we're not inside the generator, we should make sure to only return values that make sense.
-      for (const child of out) {
-        if (!child) {
-          // At least one child is undefined, meaning we're in the process of adding/removing nodes. Better to return
-          // none than return a broken-up set of children.
-          return emptyArray;
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const childNodeData = fullState.nodeData[child.id] as any;
-        if (
-          !childNodeData ||
-          !child.def.stateIsReady(childNodeData) ||
-          !child.def.pluginStateIsReady(childNodeData, fullState)
-        ) {
-          // At least one child is not ready, so rendering these out would be worse than pretending there are none.
-          return emptyArray;
-        }
+export function useNodeDirectChildren(
+  parent: LayoutNode | undefined,
+  restriction?: TraversalRestriction,
+): LayoutNode[] {
+  return (
+    NodesInternal.useNodeData(parent, (nodeData) => {
+      if (!parent) {
+        return emptyArray;
       }
-    }
 
-    lastValue.current = out;
-    return out ?? emptyArray;
-  });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const out = parent.def.pickDirectChildren(nodeData as any, restriction);
+      const nodes = parent.page.layoutSet;
+      return out?.map((id) => nodes.findById(id)).filter(typedBoolean);
+    }) ?? emptyArray
+  );
 }
 
 type NodeFormData<N extends LayoutNode | undefined> = N extends undefined
@@ -146,6 +101,9 @@ export function useNodeFormDataSelector() {
   const nodeSelector = NodesInternal.useNodeDataSelector();
   const formDataSelector = FD.useDebouncedSelector();
 
+  return useInnerNodeFormDataSelector(nodeSelector, formDataSelector);
+}
+export function useInnerNodeFormDataSelector(nodeSelector: NodeDataSelector, formDataSelector: FormDataSelector) {
   return useCallback(
     <N extends LayoutNode | undefined>(node: N): NodeFormData<N> => {
       const dataModelBindings = nodeSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);

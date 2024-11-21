@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
-import { Button } from '@digdir/designsystemet-react';
 import Grid from '@material-ui/core/Grid';
 
-import { Form, FormFirstPage } from 'src/components/form/Form';
+import { Button } from 'src/app-components/button/Button';
+import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
@@ -13,7 +13,7 @@ import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useGetTaskType, useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
+import { useGetTaskTypeById, useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -21,8 +21,19 @@ import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { useNavigate, useNavigationParam, useQueryKeysAsString } from 'src/features/routing/AppRoutingContext';
-import { TaskKeys, useIsCurrentTask, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
+import {
+  useNavigate,
+  useNavigationParam,
+  useNavigationPath,
+  useQueryKeysAsString,
+} from 'src/features/routing/AppRoutingContext';
+import {
+  TaskKeys,
+  useIsCurrentTask,
+  useIsValidTaskId,
+  useNavigateToTask,
+  useStartUrl,
+} from 'src/hooks/useNavigatePage';
 import { implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
@@ -36,7 +47,7 @@ interface NavigationErrorProps {
 
 function NavigationError({ label }: NavigationErrorProps) {
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-  const { navigateToTask } = useNavigatePage();
+  const navigateToTask = useNavigateToTask();
 
   const appName = useAppName();
   const appOwner = useAppOwner();
@@ -60,6 +71,7 @@ function NavigationError({ label }: NavigationErrorProps) {
           <div className={classes.navigationError}>
             <Button
               variant='secondary'
+              size='md'
               onClick={() => {
                 navigateToTask(currentTaskId);
               }}
@@ -86,7 +98,7 @@ export function NavigateToStartUrl() {
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const startUrl = useStartUrl(currentTaskId);
 
-  const currentLocation = `${useLocation().pathname}${useQueryKeysAsString()}`;
+  const currentLocation = `${useNavigationPath()}${useQueryKeysAsString()}`;
 
   useEffect(() => {
     if (currentLocation !== startUrl) {
@@ -99,17 +111,17 @@ export function NavigateToStartUrl() {
 
 export const ProcessWrapper = () => {
   const isCurrentTask = useIsCurrentTask();
-  const { isValidTaskId } = useNavigatePage();
-  const taskId = useNavigationParam('taskId');
-  const taskType = useGetTaskType()(taskId);
+  const isValidTaskId = useIsValidTaskId();
+  const taskIdParam = useNavigationParam('taskId');
+  const taskType = useGetTaskTypeById()(taskIdParam);
   const realTaskType = useRealTaskType();
   const layoutSets = useLayoutSets();
   const dataModelGuid = useCurrentDataModelGuid();
 
   const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
-  const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid && taskId === TaskKeys.CustomReceipt;
+  const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid && taskIdParam === TaskKeys.CustomReceipt;
 
-  if (!isValidTaskId(taskId)) {
+  if (!isValidTaskId(taskIdParam)) {
     return (
       <PresentationComponent type={realTaskType}>
         <InvalidTaskIdPage />
@@ -117,7 +129,7 @@ export const ProcessWrapper = () => {
     );
   }
 
-  if (!isCurrentTask && taskId !== TaskKeys.ProcessEnd) {
+  if (!isCurrentTask && taskIdParam !== TaskKeys.ProcessEnd) {
     return (
       <PresentationComponent type={realTaskType}>
         <NotCurrentTaskPage />
@@ -175,7 +187,7 @@ export const ProcessWrapper = () => {
             }
           />
           <Route
-            path=':pageKey'
+            path='*'
             element={
               <PDFWrapper>
                 <PresentationComponent type={realTaskType}>
@@ -183,10 +195,6 @@ export const ProcessWrapper = () => {
                 </PresentationComponent>
               </PDFWrapper>
             }
-          />
-          <Route
-            path='*'
-            element={<FormFirstPage />}
           />
         </Routes>
       </FormProvider>

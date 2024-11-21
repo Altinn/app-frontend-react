@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { Fragment, useEffect, useMemo } from 'react';
 
 import dot from 'dot-object';
+import deepEqual from 'fast-deep-equal';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
@@ -19,17 +20,17 @@ import { useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
 import type { CompDef } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal } from 'src/layout/layout';
-import type { ChildClaims, ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
+import type { ChildClaims, ChildIdMutator, ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { RepChildrenRow } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
+import type {
+  RepChildrenInternalState,
+  RepChildrenRow,
+  RepeatingChildrenPlugin,
+} from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 
 interface Props {
-  claims: ChildClaims;
-  internalProp: string;
-  externalProp: string;
-  binding: string;
-  multiPageSupport: false | string;
-  pluginKey: string;
+  claims: ChildClaims | undefined;
+  plugin: RepeatingChildrenPlugin;
 }
 
 export function NodeRepeatingChildren(props: Props) {
@@ -43,38 +44,38 @@ export function NodeRepeatingChildren(props: Props) {
   );
 }
 
-function NodeRepeatingChildrenWorker({
-  claims,
-  binding,
-  multiPageSupport,
-  externalProp,
-  internalProp,
-  pluginKey,
-}: Props) {
+const emptyObject = {};
+function NodeRepeatingChildrenWorker({ claims, plugin }: Props) {
+  const { dataModelGroupBinding: binding, externalProp, multiPageSupport } = plugin.settings;
   const item = GeneratorInternal.useIntermediateItem();
   const groupBinding = item?.dataModelBindings?.[binding];
   const numRows = FD.useFreshNumRows(groupBinding);
-  const multiPage = multiPageSupport !== false && dot.pick(multiPageSupport, item) === true;
+  const multiPage = multiPageSupport && dot.pick(multiPageSupport, item) === true;
   const multiPageMapping = useMemo(
     () => (multiPage ? makeMultiPageMapping(dot.pick(externalProp, item)) : undefined),
     [item, externalProp, multiPage],
   );
 
   return (
-    <>
+    <GeneratorRunProvider>
       {Array.from({ length: numRows }).map((_, index) => (
-        <GeneratorRunProvider key={index}>
+        <Fragment key={index}>
+          {/* Do not remove this space.
+              React's `getHostSibling` function can be very slow for renderless components,
+              this will make sure it finds the sibling immediately by adding a `HostText` fiber-node directly below.
+              The space will be added to the DOM, but should not be visible.
+              See https://github.com/facebook/react/blob/ed15d5007ca7ee4d61294c741ce3e858d3c1d461/packages/react-reconciler/src/ReactFiberCommitHostEffects.js#L222-L226
+          */}{' '}
           <GenerateRow
             rowIndex={index}
             groupBinding={groupBinding}
-            claims={claims}
+            claims={claims ?? emptyObject}
             multiPageMapping={multiPageMapping}
-            internalProp={internalProp}
-            pluginKey={pluginKey}
+            plugin={plugin}
           />
-        </GeneratorRunProvider>
+        </Fragment>
       ))}
-    </>
+    </GeneratorRunProvider>
   );
 }
 
@@ -83,8 +84,7 @@ interface GenerateRowProps {
   claims: ChildClaims;
   groupBinding: IDataModelReference;
   multiPageMapping: MultiPageMapping | undefined;
-  internalProp: string;
-  pluginKey: string;
+  plugin: RepeatingChildrenPlugin;
 }
 
 const GenerateRow = React.memo(function GenerateRow({
@@ -92,8 +92,7 @@ const GenerateRow = React.memo(function GenerateRow({
   claims,
   groupBinding,
   multiPageMapping,
-  internalProp,
-  pluginKey,
+  plugin,
 }: GenerateRowProps) {
   const node = GeneratorInternal.useParent() as LayoutNode;
   const removeRow = NodesInternal.useRemoveRow();
@@ -111,9 +110,9 @@ const GenerateRow = React.memo(function GenerateRow({
 
   useEffect(
     () => () => {
-      removeRow(node, internalProp);
+      removeRow(node, plugin);
     },
-    [node, internalProp, removeRow],
+    [node, plugin, removeRow],
   );
 
   return (
@@ -121,21 +120,22 @@ const GenerateRow = React.memo(function GenerateRow({
       rowIndex={rowIndex}
       groupBinding={groupBinding}
       directMutators={directMutators}
+      idMutators={[mutateComponentIdPlain(rowIndex)]}
       recursiveMutators={recursiveMutators}
     >
       <MaintainRowUuid
         groupBinding={groupBinding}
-        internalProp={internalProp}
+        plugin={plugin}
       />
       <GeneratorCondition
         stage={StageEvaluateExpressions}
         mustBeAdded='all'
       >
-        <ResolveRowExpressions internalProp={internalProp} />
+        <ResolveRowExpressions plugin={plugin} />
       </GeneratorCondition>
       <GenerateNodeChildren
         claims={claims}
-        pluginKey={pluginKey}
+        pluginKey={plugin.getKey()}
       />
     </GeneratorRowProvider>
   );
@@ -144,44 +144,63 @@ const GenerateRow = React.memo(function GenerateRow({
 GenerateRow.displayName = 'GenerateRow';
 
 interface ResolveRowProps {
-  internalProp: string;
+  plugin: RepeatingChildrenPlugin;
 }
 
-function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
-  const parent = GeneratorInternal.useParent() as LayoutNode;
-  const rowIndex = GeneratorInternal.useRowIndex();
-  const nodeChildren = useNodeDirectChildren(parent as LayoutNode, rowIndex);
-  const firstChild = nodeChildren ? nodeChildren[0] : undefined;
+function ResolveRowExpressions({ plugin }: ResolveRowProps) {
+  const node = GeneratorInternal.useParent() as LayoutNode;
+  const rowIndex = GeneratorInternal.useRowIndex()!;
+  const firstChild = useNodeDirectChildren(node, rowIndex).at(0);
 
+  const internal = NodesInternal.useNodeData(
+    node,
+    (d) => (d.item as unknown as { internal: RepChildrenInternalState } | undefined)?.internal,
+  );
   const item = GeneratorInternal.useIntermediateItem();
   const props = useExpressionResolverProps(firstChild, item as CompExternal, rowIndex);
 
   const def = useDef(item!.type);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const resolvedRowExtras = useMemoDeepEqual(() => (def as CompDef).evalExpressionsForRow(props as any), [def, props]);
+  const extras = useMemoDeepEqual(
+    () => ({
+      index: rowIndex,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ...((def as CompDef).evalExpressionsForRow(props as any) ?? {}),
+      ...plugin.addRowProps(internal, rowIndex),
+    }),
+    [def, props, plugin, rowIndex, internal],
+  );
 
-  NodesStateQueue.useSetRowExtras({ node: parent, rowIndex: rowIndex!, internalProp, extras: resolvedRowExtras });
+  const isSet = NodesInternal.useNodeData(node, (data) => {
+    const { uuid: _uuid, ...row } =
+      (data.item?.[plugin.settings.internalProp]?.find(
+        (row: RepChildrenRow) => row.index === rowIndex,
+      ) as RepChildrenRow) ?? {};
+
+    return deepEqual(row, extras);
+  });
+
+  NodesStateQueue.useSetRowExtras({ node, rowIndex, plugin, extras }, !isSet);
 
   return null;
 }
 
 function MaintainRowUuid({
   groupBinding,
-  internalProp,
+  plugin,
 }: {
   groupBinding: IDataModelReference | undefined;
-  internalProp: string;
+  plugin: RepeatingChildrenPlugin;
 }) {
   const parent = GeneratorInternal.useParent() as LayoutNode;
   const rowIndex = GeneratorInternal.useRowIndex() as number;
   const rowUuid = FD.useFreshRowUuid(groupBinding, rowIndex) as string;
   const existingUuid = NodesInternal.useNodeData(
     parent,
-    (data) => data.item?.[internalProp]?.find((row: RepChildrenRow) => row.index === rowIndex)?.uuid,
+    (data) => data.item?.[plugin.settings.internalProp]?.find((row: RepChildrenRow) => row.index === rowIndex)?.uuid,
   );
 
   const isSet = rowUuid === existingUuid;
-  NodesStateQueue.useSetRowUuid({ node: parent, rowIndex: rowIndex!, internalProp, rowUuid }, !isSet);
+  NodesStateQueue.useSetRowExtras({ node: parent, rowIndex: rowIndex!, plugin, extras: { uuid: rowUuid } }, !isSet);
 
   return null;
 }
@@ -211,6 +230,10 @@ function mutateMultiPageIndex(multiPageMapping: MultiPageMapping | undefined): C
       item['multiPageIndex'] = multiPageIndex;
     }
   };
+}
+
+export function mutateComponentIdPlain(rowIndex: number): ChildIdMutator {
+  return (id) => `${id}-${rowIndex}`;
 }
 
 export function mutateComponentId(rowIndex: number): ChildMutator {

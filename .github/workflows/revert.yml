@@ -12,10 +12,20 @@ jobs:
   revert:
     name: Roll back and deploy
     runs-on: ubuntu-latest
-    environment: prod
+    environment: |-
+      ${{
+         contains(github.event.inputs.tag, 'preview') && 'test'
+      || contains(github.event.inputs.tag, 'rc')      && 'staging'
+      ||                                                 'prod'
+      }}
     permissions:
       id-token: write
     steps:
+      - name: Validate tag
+        run: |
+          echo "Validating that the tag is in the correct format"
+          echo "${{ github.event.inputs.tag }}" | grep -P '^v(\d+)\.(\d+)\.(\d+)(-(preview|rc)\.\d+$|$)'
+
       - name: Checkout
         uses: actions/checkout@v4
         with:

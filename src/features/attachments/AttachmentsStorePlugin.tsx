@@ -38,6 +38,7 @@ import type {
   UploadedAttachment,
 } from 'src/features/attachments/index';
 import type { FDActionResult } from 'src/features/formData/FormDataWriteStateMachine';
+import type { DSPropsForSimpleSelector } from 'src/hooks/delayedSelectors';
 import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
@@ -100,6 +101,7 @@ export interface AttachmentsStorePluginConfig {
 
     useAttachments: (node: FileUploaderNode) => IAttachment[];
     useAttachmentsSelector: () => AttachmentsSelector;
+    useAttachmentsSelectorProps: () => DSPropsForSimpleSelector<NodesContext, AttachmentsSelector>;
     useWaitUntilUploaded: () => (node: FileUploaderNode, attachment: TemporaryAttachment) => Promise<IData | false>;
 
     useHasPendingAttachments: () => boolean;
@@ -444,7 +446,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         );
       },
       useAttachments(node) {
-        return store.useSelector((state) => {
+        return store.useShallowSelector((state) => {
           if (!node) {
             return emptyArray;
           }
@@ -460,17 +462,14 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       useAttachmentsSelector() {
         return store.useDelayedSelector({
           mode: 'simple',
-          selector: (node: LayoutNode) => (state) => {
-            const nodeData = state.nodeData[node.id];
-            if (!nodeData) {
-              return emptyArray;
-            }
-            if (nodeData && 'attachments' in nodeData) {
-              return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
-            }
-            return emptyArray;
-          },
+          selector: attachmentSelector,
         }) satisfies AttachmentsSelector;
+      },
+      useAttachmentsSelectorProps() {
+        return store.useDelayedSelectorProps({
+          mode: 'simple',
+          selector: attachmentSelector,
+        });
       },
       useWaitUntilUploaded() {
         const zustandStore = store.useStore();
@@ -620,6 +619,16 @@ export function useAttachmentsUploadMutation() {
 
   return useMutation(options);
 }
+const attachmentSelector = (node: LayoutNode) => (state: NodesContext) => {
+  const nodeData = state.nodeData[node.id];
+  if (!nodeData) {
+    return emptyArray;
+  }
+  if (nodeData && 'attachments' in nodeData) {
+    return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
+  }
+  return emptyArray;
+};
 
 function useAttachmentsAddTagMutation() {
   const { doAttachmentAddTag } = useAppMutations();

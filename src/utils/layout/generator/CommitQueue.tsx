@@ -1,62 +1,73 @@
 import { useCallback, useEffect } from 'react';
 
+import { useAsRef } from 'src/hooks/useAsRef';
 import { generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { NODES_TICK_TIMEOUT, StageFinished } from 'src/utils/layout/generator/GeneratorStages';
 import {
   type AddNodeRequest,
   NodesInternal,
   NodesStore,
+  type RemoveNodeRequest,
   type SetNodePropRequest,
   type SetPagePropRequest,
 } from 'src/utils/layout/NodesContext';
-import type { SetRowExtrasRequest, SetRowUuidRequest } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
+import type { SetRowExtrasRequest } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 
 /**
  * Queues for changes that need to be committed to the nodes store.
  */
 export interface RegistryCommitQueues {
   addNodes: AddNodeRequest[];
+  removeNodes: RemoveNodeRequest[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setNodeProps: SetNodePropRequest<any, any>[];
   setRowExtras: SetRowExtrasRequest[];
-  setRowUuid: SetRowUuidRequest[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setPageProps: SetPagePropRequest<any>[];
 }
 
 export function useGetAwaitingCommits() {
-  const toCommit = GeneratorInternal.useCommitQueue();
+  const registry = GeneratorInternal.useRegistry();
 
-  return useCallback(
-    () =>
+  return useCallback(() => {
+    const toCommit = registry.current.toCommit;
+    return (
       toCommit.addNodes.length +
       toCommit.setNodeProps.length +
       toCommit.setRowExtras.length +
-      toCommit.setRowUuid.length +
-      toCommit.setPageProps.length,
-    [toCommit],
-  );
+      toCommit.setPageProps.length
+    );
+  }, [registry]);
 }
 
 export function useCommit() {
   const addNodes = NodesInternal.useAddNodes();
+  const removeNodes = NodesInternal.useRemoveNodes();
   const setNodeProps = NodesInternal.useSetNodeProps();
   const setPageProps = NodesInternal.useSetPageProps();
   const setRowExtras = NodesInternal.useSetRowExtras();
-  const setRowUuids = NodesInternal.useSetRowUuids();
-  const toCommit = GeneratorInternal.useCommitQueue();
+  const registry = GeneratorInternal.useRegistry();
 
   return useCallback(() => {
+    const toCommit = registry.current.toCommit;
+    let changes = false;
+
     if (toCommit.addNodes.length) {
       generatorLog('logCommits', 'Committing', toCommit.addNodes.length, 'addNodes requests');
       addNodes(toCommit.addNodes);
       toCommit.addNodes.length = 0; // This truncates the array, but keeps the reference
-      updateCommitsPendingInBody(toCommit);
-      return true;
+      changes = true;
     }
 
-    let changes = false;
+    if (toCommit.removeNodes.length) {
+      generatorLog('logCommits', 'Committing', toCommit.removeNodes.length, 'removeNodes requests');
+      removeNodes(toCommit.removeNodes);
+      toCommit.removeNodes.length = 0;
+      changes = true;
+    }
+
     if (toCommit.setNodeProps.length) {
       generatorLog('logCommits', 'Committing', toCommit.setNodeProps.length, 'setNodeProps requests:', () => {
         const counts = {};
@@ -79,13 +90,6 @@ export function useCommit() {
       changes = true;
     }
 
-    if (toCommit.setRowUuid.length) {
-      generatorLog('logCommits', 'Committing', toCommit.setRowUuid.length, 'setRowUuid requests');
-      setRowUuids(toCommit.setRowUuid);
-      toCommit.setRowUuid.length = 0;
-      changes = true;
-    }
-
     if (toCommit.setPageProps.length) {
       generatorLog('logCommits', 'Committing', toCommit.setPageProps.length, 'setPageProps requests');
       setPageProps(toCommit.setPageProps);
@@ -95,14 +99,15 @@ export function useCommit() {
 
     updateCommitsPendingInBody(toCommit);
     return changes;
-  }, [addNodes, setNodeProps, setRowExtras, setRowUuids, toCommit, setPageProps]);
+  }, [addNodes, removeNodes, setNodeProps, setRowExtras, setPageProps, registry]);
 }
 
 export function SetWaitForCommits() {
   const setWaitForCommits = NodesInternal.useSetWaitForCommits();
-  const toCommit = GeneratorInternal.useCommitQueue();
+  const registry = GeneratorInternal.useRegistry();
 
   const waitForCommits = useCallback(async () => {
+    const toCommit = registry.current.toCommit;
     let didWait = false;
     while (Object.values(toCommit).some((arr) => arr.length > 0)) {
       await new Promise((resolve) => setTimeout(resolve, 4));
@@ -113,7 +118,7 @@ export function SetWaitForCommits() {
     if (didWait) {
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
-  }, [toCommit]);
+  }, [registry]);
 
   useEffect(() => {
     setWaitForCommits(waitForCommits);
@@ -131,13 +136,14 @@ export function SetWaitForCommits() {
  */
 export const NodesStateQueue = {
   useAddNode: (req: AddNodeRequest, condition = true) => useAddToQueue('addNodes', false, req, condition),
+  useRemoveNode: (req: Omit<RemoveNodeRequest, 'layouts'>) => useRemoveNode(req),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  useSetNodeProp: (req: SetNodePropRequest<any, any>, condition = true) =>
+  useSetNodeProp: (req: SetNodePropRequest<any, any>, condition: boolean) =>
     useAddToQueue('setNodeProps', true, req, condition),
-  useSetRowExtras: (req: SetRowExtrasRequest, condition = true) => useAddToQueue('setRowExtras', true, req, condition),
-  useSetRowUuid: (req: SetRowUuidRequest, condition = true) => useAddToQueue('setRowUuid', true, req, condition),
+  useSetRowExtras: (req: SetRowExtrasRequest, condition: boolean) =>
+    useAddToQueue('setRowExtras', true, req, condition),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  useSetPageProp: (req: SetPagePropRequest<any>, condition = true) =>
+  useSetPageProp: (req: SetPagePropRequest<any>, condition: boolean) =>
     useAddToQueue('setPageProps', true, req, condition),
 };
 
@@ -148,8 +154,8 @@ function useAddToQueue<T extends keyof RegistryCommitQueues>(
   condition: boolean,
 ) {
   const registry = GeneratorInternal.useRegistry();
-  const toCommit = GeneratorInternal.useCommitQueue();
-  const commit = useCommitWhenFinished();
+  const toCommit = registry.current.toCommit;
+  const commit = GeneratorData.useCommitWhenFinished();
 
   if (condition) {
     registry.current.toCommitCount += 1;
@@ -163,13 +169,37 @@ function useAddToQueue<T extends keyof RegistryCommitQueues>(
   }
 }
 
+function useRemoveNode(request: Omit<RemoveNodeRequest, 'layouts'>) {
+  // This state is intentionally not reactive, as we want to commit _what the layout was when this node was created_,
+  // so that we don't accidentally remove a node with the same ID from a future/different layout.
+  const layoutsWas = NodesStore.useStaticSelector((s) => s.layouts!);
+
+  const registry = GeneratorInternal.useRegistry();
+  const toCommit = registry.current.toCommit;
+  const ref = useAsRef(request);
+  const commit = GeneratorData.useCommitWhenFinished();
+
+  useEffect(() => {
+    const reg = registry.current;
+    const request = ref.current;
+
+    return () => {
+      reg.toCommitCount += 1;
+
+      toCommit.removeNodes.push({ ...request, layouts: layoutsWas });
+      updateCommitsPendingInBody(toCommit);
+      commit();
+    };
+  }, [commit, ref, registry, toCommit, layoutsWas]);
+}
+
 /**
  * Some of the queue hooks need to commit changes even when all stages are in a finished state. Even though we're not
  * in a generation cycle, we still need to commit changes like expressions updating, validations, etc. To speed this
  * up (setTimeout is slow, at least when debugging), we'll set a timeout once if this selector find out the generator
  * has finished.
  */
-function useCommitWhenFinished() {
+export function useCommitWhenFinished() {
   const commit = useCommit();
   const registry = GeneratorInternal.useRegistry();
   const stateRef = NodesStore.useSelectorAsRef((s) => s.stages);

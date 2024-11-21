@@ -44,7 +44,16 @@ export type ChangeInstanceData = (callback: (instance: IInstance | undefined) =>
 
 type InstanceStoreProps = Pick<InstanceContext, 'partyId' | 'instanceGuid'>;
 
-const { Provider, useMemoSelector, useSelector, useLaxMemoSelector, useHasProvider } = createZustandContext({
+const {
+  Provider,
+  useMemoSelector,
+  useSelector,
+  useLaxMemoSelector,
+  useHasProvider,
+  useLaxStore,
+  useLaxDelayedSelector,
+  useLaxDelayedSelectorProps,
+} = createZustandContext({
   name: 'InstanceContext',
   required: true,
   initialCreateStore: (props: InstanceStoreProps) =>
@@ -208,7 +217,7 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
  * know should only be used in instanceful contexts. Code paths that have to work in stateless/instanceless contexts
  * should use the lax versions and handle the undefined case.
  */
-function useLaxInstance<U>(selector: (state: InstanceContext) => U) {
+export function useLaxInstance<U>(selector: (state: InstanceContext) => U) {
   const out = useLaxMemoSelector(selector);
   return out === ContextNotProvided ? undefined : out;
 }
@@ -219,8 +228,6 @@ export const useLaxInstanceId = () => useLaxInstance((state) => state.instanceId
 export const useLaxInstanceData = <U,>(selector: (data: IInstance) => U) =>
   useLaxInstance((state) => (state.data ? selector(state.data) : undefined));
 export const useLaxInstanceAllDataElements = () => useLaxInstance((state) => state.data?.data) ?? emptyArray;
-export const useLaxInstanceDataElements = (dataType: string | undefined) =>
-  useLaxInstance((state) => state.data?.data.filter((d) => d.dataType === dataType)) ?? emptyArray;
 export const useLaxInstanceStatus = () => useLaxInstance((state) => state.data?.status);
 export const useLaxAppendDataElements = () => useLaxInstance((state) => state.appendDataElements);
 export const useLaxMutateDataElement = () => useLaxInstance((state) => state.mutateDataElement);
@@ -228,6 +235,34 @@ export const useLaxRemoveDataElement = () => useLaxInstance((state) => state.rem
 export const useLaxInstanceDataSources = () => useLaxInstance((state) => state.dataSources) ?? null;
 export const useLaxChangeInstance = (): ChangeInstanceData | undefined => useLaxInstance((state) => state.changeData);
 export const useHasInstance = () => useHasProvider();
+
+/** Beware that in later versions, this will re-render your component after every save, as
+ * the backend sends us updated instance data */
+export const useLaxInstanceDataElements = (dataType: string | undefined) =>
+  useLaxInstance((state) => state.data?.data.filter((d) => d.dataType === dataType)) ?? emptyArray;
+
+export type DataElementSelector = <U>(selector: (data: IData[]) => U, deps: unknown[]) => U | typeof ContextNotProvided;
+const dataElementsInnerSelector = (state: InstanceContext) => [state.data?.data ?? emptyArray];
+
+export const useLaxDataElementsSelector = (): DataElementSelector =>
+  useLaxDelayedSelector({
+    mode: 'innerSelector',
+    makeArgs: dataElementsInnerSelector,
+  });
+export const useLaxDataElementsSelectorProps = () =>
+  useLaxDelayedSelectorProps({
+    mode: 'innerSelector',
+    makeArgs: dataElementsInnerSelector,
+  });
+
+/** Like useLaxInstanceAllDataElements, but will never re-render when the data changes */
+export const useLaxInstanceAllDataElementsNow = () => {
+  const store = useLaxStore();
+  if (store === ContextNotProvided) {
+    return emptyArray;
+  }
+  return store.getState().data?.data ?? emptyArray;
+};
 
 export const useStrictInstanceRefetch = () => useSelector((state) => state.reFetch);
 export const useStrictInstanceId = () => useSelector((state) => state.instanceId);

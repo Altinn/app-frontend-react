@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useLocation } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
-import deepEqual from 'fast-deep-equal';
 
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
@@ -18,20 +16,22 @@ import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import {
+  SearchParams,
   useNavigate,
   useNavigationParam,
+  useNavigationPath,
   useQueryKey,
   useQueryKeysAsString,
   useQueryKeysAsStringAsRef,
 } from 'src/features/routing/AppRoutingContext';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
-import { SearchParams, useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
+import { useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { extractBottomButtons } from 'src/utils/formLayout';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { NodesInternal, useGetPage, useNode } from 'src/utils/layout/NodesContext';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
+import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { NavigateToNodeOptions } from 'src/features/form/layout/NavigateToNode';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 import type { NodeData } from 'src/utils/layout/types';
@@ -91,10 +91,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
     return (
       <>
         <ErrorProcessing setFormState={setFormState} />
-        <Loader
-          reason='form-ids'
-          renderPresentation={false}
-        />
+        <Loader reason='form-ids' />
       </>
     );
   }
@@ -159,7 +156,7 @@ export function FormFirstPage() {
   const navigate = useNavigate();
   const startUrl = useStartUrl();
 
-  const currentLocation = `${useLocation().pathname}${useQueryKeysAsString()}`;
+  const currentLocation = `${useNavigationPath()}${useQueryKeysAsString()}`;
 
   useEffect(() => {
     if (currentLocation !== startUrl) {
@@ -181,7 +178,6 @@ function useRedirectToStoredPage() {
   const instanceGuid = useNavigationParam('instanceGuid');
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const applicationMetadataId = useApplicationMetadata()?.id;
-  const location = useLocation().pathname;
 
   const instanceId = `${partyId}/${instanceGuid}`;
   const currentViewCacheKey = instanceId || applicationMetadataId;
@@ -194,7 +190,7 @@ function useRedirectToStoredPage() {
         navigateToPage(lastVisitedPage, { replace: true });
       }
     }
-  }, [pageKey, currentViewCacheKey, isValidPageId, location, navigateToPage]);
+  }, [pageKey, currentViewCacheKey, isValidPageId, navigateToPage]);
 }
 
 /**
@@ -234,52 +230,45 @@ function nodeDataIsRequired(n: NodeData) {
 function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
   const currentPageId = useCurrentView();
   const page = useGetPage(currentPageId);
+  const traversalSelector = useNodeTraversalSelector();
 
-  const topLevelNodeIds = useNodeTraversal((traverser) => {
-    if (!page) {
-      return emptyArray;
-    }
+  const topLevelNodeIds = traversalSelector(
+    (traverser) => {
+      if (!page) {
+        return emptyArray;
+      }
 
-    const all = traverser.with(page).children();
-    return all.map((n) => n.id);
-  });
+      const all = traverser.with(page).children();
+      return all.map((n) => n.id);
+    },
+    [currentPageId],
+  );
 
-  const hasRequired = useNodeTraversal((traverser) => {
-    if (!page) {
-      return false;
-    }
-    return traverser.with(page).flat((n) => n.type === 'node' && nodeDataIsRequired(n)).length > 0;
-  });
+  const hasRequired = traversalSelector(
+    (traverser) => {
+      if (!page) {
+        return false;
+      }
+      return traverser.with(page).flat((n) => n.type === 'node' && nodeDataIsRequired(n)).length > 0;
+    },
+    [currentPageId],
+  );
 
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
-  const [mainIds, errorReportIds] = useNodeTraversal((traverser) => {
-    if (!hasErrors || !page) {
-      return [topLevelNodeIds, []];
-    }
-    return extractBottomButtons(traverser.with(page).children());
-  });
+
+  const [mainIds, errorReportIds] = traversalSelector(
+    (traverser) => {
+      if (!hasErrors || !page) {
+        return [topLevelNodeIds, emptyArray];
+      }
+      return extractBottomButtons(traverser.with(page).children());
+    },
+    [currentPageId, hasErrors],
+  );
 
   useEffect(() => {
-    setFormState((prevState) => {
-      if (
-        prevState.hasRequired === hasRequired &&
-        deepEqual(mainIds, prevState.mainIds) &&
-        deepEqual(errorReportIds, prevState.errorReportIds) &&
-        prevState.formErrors === formErrors &&
-        prevState.taskErrors === taskErrors
-      ) {
-        return prevState;
-      }
-
-      return {
-        hasRequired,
-        mainIds,
-        errorReportIds,
-        formErrors,
-        taskErrors,
-      };
-    });
+    setFormState({ hasRequired, mainIds, errorReportIds, formErrors, taskErrors });
   }, [setFormState, hasRequired, mainIds, errorReportIds, formErrors, taskErrors]);
 
   return null;

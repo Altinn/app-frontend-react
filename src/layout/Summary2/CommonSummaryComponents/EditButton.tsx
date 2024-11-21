@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { Button } from '@digdir/designsystemet-react';
 import { Edit } from '@navikt/ds-icons';
 
+import { Button } from 'src/app-components/button/Button';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
@@ -17,7 +17,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type EditButtonProps = {
   componentNode: LayoutNode;
-  summaryComponentId: string;
+  summaryComponentId?: string;
   navigationOverride?: (() => Promise<NavigationResult> | void) | null;
 } & React.HTMLAttributes<HTMLButtonElement>;
 
@@ -74,7 +74,6 @@ export function EditButton({
     <Button
       onClick={onChangeClick}
       variant='tertiary'
-      size='small'
       className={className}
     >
       {!isMobile && <Lang id={'general.edit'} />}
