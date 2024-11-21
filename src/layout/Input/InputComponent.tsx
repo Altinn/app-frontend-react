@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { HelpText } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
 import { FormattedInput } from 'src/app-components/Input/FormattedInput';
 import { Input } from 'src/app-components/Input/Input';
@@ -20,7 +19,6 @@ import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Input/InputComponent.module.css';
 import { isNumberFormat, isPatternFormat } from 'src/layout/Input/number-format-helpers';
-import { gridBreakpoints } from 'src/utils/formComponentUtils';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { InputProps } from 'src/app-components/Input/Input';
@@ -172,49 +170,50 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
 
   const renderLabel = overrideDisplay?.renderLabel ?? true;
 
-  return (
-    <>
-      {renderLabel && (
-        <Grid
-          item
-          {...gridBreakpoints(grid?.labelGrid)}
-        >
-          <Label
-            htmlFor={id}
-            label={langAsString(textResourceBindings?.title)}
-            required={required}
-            requiredIndicator={<RequiredIndicator required={required} />}
-            optionalIndicator={
-              <OptionalIndicator
-                readOnly={readOnly}
-                required={required}
-                showOptionalMarking={!!labelSettings?.optionalIndicator}
-              />
-            }
-            help={
-              textResourceBindings?.help ? (
-                <HelpText
-                  id={`${id}-helptext`}
-                  title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
-                >
-                  <Lang id={textResourceBindings?.help} />
-                </HelpText>
-              ) : undefined
-            }
-            description={
-              textResourceBindings?.description ? (
-                <Description description={<Lang id={textResourceBindings?.description} />} />
-              ) : undefined
-            }
-          />
-        </Grid>
-      )}
-      <ComponentStructureWrapper node={node}>
-        <InputVariant
-          node={node}
-          overrideDisplay={overrideDisplay}
-        />
-      </ComponentStructureWrapper>
-    </>
+  const input = (
+    <ComponentStructureWrapper node={node}>
+      <InputVariant
+        node={node}
+        overrideDisplay={overrideDisplay}
+      />
+    </ComponentStructureWrapper>
   );
+
+  if (renderLabel) {
+    return (
+      <Label
+        htmlFor={id}
+        label={langAsString(textResourceBindings?.title)}
+        grid={grid?.labelGrid}
+        required={required}
+        requiredIndicator={<RequiredIndicator required={required} />}
+        optionalIndicator={
+          <OptionalIndicator
+            readOnly={readOnly}
+            required={required}
+            showOptionalMarking={!!labelSettings?.optionalIndicator}
+          />
+        }
+        help={
+          textResourceBindings?.help ? (
+            <HelpText
+              id={`${id}-helptext`}
+              title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
+            >
+              <Lang id={textResourceBindings?.help} />
+            </HelpText>
+          ) : undefined
+        }
+        description={
+          textResourceBindings?.description ? (
+            <Description description={<Lang id={textResourceBindings?.description} />} />
+          ) : undefined
+        }
+      >
+        {input}
+      </Label>
+    );
+  }
+
+  return input;
 };
