@@ -1,3 +1,4 @@
+import { layoutSetIsDefault } from 'src/features/form/layoutSets/TypeGuards';
 import { LayoutStyle } from 'src/layout/common.generated';
 import type { ILayoutSet, ILayoutSets } from 'src/layout/common.generated';
 
@@ -6,13 +7,15 @@ export function getLayoutSetForDataElement(
   datatype: string | undefined,
   layoutSets: ILayoutSets,
 ) {
-  const foundLayout = layoutSets.sets.find((layoutSet: ILayoutSet) => {
+  return layoutSets.sets.find((layoutSet: ILayoutSet) => {
     if (layoutSet.dataType !== datatype) {
       return false;
     }
-    return layoutSet.tasks?.find((taskId: string) => taskId === currentTaskId);
+    if (layoutSetIsDefault(layoutSet)) {
+      return layoutSet.tasks?.some((taskId: string) => taskId === currentTaskId);
+    }
+    return false;
   });
-  return foundLayout?.id;
 }
 
 export const shouldUseRowLayout = ({ layout, optionsCount }) => {

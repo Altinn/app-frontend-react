@@ -12,7 +12,12 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { isAttachmentUploaded } from 'src/features/attachments/index';
 import { sortAttachmentsByName } from 'src/features/attachments/sortAttachments';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import {
+  useLaxAppendDataElement,
+  useLaxInstanceId,
+  useLaxMutateDataElement,
+  useLaxRemoveDataElement,
+} from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getValidationIssueMessage } from 'src/features/validation/backendValidation/backendValidationUtils';
@@ -28,6 +33,7 @@ import type {
   UploadedAttachment,
 } from 'src/features/attachments/index';
 import type { BackendValidationIssue } from 'src/features/validation';
+import type { DSPropsForSimpleSelector } from 'src/hooks/delayedSelectors';
 import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
@@ -78,6 +84,7 @@ export interface AttachmentsStorePluginConfig {
 
     useAttachments: (node: FileUploaderNode) => IAttachment[];
     useAttachmentsSelector: () => AttachmentsSelector;
+    useAttachmentsSelectorProps: () => DSPropsForSimpleSelector<NodesContext, AttachmentsSelector>;
     useWaitUntilUploaded: () => (node: FileUploaderNode, attachment: TemporaryAttachment) => Promise<IData | false>;
 
     useHasPendingAttachments: () => boolean;
@@ -214,7 +221,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
   extraHooks(store: NodesStoreFull): AttachmentsStorePluginConfig['extraHooks'] {
     return {
       useAttachmentsUpload() {
-        const { changeData: changeInstanceData } = useLaxInstance() || {};
+        const appendDataElement = useLaxAppendDataElement();
         const upload = store.useSelector((state) => state.attachmentUpload);
         const fulfill = store.useSelector((state) => state.attachmentUploadFulfilled);
         const reject = store.useSelector((state) => state.attachmentUploadRejected);
@@ -240,28 +247,17 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               }
               if (action.dataModelBindings && 'list' in action.dataModelBindings) {
                 appendToListUnique({
-                  path: action.dataModelBindings.list,
+                  reference: action.dataModelBindings.list,
                   newValue: reply.id,
                 });
               } else if (action.dataModelBindings && 'simpleBinding' in action.dataModelBindings) {
                 setLeafValue({
-                  path: action.dataModelBindings.simpleBinding,
+                  reference: action.dataModelBindings.simpleBinding,
                   newValue: reply.id,
                 });
               }
               fulfill(fullAction, reply);
-
-              changeInstanceData &&
-                changeInstanceData((instance) => {
-                  if (instance?.data && reply) {
-                    return {
-                      ...instance,
-                      data: [...instance.data, reply],
-                    };
-                  }
-
-                  return instance;
-                });
+              appendDataElement?.(reply);
 
               return reply.id;
             } catch (err) {
@@ -284,7 +280,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
           [
             appendToListUnique,
             backendFeatures.jsonObjectInDataResponse,
-            changeInstanceData,
+            appendDataElement,
             fulfill,
             lang,
             langAsString,
@@ -298,7 +294,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       useAttachmentsUpdate() {
         const { mutateAsync: removeTag } = useAttachmentsRemoveTagMutation();
         const { mutateAsync: addTag } = useAttachmentsAddTagMutation();
-        const { changeData: changeInstanceData } = useLaxInstance() || {};
+        const mutateDataElement = useLaxMutateDataElement();
         const { lang } = useLanguage();
         const update = store.useSelector((state) => state.attachmentUpdate);
         const fulfill = store.useSelector((state) => state.attachmentUpdateFulfilled);
@@ -327,35 +323,18 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                 );
               }
               fulfill(action);
-
-              changeInstanceData &&
-                changeInstanceData((instance) => {
-                  if (instance?.data) {
-                    return {
-                      ...instance,
-                      data: instance.data.map((dataElement) => {
-                        if (dataElement.id === attachment.data.id) {
-                          return {
-                            ...dataElement,
-                            tags,
-                          };
-                        }
-                        return dataElement;
-                      }),
-                    };
-                  }
-                });
+              mutateDataElement?.(attachment.data.id, (dataElement) => ({ ...dataElement, tags }));
             } catch (error) {
               reject(action, error);
               toast(lang('form_filler.file_uploader_validation_error_update'), { type: 'error' });
             }
           },
-          [addTag, changeInstanceData, fulfill, lang, reject, removeTag, update],
+          [addTag, mutateDataElement, fulfill, lang, reject, removeTag, update],
         );
       },
       useAttachmentsRemove() {
         const { mutateAsync: removeAttachment } = useAttachmentsRemoveMutation();
-        const { changeData: changeInstanceData } = useLaxInstance() || {};
+        const removeDataElement = useLaxRemoveDataElement();
         const { lang } = useLanguage();
         const remove = store.useSelector((state) => state.attachmentRemove);
         const fulfill = store.useSelector((state) => state.attachmentRemoveFulfilled);
@@ -370,27 +349,18 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               await removeAttachment(action.attachment.data.id);
               if (action.dataModelBindings && 'list' in action.dataModelBindings) {
                 removeValueFromList({
-                  path: action.dataModelBindings.list,
+                  reference: action.dataModelBindings.list,
                   value: action.attachment.data.id,
                 });
               } else if (action.dataModelBindings && 'simpleBinding' in action.dataModelBindings) {
                 setLeafValue({
-                  path: action.dataModelBindings.simpleBinding,
+                  reference: action.dataModelBindings.simpleBinding,
                   newValue: undefined,
                 });
               }
 
               fulfill(action);
-
-              changeInstanceData &&
-                changeInstanceData((instance) => {
-                  if (instance?.data) {
-                    return {
-                      ...instance,
-                      data: instance.data.filter((d) => d.id !== action.attachment.data.id),
-                    };
-                  }
-                });
+              removeDataElement?.(action.attachment.data.id);
 
               return true;
             } catch (error) {
@@ -399,17 +369,17 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               return false;
             }
           },
-          [changeInstanceData, fulfill, lang, reject, remove, removeAttachment, removeValueFromList, setLeafValue],
+          [removeDataElement, fulfill, lang, reject, remove, removeAttachment, removeValueFromList, setLeafValue],
         );
       },
       useAttachments(node) {
-        return store.useSelector((state) => {
+        return store.useShallowSelector((state) => {
           if (!node) {
             return emptyArray;
           }
 
           const nodeData = state.nodeData[node.id];
-          if ('attachments' in nodeData) {
+          if (nodeData && 'attachments' in nodeData) {
             return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
           }
 
@@ -419,17 +389,14 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       useAttachmentsSelector() {
         return store.useDelayedSelector({
           mode: 'simple',
-          selector: (node: LayoutNode) => (state) => {
-            const nodeData = state.nodeData[node.id];
-            if (!nodeData) {
-              return emptyArray;
-            }
-            if ('attachments' in nodeData) {
-              return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
-            }
-            return emptyArray;
-          },
+          selector: attachmentSelector,
         }) satisfies AttachmentsSelector;
+      },
+      useAttachmentsSelectorProps() {
+        return store.useDelayedSelectorProps({
+          mode: 'simple',
+          selector: attachmentSelector,
+        });
       },
       useWaitUntilUploaded() {
         const zustandStore = store.useStore();
@@ -510,7 +477,7 @@ interface MutationVariables {
 
 function useAttachmentsUploadMutation() {
   const { doAttachmentUpload } = useAppMutations();
-  const instanceId = useLaxInstanceData()?.id;
+  const instanceId = useLaxInstanceId();
 
   const options: UseMutationOptions<IData, AxiosError, MutationVariables> = {
     mutationFn: ({ dataTypeId, file }: MutationVariables) => {
@@ -528,9 +495,20 @@ function useAttachmentsUploadMutation() {
   return useMutation(options);
 }
 
+const attachmentSelector = (node: LayoutNode) => (state: NodesContext) => {
+  const nodeData = state.nodeData[node.id];
+  if (!nodeData) {
+    return emptyArray;
+  }
+  if (nodeData && 'attachments' in nodeData) {
+    return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
+  }
+  return emptyArray;
+};
+
 function useAttachmentsAddTagMutation() {
   const { doAttachmentAddTag } = useAppMutations();
-  const instanceId = useLaxInstanceData()?.id;
+  const instanceId = useLaxInstanceId();
 
   return useMutation({
     mutationFn: ({ dataGuid, tagToAdd }: { dataGuid: string; tagToAdd: string }) => {
@@ -548,7 +526,7 @@ function useAttachmentsAddTagMutation() {
 
 function useAttachmentsRemoveTagMutation() {
   const { doAttachmentRemoveTag } = useAppMutations();
-  const instanceId = useLaxInstanceData()?.id;
+  const instanceId = useLaxInstanceId();
 
   return useMutation({
     mutationFn: ({ dataGuid, tagToRemove }: { dataGuid: string; tagToRemove: string }) => {
@@ -566,7 +544,7 @@ function useAttachmentsRemoveTagMutation() {
 
 function useAttachmentsRemoveMutation() {
   const { doAttachmentRemove } = useAppMutations();
-  const instanceId = useLaxInstanceData()?.id;
+  const instanceId = useLaxInstanceId();
   const language = useCurrentLanguage();
 
   return useMutation({

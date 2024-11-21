@@ -1,32 +1,31 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
-import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
+import { useGetOptionsQuery, useGetOptionsUrl } from 'src/features/options/useGetOptionsQuery';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { filterDuplicateOptions, verifyOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { IDataModelBindingsOptionsSimple, IDataModelBindingsSimple } from 'src/layout/common.generated';
+import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
 import type { CompIntermediateExact, CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type OptionsValueType = 'single' | 'multi';
 
 interface FetchOptionsProps {
-  valueType: OptionsValueType;
   node: LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
 }
 
-interface SetOptionsProps {
+interface SortedOptionsProps {
+  unsorted: IOptionInternal[];
   valueType: OptionsValueType;
-  dataModelBindings?: IDataModelBindingsOptionsSimple | IDataModelBindingsSimple;
+  item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
 }
 
 export interface GetOptionsResult {
@@ -53,37 +52,7 @@ export interface SetOptionsResult {
   rawData: string;
 
   setData: (values: string[]) => void;
-
-  // Workaround for dropdown (Combobox single) not clearing text input when value changes
-  // Can be used in the key-prop, will change every time the value changes
-  key: number;
 }
-
-interface EffectProps {
-  options: IOptionInternal[] | undefined;
-  preselectedOption: IOptionInternal | undefined;
-  unsafeSelectedValues: string[];
-  setValue: (values: string[]) => void;
-  isNodeHidden: boolean | undefined;
-  isNodesReady: boolean;
-}
-
-const getLabelsForActiveOptions = (selectedOptions: string[], allOptions: IOptionInternal[]): string[] =>
-  allOptions.filter((option) => selectedOptions.includes(option.value)).map((option) => option.label);
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const usePrevious = (value: any) => {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-};
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useHasChanged = (val: any) => {
-  const prevVal = usePrevious(val);
-  return prevVal !== val;
-};
 
 const defaultOptions: IOptionInternal[] = [];
 
@@ -98,11 +67,13 @@ const compareOptionAlphabetically =
     return sortOrder === 'asc' ? comparison : -comparison;
   };
 
-function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[]): SetOptionsResult {
-  const { valueType, dataModelBindings } = props;
+export function useSetOptions(
+  valueType: OptionsValueType,
+  dataModelBindings: IDataModelBindingsOptionsSimple | undefined,
+  options: IOptionInternal[],
+): SetOptionsResult {
   const { formData, setValue } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding ?? '';
-  const { langAsString } = useLanguage();
 
   const currentValues = useMemo(
     () => (value && value.length > 0 ? (valueType === 'multi' ? value.split(',') : [value]) : []),
@@ -110,36 +81,10 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
   );
 
   const selectedValues = useMemo(
-    () => currentValues.filter((value) => alwaysOptions.find((option) => option.value === value)),
-    [alwaysOptions, currentValues],
+    () => currentValues.filter((value) => options.find((option) => option.value === value)),
+    [options, currentValues],
   );
 
-  const translatedLabels = useMemo(
-    () => getLabelsForActiveOptions(currentValues, alwaysOptions).map((label) => langAsString(label)),
-    [alwaysOptions, currentValues, langAsString],
-  );
-
-  const labelsHaveChanged = useHasChanged(translatedLabels.join(','));
-
-  useEffect(() => {
-    if (!(dataModelBindings as IDataModelBindingsOptionsSimple)?.label) {
-      return;
-    }
-
-    if (!labelsHaveChanged) {
-      return;
-    }
-
-    if (valueType === 'single') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setValue('label' as any, translatedLabels.at(0));
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setValue('label' as any, translatedLabels);
-    }
-  }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, valueType]);
-
-  const [key, setKey] = useState(0);
   const setData = useCallback(
     (values: string[]) => {
       if (valueType === 'single') {
@@ -147,171 +92,114 @@ function useSetOptions(props: SetOptionsProps, alwaysOptions: IOptionInternal[])
       } else if (valueType === 'multi') {
         setValue('simpleBinding', values.join(','));
       }
-      setKey((k) => k + 1); // Workaround for Combobox
     },
     [setValue, valueType],
   );
 
   return {
-    key,
     rawData: value,
     selectedValues,
     unsafeSelectedValues: currentValues,
     setData,
   };
 }
-/**
- * If given the 'preselectedOptionIndex' property, we should automatically select the given option index as soon
- * as options are ready. The code is complex to guard against overwriting data that has been set by the user.
- */
-function usePreselectedOptionIndex(props: EffectProps) {
-  const { setValue, preselectedOption, isNodeHidden, isNodesReady } = props;
-  const hasSelectedInitial = useRef(false);
-  const hasValue = props.unsafeSelectedValues.length > 0;
-  const shouldSelectOptionAutomatically =
-    !hasValue &&
-    !hasSelectedInitial.current &&
-    preselectedOption !== undefined &&
-    isNodesReady &&
-    isNodeHidden !== true;
 
-  useEffect(() => {
-    if (shouldSelectOptionAutomatically) {
-      setValue([preselectedOption.value]);
-      hasSelectedInitial.current = true;
-    }
-  }, [preselectedOption, shouldSelectOptionAutomatically, setValue]);
+function useOptionsUrl(node: LayoutNode, item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>) {
+  const { optionsId, secure, mapping, queryParameters } = item;
+  return useGetOptionsUrl(node, optionsId, mapping, queryParameters, secure);
 }
 
-/**
- * If options has changed and the values no longer include the current value, we should clear the value.
- * This is especially useful when fetching options from an API with mapping, or when generating options
- * from a repeating group. If the options changed and the selected option (or selected row in a repeating group)
- * is gone, we should not save stale/invalid data, so we clear it.
- */
-function useRemoveStaleValues(props: EffectProps) {
-  useEffect(() => {
-    const { options, unsafeSelectedValues, setValue } = props;
-    if (!options) {
-      return;
-    }
-
-    const itemsToRemove = unsafeSelectedValues.filter((v) => !options.find((option) => option.value === v));
-    if (itemsToRemove.length > 0) {
-      setValue(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
-    }
-  }, [props]);
-}
-
-export function useFetchOptions({ node, valueType, item }: FetchOptionsProps): GetOptionsResult {
-  const { options, optionsId, secure, source, mapping, queryParameters, sortOrder, dataModelBindings } = item;
-  const preselectedOptionIndex = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
-  const { langAsString } = useLanguage();
-  const selectedLanguage = useCurrentLanguage();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { setValue } = useDataModelBindings(item.dataModelBindings as any);
+export function useFetchOptions({ node, item }: FetchOptionsProps) {
+  const { options, optionsId, source } = item;
+  const url = useOptionsUrl(node, item);
 
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
-  const { data: fetchedOptions, isFetching, isError } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
-  const isNodeHidden = Hidden.useIsHidden(node);
-  const isNodesReady = NodesInternal.useIsReady();
+  const { data, isFetching, error } = useGetOptionsQuery(url);
+  useLogFetchError(error, item);
 
-  const [calculatedOptions, preselectedOption] = useMemo(() => {
-    let draft = sourceOptions || fetchedOptions?.data || staticOptions;
-    verifyOptions(draft, valueType === 'multi');
-    let preselectedOption: IOptionInternal | undefined = undefined;
-    if (preselectedOptionIndex !== undefined && draft && draft[preselectedOptionIndex]) {
-      // This index uses the original options array, before any filtering or sorting
-      preselectedOption = draft[preselectedOptionIndex];
-    }
+  const downstreamParameters: string | undefined = data?.headers['altinn-downstreamparameters'];
 
-    verifyOptions(draft, valueType === 'multi');
+  return {
+    unsorted: sourceOptions ?? data?.data ?? staticOptions ?? defaultOptions,
+    isFetching,
+    downstreamParameters,
+  };
+}
 
-    if (draft && draft.length < 2) {
-      // No need to sort or filter if there are 0 or 1 options. Using langAsString() can lead to re-rendering, so
-      // we avoid it if we don't need it.
-      return [draft, preselectedOption];
-    }
-
-    if (draft) {
-      draft = filterDuplicateOptions(draft);
-    }
-    if (draft && sortOrder) {
-      draft = [...draft].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
-    }
-
-    return [draft, preselectedOption];
-  }, [
-    fetchedOptions?.data,
-    langAsString,
-    preselectedOptionIndex,
-    selectedLanguage,
-    sortOrder,
-    sourceOptions,
-    staticOptions,
-    valueType,
-  ]);
-
-  // Log error if fetching options failed
+// Log error if fetching options failed
+function useLogFetchError(error: Error | null, item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>) {
   useEffect(() => {
-    if (isError) {
+    if (error) {
+      const { id, optionsId, secure, mapping, queryParameters } = item;
       const _optionsId = optionsId ? `\noptionsId: ${optionsId}` : '';
       const _mapping = mapping ? `\nmapping: ${JSON.stringify(mapping)}` : '';
       const _queryParameters = queryParameters ? `\nqueryParameters: ${JSON.stringify(queryParameters)}` : '';
       const _secure = secure ? `\nsecure: ${secure}` : '';
 
       window.logErrorOnce(
-        `Failed to fetch options for node ${node.id}${_optionsId}${_mapping}${_queryParameters}${_secure}`,
+        `Failed to fetch options for node ${id}${_optionsId}${_mapping}${_queryParameters}${_secure}`,
       );
     }
-  }, [isError, mapping, node, optionsId, queryParameters, secure]);
+  }, [error, item]);
+}
 
-  const alwaysOptions = calculatedOptions || defaultOptions;
-  const { unsafeSelectedValues, setData } = useSetOptions(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { valueType, dataModelBindings: dataModelBindings as any },
-    alwaysOptions,
-  );
+const emptyArray: never[] = [];
+export function useSortedOptions({ unsorted, valueType, item }: SortedOptionsProps) {
+  const sortOrder = item.sortOrder;
+  const preselectedOptionIndex = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
+  const language = useLanguage();
+  const langAsString = language.langAsString;
+  const selectedLanguage = useCurrentLanguage();
 
-  const downstreamParameters: string = fetchedOptions?.headers['altinn-downstreamparameters'];
-  useEffect(() => {
-    if (dataModelBindings && 'metadata' in dataModelBindings && dataModelBindings.metadata && downstreamParameters) {
-      // The value might be url-encoded
-      setValue('metadata', decodeURIComponent(downstreamParameters));
+  return useMemo(() => {
+    let options = structuredClone(unsorted);
+    verifyOptions(options, valueType === 'multi');
+    let preselectedOption: IOptionInternal | undefined = undefined;
+    if (preselectedOptionIndex !== undefined && options && options[preselectedOptionIndex]) {
+      // This index uses the original options array, before any filtering or sorting
+      preselectedOption = options[preselectedOptionIndex];
     }
-  }, [dataModelBindings, downstreamParameters, setValue]);
 
-  const effectProps: EffectProps = useMemo(
-    () => ({
-      options: calculatedOptions,
-      valueType,
-      preselectedOption,
-      unsafeSelectedValues,
-      setValue: setData,
-      isNodeHidden,
-      isNodesReady,
-    }),
-    [calculatedOptions, unsafeSelectedValues, preselectedOption, setData, valueType, isNodeHidden, isNodesReady],
-  );
+    verifyOptions(options, valueType === 'multi');
 
-  usePreselectedOptionIndex(effectProps);
-  useRemoveStaleValues(effectProps);
+    if (!options || options.length === 0) {
+      return { options: emptyArray, preselectedOption };
+    }
 
-  return {
-    options: alwaysOptions,
-    isFetching,
-  };
+    if (options.length < 2) {
+      // No need to sort or filter if there are 0 or 1 options. Using langAsString() can lead to re-rendering, so
+      // we avoid it if we don't need it.
+      return { options, preselectedOption };
+    }
+
+    options = filterDuplicateOptions(options);
+    if (sortOrder) {
+      options = [...options].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
+    }
+
+    return { options, preselectedOption };
+  }, [langAsString, preselectedOptionIndex, selectedLanguage, sortOrder, unsorted, valueType]);
 }
 
 export function useGetOptions(
   node: LayoutNode<CompWithBehavior<'canHaveOptions'>>,
   valueType: OptionsValueType,
 ): GetOptionsResult & SetOptionsResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings) as any;
+  const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings) as
+    | IDataModelBindingsOptionsSimple
+    | undefined;
+
+  return useGetOptionsUsingDmb(node, valueType, dataModelBindings);
+}
+
+export function useGetOptionsUsingDmb(
+  node: LayoutNode<CompWithBehavior<'canHaveOptions'>>,
+  valueType: OptionsValueType,
+  dataModelBindings: IDataModelBindingsOptionsSimple | undefined,
+): GetOptionsResult & SetOptionsResult {
   const get = useNodeOptions(node);
-  const set = useSetOptions({ valueType, dataModelBindings }, get.options);
+  const set = useSetOptions(valueType, dataModelBindings, get.options);
 
   return useMemo(() => ({ ...get, ...set }), [get, set]);
 }

@@ -4,7 +4,9 @@ import { jest } from '@jest/globals';
 import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import * as useDeviceWidths from 'src/hooks/useDeviceWidths';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -84,9 +86,9 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
         FlagLink: 'FlagLink',
       },
       dataModelBindings: {
-        Name: 'CountryName',
-        Population: 'CountryPopulation',
-        HighestMountain: 'CountryHighestMountain',
+        Name: { dataType: defaultDataTypeMock, field: 'CountryName' },
+        Population: { dataType: defaultDataTypeMock, field: 'CountryPopulation' },
+        HighestMountain: { dataType: defaultDataTypeMock, field: 'CountryHighestMountain' },
       },
       sortableColumns: ['population', 'highestMountain'],
       pagination: paginationData,
@@ -124,6 +126,11 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
   });
 
 describe('ListComponent', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useRealTimers();
+  });
+
   it('should render rows that is sent in but not rows that is not sent in', async () => {
     await render();
 
@@ -155,9 +162,9 @@ describe('ListComponent', () => {
     expect(formDataMethods.setMultiLeafValues).toHaveBeenCalledWith({
       debounceTimeout: undefined,
       changes: [
-        { path: 'CountryName', newValue: 'Sweden' },
-        { path: 'CountryPopulation', newValue: 10 },
-        { path: 'CountryHighestMountain', newValue: 1738 },
+        { reference: { field: 'CountryName', dataType: defaultDataTypeMock }, newValue: 'Sweden' },
+        { reference: { field: 'CountryPopulation', dataType: defaultDataTypeMock }, newValue: 10 },
+        { reference: { field: 'CountryHighestMountain', dataType: defaultDataTypeMock }, newValue: 1738 },
       ],
     });
     expect(screen.getByTestId('render-count')).toHaveTextContent('2');
@@ -168,9 +175,9 @@ describe('ListComponent', () => {
     expect(formDataMethods.setMultiLeafValues).toHaveBeenCalledWith({
       debounceTimeout: undefined,
       changes: [
-        { path: 'CountryName', newValue: 'Denmark' },
-        { path: 'CountryPopulation', newValue: 6 },
-        { path: 'CountryHighestMountain', newValue: 170 },
+        { reference: { field: 'CountryName', dataType: defaultDataTypeMock }, newValue: 'Denmark' },
+        { reference: { field: 'CountryPopulation', dataType: defaultDataTypeMock }, newValue: 6 },
+        { reference: { field: 'CountryHighestMountain', dataType: defaultDataTypeMock }, newValue: 170 },
       ],
     });
     expect(screen.getByTestId('render-count')).toHaveTextContent('3');
@@ -189,7 +196,33 @@ describe('ListComponent', () => {
       { op: 'add', path: '/CountryPopulation', value: 6 },
       { op: 'add', path: '/CountryHighestMountain', value: 170 },
     ]);
+  });
 
-    jest.useRealTimers();
+  it('should save all field values in when in mobile', async () => {
+    jest.useFakeTimers();
+    jest.spyOn(useDeviceWidths, 'useIsMobile').mockReturnValue(true);
+
+    const user = userEvent.setup({ delay: null });
+    const { formDataMethods } = await render({ component: { tableHeadersMobile: ['Name', 'FlagLink'] } });
+
+    // Make sure test is not broken by changing mobile-view implementation
+    expect(useDeviceWidths.useIsMobile).toHaveBeenCalled();
+
+    // There should be one radio for each country, but none of them should be checked
+    await waitFor(() => expect(screen.getAllByRole('radio')).toHaveLength(6));
+    expect(screen.queryByRole('radio', { checked: true })).not.toBeInTheDocument();
+
+    // Select the second row
+    const swedishRow = screen.getByRole('radio', { name: /sweden/i });
+    await user.click(swedishRow);
+
+    expect(formDataMethods.setMultiLeafValues).toHaveBeenCalledWith({
+      debounceTimeout: undefined,
+      changes: [
+        { reference: { field: 'CountryName', dataType: defaultDataTypeMock }, newValue: 'Sweden' },
+        { reference: { field: 'CountryPopulation', dataType: defaultDataTypeMock }, newValue: 10 },
+        { reference: { field: 'CountryHighestMountain', dataType: defaultDataTypeMock }, newValue: 1738 },
+      ],
+    });
   });
 });

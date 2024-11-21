@@ -1,19 +1,21 @@
 import React from 'react';
 
+import { Button } from 'src/app-components/button/Button';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
-import { WrappedButton } from 'src/layout/Button/WrappedButton';
 import type { IInstantiationButtonComponentProvidedProps } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 
 type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedProps>, 'text'>;
 
+// TODO(Datamodels): This uses mapping and therefore only supports the "default" data model
 export const InstantiationButton = ({ children, ...props }: Props) => {
   const { instantiateWithPrefill, error, isLoading } = useInstantiation();
-  const prefill = FD.useMapping(props.mapping);
+  const prefill = FD.useMapping(props.mapping, DataModels.useDefaultDataType());
   const party = useCurrentParty();
 
-  const instantiate = () => {
+  const onClick = () => {
     instantiateWithPrefill(props.node, {
       prefill,
       instanceOwner: {
@@ -21,7 +23,6 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
       },
     });
   };
-  const busyWithId = isLoading ? props.id : '';
 
   React.useEffect(() => {
     if (error) {
@@ -30,13 +31,15 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   }, [error]);
 
   return (
-    <WrappedButton
+    <Button
       {...props}
-      nodeId={props.node.id}
-      onClick={instantiate}
-      busyWithId={busyWithId}
+      id={props.node.id}
+      onClick={onClick}
+      isLoading={isLoading}
+      variant='secondary'
+      color='first'
     >
       {children}
-    </WrappedButton>
+    </Button>
   );
 };

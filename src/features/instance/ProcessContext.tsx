@@ -1,39 +1,24 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { createContext, useCallback, useContext, useEffect } from 'react';
+import type { PropsWithChildren } from 'react';
 
-import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
-import { TaskKeys, useNavigatePage } from 'src/hooks/useNavigatePage';
+import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
+import { fetchProcessState } from 'src/queries/queries';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
-import type { IInstance, IProcess } from 'src/types/shared';
+import type { IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-interface IProcessContext {
-  data: IProcess;
-  setData: (data: IProcess | undefined) => void;
-  reFetch: () => Promise<void>;
-}
-
-const { Provider, useCtx, useHasProvider } = createContext<IProcessContext | undefined>({
-  name: 'Process',
-  required: false,
-  default: undefined,
-});
-
-export const useHasProcessProvider = () => useHasProvider();
-
 // Also used for prefetching @see appPrefetcher.ts
-export function useProcessQueryDef(instanceId?: string): QueryDefinition<IProcess> {
-  const { fetchProcessState } = useAppQueries();
+export function getProcessQueryDef(instanceId?: string): QueryDefinition<IProcess> {
   return {
     queryKey: ['fetchProcessState', instanceId],
     queryFn: instanceId ? () => fetchProcessState(instanceId) : skipToken,
@@ -41,34 +26,20 @@ export function useProcessQueryDef(instanceId?: string): QueryDefinition<IProces
   };
 }
 
-function useProcessQuery(instanceId: string) {
-  const utils = useQuery<IProcess, HttpClientError>(useProcessQueryDef(instanceId));
+const ProcessContext = createContext<Pick<UseQueryResult<IProcess, HttpClientError>, 'data' | 'refetch'> | undefined>(
+  undefined,
+);
 
-  useEffect(() => {
-    utils.error && window.logError('Fetching process state failed:\n', utils.error);
-  }, [utils.error]);
-
-  return utils;
-}
-
-export function ProcessProvider({ children, instance }: React.PropsWithChildren<{ instance: IInstance }>) {
+export function ProcessProvider({ children, instanceId }: PropsWithChildren<{ instanceId: string }>) {
   const taskId = useNavigationParam('taskId');
-  const { navigateToTask } = useNavigatePage();
-  const query = useProcessQuery(instance.id);
-  const reFetchNative = query.refetch;
-  const reFetch = useCallback(async () => void (await reFetchNative()), [reFetchNative]);
-  const queryClient = useQueryClient();
-  const instanceId = useLaxInstanceData()?.id;
   const layoutSets = useLayoutSets();
+  const navigateToTask = useNavigateToTask();
 
-  const setData = useCallback(
-    (data: IProcess | undefined) => queryClient.setQueryData(['fetchProcessState', instanceId], data),
-    [queryClient, instanceId],
-  );
+  const { isLoading, data, error, refetch } = useQuery<IProcess, HttpClientError>(getProcessQueryDef(instanceId));
 
   useEffect(() => {
-    const elementId = query?.data?.currentTask?.elementId;
-    if (query?.data?.ended) {
+    const elementId = data?.currentTask?.elementId;
+    if (data?.ended) {
       const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
       if (hasCustomReceipt) {
         navigateToTask(TaskKeys.CustomReceipt);
@@ -78,35 +49,27 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
     } else if (elementId && elementId !== taskId) {
       navigateToTask(elementId, { replace: true, runEffect: taskId !== undefined });
     }
-    /**
-     * We only want to run this effect when the query data changes.
-     */
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query.data]);
+  }, [data]);
 
-  if (query.error) {
-    return <DisplayError error={query.error} />;
-  }
-  if (!query.data || query.isLoading) {
+  useEffect(() => {
+    error && window.logError('Fetching process state failed:\n', error);
+  }, [error]);
+
+  if (isLoading) {
     return <Loader reason='fetching-process' />;
   }
 
-  return (
-    <Provider
-      value={{
-        data: query.data,
-        setData,
-        reFetch,
-      }}
-    >
-      {children}
-    </Provider>
-  );
+  if (error) {
+    return <DisplayError error={error} />;
+  }
+
+  return <ProcessContext.Provider value={{ data, refetch }}>{children}</ProcessContext.Provider>;
 }
 
-export const useLaxProcessData = () => useCtx()?.data;
-export const useSetProcessData = () => useCtx()?.setData;
-export const useReFetchProcessData = () => useCtx()?.reFetch;
+export const useHasProcessProvider = () => useContext(ProcessContext) !== undefined;
+export const useLaxProcessData = () => useContext(ProcessContext)?.data;
+export const useReFetchProcessData = () => useContext(ProcessContext)?.refetch;
 
 /**
  * This returns the task type of the current process task, as we got it from the backend
@@ -144,11 +107,7 @@ export function useRealTaskType() {
  * taskType of the currentTask if the currentTask matches
  * the taskId provided.
  */
-export function useTaskType(taskId: string | undefined) {
-  return useGetTaskType()(taskId);
-}
-
-export function useGetTaskType() {
+export function useGetTaskTypeById() {
   const processData = useLaxProcessData();
   const isStateless = useApplicationMetadata().isStatelessApp;
   const layoutSets = useLayoutSets();

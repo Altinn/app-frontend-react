@@ -7,8 +7,10 @@ import type { StoreApi } from 'zustand';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
+import { useShallow } from 'src/hooks/useShallowObjectMemo';
 import type { CreateContextProps } from 'src/core/contexts/context';
-import type { DSConfig, DSMode, DSReturn } from 'src/hooks/delayedSelectors';
+import type { DSConfig, DSMode, DSProps, DSReturn } from 'src/hooks/delayedSelectors';
+import type { ObjectOrArray } from 'src/hooks/useShallowObjectMemo';
 
 type ExtractFromStoreApi<T> = T extends StoreApi<infer U> ? Exclude<U, void> : never;
 
@@ -19,6 +21,11 @@ type SelectorFunc<T> = <U>(selector: Selector<T, U>) => U;
 type SelectorRefFunc<T> = <U>(selector: Selector<T, U>) => { current: U };
 type SelectorRefFuncLax<T> = <U>(selector: Selector<T, U>) => { current: U | typeof ContextNotProvided };
 type SelectorFuncLax<T> = <U>(selector: Selector<T, U>) => U | typeof ContextNotProvided;
+
+type ObjectOrArraySelectorFunc<T> = <U extends ObjectOrArray>(selector: Selector<T, U>) => U;
+type ObjectOrArraySelectorFuncLax<T> = <U extends ObjectOrArray>(
+  selector: Selector<T, U>,
+) => U | typeof ContextNotProvided;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createZustandContext<Store extends StoreApi<Type>, Type = ExtractFromStoreApi<Store>, Props = any>(
@@ -35,6 +42,11 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
    * changes, and the component will re-render if the selected value changes when compared with the previous value.
    */
   const useSelector: SelectorFunc<Type> = (selector) => useStore(useCtx(), selector);
+
+  /**
+   * A light weight hook that can be used to select static values from the store like update functions which are never changed.
+   */
+  const useStaticSelector: SelectorFunc<Type> = (selector) => selector(useCtx().getState());
 
   const useSelectorAsRef: SelectorRefFunc<Type> = (selector) => {
     const store = useCtx();
@@ -122,6 +134,23 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     return useStore(store, selector as any);
   };
 
+  /**
+   * A hook like useSelector() that can be used to select several things in one by returning a list or object containing the things to select.
+   * Will use shallow comparison to keep stable object references as long as the things inside don't change.
+   * See: https://zustand.docs.pmnd.rs/hooks/use-shallow
+   */
+  const useShallowSelector: ObjectOrArraySelectorFunc<Type> = (selector) => useStore(useCtx(), useShallow(selector));
+
+  const useLaxShallowSelector: ObjectOrArraySelectorFuncLax<Type> = (_selector) => {
+    const _store = useLaxCtx();
+    const store = _store === ContextNotProvided ? dummyStore : _store;
+    const selector = _store === ContextNotProvided ? () => ContextNotProvided : _selector;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const _useShallow = _store === ContextNotProvided ? (s: any) => s : useShallow;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return useStore(store, _useShallow(selector as any));
+  };
+
   function MyProvider({ children, ...props }: PropsWithChildren<Props>) {
     const storeRef = useRef<Store>();
     if (!storeRef.current) {
@@ -160,6 +189,26 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
       deps,
     });
 
+  const useDSProps = <Mode extends DSMode<Type>>(
+    mode: Mode,
+    deps?: unknown[],
+  ): DSProps<DSConfig<Type, Mode, SelectorStrictness.throwWhenNotProvided>> => ({
+    store: useCtx(),
+    strictness: SelectorStrictness.throwWhenNotProvided,
+    mode,
+    deps,
+  });
+
+  const useLaxDSProps = <Mode extends DSMode<Type>>(
+    mode: Mode,
+    deps?: unknown[],
+  ): DSProps<DSConfig<Type, Mode, SelectorStrictness.returnWhenNotProvided>> => ({
+    store: useLaxCtx(),
+    strictness: SelectorStrictness.returnWhenNotProvided,
+    mode,
+    deps,
+  });
+
   return {
     Provider: MyProvider,
     useSelector,
@@ -167,11 +216,16 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     useLaxSelectorAsRef,
     useMemoSelector,
     useLaxMemoSelector,
+    useShallowSelector,
+    useLaxShallowSelector,
     useLaxSelector,
     useDelayedSelector: useDS,
     useLaxDelayedSelector: useLaxDS,
+    useDelayedSelectorProps: useDSProps,
+    useLaxDelayedSelectorProps: useLaxDSProps,
     useHasProvider,
     useStore: useCtx,
     useLaxStore: useLaxCtx,
+    useStaticSelector,
   };
 }

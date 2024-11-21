@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
@@ -7,51 +7,59 @@ import { createStore } from 'zustand';
 import type { UnionToIntersection } from 'utility-types';
 import type { StoreApi } from 'zustand';
 
-import { ContextNotProvided } from 'src/core/contexts/context';
+import { ContextNotProvided, createContext } from 'src/core/contexts/context';
+import { DataLoadingState, useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
+import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
 import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStorePlugin';
 import { UpdateAttachmentsForCypress } from 'src/features/attachments/UpdateAttachmentsForCypress';
-import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { HiddenComponentsProvider } from 'src/features/form/dynamics/HiddenComponentsProvider';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
+import { useIsCurrentView } from 'src/features/routing/AppRoutingContext';
+import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import {
   LoadingBlockerWaitForValidation,
   ProvideWaitForValidation,
-  UpdateExpressionValidation,
+  Validation,
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
-import { useCurrentView } from 'src/hooks/useNavigatePage';
+import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
+import { getComponentDef } from 'src/layout';
+import { useGetAwaitingCommits } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
+import { GeneratorGlobalProvider, GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import {
+  createStagesStore,
   GeneratorStages,
-  GeneratorStagesProvider,
-  NODES_TICK_TIMEOUT,
-  useGetAwaitingCommits,
+  GeneratorStagesEffects,
+  useRegistry,
 } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
+import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
-import type { DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
+import type { DSProps, DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
 import type { WaitForState } from 'src/hooks/useWaitForState';
-import type { CompTypes } from 'src/layout/layout';
-import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
+import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
+import type { LayoutComponent } from 'src/layout/LayoutComponent';
+import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
-import type { BaseRow, GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
+import type { GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
 
 export interface PagesData {
   type: 'pages';
@@ -60,16 +68,11 @@ export interface PagesData {
   };
 }
 
-export interface HiddenState {
-  hiddenByRules: boolean;
-  hiddenByExpression: boolean;
-  hiddenByTracks: boolean;
-}
-
 export interface PageData {
   type: 'page';
   pageKey: string;
-  hidden: HiddenState;
+  hidden: boolean;
+  inOrder: boolean;
   errors: GeneratorErrors | undefined;
 }
 
@@ -98,8 +101,11 @@ type ExtraHooks = AllFlat<{
 export interface AddNodeRequest<T extends CompTypes = CompTypes> {
   node: LayoutNode<T>;
   targetState: NodeData<T>;
-  claim: ChildClaim;
-  row: BaseRow | undefined;
+}
+
+export interface RemoveNodeRequest<T extends CompTypes = CompTypes> {
+  node: LayoutNode<T>;
+  layouts: ILayouts;
 }
 
 export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeData<T>> {
@@ -107,6 +113,7 @@ export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeDat
   prop: K;
   value: NodeData<T>[K];
   partial?: boolean;
+  force?: boolean;
 }
 
 export interface SetPagePropRequest<K extends keyof PageData> {
@@ -118,7 +125,6 @@ export interface SetPagePropRequest<K extends keyof PageData> {
 export enum NodesReadiness {
   Ready = 'READY',
   NotReady = 'NOT READY',
-  WaitingUntilLastSaveHasProcessed = 'WAIT FOR SAVE',
 }
 
 export type NodesContext = {
@@ -128,24 +134,26 @@ export type NodesContext = {
   addRemoveCounter: number;
 
   hasErrors: boolean;
-  nodes: LayoutPages | undefined;
   pagesData: PagesData;
   nodeData: { [key: string]: NodeData };
+  prevNodeData: { [key: string]: NodeData } | undefined; // Earlier node data from before the state became non-ready
   hiddenViaRules: { [key: string]: true | undefined };
   hiddenViaRulesRan: boolean;
 
-  setNodes: (nodes: LayoutPages) => void;
+  layouts: ILayouts | undefined; // Used to detect if the layouts have changed
+  stages: GeneratorStagesContext;
+
   addNodes: (requests: AddNodeRequest[]) => void;
-  removeNode: (node: LayoutNode, claim: ChildClaim, row: BaseRow | undefined) => void;
+  removeNodes: (request: RemoveNodeRequest[]) => void;
   setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
   addError: (error: string, node: LayoutPage | LayoutNode) => void;
   markHiddenViaRule: (hiddenFields: { [nodeId: string]: true }) => void;
 
   addPage: (pageKey: string) => void;
   setPageProps: <K extends keyof PageData>(requests: SetPagePropRequest<K>[]) => void;
-  markReady: (readiness?: NodesReadiness) => void;
+  markReady: (reason: string, readiness?: NodesReadiness) => void;
 
-  reset: () => void;
+  reset: (layouts: ILayouts, validationsProcessedLast: ValidationsProcessedLast) => void;
 
   waitForCommits: undefined | (() => Promise<void>);
   setWaitForCommits: (waitForCommits: () => Promise<void>) => void;
@@ -159,24 +167,33 @@ export function nodesProduce(fn: (draft: NodesContext) => void) {
   return produce(fn) as unknown as Partial<NodesContext>;
 }
 
+interface CreateStoreProps {
+  validationsProcessedLast: ValidationsProcessedLast;
+  registry: MutableRefObject<Registry>;
+}
+
 export type NodesContextStore = StoreApi<NodesContext>;
-export function createNodesDataStore() {
+export function createNodesDataStore({ registry, validationsProcessedLast }: CreateStoreProps) {
   const defaultState = {
     readiness: NodesReadiness.NotReady,
     addRemoveCounter: 0,
     hasErrors: false,
-    nodes: undefined,
     pagesData: {
       type: 'pages' as const,
       pages: {},
     },
     nodeData: {},
+    prevNodeData: {},
     hiddenViaRules: {},
     hiddenViaRulesRan: false,
+    validationsProcessedLast,
   };
 
   return createStore<NodesContext>((set) => ({
     ...defaultState,
+
+    layouts: undefined,
+    stages: createStagesStore(registry, set),
 
     markHiddenViaRule: (newState) =>
       set((state) => {
@@ -187,61 +204,62 @@ export function createNodesDataStore() {
         return { hiddenViaRules: newState, hiddenViaRulesRan: true };
       }),
 
-    setNodes: (nodes) => set({ nodes }),
     addNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        for (const { node, targetState, claim, row } of requests) {
-          if (nodeData[node.id]) {
-            const errorMsg =
-              `Cannot add node '${node.id}', it already exists. ` +
-              `Maybe the layout-set has one or more components with duplicate IDs?`;
-            window.logError(errorMsg);
-            throw new Error(errorMsg);
-          }
-
+        for (const { node, targetState } of requests) {
           nodeData[node.id] = targetState;
-
-          if (node.parent instanceof BaseLayoutNode) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const additionalParentState = node.parent.def.addChild(nodeData[node.parent.id] as any, node, claim, row);
-            nodeData[node.parent.id] = {
-              ...nodeData[node.parent.id],
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              ...(additionalParentState as any),
-            };
-          }
-
           node.page._addChild(node);
         }
-        return { nodeData, readiness: NodesReadiness.NotReady, addRemoveCounter: state.addRemoveCounter + 1 };
+
+        return {
+          nodeData,
+          readiness: NodesReadiness.NotReady,
+          addRemoveCounter: state.addRemoveCounter + 1,
+        };
       }),
-    removeNode: (node, claim, row) =>
+    removeNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        if (!nodeData[node.id]) {
+
+        let count = 0;
+        for (const { node, layouts } of requests) {
+          if (!nodeData[node.id]) {
+            continue;
+          }
+
+          if (layouts !== state.layouts) {
+            // The layouts have changed since the request was added, so there's no need to remove the node (it was
+            // automatically removed when resetting the NodesContext state upon the layout change)
+            continue;
+          }
+
+          if (layouts !== state.layouts) {
+            // The layouts have changed since the request was added, so there's no need to remove the node (it was
+            // automatically removed when resetting the NodesContext state upon the layout change)
+            continue;
+          }
+
+          delete nodeData[node.id];
+          node.page._removeChild(node);
+          count += 1;
+        }
+
+        if (count === 0) {
           return {};
         }
 
-        if (node.parent instanceof BaseLayoutNode && nodeData[node.parent.id]) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const additionalParentState = node.parent.def.removeChild(nodeData[node.parent.id] as any, node, claim, row);
-          nodeData[node.parent.id] = {
-            ...nodeData[node.parent.id],
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ...(additionalParentState as any),
-          };
-        }
-
-        delete nodeData[node.id];
-        node.page._removeChild(node);
-        return { nodeData, readiness: NodesReadiness.NotReady, addRemoveCounter: state.addRemoveCounter + 1 };
+        return {
+          nodeData,
+          readiness: NodesReadiness.NotReady,
+          addRemoveCounter: state.addRemoveCounter + 1,
+        };
       }),
     setNodeProps: (requests) =>
       set((state) => {
         let changes = false;
         const nodeData = { ...state.nodeData };
-        for (const { node, prop, value, partial } of requests) {
+        for (const { node, prop, value, partial, force } of requests) {
           if (!nodeData[node.id]) {
             continue;
           }
@@ -249,6 +267,7 @@ export function createNodesDataStore() {
           const thisNode = { ...nodeData[node.id] };
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const prev = thisNode[prop as any];
+
           if (partial && value && prev && typeof prev === 'object' && typeof value === 'object') {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             thisNode[prop as any] = { ...thisNode[prop as any], ...value };
@@ -256,7 +275,8 @@ export function createNodesDataStore() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             thisNode[prop as any] = value;
           }
-          if (!deepEqual(nodeData[node.id][prop], thisNode[prop])) {
+
+          if (force || !deepEqual(nodeData[node.id][prop], thisNode[prop])) {
             changes = true;
             nodeData[node.id] = thisNode;
           }
@@ -278,7 +298,7 @@ export function createNodesDataStore() {
 
           // We need to mark the data as not ready as soon as an error is added, because GeneratorErrorBoundary
           // may need to remove the failing node from the tree before any more node traversal can happen safely.
-          state.readiness = NodesReadiness.NotReady;
+          setReadiness({ state, target: NodesReadiness.NotReady, reason: `Error added`, mutate: true });
 
           state.hasErrors = true;
         }),
@@ -293,15 +313,17 @@ export function createNodesDataStore() {
           state.pagesData.pages[pageKey] = {
             type: 'page',
             pageKey,
-            hidden: {
-              hiddenByRules: false,
-              hiddenByExpression: false,
-              hiddenByTracks: false,
-            },
+            hidden: false,
+            inOrder: true,
             errors: undefined,
           };
-          state.readiness = NodesReadiness.NotReady;
-          state.addRemoveCounter += 1;
+          setReadiness({
+            state,
+            target: NodesReadiness.NotReady,
+            reason: `New page added`,
+            mutate: true,
+            newNodes: true,
+          });
         }),
       ),
     setPageProps: (requests) =>
@@ -317,9 +339,14 @@ export function createNodesDataStore() {
         }
         return { pagesData: { type: 'pages', pages: pageData } };
       }),
-    markReady: (readiness = NodesReadiness.Ready) => set(() => ({ readiness })),
+    markReady: (reason, readiness = NodesReadiness.Ready) =>
+      set((state) => setReadiness({ state, target: readiness, reason })),
 
-    reset: () => set(() => ({ ...structuredClone(defaultState) })),
+    reset: (layouts, validationsProcessedLast: ValidationsProcessedLast) =>
+      set(() => {
+        generatorLog('logReadiness', 'Resetting state');
+        return { ...structuredClone(defaultState), layouts, validationsProcessedLast };
+      }),
 
     waitForCommits: undefined,
     setWaitForCommits: (waitForCommits) => set(() => ({ waitForCommits })),
@@ -329,12 +356,58 @@ export function createNodesDataStore() {
       .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraFunctions),
   }));
 }
+
+interface SetReadinessProps {
+  state: NodesContext;
+  target: NodesReadiness;
+  reason: string;
+  newNodes?: boolean;
+  mutate?: boolean;
+}
+
+/**
+ * Helper function to set new readiness state. Never try to set a new readiness without going through this function.
+ */
+export function setReadiness({
+  state,
+  target,
+  reason,
+  newNodes = false,
+  mutate = false,
+}: SetReadinessProps): Partial<NodesContext> {
+  const toSet: Partial<NodesContext> = {};
+  if (state.readiness !== target) {
+    generatorLog('logReadiness', `Marking state as ${target}: ${reason}`);
+    toSet.readiness = target;
+    if (target !== NodesReadiness.Ready && state.readiness === NodesReadiness.Ready) {
+      // Making a copy of the nodeData from when the state was ready last, so that selectors can continue running
+      // with the old data until the new data is ready. This should also make sure it doesn't accidentally copy
+      // non-ready state if the readiness changes multiple times before becoming ready again.
+      toSet.prevNodeData = state.nodeData;
+    } else if (target === NodesReadiness.Ready) {
+      toSet.prevNodeData = undefined;
+    }
+    if (newNodes) {
+      toSet.addRemoveCounter = state.addRemoveCounter + 1;
+    }
+  }
+
+  if (mutate) {
+    for (const key in toSet) {
+      state[key] = toSet[key];
+    }
+  }
+
+  return toSet;
+}
+
 const Store = createZustandContext<NodesContextStore, NodesContext>({
   name: 'Nodes',
   required: true,
   initialCreateStore: createNodesDataStore,
 });
 
+export const NodesStore = Store; // Should be considered internal, do not use unless you know what you're doing
 export type NodesStoreFull = typeof Store;
 
 /**
@@ -383,97 +456,143 @@ function whenReadySelector<T>(
  */
 const Conditionally = {
   useSelector: <T,>(selector: (state: NodesContext) => T): T | undefined => {
-    const isGenerating = GeneratorStages.useIsGenerating();
+    const isGenerating = GeneratorInternal.useIsInsideGenerator();
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return isGenerating ? Store.useSelector(selector) : WhenReady.useSelector(selector);
   },
   useMemoSelector: <T,>(selector: (state: NodesContext) => T): T | undefined => {
-    const isGenerating = GeneratorStages.useIsGenerating();
+    const isGenerating = GeneratorInternal.useIsInsideGenerator();
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return isGenerating ? Store.useMemoSelector(selector) : WhenReady.useMemoSelector(selector);
   },
   useLaxSelector: <T,>(selector: (state: NodesContext) => T): T | typeof ContextNotProvided => {
-    const isGenerating = GeneratorStages.useIsGenerating();
+    const isGenerating = GeneratorInternal.useIsInsideGenerator();
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return isGenerating ? Store.useLaxSelector(selector) : WhenReady.useLaxSelector(selector);
   },
   useLaxMemoSelector: <T,>(selector: (state: NodesContext) => T): T | typeof ContextNotProvided => {
-    const isGenerating = GeneratorStages.useIsGenerating();
+    const isGenerating = GeneratorInternal.useIsInsideGenerator();
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return isGenerating ? Store.useLaxMemoSelector(selector) : WhenReady.useLaxMemoSelector(selector);
   },
 };
 
-export const NodesProvider = ({ children }: React.PropsWithChildren) => {
-  const layouts = useLayouts();
-  const lastLayouts = useRef(layouts);
-  const counter = useRef(0);
+const {
+  Provider: ProvideLayoutPages,
+  useCtx: useLayoutPages,
+  useLaxCtx: useLaxLayoutPages,
+} = createContext<LayoutPages>({
+  name: 'LayoutPages',
+  required: true,
+});
 
-  if (lastLayouts.current !== layouts) {
-    // Resets the entire node state when the layout changes (either via Studio, our own DevTools, or Cypress tests).
-    // We could just re-render Store.Provider here by passing counter as a key to it, but that would create an entirely
-    // new store, which would break the reference in ProvideWaitForValidation (which would take a few render cycles to
-    // properly update, which may break those already awaiting validation).
-    counter.current += 1;
-    lastLayouts.current = layouts;
-  }
+export const NodesProvider = ({ children }: React.PropsWithChildren) => {
+  const registry = useRegistry();
+  const getProcessedLast = Validation.useGetProcessedLast();
 
   return (
-    <Store.Provider>
-      <ResettableStore counter={counter.current}>{children}</ResettableStore>
+    <Store.Provider
+      registry={registry}
+      validationsProcessedLast={getProcessedLast()}
+    >
+      <ProvideGlobalContext registry={registry}>
+        <GeneratorStagesEffects />
+        <GeneratorValidationProvider>
+          <GeneratorData.Provider>
+            <LayoutSetGenerator />
+          </GeneratorData.Provider>
+        </GeneratorValidationProvider>
+        <MarkAsReady />
+        {window.Cypress && <UpdateAttachmentsForCypress />}
+        <HiddenComponentsProvider />
+        <BlockUntilLoaded>
+          <ProvideWaitForValidation />
+          <ExpressionValidation />
+          <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
+        </BlockUntilLoaded>
+        <IndicateReadiness />
+      </ProvideGlobalContext>
     </Store.Provider>
   );
 };
 
-function ResettableStore({ counter, children }: PropsWithChildren<{ counter: number }>) {
-  const markReady = Store.useSelector((s) => s.markReady);
+function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ registry: MutableRefObject<Registry> }>) {
+  const latestLayouts = useLayouts();
+  const layouts = Store.useSelector((s) => s.layouts);
+  const markNotReady = NodesInternal.useMarkNotReady();
   const reset = Store.useSelector((s) => s.reset);
-  const [lastSeenCounter, setLastSeenCounter] = useState(0);
+  const getProcessedLast = Validation.useGetProcessedLast();
+  const pagesRef = useRef<LayoutPages>();
+  if (!pagesRef.current) {
+    pagesRef.current = new LayoutPages();
+  }
 
   useEffect(() => {
-    if (counter > 0) {
-      reset();
-      setLastSeenCounter(counter);
+    if (layouts !== latestLayouts) {
+      markNotReady('new layouts');
+      pagesRef.current = new LayoutPages();
+      reset(latestLayouts, getProcessedLast());
     }
-  }, [counter, reset]);
+  }, [latestLayouts, layouts, markNotReady, reset, getProcessedLast]);
 
-  if (counter !== lastSeenCounter) {
+  const layoutMap = useMemo(() => {
+    const out: { [id: string]: CompExternal } = {};
+    for (const page of Object.values(latestLayouts)) {
+      if (!page) {
+        continue;
+      }
+      for (const component of page) {
+        out[component.id] = component;
+      }
+    }
+
+    return out;
+  }, [latestLayouts]);
+
+  if (layouts !== latestLayouts) {
+    // You changed the layouts, possibly by using devtools. Hold on while we re-generate!
     return <NodesLoader />;
   }
 
   return (
-    <Fragment key={counter}>
-      <GeneratorStagesProvider markReady={markReady}>
-        <GeneratorValidationProvider>
-          <LayoutSetGenerator />
-        </GeneratorValidationProvider>
-        <MarkAsReady />
-      </GeneratorStagesProvider>
-      {window.Cypress && <UpdateAttachmentsForCypress />}
-      <BlockUntilAlmostReady>
-        <HiddenComponentsProvider />
-      </BlockUntilAlmostReady>
-      <BlockUntilLoaded>
-        <ProvideWaitForValidation />
-        <UpdateExpressionValidation />
-        <LoadingBlockerWaitForValidation>{children}</LoadingBlockerWaitForValidation>
-      </BlockUntilLoaded>
-      <IndicateReadiness />
-    </Fragment>
+    <ProvideLayoutPages value={pagesRef.current}>
+      <GeneratorGlobalProvider
+        layouts={layouts}
+        layoutMap={layoutMap}
+        registry={registry}
+      >
+        {children}
+      </GeneratorGlobalProvider>
+    </ProvideLayoutPages>
   );
 }
 
 function IndicateReadiness() {
-  const [readiness, hiddenViaRulesRan] = Store.useSelector((s) => [s.readiness, s.hiddenViaRulesRan]);
-  const ready = readiness === NodesReadiness.Ready && hiddenViaRulesRan;
-  document.body.setAttribute('data-nodes-ready', ready.toString());
+  const [readiness, hiddenViaRulesRan] = Store.useMemoSelector((s) => {
+    const ready = s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan;
 
-  useEffect(() => {
+    // Doing this in a selector instead of a useEffect() so that we don't have to re-render
     document.body.setAttribute('data-nodes-ready', ready.toString());
-    return () => {
-      document.body.removeAttribute('data-nodes-ready');
-    };
-  }, [ready]);
+
+    return [s.readiness, s.hiddenViaRulesRan];
+  });
+
+  const setDataElements = useDataLoadingStore((state) => state.setDataElements);
+  const dataElements = useDataLoadingStore((state) => state.dataElements);
+  const overriddenDataModelUuid = useTaskStore((state) => state.overriddenDataModelUuid);
+
+  useEffect(() => () => document.body.removeAttribute('data-nodes-ready'), []);
+
+  const ready = readiness === NodesReadiness.Ready;
+  useEffect(() => {
+    if (
+      ready &&
+      overriddenDataModelUuid &&
+      (!(overriddenDataModelUuid in dataElements) || dataElements[overriddenDataModelUuid] !== DataLoadingState.Ready)
+    ) {
+      setDataElements({ [overriddenDataModelUuid]: DataLoadingState.Ready });
+    }
+  }, [dataElements, overriddenDataModelUuid, ready, setDataElements]);
 
   if (!GeneratorDebug.displayReadiness) {
     return null;
@@ -498,15 +617,6 @@ function IndicateReadiness() {
   );
 }
 
-function MarkAsReady() {
-  return (
-    <>
-      <InnerMarkAsReady />
-      <RegisterOnSaveFinished />
-    </>
-  );
-}
-
 /**
  * Some selectors (like NodeTraversal) only re-runs when the data store is 'ready', and when nodes start being added
  * or removed, the store is marked as not ready. This component will mark the store as ready when all nodes are added,
@@ -515,83 +625,116 @@ function MarkAsReady() {
  * This causes the node traversal selectors to re-run only when all nodes in a new repeating group row (and similar)
  * have been added.
  */
-function InnerMarkAsReady() {
+function MarkAsReady() {
+  const store = Store.useStore();
   const markReady = Store.useSelector((s) => s.markReady);
   const readiness = Store.useSelector((s) => s.readiness);
   const hiddenViaRulesRan = Store.useSelector((s) => s.hiddenViaRulesRan);
-  const hasNodes = Store.useSelector((state) => !!state.nodes);
   const stagesFinished = GeneratorStages.useIsFinished();
-  const hasUnsavedChanges = FD.useHasUnsavedChanges();
+  const registry = GeneratorInternal.useRegistry();
 
   // Even though the getAwaitingCommits() function works on refs in the GeneratorStages context, the effects of such
   // commits always changes the NodesContext. Thus our useSelector() re-runs and re-renders this components when
   // commits are done.
   const getAwaitingCommits = useGetAwaitingCommits();
-  const waitingForCommits = Store.useSelector(() => getAwaitingCommits() > 0);
 
-  const savingOk = readiness === NodesReadiness.WaitingUntilLastSaveHasProcessed ? !hasUnsavedChanges : true;
-  const maybeReady = hasNodes && stagesFinished && savingOk && hiddenViaRulesRan;
-  const shouldMarkAsReady = maybeReady && !waitingForCommits;
-  const fallbackToInterval = maybeReady && !shouldMarkAsReady;
+  const checkNodeStates = stagesFinished && hiddenViaRulesRan && readiness !== NodesReadiness.Ready;
 
-  useEffect(() => {
-    if (shouldMarkAsReady) {
-      generatorLog('logReadiness', 'Marking state as ready');
-      markReady();
+  const nodeStateReady = Store.useSelector((state) => {
+    if (!checkNodeStates) {
+      return false;
     }
-  }, [shouldMarkAsReady, markReady]);
 
-  useEffect(() => {
-    if (fallbackToInterval) {
+    return areAllNodesReady(state);
+  });
+
+  const maybeReady = checkNodeStates && nodeStateReady;
+
+  useLayoutEffect(() => {
+    if (maybeReady) {
       // Commits can happen where state is not really changed, and in those cases our useSelector() won't run, and we
       // won't notice that we could mark the state as ready again. For these cases we run intervals while the state
       // isn't ready.
-      const runDuringInterval = () => {
+      return setIdleInterval(registry, () => {
         const awaiting = getAwaitingCommits();
-        if (awaiting === 0) {
-          generatorLog('logReadiness', 'Marking state as ready via interval fallback');
-          markReady();
-          clearInterval(interval);
+        if (awaiting > 0) {
+          generatorLog('logReadiness', `Not quite ready yet (waiting for ${awaiting} commits)`);
+          return false;
         }
-      };
-      const interval = setInterval(runDuringInterval, NODES_TICK_TIMEOUT);
-      runDuringInterval();
-      return () => clearInterval(interval);
+
+        markReady('idle, nothing to commit');
+        return true;
+      });
     }
 
     return () => undefined;
-  }, [fallbackToInterval, getAwaitingCommits, markReady]);
+  }, [maybeReady, getAwaitingCommits, markReady, registry, store]);
 
   return null;
 }
 
-function RegisterOnSaveFinished() {
-  const setOnSaveFinished = FD.useSetOnSaveFinished();
-  const markReady = Store.useSelector((s) => s.markReady);
-
-  useEffect(() => {
-    setOnSaveFinished(() => {
-      generatorLog('logReadiness', 'Marking state as not ready because of recent form data save');
-      markReady(NodesReadiness.WaitingUntilLastSaveHasProcessed);
-    });
-  }, [setOnSaveFinished, markReady]);
-
-  return null;
-}
-
-function BlockUntilAlmostReady({ children }: PropsWithChildren) {
-  const ready = Store.useSelector((state) => state.nodes !== undefined);
-  if (!ready) {
-    return null;
+function areAllNodesReady(state: NodesContext) {
+  for (const nodeData of Object.values(state.nodeData)) {
+    const def = getComponentDef(nodeData.layout.type) as LayoutComponent;
+    const nodeReady = def.stateIsReady(nodeData);
+    const pluginsReady = def.pluginStateIsReady(nodeData, state);
+    if (!nodeReady || !pluginsReady) {
+      generatorLog(
+        'logReadiness',
+        `Node ${nodeData.layout.id} is not ready yet because of ` +
+          `${nodeReady ? 'plugins' : pluginsReady ? 'node' : 'both node and plugins'}`,
+      );
+      return false;
+    }
   }
 
-  return children;
+  return true;
+}
+
+const IDLE_COUNTDOWN = 3;
+
+/**
+ * Utility that lets you register a function that will be called when the browser has been idle for
+ * at least N consecutive iterations of requestIdleCallback(). Cancels itself when the function returns
+ * true (otherwise it will continue to run), and returns a function to cancel the idle interval (upon unmounting).
+ */
+function setIdleInterval(registry: MutableRefObject<Registry>, fn: () => boolean): () => void {
+  let lastCommitCount = registry.current.toCommitCount;
+  let idleCountdown = IDLE_COUNTDOWN;
+  let id: ReturnType<typeof requestIdleCallback | typeof requestAnimationFrame> | undefined;
+  const request = window.requestIdleCallback || window.requestAnimationFrame;
+  const cancel = window.cancelIdleCallback || window.cancelAnimationFrame;
+
+  const runWhenIdle = () => {
+    const currentCommitCount = registry.current.toCommitCount;
+    if (currentCommitCount !== lastCommitCount) {
+      // Something changed since last time, so we'll wait a bit more
+      idleCountdown = IDLE_COUNTDOWN;
+      lastCommitCount = currentCommitCount;
+      id = request(runWhenIdle);
+      return;
+    }
+    if (idleCountdown > 0) {
+      // We'll wait until we've been idle (and did not get any new commits) for N iterations
+      idleCountdown -= 1;
+      id = request(runWhenIdle);
+      return;
+    }
+    if (!fn()) {
+      // The function didn't return true, so we'll wait a bit more
+      id = request(runWhenIdle);
+    }
+  };
+
+  id = request(runWhenIdle);
+
+  return () => (id === undefined ? undefined : cancel(id));
 }
 
 function BlockUntilLoaded({ children }: PropsWithChildren) {
   const hasBeenReady = useRef(false);
   const ready = Store.useSelector((state) => {
-    if (state.nodes && state.readiness === NodesReadiness.Ready) {
+    if (state.readiness === NodesReadiness.Ready) {
       hasBeenReady.current = true;
       return true;
     }
@@ -602,23 +745,12 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
     return <NodesLoader />;
   }
 
-  return children;
+  return <>{children}</>;
 }
 
 function NodesLoader() {
   return <Loader reason='nodes' />;
 }
-
-type MaybeNode = string | undefined | null | LayoutNode;
-type RetValFromNode<T extends MaybeNode> = T extends LayoutNode
-  ? T
-  : T extends undefined
-    ? undefined
-    : T extends null
-      ? null
-      : T extends string
-        ? LayoutNode
-        : never;
 
 /**
  * Use the expression context. This will return a LayoutPages object containing the full tree of resolved
@@ -627,40 +759,44 @@ type RetValFromNode<T extends MaybeNode> = T extends LayoutNode
  *
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
-export function useNode<T extends string | undefined | LayoutNode>(id: T): RetValFromNode<T> {
+export function useNode<T extends string | undefined | LayoutNode>(id: T): LayoutNode | undefined {
+  const lastValue = useRef<LayoutNode | undefined | typeof NeverInitialized>(NeverInitialized);
+  const nodes = useNodes();
   const node = Store.useSelector((state) => {
     if (!id) {
       return undefined;
     }
 
-    if (!state?.nodes) {
-      return undefined;
+    if (state.readiness !== NodesReadiness.Ready && lastValue.current !== NeverInitialized) {
+      return lastValue.current;
     }
 
-    if (id instanceof BaseLayoutNode) {
-      return id;
-    }
-
-    return state.nodes.findById(new TraversalTask(state, state.nodes, undefined, undefined), id);
+    const node = id instanceof BaseLayoutNode ? id : nodes.findById(id);
+    lastValue.current = node;
+    return node;
   });
-  return node as RetValFromNode<T>;
+  return node ?? undefined;
 }
 
-export const useGetPage = (pageId: string | undefined) =>
-  Store.useSelector((state) => {
+export const useGetPage = (pageId: string | undefined) => {
+  const nodes = useNodes();
+  return Store.useSelector((state) => {
     if (!pageId) {
       return undefined;
     }
 
-    if (!state?.nodes) {
+    if (!nodes) {
       return undefined;
     }
-    return state.nodes.findLayout(new TraversalTask(state, state.nodes, undefined, undefined), pageId);
+    return nodes.findLayout(new TraversalTask(state, nodes, undefined, undefined), pageId);
   });
+};
 
-export const useNodes = () => WhenReady.useSelector((s) => s.nodes!);
-export const useNodesWhenNotReady = () => Store.useSelector((s) => s.nodes);
-export const useNodesLax = () => WhenReady.useLaxSelector((s) => s.nodes);
+export const useNodes = () => useLayoutPages();
+export const useNodesLax = () => {
+  const out = useLaxLayoutPages();
+  return out === ContextNotProvided ? undefined : out;
+};
 
 export interface IsHiddenOptions {
   /**
@@ -681,60 +817,75 @@ export interface IsHiddenOptions {
 
 type AccessibleIsHiddenOptions = Omit<IsHiddenOptions, 'forcedVisibleByDevTools'>;
 
-function isHiddenHere(hidden: HiddenState, options?: IsHiddenOptions) {
+function withDefaults(options?: IsHiddenOptions): Required<IsHiddenOptions> {
   const { respectDevTools = true, respectTracks = false, forcedVisibleByDevTools = false } = options ?? {};
-  if (forcedVisibleByDevTools && respectDevTools) {
-    return true;
-  }
-
-  return hidden.hiddenByRules || hidden.hiddenByExpression || (respectTracks && hidden.hiddenByTracks);
+  return { respectDevTools, respectTracks, forcedVisibleByDevTools };
 }
 
-function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined, options?: IsHiddenOptions) {
+function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined, _options?: IsHiddenOptions) {
+  const options = withDefaults(_options);
   if (!page) {
     return true;
   }
 
+  if (options.forcedVisibleByDevTools && options.respectDevTools) {
+    return false;
+  }
+
   const pageKey = typeof page === 'string' ? page : page.pageKey;
-  const hiddenState = state.pagesData.pages[pageKey]?.hidden;
-  if (!hiddenState) {
+  const pageState = state.pagesData.pages[pageKey];
+  const hidden = pageState?.hidden;
+  if (hidden) {
     return true;
   }
 
-  return isHiddenHere(hiddenState, options);
+  return options.respectTracks ? pageState?.inOrder === false : false;
 }
 
-function isHidden(state: NodesContext, node: LayoutNode | LayoutPage | undefined, options?: IsHiddenOptions) {
-  if (!node) {
+export function isHidden(
+  state: NodesContext,
+  nodeOrId: LayoutNode | LayoutPage | undefined | string,
+  nodes: LayoutPages,
+  _options?: IsHiddenOptions,
+): boolean | undefined {
+  if (!nodeOrId) {
+    return undefined;
+  }
+
+  if (nodeOrId instanceof LayoutPage) {
+    return isHiddenPage(state, nodeOrId, _options);
+  }
+
+  const options = withDefaults(_options);
+  if (options.forcedVisibleByDevTools && options.respectDevTools) {
+    return false;
+  }
+
+  const id = typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id;
+  const node = nodes.findById(id);
+  const hidden = state.nodeData[id]?.hidden;
+  if (hidden === undefined) {
+    return undefined;
+  }
+
+  if (hidden) {
     return true;
   }
 
-  const hiddenState =
-    node instanceof LayoutPage ? state.pagesData.pages[node.pageKey]?.hidden : state.nodeData[node.id]?.hidden;
-
-  if (!hiddenState) {
+  if (state.hiddenViaRules[id]) {
     return true;
   }
 
-  const hiddenHere = isHiddenHere(hiddenState, options);
-  if (hiddenHere) {
-    return true;
-  }
-
-  if (node instanceof BaseLayoutNode) {
-    const parent = node.parent;
-    if (parent instanceof BaseLayoutNode && 'isChildHidden' in parent.def && state.nodeData[parent.id]) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const childHidden = parent.def.isChildHidden(state.nodeData[parent.id] as any, node);
-      if (childHidden) {
-        return true;
-      }
+  const parent = node?.parent;
+  if (parent && parent instanceof BaseLayoutNode && 'isChildHidden' in parent.def && state.nodeData[parent.id]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const childHidden = parent.def.isChildHidden(state.nodeData[parent.id] as any, node);
+    if (childHidden) {
+      return true;
     }
-
-    return isHidden(state, parent, options);
   }
 
-  return false;
+  return isHidden(state, parent, nodes, options);
 }
 
 function makeOptions(forcedVisibleByDevTools: boolean, options?: AccessibleIsHiddenOptions): IsHiddenOptions {
@@ -747,88 +898,118 @@ function makeOptions(forcedVisibleByDevTools: boolean, options?: AccessibleIsHid
 export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
   useIsHidden(node: LayoutNode | LayoutPage | undefined, options?: AccessibleIsHiddenOptions) {
-    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return WhenReady.useMemoSelector((s) => isHidden(s, node, makeOptions(forcedVisibleByDevTools, options)));
+    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    const nodes = useNodes();
+    return WhenReady.useSelector((s) => isHidden(s, node, nodes, makeOptions(forcedVisibleByDevTools, options)));
   },
   useIsHiddenPage(page: LayoutPage | string | undefined, options?: AccessibleIsHiddenOptions) {
-    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return WhenReady.useMemoSelector((s) => isHiddenPage(s, page, makeOptions(forcedVisibleByDevTools, options)));
+    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    return WhenReady.useSelector((s) => isHiddenPage(s, page, makeOptions(forcedVisibleByDevTools, options)));
   },
   useIsHiddenPageSelector() {
-    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return Store.useDelayedSelector({
-      mode: 'simple',
-      selector: (page: LayoutPage | string) => (state) =>
-        isHiddenPage(state, page, makeOptions(forcedVisibleByDevTools)),
-    });
+    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    return Store.useDelayedSelector(
+      {
+        mode: 'simple',
+        selector: (page: LayoutPage | string) => (state) =>
+          isHiddenPage(state, page, makeOptions(forcedVisibleByDevTools)),
+      },
+      [forcedVisibleByDevTools],
+    );
   },
   useHiddenPages(): Set<string> {
-    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
     const hiddenPages = WhenReady.useLaxMemoSelector((s) =>
-      Object.keys(s.pagesData.pages).filter((key) =>
-        isHiddenHere(s.pagesData.pages[key].hidden, makeOptions(forcedVisibleByDevTools)),
-      ),
+      Object.keys(s.pagesData.pages).filter((key) => isHiddenPage(s, key, makeOptions(forcedVisibleByDevTools))),
     );
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
   },
   useIsHiddenSelector() {
-    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return Store.useDelayedSelector({
-      mode: 'simple',
-      selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
-        isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
-    });
+    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    const nodes = useNodes();
+    return Store.useDelayedSelector(
+      {
+        mode: 'simple',
+        selector: (node: LayoutNode | LayoutPage | string, options?: IsHiddenOptions) => (state) =>
+          isHidden(state, node, nodes, makeOptions(forcedVisibleByDevTools, options)),
+      },
+      [forcedVisibleByDevTools, nodes],
+    );
   },
-  useLaxIsHiddenSelector() {
-    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return Store.useLaxDelayedSelector({
-      mode: 'simple',
-      selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
-        isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
-    });
+  useIsHiddenSelectorProps() {
+    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    const nodes = useNodes();
+    return Store.useDelayedSelectorProps(
+      {
+        mode: 'simple',
+        selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
+          isHidden(state, node, nodes, makeOptions(forcedVisibleByDevTools, options)),
+      },
+      [forcedVisibleByDevTools, nodes],
+    );
   },
 
   /**
    * The next ones are primarily for internal use:
    */
-  useIsHiddenViaRules: (node: LayoutNode) =>
-    Store.useSelector((s) => s.hiddenViaRules[node.id] ?? s.hiddenViaRules[node.baseId] ?? false),
-  useIsForcedVisibleByDevTools() {
-    const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
-    const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
-
-    return devToolsIsOpen && devToolsHiddenComponents !== 'hide';
-  },
-  useIsPageHiddenViaTracks(pageKey: string) {
-    const currentView = useCurrentView();
+  useIsPageInOrder(pageKey: string) {
+    const isCurrentView = useIsCurrentView(pageKey);
     const maybeLayoutSettings = useLaxLayoutSettings();
     const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? [] : maybeLayoutSettings.pages.order;
-    const isHiddenByTracks = !orderWithHidden.includes(pageKey);
     const layoutSettings = useLayoutSettings();
 
-    if (pageKey === currentView) {
+    if (isCurrentView) {
       // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
       // code caused this to be the current view even if it's not in the common order.
-      return false;
+      return true;
     }
 
     if (layoutSettings.pages.pdfLayoutName && pageKey === layoutSettings.pages.pdfLayoutName) {
       // If this is the pdf layout, then it's never hidden.
-      return false;
+      return true;
     }
 
-    return isHiddenByTracks;
+    return orderWithHidden.includes(pageKey);
   },
 };
 
 export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
 export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
 
-export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefined>(node: N) => NodePickerReturns<N>;
+export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefined>(
+  node: N | string,
+) => NodePickerReturns<N>;
 type NodePickerReturns<N extends LayoutNode | undefined> = NodeDataFromNode<N> | undefined;
 
-function selectNodeData<N extends LayoutNode | undefined>(node: N, state: NodesContext): NodePickerReturns<N> {
-  return (node ? state.nodeData[node.id] : undefined) as NodePickerReturns<N>;
+function selectNodeData<N extends LayoutNode | undefined>(
+  node: N | string,
+  state: NodesContext,
+  preferFreshData = false,
+): NodePickerReturns<N> {
+  const nodeId = typeof node === 'string' ? node : node?.id;
+  if (!nodeId) {
+    return undefined;
+  }
+
+  const data =
+    state.readiness === NodesReadiness.Ready
+      ? state.nodeData[nodeId] // Always use fresh data when ready
+      : preferFreshData && state.nodeData[nodeId]?.item?.id // Only allow getting fresh data when not ready if item is set
+        ? state.nodeData[nodeId]
+        : state.prevNodeData?.[nodeId]
+          ? state.prevNodeData[nodeId]
+          : state.nodeData[nodeId]; // Fall back to fresh data if prevNodeData is not set
+
+  return data as NodePickerReturns<N>;
+}
+
+function getNodeData<N extends LayoutNode | undefined, Out>(
+  node: N | string,
+  state: NodesContext,
+  selector: (nodeData: NodeDataFromNode<N>) => Out,
+  preferFreshData = false,
+) {
+  return node ? selector(selectNodeData(node, state, preferFreshData) as NodeDataFromNode<N>) : undefined;
 }
 
 /**
@@ -867,6 +1048,30 @@ export const NodesInternal = {
       } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
     });
   },
+  useDataSelectorForTraversalProps(): DSProps<{
+    store: StoreApi<NodesContext> | typeof ContextNotProvided;
+    strictness: SelectorStrictness.returnWhenNotProvided;
+    mode: InnerSelectorMode<NodesContext, [NodesContext]>;
+  }> {
+    return {
+      store: Store.useLaxStore(),
+      strictness: SelectorStrictness.returnWhenNotProvided,
+      onlyReRenderWhen: ((state, lastValue, setNewValue) => {
+        if (state.readiness !== NodesReadiness.Ready) {
+          return false;
+        }
+        if (lastValue !== state.addRemoveCounter) {
+          setNewValue(state.addRemoveCounter);
+          return true;
+        }
+        return false;
+      }) satisfies OnlyReRenderWhen<NodesContext, number>,
+      mode: {
+        mode: 'innerSelector',
+        makeArgs: (state) => [state],
+      } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
+    };
+  },
   useIsReady() {
     const isReady = Store.useLaxSelector((s) => s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan);
     if (isReady === ContextNotProvided) {
@@ -874,18 +1079,64 @@ export const NodesInternal = {
     }
     return isReady;
   },
+  useIsReadyRef() {
+    const ref = useRef(true); // Defaults to true if context is not provided
+    Store.useLaxSelectorAsRef((s) => {
+      ref.current = s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan;
+    });
+    return ref;
+  },
   useWaitUntilReady() {
     const store = Store.useLaxStore();
     const waitForState = useWaitForState<undefined, NodesContext | typeof ContextNotProvided>(store);
     const waitForCommits = Store.useSelector((s) => s.waitForCommits);
     return useCallback(async () => {
-      await waitForState((state) =>
-        state === ContextNotProvided ? true : state.readiness === NodesReadiness.Ready && state.hiddenViaRulesRan,
-      );
+      await waitForState((state) => {
+        if (state === ContextNotProvided) {
+          return true;
+        }
+        return state.readiness === NodesReadiness.Ready && state.hiddenViaRulesRan;
+      });
       if (waitForCommits) {
         await waitForCommits();
       }
     }, [waitForState, waitForCommits]);
+  },
+  useMarkNotReady() {
+    const markReady = Store.useSelector((s) => s.markReady);
+    return useCallback(
+      (reason?: string) => markReady(reason ?? 'from useMarkNotReady', NodesReadiness.NotReady),
+      [markReady],
+    );
+  },
+  /**
+   * Like a useEffect, but only runs the effect when the nodes context is ready.
+   */
+  useEffectWhenReady(effect: Parameters<typeof useEffect>[0], deps: Parameters<typeof useEffect>[1]) {
+    const [force, setForceReRun] = useState(0);
+    const getAwaiting = useGetAwaitingCommits();
+    const isReadyRef = NodesInternal.useIsReadyRef();
+    const waitUntilReady = NodesInternal.useWaitUntilReady();
+
+    useEffect(() => {
+      const isReady = isReadyRef.current;
+      if (!isReady) {
+        waitUntilReady().then(() => {
+          // We need to force a rerender to run the effect. If we didn't, the effect would never run.
+          setForceReRun((v) => v + 1);
+        });
+        return;
+      }
+      const awaiting = getAwaiting();
+      if (awaiting) {
+        // If we are awaiting commits, we need to wait until they are done before we can run the effect.
+        const timeout = setTimeout(() => setForceReRun((v) => v + 1), 100);
+        return () => clearTimeout(timeout);
+      }
+
+      return effect();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [force, ...(deps ?? [])]);
   },
 
   useFullErrorList() {
@@ -910,19 +1161,36 @@ export const NodesInternal = {
     });
   },
 
-  useNodeData<N extends LayoutNode | undefined, Out>(node: N, selector: (state: NodeDataFromNode<N>) => Out) {
-    return Conditionally.useMemoSelector((s) =>
-      node && s.nodeData[node.id] ? selector(s.nodeData[node.id] as NodeDataFromNode<N>) : undefined,
-    ) as N extends undefined ? Out | undefined : Out;
+  useNodeData<N extends LayoutNode | undefined, Out>(
+    node: N,
+    selector: (nodeData: NodeDataFromNode<N>, readiness: NodesReadiness, fullState: NodesContext) => Out,
+  ) {
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return Conditionally.useMemoSelector((s) => {
+      if (!node) {
+        return undefined;
+      }
+      const data =
+        insideGenerator && s.nodeData[node.id]
+          ? s.nodeData[node.id]
+          : s.readiness === NodesReadiness.Ready
+            ? s.nodeData[node.id]
+            : (s.prevNodeData?.[node.id] ?? s.nodeData[node.id]);
+
+      return data ? selector(data as NodeDataFromNode<N>, s.readiness, s) : undefined;
+    }) as N extends undefined ? Out | undefined : Out;
   },
-  useNodeDataRef<N extends LayoutNode | undefined, Out>(
+  useGetNodeData<N extends LayoutNode | undefined, Out>(
     node: N,
     selector: (state: NodeDataFromNode<N>) => Out,
-  ): React.MutableRefObject<N extends undefined ? Out | undefined : Out> {
-    return Store.useSelectorAsRef(
-      (s) => (node && s.nodeData[node.id] ? selector(s.nodeData[node.id] as NodeDataFromNode<N>) : undefined),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ) as any;
+  ): () => Out | undefined {
+    const store = Store.useStore();
+    const selectorRef = useAsRef(selector);
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return useCallback(
+      () => getNodeData(node, store.getState(), (nodeData) => selectorRef.current(nodeData), insideGenerator),
+      [store, node, selectorRef, insideGenerator],
+    );
   },
   useWaitForNodeData<RetVal, N extends LayoutNode | undefined, Out>(
     node: N,
@@ -945,18 +1213,33 @@ export const NodesInternal = {
       [waitForState, node, selector],
     );
   },
-  useNodeDataSelector: () =>
-    Store.useDelayedSelector({
+  useNodeDataSelector: () => {
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return Store.useDelayedSelector({
       mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
-    }),
-  useLaxNodeDataSelector: () =>
-    Store.useLaxDelayedSelector({
+      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+    });
+  },
+  useLaxNodeDataSelector: () => {
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return Store.useLaxDelayedSelector({
       mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state)) satisfies NodePicker],
-    }),
-  useIsAdded: (node: LayoutNode | LayoutPage) =>
+      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+    });
+  },
+  useNodeDataSelectorProps: () => {
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return Store.useDelayedSelectorProps({
+      mode: 'innerSelector',
+      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+    });
+  },
+  useTypeFromId: (id: string) => Store.useSelector((s) => s.nodeData[id]?.layout.type),
+  useIsAdded: (node: LayoutNode | LayoutPage | undefined) =>
     Store.useSelector((s) => {
+      if (!node) {
+        return false;
+      }
       if (node instanceof LayoutPage) {
         return s.pagesData.pages[node.pageKey] !== undefined;
       }
@@ -965,15 +1248,14 @@ export const NodesInternal = {
   useHasErrors: () => Store.useSelector((s) => s.hasErrors),
 
   useStore: () => Store.useStore(),
-  useSetNodeProps: () => Store.useSelector((s) => s.setNodeProps),
-  useSetNodes: () => Store.useSelector((s) => s.setNodes),
-  useAddPage: () => Store.useSelector((s) => s.addPage),
-  useSetPageProps: () => Store.useSelector((s) => s.setPageProps),
-  useAddNodes: () => Store.useSelector((s) => s.addNodes),
-  useRemoveNode: () => Store.useSelector((s) => s.removeNode),
-  useAddError: () => Store.useSelector((s) => s.addError),
-  useMarkHiddenViaRule: () => Store.useSelector((s) => s.markHiddenViaRule),
-  useSetWaitForCommits: () => Store.useSelector((s) => s.setWaitForCommits),
+  useSetNodeProps: () => Store.useStaticSelector((s) => s.setNodeProps),
+  useAddPage: () => Store.useStaticSelector((s) => s.addPage),
+  useSetPageProps: () => Store.useStaticSelector((s) => s.setPageProps),
+  useAddNodes: () => Store.useStaticSelector((s) => s.addNodes),
+  useRemoveNodes: () => Store.useStaticSelector((s) => s.removeNodes),
+  useAddError: () => Store.useStaticSelector((s) => s.addError),
+  useMarkHiddenViaRule: () => Store.useStaticSelector((s) => s.markHiddenViaRule),
+  useSetWaitForCommits: () => Store.useStaticSelector((s) => s.setWaitForCommits),
 
   ...(Object.values(StorePlugins)
     .map((plugin) => plugin.extraHooks(Store))

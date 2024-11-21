@@ -5,7 +5,7 @@ import { getApplicationMetadataQueryDef } from 'src/features/applicationMetadata
 import { useApplicationSettingsQueryDef } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useLayoutSetsQueryDef } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useInstanceDataQueryDef } from 'src/features/instance/InstanceContext';
-import { useProcessQueryDef } from 'src/features/instance/ProcessContext';
+import { getProcessQueryDef } from 'src/features/instance/ProcessContext';
 import { useOrgsQueryDef } from 'src/features/orgs/OrgsProvider';
 import { useCurrentPartyQueryDef, usePartiesQueryDef } from 'src/features/party/PartiesProvider';
 import { useProfileQueryDef } from 'src/features/profile/ProfileProvider';
@@ -20,7 +20,7 @@ export function AppPrefetcher() {
     matchPath({ path: '/instance/:partyId/:instanceGuid/*' }, window.location.hash.slice(1))?.params ?? {};
   const instanceId = partyId && instanceGuid ? `${partyId}/${instanceGuid}` : undefined;
 
-  usePrefetchQuery(getApplicationMetadataQueryDef());
+  usePrefetchQuery(getApplicationMetadataQueryDef(instanceGuid));
   usePrefetchQuery(useLayoutSetsQueryDef());
   usePrefetchQuery(useProfileQueryDef(true), Boolean(partyId));
   usePrefetchQuery(useOrgsQueryDef());
@@ -28,8 +28,8 @@ export function AppPrefetcher() {
   usePrefetchQuery(usePartiesQueryDef(true), Boolean(partyId));
   usePrefetchQuery(useCurrentPartyQueryDef(true), Boolean(partyId));
 
-  usePrefetchQuery(useInstanceDataQueryDef(partyId, instanceGuid));
-  usePrefetchQuery(useProcessQueryDef(instanceId));
+  usePrefetchQuery(useInstanceDataQueryDef(false, partyId, instanceGuid));
+  usePrefetchQuery(getProcessQueryDef(instanceId));
 
   return null;
 }

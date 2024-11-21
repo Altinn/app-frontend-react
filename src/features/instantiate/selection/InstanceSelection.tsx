@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 
 import { Pagination } from '@altinn/altinn-design-system';
-import { Button, Heading, Paragraph, Table } from '@digdir/designsystemet-react';
+import { Heading, Paragraph, Table } from '@digdir/designsystemet-react';
 import { Edit as EditIcon } from '@navikt/ds-icons';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
+import { Button } from 'src/app-components/button/Button';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
+import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
+import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import {
@@ -18,9 +23,10 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useSetNavigationEffect } from 'src/features/routing/AppRoutingContext';
-import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
+import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { focusMainContent } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
+import { getPageTitle } from 'src/utils/getPageTitle';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';
 import type { ISimpleInstance } from 'src/types';
 
@@ -38,11 +44,17 @@ function getDateDisplayString(timeStamp: string) {
 }
 
 export const InstanceSelectionWrapper = () => (
-  <ActiveInstancesProvider>
-    <PresentationComponent type={ProcessTaskType.Unknown}>
-      <InstanceSelection />
-    </PresentationComponent>
-  </ActiveInstancesProvider>
+  <TaskStoreProvider>
+    <DataLoadingProvider>
+      <ActiveInstancesProvider>
+        <PresentationComponent type={ProcessTaskType.Unknown}>
+          <DataLoadingProvider>
+            <InstanceSelection />
+          </DataLoadingProvider>
+        </PresentationComponent>
+      </ActiveInstancesProvider>
+    </DataLoadingProvider>
+  </TaskStoreProvider>
 );
 
 function InstanceSelection() {
@@ -56,6 +68,9 @@ function InstanceSelection() {
   const instantiate = useInstantiation().instantiate;
   const currentParty = useCurrentParty();
   const storeCallback = useSetNavigationEffect();
+
+  const appName = useAppName();
+  const appOwner = useAppOwner();
 
   const doesIndexExist = (selectedIndex: number | undefined): selectedIndex is number =>
     selectedIndex !== undefined && rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0;
@@ -111,7 +126,6 @@ function InstanceSelection() {
                   <div className={classes.tableButtonWrapper}>
                     <Button
                       variant='tertiary'
-                      size='small'
                       color='second'
                       icon={true}
                       onClick={handleOpenInstance}
@@ -177,7 +191,6 @@ function InstanceSelection() {
                 <div className={classes.tableButtonWrapper}>
                   <Button
                     variant='tertiary'
-                    size='small'
                     color='second'
                     onClick={(ev) => {
                       storeCallback(focusMainContent);
@@ -221,7 +234,11 @@ function InstanceSelection() {
   );
 
   return (
-    <>
+    <TaskStoreProvider>
+      <Helmet>
+        <title>{`${getPageTitle(appName, langAsString('instance_selection.left_of'), appOwner)}`}</title>
+      </Helmet>
+
       <div id='instance-selection-container'>
         <div>
           <Heading
@@ -242,6 +259,7 @@ function InstanceSelection() {
         {!mobileView && renderTable()}
         <div className={classes.startNewButtonContainer}>
           <Button
+            size='md'
             onClick={() => {
               if (currentParty) {
                 storeCallback(focusMainContent);
@@ -254,8 +272,8 @@ function InstanceSelection() {
           </Button>
         </div>
       </div>
-      <ReadyForPrint />
-    </>
+      <ReadyForPrint type='load' />
+    </TaskStoreProvider>
   );
 }
 

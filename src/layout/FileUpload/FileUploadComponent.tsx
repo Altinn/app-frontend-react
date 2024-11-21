@@ -3,15 +3,16 @@ import { toast } from 'react-toastify';
 import type { JSX } from 'react';
 import type { FileRejection } from 'react-dropzone';
 
-import { Label } from 'src/components/label/Label';
+import { getDescriptionId, getLabelId, Label } from 'src/components/label/Label';
 import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/hooks';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
+import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
-import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
+import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
@@ -37,6 +38,11 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
     textResourceBindings,
     dataModelBindings,
   } = item;
+  const isSubformPage = useIsSubformPage();
+  if (isSubformPage) {
+    throw new Error('Cannot use a FileUpload components within a subform');
+  }
+
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
   const attachments = useAttachmentsFor(node);
@@ -135,7 +141,8 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
               hasValidationMessages={hasValidationErrors(validations)}
               hasCustomFileEndings={hasCustomFileEndings}
               validFileEndings={validFileEndings}
-              textResourceBindings={textResourceBindings}
+              labelId={textResourceBindings?.title ? getLabelId(id) : undefined}
+              descriptionId={textResourceBindings?.description ? getDescriptionId(id) : undefined}
             />
 
             <AttachmentsCounter />

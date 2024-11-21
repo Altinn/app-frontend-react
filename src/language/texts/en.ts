@@ -49,12 +49,23 @@ export function en() {
       aria_label_icon: 'Open date picker',
       aria_label_left_arrow: 'Last month.',
       aria_label_right_arrow: 'Next month.',
+      aria_label_year_dropdown: 'Select year',
+      aria_label_month_dropdown: 'Select month',
+      format_text: 'For example {0}',
     },
     feedback: {
       title: '## You will soon be forwarded',
       body: 'Waiting for verification. When this is complete you will be forwarded to the next step or receipt automatically.',
     },
     form_filler: {
+      error_add_subform: 'Failed to add subform entry, please try again.',
+      error_delete_subform: 'An error occurred while deleting the subform entry, please try again.',
+      error_fetch_subform: 'Error loading form data',
+      error_max_count_reached_subform_server: 'The maximum number of {0} entries has been reached',
+      error_max_count_reached_subform_local: 'The maximum number of {0} entries has been reached ({1})',
+      error_min_count_not_reached_subform: 'At least {0} {1} entry is required',
+      error_validation_inside_subform: 'There are errors in one of more {0} entries',
+      subform_default_header: 'Items',
       alert_confirm: 'Confirm',
       checkbox_alert: 'Are you sure you want to uncheck?',
       multi_select_alert: 'Are you sure you want to delete <b>{0}</b>?',
@@ -130,6 +141,8 @@ export function en() {
       create_new: 'Create new',
       create: 'Create',
       customer_service_phone_number: '+47 75 00 60 00',
+      customer_service_slack: 'https://altinn.slack.com/',
+      customer_service_email: 'servicedesk@altinn.no',
       delete: 'Delete',
       download: 'Download {0}',
       disabled: 'Disabled',
@@ -215,7 +228,7 @@ export function en() {
       authorization_error_check_rights:
         '<a href="https://{0}/ui/Profile/" target="_blank">See who has rights to delegate access under "Others with rights within the organization"</a>.',
       authorization_error_info_rights:
-        '<a href="https://{0}/hjelp/profil/roller-og-rettigheter/" target="_blank">Learn more about roles and rights</a>.',
+        '<a href="https://{0}/hjelp/profil/enkelttjenester-og-roller/" target="_blank">Learn more about roles and rights</a>.',
       authorization_error_info_customer_service: 'You can also contact customer service at {0}.',
       authorization_error_instantiate_validation_info_customer_service:
         'If you need help, contact customer service at {0}.',
@@ -278,6 +291,11 @@ export function en() {
         receiver: 'Receiver',
         payer: 'Payer',
         name: 'Name',
+        company_name: 'Company name',
+        org_number: 'Organisasjonsnummer',
+        contact_person: 'Contact person',
+        contact_phone: 'Contact phone',
+        contact_email: 'Contact email',
         phone: 'Phone',
         address: 'Address',
         org_num: 'Org number',
@@ -363,9 +381,18 @@ export function en() {
       navigateLastPage: 'Navigate to the last page in the table',
     },
     config_error: {
+      layoutset_subform_config_error_customer_support:
+        'If you need help resolving this issue, reach out to Altinn via our support lines<br/><br/><ul><li>Phone: <a href="tel:{0}">{0}</a></li><li>Email: {1}</li><li>Slack: {2}</li></ul>',
+      layoutset_subform_config_error:
+        'Layout set with id <strong>{0}</strong> is configured incorrectly.<br /><br />The layout set cannot have both <strong>type</strong> <em>and</em> <strong>tasks</strong> defined.',
+      layoutset_error: 'Layout set error',
       component_has_errors: 'An error occurred for <code>{0}</code>:',
       component_has_errors_after:
         'As long as the component has configuration errors, we cannot show it in the form. Fix the errors and try again.',
+      subform_no_datatype_layoutset: 'Data type specification not found in layout-sets.json',
+      subform_no_datatype_appmetadata: "Data type '{0}' was not found in applicationmetadata.json",
+      subform_misconfigured_add_button:
+        "Data type '{0}' is marked as 'disallowUserCreate=true', but the subform component is configured with 'showAddButton=true'. This is a contradiction, as the user will never be permitted to perform the add-button operation.",
     },
     version_error: {
       version_mismatch: 'Version mismatch',
@@ -382,6 +409,13 @@ export function en() {
     },
     likert: {
       left_column_default_header_text: 'Question',
+    },
+    process_error: {
+      submit_error_please_retry: 'Something went wrong when submitting, please try again in a few minutes.',
+    },
+    pdfPreview: {
+      error: 'Could not show PDF preview',
+      defaultButtonText: 'Preview PDF',
     },
   } satisfies NestedTexts;
 }

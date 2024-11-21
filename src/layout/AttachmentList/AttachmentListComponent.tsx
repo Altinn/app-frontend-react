@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import { AltinnAttachment } from 'src/components/atoms/AltinnAttachment';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -8,20 +8,19 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { DataTypeReference, filterDisplayPdfAttachments, getDisplayAttachments } from 'src/utils/attachmentsUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IData, IDataType } from 'src/types/shared';
+import type { IDataType } from 'src/types/shared';
 
 export type IAttachmentListProps = PropsFromGenericComponent<'AttachmentList'>;
 
-const emptyDataArray: IData[] = [];
 const emptyDataTypeArray: IDataType[] = [];
 
 export function AttachmentListComponent({ node }: IAttachmentListProps) {
-  const instanceData = useLaxInstanceData()?.data ?? emptyDataArray;
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const dataTypes = useApplicationMetadata().dataTypes ?? emptyDataTypeArray;
   const { dataTypeIds, textResourceBindings } = useNodeItem(node);
 
-  const attachments = useMemo(() => {
+  const attachments = useLaxInstanceData((data) => {
+    const instanceData = data.data ?? [];
     const allowedTypes = new Set(dataTypeIds ?? []);
     const includePdf =
       allowedTypes.has(DataTypeReference.RefDataAsPdf) || allowedTypes.has(DataTypeReference.IncludeAll);
@@ -55,7 +54,7 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
 
     const otherAttachments = getDisplayAttachments(attachments);
     return [...pdfAttachments, ...otherAttachments];
-  }, [currentTaskId, dataTypes, instanceData, dataTypeIds]);
+  });
 
   return (
     <ComponentStructureWrapper node={node}>

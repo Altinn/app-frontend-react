@@ -1,5 +1,6 @@
 import type { CyUser } from 'test/e2e/support/auth';
 
+import type { BackendValidationIssue, BackendValidationIssueGroupListItem } from 'src/features/validation';
 import type { ILayoutSets } from 'src/layout/common.generated';
 import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
 
@@ -29,6 +30,13 @@ declare global {
        * Quickly go to a certain task in the app
        */
       goto(target: FrontendTestTask): Chainable<Element>;
+
+      /**
+       * In 'ttd/frontend-test' we're using a pattern of initially hidden pages to expand with new test cases.
+       * This shortcut function will load the 'changename' task, make sure there are no validation errors, and then
+       * enable and navigate to the hidden page specified by the target string.
+       */
+      gotoHiddenPage(target: string): Chainable<Element>;
 
       /**
        * Go to a certain task and fill out the data in it. This will skip ahead quickly to the correct task, and
@@ -119,6 +127,7 @@ declare global {
         taskName: FrontendTestTask | string,
         mutator?: (component: CompExternal) => void,
         wholeLayoutMutator?: (layoutSet: ILayoutCollection) => void,
+        options?: { times?: number },
       ): Chainable<null>;
 
       /**
@@ -171,7 +180,7 @@ declare global {
       /**
        * Select from a dropdown in the design system
        */
-      dsSelect(selector: string, value: string): Chainable<null>;
+      dsSelect(selector: string, value: string, debounce?: boolean): Chainable<null>;
 
       /**
        * Shortcut for clicking an element and waiting for it to disappear
@@ -217,8 +226,41 @@ declare global {
       clearSelectionAndWait(viewport?: 'desktop' | 'tablet' | 'mobile'): Chainable<null>;
 
       getSummary(label: string): Chainable<Element>;
-      testPdf(callback: () => void, returnToForm?: boolean): Chainable<null>;
+      directSnapshot(
+        snapshotName: string,
+        options: { width: number; minHeight: number },
+        reset?: boolean,
+      ): Chainable<null>;
+      testPdf(snapshotName: string | false, callback: () => void, returnToForm?: boolean): Chainable<null>;
       getCurrentPageId(): Chainable<string>;
+
+      /**
+       * Will intercept patch requests to set ignoredValidators to an empty array, causing the backend to run all validations
+       */
+      runAllBackendValidations(): Chainable<null>;
+
+      /**
+       * Returns a result containing the validation issues for the next patch request
+       */
+      getNextPatchValidations(resultContainer: BackendValidationResult): Chainable<null>;
+
+      /**
+       * Convenient way to check for the presence of a validation in a resultContainer
+       */
+      expectValidationToExist(
+        resultContainer: BackendValidationResult,
+        validatorGroup: string,
+        predicate: BackendValdiationPredicate,
+      ): Chainable<null>;
+
+      /**
+       * Convenient way to check for the absense of a validation in a resultContainer
+       */
+      expectValidationNotToExist(
+        resultContainer: BackendValidationResult,
+        validatorGroup: string,
+        predicate: BackendValdiationPredicate,
+      ): Chainable<null>;
 
       /**
        * All tests will check to make sure things didn't fail horribly after the test is done. This is useful for
@@ -229,3 +271,8 @@ declare global {
     }
   }
 }
+
+export type BackendValidationResult = {
+  validations: BackendValidationIssueGroupListItem[] | null;
+};
+export type BackendValdiationPredicate = (validationIssue: BackendValidationIssue) => boolean | null | undefined;

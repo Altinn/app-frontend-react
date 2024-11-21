@@ -5,10 +5,12 @@ import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
 import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepGroup';
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IRawOption } from 'src/layout/common.generated';
+import type { AppQueries } from 'src/queries/types';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 const twoOptions: IRawOption[] = [
@@ -34,16 +36,26 @@ interface Props extends Partial<RenderGenericComponentTestProps<'Checkboxes'>> {
   options?: IRawOption[];
   formData?: string;
   groupData?: object;
+  queries?: Partial<AppQueries>;
 }
 
-const render = async ({ component, options, formData, groupData = getFormDataMockForRepGroup() }: Props = {}) =>
+const render = async ({
+  component,
+  options,
+  formData,
+  groupData = getFormDataMockForRepGroup(),
+  queries,
+}: Props = {}) =>
   await renderGenericComponentTest({
     type: 'Checkboxes',
     renderer: (props) => <CheckboxContainerComponent {...props} />,
     component: {
       optionsId: 'countries',
       dataModelBindings: {
-        simpleBinding: 'selectedValues',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'selectedValues' },
+      },
+      textResourceBindings: {
+        title: 'Land',
       },
       ...component,
     },
@@ -54,6 +66,7 @@ const render = async ({ component, options, formData, groupData = getFormDataMoc
             Promise.resolve({ data: options, headers: {} } as AxiosResponse<IRawOption[], any>)
           : Promise.reject(new Error('No options provided to render()')),
       fetchFormData: async () => (formData ? { selectedValues: formData, ...groupData } : { ...groupData }),
+      ...queries,
     },
   });
 
@@ -74,7 +87,7 @@ describe('CheckboxesContainerComponent', () => {
 
     await waitFor(() => {
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        path: 'selectedValues',
+        reference: { field: 'selectedValues', dataType: defaultDataTypeMock },
         newValue: 'sweden',
       });
     });
@@ -132,7 +145,7 @@ describe('CheckboxesContainerComponent', () => {
 
     await waitFor(() => {
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        path: 'selectedValues',
+        reference: { field: 'selectedValues', dataType: defaultDataTypeMock },
         newValue: 'norway,denmark',
       });
     });
@@ -153,7 +166,10 @@ describe('CheckboxesContainerComponent', () => {
     await userEvent.click(getCheckbox({ name: 'Denmark', isChecked: true }));
 
     await waitFor(() => {
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'selectedValues', newValue: 'norway' });
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { field: 'selectedValues', dataType: defaultDataTypeMock },
+        newValue: 'norway',
+      });
     });
   });
 
@@ -184,7 +200,10 @@ describe('CheckboxesContainerComponent', () => {
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
     await waitFor(() => {
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'selectedValues', newValue: 'denmark' });
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { field: 'selectedValues', dataType: defaultDataTypeMock },
+        newValue: 'denmark',
+      });
     });
   });
 
@@ -274,9 +293,30 @@ describe('CheckboxesContainerComponent', () => {
 
     await waitFor(() => {
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        path: 'selectedValues',
+        reference: { field: 'selectedValues', dataType: defaultDataTypeMock },
         newValue: 'Value for second',
       });
     });
+  });
+
+  it('required validation should only show for simpleBinding', async () => {
+    await render({
+      component: {
+        showValidations: ['Required'],
+        required: true,
+        dataModelBindings: {
+          simpleBinding: { dataType: defaultDataTypeMock, field: 'value' },
+          label: { dataType: defaultDataTypeMock, field: 'label' },
+          metadata: { dataType: defaultDataTypeMock, field: 'metadata' },
+        },
+      },
+      options: [],
+      queries: {
+        fetchFormData: () => Promise.resolve({ simpleBinding: '', label: '', metadata: '' }),
+      },
+    });
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(1);
+    expect(screen.getByRole('listitem')).toHaveTextContent('Du må fylle ut land');
   });
 });

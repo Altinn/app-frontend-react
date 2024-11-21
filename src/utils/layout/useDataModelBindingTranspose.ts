@@ -4,6 +4,7 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LaxNodeDataSelector } from 'src/utils/layout/NodesContext';
 
@@ -26,9 +27,11 @@ export type DataModelTransposeSelector = ReturnType<typeof useDataModelBindingTr
  */
 export function useDataModelBindingTranspose() {
   const nodeSelector = NodesInternal.useLaxNodeDataSelector();
-
+  return useInnerDataModelBindingTranspose(nodeSelector);
+}
+export function useInnerDataModelBindingTranspose(nodeSelector: LaxNodeDataSelector) {
   return useCallback(
-    (node: LayoutNode, subject: string, _rowIndex?: number) => {
+    (node: LayoutNode, subject: IDataModelReference, _rowIndex?: number) => {
       const { currentLocation, currentLocationIsRepGroup, foundRowIndex } = firstDataModelBinding(node, nodeSelector);
       const rowIndex = _rowIndex ?? foundRowIndex;
       return currentLocation
@@ -47,7 +50,11 @@ function firstDataModelBinding(
   node: LayoutNode,
   nodeSelector: LaxNodeDataSelector,
   rowIndex?: number,
-): { currentLocation: string | undefined; currentLocationIsRepGroup: boolean; foundRowIndex: number | undefined } {
+): {
+  currentLocation: IDataModelReference | undefined;
+  currentLocationIsRepGroup: boolean;
+  foundRowIndex: number | undefined;
+} {
   const dataModelBindings = nodeSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
   if (dataModelBindings === ContextNotProvided) {
     return {

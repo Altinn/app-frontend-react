@@ -22,6 +22,7 @@ const compat = new FlatCompat({
   allConfig: js.configs.all,
 });
 
+// eslint-disable-next-line import/no-default-export
 export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -168,6 +169,7 @@ export default tseslint.config(
     },
     rules: {
       'testing-library/await-async-queries': ['warn'],
+      'jsx-a11y/label-has-associated-control': ['off'],
     },
   },
   {

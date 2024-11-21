@@ -3,6 +3,7 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -19,7 +20,7 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
       </>
     ),
     component: {
-      dataModelBindings: { simpleBinding: 'someField' },
+      dataModelBindings: { simpleBinding: { dataType: defaultDataTypeMock, field: 'someField' } },
       options: [
         { value: 'value1', label: 'label1' },
         { value: 'value2', label: 'label2' },
@@ -27,7 +28,9 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
       ],
       readOnly: false,
       required: false,
-      textResourceBindings: {},
+      textResourceBindings: {
+        title: 'Velg',
+      },
       ...component,
     },
     ...rest,
@@ -55,7 +58,30 @@ describe('MultipleSelect', () => {
     await userEvent.click(screen.getByRole('button', { name: /Slett label2/i }));
 
     await waitFor(() =>
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'someField', newValue: 'value1,value3' }),
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { field: 'someField', dataType: defaultDataTypeMock },
+        newValue: 'value1,value3',
+      }),
     );
+  });
+
+  it('required validation should only show for simpleBinding', async () => {
+    await render({
+      component: {
+        showValidations: ['Required'],
+        required: true,
+        dataModelBindings: {
+          simpleBinding: { dataType: defaultDataTypeMock, field: 'value' },
+          label: { dataType: defaultDataTypeMock, field: 'label' },
+          metadata: { dataType: defaultDataTypeMock, field: 'metadata' },
+        },
+      },
+      queries: {
+        fetchFormData: () => Promise.resolve({ simpleBinding: '', label: '', metadata: '' }),
+      },
+    });
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(1);
+    expect(screen.getByRole('listitem')).toHaveTextContent('Du må fylle ut velg');
   });
 });

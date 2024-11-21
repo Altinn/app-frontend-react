@@ -53,7 +53,7 @@ export function GenericComponentById<Type extends CompTypes = CompTypes>(props: 
   );
 }
 
-function _GenericComponent<Type extends CompTypes = CompTypes>({
+function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
   node,
   overrideItemProps,
   overrideDisplay,
@@ -83,43 +83,45 @@ function _GenericComponent<Type extends CompTypes = CompTypes>({
     </ComponentErrorBoundary>
   );
 }
-
-const MemoGenericComponent = React.memo(_GenericComponent);
+const MemoGenericComponent = React.memo(NonMemoGenericComponent);
 MemoGenericComponent.displayName = 'GenericComponent';
-export const GenericComponent = MemoGenericComponent as typeof _GenericComponent;
+export const GenericComponent = MemoGenericComponent as typeof NonMemoGenericComponent;
 
 function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   node,
   overrideItemProps,
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
-  let item = useNodeItem(node) as CompInternal<Type>;
-
-  if (!item || !node) {
-    throw new Error(`Node with id '${node?.id ?? 'unknown'}' not found`);
+  if (!node) {
+    throw new Error(`Node not found`);
   }
 
-  if (overrideItemProps) {
-    item = {
-      ...item,
-      ...overrideItemProps,
-    };
-  }
-
-  const id = item.id;
+  const grid = useNodeItem(node, (i) => overrideItemProps?.grid ?? i.grid);
+  const renderAsSummary = useNodeItem(node, (i) =>
+    overrideItemProps && 'renderAsSummary' in overrideItemProps && overrideItemProps.renderAsSummary !== undefined
+      ? overrideItemProps.renderAsSummary
+      : 'renderAsSummary' in i
+        ? i.renderAsSummary
+        : undefined,
+  );
+  const pageBreak = useNodeItem(
+    node,
+    (i) => overrideItemProps?.pageBreak ?? ('pageBreak' in i ? i.pageBreak : undefined),
+  );
+  const id = node.id;
   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
   const isHidden = Hidden.useIsHidden(node);
 
   const formComponentContext = useMemo<IFormComponentContext>(
     () => ({
-      grid: item.grid,
+      grid,
       id,
-      baseComponentId: item.baseComponentId,
+      baseComponentId: node.baseId === node.id ? undefined : node.baseId,
       node,
       overrideItemProps,
       overrideDisplay,
     }),
-    [item.grid, item.baseComponentId, id, node, overrideItemProps, overrideDisplay],
+    [grid, id, node, overrideItemProps, overrideDisplay],
   );
 
   useFinishNodeNavigation(async (targetNode, options, onHit) => {
@@ -190,7 +192,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     overrideDisplay,
   };
 
-  if ('renderAsSummary' in item && item.renderAsSummary) {
+  if (renderAsSummary) {
     const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
 
     if (!RenderSummary) {
@@ -208,7 +210,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     );
   }
 
-  if (overrideDisplay?.directRender || layoutComponent.directRender(item)) {
+  if (overrideDisplay?.directRender || layoutComponent.directRender()) {
     return (
       <FormComponentContextProvider value={formComponentContext}>
         <RenderComponent
@@ -228,13 +230,9 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         ref={containerDivRef}
         item
         container
-        {...gridBreakpoints(item.grid)}
+        {...gridBreakpoints(grid)}
         key={`grid-${id}`}
-        className={classNames(
-          classes.container,
-          gridToClasses(item.grid?.labelGrid, classes),
-          pageBreakStyles(item.pageBreak),
-        )}
+        className={classNames(classes.container, gridToClasses(grid?.labelGrid, classes), pageBreakStyles(pageBreak))}
         alignItems='baseline'
       >
         <RenderComponent {...componentProps} />

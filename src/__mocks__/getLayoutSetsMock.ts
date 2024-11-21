@@ -1,23 +1,32 @@
-import type { ILayoutSets } from 'src/layout/common.generated';
+import type { ILayoutSet, ILayoutSets } from 'src/layout/common.generated';
 
+export const defaultDataTypeMock = 'test-data-model';
+export const statelessDataTypeMock = 'stateless';
 export function getLayoutSetsMock(): ILayoutSets {
   return {
     sets: [
       {
         id: 'stateless',
-        dataType: 'stateless',
-        tasks: ['Task_0'],
+        dataType: statelessDataTypeMock,
       },
       {
         id: 'stateless-anon',
         dataType: 'stateless-anon',
-        tasks: ['Task_0'],
       },
       {
         id: 'some-data-task',
-        dataType: 'test-data-model',
+        dataType: defaultDataTypeMock,
         tasks: ['Task_1'],
       },
+      getSubFormLayoutSetMock(),
     ],
+  };
+}
+
+export function getSubFormLayoutSetMock(): ILayoutSet {
+  return {
+    id: 'subform-layout',
+    dataType: 'subform-data',
+    type: 'subform',
   };
 }

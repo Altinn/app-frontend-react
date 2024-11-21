@@ -13,9 +13,13 @@ export const invalidateCookieUrl = `${appPath}/api/authentication/invalidatecook
 export const validPartiesUrl = `${appPath}/api/v1/parties?allowedtoinstantiatefilter=true`;
 export const currentPartyUrl = `${appPath}/api/authorization/parties/current?returnPartyObject=true`;
 export const instancesControllerUrl = `${appPath}/instances`;
-export const instantiateUrl = `${appPath}/instances/create`;
 export const refreshJwtTokenUrl = `${appPath}/api/authentication/keepAlive`;
 export const applicationLanguagesUrl = `${appPath}/api/v1/applicationlanguages`;
+
+export const getInstantiateUrl = (language?: string) => {
+  const queryString = getQueryStringFromObject({ language });
+  return `${appPath}/instances/create${queryString}`;
+};
 
 export const getSetCurrentPartyUrl = (partyId: number) => `${appPath}/api/v1/parties/${partyId}`;
 
@@ -45,8 +49,15 @@ export const getAnonymousStatelessDataModelUrl = (dataType: string, includeRowId
   `${appPath}/v1/data/anonymous?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
 export const getStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
   `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
-export const getDataModelUrl = (instanceId: string, dataGuid: string, includeRowIds: boolean) =>
+export const getStatefulDataModelUrl = (instanceId: string, dataGuid: string, includeRowIds: boolean) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}?includeRowId=${includeRowIds.toString()}`;
+export const getMultiPatchUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/data`;
+
+export const getDataModelGuidUrl = (instanceId: string, dataGuid: string) =>
+  `${appPath}/instances/${instanceId}/data/${dataGuid}`;
+
+export const getDataModelTypeUrl = (instanceId: string, dataType: string) =>
+  `${appPath}/instances/${instanceId}/data?dataType=${dataType}`;
 
 export const getDataElementUrl = (instanceId: string, dataGuid: string, language: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}?language=${language}`;
@@ -57,9 +68,18 @@ export const getActionsUrl = (partyId: string, instanceId: string, language?: st
   return `${appPath}/instances/${partyId}/${instanceId}/actions${queryString}`;
 };
 
-export const getCreateInstancesUrl = (partyId: number) => `${appPath}/instances?instanceOwnerPartyId=${partyId}`;
+export const getCreateInstancesUrl = (partyId: number, language?: string) => {
+  const queryString = getQueryStringFromObject({ instanceOwnerPartyId: partyId.toString(), language });
+  return `${appPath}/instances${queryString}`;
+};
 
-export const getValidationUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/validate`;
+export const getValidationUrl = (instanceId: string, language: string, onlyIncrementalValidators?: boolean) => {
+  const queryString = getQueryStringFromObject({
+    language,
+    onlyIncrementalValidators: onlyIncrementalValidators?.toString(),
+  });
+  return `${appPath}/instances/${instanceId}/validate${queryString}`;
+};
 
 export const getDataValidationUrl = (instanceId: string, dataGuid: string, language: string) => {
   const queryString = getQueryStringFromObject({ language });
@@ -154,9 +174,11 @@ export const getInstanceUiUrl = (instanceId: string) => `${appPath}#/instance/${
 export const appFrontendCDNPath = 'https://altinncdn.no/toolkits/altinn-app-frontend';
 export const frontendVersionsCDN = `${appFrontendCDNPath}/index.json`;
 
+export type ParamValue = string | number | boolean | null;
+
 export interface IGetOptionsUrlParams {
   optionsId: string;
-  queryParameters?: Record<string, string>;
+  queryParameters?: Record<string, ParamValue>;
   language?: string;
   secure?: boolean;
   instanceId?: string;
@@ -170,17 +192,21 @@ export const getOptionsUrl = ({ optionsId, queryParameters, language, secure, in
     url = new URL(`${appPath}/api/options/${optionsId}`);
   }
 
-  const params: Record<string, string> = {};
+  const params: Record<string, ParamValue> = {};
   if (language) {
     params.language = language;
   }
+
   queryParameters && Object.assign(params, queryParameters);
 
-  url.search = new URLSearchParams(params).toString();
+  const stringParams = Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]));
+  url.search = new URLSearchParams(stringParams).toString();
+
   return url.toString();
 };
 export interface IGetDataListsUrlParams {
   dataListId: string;
+  queryParameters?: Record<string, ParamValue>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mappedData?: Record<string, any>;
   language?: string;
@@ -194,7 +220,7 @@ export interface IGetDataListsUrlParams {
 
 export const getDataListsUrl = ({
   dataListId,
-  mappedData,
+  queryParameters,
   language,
   pageSize,
   pageNumber,
@@ -209,7 +235,7 @@ export const getDataListsUrl = ({
   } else {
     url = new URL(`${appPath}/api/datalists/${dataListId}`);
   }
-  let params: Record<string, string> = {};
+  const params: Record<string, ParamValue> = {};
 
   if (language) {
     params.language = language;
@@ -231,13 +257,11 @@ export const getDataListsUrl = ({
     params.sortDirection = sortDirection;
   }
 
-  if (mappedData) {
-    params = {
-      ...params,
-      ...mappedData,
-    };
-  }
+  queryParameters && Object.assign(params, queryParameters);
 
-  url.search = new URLSearchParams(params).toString();
+  // Cast all values to string
+  const stringParams = Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]));
+  url.search = new URLSearchParams(stringParams).toString();
+
   return url.toString();
 };

@@ -10,7 +10,7 @@ const mui = new Common();
 describe('Group', () => {
   const init = () => {
     cy.goto('group');
-    cy.get(appFrontend.nextButton).click();
+    cy.findByRole('button', { name: /Neste/ }).click();
     cy.get(appFrontend.group.showGroupToContinue).should('be.visible');
   };
 
@@ -71,11 +71,11 @@ describe('Group', () => {
       cy.addItemToGroup(1, 2, 'automation', openByDefault);
       cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').first().should('have.text', 'NOK 1');
       cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').eq(1).should('have.text', 'NOK 2');
-      cy.get(appFrontend.group.mainGroup).find(appFrontend.group.edit).click();
+      cy.findByRole('button', { name: 'Rediger NOK 1' }).click();
       cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
       cy.get(appFrontend.group.subGroup).find('td').first().invoke('text').should('equal', 'automation');
-      cy.get(appFrontend.group.subGroup).find(appFrontend.group.edit).click();
-      cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
+      cy.findByRole('button', { name: 'Rediger automation' }).click();
+      cy.findByRole('button', { name: 'Slett-automation' }).click();
 
       // This test used to make sure deleted rows were re-added automatically, but that is no longer the case.
       cy.get(appFrontend.group.subGroup).find(mui.tableElement).should('have.length', 0);
@@ -83,7 +83,7 @@ describe('Group', () => {
       cy.get(appFrontend.group.comments).should('not.exist');
 
       cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.back).click();
-      cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).click();
+      cy.findByRole('button', { name: 'Slett-NOK 1' }).click();
 
       cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
       cy.get(appFrontend.group.saveMainGroup).should('not.exist');
@@ -178,15 +178,15 @@ describe('Group', () => {
       cy.get(appFrontend.group.saveMainGroup).clickAndGone();
 
       if (parseInt(idx) < rowsToAdd.length - 1) {
-        cy.get(appFrontend.nextButton).click();
+        cy.findByRole('button', { name: /Neste/ }).click();
         cy.get(appFrontend.fieldValidation('mainGroup')).should('have.text', texts.minCountError);
       } else {
         cy.get(appFrontend.fieldValidation('mainGroup')).should('not.exist');
       }
     }
 
-    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).first().click();
-    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.group.mainGroup).findByRole('button', { name: 'Slett-NOK 1' }).first().click();
+    cy.findByRole('button', { name: /Neste/ }).click();
     cy.get(appFrontend.fieldValidation('mainGroup')).should('have.text', texts.minCountError);
   });
 
@@ -257,7 +257,7 @@ describe('Group', () => {
     expectRows();
 
     function checkPrefills(items: { [key in keyof typeof appFrontend.group.prefill]?: boolean }) {
-      cy.get(appFrontend.prevButton).click();
+      cy.findByRole('button', { name: /Tilbake/ }).click();
       for (const item of Object.keys(items)) {
         if (items[item] === true) {
           cy.get(appFrontend.group.prefill[item]).check();
@@ -265,7 +265,7 @@ describe('Group', () => {
           cy.get(appFrontend.group.prefill[item]).uncheck();
         }
       }
-      cy.get(appFrontend.nextButton).click();
+      cy.findByRole('button', { name: /Neste/ }).click();
     }
 
     checkPrefills({ liten: true });
@@ -284,18 +284,14 @@ describe('Group', () => {
     checkPrefills({ liten: true });
     expectRows(['NOK 9 872 345', 'NOK 18 872 345'], ['NOK 1', 'NOK 5']);
 
-    cy.get(appFrontend.group.row(0).editBtn).should('have.text', 'Se innhold');
-    cy.get(appFrontend.group.row(0).deleteBtn).should('not.exist');
-    cy.get(appFrontend.group.row(0).editBtn).click();
-    cy.get(appFrontend.group.row(0).editBtn).should('have.text', 'Lukk');
+    cy.findByRole('button', { name: 'Se innhold NOK 9 872 345' }).click();
+    cy.findByRole('button', { name: 'Lukk NOK 9 872 345' }).should('exist');
     cy.get(appFrontend.group.saveMainGroup).should('have.text', 'Lukk');
     cy.get(appFrontend.group.saveMainGroup).clickAndGone();
 
     // The 'liten' row differs, as it should not have a save button on the bottom
-    cy.get(appFrontend.group.row(1).editBtn).should('have.text', 'Se innhold');
-    cy.get(appFrontend.group.row(1).deleteBtn).should('not.exist');
-    cy.get(appFrontend.group.row(1).editBtn).click();
-    cy.get(appFrontend.group.row(1).editBtn).should('have.text', 'Lukk');
+    cy.findByRole('button', { name: 'Se innhold NOK 1' }).click();
+    cy.findByRole('button', { name: 'Lukk NOK 1' }).should('exist');
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
   });
 
@@ -323,7 +319,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroup)
       .find(mui.tableBody)
       .then((table) => {
-        cy.wrap(table).find(appFrontend.group.delete).click();
+        cy.wrap(table).findByRole('button', { name: 'Slett-NOK 123' }).click();
       });
 
     cy.gotoNavPage('hide');
@@ -368,7 +364,7 @@ describe('Group', () => {
     });
 
     // Delete the stray row, wait until we've saved it
-    cy.get(appFrontend.group.delete).click();
+    cy.findByRole('button', { name: 'Slett-undefined' }).click();
     cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 0);
 
     cy.interceptLayout('group', (c) => {
@@ -388,8 +384,7 @@ describe('Group', () => {
           c.edit.openByDefault = openByDefault;
         }
       });
-      cy.navPage('prefill').click();
-      cy.navPage('repeating').click();
+      cy.gotoNavPage('repeating');
 
       cy.log('Testing whether whether existing item is opened when openByDefault =', openByDefault);
 
@@ -420,11 +415,10 @@ describe('Group', () => {
         c.edit.openByDefault = true;
       }
     });
-    cy.navPage('prefill').click();
-    cy.navPage('repeating').click();
+    cy.gotoNavPage('repeating');
 
     // Test that deleting an item does not cause another group to open if there are more elements in the group
-    cy.get(appFrontend.group.mainGroupTableBody).children().eq(0).find(appFrontend.group.delete).click();
+    cy.get(appFrontend.group.mainGroupTableBody).children().eq(0).findByRole('button', { name: 'Slett-NOK 1' }).click();
     cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
   });
 
@@ -441,27 +435,27 @@ describe('Group', () => {
     cy.addItemToGroup(1, 2, 'automation');
     cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').first().should('have.text', 'NOK 1');
     cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').eq(1).should('have.text', 'NOK 2');
-    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.edit).click();
+    cy.findByRole('button', { name: 'Rediger NOK 1' }).click();
 
     // Navigate to nested group and test delete warning popoup cancel and confirm
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
 
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').first().should('have.text', 'automation');
-    cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
+    cy.get(appFrontend.group.subGroup).findByRole('button', { name: 'Slett-automation' }).click();
     cy.snapshot('group: delete-warning-popup');
 
-    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverCancelButton).click({ force: true });
-    cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
-    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverDeleteButton).click({ force: true });
+    cy.findByRole('button', { name: 'Avbryt' }).click({ force: true });
+    cy.get(appFrontend.group.subGroup).findByRole('button', { name: 'Slett-automation' }).click();
+    cy.findByRole('button', { name: /Ja, slett raden/ }).click({ force: true });
 
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').should('have.length', 0);
 
     // Navigate to main group and test delete warning popup cancel and confirm
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.back).click();
-    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).click();
-    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.popOverCancelButton).click();
-    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).click();
-    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.popOverDeleteButton).click();
+    cy.get(appFrontend.group.mainGroup).findByRole('button', { name: 'Slett-NOK 1' }).click();
+    cy.findByRole('button', { name: 'Avbryt' }).click();
+    cy.get(appFrontend.group.mainGroup).findByRole('button', { name: 'Slett-NOK 1' }).click();
+    cy.findByRole('button', { name: /Ja, slett raden/ }).click();
 
     cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
   });
@@ -477,11 +471,11 @@ describe('Group', () => {
       }
     });
 
-    cy.navPage('prefill').click();
+    cy.gotoNavPage('prefill');
     cy.get(appFrontend.group.prefill.liten).check();
     cy.get(appFrontend.group.prefill.middels).check();
     cy.get(appFrontend.group.prefill.enorm).check();
-    cy.navPage('repeating').click();
+    cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
     cy.snapshot('group:edit-in-table');
@@ -525,9 +519,9 @@ describe('Group', () => {
     // This does not exist later, when we enter 'onlyTable' mode
     cy.get(appFrontend.group.saveMainGroup).click();
 
-    cy.get(appFrontend.group.delete).should('have.length', 1);
+    cy.findAllByRole('button', { name: /Slett/ }).should('have.length', 1);
     cy.waitUntilSaved();
-    cy.get(appFrontend.group.delete).click();
+    cy.findByRole('button', { name: 'Slett-NOK 123' }).click();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
 
     cy.changeLayout((c) => {
@@ -585,7 +579,7 @@ describe('Group', () => {
 
   it('should be able to customize the add button in repeating groups', () => {
     cy.goto('group');
-    cy.get(appFrontend.nextButton).click();
+    cy.findByRole('button', { name: /Neste/ }).click();
     cy.changeLayout((c) => {
       if (c.type === 'RepeatingGroup' && c.id === 'mainGroup' && c.textResourceBindings) {
         c.textResourceBindings.add_button_full = 'Hello World';
@@ -640,7 +634,9 @@ describe('Group', () => {
     cy.get(appFrontend.group.saveMainGroup).clickAndGone();
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.group.addNewItem).clickAndGone();
-    cy.get(appFrontend.group.row(3).editBtn).click();
+    cy.findAllByRole('button', { name: /Rediger/ })
+      .eq(3)
+      .click();
     cy.get(appFrontend.group.editContainer).findAllByRole('button').eq(1).should('have.text', 'next-btn-text');
 
     cy.changeLayout((c) => {
@@ -648,7 +644,9 @@ describe('Group', () => {
         c.textResourceBindings.save_and_next_button = '';
       }
     });
-    cy.get(appFrontend.group.row(3).editBtn).click();
+    cy.findAllByRole('button', { name: /Rediger/ })
+      .eq(3)
+      .click();
     cy.get(appFrontend.group.editContainer).findAllByRole('button').eq(1).should('have.text', 'Lagre og åpne neste');
     cy.get(appFrontend.group.editContainer).findAllByRole('button').eq(2).should('have.text', 'Lagre og lukk');
   });
@@ -734,12 +732,12 @@ describe('Group', () => {
 
     // Now, find the row with number '3' in it, open it for editing, and then delete it while it's open
     cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).find('td').first().should('contain.text', '3');
-    cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).find(appFrontend.group.edit).click();
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).findByRole('button', { name: 'Rediger 3' }).click();
 
     // The add new row button should no longer exist now
     cy.get(appFrontend.group.secondGroup_add).should('not.exist');
 
-    cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).find(appFrontend.group.delete).click();
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).findByRole('button', { name: 'Slett-3' }).click();
 
     // But now the button should exist again, and be clickable. The new row should have id 4.
     cy.get(appFrontend.group.secondGroup_add).click();
@@ -778,6 +776,7 @@ describe('Group', () => {
     // Navigating between pages should clear the state for which group row is editing, so now the
     // first one (that is not hidden) should be open
     cy.gotoNavPage('prefill');
+    cy.get(appFrontend.group.prefill.liten).should('be.visible');
     cy.gotoNavPage('repeating');
 
     cy.get(appFrontend.group.editContainer).find('input').first().should('have.value', 'NOK 120');
@@ -820,10 +819,13 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(1).should('contain.text', 'NOK 1 233');
   });
 
-  it('verify that hidden rows are not shown in summary', () => {
+  it('Non-standard modes (showAll, hideTable, onlyTable), hidden rows, editing and label visibility', () => {
     cy.interceptLayout('group', (c) => {
       if (c.id === 'summary1' && c.type === 'Summary') {
         c.largeGroup = false;
+      }
+      if (c.id === 'mainGroup' && c.type === 'RepeatingGroup' && c.edit) {
+        c.edit.mode = 'showAll';
       }
     });
     cy.goto('group');
@@ -834,10 +836,127 @@ describe('Group', () => {
     cy.get(appFrontend.group.prefill.enorm).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
-    cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
-    cy.get(appFrontend.group.hideRepeatingGroupRow).type('1000');
+
+    function hideAllRows() {
+      // Make sure we don't have any rows open for editing before hiding them
+      cy.get(appFrontend.group.saveMainGroup).should('not.exist');
+
+      cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
+      cy.get(appFrontend.group.hideRepeatingGroupRow).type('0');
+    }
+
+    function showSomeRows() {
+      cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
+      cy.get(appFrontend.group.hideRepeatingGroupRow).type('1000');
+    }
+
+    showSomeRows();
+
+    // Testing that hidden rows are not shown in the summary
     cy.gotoNavPage('summary');
     cy.get('[data-testid="summary-repeating-row"]').should('have.length', 2);
+
+    function assertGroupLabelAsFieldSet(insideGroup: string, rowLength: number, addButtonVisbible = true) {
+      cy.findByRole('caption', { name: 'Group title' }).should('not.exist');
+      cy.findByRole('table', { name: 'Group title' }).should('not.exist');
+      cy.findByRole('group', { name: 'Group title' }).find(insideGroup).should('have.length', rowLength);
+      if (addButtonVisbible) {
+        cy.findByRole('group', { name: 'Group title' }).find(appFrontend.group.addNewItem).should('be.visible');
+      } else {
+        cy.get(appFrontend.group.addNewItem).should('not.exist');
+      }
+    }
+
+    function assertGroupLabelAsCaption(numRows: number) {
+      cy.findByRole('group', { name: 'Group title' }).should('not.exist');
+
+      cy.findByRole('table', { name: 'Group title' })
+        .find(appFrontend.group.mainGroupTableBody)
+        .find('tr')
+        .should('have.length', numRows);
+
+      // The caption itself is a role inside the table, but it does not 'contain' the table rows themselves
+      cy.findByRole('caption', { name: 'Group title' }).find(appFrontend.group.mainGroupTableBody).should('not.exist');
+
+      // The caption and table roles does not cover the add button (maybe it should? the add button is not a part of the
+      // table, but it is a part of the group component)
+      cy.findByRole('caption', { name: 'Group title' }).find(appFrontend.group.addNewItem).should('not.exist');
+      cy.findByRole('table', { name: 'Group title' }).find(appFrontend.group.addNewItem).should('not.exist');
+
+      // But the button should be visible outside the table
+      cy.get(appFrontend.group.addNewItem).should('be.visible');
+
+      // No headers should be visible when there are no rows
+      const numHeaders = numRows === 0 ? 0 : 1;
+      cy.get(appFrontend.group.mainGroup)
+        .find('tr')
+        .should('have.length', numRows + numHeaders);
+    }
+
+    cy.gotoNavPage('repeating');
+    const editContainers = '[id^="group-edit-container-mainGroup-"]';
+    cy.get(editContainers).should('have.length', 2);
+
+    // Assert that the label is a fieldset that covers all rows and the add button
+    assertGroupLabelAsFieldSet(editContainers, 2);
+
+    // Take a snapshot to make sure we don't get visual regressions for mode:showAll. Make sure we go to the next
+    // page in one of the rows in order to also snapshot the Cards component inside a repeating group edit container.
+    cy.get(editContainers).eq(1).findByRole('button', { name: 'Neste' }).click();
+    cy.get(editContainers).eq(1).should('contain.text', 'Hvem tipset deg om dette skjemaet?');
+    cy.snapshot('group:showAll');
+
+    // Verify that the label and add button still shows up when there are no rows in this mode
+    hideAllRows();
+    cy.get(editContainers).should('not.exist');
+    cy.get(appFrontend.group.mainGroupTableBody).should('not.exist');
+    assertGroupLabelAsFieldSet(editContainers, 0);
+
+    cy.changeLayout((c) => {
+      if (c.id === 'mainGroup' && c.type === 'RepeatingGroup' && c.edit) {
+        c.edit.mode = 'hideTable';
+      }
+    });
+
+    // In the hideTable mode, the table should be visible except when any row is being edited.
+    showSomeRows();
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 2);
+    cy.get(appFrontend.group.editContainer).should('not.exist');
+
+    // When showing a table, the label is a caption inside that table
+    assertGroupLabelAsCaption(2);
+
+    // Opening a row for editing should hide the table
+    cy.get(appFrontend.group.mainGroupTableBody)
+      .find('tr')
+      .eq(0)
+      .findByRole('button', { name: 'Se innhold NOK 1' })
+      .click();
+    cy.get(appFrontend.group.mainGroupTableBody).should('not.exist');
+    cy.get(appFrontend.group.editContainer).should('be.visible');
+    assertGroupLabelAsFieldSet(editContainers, 1, false); // No AddButton in this mode unless you close for editing
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+
+    hideAllRows();
+
+    // When all the rows are hidden, the label and add button should still show up in the hideTable mode, but
+    // the table should not be visible
+    assertGroupLabelAsCaption(0);
+
+    cy.changeLayout((c) => {
+      if (c.id === 'mainGroup' && c.type === 'RepeatingGroup' && c.edit) {
+        c.edit.mode = 'onlyTable';
+      }
+    });
+
+    // In the onlyTable mode, the table should be visible, and the edit container should not be visible
+    showSomeRows();
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 2);
+    assertGroupLabelAsCaption(2);
+    cy.findByRole('button', { name: /Rediger/ }).should('not.exist');
+
+    hideAllRows();
+    assertGroupLabelAsCaption(0);
   });
 
   it('Adding new nodes while nodes are already being generated', () => {

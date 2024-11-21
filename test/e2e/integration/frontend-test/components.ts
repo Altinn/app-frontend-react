@@ -1,8 +1,9 @@
 import path from 'path';
 
 import texts from 'test/e2e/fixtures/texts.json';
-import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+import { AppFrontend, component } from 'test/e2e/pageobjects/app-frontend';
 
+import { isNumberFormat } from 'src/layout/Input/number-format-helpers';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { CompExternal } from 'src/layout/layout';
 
@@ -17,7 +18,7 @@ describe('UI Components', () => {
   it('Image component with help text', () => {
     cy.goto('message');
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
-    cy.get(appFrontend.closeButton).should('be.visible');
+    cy.findByRole('button', { name: /Lukk skjema/i }).should('be.visible');
     cy.get(appFrontend.header).should('contain.text', appFrontend.apps.frontendTest).and('contain.text', texts.ttd);
     cy.get(appFrontend.message.logo).then((image) => {
       cy.wrap(image).find('img').should('have.attr', 'alt', 'Altinn logo');
@@ -53,7 +54,9 @@ describe('UI Components', () => {
     }).as('uploadWithDelay');
 
     cy.goto('changename');
-    cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
+    cy.findByRole('presentation', {
+      name: /Last opp eventuell dokumentasjon for ditt nye navn/i,
+    }).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadedTable)
@@ -74,13 +77,16 @@ describe('UI Components', () => {
       }
     });
     cy.goto('changename');
-    cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
+    cy.findByRole('presentation', {
+      name: /Last opp eventuell dokumentasjon for ditt nye navn/i,
+    }).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.fileUploadSuccess).should('exist');
     cy.snapshot('components:attachment');
-    cy.get(appFrontend.changeOfName.deleteAttachment).click();
-    cy.get(appFrontend.changeOfName.deleteAttachment).should('not.exist');
+
+    cy.findByRole('button', { name: 'Slett vedlegg' }).click();
+    cy.findByRole('button', { name: 'Slett vedlegg' }).should('not.exist');
     cy.get('[role=alert]').should('not.exist');
   });
 
@@ -92,7 +98,9 @@ describe('UI Components', () => {
       });
     }).as('uploadWithDelay');
 
-    cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
+    cy.findByRole('presentation', {
+      name: /Last opp eventuell dokumentasjon for ditt nye navn/i,
+    }).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
 
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
@@ -192,14 +200,17 @@ describe('UI Components', () => {
     for (const { uploader, shouldExist } of components) {
       cy.get(uploader).selectFile('test/e2e/fixtures/test.pdf', { force: true });
       cy.get(appFrontend.changeOfName.fileUploadSuccess).should('exist');
-      cy.get(appFrontend.changeOfName.deleteAttachment).click();
-      cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+
+      cy.findByRole('button', { name: 'Slett vedlegg' }).click();
+      cy.findByRole('button', { name: 'Avbryt' }).click();
       cy.get(shouldExist).should('exist');
-      cy.get(appFrontend.changeOfName.deleteAttachment).click();
-      cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+
+      cy.findByRole('button', { name: 'Slett vedlegg' }).click();
+      cy.findByRole('button', { name: 'Ja, slett vedlegg' }).click({ force: true });
       cy.get(shouldExist).should('not.exist');
     }
   });
+
   it('minNumberOfAttachments should validate like required', () => {
     cy.interceptLayout('changename', (component) => {
       if (component.type === 'FileUpload' || component.type === 'FileUploadWithTag') {
@@ -230,7 +241,7 @@ describe('UI Components', () => {
       .should('have.attr', 'aria-current', 'page')
       .and('have.css', 'background-color', 'rgb(2, 47, 81)');
     cy.navPage('summary').should('have.css', 'background-color', 'rgba(0, 0, 0, 0)');
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     cy.navPage('form').should('not.have.attr', 'aria-current', 'page');
     cy.navPage('summary')
       .should('have.attr', 'aria-current', 'page')
@@ -400,11 +411,11 @@ describe('UI Components', () => {
     cy.findByRole('radio', { name: /Gårdsbruk/ }).check();
     //makes sure that textresources from active radiobutton are displayed in the alert dialog
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil endre fra Slektskap?');
-    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.findByRole('button', { name: /Avbryt/ }).click();
     cy.findByRole('radio', { name: /Slektskap/ }).should('be.checked');
 
     cy.findByRole('radio', { name: /Gårdsbruk/ }).check();
-    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.findByRole('button', { name: /Bekreft/ }).click();
     cy.findByRole('radio', { name: /Gårdsbruk/ }).should('be.checked');
   });
 
@@ -422,13 +433,13 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.sources).click();
     cy.findByRole('option', { name: /digitaliseringsdirektoratet/i }).click();
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil endre til Digitaliseringsdirektoratet?');
-    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.findByRole('button', { name: /Avbryt/ }).click();
     cy.get(appFrontend.changeOfName.sources).should('have.value', 'Altinn');
 
     cy.get(appFrontend.changeOfName.sources).click();
     cy.findByRole('option', { name: /digitaliseringsdirektoratet/i }).click();
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil endre til Digitaliseringsdirektoratet?');
-    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.findByRole('button', { name: /Bekreft/ }).click();
     cy.get(appFrontend.changeOfName.sources).should('have.value', 'Digitaliseringsdirektoratet');
   });
 
@@ -441,10 +452,7 @@ describe('UI Components', () => {
       }
     });
 
-    cy.goto('changename');
-    cy.waitForLoad();
-    cy.findByRole('checkbox', { name: /label databindings/i }).dsCheck();
-    cy.gotoNavPage('label-data-bindings');
+    cy.gotoHiddenPage('label-data-bindings');
 
     cy.findByRole('combobox', { name: /velg noen farger/i }).click();
     cy.findByRole('option', { name: /blå/i }).click();
@@ -458,24 +466,24 @@ describe('UI Components', () => {
 
     cy.findByRole('button', { name: /slett grønn/i, hidden: true }).click();
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil slette Grønn?');
-    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.findByRole('button', { name: /Avbryt/ }).click();
     cy.findByRole('button', { name: /slett grønn/i, hidden: true }).should('be.visible');
 
     cy.findByRole('button', { name: /slett gul/i, hidden: true }).click();
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil slette Gul?');
-    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.findByRole('button', { name: /Bekreft/ }).click();
     cy.findByRole('button', { name: /slett gul/i, hidden: true }).should('not.exist');
 
     cy.findByRole('button', { name: /fjern alle valgte/i, hidden: true }).click();
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil slette Blå, Cyan, Grønn?');
-    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.findByRole('button', { name: /Avbryt/ }).click();
     cy.findByRole('button', { name: /slett blå/i, hidden: true }).should('be.visible');
     cy.findByRole('button', { name: /slett cyan/i, hidden: true }).should('be.visible');
     cy.findByRole('button', { name: /slett grønn/i, hidden: true }).should('be.visible');
 
     cy.findByRole('button', { name: /fjern alle valgte/i, hidden: true }).click();
     cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil slette Blå, Cyan, Grønn?');
-    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.findByRole('button', { name: /Bekreft/ }).click();
     cy.findByRole('button', { name: /slett blå/i, hidden: true }).should('not.exist');
     cy.findByRole('button', { name: /slett cyan/i, hidden: true }).should('not.exist');
     cy.findByRole('button', { name: /slett grønn/i, hidden: true }).should('not.exist');
@@ -492,10 +500,10 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.newFirstName).type('Per');
     cy.get(appFrontend.changeOfName.newFirstName).blur();
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').dblclick();
-    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.findByRole('button', { name: /Avbryt/ }).click();
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
-    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.findByRole('button', { name: /Bekreft/ }).click();
     cy.get(appFrontend.changeOfName.reasons).should('not.exist');
   });
 
@@ -507,7 +515,7 @@ describe('UI Components', () => {
     });
 
     cy.goto('changename');
-    cy.navPage('grid').click();
+    cy.gotoNavPage('grid');
     // dialog pops up when unchecking a checkbox
     cy.get('[data-testid="checkboxes-fieldset"]').find('label').contains('Ja').dblclick();
     //Make sure that the alert popover for only one checkbox is displayed, if several dialogs are displayed, the test will fail
@@ -551,15 +559,15 @@ describe('UI Components', () => {
 
     cy.get('#form-content-button-group1').within(() => {
       cy.get(appFrontend.printButton).should('be.visible');
-      cy.get(appFrontend.nextButton).should('be.visible');
+      cy.findByRole('button', { name: /Neste/ }).should('be.visible');
     });
 
     // Check that the buttons are moved inside the error paper
-    cy.get(appFrontend.nextButton).click();
+    cy.findByRole('button', { name: /Neste/ }).click();
     cy.get(appFrontend.errorReport).within(() => {
       cy.get('#form-content-button-group1').within(() => {
         cy.get(appFrontend.printButton).should('be.visible');
-        cy.get(appFrontend.nextButton).should('be.visible');
+        cy.findByRole('button', { name: /Neste/ }).should('be.visible');
       });
     });
   });
@@ -648,10 +656,7 @@ describe('UI Components', () => {
   }
 
   it('number conversion in regular form fields and number-formatted fields', () => {
-    cy.goto('changename');
-    cy.get(appFrontend.changeOfName.newFirstName).type('123');
-    cy.get('#choose-extra').findByText('Tall-input').click();
-    cy.gotoNavPage('numeric-fields');
+    cy.gotoHiddenPage('numeric-fields');
     cy.get(appFrontend.errorReport).should('not.exist');
 
     const fields: { [key: string]: Field } = {
@@ -741,5 +746,164 @@ describe('UI Components', () => {
         }
       }
     }
+  });
+
+  it('Map component with simpleBinding', () => {
+    cy.fixture('map-tile.png', 'base64').then((data) => {
+      cy.interceptLayout('changename', (component) => {
+        if (component.type === 'Map' && component.id === 'map') {
+          component.layers = [
+            {
+              url: `data:image/png;base64,${data}`,
+              attribution: '&copy; <a href="about:blank">Team Apps</a>',
+            },
+          ];
+          delete component.dataModelBindings.geometries;
+        }
+
+        if (component.type === 'Input' && component.id === 'map-location') {
+          component.hidden = false;
+        }
+      });
+    });
+
+    cy.gotoHiddenPage('map');
+
+    cy.get(component('map')).should('contain.text', 'Ingen lokasjon valgt');
+    cy.get(component('mapSummary')).should('contain.text', 'Du har ikke lagt inn informasjon her');
+
+    cy.findByTestId(/^map-container/).click();
+
+    cy.get(component('map')).findByAltText('Marker').should('be.visible');
+    cy.get(component('map'))
+      .findByText(/Valgt lokasjon: 59(\.\d{1,6})?° nord, 10(\.\d{1,6})?° øst/)
+      .should('be.visible');
+
+    cy.get(component('mapSummary')).findByAltText('Marker').should('be.visible');
+    cy.get(component('mapSummary'))
+      .findByText(/Valgt lokasjon: 59(\.\d{1,6})?° nord, 10(\.\d{1,6})?° øst/)
+      .should('be.visible');
+
+    cy.get(component('mapValue'))
+      .findByText(/59(\.\d{1,6})?, 10(\.\d{1,6})?/)
+      .should('be.visible');
+
+    // Set exact location so snapshot is consistent
+    cy.findByRole('textbox', { name: /eksakt lokasjon/i }).clear();
+    cy.findByRole('textbox', { name: /eksakt lokasjon/i }).type('59.930803,10.801246');
+    cy.waitUntilSaved();
+
+    // Force the map component to remount to skip the zoom animation
+    cy.gotoNavPage('form');
+    cy.get(appFrontend.changeOfName.newFirstName).should('be.visible'); // Making sure the page is loaded
+    cy.gotoNavPage('map');
+    cy.get(component('map')).should('be.visible');
+
+    // Make sure tiles are not faded before taking the snapshot
+    cy.get('.leaflet-layer img').each((layer) => cy.wrap(layer).should('have.css', 'opacity', '1'));
+
+    cy.snapshot('components:map-simpleBinding');
+  });
+
+  it('Map component with geometries should center the map around the geometries', () => {
+    cy.fixture('map-tile.png', 'base64').then((data) => {
+      cy.interceptLayout('changename', (component) => {
+        if (component.type === 'Map' && component.id === 'map') {
+          component.layers = [
+            {
+              url: `data:image/png;base64,${data}`,
+              attribution: '&copy; <a href="about:blank">Team Apps</a>',
+            },
+          ];
+          delete component.dataModelBindings.simpleBinding;
+        }
+      });
+    });
+
+    cy.gotoHiddenPage('map');
+
+    // prettier-ignore
+    {
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 1/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 2/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 3/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 4/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 5/i }).should('be.visible');
+    }
+
+    cy.get(component('mapSummary')).should('not.contain.text', 'Du har ikke lagt inn informasjon her');
+
+    // prettier-ignore
+    {
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 1/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 2/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 3/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 4/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 5/i }).should('be.visible');
+    }
+
+    cy.findByRole('checkbox', { name: /hankabakken 2/i }).dsUncheck();
+    cy.findByRole('checkbox', { name: /hankabakken 4/i }).dsUncheck();
+
+    // prettier-ignore
+    {
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 1/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 2/i }).should('not.exist');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 3/i }).should('be.visible');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 4/i }).should('not.exist');
+    cy.get(component('map')).findByRole('tooltip', { name: /hankabakken 5/i }).should('be.visible');
+    }
+
+    cy.get(component('mapSummary')).should('not.contain.text', 'Du har ikke lagt inn informasjon her');
+
+    // prettier-ignore
+    {
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 1/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 2/i }).should('not.exist');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 3/i }).should('be.visible');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 4/i }).should('not.exist');
+    cy.get(component('mapSummary')).findByRole('tooltip', { name: /hankabakken 5/i }).should('be.visible');
+    }
+
+    cy.snapshot('components:map-geometries');
+  });
+
+  it('number formatting should never update/change the form data', () => {
+    cy.gotoHiddenPage('numeric-fields');
+    cy.get(appFrontend.errorReport).should('not.exist');
+
+    // Fill out a specific number in the field that we'll round later when setting up decimalScale
+    cy.get('#decimalAsNumber').type('123.456789');
+    cy.get('#decimalAsNumber').should('have.value', '123,456789 flis');
+    cy.get('#decimalAsString').should('have.value', '123.456789');
+
+    cy.changeLayout((c) => {
+      if (c.id === 'decimalAsNumber' && c.type === 'Input' && isNumberFormat(c.formatting?.number)) {
+        c.formatting.number.decimalScale = 2;
+      }
+      // Also unlock the stringy field so that we can write to it
+      if (c.id === 'decimalAsString' && c.type === 'Input') {
+        delete c.readOnly;
+      }
+    });
+
+    cy.get('#decimalAsNumber').should('have.value', '123,46 flis');
+    cy.get('#decimalAsString').should('have.value', '123.456789');
+    cy.waitUntilSaved();
+
+    // Change the stringy field to see if the rounding is reflected in the number field
+    cy.get('#decimalAsString').type('{selectall}123.759358');
+    cy.get('#decimalAsNumber').should('have.value', '123,76 flis');
+    cy.get('#decimalAsString').should('have.value', '123.759358');
+
+    // Removing the decimal scale should not change the value
+    cy.changeLayout((c) => {
+      if (c.id === 'decimalAsNumber' && c.type === 'Input' && isNumberFormat(c.formatting?.number)) {
+        delete c.formatting.number.decimalScale;
+      }
+    });
+
+    cy.get('#decimalAsNumber').should('have.value', '123,759358 flis');
+    cy.get('#decimalAsString').should('have.value', '123.759358');
   });
 });

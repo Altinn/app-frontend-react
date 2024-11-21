@@ -5,22 +5,22 @@ import { Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { Caption } from 'src/components/form/Caption';
+import { Caption } from 'src/components/form/caption/Caption';
 import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useIsMobile } from 'src/hooks/useIsMobile';
-import { GenericComponent } from 'src/layout/GenericComponent';
+import { useIsMobile } from 'src/hooks/useDeviceWidths';
+import { GenericComponent, GenericComponentById } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
 import {
   isGridCellLabelFrom,
   isGridCellNode,
   isGridCellText,
   isGridRowHidden,
-  useNodesFromGrid,
+  useNodeIdsFromGrid,
 } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -40,6 +40,8 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const columnSettings: ITableColumnFormatting = {};
   const isMobile = useIsMobile();
   const isNested = node.parent instanceof BaseLayoutNode;
+  const { elementAsString } = useLanguage();
+  const accessibleTitle = elementAsString(title);
 
   if (isMobile) {
     return <MobileGrid {...props} />;
@@ -59,7 +61,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
             className={cn({ [css.captionFullWidth]: shouldHaveFullWidth })}
             title={<Lang id={title} />}
             description={description && <Lang id={description} />}
-            helpText={help}
+            helpText={help ? { text: <Lang id={help} />, accessibleTitle } : undefined}
             labelSettings={labelSettings}
           />
         )}
@@ -140,13 +142,12 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
             />
           );
         }
-        const componentNode = isGridCellNode(cell) ? cell.node : undefined;
-        const componentId = componentNode && componentNode.id;
+        const componentId = isGridCellNode(cell) ? cell.nodeId : undefined;
         return (
           <CellWithComponent
             rowReadOnly={row.readOnly}
             key={`${componentId}/${cellIdx}`}
-            node={componentNode}
+            nodeId={componentId}
             isHeader={row.header}
             className={className}
             columnStyleOptions={mutableColumnSettings[cellIdx]}
@@ -170,11 +171,7 @@ function InternalRow({ header, readOnly, children }: InternalRowProps) {
     );
   }
 
-  return (
-    <Table.Body>
-      <Table.Row className={className}>{children}</Table.Row>
-    </Table.Body>
-  );
+  return <Table.Row className={className}>{children}</Table.Row>;
 }
 
 interface CellProps {
@@ -185,7 +182,7 @@ interface CellProps {
 }
 
 interface CellWithComponentProps extends CellProps {
-  node: LayoutNode | undefined;
+  nodeId: string | undefined;
 }
 
 interface CellWithTextProps extends PropsWithChildren, CellProps {
@@ -197,12 +194,13 @@ interface CellWithLabelProps extends CellProps {
 }
 
 function CellWithComponent({
-  node,
+  nodeId,
   className,
   columnStyleOptions,
   isHeader = false,
   rowReadOnly,
 }: CellWithComponentProps) {
+  const node = useNode(nodeId);
   const isHidden = Hidden.useIsHidden(node);
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
 
@@ -278,7 +276,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
     >
       {labelFromNode && (
         <LabelContent
-          labelId={`label-${labelFromNode.id}`}
+          componentId={labelFromNode.id}
           label={title}
           required={required}
           help={help}
@@ -292,7 +290,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
 function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
   const { textResourceBindings, id, labelSettings } = useNodeItem(node);
   const { title, description, help } = textResourceBindings ?? {};
-  const nodes = useNodesFromGrid(node);
+  const nodeIds = useNodeIdsFromGrid(node);
   const isHidden = Hidden.useIsHiddenSelector();
 
   return (
@@ -304,12 +302,12 @@ function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
       labelSettings={labelSettings}
       className={css.mobileFieldset}
     >
-      {nodes
-        .filter((child) => !isHidden(child))
-        .map((child) => (
-          <GenericComponent
-            key={child.id}
-            node={child}
+      {nodeIds
+        .filter((childId) => !isHidden(childId))
+        .map((childId) => (
+          <GenericComponentById
+            key={childId}
+            id={childId}
           />
         ))}
     </Fieldset>

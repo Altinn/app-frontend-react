@@ -1,20 +1,22 @@
 import React from 'react';
 
-import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import { Grid } from '@material-ui/core';
 
+import { PANEL_VARIANT } from 'src/app-components/panel/constants';
+import { Panel } from 'src/app-components/panel/Panel';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
-import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { GenericComponentById } from 'src/layout/GenericComponent';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
-import type { NodeValidation } from 'src/features/validation';
+import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 
 export interface IErrorReportProps {
   renderIds: string[];
+  formErrors: NodeRefValidation<AnyValidation<'error'>>[];
+  taskErrors: BaseValidation<'error'>[];
 }
 
 const ArrowForwardSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16px" style="position: relative; top: 2px">
@@ -22,38 +24,20 @@ const ArrowForwardSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24
 </svg>`;
 const listStyleImg = `url("data:image/svg+xml,${encodeURIComponent(ArrowForwardSvg)}")`;
 
-export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
-  const { formErrors, taskErrors } = useTaskErrors();
+export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportProps) => {
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
-  const navigateTo = useNavigateToNode();
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
-  const isHidden = Hidden.useIsHiddenSelector();
 
   if (!hasErrors) {
     return null;
   }
 
-  const handleErrorClick = (error: NodeValidation) => async (ev: React.KeyboardEvent | React.MouseEvent) => {
-    const { node } = error;
-    if (ev.type === 'keydown' && (ev as React.KeyboardEvent).key !== 'Enter') {
-      return;
-    }
-    ev.preventDefault();
-    if (isHidden(node)) {
-      // No point in trying to focus on a hidden component
-      return;
-    }
-
-    await navigateTo(node, { shouldFocus: true, error });
-  };
-
   return (
     <div data-testid='ErrorReport'>
       <FullWidthWrapper isOnBottom={true}>
         <Panel
-          title={<Lang id='form_filler.error_report_header' />}
-          showIcon={false}
-          variant={PanelVariant.Error}
+          title={<Lang id={'form_filler.error_report_header'} />}
+          variant={PANEL_VARIANT.Error}
         >
           <Grid
             container={true}
@@ -78,22 +62,10 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
                   </li>
                 ))}
                 {formErrors.map((error) => (
-                  <li
+                  <Error
                     key={getUniqueKeyFromObject(error)}
-                    style={{ listStyleImage: listStyleImg }}
-                  >
-                    <button
-                      className={classes.buttonAsInvisibleLink}
-                      onClick={handleErrorClick(error)}
-                      onKeyDown={handleErrorClick(error)}
-                    >
-                      <Lang
-                        id={error.message.key}
-                        params={error.message.params}
-                        node={error.node}
-                      />
-                    </button>
-                  </li>
+                    error={error}
+                  />
                 ))}
               </ul>
             </Grid>
@@ -109,3 +81,38 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
     </div>
   );
 };
+
+function Error({ error }: { error: NodeRefValidation }) {
+  const node = useNode(error.nodeId);
+  const navigateTo = useNavigateToNode();
+  const isHidden = Hidden.useIsHidden(node);
+
+  const handleErrorClick = async (ev: React.KeyboardEvent | React.MouseEvent) => {
+    if (ev.type === 'keydown' && (ev as React.KeyboardEvent).key !== 'Enter') {
+      return;
+    }
+    ev.preventDefault();
+    if (isHidden || !node) {
+      // No point in trying to focus on a hidden component
+      return;
+    }
+
+    await navigateTo(node, { shouldFocus: true, error });
+  };
+
+  return (
+    <li style={{ listStyleImage: listStyleImg }}>
+      <button
+        className={classes.buttonAsInvisibleLink}
+        onClick={handleErrorClick}
+        onKeyDown={handleErrorClick}
+      >
+        <Lang
+          id={error.message.key}
+          params={error.message.params}
+          node={node}
+        />
+      </button>
+    </li>
+  );
+}

@@ -15,7 +15,6 @@ export class Header extends HeaderDef {
     },
   );
 
-  // TODO: Temporary solution to show the summary for Headers
   renderSummary2(props: Summary2Props<'Header'>): JSX.Element | null {
     return (
       <HeaderComponent

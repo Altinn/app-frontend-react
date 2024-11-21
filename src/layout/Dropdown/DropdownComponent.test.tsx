@@ -6,6 +6,7 @@ import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
 import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepGroup';
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { queryPromiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
@@ -32,7 +33,9 @@ interface Props extends Partial<Omit<RenderGenericComponentTestProps<'Dropdown'>
 }
 
 function MySuperSimpleInput() {
-  const { setValue, formData } = useDataModelBindings({ simpleBinding: 'myInput' });
+  const { setValue, formData } = useDataModelBindings({
+    simpleBinding: { field: 'myInput', dataType: defaultDataTypeMock },
+  });
 
   return (
     <input
@@ -56,8 +59,11 @@ const render = async ({ component, options, ...rest }: Props = {}) => {
     component: {
       optionsId: 'countries',
       readOnly: false,
+      textResourceBindings: {
+        title: 'Land',
+      },
       dataModelBindings: {
-        simpleBinding: 'myDropdown',
+        simpleBinding: { dataType: defaultDataTypeMock, field: 'myDropdown' },
       },
       ...component,
     },
@@ -91,7 +97,10 @@ describe('DropdownComponent', () => {
     await userEvent.click(screen.getByRole('option', { name: /sweden/i }));
 
     await waitFor(() =>
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'sweden' }),
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
+        newValue: 'sweden',
+      }),
     );
   });
 
@@ -128,7 +137,10 @@ describe('DropdownComponent', () => {
     });
 
     await waitFor(() =>
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'denmark' }),
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
+        newValue: 'denmark',
+      }),
     );
   });
 
@@ -194,7 +206,10 @@ describe('DropdownComponent', () => {
 
     await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1));
     await waitFor(() =>
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for first' }),
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
+        newValue: 'Value for first',
+      }),
     );
 
     await userEvent.click(screen.getByRole('combobox'));
@@ -202,7 +217,10 @@ describe('DropdownComponent', () => {
 
     await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(2));
     await waitFor(() =>
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for second' }),
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
+        newValue: 'Value for second',
+      }),
     );
   });
 
@@ -263,7 +281,6 @@ describe('DropdownComponent', () => {
     ['nullable', null],
   ])('should be possible to use a %s option value', async (label, value) => {
     const options: IRawOption[] = [{ label, value }];
-    jest.useFakeTimers();
     const user = userEvent.setup({ delay: null });
     const { mutations } = await render({
       component: {
@@ -280,6 +297,7 @@ describe('DropdownComponent', () => {
       },
     });
 
+    jest.useFakeTimers();
     await user.click(await screen.findByRole('combobox'));
     await user.click(screen.getByText(label));
 
@@ -295,5 +313,26 @@ describe('DropdownComponent', () => {
     );
 
     jest.useRealTimers();
+  });
+
+  it('required validation should only show for simpleBinding', async () => {
+    await render({
+      component: {
+        showValidations: ['Required'],
+        required: true,
+        dataModelBindings: {
+          simpleBinding: { dataType: defaultDataTypeMock, field: 'value' },
+          label: { dataType: defaultDataTypeMock, field: 'label' },
+          metadata: { dataType: defaultDataTypeMock, field: 'metadata' },
+        },
+      },
+      options: countries,
+      queries: {
+        fetchFormData: () => Promise.resolve({ simpleBinding: '', label: '', metadata: '' }),
+      },
+    });
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(1);
+    expect(screen.getByRole('listitem')).toHaveTextContent('Du må fylle ut land');
   });
 });

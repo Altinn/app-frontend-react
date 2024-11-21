@@ -10,7 +10,7 @@ it('should be possible to hide rows when "Endre fra" is greater or equals to [..
   }
   const headerRow = 1;
 
-  cy.get(appFrontend.nextButton).click();
+  cy.findByRole('button', { name: /Neste/ }).click();
   cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
   // We start off with 5 rows in the repeating group
@@ -67,7 +67,7 @@ it('should be possible to hide rows when "Endre fra" is greater or equals to [..
   cy.snapshot('hide-row-in-group');
 
   // Adding a new row to the repeating group should automatically move it to the overflow group on the next page
-  cy.navPage('repeating').click();
+  cy.gotoNavPage('repeating');
   cy.get(appFrontend.group.addNewItem).click();
   cy.get(appFrontend.group.newValue).type('987554');
   cy.get(appFrontend.group.currentValue).type('1500');
@@ -93,7 +93,7 @@ it('should be possible to hide rows when "Endre fra" is greater or equals to [..
   // This should change the value to NOK 150, and move the row back to the first group
   cy.get('@newRow').eq(1).find('input').type('{moveToEnd}{moveToEnd}{moveToEnd}{backspace}');
 
-  cy.navPage('repeating').click();
+  cy.gotoNavPage('repeating');
 
   // When we had the bug mentioned above, the row would be moved back to the first group, but still be in edit-mode
   // according to our internal state. No that this is fixed, there should be no edit-container.
@@ -134,7 +134,7 @@ it('should be possible to hide rows when "Endre fra" is greater or equals to [..
 
 it('"save and next"-button should open row 3 when row 2 is hidden', () => {
   cy.goto('group');
-  cy.get(appFrontend.nextButton).click();
+  cy.findByRole('button', { name: /Neste/ }).click();
   cy.changeLayout((c) => {
     if (c.type === 'RepeatingGroup' && c.id === 'mainGroup' && c.edit) {
       c.edit.saveAndNextButton = true;
@@ -148,7 +148,7 @@ it('"save and next"-button should open row 3 when row 2 is hidden', () => {
   });
   cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
   cy.get(appFrontend.group.hideRepeatingGroupRow).type('5');
-  cy.get(appFrontend.group.row(0).editBtn).click();
+  cy.findByRole('button', { name: 'Rediger NOK 1' }).click();
   cy.get(appFrontend.group.saveAndNextMainGroup).click();
   cy.get(appFrontend.group.currentValue).should('have.value', 'NOK 2');
   cy.get(appFrontend.group.saveAndNextMainGroup).should('not.exist');
@@ -160,7 +160,7 @@ it('rowsAfter should align with the cells in the table above', () => {
     cy.get(prefill).check();
     cy.waitUntilSaved();
   }
-  cy.get(appFrontend.nextButton).click();
+  cy.findByRole('button', { name: /Neste/ }).click();
   cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
   cy.get(appFrontend.group.mainGroup).find('tr').should('have.length', 6);

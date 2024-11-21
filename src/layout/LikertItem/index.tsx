@@ -2,16 +2,16 @@ import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
-import { LayoutStyle } from 'src/layout/common.generated';
+import { runEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { LikertItemDef } from 'src/layout/LikertItem/config.def.generated';
 import { LikertItemComponent } from 'src/layout/LikertItem/LikertItemComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
+import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class LikertItem extends LikertItemDef {
   render = forwardRef<HTMLTableRowElement, PropsFromGenericComponent<'LikertItem'>>(
@@ -24,10 +24,6 @@ export class LikertItem extends LikertItemDef {
       );
     },
   );
-
-  directRender(item: CompInternal<'LikertItem'>): boolean {
-    return item.layout === LayoutStyle.Table;
-  }
 
   getDisplayData(
     node: LayoutNode<'LikertItem'>,
@@ -47,27 +43,28 @@ export class LikertItem extends LikertItemDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
+  runEmptyFieldValidation(
+    node: BaseLayoutNode<'LikertItem'>,
+    validationDataSources: ValidationDataSources,
+  ): ComponentValidation[] {
+    return runEmptyFieldValidationOnlySimpleBinding(node, validationDataSources);
+  }
+
   validateDataModelBindings(ctx: LayoutValidationCtx<'LikertItem'>): string[] {
-    const [answerErr, answer] = this.validateDataModelBindingsAny(ctx, 'simpleBinding', [
-      'string',
-      'number',
-      'boolean',
-    ]);
-    const errors: string[] = [...(answerErr || [])];
+    const [answerErr] = this.validateDataModelBindingsAny(ctx, 'simpleBinding', ['string', 'number', 'boolean']);
+    const errors: string[] = [...(answerErr ?? [])];
 
     const parentBindings = ctx.nodeDataSelector(
       (picker) => picker(ctx.node.parent as LayoutNode<'Likert'>)?.layout?.dataModelBindings,
       [ctx.node.parent],
     );
     const bindings = ctx.item.dataModelBindings;
-    if (
-      answer &&
-      bindings &&
-      bindings.simpleBinding &&
-      parentBindings &&
-      parentBindings.questions &&
-      bindings.simpleBinding.startsWith(`${parentBindings.questions}.`)
-    ) {
+
+    if (parentBindings?.questions.dataType && bindings.simpleBinding.dataType !== parentBindings.questions.dataType) {
+      errors.push('answer-datamodellbindingen må peke på samme datatype som questions-datamodellbindingen');
+    }
+
+    if (parentBindings?.questions && !bindings.simpleBinding.field.startsWith(`${parentBindings.questions.field}[`)) {
       errors.push(`answer-datamodellbindingen må peke på en egenskap inne i questions-datamodellbindingen`);
     }
 

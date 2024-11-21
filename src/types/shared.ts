@@ -17,6 +17,7 @@ export interface IApplicationLogic {
   autoCreate?: boolean | null;
   classRef?: string | null;
   schemaRef?: string | null;
+  disallowUserCreate?: boolean | null;
 }
 
 export interface IDisplayAttachment {
@@ -44,6 +45,7 @@ export interface IData {
   createdBy: string;
   lastChanged: string;
   lastChangedBy: string;
+  contentHash?: unknown;
 }
 
 export interface IDataType {
@@ -62,17 +64,22 @@ export interface IDataType {
 export interface IInstance {
   appId: string;
   created?: string;
+  createdBy?: string;
   data: IData[];
   dueBefore?: string;
   id: string;
   instanceOwner: IInstanceOwner;
   instanceState?: IInstanceState;
   lastChanged?: string;
+  lastChangedBy?: string;
   org: string;
   selfLinks?: ISelfLinks | null;
   status?: IInstanceStatus | null;
   title?: ITitle | null;
   visibleAfter?: string;
+  completeConfirmations?: unknown;
+  presentationTexts?: unknown;
+  dataValues?: unknown;
 }
 
 export interface IInstanceStatus {

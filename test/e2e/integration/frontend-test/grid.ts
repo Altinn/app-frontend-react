@@ -1,11 +1,9 @@
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
-import { Common } from 'test/e2e/pageobjects/common';
 
 import type { GridCellLabelFrom } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
-const mui = new Common();
 
 describe('Grid component', () => {
   it('should work with basic table functionality', () => {
@@ -18,10 +16,10 @@ describe('Grid component', () => {
     cy.get(appFrontend.changeOfName.confirmChangeName).find('input').check();
     cy.get(appFrontend.changeOfName.reasonRelationship).click();
     cy.get(appFrontend.changeOfName.reasonRelationship).type('hello world');
-    cy.get(appFrontend.changeOfName.dateOfEffect).siblings().children(mui.buttonIcon).click();
-    cy.get(mui.selectedDate).click();
+    cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
+    cy.get('button[aria-label*="Today"]').click();
 
-    cy.navPage('grid').click();
+    cy.gotoNavPage('grid');
 
     // Dynamics hiding the entire grid table
     cy.get(appFrontend.grid.gridWithAll).should('be.visible');
@@ -36,11 +34,23 @@ describe('Grid component', () => {
 
     // Filling out the form without ending up at 100% total. We reference these fields in their respective rows
     // not because we can't reference them directly, but to verify that they exist inside the grid and not outside.
-    cy.get(appFrontend.grid.totalAmount).type('1000000');
-    cy.get(appFrontend.grid.grid).find('tr').eq(3).find(appFrontend.grid.bolig.percent).type('70');
-    cy.get(appFrontend.grid.grid).find('tr').eq(4).find(appFrontend.grid.studie.percent).type('10');
-    cy.get(appFrontend.grid.grid).find('tr').eq(5).find(appFrontend.grid.kredittkort.percent).type('5');
-    cy.get(appFrontend.grid.grid).find('tr').eq(6).find(appFrontend.grid.totalPercent).should('have.text', '85 %');
+    cy.findByRole('textbox', { name: /hvor mye gjeld har du?/i }).type('1000000');
+    cy.get(appFrontend.grid.grid)
+      .find('tr')
+      .eq(3)
+      .findByRole('textbox', { name: /Prosentandel av gjeld i boliglån/i })
+      .type('70');
+    cy.get(appFrontend.grid.grid)
+      .find('tr')
+      .eq(4)
+      .findByRole('textbox', { name: /Prosentandel av gjeld i studielån/i })
+      .type('10');
+    cy.get(appFrontend.grid.grid)
+      .find('tr')
+      .eq(5)
+      .findByRole('textbox', { name: /Prosentandel av gjeld i kredittkort/i })
+      .type('5');
+    cy.get(appFrontend.grid.grid).find('tr').eq(6).findByText('85 %');
     cy.get(appFrontend.grid.bolig.percentComponent).should('not.contain.text', 'Prosentandel av gjeld i boliglån');
     cy.get(appFrontend.errorReport).should('not.exist');
 
@@ -64,7 +74,7 @@ describe('Grid component', () => {
     cy.get(appFrontend.grid.grid).find('tr').eq(3).find('td').eq(0).should('contain.text', 'Mitt boliglån');
 
     // Verify that the summary is correct
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     cy.get(appFrontend.grid.summary).should('be.visible');
     cy.get(appFrontend.grid.summary).find(appFrontend.grid.bolig.percentSummary).should('contain.text', '70 %');
     cy.get(appFrontend.grid.summary).find(appFrontend.grid.bolig.amountSummary).should('contain.text', '700 000 kr');
@@ -85,7 +95,7 @@ describe('Grid component', () => {
       .should('contain.text', texts.emptySummary);
 
     // Testing that mobile view breaks down into regular components without a table
-    cy.navPage('grid').click();
+    cy.gotoNavPage('grid');
     cy.get(`${appFrontend.grid.grid} tr`).should('exist');
     cy.viewport('samsung-s10');
     cy.get(appFrontend.grid.grid).should('be.visible');
@@ -128,9 +138,9 @@ describe('Grid component', () => {
 
     cy.goto('group');
     cy.get(appFrontend.group.prefill.liten).check();
-    cy.navPage('repeating').click();
+    cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').check();
-    cy.get(appFrontend.group.row(0).editBtn).click();
+    cy.findByRole('button', { name: 'Se innhold NOK 1' }).click();
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
     cy.get(appFrontend.group.row(0).nestedGroup.groupContainer)
       .find('table tr:last-child td:first-child')
@@ -158,7 +168,7 @@ describe('Grid component', () => {
     });
 
     cy.goto('changename');
-    cy.navPage('grid').click();
+    cy.gotoNavPage('grid');
 
     cy.findByRole('button', { name: /Hjelpetekst for Boliglån/i }).click();
     cy.get(appFrontend.helpText.alert).should('contain.text', 'Help text');
@@ -167,7 +177,7 @@ describe('Grid component', () => {
       name: /prosentandel av gjeld i studielån hjelpetekst for prosentandel av gjeld i studielån dette er en beskrivende tekst/i,
     }).should('exist');
     cy.findByRole('button', { name: /Hjelpetekst for Prosentandel av gjeld i studielån/i }).click();
-    cy.focused().should('have.attr', 'id', 'label-fordeling-studie-helptext');
+    cy.focused().should('have.attr', 'id', 'fordeling-studie-helptext');
     cy.get(appFrontend.helpText.alert).should('contain.text', 'Dette er en hjelpetekst');
   });
 });

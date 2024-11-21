@@ -6,10 +6,11 @@ import type { Options as AxeOptions } from 'cypress-axe';
 
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
-import { breakpoints } from 'src/hooks/useIsMobile';
+import { breakpoints } from 'src/hooks/useDeviceWidths';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
+
 import type { ILayoutFile } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
@@ -59,8 +60,8 @@ Cypress.Commands.add('dsReady', (selector) => {
   cy.waitUntilNodesReady();
 });
 
-Cypress.Commands.add('dsSelect', (selector, value) => {
-  cy.log(`Selecting ${value} in ${selector}`);
+Cypress.Commands.add('dsSelect', (selector, value, debounce = true) => {
+  cy.log(`Selecting ${value} in ${selector}, with debounce: ${debounce}`);
   cy.dsReady(selector);
   cy.get(selector).click();
 
@@ -68,8 +69,9 @@ Cypress.Commands.add('dsSelect', (selector, value) => {
   // as it never retries if the element re-renders. More information here:
   // https://github.com/testing-library/cypress-testing-library/issues/205#issuecomment-974688283
   cy.get('[class*="fds-combobox__option"]').findByText(value).click();
-
-  cy.get('body').click();
+  if (debounce) {
+    cy.get('body').click();
+  }
 });
 
 Cypress.Commands.add('clickAndGone', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
@@ -198,10 +200,16 @@ const knownWcagViolations: KnownViolation[] = [
     id: 'list',
     nodeLength: 1,
   },
+  {
+    spec: 'frontend-test/list-component.ts',
+    test: 'Should expand to 10 rows and take a snapshot',
+    id: 'svg-img-alt', // The image is decorative and the aria-sort is already set correctly, so this would just be noise
+    nodeLength: 1,
+  },
 ];
 
 Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
-  cy.get('#readyForPrint').should('exist');
+  cy.get('#finishedLoading').should('exist');
   cy.findByRole('progressbar').should('not.exist');
 
   // Find focused element and blur it, to ensure that we don't get any focus outlines or styles in the snapshot.
@@ -274,6 +282,7 @@ Cypress.Commands.add('getCurrentPageId', () => cy.location('hash').then((hash) =
 Cypress.Commands.add('snapshot', (name: string) => {
   cy.clearSelectionAndWait();
   cy.waitUntilSaved();
+  cy.waitUntilNodesReady();
 
   // Running wcag tests before taking snapshot, because the resizing of the viewport can cause some elements to
   // re-render and go slightly out of sync with the proper state of the application. One example is the Dropdown
@@ -376,13 +385,13 @@ Cypress.Commands.add('testWcag', () => {
 Cypress.Commands.add('reloadAndWait', () => {
   cy.waitUntilSaved();
   cy.reload();
-  cy.get('#readyForPrint').should('exist');
+  cy.get('#finishedLoading').should('exist');
   cy.findByRole('progressbar').should('not.exist');
   cy.injectAxe();
 });
 
 Cypress.Commands.add('waitForLoad', () => {
-  cy.get('#readyForPrint').should('exist');
+  cy.get('#finishedLoading').should('exist');
   cy.findByRole('progressbar').should('not.exist');
   // An initialOption can cause a save to occur immediately after loading is finished, wait for this to finish as well
   cy.waitUntilSaved();
@@ -416,7 +425,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('startStatefulFromStateless', () => {
-  cy.intercept('POST', '**/instances/create').as('createInstance');
+  cy.intercept('POST', '**/instances/create*').as('createInstance');
   cy.get(appFrontend.instantiationButton).click();
   cy.wait('@createInstance').its('response.statusCode').should('eq', 201);
 });
@@ -448,8 +457,9 @@ Cypress.Commands.add('moveProcessNext', () => {
   });
 });
 
-Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator) => {
-  cy.intercept({ method: 'GET', url: `**/api/layouts/${taskName}`, times: 1 }, (req) => {
+Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator, _options) => {
+  const options = _options ?? { times: 1 };
+  cy.intercept({ method: 'GET', url: `**/api/layouts/${taskName}`, ...options }, (req) => {
     req.reply((res) => {
       const set = JSON.parse(res.body);
       if (mutator) {
@@ -495,7 +505,7 @@ Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
   cy.get('[data-testid="loader"]').should('exist');
   cy.get('[data-testid="loader"]').should('not.exist');
 
-  cy.get('#readyForPrint').should('exist');
+  cy.get('#finishedLoading').should('exist');
   cy.findByRole('progressbar').should('not.exist');
   cy.waitUntilNodesReady();
 });
@@ -516,9 +526,83 @@ Cypress.Commands.add('getSummary', (label) => {
   cy.get(`[data-testid^=summary-]:has(span:contains(${label}))`);
 });
 
+Cypress.Commands.add('directSnapshot', (snapshotName, { width, minHeight }, reset = true) => {
+  // Store initial viewport size for later
+  const initialViewportSize = { width: 0, height: 0 };
+  cy.window().then((win) => {
+    initialViewportSize.width = win.innerWidth;
+    initialViewportSize.height = win.innerHeight;
+  });
+
+  cy.viewport(width, minHeight);
+
+  // cy.screenshot's blackout property does not ensure that text is monospace which causes unecessary visual changes, so using our own percy css instead
+  cy.readFile('test/percy.css').then((percyCSS) => {
+    cy.document().then((doc) => {
+      const style = doc.createElement('style');
+      style.id = 'percy-css';
+      style.appendChild(doc.createTextNode(percyCSS));
+      doc.head.appendChild(style);
+    });
+  });
+  cy.get('#percy-css').should('exist');
+
+  // Take screenshot
+  const imageData = { path: '', dataUrl: '' };
+  cy.screenshot(snapshotName, {
+    overwrite: true,
+    onAfterScreenshot: (_, { path }) => {
+      imageData.path = path;
+    },
+  });
+
+  cy.then(() =>
+    cy.readFile(imageData.path, 'base64').then((data) => {
+      imageData.dataUrl = `data:image/png;base64,${data}`;
+    }),
+  );
+
+  cy.then(() =>
+    cy.intercept(
+      { url: '**/screenshot', times: 1 },
+      `<!doctype html>
+       <html>
+          <head>
+            <meta charset="utf-8">
+            <title>${snapshotName}</title>
+            <style>
+              *, *::before, *::after { margin: 0; padding: 0; font-size: 0; }
+              html, body { width: 100%; }
+              img { max-width: 100%; }
+            </style>
+          </head>
+          <body>
+            <img src="${imageData.dataUrl}">
+          </body>
+       </html>`,
+    ),
+  );
+  cy.visit('/screenshot');
+
+  cy.percySnapshot(snapshotName, { widths: [width], minHeight });
+
+  // Revert to original viewport
+  if (reset) {
+    cy.go('back');
+    cy.then(() => cy.viewport(initialViewportSize.width, initialViewportSize.height));
+  }
+});
+
 const DEFAULT_COMMAND_TIMEOUT = Cypress.config().defaultCommandTimeout;
-Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
+Cypress.Commands.add('testPdf', (snapshotName, callback, returnToForm = false) => {
   cy.log('Testing PDF');
+
+  // Store initial viewport size for later
+  const size = { width: 0, height: 0 };
+  cy.window().then((win) => {
+    size.width = win.innerWidth;
+    size.height = win.innerHeight;
+  });
 
   // Make sure instantiation is completed before we get the url
   cy.location('hash').should('contain', '#/instance/');
@@ -543,30 +627,60 @@ Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
     // the current task as a PDF.
     cy.visit(visitUrl);
   });
+
   cy.reload();
 
   // Wait for readyForPrint, after this everything should be rendered so using timeout: 0
-  cy.get('#pdfView > #readyForPrint')
+  cy.get('#readyForPrint')
     .should('exist')
     .then(() => {
-      Cypress.config('defaultCommandTimeout', 0);
+      // Enable print media emulation
+      cy.wrap(
+        Cypress.automation('remote:debugger:protocol', {
+          command: 'Emulation.setEmulatedMedia',
+          params: { media: 'print' },
+        }),
+        { log: false },
+      );
+      // Set viewport to A4 paper
+      cy.viewport(794, 1123);
+      cy.get('body').invoke('css', 'margin', '0.75in');
+
+      cy.then(() => Cypress.config('defaultCommandTimeout', 0));
 
       // Verify that generic elements that should be hidden are not present
       cy.findAllByRole('button').should('not.exist');
       // Run tests from callback
       callback();
 
-      cy.then(() => {
-        Cypress.config('defaultCommandTimeout', DEFAULT_COMMAND_TIMEOUT);
-      });
+      cy.then(() => Cypress.config('defaultCommandTimeout', DEFAULT_COMMAND_TIMEOUT));
+
+      if (snapshotName) {
+        // Take snapshot of PDF
+        cy.directSnapshot(`${snapshotName} (PDF)`, { width: 794, minHeight: 1123 }, returnToForm);
+      }
     });
 
   if (returnToForm) {
+    // Disable media emulation and revert to original viewport
+    cy.then(() => {
+      cy.wrap(
+        Cypress.automation('remote:debugger:protocol', {
+          command: 'Emulation.setEmulatedMedia',
+          params: {},
+        }),
+        { log: false },
+      );
+      cy.viewport(size.width, size.height);
+    });
+
+    cy.get('body').invoke('css', 'margin', '');
+
     cy.location('href').then((href) => {
       cy.visit(href.replace('?pdf=1', ''));
     });
-    cy.get('#pdfView > #readyForPrint').should('not.exist');
-    cy.get('#readyForPrint').should('exist');
+    cy.get('#readyForPrint').should('not.exist');
+    cy.get('#finishedLoading').should('exist');
   }
 });
 
@@ -582,6 +696,82 @@ Cypress.Commands.add(
       });
     }),
 );
+
+Cypress.Commands.add('runAllBackendValidations', () => {
+  cy.intercept('PATCH', '**/data*', (req) => {
+    req.body.ignoredValidators = [];
+  }).as('runBackendValidations');
+});
+
+Cypress.Commands.add('getNextPatchValidations', (result) => {
+  // We don't want to accidentally intercept a request caused by a change before this method is called
+  cy.waitUntilSaved();
+
+  // Clear existing data first
+  cy.then(() => {
+    result.validations = null;
+  });
+  cy.intercept({ method: 'PATCH', url: '**/data*', times: 1 }, (req) => {
+    req.on('response', (res) => {
+      // Consider finding out what data element id corresponds to each type at the beginning of the test instead, for more explicit checking
+      result.validations = res.body.validationIssues;
+    });
+  }).as('getNextValidations');
+});
+
+/**
+ * Only works with multi-patch
+ */
+Cypress.Commands.add('expectValidationToExist', (result, group, predicate) => {
+  cy.wrap(result, { log: false }).should(({ validations }) => {
+    const ready = Boolean(validations);
+    if (ready) {
+      expect(ready, 'Found validations from backend').to.be.true;
+    } else {
+      expect(ready, 'Did not find validations from backend').to.be.true;
+    }
+
+    const validation = validations?.find(({ source }) => source === group)?.issues.find((v) => predicate(v));
+    if (validation) {
+      expect(
+        validation,
+        `Backend validation with predicate ${predicate.toString().replaceAll('\n', ' ')} exists in validation group '${group}'`,
+      ).to.exist;
+    } else {
+      expect(
+        validation,
+        `Unable to find backend validation with predicate ${predicate.toString().replaceAll('\n', ' ')}} in validation group '${group}'. Validations: ${JSON.stringify(validations?.[group])}.`,
+      ).to.exist;
+    }
+  });
+});
+
+/**
+ * Only works with multi-patch
+ */
+Cypress.Commands.add('expectValidationNotToExist', (result, group, predicate) => {
+  cy.wrap(result, { log: false }).should(({ validations }) => {
+    const ready = Boolean(validations);
+    if (ready) {
+      expect(ready, 'Found validations from backend').to.be.true;
+    } else {
+      expect(ready, 'Did not find validations from backend').to.be.true;
+    }
+
+    const validation = validations?.find(({ source }) => source === group)?.issues.find((v) => predicate(v));
+    if (!validation) {
+      expect(
+        validation,
+        `Backend validation with predicate ${predicate.toString().replaceAll('\n', ' ')} does not exist in validation group '${group}'`,
+      ).not.to.exist;
+    } else {
+      expect(
+        validation,
+        `Expected backend validation with predicate ${predicate.toString().replaceAll('\n', ' ')}} not to exist in validation group '${group}'. Validations: ${JSON.stringify(validations?.[group])}.`,
+      ).not.to.exist;
+    }
+  });
+});
 
 Cypress.Commands.add('allowFailureOnEnd', function () {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

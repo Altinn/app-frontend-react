@@ -1,59 +1,73 @@
 import { useMemo } from 'react';
 
-import type { AnyValidation, BaseValidation, NodeValidation } from '..';
-
-import { getVisibilityMask, selectValidations, validationsOfSeverity } from 'src/features/validation/utils';
+import { ContextNotProvided } from 'src/core/contexts/context';
+import {
+  type AnyValidation,
+  type BaseValidation,
+  hasBackendValidationId,
+  type NodeRefValidation,
+  type NodeVisibility,
+  ValidationMask,
+} from 'src/features/validation/index';
+import { selectValidations, validationsOfSeverity } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeTraversalSelectorSilent } from 'src/utils/layout/useNodeTraversal';
 
-const emptyArray: [] = [];
+const emptyArray: never[] = [];
 
 /**
  * Returns all validation errors (not warnings, info, etc.) for a layout set.
  * This includes unmapped/task errors as well
  */
 export function useTaskErrors(): {
-  formErrors: NodeValidation<AnyValidation<'error'>>[];
+  formErrors: NodeRefValidation<AnyValidation<'error'>>[];
   taskErrors: BaseValidation<'error'>[];
 } {
   const selector = Validation.useSelector();
-  const nodeValidationsSelector = NodesInternal.useValidationsSelector();
-  const traversalSelector = useNodeTraversalSelectorSilent();
 
-  const formErrors = useMemo(() => {
-    if (!traversalSelector) {
+  const showAllBackendErrors = selector((state) => state.showAllBackendErrors, []);
+
+  const formErrorVisibility: NodeVisibility = showAllBackendErrors ? 'showAll' : 'visible';
+
+  const _formErrors = NodesInternal.useAllValidations(formErrorVisibility, 'error');
+  const formErrors = _formErrors === ContextNotProvided || !_formErrors.length ? emptyArray : _formErrors;
+
+  const taskErrors = useMemo(() => {
+    if (!showAllBackendErrors) {
       return emptyArray;
     }
 
-    const formErrors: NodeValidation<AnyValidation<'error'>>[] = [];
-    const allNodes = traversalSelector((t) => t.allNodes(), []);
-    for (const node of allNodes ?? emptyArray) {
-      const validations = nodeValidationsSelector(node, 'visible', 'error') as AnyValidation<'error'>[];
-      formErrors.push(...validations.map((v) => ({ ...v, node })));
-    }
+    const backendMask = ValidationMask.Backend | ValidationMask.CustomBackend;
+    const allBackendErrors: BaseValidation<'error'>[] = [];
 
-    return formErrors;
-  }, [nodeValidationsSelector, traversalSelector]);
+    const boundErrorIds = new Set(formErrors.filter(hasBackendValidationId).map((v) => v.backendValidationId));
 
-  const taskErrors = useMemo(() => {
-    const taskErrors: BaseValidation<'error'>[] = [];
-
-    const taskValidations = selector((state) => state.state.task, []);
-    const allShown = selector((state) => (state.showAllErrors ? { fields: state.state.fields } : undefined), []);
-    if (allShown) {
-      const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
-      for (const field of Object.values(allShown.fields)) {
-        taskErrors.push(...(selectValidations(field, backendMask, 'error') as BaseValidation<'error'>[]));
+    // Unbound field errors
+    const dataModels = selector((state) => state.state.dataModels, []);
+    for (const fields of Object.values(dataModels)) {
+      for (const field of Object.values(fields)) {
+        allBackendErrors.push(
+          ...(selectValidations(field, backendMask, 'error').filter(
+            // Only select backend errors which are not already visible through formErrors
+            (v) => v.backendValidationId && !boundErrorIds.has(v.backendValidationId),
+          ) as BaseValidation<'error'>[]),
+        );
       }
     }
 
-    for (const validation of validationsOfSeverity(taskValidations, 'error')) {
-      taskErrors.push(validation);
-    }
+    // Task errors
+    allBackendErrors.push(
+      ...validationsOfSeverity(
+        selector((state) => state.state.task, []),
+        'error',
+      ),
+    );
 
-    return taskErrors;
-  }, [selector]);
+    return allBackendErrors?.length ? allBackendErrors : emptyArray;
+  }, [formErrors, selector, showAllBackendErrors]);
 
-  return useMemo(() => ({ formErrors, taskErrors }), [formErrors, taskErrors]);
+  return {
+    formErrors,
+    taskErrors,
+  };
 }

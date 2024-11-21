@@ -50,20 +50,25 @@ export function SummaryGroupComponent({
   const largeGroup = overrides?.largeGroup ?? summaryItem?.largeGroup ?? false;
   if (largeGroup) {
     return (
-      <GroupComponent
-        key={`summary-${targetNode.id}`}
-        id={`summary-${targetNode.id}`}
-        groupNode={targetNode}
-        isSummary={true}
-        renderLayoutNode={(node) => (
-          <SummaryComponentFromNode
-            targetNode={node}
-            summaryNode={summaryNode}
-            overrides={overrides}
-            inExcludedChildren={inExcludedChildren}
+      <>
+        {
+          <GroupComponent
+            key={`summary-${targetNode.id}`}
+            id={`summary-${targetNode.id}`}
+            groupNode={targetNode}
+            isSummary={true}
+            renderLayoutNode={(node) => (
+              <SummaryComponentFromNode
+                key={node.id}
+                targetNode={node}
+                summaryNode={summaryNode}
+                overrides={overrides}
+                inExcludedChildren={inExcludedChildren}
+              />
+            )}
           />
-        )}
-      />
+        }
+      </>
     );
   }
 
@@ -88,7 +93,7 @@ export function SummaryGroupComponent({
   return (
     <>
       <div
-        data-testid='summary-group-component'
+        data-testid={'summary-group-component'}
         style={{ width: '100%' }}
       >
         <div className={classes.container}>
@@ -119,7 +124,7 @@ export function SummaryGroupComponent({
                 onClick={onChangeClick}
                 type='button'
               >
-                <Lang id='form_filler.summary_go_to_correct_page' />
+                <Lang id={'form_filler.summary_go_to_correct_page'} />
               </button>
             )}
           </div>

@@ -1,25 +1,32 @@
 import React from 'react';
 
-import { Button } from '@digdir/designsystemet-react';
 import { Edit } from '@navikt/ds-icons';
 
+import { Button } from 'src/app-components/button/Button';
+import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
-import { useIsMobile } from 'src/hooks/useIsMobile';
+import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
-import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { NavigationResult } from 'src/features/form/layout/NavigateToNode';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type EditButtonProps = {
   componentNode: LayoutNode;
-  summaryComponentId: string;
+  summaryComponentId?: string;
+  navigationOverride?: (() => Promise<NavigationResult> | void) | null;
 } & React.HTMLAttributes<HTMLButtonElement>;
 
-export function EditButton({ componentNode, summaryComponentId, className }: EditButtonProps) {
+export function EditButton({
+  componentNode,
+  summaryComponentId,
+  className,
+  navigationOverride = null,
+}: EditButtonProps) {
   const navigateTo = useNavigateToNode();
   const { langAsString } = useLanguage();
   const setReturnToView = useSetReturnToView();
@@ -33,9 +40,12 @@ export function EditButton({ componentNode, summaryComponentId, className }: Edi
   );
   const accessibleTitle = titleTrb ? langAsString(titleTrb) : '';
 
-  const { overriddenTaskId } = useTaskStore(({ overriddenTaskId }) => ({
-    overriddenTaskId,
-  }));
+  const overriddenTaskId = useTaskStore((state) => state.overriddenTaskId);
+  const overriddenDataModelUuid = useTaskStore((state) => state.overriddenDataModelUuid);
+
+  if (overriddenDataModelUuid) {
+    return null;
+  }
 
   if (pdfModeActive || (overriddenTaskId && overriddenTaskId?.length > 0)) {
     return null;
@@ -46,12 +56,17 @@ export function EditButton({ componentNode, summaryComponentId, className }: Edi
       return;
     }
 
-    await navigateTo(componentNode, {
-      shouldFocus: true,
-      pageNavOptions: {
-        resetReturnToView: false,
-      },
-    });
+    if (navigationOverride) {
+      await navigationOverride();
+    } else {
+      await navigateTo(componentNode, {
+        shouldFocus: true,
+        pageNavOptions: {
+          resetReturnToView: false,
+        },
+      });
+    }
+
     setReturnToView?.(currentPageId);
     setNodeOfOrigin?.(summaryComponentId);
   };
@@ -59,14 +74,13 @@ export function EditButton({ componentNode, summaryComponentId, className }: Edi
     <Button
       onClick={onChangeClick}
       variant='tertiary'
-      size='small'
       className={className}
     >
       {!isMobile && <Lang id='general.edit' />}
       <Edit
         fontSize='1rem'
         aria-hidden={true}
-        title={`${langAsString('form_filler.summary_item_change')} ${accessibleTitle}`}
+        title={`${isMobile ? langAsString('form_filler.summary_item_change') : ''} ${accessibleTitle}`}
       />
     </Button>
   );

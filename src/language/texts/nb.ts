@@ -44,17 +44,28 @@ export function nb(): FixedLanguageList {
       cancel_label: 'Avbryt',
       clear_label: 'Tøm',
       today_label: 'I dag',
-      min_date_exeeded: 'Dato valgt er før tidligste dato tillat',
-      max_date_exeeded: 'Dato valgt er etter seneste dato tillat',
+      min_date_exeeded: 'Datoen du har valgt er før tidligst tillatte dato.',
+      max_date_exeeded: 'Datoen du har valgt er etter seneste tillatte dato.',
       aria_label_icon: 'Åpne datovelger',
       aria_label_left_arrow: 'Forrige måned.',
       aria_label_right_arrow: 'Neste måned.',
+      aria_label_year_dropdown: 'Velg år',
+      aria_label_month_dropdown: 'Velg måned',
+      format_text: 'For eksempel {0}',
     },
     feedback: {
       title: '## Du blir snart videresendt',
       body: 'Vi venter på verifikasjon, når den er på plass blir du videresendt.',
     },
     form_filler: {
+      error_add_subform: 'Det oppstod en feil ved opprettelse av underskjema, vennligst prøv igjen',
+      error_delete_subform: 'Noe gikk galt ved sletting av underskjema, vennligst prøv igjen',
+      error_fetch_subform: 'Feil ved lasting av skjemadata',
+      error_max_count_reached_subform_server: 'Maks antall {0} oppføringer har blitt nådd',
+      error_max_count_reached_subform_local: 'Maks antall {0} oppføringer har blitt nådd {1}',
+      error_min_count_not_reached_subform: 'Minst {0} {1} oppføring er påkrevd',
+      error_validation_inside_subform: 'Det er feil i en eller flere {0} oppføringer',
+      subform_default_header: 'Oppføringer',
       back_to_summary: 'Tilbake til oppsummering',
       alert_confirm: 'Bekreft',
       checkbox_alert: 'Er du sikker på at du vil fjerne avkrysningen?',
@@ -130,6 +141,8 @@ export function nb(): FixedLanguageList {
       create_new: 'Opprett ny',
       create: 'Opprett',
       customer_service_phone_number: '+47 75 00 60 00',
+      customer_service_slack: 'https://altinn.slack.com/',
+      customer_service_email: 'servicedesk@altinn.no',
       delete: 'Slett',
       download: 'Nedlasting {0}',
       disabled: 'Deaktivert',
@@ -215,7 +228,7 @@ export function nb(): FixedLanguageList {
       authorization_error_check_rights:
         '<a href="https://{0}/ui/Profile/" target="_blank">Se hvem som har rollen tilgangsstyring under "Andre med rettigheter til virksomheten"</a>.',
       authorization_error_info_rights:
-        '<a href="https://{0}/hjelp/profil/roller-og-rettigheter/" target="_blank">Her finner du mer informasjon om roller og rettigheter</a>.',
+        '<a href="https://{0}/hjelp/profil/enkelttjenester-og-roller/" target="_blank">Her finner du mer informasjon om roller og rettigheter</a>.',
       authorization_error_info_customer_service: 'Du kan også kontakte oss på brukerservice {0}.',
       authorization_error_instantiate_validation_info_customer_service:
         'Om du står fast kontakt oss på brukerservice {0}.',
@@ -280,6 +293,11 @@ export function nb(): FixedLanguageList {
         payer: 'Betaler',
         name: 'Navn',
         phone: 'Telefon',
+        company_name: 'Firmanavn',
+        org_number: 'Organisasjonsnummer',
+        contact_person: 'Kontaktperson',
+        contact_phone: 'Kontakttelefon',
+        contact_email: 'Kontakt-e-post',
         address: 'Addresse',
         org_num: 'Organisasjonsnummer',
         account_number: 'Kontonummer',
@@ -364,9 +382,18 @@ export function nb(): FixedLanguageList {
       navigateLastPage: 'Naviger til siste side i tabell',
     },
     config_error: {
+      layoutset_subform_config_error_customer_support:
+        'Hvis du har behov for assistanse kan du nå Altinn på<br/><br/><li>Telefon: <a href="tel:{0}">{0}</a></li><li>E-post: {1}</li><li>Slack: {2}</li></ul>',
+      layoutset_subform_config_error:
+        'Layout set med id <strong>{0}</strong> er konfigurert feil.<br /><br />Layout set kan ikke ha både <strong>type</strong> <em>og</em> <strong>tasks</strong> definert.',
+      layoutset_error: 'Layout set error',
       component_has_errors: 'En feil oppstod for <code>{0}</code>:',
       component_has_errors_after:
         'Så lenge komponenten har konfigurasjonsfeil kan vi ikke vise den i skjemaet. Rett opp i feilene og prøv igjen.',
+      subform_no_datatype_layoutset: 'Datatype-spesifikasjon ikke funnet i layout-sets.json.',
+      subform_no_datatype_appmetadata: "Datatype '{0}' ble ikke funnet i applicationmetadata.json.",
+      subform_misconfigured_add_button:
+        "Datatype '{0}' er markert som 'disallowUserCreate=true', men underskjema-komponenten er konfigurert med 'showAddButton=true'. Dette er en motsetning, siden brukeren aldri vil få lov til å utføre handlingene bak legg-til knappen.",
     },
     version_error: {
       version_mismatch: 'Versjonsfeil',
@@ -383,6 +410,13 @@ export function nb(): FixedLanguageList {
     },
     likert: {
       left_column_default_header_text: 'Spørsmål',
+    },
+    process_error: {
+      submit_error_please_retry: 'Noe gikk galt under innsendingen, prøv igjen om noen minutter.',
+    },
+    pdfPreview: {
+      error: 'Kunne ikke forhåndsvise PDF',
+      defaultButtonText: 'Forhåndsvis PDF',
     },
   } satisfies NestedTexts;
 }

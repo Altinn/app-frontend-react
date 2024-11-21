@@ -6,15 +6,19 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useGetTaskType, useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
+import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/ProcessContext';
 import {
+  SearchParams,
   useAllNavigationParamsAsRef,
   useNavigate as useCtxNavigate,
   useNavigationParam,
+  useNavigationParams,
   useQueryKeysAsString,
   useQueryKeysAsStringAsRef,
   useSetNavigationEffect,
 } from 'src/features/routing/AppRoutingContext';
+import { useRefetchInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import { ProcessTaskType } from 'src/types';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
@@ -24,15 +28,13 @@ export interface NavigateToPageOptions {
   skipAutoSave?: boolean;
   shouldFocusComponent?: boolean;
   resetReturnToView?: boolean;
+  exitSubform?: boolean;
+  focusComponentId?: string;
 }
 
 export enum TaskKeys {
   ProcessEnd = 'ProcessEnd',
   CustomReceipt = 'CustomReceipt',
-}
-
-export enum SearchParams {
-  FocusComponentId = 'focusComponentId',
 }
 
 const emptyArray: never[] = [];
@@ -66,10 +68,21 @@ const useNavigate = () => {
 
 export const useCurrentView = () => useNavigationParam('pageKey');
 export const usePageOrder = () => {
+  const isPdf = useIsPdf();
+
   const maybeLayoutSettings = useLaxLayoutSettings();
   const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? emptyArray : maybeLayoutSettings.pages.order;
+
+  const hiddenFromPdf = useMemo(
+    () => new Set(maybeLayoutSettings !== ContextNotProvided && isPdf ? maybeLayoutSettings.pages.excludeFromPdf : []),
+    [maybeLayoutSettings, isPdf],
+  );
   const hiddenPages = Hidden.useHiddenPages();
-  return useMemo(() => orderWithHidden?.filter((page) => !hiddenPages.has(page)), [orderWithHidden, hiddenPages]);
+
+  return useMemo(
+    () => orderWithHidden?.filter((page) => !hiddenPages.has(page) && !hiddenFromPdf.has(page)),
+    [orderWithHidden, hiddenPages, hiddenFromPdf],
+  );
 };
 
 export const useIsCurrentTask = () => {
@@ -106,10 +119,12 @@ export const useNextPageKey = () => {
 export const useStartUrl = (forcedTaskId?: string) => {
   const queryKeys = useQueryKeysAsString();
   const order = usePageOrder();
-  const partyId = useNavigationParam('partyId');
-  const instanceGuid = useNavigationParam('instanceGuid');
-  const taskId = useNavigationParam('taskId');
-  const taskType = useTaskType(taskId);
+  // This needs up to date params, so using the native hook that re-renders often
+  // However, this hook is only used in cases where we immediately navigate to a different path
+  // so it does not make a difference here.
+  const { partyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = useNavigationParams();
+  const isSubformPage = !!mainPageKey;
+  const taskType = useGetTaskTypeById()(taskId);
   const isStateless = useApplicationMetadata().isStatelessApp;
 
   return useMemo(() => {
@@ -126,6 +141,9 @@ export const useStartUrl = (forcedTaskId?: string) => {
     if (taskType !== ProcessTaskType.Data && taskId !== undefined) {
       return `/instance/${partyId}/${instanceGuid}/${taskId}${queryKeys}`;
     }
+    if (isSubformPage && taskId && mainPageKey && componentId && dataElementId && firstPage) {
+      return `/instance/${partyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${firstPage}${queryKeys}`;
+    }
     if (taskId && firstPage) {
       return `/instance/${partyId}/${instanceGuid}/${taskId}/${firstPage}${queryKeys}`;
     }
@@ -133,18 +151,70 @@ export const useStartUrl = (forcedTaskId?: string) => {
       return `/instance/${partyId}/${instanceGuid}/${taskId}${queryKeys}`;
     }
     return `/instance/${partyId}/${instanceGuid}${queryKeys}`;
-  }, [forcedTaskId, instanceGuid, isStateless, order, partyId, queryKeys, taskId, taskType]);
+  }, [
+    componentId,
+    dataElementId,
+    forcedTaskId,
+    instanceGuid,
+    isStateless,
+    isSubformPage,
+    mainPageKey,
+    order,
+    partyId,
+    queryKeys,
+    taskId,
+    taskType,
+  ]);
 };
 
-export const useNavigatePage = () => {
-  const isStatelessApp = useApplicationMetadata().isStatelessApp;
+export function useNavigateToTask() {
   const processTasks = useLaxProcessData()?.processTasks;
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
   const navigate = useNavigate();
-
   const navParams = useAllNavigationParamsAsRef();
   const queryKeysRef = useQueryKeysAsStringAsRef();
-  const getTaskType = useGetTaskType();
+
+  return useCallback(
+    (newTaskId?: string, options?: NavigateOptions & { runEffect?: boolean }) => {
+      const { runEffect = true } = options ?? {};
+      const { partyId, instanceGuid, taskId } = navParams.current;
+      if (newTaskId === taskId) {
+        return;
+      }
+      const url = `/instance/${partyId}/${instanceGuid}/${newTaskId ?? lastTaskId}${queryKeysRef.current}`;
+      navigate(url, undefined, options, runEffect ? () => focusMainContent(options) : undefined);
+    },
+    [lastTaskId, navParams, navigate, queryKeysRef],
+  );
+}
+
+export function useIsValidTaskId() {
+  const processTasks = useLaxProcessData()?.processTasks;
+
+  return useCallback(
+    (taskId?: string) => {
+      if (!taskId) {
+        return false;
+      }
+      if (taskId === TaskKeys.ProcessEnd) {
+        return true;
+      }
+      if (taskId === TaskKeys.CustomReceipt) {
+        return true;
+      }
+      return processTasks?.find((task) => task.elementId === taskId) !== undefined;
+    },
+    [processTasks],
+  );
+}
+
+export function useNavigatePage() {
+  const isStatelessApp = useApplicationMetadata().isStatelessApp;
+  const navigate = useNavigate();
+  const navParams = useAllNavigationParamsAsRef();
+  const queryKeysRef = useQueryKeysAsStringAsRef();
+  const getTaskType = useGetTaskTypeById();
+  const refetchInitialValidations = useRefetchInitialValidations(true);
 
   const { autoSaveBehavior } = usePageSettings();
   const order = usePageOrder();
@@ -188,7 +258,7 @@ export const useNavigatePage = () => {
         window.logWarn('navigateToPage called without page');
         return;
       }
-      if (!order.includes(page)) {
+      if (!order.includes(page) && options?.exitSubform !== true) {
         window.logWarn('navigateToPage called with invalid page:', `"${page}"`);
         return;
       }
@@ -201,44 +271,38 @@ export const useNavigatePage = () => {
         return navigate(`/${page}${queryKeysRef.current}`, options, { replace }, () => focusMainContent(options));
       }
 
-      const { partyId, instanceGuid, taskId } = navParams.current;
-      const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}${queryKeysRef.current}`;
+      const { partyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = navParams.current;
+
+      // Subform
+      if (mainPageKey && componentId && dataElementId && options?.exitSubform !== true) {
+        const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}${queryKeysRef.current}`;
+        return navigate(url, options, { replace }, () => focusMainContent(options));
+      }
+
+      let url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}`;
+
+      const searchParams = new URLSearchParams(queryKeysRef.current);
+
+      // Special cases for component focus and subform exit
+      if (options?.focusComponentId || options?.exitSubform) {
+        if (options?.focusComponentId) {
+          searchParams.set(SearchParams.FocusComponentId, options.focusComponentId);
+        }
+
+        if (options?.exitSubform) {
+          searchParams.set(SearchParams.ExitSubform, 'true');
+        }
+      }
+
+      url = `${url}?${searchParams.toString()}`;
       navigate(url, options, { replace }, () => focusMainContent(options));
     },
     [isStatelessApp, maybeSaveOnPageChange, navParams, navigate, order, queryKeysRef],
   );
 
-  const navigateToTask = useCallback(
-    (newTaskId?: string, options?: NavigateOptions & { runEffect?: boolean }) => {
-      const { runEffect = true } = options ?? {};
-      const { partyId, instanceGuid, taskId } = navParams.current;
-      if (newTaskId === taskId) {
-        return;
-      }
-      const url = `/instance/${partyId}/${instanceGuid}/${newTaskId ?? lastTaskId}${queryKeysRef.current}`;
-      navigate(url, undefined, options, runEffect ? () => focusMainContent(options) : undefined);
-    },
-    [lastTaskId, navParams, navigate, queryKeysRef],
-  );
-
-  const isValidTaskId = useCallback(
-    (taskId?: string) => {
-      if (!taskId) {
-        return false;
-      }
-      if (taskId === TaskKeys.ProcessEnd) {
-        return true;
-      }
-      if (taskId === TaskKeys.CustomReceipt) {
-        return true;
-      }
-      return processTasks?.find((task) => task.elementId === taskId) !== undefined;
-    },
-    [processTasks],
-  );
-
+  const trimSingleTrailingSlash = (str: string) => (str.endsWith('/') ? str.slice(0, -1) : str);
   const getCurrentPageIndex = useCallback(() => {
-    const location = window.location.href;
+    const location = trimSingleTrailingSlash(window.location.href.split('?')[0]);
     const _currentPageId = location.split('/').slice(-1)[0];
     return order?.indexOf(_currentPageId) ?? undefined;
   }, [order]);
@@ -293,17 +357,30 @@ export const useNavigatePage = () => {
     await navigateToPage(previousPage);
   }, [getPreviousPage, navigateToPage]);
 
+  const exitSubform = async () => {
+    if (!navParams.current.mainPageKey) {
+      window.logWarn('Tried to close subform page while not in a subform.');
+      return;
+    }
+    await refetchInitialValidations();
+
+    await navigateToPage(navParams.current.mainPageKey, {
+      exitSubform: true,
+      resetReturnToView: false,
+      focusComponentId: navParams.current.componentId,
+    });
+  };
+
   return {
     navigateToPage,
-    navigateToTask,
     isValidPageId,
-    isValidTaskId,
     order,
     navigateToNextPage,
     navigateToPreviousPage,
     maybeSaveOnPageChange,
+    exitSubform,
   };
-};
+}
 
 export function focusMainContent(options?: NavigateToPageOptions) {
   if (options?.shouldFocusComponent !== true) {

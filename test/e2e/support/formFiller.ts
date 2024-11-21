@@ -1,10 +1,8 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
-import { Common } from 'test/e2e/pageobjects/common';
 import { Datalist } from 'test/e2e/pageobjects/datalist';
 import { Likert } from 'test/e2e/pageobjects/likert';
 import type { FillableFrontendTasks } from 'test/e2e/support/global';
 
-const mui = new Common();
 const appFrontend = new AppFrontend();
 const dataListPage = new Datalist();
 
@@ -51,8 +49,8 @@ function fillOutChangeName() {
       .check();
     cy.get(appFrontend.changeOfName.reasonRelationship).click();
     cy.get(appFrontend.changeOfName.reasonRelationship).type('test');
-    cy.get(appFrontend.changeOfName.dateOfEffect).siblings().children(mui.buttonIcon).click();
-    cy.get(mui.selectedDate).click();
+    cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
+    cy.get('button[aria-label*="Today"]').click();
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
 
     cy.navPage('grid').click();
@@ -71,10 +69,12 @@ function fillOutGroup() {
   };
 
   cy.intercept('POST', '**/instances/**/data?dataType=*').as('upload');
-  cy.get(appFrontend.nextButton).click();
+  cy.findByRole('button', { name: /Neste/ }).click();
   cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
   cy.addItemToGroup(1, 2, 'automation');
-  cy.get(appFrontend.group.row(0).editBtn).click();
+  cy.findAllByRole('button', { name: /Rediger/ })
+    .eq(0)
+    .click();
   cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
   cy.get(appFrontend.group.row(0).uploadSingle.dropZone).selectFile(mkFile('attachment-in-single.pdf'), {
     force: true,
@@ -99,8 +99,8 @@ function fillOutGroup() {
   cy.wait('@upload');
   cy.waitUntilNodesReady();
   cy.dsSelect(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector!, 'Altinn');
-  cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSave!).click();
-  cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector!).should('not.exist');
+  cy.findByRole('button', { name: 'Lagre' }).click();
+  cy.findByRole('combobox', { name: 'Velg' }).should('not.exist');
 
   cy.dsSelect('#nested-source-0-0', 'Annet');
   cy.dsSelect('#nested-reference-0-0', 'Test');
@@ -111,7 +111,7 @@ function fillOutGroup() {
 
   cy.gotoNavPage('hide');
   cy.get(appFrontend.group.sendersName).type('automation');
-  cy.get(appFrontend.nextButton).click();
+  cy.findByRole('button', { name: /Neste/ }).click();
   cy.get(appFrontend.group.summaryText).should('be.visible');
 }
 
@@ -119,14 +119,14 @@ function fillOutLikert() {
   const likertPage = new Likert();
   cy.findByRole('table', { name: likertPage.requiredTableTitle }).within(() => {
     likertPage.requiredQuestions.forEach((question, index) => {
-      likertPage.selectRadio(`${question} *`, likertPage.options[index]);
+      likertPage.selectRadioDesktop(`${question} *`, likertPage.options[index]);
     });
   });
 }
 
 function fillOutList() {
   cy.get(dataListPage.tableBody).contains('Caroline').closest('tr').click();
-  cy.get(appFrontend.nextButton).click();
+  cy.findByRole('button', { name: 'Neste' }).click();
 }
 
 const functionMap: { [key in FillableFrontendTasks]: () => void } = {

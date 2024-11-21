@@ -6,14 +6,16 @@ import { v4 as uuidv4 } from 'uuid';
 import type { JSONSchema7 } from 'json-schema';
 
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
-import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
+import { cleanLayout } from 'src/features/form/layout/cleanLayout';
+import { layoutSetIsDefault } from 'src/features/form/layoutSets/TypeGuards';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
+import type { IFormDynamics } from 'src/features/form/dynamics';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { ILayoutFile, ILayoutSet, ILayoutSets, ILayoutSettings } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
-import type { IInstance, IProcess } from 'src/types/shared';
+import type { IInstance } from 'src/types/shared';
 
 export class ExternalApp {
   private compat = false;
@@ -41,6 +43,14 @@ export class ExternalApp {
       return true;
     } catch (_err) {
       return false;
+    }
+  }
+
+  private fileSize(path: string) {
+    try {
+      return fs.statSync(this.rootDir + path).size;
+    } catch (_err) {
+      return 0;
     }
   }
 
@@ -146,12 +156,31 @@ export class ExternalApp {
     return out;
   }
 
+  getRuleHandler(layoutSetId: string): string {
+    const path = `/App/ui/${layoutSetId}/RuleHandler.js`;
+    if (!this.fileExists(path)) {
+      return '';
+    }
+    return this.readFile(path);
+  }
+
+  getRuleConfiguration(layoutSetId: string): { data: IFormDynamics } | null {
+    const path = `/App/ui/${layoutSetId}/RuleConfiguration.json`;
+    if (!this.fileExists(path) || this.fileSize(path) === 0) {
+      return null;
+    }
+
+    return this.readJson<{ data: IFormDynamics }>(path);
+  }
+
   getRawLayoutSets(): ILayoutSets {
     const layoutSets = this.readJson<ILayoutSets>('/App/ui/layout-sets.json');
 
     if (this.compat) {
       for (const set of Object.values(layoutSets.sets)) {
-        set.tasks = ['Task_1'];
+        if (layoutSetIsDefault(set)) {
+          set.tasks = ['Task_1'];
+        }
       }
     }
 
@@ -168,6 +197,7 @@ export class ExternalApp {
     if (!this.dirExists(layoutsDir)) {
       throw new Error(`Layout set '${setId}' folder not found`);
     }
+    const set = this.getRawLayoutSets().sets.find((s) => s.id === setId);
 
     const collection: ILayoutCollection = {};
     for (const file of this.readDir(layoutsDir)) {
@@ -175,7 +205,11 @@ export class ExternalApp {
         continue;
       }
 
-      collection[file.replace('.json', '')] = this.readJson<ILayoutFile>(`${layoutsDir}/${file}`);
+      const pageKey = file.replace('.json', '');
+      collection[pageKey] = this.readJson<ILayoutFile>(`${layoutsDir}/${file}`);
+
+      const cleaned = cleanLayout(collection[pageKey].data.layout, set?.dataType ?? 'unknown');
+      collection[pageKey].data.layout = cleaned;
     }
 
     return collection;
@@ -269,15 +303,19 @@ export class ExternalAppLayoutSet {
     return new ExternalAppDataModel(this.app, this.config.dataType, this);
   }
 
+  getRuleHandler() {
+    return this.app.getRuleHandler(this.id);
+  }
+
+  getRuleConfiguration() {
+    return this.app.getRuleConfiguration(this.id);
+  }
+
   simulateInstance(): IInstance {
     return getInstanceDataMock((i) => {
       assert(i.data[0].dataType === 'test-data-model');
       i.data[0].dataType = this.config.dataType;
     });
-  }
-
-  simulateProcess(): IProcess {
-    return getProcessDataMock();
   }
 
   simulateValidUrlHash(): string {
@@ -323,10 +361,10 @@ export class ExternalAppDataModel {
     for (const page of Object.keys(layouts)) {
       for (const comp of layouts[page].data.layout) {
         if (comp.type === 'RepeatingGroup' && comp.dataModelBindings?.group) {
-          groupsNeeded.push(comp.dataModelBindings.group);
+          groupsNeeded.push(comp.dataModelBindings.group.field);
         }
         if (comp.type === 'Likert' && comp.dataModelBindings?.questions) {
-          groupsNeeded.push(comp.dataModelBindings.questions);
+          groupsNeeded.push(comp.dataModelBindings.questions.field);
         }
       }
     }
@@ -404,7 +442,7 @@ export function ensureAppsDirIsSet(runVoidTest = true) {
  */
 function parseJsonTolerantly<T = unknown>(content: string): T {
   // Remove multiline comments
-  content = content.replace(/\/\*([\s\S]*?)\*\//g, '$1');
+  content = content.replace(/\/\*([\s\S]*?)\*\//g, '');
 
   // Remove single-line comments, but not in strings
   content = content.replace(/^(.*?)\/\/(.*)$/gm, (_, m1, m2) => {

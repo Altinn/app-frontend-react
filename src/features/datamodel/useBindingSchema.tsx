@@ -1,26 +1,27 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import type { JSONSchema7 } from 'json-schema';
 
+import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import {
   getCurrentDataTypeForApplication,
   getCurrentTaskDataElementId,
-  getFirstDataElementId,
-  useDataTypeByLayoutSetId,
 } from 'src/features/applicationMetadata/appMetadataUtils';
-import { useLaxCurrentDataModelSchemaLookup } from 'src/features/datamodel/DataModelSchemaProvider';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceData, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
-import { useTaskStore } from 'src/layout/Summary2/taskIdStore';
+import { useAsRef } from 'src/hooks/useAsRef';
 import {
   getAnonymousStatelessDataModelUrl,
-  getDataModelUrl,
+  getStatefulDataModelUrl,
   getStatelessDataModelUrl,
 } from 'src/utils/urls/appUrlHelper';
+import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 export type AsSchema<T> = {
@@ -28,62 +29,102 @@ export type AsSchema<T> = {
 };
 
 export function useCurrentDataModelGuid() {
-  const instance = useLaxInstanceData();
   const application = useApplicationMetadata();
   const layoutSets = useLayoutSets();
   const taskId = useProcessTaskId();
 
-  return getCurrentTaskDataElementId({ application, instance, taskId, layoutSets });
-}
+  const overriddenDataModelGuid = useTaskStore((s) => s.overriddenDataModelUuid);
 
-export function useCurrentDataModelUrl(includeRowIds: boolean) {
-  const isAnonymous = useAllowAnonymous();
-  const instance = useLaxInstanceData();
-  const layoutSetId = useCurrentLayoutSetId();
-  const dataType = useDataTypeByLayoutSetId(layoutSetId);
-  const dataElementUuid = useCurrentDataModelGuid();
-  const isStateless = useApplicationMetadata().isStatelessApp;
-
-  if (isStateless && isAnonymous && dataType) {
-    return getAnonymousStatelessDataModelUrl(dataType, includeRowIds);
-  }
-
-  if (isStateless && !isAnonymous && dataType) {
-    return getStatelessDataModelUrl(dataType, includeRowIds);
-  }
-
-  if (instance?.id && dataElementUuid) {
-    return getDataModelUrl(instance.id, dataElementUuid, includeRowIds);
-  }
-
-  return undefined;
-}
-
-export function useDataModelUrl(includeRowIds: boolean, dataType: string | undefined) {
-  const isAnonymous = useAllowAnonymous();
-  const isStateless = useApplicationMetadata().isStatelessApp;
-  const instance = useLaxInstanceData();
-
-  if (isStateless && isAnonymous && dataType) {
-    return getAnonymousStatelessDataModelUrl(dataType, includeRowIds);
-  }
-
-  if (isStateless && !isAnonymous && dataType) {
-    return getStatelessDataModelUrl(dataType, includeRowIds);
-  }
-
-  if (instance?.id && dataType) {
-    const uuid = getFirstDataElementId(instance, dataType);
-    if (uuid) {
-      return getDataModelUrl(instance.id, uuid, includeRowIds);
+  // Instance data elements will update often (after each save), so we have to use a selector to make
+  // sure components don't re-render too often.
+  return useLaxInstanceData((data) => {
+    if (overriddenDataModelGuid) {
+      return overriddenDataModelGuid;
     }
+
+    return getCurrentTaskDataElementId({ application, dataElements: data.data, taskId, layoutSets });
+  });
+}
+
+type DataModelDeps = {
+  language: string;
+  isAnonymous: boolean;
+  isStateless: boolean;
+  instanceId?: string;
+};
+
+type DataModelProps = {
+  dataType?: string;
+  dataElementId?: string;
+  includeRowIds?: boolean;
+  language?: string;
+};
+
+function getDataModelUrl({
+  dataType,
+  dataElementId,
+  includeRowIds = false,
+  language,
+  isAnonymous,
+  isStateless,
+  instanceId,
+}: DataModelDeps & DataModelProps) {
+  if (isStateless && isAnonymous && dataType) {
+    return getUrlWithLanguage(getAnonymousStatelessDataModelUrl(dataType, includeRowIds), language);
+  }
+
+  if (isStateless && !isAnonymous && dataType) {
+    return getUrlWithLanguage(getStatelessDataModelUrl(dataType, includeRowIds), language);
+  }
+
+  if (instanceId && dataElementId) {
+    return getUrlWithLanguage(getStatefulDataModelUrl(instanceId, dataElementId, includeRowIds), language);
   }
 
   return undefined;
+}
+
+export function useGetDataModelUrl() {
+  const isAnonymous = useAllowAnonymous();
+  const isStateless = useApplicationMetadata().isStatelessApp;
+  const instanceId = useLaxInstanceId();
+  const currentLanguage = useAsRef(useCurrentLanguage());
+
+  return useCallback(
+    ({ dataType, dataElementId, includeRowIds, language }: DataModelProps) =>
+      getDataModelUrl({
+        dataType,
+        dataElementId,
+        includeRowIds,
+        language: language ?? currentLanguage.current,
+        isAnonymous,
+        isStateless,
+        instanceId,
+      }),
+    [currentLanguage, instanceId, isAnonymous, isStateless],
+  );
+}
+
+// We assume that the first data element of the correct type is the one we should use, same as isDataTypeWritable
+export function useDataModelUrl({ dataType, dataElementId, includeRowIds, language }: DataModelProps) {
+  const isAnonymous = useAllowAnonymous();
+  const isStateless = useApplicationMetadata().isStatelessApp;
+  const instanceId = useLaxInstanceId();
+  const currentLanguage = useAsRef(useCurrentLanguage());
+
+  return getDataModelUrl({
+    dataType,
+    dataElementId,
+    includeRowIds,
+    language: language ?? currentLanguage.current,
+    isAnonymous,
+    isStateless,
+    instanceId,
+  });
 }
 
 export function useCurrentDataModelName() {
-  const { overriddenDataModelType } = useTaskStore(({ overriddenDataModelType }) => ({ overriddenDataModelType }));
+  const overriddenDataModelType = useTaskStore((state) => state.overriddenDataModelType);
 
   const application = useApplicationMetadata();
   const layoutSets = useLayoutSets();
@@ -107,16 +148,21 @@ export function useCurrentDataModelType() {
   return application.dataTypes.find((dt) => dt.id === name);
 }
 
+export function useDataModelType(dataType: string) {
+  const application = useApplicationMetadata();
+
+  return application.dataTypes.find((dt) => dt.id === dataType);
+}
+
 export function useBindingSchema<T extends IDataModelBindings | undefined>(bindings: T): AsSchema<T> | undefined {
-  const lookup = useLaxCurrentDataModelSchemaLookup();
+  const lookupBinding = DataModels.useLookupBinding();
 
   return useMemo(() => {
     const resolvedBindings = bindings && Object.values(bindings).length ? { ...bindings } : undefined;
-    if (resolvedBindings && lookup) {
+    if (lookupBinding && resolvedBindings) {
       const out = {} as AsSchema<T>;
-      for (const [key, _value] of Object.entries(resolvedBindings)) {
-        const value = _value as string;
-        const [schema] = lookup.getSchemaForPath(value);
+      for (const [key, reference] of Object.entries(resolvedBindings as Record<string, IDataModelReference>)) {
+        const [schema] = lookupBinding(reference);
         out[key] = schema || null;
       }
 
@@ -124,5 +170,5 @@ export function useBindingSchema<T extends IDataModelBindings | undefined>(bindi
     }
 
     return undefined;
-  }, [bindings, lookup]);
+  }, [bindings, lookupBinding]);
 }

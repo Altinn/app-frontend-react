@@ -3,6 +3,7 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -17,11 +18,11 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
       required: false,
       textResourceBindings: {},
       dataModelBindings: {
-        address: 'address',
-        zipCode: 'zipCode',
-        postPlace: 'postPlace',
-        careOf: 'careOf',
-        houseNumber: 'houseNumber',
+        address: { dataType: defaultDataTypeMock, field: 'address' },
+        zipCode: { dataType: defaultDataTypeMock, field: 'zipCode' },
+        postPlace: { dataType: defaultDataTypeMock, field: 'postPlace' },
+        careOf: { dataType: defaultDataTypeMock, field: 'careOf' },
+        houseNumber: { dataType: defaultDataTypeMock, field: 'houseNumber' },
       },
       ...component,
     },
@@ -82,7 +83,7 @@ describe('AddressComponent', () => {
     await userEvent.tab();
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'address',
+      reference: { field: 'address', dataType: defaultDataTypeMock },
       newValue: 'Slottsplassen 1',
     });
   });
@@ -119,12 +120,12 @@ describe('AddressComponent', () => {
       },
     });
 
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.queryByText(/postnummer er ugyldig/i)).not.toBeInTheDocument();
 
     await userEvent.type(screen.getByRole('textbox', { name: 'Postnr *' }), '1');
     await userEvent.tab();
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Postnummer er ugyldig. Et postnummer består kun av 4 siffer.');
+    expect(screen.getByText(/postnummer er ugyldig/i)).toBeInTheDocument();
   });
 
   it('should update postplace on mount', async () => {
@@ -141,7 +142,7 @@ describe('AddressComponent', () => {
     await screen.findByDisplayValue('OSLO');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'postPlace',
+      reference: { field: 'postPlace', dataType: defaultDataTypeMock },
       newValue: 'OSLO',
     });
   });
@@ -160,7 +161,7 @@ describe('AddressComponent', () => {
     await userEvent.tab();
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'zipCode',
+      reference: { field: 'zipCode', dataType: defaultDataTypeMock },
       newValue: '0001',
     });
   });
@@ -179,11 +180,11 @@ describe('AddressComponent', () => {
     await userEvent.tab();
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'zipCode',
+      reference: { field: 'zipCode', dataType: defaultDataTypeMock },
       newValue: '',
     });
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'postPlace',
+      reference: { field: 'postPlace', dataType: defaultDataTypeMock },
       newValue: '',
     });
 

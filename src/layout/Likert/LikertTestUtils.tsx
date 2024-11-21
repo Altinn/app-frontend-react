@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { expect } from '@jest/globals';
-import { screen, within } from '@testing-library/react';
 import { v4 as uuidv4 } from 'uuid';
 import type { AxiosResponse } from 'axios';
 
+import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
@@ -41,6 +41,7 @@ export const generateValidations = (validations: { index: number; message: strin
       ({
         customTextKey: message,
         field: `${groupBinding}[${index}].${answerBinding}`,
+        dataElementId: defaultMockDataElementId,
         severity: BackendValidationSeverity.Error,
         source: 'custom',
         showImmediately: true,
@@ -62,16 +63,6 @@ export const defaultMockOptions: IRawOption[] = [
   },
 ];
 
-export const questionsWithAnswers = ({ questions, selectedAnswers }) => {
-  const questionsCopy = [...questions];
-
-  selectedAnswers.forEach((answer) => {
-    questionsCopy[answer.questionIndex].Answer = answer.answerValue;
-  });
-
-  return questionsCopy;
-};
-
 const createLikertLayout = (props: Partial<CompLikertExternal> | undefined): CompLikertExternal => ({
   id: 'likert-repeating-group-id',
   type: 'Likert',
@@ -79,8 +70,8 @@ const createLikertLayout = (props: Partial<CompLikertExternal> | undefined): Com
     questions: 'likert-questions',
   },
   dataModelBindings: {
-    answer: `${groupBinding}.${answerBinding}`,
-    questions: groupBinding,
+    answer: { dataType: defaultDataTypeMock, field: `${groupBinding}.${answerBinding}` },
+    questions: { dataType: defaultDataTypeMock, field: groupBinding },
   },
   optionsId: 'option-test',
   readOnly: false,
@@ -89,7 +80,10 @@ const createLikertLayout = (props: Partial<CompLikertExternal> | undefined): Com
 });
 
 export const createFormDataUpdateProp = (index: number, optionValue: string): FDNewValue => ({
-  path: `Questions[${index}].Answer`,
+  reference: {
+    dataType: defaultDataTypeMock,
+    field: `Questions[${index}].Answer`,
+  },
   newValue: optionValue,
 });
 
@@ -118,27 +112,27 @@ const { setScreenWidth } = mockMediaQuery(992);
 
 interface IQuestion {
   Question: string;
-  Answer: string;
+  Answer: IRawOption['value'];
 }
 
 interface IRenderProps {
-  mobileView: boolean;
+  mobileView?: boolean;
   mockQuestions: IQuestion[];
-  mockOptions: IRawOption[];
-  radioButtonProps: Partial<CompLikertItemExternal>;
-  likertProps: Partial<CompLikertExternal>;
-  extraTextResources: IRawTextResource[];
-  validationIssues: BackendValidationIssue[];
+  mockOptions?: IRawOption[];
+  radioButtonProps?: Partial<CompLikertItemExternal>;
+  likertProps?: Partial<CompLikertExternal>;
+  extraTextResources?: IRawTextResource[];
+  validationIssues?: BackendValidationIssue[];
 }
 
 export const render = async ({
   mobileView = false,
-  mockQuestions = defaultMockQuestions,
+  mockQuestions,
   mockOptions = defaultMockOptions,
   likertProps,
   extraTextResources = [],
   validationIssues = [],
-}: Partial<IRenderProps> = {}) => {
+}: IRenderProps) => {
   const mockLikertLayout = createLikertLayout(likertProps);
 
   setScreenWidth(mobileView ? 600 : 1200);
@@ -179,55 +173,3 @@ export function ContainerTester(props: { id: string }) {
     />
   );
 }
-
-export const validateTableLayout = async (
-  questions: IQuestion[],
-  options: IRawOption[],
-  validateRadioLayoutOptions: ValidateRadioLayoutOptions,
-) => {
-  screen.getByRole('table');
-
-  for (const option of defaultMockOptions) {
-    const allAlternatives = await screen.findAllByRole('radio', {
-      name: new RegExp(option.label),
-    });
-    for (const alternative of allAlternatives) {
-      expect(alternative).toBeInTheDocument();
-    }
-  }
-
-  await validateRadioLayout(questions, options, validateRadioLayoutOptions);
-};
-
-type ValidateRadioLayoutOptions = {
-  leftColumnHeader?: string;
-};
-
-export const validateRadioLayout = async (
-  questions: IQuestion[],
-  options: IRawOption[],
-  { leftColumnHeader }: ValidateRadioLayoutOptions = {},
-) => {
-  const radioGroups = await screen.findAllByRole('radiogroup');
-  expect(radioGroups).toHaveLength(questions.length);
-
-  for (const question of questions) {
-    const row = await screen.findByRole('radiogroup', {
-      name: leftColumnHeader != null ? `${leftColumnHeader} ${question.Question}` : question.Question,
-    });
-
-    for (const option of options) {
-      // Ideally we should use `getByRole` selector here, but the tests that use this function
-      // generates a DOM of several hundred nodes, and `getByRole` is quite slow since it has to traverse
-      // the entire tree. Doing that in a loop (within another loop) on hundreds of nodes is not a good idea.
-      // ref: https://github.com/testing-library/dom-testing-library/issues/698
-      const radio = within(row).getByDisplayValue(String(option.value));
-
-      if (question.Answer && option.value === question.Answer) {
-        expect(radio).toBeChecked();
-      } else {
-        expect(radio).not.toBeChecked();
-      }
-    }
-  }
-};

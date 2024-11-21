@@ -3,6 +3,7 @@ import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
 import { LAYOUT_SCHEMA_NAME } from 'src/features/devtools/utils/layoutSchemaValidation';
+import { cleanUpInstanceData } from 'src/features/instance/instanceUtils';
 import { httpDelete, httpGetRaw, httpPatch, httpPost, putWithoutConfig } from 'src/utils/network/networking';
 import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import {
@@ -16,11 +17,14 @@ import {
   getCreateInstancesUrl,
   getCustomValidationConfigUrl,
   getDataElementUrl,
+  getDataModelGuidUrl,
+  getDataModelTypeUrl,
   getDataValidationUrl,
   getFetchFormDynamicsUrl,
   getFileTagUrl,
   getFileUploadUrl,
   getFooterLayoutUrl,
+  getInstantiateUrl,
   getJsonSchemaUrl,
   getLayoutSetsUrl,
   getLayoutSettingsUrl,
@@ -32,8 +36,8 @@ import {
   getProcessStateUrl,
   getRulehandlerUrl,
   getSetCurrentPartyUrl,
+  getValidationUrl,
   instancesControllerUrl,
-  instantiateUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
   textResourcesUrl,
@@ -44,7 +48,12 @@ import type { IncomingApplicationMetadata } from 'src/features/applicationMetada
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IFormDynamics } from 'src/features/form/dynamics';
-import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
+import type {
+  IDataModelMultiPatchRequest,
+  IDataModelMultiPatchResponse,
+  IDataModelPatchRequest,
+  IDataModelPatchResponse,
+} from 'src/features/formData/types';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { OrderDetails, PaymentResponsePayload } from 'src/features/payment/types';
@@ -66,26 +75,14 @@ import type {
   IProfile,
 } from 'src/types/shared';
 
-const cleanUpInstanceData = async (_instance: IInstance | Promise<IInstance>) => {
-  const instance = await _instance;
-  if (instance && 'process' in instance) {
-    // Even though the process state is part of the instance data we fetch from the server, we don't want to expose it
-    // to the rest of the application. This is because the process state is also fetched separately, and that
-    // is the one we want to use, as it contains more information about permissions than the instance data provides.
-    delete instance.process;
-  }
-
-  return instance;
-};
-
 export const doSetCurrentParty = (partyId: number) =>
   putWithoutConfig<'Party successfully updated' | string | null>(getSetCurrentPartyUrl(partyId));
 
-export const doInstantiateWithPrefill = async (data: Instantiation): Promise<IInstance> =>
-  cleanUpInstanceData((await httpPost(instantiateUrl, undefined, data)).data);
+export const doInstantiateWithPrefill = async (data: Instantiation, language?: string): Promise<IInstance> =>
+  cleanUpInstanceData((await httpPost(getInstantiateUrl(language), undefined, data)).data);
 
-export const doInstantiate = async (partyId: number): Promise<IInstance> =>
-  cleanUpInstanceData((await httpPost(getCreateInstancesUrl(partyId))).data);
+export const doInstantiate = async (partyId: number, language?: string): Promise<IInstance> =>
+  cleanUpInstanceData((await httpPost(getCreateInstancesUrl(partyId, language))).data);
 
 export const doProcessNext = async (instanceId: string, language?: string, action?: IActionType) =>
   httpPut<IProcess>(getProcessNextUrl(instanceId, language), action ? { action } : null);
@@ -152,9 +149,28 @@ export const doAttachmentRemove = async (instanceId: string, dataGuid: string, l
   return response.data;
 };
 
+export const doSubformEntryAdd = async (instanceId: string, dataType: string, data: unknown): Promise<IData> => {
+  const response = await httpPost(getDataModelTypeUrl(instanceId, dataType), undefined, data);
+  if (response.status >= 300) {
+    throw new Error('Failed to add sub form');
+  }
+  return response.data;
+};
+
+export const doSubformEntryDelete = async (instanceId: string, dataGuid: string): Promise<void> => {
+  const response = await httpDelete(getDataModelGuidUrl(instanceId, dataGuid));
+  if (response.status !== 200) {
+    throw new Error('Failed to delete sub form');
+  }
+};
+
 // When saving data for normal/stateful apps
 export const doPatchFormData = (url: string, data: IDataModelPatchRequest) =>
   httpPatch<IDataModelPatchResponse>(url, data);
+
+// New multi-patch endpoint for stateful apps
+export const doPatchMultipleFormData = (url: string, data: IDataModelMultiPatchRequest) =>
+  httpPatch<IDataModelMultiPatchResponse>(url, data);
 
 // When saving data for stateless apps
 export const doPostStatelessFormData = async (url: string, data: object): Promise<object> =>
@@ -170,8 +186,8 @@ export const fetchLogo = async (): Promise<string> =>
 export const fetchActiveInstances = (partyId: number): Promise<ISimpleInstance[]> =>
   httpGet(getActiveInstancesUrl(partyId));
 
-export const fetchInstanceData = (partyId: string, instanceGuid: string): Promise<IInstance> =>
-  cleanUpInstanceData(httpGet(`${instancesControllerUrl}/${partyId}/${instanceGuid}`));
+export const fetchInstanceData = async (partyId: string, instanceGuid: string): Promise<IInstance> =>
+  await httpGet<IInstance>(`${instancesControllerUrl}/${partyId}/${instanceGuid}`);
 
 export const fetchProcessState = (instanceId: string): Promise<IProcess> => httpGet(getProcessStateUrl(instanceId));
 
@@ -238,9 +254,15 @@ export const fetchOrderDetails = (instanceId: string, language?: string): Promis
 
 export const fetchBackendValidations = (
   instanceId: string,
-  currentDataElementId: string,
   language: string,
-): Promise<BackendValidationIssue[]> => httpGet(getDataValidationUrl(instanceId, currentDataElementId, language));
+  onlyIncrementalValidators?: boolean,
+): Promise<BackendValidationIssue[]> => httpGet(getValidationUrl(instanceId, language, onlyIncrementalValidators));
+
+export const fetchBackendValidationsForDataElement = (
+  instanceId: string,
+  currentDataElementID: string,
+  language: string,
+): Promise<BackendValidationIssue[]> => httpGet(getDataValidationUrl(instanceId, currentDataElementID, language));
 
 export const fetchLayoutSchema = async (): Promise<JSONSchema7 | undefined> => {
   // Hacky (and only) way to get the correct CDN url

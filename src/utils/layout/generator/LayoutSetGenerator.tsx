@@ -1,34 +1,24 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ExprVal } from 'src/features/expressions/types';
-import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
+import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorDebug } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal, GeneratorPageProvider } from 'src/utils/layout/generator/GeneratorContext';
 import {
   GeneratorErrorBoundary,
   useGeneratorErrorBoundaryNodeRef,
 } from 'src/utils/layout/generator/GeneratorErrorBoundary';
-import {
-  GeneratorCondition,
-  GeneratorStages,
-  NodesStateQueue,
-  StageAddNodes,
-} from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorCondition, StageAddNodes, StageMarkHidden } from 'src/utils/layout/generator/GeneratorStages';
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import { Hidden, NodesInternal, useNodesWhenNotReady } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal, NodesStore, useNodes } from 'src/utils/layout/NodesContext';
 import type { CompExternal, CompExternalExact, CompTypes, ILayout } from 'src/layout/layout';
-import type {
-  BasicNodeGeneratorProps,
-  ChildClaimerProps,
-  ComponentProto,
-  ContainerGeneratorProps,
-} from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, ComponentProto, NodeGeneratorProps } from 'src/layout/LayoutComponent';
 import type { ChildClaim, ChildClaims, ChildClaimsMap } from 'src/utils/layout/generator/GeneratorContext';
-import type { HiddenState } from 'src/utils/layout/NodesContext';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 const style: React.CSSProperties = GeneratorDebug.displayState
   ? {
@@ -52,12 +42,11 @@ interface ChildrenState {
 }
 
 export function LayoutSetGenerator() {
-  const layouts = useLayouts();
-  const pages = useMemo(() => new LayoutPages(), []);
+  const layouts = GeneratorInternal.useLayouts();
+  const pages = useNodes();
 
   const children = (
     <>
-      <SaveFinishedNodesToStore pages={pages} />
       <ExportStores />
       {GeneratorDebug.displayState && <h1>Node generator</h1>}
       {layouts &&
@@ -81,38 +70,7 @@ export function LayoutSetGenerator() {
     </>
   );
 
-  return GeneratorDebug.displayState ? <div style={style}>{children}</div> : children;
-}
-
-function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
-  const layouts = useLayouts();
-  const existingNodes = useNodesWhenNotReady();
-  const setNodes = NodesInternal.useSetNodes();
-  const isFinished = GeneratorStages.useIsFinished();
-  const layoutKeys = useMemo(() => Object.keys(layouts), [layouts]);
-
-  useEffect(() => {
-    if (existingNodes === pages) {
-      return;
-    }
-
-    // With this being a useEffect, it will always run after all the children here have rendered - unless, importantly,
-    // the children themselves rely on useEffect() to run in order to reach a stable state.
-    const numPages = layoutKeys.length;
-    if (!pages) {
-      return;
-    }
-    if (numPages === 0) {
-      setNodes(pages);
-      return;
-    }
-
-    if (isFinished) {
-      setNodes(pages);
-    }
-  }, [layoutKeys, pages, isFinished, setNodes, existingNodes]);
-
-  return null;
+  return <div style={style}>{children}</div>;
 }
 
 function ExportStores() {
@@ -159,7 +117,7 @@ function useChildClaims(layout: ILayout, getProto: (id: string) => ComponentProt
   }, []);
 
   const addClaim = useCallback(
-    (parentId: string, childId: string, pluginKey: string, metadata: unknown) => {
+    (parentId: string, childId: string, pluginKey: string) => {
       if (getProto(childId) === undefined) {
         window.logError(`Component '${childId}' (as referenced by '${parentId}') does not exist`);
         return;
@@ -175,7 +133,7 @@ function useChildClaims(layout: ILayout, getProto: (id: string) => ComponentProt
       // have to wait for the next render to get the updated state).
       mapRef.current[parentId] = {
         ...mapRef.current[parentId],
-        [childId]: { pluginKey, metadata },
+        [childId]: { pluginKey },
       };
       setChildren((prev) => ({ ...prev, map: mapRef.current }));
     },
@@ -229,15 +187,6 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
     return claims;
   }, [map, layout]);
 
-  const layoutMap = useMemo(() => {
-    const out: { [id: string]: CompExternal } = {};
-    for (const component of layout) {
-      out[component.id] = component;
-    }
-
-    return out;
-  }, [layout]);
-
   if (layout.length === 0) {
     return null;
   }
@@ -249,10 +198,12 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
         page={page}
         name={name}
       />
-      <MarkPageHidden
-        page={page}
-        name={name}
-      />
+      <GeneratorCondition stage={StageMarkHidden}>
+        <MarkPageHidden
+          page={page}
+          name={name}
+        />
+      </GeneratorCondition>
       {map === undefined &&
         layout.map((component) => (
           <ComponentClaimChildren
@@ -266,7 +217,6 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
       {map !== undefined && (
         <GeneratorPageProvider
           parent={page}
-          layoutMap={layoutMap}
           childrenMap={map}
         >
           <GenerateNodeChildren
@@ -288,7 +238,7 @@ interface CommonProps {
 function AddPage({ layoutSet, page, name }: CommonProps) {
   const addPage = NodesInternal.useAddPage();
 
-  GeneratorStages.AddNodes.useEffect(() => {
+  useEffect(() => {
     addPage(name);
     if (!page.isRegisteredInCollection(layoutSet)) {
       page.registerCollection(name, layoutSet);
@@ -299,30 +249,22 @@ function AddPage({ layoutSet, page, name }: CommonProps) {
 }
 
 function MarkPageHidden({ name, page }: Omit<CommonProps, 'layoutSet'>) {
-  const setPageProp = NodesStateQueue.useSetPageProp();
-  const hiddenByTracks = Hidden.useIsPageHiddenViaTracks(name);
-  const hiddenByExpression = useIsHiddenPage(page);
+  const inOrder = Hidden.useIsPageInOrder(name);
+  const hidden = useIsHiddenPage(page);
 
-  const hidden: HiddenState = useMemo(
-    () => ({
-      hiddenByTracks,
-      hiddenByExpression,
-      hiddenByRules: false,
-    }),
-    [hiddenByTracks, hiddenByExpression],
-  );
+  const hiddenIsSet = NodesStore.useSelector((state) => state.pagesData.pages[name]?.hidden === hidden);
+  const inOrderIsSet = NodesStore.useSelector((state) => state.pagesData.pages[name]?.inOrder === inOrder);
 
-  GeneratorStages.MarkHidden.useEffect(() => {
-    setPageProp({ pageKey: name, prop: 'hidden', value: hidden });
-  }, [hidden, name, setPageProp]);
+  NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'hidden', value: hidden }, !hiddenIsSet);
+  NodesStateQueue.useSetPageProp({ pageKey: name, prop: 'inOrder', value: inOrder }, !inOrderIsSet);
 
   return null;
 }
 
-function useFilteredClaims(claims: ChildClaims, pluginKey: string | undefined) {
+function useFilteredClaims(claims: ChildClaims | undefined, pluginKey: string | undefined) {
   return useMemo(() => {
     if (!pluginKey) {
-      return claims;
+      return claims ?? {};
     }
 
     const out: ChildClaims = {};
@@ -336,7 +278,7 @@ function useFilteredClaims(claims: ChildClaims, pluginKey: string | undefined) {
 }
 
 interface NodeChildrenProps {
-  claims: ChildClaims;
+  claims: ChildClaims | undefined;
   pluginKey: string | undefined;
 }
 
@@ -398,7 +340,7 @@ function GenerateNodeChildrenInternal({ claims, layoutMap }: NodeChildrenInterna
           <GenerateComponent
             layout={layoutMap[id]}
             claim={claims[id]}
-            childClaims={map[id]}
+            childClaims={map?.[id]}
           />
         </GeneratorErrorBoundary>
       ))}
@@ -406,9 +348,9 @@ function GenerateNodeChildrenInternal({ claims, layoutMap }: NodeChildrenInterna
   );
 }
 
-function useIsHiddenPage(page: LayoutPage) {
+function useIsHiddenPage(page: LayoutPage): boolean {
   const hiddenExpr = useHiddenLayoutsExpressions();
-  return useEvalExpressionInGenerator(ExprVal.Boolean, page, hiddenExpr[page.pageKey], false);
+  return useEvalExpressionInGenerator(ExprVal.Boolean, page, hiddenExpr[page.pageKey], false) ?? false;
 }
 
 interface ComponentClaimChildrenProps {
@@ -426,11 +368,10 @@ function ComponentClaimChildren({ component, claims, getProto }: ComponentClaimC
   // otherwise the page will not know if the first pass is done.
   useEffect(() => {
     if (def instanceof ContainerComponent) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const props: ChildClaimerProps<any, unknown> = {
+      const props: ChildClaimerProps<CompTypes> = {
         item: component,
-        claimChild: (pluginKey, childId, metadata) => {
-          addClaim(component.id, childId, pluginKey, metadata);
+        claimChild: (pluginKey, childId) => {
+          addClaim(component.id, childId, pluginKey);
         },
         getProto: (id) => {
           const proto = getProto(id);
@@ -464,21 +405,17 @@ interface ComponentProps {
   childClaims: ChildClaims | undefined;
 }
 
+const emptyObject = {};
 function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
   const def = getComponentDef(layout.type);
-  const props = useMemo(() => {
-    if (def instanceof ContainerComponent) {
-      const out: ContainerGeneratorProps = {
-        claim,
-        externalItem: layout,
-        childClaims: childClaims ?? {},
-      };
-      return out;
-    }
-
-    const out: BasicNodeGeneratorProps = { claim, externalItem: layout };
-    return out;
-  }, [def, claim, layout, childClaims]);
+  const props: NodeGeneratorProps = useMemo(
+    () => ({
+      claim,
+      externalItem: layout,
+      childClaims: childClaims ?? emptyObject,
+    }),
+    [claim, layout, childClaims],
+  );
 
   if (!layout.id && layout.type) {
     window.logError(`Encountered '${layout.type}' component with no ID (ignoring)`);
@@ -495,7 +432,7 @@ function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
     return null;
   }
 
-  const Generator = def.renderNodeGenerator;
+  const Generator = def.renderNodeGenerator.bind(def);
 
   if (!GeneratorDebug.displayState) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

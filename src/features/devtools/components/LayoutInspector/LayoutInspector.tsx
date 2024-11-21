@@ -1,9 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useRef, useState } from 'react';
 
-import { Alert, Button } from '@digdir/designsystemet-react';
+import { Alert } from '@digdir/designsystemet-react';
 import { Close } from '@navikt/ds-icons';
 
+import { Button } from 'src/app-components/button/Button';
 import classes from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { LayoutInspectorItem } from 'src/features/devtools/components/LayoutInspector/LayoutInspectorItem';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
@@ -60,7 +61,7 @@ export const LayoutInspector = () => {
 
         if (currentView) {
           window.queryClient.setQueriesData<LayoutContextValue>(
-            { queryKey: ['formLayouts', currentLayoutSetId, true] },
+            { queryKey: ['formLayouts', currentLayoutSetId] },
             (_queryData) => {
               const queryData = structuredClone(_queryData);
               if (!queryData?.layouts?.[currentView]) {
@@ -127,7 +128,7 @@ export const LayoutInspector = () => {
             {validationErrorsForPage[selectedComponent] && validationErrorsForPage[selectedComponent].length > 0 && (
               <Alert
                 className={classes.errorAlert}
-                severity='warning'
+                severity={'warning'}
               >
                 <div className={classes.errorList}>
                   <ul>
@@ -146,7 +147,6 @@ export const LayoutInspector = () => {
               onClick={() => setSelectedComponent(undefined)}
               variant='tertiary'
               color='second'
-              size='small'
               aria-label='close'
               icon={true}
             >
@@ -172,8 +172,7 @@ export const LayoutInspector = () => {
           {error && <span className={classes.error}>Ugyldig JSON</span>}
           {propertiesHaveChanged && (
             <Button
-              fullWidth
-              size='small'
+              style={{ width: '100%' }}
               onClick={handleSave}
             >
               Lagre

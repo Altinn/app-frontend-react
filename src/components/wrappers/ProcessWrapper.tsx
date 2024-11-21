@@ -1,106 +1,127 @@
-import React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import type { ReactNode } from 'react';
+import React, { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { Route, Routes } from 'react-router-dom';
 
-import { Button } from '@digdir/designsystemet-react';
 import Grid from '@material-ui/core/Grid';
 
-import { Form, FormFirstPage } from 'src/components/form/Form';
+import { Button } from 'src/app-components/button/Button';
+import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
+import { Loader } from 'src/core/loading/Loader';
+import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useLaxProcessData, useRealTaskType, useTaskType } from 'src/features/instance/ProcessContext';
+import { useGetTaskTypeById, useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
-import { TaskKeys, useIsCurrentTask, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
+import {
+  useNavigate,
+  useNavigationParam,
+  useNavigationPath,
+  useQueryKeysAsString,
+} from 'src/features/routing/AppRoutingContext';
+import {
+  TaskKeys,
+  useIsCurrentTask,
+  useIsValidTaskId,
+  useNavigateToTask,
+  useStartUrl,
+} from 'src/hooks/useNavigatePage';
+import { implementsSubRouting } from 'src/layout';
+import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
+import { getPageTitle } from 'src/utils/getPageTitle';
+import { useNode } from 'src/utils/layout/NodesContext';
 
 interface NavigationErrorProps {
-  label: ReactNode;
+  label: string;
 }
 
 function NavigationError({ label }: NavigationErrorProps) {
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-  const { navigateToTask } = useNavigatePage();
+  const navigateToTask = useNavigateToTask();
+
+  const appName = useAppName();
+  const appOwner = useAppOwner();
+  const { langAsString } = useLanguage();
+
   return (
-    <Grid
-      item={true}
-      xs={12}
-      aria-live='polite'
-    >
-      <div>{label}</div>
-      <div className={classes.navigationError}>
-        <Button
-          variant='secondary'
-          onClick={() => {
-            navigateToTask(currentTaskId);
-          }}
-        >
-          <Lang id='general.navigate_to_current_process' />
-        </Button>
-      </div>
-    </Grid>
+    <>
+      <Helmet>
+        <title>{`${getPageTitle(appName, langAsString(label), appOwner)}`}</title>
+      </Helmet>
+      <Grid
+        item={true}
+        xs={12}
+        aria-live='polite'
+      >
+        <div>
+          <Lang id={label} />
+        </div>
+
+        {currentTaskId && (
+          <div className={classes.navigationError}>
+            <Button
+              variant='secondary'
+              size='md'
+              onClick={() => {
+                navigateToTask(currentTaskId);
+              }}
+            >
+              <Lang id='general.navigate_to_current_process' />
+            </Button>
+          </div>
+        )}
+      </Grid>
+    </>
   );
 }
 
 export function NotCurrentTaskPage() {
-  return <NavigationError label={<Lang id='general.part_of_form_completed' />} />;
+  return <NavigationError label={'general.part_of_form_completed'} />;
 }
 
 export function InvalidTaskIdPage() {
-  return <NavigationError label={<Lang id='general.invalid_task_id' />} />;
+  return <NavigationError label={'general.invalid_task_id'} />;
 }
 
-export function ProcessWrapperWrapper() {
-  const taskId = useNavigationParam('taskId');
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-
-  if (taskId === undefined && currentTaskId !== undefined) {
-    return <NavigateToStartUrl />;
-  }
-
-  return (
-    <Routes>
-      <Route
-        path=':taskId/*'
-        element={<ProcessWrapper />}
-      />
-    </Routes>
-  );
-}
-
-function NavigateToStartUrl() {
+export function NavigateToStartUrl() {
+  const navigate = useNavigate();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const startUrl = useStartUrl(currentTaskId);
-  return (
-    <Navigate
-      to={startUrl}
-      replace
-    />
-  );
+
+  const currentLocation = `${useNavigationPath()}${useQueryKeysAsString()}`;
+
+  useEffect(() => {
+    if (currentLocation !== startUrl) {
+      navigate(startUrl, { replace: true });
+    }
+  }, [currentLocation, navigate, startUrl]);
+
+  return <Loader reason='navigate-to-process-start' />;
 }
 
 export const ProcessWrapper = () => {
   const isCurrentTask = useIsCurrentTask();
-  const { isValidTaskId } = useNavigatePage();
-  const taskId = useNavigationParam('taskId');
-  const taskType = useTaskType(taskId);
+  const isValidTaskId = useIsValidTaskId();
+  const taskIdParam = useNavigationParam('taskId');
+  const taskType = useGetTaskTypeById()(taskIdParam);
   const realTaskType = useRealTaskType();
   const layoutSets = useLayoutSets();
   const dataModelGuid = useCurrentDataModelGuid();
 
   const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
-  const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid && taskId === TaskKeys.CustomReceipt;
+  const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid && taskIdParam === TaskKeys.CustomReceipt;
 
-  if (!isValidTaskId(taskId)) {
+  if (!isValidTaskId(taskIdParam)) {
     return (
       <PresentationComponent type={realTaskType}>
         <InvalidTaskIdPage />
@@ -108,7 +129,7 @@ export const ProcessWrapper = () => {
     );
   }
 
-  if (!isCurrentTask && taskId !== TaskKeys.ProcessEnd) {
+  if (!isCurrentTask && taskIdParam !== TaskKeys.ProcessEnd) {
     return (
       <PresentationComponent type={realTaskType}>
         <NotCurrentTaskPage />
@@ -158,7 +179,15 @@ export const ProcessWrapper = () => {
       <FormProvider>
         <Routes>
           <Route
-            path=':pageKey'
+            path=':pageKey/:componentId/*'
+            element={
+              <PresentationComponent type={realTaskType}>
+                <ComponentRouting />
+              </PresentationComponent>
+            }
+          />
+          <Route
+            path='*'
             element={
               <PDFWrapper>
                 <PresentationComponent type={realTaskType}>
@@ -167,14 +196,39 @@ export const ProcessWrapper = () => {
               </PDFWrapper>
             }
           />
-          <Route
-            path='*'
-            element={<FormFirstPage />}
-          />
         </Routes>
       </FormProvider>
     );
   }
 
   throw new Error(`Unknown task type: ${taskType}`);
+};
+
+export const ComponentRouting = () => {
+  const componentId = useNavigationParam('componentId');
+  const node = useNode(componentId);
+
+  // Wait for props to sync, needed for now
+  if (!componentId) {
+    return <Loader reason='component-routing' />;
+  }
+
+  if (!node) {
+    // Consider adding a 404 page?
+    return <RedirectBackToMainForm />;
+  }
+
+  if (implementsSubRouting(node.def)) {
+    const SubRouting = node?.def.subRouting;
+    return (
+      <SubRouting
+        key={node.id}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        node={node as any}
+      />
+    );
+  }
+
+  // If node exists but does not implement sub routing
+  throw new Error(`Component ${componentId} does not have subRouting`);
 };

@@ -1,10 +1,13 @@
+import type { AriaAttributes } from 'react';
+
 import { useQuery } from '@tanstack/react-query';
 import type { SortDirection } from '@digdir/design-system-react/dist/types/components/legacy/LegacyTable/utils';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { getDataListsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IDataList } from 'src/features/dataLists/index';
@@ -13,31 +16,36 @@ import type { IMapping } from 'src/layout/common.generated';
 export type Filter = {
   pageSize: number;
   pageNumber: number;
-  sortColumn: string | null;
-  sortDirection: SortDirection;
+  sortColumn?: string;
+  sortDirection: AriaAttributes['aria-sort'];
 };
+
 export const useDataListQuery = (
   filter: Filter,
   dataListId: string,
   secure?: boolean,
   mapping?: IMapping,
+  queryParameters?: Record<string, string>,
 ): UseQueryResult<IDataList> => {
   const { fetchDataList } = useAppQueries();
   const selectedLanguage = useCurrentLanguage();
-  const instanceId = useLaxInstance()?.instanceId;
-  const mappedData = FD.useMapping(mapping);
+  const instanceId = useLaxInstanceId();
+  const mappingResult = FD.useMapping(mapping, DataModels.useDefaultDataType());
   const { pageSize, pageNumber, sortColumn, sortDirection } = filter || {};
 
   const url = getDataListsUrl({
     dataListId,
-    mappedData,
+    queryParameters: {
+      ...mappingResult,
+      ...queryParameters,
+    },
     language: selectedLanguage,
     secure,
     instanceId,
     pageSize: `${pageSize}`,
     pageNumber: `${pageNumber}`,
     sortColumn,
-    sortDirection,
+    sortDirection: ariaSortToSortDirection(sortDirection),
   });
 
   return useQuery({
@@ -45,3 +53,14 @@ export const useDataListQuery = (
     queryFn: () => fetchDataList(url),
   });
 };
+
+function ariaSortToSortDirection(ariaSort: AriaAttributes['aria-sort']): SortDirection {
+  switch (ariaSort) {
+    case 'ascending':
+      return 'asc';
+    case 'descending':
+      return 'desc';
+    default:
+      return 'notActive';
+  }
+}

@@ -1,10 +1,11 @@
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { layoutSetIsDefault } from 'src/features/form/layoutSets/TypeGuards';
 import { getLayoutSetForDataElement } from 'src/utils/layout';
 import type { ApplicationMetadata, ShowTypes } from 'src/features/applicationMetadata/types';
 import type { ILayoutSets } from 'src/layout/common.generated';
-import type { IInstance } from 'src/types/shared';
+import type { IData } from 'src/types/shared';
 
 interface CommonProps {
   application: ApplicationMetadata;
@@ -13,7 +14,7 @@ interface CommonProps {
 }
 
 interface GetCurrentTaskDataElementIdProps extends CommonProps {
-  instance: IInstance | null | undefined;
+  dataElements: IData[];
 }
 
 interface GetDataTypeByLayoutSetIdProps {
@@ -53,7 +54,12 @@ export function getDataTypeByTaskId({ taskId, application, layoutSets }: GetData
     return undefined;
   }
 
-  const typeFromLayoutSet = layoutSets.sets.find((set) => set.tasks?.includes(taskId))?.dataType;
+  const typeFromLayoutSet = layoutSets.sets.find((set) => {
+    if (layoutSetIsDefault(set) && set.tasks?.length) {
+      return set.tasks.includes(taskId);
+    }
+    return false;
+  })?.dataType;
   const foundInMetaData = application?.dataTypes.find((element) => element.id === typeFromLayoutSet);
   if (typeFromLayoutSet && !foundInMetaData) {
     window.logError(
@@ -83,10 +89,10 @@ export const onEntryValuesThatHaveState: ShowTypes[] = ['new-instance', 'select-
 /**
  * Get the current layout set for application if it exists
  */
-export function getLayoutSetIdForApplication({ application, layoutSets, taskId }: CommonProps) {
+export function getCurrentLayoutSet({ application, layoutSets, taskId }: CommonProps) {
   if (application.isStatelessApp) {
     // We have a stateless app with a layout set
-    return application.onEntry.show;
+    return layoutSets.sets.find((set) => set.id === application.onEntry.show);
   }
 
   const dataType = getCurrentDataTypeForApplication({ application, layoutSets, taskId });
@@ -113,11 +119,18 @@ export function getCurrentDataTypeForApplication({ application, layoutSets, task
 
 export const getCurrentTaskDataElementId = (props: GetCurrentTaskDataElementIdProps) => {
   const currentDataTypeId = getCurrentDataTypeForApplication(props);
-  const currentTaskDataElement = (props.instance?.data || []).find((element) => element.dataType === currentDataTypeId);
+  const currentTaskDataElement = props.dataElements.find((element) => element.dataType === currentDataTypeId);
   return currentTaskDataElement?.id;
 };
 
-export function getFirstDataElementId(instance: IInstance, dataType: string) {
-  const currentTaskDataElement = (instance.data || []).find((element) => element.dataType === dataType);
-  return currentTaskDataElement?.id;
+export function getFirstDataElementId(dataElements: IData[], dataType: string) {
+  const elements = dataElements.filter((element) => element.dataType === dataType);
+  if (elements.length > 1) {
+    window.logWarnOnce(
+      `Found multiple data elements with data type ${dataType} in instance, cannot determine which one to use`,
+    );
+    return undefined;
+  }
+
+  return elements.length > 0 ? elements[0].id : undefined;
 }

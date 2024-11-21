@@ -1,3 +1,5 @@
+import React from 'react';
+
 import '@testing-library/jest-dom';
 import '@testing-library/jest-dom/jest-globals';
 import 'core-js/stable/structured-clone'; // https://github.com/jsdom/jsdom/issues/3363
@@ -10,7 +12,8 @@ import { jestPreviewConfigure } from 'jest-preview';
 import { TextDecoder, TextEncoder } from 'util';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
-import type { fetchApplicationMetadata } from 'src/queries/queries';
+import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
+import type { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
 import type { AppQueries } from 'src/queries/types';
 
 // Importing CSS for jest-preview to look nicer
@@ -39,6 +42,14 @@ Object.defineProperty(document, 'fonts', {
   value: { ready: Promise.resolve({}) },
 });
 
+// https://github.com/jsdom/jsdom/issues/3002
+Element.prototype.getClientRects = () => ({
+  item: () => null,
+  length: 0,
+  // @ts-expect-error ignore
+  [Symbol.iterator]: jest.fn(),
+});
+
 // Forcing a low timeout for useDelayedSaveState()
 global.delayedSaveState = 50;
 
@@ -60,6 +71,7 @@ window.logWarnOnce = window.logError;
 window.logInfoOnce = window.logError;
 
 window.scrollTo = () => {};
+document.getAnimations = () => [];
 
 jest.setTimeout(env.parsed?.JEST_TIMEOUT ? parseInt(env.parsed.JEST_TIMEOUT, 10) : 20000);
 
@@ -84,4 +96,10 @@ jest.mock('src/queries/queries', () => ({
   fetchApplicationMetadata: jest
     .fn<typeof fetchApplicationMetadata>()
     .mockImplementation(() => Promise.resolve(getIncomingApplicationMetadataMock())),
+  fetchProcessState: jest.fn<typeof fetchProcessState>(() => Promise.resolve(getProcessDataMock())),
+}));
+
+jest.mock('react-helmet-async', () => ({
+  Helmet: () => null,
+  HelmetProvider: ({ children }) => React.createElement(React.Fragment, null, children),
 }));

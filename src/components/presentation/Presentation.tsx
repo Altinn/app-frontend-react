@@ -11,11 +11,12 @@ import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
 import classes from 'src/components/presentation/Presentation.module.css';
 import { Progress } from 'src/components/presentation/Progress';
+import { createContext } from 'src/core/contexts/context';
 import { RenderStart } from 'src/core/ui/RenderStart';
 import { Footer } from 'src/features/footer/Footer';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceStatus } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
@@ -31,7 +32,7 @@ export interface IPresentationProvidedProps extends PropsWithChildren {
 
 export const PresentationComponent = ({ header, type, children, renderNavBar = true }: IPresentationProvidedProps) => {
   const party = useCurrentParty();
-  const instance = useLaxInstanceData();
+  const instanceStatus = useLaxInstanceStatus();
   const userParty = useProfile()?.party;
   const { expandedWidth } = useUiConfigContext();
 
@@ -45,38 +46,40 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
 
   return (
     <RenderStart>
-      <div
-        data-testid='presentation'
-        data-expanded={JSON.stringify(expandedWidth)}
-        className={cn(classes.container, { [classes.expanded]: expandedWidth })}
-      >
-        <AltinnAppHeader
-          party={party}
-          userParty={userParty}
-          logoColor={LogoColor.blueDarker}
-          headerBackgroundColor={backgroundColor}
-        />
-        <main className={classes.page}>
-          {isProcessStepsArchived && instance?.status?.substatus && (
-            <AltinnSubstatusPaper
-              label={<Lang id={instance.status.substatus.label} />}
-              description={<Lang id={instance.status.substatus.description} />}
-            />
-          )}
-          {renderNavBar && <NavBar type={type} />}
-          <section
-            id='main-content'
-            className={classes.modal}
-            tabIndex={-1}
-          >
-            <Header header={realHeader}>
-              <ProgressBar type={type} />
-            </Header>
-            <div className={classes.modalBody}>{children}</div>
-          </section>
-        </main>
-        <Footer />
-      </div>
+      <PresentationProvider value={undefined}>
+        <div
+          data-testid='presentation'
+          data-expanded={JSON.stringify(expandedWidth)}
+          className={cn(classes.container, { [classes.expanded]: expandedWidth })}
+        >
+          <AltinnAppHeader
+            party={party}
+            userParty={userParty}
+            logoColor={LogoColor.blueDarker}
+            headerBackgroundColor={backgroundColor}
+          />
+          <main className={classes.page}>
+            {isProcessStepsArchived && instanceStatus?.substatus && (
+              <AltinnSubstatusPaper
+                label={<Lang id={instanceStatus.substatus.label} />}
+                description={<Lang id={instanceStatus.substatus.description} />}
+              />
+            )}
+            {renderNavBar && <NavBar type={type} />}
+            <section
+              id='main-content'
+              className={classes.modal}
+              tabIndex={-1}
+            >
+              <Header header={realHeader}>
+                <ProgressBar type={type} />
+              </Header>
+              <div className={classes.modalBody}>{children}</div>
+            </section>
+          </main>
+          <Footer />
+        </div>
+      </PresentationProvider>
     </RenderStart>
   );
 };
@@ -98,3 +101,10 @@ function ProgressBar({ type }: { type: ProcessTaskType | PresentationType }) {
     </Grid>
   );
 }
+
+const { Provider: PresentationProvider, useHasProvider } = createContext<undefined>({
+  name: 'Presentation',
+  required: true,
+});
+
+export const useHasPresentation = () => useHasProvider();

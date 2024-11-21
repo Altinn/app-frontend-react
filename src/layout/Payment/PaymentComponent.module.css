@@ -1,42 +1,16 @@
 .buttonContainer {
   display: flex;
   gap: var(--fds-spacing-3);
-  padding: var(--fds-spacing-3) 0;
 }
 
-.infoContainer {
+.alertContainer {
   display: flex;
+  flex-direction: column;
   gap: var(--fds-spacing-3);
-  flex-direction: row;
-  padding: var(--fds-spacing-3) 0;
 }
 
-.infoDetailsContainer {
+.paymentContainer {
   display: flex;
   flex-direction: column;
-}
-
-.infoDetailsContainer {
-  display: flex;
-  flex-direction: column;
-}
-
-.senderReceiverInfoContainer {
-  display: flex;
-  width: 100%;
-  gap: var(--fds-spacing-4);
-
-  table {
-    width: 100%;
-
-    tr {
-      vertical-align: top;
-    }
-  }
-}
-
-.paymentSummaryContainer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--fds-spacing-4);
+  gap: var(--fds-spacing-6);
 }

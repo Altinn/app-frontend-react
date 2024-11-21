@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
-import type { MutableRefObject } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
+import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { typedBoolean } from 'src/utils/typing';
 import type { WaitForState } from 'src/hooks/useWaitForState';
@@ -9,6 +9,7 @@ import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeData, NodeItemFromNode } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
@@ -26,26 +27,28 @@ export function useNodeItem<N extends LayoutNode | undefined>(
   selector?: undefined,
 ): N extends undefined ? undefined : NodeItemFromNode<N>;
 // eslint-disable-next-line no-redeclare
-export function useNodeItem(node: never, selector: never): never {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return NodesInternal.useNodeData(node, (data: NodeData) => (selector ? (selector as any)(data.item) : data.item));
-}
+export function useNodeItem(node: LayoutNode | undefined, selector: never): unknown {
+  if (GeneratorInternal.useIsInsideGenerator()) {
+    throw new Error(
+      'useNodeItem() should not be used inside the node generator, it would most likely just crash when ' +
+        'the item is undefined. Instead, use GeneratorInternal.useIntermediateItem() to get the item before ' +
+        'expressions have run, or use a more specific selector in NodesInternal.useNodeData() which will ' +
+        'make you handle the undefined item.',
+    );
+  }
 
-export function useNodeItemRef<N extends LayoutNode | undefined, Out>(
-  node: N,
-  selector: (item: NodeItemFromNode<N>) => Out,
-): MutableRefObject<Out>;
-// eslint-disable-next-line no-redeclare
-export function useNodeItemRef<N extends LayoutNode | undefined>(
-  node: N,
-  selector?: undefined,
-): MutableRefObject<NodeItemFromNode<N>>;
-// eslint-disable-next-line no-redeclare
-export function useNodeItemRef(node: never, selector: never): never {
-  return NodesInternal.useNodeDataRef(node, (node: NodeData) =>
+  return NodesInternal.useNodeData(node, (data: NodeData, readiness) => {
+    if (!data?.item) {
+      throw new Error(
+        `Node item for '${node?.id}' is undefined. This should normally not happen, but might happen if you ` +
+          `select data in new components while the node state is in the process of being updated ` +
+          `(readiness is '${readiness}'). `,
+      );
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    selector ? (selector as any)(node.item) : node.item,
-  ) as never;
+    return selector ? (selector as any)(data.item) : data.item;
+  });
 }
 
 const selectNodeItem = <T extends CompTypes>(data: NodeData<T>): CompInternal<T> | undefined =>
@@ -60,12 +63,21 @@ export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
 }
 
 const emptyArray: LayoutNode[] = [];
-export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): LayoutNode[] {
+export function useNodeDirectChildren(
+  parent: LayoutNode | undefined,
+  restriction?: TraversalRestriction,
+): LayoutNode[] {
   return (
-    NodesInternal.useNodeData(parent, (store) =>
+    NodesInternal.useNodeData(parent, (nodeData) => {
+      if (!parent) {
+        return emptyArray;
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      parent.def.pickDirectChildren(store as any, restriction).filter(typedBoolean),
-    ) ?? emptyArray
+      const out = parent.def.pickDirectChildren(nodeData as any, restriction);
+      const nodes = parent.page.layoutSet;
+      return out?.map((id) => nodes.findById(id)).filter(typedBoolean);
+    }) ?? emptyArray
   );
 }
 
@@ -75,7 +87,7 @@ type NodeFormData<N extends LayoutNode | undefined> = N extends undefined
 
 const emptyObject = {};
 export function useNodeFormData<N extends LayoutNode | undefined>(node: N): NodeFormData<N> {
-  const dataModelBindings = useNodeItem(node, (i) => i?.dataModelBindings);
+  const dataModelBindings = NodesInternal.useNodeData(node, (data) => data.layout.dataModelBindings);
   const formDataSelector = FD.useDebouncedSelector();
 
   return useMemo(
@@ -89,6 +101,9 @@ export function useNodeFormDataSelector() {
   const nodeSelector = NodesInternal.useNodeDataSelector();
   const formDataSelector = FD.useDebouncedSelector();
 
+  return useInnerNodeFormDataSelector(nodeSelector, formDataSelector);
+}
+export function useInnerNodeFormDataSelector(nodeSelector: NodeDataSelector, formDataSelector: FormDataSelector) {
   return useCallback(
     <N extends LayoutNode | undefined>(node: N): NodeFormData<N> => {
       const dataModelBindings = nodeSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);

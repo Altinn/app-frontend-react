@@ -6,20 +6,23 @@ import type {
   ValidationMaskKeys,
   ValidationSeverity,
 } from 'src/features/validation';
-import type { AllowedValidationMasks } from 'src/layout/common.generated';
+import type { CompIntermediate } from 'src/layout/layout';
 
-export function mergeFieldValidations(...X: FieldValidations[]): FieldValidations {
+export function mergeFieldValidations(...X: (FieldValidations | undefined)[]): FieldValidations {
   if (X.length === 0) {
     return {};
   }
 
   if (X.length === 1) {
-    return X[0];
+    return X[0] ?? {};
   }
 
   const [X1, ...XRest] = X;
-  const out = structuredClone(X1);
+  const out = X1 ? structuredClone(X1) : {};
   for (const Xn of XRest) {
+    if (!Xn) {
+      continue;
+    }
     for (const [field, validations] of Object.entries(structuredClone(Xn))) {
       if (!out[field]) {
         out[field] = [];
@@ -67,10 +70,12 @@ export function selectValidations<T extends BaseValidation>(
 }
 
 /**
- * Gets the initial validation mask for a component using its showValidations property
- * If the value is not set, it will default to all validations except required
+ * Gets the initial validation mask for a component using its showValidations property.
+ * If the value is not set, it will default to all validations except required.
+ * If the item is undefined, it will return 0.
  */
-export function getInitialMaskFromNode(showValidations: AllowedValidationMasks | null | undefined): number {
+export function getInitialMaskFromNodeItem(item: CompIntermediate): number {
+  const showValidations = 'showValidations' in item ? item.showValidations : null;
   // If not set, null, or undefined, default to all validations except required
   if (!showValidations) {
     return ValidationMask.AllExceptRequired;
