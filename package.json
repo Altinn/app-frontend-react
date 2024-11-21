@@ -142,7 +142,7 @@
     "@material-ui/core": "4.12.4",
     "@material-ui/icons": "4.11.3",
     "@material-ui/pickers": "3.3.11",
-    "@navikt/aksel-icons": "^5.0.0",
+    "@navikt/aksel-icons": "^7.0.0",
     "@reduxjs/toolkit": "1.9.7",
     "@tanstack/react-query": "^4.29.3",
     "ajv": "8.12.0",
