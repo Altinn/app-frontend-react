@@ -9,6 +9,7 @@ import { Input } from 'src/app-components/Input/Input';
 import { NumericInput } from 'src/app-components/Input/NumericInput';
 import { Label } from 'src/app-components/Label/Label';
 import { Description } from 'src/components/form/Description';
+import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -148,6 +149,7 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
             htmlFor={`${id}_ssn`}
             label='Fødselsnummer'
             required={required}
+            requiredIndicator={<RequiredIndicator required={required} />}
           />
           {hasSuccessfullyFetched && <Description description='Fra folkeregisteret' />}
         </div>
@@ -168,6 +170,7 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
           <Label
             htmlFor={`${id}_name`}
             required={required}
+            requiredIndicator={<RequiredIndicator required={required} />}
             label='Etternavn'
           />
           {hasSuccessfullyFetched && <Description description='Fra folkeregisteret' />}
