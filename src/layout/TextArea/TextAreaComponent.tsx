@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { HelpText, Textarea } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
 import { Label } from 'src/app-components/Label/Label';
 import { Description } from 'src/components/form/Description';
@@ -14,7 +13,6 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { gridBreakpoints } from 'src/utils/formComponentUtils';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -45,41 +43,41 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
   } = useDataModelBindings(dataModelBindings, saveWhileTyping);
   const debounce = FD.useDebounceImmediately();
 
+  const label =
+    (overrideDisplay?.renderLabel ?? true) && overrideDisplay?.renderedInTable !== true
+      ? langAsString(textResourceBindings?.title)
+      : undefined;
+
   return (
-    <>
-      <Grid
-        item
-        {...gridBreakpoints(grid?.labelGrid)}
-      >
-        <Label
-          htmlFor={id}
-          label={langAsString(textResourceBindings?.title)}
+    <Label
+      htmlFor={id}
+      label={label}
+      grid={grid?.labelGrid}
+      required={required}
+      requiredIndicator={<RequiredIndicator required={required} />}
+      optionalIndicator={
+        <OptionalIndicator
+          readOnly={readOnly}
           required={required}
-          requiredIndicator={<RequiredIndicator required={required} />}
-          optionalIndicator={
-            <OptionalIndicator
-              readOnly={readOnly}
-              required={required}
-              showOptionalMarking={!!labelSettings?.optionalIndicator}
-            />
-          }
-          help={
-            textResourceBindings?.help ? (
-              <HelpText
-                id={`${id}-helptext`}
-                title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
-              >
-                <Lang id={textResourceBindings?.help} />
-              </HelpText>
-            ) : undefined
-          }
-          description={
-            textResourceBindings?.description ? (
-              <Description description={<Lang id={textResourceBindings?.description} />} />
-            ) : undefined
-          }
+          showOptionalMarking={!!labelSettings?.optionalIndicator}
         />
-      </Grid>
+      }
+      help={
+        textResourceBindings?.help ? (
+          <HelpText
+            id={`${id}-helptext`}
+            title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
+          >
+            <Lang id={textResourceBindings?.help} />
+          </HelpText>
+        ) : undefined
+      }
+      description={
+        textResourceBindings?.description ? (
+          <Description description={<Lang id={textResourceBindings?.description} />} />
+        ) : undefined
+      }
+    >
       <ComponentStructureWrapper node={node}>
         <Textarea
           id={id}
@@ -100,6 +98,6 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
           style={{ height: '150px' }}
         />
       </ComponentStructureWrapper>
-    </>
+    </Label>
   );
 }

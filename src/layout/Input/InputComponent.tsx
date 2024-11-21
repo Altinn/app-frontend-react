@@ -168,52 +168,47 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
   const { langAsString } = useLanguage();
   const { textResourceBindings, grid, id, required, readOnly, labelSettings } = useNodeItem(node);
 
-  const renderLabel = overrideDisplay?.renderLabel ?? true;
+  const label =
+    (overrideDisplay?.renderLabel ?? true) && overrideDisplay?.renderedInTable !== true
+      ? langAsString(textResourceBindings?.title)
+      : undefined;
 
-  const input = (
-    <ComponentStructureWrapper node={node}>
-      <InputVariant
-        node={node}
-        overrideDisplay={overrideDisplay}
-      />
-    </ComponentStructureWrapper>
+  return (
+    <Label
+      htmlFor={id}
+      label={label}
+      grid={grid?.labelGrid}
+      required={required}
+      requiredIndicator={<RequiredIndicator required={required} />}
+      optionalIndicator={
+        <OptionalIndicator
+          readOnly={readOnly}
+          required={required}
+          showOptionalMarking={!!labelSettings?.optionalIndicator}
+        />
+      }
+      help={
+        textResourceBindings?.help ? (
+          <HelpText
+            id={`${id}-helptext`}
+            title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
+          >
+            <Lang id={textResourceBindings?.help} />
+          </HelpText>
+        ) : undefined
+      }
+      description={
+        textResourceBindings?.description ? (
+          <Description description={<Lang id={textResourceBindings?.description} />} />
+        ) : undefined
+      }
+    >
+      <ComponentStructureWrapper node={node}>
+        <InputVariant
+          node={node}
+          overrideDisplay={overrideDisplay}
+        />
+      </ComponentStructureWrapper>
+    </Label>
   );
-
-  if (renderLabel) {
-    return (
-      <Label
-        htmlFor={id}
-        label={langAsString(textResourceBindings?.title)}
-        grid={grid?.labelGrid}
-        required={required}
-        requiredIndicator={<RequiredIndicator required={required} />}
-        optionalIndicator={
-          <OptionalIndicator
-            readOnly={readOnly}
-            required={required}
-            showOptionalMarking={!!labelSettings?.optionalIndicator}
-          />
-        }
-        help={
-          textResourceBindings?.help ? (
-            <HelpText
-              id={`${id}-helptext`}
-              title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
-            >
-              <Lang id={textResourceBindings?.help} />
-            </HelpText>
-          ) : undefined
-        }
-        description={
-          textResourceBindings?.description ? (
-            <Description description={<Lang id={textResourceBindings?.description} />} />
-          ) : undefined
-        }
-      >
-        {input}
-      </Label>
-    );
-  }
-
-  return input;
 };

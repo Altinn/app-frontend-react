@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 
 import { Combobox, HelpText } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
@@ -18,7 +17,6 @@ import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import comboboxClasses from 'src/styles/combobox.module.css';
-import { gridBreakpoints } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -56,6 +54,11 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
     return <AltinnSpinner />;
   }
 
+  const label =
+    (overrideDisplay?.renderLabel ?? true) && overrideDisplay?.renderedInTable !== true
+      ? langAsString(textResourceBindings?.title)
+      : undefined;
+
   return (
     <ConditionalWrapper
       condition={Boolean(alertOnChange)}
@@ -72,42 +75,35 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
         </DeleteWarningPopover>
       )}
     >
-      <>
-        {overrideDisplay?.renderedInTable !== true && (
-          <Grid
-            item
-            {...gridBreakpoints(grid?.labelGrid)}
-          >
-            <Label
-              htmlFor={id}
-              label={langAsString(textResourceBindings?.title)}
-              required={required}
-              requiredIndicator={<RequiredIndicator required={required} />}
-              optionalIndicator={
-                <OptionalIndicator
-                  readOnly={readOnly}
-                  required={required}
-                  showOptionalMarking={!!labelSettings?.optionalIndicator}
-                />
-              }
-              help={
-                textResourceBindings?.help ? (
-                  <HelpText
-                    id={`${id}-helptext`}
-                    title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
-                  >
-                    <Lang id={textResourceBindings?.help} />
-                  </HelpText>
-                ) : undefined
-              }
-              description={
-                textResourceBindings?.description ? (
-                  <Description description={<Lang id={textResourceBindings?.description} />} />
-                ) : undefined
-              }
-            />
-          </Grid>
-        )}
+      <Label
+        htmlFor={id}
+        label={label}
+        grid={grid?.labelGrid}
+        required={required}
+        requiredIndicator={<RequiredIndicator required={required} />}
+        optionalIndicator={
+          <OptionalIndicator
+            readOnly={readOnly}
+            required={required}
+            showOptionalMarking={!!labelSettings?.optionalIndicator}
+          />
+        }
+        help={
+          textResourceBindings?.help ? (
+            <HelpText
+              id={`${id}-helptext`}
+              title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.title)}`}
+            >
+              <Lang id={textResourceBindings?.help} />
+            </HelpText>
+          ) : undefined
+        }
+        description={
+          textResourceBindings?.description ? (
+            <Description description={<Lang id={textResourceBindings?.description} />} />
+          ) : undefined
+        }
+      >
         <ComponentStructureWrapper node={node}>
           <Combobox
             id={id}
@@ -143,7 +139,7 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
             ))}
           </Combobox>
         </ComponentStructureWrapper>
-      </>
+      </Label>
     </ConditionalWrapper>
   );
 }

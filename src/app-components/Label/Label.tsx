@@ -15,7 +15,7 @@ type RequiredIndicatorProps =
   | { required?: false; requiredIndicator?: ReactElement };
 
 type LabelProps = {
-  label: string;
+  label: string | undefined;
   optionalIndicator?: ReactElement;
   help?: ReactElement;
   description?: ReactElement;
@@ -29,10 +29,10 @@ export function Label({
   required,
   requiredIndicator,
   optionalIndicator,
-  htmlFor,
-  style,
   help,
   description,
+  htmlFor,
+  style,
   className,
   grid,
   children,
@@ -50,21 +50,23 @@ export function Label({
         item
         {...grid}
       >
-        <DesignsystemetLabel
-          weight='medium'
-          size='md'
-          htmlFor={htmlFor}
-          className={cn(classes.label, className)}
-          style={style}
-        >
-          <div>
-            {label}
-            {required && requiredIndicator}
-            {!required && optionalIndicator}
-          </div>
-          {help}
-        </DesignsystemetLabel>
-        {description && <span className={classes.description}>{description}</span>}
+        <span className={classes.labelAndDescWrapper}>
+          <DesignsystemetLabel
+            weight='medium'
+            size='md'
+            htmlFor={htmlFor}
+            className={cn(classes.label, className)}
+            style={style}
+          >
+            <div>
+              {label}
+              {required && requiredIndicator}
+              {!required && optionalIndicator}
+            </div>
+            {help}
+          </DesignsystemetLabel>
+          {description && <div className={classes.description}>{description}</div>}
+        </span>
       </Grid>
       {children}
     </Grid>
