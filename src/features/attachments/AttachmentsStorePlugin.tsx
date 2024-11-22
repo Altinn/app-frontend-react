@@ -34,6 +34,7 @@ import type {
   FileUploaderNode,
   IAttachment,
   IAttachmentsMap,
+  IFailedAttachment,
   TemporaryAttachment,
   UploadedAttachment,
 } from 'src/features/attachments/index';
@@ -47,12 +48,27 @@ import type { NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { NodeData } from 'src/utils/layout/types';
 
-type AttachmentUploadResult = {
+type AttachmentUploadSuccess = {
   temporaryId: string;
-  newDataElementId?: string;
-  newInstanceData?: IData;
-  error?: string;
+  newDataElementId: string;
 };
+type AttachmentUploadFailure = {
+  temporaryId: string;
+  error: AxiosError | string;
+};
+type AttachmentUploadResult = AttachmentUploadSuccess | AttachmentUploadFailure;
+
+function isAttachmentUploadSuccess(
+  result: AttachmentUploadResult,
+  // & { newInstanceData: IData } is only added to simplify logic wrt. types when using the old API,
+  // its not available when using the new API.
+): result is AttachmentUploadSuccess & { newInstanceData: IData } {
+  return !(result as AttachmentUploadFailure).error;
+}
+
+function isAttachmentUploadFailure(result: AttachmentUploadResult): result is AttachmentUploadFailure {
+  return !!(result as AttachmentUploadFailure).error;
+}
 
 export interface AttachmentActionUpload {
   files: {
@@ -100,6 +116,7 @@ export interface AttachmentsStorePluginConfig {
     useAttachmentsRemove: () => (action: AttachmentActionRemove) => Promise<boolean>;
 
     useAttachments: (node: FileUploaderNode) => IAttachment[];
+    useFailedAttachments: (node: FileUploaderNode) => IFailedAttachment[];
     useAttachmentsSelector: () => AttachmentsSelector;
     useAttachmentsSelectorProps: () => DSPropsForSimpleSelector<NodesContext, AttachmentsSelector>;
     useWaitUntilUploaded: () => (node: FileUploaderNode, attachment: TemporaryAttachment) => Promise<IData | false>;
@@ -109,7 +126,7 @@ export interface AttachmentsStorePluginConfig {
   };
 }
 
-const emptyArray: IAttachment[] = [];
+const emptyArray = [];
 
 type ProperData = NodeData<CompWithBehavior<'canHaveAttachments'>>;
 
@@ -135,17 +152,20 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
           }),
         );
       },
-      attachmentUploadFinished: ({ node }, actualIds) => {
+      attachmentUploadFinished: ({ node }, results) => {
         set(
           nodesProduce((draft) => {
             const nodeData = draft.nodeData[node.id] as ProperData;
-            for (const { temporaryId, newDataElementId, error } of actualIds) {
-              if (newDataElementId) {
-                nodeData.attachments[newDataElementId] = nodeData.attachments[temporaryId];
-              } else if (error) {
-                nodeData.attachmentsFailedToUpload[temporaryId] = error;
+            for (const result of results) {
+              if (isAttachmentUploadSuccess(result)) {
+                nodeData.attachments[result.newDataElementId] = nodeData.attachments[result.temporaryId];
+              } else if (isAttachmentUploadFailure(result)) {
+                nodeData.attachmentsFailedToUpload[result.temporaryId] = {
+                  data: (nodeData.attachments[result.temporaryId] as TemporaryAttachment).data,
+                  error: result.error,
+                };
               }
-              delete nodeData.attachments[temporaryId];
+              delete nodeData.attachments[result.temporaryId];
             }
           }),
         );
@@ -283,15 +303,13 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                   });
               }
               setAttachmentsInDataModel(
-                results
-                  .filter(({ newDataElementId }) => !!newDataElementId)
-                  .map(({ newDataElementId }) => newDataElementId!),
+                results.filter(isAttachmentUploadSuccess).map(({ newDataElementId }) => newDataElementId),
                 action.dataModelBindings,
               );
               uploadFinished(fullAction, results);
               unlock(updatedData);
 
-              for (const { error } of results.filter(({ error }) => !!error)) {
+              for (const { error } of results.filter(isAttachmentUploadFailure)) {
                 // TODO: Gather and Improve error message
                 const reply = isAxiosError(error) ? error.response?.data : null;
                 if (isDataPostError(reply)) {
@@ -305,32 +323,29 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                 }
               }
             } else {
-              const results: AttachmentUploadResult[] = await Promise.all(
-                fullAction.files.map(({ file, temporaryId }) =>
-                  uploadAttachmentOld({ dataTypeId: action.node.baseId, file })
-                    .then((data) => {
-                      if (!data || !data.blobStoragePath) {
-                        return { temporaryId, error: 'Failed to upload attachment' };
-                      }
-                      return { temporaryId, newDataElementId: data.id, newInstanceData: data };
-                    })
-                    .catch((error) => ({ temporaryId, error })),
-                ),
-              );
+              const results: ((AttachmentUploadSuccess & { newInstanceData: IData }) | AttachmentUploadFailure)[] =
+                await Promise.all(
+                  fullAction.files.map(({ file, temporaryId }) =>
+                    uploadAttachmentOld({ dataTypeId: action.node.baseId, file })
+                      .then((data) => {
+                        if (!data || !data.blobStoragePath) {
+                          return { temporaryId, error: 'Failed to upload attachment' };
+                        }
+                        return { temporaryId, newDataElementId: data.id, newInstanceData: data };
+                      })
+                      .catch((error) => ({ temporaryId, error })),
+                  ),
+                );
               setAttachmentsInDataModel(
-                results
-                  .filter(({ newDataElementId }) => !!newDataElementId)
-                  .map(({ newDataElementId }) => newDataElementId!),
+                results.filter(isAttachmentUploadSuccess).map(({ newDataElementId }) => newDataElementId),
                 action.dataModelBindings,
               );
               uploadFinished(fullAction, results);
               appendDataElements?.(
-                results
-                  .filter(({ newInstanceData }) => !!newInstanceData)
-                  .map(({ newInstanceData }) => newInstanceData!),
+                results.filter(isAttachmentUploadSuccess).map(({ newInstanceData }) => newInstanceData),
               );
 
-              for (const { error } of results.filter(({ error }) => !!error)) {
+              for (const { error } of results.filter(isAttachmentUploadFailure)) {
                 if (
                   backendFeatures.jsonObjectInDataResponse &&
                   isAxiosError(error) &&
@@ -537,6 +552,20 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
           }
 
           return map;
+        });
+      },
+      useFailedAttachments(node) {
+        return store.useShallowSelector((state) => {
+          if (!node) {
+            return emptyArray;
+          }
+
+          const nodeData = state.nodeData[node.id];
+          if (nodeData && 'attachmentsFailedToUpload' in nodeData) {
+            return Object.values(nodeData.attachmentsFailedToUpload).sort(sortAttachmentsByName);
+          }
+
+          return emptyArray;
         });
       },
     };

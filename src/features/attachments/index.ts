@@ -22,6 +22,7 @@ interface Metadata {
 export type UploadedAttachment = { uploaded: true; data: IData; temporaryId?: string } & Metadata;
 export type TemporaryAttachment = { uploaded: false; data: IAttachmentTemporary } & Metadata;
 export type IAttachment = UploadedAttachment | TemporaryAttachment;
+export type IFailedAttachment = { data: IAttachmentTemporary; error: AxiosError | string };
 
 export interface IAttachmentsMap<T extends IAttachment = IAttachment> {
   [attachmentComponentId: string]: T[] | undefined;

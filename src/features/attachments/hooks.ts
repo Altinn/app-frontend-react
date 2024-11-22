@@ -7,6 +7,7 @@ export const useAttachmentsRemover = () => NodesInternal.useAttachmentsRemove();
 export const useAttachmentsAwaiter = () => NodesInternal.useWaitUntilUploaded();
 
 export const useAttachmentsFor = (node: FileUploaderNode) => NodesInternal.useAttachments(node);
+export const useFailedAttachmentsFor = (node: FileUploaderNode) => NodesInternal.useFailedAttachments(node);
 
 export const useAttachmentsSelector = () => NodesInternal.useAttachmentsSelector();
 
