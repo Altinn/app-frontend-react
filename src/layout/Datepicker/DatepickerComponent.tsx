@@ -60,8 +60,9 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
               isMobile={isMobile}
               minDate={calculatedMinDate}
               maxDate={calculatedMaxDate}
-              buttonTitle={langAsString('date_picker.aria_label_icon')}
               DropdownCaption={DropdownCaption}
+              buttonAriaLabel={langAsString('date_picker.aria_label_icon')}
+              calendarIconTitle={langAsString('date_picker.aria_label_icon')}
             />
           </div>
         </Grid>

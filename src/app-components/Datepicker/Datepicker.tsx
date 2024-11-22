@@ -24,8 +24,9 @@ export type DatePickerControlProps = {
   maxDate?: Date;
   locale: string;
   isMobile?: boolean;
-  buttonTitle: string;
   DropdownCaption: typeof MonthCaption;
+  buttonAriaLabel: string;
+  calendarIconTitle: string;
 };
 
 export const DatePickerControl: React.FC<DatePickerControlProps> = ({
@@ -40,8 +41,9 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
   maxDate,
   locale,
   isMobile = false,
-  buttonTitle,
+  buttonAriaLabel,
   DropdownCaption,
+  calendarIconTitle,
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const dateValue = new Date(value);
@@ -83,11 +85,12 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
               aria-controls='dialog'
               aria-haspopup='dialog'
               onClick={() => setIsDialogOpen(!isDialogOpen)}
+              aria-label={buttonAriaLabel}
               aria-expanded={isDialogOpen}
               disabled={readOnly}
               color='first'
             >
-              <CalendarIcon title={buttonTitle} />
+              <CalendarIcon title={calendarIconTitle} />
             </Button>
           }
         >

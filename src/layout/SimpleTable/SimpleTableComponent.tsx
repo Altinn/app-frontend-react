@@ -35,6 +35,7 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
   const [editItemIndex, setEditItemIndex] = useState<number>(-1);
   const setMultiLeafValues = FD.useSetMultiLeafValues();
   const languageLocale = useCurrentLanguage();
+  const { langAsString } = useLanguage();
 
   const schema = schemaLookup[item.dataModelBindings.tableData.dataType].getSchemaForPath(
     item.dataModelBindings.tableData.field,
@@ -163,6 +164,9 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
                     handleChange(nextValue, rowIndex);
                   }}
                   schema={schema}
+                  DropdownCaption={DropdownCaption}
+                  buttonAriaLabel={langAsString('date_picker.aria_label_icon')}
+                  calendarIconTitle={langAsString('date_picker.aria_label_icon')}
                 />
               )
             : undefined,

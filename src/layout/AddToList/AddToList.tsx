@@ -10,6 +10,7 @@ import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { DropdownCaption } from 'src/layout/Datepicker/DropdownCaption';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { FormDataObject } from 'src/app-components/DynamicForm/DynamicForm';
@@ -59,6 +60,8 @@ export function AddToListModal({
 
   const [tempFormData, setTempFormData] = useState<FormDataObject | undefined>(initialData);
 
+  const { langAsString } = useLanguage();
+
   useEffect(() => {
     modalRef.current?.showModal();
     if (!initialData) {
@@ -94,6 +97,8 @@ export function AddToListModal({
           onChange={onFormDataUpdate}
           initialData={tempFormData}
           DropdownCaption={DropdownCaption}
+          buttonAriaLabel={langAsString('date_picker.aria_label_icon')}
+          calendarIconTitle={langAsString('date_picker.aria_label_icon')}
         />
       </ModalContent>
       <ModalFooter>

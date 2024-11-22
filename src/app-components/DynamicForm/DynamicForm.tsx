@@ -2,12 +2,10 @@ import React, { useEffect, useState } from 'react';
 import type { MonthCaption } from 'react-day-picker';
 
 import { Radio, Textfield } from '@digdir/designsystemet-react';
-import { isValid, parseISO } from 'date-fns';
 import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
 import { DatePickerControl } from 'src/app-components/Datepicker/Datepicker';
 import { getDateFormat } from 'src/app-components/Datepicker/utils/dateHelpers';
-import { DropdownCaption } from 'src/layout/Datepicker/DropdownCaption';
 import { getDatepickerFormat } from 'src/utils/formatDateLocale';
 
 export type FormDataValue = string | number | boolean | null | FormDataValue[] | { [key: string]: FormDataValue };
@@ -22,9 +20,19 @@ export interface DynamicFormProps {
   initialData?: FormDataObject;
   locale?: string;
   DropdownCaption: typeof MonthCaption;
+  buttonAriaLabel: string;
+  calendarIconTitle: string;
 }
 
-export function DynamicForm({ schema, onChange, initialData, locale, DropdownCaption }: DynamicFormProps) {
+export function DynamicForm({
+  schema,
+  onChange,
+  initialData,
+  locale,
+  DropdownCaption,
+  buttonAriaLabel,
+  calendarIconTitle,
+}: DynamicFormProps) {
   const [formData, setFormData] = useState<FormDataObject>(initialData || {});
 
   useEffect(() => {
@@ -50,6 +58,9 @@ export function DynamicForm({ schema, onChange, initialData, locale, DropdownCap
           schema={schema}
           renderFields={renderFields}
           locale={locale}
+          buttonAriaLabel={buttonAriaLabel}
+          calendarIconTitle={calendarIconTitle}
+          DropdownCaption={DropdownCaption}
         />
       ));
     }
@@ -75,15 +86,10 @@ interface FieldRendererProps {
   component?: Component;
   renderFields?: (currentSchema: JSONSchema7) => React.ReactNode | null;
   locale?: string;
+  DropdownCaption: typeof MonthCaption;
+  buttonAriaLabel: string;
+  calendarIconTitle: string;
 }
-
-const isValidDate = (dateString?: string) => {
-  if (!dateString) {
-    return false;
-  }
-  const parsedValue = parseISO(dateString);
-  return isValid(parsedValue);
-};
 
 export function FieldRenderer({
   rowIndex,
@@ -95,6 +101,9 @@ export function FieldRenderer({
   component,
   renderFields,
   locale,
+  DropdownCaption,
+  buttonAriaLabel,
+  calendarIconTitle,
 }: FieldRendererProps) {
   if (typeof fieldSchema === 'boolean') {
     return null;
@@ -223,8 +232,9 @@ export function FieldRenderer({
             required={required}
             locale={locale!}
             isMobile={false}
-            buttonTitle='Åpne'
             DropdownCaption={DropdownCaption}
+            buttonAriaLabel={buttonAriaLabel}
+            calendarIconTitle={calendarIconTitle}
           />
         );
 
