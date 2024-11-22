@@ -5,11 +5,11 @@ import { CalendarIcon } from '@navikt/aksel-icons';
 import { isValid as isValidDate } from 'date-fns';
 
 import { Button } from 'src/app-components/button/Button';
-import styles from 'src/layout/Datepicker/Calendar.module.css';
-import { DatePickerCalendar } from 'src/layout/Datepicker/DatePickerCalendar';
-import { DatePickerDialog } from 'src/layout/Datepicker/DatepickerDialog';
-import { DatePickerInput } from 'src/layout/Datepicker/DatePickerInput';
-import { getSaveFormattedDateString } from 'src/utils/dateHelpers';
+import styles from 'src/app-components/Datepicker/Calendar.module.css';
+import { DatePickerCalendar } from 'src/app-components/Datepicker/DatePickerCalendar';
+import { DatePickerDialog } from 'src/app-components/Datepicker/DatepickerDialog';
+import { DatePickerInput } from 'src/app-components/Datepicker/DatePickerInput';
+import { getSaveFormattedDateString } from 'src/app-components/Datepicker/utils/dateHelpers';
 
 export type DatePickerControlProps = {
   id: string;

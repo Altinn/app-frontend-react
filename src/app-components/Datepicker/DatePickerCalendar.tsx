@@ -2,9 +2,9 @@ import React from 'react';
 import { DayPicker } from 'react-day-picker';
 import type { Matcher } from 'react-day-picker';
 
-import styles from 'src/layout/Datepicker/Calendar.module.css';
-import { DropdownCaption } from 'src/layout/Datepicker/DropdownCaption';
-import { getLocale } from 'src/utils/dateHelpers';
+import styles from 'src/app-components/Datepicker/Calendar.module.css';
+import { DropdownCaption } from 'src/app-components/Datepicker/DropdownCaption';
+import { getLocale } from 'src/app-components/Datepicker/utils/dateHelpers';
 
 export interface CalendarDialogProps {
   id: string;

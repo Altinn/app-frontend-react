@@ -28,7 +28,7 @@ export class AddToList extends AddToListDef {
   }
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'AddToList'>>(
     function LayoutComponentAddToListRender(props, _): JSX.Element | null {
-      return <AddToListComponent {...props}></AddToListComponent>;
+      return <AddToListComponent {...props} />;
     },
   );
 }

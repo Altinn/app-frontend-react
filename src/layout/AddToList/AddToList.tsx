@@ -83,7 +83,7 @@ export function AddToListModal({
       onInteractOutside={onInteractOutside}
       onClose={onInteractOutside}
     >
-      <ModalHeader></ModalHeader>
+      <ModalHeader />
       <ModalContent>
         <DynamicForm
           schema={schema?.items}

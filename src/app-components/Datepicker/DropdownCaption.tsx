@@ -7,20 +7,24 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@navikt/aksel-icons';
 import { addYears, max, min, setMonth, setYear, startOfMonth, subYears } from 'date-fns';
 
 import { Button } from 'src/app-components/button/Button';
-import { Lang } from 'src/features/language/Lang';
-import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useLanguage } from 'src/features/language/useLanguage';
-import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import styles from 'src/layout/Datepicker/Calendar.module.css';
-import { getMonths, getYears } from 'src/layout/Datepicker/DatePickerHelpers';
+import styles from 'src/app-components/Datepicker/Calendar.module.css';
+import { getMonths, getYears } from 'src/app-components/Datepicker/DatePickerHelpers';
+import { getLocale } from 'src/app-components/Datepicker/utils/dateHelpers';
+// import { Lang } from 'src/features/language/Lang';
+// import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+// import { useLanguage } from 'src/features/language/useLanguage';
+// import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import comboboxClasses from 'src/styles/combobox.module.css';
-import { getLocale } from 'src/utils/dateHelpers';
 
-export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
+interface DropdownCaptionProps extends MonthCaptionProps {
+  languageLocale?: string;
+}
+
+export const DropdownCaption = ({ calendarMonth, id, languageLocale }: DropdownCaptionProps) => {
   const { goToMonth, nextMonth, previousMonth } = useDayPicker();
-  const { langAsString } = useLanguage();
-  const isMobile = useIsMobile();
-  const languageLocale = useCurrentLanguage();
+  // const { langAsString } = useLanguage();
+  // const isMobile = useIsMobile();
+  // const languageLocale = useCurrentLanguage();
   const currentLocale = getLocale(languageLocale ?? 'nb');
 
   const handleYearChange = (year: string) => {

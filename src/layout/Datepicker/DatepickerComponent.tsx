@@ -3,14 +3,14 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import { formatDate } from 'date-fns';
 
+import styles from 'src/app-components/Datepicker/Calendar.module.css';
 import { DatePickerControl } from 'src/app-components/Datepicker/Datepicker';
+import { getDateConstraint, getDateFormat } from 'src/app-components/Datepicker/utils/dateHelpers';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import styles from 'src/layout/Datepicker/Calendar.module.css';
-import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { getDatepickerFormat } from 'src/utils/formatDateLocale';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';

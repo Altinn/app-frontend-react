@@ -53,7 +53,7 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
           callback: (_) => true,
         });
       },
-      buttonText: <Lang id={'general.delete'} />,
+      buttonText: <Lang id='general.delete' />,
       icon: <DeleteIcon />,
       color: 'danger',
     });
@@ -65,7 +65,7 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
         setEditItemIndex(idx);
         setShowEdit(true);
       },
-      buttonText: <Lang id={'general.edit'} />,
+      buttonText: <Lang id='general.edit' />,
       icon: <EditIcon />,
       variant: 'tertiary',
       color: 'second',
@@ -147,7 +147,7 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
           ...config,
           header: <Lang id={config.header} />,
           renderCell: config.component
-            ? (values, rowData, rowIndex) => (
+            ? (_, __, rowIndex) => (
                 <FieldRenderer
                   locale={languageLocale}
                   rowIndex={rowIndex}
@@ -167,7 +167,7 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
         }))}
         mobile={isMobile}
         actionButtons={actionButtons}
-        actionButtonHeader={<Lang id={'general.action'} />}
+        actionButtonHeader={<Lang id='general.action' />}
       />
     </>
   );
