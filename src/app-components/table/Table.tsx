@@ -167,9 +167,9 @@ export function AppTable({
                     <Button
                       key={idx}
                       onClick={() => button.onClick(rowIndex, rowData)}
-                      size={'sm'}
-                      variant={button.variant || defaultButtonVariant}
-                      color={button.color || 'second'}
+                      size='sm'
+                      variant={button.variant ? button.variant : defaultButtonVariant}
+                      color={button.color ? button.color : 'second'}
                     >
                       {button.buttonText}
                       {button.icon}
