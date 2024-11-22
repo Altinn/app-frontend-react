@@ -89,6 +89,7 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
               aria-expanded={isDialogOpen}
               disabled={readOnly}
               color='first'
+              size='sm'
             >
               <CalendarIcon title={calendarIconTitle} />
             </Button>
