@@ -100,11 +100,7 @@ export function FieldRenderer({
     const renderType = component?.type || type;
     const label = fieldSchema.title || fieldKey;
     const required = schema.required?.includes(fieldKey);
-
     const dateFormat = getDatepickerFormat(getDateFormat(component?.dateFormat, locale));
-
-    console.log('dateFormat', dateFormat);
-
     if (enumOptions) {
       return (
         <div key={fieldKey}>
@@ -224,6 +220,7 @@ export function FieldRenderer({
             required={required}
             locale={locale!}
             isMobile={false}
+            buttonTitle='Åpne'
           />
         );
 

@@ -48,7 +48,8 @@ export const Config = new CG.component({
                 new CG.str()
                   .setTitle('Date format')
                   .setDescription('Date format used when displaying the date to the user')
-                  .addExample('dd/MM/yyyy', 'MM/dd/yyyy', 'yyyy-MM-dd'),
+                  .addExample('dd/MM/yyyy', 'MM/dd/yyyy', 'yyyy-MM-dd')
+                  .optional(),
               ),
               new CG.prop(
                 'options',

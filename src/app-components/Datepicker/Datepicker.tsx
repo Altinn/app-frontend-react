@@ -17,13 +17,13 @@ export type DatePickerControlProps = {
   dateFormat: string;
   timeStamp?: boolean;
   onValueChange: (isoDateString: string) => void;
-  onSelectDate?: (date: Date) => void;
   readOnly?: boolean;
   required?: boolean;
   minDate?: Date;
   maxDate?: Date;
   locale: string;
   isMobile?: boolean;
+  buttonTitle: string;
 };
 
 export const DatePickerControl: React.FC<DatePickerControlProps> = ({
@@ -32,13 +32,13 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
   dateFormat,
   timeStamp = true,
   onValueChange,
-  onSelectDate,
   readOnly = false,
   required = false,
   minDate,
   maxDate,
   locale,
   isMobile = false,
+  buttonTitle,
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const dateValue = new Date(value);
@@ -84,7 +84,7 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
               disabled={readOnly}
               color='first'
             >
-              <CalendarIcon />
+              <CalendarIcon title={buttonTitle} />
             </Button>
           }
         >
