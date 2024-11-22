@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { Button, Heading, Modal, ModalContent, ModalFooter, ModalHeader } from '@digdir/designsystemet-react';
+import { Button, Modal, ModalContent, ModalFooter, ModalHeader } from '@digdir/designsystemet-react';
 import { v4 as uuidv4 } from 'uuid';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -90,8 +90,6 @@ export function AddToListModal({
           onChange={onFormDataUpdate}
           initialData={tempFormData}
         />
-
-        <Heading size='xs'>Vi kan legge divider under header</Heading>
       </ModalContent>
       <ModalFooter>
         <Button

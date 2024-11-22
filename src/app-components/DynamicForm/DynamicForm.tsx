@@ -4,6 +4,10 @@ import { Radio, Textfield } from '@digdir/designsystemet-react';
 import { isValid, parseISO } from 'date-fns';
 import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
+import { DatePickerControl } from 'src/app-components/Datepicker/Datepicker';
+import { getDateFormat } from 'src/utils/dateHelpers';
+import { getDatepickerFormat } from 'src/utils/formatDateLocale';
+
 export type FormDataValue = string | number | boolean | null | FormDataValue[] | { [key: string]: FormDataValue };
 
 export interface FormDataObject {
@@ -13,11 +17,11 @@ export interface FormDataObject {
 export interface DynamicFormProps {
   schema: JSONSchema7;
   onChange: (data: FormDataObject) => void;
-  initialData?: FormDataObject; // Added to receive existing item
+  initialData?: FormDataObject;
   locale?: string;
 }
 
-export function DynamicForm({ schema, onChange, initialData }: DynamicFormProps) {
+export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFormProps) {
   const [formData, setFormData] = useState<FormDataObject>(initialData || {});
 
   useEffect(() => {
@@ -42,6 +46,7 @@ export function DynamicForm({ schema, onChange, initialData }: DynamicFormProps)
           handleChange={handleChange}
           schema={schema}
           renderFields={renderFields}
+          locale={locale}
         />
       ));
     }
@@ -53,7 +58,8 @@ export function DynamicForm({ schema, onChange, initialData }: DynamicFormProps)
 
 interface Component {
   type: string;
-  options: { label: string; value: string }[];
+  options?: { label: string; value: string }[];
+  dateFormat?: string;
 }
 
 interface FieldRendererProps {
@@ -65,9 +71,13 @@ interface FieldRendererProps {
   schema: JSONSchema7;
   component?: Component;
   renderFields?: (currentSchema: JSONSchema7) => React.ReactNode | null;
+  locale?: string;
 }
 
-const isValidDate = (dateString: string) => {
+const isValidDate = (dateString?: string) => {
+  if (!dateString) {
+    return false;
+  }
   const parsedValue = parseISO(dateString);
   return isValid(parsedValue);
 };
@@ -81,14 +91,19 @@ export function FieldRenderer({
   schema,
   component,
   renderFields,
+  locale,
 }: FieldRendererProps) {
   if (typeof fieldSchema === 'boolean') {
     return null;
   } else {
-    const { type, format, enum: enumOptions } = fieldSchema;
+    const { type, enum: enumOptions } = fieldSchema;
     const renderType = component?.type || type;
     const label = fieldSchema.title || fieldKey;
     const required = schema.required?.includes(fieldKey);
+
+    const dateFormat = getDatepickerFormat(getDateFormat(component?.dateFormat, locale));
+
+    console.log('dateFormat', dateFormat);
 
     if (enumOptions) {
       return (
@@ -120,28 +135,12 @@ export function FieldRenderer({
 
     switch (renderType) {
       case 'string':
-        if (format === 'date' || isValidDate(formData[fieldKey] as string)) {
-          return (
-            <Textfield
-              description=''
-              error=''
-              size='sm'
-              required={required}
-              value={(formData[fieldKey] as string) || ''}
-              onChange={(e) => handleChange(fieldKey, e.target.value)}
-              type={'date'}
-            />
-          );
-        }
-
         return (
           <div
             key={fieldKey}
             style={{ marginBottom: '10px' }}
           >
             <Textfield
-              description=''
-              error=''
               label={label}
               size='sm'
               required={required}
@@ -158,8 +157,6 @@ export function FieldRenderer({
             style={{ marginBottom: '10px' }}
           >
             <Textfield
-              description=''
-              error=''
               label={label}
               size='sm'
               type='number'
@@ -186,23 +183,6 @@ export function FieldRenderer({
             </label>
           </div>
         );
-      case 'array':
-        return (
-          <div key={fieldKey}>
-            <label>{label}</label>
-            <input
-              type='text'
-              value={Array.isArray(formData[fieldKey]) ? (formData[fieldKey] as string[]).join(', ') : ''}
-              onChange={(e) =>
-                handleChange(
-                  fieldKey,
-                  e.target.value.split(',').map((item) => item.trim()),
-                )
-              }
-              required={required}
-            />
-          </div>
-        );
       case 'object':
         return (
           <div key={fieldKey}>
@@ -215,7 +195,7 @@ export function FieldRenderer({
       case 'radio':
         return (
           <div key={fieldKey}>
-            {component?.options.map(({ label, value }) => (
+            {component?.options?.map(({ label, value }) => (
               <Radio
                 size='sm'
                 key={value}
@@ -231,6 +211,22 @@ export function FieldRenderer({
             ))}
           </div>
         );
+
+      case 'date':
+        return (
+          <DatePickerControl
+            id={fieldKey}
+            value={formData[fieldKey] as string}
+            dateFormat={dateFormat}
+            timeStamp={false}
+            onValueChange={(isoDateString) => handleChange(fieldKey, isoDateString)}
+            readOnly={false}
+            required={required}
+            locale={locale!}
+            isMobile={false}
+          />
+        );
+
       default:
         return null;
     }

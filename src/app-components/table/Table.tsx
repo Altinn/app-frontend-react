@@ -71,7 +71,6 @@ function formatValue(value: FormDataValue): string {
 export function AppTable({
   caption,
   data,
-  schema,
   columns,
   actionButtons,
   mobile,

@@ -9,6 +9,7 @@ import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { AddToListModal } from 'src/layout/AddToList/AddToList';
@@ -32,6 +33,7 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
   const [showEdit, setShowEdit] = useState(false);
   const [editItemIndex, setEditItemIndex] = useState<number>(-1);
   const setMultiLeafValues = FD.useSetMultiLeafValues();
+  const languageLocale = useCurrentLanguage();
 
   const schema = schemaLookup[item.dataModelBindings.tableData.dataType].getSchemaForPath(
     item.dataModelBindings.tableData.field,
@@ -144,24 +146,24 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
         columns={item.columns.map((config) => ({
           ...config,
           header: <Lang id={config.header} />,
-          renderCell:
-            config.component || config.enableInlineEditing
-              ? (values, rowData, rowIndex) => (
-                  <FieldRenderer
-                    rowIndex={rowIndex}
-                    fieldKey={config.accessors[0]}
-                    fieldSchema={itemSchema.properties[config.accessors[0]]}
-                    formData={data[rowIndex]}
-                    component={config.component}
-                    handleChange={(fieldName, value) => {
-                      const valueToUpdate = data.find((_, idx) => idx === rowIndex);
-                      const nextValue = { ...valueToUpdate, [`${fieldName}`]: value };
-                      handleChange(nextValue, rowIndex);
-                    }}
-                    schema={schema}
-                  />
-                )
-              : undefined,
+          renderCell: config.component
+            ? (values, rowData, rowIndex) => (
+                <FieldRenderer
+                  locale={languageLocale}
+                  rowIndex={rowIndex}
+                  fieldKey={config.accessors[0]}
+                  fieldSchema={itemSchema.properties[config.accessors[0]]}
+                  formData={data[rowIndex]}
+                  component={config.component}
+                  handleChange={(fieldName, value) => {
+                    const valueToUpdate = data.find((_, idx) => idx === rowIndex);
+                    const nextValue = { ...valueToUpdate, [`${fieldName}`]: value };
+                    handleChange(nextValue, rowIndex);
+                  }}
+                  schema={schema}
+                />
+              )
+            : undefined,
         }))}
         mobile={isMobile}
         actionButtons={actionButtons}

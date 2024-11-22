@@ -39,14 +39,22 @@ export const Config = new CG.component({
               .setTitle('Accessors')
               .setDescription('List of fields that should be included in the cell'),
           ),
-          new CG.prop('enableInlineEditing', new CG.bool().optional().setTitle('Enable inline editing')),
           new CG.prop(
             'component',
             new CG.obj(
-              new CG.prop('type', new CG.enum('radio')),
+              new CG.prop('type', new CG.enum('radio', 'date')),
+              new CG.prop(
+                'format',
+                new CG.str()
+                  .setTitle('Date format')
+                  .setDescription('Date format used when displaying the date to the user')
+                  .addExample('dd/MM/yyyy', 'MM/dd/yyyy', 'yyyy-MM-dd'),
+              ),
               new CG.prop(
                 'options',
-                new CG.arr(new CG.obj(new CG.prop('label', new CG.str()), new CG.prop('value', new CG.str()))),
+                new CG.arr(
+                  new CG.obj(new CG.prop('label', new CG.str()), new CG.prop('value', new CG.str())),
+                ).optional(),
               ),
             )
               .optional()
