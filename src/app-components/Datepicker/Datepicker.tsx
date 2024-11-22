@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import type { MonthCaption } from 'react-day-picker';
 
 import { Grid } from '@material-ui/core';
 import { CalendarIcon } from '@navikt/aksel-icons';
@@ -24,6 +25,7 @@ export type DatePickerControlProps = {
   locale: string;
   isMobile?: boolean;
   buttonTitle: string;
+  DropdownCaption: typeof MonthCaption;
 };
 
 export const DatePickerControl: React.FC<DatePickerControlProps> = ({
@@ -39,6 +41,7 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
   locale,
   isMobile = false,
   buttonTitle,
+  DropdownCaption,
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const dateValue = new Date(value);
@@ -101,6 +104,7 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
             maxDate={maxDate}
             required={required}
             autoFocus={isMobile}
+            DropdownCaption={DropdownCaption}
           />
         </DatePickerDialog>
       </div>

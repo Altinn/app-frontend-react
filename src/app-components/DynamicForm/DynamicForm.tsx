@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import type { MonthCaption } from 'react-day-picker';
 
 import { Radio, Textfield } from '@digdir/designsystemet-react';
 import { isValid, parseISO } from 'date-fns';
@@ -6,6 +7,7 @@ import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
 import { DatePickerControl } from 'src/app-components/Datepicker/Datepicker';
 import { getDateFormat } from 'src/app-components/Datepicker/utils/dateHelpers';
+import { DropdownCaption } from 'src/layout/Datepicker/DropdownCaption';
 import { getDatepickerFormat } from 'src/utils/formatDateLocale';
 
 export type FormDataValue = string | number | boolean | null | FormDataValue[] | { [key: string]: FormDataValue };
@@ -19,9 +21,10 @@ export interface DynamicFormProps {
   onChange: (data: FormDataObject) => void;
   initialData?: FormDataObject;
   locale?: string;
+  DropdownCaption: typeof MonthCaption;
 }
 
-export function DynamicForm({ schema, onChange, initialData, locale }: DynamicFormProps) {
+export function DynamicForm({ schema, onChange, initialData, locale, DropdownCaption }: DynamicFormProps) {
   const [formData, setFormData] = useState<FormDataObject>(initialData || {});
 
   useEffect(() => {
@@ -221,6 +224,7 @@ export function FieldRenderer({
             locale={locale!}
             isMobile={false}
             buttonTitle='Åpne'
+            DropdownCaption={DropdownCaption}
           />
         );
 

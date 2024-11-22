@@ -13,6 +13,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { AddToListModal } from 'src/layout/AddToList/AddToList';
+import { DropdownCaption } from 'src/layout/Datepicker/DropdownCaption';
 import { isFormDataObjectArray, isValidItemsSchema } from 'src/layout/SimpleTable/typeguards';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { FormDataObject, TableActionButton } from 'src/app-components/table/Table';
@@ -125,6 +126,7 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
           onInteractOutside={() => {
             setShowEdit(false);
           }}
+          DropdownCaption={DropdownCaption}
         />
       )}
 

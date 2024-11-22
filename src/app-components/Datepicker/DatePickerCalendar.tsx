@@ -1,9 +1,8 @@
 import React from 'react';
 import { DayPicker } from 'react-day-picker';
-import type { Matcher } from 'react-day-picker';
+import type { Matcher, MonthCaption } from 'react-day-picker';
 
 import styles from 'src/app-components/Datepicker/Calendar.module.css';
-import { DropdownCaption } from 'src/app-components/Datepicker/DropdownCaption';
 import { getLocale } from 'src/app-components/Datepicker/utils/dateHelpers';
 
 export interface CalendarDialogProps {
@@ -17,6 +16,7 @@ export interface CalendarDialogProps {
   required?: boolean;
   autoFocus?: boolean;
   onBlur?: () => void;
+  DropdownCaption: typeof MonthCaption;
 }
 
 export const DatePickerCalendar = ({
@@ -27,6 +27,7 @@ export const DatePickerCalendar = ({
   locale,
   required,
   autoFocus,
+  DropdownCaption,
 }: CalendarDialogProps) => {
   const currentLocale = getLocale(locale ?? 'nb');
 

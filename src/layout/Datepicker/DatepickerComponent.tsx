@@ -11,6 +11,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import { DropdownCaption } from 'src/layout/Datepicker/DropdownCaption';
 import { getDatepickerFormat } from 'src/utils/formatDateLocale';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -60,6 +61,7 @@ export function DatepickerComponent({ node }: IDatepickerProps) {
               minDate={calculatedMinDate}
               maxDate={calculatedMaxDate}
               buttonTitle={langAsString('date_picker.aria_label_icon')}
+              DropdownCaption={DropdownCaption}
             />
           </div>
         </Grid>

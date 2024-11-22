@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import type { MonthCaption } from 'react-day-picker';
 
 import { Button, Modal, ModalContent, ModalFooter, ModalHeader } from '@digdir/designsystemet-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,6 +10,7 @@ import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { DropdownCaption } from 'src/layout/Datepicker/DropdownCaption';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { FormDataObject } from 'src/app-components/DynamicForm/DynamicForm';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -38,6 +40,7 @@ interface ModalDynamicFormProps {
   initialData?: FormDataObject; // Added to receive existing item
   locale?: string;
   onInteractOutside?: () => void;
+  DropdownCaption: typeof MonthCaption;
 }
 
 export function AddToListModal({
@@ -45,6 +48,7 @@ export function AddToListModal({
   initialData,
   dataModelReference,
   onInteractOutside,
+  DropdownCaption,
 }: ModalDynamicFormProps) {
   const appendToList = FD.useAppendToList();
   const modalRef = useRef<HTMLDialogElement>(null);
@@ -89,6 +93,7 @@ export function AddToListModal({
           schema={schema?.items}
           onChange={onFormDataUpdate}
           initialData={tempFormData}
+          DropdownCaption={DropdownCaption}
         />
       </ModalContent>
       <ModalFooter>
@@ -135,6 +140,7 @@ export function AddToListComponent({ node }: AddToListProps) {
           onInteractOutside={() => {
             setShowForm(false);
           }}
+          DropdownCaption={DropdownCaption}
         />
       )}
 
