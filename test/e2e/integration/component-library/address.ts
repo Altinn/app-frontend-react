@@ -28,7 +28,7 @@ describe('Address component', () => {
     cy.testWcag();
   });
 
-  it('should show error messages when validated, required and empty', () => {
+  it('should show error messages when validated, required and empty and remove them when filled out', () => {
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
     cy.changeLayout((component) => {
       if (component.type === 'Address') {
@@ -55,24 +55,6 @@ describe('Address component', () => {
     cy.findAllByText('Du må fylle ut C/O eller annen tilleggsadresse').first().should('exist');
     cy.findAllByText('Du må fylle ut postnr').first().should('exist');
     cy.findAllByText('Du må fylle ut bolignummer').first().should('exist');
-  });
-
-  it('should remove required error messages when input is filled in', () => {
-    cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
-    cy.changeLayout((component) => {
-      if (component.type === 'Address') {
-        component.required = true;
-      }
-    });
-
-    cy.changeLayout((component) => {
-      if (component.type === 'NavigationButtons') {
-        component.validateOnNext = { page: 'current', show: ['All'] };
-      }
-    });
-
-    cy.findByRole('button', { name: /adresse/i }).click();
-    cy.findByRole('button', { name: /next/i }).click();
 
     cy.findByRole('textbox', { name: /gateadresse/i }).type('Anders Gate 1');
     cy.findByRole('textbox', { name: /c\/o/i }).type('C/O Jonas Støre');
