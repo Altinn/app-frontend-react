@@ -2,8 +2,6 @@ import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Route, Routes } from 'react-router-dom';
 
-import Grid from '@material-ui/core/Grid';
-
 import { Button } from 'src/app-components/button/Button';
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
@@ -58,29 +56,23 @@ function NavigationError({ label }: NavigationErrorProps) {
       <Helmet>
         <title>{`${getPageTitle(appName, langAsString(label), appOwner)}`}</title>
       </Helmet>
-      <Grid
-        item={true}
-        xs={12}
-        aria-live='polite'
-      >
-        <div>
-          <Lang id={label} />
-        </div>
+      <div>
+        <Lang id={label} />
+      </div>
 
-        {currentTaskId && (
-          <div className={classes.navigationError}>
-            <Button
-              variant='secondary'
-              size='md'
-              onClick={() => {
-                navigateToTask(currentTaskId);
-              }}
-            >
-              <Lang id='general.navigate_to_current_process' />
-            </Button>
-          </div>
-        )}
-      </Grid>
+      {currentTaskId && (
+        <div className={classes.navigationError}>
+          <Button
+            variant='secondary'
+            size='md'
+            onClick={() => {
+              navigateToTask(currentTaskId);
+            }}
+          >
+            <Lang id='general.navigate_to_current_process' />
+          </Button>
+        </div>
+      )}
     </>
   );
 }

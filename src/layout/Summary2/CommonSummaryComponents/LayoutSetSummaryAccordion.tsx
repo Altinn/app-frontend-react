@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { Accordion, Label } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
+import { Flex } from 'src/components/Flex';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Summary2/CommonSummaryComponents/LayoutSetSummaryAccordion.module.css';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
@@ -31,16 +31,15 @@ export function LayoutSetSummaryAccordion({ filteredPages }: LayoutSetAccordionS
             </Label>
           </Accordion.Header>
           <Accordion.Content>
-            <Grid
-              container={true}
-              spacing={6}
-              alignItems='flex-start'
+            <Flex
+              container
+              gap={6}
             >
               <PageSummary
                 pageId={layoutId}
                 key={layoutId}
               />
-            </Grid>
+            </Flex>
           </Accordion.Content>
         </Accordion.Item>
       ))}

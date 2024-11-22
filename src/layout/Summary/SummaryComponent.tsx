@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
+import { Flex } from 'src/components/Flex';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
@@ -100,21 +100,16 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
     : (summaryNode?.id ?? targetNode?.id ?? 'unknown');
 
   return (
-    <Grid
+    <Flex
       ref={ref}
-      item={true}
-      xs={displayGrid?.xs || 12}
-      sm={displayGrid?.sm || false}
-      md={displayGrid?.md || false}
-      lg={displayGrid?.lg || false}
-      xl={displayGrid?.xl || false}
+      size={displayGrid}
       data-testid={`summary-${summaryTestId}`}
       data-componentid={summaryNode?.id ?? `summary-${targetNode?.id}`}
       data-componentbaseid={summaryNode?.baseId ?? `summary-${targetNode.id}`}
       className={cn(pageBreakStyles(pageBreak))}
     >
-      <Grid
-        container={true}
+      <Flex
+        container
         className={cn({
           [classes.border]: !display?.hideBottomBorder && shouldShowBorder,
         })}
@@ -132,10 +127,10 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
           <GenericComponent node={targetNode} />
         )}
         {errors.length && targetItem.type !== 'Group' && !display?.hideValidationMessages ? (
-          <Grid
-            container={true}
+          <Flex
+            container
             style={{ paddingTop: '12px' }}
-            spacing={4}
+            gap={4}
           >
             {errors.map(({ message }) => (
               <ErrorPaper
@@ -149,10 +144,7 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
                 }
               />
             ))}
-            <Grid
-              item={true}
-              xs={12}
-            >
+            <Flex>
               {!display?.hideChangeButton && (
                 <button
                   className={classes.link}
@@ -162,10 +154,10 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
                   <Lang id='form_filler.summary_go_to_correct_page' />
                 </button>
               )}
-            </Grid>
-          </Grid>
+            </Flex>
+          </Flex>
         ) : null}
-      </Grid>
-    </Grid>
+      </Flex>
+    </Flex>
   );
 });

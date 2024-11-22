@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { TZDate } from '@date-fns/tz';
-import { Grid } from '@material-ui/core';
 import { formatDate, formatISO } from 'date-fns';
 
 import type { PropsFromGenericComponent } from '..';
@@ -104,15 +103,7 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
     return null;
   }
 
-  return (
-    <Grid
-      item={true}
-      container={true}
-      xs={12}
-    >
-      <AltinnSummaryTable summaryDataObject={instanceMetaDataObject} />
-    </Grid>
-  );
+  return <AltinnSummaryTable summaryDataObject={instanceMetaDataObject} />;
 }
 
 export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {

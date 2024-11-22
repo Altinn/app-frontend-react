@@ -2,8 +2,8 @@ import React from 'react';
 import type { CSSProperties } from 'react';
 
 import { Card } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
+import { Flex } from 'src/components/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -22,14 +22,15 @@ function parseSize(size: string | undefined, defaultValue: string): string {
 
 export const Cards = ({ node }: ICardsProps) => {
   const { cardsInternal, minMediaHeight, minWidth, color, mediaPosition: _mediaPosition } = useNodeItem(node);
-  const processedMinWidth = parseSize(minWidth, '250px');
   const processedMinMediaHeight = parseSize(minMediaHeight, '150px');
   const mediaPosition = _mediaPosition ?? 'top';
+  const processedMinWidth = parseSize(minWidth, '250px');
 
   const cardContainer: CSSProperties = {
     display: 'grid',
     gap: '28px',
     gridTemplateColumns: `repeat(auto-fit, minmax(${processedMinWidth}, 1fr))`,
+    width: '100%',
   };
 
   return (
@@ -39,7 +40,7 @@ export const Cards = ({ node }: ICardsProps) => {
           <Card
             key={idx}
             color={color}
-            style={{ height: '100%' }}
+            style={{ height: '100%', minWidth: processedMinWidth, flexGrow: 1 }}
           >
             {mediaPosition === 'top' && (
               <Media
@@ -59,31 +60,24 @@ export const Cards = ({ node }: ICardsProps) => {
               </Card.Content>
             )}
             {card.childIds && card.childIds.length > 0 && (
-              <Grid
-                container={true}
-                item={true}
-                direction='row'
-                spacing={6}
+              <Flex
+                container
+                justifyContent='flex-start'
+                rowGap={2}
+                style={{ flex: 0 }}
               >
-                <Grid
-                  container={true}
-                  alignItems='flex-start'
-                  item={true}
-                  spacing={6}
+                <CardProvider
+                  node={node}
+                  renderedInMedia={false}
                 >
-                  <CardProvider
-                    node={node}
-                    renderedInMedia={false}
-                  >
-                    {card.childIds.map((childId, idx) => (
-                      <GenericComponentById
-                        key={idx}
-                        id={childId}
-                      />
-                    ))}
-                  </CardProvider>
-                </Grid>
-              </Grid>
+                  {card.childIds.map((childId, idx) => (
+                    <GenericComponentById
+                      key={idx}
+                      id={childId}
+                    />
+                  ))}
+                </CardProvider>
+              </Flex>
             )}
             {card.footer && (
               <Card.Footer>

@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { Flex } from 'src/components/Flex';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { DataLoadingState, useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
@@ -194,10 +194,9 @@ function PlainPage({ pageKey }: { pageKey: string }) {
 
   return (
     <div className={classes.page}>
-      <Grid
-        container={true}
-        spacing={6}
-        alignItems='flex-start'
+      <Flex
+        container
+        gap={6}
       >
         {children.map((node) => (
           <GenericComponent
@@ -205,7 +204,7 @@ function PlainPage({ pageKey }: { pageKey: string }) {
             node={node}
           />
         ))}
-      </Grid>
+      </Flex>
     </div>
   );
 }
@@ -229,10 +228,9 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
 
   return (
     <div className={classes.page}>
-      <Grid
-        container={true}
-        spacing={6}
-        alignItems='flex-start'
+      <Flex
+        container
+        gap={6}
       >
         {children.map((node) => (
           <PdfForNode
@@ -240,7 +238,7 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
             node={node}
           />
         ))}
-      </Grid>
+      </Flex>
     </div>
   );
 }

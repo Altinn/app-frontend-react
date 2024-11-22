@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { Grid } from '@material-ui/core';
-
 import { PANEL_VARIANT } from 'src/app-components/panel/constants';
 import { Panel } from 'src/app-components/panel/Panel';
+import { Flex } from 'src/components/Flex';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
@@ -39,43 +38,37 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
           title={<Lang id='form_filler.error_report_header' />}
           variant={PANEL_VARIANT.Error}
         >
-          <Grid
-            container={true}
-            item={true}
-            spacing={6}
+          <Flex
+            container
+            gap={6}
             alignItems='flex-start'
           >
-            <Grid
-              item
-              xs={12}
-            >
-              <ul className={classes.errorList}>
-                {taskErrors.map((error) => (
-                  <li
-                    key={getUniqueKeyFromObject(error)}
-                    style={{ listStyleImage: listStyleImg }}
-                  >
-                    <Lang
-                      id={error.message.key}
-                      params={error.message.params}
-                    />
-                  </li>
-                ))}
-                {formErrors.map((error) => (
-                  <Error
-                    key={getUniqueKeyFromObject(error)}
-                    error={error}
+            <ul className={classes.errorList}>
+              {taskErrors.map((error) => (
+                <li
+                  key={getUniqueKeyFromObject(error)}
+                  style={{ listStyleImage: listStyleImg }}
+                >
+                  <Lang
+                    id={error.message.key}
+                    params={error.message.params}
                   />
-                ))}
-              </ul>
-            </Grid>
+                </li>
+              ))}
+              {formErrors.map((error) => (
+                <Error
+                  key={getUniqueKeyFromObject(error)}
+                  error={error}
+                />
+              ))}
+            </ul>
             {renderIds.map((id) => (
               <GenericComponentById
                 key={id}
                 id={id}
               />
             ))}
-          </Grid>
+          </Flex>
         </Panel>
       </FullWidthWrapper>
     </div>

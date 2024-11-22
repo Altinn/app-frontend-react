@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { Grid } from '@material-ui/core';
-
 import { Button } from 'src/app-components/button/Button';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useReturnToView, useSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
@@ -116,40 +114,34 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
         style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
       >
         {showBackToSummaryButton && (
-          <Grid item>
-            <Button
-              disabled={isSaving}
-              ref={refNext}
-              onClick={onClickBackToSummary}
-            >
-              <Lang id={returnToViewText} />
-            </Button>
-          </Grid>
+          <Button
+            disabled={isSaving}
+            ref={refNext}
+            onClick={onClickBackToSummary}
+          >
+            <Lang id={returnToViewText} />
+          </Button>
         )}
         {showNextButton && (
-          <Grid item>
-            <Button
-              disabled={isSaving}
-              ref={refNext}
-              onClick={onClickNext}
-              // If we are showing a back to summary button, we want the "next" button to be secondary
-              variant={showBackToSummaryButton ? 'secondary' : 'primary'}
-            >
-              <Lang id={nextTextKey} />
-            </Button>
-          </Grid>
+          <Button
+            disabled={isSaving}
+            ref={refNext}
+            onClick={onClickNext}
+            // If we are showing a back to summary button, we want the "next" button to be secondary
+            variant={showBackToSummaryButton ? 'secondary' : 'primary'}
+          >
+            <Lang id={nextTextKey} />
+          </Button>
         )}
         {!disablePrevious && showBackButton && (
-          <Grid item>
-            <Button
-              disabled={isSaving}
-              ref={refPrev}
-              variant={showNextButton || showBackToSummaryButton ? 'secondary' : 'primary'}
-              onClick={onClickPrevious}
-            >
-              <Lang id={backTextKey} />
-            </Button>
-          </Grid>
+          <Button
+            disabled={isSaving}
+            ref={refPrev}
+            variant={showNextButton || showBackToSummaryButton ? 'secondary' : 'primary'}
+            onClick={onClickPrevious}
+          >
+            <Lang id={backTextKey} />
+          </Button>
         )}
       </div>
     </ComponentStructureWrapper>

@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 
 import { HelpText } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
 import { Input } from 'src/app-components/Input/Input';
 import { Label } from 'src/app-components/Label/Label';
+import { Flex } from 'src/components/Flex';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -17,10 +17,10 @@ import { useComponentValidationsForNode } from 'src/features/validation/selector
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
-import classes from 'src/layout/Address/AddressComponent.module.css';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
+import classes from 'src/layout/Address/AddressComponent.module.css';
 import type { IDataModelBindingsForAddress } from 'src/layout/Address/config.generated';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
 export type IAddressProps = PropsFromGenericComponent<'Address'>;
 
@@ -81,11 +81,7 @@ export function AddressComponent({ node }: IAddressProps) {
             />
           }
         >
-          <Grid
-            item
-            id={`form-content-${id}`}
-            xs={12}
-          >
+          <Flex id={`form-content-${id}`}>
             <Input
               id={`address_address_${id}`}
               data-bindingkey={bindingKeys.address}
@@ -97,7 +93,7 @@ export function AddressComponent({ node }: IAddressProps) {
               required={required}
               autoComplete={simplified ? 'street-address' : 'address-line1'}
             />
-          </Grid>
+          </Flex>
         </Label>
         <ComponentValidations validations={bindingValidations?.address} />
       </div>
@@ -117,11 +113,7 @@ export function AddressComponent({ node }: IAddressProps) {
               />
             }
           >
-            <Grid
-              item
-              id={`form-content-${id}`}
-              xs={12}
-            >
+            <Flex id={`form-content-${id}`}>
               <Input
                 id={`address_care_of_${id}`}
                 data-bindingkey={bindingKeys.careOf}
@@ -132,20 +124,17 @@ export function AddressComponent({ node }: IAddressProps) {
                 readOnly={readOnly}
                 autoComplete='address-line2'
               />
-            </Grid>
+            </Flex>
           </Label>
           <ComponentValidations validations={bindingValidations?.careOf} />
         </div>
       )}
 
-      <Grid
+      <Flex
         container
-        spacing={6}
+        gap={6}
       >
-        <Grid
-          item
-          className={`${classes.addressComponentZipCode} ${classes.addressComponentSmallInputs}`}
-        >
+        <Flex className={`${classes.addressComponentZipCode} ${classes.addressComponentSmallInputs}`}>
           <Label
             htmlFor={`address_zip_code_${id}`}
             label={langAsString(textResourceBindings?.zipCodeTitle ?? 'address_component.zip_code')}
@@ -172,11 +161,8 @@ export function AddressComponent({ node }: IAddressProps) {
               autoComplete='postal-code'
             />
           </Label>
-        </Grid>
-        <Grid
-          item
-          className={classes.addressComponentPostplace}
-        >
+        </Flex>
+        <Flex className={classes.addressComponentPostplace}>
           <Label
             htmlFor={`address_post_place_${id}`}
             label={langAsString(textResourceBindings?.postPlaceTitle ?? 'address_component.post_place')}
@@ -201,10 +187,10 @@ export function AddressComponent({ node }: IAddressProps) {
               style={{ width: '100%' }}
             />
           </Label>
-        </Grid>
+        </Flex>
         <ComponentValidations validations={bindingValidations?.zipCode} />
         <ComponentValidations validations={bindingValidations?.postPlace} />
-      </Grid>
+      </Flex>
 
       {!simplified && (
         <div>

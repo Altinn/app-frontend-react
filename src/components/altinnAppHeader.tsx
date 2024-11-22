@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { AppBar, Grid, Toolbar } from '@material-ui/core';
+import { AppBar, Toolbar } from '@material-ui/core';
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/components/AltinnAppHeader.module.css';
@@ -37,12 +37,7 @@ export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
         className={classes.default}
       >
         <Toolbar className={classes.toolbarContainer}>
-          <Grid
-            item={true}
-            className={classes.logo}
-          >
-            <AltinnLogo color={LogoColor.blueDark} />
-          </Grid>
+          <AltinnLogo color={LogoColor.blueDark} />
           {party && (
             <ul className={classes.headerLinkList}>
               <li className={classes.headerLink}>

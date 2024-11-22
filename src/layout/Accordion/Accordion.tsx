@@ -1,8 +1,9 @@
 import React from 'react';
 
 import { Accordion as DesignSystemAccordion } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
+import cn from 'classnames';
 
+import { Flex } from 'src/components/Flex';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Accordion/Accordion.module.css';
 import { AccordionItem as AltinnAcordionItem } from 'src/layout/Accordion/AccordionItem';
@@ -28,11 +29,9 @@ export const Accordion = ({ node }: IAccordionProps) => {
       headingLevel={headingLevel}
       open={openByDefault}
     >
-      <Grid
-        item={true}
-        container={true}
-        spacing={6}
-        alignItems='flex-start'
+      <Flex
+        container
+        gap={6}
       >
         {childComponents.map((id) => (
           <GenericComponentById
@@ -40,19 +39,19 @@ export const Accordion = ({ node }: IAccordionProps) => {
             id={id}
           />
         ))}
-      </Grid>
+      </Flex>
     </AltinnAcordionItem>
   );
 
   return (
     <ComponentStructureWrapper node={node}>
       {renderAsAccordionItem ? (
-        <AccordionItem className={classes.container} />
+        <AccordionItem className={cn(classes.container, classes.fullWidth)} />
       ) : (
         <DesignSystemAccordion
           color='subtle'
           border
-          className={classes.container}
+          className={cn(classes.container, classes.fullWidth)}
         >
           <AccordionItem />
         </DesignSystemAccordion>

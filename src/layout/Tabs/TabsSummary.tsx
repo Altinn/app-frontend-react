@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
+import { Flex } from 'src/components/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import classes from 'src/layout/Tabs/TabsSummary.module.css';
@@ -47,10 +47,9 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
                 node={componentNode}
               />
             </Heading>
-            <Grid
+            <Flex
               container
-              spacing={6}
-              alignItems='flex-start'
+              gap={6}
             >
               {tab.childIds.filter(typedBoolean).map((nodeId) => (
                 <ComponentSummaryById
@@ -58,7 +57,7 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
                   componentId={nodeId}
                 />
               ))}
-            </Grid>
+            </Flex>
           </div>
         </>
       ))}
