@@ -67,4 +67,5 @@ export function getAugmentedFeatures(): AugmentedFeatureToggles {
 export const featureToggleValues: IFeatureTogglesMap = {
   betaPDFenabled: getFeature('betaPDFenabled').value,
   simpleTableEnabled: getFeature('simpleTableEnabled').value,
+  addToListEnabled: getFeature('addToListEnabled').value,
 };
