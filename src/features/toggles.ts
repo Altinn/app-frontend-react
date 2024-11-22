@@ -11,6 +11,12 @@ export const FeatureToggles = {
     description: '',
     links: ['https://github.com/Altinn/app-frontend-react/pull/2593'],
   },
+  addToListEnabled: {
+    defaultValue: false,
+    title: 'Activate experimental component AddToList',
+    description: '',
+    links: ['https://github.com/Altinn/app-frontend-react/pull/2745'],
+  },
 };
 
 export type FeatureToggleSource = 'window' | 'cookie' | 'default';
