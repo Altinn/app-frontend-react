@@ -80,7 +80,6 @@ export function AppTable({
   stickyHeader,
 }: DataTableProps) {
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
-
   return (
     <Table
       size={size || 'sm'}

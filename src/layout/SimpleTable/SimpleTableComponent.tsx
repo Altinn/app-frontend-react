@@ -157,7 +157,17 @@ export function SimpleTableComponent({ node }: TableComponentProps) {
                   fieldKey={config.accessors[0]}
                   fieldSchema={itemSchema.properties[config.accessors[0]]}
                   formData={data[rowIndex]}
-                  component={config.component}
+                  component={
+                    config.component
+                      ? {
+                          ...config.component,
+                          options: config.component?.options?.map((option) => ({
+                            ...option,
+                            label: langAsString(option.label),
+                          })),
+                        }
+                      : undefined
+                  }
                   handleChange={(fieldName, value) => {
                     const valueToUpdate = data.find((_, idx) => idx === rowIndex);
                     const nextValue = { ...valueToUpdate, [`${fieldName}`]: value };
