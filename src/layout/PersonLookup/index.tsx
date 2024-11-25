@@ -7,11 +7,12 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class PersonLookup extends PersonLookupDef {
-  getDisplayData(node: BaseLayoutNode<'PersonLookup'>, displayDataProps: DisplayDataProps): string {
-    throw new Error('Method not implemented.');
+  getDisplayData(node: LayoutNode<'PersonLookup'>, { nodeFormDataSelector }: DisplayDataProps): string {
+    const data = nodeFormDataSelector(node);
+    return Object.values(data).join(', ');
   }
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'PersonLookup'>>(
