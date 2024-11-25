@@ -4,6 +4,7 @@ import { SimpleTableDef } from 'src/layout/SimpleTable/config.def.generated';
 import { SimpleTableComponent } from 'src/layout/SimpleTable/SimpleTableComponent';
 import { SimpleTableFeatureFlagLayoutValidator } from 'src/layout/SimpleTable/SimpleTableFeatureFlagLayoutValidator';
 import { SimpleTableSummary } from 'src/layout/SimpleTable/SimpleTableSummary';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
@@ -37,7 +38,17 @@ export class SimpleTable extends SimpleTableDef {
   }
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'SimpleTable'>>(
     function LayoutComponentTableRender(props, _): React.JSX.Element | null {
-      return <SimpleTableComponent {...props} />;
+      const item = useNodeItem(props.node);
+      if (item.dataModelBindings) {
+        return (
+          <SimpleTableComponent
+            {...props}
+            dataModelBindings={item.dataModelBindings}
+          />
+        );
+      }
+
+      return null;
     },
   );
 

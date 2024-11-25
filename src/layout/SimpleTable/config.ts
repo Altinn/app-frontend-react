@@ -25,7 +25,9 @@ export const Config = new CG.component({
         'tableData',
         new CG.dataModelBinding().setTitle('TableData').setDescription('Array of objects where the data is stored'),
       ),
-    ).exportAs('IDataModelBindingsForTable'),
+    )
+      .optional()
+      .exportAs('IDataModelBindingsForTable'),
   )
   .addProperty(
     new CG.prop(
@@ -85,4 +87,10 @@ export const Config = new CG.component({
   )
   .addProperty(
     new CG.prop('size', new CG.enum('sm', 'md', 'lg').setTitle('Size').setDescription('Size of table.').optional()),
+  )
+  .addProperty(
+    new CG.prop(
+      'externalApi',
+      new CG.obj(new CG.prop('id', new CG.str()), new CG.prop('path', new CG.str())).optional().exportAs('DataConfig'),
+    ),
   );
