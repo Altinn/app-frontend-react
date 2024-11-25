@@ -12,6 +12,7 @@ import { Description } from 'src/components/form/Description';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
@@ -77,7 +78,7 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
   const [nameErrors, setNameErrors] = useState<string[]>();
 
   const bindingValidations = useBindingValidationsForNode(node);
-
+  const { langAsString } = useLanguage();
   const {
     formData: { person_lookup_ssn, person_lookup_name },
     setValue,
@@ -152,11 +153,13 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
         <div className={classes.ssnLabel}>
           <Label
             htmlFor={`${id}_ssn`}
-            label='Fødselsnummer'
+            label={langAsString('person_lookup.ssn_label')}
             required={required}
             requiredIndicator={<RequiredIndicator required={required} />}
           />
-          {hasSuccessfullyFetched && <Description description='Fra folkeregisteret' />}
+          {hasSuccessfullyFetched && (
+            <Description description={langAsString('person_lookup.from_registry_description')} />
+          )}
         </div>
         <NumericInput
           id={`${id}_ssn`}
@@ -181,9 +184,11 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
             htmlFor={`${id}_name`}
             required={required}
             requiredIndicator={<RequiredIndicator required={required} />}
-            label='Etternavn'
+            label={langAsString(hasSuccessfullyFetched ? 'person_lookup.name_label' : 'person_lookup.surname_label')}
           />
-          {hasSuccessfullyFetched && <Description description='Fra folkeregisteret' />}
+          {hasSuccessfullyFetched && (
+            <Description description={langAsString('person_lookup.from_registry_description')} />
+          )}
         </div>
         <Input
           id={`${id}_name`}

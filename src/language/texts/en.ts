@@ -315,6 +315,10 @@ export function en() {
       },
     },
     person_lookup: {
+      ssn_label: 'National ID number/D-number',
+      surname_label: 'Surname',
+      name_label: 'Name',
+      from_registry_description: 'From the National Population Register',
       validation_error_name_too_short: "The name can't be shorter than 2 characters",
       validation_error_ssn: 'The national ID number/D-number is invalid.',
       validation_error_not_found:

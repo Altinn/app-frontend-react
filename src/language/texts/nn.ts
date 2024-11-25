@@ -316,6 +316,10 @@ export function nn(): FixedLanguageList {
       },
     },
     person_lookup: {
+      ssn_label: 'Fødselsnummer',
+      surname_label: 'Etternamn',
+      name_label: 'Namn',
+      from_registry_description: 'Frå folkeregisteret',
       validation_error_name_too_short: 'Etternamn må vere minst 2 teikn lange.',
       validation_error_ssn: 'Fødselsnummeret/D-nummeret er ugyldig.',
       validation_error_not_found:
