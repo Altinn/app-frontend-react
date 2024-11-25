@@ -54,7 +54,12 @@ export class SimpleTable extends SimpleTableDef {
       }
 
       if (item.externalApi) {
-        return <ApiTable {...props} />;
+        return (
+          <ApiTable
+            {...props}
+            externalApi={item.externalApi}
+          />
+        );
       }
 
       return null;
