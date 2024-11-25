@@ -2,10 +2,14 @@ import React from 'react';
 
 import { Alert, Button } from '@digdir/designsystemet-react';
 import { Close } from '@navikt/ds-icons';
+import { isAxiosError } from 'axios';
 
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { type FileUploaderNode, type IFailedAttachment, isDataPostError } from 'src/features/attachments';
 import { useDeleteFailedAttachment, useFailedAttachmentsFor } from 'src/features/attachments/hooks';
+import { Lang } from 'src/features/language/Lang';
+import { getValidationIssueMessage } from 'src/features/validation/backendValidation/backendValidationUtils';
 import classes from 'src/layout/FileUpload/Error/FailedAttachments.module.css';
-import type { FileUploaderNode, IFailedAttachment } from 'src/features/attachments';
 
 export function FailedAttachments({ node }: { node: FileUploaderNode }) {
   const failedAttachments = useFailedAttachmentsFor(node);
@@ -25,9 +29,6 @@ export function FailedAttachments({ node }: { node: FileUploaderNode }) {
 }
 
 function FileUploadError({ attachment, handleClose }: { attachment: IFailedAttachment; handleClose: () => void }) {
-  const fileName = attachment.data.filename;
-  const errorMessage = typeof attachment.error === 'string' ? attachment.error : attachment.error.message;
-
   return (
     <Alert
       size='sm'
@@ -35,12 +36,14 @@ function FileUploadError({ attachment, handleClose }: { attachment: IFailedAttac
       role='alert'
       aria-live='assertive'
       //TODO: better label
-      aria-label={fileName}
+      aria-label={attachment.data.filename}
     >
       <div className={classes.container}>
         <div className={classes.wrapper}>
-          <span className={classes.title}>{fileName}</span>
-          <div className={classes.content}>{errorMessage}</div>
+          <span className={classes.title}>{attachment.data.filename}</span>
+          <div className={classes.content}>
+            <ErrorDetails error={attachment.error} />
+          </div>
         </div>
         <Button
           className={classes.closeButton}
@@ -56,4 +59,38 @@ function FileUploadError({ attachment, handleClose }: { attachment: IFailedAttac
       </div>
     </Alert>
   );
+}
+
+function ErrorDetails({ error }: { error: Error }) {
+  const backendFeatures = useApplicationMetadata().features ?? {};
+  if (isAxiosError(error)) {
+    const reply = error.response?.data;
+    const issues = isDataPostError(reply)
+      ? reply.uploadValidationIssues
+      : backendFeatures.jsonObjectInDataResponse && Array.isArray(reply) // This is the old API response
+        ? reply
+        : null;
+
+    if (issues && issues.length === 1) {
+      const { key, params } = getValidationIssueMessage(issues[0]);
+      return (
+        <Lang
+          id={key}
+          params={params}
+        />
+      );
+    }
+    if (issues && issues.length > 1) {
+      const params = issues.map((issue) => getValidationIssueMessage(issue));
+      const message = params.map((_, i) => `- {${i}}`).join('\n- ');
+      return (
+        <Lang
+          id={message}
+          params={params}
+        />
+      );
+    }
+  }
+
+  return <Lang id='form_filler.file_uploader_validation_error_upload' />;
 }

@@ -21,10 +21,8 @@ import {
 } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { type BackendValidationIssue, backendValidationIssueGroupListToObject } from 'src/features/validation';
-import { getValidationIssueMessage } from 'src/features/validation/backendValidation/backendValidationUtils';
+import { backendValidationIssueGroupListToObject } from 'src/features/validation';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import { isAxiosError } from 'src/utils/isAxiosError';
 import { nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
@@ -54,7 +52,7 @@ type AttachmentUploadSuccess = {
 };
 type AttachmentUploadFailure = {
   temporaryId: string;
-  error: AxiosError | string;
+  error: Error;
 };
 type AttachmentUploadResult = AttachmentUploadSuccess | AttachmentUploadFailure;
 
@@ -262,7 +260,6 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
   extraHooks(store: NodesStoreFull): AttachmentsStorePluginConfig['extraHooks'] {
     return {
       useAttachmentsUpload() {
-        const { langAsString, lang } = useLanguage();
         const appendDataElements = useLaxAppendDataElements();
         const upload = store.useSelector((state) => state.attachmentUpload);
         const uploadFinished = store.useSelector((state) => state.attachmentUploadFinished);
@@ -272,7 +269,6 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
 
         const applicationMetadata = useApplicationMetadata();
         const supportsNewAttatchmentAPI = appSupportsNewAttatchmentAPI(applicationMetadata);
-        const backendFeatures = applicationMetadata.features ?? {};
 
         const setAttachmentsInDataModel = useSetAttachmentInDataModel();
         const { lock, unlock } = FD.useLocking('__attachment__upload__');
@@ -319,20 +315,6 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               );
               uploadFinished(fullAction, results);
               unlock(updatedData);
-
-              for (const { error } of results.filter(isAttachmentUploadFailure)) {
-                // TODO: Gather and Improve error message
-                const reply = isAxiosError(error) ? error.response?.data : null;
-                if (isDataPostError(reply)) {
-                  const message = reply.uploadValidationIssues
-                    .map((issue) => getValidationIssueMessage(issue))
-                    .map(({ key, params }) => `- ${langAsString(key, params)}`)
-                    .join('\n');
-                  toast(message, { type: 'error' });
-                } else {
-                  toast(lang('form_filler.file_uploader_validation_error_upload'), { type: 'error' });
-                }
-              }
             } else {
               const results: ((AttachmentUploadSuccess & { newInstanceData: IData }) | AttachmentUploadFailure)[] =
                 await Promise.all(
@@ -340,7 +322,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                     uploadAttachmentOld({ dataTypeId: action.node.baseId, file })
                       .then((data) => {
                         if (!data || !data.blobStoragePath) {
-                          return { temporaryId, error: 'Failed to upload attachment' };
+                          return { temporaryId, error: new Error('Failed to upload attachment') };
                         }
                         return { temporaryId, newDataElementId: data.id, newInstanceData: data };
                       })
@@ -355,23 +337,6 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               appendDataElements?.(
                 results.filter(isAttachmentUploadSuccess).map(({ newInstanceData }) => newInstanceData),
               );
-
-              for (const { error } of results.filter(isAttachmentUploadFailure)) {
-                if (
-                  backendFeatures.jsonObjectInDataResponse &&
-                  isAxiosError(error) &&
-                  Array.isArray(error.response?.data)
-                ) {
-                  const validationIssues: BackendValidationIssue[] = error.response.data;
-                  const message = validationIssues
-                    .map((issue) => getValidationIssueMessage(issue))
-                    .map(({ key, params }) => `- ${langAsString(key, params)}`)
-                    .join('\n');
-                  toast(message, { type: 'error' });
-                } else {
-                  toast(lang('form_filler.file_uploader_validation_error_upload'), { type: 'error' });
-                }
-              }
             }
           },
           [
@@ -382,11 +347,8 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             uploadFinished,
             unlock,
             uploadAttachment,
-            langAsString,
-            lang,
             appendDataElements,
             uploadAttachmentOld,
-            backendFeatures.jsonObjectInDataResponse,
           ],
         );
       },

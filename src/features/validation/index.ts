@@ -21,6 +21,7 @@ export type ValidationSeverity = 'error' | 'warning' | 'info' | 'success';
 
 export enum BuiltInValidationIssueSources {
   File = 'File',
+  MimeTypeValidator = 'MimeTypeValidator',
   DataAnnotations = 'DataAnnotations',
   Required = 'Required',
   Expression = 'Expression',
