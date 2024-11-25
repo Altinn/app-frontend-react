@@ -105,6 +105,8 @@ export interface AttachmentsStorePluginConfig {
     attachmentRemove: (action: AttachmentActionRemove) => void;
     attachmentRemoveFulfilled: (action: AttachmentActionRemove) => void;
     attachmentRemoveRejected: (action: AttachmentActionRemove, error: AxiosError) => void;
+
+    deleteFailedAttachment: (node: FileUploaderNode, temporaryId: string) => void;
   };
   extraHooks: {
     useAttachmentsUpload: () => (
@@ -114,6 +116,7 @@ export interface AttachmentsStorePluginConfig {
     ) => Promise<void>;
     useAttachmentsUpdate: () => (action: AttachmentActionUpdate) => Promise<void>;
     useAttachmentsRemove: () => (action: AttachmentActionRemove) => Promise<boolean>;
+    useDeleteFailedAttachment: () => (node: FileUploaderNode, temporaryId: string) => void;
 
     useAttachments: (node: FileUploaderNode) => IAttachment[];
     useFailedAttachments: (node: FileUploaderNode) => IFailedAttachment[];
@@ -243,6 +246,14 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             } else {
               throw new Error('Cannot remove a temporary attachment');
             }
+          }),
+        );
+      },
+      deleteFailedAttachment: (node, temporaryId) => {
+        set(
+          nodesProduce((draft) => {
+            const nodeData = draft.nodeData[node.id] as ProperData;
+            delete nodeData.attachmentsFailedToUpload[temporaryId];
           }),
         );
       },
@@ -567,6 +578,9 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
 
           return emptyArray;
         });
+      },
+      useDeleteFailedAttachment() {
+        return store.useStaticSelector((state) => state.deleteFailedAttachment);
       },
     };
   }

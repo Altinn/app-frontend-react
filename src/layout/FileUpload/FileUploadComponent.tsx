@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import type { FileRejection } from 'react-dropzone';
 
 import { getDescriptionId, getLabelId, Label } from 'src/components/label/Label';
-import { useAttachmentsFor, useAttachmentsUploader, useFailedAttachmentsFor } from 'src/features/attachments/hooks';
+import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/hooks';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
@@ -14,11 +14,11 @@ import { hasValidationErrors } from 'src/features/validation/utils';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
+import { FailedAttachments } from 'src/layout/FileUpload/Error/FailedAttachments';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import { handleRejectedFiles } from 'src/layout/FileUpload/handleRejectedFiles';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { IFailedAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -45,7 +45,6 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
   const attachments = useAttachmentsFor(node);
-  const failedAttachments = useFailedAttachmentsFor(node);
   const uploadAttachments = useAttachmentsUploader();
 
   const validations = useUnifiedValidationsForNode(node).filter((v) => !('attachmentId' in v) || !v.attachmentId);
@@ -163,12 +162,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
             <Lang id='form_filler.file_uploader_add_attachment' />
           </button>
         )}
-        {failedAttachments.map((attachment) => (
-          <FailedAttachment
-            key={attachment.data.temporaryId}
-            attachment={attachment}
-          />
-        ))}
+        <FailedAttachments node={node} />
       </div>
     </ComponentStructureWrapper>
   );
@@ -187,9 +181,4 @@ function AttachmentsCounter({
       {maxNumAttachments ? `${numAttachments}/${maxNumAttachments}` : numAttachments}.
     </small>
   );
-}
-
-function FailedAttachment({ attachment }: { attachment: IFailedAttachment }) {
-  const errorMessage = typeof attachment.error === 'string' ? attachment.error : attachment.error.message;
-  return <div>{errorMessage}</div>;
 }
