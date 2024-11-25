@@ -36,9 +36,6 @@ export class PersonLookup extends PersonLookupDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'PersonLookup'>): string[] {
-    const ssnErrors = this.validateDataModelBindingsAny(ctx, 'person_lookup_ssn', ['integer', 'string'], true)[0] ?? [];
-    const nameErrors = this.validateDataModelBindingsAny(ctx, 'person_lookup_name', ['string'], true)[0] ?? [];
-
-    return [...ssnErrors, ...nameErrors];
+    return [];
   }
 }
