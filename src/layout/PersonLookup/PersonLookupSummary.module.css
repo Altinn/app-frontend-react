@@ -1,0 +1,13 @@
+.personLookupComponent {
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  width: 100%;
+}
+
+.personLookupComponentSsn {
+  flex-grow: 5;
+}
+.personLookupComponentName {
+  flex-grow: 4;
+}
