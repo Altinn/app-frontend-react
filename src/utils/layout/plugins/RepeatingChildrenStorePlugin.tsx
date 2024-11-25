@@ -89,7 +89,13 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
           const nodeData = { ...state.nodeData };
 
           let count = 0;
-          for (const { node, plugin } of requests) {
+          for (const { node, plugin, layouts } of requests) {
+            if (layouts !== state.layouts) {
+              // The layouts have changed since the request was added, so there's no need to remove the row (it was
+              // automatically removed when resetting the NodesContext state upon the layout change)
+              continue;
+            }
+
             const thisNode = nodeData[node.id];
             if (!thisNode) {
               continue;
