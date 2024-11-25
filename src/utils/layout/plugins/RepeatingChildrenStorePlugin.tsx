@@ -87,6 +87,9 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
       removeRows: (requests) => {
         set((state) => {
           const nodeData = { ...state.nodeData };
+          const newPartialItems: {
+            [nodeId: string]: { [internalProp: string]: (RepChildrenRow | undefined)[] | undefined } | undefined;
+          } = {};
 
           let count = 0;
           for (const { node, plugin, layouts } of requests) {
@@ -106,28 +109,41 @@ export class RepeatingChildrenStorePlugin extends NodeDataPlugin<RepeatingChildr
               continue;
             }
 
+            let newRows: RepChildrenRow[];
+
             // When removing rows, we'll always remove the last one. There is no such thing as removing a row in the
             // middle, as the indexes will always re-flow to the total number of rows left.
-            const newRows = existingRows.slice(0, -1);
+            if (newPartialItems[node.id] && newPartialItems[node.id]![internalProp]) {
+              newRows = newPartialItems[node.id]![internalProp] as RepChildrenRow[];
+              newRows.pop();
+            } else {
+              newRows = existingRows.slice(0, -1);
 
-            // In these rows, all the UUIDs will change now that we've removed one. Removing these from existing rows
-            // so that we don't have stale UUIDs in the state while waiting for them to be set.
-            for (const rowIdx in newRows) {
-              const row = { ...newRows[rowIdx] };
-              if (row.uuid) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                delete (row as any).uuid;
+              // In these rows, all the UUIDs will change now that we've removed one. Removing these from existing rows
+              // so that we don't have stale UUIDs in the state while waiting for them to be set.
+              for (const rowIdx in newRows) {
+                if (newRows[rowIdx].uuid) {
+                  const row = { ...newRows[rowIdx] };
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  delete (row as any).uuid;
+                  newRows[rowIdx] = row;
+                }
               }
-              newRows[rowIdx] = row;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            nodeData[node.id] = { ...thisNode, item: { ...thisNode.item, [internalProp]: newRows } as any };
             count++;
+            newPartialItems[node.id] ??= {};
+            newPartialItems[node.id]![internalProp] = newRows;
           }
 
           if (count === 0) {
             return {};
+          }
+
+          for (const [nodeId, partialItem] of Object.entries(newPartialItems)) {
+            const data = nodeData[nodeId];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            nodeData[nodeId] = { ...data, item: { ...data.item, ...partialItem } as any };
           }
 
           return {
