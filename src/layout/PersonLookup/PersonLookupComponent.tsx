@@ -14,6 +14,7 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
+import { hasValidationErrors } from 'src/features/validation/utils';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/PersonLookup/PersonLookupComponent.module.css';
 import { validateName, validatePersonLookupResponse, validateSsn } from 'src/layout/PersonLookup/validation';
@@ -164,9 +165,10 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
           required={required}
           readOnly={hasSuccessfullyFetched}
           error={
-            (ssnErrors?.length && <Lang id={ssnErrors.join(' ')} />) || (
+            (ssnErrors?.length && <Lang id={ssnErrors.join(' ')} />) ||
+            (hasValidationErrors(bindingValidations?.person_lookup_ssn) && (
               <ComponentValidations validations={bindingValidations?.person_lookup_ssn} />
-            )
+            ))
           }
           onValueChange={(e) => {
             setTempSsn(e.value);
@@ -191,9 +193,10 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
           required={required}
           readOnly={hasSuccessfullyFetched}
           error={
-            (nameErrors?.length && <Lang id={nameErrors.join(' ')} />) || (
+            (nameErrors?.length && <Lang id={nameErrors.join(' ')} />) ||
+            (hasValidationErrors(bindingValidations?.person_lookup_name) && (
               <ComponentValidations validations={bindingValidations?.person_lookup_name} />
-            )
+            ))
           }
           onChange={(e) => {
             setTempName(e.target.value);
