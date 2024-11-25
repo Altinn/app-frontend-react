@@ -8,6 +8,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { type FileUploaderNode, type IFailedAttachment, isDataPostError } from 'src/features/attachments';
 import { useDeleteFailedAttachment, useFailedAttachmentsFor } from 'src/features/attachments/hooks';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { getValidationIssueMessage } from 'src/features/validation/backendValidation/backendValidationUtils';
 import classes from 'src/layout/FileUpload/Error/FailedAttachments.module.css';
 import { isRejectedFileError } from 'src/layout/FileUpload/RejectedFileError';
@@ -30,17 +31,23 @@ export function FailedAttachments({ node }: { node: FileUploaderNode }) {
 }
 
 function FileUploadError({ attachment, handleClose }: { attachment: IFailedAttachment; handleClose: () => void }) {
+  const { langAsString } = useLanguage();
   return (
     <Alert
       size='sm'
       severity='danger'
       role='alert'
       aria-live='assertive'
-      aria-label={attachment.data.filename}
+      aria-label={langAsString('form_filler.file_uploader_failed_to_upload_file', [attachment.data.filename])}
     >
       <div className={classes.container}>
         <div className={classes.wrapper}>
-          <span className={classes.title}>{attachment.data.filename}</span>
+          <span className={classes.title}>
+            <Lang
+              id='form_filler.file_uploader_failed_to_upload_file'
+              params={[truncateFileName(attachment.data.filename, 10, 10), attachment.data.filename]}
+            />
+          </span>
           <div className={classes.content}>
             <ErrorDetails attachment={attachment} />
           </div>
@@ -155,3 +162,15 @@ function ErrorDetails({ attachment: { data, error } }: { attachment: IFailedAtta
 
 const MAX_ITEMS_BEFORE_COLLAPSE = 3;
 const bytesInOneMB = 1048576;
+
+function truncateFileName(fileName: string, startCount: number, endCount: number) {
+  const pos = fileName.lastIndexOf('.');
+  const extension = pos > -1 ? fileName.slice(pos) : undefined;
+  const name = pos > -1 ? fileName.slice(0, pos) : fileName;
+
+  if (name.length <= startCount + endCount + 3) {
+    return fileName;
+  }
+
+  return `${name.slice(0, startCount)}...${name.slice(-endCount)}${extension}`;
+}

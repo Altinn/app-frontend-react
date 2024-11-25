@@ -92,6 +92,7 @@ export function nb(): FixedLanguageList {
       file_uploader_show_more_errors: 'Vis {0} flere',
       file_uploader_show_fewer_errors: 'Vis færre',
       file_uploader_valid_file_format: 'Tillatte filformater er:',
+      file_uploader_failed_to_upload_file: 'Filen <u title="{1}">{0}</u> kunne ikke lastes opp',
       file_uploader_validation_error_delete: 'Noe gikk galt under slettingen av filen, prøv igjen senere.',
       file_uploader_validation_error_exceeds_max_files:
         'Du kan ikke laste opp flere enn {0} filer. Ingen filer ble lastet opp.',
