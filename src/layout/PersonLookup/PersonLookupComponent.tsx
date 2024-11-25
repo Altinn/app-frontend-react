@@ -10,6 +10,7 @@ import { NumericInput } from 'src/app-components/Input/NumericInput';
 import { Label } from 'src/app-components/Label/Label';
 import { Description } from 'src/components/form/Description';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
+import { getDescriptionId } from 'src/components/label/Label';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -156,13 +157,19 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
             label={langAsString('person_lookup.ssn_label')}
             required={required}
             requiredIndicator={<RequiredIndicator required={required} />}
+            description={
+              hasSuccessfullyFetched ? (
+                <Description
+                  description={langAsString('person_lookup.from_registry_description')}
+                  componentId={`${id}_ssn`}
+                />
+              ) : undefined
+            }
           />
-          {hasSuccessfullyFetched && (
-            <Description description={langAsString('person_lookup.from_registry_description')} />
-          )}
         </div>
         <NumericInput
           id={`${id}_ssn`}
+          aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_ssn`) : undefined}
           value={hasSuccessfullyFetched ? person_lookup_ssn : tempSsn}
           className={classes.ssn}
           required={required}
@@ -185,13 +192,19 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
             required={required}
             requiredIndicator={<RequiredIndicator required={required} />}
             label={langAsString(hasSuccessfullyFetched ? 'person_lookup.name_label' : 'person_lookup.surname_label')}
+            description={
+              hasSuccessfullyFetched ? (
+                <Description
+                  description={langAsString('person_lookup.from_registry_description')}
+                  componentId={`${id}_name`}
+                />
+              ) : undefined
+            }
           />
-          {hasSuccessfullyFetched && (
-            <Description description={langAsString('person_lookup.from_registry_description')} />
-          )}
         </div>
         <Input
           id={`${id}_name`}
+          aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_name`) : undefined}
           value={hasSuccessfullyFetched ? person_lookup_name : tempName}
           className={classes.name}
           type='text'
