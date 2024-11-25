@@ -7,14 +7,14 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@navikt/aksel-icons';
 import { addYears, max, min, setMonth, setYear, startOfMonth, subYears } from 'date-fns';
 
 import { Button } from 'src/app-components/button/Button';
+import styles from 'src/app-components/Datepicker/Calendar.module.css';
+import { getMonths, getYears } from 'src/app-components/Datepicker/DatePickerHelpers';
+import { getLocale } from 'src/app-components/Datepicker/utils/dateHelpers';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import styles from 'src/layout/Datepicker/Calendar.module.css';
-import { getMonths, getYears } from 'src/layout/Datepicker/DatePickerHelpers';
 import comboboxClasses from 'src/styles/combobox.module.css';
-import { getLocale } from 'src/utils/dateHelpers';
 
 export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
   const { goToMonth, nextMonth, previousMonth } = useDayPicker();
@@ -39,80 +39,78 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
   const months = getMonths(fromDate, toDate, calendarMonth.date);
 
   return (
-    <>
-      <div className={styles.dropdownCaption}>
-        <Button
-          icon={true}
-          color='second'
-          variant='tertiary'
-          aria-label={langAsString('date_picker.aria_label_left_arrow')}
-          disabled={!previousMonth}
-          onClick={() => previousMonth && goToMonth(previousMonth)}
+    <div className={styles.dropdownCaption}>
+      <Button
+        icon={true}
+        color='second'
+        variant='tertiary'
+        aria-label={langAsString('date_picker.aria_label_left_arrow')}
+        disabled={!previousMonth}
+        onClick={() => previousMonth && goToMonth(previousMonth)}
+      >
+        <ArrowLeftIcon />
+      </Button>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <Combobox
+          style={{ width: '150px' }}
+          id={id}
+          size='small'
+          value={[calendarMonth.date.getMonth().toString()]}
+          onValueChange={(months) => handleMonthChange(months[0])}
+          aria-label={langAsString('date_picker.aria_label_month_dropdown')}
+          className={comboboxClasses.container}
+          portal={!isMobile}
         >
-          <ArrowLeftIcon />
-        </Button>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <Combobox
-            style={{ width: '150px' }}
-            id={id}
-            size='small'
-            value={[calendarMonth.date.getMonth().toString()]}
-            onValueChange={(months) => handleMonthChange(months[0])}
-            aria-label={langAsString('date_picker.aria_label_month_dropdown')}
-            className={comboboxClasses.container}
-            portal={!isMobile}
-          >
-            <Combobox.Empty>
-              <Lang id={'form_filler.no_options_found'} />
-            </Combobox.Empty>
-            {months.map((date) => (
-              <Combobox.Option
-                ref={scrollToIfSelected(date.getMonth() === calendarMonth.date.getMonth())}
-                key={date.getMonth()}
-                value={date.getMonth().toString()}
-                displayValue={formatMonthDropdown(date.getMonth(), currentLocale)}
-              >
-                <Lang id={formatMonthDropdown(date.getMonth(), currentLocale)} />
-              </Combobox.Option>
-            ))}
-          </Combobox>
-          <Combobox
-            style={{ width: '100px' }}
-            id={id}
-            size='small'
-            value={[calendarMonth.date.getFullYear().toString()]}
-            onValueChange={(years) => handleYearChange(years[0])}
-            aria-label={langAsString('date_picker.aria_label_year_dropdown')}
-            className={comboboxClasses.container}
-            portal={!isMobile}
-          >
-            <Combobox.Empty>
-              <Lang id={'form_filler.no_options_found'} />
-            </Combobox.Empty>
-            {years.map((date) => (
-              <Combobox.Option
-                ref={scrollToIfSelected(date.getFullYear() === calendarMonth.date.getFullYear())}
-                key={date.getFullYear().toString()}
-                value={date.getFullYear().toString()}
-                displayValue={date.getFullYear().toString()}
-              >
-                <Lang id={date.getFullYear().toString()} />
-              </Combobox.Option>
-            ))}
-          </Combobox>
-        </div>
-        <Button
-          icon={true}
-          color='second'
-          variant='tertiary'
-          aria-label={langAsString('date_picker.aria_label_right_arrow')}
-          disabled={!nextMonth}
-          onClick={() => nextMonth && goToMonth(nextMonth)}
+          <Combobox.Empty>
+            <Lang id='form_filler.no_options_found' />
+          </Combobox.Empty>
+          {months.map((date) => (
+            <Combobox.Option
+              ref={scrollToIfSelected(date.getMonth() === calendarMonth.date.getMonth())}
+              key={date.getMonth()}
+              value={date.getMonth().toString()}
+              displayValue={formatMonthDropdown(date.getMonth(), currentLocale)}
+            >
+              <Lang id={formatMonthDropdown(date.getMonth(), currentLocale)} />
+            </Combobox.Option>
+          ))}
+        </Combobox>
+        <Combobox
+          style={{ width: '100px' }}
+          id={id}
+          size='small'
+          value={[calendarMonth.date.getFullYear().toString()]}
+          onValueChange={(years) => handleYearChange(years[0])}
+          aria-label={langAsString('date_picker.aria_label_year_dropdown')}
+          className={comboboxClasses.container}
+          portal={!isMobile}
         >
-          <ArrowRightIcon />
-        </Button>
+          <Combobox.Empty>
+            <Lang id='form_filler.no_options_found' />
+          </Combobox.Empty>
+          {years.map((date) => (
+            <Combobox.Option
+              ref={scrollToIfSelected(date.getFullYear() === calendarMonth.date.getFullYear())}
+              key={date.getFullYear().toString()}
+              value={date.getFullYear().toString()}
+              displayValue={date.getFullYear().toString()}
+            >
+              <Lang id={date.getFullYear().toString()} />
+            </Combobox.Option>
+          ))}
+        </Combobox>
       </div>
-    </>
+      <Button
+        icon={true}
+        color='second'
+        variant='tertiary'
+        aria-label={langAsString('date_picker.aria_label_right_arrow')}
+        disabled={!nextMonth}
+        onClick={() => nextMonth && goToMonth(nextMonth)}
+      >
+        <ArrowRightIcon />
+      </Button>
+    </div>
   );
 };
 

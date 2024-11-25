@@ -1,11 +1,16 @@
 import React, { useEffect } from 'react';
 
+import { HelpText } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 
 import { Input } from 'src/app-components/Input/Input';
-import { Label } from 'src/components/label/Label';
+import { Label } from 'src/app-components/Label/Label';
+import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
+import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
@@ -28,8 +33,17 @@ const bindingKeys: { [k in keyof IDataModelBindingsForAddress]: k } = {
 };
 
 export function AddressComponent({ node }: IAddressProps) {
-  const { id, required, readOnly, simplified, saveWhileTyping, textResourceBindings, dataModelBindings } =
-    useNodeItem(node);
+  const {
+    id,
+    required,
+    readOnly,
+    simplified,
+    saveWhileTyping,
+    textResourceBindings,
+    dataModelBindings,
+    labelSettings,
+  } = useNodeItem(node);
+  const { langAsString } = useLanguage();
 
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
@@ -55,14 +69,21 @@ export function AddressComponent({ node }: IAddressProps) {
     >
       <div>
         <Label
-          node={node}
-          overrideId={`address_address_${id}`}
-          renderLabelAs='label'
-          textResourceBindings={{ title: textResourceBindings?.title ?? 'address_component.address' }}
+          htmlFor={`address_address_${id}`}
+          label={langAsString(textResourceBindings?.title ?? 'address_component.address')}
+          required={required}
+          requiredIndicator={<RequiredIndicator required={required} />}
+          optionalIndicator={
+            <OptionalIndicator
+              readOnly={readOnly}
+              required={required}
+              showOptionalMarking={!!labelSettings?.optionalIndicator}
+            />
+          }
         >
           <Grid
             item
-            id={`form-content-${id}`}
+            id={`form-content-${id}-address`}
             xs={12}
           >
             <Input
@@ -84,14 +105,21 @@ export function AddressComponent({ node }: IAddressProps) {
       {!simplified && (
         <div>
           <Label
-            node={node}
-            overrideId={`address_care_of_${id}`}
-            renderLabelAs='label'
-            textResourceBindings={{ title: textResourceBindings?.careOfTitle ?? 'address_component.care_of' }}
+            htmlFor={`address_care_of_${id}`}
+            label={langAsString(textResourceBindings?.careOfTitle ?? 'address_component.care_of')}
+            required={required}
+            requiredIndicator={<RequiredIndicator required={required} />}
+            optionalIndicator={
+              <OptionalIndicator
+                readOnly={readOnly}
+                required={required}
+                showOptionalMarking={!!labelSettings?.optionalIndicator}
+              />
+            }
           >
             <Grid
               item
-              id={`form-content-${id}`}
+              id={`form-content-${id}-care-of`}
               xs={12}
             >
               <Input
@@ -104,9 +132,9 @@ export function AddressComponent({ node }: IAddressProps) {
                 readOnly={readOnly}
                 autoComplete='address-line2'
               />
+              <ComponentValidations validations={bindingValidations?.careOf} />
             </Grid>
           </Label>
-          <ComponentValidations validations={bindingValidations?.careOf} />
         </div>
       )}
 
@@ -119,23 +147,37 @@ export function AddressComponent({ node }: IAddressProps) {
           className={`${classes.addressComponentZipCode} ${classes.addressComponentSmallInputs}`}
         >
           <Label
-            node={node}
-            overrideId={`address_zip_code_${id}`}
-            renderLabelAs='label'
-            textResourceBindings={{ title: textResourceBindings?.zipCodeTitle ?? 'address_component.zip_code' }}
+            htmlFor={`address_zip_code_${id}`}
+            label={langAsString(textResourceBindings?.zipCodeTitle ?? 'address_component.zip_code')}
+            required={required}
+            requiredIndicator={<RequiredIndicator required={required} />}
+            optionalIndicator={
+              <OptionalIndicator
+                readOnly={readOnly}
+                required={required}
+                showOptionalMarking={!!labelSettings?.optionalIndicator}
+              />
+            }
           >
-            <Input
-              id={`address_zip_code_${id}`}
-              data-bindingkey={bindingKeys.zipCode}
-              error={hasValidationErrors(bindingValidations?.zipCode)}
-              value={zipCode}
-              onChange={(ev) => setValue('zipCode', ev.target.value)}
-              onBlur={debounce}
-              readOnly={readOnly}
-              required={required}
-              inputMode='numeric'
-              autoComplete='postal-code'
-            />
+            <Grid
+              item
+              id={`form-content-${id}-zip-code`}
+              xs={12}
+            >
+              <Input
+                id={`address_zip_code_${id}`}
+                data-bindingkey={bindingKeys.zipCode}
+                error={hasValidationErrors(bindingValidations?.zipCode)}
+                value={zipCode}
+                onChange={(ev) => setValue('zipCode', ev.target.value)}
+                onBlur={debounce}
+                readOnly={readOnly}
+                required={required}
+                inputMode='numeric'
+                autoComplete='postal-code'
+              />
+              <ComponentValidations validations={bindingValidations?.zipCode} />
+            </Grid>
           </Label>
         </Grid>
         <Grid
@@ -143,55 +185,81 @@ export function AddressComponent({ node }: IAddressProps) {
           className={classes.addressComponentPostplace}
         >
           <Label
-            node={node}
-            overrideId={`address_post_place_${id}`}
-            renderLabelAs='label'
-            textResourceBindings={{ title: textResourceBindings?.postPlaceTitle ?? 'address_component.post_place' }}
+            htmlFor={`address_post_place_${id}`}
+            label={langAsString(textResourceBindings?.postPlaceTitle ?? 'address_component.post_place')}
+            required={required}
+            requiredIndicator={<RequiredIndicator required={required} />}
+            optionalIndicator={
+              <OptionalIndicator
+                readOnly={readOnly}
+                required={required}
+                showOptionalMarking={!!labelSettings?.optionalIndicator}
+              />
+            }
           >
-            <Input
-              id={`address_post_place_${id}`}
-              data-bindingkey={bindingKeys.postPlace}
-              error={hasValidationErrors(bindingValidations?.postPlace)}
-              value={postPlace}
-              readOnly={true}
-              required={required}
-              autoComplete='address-level1'
-              style={{ width: '100%' }}
-            />
+            <Grid
+              item
+              id={`form-content-${id}-post-place`}
+              xs={12}
+            >
+              <Input
+                id={`address_post_place_${id}`}
+                data-bindingkey={bindingKeys.postPlace}
+                value={postPlace}
+                readOnly={true}
+                required={required}
+                autoComplete='address-level1'
+              />
+            </Grid>
           </Label>
         </Grid>
-        <ComponentValidations validations={bindingValidations?.zipCode} />
-        <ComponentValidations validations={bindingValidations?.postPlace} />
       </Grid>
 
       {!simplified && (
         <div>
           <Label
-            node={node}
-            overrideId={`address_house_number_${id}`}
-            renderLabelAs='label'
-            textResourceBindings={{
-              title: textResourceBindings?.houseNumberTitle ?? 'address_component.house_number',
-              help: 'address_component.house_number_helper',
-            }}
-          >
-            <div className={classes.addressComponentSmallInputs}>
-              <Input
-                id={`address_house_number_${id}`}
-                data-bindingkey={bindingKeys.houseNumber}
-                error={hasValidationErrors(bindingValidations?.houseNumber)}
-                value={houseNumber}
-                onChange={(ev) => setValue('houseNumber', ev.target.value)}
-                onBlur={debounce}
+            htmlFor={`address_house_number_${id}`}
+            required={required}
+            label={langAsString(textResourceBindings?.houseNumberTitle ?? 'address_component.house_number')}
+            requiredIndicator={<RequiredIndicator required={required} />}
+            optionalIndicator={
+              <OptionalIndicator
                 readOnly={readOnly}
-                autoComplete='address-line3'
+                required={required}
+                showOptionalMarking={!!labelSettings?.optionalIndicator}
               />
-            </div>
+            }
+            help={
+              <HelpText
+                id={`address_house_number_${id}-helptext`}
+                title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.houseNumberTitle ?? 'address_component.house_number')}`}
+              >
+                <Lang id='address_component.house_number_help_text_title' />
+              </HelpText>
+            }
+          >
+            <Grid
+              item
+              id={`form-content-${id}-house-number`}
+              xs={12}
+            >
+              <div className={classes.addressComponentSmallInputs}>
+                <Input
+                  id={`address_house_number_${id}`}
+                  data-bindingkey={bindingKeys.houseNumber}
+                  error={hasValidationErrors(bindingValidations?.houseNumber)}
+                  value={houseNumber}
+                  onChange={(ev) => setValue('houseNumber', ev.target.value)}
+                  onBlur={debounce}
+                  readOnly={readOnly}
+                  autoComplete='address-line3'
+                />
+              </div>
+            </Grid>
           </Label>
           <ComponentValidations validations={bindingValidations?.houseNumber} />
         </div>
       )}
-
       <ComponentValidations validations={componentValidations} />
     </div>
   );
