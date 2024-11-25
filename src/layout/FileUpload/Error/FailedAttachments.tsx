@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Alert, Button } from '@digdir/designsystemet-react';
 import { Close } from '@navikt/ds-icons';
@@ -42,7 +42,7 @@ function FileUploadError({ attachment, handleClose }: { attachment: IFailedAttac
         <div className={classes.wrapper}>
           <span className={classes.title}>{attachment.data.filename}</span>
           <div className={classes.content}>
-            <ErrorDetails error={attachment.error} />
+            <ErrorDetails attachment={attachment} />
           </div>
         </div>
         <Button
@@ -61,8 +61,10 @@ function FileUploadError({ attachment, handleClose }: { attachment: IFailedAttac
   );
 }
 
-function ErrorDetails({ error }: { error: Error }) {
+function ErrorDetails({ attachment: { data, error } }: { attachment: IFailedAttachment }) {
   const backendFeatures = useApplicationMetadata().features ?? {};
+  const [showingMore, setShowingMore] = useState(false);
+
   if (isAxiosError(error)) {
     const reply = error.response?.data;
     const issues = isDataPostError(reply)
@@ -81,13 +83,51 @@ function ErrorDetails({ error }: { error: Error }) {
       );
     }
     if (issues && issues.length > 1) {
-      const params = issues.map((issue) => getValidationIssueMessage(issue));
-      const message = params.map((_, i) => `- {${i}}`).join('\n- ');
+      const isLong = issues.length > MAX_ITEMS_BEFORE_COLLAPSE;
+      const showFull = !isLong || showingMore;
+      const howManyMore = issues.length - MAX_ITEMS_BEFORE_COLLAPSE;
+      const buttonId = `attachment-error-button-${data.temporaryId}`;
+
+      const params = (showFull ? issues : issues.slice(0, MAX_ITEMS_BEFORE_COLLAPSE)).map((issue) =>
+        getValidationIssueMessage(issue),
+      );
+      const message = params.map((_, i) => `- {${i}}`).join('\n');
+
       return (
-        <Lang
-          id={message}
-          params={params}
-        />
+        <>
+          <Lang
+            id={message}
+            params={params}
+          />
+          {isLong && (
+            <Button
+              id={buttonId}
+              style={{ marginTop: '0.5rem' }}
+              size='sm'
+              variant='tertiary'
+              color='second'
+              onClick={() => {
+                if (!showingMore) {
+                  setShowingMore(true);
+                } else {
+                  setShowingMore(false);
+                  requestAnimationFrame(() =>
+                    document.querySelector(`#${buttonId}`)?.scrollIntoView({ behavior: 'instant', block: 'nearest' }),
+                  );
+                }
+              }}
+            >
+              {showingMore ? (
+                <Lang id='form_filler.file_uploader_show_fewer_errors' />
+              ) : (
+                <Lang
+                  id='form_filler.file_uploader_show_more_errors'
+                  params={[howManyMore]}
+                />
+              )}
+            </Button>
+          )}
+        </>
       );
     }
   }
@@ -113,4 +153,5 @@ function ErrorDetails({ error }: { error: Error }) {
   return <Lang id='form_filler.file_uploader_validation_error_upload' />;
 }
 
+const MAX_ITEMS_BEFORE_COLLAPSE = 3;
 const bytesInOneMB = 1048576;

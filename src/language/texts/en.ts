@@ -89,6 +89,8 @@ export function en() {
       file_uploader_mb: 'MB',
       file_uploader_upload: 'Upload file',
       file_uploader_number_of_files: 'Number of files {0}.',
+      file_uploader_show_more_errors: 'Show {0} more',
+      file_uploader_show_fewer_errors: 'Show fewer',
       file_uploader_valid_file_format: 'Valid file types are:',
       file_uploader_validation_error_delete: 'Something went wrong trying to delete the file, please try again.',
       file_uploader_validation_error_exceeds_max_files:

@@ -89,6 +89,8 @@ export function nn(): FixedLanguageList {
       file_uploader_mb: 'MB.',
       file_uploader_upload: 'Last opp fil',
       file_uploader_number_of_files: 'Tal på filer {0}.',
+      file_uploader_show_more_errors: 'Vis {0} fleire',
+      file_uploader_show_fewer_errors: 'Vis færre',
       file_uploader_valid_file_format: 'Tillatne filformat er:',
       file_uploader_validation_error_delete: 'Noko gjekk galt under slettinga av fila, prøv igjen seinare.',
       file_uploader_validation_error_exceeds_max_files:
