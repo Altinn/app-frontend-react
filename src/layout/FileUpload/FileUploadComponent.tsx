@@ -173,8 +173,10 @@ function AttachmentsCounter({
 }) {
   return (
     <small style={{ fontWeight: 'normal' }}>
-      <Lang id='form_filler.file_uploader_number_of_files' />{' '}
-      {maxNumAttachments ? `${numAttachments}/${maxNumAttachments}` : numAttachments}.
+      <Lang
+        id='form_filler.file_uploader_number_of_files'
+        params={[maxNumAttachments ? `${numAttachments}/${maxNumAttachments}` : numAttachments]}
+      />
     </small>
   );
 }
