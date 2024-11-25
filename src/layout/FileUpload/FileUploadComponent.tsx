@@ -3,9 +3,8 @@ import { toast } from 'react-toastify';
 import type { FileRejection } from 'react-dropzone';
 
 import { getDescriptionId, getLabelId, Label } from 'src/components/label/Label';
-import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/hooks';
+import { useAddRejectedAttachments, useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/hooks';
 import { Lang } from 'src/features/language/Lang';
-import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
@@ -17,7 +16,7 @@ import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneCompon
 import { FailedAttachments } from 'src/layout/FileUpload/Error/FailedAttachments';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
-import { handleRejectedFiles } from 'src/layout/FileUpload/handleRejectedFiles';
+import { RejectedFileError } from 'src/layout/FileUpload/RejectedFileError';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -45,10 +44,10 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
   const attachments = useAttachmentsFor(node);
+  const addRejectedAttachments = useAddRejectedAttachments();
   const uploadAttachments = useAttachmentsUploader();
 
   const validations = useUnifiedValidationsForNode(node).filter((v) => !('attachmentId' in v) || !v.attachmentId);
-  const langTools = useLanguage();
 
   const { options, isFetching } = useGetOptions(node as LayoutNode<'FileUploadWithTag'>, 'single');
 
@@ -85,13 +84,10 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
     if (acceptedFiles.length > 0) {
       setShowFileUpload(displayMode === 'simple' ? false : attachments.length < maxNumberOfAttachments);
     }
-    const rejections = handleRejectedFiles({
-      langTools,
-      rejectedFiles,
-      maxFileSizeInMB,
-    });
+
+    const rejections = rejectedFiles.map((fileRejection) => new RejectedFileError(fileRejection, maxFileSizeInMB));
     if (rejections?.length) {
-      toast(<Lang id={`- ${rejections.join('\n- ')}`} />, { type: 'error' });
+      addRejectedAttachments(node, rejections);
     }
   };
 

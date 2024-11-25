@@ -10,6 +10,7 @@ import { useDeleteFailedAttachment, useFailedAttachmentsFor } from 'src/features
 import { Lang } from 'src/features/language/Lang';
 import { getValidationIssueMessage } from 'src/features/validation/backendValidation/backendValidationUtils';
 import classes from 'src/layout/FileUpload/Error/FailedAttachments.module.css';
+import { isRejectedFileError } from 'src/layout/FileUpload/RejectedFileError';
 
 export function FailedAttachments({ node }: { node: FileUploaderNode }) {
   const failedAttachments = useFailedAttachmentsFor(node);
@@ -35,7 +36,6 @@ function FileUploadError({ attachment, handleClose }: { attachment: IFailedAttac
       severity='danger'
       role='alert'
       aria-live='assertive'
-      //TODO: better label
       aria-label={attachment.data.filename}
     >
       <div className={classes.container}>
@@ -92,5 +92,25 @@ function ErrorDetails({ error }: { error: Error }) {
     }
   }
 
+  if (isRejectedFileError(error)) {
+    if (error.data.rejection.file.size > error.data.maxFileSizeInMB * bytesInOneMB) {
+      return (
+        <Lang
+          id='form_filler.file_uploader_validation_error_file_size'
+          params={[error.data.rejection.file.name]}
+        />
+      );
+    } else {
+      return (
+        <Lang
+          id='form_filler.file_uploader_validation_error_general'
+          params={[error.data.rejection.file.name]}
+        />
+      );
+    }
+  }
+
   return <Lang id='form_filler.file_uploader_validation_error_upload' />;
 }
+
+const bytesInOneMB = 1048576;

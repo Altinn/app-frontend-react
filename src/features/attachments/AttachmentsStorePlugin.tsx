@@ -39,6 +39,7 @@ import type {
 import type { FDActionResult } from 'src/features/formData/FormDataWriteStateMachine';
 import type { DSPropsForSimpleSelector } from 'src/hooks/delayedSelectors';
 import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
+import type { RejectedFileError } from 'src/layout/FileUpload/RejectedFileError';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -89,6 +90,11 @@ export interface AttachmentActionRemove {
   dataModelBindings: IDataModelBindingsSimple | IDataModelBindingsList | undefined;
 }
 
+export interface AttachmentActionAddFailed {
+  node: FileUploaderNode;
+  attachments: IFailedAttachment[];
+}
+
 export type AttachmentsSelector = (node: FileUploaderNode) => IAttachment[];
 
 export interface AttachmentsStorePluginConfig {
@@ -105,6 +111,7 @@ export interface AttachmentsStorePluginConfig {
     attachmentRemoveRejected: (action: AttachmentActionRemove, error: AxiosError) => void;
 
     deleteFailedAttachment: (node: FileUploaderNode, temporaryId: string) => void;
+    addFailedAttachments: (action: AttachmentActionAddFailed) => void;
   };
   extraHooks: {
     useAttachmentsUpload: () => (
@@ -115,6 +122,7 @@ export interface AttachmentsStorePluginConfig {
     useAttachmentsUpdate: () => (action: AttachmentActionUpdate) => Promise<void>;
     useAttachmentsRemove: () => (action: AttachmentActionRemove) => Promise<boolean>;
     useDeleteFailedAttachment: () => (node: FileUploaderNode, temporaryId: string) => void;
+    useAddRejectedAttachments: () => (node: FileUploaderNode, errors: RejectedFileError[]) => void;
 
     useAttachments: (node: FileUploaderNode) => IAttachment[];
     useFailedAttachments: (node: FileUploaderNode) => IFailedAttachment[];
@@ -252,6 +260,19 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
           nodesProduce((draft) => {
             const nodeData = draft.nodeData[node.id] as ProperData;
             delete nodeData.attachmentsFailedToUpload[temporaryId];
+          }),
+        );
+      },
+      addFailedAttachments: ({ node, attachments }) => {
+        set(
+          nodesProduce((draft) => {
+            for (const { data, error } of attachments) {
+              const nodeData = draft.nodeData[node.id] as ProperData;
+              nodeData.attachmentsFailedToUpload[data.temporaryId] = {
+                data,
+                error,
+              };
+            }
           }),
         );
       },
@@ -543,6 +564,23 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
       useDeleteFailedAttachment() {
         return store.useStaticSelector((state) => state.deleteFailedAttachment);
+      },
+      useAddRejectedAttachments() {
+        const addFailedAttachments = store.useStaticSelector((state) => state.addFailedAttachments);
+        return useCallback(
+          (node: FileUploaderNode, errors: RejectedFileError[]) => {
+            const attachments: IFailedAttachment[] = errors.map((error) => ({
+              data: {
+                temporaryId: uuidv4(),
+                filename: error.data.rejection.file.name,
+                size: error.data.rejection.file.size,
+              },
+              error,
+            }));
+            addFailedAttachments({ node, attachments });
+          },
+          [addFailedAttachments],
+        );
       },
     };
   }
