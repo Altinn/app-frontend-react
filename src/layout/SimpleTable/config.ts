@@ -25,9 +25,7 @@ export const Config = new CG.component({
         'tableData',
         new CG.dataModelBinding().setTitle('TableData').setDescription('Array of objects where the data is stored'),
       ),
-    )
-      .optional()
-      .exportAs('IDataModelBindingsForTable'),
+    ).exportAs('IDataModelBindingsForTable'),
   )
   .addProperty(
     new CG.prop(

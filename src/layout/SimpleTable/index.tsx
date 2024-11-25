@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 
+import { ApiTable } from 'src/layout/SimpleTable/ApiTable';
 import { SimpleTableDef } from 'src/layout/SimpleTable/config.def.generated';
 import { SimpleTableComponent } from 'src/layout/SimpleTable/SimpleTableComponent';
 import { SimpleTableFeatureFlagLayoutValidator } from 'src/layout/SimpleTable/SimpleTableFeatureFlagLayoutValidator';
@@ -30,6 +31,10 @@ export class SimpleTable extends SimpleTableDef {
     return [];
   }
 
+  isDataModelBindingsRequired() {
+    return false;
+  }
+
   getDisplayData(): string {
     return '';
   }
@@ -46,6 +51,10 @@ export class SimpleTable extends SimpleTableDef {
             dataModelBindings={item.dataModelBindings}
           />
         );
+      }
+
+      if (item.externalApi) {
+        return <ApiTable {...props} />;
       }
 
       return null;
