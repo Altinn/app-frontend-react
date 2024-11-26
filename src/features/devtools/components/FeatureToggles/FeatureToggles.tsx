@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from 'react';
 
-import { Button, Checkbox, Heading, Label, Paragraph } from '@digdir/designsystemet-react';
+import { Checkbox, Heading, Label, Paragraph } from '@digdir/designsystemet-react';
 
+import { Button } from 'src/app-components/button/Button';
 import classes from 'src/features/devtools/components/FeatureToggles/FeatureToggles.module.css';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
 import { getAugmentedFeatures } from 'src/features/toggles';
@@ -35,7 +36,7 @@ export function FeatureToggles() {
 
   return (
     <SplitView
-      direction={'row'}
+      direction='row'
       minContent
     >
       <div className={classes.list}>
@@ -61,18 +62,18 @@ export function FeatureToggles() {
               >
                 <Heading
                   spacing={true}
-                  size={'small'}
+                  size='small'
                   level={4}
                 >
                   {parseAndCleanText(title)}
                 </Heading>
-                <Label size={'xsmall'}>Nøkkel: {key}</Label>
+                <Label size='xsmall'>Nøkkel: {key}</Label>
                 <br />
-                <Label size={'xsmall'}>
+                <Label size='xsmall'>
                   Verdi: {JSON.stringify(value)} / Standardverdi: {JSON.stringify(defaultValue)}
                 </Label>
                 <br />
-                <Label size={'xsmall'}>Kilde: {sourceMap[source]}</Label>
+                <Label size='xsmall'>Kilde: {sourceMap[source]}</Label>
                 <Paragraph>
                   {parseAndCleanText(description)}
                   {links && links.length && (
@@ -81,7 +82,7 @@ export function FeatureToggles() {
                         <li key={url}>
                           <a
                             href={url}
-                            target={'_blank'}
+                            target='_blank'
                             rel='noreferrer'
                           >
                             {url}
@@ -99,7 +100,6 @@ export function FeatureToggles() {
         )}
         <div className={classes.button}>
           <Button
-            size='small'
             disabled={Object.keys(overrides).length <= 0}
             onClick={() => {
               const { org, app } = window;

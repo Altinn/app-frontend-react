@@ -1,11 +1,10 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 import classNames from 'classnames';
 
-import { Caption } from 'src/components/form/Caption';
+import { Caption } from 'src/components/form/caption/Caption';
 import { Label } from 'src/components/label/Label';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
@@ -13,7 +12,7 @@ import { useStrictDataElements, useStrictInstanceId } from 'src/features/instanc
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
-import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
+import { useIsSubformPage, useNavigate } from 'src/features/routing/AppRoutingContext';
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -90,7 +89,7 @@ function SubformTableRow({
           <EditButton
             className={classes2.marginLeftAuto}
             componentNode={targetNode}
-            summaryComponentId={''}
+            summaryComponentId=''
             navigationOverride={() => navigate(`${targetNode.id}/${id}`)}
           />
         </Table.Cell>
@@ -133,7 +132,7 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
         />
         <Paragraph asChild>
           <span className={classes2.emptyField}>
-            <Lang id={'general.empty_summary'} />
+            <Lang id='general.empty_summary' />
           </span>
         </Paragraph>
       </>
@@ -171,13 +170,13 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
                 ))
               ) : (
                 <Table.HeaderCell className={classes1.tableCellFormatting}>
-                  <Lang id={'form_filler.subform_default_header'} />
+                  <Lang id='form_filler.subform_default_header' />
                 </Table.HeaderCell>
               )}
               {!pdfModeActive && (
                 <Table.HeaderCell className={classNames(classes2.editColumnHeader, classes2.noRightPad)}>
                   <span className={classes1.visuallyHidden}>
-                    <Lang id={'general.edit'} />
+                    <Lang id='general.edit' />
                   </span>
                 </Table.HeaderCell>
               )}

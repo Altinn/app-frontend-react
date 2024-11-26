@@ -49,6 +49,13 @@ export class TraversalTask {
   }
 
   /**
+   * Get the node object for a given ID
+   */
+  public getNode(id: string): LayoutNode | undefined {
+    return this.rootNode.findById(id);
+  }
+
+  /**
    * Filter a node based on the matcher
    */
   public passesMatcher(node: Node): boolean {
@@ -248,7 +255,7 @@ function useNodeTraversalProto<Out>(selector: (traverser: never) => Out, node?: 
 
   const out = dataSelector(
     (state) => {
-      if (!nodes || nodes === ContextNotProvided) {
+      if (!nodes) {
         return ContextNotProvided;
       }
 
@@ -318,30 +325,44 @@ function throwOrReturn<R>(value: R, strictness: Strictness) {
  */
 function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: Strict) {
   const nodes = useNodesLax();
-  const selectState = NodesInternal.useDataSelectorForTraversal();
+  const nodeDataSelectorForTraversal = NodesInternal.useDataSelectorForTraversal();
+  return useInnerNodeTraversalSelectorProto(strictness, nodes, nodeDataSelectorForTraversal);
+}
 
+function useInnerNodeTraversalSelectorProto<Strict extends Strictness>(
+  strictness: Strict,
+  nodes: ReturnType<typeof useNodesLax>,
+  nodeDataSelectorForTraversal: ReturnType<typeof NodesInternal.useDataSelectorForTraversal>,
+) {
   return useCallback(
     <U>(
       innerSelector: (traverser: NodeTraversalFromRoot) => InnerSelectorReturns<Strict, U>,
       deps: unknown[],
     ): InnerSelectorReturns<Strict, U> => {
-      if (!nodes || nodes === ContextNotProvided) {
+      if (!nodes) {
         return throwOrReturn(ContextNotProvided, strictness) as InnerSelectorReturns<Strict, U>;
       }
 
-      const value = selectState(
+      const value = nodeDataSelectorForTraversal(
         (state) => innerSelector(new NodeTraversal(state, nodes, nodes)) as InnerSelectorReturns<Strict, U>,
         [innerSelector.toString(), ...deps],
       );
 
       return throwOrReturn(value, strictness) as InnerSelectorReturns<Strict, U>;
     },
-    [selectState, nodes, strictness],
+    [nodeDataSelectorForTraversal, nodes, strictness],
   );
 }
 
 export function useNodeTraversalSelector() {
   return useNodeTraversalSelectorProto(Strictness.throwError);
+}
+
+export function useInnerNodeTraversalSelector(
+  nodes: ReturnType<typeof useNodesLax>,
+  nodeDataSelectorForTraversal: ReturnType<typeof NodesInternal.useDataSelectorForTraversal>,
+) {
+  return useInnerNodeTraversalSelectorProto(Strictness.throwError, nodes, nodeDataSelectorForTraversal);
 }
 
 export type NodeTraversalSelector = ReturnType<typeof useNodeTraversalSelector>;

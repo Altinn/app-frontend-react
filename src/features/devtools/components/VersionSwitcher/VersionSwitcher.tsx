@@ -1,9 +1,10 @@
 import React from 'react';
 
-import { Button, Combobox, Fieldset, Spinner } from '@digdir/designsystemet-react';
+import { Combobox, Fieldset, Spinner } from '@digdir/designsystemet-react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
+import { Button } from 'src/app-components/button/Button';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { appFrontendCDNPath, appPath, frontendVersionsCDN } from 'src/utils/urls/appUrlHelper';
 
@@ -46,7 +47,7 @@ export const VersionSwitcher = () => {
   };
 
   if (isVersionsLoading || isHtmlLoading || !versions) {
-    return <Spinner title={'Laster...'} />;
+    return <Spinner title='Laster...' />;
   }
 
   if (isVersionsError || isHtmlError) {
@@ -77,7 +78,6 @@ export const VersionSwitcher = () => {
       {selectedVersion && <span>Last inn siden på nytt for å gå tilbake til opprinnelig versjon.</span>}
       <Button
         id='version-switcher-button'
-        size='small'
         style={{ width: '100%' }}
         disabled={!selectedVersion}
         onClick={onClick}

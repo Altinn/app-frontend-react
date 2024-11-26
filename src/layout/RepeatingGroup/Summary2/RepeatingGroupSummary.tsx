@@ -12,7 +12,7 @@ import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/Providers/R
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
@@ -54,7 +54,7 @@ export const RepeatingGroupSummary = ({
   return (
     <div
       className={cn(classes.summaryWrapper, { [classes.nestedSummaryWrapper]: isNested })}
-      data-testid={'summary-repeating-group-component'}
+      data-testid='summary-repeating-group-component'
     >
       <Heading
         size='xs'
@@ -75,10 +75,10 @@ export const RepeatingGroupSummary = ({
               spacing={6}
               alignItems='flex-start'
             >
-              {row?.items?.map((node) => (
-                <ComponentSummary
-                  key={node.id}
-                  componentNode={node}
+              {row?.itemIds?.map((nodeId) => (
+                <ComponentSummaryById
+                  key={nodeId}
+                  componentId={nodeId}
                 />
               ))}
             </Grid>
@@ -95,7 +95,7 @@ export const RepeatingGroupSummary = ({
             id={message.key}
             params={message.params}
             node={componentNode}
-          ></Lang>
+          />
         </ErrorMessage>
       ))}
     </div>

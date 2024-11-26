@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { Pagination } from '@altinn/altinn-design-system';
-import { Button, Heading, Paragraph, Table } from '@digdir/designsystemet-react';
+import { Heading, Paragraph, Table } from '@digdir/designsystemet-react';
 import { Edit as EditIcon } from '@navikt/ds-icons';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
+import { Button } from 'src/app-components/button/Button';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
@@ -95,7 +96,7 @@ function InstanceSelection() {
         level={3}
         className={classes.leftOffHeading}
       >
-        <Lang id={'instance_selection.left_of'} />
+        <Lang id='instance_selection.left_of' />
       </Heading>
       <Table
         id='instance-selection-mobile-table'
@@ -125,7 +126,6 @@ function InstanceSelection() {
                   <div className={classes.tableButtonWrapper}>
                     <Button
                       variant='tertiary'
-                      size='small'
                       color='second'
                       icon={true}
                       onClick={handleOpenInstance}
@@ -174,10 +174,10 @@ function InstanceSelection() {
         <Table.Head id='instance-selection-table-header'>
           <Table.Row>
             <Table.HeaderCell>
-              <Lang id={'instance_selection.last_changed'} />
+              <Lang id='instance_selection.last_changed' />
             </Table.HeaderCell>
             <Table.HeaderCell>
-              <Lang id={'instance_selection.changed_by'} />
+              <Lang id='instance_selection.changed_by' />
             </Table.HeaderCell>
             <Table.HeaderCell />
           </Table.Row>
@@ -191,20 +191,17 @@ function InstanceSelection() {
                 <div className={classes.tableButtonWrapper}>
                   <Button
                     variant='tertiary'
-                    size='small'
                     color='second'
                     onClick={(ev) => {
                       storeCallback(focusMainContent);
                       openInstance(instance.id, ev);
                     }}
                   >
-                    <Lang id={'instance_selection.continue'} />
-                    {
-                      <EditIcon
-                        fontSize='1rem'
-                        title={langAsString('instance_selection.continue')}
-                      />
-                    }
+                    <Lang id='instance_selection.continue' />
+                    <EditIcon
+                      fontSize='1rem'
+                      title={langAsString('instance_selection.continue')}
+                    />
                   </Button>
                 </div>
               </Table.Cell>
@@ -249,12 +246,12 @@ function InstanceSelection() {
             size='medium'
             id='instance-selection-header'
           >
-            <Lang id={'instance_selection.header'} />
+            <Lang id='instance_selection.header' />
           </Heading>
         </div>
         <div id='instance-selection-description'>
           <Paragraph className={classes.descriptionParagraph}>
-            <Lang id={'instance_selection.description'} />
+            <Lang id='instance_selection.description' />
           </Paragraph>
         </div>
 
@@ -262,6 +259,7 @@ function InstanceSelection() {
         {!mobileView && renderTable()}
         <div className={classes.startNewButtonContainer}>
           <Button
+            size='md'
             onClick={() => {
               if (currentParty) {
                 storeCallback(focusMainContent);
@@ -270,7 +268,7 @@ function InstanceSelection() {
             }}
             id='new-instance-button'
           >
-            <Lang id={'instance_selection.new_instance'} />
+            <Lang id='instance_selection.new_instance' />
           </Button>
         </div>
       </div>
