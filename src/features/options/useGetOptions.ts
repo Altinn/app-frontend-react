@@ -14,18 +14,21 @@ import type { IOptionInternal } from 'src/features/options/castOptionsToStrings'
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
 import type { CompIntermediateExact, CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 export type OptionsValueType = 'single' | 'multi';
 
 interface FetchOptionsProps {
   node: LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
+  dataSources: ExpressionDataSources;
 }
 
-interface SortedOptionsProps {
+interface FilteredAndSortedOptionsProps {
   unsorted: IOptionInternal[];
   valueType: OptionsValueType;
   item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
+  dataSources: ExpressionDataSources;
 }
 
 export interface GetOptionsResult {
@@ -109,11 +112,11 @@ function useOptionsUrl(node: LayoutNode, item: CompIntermediateExact<CompWithBeh
   return useGetOptionsUrl(node, optionsId, mapping, queryParameters, secure);
 }
 
-export function useFetchOptions({ node, item }: FetchOptionsProps) {
+export function useFetchOptions({ node, item, dataSources }: FetchOptionsProps) {
   const { options, optionsId, source } = item;
   const url = useOptionsUrl(node, item);
 
-  const sourceOptions = useSourceOptions({ source, node });
+  const sourceOptions = useSourceOptions({ source, node, dataSources });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
   const { data, isFetching, error } = useGetOptionsQuery(url);
   useLogFetchError(error, item);
@@ -145,7 +148,7 @@ function useLogFetchError(error: Error | null, item: CompIntermediateExact<CompW
 }
 
 const emptyArray: never[] = [];
-export function useSortedOptions({ unsorted, valueType, item }: SortedOptionsProps) {
+export function useFilteredAndSortedOptions({ unsorted, valueType, item, dataSources }: FilteredAndSortedOptionsProps) {
   const sortOrder = item.sortOrder;
   const preselectedOptionIndex = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
   const language = useLanguage();
