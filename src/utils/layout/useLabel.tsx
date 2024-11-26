@@ -10,13 +10,13 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import type { GenericComponentOverrideDisplay } from 'src/layout/FormComponentContext';
 
 type Args = {
-  readOnly: boolean | undefined;
-  required: boolean | undefined;
-  showOptionalMarking: boolean | undefined;
+  readOnly?: boolean | undefined;
+  required?: boolean | undefined;
+  showOptionalMarking?: boolean | undefined;
   textResourceBindings:
     | { title?: string | undefined; help?: string | undefined; description?: string | undefined }
     | undefined;
-  overrideDisplay: GenericComponentOverrideDisplay | undefined;
+  overrideDisplay?: GenericComponentOverrideDisplay;
 };
 
 export function useLabel({ readOnly, required, showOptionalMarking, textResourceBindings, overrideDisplay }: Args) {
