@@ -15,7 +15,6 @@ import 'src/features/styleInjection';
 import '@digdir/designsystemet-css';
 
 import { AppWrapper } from '@altinn/altinn-design-system';
-import axios from 'axios';
 
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
@@ -35,11 +34,11 @@ import { TextResourcesProvider } from 'src/features/language/textResources/TextR
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
-import { AppRoutingProvider, getSearch, SearchParams } from 'src/features/routing/AppRoutingContext';
+import { propagateTraceWhenPdf } from 'src/features/propagateTraceWhenPdf';
+import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
 import { AppPrefetcher } from 'src/queries/appPrefetcher';
 import { PartyPrefetcher } from 'src/queries/partyPrefetcher';
 import * as queries from 'src/queries/queries';
-import { appPath } from 'src/utils/urls/appUrlHelper';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
@@ -58,16 +57,9 @@ const router = createHashRouter([
   },
 ]);
 
-function getCookies(): { [key: string]: string } {
-  const cookie = {};
-  document.cookie.split(';').forEach((el) => {
-    const split = el.split('=');
-    cookie[split[0].trim()] = split.slice(1).join('=');
-  });
-  return cookie;
-}
-
 document.addEventListener('DOMContentLoaded', () => {
+  propagateTraceWhenPdf();
+
   const container = document.getElementById('root');
   const root = container && createRoot(container);
   root?.render(
@@ -91,29 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function Root() {
-  const isPdf = new URLSearchParams(getSearch('')).get(SearchParams.Pdf) === '1';
-
-  if (isPdf) {
-    const cookies = getCookies();
-    axios.interceptors.request.use((config) => {
-      if (config.url?.startsWith(appPath) !== true) {
-        return config;
-      }
-
-      config.headers['X-Altinn-IsPdf'] = 'true';
-
-      const traceparent = cookies['altinn-telemetry-traceparent'];
-      const tracestate = cookies['altinn-telemetry-tracestate'];
-      if (traceparent) {
-        config.headers['traceparent'] = traceparent;
-      }
-      if (tracestate) {
-        config.headers['tracestate'] = tracestate;
-      }
-      return config;
-    });
-  }
-
   return (
     <InstantiationProvider>
       <TaskStoreProvider>
