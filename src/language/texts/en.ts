@@ -312,6 +312,9 @@ export function en() {
         vat: 'VAT',
       },
     },
+    organisation_lookup: {
+      orgnr_label: 'Organisation number',
+    },
     helptext: {
       button_title: 'Help',
       button_title_prefix: 'Helptext for',

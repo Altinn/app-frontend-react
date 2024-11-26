@@ -118,7 +118,7 @@ export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<
         <div className={classes.orgnrLabel}>
           <Label
             htmlFor={`${id}_orgnr`}
-            label={langAsString('organisation_lookup.orgnr')}
+            label={langAsString('organisation_lookup.orgnr_label')}
             required={required}
             requiredIndicator={<RequiredIndicator required={required} />}
             description={
@@ -133,7 +133,7 @@ export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<
         </div>
         <NumericInput
           id={`${id}_orgnr`}
-          aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_ssn`) : undefined}
+          aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_orgnr`) : undefined}
           value={hasSuccessfullyFetched ? organisation_lookup_orgnr : tempOrgNr}
           className={classes.orgnr}
           required={required}

@@ -1,3 +1,21 @@
+/* breakpoints-xs */
+@media only screen and (min-width: 0) {
+  .componentWrapper {
+    grid-template-areas: 'orgnrLabel' 'orgnr' 'submit' 'apiError';
+    gap: var(--fds-spacing-2);
+  }
+}
+
+/* breakpoints-md */
+@media only screen and (min-width: 840px) {
+  .componentWrapper {
+    grid-template-columns: repeat(2, minmax(250px, 250px)) auto;
+    grid-template-areas: 'orgnrLabel .' 'orgnr submit' 'apiError .';
+    align-items: end;
+    column-gap: var(--fds-spacing-2);
+  }
+}
+
 .componentWrapper {
   display: grid;
 
@@ -13,7 +31,7 @@
 
   .submit {
     grid-area: submit;
-    align-self: start;
+    align-self: end;
     white-space: nowrap;
   }
 }

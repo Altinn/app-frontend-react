@@ -313,6 +313,9 @@ export function nb(): FixedLanguageList {
         vat: 'MVA',
       },
     },
+    organisation_lookup: {
+      orgnr_label: 'Organisasjonsnummer',
+    },
     helptext: {
       button_title: 'Hjelp',
       button_title_prefix: 'Hjelpetekst for',
