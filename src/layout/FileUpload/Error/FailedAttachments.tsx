@@ -57,6 +57,7 @@ function FileUploadError({ attachment, handleClose }: { attachment: IFailedAttac
           variant='tertiary'
           color='second'
           onClick={handleClose}
+          aria-label={langAsString('general.close')}
         >
           <Close
             fontSize='1rem'
