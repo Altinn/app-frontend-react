@@ -32,7 +32,7 @@ describe('PDF', () => {
 
     cy.intercept({ method: 'GET', url: '**/applicationmetadata' }).as('appMetadata');
 
-    cy.testPdf('message', () => {
+    cy.testPdf(false, () => {
       cy.wait('@appMetadata').then(({ request }) => {
         expect(request.headers).to.have.property('traceparent', traceparent);
         expect(request.headers).to.have.property('tracestate', tracestate);
