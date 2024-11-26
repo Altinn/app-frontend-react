@@ -1,0 +1,19 @@
+.componentWrapper {
+  display: grid;
+
+  .orgnrLabel {
+    grid-area: orgnrLabel;
+    align-self: start;
+  }
+
+  .orgnr {
+    grid-area: orgnr;
+    align-self: start;
+  }
+
+  .submit {
+    grid-area: submit;
+    align-self: start;
+    white-space: nowrap;
+  }
+}
