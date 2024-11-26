@@ -48,20 +48,20 @@ export function Label({
         {...(grid ?? { xs: 12 })}
       >
         <span className={classes.labelAndDescWrapper}>
-          <DesignsystemetLabel
-            weight='medium'
-            size='md'
-            htmlFor={htmlFor}
-            className={cn(classes.label, className)}
-            style={style}
-          >
-            <div>
+          <span className={classes.labelAndHelpWrapper}>
+            <DesignsystemetLabel
+              weight='medium'
+              size='md'
+              htmlFor={htmlFor}
+              className={cn(className)}
+              style={style}
+            >
               {label}
               {required && requiredIndicator}
               {!required && optionalIndicator}
-            </div>
+            </DesignsystemetLabel>
             {help}
-          </DesignsystemetLabel>
+          </span>
           {description && <div className={classes.description}>{description}</div>}
         </span>
       </Grid>
