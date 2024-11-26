@@ -19,11 +19,11 @@ describe('PDF', () => {
   });
 
   it('downstream requests includes trace context header', () => {
-    const traceparent = '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01';
-    const tracestate = 'altinn';
+    const traceparentValue = '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01';
+    const tracestateValue = 'altinn';
     const cookies = {
-      'altinn-telemetry-traceparent': traceparent,
-      'altinn-telemetry-tracestate': tracestate,
+      'altinn-telemetry-traceparent': traceparentValue,
+      'altinn-telemetry-tracestate': tracestateValue,
     };
     for (const [key, value] of Object.entries(cookies)) {
       cy.setCookie(key, value);
@@ -34,8 +34,11 @@ describe('PDF', () => {
 
     cy.testPdf(false, () => {
       cy.wait('@appMetadata').then(({ request }) => {
-        expect(request.headers).to.have.property('traceparent', traceparent);
-        expect(request.headers).to.have.property('tracestate', tracestate);
+        expect(request.headers, 'request headers').to.include({
+          'X-Altinn-IsPdf': 'true',
+          traceparent: traceparentValue,
+          tracestate: tracestateValue,
+        });
       });
     });
   });
