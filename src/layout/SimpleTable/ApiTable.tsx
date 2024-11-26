@@ -62,8 +62,8 @@ export function ApiTable({ node, externalApi }: ApiTableProps) {
           renderCell = (_, __, rowIndex) => {
             const rowData = dataToDisplay[rowIndex];
             if (component.type === 'link') {
-              const href = pick(component.hrefPath, rowData); //getValueFromPath(rowData, component.hrefPath);
-              const text = pick(component.textPath, rowData); //getValueFromPath(rowData, component.textPath);
+              const href = pick(component.hrefPath, rowData);
+              const text = pick(component.textPath, rowData);
               return <Link href={href}>{text}</Link>;
             }
           };
