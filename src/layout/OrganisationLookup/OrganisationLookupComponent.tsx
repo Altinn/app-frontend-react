@@ -19,6 +19,7 @@ import { useBindingValidationsForNode } from 'src/features/validation/selectors/
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/OrganisationLookup/OrganisationLookupComponent.module.css';
+import { validateOrganisationLookupResponse, validateOrgnr } from 'src/layout/OrganisationLookup/validation';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { httpGet } from 'src/utils/network/networking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
@@ -31,7 +32,9 @@ export type Organisation = {
   orgNr: string;
   name: string;
 };
-export type OrganisationLookupResponse = { org: Organisation; error: null } | { org: null; error: string };
+export type OrganisationLookupResponse =
+  | { success: false; organisationDetails: null }
+  | { success: true; organisationDetails: Organisation };
 
 async function fetchOrg({
   queryKey: [{ orgNr }],
@@ -41,18 +44,21 @@ async function fetchOrg({
   if (!orgNr) {
     throw new Error('orgNr is required');
   }
-  const url = `${appPath}/api/v1/lookup/${orgNr}`;
+  const url = `${appPath}/api/v1/organisations/${orgNr}`;
 
   try {
-    const response = await httpGet<{ data: Organisation }>(url);
-    if (!response) {
-      throw new Error('No data');
+    const response = await httpGet<{ data: OrganisationLookupResponse }>(url);
+
+    if (!validateOrganisationLookupResponse(response?.data)) {
+      return { org: null, error: 'organisation_lookup.validation_error_no_response_from_server' };
     }
-    const data = response.data;
-    if (!data) {
-      throw new Error('No data');
+
+    if (!response || !response.data || !response.data.organisationDetails) {
+      // we want to get rid of this check, but it's here for now to avoid TS errors
+      return { org: null, error: 'organisation_lookup.validation_error_not_found' };
     }
-    return { org: data, error: null };
+
+    return { org: response.data.organisationDetails, error: null };
   } catch (error) {
     if (error.response.status === 403) {
       return { org: null, error: 'organisation_lookup.validation_error_forbidden' };
@@ -68,6 +74,7 @@ async function fetchOrg({
 export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<'OrganisationLookup'>) {
   const { id, dataModelBindings, required } = useNodeItem(node);
   const [tempOrgNr, setTempOrgNr] = useState('');
+  const [orgNrErrors, setOrgNrErrors] = useState<string[]>();
 
   const {
     formData: { organisation_lookup_orgnr },
@@ -89,6 +96,16 @@ export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<
   });
 
   function handleValidateOrgnr(orgNr: string) {
+    if (!validateOrgnr({ orgNr })) {
+      const errors = validateOrgnr.errors
+        ?.filter((error) => error.instancePath === '/orgNr')
+        .map((error) => error.message)
+        .filter((it) => it != null);
+
+      setOrgNrErrors(errors);
+      return false;
+    }
+    setOrgNrErrors(undefined);
     return true;
   }
 
@@ -139,9 +156,10 @@ export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<
           required={required}
           readOnly={hasSuccessfullyFetched || isFetching}
           error={
-            hasValidationErrors(bindingValidations?.organisation_lookup_orgnr) && (
+            (orgNrErrors?.length && <Lang id={orgNrErrors.join(' ')} />) ||
+            (hasValidationErrors(bindingValidations?.organisation_lookup_orgnr) && (
               <ComponentValidations validations={bindingValidations?.organisation_lookup_orgnr} />
-            )
+            ))
           }
           onValueChange={(e) => {
             setTempOrgNr(e.value);
