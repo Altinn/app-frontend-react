@@ -18,6 +18,28 @@ describe('PDF', () => {
     });
   });
 
+  it('downstream requests includes trace context header', () => {
+    const traceparent = '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01';
+    const tracestate = 'altinn';
+    const cookies = {
+      'altinn-telemetry-traceparent': traceparent,
+      'altinn-telemetry-tracestate': tracestate,
+    };
+    for (const [key, value] of Object.entries(cookies)) {
+      cy.setCookie(key, value);
+    }
+    cy.goto('message');
+
+    cy.intercept({ method: 'GET', url: '**/applicationmetadata' }).as('appMetadata');
+
+    cy.testPdf('message', () => {
+      cy.wait('@appMetadata').then(({ request }) => {
+        expect(request.headers).to.have.property('traceparent', traceparent);
+        expect(request.headers).to.have.property('tracestate', tracestate);
+      });
+    });
+  });
+
   it('should generate PDF for changename step', () => {
     cy.interceptLayout(
       'changename',
