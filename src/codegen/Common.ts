@@ -666,6 +666,13 @@ const common = {
           .setDescription('List of pages in the order they should appear in the application'),
       ),
       new CG.prop(
+        'groups',
+        new CG.arr(new CG.obj(new CG.prop('name', new CG.str()), new CG.prop('order', new CG.arr(new CG.str()))))
+          .setTitle('Page groups')
+          .setDescription('List of page groups in the order they should appear in the application')
+          .optional(),
+      ),
+      new CG.prop(
         'excludeFromPdf',
         new CG.arr(new CG.str())
           .optional()

@@ -18,6 +18,7 @@ import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLaxInstanceStatus } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
+import { SideBarNavigation } from 'src/features/navigation/AppNavigation';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -58,6 +59,7 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
             logoColor={LogoColor.blueDarker}
             headerBackgroundColor={backgroundColor}
           />
+          <SideBarNavigation />
           <main className={classes.page}>
             {isProcessStepsArchived && instanceStatus?.substatus && (
               <AltinnSubstatusPaper

@@ -121,6 +121,7 @@ export function en() {
       form: 'Form navigation',
       to_main_content: 'Go to main content',
       go_to_task: 'Navigate to {0}',
+      form_pages: 'Form pages',
     },
     general: {
       action: 'Action',

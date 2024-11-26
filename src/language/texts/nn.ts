@@ -121,6 +121,7 @@ export function nn(): FixedLanguageList {
       form: 'Skjemanavigasjon',
       to_main_content: 'Hopp til hovedinnholdet',
       go_to_task: 'Gå til {0}',
+      form_pages: 'Skjemasider',
     },
     general: {
       action: 'Handling',
