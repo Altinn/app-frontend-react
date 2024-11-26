@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 
+import { Link } from '@digdir/designsystemet-react';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
+import { pick } from 'dot-object';
 
 import { FieldRenderer } from 'src/app-components/DynamicForm/DynamicForm';
 import { AppTable } from 'src/app-components/table/Table';
@@ -138,6 +140,9 @@ export function SimpleTableComponent({ node, dataModelBindings }: TableComponent
         zebra={item.zebra}
         size={item.size}
         schema={schema}
+        mobile={isMobile}
+        actionButtons={actionButtons}
+        actionButtonHeader={<Lang id='general.action' />}
         caption={
           title && (
             <Caption
@@ -149,28 +154,36 @@ export function SimpleTableComponent({ node, dataModelBindings }: TableComponent
         }
         data={data}
         stickyHeader={true}
-        columns={item.columns.map((config) => ({
-          ...config,
-          header: <Lang id={config.header} />,
-          renderCell: config.component
-            ? (_, __, rowIndex) => (
+        columns={item.columns.map((config) => {
+          const { component } = config;
+          const header = <Lang id={config.header} />;
+          let renderCell;
+          if (component) {
+            renderCell = (_, __, rowIndex) => {
+              const rowData = data[rowIndex];
+              if (component.type === 'link') {
+                const href = pick(component.hrefPath, rowData); //getValueFromPath(rowData, component.hrefPath);
+                const text = pick(component.textPath, rowData); //getValueFromPath(rowData, component.textPath);
+                return <Link href={href}>{text}</Link>;
+              }
+
+              return (
                 <FieldRenderer
                   locale={languageLocale}
                   rowIndex={rowIndex}
                   fieldKey={config.accessors[0]}
                   fieldSchema={itemSchema.properties[config.accessors[0]]}
                   formData={data[rowIndex]}
-                  component={
-                    config.component
-                      ? {
-                          ...config.component,
-                          options: config.component?.options?.map((option) => ({
+                  component={{
+                    ...component,
+                    options:
+                      component.type === 'radio'
+                        ? component.options?.map((option) => ({
                             ...option,
                             label: langAsString(option.label),
-                          })),
-                        }
-                      : undefined
-                  }
+                          }))
+                        : undefined,
+                  }}
                   handleChange={(fieldName, value) => {
                     const valueToUpdate = data.find((_, idx) => idx === rowIndex);
                     const nextValue = { ...valueToUpdate, [`${fieldName}`]: value };
@@ -181,12 +194,16 @@ export function SimpleTableComponent({ node, dataModelBindings }: TableComponent
                   buttonAriaLabel={langAsString('date_picker.aria_label_icon')}
                   calendarIconTitle={langAsString('date_picker.aria_label_icon')}
                 />
-              )
-            : undefined,
-        }))}
-        mobile={isMobile}
-        actionButtons={actionButtons}
-        actionButtonHeader={<Lang id='general.action' />}
+              );
+            };
+          }
+
+          return {
+            ...config,
+            header,
+            renderCell,
+          };
+        })}
       />
     </>
   );

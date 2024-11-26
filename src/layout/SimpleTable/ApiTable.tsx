@@ -1,5 +1,8 @@
 import React from 'react';
 
+import { Link } from '@digdir/designsystemet-react';
+import { pick } from 'dot-object';
+
 import { AppTable } from 'src/app-components/table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
@@ -21,7 +24,6 @@ export function ApiTable({ node, externalApi }: ApiTableProps) {
   const { elementAsString } = useLanguage();
   const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
-
   const { data } = useExternalApis([externalApi.id]);
 
   if (!data[externalApi.id]) {
@@ -52,10 +54,27 @@ export function ApiTable({ node, externalApi }: ApiTableProps) {
       }
       data={dataToDisplay}
       stickyHeader={true}
-      columns={item.columns.map((config) => ({
-        ...config,
-        header: <Lang id={config.header} />,
-      }))}
+      columns={item.columns.map((config) => {
+        const { component } = config;
+        const header = <Lang id={config.header} />;
+        let renderCell;
+        if (component) {
+          renderCell = (_, __, rowIndex) => {
+            const rowData = dataToDisplay[rowIndex];
+            if (component.type === 'link') {
+              const href = pick(component.hrefPath, rowData); //getValueFromPath(rowData, component.hrefPath);
+              const text = pick(component.textPath, rowData); //getValueFromPath(rowData, component.textPath);
+              return <Link href={href}>{text}</Link>;
+            }
+          };
+        }
+
+        return {
+          ...config,
+          header,
+          renderCell,
+        };
+      })}
       mobile={isMobile}
       actionButtonHeader={<Lang id='general.action' />}
     />
