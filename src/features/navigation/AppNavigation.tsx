@@ -82,8 +82,9 @@ function PageGroup({ group }: { group: Group }) {
         onClick={() => setIsOpen((o) => !o)}
       >
         <PageGroupSymbol
+          open={isOpen}
           error={validations !== ContextNotProvided && validations.errors.group}
-          ready={validations !== ContextNotProvided && validations.completed.group}
+          complete={validations !== ContextNotProvided && validations.completed.group}
         />
         <span className={classes.groupName}>
           <Lang id={group.name} />
@@ -106,18 +107,18 @@ function PageGroup({ group }: { group: Group }) {
   );
 }
 
-function PageGroupSymbol({ error, ready }: { error: boolean; ready: boolean }) {
-  const showError = error;
-  const showReady = ready && !error;
+function PageGroupSymbol({ error, complete, open }: { error: boolean; complete: boolean; open: boolean }) {
+  const showError = error && !open;
+  const showComplete = complete && !error && !open;
 
-  const Icon = showError ? ExclamationmarkIcon : showReady ? CheckmarkIcon : FolderIcon;
+  const Icon = showError ? ExclamationmarkIcon : showComplete ? CheckmarkIcon : FolderIcon;
 
   return (
     <div
       className={cn(classes.groupSymbol, {
         [classes.groupSymbolError]: showError,
-        [classes.groupSymbolReady]: showReady,
-        [classes.groupSymbolDefault]: !showError && !showReady,
+        [classes.groupSymbolComplete]: showComplete,
+        [classes.groupSymbolDefault]: !showError && !showComplete,
       })}
     >
       <Icon aria-hidden />
@@ -139,7 +140,7 @@ function Page({ page, hasErrors, isComplete }: { page: string; hasErrors: boolea
       >
         <PageSymbol
           error={hasErrors}
-          ready={isComplete}
+          complete={isComplete}
           active={isCurrentPage}
         />
 
@@ -151,20 +152,20 @@ function Page({ page, hasErrors, isComplete }: { page: string; hasErrors: boolea
   );
 }
 
-function PageSymbol({ error, ready, active }: { error: boolean; ready: boolean; active: boolean }) {
+function PageSymbol({ error, complete, active }: { error: boolean; complete: boolean; active: boolean }) {
   const showActive = active;
   const showError = error && !active;
-  const showReady = ready && !error && !active;
+  const showComplete = complete && !error && !active;
 
-  const Icon = showError ? ExclamationmarkIcon : showReady ? CheckmarkIcon : null;
+  const Icon = showError ? ExclamationmarkIcon : showComplete ? CheckmarkIcon : null;
 
   return (
     <div
       className={cn(classes.pageSymbol, {
         [classes.pageSymbolActive]: showActive,
         [classes.pageSymbolError]: showError,
-        [classes.pageSymbolReady]: showReady,
-        [classes.pageSymbolDefault]: !showError && !showReady,
+        [classes.pageSymbolComplete]: showComplete,
+        [classes.pageSymbolDefault]: !showError && !showComplete,
       })}
     >
       {Icon && <Icon aria-hidden />}

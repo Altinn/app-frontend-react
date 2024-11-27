@@ -76,7 +76,7 @@
   background-color: var(--fds-colors-red-100);
 }
 
-.group-symbol-ready {
+.group-symbol-complete {
   color: white;
   border-color: var(--fds-colors-blue-700);
   background-color: var(--fds-colors-blue-700);
@@ -161,7 +161,7 @@
   background-color: var(--fds-colors-red-100);
 }
 
-.page-symbol-ready {
+.page-symbol-complete {
   font-size: 18px;
   color: white;
   border-color: var(--fds-colors-blue-700);
