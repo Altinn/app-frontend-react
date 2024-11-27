@@ -28,11 +28,12 @@ describe('PDF', () => {
       'altinn-telemetry-tracestate': tracestateValue,
     };
 
-    cy.intercept(`*/api/**`).as('apiRequests');
+    cy.intercept(`*/instances/**`).as('apiRequests');
     cy.goto('message', { cookies });
 
     cy.testPdf(false, () => {
       cy.get<Interception<unknown, unknown>>('@apiRequests').then(({ request }) => {
+        cy.log('Request intercepted:', request.url, JSON.stringify(request.headers, null, 2));
         expect(request.headers, 'request headers').to.include({
           'X-Altinn-IsPdf': 'true',
           traceparent: traceparentValue,
