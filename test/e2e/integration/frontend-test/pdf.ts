@@ -30,10 +30,10 @@ describe('PDF', () => {
     }
     cy.goto('message');
 
-    cy.intercept({ method: 'GET', url: '**/applicationmetadata' }).as('appMetadata');
+    cy.intercept(`/ttd/frontend-test/**`).as('apiRequests');
 
     cy.testPdf(false, () => {
-      cy.wait('@appMetadata').then(({ request }) => {
+      cy.wait('@apiRequests.all').then(({ request }) => {
         expect(request.headers, 'request headers').to.include({
           'X-Altinn-IsPdf': 'true',
           traceparent: traceparentValue,
