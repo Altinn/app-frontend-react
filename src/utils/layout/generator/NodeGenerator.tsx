@@ -1,6 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import deepEqual from 'fast-deep-equal';
+
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
@@ -9,6 +11,7 @@ import { getComponentDef, getNodeConstructor } from 'src/layout';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorDebug } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal, GeneratorNodeProvider } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
 import {
   GeneratorCondition,
@@ -20,7 +23,6 @@ import {
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { CompDef } from 'src/layout';
@@ -34,8 +36,7 @@ import type {
   CompTypes,
   ITextResourceBindings,
 } from 'src/layout/layout';
-import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
-import type { ChildClaim } from 'src/utils/layout/generator/GeneratorContext';
+import type { ExprResolver, NodeGeneratorProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 import type { StateFactoryProps } from 'src/utils/layout/types';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
@@ -49,7 +50,7 @@ import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSo
  * can always be up-to-date, and so that we can implement effects for components that run even when the
  * component is not visible/rendered.
  */
-export function NodeGenerator({ children, claim, externalItem }: PropsWithChildren<BasicNodeGeneratorProps>) {
+export function NodeGenerator({ children, externalItem }: PropsWithChildren<NodeGeneratorProps>) {
   const intermediateItem = useIntermediateItem(externalItem) as CompIntermediateExact<CompTypes>;
   const node = useNewNode(intermediateItem) as LayoutNode;
   useGeneratorErrorBoundaryNodeRef().current = node;
@@ -63,10 +64,7 @@ export function NodeGenerator({ children, claim, externalItem }: PropsWithChildr
         stage={StageAddNodes}
         mustBeAdded='parent'
       >
-        <AddRemoveNode
-          {...commonProps}
-          claim={claim}
-        />
+        <AddRemoveNode {...commonProps} />
       </GeneratorCondition>
       <GeneratorCondition
         stage={StageMarkHidden}
@@ -110,15 +108,18 @@ function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T
   return null;
 }
 
-interface AddNodeProps<T extends CompTypes> extends CommonProps<T> {
-  claim: ChildClaim;
-}
-
-function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: AddNodeProps<T>) {
+function AddRemoveNode<T extends CompTypes>({ node, intermediateItem }: CommonProps<T>) {
   const parent = GeneratorInternal.useParent()!;
   const rowIndex = GeneratorInternal.useRowIndex();
   const pageKey = GeneratorInternal.usePage()?.pageKey ?? '';
-  const stateFactoryProps = { item: intermediateItem, parent, rowIndex, pageKey } satisfies StateFactoryProps<T>;
+  const idMutators = GeneratorInternal.useIdMutators() ?? [];
+  const stateFactoryProps = {
+    item: intermediateItem,
+    parent,
+    rowIndex,
+    pageKey,
+    idMutators,
+  } satisfies StateFactoryProps<T>;
   const isAdded = NodesInternal.useIsAdded(node);
 
   NodesStateQueue.useAddNode(
@@ -126,13 +127,11 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem, claim }: A
       node,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       targetState: node.def.stateFactory(stateFactoryProps as any),
-      claim,
-      rowIndex,
     },
     !isAdded,
   );
 
-  NodesStateQueue.useRemoveNode({ node, claim, rowIndex });
+  NodesStateQueue.useRemoveNode({ node });
 
   return null;
 }
@@ -147,11 +146,23 @@ function ResolveExpressions<T extends CompTypes>({ node, intermediateItem }: Com
     [def, resolverProps],
   );
 
-  NodesStateQueue.useSetNodeProp({ node, prop: 'item', value: resolved, partial: true });
+  const isSet = NodesInternal.useNodeData(node, (data) => {
+    if (!data.item) {
+      return false;
+    }
 
-  return (
-    <>{GeneratorDebug.displayState && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolved, null, 2)}</pre>}</>
-  );
+    for (const key in resolved) {
+      if (!deepEqual(data.item[key], resolved[key])) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  NodesStateQueue.useSetNodeProp({ node, prop: 'item', value: resolved, partial: true }, !isSet);
+
+  return GeneratorDebug.displayState && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolved, null, 2)}</pre>;
 }
 
 /**
@@ -163,7 +174,7 @@ export function useExpressionResolverProps<T extends CompTypes>(
   _item: CompIntermediateExact<T>,
   rowIndex?: number,
 ): ExprResolver<T> {
-  const allDataSources = useExpressionDataSources();
+  const allDataSources = GeneratorData.useExpressionDataSources();
   const allDataSourcesAsRef = useAsRef(allDataSources);
 
   // The hidden property is handled elsewhere, and should never be passed to the item (and resolved as an

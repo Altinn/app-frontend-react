@@ -1,10 +1,12 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
+import { Button } from 'src/app-components/button/Button';
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
-import { ProcessNavigation } from 'src/components/presentation/ProcessNavigation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppOwner } from 'src/core/texts/appTexts';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { returnConfirmSummaryObject } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
@@ -61,20 +63,47 @@ export const ConfirmPage = ({ instance, instanceOwnerParty, appName, application
         body={
           appName && (
             <Lang
-              id={'confirm.body'}
+              id='confirm.body'
               params={[appName]}
             />
           )
         }
-        collapsibleTitle={<Lang id={'confirm.attachments'} />}
+        collapsibleTitle={<Lang id='confirm.attachments' />}
         hideCollapsibleCount={true}
         instanceMetaDataObject={getInstanceMetaObject()}
-        title={<Lang id={'confirm.title'} />}
-        titleSubmitted={<Lang id={'confirm.answers'} />}
+        title={<Lang id='confirm.title' />}
+        titleSubmitted={<Lang id='confirm.answers' />}
         pdf={filterDisplayPdfAttachments(instance?.data ?? [])}
       />
-      <ProcessNavigation />
+      <ConfirmButton nodeId='confirm-button' />
       <ReadyForPrint type='load' />
     </>
+  );
+};
+
+const ConfirmButton = (props: { nodeId: string }) => {
+  const { actions } = useLaxProcessData()?.currentTask || {};
+  const { nodeId } = props;
+  const disabled = !actions?.confirm;
+  const { next, busyWithId: processNextBusyId } = useProcessNavigation() || {};
+
+  const handleConfirmClick = () => {
+    if (!disabled && nodeId) {
+      next?.({ action: 'confirm', nodeId });
+    }
+  };
+
+  return (
+    <div style={{ marginTop: 'var(--button-margin-top)' }}>
+      <Button
+        id={nodeId}
+        isLoading={!!processNextBusyId}
+        onClick={handleConfirmClick}
+        disabled={disabled}
+        color='success'
+      >
+        <Lang id='confirm.button_text' />
+      </Button>
+    </div>
   );
 };

@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-import { Button, Spinner, Table } from '@digdir/designsystemet-react';
+import { Spinner, Table } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 import dot from 'dot-object';
 
-import { Caption } from 'src/components/form/Caption';
+import { Button } from 'src/app-components/button/Button';
+import { Caption } from 'src/components/form/caption/Caption';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictDataElements, useStrictInstanceId } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
+import { useIsSubformPage, useNavigate } from 'src/features/routing/AppRoutingContext';
 import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subformData/useSubformMutations';
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
@@ -103,18 +103,18 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
                     ))
                   ) : (
                     <Table.HeaderCell className={classes.tableCellFormatting}>
-                      <Lang id={'form_filler.subform_default_header'} />
+                      <Lang id='form_filler.subform_default_header' />
                     </Table.HeaderCell>
                   )}
                   <Table.HeaderCell>
                     <span className={classes.visuallyHidden}>
-                      <Lang id={'general.edit'} />
+                      <Lang id='general.edit' />
                     </span>
                   </Table.HeaderCell>
                   {showDeleteButton && (
                     <Table.HeaderCell>
                       <span className={classes.visuallyHidden}>
-                        <Lang id={'general.delete'} />
+                        <Lang id='general.delete' />
                       </span>
                     </Table.HeaderCell>
                   )}
@@ -143,8 +143,9 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
         {showAddButton && (
           <div className={classes.addButton}>
             <Button
-              disabled={isAdding}
               id={`subform-${id}-add-button`}
+              size='md'
+              disabled={isAdding}
               onClick={async () => await addEntry()}
               onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
                 const allowedKeys = ['enter', ' ', 'spacebar'];
@@ -254,10 +255,8 @@ function SubformTableRow({
             disabled={isDeleting}
             variant='tertiary'
             color='second'
-            size='small'
             onClick={async () => navigate(`${node.id}/${id}${hasErrors ? '?validate=true' : ''}`)}
             aria-label={editButtonText}
-            data-testid='edit-button'
             className={classes.tableButton}
           >
             {editButtonText}
@@ -275,10 +274,8 @@ function SubformTableRow({
               disabled={isDeleting}
               variant='tertiary'
               color='danger'
-              size='small'
               onClick={async () => await deleteEntry()}
               aria-label={deleteButtonText}
-              data-testid='delete-button'
               className={classes.tableButton}
             >
               {deleteButtonText}

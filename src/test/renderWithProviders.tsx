@@ -120,6 +120,7 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   doAttachmentAddTag: makeMock('doAttachmentAddTag'),
   doAttachmentRemove: makeMock('doAttachmentRemove'),
   doAttachmentRemoveTag: makeMock('doAttachmentRemoveTag'),
+  doAttachmentUploadOld: makeMock('doAttachmentUploadOld'),
   doAttachmentUpload: makeMock('doAttachmentUpload'),
   doPatchFormData: makeMock('doPatchFormData'),
   doPatchMultipleFormData: makeMock('doPatchMultipleFormData'),
@@ -227,11 +228,11 @@ function DefaultRouter({ children }: PropsWithChildren) {
     <MemoryRouter>
       <Routes>
         <Route
-          path={'/'}
+          path='/'
           element={children}
         />
         <Route
-          path={'*'}
+          path='*'
           element={<NotFound />}
         />
       </Routes>
@@ -248,20 +249,20 @@ export function InstanceRouter({
 }: PropsWithChildren<InstanceRouterProps>) {
   return (
     <MemoryRouter
-      basename={'/ttd/test'}
+      basename='/ttd/test'
       initialEntries={[`/ttd/test/instance/${instanceId}/${taskId}/${initialPage}`]}
     >
       <Routes>
         <Route
-          path={'instance/:partyId/:instanceGuid/:taskId/:pageId'}
+          path='instance/:partyId/:instanceGuid/:taskId/:pageId'
           element={children}
         />
         <Route
-          path={'instance/:partyId/:instanceGuid/:taskId'}
+          path='instance/:partyId/:instanceGuid/:taskId'
           element={children}
         />
         <Route
-          path={'*'}
+          path='*'
           element={alwaysRouteToChildren ? children : <NotFound />}
         />
       </Routes>
@@ -683,7 +684,7 @@ const WaitForNodes = ({
     return <div>Unable to find target node: {nodeId}</div>;
   }
 
-  return <>{children}</>;
+  return children;
 };
 
 export interface RenderWithNodeTestProps<T extends LayoutNode, InInstance extends boolean>

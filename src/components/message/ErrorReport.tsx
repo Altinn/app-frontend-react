@@ -36,7 +36,7 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
     <div data-testid='ErrorReport'>
       <FullWidthWrapper isOnBottom={true}>
         <Panel
-          title={<Lang id={'form_filler.error_report_header'} />}
+          title={<Lang id='form_filler.error_report_header' />}
           variant={PANEL_VARIANT.Error}
         >
           <Grid
@@ -92,7 +92,7 @@ function Error({ error }: { error: NodeRefValidation }) {
       return;
     }
     ev.preventDefault();
-    if (isHidden) {
+    if (isHidden || !node) {
       // No point in trying to focus on a hidden component
       return;
     }

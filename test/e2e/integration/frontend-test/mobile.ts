@@ -19,7 +19,7 @@ it('is possible to submit app instance from mobile', () => {
   testConfirm();
 });
 
-it('is possible to submit app instance a tablet', () => {
+it('is possible to submit app instance from a tablet', () => {
   cy.viewport(breakpoints.tablet - 5, 1024);
   testChangeName();
   cy.get('html.viewport-is-tablet').should('be.visible');
@@ -32,10 +32,6 @@ it('is possible to submit app instance a tablet', () => {
 function testChangeName() {
   cy.goto('changename');
 
-  cy.findByRole('textbox', { name: /du har valgt å endre:/i })
-    .parents()
-    .eq(5)
-    .should('have.css', 'max-width', '100%');
   cy.fillOut('changename');
   cy.intercept('**/api/layoutsettings/group').as('getLayoutGroup');
   cy.get(appFrontend.sendinButton).should('be.visible');
@@ -114,7 +110,7 @@ function testListMobile() {
     cy.findByRole('radio', { name: /caroline/i }).check();
     cy.findByRole('radio', { name: /caroline/i }).should('be.checked');
   });
-  cy.get(appFrontend.nextButton).click();
+  cy.findByRole('button', { name: 'Neste' }).click();
   sendIn();
 }
 
@@ -123,7 +119,7 @@ function testListTablet() {
     cy.findByRole('row', { name: /caroline/i }).click();
     cy.findByRole('radio', { name: /caroline/i }).should('be.checked');
   });
-  cy.get(appFrontend.nextButton).click();
+  cy.findByRole('button', { name: 'Neste' }).click();
   sendIn();
 }
 
@@ -135,6 +131,7 @@ function testConfirm() {
 }
 
 function sendIn() {
+  cy.get(appFrontend.sendinButton).should('be.visible');
   cy.get(appFrontend.sendinButton).click();
   cy.get(appFrontend.sendinButton).should('not.exist');
 }

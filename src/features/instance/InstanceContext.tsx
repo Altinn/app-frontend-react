@@ -31,7 +31,7 @@ export interface InstanceContext {
   dataSources: IInstanceDataSources | null;
 
   // Methods/utilities
-  appendDataElement: (element: IData) => void;
+  appendDataElements: (element: IData[]) => void;
   mutateDataElement: (elementId: string, mutator: (element: IData) => IData) => void;
   removeDataElement: (elementId: string) => void;
 
@@ -52,6 +52,7 @@ const {
   useHasProvider,
   useLaxStore,
   useLaxDelayedSelector,
+  useLaxDelayedSelectorProps,
 } = createZustandContext({
   name: 'InstanceContext',
   required: true,
@@ -61,12 +62,12 @@ const {
       instanceId: `${props.partyId}/${props.instanceGuid}`,
       data: undefined,
       dataSources: null,
-      appendDataElement: (element) =>
+      appendDataElements: (elements) =>
         set((state) => {
           if (!state.data) {
             throw new Error('Cannot append data element when instance data is not set');
           }
-          const next = { ...state.data, data: [...state.data.data, element] };
+          const next = { ...state.data, data: [...state.data.data, ...elements] };
           return { ...state, data: next, dataSources: buildInstanceDataSources(next) };
         }),
       mutateDataElement: (elementId, mutator) =>
@@ -207,7 +208,7 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
     return <Loader reason='instance' />;
   }
 
-  return <>{children}</>;
+  return children;
 };
 
 /**
@@ -216,7 +217,7 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
  * know should only be used in instanceful contexts. Code paths that have to work in stateless/instanceless contexts
  * should use the lax versions and handle the undefined case.
  */
-function useLaxInstance<U>(selector: (state: InstanceContext) => U) {
+export function useLaxInstance<U>(selector: (state: InstanceContext) => U) {
   const out = useLaxMemoSelector(selector);
   return out === ContextNotProvided ? undefined : out;
 }
@@ -228,7 +229,7 @@ export const useLaxInstanceData = <U,>(selector: (data: IInstance) => U) =>
   useLaxInstance((state) => (state.data ? selector(state.data) : undefined));
 export const useLaxInstanceAllDataElements = () => useLaxInstance((state) => state.data?.data) ?? emptyArray;
 export const useLaxInstanceStatus = () => useLaxInstance((state) => state.data?.status);
-export const useLaxAppendDataElement = () => useLaxInstance((state) => state.appendDataElement);
+export const useLaxAppendDataElements = () => useLaxInstance((state) => state.appendDataElements);
 export const useLaxMutateDataElement = () => useLaxInstance((state) => state.mutateDataElement);
 export const useLaxRemoveDataElement = () => useLaxInstance((state) => state.removeDataElement);
 export const useLaxInstanceDataSources = () => useLaxInstance((state) => state.dataSources) ?? null;
@@ -241,10 +242,17 @@ export const useLaxInstanceDataElements = (dataType: string | undefined) =>
   useLaxInstance((state) => state.data?.data.filter((d) => d.dataType === dataType)) ?? emptyArray;
 
 export type DataElementSelector = <U>(selector: (data: IData[]) => U, deps: unknown[]) => U | typeof ContextNotProvided;
+const dataElementsInnerSelector = (state: InstanceContext) => [state.data?.data ?? emptyArray];
+
 export const useLaxDataElementsSelector = (): DataElementSelector =>
   useLaxDelayedSelector({
     mode: 'innerSelector',
-    makeArgs: (state) => [state.data?.data ?? emptyArray],
+    makeArgs: dataElementsInnerSelector,
+  });
+export const useLaxDataElementsSelectorProps = () =>
+  useLaxDelayedSelectorProps({
+    mode: 'innerSelector',
+    makeArgs: dataElementsInnerSelector,
   });
 
 /** Like useLaxInstanceAllDataElements, but will never re-render when the data changes */
@@ -258,7 +266,7 @@ export const useLaxInstanceAllDataElementsNow = () => {
 
 export const useStrictInstanceRefetch = () => useSelector((state) => state.reFetch);
 export const useStrictInstanceId = () => useSelector((state) => state.instanceId);
-export const useStrictAppendDataElement = () => useSelector((state) => state.appendDataElement);
+export const useStrictAppendDataElements = () => useSelector((state) => state.appendDataElements);
 export const useStrictMutateDataElement = () => useSelector((state) => state.mutateDataElement);
 export const useStrictRemoveDataElement = () => useSelector((state) => state.removeDataElement);
 export const useStrictAllDataElements = () => useMemoSelector((state) => state.data?.data) ?? emptyArray;

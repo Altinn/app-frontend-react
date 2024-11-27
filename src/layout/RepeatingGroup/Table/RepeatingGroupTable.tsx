@@ -3,12 +3,12 @@ import React from 'react';
 import { Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
-import { Caption } from 'src/components/form/Caption';
+import { Caption } from 'src/components/form/caption/Caption';
 import { Lang } from 'src/features/language/Lang';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
-import { GenericComponent } from 'src/layout/GenericComponent';
+import { GenericComponentById } from 'src/layout/GenericComponent';
 import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
-import { useNodesFromGridRows } from 'src/layout/Grid/tools';
+import { useNodeIdsFromGridRows } from 'src/layout/Grid/tools';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/EditContainer/RepeatingGroupsEditContainer';
 import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/Pagination/RepeatingGroupPagination';
 import {
@@ -103,7 +103,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
           />
         )}
         <ExtraRows
-          where={'Before'}
+          where='Before'
           extraCells={extraCells}
           columnSettings={columnSettings}
         />
@@ -120,14 +120,14 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
               {displayEditColumn && (
                 <Table.HeaderCell style={{ padding: 0, paddingRight: '10px' }}>
                   <span className={classes.visuallyHidden}>
-                    <Lang id={'general.edit'} />
+                    <Lang id='general.edit' />
                   </span>
                 </Table.HeaderCell>
               )}
               {displayDeleteColumn && (
                 <Table.HeaderCell style={{ padding: 0 }}>
                   <span className={classes.visuallyHidden}>
-                    <Lang id={'general.delete'} />
+                    <Lang id='general.delete' />
                   </span>
                 </Table.HeaderCell>
               )}
@@ -176,7 +176,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
         </Table.Body>
         <RepeatingGroupPagination />
         <ExtraRows
-          where={'After'}
+          where='After'
           extraCells={extraCells}
           columnSettings={columnSettings}
         />
@@ -200,13 +200,13 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
   const isNested = node.parent instanceof BaseLayoutNode;
 
   const rows = where === 'Before' ? item.rowsBeforeInternal : item.rowsAfterInternal;
-  const mobileNodes = useNodesFromGridRows(rows, mobileView);
+  const mobileNodeIds = useNodeIdsFromGridRows(rows, mobileView);
   if (isEmpty || !rows) {
     return null;
   }
 
   if (mobileView) {
-    if (!mobileNodes || mobileNodes.length === 0) {
+    if (!mobileNodeIds || mobileNodeIds.length === 0) {
       return null;
     }
 
@@ -214,10 +214,10 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
       <Table.Body>
         <Table.Row>
           <Table.Cell className={classes.mobileTableCell}>
-            {mobileNodes.map((child) => (
-              <GenericComponent
-                key={child.id}
-                node={child}
+            {mobileNodeIds.map((childId) => (
+              <GenericComponentById
+                key={childId}
+                id={childId}
               />
             ))}
           </Table.Cell>
