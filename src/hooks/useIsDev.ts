@@ -1,4 +1,5 @@
-const devHostNames = [/^local\.altinn\.cloud$/, /^\S+\.apps\.tt02\.altinn\.no$/];
+const localtestHostName = /^local\.altinn\.cloud$/;
+const devHostNames = [localtestHostName, /^\S+\.apps\.tt02\.altinn\.no$/];
 const studioHostNames = [/^dev\.altinn\.studio$/, /^altinn\.studio$/, /^studio\.localhost$/];
 
 /**
@@ -9,6 +10,10 @@ export function useIsDev(): boolean {
   const isLocalOrStaging = useIsLocalOrStaging();
   const isStudioPreview = useIsStudioPreview();
   return isLocalOrStaging || isStudioPreview;
+}
+
+export function useIsLocalTest(): boolean {
+  return localtestHostName.test(window.location.hostname);
 }
 
 /**

@@ -11,6 +11,7 @@ import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettings
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useIsLocalTest, useIsStudioPreview } from 'src/hooks/useIsDev';
 import { httpGet } from 'src/utils/network/networking';
 import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
 import { returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
@@ -23,9 +24,19 @@ export const NavBar = () => {
   const { expandedWidth, toggleExpandedWidth } = useUiConfigContext();
   const { hideCloseButton, showLanguageSelector, showExpandWidthButton } = usePageSettings();
 
-  const handleModalCloseButton = async () => {
-    const queryParameterReturnUrl = new URLSearchParams(window.location.search).get('returnUrl');
+  const isLocalTest = useIsLocalTest();
+  const isStudioPreview = useIsStudioPreview();
 
+  const handleModalCloseButton = async () => {
+    if (isStudioPreview) {
+      return;
+    }
+    if (isLocalTest) {
+      window.location.assign(window.location.origin);
+      return;
+    }
+
+    const queryParameterReturnUrl = new URLSearchParams(window.location.search).get('returnUrl');
     const messageBoxUrl = returnUrlToMessagebox(window.location.origin, party?.partyId);
 
     if (queryParameterReturnUrl) {
