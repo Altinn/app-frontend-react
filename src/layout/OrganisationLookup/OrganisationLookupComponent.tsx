@@ -47,18 +47,17 @@ async function fetchOrg({
   const url = `${appPath}/api/v1/organisations/${orgNr}`;
 
   try {
-    const response = await httpGet<{ data: OrganisationLookupResponse }>(url);
-
-    if (!validateOrganisationLookupResponse(response?.data)) {
-      return { org: null, error: 'organisation_lookup.validation_error_no_response_from_server' };
+    const response = await httpGet<{ OrganisationLookupResponse }>(url);
+    if (!validateOrganisationLookupResponse(response)) {
+      return { org: null, error: 'organisation_lookup.validation_error' };
     }
 
-    if (!response || !response.data || !response.data.organisationDetails) {
+    if (!response || !response.organisationDetails) {
       // we want to get rid of this check, but it's here for now to avoid TS errors
-      return { org: null, error: 'organisation_lookup.validation_error_not_found' };
+      return { org: null, error: 'organisation_lookup.impossible_error' };
     }
 
-    return { org: response.data.organisationDetails, error: null };
+    return { org: response.organisationDetails, error: null };
   } catch (error) {
     if (error.response.status === 403) {
       return { org: null, error: 'organisation_lookup.validation_error_forbidden' };
@@ -141,7 +140,7 @@ export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<
             description={
               hasSuccessfullyFetched ? (
                 <Description
-                  description={langAsString('organisation_lookup.orgnr_description')}
+                  description={langAsString('organisation_lookup.from_registry_description')}
                   componentId={`${id}_orgnr`}
                 />
               ) : undefined
