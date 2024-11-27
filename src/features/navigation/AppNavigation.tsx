@@ -172,6 +172,18 @@ function PageSymbol({ error, ready, active }: { error: boolean; ready: boolean; 
   );
 }
 
+/**
+ * Returns the necessary information to mark states on a group and its pages.
+ * Explanation on the current logic:
+ * 1. A page is marked with error if any of its nodes have visible errors.
+ * 2. A group is marked with error if any of its pages have nodes with visible errors.
+ * 3. A page is marked as completed if it has at least one node with "required": true and no nodes with any validations of Required visibility.
+ *    Immediately marking a page as completed because it has no required nodes can be confusing, so these will never get marked.
+ * 4. A group is marked as completed if any of its pages have nodes with "required": true, and no nodes with any validations of Required visibility.
+ *    Same logic goes here, if none of the nodes in any of its pages are required, it will never be marked as completed.
+ *    It would be confusing since it would have to get marked as completed immediately in that case, so it stays neutral instead.
+ *
+ */
 function useValidationsForPageGroup(group: Group) {
   const traversalSelector = useLaxNodeTraversalSelector();
   const validationsSelector = NodesInternal.useLaxValidationsSelector();
