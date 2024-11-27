@@ -315,7 +315,13 @@ export function nn(): FixedLanguageList {
     },
     organisation_lookup: {
       orgnr_label: 'Organisasjonsnummer',
-      from_registry_description: 'Frå Enhetsregisteret',
+      from_registry_description: 'Frå enhetsregisteret',
+      validation_error_not_found: 'Organisasjonsnummeret er ikkje funne i registeret',
+      validation_invalid_response_from_server: 'Ugyldig respons frå server',
+      validation_error_forbidden: 'Du har ikkje rett til å søkje opp dette organisasjonsnummeret',
+      validation_error_too_many_requests: 'For mange førespurnader. Ver venleg og prøv igjen seinare',
+      unknown_error: 'Ukjent feil. Ver venleg og prøv igjen seinare',
+      validation_error_orgnr: 'Organisasjonsnummeret er ugyldig',
     },
     helptext: {
       button_title: 'Hjelp',

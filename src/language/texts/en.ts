@@ -315,6 +315,12 @@ export function en() {
     organisation_lookup: {
       orgnr_label: 'Organisation number',
       from_registry_description: 'From the CCR',
+      validation_error_not_found: 'Organisation number not found in the registry',
+      validation_invalid_response_from_server: 'Invalid response from the server',
+      validation_error_forbidden: 'You do not have the right to invoke this action',
+      validation_error_too_many_requests: 'Too many requests. Please try again later',
+      unknown_error: 'An unknown error occurred. Please try again later',
+      validation_error_orgnr: 'The organisation number is invalid',
     },
     helptext: {
       button_title: 'Help',

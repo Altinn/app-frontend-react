@@ -48,8 +48,9 @@ async function fetchOrg({
 
   try {
     const response = await httpGet<{ OrganisationLookupResponse }>(url);
+
     if (!validateOrganisationLookupResponse(response)) {
-      return { org: null, error: 'organisation_lookup.validation_error' };
+      return { org: null, error: 'organisation_lookup.validation_invalid_response_from_server' };
     }
 
     if (!response || !response.organisationDetails) {
