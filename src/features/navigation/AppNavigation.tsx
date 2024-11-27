@@ -24,7 +24,7 @@ function useHasGroupedNavigation() {
 
 export function SideBarNavigation() {
   const hasGroupedNavigation = useHasGroupedNavigation();
-  const isScreenLarge = useBrowserWidth((width) => width >= 1400);
+  const isScreenLarge = useBrowserWidth((width) => width >= 1450);
 
   if (!hasGroupedNavigation || !isScreenLarge) {
     return null;
