@@ -31,7 +31,7 @@
 
   .submit {
     grid-area: submit;
-    align-self: end;
+    align-self: start;
     white-space: nowrap;
   }
 }
