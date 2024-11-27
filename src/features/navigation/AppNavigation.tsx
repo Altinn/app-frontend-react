@@ -260,7 +260,18 @@ function useValidationsForPageGroup(group: Group) {
   return { isCompleted, hasErrors };
 }
 
+/*
+ * Returns whether or not a node is required to fill out.
+ * This does not have to be the "required"-prop directly, some other props have the same effect
+ * and produces validation messages with the same visibility, e.g. minCount, minNumberOfAttachments,
+ * are the same as required in practice.
+ */
 function nodeDataIsRequired(n: NodeData) {
   const item = n.item;
-  return !!(item && 'required' in item && item.required === true);
+  return !!(
+    item &&
+    (('required' in item && item.required) ||
+      ('minCount' in item && item.minCount) ||
+      ('minNumberOfAttachments' in item && item.minNumberOfAttachments))
+  );
 }
