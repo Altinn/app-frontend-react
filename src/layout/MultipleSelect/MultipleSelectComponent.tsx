@@ -22,19 +22,13 @@ export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
 export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSelectProps) {
   const item = useNodeItem(node);
   const isValid = useIsValid(node);
-  const { id, readOnly, textResourceBindings, alertOnChange, grid, required, labelSettings } = item;
+  const { id, readOnly, textResourceBindings, alertOnChange, grid, required } = item;
   const { options, isFetching, selectedValues, setData } = useGetOptions(node, 'multi');
   const debounce = FD.useDebounceImmediately();
   const { langAsString, lang } = useLanguage(node);
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({
-      overrideDisplay,
-      textResourceBindings,
-      readOnly,
-      required,
-      showOptionalMarking: !!labelSettings?.optionalIndicator,
-    });
+    useLabel({ node, overrideDisplay });
 
   const changeMessageGenerator = useCallback(
     (values: string[]) => {

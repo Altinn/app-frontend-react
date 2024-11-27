@@ -117,11 +117,14 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
   );
 }
 
-export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
+export function InstanceInformationComponent({
+  node,
+  overrideDisplay,
+}: PropsFromGenericComponent<'InstanceInformation'>) {
   const elements = useNodeItem(node, (i) => i.elements);
 
-  const { textResourceBindings, grid } = useNodeItem(node);
-  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ textResourceBindings });
+  const { grid } = useNodeItem(node);
+  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay });
 
   return (
     <Fieldset

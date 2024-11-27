@@ -160,16 +160,10 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
 };
 
 export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, overrideDisplay }) => {
-  const { textResourceBindings, grid, id, required, readOnly, labelSettings } = useNodeItem(node);
+  const { grid, id, required } = useNodeItem(node);
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({
-      overrideDisplay,
-      textResourceBindings,
-      readOnly,
-      required,
-      showOptionalMarking: !!labelSettings?.optionalIndicator,
-    });
+    useLabel({ node, overrideDisplay });
 
   return (
     <Label

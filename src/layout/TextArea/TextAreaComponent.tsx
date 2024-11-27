@@ -31,7 +31,6 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
     maxLength,
     grid,
     required,
-    labelSettings,
   } = useNodeItem(node);
   const characterLimit = useCharacterLimit(maxLength);
   const {
@@ -41,13 +40,7 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
   const debounce = FD.useDebounceImmediately();
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({
-      overrideDisplay,
-      textResourceBindings,
-      readOnly,
-      required,
-      showOptionalMarking: !!labelSettings?.optionalIndicator,
-    });
+    useLabel({ node, overrideDisplay });
 
   return (
     <Label

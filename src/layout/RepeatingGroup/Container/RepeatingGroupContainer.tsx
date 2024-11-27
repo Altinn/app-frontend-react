@@ -73,8 +73,8 @@ function ModeOnlyEdit({ editingId }: { editingId: string }) {
   const { node } = useRepeatingGroup();
   const isNested = node.parent instanceof BaseLayoutNode;
 
-  const { textResourceBindings, grid } = useNodeItem(node);
-  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ textResourceBindings });
+  const { grid } = useNodeItem(node);
+  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay: undefined });
 
   return (
     <Fieldset
@@ -102,8 +102,8 @@ function ModeShowAll() {
   const numRows = rowsToDisplay.length;
   const lastIndex = rowsToDisplay[numRows - 1];
 
-  const { textResourceBindings, grid } = useNodeItem(node);
-  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ textResourceBindings });
+  const { grid } = useNodeItem(node);
+  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay: undefined });
 
   return (
     <Fieldset

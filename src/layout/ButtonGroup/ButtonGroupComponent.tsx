@@ -12,10 +12,10 @@ import { useNode } from 'src/utils/layout/NodesContext';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
-export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'ButtonGroup'>) {
-  const { textResourceBindings, grid, childComponents } = useNodeItem(node);
+export function ButtonGroupComponent({ node, overrideDisplay }: PropsFromGenericComponent<'ButtonGroup'>) {
+  const { grid, childComponents } = useNodeItem(node);
 
-  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ textResourceBindings });
+  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay });
 
   return (
     <Fieldset
