@@ -22,13 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const root = container && createRoot(container);
   root?.render(
     <div>
-      <App></App>
+      <App />
     </div>,
   );
 });
 
-// // Needed for "useBuiltIns": "entry" in babel.config.json to resolve
-// // all the polyfills we need and inject them here
+// Needed for "useBuiltIns": "entry" in babel.config.json to resolve
+// all the polyfills we need and inject them here
 // import 'core-js';
 //
 // import React from 'react';

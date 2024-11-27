@@ -1,30 +1,70 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { HashRouter, Route, Routes, useNavigate } from 'react-router-dom';
 
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 
+import { initialStateUrl } from 'src/next/actions/appUrls';
+import { useInstantiateMutation } from 'src/next/mutations/intanceMutation';
 import { httpGet } from 'src/utils/network/sharedNetworking';
-import { applicationMetadataApiUrl } from 'src/utils/urls/appUrlHelper';
-import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
+import type { InitialState } from 'src/next/types/InitialState';
 
-export const fetchApplicationMetadata = () => httpGet<IncomingApplicationMetadata>(applicationMetadataApiUrl);
+//import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 
-export const useApplicationMetadata = (): UseQueryResult<IncomingApplicationMetadata, Error> =>
-  useQuery<IncomingApplicationMetadata, Error>({
-    queryKey: ['applicationMetadata'],
-    queryFn: fetchApplicationMetadata,
+export const fetchInitialStateUrl = () => httpGet<InitialState>(initialStateUrl);
+
+export const useApplicationMetadata = (): UseQueryResult<InitialState, Error> =>
+  useQuery<InitialState, Error>({
+    queryKey: ['initialState'],
+    queryFn: fetchInitialStateUrl,
   });
 
 const queryClient = new QueryClient();
 
 export const App = () => (
   <QueryClientProvider client={queryClient}>
-    <InitialState />
+    <HashRouter>
+      <Routes>
+        <Route
+          path='/'
+          element={<InitialStateComponent />}
+        />
+        <Route
+          path='/instance/:partyId/:instanceGuid/*'
+          element={<div>This be instance</div>}
+        >
+          {/*<Route*/}
+          {/*  path=':taskId/*'*/}
+          {/*  element={<ProcessWrapper />}*/}
+          {/*/>*/}
+          {/*<Route*/}
+          {/*  index*/}
+          {/*  element={<NavigateToStartUrl />}*/}
+          {/*/>*/}
+        </Route>
+      </Routes>
+    </HashRouter>
   </QueryClientProvider>
 );
 
-function InitialState() {
+function InitialStateComponent() {
   const { data, error, isLoading } = useApplicationMetadata();
+
+  const instanceMutation = useInstantiateMutation();
+  const navigate = useNavigate();
+  //  data?.applicationMetadata.
+
+  useEffect(() => {
+    if (data && !isLoading) {
+      instanceMutation.mutate(data.user.partyId);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (instanceMutation.isSuccess) {
+      navigate(`/instance/${instanceMutation.data.id}`);
+    }
+  }, [instanceMutation]);
 
   if (isLoading) {
     return <div>Loading...</div>;
