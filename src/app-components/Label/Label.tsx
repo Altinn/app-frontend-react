@@ -11,28 +11,28 @@ import type { GridSize } from 'src/app-components/Label/types';
 
 type LabelProps = {
   label: string | undefined;
+  htmlFor?: DesignsystemetLabelProps['htmlFor'];
+  required?: boolean;
+  requiredIndicator?: JSX.Element;
   optionalIndicator?: ReactElement;
   help?: ReactElement;
   description?: ReactElement;
   className?: string;
   grid?: GridSize;
-  required?: boolean;
-  requiredIndicator?: JSX.Element;
-  htmlFor?: DesignsystemetLabelProps['htmlFor'];
   style?: DesignsystemetLabelProps['style'];
 };
 
 export function Label({
   label,
+  htmlFor,
   required,
   requiredIndicator,
   optionalIndicator,
   help,
   description,
-  htmlFor,
-  style,
   className,
   grid,
+  style,
   children,
 }: PropsWithChildren<LabelProps>) {
   if (!label) {

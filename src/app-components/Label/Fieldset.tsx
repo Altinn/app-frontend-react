@@ -9,9 +9,9 @@ import type { LabelProps as DesignsystemetLabelProps } from '@digdir/designsyste
 import labelClasses from 'src/app-components/Label/Label.module.css';
 import type { GridSize } from 'src/app-components/Label/types';
 
-type FieldsetProps = {
+export type FieldsetProps = {
   id?: string;
-  legend: string | undefined;
+  legend: string | ReactElement | undefined;
   className?: string;
   grid?: GridSize;
   optionalIndicator?: ReactElement;

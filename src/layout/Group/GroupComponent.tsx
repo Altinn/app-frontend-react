@@ -4,8 +4,9 @@ import type { JSX } from 'react';
 import { Heading } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
+import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { Fieldset } from 'src/components/form/Fieldset';
+import { Description } from 'src/components/form/Description';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupComponent.module.css';
@@ -65,31 +66,28 @@ export function GroupComponent({
       condition={isPanel && !isSummary}
       wrapper={(child) => <FullWidthWrapper className={classes.panelPadding}>{child}</FullWidthWrapper>}
     >
-      {/* If the group does not have a legend, we don't want to render the Fieldset because it breaks WCAG tests*/}
-      <ConditionalWrapper
-        condition={!!legend}
-        wrapper={(child) => (
-          <Fieldset
-            legend={
-              legend && (
-                <Heading
-                  level={headingLevel}
-                  size={headingSize}
-                >
-                  <Lang id={legend} />
-                </Heading>
-              )
-            }
-            className={cn({
-              [classes.summary]: isSummary,
-              [classes.group]: !isSummary,
-              [classes.panel]: isPanel && !isSummary,
-            })}
-            description={description && !isSummary && <Lang id={description} />}
-          >
-            {child}
-          </Fieldset>
-        )}
+      <Fieldset
+        legend={
+          legend && (
+            <Heading
+              level={headingLevel}
+              size={headingSize}
+            >
+              <Lang id={legend} />
+            </Heading>
+          )
+        }
+        className={cn({
+          [classes.summary]: isSummary,
+          [classes.group]: !isSummary,
+          [classes.panel]: isPanel && !isSummary,
+        })}
+        description={
+          <Description
+            componentId={id}
+            description={description}
+          />
+        }
       >
         <div
           data-componentid={container.id}
@@ -107,7 +105,7 @@ export function GroupComponent({
         >
           {children.map((n) => renderLayoutNode(n))}
         </div>
-      </ConditionalWrapper>
+      </Fieldset>
     </ConditionalWrapper>
   );
 }
