@@ -63,7 +63,7 @@ function tt02_loginSelfIdentified(user: string, pwd: string) {
 }
 
 Cypress.Commands.add('startAppInstance', (appName, options) => {
-  const { user = 'default', evaluateBefore, urlSuffix = '', authenticationLevel, cookies } = options || {};
+  const { user = 'default', evaluateBefore, urlSuffix = '', authenticationLevel } = options || {};
   const env = dotenv.config().parsed || {};
   cy.log(`Starting app instance: ${appName}`);
   if (user) {
@@ -151,16 +151,6 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
   user && login(user, authenticationLevel);
   !user && cy.clearCookies();
 
-  if (cookies) {
-    for (const [cookieName, cookie] of Object.entries(cookies)) {
-      if (isString(cookie)) {
-        cy.setCookie(cookieName, cookie as string, { domain: new URL(targetUrlRaw).hostname, sameSite: 'lax' });
-      } else {
-        cy.setCookie(cookieName, cookie.value, cookie.options);
-      }
-    }
-  }
-
   cy.visit(targetUrlRaw, visitOptions);
 
   if (evaluateBefore) {
@@ -169,8 +159,6 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
 
   cy.injectAxe();
 });
-
-const isString = (value: unknown): value is string => typeof value === 'string' || value instanceof String;
 
 export function getTargetUrl(appName: string) {
   return Cypress.env('type') === 'localtest'

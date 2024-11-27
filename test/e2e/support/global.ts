@@ -20,10 +20,14 @@ export type StartAppInstanceOptions = {
 
   // You can add a URL suffix if you need, for example to start a specific instance
   urlSuffix?: string;
-
-  // Cookies to set before starting the app instance
-  cookies?: { [key: string]: string | { value: string; options?: Partial<Cypress.SetCookieOptions> } };
 };
+
+export interface TestPdfOptions {
+  snapshotName?: string;
+  beforeReload?: () => void;
+  callback: () => void;
+  returnToForm?: boolean;
+}
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -234,7 +238,7 @@ declare global {
         options: { width: number; minHeight: number },
         reset?: boolean,
       ): Chainable<null>;
-      testPdf(snapshotName: string | false, callback: () => void, returnToForm?: boolean): Chainable<null>;
+      testPdf(options: TestPdfOptions): Chainable<null>;
       getCurrentPageId(): Chainable<string>;
 
       /**
