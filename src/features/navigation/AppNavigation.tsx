@@ -178,9 +178,9 @@ function PageSymbol({ error, complete, active }: { error: boolean; complete: boo
  * Explanation on the current logic:
  * 1. A page is marked with error if any of its nodes have visible errors.
  * 2. A group is marked with error if any of its pages have nodes with visible errors.
- * 3. A page is marked as completed if it has at least one node with "required": true and no nodes with any validations of Required visibility.
+ * 3. A page is marked as completed if it has at least one node with "required": true and no nodes with any validations errors (visible or not).
  *    Immediately marking a page as completed because it has no required nodes can be confusing, so these will never get marked.
- * 4. A group is marked as completed if any of its pages have nodes with "required": true, and no nodes with any validations of Required visibility.
+ * 4. A group is marked as completed if any of its pages have nodes with "required": true, and no nodes with any validations errors (visible or not).
  *    Same logic goes here, if none of the nodes in any of its pages are required, it will never be marked as completed.
  *    It would be confusing since it would have to get marked as completed immediately in that case, so it stays neutral instead.
  *
@@ -209,19 +209,19 @@ function useValidationsForPageGroup(group: Group) {
     }
 
     const pages = Object.fromEntries(
-      Object.entries(nodes.required).map(([page, nodes]) => [
+      Object.keys(nodes.all).map((page) => [
         page,
-        nodes.length > 0 &&
-          nodes.every((node) => {
-            const requiredValidations = validationsSelector(node, ValidationMask.Required, 'error');
-            return requiredValidations !== ContextNotProvided && requiredValidations.length === 0;
+        nodes.required[page].length > 0 &&
+          nodes.all[page].every((node) => {
+            const allValidations = validationsSelector(node, ValidationMask.All, 'error');
+            return allValidations !== ContextNotProvided && allValidations.length === 0;
           }),
       ]),
     );
 
     const group =
       Object.values(nodes.required).some((requiredNodes) => requiredNodes.length > 0) &&
-      Object.entries(nodes.required).every(([page, required]) => required.length === 0 || pages[page]);
+      Object.entries(nodes.required).every(([page, requiredNodes]) => requiredNodes.length === 0 || pages[page]);
 
     return { pages, group };
   }, [nodes, validationsSelector]);
@@ -232,9 +232,9 @@ function useValidationsForPageGroup(group: Group) {
     }
 
     const pages = Object.fromEntries(
-      Object.entries(nodes.all).map(([page, nodes]) => [
+      Object.entries(nodes.all).map(([page, allNodes]) => [
         page,
-        nodes.some((node) => {
+        allNodes.some((node) => {
           const visibleValidations = validationsSelector(node, 'visible', 'error');
           return visibleValidations !== ContextNotProvided && visibleValidations.length > 0;
         }),
