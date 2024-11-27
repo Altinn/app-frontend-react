@@ -122,6 +122,7 @@ export function en() {
       to_main_content: 'Go to main content',
       go_to_task: 'Navigate to {0}',
       form_pages: 'Form pages',
+      back_to_inbox: 'Back to inbox',
     },
     general: {
       action: 'Action',

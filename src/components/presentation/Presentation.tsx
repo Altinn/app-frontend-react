@@ -72,7 +72,7 @@ export const PresentationComponent = ({
                 description={<Lang id={instanceStatus.substatus.description} />}
               />
             )}
-            {showNavAndSidebar && <NavBar type={type} />}
+            {showNavAndSidebar && <NavBar />}
             <section
               id='main-content'
               className={classes.modal}

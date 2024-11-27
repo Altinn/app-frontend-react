@@ -122,6 +122,7 @@ export function nb(): FixedLanguageList {
       to_main_content: 'Hopp til hovedinnholdet',
       go_to_task: 'Gå til {0}',
       form_pages: 'Skjemasider',
+      back_to_inbox: 'Tilbake til innboks',
     },
     general: {
       action: 'Handling',

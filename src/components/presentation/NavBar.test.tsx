@@ -27,12 +27,11 @@ const render = async ({
   hideCloseButton,
   showLanguageSelector,
   languageResponse,
-  type = ProcessTaskType.Data,
   initialPage,
   textResources = [],
 }: RenderNavBarProps) => {
   await renderWithInstanceAndLayout({
-    renderer: () => <NavBar type={type} />,
+    renderer: () => <NavBar />,
     initialPage,
     queries: {
       fetchAppLanguages: () =>
