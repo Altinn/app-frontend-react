@@ -136,7 +136,6 @@ export function nb(): FixedLanguageList {
       choose_label: 'Velg navn',
       choose_method: 'Velg metode',
       choose: 'Velg',
-      close_schema: 'Lukk skjema',
       close: 'Lukk',
       contains: 'Inneholder',
       control_submit: 'Kontroller og send inn',

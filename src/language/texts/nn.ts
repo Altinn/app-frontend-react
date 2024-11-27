@@ -136,7 +136,6 @@ export function nn(): FixedLanguageList {
       choose_label: 'Vel namn',
       choose_method: 'Vel metode',
       choose: 'Vel',
-      close_schema: 'Lukk skjema',
       close: 'Lukk',
       contains: 'Inneheld',
       control_submit: 'Kontroller og send inn',

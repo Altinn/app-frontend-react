@@ -136,7 +136,6 @@ export function en() {
       choose_label: 'Choose label',
       choose_method: 'Choose method',
       choose: 'Choose',
-      close_schema: 'Close schema',
       close: 'Close',
       contains: 'Contains{0}',
       control_submit: 'Control and submit',

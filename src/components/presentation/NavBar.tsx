@@ -27,7 +27,7 @@ export const NavBar = () => {
   const isLocalTest = useIsLocalTest();
   const isStudioPreview = useIsStudioPreview();
 
-  const handleModalCloseButton = async () => {
+  const handleBackToInbox = async () => {
     if (isStudioPreview) {
       return;
     }
@@ -57,10 +57,9 @@ export const NavBar = () => {
         {!hideCloseButton && (
           <Button
             className={cn(classes.buttonMargin, classes.inboxButton)}
-            onClick={handleModalCloseButton}
+            onClick={handleBackToInbox}
             variant='tertiary'
             color='second'
-            aria-label={langAsString('general.close_schema')}
           >
             <Left
               fontSize='1rem'
