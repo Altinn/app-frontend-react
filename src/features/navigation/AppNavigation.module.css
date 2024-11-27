@@ -25,7 +25,7 @@
 }
 
 .group-list > li:not(:last-child) {
-  margin-bottom: 2rem;
+  margin-bottom: 28px;
 }
 
 .group-button {
@@ -66,8 +66,8 @@
   width: 28px;
   height: 28px;
   box-sizing: border-box;
-  font-size: 18px;
-  border-width: 1px;
+  font-size: 20px;
+  border-width: 2px;
   border-style: solid;
   border-radius: var(--fds-border_radius-interactive);
   display: flex;
@@ -100,11 +100,11 @@
 }
 
 .page-list > li:first-child {
-  margin-top: 1rem;
+  margin-top: 15px;
 }
 
 .page-list > li:not(:last-child) {
-  margin-bottom: 1.5rem;
+  margin-bottom: 20px;
 }
 
 .page-button {
@@ -132,7 +132,7 @@
   height: 20px;
   margin: 0 4px;
   box-sizing: border-box;
-  border-width: 1px;
+  border-width: 2px;
   border-style: solid;
   border-radius: 50%;
   display: flex;
@@ -144,18 +144,18 @@
   content: '';
   position: absolute;
   box-sizing: border-box;
-  height: 14px;
+  height: 11px;
   width: 0;
-  border-left: 1px solid var(--fds-colors-grey-700);
+  border-left: 2px solid var(--fds-colors-grey-700);
   bottom: 20px;
 }
 .page-list > li:not(:last-child) .page-symbol::after {
   content: '';
   position: absolute;
   box-sizing: border-box;
-  height: 20px;
+  height: 16px;
   width: 0;
-  border-left: 1px solid var(--fds-colors-grey-700);
+  border-left: 2px solid var(--fds-colors-grey-700);
   top: 20px;
 }
 
