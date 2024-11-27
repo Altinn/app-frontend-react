@@ -1,3 +1,5 @@
+import type { Interception } from 'cypress/types/net-stubbing';
+
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Likert } from 'test/e2e/pageobjects/likert';
 
@@ -25,12 +27,12 @@ describe('PDF', () => {
       'altinn-telemetry-traceparent': traceparentValue,
       'altinn-telemetry-tracestate': tracestateValue,
     };
+
+    cy.intercept(`*/api/**`).as('apiRequests');
     cy.goto('message', { cookies });
 
-    cy.intercept(`/ttd/frontend-test/**`).as('apiRequests');
-
     cy.testPdf(false, () => {
-      cy.wait('@apiRequests.all').then(({ request }) => {
+      cy.get<Interception<unknown, unknown>>('@apiRequests').then(({ request }) => {
         expect(request.headers, 'request headers').to.include({
           'X-Altinn-IsPdf': 'true',
           traceparent: traceparentValue,
