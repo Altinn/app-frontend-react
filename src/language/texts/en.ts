@@ -314,6 +314,7 @@ export function en() {
     },
     organisation_lookup: {
       orgnr_label: 'Organisation number',
+      from_registry_description: 'From the CCR',
     },
     helptext: {
       button_title: 'Help',

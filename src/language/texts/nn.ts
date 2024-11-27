@@ -315,6 +315,7 @@ export function nn(): FixedLanguageList {
     },
     organisation_lookup: {
       orgnr_label: 'Organisasjonsnummer',
+      from_registry_description: 'Frå Enhetsregisteret',
     },
     helptext: {
       button_title: 'Hjelp',
