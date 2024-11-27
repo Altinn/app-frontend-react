@@ -6,10 +6,9 @@ import type { UseQueryResult } from '@tanstack/react-query';
 
 import { initialStateUrl } from 'src/next/actions/appUrls';
 import { useInstantiateMutation } from 'src/next/mutations/intanceMutation';
+import { Instance } from 'src/next/pages/Instance';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import type { InitialState } from 'src/next/types/InitialState';
-
-//import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 
 export const fetchInitialStateUrl = () => httpGet<InitialState>(initialStateUrl);
 
@@ -24,41 +23,45 @@ const queryClient = new QueryClient();
 export const App = () => (
   <QueryClientProvider client={queryClient}>
     <HashRouter>
-      <Routes>
-        <Route
-          path='/'
-          element={<InitialStateComponent />}
-        />
-        <Route
-          path='/instance/:partyId/:instanceGuid/*'
-          element={<div>This be instance</div>}
-        >
-          {/*<Route*/}
-          {/*  path=':taskId/*'*/}
-          {/*  element={<ProcessWrapper />}*/}
-          {/*/>*/}
-          {/*<Route*/}
-          {/*  index*/}
-          {/*  element={<NavigateToStartUrl />}*/}
-          {/*/>*/}
-        </Route>
-      </Routes>
+      <AppRoutes />
     </HashRouter>
   </QueryClientProvider>
 );
 
-function InitialStateComponent() {
-  const { data, error, isLoading } = useApplicationMetadata();
+const AppRoutes = () => {
+  const { data, isLoading, error } = useApplicationMetadata();
 
+  if (isLoading) {
+    return <div>Loading metadata...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading application metadata.</div>;
+  }
+
+  return (
+    <Routes>
+      <Route
+        path='/'
+        element={<InitialStateComponent metadata={data!} />}
+      />
+      <Route
+        path='/instance/:partyId/:instanceGuid/*'
+        element={<Instance />}
+      />
+    </Routes>
+  );
+};
+
+function InitialStateComponent({ metadata }: { metadata: InitialState }) {
   const instanceMutation = useInstantiateMutation();
   const navigate = useNavigate();
-  //  data?.applicationMetadata.
 
   useEffect(() => {
-    if (data && !isLoading) {
-      instanceMutation.mutate(data.user.partyId);
+    if (metadata) {
+      instanceMutation.mutate(metadata.user.partyId);
     }
-  }, [data]);
+  }, [metadata]);
 
   useEffect(() => {
     if (instanceMutation.isSuccess) {
@@ -66,16 +69,9 @@ function InitialStateComponent() {
     }
   }, [instanceMutation]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-  if (error) {
-    return <div>Error loading application metadata.</div>;
-  }
-
   return (
     <div>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <pre>{JSON.stringify(metadata, null, 2)}</pre>
     </div>
   );
 }
