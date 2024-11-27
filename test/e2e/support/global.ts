@@ -20,6 +20,9 @@ export type StartAppInstanceOptions = {
 
   // You can add a URL suffix if you need, for example to start a specific instance
   urlSuffix?: string;
+
+  // Cookies to set before starting the app instance
+  cookies?: { [key: string]: string | { value: string; options?: Partial<Cypress.SetCookieOptions> } };
 };
 
 declare global {
@@ -29,7 +32,7 @@ declare global {
       /**
        * Quickly go to a certain task in the app
        */
-      goto(target: FrontendTestTask): Chainable<Element>;
+      goto(target: FrontendTestTask, options?: StartAppInstanceOptions): Chainable<Element>;
 
       /**
        * In 'ttd/frontend-test' we're using a pattern of initially hidden pages to expand with new test cases.

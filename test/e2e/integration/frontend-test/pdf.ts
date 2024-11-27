@@ -25,10 +25,7 @@ describe('PDF', () => {
       'altinn-telemetry-traceparent': traceparentValue,
       'altinn-telemetry-tracestate': tracestateValue,
     };
-    for (const [key, value] of Object.entries(cookies)) {
-      cy.setCookie(key, value);
-    }
-    cy.goto('message');
+    cy.goto('message', { cookies });
 
     cy.intercept(`/ttd/frontend-test/**`).as('apiRequests');
 
