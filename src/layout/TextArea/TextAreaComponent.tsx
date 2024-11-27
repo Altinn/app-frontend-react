@@ -64,7 +64,9 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
           value={value}
           data-testid={id}
           aria-describedby={
-            overrideDisplay?.renderedInTable !== true && textResourceBindings?.description
+            overrideDisplay?.renderedInTable !== true &&
+            textResourceBindings?.title &&
+            textResourceBindings?.description
               ? getDescriptionId(id)
               : undefined
           }

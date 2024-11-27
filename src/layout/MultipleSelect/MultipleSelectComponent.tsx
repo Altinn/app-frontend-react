@@ -5,6 +5,7 @@ import { Combobox } from '@digdir/designsystemet-react';
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { getDescriptionId } from 'src/components/label/Label';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -94,6 +95,13 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
             clearButtonLabel={langAsString('form_filler.clear_selection')}
             aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             className={comboboxClasses.container}
+            aria-describedby={
+              overrideDisplay?.renderedInTable !== true &&
+              textResourceBindings?.title &&
+              textResourceBindings?.description
+                ? getDescriptionId(id)
+                : undefined
+            }
           >
             <Combobox.Empty>
               <Lang id='form_filler.no_options_found' />
