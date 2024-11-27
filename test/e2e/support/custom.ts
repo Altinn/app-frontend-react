@@ -778,13 +778,3 @@ Cypress.Commands.add('allowFailureOnEnd', function () {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (this.test as any).__allowFailureOnEnd = true;
 });
-
-Cypress.Commands.overwrite('log', function (log, ...args) {
-  if (Cypress.browser.isHeadless) {
-    return cy.task('log', args, { log: false }).then(() => log(...args));
-  } else {
-    // eslint-disable-next-line no-console
-    console.log(...args);
-    return log(...args);
-  }
-});

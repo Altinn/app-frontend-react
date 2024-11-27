@@ -11,14 +11,6 @@ const CYPRESS_WINDOW_HEIGHT = env.parsed?.CYPRESS_WINDOW_HEIGHT || 1080;
 module.exports = defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
-      on('task', {
-        log(args) {
-          // eslint-disable-next-line no-console
-          console.log(...args);
-          return null;
-        },
-      });
-
       on('before:browser:launch', (browser, launchOptions) => {
         if (browser.name === 'electron') {
           launchOptions.preferences.width = CYPRESS_WINDOW_WIDTH;
