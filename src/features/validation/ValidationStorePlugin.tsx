@@ -25,6 +25,13 @@ export type ValidationsSelector = (
   includeHidden?: boolean, // Defaults to false
 ) => AnyValidation[];
 
+export type LaxValidationsSelector = (
+  node: LayoutNode,
+  mask: NodeVisibility,
+  severity?: ValidationSeverity,
+  includeHidden?: boolean, // Defaults to false
+) => typeof ContextNotProvided | AnyValidation[];
+
 export interface ValidationStorePluginConfig {
   extraFunctions: {
     setNodeVisibility: (nodes: LayoutNode[] | string[], newVisibility: number) => void;
@@ -47,6 +54,7 @@ export interface ValidationStorePluginConfig {
       severity?: ValidationSeverity,
     ) => NodeRefValidation[];
     useValidationsSelector: () => ValidationsSelector;
+    useLaxValidationsSelector: () => LaxValidationsSelector;
     useAllValidations: (
       mask: NodeVisibility,
       severity?: ValidationSeverity,
@@ -145,6 +153,14 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
         }),
       useValidationsSelector: () =>
         store.useDelayedSelector({
+          mode: 'simple',
+          selector:
+            (node: LayoutNode, mask: NodeVisibility, severity?: ValidationSeverity, includeHidden: boolean = false) =>
+            (state: NodesContext) =>
+              getValidations({ state, node, mask, severity, includeHidden }),
+        }) satisfies ValidationsSelector,
+      useLaxValidationsSelector: () =>
+        store.useLaxDelayedSelector({
           mode: 'simple',
           selector:
             (node: LayoutNode, mask: NodeVisibility, severity?: ValidationSeverity, includeHidden: boolean = false) =>
