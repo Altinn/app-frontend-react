@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -15,7 +15,15 @@ export const useApplicationMetadata = (): UseQueryResult<IncomingApplicationMeta
     queryFn: fetchApplicationMetadata,
   });
 
-export const App = () => {
+const queryClient = new QueryClient();
+
+export const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <InitialState />
+  </QueryClientProvider>
+);
+
+function InitialState() {
   const { data, error, isLoading } = useApplicationMetadata();
 
   if (isLoading) {
@@ -30,4 +38,4 @@ export const App = () => {
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );
-};
+}
