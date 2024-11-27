@@ -10,7 +10,9 @@ import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { PopoverNavigation } from 'src/features/navigation/AppNavigation';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useIsLocalTest, useIsStudioPreview } from 'src/hooks/useIsDev';
 import { httpGet } from 'src/utils/network/networking';
 import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
@@ -23,6 +25,7 @@ export const NavBar = () => {
   const party = useCurrentParty();
   const { expandedWidth, toggleExpandedWidth } = useUiConfigContext();
   const { hideCloseButton, showLanguageSelector, showExpandWidthButton } = usePageSettings();
+  const isMobile = useIsMobile();
 
   const isLocalTest = useIsLocalTest();
   const isStudioPreview = useIsStudioPreview();
@@ -65,7 +68,7 @@ export const NavBar = () => {
               fontSize='1rem'
               aria-hidden
             />
-            <Lang id='navigation.back_to_inbox' />
+            <Lang id={isMobile ? 'navigation.inbox' : 'navigation.back_to_inbox'} />
           </Button>
         )}
       </div>
@@ -97,6 +100,7 @@ export const NavBar = () => {
             )}
           </Button>
         )}
+        <PopoverNavigation />
       </div>
     </nav>
   );

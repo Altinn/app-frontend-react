@@ -1,4 +1,8 @@
 .nav {
+  max-width: var(--page-max-width);
+  padding: 0 var(--page-padding-x);
+  margin: 0 auto;
+
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -23,7 +27,7 @@
 }
 
 .inbox-button svg {
-  margin-right: 8px;
+  margin-right: 4px;
 }
 
 @media only screen and (max-width: 1200px) {

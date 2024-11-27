@@ -1,7 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { Heading } from '@digdir/designsystemet-react';
-import { CheckmarkIcon, ChevronDownIcon, ExclamationmarkIcon, FolderIcon } from '@navikt/aksel-icons';
+import { Button, Heading, Popover } from '@digdir/designsystemet-react';
+import {
+  CheckmarkIcon,
+  ChevronDownIcon,
+  ExclamationmarkIcon,
+  FolderIcon,
+  MenuHamburgerIcon,
+} from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -19,8 +25,12 @@ import type { NodeData } from 'src/utils/layout/types';
 
 function useHasGroupedNavigation() {
   const maybeLayoutSettings = useLaxLayoutSettings();
-  return maybeLayoutSettings !== ContextNotProvided && !!maybeLayoutSettings.pages.groups;
+  const currentPageId = useNavigationParam('pageKey');
+  return maybeLayoutSettings !== ContextNotProvided && !!maybeLayoutSettings.pages.groups && currentPageId;
 }
+
+const CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR =
+  'AppNavigation was used without first checking that the app uses grouped navigation using `useHasGroupedNavigation()`. This can lead to an empty container somewhere.';
 
 export function SideBarNavigation() {
   const hasGroupedNavigation = useHasGroupedNavigation();
@@ -34,6 +44,69 @@ export function SideBarNavigation() {
     <aside className={classes.sidebarContainer}>
       <AppNavigation />
     </aside>
+  );
+}
+export function PopoverNavigation() {
+  const hasGroupedNavigation = useHasGroupedNavigation();
+  const isScreenSmall = !useBrowserWidth((width) => width >= 1450);
+  if (!hasGroupedNavigation || !isScreenSmall) {
+    return null;
+  }
+
+  return <InnerPopoverNavigation />;
+}
+
+function InnerPopoverNavigation() {
+  const currentPageId = useNavigationParam('pageKey');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const groups = useLayoutSettings().pages.groups;
+
+  if (!groups || !currentPageId) {
+    throw CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR;
+  }
+
+  const currentGroup = groups.find((group) => group.order.includes(currentPageId));
+  const currentGroupLength = currentGroup?.order.length;
+  const currentGroupIndex = currentGroup?.order.indexOf(currentPageId);
+  const hasCurrentGroup =
+    currentGroup && typeof currentGroupIndex === 'number' && typeof currentGroupLength === 'number';
+
+  return (
+    <div className={classes.popoverWrapper}>
+      <Popover
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        size='lg'
+        placement='bottom-end'
+      >
+        <Popover.Trigger asChild={true}>
+          <Button
+            variant='secondary'
+            color='first'
+            size='sm'
+            onClick={() => setIsDialogOpen((o) => !o)}
+          >
+            {hasCurrentGroup && (
+              <Lang
+                id='navigation.popover_button_progress'
+                params={[{ key: currentGroup.name }, currentGroupIndex + 1, currentGroupLength]}
+              />
+            )}
+            <MenuHamburgerIcon
+              className={cn({ [classes.burgerMenuIcon]: hasCurrentGroup })}
+              aria-hidden
+            />
+          </Button>
+        </Popover.Trigger>
+        <Popover.Content
+          className={classes.popoverContainer}
+          aria-modal
+          autoFocus={true}
+        >
+          <AppNavigation />
+        </Popover.Content>
+      </Popover>
+    </div>
   );
 }
 

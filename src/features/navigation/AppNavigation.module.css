@@ -2,7 +2,6 @@
   --max-sidebar-width: 320px;
 
   position: absolute;
-  margin-top: 54px;
   padding: 0 14px;
   box-sizing: border-box;
 
@@ -11,6 +10,34 @@
   max-width: var(--max-sidebar-width);
 
   margin-left: max(calc(50% - var(--page-max-width) / 2 - var(--max-sidebar-width)), 0px);
+}
+
+.popover-wrapper {
+  position: relative;
+}
+
+.popover-container {
+  border: none;
+  border-radius: 0;
+  box-shadow: 1px 1px 4px 0 rgb(137 137 137 / 50%);
+  width: 320px;
+
+  /* Override positioning */
+  transform: unset !important;
+  will-change: unset !important;
+  top: 48px !important;
+  right: 0 !important;
+  /* right: calc(-1 * var(--page-padding-x)) !important; */
+  bottom: unset !important;
+  left: unset !important;
+}
+
+.popover-container :global(.fds-popover__arrow) {
+  display: none;
+}
+
+.burger-menu-icon {
+  margin-left: 4px;
 }
 
 .navigation-header {

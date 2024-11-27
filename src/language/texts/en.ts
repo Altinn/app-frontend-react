@@ -123,6 +123,8 @@ export function en() {
       go_to_task: 'Navigate to {0}',
       form_pages: 'Form pages',
       back_to_inbox: 'Back to inbox',
+      inbox: 'Inbox',
+      popover_button_progress: '{0} {1}/{2}',
     },
     general: {
       action: 'Action',

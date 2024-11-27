@@ -64,6 +64,7 @@ export const PresentationComponent = ({
             logoColor={LogoColor.blueDarker}
             headerBackgroundColor={backgroundColor}
           />
+          {showNavAndSidebar && <NavBar />}
           {showNavAndSidebar && <SideBarNavigation />}
           <main className={classes.page}>
             {isProcessStepsArchived && instanceStatus?.substatus && (
@@ -72,7 +73,6 @@ export const PresentationComponent = ({
                 description={<Lang id={instanceStatus.substatus.description} />}
               />
             )}
-            {showNavAndSidebar && <NavBar />}
             <section
               id='main-content'
               className={classes.modal}
