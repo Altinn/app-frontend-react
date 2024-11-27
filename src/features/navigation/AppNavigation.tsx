@@ -83,8 +83,8 @@ function PageGroup({ group }: { group: Group }) {
       >
         <PageGroupSymbol
           open={isOpen}
-          error={validations !== ContextNotProvided && validations.errors.group}
-          complete={validations !== ContextNotProvided && validations.completed.group}
+          error={validations !== ContextNotProvided && validations.hasErrors.group}
+          complete={validations !== ContextNotProvided && validations.isCompleted.group}
         />
         <span className={classes.groupName}>
           <Lang id={group.name} />
@@ -97,8 +97,8 @@ function PageGroup({ group }: { group: Group }) {
             <Page
               key={page}
               page={page}
-              hasErrors={validations !== ContextNotProvided && validations.errors.pages[page]}
-              isComplete={validations !== ContextNotProvided && validations.completed.pages[page]}
+              hasErrors={validations !== ContextNotProvided && validations.hasErrors.pages[page]}
+              isComplete={validations !== ContextNotProvided && validations.isCompleted.pages[page]}
             />
           ))}
         </ul>
@@ -189,68 +189,75 @@ function useValidationsForPageGroup(group: Group) {
   const traversalSelector = useLaxNodeTraversalSelector();
   const validationsSelector = NodesInternal.useLaxValidationsSelector();
 
-  const nodes = traversalSelector(
+  const pages = traversalSelector(
     (traverser) => {
-      const all: Record<string, LayoutNode[]> = {};
-      const required: Record<string, LayoutNode[]> = {};
+      const allNodes: Record<string, LayoutNode[]> = {};
+      const pageHasRequiredNodes: Record<string, boolean> = {};
+
       group.order.forEach((pageId) => {
         const page = traverser.findPage(pageId);
-        all[pageId] = page?.flat() ?? [];
-        required[pageId] = page ? traverser.with(page).flat((n) => n.type === 'node' && nodeDataIsRequired(n)) : [];
+
+        allNodes[pageId] = page?.flat() ?? [];
+        pageHasRequiredNodes[pageId] = page
+          ? traverser.with(page).flat((n) => n.type === 'node' && nodeDataIsRequired(n)).length > 0
+          : false;
       });
-      return { all, required };
+
+      return { allNodes, hasRequiredNodes: pageHasRequiredNodes };
     },
     [group],
   );
 
-  const completed = useMemo(() => {
-    if (nodes === ContextNotProvided) {
+  const isCompleted = useMemo(() => {
+    if (pages === ContextNotProvided) {
       return ContextNotProvided;
     }
 
-    const pages = Object.fromEntries(
-      Object.keys(nodes.all).map((page) => [
+    const pageHasNoErrors = Object.fromEntries(
+      group.order.map((page) => [
         page,
-        nodes.required[page].length > 0 &&
-          nodes.all[page].every((node) => {
-            const allValidations = validationsSelector(node, ValidationMask.All, 'error');
-            return allValidations !== ContextNotProvided && allValidations.length === 0;
-          }),
+        pages.allNodes[page].every((node) => {
+          const allValidations = validationsSelector(node, ValidationMask.All, 'error');
+          return allValidations !== ContextNotProvided && allValidations.length === 0;
+        }),
       ]),
     );
 
-    const group =
-      Object.values(nodes.required).some((requiredNodes) => requiredNodes.length > 0) &&
-      Object.entries(nodes.required).every(([page, requiredNodes]) => requiredNodes.length === 0 || pages[page]);
+    const completedPages = Object.fromEntries(
+      group.order.map((page) => [page, pages.hasRequiredNodes[page] && pageHasNoErrors[page]]),
+    );
 
-    return { pages, group };
-  }, [nodes, validationsSelector]);
+    const groupIsComplete =
+      group.order.some((page) => pages.hasRequiredNodes[page]) && group.order.every((page) => pageHasNoErrors[page]);
 
-  const errors = useMemo(() => {
-    if (nodes === ContextNotProvided) {
+    return { pages: completedPages, group: groupIsComplete };
+  }, [group, pages, validationsSelector]);
+
+  const hasErrors = useMemo(() => {
+    if (pages === ContextNotProvided) {
       return ContextNotProvided;
     }
 
-    const pages = Object.fromEntries(
-      Object.entries(nodes.all).map(([page, allNodes]) => [
+    const pageHasErrors = Object.fromEntries(
+      group.order.map((page) => [
         page,
-        allNodes.some((node) => {
+        pages.allNodes[page].some((node) => {
           const visibleValidations = validationsSelector(node, 'visible', 'error');
           return visibleValidations !== ContextNotProvided && visibleValidations.length > 0;
         }),
       ]),
     );
 
-    const group = Object.values(pages).some((p) => p);
+    const groupHasErrors = Object.values(pageHasErrors).some((p) => p);
 
-    return { pages, group };
-  }, [nodes, validationsSelector]);
+    return { pages: pageHasErrors, group: groupHasErrors };
+  }, [group, pages, validationsSelector]);
 
-  if (completed === ContextNotProvided || errors === ContextNotProvided) {
+  if (isCompleted === ContextNotProvided || hasErrors === ContextNotProvided) {
     return ContextNotProvided;
   }
 
-  return { completed, errors };
+  return { isCompleted, hasErrors };
 }
 
 function nodeDataIsRequired(n: NodeData) {
