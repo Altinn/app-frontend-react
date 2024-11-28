@@ -113,15 +113,15 @@ export class List extends ListDef {
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
     const errors: string[] = [];
 
-    for (const binding of Object.keys(ctx.item.dataModelBindings ?? {})) {
-      const [newErrors] = this.validateDataModelBindingsAny(
-        ctx,
-        binding,
-        ['string', 'number', 'integer', 'boolean'],
-        false,
-      );
-      errors.push(...(newErrors || []));
-    }
+    // for (const binding of Object.keys(ctx.item.dataModelBindings ?? {})) {
+    //   const [newErrors] = this.validateDataModelBindingsAny(
+    //     ctx,
+    //     binding,
+    //     ['string', 'number', 'integer', 'boolean', 'array'],
+    //     false,
+    //   );
+    //   errors.push(...(newErrors || []));
+    // }
 
     return errors;
   }

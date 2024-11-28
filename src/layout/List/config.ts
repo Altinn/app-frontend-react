@@ -28,6 +28,20 @@ export const Config = new CG.component({
   .addDataModelBinding(
     new CG.obj().optional().additionalProperties(new CG.dataModelBinding()).exportAs('IDataModelBindingsForList'),
   )
+  .addDataModelBinding(
+    new CG.obj(
+      new CG.prop(
+        'group',
+        new CG.dataModelBinding()
+          .setTitle('Group')
+          .setDescription(
+            'Dot notation location for a repeating group structure (array of objects), where the data is stored',
+          ),
+      ),
+    )
+      .optional()
+      .exportAs('IDataModelBindingsForGroup'),
+  )
   .addProperty(
     new CG.prop(
       'tableHeaders',
@@ -136,7 +150,7 @@ export const Config = new CG.component({
       new CG.enum('RadioButtons', 'CheckBoxes')
         .optional({ default: 'RadioButtons' })
         .setTitle('Use of checkbox or radio button')
-        .setDescription('Specify if the list should use checkboxes or radio buttons. '),
+        .setDescription('Specify if the list should use checkboxes or radio buttons. Default is radioButtons.'),
     ),
   )
   .addProperty(
@@ -146,5 +160,37 @@ export const Config = new CG.component({
         .optional()
         .setTitle('Table Headers Mobile')
         .setDescription('An array of strings representing the columns that is chosen to be shown in the mobile view.'),
+    ),
+  )
+  // .addProperty(
+  //   new CG.prop(
+  //     'columns',
+  //     new CG.arr(
+  //       new CG.obj(
+  //         new CG.prop('header', new CG.str().setTitle('Header').setDescription('Header of the column').optional()),
+  //         new CG.prop(
+  //           'accessor',
+  //           new CG.dataModelBinding()
+  //             .setTitle('Accessor')
+  //             .optional()
+  //             .setDescription('The key in the data list that this column should represent.')
+  //             .exportAs('IDataModelBindingsForList'),
+  //         ),
+  //       ).exportAs('ListConfigExternal'),
+  //     ).optional(),
+  //   ),
+  // )
+  .addProperty(
+    new CG.prop(
+      'columns',
+      new CG.obj()
+        .additionalProperties(new CG.str())
+        .setTitle('Accessors')
+        .optional()
+        .setDescription('The key in the data list that this column should represent.')
+        .addExample({
+          column1: 'group.id1',
+          column2: 'group.id2',
+        }),
     ),
   );
