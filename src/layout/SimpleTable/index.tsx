@@ -28,6 +28,10 @@ export class SimpleTable extends SimpleTableDef {
       }
     }
 
+    if (ctx.item.dataModelBindings && ctx.item.externalApi) {
+      return [`Du har spesifisert både dataModelBindings og externalApi. Vennligst bruk den ene eller den andre`];
+    }
+
     return [];
   }
 
