@@ -26,6 +26,14 @@ export const Config = new CG.component({
             'Describes the location in the data model where the component should store the organisation number of the organisation to look up.',
           ),
       ),
+      new CG.prop(
+        'organisation_lookup_name',
+        new CG.dataModelBinding()
+          .setTitle('Data binding for organisation name')
+          .setDescription(
+            'Describes the location in the data model where the component should store the name of the organisation.',
+          ),
+      ),
     ),
   )
   .addTextResource(
