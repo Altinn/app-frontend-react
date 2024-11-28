@@ -107,7 +107,7 @@ function AppNavigationHeading({
 }: { showClose?: undefined; onClose?: undefined } | { showClose: true; onClose: () => void }) {
   const { langAsString } = useLanguage();
   return (
-    <div className={classes.navigationHeader}>
+    <div className={classes.navigationHeading}>
       <Heading
         level={3}
         size='sm'
@@ -143,6 +143,9 @@ function InnerPopoverNavigation({
     !isDialogOpen && modalRef.current?.close();
   }, [isMobile, isDialogOpen]);
 
+  const closeDialog = () => setIsDialogOpen(false);
+  const toggleDialog = () => setIsDialogOpen((o) => !o);
+
   if (!isMobile) {
     return wrapper(
       <>
@@ -150,10 +153,10 @@ function InnerPopoverNavigation({
         <div className={classes.popoverWrapper}>
           <Popover
             open={isDialogOpen}
-            onClose={() => setIsDialogOpen(false)}
+            onClose={closeDialog}
           >
             <Popover.Trigger asChild={true}>
-              <PopoverNavigationButton onClick={() => setIsDialogOpen((o) => !o)} />
+              <PopoverNavigationButton onClick={toggleDialog} />
             </Popover.Trigger>
             <Popover.Content
               className={classes.popoverContainer}
@@ -162,9 +165,9 @@ function InnerPopoverNavigation({
             >
               <AppNavigationHeading
                 showClose={true}
-                onClose={() => setIsDialogOpen(false)}
+                onClose={closeDialog}
               />
-              <AppNavigation onNavigate={() => setIsDialogOpen(false)} />
+              <AppNavigation onNavigate={closeDialog} />
             </Popover.Content>
           </Popover>
         </div>
@@ -174,21 +177,21 @@ function InnerPopoverNavigation({
 
   return (
     <>
-      <PopoverNavigationButton onClick={() => setIsDialogOpen((o) => !o)} />
+      <PopoverNavigationButton onClick={toggleDialog} />
       <Modal
         role='dialog'
         ref={modalRef}
-        onInteractOutside={() => setIsDialogOpen(false)}
+        onInteractOutside={closeDialog}
         className={classes.modal}
       >
         <Modal.Content className={classes.modalContainer}>
           <AppNavigationHeading
             showClose={true}
-            onClose={() => setIsDialogOpen(false)}
+            onClose={closeDialog}
           />
           <div className={classes.modalWrapper}>
             {wrapper(children)}
-            <AppNavigation onNavigate={() => setIsDialogOpen(false)} />
+            <AppNavigation onNavigate={closeDialog} />
           </div>
         </Modal.Content>
       </Modal>
