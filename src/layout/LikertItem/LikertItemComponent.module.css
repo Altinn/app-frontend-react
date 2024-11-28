@@ -69,3 +69,11 @@ Altinn, and making sure they are consistent. */
   margin: 0;
   gap: 0;
 }
+
+.likertCellLeftDivider {
+  border-left: 1px solid #dde3e5;
+}
+
+.likertCellRightDivider {
+  border-right: 1px solid #dde3e5;
+}

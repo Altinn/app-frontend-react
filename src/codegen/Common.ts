@@ -427,7 +427,37 @@ const common = {
           maxHeight: 2,
         },
       }),
-
+  ILikertColumnProperties: () =>
+    new CG.obj(
+      new CG.prop(
+        'columns',
+        new CG.arr(
+          new CG.obj(
+            new CG.prop(
+              'value',
+              new CG.union(new CG.str().setPattern(/^\d+$/), new CG.num())
+                .setTitle('Value')
+                .setDescription('The value of the answer column'),
+            ),
+            new CG.prop(
+              'addLeftDivider',
+              new CG.bool()
+                .optional()
+                .setDescription('Set this to true if you would like to have a divider on the left-hand side.'),
+            ),
+            new CG.prop(
+              'addRightDivider',
+              new CG.bool()
+                .optional()
+                .setDescription('Set this to true if you would like to have a divider on the right-hand side.'),
+            ),
+          ),
+        )
+          .optional()
+          .setTitle('Columns')
+          .setDescription('Add customization to the columns of the likert component'),
+      ),
+    ),
   // Types that component definitions extend:
   ComponentBase: () =>
     new CG.obj(

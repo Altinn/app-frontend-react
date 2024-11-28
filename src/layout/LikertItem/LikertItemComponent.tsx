@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 
 import { Label, Radio, Table } from '@digdir/designsystemet-react';
+import cn from 'classnames';
 
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getLabelId } from 'src/components/label/Label';
@@ -15,6 +16,7 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
+import type { NodeItemFromNode } from 'src/utils/layout/types';
 
 export const LikertItemComponent = forwardRef<HTMLTableRowElement, PropsFromGenericComponent<'LikertItem'>>(
   (props, ref) => {
@@ -45,6 +47,9 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   const groupContainer =
     node.parent instanceof BaseLayoutNode && node.parent.isType('Likert') ? node.parent : undefined;
 
+  const item = useNodeItem(props.node) as NodeItemFromNode<BaseLayoutNode<'LikertItem'>>;
+  const columns = item.columns;
+
   return (
     <Table.Row
       data-componentid={node.id}
@@ -72,9 +77,17 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
         const isChecked = selectedValues[0] === option.value;
         const rowLabelId = getLabelId(id);
         const labelledby = `${rowLabelId} ${groupContainer?.baseId}-likert-columnheader-${index}`;
+        const addLeftDivider = columns?.find((column) => column.value == option.value)?.addLeftDivider;
+        const addRightDivider = columns?.find((column) => column.value == option.value)?.addRightDivider;
 
         return (
-          <Table.Cell key={option.value}>
+          <Table.Cell
+            key={option.value}
+            className={cn({
+              [classes.likertCellLeftDivider]: addLeftDivider,
+              [classes.likertCellRightDivider]: addRightDivider,
+            })}
+          >
             <Radio
               checked={isChecked}
               readOnly={readOnly}
