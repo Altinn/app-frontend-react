@@ -34,7 +34,7 @@ export type InputProps = {
 >;
 
 export function Input(props: InputProps) {
-  const { size = 'sm', ...rest } = props;
+  const { size = 'sm', prefix, suffix, characterLimit, error, id, readOnly, type } = props;
 
   if (props.textonly) {
     const { value, id, className } = props;
@@ -57,7 +57,13 @@ export function Input(props: InputProps) {
   return (
     <Textfield
       size={size}
-      {...rest}
+      prefix={prefix}
+      suffix={suffix}
+      type={type}
+      characterLimit={characterLimit}
+      error={error}
+      id={id}
+      readOnly={readOnly}
     />
   );
 }

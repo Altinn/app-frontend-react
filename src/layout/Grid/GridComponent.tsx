@@ -43,6 +43,10 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { elementAsString } = useLanguage();
   const accessibleTitle = elementAsString(title);
 
+  const headerRows = rowsInternal.filter((row) => !!row.header);
+
+  const bodyRows = rowsInternal.filter((row) => !row.header);
+
   if (isMobile) {
     return <MobileGrid {...props} />;
   }
@@ -65,15 +69,29 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
             labelSettings={labelSettings}
           />
         )}
-        {rowsInternal.map((row, rowIdx) => (
-          <GridRowRenderer
-            key={rowIdx}
-            row={row}
-            isNested={isNested}
-            mutableColumnSettings={columnSettings}
-            node={node}
-          />
-        ))}
+        <Table.Head>
+          {headerRows.map((row, rowIdx) => (
+            <GridRowRenderer
+              key={rowIdx}
+              row={row}
+              isNested={isNested}
+              mutableColumnSettings={columnSettings}
+              node={node}
+            />
+          ))}
+        </Table.Head>
+
+        <Table.Body>
+          {bodyRows.map((row, rowIdx) => (
+            <GridRowRenderer
+              key={rowIdx}
+              row={row}
+              isNested={isNested}
+              mutableColumnSettings={columnSettings}
+              node={node}
+            />
+          ))}
+        </Table.Body>
       </Table>
     </ConditionalWrapper>
   );
@@ -160,16 +178,8 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
 
 type InternalRowProps = PropsWithChildren<Pick<GridRowInternal, 'header' | 'readOnly'>>;
 
-function InternalRow({ header, readOnly, children }: InternalRowProps) {
+function InternalRow({ readOnly, children }: InternalRowProps) {
   const className = readOnly ? css.rowReadOnly : undefined;
-
-  if (header) {
-    return (
-      <Table.Head>
-        <Table.Row className={className}>{children}</Table.Row>
-      </Table.Head>
-    );
-  }
 
   return <Table.Row className={className}>{children}</Table.Row>;
 }
