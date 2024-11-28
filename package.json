@@ -101,7 +101,7 @@
     "fork-ts-checker-webpack-plugin": "9.0.2",
     "html-react-parser": "4.2.10",
     "http-server": "^14.1.1",
-    "husky": "8.0.3",
+    "husky": "9.1.7",
     "identity-obj-proxy": "3.0.0",
     "jest": "29.7.0",
     "jest-environment-jsdom": "29.7.0",
