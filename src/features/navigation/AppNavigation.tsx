@@ -1,13 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { JSX, PropsWithChildren } from 'react';
 
-import { Button, Heading, Popover } from '@digdir/designsystemet-react';
+import { Button, Heading, Modal, Popover } from '@digdir/designsystemet-react';
 import {
   CheckmarkIcon,
   ChevronDownIcon,
   ExclamationmarkIcon,
   FolderIcon,
   MenuHamburgerIcon,
+  XMarkIcon,
 } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
@@ -15,6 +16,7 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/AppNavigation.module.css';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { ValidationMask } from 'src/features/validation';
@@ -45,6 +47,7 @@ export function SideBarNavigation() {
 
   return (
     <aside className={classes.sidebarContainer}>
+      <AppNavigationHeading />
       <AppNavigation />
     </aside>
   );
@@ -63,14 +66,9 @@ export function PopoverNavigation({
   return <InnerPopoverNavigation wrapper={wrapper}>{children}</InnerPopoverNavigation>;
 }
 
-function InnerPopoverNavigation({
-  children,
-  wrapper,
-}: PropsWithChildren<{ wrapper: (children: React.ReactNode) => JSX.Element }>) {
+function PopoverNavigationButton(props: Parameters<typeof Button>[0]) {
   const currentPageId = useNavigationParam('pageKey');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const groups = useLayoutSettings().pages.groups;
-  const isMobile = useIsMobile();
 
   if (!groups || !currentPageId) {
     throw CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR;
@@ -82,52 +80,125 @@ function InnerPopoverNavigation({
   const hasCurrentGroup =
     currentGroup && typeof currentGroupIndex === 'number' && typeof currentGroupLength === 'number';
 
-  return wrapper(
-    <>
-      {!isMobile && children}
-      <div className={classes.popoverWrapper}>
-        <Popover
-          open={isDialogOpen}
-          onClose={() => setIsDialogOpen(false)}
-          size='lg'
-          placement='bottom-end'
+  return (
+    <Button
+      variant='secondary'
+      color='first'
+      size='sm'
+      {...props}
+    >
+      {hasCurrentGroup && (
+        <Lang
+          id='navigation.popover_button_progress'
+          params={[{ key: currentGroup.name }, currentGroupIndex + 1, currentGroupLength]}
+        />
+      )}
+      <MenuHamburgerIcon
+        className={cn({ [classes.burgerMenuIcon]: hasCurrentGroup })}
+        aria-hidden
+      />
+    </Button>
+  );
+}
+
+function AppNavigationHeading({
+  showClose,
+  onClose,
+}: { showClose?: undefined; onClose?: undefined } | { showClose: true; onClose: () => void }) {
+  const { langAsString } = useLanguage();
+  return (
+    <div className={classes.navigationHeader}>
+      <Heading
+        level={3}
+        size='sm'
+      >
+        <Lang id='navigation.form_pages' />
+      </Heading>
+      {showClose && (
+        <Button
+          variant='tertiary'
+          color='second'
+          size='sm'
+          icon={true}
+          onClick={onClose}
+          aria-label={langAsString('general.close')}
         >
-          <Popover.Trigger asChild={true}>
-            <Button
-              variant='secondary'
-              color='first'
-              size='sm'
-              onClick={() => setIsDialogOpen((o) => !o)}
-            >
-              {hasCurrentGroup && (
-                <Lang
-                  id='navigation.popover_button_progress'
-                  params={[{ key: currentGroup.name }, currentGroupIndex + 1, currentGroupLength]}
-                />
-              )}
-              <MenuHamburgerIcon
-                className={cn({ [classes.burgerMenuIcon]: hasCurrentGroup })}
-                aria-hidden
-              />
-            </Button>
-          </Popover.Trigger>
-          <Popover.Content
-            className={classes.popoverContainer}
-            aria-modal
-            autoFocus={true}
+          <XMarkIcon aria-hidden />
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function InnerPopoverNavigation({
+  children,
+  wrapper,
+}: PropsWithChildren<{ wrapper: (children: React.ReactNode) => JSX.Element }>) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const modalRef = useRef<HTMLDialogElement>(null);
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    isDialogOpen && modalRef.current?.showModal();
+    !isDialogOpen && modalRef.current?.close();
+  }, [isMobile, isDialogOpen]);
+
+  if (!isMobile) {
+    return wrapper(
+      <>
+        {children}
+        <div className={classes.popoverWrapper}>
+          <Popover
+            open={isDialogOpen}
+            onClose={() => setIsDialogOpen(false)}
           >
-            {isMobile && wrapper(children)}
-            <AppNavigation />
-          </Popover.Content>
-        </Popover>
-      </div>
-    </>,
+            <Popover.Trigger asChild={true}>
+              <PopoverNavigationButton onClick={() => setIsDialogOpen((o) => !o)} />
+            </Popover.Trigger>
+            <Popover.Content
+              className={classes.popoverContainer}
+              aria-modal
+              autoFocus={true}
+            >
+              <AppNavigationHeading
+                showClose={true}
+                onClose={() => setIsDialogOpen(false)}
+              />
+              <AppNavigation onNavigate={() => setIsDialogOpen(false)} />
+            </Popover.Content>
+          </Popover>
+        </div>
+      </>,
+    );
+  }
+
+  return (
+    <>
+      <PopoverNavigationButton onClick={() => setIsDialogOpen((o) => !o)} />
+      <Modal
+        role='dialog'
+        ref={modalRef}
+        onInteractOutside={() => setIsDialogOpen(false)}
+        className={classes.modal}
+      >
+        <Modal.Content className={classes.modalContainer}>
+          <AppNavigationHeading
+            showClose={true}
+            onClose={() => setIsDialogOpen(false)}
+          />
+          <div className={classes.modalWrapper}>
+            {wrapper(children)}
+            <AppNavigation onNavigate={() => setIsDialogOpen(false)} />
+          </div>
+        </Modal.Content>
+      </Modal>
+    </>
   );
 }
 
 type Group = { name: string; order: string[] };
 
-function AppNavigation() {
+function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
   const groups = useLayoutSettings().pages.groups;
 
   if (!groups) {
@@ -135,27 +206,19 @@ function AppNavigation() {
   }
 
   return (
-    <div>
-      <Heading
-        level={3}
-        size='sm'
-        className={classes.navigationHeader}
-      >
-        <Lang id='navigation.form_pages' />
-      </Heading>
-      <ul className={classes.groupList}>
-        {groups.map((group) => (
-          <PageGroup
-            key={group.name}
-            group={group}
-          />
-        ))}
-      </ul>
-    </div>
+    <ul className={classes.groupList}>
+      {groups.map((group) => (
+        <PageGroup
+          key={group.name}
+          group={group}
+          onNavigate={onNavigate}
+        />
+      ))}
+    </ul>
   );
 }
 
-function PageGroup({ group }: { group: Group }) {
+function PageGroup({ group, onNavigate }: { group: Group; onNavigate?: () => void }) {
   const currentPageId = useNavigationParam('pageKey');
   const containsCurrentPage = group.order.some((page) => page === currentPageId);
   const validations = useValidationsForPageGroup(group);
@@ -185,6 +248,7 @@ function PageGroup({ group }: { group: Group }) {
             <Page
               key={page}
               page={page}
+              onNavigate={onNavigate}
               hasErrors={validations !== ContextNotProvided && validations.hasErrors.pages[page]}
               isComplete={validations !== ContextNotProvided && validations.isCompleted.pages[page]}
             />
@@ -214,7 +278,17 @@ function PageGroupSymbol({ error, complete, open }: { error: boolean; complete: 
   );
 }
 
-function Page({ page, hasErrors, isComplete }: { page: string; hasErrors: boolean; isComplete: boolean }) {
+function Page({
+  page,
+  onNavigate,
+  hasErrors,
+  isComplete,
+}: {
+  page: string;
+  onNavigate?: () => void;
+  hasErrors: boolean;
+  isComplete: boolean;
+}) {
   const currentPageId = useNavigationParam('pageKey');
   const isCurrentPage = page === currentPageId;
 
@@ -224,7 +298,12 @@ function Page({ page, hasErrors, isComplete }: { page: string; hasErrors: boolea
     <li>
       <button
         className={classes.pageButton}
-        onClick={() => navigateToPage(page)}
+        onClick={() => {
+          if (!isCurrentPage) {
+            navigateToPage(page);
+            onNavigate?.();
+          }
+        }}
       >
         <PageSymbol
           error={hasErrors}
