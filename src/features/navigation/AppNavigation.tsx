@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import type { JSX, PropsWithChildren } from 'react';
 
 import { Button, Heading, Popover } from '@digdir/designsystemet-react';
 import {
@@ -11,12 +12,13 @@ import {
 import cn from 'classnames';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
+import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/features/navigation/AppNavigation.module.css';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { ValidationMask } from 'src/features/validation';
-import { useBrowserWidth } from 'src/hooks/useDeviceWidths';
+import { useBrowserWidth, useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useLaxNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
@@ -34,7 +36,8 @@ const CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR =
 
 export function SideBarNavigation() {
   const hasGroupedNavigation = useHasGroupedNavigation();
-  const isScreenLarge = useBrowserWidth((width) => width >= 1450);
+  const { expandedWidth } = useUiConfigContext();
+  const isScreenLarge = useBrowserWidth((width) => width >= 1450) && !expandedWidth;
 
   if (!hasGroupedNavigation || !isScreenLarge) {
     return null;
@@ -46,20 +49,28 @@ export function SideBarNavigation() {
     </aside>
   );
 }
-export function PopoverNavigation() {
+export function PopoverNavigation({
+  children,
+  wrapper,
+}: PropsWithChildren<{ wrapper: (children: React.ReactNode) => JSX.Element }>) {
   const hasGroupedNavigation = useHasGroupedNavigation();
-  const isScreenSmall = !useBrowserWidth((width) => width >= 1450);
+  const { expandedWidth } = useUiConfigContext();
+  const isScreenSmall = !useBrowserWidth((width) => width >= 1450) || expandedWidth;
   if (!hasGroupedNavigation || !isScreenSmall) {
-    return null;
+    return wrapper(children);
   }
 
-  return <InnerPopoverNavigation />;
+  return <InnerPopoverNavigation wrapper={wrapper}>{children}</InnerPopoverNavigation>;
 }
 
-function InnerPopoverNavigation() {
+function InnerPopoverNavigation({
+  children,
+  wrapper,
+}: PropsWithChildren<{ wrapper: (children: React.ReactNode) => JSX.Element }>) {
   const currentPageId = useNavigationParam('pageKey');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const groups = useLayoutSettings().pages.groups;
+  const isMobile = useIsMobile();
 
   if (!groups || !currentPageId) {
     throw CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR;
@@ -71,42 +82,46 @@ function InnerPopoverNavigation() {
   const hasCurrentGroup =
     currentGroup && typeof currentGroupIndex === 'number' && typeof currentGroupLength === 'number';
 
-  return (
-    <div className={classes.popoverWrapper}>
-      <Popover
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        size='lg'
-        placement='bottom-end'
-      >
-        <Popover.Trigger asChild={true}>
-          <Button
-            variant='secondary'
-            color='first'
-            size='sm'
-            onClick={() => setIsDialogOpen((o) => !o)}
-          >
-            {hasCurrentGroup && (
-              <Lang
-                id='navigation.popover_button_progress'
-                params={[{ key: currentGroup.name }, currentGroupIndex + 1, currentGroupLength]}
-              />
-            )}
-            <MenuHamburgerIcon
-              className={cn({ [classes.burgerMenuIcon]: hasCurrentGroup })}
-              aria-hidden
-            />
-          </Button>
-        </Popover.Trigger>
-        <Popover.Content
-          className={classes.popoverContainer}
-          aria-modal
-          autoFocus={true}
+  return wrapper(
+    <>
+      {!isMobile && children}
+      <div className={classes.popoverWrapper}>
+        <Popover
+          open={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          size='lg'
+          placement='bottom-end'
         >
-          <AppNavigation />
-        </Popover.Content>
-      </Popover>
-    </div>
+          <Popover.Trigger asChild={true}>
+            <Button
+              variant='secondary'
+              color='first'
+              size='sm'
+              onClick={() => setIsDialogOpen((o) => !o)}
+            >
+              {hasCurrentGroup && (
+                <Lang
+                  id='navigation.popover_button_progress'
+                  params={[{ key: currentGroup.name }, currentGroupIndex + 1, currentGroupLength]}
+                />
+              )}
+              <MenuHamburgerIcon
+                className={cn({ [classes.burgerMenuIcon]: hasCurrentGroup })}
+                aria-hidden
+              />
+            </Button>
+          </Popover.Trigger>
+          <Popover.Content
+            className={classes.popoverContainer}
+            aria-modal
+            autoFocus={true}
+          >
+            {isMobile && wrapper(children)}
+            <AppNavigation />
+          </Popover.Content>
+        </Popover>
+      </div>
+    </>,
   );
 }
 
@@ -120,7 +135,7 @@ function AppNavigation() {
   }
 
   return (
-    <>
+    <div>
       <Heading
         level={3}
         size='sm'
@@ -136,7 +151,7 @@ function AppNavigation() {
           />
         ))}
       </ul>
-    </>
+    </div>
   );
 }
 

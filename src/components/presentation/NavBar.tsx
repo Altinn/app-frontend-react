@@ -72,13 +72,12 @@ export const NavBar = () => {
           </Button>
         )}
       </div>
-      <div className={classes.wrapper}>
+      <PopoverNavigation wrapper={(children) => <div className={classes.wrapper}>{children}</div>}>
         {showLanguageSelector && <LanguageSelector />}
-
         {showExpandWidthButton && (
           <Button
             data-testid='form-expand-button'
-            className={cn(classes.buttonMargin, { [classes.hideExpandButtonMaxWidth]: !expandedWidth })}
+            className={cn(classes.buttonMargin, classes.expandWidthButton)}
             onClick={toggleExpandedWidth}
             variant='tertiary'
             color='second'
@@ -100,8 +99,7 @@ export const NavBar = () => {
             )}
           </Button>
         )}
-        <PopoverNavigation />
-      </div>
+      </PopoverNavigation>
     </nav>
   );
 };

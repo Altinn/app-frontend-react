@@ -17,6 +17,10 @@
 }
 
 .popover-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
   border: none;
   border-radius: 0;
   box-shadow: 1px 1px 4px 0 rgb(137 137 137 / 50%);
