@@ -10,7 +10,7 @@ import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { PopoverNavigation } from 'src/features/navigation/AppNavigation';
+import { PopoverNavigation } from 'src/features/navigation/PopoverNavigation';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useIsLocalTest, useIsStudioPreview } from 'src/hooks/useIsDev';
