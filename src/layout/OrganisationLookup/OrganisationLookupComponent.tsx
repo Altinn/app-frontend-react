@@ -73,11 +73,12 @@ async function fetchOrg({
 
 export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<'OrganisationLookup'>) {
   const { id, dataModelBindings, required } = useNodeItem(node);
+  const [orgName, setOrgName] = useState('');
   const [tempOrgNr, setTempOrgNr] = useState('');
   const [orgNrErrors, setOrgNrErrors] = useState<string[]>();
 
   const {
-    formData: { organisation_lookup_orgnr, organisation_lookup_name },
+    formData: { organisation_lookup_orgnr },
     setValue,
   } = useDataModelBindings(dataModelBindings);
 
@@ -118,18 +119,20 @@ export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<
 
     const { data } = await performLookup();
     if (data?.org) {
+      setOrgName(data.org.name);
       setValue('organisation_lookup_orgnr', data.org.orgNr);
-      setValue('organisation_lookup_name', data.org.name);
+      dataModelBindings.organisation_lookup_name && setValue('organisation_lookup_name', data.org.name);
     }
   }
 
   function handleClear() {
     setValue('organisation_lookup_orgnr', '');
-    setValue('organisation_lookup_name', '');
+    dataModelBindings.organisation_lookup_name && setValue('organisation_lookup_name', '');
+    setOrgName('');
     setTempOrgNr('');
   }
 
-  const hasSuccessfullyFetched = !!organisation_lookup_orgnr && !!organisation_lookup_name;
+  const hasSuccessfullyFetched = !!organisation_lookup_orgnr;
 
   return (
     <ComponentStructureWrapper node={node}>
@@ -196,7 +199,7 @@ export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<
             <Lang id={data.error} />
           </ErrorMessage>
         )}
-        <div className={classes.orgname}>{hasSuccessfullyFetched && <span>{organisation_lookup_name}</span>}</div>
+        <div className={classes.orgname}>{hasSuccessfullyFetched && <span>{orgName}</span>}</div>
       </div>
     </ComponentStructureWrapper>
   );
