@@ -1,0 +1,12 @@
+.organisationLookupSummary {
+  display: flex;
+  flex-direction: row;
+  gap: var(--fds-spacing-2);
+  width: 100%;
+}
+
+.organisationLookupSummaryNr,
+.organisationLookupSummaryName {
+  flex-grow: 1;
+  min-width: 0;
+}
