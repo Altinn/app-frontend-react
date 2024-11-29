@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 
+import { evalExpr } from 'src/features/expressions';
+import { ExprValidation } from 'src/features/expressions/validation';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -9,6 +11,7 @@ import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { filterDuplicateOptions, verifyOptions } from 'src/utils/options';
+import type { ExprValueArgsConfig } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
@@ -27,6 +30,7 @@ interface FetchOptionsProps {
 interface FilteredAndSortedOptionsProps {
   unsorted: IOptionInternal[];
   valueType: OptionsValueType;
+  node: LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
   dataSources: ExpressionDataSources;
 }
@@ -107,14 +111,18 @@ export function useSetOptions(
   };
 }
 
-function useOptionsUrl(node: LayoutNode, item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>) {
+function useOptionsUrl(
+  node: LayoutNode,
+  item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>,
+  dataSources: ExpressionDataSources,
+) {
   const { optionsId, secure, mapping, queryParameters } = item;
-  return useGetOptionsUrl(node, optionsId, mapping, queryParameters, secure);
+  return useGetOptionsUrl(node, dataSources, optionsId, mapping, queryParameters, secure);
 }
 
 export function useFetchOptions({ node, item, dataSources }: FetchOptionsProps) {
   const { options, optionsId, source } = item;
-  const url = useOptionsUrl(node, item);
+  const url = useOptionsUrl(node, item, dataSources);
 
   const sourceOptions = useSourceOptions({ source, node, dataSources });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
@@ -148,14 +156,20 @@ function useLogFetchError(error: Error | null, item: CompIntermediateExact<CompW
 }
 
 const emptyArray: never[] = [];
-export function useFilteredAndSortedOptions({ unsorted, valueType, item, dataSources }: FilteredAndSortedOptionsProps) {
+export function useFilteredAndSortedOptions({
+  unsorted,
+  valueType,
+  node,
+  item,
+  dataSources,
+}: FilteredAndSortedOptionsProps) {
   const sortOrder = item.sortOrder;
   const preselectedOptionIndex = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
   const language = useLanguage();
   const langAsString = language.langAsString;
   const selectedLanguage = useCurrentLanguage();
 
-  return useMemo(() => {
+  const unfiltered = useMemo(() => {
     let options = structuredClone(unsorted);
     verifyOptions(options, valueType === 'multi');
     let preselectedOption: IOptionInternal | undefined = undefined;
@@ -170,19 +184,45 @@ export function useFilteredAndSortedOptions({ unsorted, valueType, item, dataSou
       return { options: emptyArray, preselectedOption };
     }
 
-    if (options.length < 2) {
-      // No need to sort or filter if there are 0 or 1 options. Using langAsString() can lead to re-rendering, so
-      // we avoid it if we don't need it.
-      return { options, preselectedOption };
-    }
-
-    options = filterDuplicateOptions(options);
-    if (sortOrder) {
-      options = [...options].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
+    // No need to sort if there are 0 or 1 options. Using langAsString() can lead to re-rendering, so
+    // we avoid it if we don't need it.
+    if (options.length > 1) {
+      options = filterDuplicateOptions(options);
+      if (sortOrder) {
+        options = [...options].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
+      }
     }
 
     return { options, preselectedOption };
   }, [langAsString, preselectedOptionIndex, selectedLanguage, sortOrder, unsorted, valueType]);
+
+  const optionFilter = item.optionFilter;
+  return useMemo(() => {
+    const { options, preselectedOption } = unfiltered;
+
+    let filteredOptions = options;
+    if (optionFilter !== undefined && ExprValidation.isValid(optionFilter)) {
+      filteredOptions = options.filter((option) => {
+        const valueArguments: ExprValueArgsConfig<IOptionInternal> = {
+          data: option,
+          defaultKey: 'value',
+        };
+        return evalExpr(optionFilter, node, dataSources, { valueArguments });
+      });
+    }
+
+    let existingPreselectedOption = preselectedOption;
+    if (preselectedOption && !filteredOptions.includes(preselectedOption)) {
+      // If the preselected option is not in the filtered list, we need to remove it
+      existingPreselectedOption = undefined;
+      window.logWarnOnce(
+        `Node '${node.id}': Preselected option with value "${preselectedOption.value}" is not in ` +
+          `the filtered options list any more. Cannot preselect this option.`,
+      );
+    }
+
+    return { options: filteredOptions, preselectedOption: existingPreselectedOption };
+  }, [unfiltered, optionFilter, node, dataSources]);
 }
 
 export function useGetOptions(

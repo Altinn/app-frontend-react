@@ -37,7 +37,13 @@ function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
 
   const dataSources = GeneratorData.useExpressionDataSources();
   const { unsorted, isFetching, downstreamParameters } = useFetchOptions({ node, item, dataSources });
-  const { options, preselectedOption } = useFilteredAndSortedOptions({ unsorted, valueType, item, dataSources });
+  const { options, preselectedOption } = useFilteredAndSortedOptions({
+    unsorted,
+    valueType,
+    node,
+    item,
+    dataSources,
+  });
 
   const hasBeenSet = NodesInternal.useNodeData(
     node,

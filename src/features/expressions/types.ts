@@ -109,3 +109,8 @@ export interface ExprConfig<V extends ExprVal = ExprVal> {
 }
 
 export type ExprPositionalArgs = ExprValToActual<ExprVal.Any>[];
+export type ExprValueArgs = object;
+export type ExprValueArgsConfig<T extends ExprValueArgs> = {
+  data: T;
+  defaultKey: keyof T;
+};
