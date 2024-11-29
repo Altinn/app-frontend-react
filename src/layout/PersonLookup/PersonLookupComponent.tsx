@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 
 import { ErrorMessage } from '@digdir/designsystemet-react';
-import { useQuery } from '@tanstack/react-query';
-import type { QueryFunctionContext } from '@tanstack/react-query';
+import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Input } from 'src/app-components/Input/Input';
@@ -25,9 +24,15 @@ import { httpPost } from 'src/utils/network/networking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-const personLookupKeys = {
-  lookup: (ssn: string, name: string) => [{ scope: 'personLookup', ssn, name }],
-} as const;
+const personLookupQueries = {
+  lookup: (ssn: string, name: string) =>
+    queryOptions({
+      queryKey: [{ scope: 'personLookup', ssn, name }],
+      queryFn: () => fetchPerson(ssn, name),
+      enabled: false,
+      gcTime: 0,
+    }),
+};
 
 export type Person = {
   name: string;
@@ -35,11 +40,10 @@ export type Person = {
 };
 export type PersonLookupResponse = { success: false; personDetails: null } | { success: true; personDetails: Person };
 
-async function fetchPerson({
-  queryKey: [{ ssn, name }],
-}: QueryFunctionContext<ReturnType<(typeof personLookupKeys)['lookup']>>): Promise<
-  { person: Person; error: null } | { person: null; error: string }
-> {
+async function fetchPerson(
+  ssn: string,
+  name: string,
+): Promise<{ person: Person; error: null } | { person: null; error: string }> {
   if (!ssn || !name) {
     throw new Error('Missing ssn or name');
   }
@@ -85,16 +89,7 @@ export function PersonLookupComponent({ node }: PropsFromGenericComponent<'Perso
     setValue,
   } = useDataModelBindings(dataModelBindings);
 
-  const {
-    data,
-    refetch: performLookup,
-    isFetching,
-  } = useQuery({
-    queryKey: personLookupKeys.lookup(tempSsn, tempName),
-    queryFn: fetchPerson,
-    enabled: false,
-    gcTime: 0,
-  });
+  const { data, refetch: performLookup, isFetching } = useQuery(personLookupQueries.lookup(tempSsn, tempName));
 
   function handleValidateName(name: string) {
     if (!validateName({ name })) {
