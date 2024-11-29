@@ -63,7 +63,7 @@ export function Label({
             </DesignsystemetLabel>
             {help}
           </span>
-          {description}
+          {description && <div className={classes.description}>{description}</div>}
         </span>
       </Grid>
       {children}

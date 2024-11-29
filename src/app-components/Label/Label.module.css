@@ -10,3 +10,7 @@
   gap: var(--fds-spacing-1);
   align-items: flex-start;
 }
+
+.description {
+  padding-bottom: var(--fds-spacing-2);
+}
