@@ -53,9 +53,13 @@ async function fetchOrg({
       return { org: null, error: 'organisation_lookup.validation_invalid_response_from_server' };
     }
 
-    if (!response || !response.organisationDetails) {
-      // we want to get rid of this check, but it's here for now to avoid TS errors
+    if (!response) {
+      // This should never happen, but TS does not understand that response is not null here
       return { org: null, error: 'organisation_lookup.impossible_error' };
+    }
+
+    if (!response.success || !response.organisationDetails) {
+      return { org: null, error: 'organisation_lookup.validation_error_not_found' };
     }
 
     return { org: response.organisationDetails, error: null };
@@ -199,7 +203,12 @@ export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<
             <Lang id={data.error} />
           </ErrorMessage>
         )}
-        <div className={classes.orgname}>{hasSuccessfullyFetched && <span>{orgName}</span>}</div>
+        <div
+          className={classes.orgname}
+          aria-label={langAsString('organisation_lookup.org_name')}
+        >
+          {hasSuccessfullyFetched && <span>{orgName}</span>}
+        </div>
       </div>
     </ComponentStructureWrapper>
   );

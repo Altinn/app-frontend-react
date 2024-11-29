@@ -314,7 +314,7 @@ export function en() {
     },
     organisation_lookup: {
       orgnr_label: 'Organisation number',
-      org_name_summary: 'Organisation name',
+      org_name: 'Organisation name',
       from_registry_description: 'From the CCR',
       validation_error_not_found: 'Organisation number not found in the registry',
       validation_invalid_response_from_server: 'Invalid response from the server',

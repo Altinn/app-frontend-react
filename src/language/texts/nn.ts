@@ -315,7 +315,7 @@ export function nn(): FixedLanguageList {
     },
     organisation_lookup: {
       orgnr_label: 'Organisasjonsnummer',
-      org_name_summary: 'Organisasjonsnamn',
+      org_name: 'Organisasjonsnamn',
       from_registry_description: 'Frå enhetsregisteret',
       validation_error_not_found: 'Organisasjonsnummeret er ikkje funne i registeret',
       validation_invalid_response_from_server: 'Ugyldig respons frå server',
