@@ -5,7 +5,7 @@ import { type QueryFunctionContext, useQuery } from '@tanstack/react-query';
 
 import type { PropsFromGenericComponent } from '..';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { NumericInput } from 'src/app-components/Input/NumericInput';
 import { Label } from 'src/app-components/Label/Label';
 import { Description } from 'src/components/form/Description';
