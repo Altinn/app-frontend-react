@@ -10,6 +10,7 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { Description } from 'src/components/form/Description';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';
+import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Group/GroupComponent.module.css';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { Hidden } from 'src/utils/layout/NodesContext';
@@ -63,57 +64,57 @@ export function GroupComponent({
   const legend = isSummary ? (summaryTitle ?? title) : title;
 
   return (
-    <ConditionalWrapper
-      condition={isPanel && !isSummary}
-      wrapper={(child) => (
-        <FullWidthWrapper>
-          <Panel variant='info'>{child}</Panel>
-        </FullWidthWrapper>
-      )}
-    >
-      <Fieldset
-        legend={
-          legend ? (
-            <Heading
-              level={headingLevel}
-              size={headingSize}
-            >
-              <Lang id={legend} />
-            </Heading>
-          ) : undefined
-        }
-        className={cn({
-          [classes.summary]: isSummary,
-          [classes.group]: !isSummary,
-          [classes.panel]: isPanel && !isSummary,
-        })}
-        description={
-          !isSummary && description ? (
-            <Description
-              componentId={id}
-              description={<Lang id={description} />}
-            />
-          ) : undefined
-        }
+    <ComponentStructureWrapper node={groupNode}>
+      <ConditionalWrapper
+        condition={isPanel && !isSummary}
+        wrapper={(child) => (
+          <FullWidthWrapper>
+            <Panel variant='info'>{child}</Panel>
+          </FullWidthWrapper>
+        )}
       >
-        <div
-          data-componentid={container.id}
-          data-componentbaseid={container.baseComponentId || container.id}
-          ref={containerDivRef}
-          id={id ?? container.id}
-          data-testid='display-group-container'
-          className={cn(classes.groupContainer, {
-            [classes.groupingIndicator]: isIndented && !isNested,
-            [classes.summary]: isSummary && !legend,
-            [classes.group]: !isSummary && !legend,
-            [classes.panel]: isPanel && !isSummary && !legend,
-            [classes.noFieldset]: !isSummary && !legend,
-            [classes.paddingBottom]: !isSummary && !isPanel,
-          })}
-        >
-          {children.map((n) => renderLayoutNode(n))}
+        <div className={cn({ [classes.yPadding]: !isPanel })}>
+          <Fieldset
+            legend={
+              legend ? (
+                <Heading
+                  level={headingLevel}
+                  size={headingSize}
+                >
+                  <Lang id={legend} />
+                </Heading>
+              ) : undefined
+            }
+            className={cn({
+              [classes.summary]: isSummary,
+            })}
+            description={
+              !isSummary && description ? (
+                <Description
+                  componentId={id}
+                  description={<Lang id={description} />}
+                />
+              ) : undefined
+            }
+          >
+            <div
+              data-componentid={container.id}
+              data-componentbaseid={container.baseComponentId || container.id}
+              ref={containerDivRef}
+              id={id ?? container.id}
+              data-testid='display-group-container'
+              className={cn(classes.groupContainer, {
+                [classes.indented]: isIndented && !isNested,
+                [classes.summary]: isSummary && !legend,
+                [classes.noFieldset]: !isSummary && !legend,
+                [classes.yPadding]: !isPanel,
+              })}
+            >
+              {children.map((n) => renderLayoutNode(n))}
+            </div>
+          </Fieldset>
         </div>
-      </Fieldset>
-    </ConditionalWrapper>
+      </ConditionalWrapper>
+    </ComponentStructureWrapper>
   );
 }
