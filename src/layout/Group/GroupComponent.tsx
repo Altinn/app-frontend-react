@@ -107,7 +107,6 @@ export function GroupComponent({
                 [classes.indented]: isIndented && !isNested,
                 [classes.summary]: isSummary && !legend,
                 [classes.noFieldset]: !isSummary && !legend,
-                [classes.yPadding]: !isPanel,
               })}
             >
               {children.map((n) => renderLayoutNode(n))}
