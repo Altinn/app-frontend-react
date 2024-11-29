@@ -69,7 +69,7 @@ export function Fieldset({
             </span>
           }
           // FIXME: find a way to use classnames for setting font size. Not working currently
-          description={<div style={{ fontSize: '1rem' }}>{description}</div>}
+          description={description && <div style={{ fontSize: '1rem' }}>{description}</div>}
         >
           {children}
         </DesignsystemetFieldset>
