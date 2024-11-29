@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { ErrorMessage } from '@digdir/designsystemet-react';
 import { type QueryFunctionContext, useQuery } from '@tanstack/react-query';
+import { queryOptions } from '@tanstack/react-query';
 
 import type { PropsFromGenericComponent } from '..';
 
@@ -24,9 +25,15 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { httpGet } from 'src/utils/network/networking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 
-const orgLookupKeys = {
-  lookup: (orgNr: string) => [{ scope: 'organisationLookup', orgNr }],
-} as const;
+const orgLookupQueries = {
+  lookup: (orgNr: string) =>
+    queryOptions({
+      queryKey: [{ scope: 'organisationLookup', orgNr }],
+      queryFn: fetchOrg,
+      enabled: false,
+      gcTime: 0,
+    }),
+};
 
 export type Organisation = {
   orgNr: string;
@@ -37,10 +44,9 @@ export type OrganisationLookupResponse =
   | { success: true; organisationDetails: Organisation };
 
 async function fetchOrg({
-  queryKey: [{ orgNr }],
-}: QueryFunctionContext<ReturnType<(typeof orgLookupKeys)['lookup']>>): Promise<
-  { org: Organisation; error: null } | { org: null; error: string }
-> {
+  queryKey,
+}: QueryFunctionContext): Promise<{ org: Organisation; error: null } | { org: null; error: string }> {
+  const [{ orgNr }] = queryKey as [{ scope: 'organisationLookup'; orgNr: string }];
   if (!orgNr) {
     throw new Error('orgNr is required');
   }
@@ -89,16 +95,7 @@ export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<
   const bindingValidations = useBindingValidationsForNode(node);
   const { langAsString } = useLanguage();
 
-  const {
-    data,
-    refetch: performLookup,
-    isFetching,
-  } = useQuery({
-    queryKey: orgLookupKeys.lookup(tempOrgNr),
-    queryFn: fetchOrg,
-    enabled: false,
-    gcTime: 0,
-  });
+  const { data, refetch: performLookup, isFetching } = useQuery(orgLookupQueries.lookup(tempOrgNr));
 
   function handleValidateOrgnr(orgNr: string) {
     if (!validateOrgnr({ orgNr })) {
