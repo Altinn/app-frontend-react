@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 
 import { ErrorMessage } from '@digdir/designsystemet-react';
-import { type QueryFunctionContext, useQuery } from '@tanstack/react-query';
-import { queryOptions } from '@tanstack/react-query';
+import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import type { PropsFromGenericComponent } from '..';
 
@@ -29,7 +28,7 @@ const orgLookupQueries = {
   lookup: (orgNr: string) =>
     queryOptions({
       queryKey: [{ scope: 'organisationLookup', orgNr }],
-      queryFn: fetchOrg,
+      queryFn: () => fetchOrg(orgNr),
       enabled: false,
       gcTime: 0,
     }),
@@ -43,10 +42,7 @@ export type OrganisationLookupResponse =
   | { success: false; organisationDetails: null }
   | { success: true; organisationDetails: Organisation };
 
-async function fetchOrg({
-  queryKey,
-}: QueryFunctionContext): Promise<{ org: Organisation; error: null } | { org: null; error: string }> {
-  const [{ orgNr }] = queryKey as [{ scope: 'organisationLookup'; orgNr: string }];
+async function fetchOrg(orgNr: string): Promise<{ org: Organisation; error: null } | { org: null; error: string }> {
   if (!orgNr) {
     throw new Error('orgNr is required');
   }
