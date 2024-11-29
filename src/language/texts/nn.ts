@@ -330,7 +330,7 @@ export function nn(): FixedLanguageList {
       validation_error_too_many_requests: 'Du har gjort for mange søk. Ver venleg, prøv igjen seinare.',
       validation_error_forbidden:
         'Du har ikkje tilgang til å gjere dette søket. Sikkerheitsnivå 2 eller høgare er påkravd.',
-      validation_error_no_response_from_server: 'Det oppstod ein feil. Ver venleg, prøv igjen seinare.',
+      validation_invalid_response_from_server: 'Det oppstod ein feil. Ver venleg, prøv igjen seinare.',
       unknown_error: 'Det oppstod ein feil. Ver venleg, prøv igjen seinare.',
     },
     helptext: {

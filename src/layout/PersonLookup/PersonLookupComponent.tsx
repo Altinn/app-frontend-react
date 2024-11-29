@@ -51,7 +51,7 @@ async function fetchPerson({
     const data = response.data;
 
     if (!validatePersonLookupResponse(data)) {
-      return { person: null, error: 'person_lookup.validation_error_no_response_from_server' };
+      return { person: null, error: 'person_lookup.validation_invalid_response_from_server' };
     }
 
     if (!data.success) {

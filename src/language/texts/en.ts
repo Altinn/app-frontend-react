@@ -329,7 +329,7 @@ export function en() {
       validation_error_too_many_requests: 'Too many requests. Please try again later.',
       validation_error_forbidden:
         'You do not have permission to perform this action. A security level of minimum 2 is required.',
-      validation_error_no_response_from_server: 'No response from server. Please try again later.',
+      validation_invalid_response_from_server: 'An error occurred. Please try again later.',
       unknown_error: 'An unknown error occurred. Please try again later.',
     },
     helptext: {
