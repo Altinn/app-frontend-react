@@ -10,7 +10,7 @@ import classes from 'src/app-components/Label/Label.module.css';
 import type { GridSize } from 'src/app-components/Label/types';
 
 type LabelProps = {
-  label: string | undefined;
+  label: string | ReactElement | undefined;
   htmlFor?: DesignsystemetLabelProps['htmlFor'];
   required?: boolean;
   requiredIndicator?: JSX.Element;
