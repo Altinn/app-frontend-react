@@ -35,6 +35,24 @@ export function Fieldset({
   requiredIndicator,
   optionalIndicator,
 }: PropsWithChildren<FieldsetProps>) {
+  if (!legend) {
+    return (
+      <Grid
+        id={id}
+        container
+        spacing={2}
+      >
+        <Grid
+          item
+          {...(grid ?? { xs: 12 })}
+          className={className}
+        >
+          {children}
+        </Grid>
+      </Grid>
+    );
+  }
+
   return (
     <Grid
       id={id}
@@ -46,7 +64,6 @@ export function Fieldset({
         {...(grid ?? { xs: 12 })}
       >
         <DesignsystemetFieldset
-          hideLegend={!legend}
           className={cn(className)}
           legend={
             <span className={cn(labelClasses.labelAndHelpWrapper)}>
