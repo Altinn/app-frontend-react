@@ -9,8 +9,9 @@ import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
+import { isFormDataObject, isFormDataObjectArray } from 'src/layout/SimpleTable/typeguards';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { FormDataObject } from 'src/app-components/Table/Table';
+import type { FormDataObject } from 'src/app-components/DynamicForm/DynamicForm';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { DataConfig } from 'src/layout/SimpleTable/config.generated';
 
@@ -31,11 +32,16 @@ export function ApiTable({ node, externalApi }: ApiTableProps) {
   }
 
   let dataToDisplay: FormDataObject[] = [];
+  const value = data[externalApi.id];
 
-  if (!Array.isArray(data[externalApi.id])) {
-    dataToDisplay.push(data[externalApi.id] as FormDataObject);
+  if (!isFormDataObject(value) && !isFormDataObjectArray(value)) {
+    return;
+  }
+
+  if (!Array.isArray(value)) {
+    dataToDisplay.push(value);
   } else {
-    dataToDisplay = data[externalApi.id] as FormDataObject[];
+    dataToDisplay = value;
   }
 
   return (
