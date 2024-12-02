@@ -3,8 +3,6 @@ import React from 'react';
 import { Textarea } from '@digdir/designsystemet-react';
 import type { CharacterLimitProps } from '@digdir/designsystemet-react/dist/types/components/form/CharacterCounter';
 
-//import { Label } from 'your-component-library/Label'; // Adjust the import path accordingly
-
 export interface TextAreaWithLabelProps {
   id: string;
   value: string;
