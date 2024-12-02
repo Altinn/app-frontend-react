@@ -109,8 +109,9 @@ export interface ExprConfig<V extends ExprVal = ExprVal> {
 }
 
 export type ExprPositionalArgs = ExprValToActual<ExprVal.Any>[];
-export type ExprValueArgs = object;
-export type ExprValueArgsConfig<T extends ExprValueArgs> = {
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ExprValueArgs<T extends object = any> = {
   data: T;
   defaultKey: keyof T;
 };

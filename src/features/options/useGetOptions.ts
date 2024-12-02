@@ -11,7 +11,7 @@ import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { filterDuplicateOptions, verifyOptions } from 'src/utils/options';
-import type { ExprValueArgsConfig } from 'src/features/expressions/types';
+import type { ExprValueArgs } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
@@ -206,7 +206,7 @@ export function useFilteredAndSortedOptions({
     let filteredOptions = options;
     if (optionFilter !== undefined && ExprValidation.isValid(optionFilter)) {
       filteredOptions = options.filter((option) => {
-        const valueArguments: ExprValueArgsConfig<IOptionInternal> = {
+        const valueArguments: ExprValueArgs<IOptionInternal> = {
           data: option,
           defaultKey: 'value',
         };
