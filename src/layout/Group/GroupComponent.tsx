@@ -62,44 +62,43 @@ export function GroupComponent({
   const legend = isSummary ? (summaryTitle ?? title) : title;
 
   return (
-    <ConditionalWrapper
-      condition={isPanel && !isSummary}
-      wrapper={(child) => (
-        <div className={cn({ [classes.panelWrapper]: isPanel })}>
+    <div className={cn({ [classes.groupWrapper]: !isPanel, [classes.panelWrapper]: isPanel })}>
+      <ConditionalWrapper
+        condition={isPanel && !isSummary}
+        wrapper={(child) => (
           <FullWidthWrapper>
             <Panel variant='info'>{child}</Panel>
           </FullWidthWrapper>
-        </div>
-      )}
-    >
-      <Fieldset
-        legend={
-          legend ? (
-            <Heading
-              level={headingLevel}
-              size={headingSize}
-            >
-              <Lang id={legend} />
-            </Heading>
-          ) : undefined
-        }
-        description={description && !isSummary ? <Lang id={description} /> : undefined}
+        )}
       >
-        <div
-          data-componentid={container.id}
-          data-componentbaseid={container.baseComponentId || container.id}
-          ref={containerDivRef}
-          id={id ?? container.id}
-          data-testid='display-group-container'
-          className={cn(classes.groupContainer, {
-            [classes.indented]: isIndented && !isNested,
-            [classes.summary]: isSummary,
-            [classes.panel]: isPanel,
-          })}
+        <Fieldset
+          legend={
+            legend ? (
+              <Heading
+                level={headingLevel}
+                size={headingSize}
+              >
+                <Lang id={legend} />
+              </Heading>
+            ) : undefined
+          }
+          description={description && !isSummary ? <Lang id={description} /> : undefined}
         >
-          {children.map((n) => renderLayoutNode(n))}
-        </div>
-      </Fieldset>
-    </ConditionalWrapper>
+          <div
+            data-componentid={container.id}
+            data-componentbaseid={container.baseComponentId || container.id}
+            ref={containerDivRef}
+            id={id ?? container.id}
+            data-testid='display-group-container'
+            className={cn(classes.groupContainer, {
+              [classes.indented]: isIndented && !isNested,
+              [classes.summary]: isSummary,
+            })}
+          >
+            {children.map((n) => renderLayoutNode(n))}
+          </div>
+        </Fieldset>
+      </ConditionalWrapper>
+    </div>
   );
 }

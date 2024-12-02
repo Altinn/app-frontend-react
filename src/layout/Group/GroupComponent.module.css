@@ -1,15 +1,22 @@
-legend > * {
-  padding: 0 var(--fds-spacing-3);
+.groupWrapper {
+  padding-top: var(--fds-spacing-3);
+  padding-bottom: var(--fds-spacing-9);
+  width: 100%;
 }
 
-.summary {
+.panelWrapper {
+  padding: var(--fds-spacing-3);
+  padding-bottom: 0;
   width: 100%;
+}
+
+legend > * {
+  padding: 0 var(--fds-spacing-3);
 }
 
 .groupContainer {
   display: flex;
   flex-wrap: wrap;
-  padding-bottom: var(--fds-spacing-9);
 }
 
 .groupContainer > * {
@@ -23,10 +30,6 @@ legend > * {
   margin-left: var(--fds-spacing-3);
 }
 
-.panelWrapper {
-  padding: var(--fds-spacing-3);
-}
-
-.panel {
-  padding-bottom: 0;
+.summary {
+  width: 100%;
 }
