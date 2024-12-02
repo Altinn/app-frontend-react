@@ -20,7 +20,7 @@ type PanelProps = PropsWithChildren<{
   variant: PanelVariant;
   showIcon?: boolean;
   forceMobileLayout?: boolean;
-  title: JSX.Element | null;
+  title?: JSX.Element;
 }>;
 
 type PanelIconProps = {
@@ -89,13 +89,15 @@ export const Panel: React.FC<PanelProps> = ({
           </div>
         )}
         <div className={classes.panelContent}>
-          <Heading
-            level={2}
-            size={isMobileLayout ? 'xs' : 'sm'}
-            className={classes.panelHeader}
-          >
-            {title}
-          </Heading>
+          {title && (
+            <Heading
+              level={2}
+              size={isMobileLayout ? 'xs' : 'sm'}
+              className={classes.panelHeader}
+            >
+              {title}
+            </Heading>
+          )}
           <div>{children}</div>
         </div>
       </div>
