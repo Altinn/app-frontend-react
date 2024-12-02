@@ -10,7 +10,7 @@
   width: 100%;
 }
 
-legend > * {
+.groupWrapper.legend > * {
   padding: 0 var(--fds-spacing-3);
 }
 

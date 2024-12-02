@@ -62,7 +62,7 @@ export function GroupComponent({
   const legend = isSummary ? (summaryTitle ?? title) : title;
 
   return (
-    <div className={cn({ [classes.groupWrapper]: !isPanel, [classes.panelWrapper]: isPanel })}>
+    <div className={cn(classes.groupWrapper, { [classes.panelWrapper]: isPanel })}>
       <ConditionalWrapper
         condition={isPanel && !isSummary}
         wrapper={(child) => (
