@@ -197,6 +197,9 @@ export function useFilteredAndSortedOptions({
   }, [langAsString, preselectedOptionIndex, selectedLanguage, sortOrder, unsorted, valueType]);
 
   const optionFilter = item.optionFilter;
+  const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
+  const selectedValues = useSetOptions(valueType, dataModelBindings, unfiltered.options).selectedValues;
+
   return useMemo(() => {
     const { options, preselectedOption } = unfiltered;
 
@@ -207,7 +210,15 @@ export function useFilteredAndSortedOptions({
           data: option,
           defaultKey: 'value',
         };
-        return evalExpr(optionFilter, node, dataSources, { valueArguments });
+        const keep = evalExpr(optionFilter, node, dataSources, { valueArguments });
+        if (!keep && selectedValues.includes(option.value)) {
+          window.logWarnOnce(
+            `Node '${node.id}': Option with value "${option.value}" was selected, but the option filter ` +
+              `excludes it. This will cause the option to be deselected. If this was unintentional, add a check ` +
+              `for the currently selected option in your optionFilter expression.`,
+          );
+        }
+        return keep;
       });
     }
 
@@ -222,7 +233,7 @@ export function useFilteredAndSortedOptions({
     }
 
     return { options: filteredOptions, preselectedOption: existingPreselectedOption };
-  }, [unfiltered, optionFilter, node, dataSources]);
+  }, [unfiltered, optionFilter, node, dataSources, selectedValues]);
 }
 
 export function useGetOptions(
