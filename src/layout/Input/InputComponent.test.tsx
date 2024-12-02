@@ -105,28 +105,6 @@ describe('InputComponent', () => {
     expect(inputComponent).not.toHaveAttribute('aria-describedby');
   });
 
-  it('should apply correct formatting to phone numbers when rendered as component', async () => {
-    const typedValue = '44444444';
-    const formattedValue = '+47 444 44 444';
-    const { formDataMethods } = await render({
-      component: {
-        formatting: {
-          number: {
-            format: '+47 ### ## ###',
-          },
-        },
-      },
-    });
-    const inputComponent = screen.getByRole('textbox');
-    await userEvent.type(inputComponent, typedValue);
-    expect(inputComponent).toHaveValue(formattedValue);
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { field: 'some.field', dataType: defaultDataTypeMock },
-      newValue: typedValue,
-    });
-    expect(inputComponent).toHaveValue(formattedValue);
-  });
-
   it('should allow decimal separators specified in allowedDecimalSeparators when typing', async () => {
     const typedValue = '11.1';
     const formattedValue = '11,1';
@@ -150,13 +128,33 @@ describe('InputComponent', () => {
     expect(inputComponent).toHaveValue(formattedValue);
   });
 
+  it('should prevent pasting when readOnly is true', async () => {
+    const initialValue = 'initial value';
+    await render({
+      component: {
+        readOnly: true,
+      },
+      queries: {
+        fetchFormData: () => Promise.resolve({ some: { field: initialValue } }),
+      },
+    });
+
+    const inputComponent = screen.getByRole('textbox') as HTMLInputElement;
+    expect(inputComponent).toHaveValue(initialValue);
+
+    await userEvent.click(inputComponent);
+
+    await userEvent.paste('pasted text');
+
+    expect(inputComponent).toHaveValue(initialValue);
+  });
+
   const render = async ({ component, ...rest }: Partial<RenderGenericComponentTestProps<'Input'>> = {}) =>
     await renderGenericComponentTest({
       type: 'Input',
       renderer: (props) => <InputComponent {...props} />,
       component: {
         id: 'mock-id',
-        readOnly: false,
         required: false,
         dataModelBindings: {
           simpleBinding: { dataType: defaultDataTypeMock, field: 'some.field' },

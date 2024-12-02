@@ -97,6 +97,11 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting, formValue);
   const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
 
+  console.log('readOnly', readOnly);
+  console.log('reactNumberFormatConfig', reactNumberFormatConfig);
+
+  console.log('formValue', formValue);
+
   switch (variant.type) {
     case 'search':
     case 'text':
@@ -147,6 +152,9 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
              * https://github.com/s-yadav/react-number-format/issues/349
              *  */
             event.preventDefault();
+            if (inputProps.readOnly) {
+              return;
+            }
             const pastedText = event.clipboardData.getData('Text');
             if (pastedText.indexOf(',') !== -1) {
               setValue('simpleBinding', pastedText.replace(',', '.'));
