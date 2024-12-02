@@ -1,9 +1,7 @@
 import React from 'react';
 
-import { Textarea } from '@digdir/designsystemet-react';
-
 import { Label } from 'src/app-components/Label/Label';
-import { getDescriptionId } from 'src/components/label/Label';
+import { TextArea } from 'src/app-components/TextArea/TextArea';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -61,23 +59,23 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
       description={getDescriptionComponent()}
     >
       <ComponentStructureWrapper node={node}>
-        <Textarea
+        <TextArea
           id={id}
-          onChange={(e) => setValue('simpleBinding', e.target.value)}
+          value={value}
+          onChange={(newValue) => setValue('simpleBinding', newValue)}
           onBlur={debounce}
           readOnly={readOnly}
           characterLimit={!readOnly ? characterLimit : undefined}
           error={!isValid}
-          value={value}
-          data-testid={id}
-          aria-describedby={
+          dataTestId={id}
+          ariaDescribedBy={
             overrideDisplay?.renderedInTable !== true && textResourceBindings?.description
-              ? getDescriptionId(id)
+              ? `description-${id}`
               : undefined
           }
-          aria-label={overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined}
+          ariaLabel={overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined}
           autoComplete={autocomplete}
-          style={{ height: '150px' }}
+          style={{ minHeight: '150px' }}
         />
       </ComponentStructureWrapper>
     </Label>
