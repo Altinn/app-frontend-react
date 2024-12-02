@@ -349,4 +349,35 @@ describe('Options', () => {
 
     assertRows(1, 2, 3, 4, 5, 6, 7, 8, 9);
   });
+
+  it('optionsFilter should remove options based on a condition', () => {
+    cy.gotoHiddenPage('filtered-options');
+
+    cy.findByRole('checkbox', { name: 'Blåbær' }).dsCheck();
+
+    cy.findByRole('button', { name: 'Legg til ny' }).click();
+
+    cy.dsReady('[data-componentid="ingredientType-0"]');
+    cy.get('[data-componentid="ingredientType-0"]').findByRole('combobox').click();
+    cy.get('[class*="fds-combobox__option"]').should('contain.text', 'Vannmelon');
+    cy.get('[class*="fds-combobox__option"]').should('not.contain.text', 'Blåbær');
+    cy.get('[class*="fds-combobox__option"]').findByText('Vannmelon').click();
+    cy.get('[data-componentid="ingredientId-0"]').should('have.text', '10');
+
+    cy.findByRole('button', { name: 'Legg til ny' }).click();
+    cy.dsReady('[data-componentid="ingredientType-1"]');
+    cy.get('[data-componentid="ingredientType-1"]').findByRole('combobox').click();
+    cy.get('[class*="fds-combobox__option"]').should('contain.text', 'Druer');
+    cy.get('[class*="fds-combobox__option"]').should('not.contain.text', 'Vannmelon');
+    cy.get('[class*="fds-combobox__option"]').should('not.contain.text', 'Blåbær');
+    cy.get('[class*="fds-combobox__option"]').findByText('Druer').click();
+    cy.get('[data-componentid="ingredientId-1"]').should('have.text', '1');
+
+    // Disliking 'vannmelon' will remove the selection and not allow it to be re-selected
+    cy.findByRole('checkbox', { name: 'Vannmelon' }).dsCheck();
+    cy.get('[data-componentid="ingredientId-0"]').should('have.text', '');
+    cy.get('[data-componentid="ingredientId-1"]').should('have.text', '1');
+    cy.get('[data-componentid="ingredientType-0"]').findByRole('combobox').click();
+    cy.get('[class*="fds-combobox__option"]').should('not.contain.text', 'Vannmelon');
+  });
 });
