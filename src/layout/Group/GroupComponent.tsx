@@ -73,7 +73,7 @@ export function GroupComponent({
           </FullWidthWrapper>
         )}
       >
-        <div className={cn({ [classes.yPadding]: !isPanel })}>
+        <div className={cn({ [classes.yPadding]: !isPanel, [classes.panel]: isPanel })}>
           <Fieldset
             legend={
               legend ? (
