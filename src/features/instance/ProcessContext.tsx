@@ -11,7 +11,7 @@ import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { fetchProcessState } from 'src/queries/queries';
-import { ProcessTaskType } from 'src/types';
+import { isProcessTaskType, ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IProcess } from 'src/types/shared';
@@ -83,8 +83,9 @@ export function useTaskTypeFromBackend() {
     return ProcessTaskType.Archived;
   }
 
-  if (processData?.currentTask?.altinnTaskType) {
-    return processData.currentTask.altinnTaskType as ProcessTaskType;
+  const altinnTaskType = processData?.currentTask?.altinnTaskType;
+  if (altinnTaskType && isProcessTaskType(altinnTaskType)) {
+    return altinnTaskType;
   }
 
   return ProcessTaskType.Unknown;
@@ -148,14 +149,11 @@ export function useGetTaskTypeById() {
   );
 }
 
-function isProcessTaskType(taskType: string): taskType is ProcessTaskType {
-  return Object.values(ProcessTaskType).includes(taskType as ProcessTaskType);
-}
-
 export function useRealTaskTypeById(taskId: string | undefined) {
   const isStateless = useApplicationMetadata().isStatelessApp;
   const layoutSets = useLayoutSets();
   const processData = useLaxProcessData();
+  const altinnTaskType = useTaskTypeFromBackend();
 
   if (isStateless || behavesLikeDataTask(taskId, layoutSets)) {
     // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,
@@ -167,10 +165,5 @@ export function useRealTaskTypeById(taskId: string | undefined) {
     return ProcessTaskType.Archived;
   }
 
-  const altinnTaskType = processData?.currentTask?.altinnTaskType;
-  if (altinnTaskType && isProcessTaskType(altinnTaskType)) {
-    return altinnTaskType;
-  }
-
-  return ProcessTaskType.Unknown;
+  return altinnTaskType;
 }
