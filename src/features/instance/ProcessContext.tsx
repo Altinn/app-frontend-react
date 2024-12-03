@@ -148,15 +148,29 @@ export function useGetTaskTypeById() {
   );
 }
 
+function isProcessTaskType(taskType: string): taskType is ProcessTaskType {
+  return Object.values(ProcessTaskType).includes(taskType as ProcessTaskType);
+}
+
 export function useRealTaskTypeById(taskId: string | undefined) {
   const isStateless = useApplicationMetadata().isStatelessApp;
-  const taskType = useTaskTypeFromBackend();
   const layoutSets = useLayoutSets();
+  const processData = useLaxProcessData();
 
   if (isStateless) {
     // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,
     // applicationMetadata.isStatelessApp will return false and we'll proceed as normal.
     return ProcessTaskType.Data;
+  }
+
+  let taskType = ProcessTaskType.Unknown;
+  if (processData?.ended) {
+    taskType = ProcessTaskType.Archived;
+  }
+
+  const altinnTaskType = processData?.currentTask?.altinnTaskType;
+  if (altinnTaskType && isProcessTaskType(altinnTaskType)) {
+    taskType = altinnTaskType;
   }
 
   const isDataTask = behavesLikeDataTask(taskId, layoutSets);

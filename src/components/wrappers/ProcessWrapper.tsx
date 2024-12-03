@@ -13,7 +13,7 @@ import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useGetTaskTypeById, useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
+import { useGetTaskTypeById, useLaxProcessData, useRealTaskTypeById } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -114,7 +114,7 @@ export const ProcessWrapper = () => {
   const isValidTaskId = useIsValidTaskId();
   const taskIdParam = useNavigationParam('taskId');
   const taskType = useGetTaskTypeById()(taskIdParam);
-  const realTaskType = useRealTaskType();
+  const realTaskType = useRealTaskTypeById(taskIdParam);
   const layoutSets = useLayoutSets();
   const dataModelGuid = useCurrentDataModelGuid();
 
@@ -129,7 +129,7 @@ export const ProcessWrapper = () => {
     );
   }
 
-  if (!isCurrentTask && taskIdParam !== TaskKeys.ProcessEnd) {
+  if (!isCurrentTask && taskType !== ProcessTaskType.Archived) {
     return (
       <PresentationComponent type={realTaskType}>
         <NotCurrentTaskPage />
@@ -163,18 +163,18 @@ export const ProcessWrapper = () => {
     );
   }
 
-  if (taskType === ProcessTaskType.Data && customReceiptDataModelNotFound) {
-    window.logWarnOnce(
-      'You specified a custom receipt, but the data model is missing. Falling back to default receipt.',
-    );
-    return (
-      <PresentationComponent type={realTaskType}>
-        <ReceiptContainer />
-      </PresentationComponent>
-    );
-  }
-
   if (taskType === ProcessTaskType.Data) {
+    if (customReceiptDataModelNotFound) {
+      window.logWarnOnce(
+        'You specified a custom receipt, but the data model is missing. Falling back to default receipt.',
+      );
+      return (
+        <PresentationComponent type={realTaskType}>
+          <ReceiptContainer />
+        </PresentationComponent>
+      );
+    }
+
     return (
       <FormProvider>
         <Routes>
