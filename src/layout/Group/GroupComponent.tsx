@@ -75,6 +75,7 @@ export function GroupComponent({
           legend={
             legend ? (
               <Heading
+                className={classes.legend}
                 level={headingLevel}
                 size={headingSize}
               >
@@ -82,7 +83,13 @@ export function GroupComponent({
               </Heading>
             ) : undefined
           }
-          description={description && !isSummary ? <Lang id={description} /> : undefined}
+          description={
+            description && !isSummary ? (
+              <div className={classes.description}>
+                <Lang id={description} />
+              </div>
+            ) : undefined
+          }
         >
           <div
             data-componentid={container.id}

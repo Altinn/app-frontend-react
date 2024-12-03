@@ -10,7 +10,8 @@
   width: 100%;
 }
 
-.groupWrapper.legend > * {
+.groupWrapper .legend,
+.groupWrapper .description {
   padding: 0 var(--fds-spacing-3);
 }
 

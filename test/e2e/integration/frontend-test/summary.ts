@@ -77,6 +77,7 @@ describe('Summary', () => {
     cy.findByRole('group', { name: 'Endringer til navn' })
       .parent()
       .parent()
+      .parent()
       .siblings()
       .then((summary) => {
         cy.wrap(summary)
@@ -94,6 +95,7 @@ describe('Summary', () => {
     cy.findByRole('group', { name: 'Endringer til navn' })
       .parent()
       .parent()
+      .parent()
       .siblings()
       .contains(mui.gridContainer, texts.dateOfEffect)
       .then((summaryDate) => {
@@ -107,6 +109,7 @@ describe('Summary', () => {
 
     // Error in summary field is removed when the required field is filled
     cy.findByRole('group', { name: 'Endringer til navn' })
+      .parent()
       .parent()
       .parent()
       .siblings()
