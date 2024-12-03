@@ -10,10 +10,11 @@ import { PresentationComponent } from 'src/components/presentation/Presentation'
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useGetTaskTypeById, useLaxProcessData, useRealTaskTypeById } from 'src/features/instance/ProcessContext';
+import { useGetTaskTypeById, useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -232,3 +233,22 @@ export const ComponentRouting = () => {
   // If node exists but does not implement sub routing
   throw new Error(`Component ${componentId} does not have subRouting`);
 };
+
+function useRealTaskTypeById(taskId: string | undefined) {
+  const isStateless = useApplicationMetadata().isStatelessApp;
+  const layoutSets = useLayoutSets();
+  const processData = useLaxProcessData();
+  const altinnTaskType = useTaskTypeFromBackend();
+
+  if (isStateless || behavesLikeDataTask(taskId, layoutSets)) {
+    // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,
+    // applicationMetadata.isStatelessApp will return false and we'll proceed as normal.
+    return ProcessTaskType.Data;
+  }
+
+  if (processData?.ended) {
+    return ProcessTaskType.Archived;
+  }
+
+  return altinnTaskType;
+}

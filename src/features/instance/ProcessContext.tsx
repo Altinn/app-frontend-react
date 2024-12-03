@@ -73,8 +73,6 @@ export const useReFetchProcessData = () => useContext(ProcessContext)?.refetch;
 
 /**
  * This returns the task type of the current process task, as we got it from the backend
- *
- * @see useRealTaskType
  */
 export function useTaskTypeFromBackend() {
   const processData = useLaxProcessData();
@@ -89,17 +87,6 @@ export function useTaskTypeFromBackend() {
   }
 
   return ProcessTaskType.Unknown;
-}
-
-/**
- * This returns the task type of the current process task, as we want to use it in the frontend. Some tasks
- * are configured to behave like data tasks, and we want to treat them as such.
- *
- * @see useTaskTypeFromBackend
- */
-export function useRealTaskType() {
-  const taskId = useLaxProcessData()?.currentTask?.elementId;
-  return useRealTaskTypeById(taskId || undefined);
 }
 
 /**
@@ -121,23 +108,16 @@ export function useGetTaskTypeById() {
           ? processData?.currentTask
           : undefined;
 
-      if (isStateless) {
+      if (isStateless || taskId === TaskKeys.CustomReceipt) {
         // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,
         // applicationMetadata.isStatelessApp will return false and we'll proceed as normal.
         return ProcessTaskType.Data;
       }
 
-      if (taskId === TaskKeys.CustomReceipt) {
-        return ProcessTaskType.Data;
-      }
-
-      if (taskId === TaskKeys.ProcessEnd) {
+      if (taskId === TaskKeys.ProcessEnd || processData?.ended) {
         return ProcessTaskType.Archived;
       }
 
-      if (processData?.ended) {
-        return ProcessTaskType.Archived;
-      }
       if (task === undefined || task?.altinnTaskType === undefined) {
         return ProcessTaskType.Unknown;
       }
@@ -147,23 +127,4 @@ export function useGetTaskTypeById() {
     },
     [isStateless, layoutSets, processData?.currentTask, processData?.ended, processData?.processTasks],
   );
-}
-
-export function useRealTaskTypeById(taskId: string | undefined) {
-  const isStateless = useApplicationMetadata().isStatelessApp;
-  const layoutSets = useLayoutSets();
-  const processData = useLaxProcessData();
-  const altinnTaskType = useTaskTypeFromBackend();
-
-  if (isStateless || behavesLikeDataTask(taskId, layoutSets)) {
-    // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,
-    // applicationMetadata.isStatelessApp will return false and we'll proceed as normal.
-    return ProcessTaskType.Data;
-  }
-
-  if (processData?.ended) {
-    return ProcessTaskType.Archived;
-  }
-
-  return altinnTaskType;
 }
