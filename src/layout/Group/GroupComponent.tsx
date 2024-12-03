@@ -62,7 +62,7 @@ export function GroupComponent({
   const legend = isSummary ? (summaryTitle ?? title) : title;
 
   return (
-    <div className={cn(classes.groupWrapper, { [classes.panelWrapper]: isPanel })}>
+    <div className={cn(classes.groupWrapper, { [classes.panelWrapper]: isPanel, [classes.summary]: isSummary })}>
       <ConditionalWrapper
         condition={isPanel && !isSummary}
         wrapper={(child) => (
@@ -99,7 +99,6 @@ export function GroupComponent({
             data-testid='display-group-container'
             className={cn(classes.groupContainer, {
               [classes.indented]: isIndented && !isNested,
-              [classes.summary]: isSummary,
             })}
           >
             {children.map((n) => renderLayoutNode(n))}
