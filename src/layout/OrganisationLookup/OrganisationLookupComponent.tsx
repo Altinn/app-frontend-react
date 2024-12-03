@@ -49,15 +49,10 @@ async function fetchOrg(orgNr: string): Promise<{ org: Organisation; error: null
   const url = `${appPath}/api/v1/lookup/organisation/${orgNr}`;
 
   try {
-    const response = await httpGet<{ OrganisationLookupResponse }>(url);
+    const response = await httpGet<{ OrganisationLookupResponse: OrganisationLookupResponse }>(url);
 
     if (!validateOrganisationLookupResponse(response)) {
       return { org: null, error: 'organisation_lookup.validation_invalid_response_from_server' };
-    }
-
-    if (!response) {
-      // This should never happen, but TS does not understand that response is not null here
-      return { org: null, error: 'organisation_lookup.impossible_error' };
     }
 
     if (!response.success || !response.organisationDetails) {
