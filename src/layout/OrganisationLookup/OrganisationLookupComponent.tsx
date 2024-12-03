@@ -65,14 +65,7 @@ async function fetchOrg(orgNr: string): Promise<{ org: Organisation; error: null
     }
 
     return { org: response.organisationDetails, error: null };
-  } catch (error) {
-    if (error.response.status === 403) {
-      return { org: null, error: 'organisation_lookup.validation_error_forbidden' };
-    }
-    if (error.response.status === 429) {
-      return { org: null, error: 'organisation_lookup.validation_error_too_many_requests' };
-    }
-
+  } catch {
     return { org: null, error: 'organisation_lookup.unknown_error' };
   }
 }

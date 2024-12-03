@@ -322,8 +322,6 @@ export function nb(): FixedLanguageList {
       from_registry_description: 'Fra enhetsregisteret',
       validation_error_not_found: 'Organisasjonsnummeret ble ikke funnet i enhetsregisteret',
       validation_invalid_response_from_server: 'Ugyldig respons fra server',
-      validation_error_forbidden: 'Du har ikke rettigheter til å utføre denne handlingen',
-      validation_error_too_many_requests: 'For mange forespørsler. Vennligst prøv igjen senere',
       unknown_error: 'Ukjent feil. Vennligst prøv igjen senere',
       validation_error_orgnr: 'Organisasjonsnummeret er ugyldig',
     },
