@@ -298,6 +298,7 @@ function MobileGrid({ node, overrideDisplay }: PropsFromGenericComponent<'Grid'>
   return (
     <Fieldset
       id={id}
+      size='sm'
       legend={labelText}
       description={getDescriptionComponent()}
       help={getHelpTextComponent()}

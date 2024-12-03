@@ -20,6 +20,7 @@ export type FieldsetProps = {
   required?: boolean;
   requiredIndicator?: JSX.Element;
   style?: DesignsystemetLabelProps['style'];
+  size?: Extract<DesignsystemetLabelProps['size'], 'sm' | 'md' | 'lg' | 'xl'>;
 };
 
 export function Fieldset({
@@ -33,6 +34,7 @@ export function Fieldset({
   description,
   required,
   requiredIndicator,
+  size = 'md',
   optionalIndicator,
 }: PropsWithChildren<FieldsetProps>) {
   if (!legend) {
@@ -65,6 +67,7 @@ export function Fieldset({
       >
         <DesignsystemetFieldset
           className={cn(className)}
+          size={size}
           legend={
             <span className={cn(labelClasses.labelAndHelpWrapper)}>
               <DesignsystemetLabel
