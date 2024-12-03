@@ -47,7 +47,7 @@ async function fetchPerson(
   if (!ssn || !name) {
     throw new Error('Missing ssn or name');
   }
-  const body = { socialSecurityNumber: ssn, surName: name };
+  const body = { socialSecurityNumber: ssn, lastName: name };
   const url = `${appPath}/api/v1/lookup/person`;
 
   try {
