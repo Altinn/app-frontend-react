@@ -46,7 +46,7 @@ async function fetchOrg(orgNr: string): Promise<{ org: Organisation; error: null
   if (!orgNr) {
     throw new Error('orgNr is required');
   }
-  const url = `${appPath}/api/v1/organisations/${orgNr}`;
+  const url = `${appPath}/api/v1/lookup/organisation/${orgNr}`;
 
   try {
     const response = await httpGet<{ OrganisationLookupResponse }>(url);
