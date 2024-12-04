@@ -115,7 +115,7 @@ export const ProcessWrapper = () => {
   const isValidTaskId = useIsValidTaskId();
   const taskIdParam = useNavigationParam('taskId');
   const taskType = useGetTaskTypeById()(taskIdParam);
-  const realTaskType = useRealTaskTypeById(taskIdParam);
+  const realTaskType = useRealTaskType();
   const layoutSets = useLayoutSets();
   const dataModelGuid = useCurrentDataModelGuid();
 
@@ -224,8 +224,7 @@ export const ComponentRouting = () => {
     return (
       <SubRouting
         key={node.id}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        node={node as any}
+        node={node}
       />
     );
   }
@@ -234,7 +233,8 @@ export const ComponentRouting = () => {
   throw new Error(`Component ${componentId} does not have subRouting`);
 };
 
-function useRealTaskTypeById(taskId: string | undefined) {
+function useRealTaskType() {
+  const taskId = useLaxProcessData()?.currentTask?.elementId;
   const isStateless = useApplicationMetadata().isStatelessApp;
   const layoutSets = useLayoutSets();
   const processData = useLaxProcessData();
