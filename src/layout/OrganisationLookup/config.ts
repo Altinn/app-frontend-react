@@ -41,7 +41,7 @@ export const Config = new CG.component({
     new CG.trb({
       name: 'title',
       title: 'Title',
-      description: 'The title of the paragraph',
+      description: 'The title of the component',
     }),
   )
   .addTextResource(
@@ -49,5 +49,12 @@ export const Config = new CG.component({
       name: 'description',
       title: 'Description',
       description: 'Description, optionally shown below the title',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'help',
+      title: 'Help Text',
+      description: 'Help text, optionally shown next to the title',
     }),
   );

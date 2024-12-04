@@ -7,6 +7,7 @@ import type { PropsFromGenericComponent } from '..';
 
 import { Button } from 'src/app-components/Button/Button';
 import { NumericInput } from 'src/app-components/Input/NumericInput';
+import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { Label } from 'src/app-components/Label/Label';
 import { Description } from 'src/components/form/Description';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
@@ -20,6 +21,7 @@ import { hasValidationErrors } from 'src/features/validation/utils';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/OrganisationLookup/OrganisationLookupComponent.module.css';
 import { validateOrganisationLookupResponse, validateOrgnr } from 'src/layout/OrganisationLookup/validation';
+import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { httpGet } from 'src/utils/network/networking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
@@ -65,8 +67,12 @@ async function fetchOrg(orgNr: string): Promise<{ org: Organisation; error: null
   }
 }
 
-export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<'OrganisationLookup'>) {
+export function OrganisationLookupComponent({
+  node,
+  overrideDisplay,
+}: PropsFromGenericComponent<'OrganisationLookup'>) {
   const { id, dataModelBindings, required } = useNodeItem(node);
+  const { labelText, getHelpTextComponent, getDescriptionComponent } = useLabel({ node, overrideDisplay });
   const [orgName, setOrgName] = useState('');
   const [tempOrgNr, setTempOrgNr] = useState('');
   const [orgNrErrors, setOrgNrErrors] = useState<string[]>();
@@ -120,77 +126,85 @@ export function OrganisationLookupComponent({ node }: PropsFromGenericComponent<
   const hasSuccessfullyFetched = !!organisation_lookup_orgnr;
 
   return (
-    <ComponentStructureWrapper node={node}>
-      <div className={classes.componentWrapper}>
-        <div className={classes.orgnrLabel}>
-          <Label
-            htmlFor={`${id}_orgnr`}
-            label={langAsString('organisation_lookup.orgnr_label')}
+    <Fieldset
+      legend={labelText}
+      legendSize='lg'
+      description={getDescriptionComponent()}
+      help={getHelpTextComponent()}
+      size='sm'
+    >
+      <ComponentStructureWrapper node={node}>
+        <div className={classes.componentWrapper}>
+          <div className={classes.orgnrLabel}>
+            <Label
+              htmlFor={`${id}_orgnr`}
+              label={langAsString('organisation_lookup.orgnr_label')}
+              required={required}
+              requiredIndicator={<RequiredIndicator required={required} />}
+              description={
+                hasSuccessfullyFetched ? (
+                  <Description
+                    description={langAsString('organisation_lookup.from_registry_description')}
+                    componentId={`${id}_orgnr`}
+                  />
+                ) : undefined
+              }
+            />
+          </div>
+          <NumericInput
+            id={`${id}_orgnr`}
+            aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_orgnr`) : undefined}
+            value={hasSuccessfullyFetched ? organisation_lookup_orgnr : tempOrgNr}
+            className={classes.orgnr}
             required={required}
-            requiredIndicator={<RequiredIndicator required={required} />}
-            description={
-              hasSuccessfullyFetched ? (
-                <Description
-                  description={langAsString('organisation_lookup.from_registry_description')}
-                  componentId={`${id}_orgnr`}
-                />
-              ) : undefined
+            readOnly={hasSuccessfullyFetched || isFetching}
+            error={
+              (orgNrErrors?.length && <Lang id={orgNrErrors.join(' ')} />) ||
+              (hasValidationErrors(bindingValidations?.organisation_lookup_orgnr) && (
+                <ComponentValidations validations={bindingValidations?.organisation_lookup_orgnr} />
+              ))
             }
+            onValueChange={(e) => {
+              setTempOrgNr(e.value);
+            }}
+            onBlur={(e) => handleValidateOrgnr(e.target.value)}
+            allowLeadingZeros
           />
-        </div>
-        <NumericInput
-          id={`${id}_orgnr`}
-          aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_orgnr`) : undefined}
-          value={hasSuccessfullyFetched ? organisation_lookup_orgnr : tempOrgNr}
-          className={classes.orgnr}
-          required={required}
-          readOnly={hasSuccessfullyFetched || isFetching}
-          error={
-            (orgNrErrors?.length && <Lang id={orgNrErrors.join(' ')} />) ||
-            (hasValidationErrors(bindingValidations?.organisation_lookup_orgnr) && (
-              <ComponentValidations validations={bindingValidations?.organisation_lookup_orgnr} />
-            ))
-          }
-          onValueChange={(e) => {
-            setTempOrgNr(e.value);
-          }}
-          onBlur={(e) => handleValidateOrgnr(e.target.value)}
-          allowLeadingZeros
-        />
-        <div className={classes.submit}>
-          {!hasSuccessfullyFetched ? (
-            <Button
-              onClick={handleSubmit}
-              variant='secondary'
-              isLoading={isFetching}
+          <div className={classes.submit}>
+            {!hasSuccessfullyFetched ? (
+              <Button
+                onClick={handleSubmit}
+                variant='secondary'
+                isLoading={isFetching}
+              >
+                Hent opplysninger
+              </Button>
+            ) : (
+              <Button
+                variant='secondary'
+                color='danger'
+                onClick={handleClear}
+              >
+                Fjern
+              </Button>
+            )}
+          </div>
+          {data?.error && (
+            <ErrorMessage
+              size='sm'
+              style={{ gridArea: 'apiError' }}
             >
-              Hent opplysninger
-            </Button>
-          ) : (
-            <Button
-              variant='secondary'
-              color='danger'
-              onClick={handleClear}
-            >
-              Fjern
-            </Button>
+              <Lang id={data.error} />
+            </ErrorMessage>
           )}
-        </div>
-        {data?.error && (
-          <ErrorMessage
-            size='small'
-            style={{ gridArea: 'apiError' }}
+          <div
+            className={classes.orgname}
+            aria-label={langAsString('organisation_lookup.org_name')}
           >
-            <Lang id={data.error} />
-          </ErrorMessage>
-        )}
-        <div
-          className={classes.orgname}
-          aria-label={langAsString('organisation_lookup.org_name')}
-        >
-          {hasSuccessfullyFetched && <span>{orgName}</span>}
+            {hasSuccessfullyFetched && <span>{orgName}</span>}
+          </div>
         </div>
-      </div>
-    </ComponentStructureWrapper>
+      </ComponentStructureWrapper>
+    </Fieldset>
   );
 }
