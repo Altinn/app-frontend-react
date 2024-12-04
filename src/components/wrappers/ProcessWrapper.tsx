@@ -35,12 +35,12 @@ import {
   useNavigateToTask,
   useStartUrl,
 } from 'src/hooks/useNavigatePage';
-import { implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { useNode } from 'src/utils/layout/NodesContext';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface NavigationErrorProps {
   label: string;
@@ -219,8 +219,13 @@ export const ComponentRouting = () => {
     return <RedirectBackToMainForm />;
   }
 
-  if (implementsSubRouting(node.def)) {
-    const SubRouting = node?.def.subRouting;
+  function isSubroutingNode(node: LayoutNode): node is LayoutNode<'Subform'> {
+    return node.type === 'Subform' && !!node.def.subRouting;
+  }
+
+  if (isSubroutingNode(node)) {
+    const SubRouting = node.def.subRouting;
+
     return (
       <SubRouting
         key={node.id}
