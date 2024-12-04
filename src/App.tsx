@@ -8,6 +8,8 @@ import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
+import { CustomReceipt, DefaultReceipt } from 'src/features/receipt/ReceiptContainer';
+import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { PresentationType } from 'src/types';
 
 export const App = () => (
@@ -47,6 +49,14 @@ export const App = () => (
       <Route
         path=':taskId/*'
         element={<ProcessWrapper />}
+      />
+      <Route
+        path={TaskKeys.ProcessEnd}
+        element={<DefaultReceipt />}
+      />
+      <Route
+        path={TaskKeys.CustomReceipt}
+        element={<CustomReceipt />}
       />
       <Route
         index

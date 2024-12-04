@@ -10,9 +10,7 @@ import { PresentationComponent } from 'src/components/presentation/Presentation'
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
-import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
-import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
@@ -20,23 +18,15 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
-import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import {
   useNavigate,
   useNavigationParam,
   useNavigationPath,
   useQueryKeysAsString,
 } from 'src/features/routing/AppRoutingContext';
-import {
-  TaskKeys,
-  useIsCurrentTask,
-  useIsValidTaskId,
-  useNavigateToTask,
-  useStartUrl,
-} from 'src/hooks/useNavigatePage';
+import { useIsCurrentTask, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
-import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { useNode } from 'src/utils/layout/NodesContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -106,12 +96,6 @@ export const ProcessWrapper = () => {
   const isValidTaskId = useIsValidTaskId();
   const taskIdParam = useNavigationParam('taskId');
   const taskType = useGetTaskTypeById()(taskIdParam);
-  const layoutSets = useLayoutSets();
-  const dataModelGuid = useCurrentDataModelGuid();
-
-  const isCustomReceipt =
-    taskIdParam === TaskKeys.CustomReceipt && behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
-  const customReceiptDataModelNotFound = isCustomReceipt && !dataModelGuid;
 
   if (!isValidTaskId(taskIdParam)) {
     return (
@@ -124,7 +108,7 @@ export const ProcessWrapper = () => {
   if (!isCurrentTask && taskType !== ProcessTaskType.Archived) {
     return (
       <PresentationComponent type={ProcessTaskType.Archived}>
-        <NavigationError label='general.part_of_form_completed' />;
+        <NavigationError label='general.part_of_form_completed' />
       </PresentationComponent>
     );
   }
@@ -147,35 +131,14 @@ export const ProcessWrapper = () => {
     );
   }
 
-  if (taskType === ProcessTaskType.Archived) {
-    return (
-      <PresentationComponent type={ProcessTaskType.Archived}>
-        <ReceiptContainer />
-      </PresentationComponent>
-    );
-  }
-
   if (taskType === ProcessTaskType.Data) {
-    if (isCustomReceipt && customReceiptDataModelNotFound) {
-      window.logWarnOnce(
-        'You specified a custom receipt, but the data model is missing. Falling back to default receipt.',
-      );
-      return (
-        <PresentationComponent type={ProcessTaskType.Archived}>
-          <ReceiptContainer />
-        </PresentationComponent>
-      );
-    }
-
-    const formTaskType = isCustomReceipt ? ProcessTaskType.Archived : ProcessTaskType.Data;
-
     return (
       <FormProvider>
         <Routes>
           <Route
             path=':pageKey/:componentId/*'
             element={
-              <PresentationComponent type={formTaskType}>
+              <PresentationComponent type={ProcessTaskType.Data}>
                 <ComponentRouting />
               </PresentationComponent>
             }
@@ -184,7 +147,7 @@ export const ProcessWrapper = () => {
             path='*'
             element={
               <PDFWrapper>
-                <PresentationComponent type={formTaskType}>
+                <PresentationComponent type={ProcessTaskType.Data}>
                   <Form />
                 </PresentationComponent>
               </PDFWrapper>
