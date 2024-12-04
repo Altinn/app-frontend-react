@@ -96,6 +96,11 @@ export const ProcessWrapper = () => {
   const isValidTaskId = useIsValidTaskId();
   const taskIdParam = useNavigationParam('taskId');
   const taskType = useGetTaskTypeById()(taskIdParam);
+  const process = useLaxProcessData();
+
+  if (process?.ended) {
+    return <NavigateToStartUrl />;
+  }
 
   if (!isValidTaskId(taskIdParam)) {
     return (

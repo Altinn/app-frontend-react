@@ -54,10 +54,12 @@ export const App = () => (
         path={TaskKeys.ProcessEnd}
         element={<DefaultReceipt />}
       />
-      <Route
-        path={TaskKeys.CustomReceipt}
-        element={<CustomReceipt />}
-      />
+      <Route path={TaskKeys.CustomReceipt}>
+        <Route
+          path='*'
+          element={<CustomReceipt />}
+        />
+      </Route>
       <Route
         index
         element={<NavigateToStartUrl />}
