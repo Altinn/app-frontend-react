@@ -4,7 +4,7 @@ const appFrontend = new AppFrontend();
 
 describe('Organisation lookup', () => {
   it('Renders the organisation lookup component correctly', () => {
-    cy.intercept('GET', '/ttd/component-library/api/v1/organisations/*', {
+    cy.intercept('GET', '/ttd/component-library/api/v1/lookup/organisation/*', {
       statusCode: 200,
       body: {
         success: true,
@@ -18,6 +18,12 @@ describe('Organisation lookup', () => {
     // Contrary to person looku, organisation lookup does not require authentication level >2
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '1' });
     cy.gotoNavPage('OrganisationLookupPage');
+
+    // Check that the component is rendered
+    cy.findByText(/Her legger du inn organisasjonsnummer/i).should('exist');
+    cy.findByRole('button', { name: /Hjelpetekst for legg til virksomhet/i }).should('exist');
+    cy.findByRole('textbox', { name: /Organisasjonsnummer/i }).should('exist');
+    cy.findByRole('button', { name: /Hent opplysninger/i }).should('exist');
 
     // Type invalid orgNr
     cy.findByRole('textbox', { name: /Organisasjonsnummer/i }).type('123456789');
@@ -44,7 +50,7 @@ describe('Organisation lookup', () => {
     cy.findByRole('button', { name: /Fjern/i }).should('not.exist');
 
     // Add interceptor for failed fetch
-    cy.intercept('GET', '/ttd/component-library/api/v1/organisations/*', {
+    cy.intercept('GET', '/ttd/component-library/api/v1/lookup/organisation/*', {
       statusCode: 200,
       body: {
         success: false,
@@ -59,7 +65,7 @@ describe('Organisation lookup', () => {
     cy.findByText(/Organisasjonsnummeret ble ikke funnet i enhetsregisteret/i).should('exist');
 
     // Add interceptor for failed fetch due to server error
-    cy.intercept('GET', '/ttd/component-library/api/v1/organisations/*', {
+    cy.intercept('GET', '/ttd/component-library/api/v1/lookup/organisation/*', {
       statusCode: 500,
     }).as('failedFetchOrganisationServerError');
 
