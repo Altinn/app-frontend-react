@@ -32,7 +32,7 @@ export function PersonLookupSummary({ componentNode }: PersonLookupSummaryProps)
               node={componentNode}
             />
           }
-          displayData={obfuscateSsn(person_lookup_ssn)}
+          displayData={person_lookup_ssn ? obfuscateSsn(person_lookup_ssn) : ''}
           componentNode={componentNode}
           hideEditButton={true}
         />
