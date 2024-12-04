@@ -13,7 +13,7 @@ import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types'
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class OrganisationLookup extends OrganisationLookupDef {
-  validateDataModelBindings(ctx: LayoutValidationCtx<'OrganisationLookup'>): string[] {
+  validateDataModelBindings(_ctx: LayoutValidationCtx<'OrganisationLookup'>): string[] {
     return [];
   }
   getDisplayData(node: LayoutNode<'OrganisationLookup'>, { nodeFormDataSelector }: DisplayDataProps): string {
@@ -23,7 +23,7 @@ export class OrganisationLookup extends OrganisationLookupDef {
   renderSummary2(props: Summary2Props<'OrganisationLookup'>): JSX.Element | null {
     return <OrganisationLookupSummary componentNode={props.target} />;
   }
-  renderSummary(props: SummaryRendererProps<'OrganisationLookup'>): JSX.Element | null {
+  renderSummary(_props: SummaryRendererProps<'OrganisationLookup'>): JSX.Element | null {
     throw new Error('Method not implemented.');
   }
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'OrganisationLookup'>>(
