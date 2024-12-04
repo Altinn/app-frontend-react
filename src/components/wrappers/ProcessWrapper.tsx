@@ -110,9 +110,9 @@ export const ProcessWrapper = () => {
     );
   }
 
-  if (!isCurrentTask && taskType !== ProcessTaskType.Archived) {
+  if (!isCurrentTask) {
     return (
-      <PresentationComponent type={ProcessTaskType.Archived}>
+      <PresentationComponent type={ProcessTaskType.Unknown}>
         <NavigationError label='general.part_of_form_completed' />
       </PresentationComponent>
     );
