@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { AriaAttributes } from 'react';
 
 import { Pagination as AltinnPagination } from '@altinn/altinn-design-system';
-import { Heading, Radio, Table } from '@digdir/designsystemet-react';
+import { Heading, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
@@ -26,6 +26,13 @@ import type { IDataModelBindingsForList } from 'src/layout/List/config.generated
 export type IListProps = PropsFromGenericComponent<'List'>;
 type Row = Record<string, string | number | boolean>;
 
+const formDataMock = {
+  group: [
+    { domain: 'Patent', idApplication: '2024062' },
+    { domain: 'Design', idApplication: '20240880' },
+  ],
+};
+
 export const ListComponent = ({ node }: IListProps) => {
   const isMobile = useIsMobile();
   const item = useNodeItem(node);
@@ -45,6 +52,7 @@ export const ListComponent = ({ node }: IListProps) => {
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [sortColumn, setSortColumn] = useState<string | undefined>();
   const [sortDirection, setSortDirection] = useState<AriaAttributes['aria-sort']>('none');
+  const [selectedRows, setSelectedRows] = useState<Row[]>([]);
 
   const filter: Filter = {
     pageSize,
@@ -55,14 +63,19 @@ export const ListComponent = ({ node }: IListProps) => {
 
   const { data } = useDataListQuery(filter, dataListId, secure, mapping, queryParameters);
   const bindings = item.dataModelBindings ?? ({} as IDataModelBindingsForList);
-  const { formData, setValues } = useDataModelBindings(bindings);
+  const { formData, setValues } = useDataModelBindings(bindings, 1, 'raw');
 
   const tableHeadersToShowInMobile = Object.keys(tableHeaders).filter(
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
   );
 
-  const selectedRow =
-    data?.listItems.find((row) => Object.keys(formData).every((key) => row[key] === formData[key])) ?? '';
+  useEffect(() => {
+    const newSelectedRows =
+      data?.listItems.filter((row) =>
+        formDataMock.group.some((groupItem) => Object.keys(groupItem).every((key) => row[key] === groupItem[key])),
+      ) ?? [];
+    setSelectedRows(newSelectedRows);
+  }, [data?.listItems]);
 
   function handleRowSelect({ selectedValue }: { selectedValue: Row }) {
     const next: Row = {};
@@ -73,14 +86,14 @@ export const ListComponent = ({ node }: IListProps) => {
   }
 
   function isRowSelected(row: Row): boolean {
-    return JSON.stringify(selectedRow) === JSON.stringify(row);
+    return selectedRows.some((selectedRow) => JSON.stringify(selectedRow) === JSON.stringify(row));
   }
 
   const title = item.textResourceBindings?.title;
   const description = item.textResourceBindings?.description;
   const component = item.componentType;
 
-  if (isMobile) {
+  /*if (isMobile) {
     return (
       <ComponentStructureWrapper node={node}>
         <Radio.Group
@@ -97,7 +110,7 @@ export const ListComponent = ({ node }: IListProps) => {
           }
           description={description && <Lang id={description} />}
           className={classes.mobileRadioGroup}
-          value={JSON.stringify(selectedRow)}
+          value={JSON.stringify(isRowSelected(row))}
         >
           {data?.listItems.map((row) => (
             <Radio
@@ -127,7 +140,7 @@ export const ListComponent = ({ node }: IListProps) => {
         />
       </ComponentStructureWrapper>
     );
-  }
+  }*/
 
   return (
     <ComponentStructureWrapper node={node}>
