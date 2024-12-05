@@ -7,7 +7,7 @@ import cn from 'classnames';
 import type { Group } from '.';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePageGroups } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/AppNavigation.module.css';
@@ -16,7 +16,7 @@ import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 
 export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
-  const groups = useLayoutSettings().pages.groups;
+  const groups = usePageGroups();
 
   if (!groups) {
     throw CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR;

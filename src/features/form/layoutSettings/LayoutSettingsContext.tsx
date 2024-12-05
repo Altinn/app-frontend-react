@@ -8,8 +8,9 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
 import { useLaxLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { useShallowObjectMemo } from 'src/hooks/useShallowObjectMemo';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
-import type { GlobalPageSettings, ILayoutSets, ILayoutSettings, IPagesBaseSettings } from 'src/layout/common.generated';
+import type { GlobalPageSettings, ILayoutSets, ILayoutSettings } from 'src/layout/common.generated';
 
 // Also used for prefetching @see formPrefetcher.ts
 export function useLayoutSettingsQueryDef(layoutSetId?: string): QueryDefinition<ILayoutSettings> {
@@ -38,26 +39,69 @@ function useLayoutSettingsQuery() {
 }
 
 const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
-  createQueryContext<ReducedLayoutSettings, true>({
+  createQueryContext<ILayoutSettings, true, ProcessedLayoutSettings>({
     name: 'LayoutSettings',
     required: true,
     query: useLayoutSettingsQuery,
+    process: (settings) => {
+      if (!settings.pages.order && !settings.pages.groups) {
+        window.logError('Missing page order, specify one of `pages.order` or `pages.groups` in Settings.json');
+        throw 'Missing page order, specify one of `pages.order` or `pages.groups` in Settings.json';
+      }
+      if (settings.pages.order && settings.pages.groups) {
+        window.logError('Both `pages.order` and `pages.groups` was set in Settings.json');
+        throw 'Both `pages.order` and `pages.groups` was set in Settings.json';
+      }
+
+      const order: string[] = settings.pages.order ?? settings.pages.groups?.flatMap((group) => group.order);
+
+      return {
+        order,
+        groups: settings.pages.groups,
+        pageSettings: {
+          autoSaveBehavior: settings.pages.autoSaveBehavior,
+          expandedWidth: settings.pages.expandedWidth,
+          hideCloseButton: settings.pages.hideCloseButton,
+          showExpandWidthButton: settings.pages.showExpandWidthButton,
+          showLanguageSelector: settings.pages.showLanguageSelector,
+          showProgress: settings.pages.showProgress,
+        },
+        pdfLayoutName: settings.pages.pdfLayoutName,
+      };
+    },
   }),
 );
 
-/**
- * We'll pretend to return a subset of the ILayoutSettings interface, so that we can force you to usePageSettings()
- * instead of useLayoutSettings() for some of these settings. If you wanted to get these settings from
- * useLayoutSettings(), be aware that the settings can be overridden globally in the layout set configuration file
- * as well, so you should definitely use usePageSettings() instead.
- */
-interface ReducedLayoutSettings extends ILayoutSettings {
-  pages: IPagesBaseSettings;
+interface ProcessedLayoutSettings {
+  order: string[];
+  groups?: { name: string; order: string[] }[];
+  pageSettings: GlobalPageSettings;
+  pdfLayoutName?: string;
 }
 
 export const LayoutSettingsProvider = Provider;
-export const useLayoutSettings = () => useCtx();
-export const useLaxLayoutSettings = () => useLaxCtx();
+// export const useLayoutSettings = () => useCtx();
+// export const useLaxLayoutSettings = () => useLaxCtx();
+
+/**
+ * Returns the raw page order including hidden pages.
+ * Returns an empty array if the context is not provided.
+ */
+export const useRawPageOrder = (): string[] => {
+  const settings = useLaxCtx();
+  return settings === ContextNotProvided ? emptyArray : settings.order;
+};
+
+export const usePdfLayoutName = () => useCtx().pdfLayoutName;
+export const usePageGroups = () => {
+  const settings = useLaxCtx();
+  if (settings === ContextNotProvided) {
+    return undefined;
+  }
+  return settings.groups;
+};
+
+const emptyArray = [];
 
 const defaults: Required<GlobalPageSettings> = {
   hideCloseButton: false,
@@ -70,11 +114,11 @@ const defaults: Required<GlobalPageSettings> = {
 
 export const usePageSettings = (): Required<GlobalPageSettings> => {
   const globalPagesSettings = useLaxLayoutSets();
-  const layoutSettings = useLaxLayoutSettings();
+  const layoutSettings = useLaxCtx();
 
-  return {
+  return useShallowObjectMemo({
     ...defaults,
     ...(globalPagesSettings === ContextNotProvided ? {} : (globalPagesSettings as ILayoutSets).uiSettings),
-    ...(layoutSettings === ContextNotProvided ? {} : layoutSettings.pages),
-  };
+    ...(layoutSettings === ContextNotProvided ? {} : layoutSettings.pageSettings),
+  });
 };

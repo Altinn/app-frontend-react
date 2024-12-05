@@ -6,7 +6,7 @@ import { MenuHamburgerIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
-import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePageGroups } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { Lang } from 'src/features/language/Lang';
 import { AppNavigation, AppNavigationHeading } from 'src/features/navigation/AppNavigation';
 import classes from 'src/features/navigation/PopoverNavigation.module.css';
@@ -103,7 +103,7 @@ function InnerPopoverNavigation({
 
 function PopoverNavigationButton(props: Parameters<typeof Button>[0]) {
   const currentPageId = useNavigationParam('pageKey');
-  const groups = useLayoutSettings().pages.groups;
+  const groups = usePageGroups();
 
   if (!groups || !currentPageId) {
     throw CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR;

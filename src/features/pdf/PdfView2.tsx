@@ -11,7 +11,7 @@ import { DataLoadingState, useDataLoadingStore } from 'src/core/contexts/dataLoa
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
-import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePdfLayoutName } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsPayment } from 'src/features/payment/utils';
@@ -34,7 +34,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export const PDFView2 = () => {
   const order = usePageOrder();
   const { data: pdfSettings, isFetching: pdfFormatIsLoading } = usePdfFormatQuery(true);
-  const pdfLayoutName = useLayoutSettings().pages.pdfLayoutName;
+  const pdfLayoutName = usePdfLayoutName();
   const isHiddenPage = Hidden.useIsHiddenPageSelector();
 
   if (pdfFormatIsLoading) {

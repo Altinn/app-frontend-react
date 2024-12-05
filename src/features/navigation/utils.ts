@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import type { Group } from '.';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { useLaxLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePageGroups } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { ValidationMask } from 'src/features/validation';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -12,9 +12,9 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeData } from 'src/utils/layout/types';
 
 export function useHasGroupedNavigation() {
-  const maybeLayoutSettings = useLaxLayoutSettings();
+  const pageGroups = usePageGroups();
   const currentPageId = useNavigationParam('pageKey');
-  return maybeLayoutSettings !== ContextNotProvided && !!maybeLayoutSettings.pages.groups && currentPageId;
+  return pageGroups && currentPageId;
 }
 
 export const SIDEBAR_BREAKPOINT = 1450;
