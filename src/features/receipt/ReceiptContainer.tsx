@@ -44,6 +44,8 @@ export const getSummaryDataObject = ({
 }: ReturnInstanceMetaDataObjectProps) => {
   const obj: SummaryDataObject = {};
 
+  console.log('lastChangedDateTime', lastChangedDateTime);
+
   obj[langTools.langAsString('receipt.date_sent')] = {
     value: lastChangedDateTime,
     hideFromVisualTesting: true,

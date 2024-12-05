@@ -69,7 +69,7 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
           characterLimit={!readOnly ? characterLimit : undefined}
           error={!isValid}
           dataTestId={id}
-          aria-describedby={
+          ariaDescribedBy={
             overrideDisplay?.renderedInTable !== true && textResourceBindings?.description
               ? getDescriptionId(id)
               : undefined
