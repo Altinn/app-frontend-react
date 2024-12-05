@@ -203,7 +203,6 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
                   <Description
                     description={langAsString('person_lookup.from_registry_description')}
                     componentId={`${id}_name`}
-                    style={{ fontSize: '1rem' }}
                   />
                 ) : undefined
               }
