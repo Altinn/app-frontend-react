@@ -97,12 +97,6 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
 
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting, formValue);
   const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
-
-  console.log('readOnly', readOnly);
-  console.log('reactNumberFormatConfig', reactNumberFormatConfig);
-
-  console.log('formValue', formValue);
-
   switch (variant.type) {
     case 'search':
     case 'text':
