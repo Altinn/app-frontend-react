@@ -30,7 +30,6 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
     maxLength,
     grid,
     required,
-    labelSettings,
   } = useNodeItem(node);
   const characterLimit = useCharacterLimit(maxLength);
   const {
@@ -40,13 +39,7 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
   const debounce = FD.useDebounceImmediately();
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({
-      overrideDisplay,
-      textResourceBindings,
-      readOnly,
-      required,
-      showOptionalMarking: !!labelSettings?.optionalIndicator,
-    });
+    useLabel({ node, overrideDisplay });
 
   return (
     <Label
@@ -70,7 +63,9 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
           error={!isValid}
           dataTestId={id}
           ariaDescribedBy={
-            overrideDisplay?.renderedInTable !== true && textResourceBindings?.description
+            overrideDisplay?.renderedInTable !== true &&
+            textResourceBindings?.title &&
+            textResourceBindings?.description
               ? getDescriptionId(id)
               : undefined
           }
