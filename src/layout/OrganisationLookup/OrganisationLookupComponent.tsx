@@ -146,6 +146,7 @@ export function OrganisationLookupComponent({
                   <Description
                     description={langAsString('organisation_lookup.from_registry_description')}
                     componentId={`${id}_orgnr`}
+                    style={{ fontSize: '1rem' }}
                   />
                 ) : undefined
               }
