@@ -6,13 +6,8 @@ import { format, isValid, parseISO } from 'date-fns';
 import { pick } from 'dot-object';
 import type { JSONSchema7 } from 'json-schema';
 
-import classes from 'src/app-components/table/Table.module.css';
-
-export type FormDataValue = string | number | boolean | null | FormDataValue[] | { [key: string]: FormDataValue };
-
-export interface FormDataObject {
-  [key: string]: FormDataValue;
-}
+import classes from 'src/app-components/Table/Table.module.css';
+import type { FormDataObject, FormDataValue } from 'src/app-components/DynamicForm/DynamicForm';
 
 interface Column {
   header: React.ReactNode;

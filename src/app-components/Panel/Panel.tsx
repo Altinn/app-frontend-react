@@ -10,8 +10,8 @@ import {
 } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
-import { PANEL_VARIANT } from 'src/app-components/panel/constants';
-import classes from 'src/app-components/panel/Panel.module.css';
+import { PANEL_VARIANT } from 'src/app-components/Panel/constants';
+import classes from 'src/app-components/Panel/Panel.module.css';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 
 export type PanelVariant = (typeof PANEL_VARIANT)[keyof typeof PANEL_VARIANT];
@@ -21,6 +21,7 @@ type PanelProps = PropsWithChildren<{
   showIcon?: boolean;
   forceMobileLayout?: boolean;
   title?: JSX.Element;
+  style?: React.CSSProperties;
 }>;
 
 type PanelIconProps = {
@@ -68,6 +69,7 @@ export const Panel: React.FC<PanelProps> = ({
   showIcon = false,
   forceMobileLayout = false,
   title,
+  style,
   children,
 }) => {
   const isMobile = useIsMobile();
@@ -78,6 +80,7 @@ export const Panel: React.FC<PanelProps> = ({
       className={cn(classes.panel, {
         [classes.panelMobileLayout]: isMobileLayout,
       })}
+      style={style}
     >
       <div className={cn(classes.panelContentWrapper, classes[`panelContentWrapper_${variant}`])}>
         {showIcon && (
