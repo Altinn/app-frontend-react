@@ -44,20 +44,21 @@ const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
     required: true,
     query: useLayoutSettingsQuery,
     process: (settings) => {
-      if (!settings.pages.order && !settings.pages.groups) {
+      if (!('order' in settings.pages) && !('groups' in settings.pages)) {
         window.logError('Missing page order, specify one of `pages.order` or `pages.groups` in Settings.json');
         throw 'Missing page order, specify one of `pages.order` or `pages.groups` in Settings.json';
       }
-      if (settings.pages.order && settings.pages.groups) {
+      if ('order' in settings.pages && 'groups' in settings.pages) {
         window.logError('Both `pages.order` and `pages.groups` was set in Settings.json');
         throw 'Both `pages.order` and `pages.groups` was set in Settings.json';
       }
 
-      const order: string[] = settings.pages.order ?? settings.pages.groups?.flatMap((group) => group.order);
+      const order: string[] =
+        'order' in settings.pages ? settings.pages.order : settings.pages.groups.flatMap((group) => group.order);
 
       return {
         order,
-        groups: settings.pages.groups,
+        groups: 'groups' in settings.pages ? settings.pages.groups : undefined,
         pageSettings: {
           autoSaveBehavior: settings.pages.autoSaveBehavior,
           expandedWidth: settings.pages.expandedWidth,
@@ -80,8 +81,6 @@ interface ProcessedLayoutSettings {
 }
 
 export const LayoutSettingsProvider = Provider;
-// export const useLayoutSettings = () => useCtx();
-// export const useLaxLayoutSettings = () => useLaxCtx();
 
 /**
  * Returns the raw page order including hidden pages.
