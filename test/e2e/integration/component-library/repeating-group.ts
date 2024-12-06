@@ -25,6 +25,7 @@ describe('Group summary test', () => {
 
   it('Displays a summary for a filled repeating group in table', () => {
     const inputValue = 'Test input for group';
+    const inputValue2 = 'Test input for group2';
 
     cy.findAllByRole('button', { name: /Legg til ny/ })
       .first()
@@ -36,7 +37,7 @@ describe('Group summary test', () => {
     cy.findAllByRole('button', { name: /Legg til ny/ })
       .first()
       .click();
-    cy.findByRole('textbox', { name: /Navn/ }).type(inputValue);
+    cy.findByRole('textbox', { name: /Navn/ }).type(inputValue2);
     cy.findAllByRole('button', { name: /Lagre og lukk/ })
       .first()
       .click();
@@ -45,6 +46,7 @@ describe('Group summary test', () => {
       cy.findAllByRole('row').should('have.length', 3);
       cy.findByRole('columnheader', { name: /Navn/ }).should('exist');
       cy.findAllByRole('cell', { name: inputValue }).first().should('exist');
+      cy.findAllByRole('cell', { name: inputValue2 }).first().should('exist');
     });
   });
 
