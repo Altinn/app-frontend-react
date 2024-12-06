@@ -15,8 +15,6 @@ import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
-import type { NodeItemFromNode } from 'src/utils/layout/types';
 
 export const LikertItemComponent = forwardRef<HTMLTableRowElement, PropsFromGenericComponent<'LikertItem'>>(
   (props, ref) => {
@@ -38,7 +36,7 @@ export const LikertItemComponent = forwardRef<HTMLTableRowElement, PropsFromGene
 );
 LikertItemComponent.displayName = 'LikertItemComponent';
 
-const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroupProps>((props, ref) => {
+const RadioGroupTableRow = forwardRef<HTMLTableRowElement, PropsFromGenericComponent<'LikertItem'>>((props, ref) => {
   const { node } = props;
   const { selectedValues, handleChange, calculatedOptions, fetchingOptions } = useRadioButtons(props);
   const validations = useUnifiedValidationsForNode(node);
@@ -47,8 +45,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   const groupContainer =
     node.parent instanceof BaseLayoutNode && node.parent.isType('Likert') ? node.parent : undefined;
 
-  const item = useNodeItem(props.node) as NodeItemFromNode<BaseLayoutNode<'LikertItem'>>;
-  const columns = item.columns;
+  const columns = useNodeItem(props.node, (i) => i.columns);
 
   return (
     <Table.Row
