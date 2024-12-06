@@ -45,8 +45,8 @@ describe('Group summary test', () => {
     cy.get('div[data-testid="summary-repeating-group-component"] > table').within(() => {
       cy.findAllByRole('row').should('have.length', 3);
       cy.findByRole('columnheader', { name: /Navn/ }).should('exist');
-      cy.findAllByRole('cell', { name: inputValue }).first().should('exist');
-      cy.findAllByRole('cell', { name: inputValue2 }).first().should('exist');
+      cy.findAllByRole('cell', { name: inputValue }).should('exist');
+      cy.findAllByRole('cell', { name: inputValue2 }).should('exist');
     });
   });
 
