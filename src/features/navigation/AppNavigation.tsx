@@ -75,7 +75,7 @@ function PageGroup({ group, onNavigate }: { group: Group; onNavigate?: () => voi
   return (
     <li>
       <button
-        className={classes.groupButton}
+        className={cn(classes.groupButton, 'fds-focus')}
         onClick={() => setIsOpen((o) => !o)}
       >
         <PageGroupSymbol
@@ -143,7 +143,7 @@ function Page({
   return (
     <li>
       <button
-        className={classes.pageButton}
+        className={cn(classes.pageButton, 'fds-focus')}
         onClick={() => {
           if (!isCurrentPage) {
             navigateToPage(page);

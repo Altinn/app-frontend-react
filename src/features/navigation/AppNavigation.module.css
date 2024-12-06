@@ -22,7 +22,6 @@
   font-size: 14px;
   background-color: transparent;
   border: none;
-  padding: 0;
   cursor: pointer;
   display: grid;
   width: 100%;
@@ -30,6 +29,10 @@
   column-gap: 8px;
   align-items: center;
   text-align: left;
+
+  border-radius: var(--fds-border_radius-interactive);
+  padding: 2px;
+  margin: -2px;
 }
 
 .group-button:hover {
@@ -109,6 +112,10 @@
   column-gap: 8px;
   align-items: center;
   text-align: left;
+
+  border-radius: var(--fds-border_radius-interactive);
+  padding: 2px;
+  margin: -2px;
 }
 
 .page-button:hover {
