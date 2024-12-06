@@ -31,16 +31,16 @@ export const Config = new CG.component({
   .addDataModelBinding(
     new CG.obj(
       new CG.prop(
-        'group',
+        'saveToList',
         new CG.dataModelBinding()
-          .setTitle('Group')
+          .setTitle('SaveToList')
           .setDescription(
-            'Dot notation location for a repeating group structure (array of objects), where the data is stored',
+            'Dot notation location for a repeating structure (array of objects), where you want to save the content of checked checkboxes',
           ),
       ),
     )
       .optional()
-      .exportAs('IDataModelBindingsForGroup'),
+      .exportAs('IDataModelBindingsForSaveTolist'),
   )
   .addProperty(
     new CG.prop(

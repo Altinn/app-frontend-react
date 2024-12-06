@@ -2,16 +2,20 @@ import React, { useEffect, useState } from 'react';
 import type { AriaAttributes } from 'react';
 
 import { Pagination as AltinnPagination } from '@altinn/altinn-design-system';
-import { Heading, Table } from '@digdir/designsystemet-react';
+import { Checkbox, Heading, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
+import deepEqual from 'fast-deep-equal';
+import { v4 as uuidv4 } from 'uuid';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
-import { CustomCheckbox } from 'src/components/form/Checkbox';
+// import { CustomCheckbox } from 'src/components/form/Checkbox';
 import { Description } from 'src/components/form/Description';
 import { RadioButton } from 'src/components/form/RadioButton';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getLabelId } from 'src/components/label/Label';
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
+import { FD } from 'src/features/formData/FormDataWrite';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -63,7 +67,10 @@ export const ListComponent = ({ node }: IListProps) => {
 
   const { data } = useDataListQuery(filter, dataListId, secure, mapping, queryParameters);
   const bindings = item.dataModelBindings ?? ({} as IDataModelBindingsForList);
+
   const { formData, setValues } = useDataModelBindings(bindings, 1, 'raw');
+
+  const appendToList = FD.useAppendToList();
 
   const tableHeadersToShowInMobile = Object.keys(tableHeaders).filter(
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
@@ -142,6 +149,10 @@ export const ListComponent = ({ node }: IListProps) => {
     );
   }*/
 
+  console.log('data?.listItems', data?.listItems);
+
+  console.log('formData.saveToList', formData.saveToList);
+
   return (
     <ComponentStructureWrapper node={node}>
       <Table className={classes.listTable}>
@@ -187,7 +198,24 @@ export const ListComponent = ({ node }: IListProps) => {
             <Table.Row
               key={JSON.stringify(row)}
               onClick={() => {
-                handleRowSelect({ selectedValue: row });
+                if (component === 'CheckBoxes') {
+                  const uuid = uuidv4();
+                  if (!item.dataModelBindings?.saveToList) {
+                    return;
+                  }
+                  const next: Row = { [ALTINN_ROW_ID]: uuid };
+                  for (const binding of Object.keys(bindings)) {
+                    next[binding] = row[binding];
+                  }
+                  appendToList({
+                    reference: item.dataModelBindings.saveToList,
+                    newValue: { ...next },
+                  });
+                }
+
+                if (component === 'RadioButtons') {
+                  handleRowSelect({ selectedValue: row });
+                }
               }}
             >
               <Table.Cell
@@ -196,14 +224,16 @@ export const ListComponent = ({ node }: IListProps) => {
                 })}
               >
                 {component === 'CheckBoxes' ? (
-                  <CustomCheckbox
+                  <Checkbox
                     className={classes.radio}
                     aria-label={JSON.stringify(row)}
-                    onChange={() => {
-                      handleRowSelect({ selectedValue: row });
-                    }}
+                    onChange={(event) => {}}
                     value={JSON.stringify(row)}
-                    checked={isRowSelected(row)}
+                    // @ts-expect-error Please replace with typechecking
+                    checked={formData?.saveToList.some((selectedRow) => {
+                      const { altinnRowId, ...rest } = selectedRow;
+                      return deepEqual(rest, row);
+                    })}
                     name={node.id}
                   />
                 ) : (
