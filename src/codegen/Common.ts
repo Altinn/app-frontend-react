@@ -440,16 +440,13 @@ const common = {
                 .setDescription('The value of the answer column'),
             ),
             new CG.prop(
-              'addLeftDivider',
-              new CG.bool()
-                .optional()
-                .setDescription('Set this to true if you would like to have a divider on the left-hand side.'),
-            ),
-            new CG.prop(
-              'addRightDivider',
-              new CG.bool()
-                .optional()
-                .setDescription('Set this to true if you would like to have a divider on the right-hand side.'),
+              'divider',
+              new CG.enum('before', 'after', 'both')
+                .setTitle('Divider')
+                .setDescription(
+                  "Choose if the divider should be shown 'before', 'after' or on 'both' sides of the column.",
+                )
+                .optional(),
             ),
           ),
         )

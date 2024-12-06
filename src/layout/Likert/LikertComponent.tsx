@@ -124,8 +124,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
                 </span>
               </Table.HeaderCell>
               {calculatedOptions.map((option, index) => {
-                const addLeftDivider = columns?.find((column) => column.value == option.value)?.addLeftDivider;
-                const addRightDivider = columns?.find((column) => column.value == option.value)?.addRightDivider;
+                const divider = columns?.find((column) => column.value == option.value)?.divider;
 
                 return (
                   <Table.HeaderCell
@@ -133,8 +132,9 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
                     scope='col'
                     id={`${id}-likert-columnheader-${index}`}
                     className={cn({
-                      [classes.likertCellLeftDivider]: addLeftDivider,
-                      [classes.likertCellRightDivider]: addRightDivider,
+                      [classes.likertCellDividerStart]: divider === 'before',
+                      [classes.likertCellDividerEnd]: divider === 'after',
+                      [classes.likertCellDividerBoth]: divider === 'both',
                     })}
                   >
                     <Lang id={option.label} />

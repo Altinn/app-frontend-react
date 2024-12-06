@@ -70,10 +70,15 @@ Altinn, and making sure they are consistent. */
   gap: 0;
 }
 
-.likertCellLeftDivider {
-  border-left: 1px solid #dde3e5;
+.likertCellDividerStart {
+  border-inline-start: 1px solid #dde3e5;
 }
 
-.likertCellRightDivider {
-  border-right: 1px solid #dde3e5;
+.likertCellDividerEnd {
+  border-inline-end: 1px solid #dde3e5;
+}
+
+.likertCellDividerBoth {
+  border-inline-start: 1px solid #dde3e5;
+  border-inline-end: 1px solid #dde3e5;
 }

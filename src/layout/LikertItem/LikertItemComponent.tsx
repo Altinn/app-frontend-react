@@ -74,15 +74,15 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, PropsFromGenericCompo
         const isChecked = selectedValues[0] === option.value;
         const rowLabelId = getLabelId(id);
         const labelledby = `${rowLabelId} ${groupContainer?.baseId}-likert-columnheader-${index}`;
-        const addLeftDivider = columns?.find((column) => column.value == option.value)?.addLeftDivider;
-        const addRightDivider = columns?.find((column) => column.value == option.value)?.addRightDivider;
+        const divider = columns?.find((column) => column.value == option.value)?.divider;
 
         return (
           <Table.Cell
             key={option.value}
             className={cn({
-              [classes.likertCellLeftDivider]: addLeftDivider,
-              [classes.likertCellRightDivider]: addRightDivider,
+              [classes.likertCellDividerStart]: divider === 'before',
+              [classes.likertCellDividerEnd]: divider === 'after',
+              [classes.likertCellDividerBoth]: divider === 'both',
             })}
           >
             <Radio
