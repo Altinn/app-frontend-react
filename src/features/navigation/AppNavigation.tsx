@@ -11,7 +11,11 @@ import { usePageGroups } from 'src/features/form/layoutSettings/LayoutSettingsCo
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/AppNavigation.module.css';
-import { CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR, useValidationsForPageGroup } from 'src/features/navigation/utils';
+import {
+  CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR,
+  useValidationsForPages,
+  useVisiblePages,
+} from 'src/features/navigation/utils';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 
@@ -65,12 +69,17 @@ export function AppNavigationHeading({
 }
 
 function PageGroup({ group, onNavigate }: { group: Group; onNavigate?: () => void }) {
+  const order = useVisiblePages(group.order);
   const currentPageId = useNavigationParam('pageKey');
-  const containsCurrentPage = group.order.some((page) => page === currentPageId);
-  const validations = useValidationsForPageGroup(group);
+  const containsCurrentPage = order.some((page) => page === currentPageId);
+  const validations = useValidationsForPages(order);
 
   const [isOpen, setIsOpen] = useState(containsCurrentPage);
   useEffect(() => setIsOpen(containsCurrentPage), [containsCurrentPage]);
+
+  if (order.length === 0) {
+    return null;
+  }
 
   return (
     <li>
@@ -90,7 +99,7 @@ function PageGroup({ group, onNavigate }: { group: Group; onNavigate?: () => voi
       </button>
       {isOpen && (
         <ul className={classes.pageList}>
-          {group.order.map((page) => (
+          {order.map((page) => (
             <Page
               key={page}
               page={page}

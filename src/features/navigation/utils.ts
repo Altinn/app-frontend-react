@@ -1,12 +1,10 @@
 import { useMemo } from 'react';
 
-import type { Group } from '.';
-
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { usePageGroups } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { ValidationMask } from 'src/features/validation';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useLaxNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeData } from 'src/utils/layout/types';
@@ -22,6 +20,11 @@ export const SIDEBAR_BREAKPOINT = 1450;
 export const CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR =
   'AppNavigation was used without first checking that the app uses grouped navigation using `useHasGroupedNavigation()`. This can lead to an empty container somewhere.';
 
+export function useVisiblePages(order: string[]) {
+  const hiddenPages = Hidden.useHiddenPages();
+  return useMemo(() => order.filter((page) => !hiddenPages.has(page)), [order, hiddenPages]);
+}
+
 /**
  * Returns the necessary information to mark states on a group and its pages.
  * Explanation on the current logic:
@@ -34,7 +37,7 @@ export const CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR =
  *    It would be confusing since it would have to get marked as completed immediately in that case, so it stays neutral instead.
  *
  */
-export function useValidationsForPageGroup(group: Group) {
+export function useValidationsForPages(order: string[]) {
   const traversalSelector = useLaxNodeTraversalSelector();
   const validationsSelector = NodesInternal.useLaxValidationsSelector();
 
@@ -43,7 +46,7 @@ export function useValidationsForPageGroup(group: Group) {
       const allNodes: Record<string, LayoutNode[]> = {};
       const pageHasRequiredNodes: Record<string, boolean> = {};
 
-      group.order.forEach((pageId) => {
+      order.forEach((pageId) => {
         const page = traverser.findPage(pageId);
 
         allNodes[pageId] = page?.flat() ?? [];
@@ -54,7 +57,7 @@ export function useValidationsForPageGroup(group: Group) {
 
       return { allNodes, hasRequiredNodes: pageHasRequiredNodes };
     },
-    [group],
+    [order],
   );
 
   const isCompleted = useMemo(() => {
@@ -63,7 +66,7 @@ export function useValidationsForPageGroup(group: Group) {
     }
 
     const pageHasNoErrors = Object.fromEntries(
-      group.order.map((page) => [
+      order.map((page) => [
         page,
         pages.allNodes[page].every((node) => {
           const allValidations = validationsSelector(node, ValidationMask.All, 'error');
@@ -73,14 +76,14 @@ export function useValidationsForPageGroup(group: Group) {
     );
 
     const completedPages = Object.fromEntries(
-      group.order.map((page) => [page, pages.hasRequiredNodes[page] && pageHasNoErrors[page]]),
+      order.map((page) => [page, pages.hasRequiredNodes[page] && pageHasNoErrors[page]]),
     );
 
     const groupIsComplete =
-      group.order.some((page) => pages.hasRequiredNodes[page]) && group.order.every((page) => pageHasNoErrors[page]);
+      order.some((page) => pages.hasRequiredNodes[page]) && order.every((page) => pageHasNoErrors[page]);
 
     return { pages: completedPages, group: groupIsComplete };
-  }, [group, pages, validationsSelector]);
+  }, [order, pages, validationsSelector]);
 
   const hasErrors = useMemo(() => {
     if (pages === ContextNotProvided) {
@@ -88,7 +91,7 @@ export function useValidationsForPageGroup(group: Group) {
     }
 
     const pageHasErrors = Object.fromEntries(
-      group.order.map((page) => [
+      order.map((page) => [
         page,
         pages.allNodes[page].some((node) => {
           const visibleValidations = validationsSelector(node, 'visible', 'error');
@@ -100,7 +103,7 @@ export function useValidationsForPageGroup(group: Group) {
     const groupHasErrors = Object.values(pageHasErrors).some((p) => p);
 
     return { pages: pageHasErrors, group: groupHasErrors };
-  }, [group, pages, validationsSelector]);
+  }, [order, pages, validationsSelector]);
 
   if (isCompleted === ContextNotProvided || hasErrors === ContextNotProvided) {
     return ContextNotProvided;
