@@ -24,7 +24,7 @@ export class OrganisationLookup extends OrganisationLookupDef {
     return <OrganisationLookupSummary componentNode={props.target} />;
   }
   renderSummary(_props: SummaryRendererProps<'OrganisationLookup'>): JSX.Element | null {
-    throw new Error('Method not implemented.');
+    return null;
   }
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'OrganisationLookup'>>(
     function LayoutComponentOrganisationLookupRender(props, _): JSX.Element | null {
