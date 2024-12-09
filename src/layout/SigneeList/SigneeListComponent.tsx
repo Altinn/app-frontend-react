@@ -7,21 +7,33 @@ import { z } from 'zod';
 import type { TagProps } from '@digdir/designsystemet-react';
 
 import { AppTable } from 'src/app-components/Table/Table';
+import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
+import type { LangProps } from 'src/features/language/Lang';
 import type { PropsFromGenericComponent } from 'src/layout';
+
+/*
+TODO:
+- Språk
+- Hvilke kolonner skal vi ha?
+- Gå gjennom feilhåndtering
+- Unit tests?
+- Cypress tests
+*/
 
 const signeeStateSchema = z.object({
   name: z.string(),
   hasSigned: z.boolean(),
   delegationSuccessful: z.boolean(),
   notificationSuccessful: z.boolean(),
+  doesntExist: z.boolean(),
 });
 
 type SigneeState = z.infer<typeof signeeStateSchema>;
 
-type SigneeListResponse = { error: null; data: SigneeState[] } | { error: string; data: null };
+type SigneeListResponse = { error: null; data: SigneeState[] } | { error: LangProps; data: null };
 
 const problemDetailsSchema = z.object({
   detail: z.string(),
@@ -37,10 +49,21 @@ async function fetchSigneeList(partyId: string, instanceGuid: string): Promise<S
     const parsed = z.object({ signeeStates: z.array(signeeStateSchema) }).safeParse(response);
 
     if (!parsed.success) {
-      throw new Error('Failed to parse incoming signee data.', parsed.error);
+      // TODO: alarm? telemetri?
+      return {
+        data: null,
+        error: {
+          id: 'config_error.layoutset_subform_config_error_customer_support',
+          params: [
+            'general.customer_service_phone_number',
+            'general.customer_service_email',
+            'general.customer_service_slack',
+          ],
+        },
+      };
     }
 
-    return { data: parsed.data.signeeStates, error: null };
+    return { error: null, data: parsed.data.signeeStates };
   } catch (error) {
     const parsed = problemDetailsSchema.safeParse(error.response.data);
 
@@ -72,7 +95,17 @@ export function SigneeListComponent(_props: SigneeListComponentProps) {
   }
 
   if (result?.error) {
-    return <div>{result.error}</div>;
+    return (
+      <Lang
+        id={result.error.id}
+        params={result.error.params?.map((it, idx) => (
+          <Lang
+            key={idx}
+            id={it?.toString()}
+          />
+        ))}
+      />
+    );
   }
 
   return (
