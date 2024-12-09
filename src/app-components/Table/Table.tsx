@@ -35,6 +35,7 @@ interface DataTableProps<T> {
   size?: 'sm' | 'md' | 'lg';
   zebra?: boolean;
   stickyHeader?: boolean;
+  headerClassName?: string;
 }
 
 function formatValue(value: FormDataValue): string {
@@ -73,6 +74,7 @@ export function AppTable<T>({
   size,
   zebra,
   stickyHeader,
+  headerClassName,
 }: DataTableProps<T>) {
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
@@ -88,6 +90,7 @@ export function AppTable<T>({
           {columns.map((col, index) => (
             <Table.HeaderCell
               style={stickyHeader ? { zIndex: 2 } : {}}
+              className={headerClassName}
               key={index}
             >
               {col.header}

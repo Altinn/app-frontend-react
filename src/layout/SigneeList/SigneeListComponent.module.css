@@ -1,0 +1,5 @@
+.signeeListHeader {
+  background-color: var(--fds-semantic-surface-action-subtle);
+  height: var(--fds-spacing-10);
+  border-bottom-color: var(--fds-semantic-border-action-hover);
+}
