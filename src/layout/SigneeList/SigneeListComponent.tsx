@@ -7,6 +7,7 @@ import { z } from 'zod';
 import type { TagProps } from '@digdir/designsystemet-react';
 
 import { AppTable } from 'src/app-components/Table/Table';
+import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -77,7 +78,7 @@ export function SigneeListComponent(_props: SigneeListComponentProps) {
   return (
     <AppTable
       data={result?.data ?? []}
-      schema={{}}
+      headerClassName={classes.signeeListHeader}
       columns={[
         { header: 'Name', accessors: ['name'] },
         {
@@ -86,7 +87,6 @@ export function SigneeListComponent(_props: SigneeListComponentProps) {
           renderCell: (_, rowData) => <SigneeStateTag state={rowData} />,
         },
       ]}
-      zebra
     />
   );
 }
