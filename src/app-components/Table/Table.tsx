@@ -7,29 +7,29 @@ import { pick } from 'dot-object';
 import type { JSONSchema7 } from 'json-schema';
 
 import classes from 'src/app-components/Table/Table.module.css';
-import type { FormDataObject, FormDataValue } from 'src/app-components/DynamicForm/DynamicForm';
+import type { FormDataValue } from 'src/app-components/DynamicForm/DynamicForm';
 
-interface Column {
+interface Column<T> {
   header: React.ReactNode;
   accessors: string[];
-  renderCell?: (values: FormDataValue[], rowData: FormDataObject, rowIndex: number) => React.ReactNode;
+  renderCell?: (values: FormDataValue[], rowData: T, rowIndex: number) => React.ReactNode;
   enableInlineEditing?: boolean;
 }
 
-export interface TableActionButton {
-  onClick: (rowIdx: number, rowData: FormDataObject) => void;
+export interface TableActionButton<T = unknown> {
+  onClick: (rowIdx: number, rowData: T) => void;
   buttonText: React.ReactNode;
   icon: React.ReactNode;
   color?: 'first' | 'second' | 'success' | 'danger';
   variant?: 'tertiary' | 'primary' | 'secondary';
 }
 
-interface DataTableProps {
-  data: FormDataObject[];
-  schema: JSONSchema7;
-  columns: Column[];
+interface DataTableProps<T> {
+  data: T[];
+  schema?: JSONSchema7;
+  columns: Column<T>[];
   caption?: React.ReactNode;
-  actionButtons?: TableActionButton[];
+  actionButtons?: TableActionButton<T>[];
   actionButtonHeader?: React.ReactNode;
   mobile?: boolean;
   size?: 'sm' | 'md' | 'lg';
@@ -63,7 +63,7 @@ function formatValue(value: FormDataValue): string {
   return String(value);
 }
 
-export function AppTable({
+export function AppTable<T>({
   caption,
   data,
   columns,
@@ -73,7 +73,7 @@ export function AppTable({
   size,
   zebra,
   stickyHeader,
-}: DataTableProps) {
+}: DataTableProps<T>) {
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
     <Table
