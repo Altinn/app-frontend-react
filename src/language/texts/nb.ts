@@ -118,6 +118,8 @@ export function nb(): FixedLanguageList {
       zipCode: 'Postnr',
       no_options_found: 'Fant ingen treff',
       clear_selection: 'Fjern alle valgte',
+      person_lookup_ssn: 'fødselsnummer',
+      person_lookup_name: 'navn',
     },
     navigation: {
       main: 'Appnavigasjon',
@@ -316,6 +318,30 @@ export function nb(): FixedLanguageList {
         vat: 'MVA',
       },
     },
+    organisation_lookup: {
+      orgnr_label: 'Organisasjonsnummer',
+      org_name: 'Organisasjonsnavn',
+      from_registry_description: 'Fra enhetsregisteret',
+      validation_error_not_found: 'Organisasjonsnummeret ble ikke funnet i enhetsregisteret',
+      validation_invalid_response_from_server: 'Ugyldig respons fra server',
+      unknown_error: 'Ukjent feil. Vennligst prøv igjen senere',
+      validation_error_orgnr: 'Organisasjonsnummeret er ugyldig',
+    },
+    person_lookup: {
+      ssn_label: 'Fødselsnummer',
+      surname_label: 'Etternavn',
+      name_label: 'Navn',
+      from_registry_description: 'Fra folkeregisteret',
+      validation_error_name_too_short: 'Etternavn må være minst 2 tegn langt',
+      validation_error_ssn: 'Fødselsnummeret/D-nummeret er ugyldig.',
+      validation_error_not_found:
+        'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og navn. Vennligst kontroller feltene og prøv igjen. \n\nMerk: Etter 5 feilforsøk blir søkemuligheten midlertidig sperret.',
+      validation_error_too_many_requests: 'Du har nådd grensen for antall søk. Vennligst prøv igjen senere.',
+      validation_error_forbidden:
+        'Du har ikke tilgang til å søke på denne personen. Sikkerhetsnivå 2 eller høyere kreves.',
+      validation_invalid_response_from_server: 'Det oppstod en feil. Vennligst prøv igjen senere.',
+      unknown_error: 'Ukjent feil. Vennligst prøv igjen senere.',
+    },
     helptext: {
       button_title: 'Hjelp',
       button_title_prefix: 'Hjelpetekst for',
@@ -331,7 +357,7 @@ export function nb(): FixedLanguageList {
       ref_num: 'Referansenummer',
       sender: 'Avsender',
       subtitle: 'Kopi av din kvittering er sendt til ditt arkiv',
-      title: 'Skjema er sendt inn',
+      title: 'Skjemaet er sendt inn',
       title_submitted: 'Følgende er sendt inn:',
     },
     receipt_platform: {

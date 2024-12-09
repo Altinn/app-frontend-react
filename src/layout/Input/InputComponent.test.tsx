@@ -4,7 +4,6 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
-import { getDescriptionId } from 'src/components/label/Label';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -85,7 +84,32 @@ describe('InputComponent', () => {
     });
   });
 
-  it('should show aria-describedby if textResourceBindings.description is present', async () => {
+  it('should have description textResourceBindings title and description is present', async () => {
+    await render({
+      component: {
+        textResourceBindings: {
+          title: 'title',
+          description: 'description',
+        },
+      },
+    });
+
+    expect(screen.getByRole('textbox', { description: 'description' })).toBeInTheDocument();
+  });
+
+  it('should not have description if description is not present', async () => {
+    await render({
+      component: {
+        textResourceBindings: {
+          title: 'title',
+        },
+      },
+    });
+
+    expect(screen.getByRole('textbox', { name: 'title' })).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('should not have description if title is not present', async () => {
     await render({
       component: {
         textResourceBindings: {
@@ -94,15 +118,8 @@ describe('InputComponent', () => {
       },
     });
 
-    const inputComponent = screen.getByRole('textbox');
-    expect(inputComponent.getAttribute('aria-describedby')).toContain(getDescriptionId('mock-id'));
-  });
-
-  it('should not show aria-describedby if textResourceBindings.description is not present', async () => {
-    await render();
-    const inputComponent = screen.getByRole('textbox');
-
-    expect(inputComponent).not.toHaveAttribute('aria-describedby');
+    const inputComponent = screen.queryByRole('textbox', { description: 'description' });
+    expect(inputComponent).not.toBeInTheDocument();
   });
 
   it('should apply correct formatting to phone numbers when rendered as component', async () => {
@@ -150,13 +167,33 @@ describe('InputComponent', () => {
     expect(inputComponent).toHaveValue(formattedValue);
   });
 
+  it('should prevent pasting when readOnly is true', async () => {
+    const initialValue = 'initial value';
+    await render({
+      component: {
+        readOnly: true,
+      },
+      queries: {
+        fetchFormData: () => Promise.resolve({ some: { field: initialValue } }),
+      },
+    });
+
+    const inputComponent = screen.getByRole('textbox') as HTMLInputElement;
+    expect(inputComponent).toHaveValue(initialValue);
+
+    await userEvent.click(inputComponent);
+
+    await userEvent.paste('pasted text');
+
+    expect(inputComponent).toHaveValue(initialValue);
+  });
+
   const render = async ({ component, ...rest }: Partial<RenderGenericComponentTestProps<'Input'>> = {}) =>
     await renderGenericComponentTest({
       type: 'Input',
       renderer: (props) => <InputComponent {...props} />,
       component: {
         id: 'mock-id',
-        readOnly: false,
         required: false,
         dataModelBindings: {
           simpleBinding: { dataType: defaultDataTypeMock, field: 'some.field' },
