@@ -1,14 +1,13 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Tag } from '@digdir/designsystemet-react';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
-import type { TagProps } from '@digdir/designsystemet-react';
 
 import { AppTable } from 'src/app-components/Table/Table';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
+import { SigneeStateTag } from 'src/layout/SigneeList/SigneeStateTag';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 import type { LangProps } from 'src/features/language/Lang';
@@ -30,7 +29,7 @@ const signeeStateSchema = z.object({
   notificationSuccessful: z.boolean(),
 });
 
-type SigneeState = z.infer<typeof signeeStateSchema>;
+export type SigneeState = z.infer<typeof signeeStateSchema>;
 
 type SigneeListResponse = { error: null; data: SigneeState[] } | { error: LangProps; data: null };
 
@@ -120,55 +119,5 @@ export function SigneeListComponent(_props: SigneeListComponentProps) {
         },
       ]}
     />
-  );
-}
-
-const signeeStatus = {
-  signed: 'Har signert',
-  waiting: 'Venter på signatur',
-  delegationFailed: 'Delegering feilet', // TODO: How do we handle this?
-  notificationFailed: 'Varsling feilet',
-};
-
-type SigneeStatus = keyof typeof signeeStatus;
-
-function getSigneeStatus(state: SigneeState): SigneeStatus {
-  if (state.hasSigned) {
-    return 'signed';
-  }
-  if (!state.delegationSuccessful) {
-    return 'delegationFailed';
-  }
-  if (!state.notificationSuccessful) {
-    return 'notificationFailed';
-  }
-  return 'waiting';
-}
-
-function SigneeStateTag({ state }: { state: SigneeState }) {
-  const status = getSigneeStatus(state);
-
-  let color: TagProps['color'] = 'neutral';
-  switch (status) {
-    case 'signed':
-      color = 'success';
-      break;
-    case 'delegationFailed':
-      color = 'danger';
-      break;
-    case 'notificationFailed':
-      color = 'warning';
-      break;
-    default:
-      color = 'neutral';
-  }
-
-  return (
-    <Tag
-      color={color}
-      size='sm'
-    >
-      {signeeStatus[status]}
-    </Tag>
   );
 }
