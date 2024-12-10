@@ -3,13 +3,14 @@ import React from 'react';
 import { Tag } from '@digdir/designsystemet-react';
 import type { TagProps } from '@digdir/designsystemet-react';
 
+import { Lang } from 'src/features/language/Lang';
 import type { SigneeState } from 'src/layout/SigneeList/SigneeListComponent';
 
 const SIGNEE_STATUS = {
-  signed: 'Har signert',
-  waiting: 'Venter på signatur',
-  delegationFailed: 'Delegering feilet', // TODO: How do we handle this?
-  notificationFailed: 'Varsling feilet',
+  signed: 'signee_list.signee_status_signed',
+  waiting: 'signee_list.signee_status_waiting',
+  delegationFailed: 'signee_list.signee_status_delegation_failed',
+  notificationFailed: 'signee_list.signee_status_notification_failed',
 } as const;
 
 export type SigneeStatus = keyof typeof SIGNEE_STATUS;
@@ -50,7 +51,7 @@ export function SigneeStateTag({ state }: { state: SigneeState }) {
       color={color}
       size='sm'
     >
-      {SIGNEE_STATUS[status]}
+      <Lang id={SIGNEE_STATUS[status]} />
     </Tag>
   );
 }

@@ -33,6 +33,7 @@ export enum ProcessTaskType {
   Confirm = 'confirmation',
   Feedback = 'feedback',
   Payment = 'payment',
+  Signing = 'signing',
 }
 
 export enum PresentationType {
