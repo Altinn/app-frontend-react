@@ -150,6 +150,8 @@ export function nn(): FixedLanguageList {
       customer_service_phone_number: '+47 75 00 60 00',
       customer_service_slack: 'https://altinn.slack.com/',
       customer_service_email: 'servicedesk@altinn.no',
+      customer_service_error_message:
+        'Om du treng hjelp kan du nå Altinn på:<br/><br/>Telefon: <a href="tel:{0}">{0}</a><br/>E-post: {1}<br/>Slack: {2}',
       delete: 'Slett',
       download: 'Nedlasting {0}',
       disabled: 'Deaktivert',
@@ -344,6 +346,16 @@ export function nn(): FixedLanguageList {
       validation_invalid_response_from_server: 'Det oppstod ein feil. Ver venleg, prøv igjen seinare.',
       unknown_error: 'Det oppstod ein feil. Ver venleg, prøv igjen seinare.',
     },
+    signee_list: {
+      parse_error: 'Feil ved lasting av signatarliste.',
+      wrong_task_error: 'Denne komponenten er berre tilgjengeleg i eit signeringssteg.',
+      unknown_api_error: 'Ein feil oppstod under henting av signatarar.',
+      api_error_display: 'Ein feil oppstod under henting av signatarar. Sjå devtool-loggane for meir informasjon.',
+      signee_status_signed: 'Signert',
+      signee_status_waiting: 'Ventar på signering',
+      signee_status_delegation_failed: 'Delegasjon mislukkast',
+      signee_status_notification_failed: 'Varsling mislukkast',
+    },
     helptext: {
       button_title: 'Hjelp',
       button_title_prefix: 'Hjelpetekst for',
@@ -413,8 +425,6 @@ export function nn(): FixedLanguageList {
       navigateLastPage: 'Naviger til siste side i tabell',
     },
     config_error: {
-      layoutset_subform_config_error_customer_support:
-        'Om du treng hjelp kan du nå Altinn på:<br/><br/>Telefon: <a href="tel:{0}">{0}</a><br/>E-post: {1}<br/>Slack: {2}',
       layoutset_subform_config_error:
         'Layout set med id <strong>{0}</strong> er feilkonfigurert.<br /><br />Layout set kan ikkje ha både <strong>type</strong> <em>og</em> <strong>tasks</strong> definert.',
       layoutset_error: 'Layout set error',
