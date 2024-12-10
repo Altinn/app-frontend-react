@@ -5,9 +5,12 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { AppTable } from 'src/app-components/Table/Table';
+import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { SigneeStateTag } from 'src/layout/SigneeList/SigneeStateTag';
+import { ProcessTaskType } from 'src/types';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 import type { LangProps } from 'src/features/language/Lang';
@@ -15,7 +18,6 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 /*
 TODO:
-- Språk
 - Hvilke kolonner skal vi ha?
 - Gå gjennom feilhåndtering
 - Unit tests?
@@ -31,7 +33,7 @@ const signeeStateSchema = z.object({
 
 export type SigneeState = z.infer<typeof signeeStateSchema>;
 
-type SigneeListResponse = { error: null; data: SigneeState[] } | { error: LangProps; data: null };
+type SigneeListResponse = { errors: null; data: SigneeState[] } | { errors: LangProps[]; data: null };
 
 const problemDetailsSchema = z.object({
   detail: z.string(),
@@ -50,23 +52,26 @@ async function fetchSigneeList(partyId: string, instanceGuid: string): Promise<S
       // TODO: alarm? telemetri?
       return {
         data: null,
-        error: {
-          id: 'config_error.layoutset_subform_config_error_customer_support',
-          params: [
-            'general.customer_service_phone_number',
-            'general.customer_service_email',
-            'general.customer_service_slack',
-          ],
-        },
+        errors: [
+          { id: 'signee_list.parse_error' },
+          {
+            id: 'general.customer_service_error_message',
+            params: [
+              'general.customer_service_phone_number',
+              'general.customer_service_email',
+              'general.customer_service_slack',
+            ],
+          },
+        ],
       };
     }
 
-    return { error: null, data: parsed.data.signeeStates };
+    return { errors: null, data: parsed.data.signeeStates };
   } catch (error) {
     const parsed = problemDetailsSchema.safeParse(error.response.data);
 
     if (!parsed.success) {
-      throw new Error('An error occurred when fetching signees.');
+      throw new Error('signee_list.unknown_api_error');
     }
     throw new Error(parsed.data.detail);
   }
@@ -84,25 +89,42 @@ type SigneeListComponentProps = PropsFromGenericComponent<'SigneeList'>;
 
 export function SigneeListComponent(_props: SigneeListComponentProps) {
   const { partyId, instanceGuid } = useParams();
+  const taskType = useTaskTypeFromBackend();
+  const { langAsString } = useLanguage();
 
-  const { data: result, error: apiError } = useQuery(signeeListQueries.all(partyId!, instanceGuid!));
+  const { data: result, error: apiError } = useQuery({
+    ...signeeListQueries.all(partyId!, instanceGuid!),
+    enabled: taskType === ProcessTaskType.Signing,
+  });
 
-  if (apiError) {
-    window.logErrorOnce(apiError.message);
-    return <div>Det skjedde en feil. Se devtool-logger for mer informasjon.</div>;
+  if (taskType !== ProcessTaskType.Signing) {
+    return <Lang id='signee_list.wrong_task_error' />;
   }
 
-  if (result?.error) {
+  if (apiError) {
+    window.logErrorOnce(langAsString(apiError.message));
+    return <Lang id='signee_list.api_error_display' />;
+  }
+
+  if (result?.errors) {
     return (
-      <Lang
-        id={result.error.id}
-        params={result.error.params?.map((it, idx) => (
-          <Lang
-            key={idx}
-            id={it?.toString()}
-          />
+      <div>
+        {result.errors.map((it, idx) => (
+          <>
+            <Lang
+              key={it.id}
+              id={it.id}
+              params={it.params?.map((it, idx) => (
+                <Lang
+                  key={idx}
+                  id={it?.toString()}
+                />
+              ))}
+            />
+            {idx === 0 && <br />}
+          </>
         ))}
-      />
+      </div>
     );
   }
 
