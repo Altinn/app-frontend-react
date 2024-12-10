@@ -354,6 +354,9 @@ export function en() {
       signee_status_waiting: 'Waiting for signing',
       signee_status_delegation_failed: 'Delegation failed',
       signee_status_notification_failed: 'Notification failed',
+      header_name: 'Name',
+      header_on_behalf_of: 'On behalf of',
+      header_status: 'Status',
     },
     helptext: {
       button_title: 'Help',
