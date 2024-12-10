@@ -151,10 +151,18 @@ export function SigneeListComponent({ node }: SigneeListComponentProps) {
         ) : undefined
       }
       columns={[
-        { header: 'Navn', accessors: ['name'], renderCell: (value) => value.toString() },
-        { header: 'På vegne av', accessors: ['organisation'], renderCell: (value) => value.toString() },
         {
-          header: 'Status',
+          header: langAsString('signee_list.header_name'),
+          accessors: ['name'],
+          renderCell: (value) => value.toString(),
+        },
+        {
+          header: langAsString('signee_list.header_on_behalf_of'),
+          accessors: ['organisation'],
+          renderCell: (value) => value.toString(),
+        },
+        {
+          header: langAsString('signee_list.header_status'),
           accessors: ['hasSigned', 'delegationSuccessful', 'notificationSuccessful'],
           renderCell: (_, rowData) => <SigneeStateTag state={rowData} />,
         },
