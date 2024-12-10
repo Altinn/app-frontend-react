@@ -20,10 +20,9 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 /*
 TODO:
-- Gå gjennom feilhåndtering
 - Unit tests?
 - Cypress tests
-- Error state when delegation fails
+- Right align the status column
 */
 
 const signeeStateSchema = z
@@ -164,7 +163,7 @@ export function SigneeListComponent({ node }: SigneeListComponentProps) {
         },
         {
           header: langAsString('signee_list.header_status'),
-          accessors: ['hasSigned', 'delegationSuccessful', 'notificationSuccessful'],
+          accessors: [],
           renderCell: (_, rowData) => <SigneeStateTag state={rowData} />,
         },
       ]}
