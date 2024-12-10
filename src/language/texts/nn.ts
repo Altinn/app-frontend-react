@@ -355,6 +355,9 @@ export function nn(): FixedLanguageList {
       signee_status_waiting: 'Ventar på signering',
       signee_status_delegation_failed: 'Delegasjon mislukkast',
       signee_status_notification_failed: 'Varsling mislukkast',
+      header_name: 'Namn',
+      header_on_behalf_of: 'På vegne av',
+      header_status: 'Status',
     },
     helptext: {
       button_title: 'Hjelp',
