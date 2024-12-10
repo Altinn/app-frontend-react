@@ -28,44 +28,50 @@ export const App = () => (
         element={<FormFirstPage />}
       />
     </Route>
-    <Route
-      path='/instance-selection/*'
-      element={<InstanceSelectionWrapper />}
-    />
 
-    <Route
-      path='/party-selection/*'
-      element={<PartySelection />}
-    />
-
-    <Route
-      path='/instance/:partyId/:instanceGuid/*'
-      element={
-        <InstanceProvider>
-          <Outlet />
-        </InstanceProvider>
-      }
-    >
+    <Route path='/instance-selection'>
       <Route
-        path=':taskId/*'
-        element={<ProcessWrapper />}
-      />
-      <Route
-        path={TaskKeys.ProcessEnd}
-        element={<DefaultReceipt />}
-      />
-      <Route path={TaskKeys.CustomReceipt}>
-        <Route
-          path='*'
-          element={<CustomReceipt />}
-        />
-      </Route>
-      <Route
-        index
-        element={<NavigateToStartUrl />}
+        path='*'
+        element={<InstanceSelectionWrapper />}
       />
     </Route>
 
+    <Route path='/party-selection'>
+      <Route
+        path='*'
+        element={<PartySelection />}
+      />
+    </Route>
+
+    <Route path='/instance/:partyId/:instanceGuid'>
+      <Route
+        path='*'
+        element={
+          <InstanceProvider>
+            <Outlet />
+          </InstanceProvider>
+        }
+      >
+        <Route
+          path=':taskId/*'
+          element={<ProcessWrapper />}
+        />
+        <Route
+          path={TaskKeys.ProcessEnd}
+          element={<DefaultReceipt />}
+        />
+        <Route path={TaskKeys.CustomReceipt}>
+          <Route
+            path='*'
+            element={<CustomReceipt />}
+          />
+        </Route>
+        <Route
+          index
+          element={<NavigateToStartUrl />}
+        />
+      </Route>
+    </Route>
     {/**
      * Redirects from legacy URLs to new URLs
      */}

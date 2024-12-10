@@ -116,14 +116,16 @@ export function CustomReceipt() {
   return (
     <FormProvider>
       <Routes>
-        <Route
-          path=':pageKey/:componentId/*'
-          element={
-            <PresentationComponent type={ProcessTaskType.Archived}>
-              <ComponentRouting />
-            </PresentationComponent>
-          }
-        />
+        <Route path=':pageKey/:componentId'>
+          <Route
+            path='*'
+            element={
+              <PresentationComponent type={ProcessTaskType.Archived}>
+                <ComponentRouting />
+              </PresentationComponent>
+            }
+          />
+        </Route>
         <Route
           path='*'
           element={
