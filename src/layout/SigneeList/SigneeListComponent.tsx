@@ -24,7 +24,6 @@ TODO:
 - Unit tests?
 - Cypress tests
 - Error state when delegation fails
-- Sortering
 */
 
 const signeeStateSchema = z
@@ -72,7 +71,9 @@ async function fetchSigneeList(partyId: string, instanceGuid: string): Promise<S
       };
     }
 
-    return { errors: null, data: parsed.data.signeeStates };
+    const sortedSigneeStates = parsed.data.signeeStates.toSorted((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+
+    return { errors: null, data: sortedSigneeStates };
   } catch (error) {
     const parsed = problemDetailsSchema.safeParse(error.response.data);
 
