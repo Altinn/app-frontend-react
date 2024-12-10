@@ -150,6 +150,8 @@ export function nb(): FixedLanguageList {
       customer_service_phone_number: '+47 75 00 60 00',
       customer_service_slack: 'https://altinn.slack.com/',
       customer_service_email: 'servicedesk@altinn.no',
+      customer_service_error_message:
+        'Hvis du har behov for assistanse kan du nå Altinn på<br/><br/><li>Telefon: <a href="tel:{0}">{0}</a></li><li>E-post: {1}</li><li>Slack: {2}</li></ul>',
       delete: 'Slett',
       download: 'Nedlasting {0}',
       disabled: 'Deaktivert',
@@ -344,6 +346,16 @@ export function nb(): FixedLanguageList {
       validation_invalid_response_from_server: 'Det oppstod en feil. Vennligst prøv igjen senere.',
       unknown_error: 'Ukjent feil. Vennligst prøv igjen senere.',
     },
+    signee_list: {
+      parse_error: 'Feil ved lasting av signatarliste.',
+      wrong_task_error: 'Denne komponenten er kun tilgjengelig i et signeringssteg.',
+      unknown_api_error: 'En feil oppstod under henting av signatarer.',
+      api_error_display: 'En feil oppstod under henting av signatarer. Se devtool-loggene for mer informasjon.',
+      signee_status_signed: 'Signert',
+      signee_status_waiting: 'Venter på signering',
+      signee_status_delegation_failed: 'Delegasjon mislyktes',
+      signee_status_notification_failed: 'Varsling mislyktes',
+    },
     helptext: {
       button_title: 'Hjelp',
       button_title_prefix: 'Hjelpetekst for',
@@ -413,8 +425,6 @@ export function nb(): FixedLanguageList {
       navigateLastPage: 'Naviger til siste side i tabell',
     },
     config_error: {
-      layoutset_subform_config_error_customer_support:
-        'Hvis du har behov for assistanse kan du nå Altinn på<br/><br/><li>Telefon: <a href="tel:{0}">{0}</a></li><li>E-post: {1}</li><li>Slack: {2}</li></ul>',
       layoutset_subform_config_error:
         'Layout set med id <strong>{0}</strong> er konfigurert feil.<br /><br />Layout set kan ikke ha både <strong>type</strong> <em>og</em> <strong>tasks</strong> definert.',
       layoutset_error: 'Layout set error',
