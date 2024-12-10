@@ -1,5 +1,10 @@
 .signeeListHeader {
   background-color: var(--fds-semantic-surface-action-subtle);
-  height: var(--fds-spacing-10);
+  font-weight: 400;
   border-bottom-color: var(--fds-semantic-border-action-hover);
+}
+
+.signeeListCaption {
+  font-size: var(--fds-font-size-12);
+  font: var(--fds-typography-paragraph-large);
 }
