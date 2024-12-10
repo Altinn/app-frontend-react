@@ -223,22 +223,4 @@ describe('useGetOptions', () => {
         `for the currently selected option in your optionFilter expression.`,
     );
   });
-
-  it('should produce a warning if preselected option is filtered out', async () => {
-    await render({
-      type: 'single',
-      via: 'api',
-      options: [...filteredOptions, ...unfilteredOptions],
-      preselectedOptionIndex: 0,
-      optionFilter: ['notEquals', ['value'], 'foo'], // Filters out the first option
-    });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('options').textContent).toEqual(JSON.stringify(unfilteredOptions));
-    });
-
-    expect(window.logWarnOnce).toHaveBeenCalledWith(
-      `Node 'myComponent': Preselected option with value "foo" is not in the filtered options list any more. Cannot preselect this option.`,
-    );
-  });
 });

@@ -10,7 +10,7 @@ import { useGetOptionsQuery, useGetOptionsUrl } from 'src/features/options/useGe
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { filterDuplicateOptions, verifyOptions } from 'src/utils/options';
+import { verifyAndDeduplicateOptions } from 'src/utils/options';
 import type { ExprValueArgs } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
@@ -155,7 +155,6 @@ function useLogFetchError(error: Error | null, item: CompIntermediateExact<CompW
   }, [error, item]);
 }
 
-const emptyArray: never[] = [];
 export function useFilteredAndSortedOptions({
   unsorted,
   valueType,
@@ -164,48 +163,19 @@ export function useFilteredAndSortedOptions({
   dataSources,
 }: FilteredAndSortedOptionsProps) {
   const sortOrder = item.sortOrder;
-  const preselectedOptionIndex = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
+  const preselected = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
   const language = useLanguage();
   const langAsString = language.langAsString;
   const selectedLanguage = useCurrentLanguage();
-
-  const unfiltered = useMemo(() => {
-    let options = structuredClone(unsorted);
-    verifyOptions(options, valueType === 'multi');
-    let preselectedOption: IOptionInternal | undefined = undefined;
-    if (preselectedOptionIndex !== undefined && options && options[preselectedOptionIndex]) {
-      // This index uses the original options array, before any filtering or sorting
-      preselectedOption = options[preselectedOptionIndex];
-    }
-
-    verifyOptions(options, valueType === 'multi');
-
-    if (!options || options.length === 0) {
-      return { options: emptyArray, preselectedOption };
-    }
-
-    // No need to sort if there are 0 or 1 options. Using langAsString() can lead to re-rendering, so
-    // we avoid it if we don't need it.
-    if (options.length > 1) {
-      options = filterDuplicateOptions(options);
-      if (sortOrder) {
-        options = [...options].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
-      }
-    }
-
-    return { options, preselectedOption };
-  }, [langAsString, preselectedOptionIndex, selectedLanguage, sortOrder, unsorted, valueType]);
-
   const optionFilter = item.optionFilter;
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
-  const selectedValues = useSetOptions(valueType, dataModelBindings, unfiltered.options).selectedValues;
+  const selectedValues = useSetOptions(valueType, dataModelBindings, unsorted).selectedValues;
 
   return useMemo(() => {
-    const { options, preselectedOption } = unfiltered;
+    let options = verifyAndDeduplicateOptions(unsorted, valueType === 'multi');
 
-    let filteredOptions = options;
     if (optionFilter !== undefined && ExprValidation.isValid(optionFilter)) {
-      filteredOptions = options.filter((option) => {
+      options = options.filter((option) => {
         const valueArguments: ExprValueArgs<IOptionInternal> = {
           data: option,
           defaultKey: 'value',
@@ -222,18 +192,30 @@ export function useFilteredAndSortedOptions({
       });
     }
 
-    let existingPreselectedOption = preselectedOption;
-    if (preselectedOption && !filteredOptions.includes(preselectedOption)) {
-      // If the preselected option is not in the filtered list, we need to remove it
-      existingPreselectedOption = undefined;
-      window.logWarnOnce(
-        `Node '${node.id}': Preselected option with value "${preselectedOption.value}" is not in ` +
-          `the filtered options list any more. Cannot preselect this option.`,
-      );
+    // This used to work on the original array, before any filtering. However, for this to still work after
+    // filtering using optionFilter, we need to find the preselected option in the filtered array instead.
+    const preselectedOption =
+      preselected !== undefined && options && options[preselected] ? options[preselected] : undefined;
+
+    // No need to sort if there are 0 or 1 options. Using langAsString() can lead to re-rendering, so
+    // we avoid it if we don't need it.
+    if (options.length > 1 && sortOrder) {
+      options.sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
     }
 
-    return { options: filteredOptions, preselectedOption: existingPreselectedOption };
-  }, [unfiltered, optionFilter, node, dataSources, selectedValues]);
+    return { options, preselectedOption };
+  }, [
+    unsorted,
+    valueType,
+    optionFilter,
+    preselected,
+    sortOrder,
+    node,
+    dataSources,
+    selectedValues,
+    langAsString,
+    selectedLanguage,
+  ]);
 }
 
 export function useGetOptions(
