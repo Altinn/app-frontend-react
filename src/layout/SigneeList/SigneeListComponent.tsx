@@ -28,7 +28,6 @@ const signeeStateSchema = z.object({
   hasSigned: z.boolean(),
   delegationSuccessful: z.boolean(),
   notificationSuccessful: z.boolean(),
-  doesntExist: z.boolean(),
 });
 
 type SigneeState = z.infer<typeof signeeStateSchema>;
