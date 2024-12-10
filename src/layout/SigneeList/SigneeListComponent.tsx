@@ -5,12 +5,14 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { AppTable } from 'src/app-components/Table/Table';
+import { Caption } from 'src/components/form/caption/Caption';
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { SigneeStateTag } from 'src/layout/SigneeList/SigneeStateTag';
 import { ProcessTaskType } from 'src/types';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 import type { LangProps } from 'src/features/language/Lang';
@@ -22,6 +24,7 @@ TODO:
 - Gå gjennom feilhåndtering
 - Unit tests?
 - Cypress tests
+- Error state when delegation fails
 */
 
 const signeeStateSchema = z.object({
@@ -87,10 +90,11 @@ const signeeListQueries = {
 
 type SigneeListComponentProps = PropsFromGenericComponent<'SigneeList'>;
 
-export function SigneeListComponent(_props: SigneeListComponentProps) {
+export function SigneeListComponent({ node }: SigneeListComponentProps) {
   const { partyId, instanceGuid } = useParams();
   const taskType = useTaskTypeFromBackend();
   const { langAsString } = useLanguage();
+  const { textResourceBindings } = useNodeItem(node);
 
   const { data: result, error: apiError } = useQuery({
     ...signeeListQueries.all(partyId!, instanceGuid!),
@@ -130,8 +134,19 @@ export function SigneeListComponent(_props: SigneeListComponentProps) {
 
   return (
     <AppTable
+      size='md'
       data={result?.data ?? []}
       headerClassName={classes.signeeListHeader}
+      caption={
+        textResourceBindings?.title ? (
+          <Caption
+            title={<Lang id={textResourceBindings?.title} />}
+            designSystemLabelProps={{ className: classes.signeeListCaption }}
+            description={<Lang id={textResourceBindings?.description} />}
+            helpText={textResourceBindings?.help ? { text: textResourceBindings?.help } : undefined}
+          />
+        ) : undefined
+      }
       columns={[
         { header: 'Name', accessors: ['name'] },
         {
