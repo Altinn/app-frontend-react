@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import type { AriaAttributes } from 'react';
 
 import { Pagination as AltinnPagination } from '@altinn/altinn-design-system';
@@ -29,13 +29,6 @@ import type { IDataModelBindingsForList } from 'src/layout/List/config.generated
 
 export type IListProps = PropsFromGenericComponent<'List'>;
 type Row = Record<string, string | number | boolean>;
-
-const formDataMock = {
-  group: [
-    { domain: 'Patent', idApplication: '2024062' },
-    { domain: 'Design', idApplication: '20240880' },
-  ],
-};
 
 export const ListComponent = ({ node }: IListProps) => {
   const isMobile = useIsMobile();
@@ -72,17 +65,11 @@ export const ListComponent = ({ node }: IListProps) => {
 
   const appendToList = FD.useAppendToList();
 
+  const removeFromList = FD.useRemoveIndexFromList();
+
   const tableHeadersToShowInMobile = Object.keys(tableHeaders).filter(
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
   );
-
-  useEffect(() => {
-    const newSelectedRows =
-      data?.listItems.filter((row) =>
-        formDataMock.group.some((groupItem) => Object.keys(groupItem).every((key) => row[key] === groupItem[key])),
-      ) ?? [];
-    setSelectedRows(newSelectedRows);
-  }, [data?.listItems]);
 
   function handleRowSelect({ selectedValue }: { selectedValue: Row }) {
     const next: Row = {};
@@ -94,6 +81,14 @@ export const ListComponent = ({ node }: IListProps) => {
 
   function isRowSelected(row: Row): boolean {
     return selectedRows.some((selectedRow) => JSON.stringify(selectedRow) === JSON.stringify(row));
+  }
+
+  function isRowChecked(row: Row): boolean {
+    // @ts-expect-error Please replace with typechecking
+    return formData?.saveToList.some((selectedRow) => {
+      const { altinnRowId, ...rest } = selectedRow;
+      return deepEqual(rest, row);
+    });
   }
 
   const title = item.textResourceBindings?.title;
@@ -199,18 +194,37 @@ export const ListComponent = ({ node }: IListProps) => {
               key={JSON.stringify(row)}
               onClick={() => {
                 if (component === 'CheckBoxes') {
-                  const uuid = uuidv4();
-                  if (!item.dataModelBindings?.saveToList) {
-                    return;
+                  if (isRowChecked(row)) {
+                    // @ts-expect-error Please replace with typechecking
+                    const index = formData?.saveToList.findIndex((selectedRow) => {
+                      const { altinnRowId, ...rest } = selectedRow;
+                      return deepEqual(rest, row);
+                    });
+                    if (!item.dataModelBindings?.saveToList) {
+                      return;
+                    }
+                    if (index >= 0) {
+                      removeFromList({
+                        reference: item.dataModelBindings.saveToList,
+                        index,
+                      });
+                    }
+                  } else {
+                    const uuid = uuidv4();
+                    if (!item.dataModelBindings?.saveToList) {
+                      return;
+                    }
+                    const next: Row = { [ALTINN_ROW_ID]: uuid };
+                    for (const binding of Object.keys(bindings)) {
+                      if (binding != 'saveToList') {
+                        next[binding] = row[binding];
+                      }
+                    }
+                    appendToList({
+                      reference: item.dataModelBindings.saveToList,
+                      newValue: { ...next },
+                    });
                   }
-                  const next: Row = { [ALTINN_ROW_ID]: uuid };
-                  for (const binding of Object.keys(bindings)) {
-                    next[binding] = row[binding];
-                  }
-                  appendToList({
-                    reference: item.dataModelBindings.saveToList,
-                    newValue: { ...next },
-                  });
                 }
 
                 if (component === 'RadioButtons') {
@@ -229,11 +243,7 @@ export const ListComponent = ({ node }: IListProps) => {
                     aria-label={JSON.stringify(row)}
                     onChange={(event) => {}}
                     value={JSON.stringify(row)}
-                    // @ts-expect-error Please replace with typechecking
-                    checked={formData?.saveToList.some((selectedRow) => {
-                      const { altinnRowId, ...rest } = selectedRow;
-                      return deepEqual(rest, row);
-                    })}
+                    checked={isRowChecked(row)}
                     name={node.id}
                   />
                 ) : (
