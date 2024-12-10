@@ -20,19 +20,22 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 /*
 TODO:
-- Hvilke kolonner skal vi ha?
 - Gå gjennom feilhåndtering
 - Unit tests?
 - Cypress tests
 - Error state when delegation fails
+- Sortering
 */
 
-const signeeStateSchema = z.object({
-  name: z.string(),
-  hasSigned: z.boolean(),
-  delegationSuccessful: z.boolean(),
-  notificationSuccessful: z.boolean(),
-});
+const signeeStateSchema = z
+  .object({
+    name: z.string().nullish(),
+    organisation: z.string().nullish(),
+    hasSigned: z.boolean(),
+    delegationSuccessful: z.boolean(),
+    notificationSuccessful: z.boolean(),
+  })
+  .refine(({ name, organisation }) => name || organisation);
 
 export type SigneeState = z.infer<typeof signeeStateSchema>;
 
@@ -118,9 +121,9 @@ export function SigneeListComponent({ node }: SigneeListComponentProps) {
             <Lang
               key={it.id}
               id={it.id}
-              params={it.params?.map((it, idx) => (
+              params={it.params?.map((it) => (
                 <Lang
-                  key={idx}
+                  key={it?.toString()}
                   id={it?.toString()}
                 />
               ))}
@@ -148,7 +151,8 @@ export function SigneeListComponent({ node }: SigneeListComponentProps) {
         ) : undefined
       }
       columns={[
-        { header: 'Name', accessors: ['name'] },
+        { header: 'Navn', accessors: ['name'], renderCell: (value) => value.toString() },
+        { header: 'På vegne av', accessors: ['organisation'], renderCell: (value) => value.toString() },
         {
           header: 'Status',
           accessors: ['hasSigned', 'delegationSuccessful', 'notificationSuccessful'],
