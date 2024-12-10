@@ -9,23 +9,6 @@ export const INPUT_SUMMARY_OVERRIDE_PROPS = new CG.obj()
   .setDescription('Properties for how to display the summary of the component')
   .exportAs('InputSummaryOverrideProps');
 
-// export const INPUT_AUTOCOMPLETE = new CG.obj()
-//   .addProperty(
-//     new CG.prop(
-//       'autocomplete',
-//       new CG.enum(...INPUT_AUTO_COMPLETE)
-//         .optional()
-//         .setTitle('Input variant')
-//         .setDescription('The variant of the input field (text or search).'),
-//     ),
-//   )
-//   .optional()
-//   .setTitle('Summary properties')
-//   .setDescription(
-//     'The HTML autocomplete attribute lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.',
-//   )
-//   .exportAs('INPUT_AUTOCOMPLETE');
-
 export const Config = new CG.component({
   category: CompCategory.Form,
   capabilities: {
