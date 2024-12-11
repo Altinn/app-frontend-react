@@ -172,6 +172,11 @@ export function useFilteredAndSortedOptions({
   const selectedValues = useSetOptions(valueType, dataModelBindings, unsorted).selectedValues;
 
   return useMemo(() => {
+    let preselectedOption: IOptionInternal | undefined;
+    if (preselected !== undefined) {
+      preselectedOption = unsorted[preselected];
+    }
+
     let options = verifyAndDeduplicateOptions(unsorted, valueType === 'multi');
 
     if (optionFilter !== undefined && ExprValidation.isValid(optionFilter)) {
@@ -190,12 +195,15 @@ export function useFilteredAndSortedOptions({
         }
         return keep;
       });
-    }
 
-    // This used to work on the original array, before any filtering. However, for this to still work after
-    // filtering using optionFilter, we need to find the preselected option in the filtered array instead.
-    const preselectedOption =
-      preselected !== undefined && options && options[preselected] ? options[preselected] : undefined;
+      // If we have an option filter AND a preselected option, we need to set which option is preselected
+      // again at this point. Previously, the preselected option was always just set to the first option in the list
+      // before any sorting an filtering was done, but for it to work correctly with optionFilter, we need to set it
+      // again here. Just setting it after the filtering is done might break some apps that rely on the old behavior.
+      if (preselected !== undefined) {
+        preselectedOption = options[preselected];
+      }
+    }
 
     // No need to sort if there are 0 or 1 options. Using langAsString() can lead to re-rendering, so
     // we avoid it if we don't need it.
