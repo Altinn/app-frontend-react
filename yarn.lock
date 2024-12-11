@@ -4670,13 +4670,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@remix-run/router@npm:1.21.0":
-  version: 1.21.0
-  resolution: "@remix-run/router@npm:1.21.0"
-  checksum: 10c0/570792211c083a1c7146613b79cbb8e0d1e14f34e974052e060e7f9dcad38c800d80fe0a18bf42811bc278ab12c0e8fd62cfce649e905046c4e55bd5a09eafdc
-  languageName: node
-  linkType: hard
-
 "@rtsao/scc@npm:^1.1.0":
   version: 1.1.0
   resolution: "@rtsao/scc@npm:1.1.0"
@@ -5098,6 +5091,13 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 10c0/2e1cdba2c410f25649e77856505cd60223250fa12dff7a503e492208dbfdd25f62859918f28aba95315251fd1f5e1ffbfca1e25e73037189ab85dd3f8d0a148c
+  languageName: node
+  linkType: hard
+
+"@types/cookie@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@types/cookie@npm:0.6.0"
+  checksum: 10c0/5b326bd0188120fb32c0be086b141b1481fec9941b76ad537f9110e10d61ee2636beac145463319c71e4be67a17e85b81ca9e13ceb6e3bb63b93d16824d6c149
   languageName: node
   linkType: hard
 
@@ -6457,7 +6457,7 @@ __metadata:
     react-leaflet: "npm:4.2.1"
     react-number-format: "npm:5.4.2"
     react-refresh: "npm:0.14.2"
-    react-router-dom: "npm:6.28.0"
+    react-router-dom: "npm:7.0.2"
     react-toastify: "npm:10.0.6"
     resize-observer-polyfill: "npm:1.5.1"
     source-map-loader: "npm:5.0.0"
@@ -7904,6 +7904,13 @@ __metadata:
   version: 0.7.1
   resolution: "cookie@npm:0.7.1"
   checksum: 10c0/5de60c67a410e7c8dc8a46a4b72eb0fe925871d057c9a5d2c0e8145c4270a4f81076de83410c4d397179744b478e33cd80ccbcc457abf40a9409ad27dcd21dde
+  languageName: node
+  linkType: hard
+
+"cookie@npm:^1.0.1":
+  version: 1.0.2
+  resolution: "cookie@npm:1.0.2"
+  checksum: 10c0/fd25fe79e8fbcfcaf6aa61cd081c55d144eeeba755206c058682257cb38c4bd6795c6620de3f064c740695bb65b7949ebb1db7a95e4636efb8357a335ad3f54b
   languageName: node
   linkType: hard
 
@@ -15611,27 +15618,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:6.28.0":
-  version: 6.28.0
-  resolution: "react-router-dom@npm:6.28.0"
+"react-router-dom@npm:7.0.2":
+  version: 7.0.2
+  resolution: "react-router-dom@npm:7.0.2"
   dependencies:
-    "@remix-run/router": "npm:1.21.0"
-    react-router: "npm:6.28.0"
+    react-router: "npm:7.0.2"
   peerDependencies:
-    react: ">=16.8"
-    react-dom: ">=16.8"
-  checksum: 10c0/e2930cf83e8c843a932b008c7ce11059fd83390502a433f0e41f192e3cb80081a621d069eeda7af3cf4bf74d7f8029f0141cdce741bca3f0af82d4bbbc7f7f10
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 10c0/eb6fe524792f6cf645872c15ed1beb6aeb778c7c5ebcf6c1d4ccf2bdab7a969313b3fc3b4ec6bc4516bbc91b238f0ef651d9ad2551b2aa9ea54b01653dcd1c98
   languageName: node
   linkType: hard
 
-"react-router@npm:6.28.0":
-  version: 6.28.0
-  resolution: "react-router@npm:6.28.0"
+"react-router@npm:7.0.2":
+  version: 7.0.2
+  resolution: "react-router@npm:7.0.2"
   dependencies:
-    "@remix-run/router": "npm:1.21.0"
+    "@types/cookie": "npm:^0.6.0"
+    cookie: "npm:^1.0.1"
+    set-cookie-parser: "npm:^2.6.0"
+    turbo-stream: "npm:2.4.0"
   peerDependencies:
-    react: ">=16.8"
-  checksum: 10c0/b435510de78fd882bf6ca9800a73cd90cee418bd1d19efd91b8dcaebde36929bbb589e25d9f7eec24ceb84255e8d538bc1fe54e6ddb5c43c32798e2b720fa76d
+    react: ">=18"
+    react-dom: ">=18"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+  checksum: 10c0/f6c04939218a3d7f2b03b215c2299eab4dbb0dea4a16e0acfd8bf181ec69ff42d66abdba10a25cc3297c514f052a0d03bfb80431225eb763bb27e4e5b0b4a106
   languageName: node
   linkType: hard
 
@@ -16435,6 +16448,13 @@ __metadata:
   version: 2.0.0
   resolution: "set-blocking@npm:2.0.0"
   checksum: 10c0/9f8c1b2d800800d0b589de1477c753492de5c1548d4ade52f57f1d1f5e04af5481554d75ce5e5c43d4004b80a3eb714398d6907027dc0534177b7539119f4454
+  languageName: node
+  linkType: hard
+
+"set-cookie-parser@npm:^2.6.0":
+  version: 2.7.1
+  resolution: "set-cookie-parser@npm:2.7.1"
+  checksum: 10c0/060c198c4c92547ac15988256f445eae523f57f2ceefeccf52d30d75dedf6bff22b9c26f756bd44e8e560d44ff4ab2130b178bd2e52ef5571bf7be3bd7632d9a
   languageName: node
   linkType: hard
 
@@ -17654,6 +17674,13 @@ __metadata:
   dependencies:
     safe-buffer: "npm:^5.0.1"
   checksum: 10c0/4c7a1b813e7beae66fdbf567a65ec6d46313643753d0beefb3c7973d66fcec3a1e7f39759f0a0b4465883499c6dc8b0750ab8b287399af2e583823e40410a17a
+  languageName: node
+  linkType: hard
+
+"turbo-stream@npm:2.4.0":
+  version: 2.4.0
+  resolution: "turbo-stream@npm:2.4.0"
+  checksum: 10c0/e68b2569f1f16e6e9633d090c6024b2ae9f0e97bfeacb572451ca3732e120ebbb546f3bc4afc717c46cb57b5aea6104e04ef497f9912eef6a7641e809518e98a
   languageName: node
   linkType: hard
 
