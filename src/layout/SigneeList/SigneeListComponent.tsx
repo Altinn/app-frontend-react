@@ -22,7 +22,6 @@ import type { PropsFromGenericComponent } from 'src/layout';
 TODO:
 - Unit tests?
 - Cypress tests
-- Right align the status column
 */
 
 const signeeStateSchema = z
@@ -139,6 +138,7 @@ export function SigneeListComponent({ node }: SigneeListComponentProps) {
     <AppTable
       size='md'
       data={result?.data ?? []}
+      tableClassName={classes.signeeListTable}
       headerClassName={classes.signeeListHeader}
       caption={
         textResourceBindings?.title ? (
