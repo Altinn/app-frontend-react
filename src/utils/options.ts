@@ -16,14 +16,16 @@ export function verifyAndDeduplicateOptions(options: IOptionInternal[] | undefin
     // Option value is required
     if (option.value == null) {
       window.logErrorOnce('Option has a null value\n', JSON.stringify(option, null, 2));
+      deduplicated[j++] = option; // Still add it, for backwards compatibility
     } else {
       // Option value must be unique. If they're not unique, we cannot tell which one is selected when we only have
       // the value from the data model.
       if (seenValues.has(option.value)) {
-        window.logErrorOnce(
+        window.logWarnOnce(
           'Option was duplicate value (and was removed). With duplicate values, it is impossible to tell which of the options the user selected.\n',
           JSON.stringify(option, null, 2),
         );
+        continue;
       }
       seenValues.add(option.value);
       deduplicated[j++] = option;

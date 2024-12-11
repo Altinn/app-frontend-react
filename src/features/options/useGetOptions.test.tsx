@@ -223,4 +223,20 @@ describe('useGetOptions', () => {
         `for the currently selected option in your optionFilter expression.`,
     );
   });
+
+  it('should produce a warning if option values are duplicated', async () => {
+    const remainingOption = { label: 'first', value: 'foo' };
+    await render({
+      type: 'single',
+      via: 'api',
+      options: [remainingOption, { label: 'second', value: 'foo' }],
+    });
+
+    await waitFor(() => expect(screen.getByTestId('options').textContent).toEqual(JSON.stringify([remainingOption])));
+
+    expect(window.logWarnOnce).toHaveBeenCalledWith(
+      'Option was duplicate value (and was removed). With duplicate values, it is impossible to tell which of the options the user selected.\n',
+      JSON.stringify({ label: 'second', value: 'foo' }, null, 2),
+    );
+  });
 });
