@@ -1,5 +1,7 @@
 import React from 'react';
 
+import deepEqual from 'fast-deep-equal';
+
 import { EffectPreselectedOptionIndex } from 'src/features/options/effects/EffectPreselectedOptionIndex';
 import { EffectRemoveStaleValues } from 'src/features/options/effects/EffectRemoveStaleValues';
 import { EffectSetDownstreamParameters } from 'src/features/options/effects/EffectSetDownstreamParameters';
@@ -47,7 +49,7 @@ function StoreOptionsInNodeWorker({ valueType }: GeneratorOptionProps) {
 
   const hasBeenSet = NodesInternal.useNodeData(
     node,
-    (data) => data.options === options && data.isFetchingOptions === isFetching,
+    (data) => deepEqual(data.options, options) && data.isFetchingOptions === isFetching,
   );
 
   NodesStateQueue.useSetNodeProp({ node, prop: 'options', value: options }, !hasBeenSet && !isFetching);
