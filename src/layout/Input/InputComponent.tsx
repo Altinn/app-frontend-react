@@ -95,6 +95,7 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
     characterLimit: !readOnly ? characterLimit : undefined,
   };
 
+  return <h1>test</h1>;
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting, formValue);
   const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
   switch (variant.type) {
