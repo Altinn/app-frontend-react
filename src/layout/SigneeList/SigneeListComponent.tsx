@@ -2,7 +2,8 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 
 import { queryOptions, useQuery } from '@tanstack/react-query';
-import { z } from 'zod';
+import { isAxiosError } from 'axios';
+import { z, ZodError } from 'zod';
 
 import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
@@ -45,10 +46,17 @@ async function fetchSigneeList(partyId: string, instanceGuid: string): Promise<S
 
   try {
     const response = await httpGet(url);
-    const parsed = z.object({ signeeStates: z.array(signeeStateSchema) }).safeParse(response);
+    const parsed = z.object({ signeeStates: z.array(signeeStateSchema) }).parse(response);
 
-    if (!parsed.success) {
-      // TODO: alarm? telemetri?
+    const sortedSigneeStates = parsed.signeeStates.toSorted((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+
+    return { errors: null, data: sortedSigneeStates };
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
+      //   // TODO: alarm? telemetri?
+      window.logErrorOnce(
+        `Did not get the expected response from the server. The response didn't match the expected schema: \n${error}`,
+      );
       return {
         data: null,
         errors: [
@@ -65,16 +73,14 @@ async function fetchSigneeList(partyId: string, instanceGuid: string): Promise<S
       };
     }
 
-    const sortedSigneeStates = parsed.data.signeeStates.toSorted((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+    if (isAxiosError(error)) {
+      const parsed = problemDetailsSchema.safeParse(error.response?.data);
 
-    return { errors: null, data: sortedSigneeStates };
-  } catch (error) {
-    const parsed = problemDetailsSchema.safeParse(error.response.data);
-
-    if (!parsed.success) {
-      throw new Error('signee_list.unknown_api_error');
+      if (parsed.success) {
+        throw new Error(parsed.data.detail);
+      }
     }
-    throw new Error(parsed.data.detail);
+    throw new Error('signee_list.unknown_api_error');
   }
 }
 
