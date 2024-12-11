@@ -545,7 +545,6 @@ export const ExprFunctions = {
 
       // Split the comma separated string into an array and remove whitespace from each part
       const parsedToArray = commaSeparatedString.split(',').map((part) => part.trim());
-      console.log('debug, commaContains', parsedToArray, stringToMatch);
       return parsedToArray.includes(stringToMatch);
     },
     args: [ExprVal.String, ExprVal.String] as const,
