@@ -18,11 +18,7 @@ import { appPath } from 'src/utils/urls/appUrlHelper';
 import type { LangProps } from 'src/features/language/Lang';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-/*
-TODO:
-- Unit tests?
-- Cypress tests
-*/
+// TODO: Cypress tests: Needs finished APIs.
 
 const signeeStateSchema = z
   .object({
