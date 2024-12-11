@@ -8,3 +8,7 @@
   font-size: var(--fds-font-size-12);
   font: var(--fds-typography-paragraph-large);
 }
+
+.signeeListTable tr td:last-child {
+  width: 1%;
+}

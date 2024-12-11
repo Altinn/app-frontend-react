@@ -35,6 +35,7 @@ interface DataTableProps<T> {
   size?: 'sm' | 'md' | 'lg';
   zebra?: boolean;
   stickyHeader?: boolean;
+  tableClassName?: string;
   headerClassName?: string;
 }
 
@@ -74,13 +75,14 @@ export function AppTable<T>({
   size,
   zebra,
   stickyHeader,
+  tableClassName,
   headerClassName,
 }: DataTableProps<T>) {
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
     <Table
       size={size || 'sm'}
-      className={cn(classes.table, { [classes.mobileTable]: mobile })}
+      className={cn(classes.table, tableClassName, { [classes.mobileTable]: mobile })}
       zebra={zebra}
       stickyHeader={stickyHeader}
     >
