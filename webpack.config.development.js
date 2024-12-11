@@ -1,4 +1,4 @@
- 
+
 const env = require('dotenv').config().parsed ?? {};
 const path = require('path');
 const fs = require('fs');
