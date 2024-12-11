@@ -1,0 +1,13 @@
+.signeeListHeader {
+  background-color: var(--fds-semantic-surface-action-subtle);
+  font-weight: 400;
+  border-bottom-color: var(--fds-semantic-border-action-hover);
+}
+
+.signeeListCaption {
+  font: var(--fds-typography-paragraph-large);
+}
+
+.signeeListTable tr td:last-child {
+  width: 1%;
+}
