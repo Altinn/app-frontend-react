@@ -161,36 +161,4 @@ export const Config = new CG.component({
         .setTitle('Table Headers Mobile')
         .setDescription('An array of strings representing the columns that is chosen to be shown in the mobile view.'),
     ),
-  )
-  // .addProperty(
-  //   new CG.prop(
-  //     'columns',
-  //     new CG.arr(
-  //       new CG.obj(
-  //         new CG.prop('header', new CG.str().setTitle('Header').setDescription('Header of the column').optional()),
-  //         new CG.prop(
-  //           'accessor',
-  //           new CG.dataModelBinding()
-  //             .setTitle('Accessor')
-  //             .optional()
-  //             .setDescription('The key in the data list that this column should represent.')
-  //             .exportAs('IDataModelBindingsForList'),
-  //         ),
-  //       ).exportAs('ListConfigExternal'),
-  //     ).optional(),
-  //   ),
-  // )
-  .addProperty(
-    new CG.prop(
-      'columns',
-      new CG.obj()
-        .additionalProperties(new CG.str())
-        .setTitle('Accessors')
-        .optional()
-        .setDescription('The key in the data list that this column should represent.')
-        .addExample({
-          column1: 'group.id1',
-          column2: 'group.id2',
-        }),
-    ),
   );

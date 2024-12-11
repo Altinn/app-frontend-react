@@ -8,7 +8,6 @@ import deepEqual from 'fast-deep-equal';
 import { v4 as uuidv4 } from 'uuid';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
-// import { CustomCheckbox } from 'src/components/form/Checkbox';
 import { Description } from 'src/components/form/Description';
 import { RadioButton } from 'src/components/form/RadioButton';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
@@ -75,7 +74,7 @@ export const ListComponent = ({ node }: IListProps) => {
       ? (data?.listItems.find((row) => Object.keys(formData).every((key) => row[key] === formData[key])) ?? '')
       : '';
 
-  function handleRowSelect({ selectedValue }: { selectedValue: Row }) {
+  function handleSelectedRadioRow({ selectedValue }: { selectedValue: Row }) {
     const next: Row = {};
     for (const binding of Object.keys(bindings)) {
       next[binding] = selectedValue[binding];
@@ -99,23 +98,24 @@ export const ListComponent = ({ node }: IListProps) => {
   const description = item.textResourceBindings?.description;
   const component = item.componentType;
 
-  const handleRowClick = (row, component, formData, item, bindings) => {
-    if (component === 'CheckBoxes') {
-      handleRowSelection(row, formData, item, bindings);
+  const handleRowClick = (row) => {
+    if (item.componentType === 'CheckBoxes') {
+      handleSelectedCheckboxRow(row);
     } else {
-      handleRowSelect({ selectedValue: row });
+      handleSelectedRadioRow({ selectedValue: row });
     }
   };
 
-  const handleRowSelection = (row, formData, item, bindings) => {
+  const handleSelectedCheckboxRow = (row) => {
+    if (!item.dataModelBindings?.saveToList) {
+      return;
+    }
     if (isRowChecked(row)) {
+      // @ts-expect-error Please replace with typechecking
       const index = formData?.saveToList.findIndex((selectedRow) => {
         const { altinnRowId, ...rest } = selectedRow;
         return deepEqual(rest, row);
       });
-      if (!item.dataModelBindings?.saveToList) {
-        return;
-      }
       if (index >= 0) {
         removeFromList({
           reference: item.dataModelBindings.saveToList,
@@ -124,9 +124,6 @@ export const ListComponent = ({ node }: IListProps) => {
       }
     } else {
       const uuid = uuidv4();
-      if (!item.dataModelBindings?.saveToList) {
-        return;
-      }
       const next: Row = { [ALTINN_ROW_ID]: uuid };
       for (const binding of Object.keys(bindings)) {
         if (binding != 'saveToList') {
@@ -171,7 +168,7 @@ export const ListComponent = ({ node }: IListProps) => {
             {data?.listItems.map((row) => (
               <Checkbox
                 key={JSON.stringify(row)}
-                onClick={() => handleRowClick(row, component, formData, item, bindings)}
+                onClick={() => handleRowClick(row)}
                 value={JSON.stringify(row)}
                 className={cn(classes.mobile)}
                 checked={isRowChecked(row)}
@@ -202,7 +199,7 @@ export const ListComponent = ({ node }: IListProps) => {
                 key={JSON.stringify(row)}
                 value={JSON.stringify(row)}
                 className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
-                onClick={() => handleRowSelect({ selectedValue: row })}
+                onClick={() => handleSelectedRadioRow({ selectedValue: row })}
               >
                 {renderListItems(row, tableHeaders)}
               </Radio>
@@ -220,10 +217,6 @@ export const ListComponent = ({ node }: IListProps) => {
       </ComponentStructureWrapper>
     );
   }
-
-  console.log('data?.listItems', data?.listItems);
-
-  console.log('formData.saveToList', formData.saveToList);
 
   return (
     <ComponentStructureWrapper node={node}>
@@ -269,7 +262,7 @@ export const ListComponent = ({ node }: IListProps) => {
           {data?.listItems.map((row) => (
             <Table.Row
               key={JSON.stringify(row)}
-              onClick={() => handleRowClick(row, component, formData, item, bindings)}
+              onClick={() => handleRowClick(row)}
             >
               <Table.Cell
                 className={cn({
@@ -290,7 +283,7 @@ export const ListComponent = ({ node }: IListProps) => {
                     className={classes.toggleControl}
                     aria-label={JSON.stringify(row)}
                     onChange={() => {
-                      handleRowSelect({ selectedValue: row });
+                      handleSelectedRadioRow({ selectedValue: row });
                     }}
                     value={JSON.stringify(row)}
                     checked={isRowSelected(row)}
