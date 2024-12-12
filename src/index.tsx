@@ -44,25 +44,18 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
 import '@digdir/designsystemet-theme/brand/altinn/tokens.css';
 
-const router = createHashRouter(
-  [
-    {
-      path: '*',
-      element: (
-        <AppRoutingProvider>
-          <ErrorBoundary>
-            <Root />
-          </ErrorBoundary>
-        </AppRoutingProvider>
-      ),
-    },
-  ],
+const router = createHashRouter([
   {
-    future: {
-      v7_relativeSplatPath: true,
-    },
+    path: '*',
+    element: (
+      <AppRoutingProvider>
+        <ErrorBoundary>
+          <Root />
+        </ErrorBoundary>
+      </AppRoutingProvider>
+    ),
   },
-);
+]);
 
 document.addEventListener('DOMContentLoaded', () => {
   propagateTraceWhenPdf();
