@@ -44,26 +44,21 @@ export function Input(props: InputProps) {
     id,
     readOnly,
     type,
-    textonly,
     value,
     className,
+    'aria-label': ariaLabel,
+    'aria-describedby': ariaDescribedby,
     onChange,
+    onBlur,
     autoComplete,
     required,
-    onBlur,
     placeholder,
     inputMode,
     style,
+    textonly,
   } = props;
 
-  const onPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
-    if (readOnly) {
-      event.preventDefault();
-    }
-  };
-
   if (textonly) {
-    const { value, id, className } = props;
     if (value === null || (typeof value === 'string' && value.length === 0)) {
       return null;
     }
@@ -82,27 +77,26 @@ export function Input(props: InputProps) {
 
   return (
     <Textfield
-      {...{
-        onPaste,
-        size,
-        prefix,
-        suffix,
-        characterLimit,
-        error,
-        disabled,
-        id,
-        readOnly,
-        type,
-        value,
-        className,
-        onChange,
-        autoComplete,
-        required,
-        onBlur,
-        placeholder,
-        inputMode,
-        style,
-      }}
+      size={size}
+      prefix={prefix}
+      suffix={suffix}
+      type={type}
+      characterLimit={characterLimit}
+      error={error}
+      id={id}
+      readOnly={readOnly}
+      disabled={disabled}
+      value={value}
+      className={className}
+      aria-label={ariaLabel}
+      aria-describedby={ariaDescribedby}
+      onChange={onChange}
+      onBlur={onBlur}
+      autoComplete={autoComplete}
+      required={required}
+      placeholder={placeholder}
+      inputMode={inputMode}
+      style={style}
     />
   );
 }
