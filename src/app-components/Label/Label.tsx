@@ -2,13 +2,12 @@ import React from 'react';
 import type { JSX, PropsWithChildren, ReactElement } from 'react';
 
 import { Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
-import { Grid, type GridProps } from '@material-ui/core';
 import cn from 'classnames';
 import type { LabelProps as DesignsystemetLabelProps } from '@digdir/designsystemet-react';
 
 import classes from 'src/app-components/Label/Label.module.css';
-
-type GridSize = Pick<GridProps, 'xs' | 'sm' | 'md' | 'lg' | 'xl'>;
+import { Flex } from 'src/components/Flex';
+import type { IGridStyling } from 'src/layout/common.generated';
 
 type LabelProps = {
   label: string | undefined;
@@ -16,7 +15,7 @@ type LabelProps = {
   help?: ReactElement;
   description?: ReactElement;
   className?: string;
-  grid?: GridSize;
+  grid?: IGridStyling;
   required?: boolean;
   requiredIndicator?: JSX.Element;
 } & Pick<DesignsystemetLabelProps, 'htmlFor' | 'style'>;
@@ -39,13 +38,14 @@ export function Label({
   }
 
   return (
-    <Grid
+    <Flex
+      id={htmlFor}
       container
       spacing={2}
     >
-      <Grid
+      <Flex
         item
-        {...(grid ?? { xs: 12 })}
+        size={grid ?? { xs: 12 }}
       >
         <span className={classes.labelAndDescWrapper}>
           <DesignsystemetLabel
@@ -64,8 +64,8 @@ export function Label({
           </DesignsystemetLabel>
           {description && <div className={classes.description}>{description}</div>}
         </span>
-      </Grid>
+      </Flex>
       {children}
-    </Grid>
+    </Flex>
   );
 }

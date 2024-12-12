@@ -17,10 +17,10 @@ import { useComponentValidationsForNode } from 'src/features/validation/selector
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
-import type { PropsFromGenericComponent } from 'src/layout';
 import classes from 'src/layout/Address/AddressComponent.module.css';
-import type { IDataModelBindingsForAddress } from 'src/layout/Address/config.generated';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { PropsFromGenericComponent } from 'src/layout';
+import type { IDataModelBindingsForAddress } from 'src/layout/Address/config.generated';
 
 export type IAddressProps = PropsFromGenericComponent<'Address'>;
 
@@ -81,7 +81,11 @@ export function AddressComponent({ node }: IAddressProps) {
             />
           }
         >
-          <Flex id={`form-content-${id}`}>
+          <Flex
+            item
+            size={{ xs: 12 }}
+            id={`form-content-${id}`}
+          >
             <Input
               id={`address_address_${id}`}
               data-bindingkey={bindingKeys.address}
@@ -113,7 +117,11 @@ export function AddressComponent({ node }: IAddressProps) {
               />
             }
           >
-            <Flex id={`form-content-${id}`}>
+            <Flex
+              item
+              size={{ xs: 12 }}
+              id={`form-content-${id}`}
+            >
               <Input
                 id={`address_care_of_${id}`}
                 data-bindingkey={bindingKeys.careOf}
@@ -132,9 +140,12 @@ export function AddressComponent({ node }: IAddressProps) {
 
       <Flex
         container
-        gap={6}
+        spacing={6}
       >
-        <Flex className={`${classes.addressComponentZipCode} ${classes.addressComponentSmallInputs}`}>
+        <Flex
+          item
+          className={`${classes.addressComponentZipCode} ${classes.addressComponentSmallInputs}`}
+        >
           <Label
             htmlFor={`address_zip_code_${id}`}
             label={langAsString(textResourceBindings?.zipCodeTitle ?? 'address_component.zip_code')}
@@ -162,7 +173,10 @@ export function AddressComponent({ node }: IAddressProps) {
             />
           </Label>
         </Flex>
-        <Flex className={classes.addressComponentPostplace}>
+        <Flex
+          item
+          className={classes.addressComponentPostplace}
+        >
           <Label
             htmlFor={`address_post_place_${id}`}
             label={langAsString(textResourceBindings?.postPlaceTitle ?? 'address_component.post_place')}

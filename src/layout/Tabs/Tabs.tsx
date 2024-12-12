@@ -63,7 +63,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
           >
             <Flex
               container
-              gap={6}
+              spacing={6}
             >
               {tab.childIds.filter(typedBoolean).map((nodeId) => (
                 <GenericComponentById

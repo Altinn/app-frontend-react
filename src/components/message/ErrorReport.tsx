@@ -40,7 +40,7 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
         >
           <Flex
             container
-            gap={6}
+            spacing={6}
             alignItems='flex-start'
           >
             <ul className={classes.errorList}>

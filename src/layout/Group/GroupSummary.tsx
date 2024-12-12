@@ -103,7 +103,7 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrid
       )}
       <Flex
         container
-        gap={6}
+        spacing={6}
         alignItems='flex-start'
       >
         <ChildComponents

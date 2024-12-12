@@ -121,7 +121,7 @@ function RepeatingGroupsEditContainerInternal({
         <Flex
           container
           alignItems='flex-end'
-          gap={6}
+          spacing={6}
         >
           <Flex>
             <Button
@@ -137,10 +137,14 @@ function RepeatingGroupsEditContainerInternal({
           </Flex>
         </Flex>
       )}
-      <Flex gap={6}>
+      <Flex
+        container
+        spacing={6}
+      >
         <Flex
           alignItems='flex-start'
-          gap={6}
+          container
+          spacing={6}
           ref={(n) => refSetter && editingRowIndex !== undefined && refSetter(editingRowIndex, 'editContainer', n)}
         >
           {row?.itemIds?.map((nodeId) => (
@@ -156,7 +160,8 @@ function RepeatingGroupsEditContainerInternal({
         <Flex>
           {editForGroup?.multiPage && (
             <Flex
-              gap={2}
+              container
+              spacing={2}
               style={{ marginBottom: 12 }}
             >
               {hasPrevMultiPage && (
@@ -193,7 +198,10 @@ function RepeatingGroupsEditContainerInternal({
               )}
             </Flex>
           )}
-          <Flex gap={2}>
+          <Flex
+            container
+            spacing={2}
+          >
             {saveAndNextButtonVisible && (
               <Flex>
                 <Button

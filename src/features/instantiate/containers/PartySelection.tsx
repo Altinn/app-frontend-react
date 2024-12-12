@@ -137,12 +137,10 @@ export const PartySelection = () => {
               variant='secondary'
               onClick={() => setNumberOfPartiesShown(numberOfPartiesShown + 4)}
             >
-              {
-                <PlusIcon
-                  fontSize='1rem'
-                  aria-hidden
-                />
-              }
+              <PlusIcon
+                fontSize='1rem'
+                aria-hidden
+              />
               {langAsString('party_selection.load_more')}
             </Button>
           </div>
@@ -268,7 +266,7 @@ export const PartySelection = () => {
             <Flex
               container
               className={classes.partySelectionCheckbox}
-              columnGap={4}
+              spacing={4}
             >
               <LegacyCheckbox
                 checked={showDeleted}

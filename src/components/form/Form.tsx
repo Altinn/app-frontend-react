@@ -10,7 +10,6 @@ import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useExpandedWidthLayouts } from 'src/features/form/layout/LayoutsContext';
-import type { NavigateToNodeOptions } from 'src/features/form/layout/NavigateToNode';
 import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
@@ -24,7 +23,6 @@ import {
   useQueryKeysAsString,
   useQueryKeysAsStringAsRef,
 } from 'src/features/routing/AppRoutingContext';
-import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
@@ -32,8 +30,10 @@ import { GenericComponentById } from 'src/layout/GenericComponent';
 import { extractBottomButtons } from 'src/utils/formLayout';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { NodesInternal, useGetPage, useNode } from 'src/utils/layout/NodesContext';
-import type { NodeData } from 'src/utils/layout/types';
 import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
+import type { NavigateToNodeOptions } from 'src/features/form/layout/NavigateToNode';
+import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
+import type { NodeData } from 'src/utils/layout/types';
 
 interface FormState {
   hasRequired: boolean;
@@ -125,7 +125,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
 
       <Flex
         container
-        rowGap={6}
+        spacing={6}
       >
         {mainIds.map((id) => (
           <GenericComponentById

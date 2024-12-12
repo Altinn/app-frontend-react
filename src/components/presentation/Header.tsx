@@ -20,19 +20,22 @@ const InnerHeader = ({ header, aboveHeader, children }: IInnerHeaderProps) => (
   <header className={classes.wrapper}>
     <Flex
       container
-      gap={4}
+      spacing={4}
+      direction='column'
       justifyContent='space-between'
       alignItems='space-between'
     >
-      {aboveHeader && <span>{aboveHeader}</span>}
-      <Heading
-        level={1}
-        size='medium'
-        data-testid='presentation-heading'
-      >
-        {header}
-      </Heading>
-      {children}
+      <Flex item>
+        {aboveHeader && <span>{aboveHeader}</span>}
+        <Heading
+          level={1}
+          size='medium'
+          data-testid='presentation-heading'
+        >
+          {header}
+        </Heading>
+        {children}
+      </Flex>
     </Flex>
   </header>
 );

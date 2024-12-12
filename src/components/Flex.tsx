@@ -6,14 +6,12 @@ import cn from 'classnames';
 import classes from 'src/components/Flex.module.css';
 import type { IGridStyling } from 'src/layout/common.generated';
 
-type Spacing = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 18 | 22 | 26 | 30;
+type Spacing = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
 type Props = PropsWithChildren<{
   className?: string;
   size?: IGridStyling;
-  gap?: Spacing;
-  rowGap?: Spacing;
-  columnGap?: Spacing;
+  spacing?: Spacing;
   direction?: CSSProperties['flexDirection'];
   justifyContent?: CSSProperties['justifyContent'];
   alignItems?: CSSProperties['alignItems'];
@@ -29,9 +27,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
       id,
       children,
       className,
-      gap,
-      rowGap,
-      columnGap,
+      spacing,
       direction = 'row',
       justifyContent = 'start',
       alignItems = 'start',
@@ -48,29 +44,41 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
     const smClass = size?.sm ? classes[`col-sm-${size.sm}`] : '';
     const mdClass = size?.md ? classes[`col-md-${size.md}`] : '';
     const lgClass = size?.lg ? classes[`col-lg-${size.lg}`] : '';
+    const spacingClass = container && spacing ? classes[`spacing-${spacing}`] : '';
 
-    function spaceToRem(space?: Spacing) {
-      return space ? `${space * 0.25}rem` : undefined;
-    }
+    const styles: CSSProperties | undefined = container
+      ? {
+          display: 'flex',
+          boxSizing: 'border-box',
+          flexDirection: direction,
+          //border: 'solid 1px red',
+          flexWrap,
+          justifyContent,
+          alignItems,
+          ...style,
+        }
+      : {
+          display: 'block',
+          boxSizing: 'border-box',
+          ...style,
+        };
 
     return (
       <div
         id={id}
         ref={ref}
+        className={cn(
+          xsClass,
+          smClass,
+          mdClass,
+          lgClass,
+          spacingClass,
+          className,
+          { [classes.item]: item },
+          { [classes.container]: container },
+        )}
+        style={styles}
         {...rest}
-        style={{
-          display: container ? 'flex' : 'block',
-          boxSizing: 'border-box',
-          flexDirection: direction,
-          gap: spaceToRem(gap),
-          rowGap: spaceToRem(rowGap),
-          columnGap: spaceToRem(columnGap),
-          flexWrap,
-          justifyContent,
-          alignItems,
-          ...style,
-        }}
-        className={cn(xsClass, smClass, mdClass, lgClass, className, { [classes.item]: item })}
       >
         {children}
       </div>

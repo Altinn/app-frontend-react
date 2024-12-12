@@ -49,7 +49,7 @@ export function ImageComponent({ node }: IImageProps) {
       <Flex
         container
         justifyContent={align}
-        gap={2}
+        spacing={2}
       >
         <InnerImage
           id={id}

@@ -31,7 +31,7 @@ export const Accordion = ({ node }: IAccordionProps) => {
     >
       <Flex
         container
-        gap={6}
+        spacing={6}
       >
         {childComponents.map((id) => (
           <GenericComponentById

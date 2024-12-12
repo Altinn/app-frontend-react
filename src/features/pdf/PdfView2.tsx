@@ -196,7 +196,7 @@ function PlainPage({ pageKey }: { pageKey: string }) {
     <div className={classes.page}>
       <Flex
         container
-        gap={6}
+        spacing={6}
       >
         {children.map((node) => (
           <GenericComponent
@@ -230,7 +230,7 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
     <div className={classes.page}>
       <Flex
         container
-        gap={6}
+        spacing={6}
       >
         {children.map((node) => (
           <PdfForNode

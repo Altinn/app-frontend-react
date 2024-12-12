@@ -230,6 +230,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         size={grid}
         key={`grid-${id}`}
         className={classNames(classes.container, pageBreakStyles(pageBreak))}
+        item
       >
         <RenderComponent {...componentProps} />
       </Flex>

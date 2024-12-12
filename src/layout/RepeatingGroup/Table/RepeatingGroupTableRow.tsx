@@ -185,7 +185,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
         <Table.Cell className={classes.mobileTableCell}>
           <Flex
             container
-            gap={6}
+            spacing={6}
           >
             {tableNodes.map(
               (n, i, { length }) =>
