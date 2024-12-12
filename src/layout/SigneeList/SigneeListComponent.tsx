@@ -29,7 +29,7 @@ const signeeStateSchema = z
     delegationSuccessful: z.boolean(),
     notificationSuccessful: z.boolean(),
   })
-  .refine(({ name, organisation }) => name || organisation);
+  .refine(({ name, organisation }) => name || organisation, 'Either name or organisation must be present.');
 
 export type SigneeState = z.infer<typeof signeeStateSchema>;
 
