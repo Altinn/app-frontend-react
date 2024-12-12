@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
@@ -20,6 +21,11 @@ export function useProfileQueryDef(enabled: boolean) {
   };
 }
 
+const canHandleProfileQueryError = (error: UseQueryResult<IProfile | undefined>['error']) =>
+  // The backend will return 400 if the logged in user/client is not a user.
+  // Altinn users have profiles, but organisations, service owners and system users do not, so this is expected
+  isAxiosError(error) && error.response?.status === 400;
+
 const useProfileQuery = () => {
   const enabled = useShouldFetchProfile();
   const { updateProfile, noProfileFound } = useSetCurrentLanguage();
@@ -27,8 +33,7 @@ const useProfileQuery = () => {
   const utils = useQuery(useProfileQueryDef(enabled));
 
   useEffect(() => {
-    // Do not fail if 404, that probably means we're using an org token
-    if (isAxiosError(utils.error) && utils.error.response?.status === 404) {
+    if (canHandleProfileQueryError(utils.error)) {
       noProfileFound();
       return;
     }
@@ -53,7 +58,7 @@ const { Provider, useCtx } = delayedContext(() =>
     name: 'Profile',
     required: false,
     default: undefined,
-    shouldDisplayError: (error) => !isAxiosError(error) || error.response?.status !== 404,
+    shouldDisplayError: (error) => !canHandleProfileQueryError(error),
     query: useProfileQuery,
   }),
 );
