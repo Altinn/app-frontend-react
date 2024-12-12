@@ -6,7 +6,7 @@ export function SimpleTableFeatureFlagLayoutValidator({ node }: NodeValidationPr
   const simpleTableEnabled = getFeature('simpleTableEnabled');
 
   const addError = NodesInternal.useAddError();
-  if (!simpleTableEnabled) {
+  if (!simpleTableEnabled.value) {
     const error = `You need to enable the feature flag simpleTableEnabled to use this component. Please note that the component is experimental
 
     and the configuration is likely to change.`;

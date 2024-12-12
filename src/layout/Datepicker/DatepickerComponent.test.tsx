@@ -11,10 +11,12 @@ import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 // Mock dateformat
-jest.mock('src/utils/dateHelpers', () => ({
+jest.mock('src/app-components/Datepicker/utils/dateHelpers', () => ({
   __esModules: true,
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  ...jest.requireActual<typeof import('src/utils/dateHelpers')>('src/utils/dateHelpers'),
+  ...jest.requireActual<typeof import('src/app-components/Datepicker/utils/dateHelpers')>(
+    'src/app-components/Datepicker/utils/dateHelpers',
+  ),
   getDateFormat: jest.fn(() => 'dd.MM.yyyy'),
 }));
 
@@ -60,7 +62,10 @@ describe('DatepickerComponent', () => {
       }),
     );
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: new Date().getDate().toString() })).toHaveAttribute('data-today', 'true');
+    expect(screen.getByRole('gridcell', { name: new Date().getDate().toString() })).toHaveAttribute(
+      'data-today',
+      'true',
+    );
   });
 
   it('should not show calendar initially, and show calendar in a dialog when clicking calendar button, and screen size is mobile sized', async () => {
@@ -89,7 +94,10 @@ describe('DatepickerComponent', () => {
     );
     screen.debug();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: new Date().getDate().toString() })).toHaveAttribute('data-today', 'true');
+    expect(screen.getByRole('gridcell', { name: new Date().getDate().toString() })).toHaveAttribute(
+      'data-today',
+      'true',
+    );
   });
 
   it('should call setLeafValue when clicking date in calendar', async () => {

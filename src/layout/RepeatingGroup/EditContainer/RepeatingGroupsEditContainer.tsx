@@ -1,10 +1,10 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { Button } from '@digdir/designsystemet-react';
 import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
+import { Button } from 'src/app-components/button/Button';
 import { Flex } from 'src/components/Flex';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
@@ -119,11 +119,13 @@ function RepeatingGroupsEditContainerInternal({
     >
       {editForRow?.deleteButton !== false && editForGroup?.mode === 'showAll' && (
         <Flex
+          item
           container
+          //direction='column'
           alignItems='flex-end'
           spacing={6}
         >
-          <Flex>
+          <Flex item>
             <Button
               variant='tertiary'
               color='danger'
@@ -139,11 +141,14 @@ function RepeatingGroupsEditContainerInternal({
       )}
       <Flex
         container
+        item
+        //direction='row'
         spacing={6}
       >
         <Flex
-          alignItems='flex-start'
           container
+          alignItems='flex-start'
+          item
           spacing={6}
           ref={(n) => refSetter && editingRowIndex !== undefined && refSetter(editingRowIndex, 'editContainer', n)}
         >
@@ -157,15 +162,16 @@ function RepeatingGroupsEditContainerInternal({
             />
           ))}
         </Flex>
-        <Flex>
+        <Flex item>
           {editForGroup?.multiPage && (
             <Flex
               container
+              //direction='row'
               spacing={2}
               style={{ marginBottom: 12 }}
             >
               {hasPrevMultiPage && (
-                <Flex>
+                <Flex item={true}>
                   <Button
                     variant='tertiary'
                     color='second'
@@ -181,7 +187,7 @@ function RepeatingGroupsEditContainerInternal({
                 </Flex>
               )}
               {hasNextMultiPage && (
-                <Flex>
+                <Flex item>
                   <Button
                     variant='tertiary'
                     color='second'
@@ -200,10 +206,11 @@ function RepeatingGroupsEditContainerInternal({
           )}
           <Flex
             container
+            //direction='row'
             spacing={2}
           >
             {saveAndNextButtonVisible && (
-              <Flex>
+              <Flex item>
                 <Button
                   id={`next-button-grp-${id}`}
                   onClick={() => openNextForEditing()}
@@ -216,7 +223,7 @@ function RepeatingGroupsEditContainerInternal({
               </Flex>
             )}
             {saveButtonVisible && (
-              <Flex>
+              <Flex item>
                 <Button
                   id={`save-button-${id}`}
                   onClick={() => closeForEditing({ index: row.index, uuid: row.uuid })}

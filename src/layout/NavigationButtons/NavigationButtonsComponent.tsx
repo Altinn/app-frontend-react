@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Button } from 'src/app-components/button/Button';
+import { Flex } from 'src/components/Flex';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useReturnToView, useSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { useIsSaving } from 'src/features/formData/FormDataWrite';
@@ -114,34 +115,40 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
         style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
       >
         {showBackToSummaryButton && (
-          <Button
-            disabled={isSaving}
-            ref={refNext}
-            onClick={onClickBackToSummary}
-          >
-            <Lang id={returnToViewText} />
-          </Button>
+          <Flex item>
+            <Button
+              disabled={isSaving}
+              ref={refNext}
+              onClick={onClickBackToSummary}
+            >
+              <Lang id={returnToViewText} />
+            </Button>
+          </Flex>
         )}
         {showNextButton && (
-          <Button
-            disabled={isSaving}
-            ref={refNext}
-            onClick={onClickNext}
-            // If we are showing a back to summary button, we want the "next" button to be secondary
-            variant={showBackToSummaryButton ? 'secondary' : 'primary'}
-          >
-            <Lang id={nextTextKey} />
-          </Button>
+          <Flex item>
+            <Button
+              disabled={isSaving}
+              ref={refNext}
+              onClick={onClickNext}
+              // If we are showing a back to summary button, we want the "next" button to be secondary
+              variant={showBackToSummaryButton ? 'secondary' : 'primary'}
+            >
+              <Lang id={nextTextKey} />
+            </Button>
+          </Flex>
         )}
         {!disablePrevious && showBackButton && (
-          <Button
-            disabled={isSaving}
-            ref={refPrev}
-            variant={showNextButton || showBackToSummaryButton ? 'secondary' : 'primary'}
-            onClick={onClickPrevious}
-          >
-            <Lang id={backTextKey} />
-          </Button>
+          <Flex item>
+            <Button
+              disabled={isSaving}
+              ref={refPrev}
+              variant={showNextButton || showBackToSummaryButton ? 'secondary' : 'primary'}
+              onClick={onClickPrevious}
+            >
+              <Lang id={backTextKey} />
+            </Button>
+          </Flex>
         )}
       </div>
     </ComponentStructureWrapper>

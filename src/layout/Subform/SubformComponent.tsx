@@ -75,6 +75,7 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
       <Flex
         id={node.id}
         container
+        item
         data-componentid={node.id}
         data-componentbaseid={node.baseId}
       >

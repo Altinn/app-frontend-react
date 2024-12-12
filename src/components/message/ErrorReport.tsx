@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { Grid } from '@material-ui/core';
+
 import { PANEL_VARIANT } from 'src/app-components/panel/constants';
 import { Panel } from 'src/app-components/panel/Panel';
 import { Flex } from 'src/components/Flex';
@@ -40,28 +42,34 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
         >
           <Flex
             container
+            item
             spacing={6}
             alignItems='flex-start'
           >
-            <ul className={classes.errorList}>
-              {taskErrors.map((error) => (
-                <li
-                  key={getUniqueKeyFromObject(error)}
-                  style={{ listStyleImage: listStyleImg }}
-                >
-                  <Lang
-                    id={error.message.key}
-                    params={error.message.params}
+            <Grid
+              item
+              xs={12}
+            >
+              <ul className={classes.errorList}>
+                {taskErrors.map((error) => (
+                  <li
+                    key={getUniqueKeyFromObject(error)}
+                    style={{ listStyleImage: listStyleImg }}
+                  >
+                    <Lang
+                      id={error.message.key}
+                      params={error.message.params}
+                    />
+                  </li>
+                ))}
+                {formErrors.map((error) => (
+                  <Error
+                    key={getUniqueKeyFromObject(error)}
+                    error={error}
                   />
-                </li>
-              ))}
-              {formErrors.map((error) => (
-                <Error
-                  key={getUniqueKeyFromObject(error)}
-                  error={error}
-                />
-              ))}
-            </ul>
+                ))}
+              </ul>
+            </Grid>
             {renderIds.map((id) => (
               <GenericComponentById
                 key={id}

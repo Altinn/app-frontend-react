@@ -10,27 +10,29 @@ import { Flex } from 'src/components/Flex';
 import type { IGridStyling } from 'src/layout/common.generated';
 
 type LabelProps = {
-  label: string | undefined;
+  label: string | ReactElement | undefined;
+  htmlFor?: DesignsystemetLabelProps['htmlFor'];
+  required?: boolean;
+  requiredIndicator?: JSX.Element;
   optionalIndicator?: ReactElement;
   help?: ReactElement;
   description?: ReactElement;
   className?: string;
   grid?: IGridStyling;
-  required?: boolean;
-  requiredIndicator?: JSX.Element;
-} & Pick<DesignsystemetLabelProps, 'htmlFor' | 'style'>;
+  style?: DesignsystemetLabelProps['style'];
+};
 
 export function Label({
   label,
+  htmlFor,
   required,
   requiredIndicator,
   optionalIndicator,
   help,
   description,
-  htmlFor,
-  style,
   className,
   grid,
+  style,
   children,
 }: PropsWithChildren<LabelProps>) {
   if (!label) {
@@ -39,7 +41,6 @@ export function Label({
 
   return (
     <Flex
-      id={htmlFor}
       container
       spacing={2}
     >
@@ -48,20 +49,20 @@ export function Label({
         size={grid ?? { xs: 12 }}
       >
         <span className={classes.labelAndDescWrapper}>
-          <DesignsystemetLabel
-            weight='medium'
-            size='md'
-            htmlFor={htmlFor}
-            className={cn(classes.label, className)}
-            style={style}
-          >
-            <div>
+          <span className={classes.labelAndHelpWrapper}>
+            <DesignsystemetLabel
+              weight='medium'
+              size='md'
+              htmlFor={htmlFor}
+              className={cn(className)}
+              style={style}
+            >
               {label}
               {required && requiredIndicator}
               {!required && optionalIndicator}
-            </div>
+            </DesignsystemetLabel>
             {help}
-          </DesignsystemetLabel>
+          </span>
           {description && <div className={classes.description}>{description}</div>}
         </span>
       </Flex>

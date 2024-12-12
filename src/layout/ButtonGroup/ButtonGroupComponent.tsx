@@ -2,33 +2,42 @@ import React from 'react';
 
 import type { PropsFromGenericComponent } from '..';
 
+import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { Flex } from 'src/components/Flex';
 import classes from 'src/layout/ButtonGroup/ButtonGroupComponent.module.css';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useNode } from 'src/utils/layout/NodesContext';
+import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
-export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'ButtonGroup'>) {
-  const childComponents = useNodeItem(node, (i) => i.childComponents);
+export function ButtonGroupComponent({ node, overrideDisplay }: PropsFromGenericComponent<'ButtonGroup'>) {
+  const { grid, childComponents } = useNodeItem(node);
+
+  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay });
+
   return (
-    <ComponentStructureWrapper
-      node={node}
-      label={{ node, renderLabelAs: 'legend' }}
+    <Fieldset
+      grid={grid?.labelGrid}
+      legend={labelText}
+      description={getDescriptionComponent()}
+      help={getHelpTextComponent()}
     >
-      <Flex
-        container
-        alignItems='center'
-        className={classes.container}
-      >
-        {childComponents.map((id) => (
-          <Child
-            key={id}
-            id={id}
-          />
-        ))}
-      </Flex>
-    </ComponentStructureWrapper>
+      <ComponentStructureWrapper node={node}>
+        <Flex
+          container
+          alignItems='center'
+          className={classes.container}
+        >
+          {childComponents.map((id) => (
+            <Child
+              key={id}
+              id={id}
+            />
+          ))}
+        </Flex>
+      </ComponentStructureWrapper>
+    </Fieldset>
   );
 }
 
