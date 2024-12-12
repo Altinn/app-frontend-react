@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { useState } from 'react';
-import type { PropsWithChildren } from 'react';
+import type { ErrorInfo, PropsWithChildren } from 'react';
 
 import { Close } from '@navikt/ds-icons';
 
@@ -111,6 +111,15 @@ class DevToolsErrorBoundary extends React.Component<PropsWithChildren, IErrorBou
 
   static getDerivedStateFromError(lastError: Error): IErrorBoundary {
     return { lastError };
+  }
+
+  componentDidCatch(_: Error, info: ErrorInfo) {
+    /**
+     * In development, react already logs the component trace, so no need to do it manually as well.
+     */
+    if (process.env.NODE_ENV !== 'development') {
+      console.error(`The above error occurred in the component:`, info.componentStack);
+    }
   }
 
   render(): React.ReactNode {
