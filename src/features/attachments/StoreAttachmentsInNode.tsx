@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { isAttachmentUploaded } from 'src/features/attachments/index';
+import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLaxInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
@@ -15,10 +17,13 @@ import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeFormData } from 'src/utils/layout/useNodeItem';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IAttachment } from 'src/features/attachments/index';
+import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
 import type { CompWithBehavior } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+
+type AttachmentRecord = Record<string, IAttachment>;
 
 export function StoreAttachmentsInNode() {
   return (
@@ -33,15 +38,27 @@ export function StoreAttachmentsInNode() {
 
 function StoreAttachmentsInNodeWorker() {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
+  const item = GeneratorInternal.useIntermediateItem();
   const attachments = useNodeAttachments();
 
   const hasBeenSet = NodesInternal.useNodeData(node, (data) => deepEqual(data.attachments, attachments));
   NodesStateQueue.useSetNodeProp({ node, prop: 'attachments', value: attachments }, !hasBeenSet);
 
-  return null;
+  const dataModelBindings = item?.dataModelBindings as IDataModelBindingsSimple | IDataModelBindingsList | undefined;
+  return dataModelBindings && 'list' in dataModelBindings && dataModelBindings.list ? (
+    <MaintainListDataModelBinding
+      bindings={dataModelBindings}
+      attachments={attachments}
+    />
+  ) : dataModelBindings && 'simpleBinding' in dataModelBindings && dataModelBindings.simpleBinding ? (
+    <MaintainSimpleDataModelBinding
+      bindings={dataModelBindings}
+      attachments={attachments}
+    />
+  ) : null;
 }
 
-function useNodeAttachments(): Record<string, IAttachment> {
+function useNodeAttachments(): AttachmentRecord {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
   const nodeData = useNodeFormData(node);
 
@@ -140,4 +157,59 @@ function mapAttachments(
   }
 
   return attachments;
+}
+
+interface MaintainBindingsProps {
+  attachments: AttachmentRecord;
+}
+
+interface MaintainListDataModelBindingProps extends MaintainBindingsProps {
+  bindings: IDataModelBindingsList;
+}
+
+interface MaintainSimpleDataModelBindingProps extends MaintainBindingsProps {
+  bindings: IDataModelBindingsSimple;
+}
+
+function MaintainListDataModelBinding({ bindings, attachments }: MaintainListDataModelBindingProps) {
+  const { formData, setValue } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
+
+  useEffect(() => {
+    const newList = Object.values(attachments)
+      .filter(isAttachmentUploaded)
+      .map((attachment) => attachment.data.id);
+
+    if (!deepEqual(formData.list, newList)) {
+      setValue('list', newList);
+    }
+  }, [attachments, formData.list, setValue]);
+
+  return null;
+}
+
+function MaintainSimpleDataModelBinding({ bindings, attachments }: MaintainSimpleDataModelBindingProps) {
+  const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
+  const { formData, setValue } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
+
+  useEffect(() => {
+    if (Object.keys(attachments).length > 1) {
+      window.logErrorOnce(
+        `Node ${node.id} has more than one attachment, but only one is supported with \`dataModelBindings.simpleBinding\``,
+      );
+      return;
+    }
+
+    const firstAttachment = Object.values(attachments)[0];
+    if (!firstAttachment && formData.simpleBinding) {
+      setValue('simpleBinding', undefined);
+    } else if (
+      firstAttachment &&
+      isAttachmentUploaded(firstAttachment) &&
+      formData.simpleBinding !== firstAttachment.data.id
+    ) {
+      setValue('simpleBinding', firstAttachment.data.id);
+    }
+  }, [attachments, formData.simpleBinding, node.id, setValue]);
+
+  return null;
 }

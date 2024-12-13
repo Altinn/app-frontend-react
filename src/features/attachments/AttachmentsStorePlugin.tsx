@@ -289,9 +289,8 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         const { mutateAsync: uploadAttachment } = useAttachmentsUploadMutation();
 
         const applicationMetadata = useApplicationMetadata();
-        const supportsNewAttatchmentAPI = appSupportsNewAttatchmentAPI(applicationMetadata);
+        const supportsNewAttachmentAPI = appSupportsNewAttachmentAPI(applicationMetadata);
 
-        const setAttachmentsInDataModel = useSetAttachmentInDataModel();
         const { lock, unlock } = FD.useLocking('__attachment__upload__');
 
         return useCallback(
@@ -302,7 +301,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             };
             upload(fullAction);
 
-            if (supportsNewAttatchmentAPI) {
+            if (supportsNewAttachmentAPI) {
               await lock();
               const results: AttachmentUploadResult[] = [];
 
@@ -330,10 +329,6 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                     results.push({ temporaryId, error });
                   });
               }
-              setAttachmentsInDataModel(
-                results.filter(isAttachmentUploadSuccess).map(({ newDataElementId }) => newDataElementId),
-                action.dataModelBindings,
-              );
               uploadFinished(fullAction, results);
               unlock(updatedData);
             } else {
@@ -350,10 +345,6 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                       .catch((error) => ({ temporaryId, error })),
                   ),
                 );
-              setAttachmentsInDataModel(
-                results.filter(isAttachmentUploadSuccess).map(({ newDataElementId }) => newDataElementId),
-                action.dataModelBindings,
-              );
               uploadFinished(fullAction, results);
               appendDataElements?.(
                 results.filter(isAttachmentUploadSuccess).map(({ newInstanceData }) => newInstanceData),
@@ -362,9 +353,8 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
           },
           [
             upload,
-            supportsNewAttatchmentAPI,
+            supportsNewAttachmentAPI,
             lock,
-            setAttachmentsInDataModel,
             uploadFinished,
             unlock,
             uploadAttachment,
@@ -421,25 +411,12 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         const remove = store.useSelector((state) => state.attachmentRemove);
         const fulfill = store.useSelector((state) => state.attachmentRemoveFulfilled);
         const reject = store.useSelector((state) => state.attachmentRemoveRejected);
-        const setLeafValue = FD.useSetLeafValue();
-        const removeValueFromList = FD.useRemoveValueFromList();
 
         return useCallback(
           async (action: AttachmentActionRemove) => {
             remove(action);
             try {
               await removeAttachment(action.attachment.data.id);
-              if (action.dataModelBindings && 'list' in action.dataModelBindings) {
-                removeValueFromList({
-                  reference: action.dataModelBindings.list,
-                  value: action.attachment.data.id,
-                });
-              } else if (action.dataModelBindings && 'simpleBinding' in action.dataModelBindings) {
-                setLeafValue({
-                  reference: action.dataModelBindings.simpleBinding,
-                  newValue: undefined,
-                });
-              }
 
               fulfill(action);
               removeDataElement?.(action.attachment.data.id);
@@ -451,7 +428,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               return false;
             }
           },
-          [removeDataElement, fulfill, lang, reject, remove, removeAttachment, removeValueFromList, setLeafValue],
+          [removeDataElement, fulfill, lang, reject, remove, removeAttachment],
         );
       },
       useAttachments(node) {
@@ -586,35 +563,6 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
   }
 }
 
-function useSetAttachmentInDataModel() {
-  const setLeafValue = FD.useSetLeafValue();
-  const appendToListUnique = FD.useAppendToListUnique();
-  const debounce = FD.useDebounceImmediately();
-
-  return useCallback(
-    (attachmentIds: string[], dataModelBindings: IDataModelBindingsSimple | IDataModelBindingsList | undefined) => {
-      if (dataModelBindings && 'list' in dataModelBindings) {
-        for (const attachmentId of attachmentIds) {
-          appendToListUnique({
-            reference: dataModelBindings.list,
-            newValue: attachmentId,
-          });
-        }
-        debounce();
-      } else if (dataModelBindings && 'simpleBinding' in dataModelBindings) {
-        for (const attachmentId of attachmentIds) {
-          setLeafValue({
-            reference: dataModelBindings.simpleBinding,
-            newValue: attachmentId,
-          });
-        }
-        debounce();
-      }
-    },
-    [appendToListUnique, debounce, setLeafValue],
-  );
-}
-
 interface AttachmentUploadVariables {
   dataTypeId: string;
   file: File;
@@ -728,6 +676,6 @@ function useAttachmentsRemoveMutation() {
   });
 }
 
-export function appSupportsNewAttatchmentAPI({ altinnNugetVersion }: ApplicationMetadata) {
+export function appSupportsNewAttachmentAPI({ altinnNugetVersion }: ApplicationMetadata) {
   return !altinnNugetVersion || isAtLeastVersion({ actualVersion: altinnNugetVersion, minimumVersion: '8.5.0.153' });
 }
