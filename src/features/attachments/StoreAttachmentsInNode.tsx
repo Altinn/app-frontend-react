@@ -4,6 +4,7 @@ import deepEqual from 'fast-deep-equal';
 
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { isAttachmentUploaded } from 'src/features/attachments/index';
 import { useLaxInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
@@ -76,7 +77,7 @@ function useNodeAttachments(): Record<string, IAttachment> {
 
     // Find any not-yet uploaded attachments and add them back to the result
     for (const [id, attachment] of Object.entries(prev ?? {})) {
-      if (!result[id]) {
+      if (!result[id] && !isAttachmentUploaded(attachment)) {
         result[id] = attachment;
       }
     }
