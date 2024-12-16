@@ -7,7 +7,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export class SigneeList extends SigneeListDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'SigneeList'>>(
-    function LayoutComponentRadioButtonsRender(props, _): JSX.Element | null {
+    function SigneeListComponentRender(props, _): JSX.Element | null {
       return <SigneeListComponent {...props} />;
     },
   );
