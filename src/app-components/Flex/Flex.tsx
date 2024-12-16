@@ -50,7 +50,6 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
       ? {
           display: 'flex',
           flexDirection: direction,
-          //border: 'solid 1px red',
           flexWrap,
           justifyContent,
           alignItems,
