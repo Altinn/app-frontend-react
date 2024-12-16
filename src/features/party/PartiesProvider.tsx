@@ -13,7 +13,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { reduceToValidParties } from 'src/features/party/partyProviderUtils';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
-import { type IParty } from 'src/types/shared';
+import type { IParty, Role } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
@@ -50,6 +50,25 @@ export function useCurrentPartyQueryDef(enabled: boolean) {
     enabled,
   };
 }
+
+export function useCurrentPartyRolesQueryDef(enabled: boolean) {
+  const { fetchRoles } = useAppQueries();
+  return {
+    queryKey: ['fetchCurrentPartyRoles', enabled],
+    queryFn: fetchRoles,
+    enabled,
+  };
+}
+
+const useCurrentPartyRoles = (enabled: boolean) => {
+  const utils = useQuery(useCurrentPartyRolesQueryDef(enabled));
+
+  useEffect(() => {
+    utils.error && window.logError('Fetching current roles for party failed:\n', utils.error);
+  }, [utils.error]);
+
+  return utils;
+};
 
 const useCurrentPartyQuery = (enabled: boolean) => {
   const utils = useQuery(useCurrentPartyQueryDef(enabled));
@@ -88,6 +107,7 @@ interface CurrentParty {
   userHasSelectedParty: boolean | undefined;
   setUserHasSelectedParty: (hasSelected: boolean) => void;
   setParty: (party: IParty) => Promise<IParty | undefined>;
+  currentPartyRoles: Role[] | undefined;
 }
 
 const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = createContext<CurrentParty>({
@@ -98,6 +118,7 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
     validParties: undefined,
     currentIsValid: undefined,
     userHasSelectedParty: undefined,
+    currentPartyRoles: undefined,
     setUserHasSelectedParty: () => {
       throw new Error('CurrentPartyProvider not initialized');
     },
@@ -114,6 +135,10 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
   const { mutateAsync, data: dataFromMutation, error: errorFromMutation } = useSetCurrentPartyMutation();
   const { data: partyFromQuery, isLoading, error: errorFromQuery } = useCurrentPartyQuery(true);
   const [userHasSelectedParty, setUserHasSelectedParty] = useState(false);
+
+  const { data: roles } = useCurrentPartyRoles(true);
+
+  console.log(JSON.stringify(roles, null, 2));
 
   if (isLoading) {
     return <Loader reason='current-party' />;
@@ -135,6 +160,7 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
   return (
     <RealCurrentPartyProvider
       value={{
+        currentPartyRoles: roles,
         party: currentParty,
         validParties,
         currentIsValid,
@@ -189,3 +215,4 @@ export const useValidParties = () => useCurrentPartyCtx().validParties;
 export const useHasSelectedParty = () => useCurrentPartyCtx().userHasSelectedParty;
 
 export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelectedParty;
+export const useCurrentRoles = () => useCurrentPartyCtx().currentPartyRoles;

@@ -31,5 +31,6 @@ export function getExpressionDataSourcesMock(): ExpressionDataSources {
       throw new Error('Not implemented: transposeSelector()');
     },
     externalApis: { data: {}, errors: {} },
+    roles: undefined,
   };
 }

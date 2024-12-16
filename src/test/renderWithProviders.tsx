@@ -21,6 +21,7 @@ import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { paymentResponsePayload } from 'src/__mocks__/getPaymentPayloadMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
+import { rolesMock } from 'src/__mocks__/getRolesMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
@@ -165,6 +166,7 @@ const defaultQueryMocks: AppQueries = {
   fetchBackendValidationsForDataElement: async () => [],
   fetchPaymentInformation: async () => paymentResponsePayload,
   fetchOrderDetails: async () => orderDetailsResponsePayload,
+  fetchRoles: async () => rolesMock,
 };
 
 function makeProxy<Name extends keyof FormDataMethods>(name: Name, ref: InitialRenderRef) {

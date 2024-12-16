@@ -1,0 +1,12 @@
+{
+  "name": "Should return true with valid role",
+  "expression": ["roles", "bobes"],
+  "expects": true,
+  "roles": [
+    {
+      "type": "altinn",
+      "value": "bobes"
+    }
+  ]
+}
+

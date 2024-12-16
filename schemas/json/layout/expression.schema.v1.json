@@ -111,7 +111,8 @@
         { "$ref": "#/definitions/func-notContains" },
         { "$ref": "#/definitions/func-endsWith" },
         { "$ref": "#/definitions/func-startsWith" },
-        { "$ref": "#/definitions/func-commaContains" }
+        { "$ref": "#/definitions/func-commaContains" },
+        { "$ref": "#/definitions/func-roles" }
       ]
     },
     "number": {
@@ -183,6 +184,17 @@
       "title": "External API lookup function",
       "description": "This function will look up a value from an external API defined in the app metadata. It uses JSON dot notation for referencing the API response structure.",
       "type": "array",
+      "items": [
+        { "const":  "externalApi" },
+        { "$ref": "#/definitions/string" },
+        { "$ref": "#/definitions/string" }
+      ],
+      "additionalItems": false
+    },
+    "func-roles": {
+      "title": "Roles lookup function",
+      "description": "This function will look up a role that the user has for their current party",
+      "type": "string",
       "items": [
         { "const":  "externalApi" },
         { "$ref": "#/definitions/string" },

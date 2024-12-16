@@ -1,0 +1,11 @@
+{
+  "name": "Should return false with invalid role",
+  "expression": ["roles", "bobel"],
+  "expects": false,
+  "roles": [
+    {
+      "type": "altinn",
+      "value": "bobes"
+    }
+  ]
+}

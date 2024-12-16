@@ -8,6 +8,7 @@ import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
+import { useCurrentRoles } from 'src/features/party/PartiesProvider';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowObjectMemo } from 'src/hooks/useShallowObjectMemo';
 import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
@@ -20,7 +21,7 @@ import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
 import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { ILayoutSet } from 'src/layout/common.generated';
-import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/types/shared';
+import type { IApplicationSettings, IInstanceDataSources, IProcess, Role } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
@@ -45,6 +46,7 @@ export interface ExpressionDataSources {
   nodeTraversal: NodeTraversalSelector;
   transposeSelector: DataModelTransposeSelector;
   externalApis: ExternalApisResult;
+  roles: Role[] | undefined;
 }
 
 export function useExpressionDataSources(): ExpressionDataSources {
@@ -84,7 +86,10 @@ export function useExpressionDataSources(): ExpressionDataSources {
     nodeDataSelector,
   );
 
+  const roles = useCurrentRoles();
+
   return useShallowObjectMemo({
+    roles,
     formDataSelector,
     formDataRowsSelector,
     attachmentsSelector,
