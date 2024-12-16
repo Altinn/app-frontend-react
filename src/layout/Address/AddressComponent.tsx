@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 
 import { HelpText } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
 import { Input } from 'src/app-components/Input/Input';
 import { Label } from 'src/app-components/Label/Label';
@@ -160,10 +159,10 @@ export function AddressComponent({ node }: IAddressProps) {
               />
             }
           >
-            <Grid
+            <Flex
               item
               id={`form-content-${id}-zip-code`}
-              xs={12}
+              size={{ xs: 12 }}
             >
               <Input
                 id={`address_zip_code_${id}`}
@@ -178,7 +177,7 @@ export function AddressComponent({ node }: IAddressProps) {
                 autoComplete='postal-code'
               />
               <ComponentValidations validations={bindingValidations?.zipCode} />
-            </Grid>
+            </Flex>
           </Label>
         </Flex>
         <Flex
@@ -198,10 +197,10 @@ export function AddressComponent({ node }: IAddressProps) {
               />
             }
           >
-            <Grid
+            <Flex
               item
               id={`form-content-${id}-post-place`}
-              xs={12}
+              size={{ xs: 12 }}
             >
               <Input
                 id={`address_post_place_${id}`}
@@ -211,7 +210,7 @@ export function AddressComponent({ node }: IAddressProps) {
                 required={required}
                 autoComplete='address-level1'
               />
-            </Grid>
+            </Flex>
           </Label>
         </Flex>
       </Flex>
@@ -239,10 +238,10 @@ export function AddressComponent({ node }: IAddressProps) {
               </HelpText>
             }
           >
-            <Grid
+            <Flex
               item
               id={`form-content-${id}-house-number`}
-              xs={12}
+              size={{ xs: 12 }}
             >
               <div className={classes.addressComponentSmallInputs}>
                 <Input
@@ -256,7 +255,7 @@ export function AddressComponent({ node }: IAddressProps) {
                   autoComplete='address-line3'
                 />
               </div>
-            </Grid>
+            </Flex>
           </Label>
           <ComponentValidations validations={bindingValidations?.houseNumber} />
         </div>

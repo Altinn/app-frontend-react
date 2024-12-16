@@ -49,7 +49,6 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
     const styles: CSSProperties | undefined = container
       ? {
           display: 'flex',
-          boxSizing: 'border-box',
           flexDirection: direction,
           //border: 'solid 1px red',
           flexWrap,
@@ -59,7 +58,6 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
         }
       : {
           display: 'block',
-          boxSizing: 'border-box',
           ...style,
         };
 

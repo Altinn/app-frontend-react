@@ -28,9 +28,9 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   const grid = overrideItemProps?.grid ?? _grid;
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;
   const showValidationMessages = layoutComponent.renderDefaultValidations();
+
   const componentWithValidations = (
     <Flex
-      container
       id={`form-content-${node.id}`}
       size={grid?.innerGrid}
       style={style}

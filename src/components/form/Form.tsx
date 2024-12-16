@@ -126,6 +126,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
       <Flex
         container
         spacing={6}
+        alignItems='flex-start'
       >
         {mainIds.map((id) => (
           <GenericComponentById
@@ -134,7 +135,9 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
           />
         ))}
         {(!!errorReportIds.length || !!formErrors.length || !!taskErrors.length) && (
-          <div
+          <Flex
+            item={true}
+            size={{ xs: 12 }}
             aria-live='polite'
             className={classes.errorReport}
           >
@@ -143,7 +146,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
               formErrors={formErrors}
               taskErrors={taskErrors}
             />
-          </div>
+          </Flex>
         )}
       </Flex>
       <ReadyForPrint type='load' />
