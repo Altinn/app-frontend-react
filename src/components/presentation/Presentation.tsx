@@ -39,7 +39,7 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
   const isProgressEnabled = type !== ProcessTaskType.Archived && showProgress;
   const showProgressBar = isProgressEnabled && showProgress;
 
-  const realHeader = header || (type === ProcessTaskType.Archived ? <Lang id={'receipt.receipt'} /> : undefined);
+  const realHeader = header || (type === ProcessTaskType.Archived ? <Lang id='receipt.receipt' /> : undefined);
 
   const isProcessStepsArchived = Boolean(type === ProcessTaskType.Archived);
   const backgroundColor = isProcessStepsArchived
