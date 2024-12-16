@@ -162,7 +162,7 @@
     "marked": "15.0.3",
     "marked-mangle": "1.1.10",
     "node-polyfill-webpack-plugin": "4.1.0",
-    "react": "18.3.1",
+    "react": "19.0.0",
     "react-content-loader": "7.0.2",
     "react-day-picker": "9.4.3",
     "react-device-detect": "2.2.3",
