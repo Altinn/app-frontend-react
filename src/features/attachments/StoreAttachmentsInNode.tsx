@@ -44,6 +44,8 @@ function StoreAttachmentsInNodeWorker() {
   const hasBeenSet = NodesInternal.useNodeData(node, (data) => deepEqual(data.attachments, attachments));
   NodesStateQueue.useSetNodeProp({ node, prop: 'attachments', value: attachments }, !hasBeenSet);
 
+  // When the backend deletes an attachment, we might need to update the data model and remove the attachment ID from
+  // there (if the backend didn't do so already). This is done by these `Maintain*DataModelBinding` components.
   const dataModelBindings = item?.dataModelBindings as IDataModelBindingsSimple | IDataModelBindingsList | undefined;
   return dataModelBindings && 'list' in dataModelBindings && dataModelBindings.list ? (
     <MaintainListDataModelBinding
@@ -171,6 +173,9 @@ interface MaintainSimpleDataModelBindingProps extends MaintainBindingsProps {
   bindings: IDataModelBindingsSimple;
 }
 
+/**
+ * @see useSetAttachmentInDataModel
+ */
 function MaintainListDataModelBinding({ bindings, attachments }: MaintainListDataModelBindingProps) {
   const { formData, setValue } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
 
@@ -187,6 +192,9 @@ function MaintainListDataModelBinding({ bindings, attachments }: MaintainListDat
   return null;
 }
 
+/**
+ * @see useSetAttachmentInDataModel
+ */
 function MaintainSimpleDataModelBinding({ bindings, attachments }: MaintainSimpleDataModelBindingProps) {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
   const { formData, setValue } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');

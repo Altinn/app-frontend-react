@@ -586,6 +586,16 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
   }
 }
 
+/**
+ * When an attachment is uploaded, it may be added to the data model via a list or a simpleBinding. In repeating groups,
+ * this is required to ensure we know which row the attachment belongs to.
+ *
+ * If the attachment is deleted from the instance data outside of these functions (i.e. by a backend hook), these
+ * components will make sure to remove the attachment ID from the data model:
+ *
+ * @see MaintainListDataModelBinding
+ * @see MaintainSimpleDataModelBinding
+ */
 function useSetAttachmentInDataModel() {
   const setLeafValue = FD.useSetLeafValue();
   const appendToListUnique = FD.useAppendToListUnique();
