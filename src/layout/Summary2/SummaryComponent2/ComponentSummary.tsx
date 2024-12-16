@@ -45,9 +45,7 @@ export function ComponentSummary({ componentNode }: ComponentSummaryProps) {
 
   const isHidden = Hidden.useIsHidden(componentNode);
 
-  const noUserInput = Object.values(formData).every(
-    (value) => value && (Array.isArray(value) || typeof value === 'string') && value.length < 1, // FIXME: improve TS to understand what type value is
-  );
+  const noUserInput = Object.values(formData).every((value) => value?.length < 1);
 
   const renderedComponent = componentNode.def.renderSummary2
     ? componentNode.def.renderSummary2({
@@ -75,7 +73,6 @@ export function ComponentSummary({ componentNode }: ComponentSummaryProps) {
 
   return (
     <Flex
-      // item={true} // TODO: what are the consequences of removing this?
       className={cn(pageBreakStyles(componentNodeItem?.pageBreak), classes.summaryItem)}
       size={componentNodeItem.grid}
     >
