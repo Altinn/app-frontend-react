@@ -138,8 +138,6 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
 
   const { data: roles } = useCurrentPartyRoles(true);
 
-  console.log(JSON.stringify(roles, null, 2));
-
   if (isLoading) {
     return <Loader reason='current-party' />;
   }

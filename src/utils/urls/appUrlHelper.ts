@@ -175,7 +175,6 @@ export const getLayoutsUrl = (layoutSetId: string) => `${appPath}/api/layouts/${
 export const getRulehandlerUrl = (layoutSet: string) => `${appPath}/api/rulehandler/${layoutSet}`;
 export const getActiveInstancesUrl = (partyId: number) => `${appPath}/instances/${partyId}/active`;
 export const getInstanceUiUrl = (instanceId: string) => `${appPath}#/instance/${instanceId}`;
-// http://local.altinn.cloud/brg/konkursbehandling/api/authorization/roles
 export const getRolesUrl = () => `${appPath}/api/authorization/roles`;
 
 export const appFrontendCDNPath = 'https://altinncdn.no/toolkits/altinn-app-frontend';
