@@ -1,4 +1,4 @@
-// TODO: Re-create this with zustand/hooks
+// TODO: Re-create this with zustand/hooks.
 // export function* previewPdfSaga(): SagaIterator {
 //   yield put(DevToolsActions.setPdfPreview({ preview: true }));
 //   const el = yield call(waitForSelector, '#pdfView #readyForPrint', 5000);
