@@ -6,7 +6,7 @@ import { LegacyCheckbox } from '@digdir/design-system-react';
 import { makeStyles, Typography } from '@material-ui/core';
 import { PlusIcon } from '@navikt/aksel-icons';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { Input } from 'src/app-components/Input/Input';
 import { AltinnParty } from 'src/components/altinnParty';
 import { Flex } from 'src/components/Flex';

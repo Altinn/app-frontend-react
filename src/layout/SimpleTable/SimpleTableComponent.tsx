@@ -5,7 +5,7 @@ import { Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
 import { pick } from 'dot-object';
 
 import { FieldRenderer } from 'src/app-components/DynamicForm/DynamicForm';
-import { AppTable } from 'src/app-components/table/Table';
+import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -19,7 +19,7 @@ import { DropdownCaption } from 'src/layout/Datepicker/DropdownCaption';
 import { isFormDataObjectArray, isValidItemsSchema } from 'src/layout/SimpleTable/typeguards';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { FormDataObject } from 'src/app-components/DynamicForm/DynamicForm';
-import type { TableActionButton } from 'src/app-components/table/Table';
+import type { TableActionButton } from 'src/app-components/Table/Table';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsForTable } from 'src/layout/SimpleTable/config.generated';
 

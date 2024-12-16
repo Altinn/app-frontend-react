@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from '@digdir/designsystemet-react';
 import { pick } from 'dot-object';
 
-import { AppTable } from 'src/app-components/table/Table';
+import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { Lang } from 'src/features/language/Lang';

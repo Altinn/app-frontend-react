@@ -5,7 +5,7 @@ import { Table } from '@digdir/designsystemet-react';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { Flex } from 'src/components/Flex';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';

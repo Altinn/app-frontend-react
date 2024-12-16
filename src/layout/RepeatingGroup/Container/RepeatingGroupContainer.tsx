@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 
 import { Add as AddIcon } from '@navikt/ds-icons';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { Flex } from 'src/components/Flex';

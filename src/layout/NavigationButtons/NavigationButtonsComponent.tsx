@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/components/Flex';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useReturnToView, useSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';

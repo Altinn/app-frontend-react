@@ -4,7 +4,7 @@ import type { JSX } from 'react';
 import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/components/Flex';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';

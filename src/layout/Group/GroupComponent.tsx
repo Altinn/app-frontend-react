@@ -5,7 +5,7 @@ import { Heading } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Fieldset } from 'src/app-components/Label/Fieldset';
-import { Panel } from 'src/app-components/panel/Panel';
+import { Panel } from 'src/app-components/Panel/Panel';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';

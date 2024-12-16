@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { ErrorMessage } from '@digdir/designsystemet-react';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { Input } from 'src/app-components/Input/Input';
 import { NumericInput } from 'src/app-components/Input/NumericInput';
 import { Fieldset } from 'src/app-components/Label/Fieldset';
