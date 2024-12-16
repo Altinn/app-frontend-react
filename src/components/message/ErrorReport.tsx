@@ -1,8 +1,8 @@
 import React from 'react';
 
+import { Flex } from 'src/app-components/Flex/Flex';
 import { PANEL_VARIANT } from 'src/app-components/Panel/constants';
 import { Panel } from 'src/app-components/Panel/Panel';
-import { Flex } from 'src/components/Flex';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';

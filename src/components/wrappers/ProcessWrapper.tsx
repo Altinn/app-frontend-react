@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Route, Routes } from 'react-router-dom';
 
 import { Button } from 'src/app-components/Button/Button';
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';

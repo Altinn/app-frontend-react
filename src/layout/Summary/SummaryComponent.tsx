@@ -2,7 +2,7 @@ import React from 'react';
 
 import cn from 'classnames';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Accordion, Label } from '@digdir/designsystemet-react';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Summary2/CommonSummaryComponents/LayoutSetSummaryAccordion.module.css';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';

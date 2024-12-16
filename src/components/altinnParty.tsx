@@ -4,8 +4,8 @@ import { makeStyles, Paper, Typography } from '@material-ui/core';
 import { Buildings3Icon, ChevronRightCircleFillIcon, PersonIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
+import { Flex } from 'src/app-components/Flex/Flex';
 import { AltinnCollapsableList } from 'src/components/AltinnCollapsableList';
-import { Flex } from 'src/components/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { PartyType } from 'src/types/shared';
@@ -154,7 +154,7 @@ export function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnParty
             <Typography>
               {party.childParties.length}
               &nbsp;
-              <Lang id={'party_selection.unit_type_subunit_plural'} />
+              <Lang id='party_selection.unit_type_subunit_plural' />
             </Typography>
           </Flex>
         }

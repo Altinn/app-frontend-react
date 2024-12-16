@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { Tabs as DesignsystemetTabs } from '@digdir/designsystemet-react';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';

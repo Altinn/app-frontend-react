@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 
 import { HelpText } from '@digdir/designsystemet-react';
 
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Input } from 'src/app-components/Input/Input';
 import { Label } from 'src/app-components/Label/Label';
-import { Flex } from 'src/components/Flex';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { FD } from 'src/features/formData/FormDataWrite';

@@ -4,8 +4,8 @@ import { Combobox } from '@digdir/designsystemet-react';
 import deepEqual from 'fast-deep-equal';
 
 import { Button } from 'src/app-components/Button/Button';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { AltinnLoader } from 'src/components/AltinnLoader';
-import { Flex } from 'src/components/Flex';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { useAttachmentsUpdater } from 'src/features/attachments/hooks';
 import { Lang } from 'src/features/language/Lang';

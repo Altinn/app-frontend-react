@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import classes from 'src/layout/Tabs/TabsSummary.module.css';

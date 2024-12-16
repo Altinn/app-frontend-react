@@ -10,7 +10,7 @@ import { DatePickerCalendar } from 'src/app-components/Datepicker/DatePickerCale
 import { DatePickerDialog } from 'src/app-components/Datepicker/DatepickerDialog';
 import { DatePickerInput } from 'src/app-components/Datepicker/DatePickerInput';
 import { getSaveFormattedDateString } from 'src/app-components/Datepicker/utils/dateHelpers';
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 
 export type DatePickerControlProps = {
   id: string;

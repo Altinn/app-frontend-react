@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { getLabelId, Label } from 'src/components/label/Label';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { Date } from 'src/layout/Date/Date';

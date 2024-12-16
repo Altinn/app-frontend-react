@@ -2,7 +2,7 @@ import React, { type PropsWithChildren } from 'react';
 
 import { Heading, Paragraph } from '@digdir/designsystemet-react';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Label } from 'src/components/label/Label';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { FormProvider } from 'src/features/form/FormContext';

@@ -3,7 +3,7 @@ import type { CSSProperties, PropsWithChildren } from 'react';
 
 import cn from 'classnames';
 
-import classes from 'src/components/Flex.module.css';
+import classes from 'src/app-components/Flex/Flex.module.css';
 import type { IGridStyling } from 'src/layout/common.generated';
 
 type Spacing = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;

@@ -3,7 +3,7 @@ import React from 'react';
 import { Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import classNames from 'classnames';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Caption } from 'src/components/form/caption/Caption';
 import { Label } from 'src/components/label/Label';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';

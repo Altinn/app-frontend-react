@@ -7,9 +7,9 @@ import { makeStyles, Typography } from '@material-ui/core';
 import { PlusIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/Button/Button';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Input } from 'src/app-components/Input/Input';
 import { AltinnParty } from 'src/components/altinnParty';
-import { Flex } from 'src/components/Flex';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';

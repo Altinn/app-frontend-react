@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Button } from 'src/app-components/Button/Button';
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useReturnToView, useSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { useIsSaving } from 'src/features/formData/FormDataWrite';

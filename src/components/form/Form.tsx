@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';

@@ -2,7 +2,7 @@ import React from 'react';
 
 import cn from 'classnames';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
 import { useSummary2Store } from 'src/layout/Summary2/summaryStoreContext';

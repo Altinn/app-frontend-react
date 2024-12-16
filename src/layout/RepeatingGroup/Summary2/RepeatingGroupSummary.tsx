@@ -4,7 +4,7 @@ import { ErrorMessage, Heading } from '@digdir/designsystemet-react';
 import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';

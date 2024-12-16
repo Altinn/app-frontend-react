@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import classNames from 'classnames';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { useIsDev } from 'src/hooks/useIsDev';

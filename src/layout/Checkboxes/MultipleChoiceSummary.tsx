@@ -2,7 +2,7 @@ import React from 'react';
 
 import { List, ListItem, ListItemText, makeStyles, Typography } from '@material-ui/core';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import type { DisplayDataProps } from 'src/features/displayData';
@@ -43,7 +43,7 @@ export function MultipleChoiceSummary({ getFormData }: IMultipleChoiceSummaryPro
   return (
     <Flex
       size={{ xs: 12 }}
-      data-testid={'multiple-choice-summary'}
+      data-testid='multiple-choice-summary'
     >
       {Object.keys(formData).length === 0 ? (
         <Typography

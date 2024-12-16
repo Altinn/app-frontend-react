@@ -6,7 +6,7 @@ import cn from 'classnames';
 import dot from 'dot-object';
 
 import { Button } from 'src/app-components/Button/Button';
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Caption } from 'src/components/form/caption/Caption';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';

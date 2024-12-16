@@ -3,7 +3,7 @@ import React from 'react';
 import { Accordion as DesignSystemAccordion } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Accordion/Accordion.module.css';
 import { AccordionItem as AltinnAcordionItem } from 'src/layout/Accordion/AccordionItem';

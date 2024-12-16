@@ -5,7 +5,7 @@ import { Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import type { LabelProps as DesignsystemetLabelProps } from '@digdir/designsystemet-react';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/label/Label.module.css';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { useFormComponentCtx } from 'src/layout/FormComponentContext';

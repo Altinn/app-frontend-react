@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 
 import { Card } from '@digdir/designsystemet-react';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';

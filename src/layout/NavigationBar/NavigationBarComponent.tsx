@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core';
 import { CaretDownFillIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';

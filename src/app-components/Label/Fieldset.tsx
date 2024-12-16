@@ -5,8 +5,8 @@ import { Fieldset as DesignsystemetFieldset, Label as DesignsystemetLabel } from
 import cn from 'classnames';
 import type { LabelProps as DesignsystemetLabelProps } from '@digdir/designsystemet-react';
 
+import { Flex } from 'src/app-components/Flex/Flex';
 import labelClasses from 'src/app-components/Label/Label.module.css';
-import { Flex } from 'src/components/Flex';
 import type { IGridStyling } from 'src/layout/common.generated';
 
 export type FieldsetProps = {

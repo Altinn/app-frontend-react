@@ -4,9 +4,9 @@ import type { JSX } from 'react';
 import { Add as AddIcon } from '@navikt/ds-icons';
 
 import { Button } from 'src/app-components/Button/Button';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { Flex } from 'src/components/Flex';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { AllComponentValidations } from 'src/features/validation/ComponentValidations';

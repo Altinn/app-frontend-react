@@ -2,7 +2,7 @@ import React from 'react';
 
 import cn from 'classnames';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { getLabelId, Label } from 'src/components/label/Label';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { Text } from 'src/layout/Text/Text';

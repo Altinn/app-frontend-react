@@ -5,8 +5,8 @@ import { Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import type { LabelProps as DesignsystemetLabelProps } from '@digdir/designsystemet-react';
 
+import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/app-components/Label/Label.module.css';
-import { Flex } from 'src/components/Flex';
 import type { IGridStyling } from 'src/layout/common.generated';
 
 type LabelProps = {

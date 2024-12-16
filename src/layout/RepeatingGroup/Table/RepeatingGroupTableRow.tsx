@@ -6,8 +6,8 @@ import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } fro
 import cn from 'classnames';
 
 import { Button } from 'src/app-components/Button/Button';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { Flex } from 'src/components/Flex';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';

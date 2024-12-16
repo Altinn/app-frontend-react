@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Collapse } from '@material-ui/core';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 
 export interface IAltinnCollapsableListProps {
   /** Boolean value for if the animation will transition */

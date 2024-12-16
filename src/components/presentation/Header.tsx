@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/presentation/Header.module.css';
 import { useAppName, useAppOwner, useHasAppTextsYet } from 'src/core/texts/appTexts';
 import { useDisplayAppOwnerNameInHeader } from 'src/hooks/useAppLogo';

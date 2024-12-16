@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Typography } from '@material-ui/core';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { AltinnInformationPaper } from 'src/components/molecules/AltinnInformationPaper';
 
 export interface IInformationPaperProps {

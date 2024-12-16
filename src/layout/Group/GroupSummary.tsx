@@ -4,7 +4,7 @@ import { Heading } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import type { HeadingProps } from '@digdir/designsystemet-react';
 
-import { Flex } from 'src/components/Flex';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupSummary.module.css';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
