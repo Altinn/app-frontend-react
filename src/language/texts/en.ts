@@ -449,5 +449,12 @@ export function en() {
       error: 'Could not show PDF preview',
       defaultButtonText: 'Preview PDF',
     },
+    taskTypes: {
+      data: 'Fill out',
+      signing: 'Signing',
+      confirmation: 'Confirmation',
+      payment: 'Payment',
+      receipt: 'Receipt',
+    },
   } satisfies NestedTexts;
 }

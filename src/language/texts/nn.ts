@@ -450,5 +450,12 @@ export function nn(): FixedLanguageList {
       error: 'Kunne ikkje førehandsvise PDF',
       defaultButtonText: 'Førehandsvis PDF',
     },
+    taskTypes: {
+      data: 'Utfylling',
+      signing: 'Signering',
+      confirmation: 'Bekreftelse',
+      payment: 'Betaling',
+      receipt: 'Kvittering',
+    },
   } satisfies NestedTexts;
 }

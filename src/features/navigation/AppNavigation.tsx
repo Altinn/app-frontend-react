@@ -1,42 +1,85 @@
 import React, { useEffect, useState } from 'react';
 
 import { Button, Heading } from '@digdir/designsystemet-react';
-import { CheckmarkIcon, ChevronDownIcon, ExclamationmarkIcon, FolderIcon, XMarkIcon } from '@navikt/aksel-icons';
+import {
+  CardIcon,
+  CheckmarkIcon,
+  ChevronDownIcon,
+  ExclamationmarkIcon,
+  FolderIcon,
+  PencilLineIcon,
+  ReceiptIcon,
+  SealCheckmarkIcon,
+  TasklistIcon,
+  XMarkIcon,
+} from '@navikt/aksel-icons';
 import cn from 'classnames';
 
-import type { Group } from '.';
-
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { usePageGroups } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/AppNavigation.module.css';
-import {
-  CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR,
-  useValidationsForPages,
-  useVisiblePages,
-} from 'src/features/navigation/utils';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { getTaskName, useValidationsForPages, useVisiblePages } from 'src/features/navigation/utils';
+import { useIsReceiptPage, useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
+import type { NavigationPageGroup, NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
 
 export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
-  const groups = usePageGroups();
+  const getKey = useGetUniqueKeyFromObject();
 
-  if (!groups) {
-    throw CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR;
+  const pageGroups = usePageGroups();
+  const taskGroups = usePageSettings().taskNavigation;
+
+  const currentTaskId = useProcessTaskId();
+  const isReceipt = useIsReceiptPage();
+  const isSubform = useIsSubformPage();
+
+  if (!isSubform && taskGroups.length) {
+    return (
+      <ul className={classes.groupList}>
+        {taskGroups.map((taskGroup) => {
+          if ('taskId' in taskGroup && taskGroup.taskId === currentTaskId && pageGroups) {
+            return pageGroups.map((group) => (
+              <PageGroup
+                key={getKey(group)}
+                group={group}
+                onNavigate={onNavigate}
+              />
+            ));
+          }
+
+          const receiptActive = isReceipt && taskGroup.type === 'receipt';
+          const taskActive = 'taskId' in taskGroup && taskGroup.taskId === currentTaskId;
+          return (
+            <TaskGroup
+              key={getKey(taskGroup)}
+              group={taskGroup}
+              active={receiptActive || taskActive}
+            />
+          );
+        })}
+      </ul>
+    );
   }
 
-  return (
-    <ul className={classes.groupList}>
-      {groups.map((group) => (
-        <PageGroup
-          key={group.name}
-          group={group}
-          onNavigate={onNavigate}
-        />
-      ))}
-    </ul>
-  );
+  if (pageGroups) {
+    return (
+      <ul className={classes.groupList}>
+        {pageGroups.map((group) => (
+          <PageGroup
+            key={group.name}
+            group={group}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </ul>
+    );
+  }
+
+  return null;
 }
 
 export function AppNavigationHeading({
@@ -68,7 +111,42 @@ export function AppNavigationHeading({
   );
 }
 
-function PageGroup({ group, onNavigate }: { group: Group; onNavigate?: () => void }) {
+function TaskGroup({ group, active }: { group: NavigationTask | NavigationReceipt; active: boolean }) {
+  const Icon = getTaskIcon(group.type);
+
+  return (
+    <li>
+      <button
+        disabled
+        className={cn(classes.taskButton, 'fds-focus')}
+      >
+        <div className={cn(classes.groupSymbol, active ? classes.taskSymbolActive : classes.taskSymbolLocked)}>
+          <Icon aria-hidden />
+        </div>
+        <span className={cn(classes.groupName, { [classes.groupNameActive]: active })}>
+          <Lang id={getTaskName(group)} />
+        </span>
+      </button>
+    </li>
+  );
+}
+
+function getTaskIcon(type: NavigationTask['type'] | NavigationReceipt['type']) {
+  switch (type) {
+    case 'data':
+      return TasklistIcon;
+    case 'confirmation':
+      return SealCheckmarkIcon;
+    case 'signing':
+      return PencilLineIcon;
+    case 'payment':
+      return CardIcon;
+    case 'receipt':
+      return ReceiptIcon;
+  }
+}
+
+function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNavigate?: () => void }) {
   const order = useVisiblePages(group.order);
   const currentPageId = useNavigationParam('pageKey');
   const containsCurrentPage = order.some((page) => page === currentPageId);

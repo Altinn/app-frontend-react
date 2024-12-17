@@ -17,6 +17,43 @@
   margin-bottom: 28px;
 }
 
+.task-button {
+  font-family: var(--font-family);
+  font-size: 14px;
+  background-color: transparent;
+  border: none;
+  cursor: not-allowed;
+  display: grid;
+  width: 100%;
+  grid-template-columns: auto 1fr auto;
+  column-gap: 8px;
+  align-items: center;
+  text-align: left;
+
+  border-radius: var(--fds-border_radius-interactive);
+  padding: 2px;
+  margin: -2px;
+}
+
+.group-name-active {
+  text-decoration-line: underline;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+.task-symbol-locked {
+  color: var(--fds-colors-grey-800);
+  border-color: var(--fds-colors-grey-600);
+  background-color: var(--fds-colors-grey-100);
+}
+
+.task-symbol-active {
+  color: var(--fds-colors-grey-100);
+  border-color: var(--fds-colors-blue-900);
+  background-color: var(--fds-colors-blue-900);
+}
+
 .group-button {
   font-family: var(--font-family);
   font-size: 14px;

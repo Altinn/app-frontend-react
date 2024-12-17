@@ -656,6 +656,25 @@ const common = {
             'An attribute specifying when the application will save form data. onChangeFormData saves on every interaction with form elements. onChangePage saves on every page change.',
           ),
       ),
+      new CG.prop(
+        'taskNavigation',
+        new CG.arr(
+          new CG.union(
+            new CG.obj(
+              new CG.prop('name', new CG.str().optional()),
+              new CG.prop('type', new CG.enum('data', 'signing', 'confirmation', 'payment')),
+              new CG.prop('taskId', new CG.str()),
+            ).exportAs('NavigationTask'),
+            new CG.obj(
+              new CG.prop('name', new CG.str().optional()),
+              new CG.prop('type', new CG.const('receipt')),
+            ).exportAs('NavigationReceipt'),
+          ).setUnionType('discriminated'),
+        )
+          .optional()
+          .setTitle('Task navigation settings')
+          .setDescription('Shows the listed tasks in the sidebar navigation menu'),
+      ),
     ),
   IPagesBaseSettings: () =>
     new CG.obj(
@@ -680,7 +699,11 @@ const common = {
     new CG.obj(
       new CG.prop(
         'groups',
-        new CG.arr(new CG.obj(new CG.prop('name', new CG.str()), new CG.prop('order', new CG.arr(new CG.str()))))
+        new CG.arr(
+          new CG.obj(new CG.prop('name', new CG.str()), new CG.prop('order', new CG.arr(new CG.str()))).exportAs(
+            'NavigationPageGroup',
+          ),
+        )
           .setTitle('Page groups')
           .setDescription('List of page groups in the order they should appear in the application'),
       ),

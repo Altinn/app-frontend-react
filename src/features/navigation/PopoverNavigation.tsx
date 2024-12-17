@@ -6,17 +6,15 @@ import { MenuHamburgerIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
-import { usePageGroups } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { Lang } from 'src/features/language/Lang';
 import { AppNavigation, AppNavigationHeading } from 'src/features/navigation/AppNavigation';
 import classes from 'src/features/navigation/PopoverNavigation.module.css';
-import {
-  CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR,
-  SIDEBAR_BREAKPOINT,
-  useHasGroupedNavigation,
-} from 'src/features/navigation/utils';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { getTaskName, SIDEBAR_BREAKPOINT, useHasGroupedNavigation } from 'src/features/navigation/utils';
+import { useIsReceiptPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useBrowserWidth, useIsMobile } from 'src/hooks/useDeviceWidths';
+import { usePageOrder } from 'src/hooks/useNavigatePage';
 
 export function PopoverNavigation({
   children,
@@ -102,18 +100,10 @@ function InnerPopoverNavigation({
 }
 
 function PopoverNavigationButton(props: Parameters<typeof Button>[0]) {
-  const currentPageId = useNavigationParam('pageKey');
-  const groups = usePageGroups();
+  const pageGroupProgress = usePageGroupProgress();
+  const taskProgress = useTaskProgress();
 
-  if (!groups || !currentPageId) {
-    throw CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR;
-  }
-
-  const currentGroup = groups.find((group) => group.order.includes(currentPageId));
-  const currentGroupLength = currentGroup?.order.length;
-  const currentGroupIndex = currentGroup?.order.indexOf(currentPageId);
-  const hasCurrentGroup =
-    currentGroup && typeof currentGroupIndex === 'number' && typeof currentGroupLength === 'number';
+  const progress = pageGroupProgress ?? taskProgress;
 
   return (
     <Button
@@ -122,16 +112,74 @@ function PopoverNavigationButton(props: Parameters<typeof Button>[0]) {
       size='sm'
       {...props}
     >
-      {hasCurrentGroup && (
+      {progress && (
         <Lang
           id='navigation.popover_button_progress'
-          params={[{ key: currentGroup.name }, currentGroupIndex + 1, currentGroupLength]}
+          params={[{ key: progress.name }, progress.pageNumber, progress.pageCount]}
         />
       )}
       <MenuHamburgerIcon
-        className={cn({ [classes.burgerMenuIcon]: hasCurrentGroup })}
+        className={cn({ [classes.burgerMenuIcon]: !!pageGroupProgress })}
         aria-hidden
       />
     </Button>
   );
+}
+
+type NavigationButtonData = {
+  name: string;
+  pageNumber: number;
+  pageCount: number;
+};
+
+function usePageGroupProgress(): NavigationButtonData | null {
+  const currentPageId = useNavigationParam('pageKey');
+  const groups = usePageGroups();
+
+  if (!groups || !currentPageId) {
+    return null;
+  }
+
+  const currentGroup = groups.find((group) => group.order.includes(currentPageId));
+
+  if (!currentGroup) {
+    return null;
+  }
+
+  const pageCount = currentGroup.order.length;
+  const pageIndex = currentGroup.order.indexOf(currentPageId);
+
+  if (pageIndex > -1) {
+    return { name: currentGroup.name, pageNumber: pageIndex + 1, pageCount };
+  }
+
+  return { name: currentGroup.name, pageNumber: 1, pageCount: 1 };
+}
+
+function useTaskProgress(): NavigationButtonData | null {
+  const taskGroups = usePageSettings().taskNavigation;
+
+  const currentPageId = useNavigationParam('pageKey');
+  const order = usePageOrder();
+  const currentTaskId = useProcessTaskId();
+  const isReceipt = useIsReceiptPage();
+
+  const currentGroup = taskGroups.find(
+    (group) => (group.type === 'receipt' && isReceipt) || ('taskId' in group && group.taskId === currentTaskId),
+  );
+
+  if (!currentGroup) {
+    return null;
+  }
+
+  if (currentPageId && order.length) {
+    const pageCount = order.length;
+    const pageIndex = order.indexOf(currentPageId);
+
+    if (pageIndex > -1) {
+      return { name: getTaskName(currentGroup), pageNumber: pageIndex + 1, pageCount };
+    }
+  }
+
+  return { name: getTaskName(currentGroup), pageNumber: 1, pageCount: 1 };
 }

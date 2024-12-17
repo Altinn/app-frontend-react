@@ -1,28 +1,36 @@
 import { useMemo } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { usePageGroups } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { ValidationMask } from 'src/features/validation';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useLaxNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
+import type { NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeData } from 'src/utils/layout/types';
 
 export function useHasGroupedNavigation() {
   const pageGroups = usePageGroups();
-  const currentPageId = useNavigationParam('pageKey');
-  return pageGroups && currentPageId;
+  const taskGroups = usePageSettings().taskNavigation;
+  return pageGroups || taskGroups.length;
 }
 
 export const SIDEBAR_BREAKPOINT = 1450;
 
-export const CHECK_USE_HAS_GROUPED_NAVIGATION_ERROR =
-  'AppNavigation was used without first checking that the app uses grouped navigation using `useHasGroupedNavigation()`. This can lead to an empty container somewhere.';
-
 export function useVisiblePages(order: string[]) {
   const hiddenPages = Hidden.useHiddenPages();
   return useMemo(() => order.filter((page) => !hiddenPages.has(page)), [order, hiddenPages]);
+}
+
+/**
+ * If no name is is given to the navigation task, a default name will be used instead.
+ */
+export function getTaskName(taskGroup: NavigationTask | NavigationReceipt): string {
+  if (taskGroup.name) {
+    return taskGroup.name;
+  }
+
+  return `taskTypes.${taskGroup.type}`;
 }
 
 /**

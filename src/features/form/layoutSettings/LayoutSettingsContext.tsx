@@ -10,7 +10,12 @@ import { useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
 import { useLaxLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useShallowObjectMemo } from 'src/hooks/useShallowObjectMemo';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
-import type { GlobalPageSettings, ILayoutSets, ILayoutSettings } from 'src/layout/common.generated';
+import type {
+  GlobalPageSettings,
+  ILayoutSets,
+  ILayoutSettings,
+  NavigationPageGroup,
+} from 'src/layout/common.generated';
 
 // Also used for prefetching @see formPrefetcher.ts
 export function useLayoutSettingsQueryDef(layoutSetId?: string): QueryDefinition<ILayoutSettings> {
@@ -54,7 +59,9 @@ const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
       }
 
       const order: string[] =
-        'order' in settings.pages ? settings.pages.order : settings.pages.groups.flatMap((group) => group.order);
+        'order' in settings.pages
+          ? settings.pages.order
+          : settings.pages.groups.filter((group) => 'order' in group).flatMap((group) => group.order);
 
       return {
         order,
@@ -75,7 +82,7 @@ const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
 
 interface ProcessedLayoutSettings {
   order: string[];
-  groups?: { name: string; order: string[] }[];
+  groups?: NavigationPageGroup[];
   pageSettings: GlobalPageSettings;
   pdfLayoutName?: string;
 }
@@ -109,6 +116,7 @@ const defaults: Required<GlobalPageSettings> = {
   showExpandWidthButton: false,
   autoSaveBehavior: 'onChangeFormData',
   expandedWidth: false,
+  taskNavigation: [],
 };
 
 export const usePageSettings = (): Required<GlobalPageSettings> => {
