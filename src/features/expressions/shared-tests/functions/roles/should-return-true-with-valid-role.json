@@ -1,6 +1,6 @@
 {
   "name": "Should return true with valid role",
-  "expression": ["roles", "bobes"],
+  "expression": ["hasRole", "bobes"],
   "expects": true,
   "roles": [
     {

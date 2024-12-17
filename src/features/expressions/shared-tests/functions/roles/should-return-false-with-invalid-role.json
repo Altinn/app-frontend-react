@@ -1,6 +1,6 @@
 {
   "name": "Should return false with invalid role",
-  "expression": ["roles", "bobel"],
+  "expression": ["hasRole", "bobel"],
   "expects": false,
   "roles": [
     {

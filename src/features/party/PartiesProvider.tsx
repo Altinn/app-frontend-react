@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
 
 import { useAppMutations, useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
@@ -13,6 +13,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { reduceToValidParties } from 'src/features/party/partyProviderUtils';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
+import { fetchRoles } from 'src/queries/queries';
 import type { IParty, Role } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -52,12 +53,11 @@ export function useCurrentPartyQueryDef(enabled: boolean) {
 }
 
 export function useCurrentPartyRolesQueryDef(enabled: boolean) {
-  const { fetchRoles } = useAppQueries();
-  return {
+  return queryOptions({
     queryKey: ['fetchCurrentPartyRoles', enabled],
     queryFn: fetchRoles,
     enabled,
-  };
+  });
 }
 
 const useCurrentPartyRoles = (enabled: boolean) => {

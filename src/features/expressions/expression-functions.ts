@@ -320,7 +320,7 @@ export const ExprFunctions = {
     minArguments: 1,
     returns: ExprVal.Any,
   }),
-  roles: defineFunc({
+  hasRole: defineFunc({
     impl(roleName): boolean | null {
       if (typeof roleName !== 'string') {
         throw new ExprRuntimeError(this.expr, this.path, `Expected string argument.`);
