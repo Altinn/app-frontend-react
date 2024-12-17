@@ -359,6 +359,14 @@ export function nb(): FixedLanguageList {
       header_on_behalf_of: 'På vegne av',
       header_status: 'Status',
     },
+    signing_document_list: {
+      parse_error: 'Feil ved lasting av dokumenter.',
+      unknown_api_error: 'En feil oppstod under henting av doumenter.',
+      api_error_display: 'En feil oppstod under henting av dokumenter. Se devtool-loggene for mer informasjon.',
+      header_filename: 'Navn',
+      header_attachment_type: 'Vedleggstype',
+      header_size: 'Størrelse',
+    },
     helptext: {
       button_title: 'Hjelp',
       button_title_prefix: 'Hjelpetekst for',
