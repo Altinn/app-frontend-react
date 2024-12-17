@@ -239,6 +239,16 @@ function TestMultiDelayedSelector({ onGetValue }: Props) {
       >
         Increment both
       </button>
+      <button
+        onClick={() => {
+          incrementCtx1();
+          incrementCtx2();
+          incrementCtx1();
+          incrementCtx2();
+        }}
+      >
+        Increment both twice
+      </button>
       <button onClick={() => (otherCount.current += 1)}>Increment otherCount</button>
       <button onClick={() => setString('new string')}>Set fixed string in ctx2</button>
 
@@ -383,7 +393,7 @@ describe('useDelayedSelector', () => {
     expect(screen.getByTestId('multiple-selectors-render-count').textContent).toBe('3');
 
     // Incrementing both once more should not trigger a re-render, as nothing has been selected this time
-    await userEvent.click(screen.getByText('Increment both'));
+    await userEvent.click(screen.getByText('Increment both twice'));
     expect(screen.getByTestId('multiple-selectors-render-count').textContent).toBe('3');
 
     // Make sure we select from ctx2, but not the string
@@ -391,8 +401,8 @@ describe('useDelayedSelector', () => {
     await userEvent.click(screen.getByText('Get ds2 with otherCount in deps'));
     expect(screen.getByTestId('multiple-selectors-render-count').textContent).toBe('3');
     expect(fn).toHaveBeenCalledTimes(2);
-    expect(fn).toHaveBeenNthCalledWith(1, 'ds2', 2);
-    expect(fn).toHaveBeenNthCalledWith(2, 'ds2', [2, 1]);
+    expect(fn).toHaveBeenNthCalledWith(1, 'ds2', 3);
+    expect(fn).toHaveBeenNthCalledWith(2, 'ds2', [3, 1]);
     fn.mockClear();
 
     // Setting a fixed string in ctx2 should not trigger a re-render. This string does not affect the selected state.
@@ -400,7 +410,17 @@ describe('useDelayedSelector', () => {
     expect(screen.getByTestId('multiple-selectors-render-count').textContent).toBe('3');
     await userEvent.click(screen.getByText('Get ds2 with otherCount in deps'));
     expect(fn).toHaveBeenCalledTimes(1);
-    expect(fn).toHaveBeenLastCalledWith('ds2', [2, 1]);
+    expect(fn).toHaveBeenLastCalledWith('ds2', [3, 1]);
     fn.mockClear();
+
+    // Getting from ctx1 to prepare for the next increment
+    await userEvent.click(screen.getByText('Get ds1 divided by 2'));
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenLastCalledWith('ds1', 'ctx1 = 3.5');
+    fn.mockClear();
+
+    // Incrementing both twice now should only trigger one re-render.
+    await userEvent.click(screen.getByText('Increment both twice'));
+    expect(screen.getByTestId('multiple-selectors-render-count').textContent).toBe('4');
   });
 });

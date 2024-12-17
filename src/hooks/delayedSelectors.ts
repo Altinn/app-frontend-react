@@ -280,11 +280,9 @@ class SingleDelayedSelectorController<C extends DSConfig> extends BaseDelayedSel
 }
 
 class MultiDelayedSelector<C extends DSConfig> extends BaseDelayedSelector<C> {
-  private changeCount = 0;
-  private lastSelectChangeCount = 0;
-  private onChange: (lastSelectChangeCount: number) => void;
+  private readonly onChange: () => void;
 
-  constructor(props: DSProps<C>, onChange: (lastSelectChangeCount: number) => void) {
+  constructor(props: DSProps<C>, onChange: () => void) {
     super(props);
     this.onChange = onChange;
   }
@@ -293,16 +291,8 @@ class MultiDelayedSelector<C extends DSConfig> extends BaseDelayedSelector<C> {
     return this.selectorFunc;
   }
 
-  public setChangeCount(count: number) {
-    this.changeCount = count;
-  }
-
-  protected onCallSelector(): void {
-    this.lastSelectChangeCount = this.changeCount;
-  }
-
   protected onUpdateSelector(): void {
-    this.onChange(this.lastSelectChangeCount);
+    this.onChange();
   }
 }
 
@@ -313,15 +303,12 @@ class MultiDelayedSelectorController<P extends MultiDSProps> {
   private triggerRender: (() => void) | null = null;
   private shouldTriggerOnSubscribe = false;
 
-  private changeCount = 0;
   private controllers: MultiDelayedSelector<DSConfig>[] = [];
   private selectorFuncs: DSReturn<DSConfig>[] = [];
 
   constructor(props: P) {
     for (let i = 0; i < props.length; i++) {
-      const MDS = new MultiDelayedSelector(props[i], (lastSelectChangeCount: number) =>
-        this.onUpdateSelector(i, lastSelectChangeCount),
-      );
+      const MDS = new MultiDelayedSelector(props[i], () => this.onUpdateSelector(i));
       this.controllers.push(MDS);
       this.selectorFuncs.push(MDS.getSelectorFunc());
     }
@@ -344,19 +331,14 @@ class MultiDelayedSelectorController<P extends MultiDSProps> {
     }
   }
 
-  private onUpdateSelector(index: number, lastSelectChangeCount: number): void {
-    // Prevent multiple re-renders at the same time
+  private onUpdateSelector(index: number): void {
     this.selectorFuncs[index] = this.controllers[index].getSelectorFunc();
-    if (lastSelectChangeCount === this.changeCount) {
-      this.selectorFuncs = [...this.selectorFuncs];
-      if (this.triggerRender) {
-        this.triggerRender();
-      } else {
-        this.shouldTriggerOnSubscribe = true;
-      }
+    this.selectorFuncs = [...this.selectorFuncs];
+    if (this.triggerRender) {
+      this.triggerRender();
+    } else {
+      this.shouldTriggerOnSubscribe = true;
     }
-    this.changeCount += 1;
-    this.controllers.forEach((ds) => ds.setChangeCount(this.changeCount));
   }
 }
 
