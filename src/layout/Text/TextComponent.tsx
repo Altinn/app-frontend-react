@@ -1,12 +1,9 @@
 import React from 'react';
 
-import cn from 'classnames';
-
 import { Flex } from 'src/app-components/Flex/Flex';
+import { Text } from 'src/app-components/Text/Text';
 import { getLabelId, Label } from 'src/components/label/Label';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { Text } from 'src/layout/Text/Text';
-import classes from 'src/layout/Text/TextComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -27,7 +24,6 @@ export const TextComponent = ({ node }: PropsFromGenericComponent<'Text'>) => {
         <Label
           node={node}
           renderLabelAs='span'
-          className={cn(classes.textComponent, direction === 'vertical' ? classes.vertical : classes.horizontal)}
         />
         <Text
           value={value}

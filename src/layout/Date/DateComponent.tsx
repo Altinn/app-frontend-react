@@ -1,9 +1,9 @@
 import React from 'react';
 
+import { Date } from 'src/app-components/Date/Date';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { getLabelId, Label } from 'src/components/label/Label';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { Date } from 'src/layout/Date/Date';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
