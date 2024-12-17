@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ format('refs/pull/{0}/head', github.event.issue.number) }}
+          path: app-frontend
           fetch-depth: 0
 
       - name: install node
@@ -23,6 +24,7 @@ jobs:
         run: yarn --immutable
 
       - name: Build PR release version
+        working-directory: app-frontend
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
