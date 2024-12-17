@@ -42,6 +42,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
       data-componentbaseid={node.baseId}
       ref={ref}
       container
+      item
     >
       {(!mode || mode === 'showTable') && <ModeOnlyTable />}
       {mode === 'onlyTable' && <ModeOnlyTable />}
