@@ -364,6 +364,15 @@ const common = {
           .optional(),
       ),
       new CG.prop('source', CG.common('IOptionSource').optional()),
+      new CG.prop(
+        'optionFilter',
+        new CG.expr(ExprVal.Boolean)
+          .optional()
+          .setTitle('Filter options (using an expression)')
+          .setDescription(
+            'Setting this to an expression allows you to filter the list of options (the expression should return true to keep the option, false to remove it). To get the option value, use ["value"]. You can also use ["value", "label"] to get the label text resource id, likewise also "description" and "helpText".',
+          ),
+      ),
     ),
   ISelectionComponentFull: () =>
     new CG.obj(
@@ -427,7 +436,34 @@ const common = {
           maxHeight: 2,
         },
       }),
-
+  ILikertColumnProperties: () =>
+    new CG.obj(
+      new CG.prop(
+        'columns',
+        new CG.arr(
+          new CG.obj(
+            new CG.prop(
+              'value',
+              new CG.union(new CG.str().setPattern(/^\d+$/), new CG.num())
+                .setTitle('Value')
+                .setDescription('The value of the answer column'),
+            ),
+            new CG.prop(
+              'divider',
+              new CG.enum('before', 'after', 'both')
+                .setTitle('Divider')
+                .setDescription(
+                  "Choose if the divider should be shown 'before', 'after' or on 'both' sides of the column.",
+                )
+                .optional(),
+            ),
+          ),
+        )
+          .optional()
+          .setTitle('Columns')
+          .setDescription('Add customization to the columns of the likert component'),
+      ),
+    ),
   // Types that component definitions extend:
   ComponentBase: () =>
     new CG.obj(
