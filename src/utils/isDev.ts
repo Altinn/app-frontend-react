@@ -1,12 +1,18 @@
 const devHostNames = [/^local\.altinn\.cloud$/, /^\S+\.apps\.tt02\.altinn\.no$/];
 const studioHostNames = [/^dev\.altinn\.studio$/, /^altinn\.studio$/, /^studio\.localhost$/];
 
+let isDevCache: boolean | null = null;
+
 /**
  * Indicates whether the application is running in a development environment.
  * This can be either through LocalTest, altinn studio preview or TT02.
  */
 export function isDev(): boolean {
-  return isLocalOrStaging() || isStudioPreview();
+  if (isDevCache !== null) {
+    return isDevCache;
+  }
+  isDevCache = isLocalOrStaging() || isStudioPreview();
+  return isDevCache;
 }
 
 /**
