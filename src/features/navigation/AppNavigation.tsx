@@ -167,10 +167,11 @@ function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNaviga
       >
         <PageGroupSymbol
           open={isOpen}
+          active={containsCurrentPage}
           error={validations !== ContextNotProvided && validations.hasErrors.group}
           complete={validations !== ContextNotProvided && validations.isCompleted.group}
         />
-        <span className={classes.groupName}>
+        <span className={cn({ [classes.pageNameActive]: containsCurrentPage && !isOpen })}>
           <Lang id={group.name} />
         </span>
         <ChevronDownIcon className={cn(classes.groupChevron, { [classes.groupChevronOpen]: isOpen })} />
@@ -192,9 +193,20 @@ function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNaviga
   );
 }
 
-function PageGroupSymbol({ error, complete, open }: { error: boolean; complete: boolean; open: boolean }) {
-  const showError = error && !open;
-  const showComplete = complete && !error && !open;
+function PageGroupSymbol({
+  error,
+  complete,
+  open,
+  active,
+}: {
+  error: boolean;
+  complete: boolean;
+  open: boolean;
+  active: boolean;
+}) {
+  const showActive = active && !open;
+  const showError = error && !active && !open;
+  const showComplete = complete && !error && !active && !open;
 
   const Icon = showError ? ExclamationmarkIcon : showComplete ? CheckmarkIcon : FolderIcon;
 
@@ -203,7 +215,8 @@ function PageGroupSymbol({ error, complete, open }: { error: boolean; complete: 
       className={cn(classes.groupSymbol, {
         [classes.groupSymbolError]: showError,
         [classes.groupSymbolComplete]: showComplete,
-        [classes.groupSymbolDefault]: !showError && !showComplete,
+        [classes.groupSymbolActive]: showActive,
+        [classes.groupSymbolDefault]: !showError && !showComplete && !showActive,
       })}
     >
       <Icon aria-hidden />
@@ -244,7 +257,7 @@ function Page({
           active={isCurrentPage}
         />
 
-        <span className={classes.pageName}>
+        <span className={cn({ [classes.pageNameActive]: isCurrentPage })}>
           <Lang id={page} />
         </span>
       </button>

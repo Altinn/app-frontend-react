@@ -38,7 +38,7 @@
 .group-name-active {
   text-decoration-line: underline;
   text-decoration-skip-ink: none;
-  text-underline-offset: 2px;
+  text-underline-offset: 3px;
   text-decoration-thickness: 1px;
 }
 
@@ -57,6 +57,8 @@
 .group-button {
   font-family: var(--font-family);
   font-size: 14px;
+  font-weight: normal;
+  color: var(--fds-colors-grey-800);
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -74,11 +76,9 @@
 
 .group-button:hover {
   text-decoration: underline;
-}
-
-.group-name {
-  color: var(--fds-colors-grey-800);
-  font-weight: normal;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
 }
 
 .group-chevron {
@@ -111,9 +111,15 @@
 }
 
 .group-symbol-complete {
-  color: white;
+  color: var(--fds-colors-grey-100);
   border-color: var(--fds-colors-blue-700);
   background-color: var(--fds-colors-blue-700);
+}
+
+.group-symbol-active {
+  color: var(--fds-colors-grey-100);
+  border-color: var(--fds-colors-blue-900);
+  background-color: var(--fds-colors-blue-900);
 }
 
 .group-symbol-default {
@@ -139,6 +145,8 @@
 .page-button {
   font-family: var(--font-family);
   font-size: 14px;
+  font-weight: normal;
+  color: var(--fds-colors-blue-700);
   background-color: transparent;
   border: none;
   padding: 0;
@@ -156,7 +164,10 @@
 }
 
 .page-button:hover {
-  text-decoration: underline;
+  text-decoration-line: underline;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
 }
 
 .page-symbol {
@@ -214,9 +225,14 @@
 .page-symbol-active {
   border-color: var(--fds-colors-blue-900);
   background-color: var(--fds-colors-blue-900);
+
+  outline: 2px solid var(--fds-colors-grey-100);
+  outline-offset: -4px;
 }
 
-.page-name {
-  color: var(--fds-colors-blue-700);
-  font-weight: normal;
+.page-name-active {
+  text-decoration-line: underline;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
 }
