@@ -358,6 +358,14 @@ export function en() {
       header_on_behalf_of: 'On behalf of',
       header_status: 'Status',
     },
+    signing_document_list: {
+      parse_error: 'Error loading signee document list.',
+      unknown_api_error: 'An error occurred when fetching documents.',
+      api_error_display: 'An error occurred when fetching documents. See devtool logs for more information.',
+      header_filename: 'Name',
+      header_attachment_type: 'Attachment type',
+      header_size: 'Size',
+    },
     helptext: {
       button_title: 'Help',
       button_title_prefix: 'Helptext for',
