@@ -30,6 +30,7 @@ jobs:
           branch=$(gh pr view ${{ github.event.issue.number }} --repo ${{ github.repository }} --json headRefName | jq -r '.headRefName' | sed 's/.*\///')
           version=$(git describe --abbrev=0 --tags 2>/dev/null).$branch.$sha
           git tag -a $version -m "PR release $version"
+          echo "FRONTEND_PACKAGE_VERSION=$version" >> $GITHUB_ENV
 
       - name: Checkout Altinn-CDN repository
         uses: actions/checkout@v4
@@ -74,7 +75,7 @@ jobs:
         name: Comment on PR
         with:
           script: |
-            const version = process.env.MINVERVERSIONOVERRIDE;
+            const version = process.env.FRONTEND_PACKAGE_VERSION;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -82,6 +83,6 @@ jobs:
               repo: context.repo.repo,
               body: `## Published PR packages:\n` +
                 `\n` +
-                `* [Altinn.App.Api ${version}](https://www.nuget.org/packages/Altinn.App.Api.Experimental/${version})\n` +
-                `* [Altinn.App.Core ${version}](https://www.nuget.org/packages/Altinn.App.Core.Experimental/${version})\n`
+                `* \`<link rel="stylesheet" type="text/css" href="https://altinncdn.no/toolkits/altinn-app-frontend/${version}/altinn-app-frontend.css">\`\n` +
+                `* \`<script src="https://altinncdn.no/toolkits/altinn-app-frontend/${version}/altinn-app-frontend.js"></script>\`\n`
             })
