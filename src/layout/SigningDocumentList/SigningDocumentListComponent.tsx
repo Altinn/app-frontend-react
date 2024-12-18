@@ -14,31 +14,39 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { problemDetailsSchema } from 'src/layout/SigneeList/SigneeListComponent';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
+import { getSizeWithUnit } from 'src/utils/attachmentsUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
+import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-const dataElementSchema = z.object({
-  id: z.string(),
-  dataType: z.string(),
-  contentType: z.string(),
-  filename: z.string().nullish(),
-  blobStoragePath: z.string(),
-  size: z.number(),
-  selfLinks: z.object({
-    apps: z.string().nullish(),
-    platform: z.string().nullish(),
-  }),
-});
+const signingDocumentSchema = z
+  .object({
+    id: z.string(),
+    dataType: z.string(),
+    contentType: z.string(),
+    filename: z.string().nullish(),
+    size: z.number(),
+    selfLinks: z.object({
+      apps: z.string(),
+    }),
+  })
+  .transform((it) => ({
+    ...it,
+    filename: it.filename ?? '',
+    url: makeUrlRelativeIfSameDomain(it.selfLinks.apps),
+  }));
 
-async function fetchDocumentList(partyId: string, instanceGuid: string): Promise<z.infer<typeof dataElementSchema>[]> {
+type SigningDocument = z.infer<typeof signingDocumentSchema>;
+
+async function fetchDocumentList(partyId: string, instanceGuid: string): Promise<SigningDocument[]> {
   const url = `${appPath}/instances/${partyId}/${instanceGuid}/signing/data-elements`;
 
   const response = await httpGet(url);
 
   return z
-    .object({ dataElements: z.array(dataElementSchema) })
+    .object({ dataElements: z.array(signingDocumentSchema) })
     .parse(response)
     .dataElements.toSorted((a, b) => (a.filename ?? '').localeCompare(b.filename ?? ''));
 }
@@ -82,8 +90,7 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
           accessors: [],
           renderCell: (_, rowData) => (
             <Link
-              href={rowData.blobStoragePath}
-              target='_blank'
+              href={rowData.url}
               rel='noopener noreferrer'
             >
               {rowData.filename}
@@ -97,14 +104,14 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
         {
           header: langAsString('signing_document_list.header_size'),
           accessors: [],
-          renderCell: (_, rowData) => getSizeString(rowData.size),
+          renderCell: (_, rowData) => getSizeWithUnit(rowData.size),
         },
         {
           header: '',
           accessors: [],
           renderCell: (_, rowData) => (
             <Link
-              href={rowData.blobStoragePath}
+              href={rowData.url}
               style={{ display: 'flex', gap: '0.5rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
               download
             >
@@ -159,18 +166,6 @@ function SigningDocumentListError({ error }: { error: Error }) {
   }
 
   return <Lang id='signing_document_list.unknown_api_error' />;
-}
-
-function getSizeString(bytes: number): string {
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
-
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(0)} KB`;
-  }
-
-  return `${(bytes / (1024 * 1024)).toFixed(0)} MB`;
 }
 
 function useIsDataModelDataElement() {
