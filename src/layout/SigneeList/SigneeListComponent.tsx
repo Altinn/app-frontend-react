@@ -63,11 +63,7 @@ export function SigneeListComponent({ node }: SigneeListComponentProps) {
   const { langAsString } = useLanguage();
   const { textResourceBindings } = useNodeItem(node);
 
-  const {
-    data: result,
-    isLoading,
-    error: apiError,
-  } = useQuery({
+  const { data, isLoading, error } = useQuery({
     ...signeeListQueries.all(partyId!, instanceGuid!),
     enabled: taskType === ProcessTaskType.Signing,
   });
@@ -76,14 +72,14 @@ export function SigneeListComponent({ node }: SigneeListComponentProps) {
     return <Lang id='signee_list.wrong_task_error' />;
   }
 
-  if (apiError) {
-    return <SigneeListError error={apiError} />;
+  if (error) {
+    return <SigneeListError error={error} />;
   }
 
   return (
     <AppTable
       size='md'
-      data={result ?? []}
+      data={data ?? []}
       isLoading={isLoading}
       headerClassName={classes.header}
       tableClassName={classes.table}
