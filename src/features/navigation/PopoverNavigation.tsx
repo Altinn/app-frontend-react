@@ -23,7 +23,9 @@ export function PopoverNavigation({
   const hasGroupedNavigation = useHasGroupedNavigation();
   const { expandedWidth } = useUiConfigContext();
   const isScreenSmall = !useBrowserWidth((width) => width >= SIDEBAR_BREAKPOINT) || expandedWidth;
-  if (!hasGroupedNavigation || !isScreenSmall) {
+  const isReceiptPage = useIsReceiptPage();
+
+  if (!hasGroupedNavigation || !isScreenSmall || isReceiptPage) {
     return wrapper(children);
   }
 
