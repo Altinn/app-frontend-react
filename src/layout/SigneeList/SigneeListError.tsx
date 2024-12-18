@@ -1,11 +1,16 @@
 import React from 'react';
 
 import { isAxiosError } from 'axios';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { problemDetailsSchema } from 'src/layout/SigneeList/SigneeListComponent';
+
+const problemDetailsSchema = z.object({
+  detail: z.string(),
+  status: z.number(),
+  title: z.string(),
+});
 
 export function SigneeListError({ error }: { error: Error }) {
   const { langAsString } = useLanguage();
