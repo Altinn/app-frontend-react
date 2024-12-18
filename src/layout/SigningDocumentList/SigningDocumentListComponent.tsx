@@ -14,7 +14,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { problemDetailsSchema } from 'src/layout/SigneeList/SigneeListComponent';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
-import { getSizeWithUnit } from 'src/utils/attachmentsUtils';
+import { DataTypeReference, getSizeWithUnit } from 'src/utils/attachmentsUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
@@ -28,14 +28,18 @@ const signingDocumentSchema = z
     contentType: z.string(),
     filename: z.string().nullish(),
     size: z.number(),
+    tags: z.array(z.string()),
     selfLinks: z.object({
       apps: z.string(),
     }),
   })
   .transform((it) => ({
-    ...it,
+    dataType: it.dataType,
     filename: it.filename ?? '',
+    attachmentTypes:
+      it.dataType === DataTypeReference.RefDataAsPdf ? ['signing_document_list.attachment_type_form'] : it.tags,
     url: makeUrlRelativeIfSameDomain(it.selfLinks.apps),
+    size: it.size,
   }));
 
 type SigningDocument = z.infer<typeof signingDocumentSchema>;
@@ -99,7 +103,8 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
         },
         {
           header: langAsString('signing_document_list.header_attachment_type'),
-          accessors: ['tags'],
+          accessors: [],
+          renderCell: (_, rowData) => rowData.attachmentTypes.map((it) => langAsString(it)).join(', '),
         },
         {
           header: langAsString('signing_document_list.header_size'),
@@ -107,7 +112,7 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
           renderCell: (_, rowData) => getSizeWithUnit(rowData.size),
         },
         {
-          header: '',
+          header: null,
           accessors: [],
           renderCell: (_, rowData) => (
             <Link
