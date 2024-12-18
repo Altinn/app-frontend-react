@@ -92,3 +92,15 @@ export function getFileContentType(file: File): string {
   }
   return file.type;
 }
+
+export function getSizeWithUnit(bytes: number, numberOfDecimals: number = 0): string {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(numberOfDecimals)} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(numberOfDecimals)} MB`;
+}
