@@ -8,7 +8,7 @@ import { Caption } from 'src/components/form/caption/Caption';
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { signeeListQueries } from 'src/layout/SigneeList/api';
+import { signeeListQuery } from 'src/layout/SigneeList/api';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { SigneeListError } from 'src/layout/SigneeList/SigneeListError';
 import { SigneeStateTag } from 'src/layout/SigneeList/SigneeStateTag';
@@ -29,7 +29,7 @@ export function SigneeListComponent({ node }: PropsFromGenericComponent<'SigneeL
     isLoading,
     error: apiError,
   } = useQuery({
-    ...signeeListQueries.all(partyId!, instanceGuid!),
+    ...signeeListQuery(partyId!, instanceGuid!),
     enabled: taskType === ProcessTaskType.Signing,
   });
 
