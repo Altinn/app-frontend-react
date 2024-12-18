@@ -1,48 +1,45 @@
 import React from 'react';
 
-import { Close, FullscreenEnter, FullscreenExit, Left } from '@navikt/ds-icons';
+import { FullscreenEnter, FullscreenExit, Left } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { Button } from 'src/app-components/Button/Button';
 import { LanguageSelector } from 'src/components/presentation/LanguageSelector';
 import classes from 'src/components/presentation/NavBar.module.css';
-import { useReturnToView } from 'src/features/form/layout/PageNavigationContext';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { PopoverNavigation } from 'src/features/navigation/PopoverNavigation';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
-import { useNavigatePage, usePreviousPageKey } from 'src/hooks/useNavigatePage';
-import { PresentationType, ProcessTaskType } from 'src/types';
+import { useIsMobile } from 'src/hooks/useDeviceWidths';
+import { useIsLocalTest, useIsStudioPreview } from 'src/hooks/useIsDev';
 import { httpGet } from 'src/utils/network/networking';
 import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
 import { returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
 
-export interface INavBarProps {
-  type: PresentationType | ProcessTaskType;
-}
-
 const expandIconStyle = { transform: 'rotate(45deg)' };
 
-export const NavBar = ({ type }: INavBarProps) => {
+export const NavBar = () => {
   const { langAsString } = useLanguage();
-  const previous = usePreviousPageKey();
-  const { navigateToPage } = useNavigatePage();
-  const returnToView = useReturnToView();
   const party = useCurrentParty();
   const { expandedWidth, toggleExpandedWidth } = useUiConfigContext();
   const { hideCloseButton, showLanguageSelector, showExpandWidthButton } = usePageSettings();
+  const isMobile = useIsMobile();
 
-  const handleBackArrowButton = () => {
-    if (returnToView) {
-      navigateToPage(returnToView);
-    } else if (previous !== undefined && (type === ProcessTaskType.Data || type === PresentationType.Stateless)) {
-      navigateToPage(previous);
+  const isLocalTest = useIsLocalTest();
+  const isStudioPreview = useIsStudioPreview();
+
+  const handleBackToInbox = async () => {
+    if (isStudioPreview) {
+      return;
     }
-  };
+    if (isLocalTest) {
+      window.location.assign(window.location.origin);
+      return;
+    }
 
-  const handleModalCloseButton = async () => {
     const queryParameterReturnUrl = new URLSearchParams(window.location.search).get('returnUrl');
-
     const messageBoxUrl = returnUrlToMessagebox(window.location.origin, party?.partyId);
 
     if (queryParameterReturnUrl) {
@@ -54,36 +51,33 @@ export const NavBar = ({ type }: INavBarProps) => {
     }
   };
 
-  const showBackArrow = !!previous && (type === ProcessTaskType.Data || type === PresentationType.Stateless);
   return (
     <nav
       className={classes.nav}
       aria-label={langAsString('navigation.main')}
     >
       <div>
-        {showBackArrow && (
+        {!hideCloseButton && (
           <Button
-            className={classes.buttonMargin}
-            onClick={handleBackArrowButton}
+            className={cn(classes.buttonMargin, classes.inboxButton)}
+            onClick={handleBackToInbox}
             variant='tertiary'
             color='second'
-            aria-label={langAsString('general.back')}
-            icon={true}
           >
             <Left
               fontSize='1rem'
               aria-hidden
             />
+            <Lang id={isMobile ? 'navigation.inbox' : 'navigation.back_to_inbox'} />
           </Button>
         )}
       </div>
-      <div className={classes.wrapper}>
+      <PopoverNavigation wrapper={(children) => <div className={classes.wrapper}>{children}</div>}>
         {showLanguageSelector && <LanguageSelector />}
-
         {showExpandWidthButton && (
           <Button
             data-testid='form-expand-button'
-            className={cn(classes.buttonMargin, { [classes.hideExpandButtonMaxWidth]: !expandedWidth })}
+            className={cn(classes.buttonMargin, classes.expandWidthButton)}
             onClick={toggleExpandedWidth}
             variant='tertiary'
             color='second'
@@ -105,22 +99,7 @@ export const NavBar = ({ type }: INavBarProps) => {
             )}
           </Button>
         )}
-        {!hideCloseButton && (
-          <Button
-            className={classes.buttonMargin}
-            onClick={handleModalCloseButton}
-            variant='tertiary'
-            color='second'
-            aria-label={langAsString('general.close_schema')}
-            icon={true}
-          >
-            <Close
-              fontSize='1rem'
-              aria-hidden
-            />
-          </Button>
-        )}
-      </div>
+      </PopoverNavigation>
     </nav>
   );
 };

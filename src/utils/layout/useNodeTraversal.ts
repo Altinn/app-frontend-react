@@ -358,6 +358,10 @@ export function useNodeTraversalSelector() {
   return useNodeTraversalSelectorProto(Strictness.throwError);
 }
 
+export function useLaxNodeTraversalSelector() {
+  return useNodeTraversalSelectorProto(Strictness.returnContextNotProvided);
+}
+
 export function useInnerNodeTraversalSelector(
   nodes: ReturnType<typeof useNodesLax>,
   nodeDataSelectorForTraversal: ReturnType<typeof NodesInternal.useDataSelectorForTraversal>,

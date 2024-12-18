@@ -1,4 +1,8 @@
 .nav {
+  max-width: var(--page-max-width);
+  padding: 0 var(--page-padding-x);
+  margin: 0 auto;
+
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -11,15 +15,27 @@
   display: flex;
   flex-direction: row;
   align-items: flex-end;
+  justify-content: space-between;
   gap: 1rem;
 }
 
-.buttonMargin {
+.button-margin {
   margin-top: calc(2 * var(--fds-focus-border-width));
 }
 
-@media only screen and (max-width: 1200px) {
-  button.hideExpandButtonMaxWidth {
-    display: none;
+.inbox-button {
+  color: var(--fds-colors-blue-700);
+}
+
+.inbox-button svg {
+  margin-right: 4px;
+}
+
+.expand-width-button {
+  display: none;
+}
+@media only screen and (min-width: 1200px) {
+  .expand-width-button {
+    display: flex;
   }
 }
