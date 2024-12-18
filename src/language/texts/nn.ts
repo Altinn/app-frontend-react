@@ -347,7 +347,7 @@ export function nn(): FixedLanguageList {
     },
     signee_list: {
       parse_error: 'Feil ved lasting av signatarliste.',
-      wrong_task_error: 'Denne komponenten er berre tilgjengeleg i eit signeringssteg.',
+      wrong_task_error: 'SigneeList-komponenten er berre tilgjengeleg i eit signeringssteg.',
       unknown_api_error: 'Ein feil oppstod under henting av signatarar.',
       api_error_display: 'Ein feil oppstod under henting av signatarar. Sjå devtool-loggane for meir informasjon.',
       signee_status_signed: 'Signert',
@@ -360,6 +360,7 @@ export function nn(): FixedLanguageList {
     },
     signing_document_list: {
       parse_error: 'Feil ved lasting av dokumenter.',
+      wrong_task_error: 'SigningDocumentList-komponenten er berre tilgjengeleg i eit signeringssteg.',
       unknown_api_error: 'Ein feil oppstod under henting av dokumenter.',
       api_error_display: 'Ein feil oppstod under henting av dokumenter. Sjå devtool-loggane for meir informasjon.',
       header_filename: 'Namn',
