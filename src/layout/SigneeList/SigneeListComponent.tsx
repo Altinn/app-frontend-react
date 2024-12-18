@@ -2,8 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 
 import { queryOptions, useQuery } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
-import { z, ZodError } from 'zod';
+import { z } from 'zod';
 
 import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
@@ -11,6 +10,7 @@ import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
+import { SigneeListError } from 'src/layout/SigneeList/SigneeListError';
 import { SigneeStateTag } from 'src/layout/SigneeList/SigneeStateTag';
 import { ProcessTaskType } from 'src/types';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -116,46 +116,4 @@ export function SigneeListComponent({ node }: SigneeListComponentProps) {
       ]}
     />
   );
-}
-
-function SigneeListError({ error }: { error: Error }) {
-  const { langAsString } = useLanguage();
-
-  if (error instanceof ZodError) {
-    //   // TODO: alarm? telemetri?
-    window.logErrorOnce(
-      `Did not get the expected response from the server. The response didn't match the expected schema: \n${error}`,
-    );
-
-    return (
-      <div>
-        <Lang id='signee_list.parse_error' />
-        <br />
-        <Lang
-          id='general.customer_service_error_message'
-          params={[
-            'general.customer_service_phone_number',
-            'general.customer_service_email',
-            'general.customer_service_slack',
-          ].map((it, idx) => (
-            <Lang
-              key={idx}
-              id={it?.toString()}
-            />
-          ))}
-        />
-      </div>
-    );
-  }
-
-  if (isAxiosError(error)) {
-    const parsed = problemDetailsSchema.safeParse(error.response?.data);
-
-    if (parsed.success) {
-      window.logErrorOnce(langAsString(error.message));
-      return <Lang id='signee_list.api_error_display' />;
-    }
-  }
-
-  return <Lang id='signee_list.unknown_api_error' />;
 }
