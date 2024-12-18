@@ -364,6 +364,7 @@ export function en() {
       header_filename: 'Name',
       header_attachment_type: 'Attachment type',
       header_size: 'Size',
+      attachment_type_form: 'Form',
     },
     helptext: {
       button_title: 'Help',

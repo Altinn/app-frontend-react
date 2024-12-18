@@ -365,6 +365,7 @@ export function nb(): FixedLanguageList {
       header_filename: 'Navn',
       header_attachment_type: 'Vedleggstype',
       header_size: 'Størrelse',
+      attachment_type_form: 'Skjema',
     },
     helptext: {
       button_title: 'Hjelp',
