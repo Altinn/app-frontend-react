@@ -28,10 +28,6 @@
   display: grid;
   align-items: start;
 
-  .label {
-    padding-bottom: var(--fds-spacing-2);
-  }
-
   .ssnLabel {
     grid-area: ssnLabel;
   }

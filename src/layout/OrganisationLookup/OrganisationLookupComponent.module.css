@@ -35,7 +35,6 @@
   align-items: start;
 
   .orgnrLabel {
-    padding-bottom: var(--fds-spacing-2);
     grid-area: orgnrLabel;
   }
 

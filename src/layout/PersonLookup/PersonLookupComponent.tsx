@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 import { ErrorMessage } from '@digdir/designsystemet-react';
 import { queryOptions, useQuery } from '@tanstack/react-query';
-import cn from 'classnames';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Input } from 'src/app-components/Input/Input';
@@ -159,7 +158,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
         node={node}
         className={classes.componentWrapper}
       >
-        <div className={cn(classes.label, classes.ssnLabel)}>
+        <div className={classes.ssnLabel}>
           <Label
             htmlFor={`${id}_ssn`}
             label={langAsString('person_lookup.ssn_label')}
@@ -195,7 +194,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
           onBlur={(e) => handleValidateSsn(e.target.value)}
           allowLeadingZeros
         />
-        <div className={cn(classes.label, classes.nameLabel)}>
+        <div className={classes.nameLabel}>
           <Label
             htmlFor={`${id}_name`}
             required={required}
