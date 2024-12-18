@@ -63,7 +63,11 @@ export function SigneeListComponent({ node }: SigneeListComponentProps) {
   const { langAsString } = useLanguage();
   const { textResourceBindings } = useNodeItem(node);
 
-  const { data: result, error: apiError } = useQuery({
+  const {
+    data: result,
+    isLoading,
+    error: apiError,
+  } = useQuery({
     ...signeeListQueries.all(partyId!, instanceGuid!),
     enabled: taskType === ProcessTaskType.Signing,
   });
@@ -80,6 +84,7 @@ export function SigneeListComponent({ node }: SigneeListComponentProps) {
     <AppTable
       size='md'
       data={result ?? []}
+      isLoading={isLoading}
       headerClassName={classes.header}
       tableClassName={classes.table}
       caption={
