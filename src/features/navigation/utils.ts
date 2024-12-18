@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useGetAltinnTaskType } from 'src/features/instance/ProcessContext';
 import { ValidationMask } from 'src/features/validation';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useLaxNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
@@ -22,15 +23,32 @@ export function useVisiblePages(order: string[]) {
   return useMemo(() => order.filter((page) => !hiddenPages.has(page)), [order, hiddenPages]);
 }
 
+export function useGetTaskGroupType() {
+  const getTaskType = useGetAltinnTaskType();
+  return (group: NavigationTask | NavigationReceipt) => ('taskId' in group ? getTaskType(group.taskId) : group.type);
+}
+
 /**
  * If no name is is given to the navigation task, a default name will be used instead.
  */
-export function getTaskName(taskGroup: NavigationTask | NavigationReceipt): string {
-  if (taskGroup.name) {
-    return taskGroup.name;
-  }
+export function useGetTaskName() {
+  const getTaskType = useGetTaskGroupType();
 
-  return `taskTypes.${taskGroup.type}`;
+  return (group: NavigationTask | NavigationReceipt) => {
+    if (group.name) {
+      return group.name;
+    }
+
+    const type = getTaskType(group);
+    if (!type) {
+      if ('taskId' in group) {
+        window.logErrorOnce(`Navigation component could not find a task with id '${group.taskId}'.`);
+      }
+      return '';
+    }
+
+    return `taskTypes.${type}`;
+  };
 }
 
 /**

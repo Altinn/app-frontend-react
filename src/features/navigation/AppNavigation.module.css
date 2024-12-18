@@ -36,6 +36,7 @@
 }
 
 .group-name-active {
+  color: var(--fds-colors-grey-800);
   text-decoration-line: underline;
   text-decoration-skip-ink: none;
   text-underline-offset: 3px;

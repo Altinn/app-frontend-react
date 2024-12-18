@@ -17,11 +17,17 @@ import cn from 'classnames';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useGetAltinnTaskType } from 'src/features/instance/ProcessContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/AppNavigation.module.css';
-import { getTaskName, useValidationsForPages, useVisiblePages } from 'src/features/navigation/utils';
+import {
+  useGetTaskGroupType,
+  useGetTaskName,
+  useValidationsForPages,
+  useVisiblePages,
+} from 'src/features/navigation/utils';
 import { useIsReceiptPage, useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
@@ -51,7 +57,7 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
             ));
           }
 
-          const receiptActive = isReceipt && taskGroup.type === 'receipt';
+          const receiptActive = 'type' in taskGroup && taskGroup.type === 'receipt' && isReceipt;
           const taskActive = 'taskId' in taskGroup && taskGroup.taskId === currentTaskId;
           return (
             <TaskGroup
@@ -111,8 +117,28 @@ export function AppNavigationHeading({
   );
 }
 
+function getTaskIcon(type: string | undefined) {
+  switch (type) {
+    case 'data':
+      return TasklistIcon;
+    case 'confirmation':
+      return SealCheckmarkIcon;
+    case 'signing':
+      return PencilLineIcon;
+    case 'payment':
+      return CardIcon;
+    case 'receipt':
+      return ReceiptIcon;
+    default:
+      return FolderIcon;
+  }
+}
+
 function TaskGroup({ group, active }: { group: NavigationTask | NavigationReceipt; active: boolean }) {
-  const Icon = getTaskIcon(group.type);
+  const getTaskType = useGetTaskGroupType();
+  const getTaskName = useGetTaskName();
+
+  const Icon = getTaskIcon(getTaskType(group));
 
   return (
     <li>
@@ -129,21 +155,6 @@ function TaskGroup({ group, active }: { group: NavigationTask | NavigationReceip
       </button>
     </li>
   );
-}
-
-function getTaskIcon(type: NavigationTask['type'] | NavigationReceipt['type']) {
-  switch (type) {
-    case 'data':
-      return TasklistIcon;
-    case 'confirmation':
-      return SealCheckmarkIcon;
-    case 'signing':
-      return PencilLineIcon;
-    case 'payment':
-      return CardIcon;
-    case 'receipt':
-      return ReceiptIcon;
-  }
 }
 
 function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNavigate?: () => void }) {
@@ -204,11 +215,14 @@ function PageGroupSymbol({
   open: boolean;
   active: boolean;
 }) {
+  const getTaskType = useGetAltinnTaskType();
+  const currentTaskId = useProcessTaskId();
+
   const showActive = active && !open;
   const showError = error && !active && !open;
   const showComplete = complete && !error && !active && !open;
 
-  const Icon = showError ? ExclamationmarkIcon : showComplete ? CheckmarkIcon : FolderIcon;
+  const Icon = showError ? ExclamationmarkIcon : showComplete ? CheckmarkIcon : getTaskIcon(getTaskType(currentTaskId));
 
   return (
     <div

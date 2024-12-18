@@ -696,11 +696,9 @@ const common = {
         'taskNavigation',
         new CG.arr(
           new CG.union(
-            new CG.obj(
-              new CG.prop('name', new CG.str().optional()),
-              new CG.prop('type', new CG.enum('data', 'signing', 'confirmation', 'payment')),
-              new CG.prop('taskId', new CG.str()),
-            ).exportAs('NavigationTask'),
+            new CG.obj(new CG.prop('name', new CG.str().optional()), new CG.prop('taskId', new CG.str())).exportAs(
+              'NavigationTask',
+            ),
             new CG.obj(
               new CG.prop('name', new CG.str().optional()),
               new CG.prop('type', new CG.const('receipt')),

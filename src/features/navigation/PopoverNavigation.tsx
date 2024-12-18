@@ -11,7 +11,7 @@ import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { Lang } from 'src/features/language/Lang';
 import { AppNavigation, AppNavigationHeading } from 'src/features/navigation/AppNavigation';
 import classes from 'src/features/navigation/PopoverNavigation.module.css';
-import { getTaskName, SIDEBAR_BREAKPOINT, useHasGroupedNavigation } from 'src/features/navigation/utils';
+import { SIDEBAR_BREAKPOINT, useGetTaskName, useHasGroupedNavigation } from 'src/features/navigation/utils';
 import { useIsReceiptPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useBrowserWidth, useIsMobile } from 'src/hooks/useDeviceWidths';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
@@ -166,8 +166,12 @@ function useTaskProgress(): NavigationButtonData | null {
   const currentTaskId = useProcessTaskId();
   const isReceipt = useIsReceiptPage();
 
+  const getTaskName = useGetTaskName();
+
   const currentGroup = taskGroups.find(
-    (group) => (group.type === 'receipt' && isReceipt) || ('taskId' in group && group.taskId === currentTaskId),
+    (group) =>
+      ('type' in group && group.type === 'receipt' && isReceipt) ||
+      ('taskId' in group && group.taskId === currentTaskId),
   );
 
   if (!currentGroup) {
