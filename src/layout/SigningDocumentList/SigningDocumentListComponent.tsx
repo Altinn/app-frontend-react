@@ -9,10 +9,12 @@ import { z } from 'zod';
 import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { SigningDocumentListError } from 'src/layout/SigningDocumentList/SigningDocumentListError';
+import { ProcessTaskType } from 'src/types';
 import { DataTypeReference, getSizeWithUnit } from 'src/utils/attachmentsUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -58,6 +60,7 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
   const { partyId, instanceGuid } = useParams();
   const { textResourceBindings } = useNodeItem(node);
   const isDataModelDataElement = useIsDataModelDataElement();
+  const taskType = useTaskTypeFromBackend();
   const { langAsString } = useLanguage();
 
   const { data, isLoading, error } = useQuery({
@@ -66,6 +69,10 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
     staleTime: 1000 * 60 * 30, // 30 minutes
     select: (data) => data.filter((it) => !isDataModelDataElement(it.dataType)),
   });
+
+  if (taskType !== ProcessTaskType.Signing) {
+    return <Lang id='signing_document_list.wrong_task_error' />;
+  }
 
   if (error) {
     return <SigningDocumentListError error={error} />;
