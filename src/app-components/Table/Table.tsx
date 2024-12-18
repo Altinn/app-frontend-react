@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button, Table } from '@digdir/designsystemet-react';
+import { Button, Spinner, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import { format, isValid, parseISO } from 'date-fns';
 import { pick } from 'dot-object';
@@ -35,6 +35,7 @@ interface DataTableProps<T> {
   size?: 'sm' | 'md' | 'lg';
   zebra?: boolean;
   stickyHeader?: boolean;
+  isLoading?: boolean;
   tableClassName?: string;
   headerClassName?: string;
 }
@@ -77,6 +78,7 @@ export function AppTable<T>({
   stickyHeader,
   tableClassName,
   headerClassName,
+  isLoading = false,
 }: DataTableProps<T>) {
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
@@ -106,79 +108,94 @@ export function AppTable<T>({
         </Table.Row>
       </Table.Head>
       <Table.Body>
-        {data.map((rowData, rowIndex) => (
-          <Table.Row key={rowIndex}>
-            {columns.map((col, colIndex) => {
-              const cellValues = col.accessors
-                .map((accessor) => pick(accessor, rowData) as FormDataValue)
-                .filter((value) => value != null);
-
-              if (col.renderCell) {
-                return (
-                  <Table.Cell
-                    key={colIndex}
-                    data-header-title={col.header}
-                  >
-                    {col.renderCell(cellValues, rowData, rowIndex)}
-                  </Table.Cell>
-                );
-              }
-
-              if (cellValues.length === 0) {
-                return (
-                  <Table.Cell
-                    key={colIndex}
-                    data-header-title={col.header}
-                  >
-                    -
-                  </Table.Cell>
-                );
-              }
-
-              if (cellValues.length === 1) {
-                return (
-                  <Table.Cell
-                    key={colIndex}
-                    data-header-title={col.header}
-                  >
-                    {formatValue(cellValues[0])}
-                  </Table.Cell>
-                );
-              }
-
-              return (
-                <Table.Cell
-                  key={colIndex}
-                  data-header-title={col.header}
-                >
-                  <ul>
-                    {cellValues.map((value, idx) => (
-                      <li key={idx}>{formatValue(value)}</li>
-                    ))}
-                  </ul>
-                </Table.Cell>
-              );
-            })}
-            {actionButtons && actionButtons.length > 0 && (
-              <Table.Cell>
-                <div className={classes.buttonContainer}>
-                  {actionButtons.map((button, idx) => (
-                    <Button
-                      key={idx}
-                      onClick={() => button.onClick(rowIndex, rowData)}
-                      size='sm'
-                      variant={button.variant ? button.variant : defaultButtonVariant}
-                      color={button.color ? button.color : 'second'}
-                    >
-                      {button.buttonText}
-                      {button.icon}
-                    </Button>
-                  ))}
-                </div>
-              </Table.Cell>
-            )}
+        {isLoading ? (
+          <Table.Row>
+            <Table.Cell
+              colSpan={columns.length + (actionButtons ? 1 : 0)}
+              style={{ textAlign: 'center' }}
+            >
+              <Spinner
+                title='Loading data...'
+                variant='default'
+                size='md'
+              />
+            </Table.Cell>
           </Table.Row>
-        ))}
+        ) : (
+          data.map((rowData, rowIndex) => (
+            <Table.Row key={rowIndex}>
+              {columns.map((col, colIndex) => {
+                const cellValues = col.accessors
+                  .map((accessor) => pick(accessor, rowData) as FormDataValue)
+                  .filter((value) => value != null);
+
+                if (col.renderCell) {
+                  return (
+                    <Table.Cell
+                      key={colIndex}
+                      data-header-title={col.header}
+                    >
+                      {col.renderCell(cellValues, rowData, rowIndex)}
+                    </Table.Cell>
+                  );
+                }
+
+                if (cellValues.length === 0) {
+                  return (
+                    <Table.Cell
+                      key={colIndex}
+                      data-header-title={col.header}
+                    >
+                      -
+                    </Table.Cell>
+                  );
+                }
+
+                if (cellValues.length === 1) {
+                  return (
+                    <Table.Cell
+                      key={colIndex}
+                      data-header-title={col.header}
+                    >
+                      {formatValue(cellValues[0])}
+                    </Table.Cell>
+                  );
+                }
+
+                return (
+                  <Table.Cell
+                    key={colIndex}
+                    data-header-title={col.header}
+                  >
+                    <ul>
+                      {cellValues.map((value, idx) => (
+                        <li key={idx}>{formatValue(value)}</li>
+                      ))}
+                    </ul>
+                  </Table.Cell>
+                );
+              })}
+              {actionButtons && actionButtons.length > 0 && (
+                <Table.Cell>
+                  <div className={classes.buttonContainer}>
+                    {actionButtons.map((button, idx) => (
+                      <Button
+                        key={idx}
+                        onClick={() => button.onClick(rowIndex, rowData)}
+                        size='sm'
+                        variant={button.variant ? button.variant : defaultButtonVariant}
+                        color={button.color ? button.color : 'second'}
+                      >
+                        {button.buttonText}
+                        {button.icon}
+                      </Button>
+                    ))}
+                  </div>
+                </Table.Cell>
+              )}
+            </Table.Row>
+          ))
+        )}
       </Table.Body>
     </Table>
   );
