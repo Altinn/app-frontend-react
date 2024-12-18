@@ -14,17 +14,15 @@ const signeeStateSchema = z
   })
   .refine(({ name, organisation }) => name || organisation, 'Either name or organisation must be present.');
 
-type SigneeState = z.infer<typeof signeeStateSchema>;
+export type SigneeState = z.infer<typeof signeeStateSchema>;
 
-export const signeeListQueries = {
-  all: (partyId: string, instanceGuid: string) =>
-    queryOptions({
-      queryKey: ['signeeList', partyId, instanceGuid],
-      queryFn: () => fetchSigneeList(partyId, instanceGuid),
-    }),
-};
+export const signeeListQuery = (partyId: string, instanceGuid: string) =>
+  queryOptions({
+    queryKey: ['signeeList', partyId, instanceGuid],
+    queryFn: () => fetchSigneeList(partyId, instanceGuid),
+  });
 
-async function fetchSigneeList(partyId: string, instanceGuid: string): Promise<SigneeState[]> {
+export async function fetchSigneeList(partyId: string, instanceGuid: string): Promise<SigneeState[]> {
   const url = `${appPath}/instances/${partyId}/${instanceGuid}/signing`;
 
   const response = await httpGet(url);
