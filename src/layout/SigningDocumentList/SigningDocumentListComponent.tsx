@@ -60,7 +60,7 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
   const isDataModelDataElement = useIsDataModelDataElement();
   const { langAsString } = useLanguage();
 
-  const { data, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['signingDocumentList', partyId, instanceGuid],
     queryFn: () => fetchDocumentList(partyId!, instanceGuid!),
     staleTime: 1000 * 60 * 30, // 30 minutes
@@ -74,6 +74,7 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
   return (
     <AppTable
       size='md'
+      isLoading={isLoading}
       headerClassName={classes.header}
       tableClassName={classes.table}
       data={data ?? []}
