@@ -197,59 +197,41 @@ abstract class BaseDelayedSelector<C extends DSConfig> {
       this.unsubscribeMethod = this.subscribeToStore();
     }
 
-    const state = this.store.getState();
+    let fullSelector: Selector<TypeFromConf<C>, unknown>;
 
     if (this.mode.mode === 'simple') {
       const { selector } = this.mode as SimpleArgMode;
-      const fullSelector: Selector<TypeFromConf<C>, unknown> = (state) => selector(...args)(state);
-      const value = fullSelector(state);
-      this.selectorsCalled.set(cacheKey, { fullSelector, value });
-
-      if (returnPrev && prev) {
-        if (!this.equalityFn(value, prev.value)) {
-          console.warn(
-            'Delayed selector: When selecting, the prev and next value are not equal. You probably forgot ' +
-              'to pass one or more dependencies. The prev value will be returned, even if the next ' +
-              'value is the latest state.',
-            { prev: prev.value, next: value },
-          );
-        }
-        return prev.value;
-      }
-
-      return value;
-    }
-
-    if (this.mode.mode === 'innerSelector') {
+      fullSelector = (state) => selector(...args)(state);
+    } else if (this.mode.mode === 'innerSelector') {
       const { makeArgs } = this.mode as InnerSelectorMode;
       if (typeof args[0] !== 'function' || !Array.isArray(args[1]) || args.length !== 2) {
         throw new Error('useDelayedSelector: innerSelector must be a function');
       }
-      const fullSelector: Selector<TypeFromConf<C>, unknown> = (state) => {
+      fullSelector = (state) => {
         const innerArgs = makeArgs(state);
         const innerSelector = args[0] as (...args: typeof innerArgs) => unknown;
         return innerSelector(...innerArgs);
       };
-
-      const value = fullSelector(state);
-      this.selectorsCalled.set(cacheKey, { fullSelector, value });
-
-      if (returnPrev && prev) {
-        if (!this.equalityFn(value, prev.value)) {
-          console.warn(
-            'Delayed selector: When selecting, the prev and next value are not equal. You probably forgot ' +
-              'to pass one or more dependencies. The prev value will be returned, even if the next ' +
-              'value is the latest state.',
-            { prev: prev.value, next: value },
-          );
-        }
-        return prev.value;
-      }
-
-      return value;
+    } else {
+      throw new Error('useDelayedSelector: invalid mode');
     }
 
-    throw new Error('useDelayedSelector: invalid mode');
+    const value = fullSelector(this.store.getState());
+
+    if (returnPrev && prev) {
+      if (!this.equalityFn(value, prev.value)) {
+        console.warn(
+          'Delayed selector: When selecting, the prev and next value are not equal. You probably forgot ' +
+            'to pass one or more dependencies. The prev value will be returned, even if the next ' +
+            'value is the latest state.',
+          { prev: prev.value, next: value },
+        );
+      }
+      return prev.value;
+    }
+
+    this.selectorsCalled.set(cacheKey, { fullSelector, value });
+    return value;
   }
 }
 
