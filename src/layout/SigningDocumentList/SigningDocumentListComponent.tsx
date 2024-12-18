@@ -4,16 +4,15 @@ import { useParams } from 'react-router-dom';
 import { Link } from '@digdir/designsystemet-react';
 import { DownloadIcon } from '@navikt/aksel-icons';
 import { useQuery } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
-import { z, ZodError } from 'zod';
+import { z } from 'zod';
 
 import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { problemDetailsSchema } from 'src/layout/SigneeList/SigneeListComponent';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
+import { SigningDocumentListError } from 'src/layout/SigningDocumentList/SigningDocumentListError';
 import { DataTypeReference, getSizeWithUnit } from 'src/utils/attachmentsUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -128,49 +127,6 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
       ]}
     />
   );
-}
-
-function SigningDocumentListError({ error }: { error: Error }) {
-  const { langAsString } = useLanguage();
-
-  if (error instanceof ZodError) {
-    //   // TODO: alarm? telemetri?
-    window.logErrorOnce(
-      `Did not get the expected response from the server. The response didn't match the expected schema: \n${error}`,
-    );
-
-    return (
-      <div>
-        <Lang id='signing_document_list.parse_error' />
-        <br />
-        <Lang
-          id='general.customer_service_error_message'
-          params={[
-            'general.customer_service_phone_number',
-            'general.customer_service_email',
-            'general.customer_service_slack',
-          ].map((it, idx) => (
-            <Lang
-              key={idx}
-              id={it?.toString()}
-            />
-          ))}
-        />
-      </div>
-    );
-  }
-
-  if (isAxiosError(error)) {
-    const parsed = problemDetailsSchema.safeParse(error.response?.data);
-
-    if (parsed.success) {
-      window.logErrorOnce(langAsString(error.message));
-      window.logErrorOnce(parsed);
-      return <Lang id='signing_document_list.api_error_display' />;
-    }
-  }
-
-  return <Lang id='signing_document_list.unknown_api_error' />;
 }
 
 function useIsDataModelDataElement() {
