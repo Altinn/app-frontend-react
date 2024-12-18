@@ -8,7 +8,7 @@ let isDevCache: boolean | null = null;
  * This can be either through LocalTest, altinn studio preview or TT02.
  */
 export function isDev(): boolean {
-  if (isDevCache !== null) {
+  if (isDevCache !== null && !window.inUnitTest) {
     return isDevCache;
   }
   isDevCache = isLocalOrStaging() || isStudioPreview();

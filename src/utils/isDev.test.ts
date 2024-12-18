@@ -9,7 +9,7 @@ function mockHostName(hostname: string) {
   jest.spyOn(window, 'location', 'get').mockReturnValue({ ...location, hostname });
 }
 
-describe('useIsDev', () => {
+describe('isDev', () => {
   beforeEach(() => {
     jest.spyOn(window, 'location', 'get').mockRestore();
   });
