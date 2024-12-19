@@ -124,7 +124,7 @@ export function useFetchOptions({ node, item, dataSources }: FetchOptionsProps) 
   const { options, optionsId, source, optionFilter } = item;
   const url = useOptionsUrl(node, item, dataSources);
 
-  const sourceOptions = useSourceOptions({ source, node, dataSources, addNodesPerRow: !!optionFilter });
+  const sourceOptions = useSourceOptions({ source, node, dataSources, addRowInfo: !!optionFilter });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
   const { data, isFetching, error } = useGetOptionsQuery(url);
   useLogFetchError(error, item);
@@ -181,12 +181,17 @@ export function useFilteredAndSortedOptions({
 
     if (optionFilter !== undefined && ExprValidation.isValid(optionFilter)) {
       options = options.filter((o) => {
-        const { rowNode, ...option } = o;
+        const { rowNode, dataModelLocation, ...option } = o;
         const valueArguments: ExprValueArgs<IOptionInternal> = {
           data: option,
           defaultKey: 'value',
         };
-        const keep = evalExpr(optionFilter, rowNode ?? node, dataSources, { valueArguments });
+        const keep = evalExpr(
+          optionFilter,
+          rowNode ?? node,
+          { ...dataSources, currentDataModelPath: dataModelLocation },
+          { valueArguments },
+        );
         if (!keep && selectedValues.includes(option.value)) {
           window.logWarnOnce(
             `Node '${node.id}': Option with value "${option.value}" was selected, but the option filter ` +
@@ -212,9 +217,9 @@ export function useFilteredAndSortedOptions({
       options.sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
     }
 
-    // Always remove the rowNode at this point, if it exists on the options. It is only to be used in the filtering
+    // Always remove the rowNode and dataModelLocation at this point. It is only to be used in the filtering
     // process, and will not ruin the comparison later to make sure the state is set in zustand.
-    options = options.map((option) => ({ ...option, rowNode: undefined }));
+    options = options.map((option) => ({ ...option, rowNode: undefined, dataModelLocation: undefined }));
 
     return { options, preselectedOption };
   }, [

@@ -13,14 +13,14 @@ interface IUseSourceOptionsArgs {
   source: IOptionSource | undefined;
   node: LayoutNode;
   dataSources: ExpressionDataSources;
-  addNodesPerRow: boolean;
+  addRowInfo: boolean;
 }
 
 export const useSourceOptions = ({
   source,
   node,
   dataSources,
-  addNodesPerRow,
+  addRowInfo,
 }: IUseSourceOptionsArgs): IOptionInternal[] | undefined =>
   useMemoDeepEqual(() => {
     if (!source) {
@@ -50,7 +50,7 @@ export const useSourceOptions = ({
     }
 
     let repGroupNode: LayoutNode<'RepeatingGroup'> | undefined;
-    if (addNodesPerRow) {
+    if (addRowInfo) {
       repGroupNode = nodeTraversal(
         (t) =>
           t.allNodes(
@@ -107,11 +107,12 @@ export const useSourceOptions = ({
         description: resolveText(description, node, modifiedDataSources, nonTransposed),
         helpText: resolveText(helpText, node, modifiedDataSources, nonTransposed),
         rowNode,
+        dataModelLocation: addRowInfo ? transposed : undefined,
       });
     }
 
     return output;
-  }, [source, node, dataSources, addNodesPerRow]);
+  }, [source, node, dataSources, addRowInfo]);
 
 function resolveText(
   text: ExprValToActualOrExpr<ExprVal.String> | undefined,

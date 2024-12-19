@@ -1,4 +1,4 @@
-import type { IRawOption } from 'src/layout/common.generated';
+import type { IDataModelReference, IRawOption } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IOptionInternal extends Omit<IRawOption, 'value'> {
@@ -13,6 +13,7 @@ export interface IOptionInternal extends Omit<IRawOption, 'value'> {
    * @see useSourceOptions
    */
   rowNode?: LayoutNode;
+  dataModelLocation?: IDataModelReference;
 }
 
 type ReplaceWithStrings<T> = T extends IRawOption[] ? IOptionInternal[] : T;
