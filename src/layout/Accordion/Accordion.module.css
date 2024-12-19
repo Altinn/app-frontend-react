@@ -7,3 +7,7 @@
     break-inside: avoid;
   }
 }
+
+.fullWidth {
+  width: 100%;
+}

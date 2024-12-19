@@ -1,6 +1,6 @@
 import React from 'react';
 
-import classes from 'src/layout/Text/Text.module.css';
+import classes from 'src/app-components/Text/Text.module.css';
 
 interface TextProps {
   value: string;

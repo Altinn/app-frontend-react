@@ -1,7 +1,6 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import Grid from '@material-ui/core/Grid';
 import cn from 'classnames';
 
 import { LogoColor } from 'src/components/logo/AltinnLogo';
@@ -35,6 +34,10 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
   const instanceStatus = useLaxInstanceStatus();
   const userParty = useProfile()?.party;
   const { expandedWidth } = useUiConfigContext();
+
+  const { showProgress } = usePageSettings();
+  const isProgressEnabled = type !== ProcessTaskType.Archived && showProgress;
+  const showProgressBar = isProgressEnabled && showProgress;
 
   const realHeader = header || (type === ProcessTaskType.Archived ? <Lang id='receipt.receipt' /> : undefined);
 
@@ -71,9 +74,7 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
               className={classes.modal}
               tabIndex={-1}
             >
-              <Header header={realHeader}>
-                <ProgressBar type={type} />
-              </Header>
+              <Header header={realHeader}>{showProgressBar && <Progress />}</Header>
               <div className={classes.modalBody}>{children}</div>
             </section>
           </main>
@@ -83,24 +84,6 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
     </RenderStart>
   );
 };
-
-function ProgressBar({ type }: { type: ProcessTaskType | PresentationType }) {
-  const { showProgress } = usePageSettings();
-  const enabled = type !== ProcessTaskType.Archived && showProgress;
-
-  if (!enabled) {
-    return null;
-  }
-
-  return (
-    <Grid
-      item
-      aria-live='polite'
-    >
-      <Progress />
-    </Grid>
-  );
-}
 
 const { Provider: PresentationProvider, useHasProvider } = createContext<undefined>({
   name: 'Presentation',
