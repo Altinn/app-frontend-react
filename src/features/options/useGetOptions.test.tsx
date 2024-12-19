@@ -222,7 +222,7 @@ describe('useGetOptions', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('options').textContent).toEqual(JSON.stringify(unfilteredOptions));
+      expect(JSON.parse(screen.getByTestId('options').textContent ?? 'null')).toEqual(unfilteredOptions);
     });
 
     expect(window.logWarnOnce).toHaveBeenCalledWith(
@@ -240,11 +240,13 @@ describe('useGetOptions', () => {
       options: [remainingOption, { label: 'second', value: 'foo' }],
     });
 
-    await waitFor(() => expect(screen.getByTestId('options').textContent).toEqual(JSON.stringify([remainingOption])));
+    await waitFor(() =>
+      expect(JSON.parse(screen.getByTestId('options').textContent ?? 'null')).toEqual([remainingOption]),
+    );
 
     expect(window.logWarnOnce).toHaveBeenCalledWith(
       'Option was duplicate value (and was removed). With duplicate values, it is impossible to tell which of the options the user selected.\n',
-      JSON.stringify({ label: 'second', value: 'foo' }, null, 2),
+      JSON.stringify({ value: 'foo', label: 'second' }, null, 2),
     );
   });
 
