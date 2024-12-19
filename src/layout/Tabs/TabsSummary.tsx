@@ -50,6 +50,7 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
             <Flex
               container
               spacing={6}
+              alignItems='flex-start'
             >
               {tab.childIds.filter(typedBoolean).map((nodeId) => (
                 <ComponentSummaryById

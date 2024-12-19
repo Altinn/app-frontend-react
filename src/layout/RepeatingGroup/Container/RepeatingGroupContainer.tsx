@@ -38,18 +38,21 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
 
   return (
     <Flex
+      container
+      item
       data-componentid={node.id}
       data-componentbaseid={node.baseId}
       ref={ref}
-      container
-      item
     >
       {(!mode || mode === 'showTable') && <ModeOnlyTable />}
       {mode === 'onlyTable' && <ModeOnlyTable />}
       {mode === 'hideTable' && editingId === undefined && <ModeOnlyTable />}
       {mode === 'hideTable' && editingId !== undefined && <ModeOnlyEdit editingId={editingId} />}
       {mode === 'showAll' && <ModeShowAll />}
-      <Flex>
+      <Flex
+        item
+        size={{ xs: 12 }}
+      >
         <AllComponentValidations node={node} />
       </Flex>
     </Flex>

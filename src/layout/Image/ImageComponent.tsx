@@ -48,21 +48,29 @@ export function ImageComponent({ node }: IImageProps) {
     <ComponentStructureWrapper node={node}>
       <Flex
         container
+        direction='row'
         justifyContent={align}
         spacing={2}
       >
-        <InnerImage
-          id={id}
-          renderSvg={renderSvg}
-          altText={altText}
-          imgSrc={imgSrc}
-          width={width}
-        />
-        {textResourceBindings?.help && (
-          <HelpTextContainer
-            helpText={<Lang id={textResourceBindings.help} />}
-            title={altText}
+        <Flex item>
+          <InnerImage
+            id={id}
+            renderSvg={renderSvg}
+            altText={altText}
+            imgSrc={imgSrc}
+            width={width}
           />
+        </Flex>
+        {textResourceBindings?.help && (
+          <Flex
+            item
+            //className={classes.spacing}
+          >
+            <HelpTextContainer
+              helpText={<Lang id={textResourceBindings.help} />}
+              title={altText}
+            />
+          </Flex>
         )}
       </Flex>
     </ComponentStructureWrapper>

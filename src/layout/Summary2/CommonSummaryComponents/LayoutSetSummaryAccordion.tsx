@@ -34,6 +34,7 @@ export function LayoutSetSummaryAccordion({ filteredPages }: LayoutSetAccordionS
             <Flex
               container
               spacing={6}
+              alignItems='flex-start'
             >
               <PageSummary
                 pageId={layoutId}

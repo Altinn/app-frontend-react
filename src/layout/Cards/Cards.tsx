@@ -22,15 +22,14 @@ function parseSize(size: string | undefined, defaultValue: string): string {
 
 export const Cards = ({ node }: ICardsProps) => {
   const { cardsInternal, minMediaHeight, minWidth, color, mediaPosition: _mediaPosition } = useNodeItem(node);
+  const processedMinWidth = parseSize(minWidth, '250px');
   const processedMinMediaHeight = parseSize(minMediaHeight, '150px');
   const mediaPosition = _mediaPosition ?? 'top';
-  const processedMinWidth = parseSize(minWidth, '250px');
 
   const cardContainer: CSSProperties = {
     display: 'grid',
     gap: '28px',
     gridTemplateColumns: `repeat(auto-fit, minmax(${processedMinWidth}, 1fr))`,
-    width: '100%',
   };
 
   return (
@@ -40,7 +39,7 @@ export const Cards = ({ node }: ICardsProps) => {
           <Card
             key={idx}
             color={color}
-            style={{ height: '100%', minWidth: processedMinWidth, flexGrow: 1 }}
+            style={{ height: '100%' }}
           >
             {mediaPosition === 'top' && (
               <Media
@@ -62,21 +61,28 @@ export const Cards = ({ node }: ICardsProps) => {
             {card.childIds && card.childIds.length > 0 && (
               <Flex
                 container
-                justifyContent='flex-start'
-                spacing={2}
-                style={{ flex: 0 }}
+                item
+                direction='row'
+                spacing={6}
               >
-                <CardProvider
-                  node={node}
-                  renderedInMedia={false}
+                <Flex
+                  container
+                  alignItems='flex-start'
+                  item
+                  spacing={6}
                 >
-                  {card.childIds.map((childId, idx) => (
-                    <GenericComponentById
-                      key={idx}
-                      id={childId}
-                    />
-                  ))}
-                </CardProvider>
+                  <CardProvider
+                    node={node}
+                    renderedInMedia={false}
+                  >
+                    {card.childIds.map((childId, idx) => (
+                      <GenericComponentById
+                        key={idx}
+                        id={childId}
+                      />
+                    ))}
+                  </CardProvider>
+                </Flex>
               </Flex>
             )}
             {card.footer && (

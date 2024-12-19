@@ -57,7 +57,7 @@ function ChildComponent({
 
   if (child.isType('Group')) {
     return (
-      <Flex>
+      <Flex item>
         <GroupSummary
           componentNode={child}
           hierarchyLevel={hierarchyLevel ? hierarchyLevel + 1 : 1}

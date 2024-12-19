@@ -17,21 +17,25 @@ export function AltinnSubstatusPaper({ label, description }: IInformationPaperPr
         container
         direction='column'
       >
-        <Typography
-          id='substatus-label'
-          style={{
-            fontSize: '1.5rem',
-            marginBottom: description ? '0.5rem' : '',
-          }}
-        >
-          {label}
-        </Typography>
-        <Typography
-          id='substatus-description'
-          style={{ fontSize: '1.125rem' }}
-        >
-          {description}
-        </Typography>
+        <Flex item>
+          <Typography
+            id='substatus-label'
+            style={{
+              fontSize: '1.5rem',
+              marginBottom: description ? '0.5rem' : '',
+            }}
+          >
+            {label}
+          </Typography>
+        </Flex>
+        <Flex item>
+          <Typography
+            id='substatus-description'
+            style={{ fontSize: '1.125rem' }}
+          >
+            {description}
+          </Typography>
+        </Flex>
       </Flex>
     </AltinnInformationPaper>
   );

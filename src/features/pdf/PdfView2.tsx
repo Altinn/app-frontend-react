@@ -197,6 +197,7 @@ function PlainPage({ pageKey }: { pageKey: string }) {
       <Flex
         container
         spacing={6}
+        alignItems='flex-start'
       >
         {children.map((node) => (
           <GenericComponent
@@ -231,6 +232,7 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
       <Flex
         container
         spacing={6}
+        alignItems='flex-start'
       >
         {children.map((node) => (
           <PdfForNode

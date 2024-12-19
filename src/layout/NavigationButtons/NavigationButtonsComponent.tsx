@@ -139,7 +139,10 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
           </Flex>
         )}
         {!disablePrevious && showBackButton && (
-          <Flex item>
+          <Flex
+            item
+            style={{ flex: 0 }}
+          >
             <Button
               disabled={isSaving}
               ref={refPrev}

@@ -28,15 +28,25 @@ export const AltinnCollapsableList = ({
   }
 
   return (
-    <Flex container>
+    <Flex
+      container
+      direction='column'
+    >
       <Flex
+        container
+        direction='row'
         onClick={onClickExpand}
         onKeyPress={onKeyPress}
         tabIndex={0}
       >
-        <Flex>{listHeader}</Flex>
+        <Flex
+          container
+          direction='row'
+        >
+          {listHeader}
+        </Flex>
       </Flex>
-      <Flex>
+      <Flex item>
         <Collapse in={transition}>{children}</Collapse>
       </Flex>
     </Flex>

@@ -73,6 +73,7 @@ export function ComponentSummary({ componentNode }: ComponentSummaryProps) {
 
   return (
     <Flex
+      item
       className={cn(pageBreakStyles(componentNodeItem?.pageBreak), classes.summaryItem)}
       size={componentNodeItem.grid}
     >

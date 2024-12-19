@@ -102,6 +102,7 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
   return (
     <Flex
       ref={ref}
+      item
       size={displayGrid}
       data-testid={`summary-${summaryTestId}`}
       data-componentid={summaryNode?.id ?? `summary-${targetNode?.id}`}
@@ -144,7 +145,10 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
                 }
               />
             ))}
-            <Flex>
+            <Flex
+              item
+              size={{ xs: 12 }}
+            >
               {!display?.hideChangeButton && (
                 <button
                   className={classes.link}

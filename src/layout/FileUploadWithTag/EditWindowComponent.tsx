@@ -89,7 +89,7 @@ export function EditWindowComponent({
     >
       <Flex
         justifyContent='space-between'
-        container={true}
+        container
         direction='row'
         style={{ flexWrap: 'nowrap' }}
       >

@@ -121,7 +121,7 @@ function RepeatingGroupsEditContainerInternal({
         <Flex
           item
           container
-          //direction='column'
+          direction='column'
           alignItems='flex-end'
           spacing={6}
         >
@@ -142,7 +142,7 @@ function RepeatingGroupsEditContainerInternal({
       <Flex
         container
         item
-        //direction='row'
+        direction='row'
         spacing={6}
       >
         <Flex
@@ -166,12 +166,12 @@ function RepeatingGroupsEditContainerInternal({
           {editForGroup?.multiPage && (
             <Flex
               container
-              //direction='row'
+              direction='row'
               spacing={2}
               style={{ marginBottom: 12 }}
             >
               {hasPrevMultiPage && (
-                <Flex item={true}>
+                <Flex item>
                   <Button
                     variant='tertiary'
                     color='second'
@@ -206,7 +206,7 @@ function RepeatingGroupsEditContainerInternal({
           )}
           <Flex
             container
-            //direction='row'
+            direction='row'
             spacing={2}
           >
             {saveAndNextButtonVisible && (

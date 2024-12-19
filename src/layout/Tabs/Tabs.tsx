@@ -64,6 +64,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
             <Flex
               container
               spacing={6}
+              alignItems='flex-start'
             >
               {tab.childIds.filter(typedBoolean).map((nodeId) => (
                 <GenericComponentById

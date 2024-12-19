@@ -86,7 +86,7 @@ const DoSummaryWrapper = ({
           spacing={6}
           alignItems='flex-start'
         >
-          <Flex>
+          <Flex item>
             <div className={classes_singlevaluesummary.labelValueWrapper}>
               <Label
                 node={node}

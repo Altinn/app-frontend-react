@@ -53,21 +53,26 @@ const useStyles = makeStyles((theme) => ({
   subUnitWrapper: {
     color: theme.altinnPalette.primary.black,
   },
-  subUnitListHeader: {
-    paddingLeft: '1.5rem',
-    paddingRight: '1.5rem',
+  subUnitListHeaderWrapper: {
+    '&:hover': {
+      cursor: 'pointer',
+    },
     paddingTop: '0.75rem',
     paddingBottom: '0.75rem',
     gap: '0.75rem',
     borderTop: `1px solid ${theme.altinnPalette.primary.greyMedium}`,
+  },
+  subUnit: {
+    width: '100%',
+    padding: '0 1.25rem',
     '&:hover': {
       background: theme.altinnPalette.primary.blueLight,
       cursor: 'pointer',
     },
   },
-  subUnit: {
-    width: '100%',
-    padding: '0 1.25rem',
+  subUnitListHeader: {
+    paddingLeft: '1.5rem',
+    paddingRight: '1.5rem',
     '&:hover': {
       background: theme.altinnPalette.primary.blueLight,
       cursor: 'pointer',
@@ -138,24 +143,31 @@ export function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnParty
         listHeader={
           <Flex
             container
-            alignItems='center'
+            direction='row'
             className={classes.subUnitListHeader}
           >
-            <ChevronRightCircleFillIcon
-              className={classes.subUnitListHeaderIcon}
-              style={{
-                WebkitTransition: '-webkit-transform 0.5s',
-                transition: 'transform 0.5s',
-                transform: subUnitsExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                WebkitTransform: subUnitsExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-              }}
-              aria-hidden
-            />
-            <Typography>
-              {party.childParties.length}
-              &nbsp;
-              <Lang id='party_selection.unit_type_subunit_plural' />
-            </Typography>
+            <Flex
+              container
+              direction='row'
+              alignItems='center'
+              className={classes.subUnitListHeaderWrapper}
+            >
+              <ChevronRightCircleFillIcon
+                className={classes.subUnitListHeaderIcon}
+                style={{
+                  WebkitTransition: '-webkit-transform 0.5s',
+                  transition: 'transform 0.5s',
+                  transform: subUnitsExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                  WebkitTransform: subUnitsExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                }}
+                aria-hidden
+              />
+              <Typography>
+                {party.childParties.length}
+                &nbsp;
+                <Lang id='party_selection.unit_type_subunit_plural' />
+              </Typography>
+            </Flex>
           </Flex>
         }
       >
@@ -179,6 +191,7 @@ export function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnParty
             >
               <Flex
                 container
+                direction='row'
                 alignItems='center'
                 className={classes.subUnitTextWrapper}
               >
@@ -203,6 +216,7 @@ export function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnParty
         role='button'
         data-testid='AltinnParty-PartyWrapper'
         container
+        direction='row'
         alignItems='center'
         className={cn(classes.partyWrapper, { [classes.partyWrapperDisabled]: party.onlyHierarchyElementWithNoAccess })}
         onClick={!party.onlyHierarchyElementWithNoAccess ? onClickParty.bind(null, party) : undefined}

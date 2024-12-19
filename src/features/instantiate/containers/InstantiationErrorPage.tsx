@@ -15,7 +15,10 @@ export type IInstantiationErrorPageProps = {
 export function InstantiationErrorPage({ content, statusCode, title, showContactInfo }: IInstantiationErrorPageProps) {
   return (
     <InstantiationContainer>
-      <Flex container>
+      <Flex
+        container
+        direction='row'
+      >
         <AltinnError
           title={title}
           content={content}

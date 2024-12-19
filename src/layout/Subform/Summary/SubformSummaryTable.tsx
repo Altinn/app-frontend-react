@@ -144,6 +144,7 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
       <Flex
         id={targetNode.id}
         container
+        item
         data-componentid={targetNode.id}
         data-componentbaseid={targetNode.baseId}
       >

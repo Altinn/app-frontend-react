@@ -42,6 +42,7 @@ export function MultipleChoiceSummary({ getFormData }: IMultipleChoiceSummaryPro
 
   return (
     <Flex
+      item
       size={{ xs: 12 }}
       data-testid='multiple-choice-summary'
     >

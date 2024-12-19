@@ -114,7 +114,6 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
       <Helmet>
         <title>{`${getPageTitle(appName, hasSetCurrentPageId ? langAsString(currentPageId) : undefined, appOwner)}`}</title>
       </Helmet>
-
       <ErrorProcessing setFormState={setFormState} />
       {hasRequired && (
         <MessageBanner
@@ -122,7 +121,6 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
           messageKey='form_filler.required_description'
         />
       )}
-
       <Flex
         container
         spacing={6}
@@ -134,20 +132,18 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
             id={id}
           />
         ))}
-        {(!!errorReportIds.length || !!formErrors.length || !!taskErrors.length) && (
-          <Flex
-            item={true}
-            size={{ xs: 12 }}
-            aria-live='polite'
-            className={classes.errorReport}
-          >
-            <ErrorReport
-              renderIds={errorReportIds}
-              formErrors={formErrors}
-              taskErrors={taskErrors}
-            />
-          </Flex>
-        )}
+        <Flex
+          item={true}
+          size={{ xs: 12 }}
+          aria-live='polite'
+          className={classes.errorReport}
+        >
+          <ErrorReport
+            renderIds={errorReportIds}
+            formErrors={formErrors}
+            taskErrors={taskErrors}
+          />
+        </Flex>
       </Flex>
       <ReadyForPrint type='load' />
       <HandleNavigationFocusComponent />

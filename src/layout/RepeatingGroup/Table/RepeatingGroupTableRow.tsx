@@ -193,6 +193,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                 (shouldEditInTable(editForGroup, n, columnSettings) ? (
                   <Flex
                     container
+                    item
                     key={n.id}
                     ref={(ref) => refSetter && refSetter(index, `component-${n.id}`, ref)}
                   >
@@ -206,6 +207,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                 ) : (
                   <Flex
                     container
+                    item
                     key={n.id}
                   >
                     <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>

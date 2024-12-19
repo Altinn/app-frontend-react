@@ -132,7 +132,10 @@ export const PartySelection = () => {
           />
         ))}
         {hasMoreParties ? (
-          <div>
+          <Flex
+            container
+            direction='row'
+          >
             <Button
               variant='secondary'
               onClick={() => setNumberOfPartiesShown(numberOfPartiesShown + 4)}
@@ -143,7 +146,7 @@ export const PartySelection = () => {
               />
               {langAsString('party_selection.load_more')}
             </Button>
-          </div>
+          </Flex>
         ) : null}
       </>
     );
@@ -232,7 +235,14 @@ export const PartySelection = () => {
       <Helmet>
         <title>{`${getPageTitle(appName, langAsString('party_selection.header'), appOwner)}`}</title>
       </Helmet>
-      <Flex container>
+      <Flex
+        container
+        direction='row'
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+        }}
+      >
         <Typography
           variant='h1'
           className={classes.partySelectionTitle}
@@ -241,15 +251,20 @@ export const PartySelection = () => {
         </Typography>
         {templateErrorMessage()}
       </Flex>
-      <Input
-        size='md'
-        aria-label={langAsString('party_selection.search_placeholder')}
-        placeholder={langAsString('party_selection.search_placeholder')}
-        onChange={onFilterStringChange}
+      <Flex
+        container
+        direction='column'
         className={classes.partySearchFieldContainer}
-        value={filterString}
-        inputMode='search'
-      />
+      >
+        <Input
+          size='md'
+          aria-label={langAsString('party_selection.search_placeholder')}
+          placeholder={langAsString('party_selection.search_placeholder')}
+          onChange={onFilterStringChange}
+          value={filterString}
+          inputMode='search'
+        />
+      </Flex>
       <Flex
         container
         direction='column'
@@ -257,30 +272,51 @@ export const PartySelection = () => {
         <Flex
           container
           justifyContent='space-between'
+          direction='row'
         >
-          <Typography className={classes.partySelectionSubTitle}>
-            {langAsString('party_selection.subheader')}
-          </Typography>
+          <Flex item>
+            <Typography className={classes.partySelectionSubTitle}>
+              {langAsString('party_selection.subheader')}
+            </Typography>
+          </Flex>
 
-          <div>
+          <Flex item>
             <Flex
               container
-              className={classes.partySelectionCheckbox}
-              spacing={4}
+              direction='row'
             >
-              <LegacyCheckbox
-                checked={showDeleted}
-                onChange={toggleShowDeleted}
-                label={langAsString('party_selection.show_deleted')}
-              />
-
-              <LegacyCheckbox
-                checked={showSubUnits}
-                onChange={toggleShowSubUnits}
-                label={langAsString('party_selection.show_sub_unit')}
-              />
+              <Flex
+                item
+                className={classes.partySelectionCheckbox}
+              >
+                <Flex
+                  container
+                  direction='row'
+                >
+                  <LegacyCheckbox
+                    checked={showDeleted}
+                    onChange={toggleShowDeleted}
+                    label={langAsString('party_selection.show_deleted')}
+                  />
+                </Flex>
+              </Flex>
+              <Flex
+                item
+                className={classes.partySelectionCheckbox}
+              >
+                <Flex
+                  container
+                  direction='row'
+                >
+                  <LegacyCheckbox
+                    checked={showSubUnits}
+                    onChange={toggleShowSubUnits}
+                    label={langAsString('party_selection.show_sub_unit')}
+                  />
+                </Flex>
+              </Flex>
             </Flex>
-          </div>
+          </Flex>
         </Flex>
         {renderParties()}
         {errorCode === 'explained' && (

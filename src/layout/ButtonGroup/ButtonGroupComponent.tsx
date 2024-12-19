@@ -25,6 +25,7 @@ export function ButtonGroupComponent({ node, overrideDisplay }: PropsFromGeneric
     >
       <ComponentStructureWrapper node={node}>
         <Flex
+          item
           container
           alignItems='center'
           className={classes.container}

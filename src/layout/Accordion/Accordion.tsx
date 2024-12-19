@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { Accordion as DesignSystemAccordion } from '@digdir/designsystemet-react';
-import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -30,8 +29,10 @@ export const Accordion = ({ node }: IAccordionProps) => {
       open={openByDefault}
     >
       <Flex
+        item
         container
         spacing={6}
+        alignItems='flex-start'
       >
         {childComponents.map((id) => (
           <GenericComponentById
@@ -46,12 +47,12 @@ export const Accordion = ({ node }: IAccordionProps) => {
   return (
     <ComponentStructureWrapper node={node}>
       {renderAsAccordionItem ? (
-        <AccordionItem className={cn(classes.container, classes.fullWidth)} />
+        <AccordionItem className={classes.container} />
       ) : (
         <DesignSystemAccordion
           color='subtle'
           border
-          className={cn(classes.container, classes.fullWidth)}
+          className={classes.container}
         >
           <AccordionItem />
         </DesignSystemAccordion>
