@@ -1,14 +1,12 @@
 import React, { useCallback, useEffect } from 'react';
-import type { PropsWithChildren } from 'react';
 
 import { OpenDevToolsButton } from 'src/features/devtools/components/OpenDevToolsButton/OpenDevToolsButton';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { DevToolsPanel } from 'src/features/devtools/DevToolsPanel';
 import { useLayoutValidation } from 'src/features/devtools/layoutValidation/useLayoutValidation';
-import { useIsDev } from 'src/hooks/useIsDev';
+import { isDev } from 'src/utils/isDev';
 
-export const DevTools = ({ children }: PropsWithChildren) => {
-  const isDev = useIsDev();
+export const DevTools = () => {
   const panelOpen = useDevToolsStore((state) => state.isOpen);
   const { open: openPanel, close: closePanel } = useDevToolsStore((state) => state.actions);
 
@@ -42,7 +40,7 @@ export const DevTools = ({ children }: PropsWithChildren) => {
 
   return (
     <>
-      {isDev && (
+      {isDev() && (
         <OpenDevToolsButton
           isHidden={panelOpen}
           onClick={() => setPanelOpen(true)}
@@ -51,9 +49,7 @@ export const DevTools = ({ children }: PropsWithChildren) => {
       <DevToolsPanel
         isOpen={panelOpen}
         close={() => setPanelOpen(false)}
-      >
-        {children}
-      </DevToolsPanel>
+      />
     </>
   );
 };

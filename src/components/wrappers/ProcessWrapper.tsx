@@ -141,11 +141,7 @@ export const ProcessWrapper = () => {
         <Routes>
           <Route
             path=':pageKey/:componentId/*'
-            element={
-              <PresentationComponent type={ProcessTaskType.Data}>
-                <ComponentRouting />
-              </PresentationComponent>
-            }
+            element={<ComponentRouting />}
           />
           <Route
             path='*'

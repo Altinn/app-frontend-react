@@ -14,6 +14,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 type ComponentStructureWrapperProps<Type extends CompTypes> = {
   node: LayoutNode<Type>;
   label?: LabelProps;
+  className?: string;
   style?: React.CSSProperties;
 };
 
@@ -21,6 +22,7 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   node,
   children,
   label,
+  className,
   style,
 }: PropsWithChildren<ComponentStructureWrapperProps<Type>>) {
   const overrideItemProps = useFormComponentCtx()?.overrideItemProps;
@@ -32,6 +34,7 @@ export function ComponentStructureWrapper<Type extends CompTypes = CompTypes>({
   const componentWithValidations = (
     <Flex
       id={`form-content-${node.id}`}
+      className={className}
       size={grid?.innerGrid}
       style={style}
       item

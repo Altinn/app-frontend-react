@@ -24,7 +24,7 @@ export class PersonLookup extends PersonLookupDef {
   );
 
   renderSummary(_props: SummaryRendererProps<'PersonLookup'>): JSX.Element | null {
-    throw new Error('Method not implemented.');
+    return null;
   }
 
   renderSummary2(props: Summary2Props<'PersonLookup'>): JSX.Element | null {
@@ -35,7 +35,7 @@ export class PersonLookup extends PersonLookupDef {
     return false;
   }
 
-  validateDataModelBindings(_ctx: LayoutValidationCtx<'PersonLookup'>): string[] {
-    return [];
+  validateDataModelBindings(ctx: LayoutValidationCtx<'PersonLookup'>): string[] {
+    return this.validateDataModelBindingsAny(ctx, 'person_lookup_ssn', ['string'])[0] ?? [];
   }
 }
