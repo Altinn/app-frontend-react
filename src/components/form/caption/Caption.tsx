@@ -41,27 +41,29 @@ export const Caption = ({
     {...rest}
     className={cn(classes.tableCaption, className)}
   >
-    <DesignsystemetLabel
-      asChild
-      className={classes.captionTitle}
-      {...designSystemLabelProps}
-    >
-      <div>
-        {title}
-        <RequiredIndicator required={required} />
-        <OptionalIndicator
-          readOnly={false}
-          required={required}
-          showOptionalMarking={!!labelSettings?.optionalIndicator}
+    <div className={classes.titleAndHelpWrapper}>
+      <DesignsystemetLabel
+        asChild
+        className={classes.captionTitle}
+        {...designSystemLabelProps}
+      >
+        <div>
+          {title}
+          <RequiredIndicator required={required} />
+          <OptionalIndicator
+            readOnly={false}
+            required={required}
+            showOptionalMarking={!!labelSettings?.optionalIndicator}
+          />
+        </div>
+      </DesignsystemetLabel>
+      {helpText && (
+        <HelpTextContainer
+          helpText={helpText.text}
+          title={helpText.accessibleTitle}
         />
-      </div>
-    </DesignsystemetLabel>
-    {helpText && (
-      <HelpTextContainer
-        helpText={helpText.text}
-        title={helpText.accessibleTitle}
-      />
-    )}
+      )}
+    </div>
     {description && (
       <Description
         className={classes.description}
