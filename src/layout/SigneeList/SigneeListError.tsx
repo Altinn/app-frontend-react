@@ -6,7 +6,7 @@ import { z, ZodError } from 'zod';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 
-const problemDetailsSchema = z.object({
+export const problemDetailsSchema = z.object({
   detail: z.string(),
   status: z.number(),
   title: z.string(),
