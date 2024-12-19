@@ -5,7 +5,7 @@ import { ZodError } from 'zod';
 
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { problemDetailsSchema } from 'src/layout/SigneeList/SigneeListComponent';
+import { problemDetailsSchema } from 'src/layout/SigneeList/SigneeListError';
 
 export function SigningDocumentListError({ error }: { error: Error }) {
   const { langAsString } = useLanguage();
