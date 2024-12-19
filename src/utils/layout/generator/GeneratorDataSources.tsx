@@ -11,6 +11,7 @@ import { useLaxDataElementsSelectorProps, useLaxInstanceDataSources } from 'src/
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
+import { useCurrentRoles } from 'src/features/party/PartiesProvider';
 import { Validation } from 'src/features/validation/validationContext';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowObjectMemo } from 'src/hooks/useShallowObjectMemo';
@@ -79,8 +80,10 @@ function useExpressionDataSources(): ExpressionDataSources {
     formDataSelector,
     nodeDataSelector,
   );
+  const roles = useCurrentRoles();
 
   return useShallowObjectMemo({
+    roles,
     formDataSelector,
     formDataRowsSelector,
     attachmentsSelector,
