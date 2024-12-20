@@ -149,7 +149,7 @@ function TaskGroup({ group, active }: { group: NavigationTask | NavigationReceip
         <div className={cn(classes.groupSymbol, active ? classes.taskSymbolActive : classes.taskSymbolLocked)}>
           <Icon aria-hidden />
         </div>
-        <span className={cn(classes.groupName, { [classes.groupNameActive]: active })}>
+        <span className={cn({ [classes.groupNameActive]: active })}>
           <Lang id={getTaskName(group)} />
         </span>
       </button>
