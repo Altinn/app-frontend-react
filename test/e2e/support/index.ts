@@ -8,6 +8,7 @@ import 'test/e2e/support/global';
 import 'test/e2e/support/auth';
 import 'test/e2e/support/navigation';
 import 'test/e2e/support/formFiller';
+import 'test/e2e/support/fail-on-console-log';
 import '@percy/cypress';
 
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';

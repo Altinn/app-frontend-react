@@ -81,12 +81,6 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
 
   const visitOptions = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onBeforeLoad: (win: any) => {
-      cy.spy(win.console, 'log').as('console.log');
-      cy.spy(win.console, 'warn').as('console.warn');
-      cy.spy(win.console, 'error').as('console.error');
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onLoad: (win: any) => {
       if (win.logError) {
         cy.spy(win, 'logError').as('window.logError');
