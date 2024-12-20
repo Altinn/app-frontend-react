@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom';
 import { Link } from '@digdir/designsystemet-react';
 import { DownloadIcon } from '@navikt/aksel-icons';
 import { useQuery } from '@tanstack/react-query';
-import { z } from 'zod';
 
 import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
@@ -13,48 +12,12 @@ import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
+import { fetchDocumentList } from 'src/layout/SigningDocumentList/api';
 import { SigningDocumentListError } from 'src/layout/SigningDocumentList/SigningDocumentListError';
 import { ProcessTaskType } from 'src/types';
-import { DataTypeReference, getSizeWithUnit } from 'src/utils/attachmentsUtils';
+import { getSizeWithUnit } from 'src/utils/attachmentsUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { httpGet } from 'src/utils/network/sharedNetworking';
-import { appPath } from 'src/utils/urls/appUrlHelper';
-import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
-
-const signingDocumentSchema = z
-  .object({
-    id: z.string(),
-    dataType: z.string(),
-    contentType: z.string(),
-    filename: z.string().nullish(),
-    size: z.number(),
-    tags: z.array(z.string()),
-    selfLinks: z.object({
-      apps: z.string(),
-    }),
-  })
-  .transform((it) => ({
-    dataType: it.dataType,
-    filename: it.filename ?? '',
-    attachmentTypes:
-      it.dataType === DataTypeReference.RefDataAsPdf ? ['signing_document_list.attachment_type_form'] : it.tags,
-    url: makeUrlRelativeIfSameDomain(it.selfLinks.apps),
-    size: it.size,
-  }));
-
-type SigningDocument = z.infer<typeof signingDocumentSchema>;
-
-async function fetchDocumentList(partyId: string, instanceGuid: string): Promise<SigningDocument[]> {
-  const url = `${appPath}/instances/${partyId}/${instanceGuid}/signing/data-elements`;
-
-  const response = await httpGet(url);
-
-  return z
-    .object({ dataElements: z.array(signingDocumentSchema) })
-    .parse(response)
-    .dataElements.toSorted((a, b) => (a.filename ?? '').localeCompare(b.filename ?? ''));
-}
 
 export function SigningDocumentListComponent({ node }: PropsFromGenericComponent<'SigningDocumentList'>) {
   const { partyId, instanceGuid } = useParams();
