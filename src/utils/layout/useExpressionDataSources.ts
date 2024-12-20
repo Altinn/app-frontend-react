@@ -8,7 +8,7 @@ import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
-import { useCurrentRoles } from 'src/features/party/PartiesProvider';
+import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowObjectMemo } from 'src/hooks/useShallowObjectMemo';
 import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
@@ -19,9 +19,10 @@ import type { AttachmentsSelector } from 'src/features/attachments/AttachmentsSt
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
+import type { RoleResult } from 'src/features/useCurrentPartyRoles';
 import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { ILayoutSet } from 'src/layout/common.generated';
-import type { IApplicationSettings, IInstanceDataSources, IProcess, Role } from 'src/types/shared';
+import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
@@ -46,7 +47,7 @@ export interface ExpressionDataSources {
   nodeTraversal: NodeTraversalSelector;
   transposeSelector: DataModelTransposeSelector;
   externalApis: ExternalApisResult;
-  roles: Role[] | undefined;
+  roles: RoleResult;
 }
 
 export function useExpressionDataSources(): ExpressionDataSources {
@@ -86,7 +87,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
     nodeDataSelector,
   );
 
-  const roles = useCurrentRoles();
+  const roles = useCurrentPartyRoles();
 
   return useShallowObjectMemo({
     roles,

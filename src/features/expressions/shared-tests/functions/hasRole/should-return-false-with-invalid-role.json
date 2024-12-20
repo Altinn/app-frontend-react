@@ -2,10 +2,12 @@
   "name": "Should return false with invalid role",
   "expression": ["hasRole", "bobel"],
   "expects": false,
-  "roles": [
-    {
-      "type": "altinn",
-      "value": "bobes"
-    }
-  ]
+  "roles": {
+    "data":[
+      {
+        "type": "altinn",
+        "value": "bobes"
+      }
+    ]
+  }
 }

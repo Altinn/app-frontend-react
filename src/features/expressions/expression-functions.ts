@@ -328,7 +328,7 @@ export const ExprFunctions = {
       if (!this.dataSources.roles) {
         return false;
       }
-      return this.dataSources.roles.map((role) => role.value).includes(roleName); //Boolean(authContext?.[key]);
+      return this.dataSources.roles.data?.map((role) => role.value).includes(roleName) ?? null;
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.Boolean,

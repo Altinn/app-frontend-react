@@ -48,6 +48,7 @@ describe('Presentation', () => {
     const closeButton = screen.getByRole('button', {
       name: /Lukk skjema/i,
     });
+    screen.debug();
     await user.click(closeButton);
 
     expect(assignMock).toHaveBeenCalledWith(returnUrl);

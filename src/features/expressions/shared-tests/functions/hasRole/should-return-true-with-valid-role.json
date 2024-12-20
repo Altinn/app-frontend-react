@@ -2,11 +2,13 @@
   "name": "Should return true with valid role",
   "expression": ["hasRole", "bobes"],
   "expects": true,
-  "roles": [
-    {
-      "type": "altinn",
-      "value": "bobes"
-    }
-  ]
+  "roles": {
+    "data": [
+      {
+        "type": "altinn",
+        "value": "bobes"
+      }
+    ]
+  }
 }
 
