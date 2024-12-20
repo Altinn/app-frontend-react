@@ -32,7 +32,6 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
 
   return (
     <Button
-      {...props}
       id={props.node.id}
       onClick={onClick}
       isLoading={isLoading}
