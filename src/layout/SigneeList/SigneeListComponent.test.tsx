@@ -116,8 +116,6 @@ describe('SigneeListComponent', () => {
     screen.getByRole('row', { name: 'name2 organisation2 signee_list.signee_status_delegation_failed' });
     screen.getByRole('row', { name: 'name3 organisation3 signee_list.signee_status_notification_failed' });
     screen.getByRole('row', { name: 'name4 organisation4 signee_list.signee_status_waiting' });
-
-    screen.debug();
   });
 
   it('should render error message when task type is not signing', () => {
