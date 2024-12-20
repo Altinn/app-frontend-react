@@ -12,7 +12,6 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
 import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
-// import { useCurrentRoles } from 'src/features/party/PartiesProvider';
 import { Validation } from 'src/features/validation/validationContext';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowObjectMemo } from 'src/hooks/useShallowObjectMemo';
