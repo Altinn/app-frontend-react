@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import type { NavigateOptions } from 'react-router-dom';
 
-import { ContextNotProvided } from 'src/core/contexts/context';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
-import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePageSettings, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/ProcessContext';
 import {
@@ -18,7 +17,6 @@ import {
   useSetNavigationEffect,
 } from 'src/features/routing/AppRoutingContext';
 import { useRefetchInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { useIsPdf } from 'src/hooks/useIsPdf';
 import { ProcessTaskType } from 'src/types';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
@@ -36,8 +34,6 @@ export enum TaskKeys {
   ProcessEnd = 'ProcessEnd',
   CustomReceipt = 'CustomReceipt',
 }
-
-const emptyArray: never[] = [];
 
 /**
  * Navigation function for react-router-dom
@@ -68,21 +64,9 @@ const useNavigate = () => {
 
 export const useCurrentView = () => useNavigationParam('pageKey');
 export const usePageOrder = () => {
-  const isPdf = useIsPdf();
-
-  const maybeLayoutSettings = useLaxLayoutSettings();
-  const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? emptyArray : maybeLayoutSettings.pages.order;
-
-  const hiddenFromPdf = useMemo(
-    () => new Set(maybeLayoutSettings !== ContextNotProvided && isPdf ? maybeLayoutSettings.pages.excludeFromPdf : []),
-    [maybeLayoutSettings, isPdf],
-  );
+  const rawOrder = useRawPageOrder();
   const hiddenPages = Hidden.useHiddenPages();
-
-  return useMemo(
-    () => orderWithHidden?.filter((page) => !hiddenPages.has(page) && !hiddenFromPdf.has(page)),
-    [orderWithHidden, hiddenPages, hiddenFromPdf],
-  );
+  return useMemo(() => rawOrder.filter((page) => !hiddenPages.has(page)), [rawOrder, hiddenPages]);
 };
 
 export const useIsCurrentTask = () => {

@@ -128,6 +128,10 @@ export function en() {
       form: 'Form navigation',
       to_main_content: 'Go to main content',
       go_to_task: 'Navigate to {0}',
+      form_pages: 'Form pages',
+      back_to_inbox: 'Back to inbox',
+      inbox: 'Inbox',
+      popover_button_progress: '{0} {1}/{2}',
     },
     general: {
       action: 'Action',
@@ -141,7 +145,6 @@ export function en() {
       choose_label: 'Choose label',
       choose_method: 'Choose method',
       choose: 'Choose',
-      close_schema: 'Close schema',
       close: 'Close',
       contains: 'Contains{0}',
       control_submit: 'Control and submit',
@@ -447,6 +450,13 @@ export function en() {
     pdfPreview: {
       error: 'Could not show PDF preview',
       defaultButtonText: 'Preview PDF',
+    },
+    taskTypes: {
+      data: 'Fill out',
+      signing: 'Signing',
+      confirmation: 'Confirmation',
+      payment: 'Payment',
+      receipt: 'Receipt',
     },
   } satisfies NestedTexts;
 }

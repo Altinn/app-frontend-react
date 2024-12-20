@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Combobox } from '@digdir/designsystemet-react';
+import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { Lang } from 'src/features/language/Lang';
@@ -38,7 +39,8 @@ export const LanguageSelector = ({ hideLabel }: { hideLabel?: boolean }) => {
         label={langAsString('language.selector.label')}
         onValueChange={handleAppLanguageChange}
         value={selectedLanguage}
-        className={comboboxClasses.container}
+        className={cn(comboboxClasses.container, comboboxClasses.noPortalSpaceWorkaround)}
+        portal={false}
       >
         {appLanguages?.map((lang) => (
           <Combobox.Option
