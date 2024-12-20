@@ -194,9 +194,9 @@
     "func-hasRole": {
       "title": "Roles lookup function",
       "description": "This function will look up a role that the user has for their current party",
-      "type": "string",
+      "type": "array",
       "items": [
-        { "const":  "roles" },
+        { "const":  "hasRole" },
         { "$ref": "#/definitions/string" }
       ],
       "additionalItems": false

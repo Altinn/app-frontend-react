@@ -36,7 +36,7 @@ describe('Presentation', () => {
     const mockedLocation = { ...realLocation, search: `?returnUrl=${returnUrl}`, assign: assignMock };
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
 
-    mockedAxios.get.mockResolvedValueOnce({
+    mockedAxios.get.mockResolvedValue({
       data: returnUrl,
       status: HttpStatusCodes.Ok,
     });
@@ -61,7 +61,7 @@ describe('Presentation', () => {
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
     const messageBoxUrl = returnUrlToMessagebox(origin, getPartyMock().partyId);
 
-    mockedAxios.get.mockRejectedValueOnce({
+    mockedAxios.get.mockRejectedValue({
       data: 'Error',
       status: HttpStatusCodes.BadRequest,
     });
