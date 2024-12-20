@@ -30,12 +30,9 @@ import {
 } from 'src/features/navigation/utils';
 import { useIsReceiptPage, useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
 import type { NavigationPageGroup, NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
 
 export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
-  const getKey = useGetUniqueKeyFromObject();
-
   const pageGroups = usePageGroups();
   const taskGroups = usePageSettings().taskNavigation;
 
@@ -50,7 +47,7 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
           if ('taskId' in taskGroup && taskGroup.taskId === currentTaskId && pageGroups) {
             return pageGroups.map((group) => (
               <PageGroup
-                key={getKey(group)}
+                key={group.id}
                 group={group}
                 onNavigate={onNavigate}
               />
@@ -61,7 +58,7 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
           const taskActive = 'taskId' in taskGroup && taskGroup.taskId === currentTaskId;
           return (
             <TaskGroup
-              key={getKey(taskGroup)}
+              key={taskGroup.id}
               group={taskGroup}
               active={receiptActive || taskActive}
             />
@@ -76,7 +73,7 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
       <ul className={classes.groupList}>
         {pageGroups.map((group) => (
           <PageGroup
-            key={group.name}
+            key={group.id}
             group={group}
             onNavigate={onNavigate}
           />
@@ -143,6 +140,7 @@ function TaskGroup({ group, active }: { group: NavigationTask | NavigationReceip
   return (
     <li>
       <button
+        aria-current={active ? 'step' : undefined}
         disabled
         className={cn(classes.taskButton, 'fds-focus')}
       >
@@ -163,6 +161,9 @@ function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNaviga
   const containsCurrentPage = order.some((page) => page === currentPageId);
   const validations = useValidationsForPages(order);
 
+  const buttonId = `navigation-button-${group.id}`;
+  const listId = `navigation-page-list-${group.id}`;
+
   const [isOpen, setIsOpen] = useState(containsCurrentPage);
   useEffect(() => setIsOpen(containsCurrentPage), [containsCurrentPage]);
 
@@ -173,6 +174,10 @@ function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNaviga
   return (
     <li>
       <button
+        id={buttonId}
+        aria-current={containsCurrentPage ? 'step' : undefined}
+        aria-expanded={isOpen}
+        aria-owns={listId}
         className={cn(classes.groupButton, 'fds-focus')}
         onClick={() => setIsOpen((o) => !o)}
       >
@@ -188,7 +193,11 @@ function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNaviga
         <ChevronDownIcon className={cn(classes.groupChevron, { [classes.groupChevronOpen]: isOpen })} />
       </button>
       {isOpen && (
-        <ul className={classes.pageList}>
+        <ul
+          id={listId}
+          aria-labelledby={buttonId}
+          className={classes.pageList}
+        >
           {order.map((page) => (
             <Page
               key={page}
@@ -257,6 +266,7 @@ function Page({
   return (
     <li>
       <button
+        aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.pageButton, 'fds-focus')}
         onClick={() => {
           if (!isCurrentPage) {

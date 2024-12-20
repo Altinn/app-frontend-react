@@ -696,10 +696,15 @@ const common = {
         'taskNavigation',
         new CG.arr(
           new CG.union(
-            new CG.obj(new CG.prop('name', new CG.str().optional()), new CG.prop('taskId', new CG.str())).exportAs(
-              'NavigationTask',
-            ),
             new CG.obj(
+              // TODO: Add tests checking that this gets added
+              new CG.prop('id', new CG.str()).omitInSchema(),
+              new CG.prop('name', new CG.str().optional()),
+              new CG.prop('taskId', new CG.str()),
+            ).exportAs('NavigationTask'),
+            new CG.obj(
+              // TODO: Add tests checking that this gets added
+              new CG.prop('id', new CG.str()).omitInSchema(),
               new CG.prop('name', new CG.str().optional()),
               new CG.prop('type', new CG.const('receipt')),
             ).exportAs('NavigationReceipt'),
@@ -734,9 +739,12 @@ const common = {
       new CG.prop(
         'groups',
         new CG.arr(
-          new CG.obj(new CG.prop('name', new CG.str()), new CG.prop('order', new CG.arr(new CG.str()))).exportAs(
-            'NavigationPageGroup',
-          ),
+          new CG.obj(
+            // TODO: Add tests checking that this gets added
+            new CG.prop('id', new CG.str()).omitInSchema(),
+            new CG.prop('name', new CG.str()),
+            new CG.prop('order', new CG.arr(new CG.str())),
+          ).exportAs('NavigationPageGroup'),
         )
           .setTitle('Page groups')
           .setDescription('List of page groups in the order they should appear in the application'),
