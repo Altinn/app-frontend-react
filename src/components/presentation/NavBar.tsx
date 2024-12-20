@@ -13,7 +13,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { PopoverNavigation } from 'src/features/navigation/PopoverNavigation';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import { useIsLocalTest, useIsStudioPreview } from 'src/hooks/useIsDev';
+import { isLocalTest, isStudioPreview } from 'src/utils/isDev';
 import { httpGet } from 'src/utils/network/networking';
 import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
 import { returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
@@ -27,14 +27,11 @@ export const NavBar = () => {
   const { hideCloseButton, showLanguageSelector, showExpandWidthButton } = usePageSettings();
   const isMobile = useIsMobile();
 
-  const isLocalTest = useIsLocalTest();
-  const isStudioPreview = useIsStudioPreview();
-
   const handleBackToInbox = async () => {
-    if (isStudioPreview) {
+    if (isStudioPreview()) {
       return;
     }
-    if (isLocalTest) {
+    if (isLocalTest()) {
       window.location.assign(window.location.origin);
       return;
     }

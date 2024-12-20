@@ -16,7 +16,7 @@ export function isDev(): boolean {
   return isDevCache;
 }
 
-export function useIsLocalTest(): boolean {
+export function isLocalTest(): boolean {
   return localtestHostName.test(window.location.hostname);
 }
 
