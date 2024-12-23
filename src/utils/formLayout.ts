@@ -1,6 +1,6 @@
 import { layoutSetIsDefault } from 'src/features/form/layoutSets/TypeGuards';
 import { getComponentCapabilities } from 'src/layout';
-import type { ILayoutSets } from 'src/layout/common.generated';
+import type { ILayoutSet } from 'src/layout/common.generated';
 import type { ILikertFilter } from 'src/layout/Likert/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -50,10 +50,10 @@ export function extractBottomButtons(topLevelNodes: LayoutNode[]) {
  * @param task the task
  * @param layoutSets the layout sets
  */
-export function behavesLikeDataTask(task: string | null | undefined, layoutSets: ILayoutSets | null): boolean {
+export function behavesLikeDataTask(task: string | null | undefined, layoutSets: ILayoutSet[] | null): boolean {
   if (!task) {
     return false;
   }
 
-  return !!layoutSets?.sets.some((set) => layoutSetIsDefault(set) && set.tasks?.includes(task));
+  return !!layoutSets?.some((set) => layoutSetIsDefault(set) && set.tasks?.includes(task));
 }

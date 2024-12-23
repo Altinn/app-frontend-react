@@ -128,6 +128,10 @@ export function nb(): FixedLanguageList {
       form: 'Skjemanavigasjon',
       to_main_content: 'Hopp til hovedinnholdet',
       go_to_task: 'Gå til {0}',
+      form_pages: 'Skjemasider',
+      back_to_inbox: 'Tilbake til innboks',
+      inbox: 'Innboks',
+      popover_button_progress: '{0} {1}/{2}',
     },
     general: {
       action: 'Handling',
@@ -141,7 +145,6 @@ export function nb(): FixedLanguageList {
       choose_label: 'Velg navn',
       choose_method: 'Velg metode',
       choose: 'Velg',
-      close_schema: 'Lukk skjema',
       close: 'Lukk',
       contains: 'Inneholder',
       control_submit: 'Kontroller og send inn',
@@ -448,6 +451,13 @@ export function nb(): FixedLanguageList {
     pdfPreview: {
       error: 'Kunne ikke forhåndsvise PDF',
       defaultButtonText: 'Forhåndsvis PDF',
+    },
+    taskTypes: {
+      data: 'Utfylling',
+      signing: 'Signering',
+      confirmation: 'Bekreftelse',
+      payment: 'Betaling',
+      receipt: 'Kvittering',
     },
   } satisfies NestedTexts;
 }
