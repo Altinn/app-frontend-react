@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React from 'react';
 
 import { jest } from '@jest/globals';
@@ -22,10 +21,12 @@ const MODE: 'critical' | 'all' = env.parsed?.ALTINN_ALL_APPS_MODE === 'critical'
 
 const ignoreLogAndErrors = [
   'Warning: findDOMNode is deprecated and will be removed in the next major release',
+  'React Router Future Flag Warning',
   'The above error occurred in the',
   'Layout quirk(s) applied',
   ...(MODE === 'critical'
     ? [
+        'Warning: validateDOMNesting',
         'er ikke tillatt i `textResourceBindings`',
         'Egenskapen `pageRef` er ikke tillatt',
         'samsvarer ikke med mønsteret `^[0-9a-zA-Z][',
@@ -122,6 +123,9 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     .flat()
     .filter((set) => set.isValid())
     .map((set) => ({ appName: set.app.getName(), setName: set.getName(), set }));
+
+  // Randomize the order of the tests so we don't have to wait for the same first ones every time
+  allSets.sort(() => Math.random() - 0.5);
 
   async function testSet(set: ExternalAppLayoutSet) {
     window.location.hash = set.simulateValidUrlHash();
