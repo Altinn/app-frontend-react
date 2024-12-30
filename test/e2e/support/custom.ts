@@ -43,6 +43,9 @@ Cypress.Commands.add('waitUntilSaved', () => {
   // If the data-unsaved-changes attribute does not exist, the page is not in a data/form state, and we should not
   // wait for it to be saved.
   cy.get('body').should('not.have.attr', 'data-unsaved-changes', 'true');
+
+  // There should be no 'NavigationButtons' components that are disabled (another indicator that form data is saving)
+  cy.get('[data-testid=NavigationButtons] button[disabled]').should('not.exist');
 });
 
 Cypress.Commands.add('waitUntilNodesReady', () => {
