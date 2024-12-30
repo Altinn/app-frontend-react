@@ -18,8 +18,12 @@ failOnConsoleError({
     /React Router Future Flag Warning.*?v7_partialHydration/,
     /React Router Future Flag Warning.*?v7_skipActionErrorRevalidation/,
 
-    // This ia a bug we should fix, but it's not critical
+    // This ia a bug we should fix, but it's not critical.
     /^FormProvider re-rendered/,
+
+    // Warning from MUI, because we're stuck on an old version. Shows up in the Confirm task (in all-process-steps.ts).
+    // Might be fixed after: https://github.com/Altinn/app-frontend-react/pull/2567
+    /Warning: findDOMNode is deprecated and will be removed in the next major release/,
 
     // Bug when showing a Grid component
     // https://github.com/Altinn/app-frontend-react/issues/1851
