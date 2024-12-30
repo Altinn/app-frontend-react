@@ -5418,7 +5418,7 @@ __metadata:
     css-loader: "npm:7.1.2"
     cypress: "npm:13.17.0"
     cypress-axe: "npm:1.5.0"
-    cypress-fail-on-console-error: "npm:^5.1.1"
+    cypress-fail-on-console-error: "npm:5.1.1"
     cypress-iframe: "npm:1.0.1"
     cypress-multi-reporters: "npm:2.0.4"
     cypress-network-idle: "npm:1.14.2"
@@ -7326,7 +7326,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress-fail-on-console-error@npm:^5.1.1":
+"cypress-fail-on-console-error@npm:5.1.1":
   version: 5.1.1
   resolution: "cypress-fail-on-console-error@npm:5.1.1"
   dependencies:
