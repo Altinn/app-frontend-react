@@ -8,13 +8,22 @@ import 'test/e2e/support/global';
 import 'test/e2e/support/auth';
 import 'test/e2e/support/navigation';
 import 'test/e2e/support/formFiller';
-import 'test/e2e/support/fail-on-console-log';
 import '@percy/cypress';
+
+import failOnConsoleError from 'cypress-fail-on-console-error';
 
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { chaiExtensions } from 'test/e2e/support/chai-extensions';
+import { ignoredConsoleMessages } from 'test/e2e/support/fail-on-console-log';
 
 const appFrontend = new AppFrontend();
+
+// When running Cypress tests, we want to fail immediately if there are any console errors, or even logging
+// of warnings, etc. This will help us catch issues early.
+failOnConsoleError({
+  consoleTypes: ['error', 'warn', 'info', 'trace'],
+  consoleMessages: ignoredConsoleMessages,
+});
 
 before(() => {
   chai.use(chaiExtensions);
