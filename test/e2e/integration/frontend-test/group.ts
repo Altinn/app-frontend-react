@@ -276,7 +276,7 @@ describe('Group', () => {
     expectRows(['NOK 1', 'NOK 5'], ['NOK 120', 'NOK 350'], ['NOK 80 323', 'NOK 123 455']);
 
     cy.wait('@saveFormData');
-    cy.get(appFrontend.navButtons).contains('button', 'next').should('not.be.disabled');
+    cy.get(appFrontend.navButtons).contains('button', 'Neste').should('not.be.disabled');
     cy.snapshot('group:prefill');
 
     checkPrefills({ middels: false, svaer: false });
@@ -487,7 +487,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
 
     cy.wait('@saveFormData');
-    cy.get(appFrontend.navButtons).contains('button', 'next').should('not.be.disabled');
+    cy.get(appFrontend.navButtons).contains('button', 'Neste').should('not.be.disabled');
     cy.snapshot('group:edit-in-table');
 
     for (const row of [0, 1, 2]) {
