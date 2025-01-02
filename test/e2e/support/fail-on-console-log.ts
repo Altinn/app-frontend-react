@@ -1,5 +1,8 @@
 // Exclude known errors and log messages we don't want to fail on
 export const ignoredConsoleMessages = [
+  /** @see window.CypressLog */
+  /^CypressLog:/,
+
   // Webpack stuff
   /^\[webpack-dev-server]/,
 

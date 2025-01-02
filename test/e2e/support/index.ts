@@ -18,13 +18,6 @@ import { ignoredConsoleMessages } from 'test/e2e/support/fail-on-console-log';
 
 const appFrontend = new AppFrontend();
 
-// When running Cypress tests, we want to fail immediately if there are any console errors, or even logging
-// of warnings, etc. This will help us catch issues early.
-failOnConsoleError({
-  consoleTypes: ['error', 'warn', 'info', 'trace'],
-  consoleMessages: ignoredConsoleMessages,
-});
-
 before(() => {
   chai.use(chaiExtensions);
 });
@@ -53,25 +46,11 @@ afterEach(function () {
       cy.get(appFrontend.instanceErrorCode).should('not.exist');
     }
   }
+});
 
-  const testName = this.currentTest?.fullTitle();
-  const title = this.currentTest?.title.replace(/\s+/g, '-').replace(/[^a-zA-Z\-0-9_]/g, '');
-  const specBaseName = Cypress.spec.relative.split(/[\\/]/).pop()?.split('.')[0];
-  const fileName = `log-${specBaseName}-${title}.txt`;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cy.window().then((win: any) => {
-    if (Array.isArray(win._cyLog) && win._cyLog.length > 0 && win._cyLogSave === true) {
-      const log: string[] = [
-        '==================================================',
-        `Test: ${testName}`,
-        `Title: ${this.currentTest?.title}`,
-        `Spec: ${Cypress.spec.relative}`,
-        '',
-        ...win._cyLog,
-        '',
-      ];
-      cy.writeFile(`test/logs/${fileName}`, log.join('\n'), { flag: 'a+' });
-    }
-  });
+// When running Cypress tests, we want to fail immediately if there are any console errors, or even logging
+// of warnings, etc. This will help us catch issues early.
+failOnConsoleError({
+  consoleTypes: ['error', 'warn', 'info', 'trace'],
+  consoleMessages: ignoredConsoleMessages,
 });
