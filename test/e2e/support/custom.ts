@@ -284,8 +284,8 @@ Cypress.Commands.add('getCurrentPageId', () => cy.location('hash').then((hash) =
 
 Cypress.Commands.add('snapshot', (name: string) => {
   cy.clearSelectionAndWait();
-  cy.waitUntilSaved();
   cy.waitUntilNodesReady();
+  cy.waitUntilSaved();
 
   // Running wcag tests before taking snapshot, because the resizing of the viewport can cause some elements to
   // re-render and go slightly out of sync with the proper state of the application. One example is the Dropdown
@@ -307,6 +307,12 @@ Cypress.Commands.add('snapshot', (name: string) => {
       for (const [viewport, { width, height }] of Object.entries(viewportSizes)) {
         cy.viewport(width, height);
         cy.clearSelectionAndWait(viewport as keyof typeof viewportSizes);
+
+        // Saving happens after a debounce timeout, and even though we checked for unsaved changes above, there might
+        // be new ones that appeared after viewport resizing. Let's check again right before we snapshot.
+        cy.waitUntilNodesReady();
+        cy.waitUntilSaved();
+
         cy.percySnapshot(`${name} (${viewport})`, { percyCSS, widths: [width] });
       }
 

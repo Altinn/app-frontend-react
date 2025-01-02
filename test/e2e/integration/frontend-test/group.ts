@@ -230,7 +230,6 @@ describe('Group', () => {
   });
 
   it('Prefilling repeating group using calculation from server', () => {
-    cy.intercept('PATCH', '**/data/**').as('saveFormData');
     init();
     const expectRows = (...rows) => {
       if (!rows.length) {
@@ -274,9 +273,6 @@ describe('Group', () => {
 
     checkPrefills({ middels: true, svaer: true });
     expectRows(['NOK 1', 'NOK 5'], ['NOK 120', 'NOK 350'], ['NOK 80 323', 'NOK 123 455']);
-
-    cy.wait('@saveFormData');
-    cy.get(appFrontend.navButtons).contains('button', 'Neste').should('not.be.disabled');
     cy.snapshot('group:prefill');
 
     checkPrefills({ middels: false, svaer: false });
@@ -465,8 +461,6 @@ describe('Group', () => {
   });
 
   it('should be able to edit components directly in the table', () => {
-    cy.intercept('PATCH', '**/data/**').as('saveFormData');
-
     cy.goto('group');
     cy.navPage('prefill').should('be.visible');
     cy.changeLayout((c) => {
@@ -485,9 +479,6 @@ describe('Group', () => {
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).blur();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
-
-    cy.wait('@saveFormData');
-    cy.get(appFrontend.navButtons).contains('button', 'Neste').should('not.be.disabled');
     cy.snapshot('group:edit-in-table');
 
     for (const row of [0, 1, 2]) {
