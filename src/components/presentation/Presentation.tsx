@@ -18,6 +18,7 @@ import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLaxInstanceStatus } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
+import { SideBarNavigation } from 'src/features/navigation/SidebarNavigation';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -27,10 +28,15 @@ import type { PresentationType } from 'src/types';
 export interface IPresentationProvidedProps extends PropsWithChildren {
   header?: React.ReactNode;
   type: ProcessTaskType | PresentationType;
-  renderNavBar?: boolean;
+  showNavAndSidebar?: boolean;
 }
 
-export const PresentationComponent = ({ header, type, children, renderNavBar = true }: IPresentationProvidedProps) => {
+export const PresentationComponent = ({
+  header,
+  type,
+  children,
+  showNavAndSidebar = true,
+}: IPresentationProvidedProps) => {
   const party = useCurrentParty();
   const instanceStatus = useLaxInstanceStatus();
   const userParty = useProfile()?.party;
@@ -58,6 +64,8 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
             logoColor={LogoColor.blueDarker}
             headerBackgroundColor={backgroundColor}
           />
+          {showNavAndSidebar && <NavBar />}
+          {showNavAndSidebar && <SideBarNavigation />}
           <main className={classes.page}>
             {isProcessStepsArchived && instanceStatus?.substatus && (
               <AltinnSubstatusPaper
@@ -65,7 +73,6 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
                 description={<Lang id={instanceStatus.substatus.description} />}
               />
             )}
-            {renderNavBar && <NavBar type={type} />}
             <section
               id='main-content'
               className={classes.modal}

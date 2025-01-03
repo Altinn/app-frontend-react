@@ -6,3 +6,13 @@
 .container input {
   min-width: 0;
 }
+
+/*
+* Workaround to be able to use portal={false} without adding additional space below the dropdown when open
+*/
+.no-portal-space-workaround {
+  gap: unset;
+}
+.no-portal-space-workaround > label {
+  margin-bottom: 0.5rem;
+}
