@@ -877,4 +877,87 @@ describe('Validation', () => {
     cy.get(appFrontend.fieldValidation('int32AsNumber')).should('contain.text', 'Feil format eller verdi');
     cy.get(appFrontend.fieldValidation('int32AsNumber')).should('not.contain.text', 'Du må fylle ut int32');
   });
+
+  it('deep validations should work, but should not include errors in the repeating group', () => {
+    const requiredInputs = ['comments', 'currentValue', 'newValue'];
+    cy.interceptLayout('group', (component) => {
+      if (component.type === 'RepeatingGroup' && component.id === 'mainGroup') {
+        component.minCount = 2;
+        component.maxCount = 4;
+        component.validateOnSaveRow = ['All'];
+      }
+      if (component.type === 'Input' && requiredInputs.includes(component.id)) {
+        component.required = true;
+      }
+      if (component.type === 'NavigationButtons') {
+        component.validateOnNext = { page: 'current', show: ['All'] };
+      }
+    });
+
+    cy.goto('group');
+    cy.gotoNavPage('repeating');
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
+    cy.get(appFrontend.group.addNewItem).click();
+
+    // Try to close the row, but find out we're not allowed (as there are 2 required fields currently)
+    cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.group.editContainer).should('be.visible');
+    cy.get(appFrontend.group.currentValue).should('be.visible');
+    cy.get(appFrontend.group.newValue).should('be.visible');
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2); // No error about minCount yet
+    cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut 1. endre fra');
+    cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut 2. endre verdi til');
+
+    // Try to navigate to the next page, which should add the third error about minCount
+    cy.get(appFrontend.navButtons).contains('button', 'Neste').click();
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 3);
+    cy.get(appFrontend.errorReport).should('contain.text', 'Minst 2 rader er påkrevd');
+
+    // Filling those out will allow us to close the row
+    cy.get(appFrontend.group.currentValue).type('123');
+    cy.get(appFrontend.group.newValue).type('321');
+    cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.group.editContainer).should('not.exist');
+
+    // Navigating to the next page is not allowed, we need at least 2 rows
+    cy.get(appFrontend.navButtons).contains('button', 'Neste').click();
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
+    cy.get(appFrontend.errorReport).should('contain.text', 'Minst 2 rader er påkrevd');
+
+    // Add one more row, this time navigating to the next page inside it to openByDefault a new row in the nested group
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.errorReport).should('not.exist');
+    cy.get(appFrontend.group.currentValue).type('1234');
+    cy.get(appFrontend.group.newValue).type('4321');
+    cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
+    cy.get(appFrontend.group.comments).should('be.visible'); // Required field in the nested group
+    cy.get(appFrontend.group.row(1).nestedGroup.row(0).tableRow).should('not.contain.text', 'Rett feil her');
+    cy.get(appFrontend.group.row(1).tableRow).should('not.contain.text', 'Rett feil her');
+    cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.group.row(1).nestedGroup.row(0).tableRow).should('contain.text', 'Rett feil her');
+    cy.get(appFrontend.group.row(1).tableRow).should('contain.text', 'Rett feil her');
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
+    cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut kommentar');
+
+    // Forcing us away from the 'repeating' page should reset the open-state in the repeating group, but not the errors
+    cy.gotoNavPage('prefill');
+    cy.get(appFrontend.group.prefill.liten).should('be.visible');
+    cy.gotoNavPage('repeating');
+    cy.get(appFrontend.group.row(1).tableRow).should('contain.text', 'Rett feil her');
+    cy.get(appFrontend.group.row(1).editBtn).click();
+    cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
+    cy.get(appFrontend.group.row(1).nestedGroup.row(0).tableRow).should('contain.text', 'Rett feil her');
+
+    // Filling out the comment fixes the problem and lets us navigate to the next page
+    cy.get(appFrontend.group.row(1).nestedGroup.row(0).editBtn).click();
+    cy.get(appFrontend.group.comments).type('hello world');
+    cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.group.row(1).tableRow).should('not.contain.text', 'Rett feil her');
+    cy.get(appFrontend.errorReport).should('not.exist');
+    cy.get(appFrontend.group.editContainer).should('not.exist');
+    cy.get(appFrontend.navButtons).contains('button', 'Neste').click();
+
+    // We're on the next page! Yay
+    cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
+  });
 });
