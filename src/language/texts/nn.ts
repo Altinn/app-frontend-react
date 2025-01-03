@@ -86,7 +86,6 @@ export function nn(): FixedLanguageList {
       file_uploader_list_status_done: 'Ferdig lasta',
       file_uploader_list_header_delete_sr: 'Slett',
       file_uploader_max_size: 'Maks filstorleik',
-      file_uploader_mb: 'MB.',
       file_uploader_upload: 'Last opp fil',
       file_uploader_number_of_files: 'Tal på filer {0}.',
       file_uploader_show_more_errors: 'Vis {0} fleire',
@@ -348,7 +347,7 @@ export function nn(): FixedLanguageList {
     },
     signee_list: {
       parse_error: 'Feil ved lasting av signatarliste.',
-      wrong_task_error: 'Denne komponenten er berre tilgjengeleg i eit signeringssteg.',
+      wrong_task_error: 'SigneeList-komponenten er berre tilgjengeleg i eit signeringssteg.',
       unknown_api_error: 'Ein feil oppstod under henting av signatarar.',
       api_error_display: 'Ein feil oppstod under henting av signatarar. Sjå devtool-loggane for meir informasjon.',
       signee_status_signed: 'Signert',
@@ -358,6 +357,16 @@ export function nn(): FixedLanguageList {
       header_name: 'Namn',
       header_on_behalf_of: 'På vegne av',
       header_status: 'Status',
+    },
+    signing_document_list: {
+      parse_error: 'Feil ved lasting av dokumenter.',
+      wrong_task_error: 'SigningDocumentList-komponenten er berre tilgjengeleg i eit signeringssteg.',
+      unknown_api_error: 'Ein feil oppstod under henting av dokumenter.',
+      api_error_display: 'Ein feil oppstod under henting av dokumenter. Sjå devtool-loggane for meir informasjon.',
+      header_filename: 'Namn',
+      header_attachment_type: 'Vedleggstype',
+      header_size: 'Storleik',
+      attachment_type_form: 'Skjema',
     },
     helptext: {
       button_title: 'Hjelp',
