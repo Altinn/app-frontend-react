@@ -1,11 +1,9 @@
 import React from 'react';
 
-import cn from 'classnames';
-
-import { getLabelId } from 'src/components/label/Label';
+import { Flex } from 'src/app-components/Flex/Flex';
+import { Text } from 'src/app-components/Text/Text';
+import { getLabelId, Label } from 'src/components/label/Label';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { Text } from 'src/layout/Text/Text';
-import classes from 'src/layout/Text/TextComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -17,20 +15,23 @@ export const TextComponent = ({ node }: PropsFromGenericComponent<'Text'>) => {
   }
 
   return (
-    <ComponentStructureWrapper
-      node={node}
-      label={{
-        node,
-        renderLabelAs: 'span',
-        className: cn(classes.textComponent, direction === 'vertical' ? classes.vertical : classes.horizontal),
-      }}
-    >
-      <Text
-        value={value}
-        iconUrl={icon}
-        iconAltText={textResourceBindings.title}
-        labelId={getLabelId(node.id)}
-      />
+    <ComponentStructureWrapper node={node}>
+      <Flex
+        container
+        direction={direction === 'vertical' ? 'column' : 'row'}
+        justifyContent='space-between'
+      >
+        <Label
+          node={node}
+          renderLabelAs='span'
+        />
+        <Text
+          value={value}
+          iconUrl={icon}
+          iconAltText={textResourceBindings.title}
+          labelId={getLabelId(node.id)}
+        />
+      </Flex>
     </ComponentStructureWrapper>
   );
 };
