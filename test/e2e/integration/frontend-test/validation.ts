@@ -741,142 +741,140 @@ describe('Validation', () => {
     cy.findByRole('textbox', { name: /når vil du at navnendringen skal skje\?\*/i }).should('be.visible');
   });
 
-  describe('Falsy values', () => {
-    it('should validate boolean fields as set in the data model even when they are set to false', () => {
-      cy.interceptLayout('message', (component) => {
-        if (component.id === 'falsyRadioButton') {
-          component.hidden = false;
+  it('should validate boolean fields as set in the data model even when they are set to false', () => {
+    cy.interceptLayout('message', (component) => {
+      if (component.id === 'falsyRadioButton') {
+        component.hidden = false;
+      }
+    });
+    cy.goto('message');
+
+    cy.findByRole('radio', { name: 'False' }).click();
+    cy.findByRole('button', { name: 'Send inn' }).click();
+
+    // content from next page
+    cy.findByText('Nåværende navn').should('exist');
+  });
+
+  it('should validate number fields as set in the data model when a falsy value is input', () => {
+    cy.interceptLayout('message', (component) => {
+      if (component.id === 'falsyInput') {
+        component.hidden = false;
+      }
+    });
+    cy.goto('message');
+
+    cy.findByRole('textbox', { name: 'Input with falsy value*' }).type('0');
+    cy.findByRole('button', { name: 'Send inn' }).click();
+
+    // Content from next page
+    cy.findByText('Nåværende navn').should('exist');
+  });
+
+  it('Should navigate and focus correct row in Likert component when clicking on error report', () => {
+    cy.goto('likert');
+    cy.findByRole('button', { name: /Send inn/ }).click();
+
+    cy.findByRole('row', {
+      name: /Hører skolen på elevenes forslag\?\*/i,
+    }).within(() => {
+      cy.findByRole('radio', { name: /Alltid/ }).should('not.be.focused');
+    });
+
+    cy.findByRole('button', { name: /Du må fylle ut hører skolen på elevenes forslag/ }).click();
+
+    cy.findByRole('row', {
+      name: /Hører skolen på elevenes forslag\?\*/i,
+    }).within(() => {
+      cy.findByRole('radio', { name: /Alltid/ }).should('be.focused');
+    });
+  });
+
+  it('Existing validations should not disappear when a backend validator is not executed', () => {
+    cy.goto('changename');
+    cy.findByRole('textbox', { name: newFirstName }).type('test');
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
+      'have.text',
+      texts.testIsNotValidValue,
+    );
+
+    cy.intercept('PATCH', '**/data/**', (req) =>
+      req.reply((res) => res.send(JSON.stringify({ ...res.body, validationIssues: {} }))),
+    ).as('patchData');
+
+    cy.get(appFrontend.changeOfName.newMiddleName).type('hei');
+    cy.wait('@patchData');
+
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
+      'have.text',
+      texts.testIsNotValidValue,
+    );
+  });
+
+  it('Datepicker should show component validation instead of format error from schema', () => {
+    cy.interceptLayout('changename', (component) => {
+      if (component.type === 'Datepicker' && component.id === 'dateOfEffect') {
+        component.showValidations = ['AllExceptRequired'];
+      }
+    });
+
+    cy.goto('changename');
+    cy.waitForLoad();
+
+    let c = 0;
+    cy.intercept('PATCH', '**/data/**', () => {
+      c++;
+    }).as('patchData');
+
+    cy.get(appFrontend.changeOfName.dateOfEffect).type('01/01/2020');
+    cy.get(appFrontend.changeOfName.dateOfEffect).blur();
+    cy.wait('@patchData').then(() => {
+      expect(c).to.be.eq(1);
+    });
+
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.dateOfEffect)).should('not.exist');
+
+    cy.get(appFrontend.changeOfName.dateOfEffect).clear();
+    cy.get(appFrontend.changeOfName.dateOfEffect).type('45/45/1234');
+    cy.get(appFrontend.changeOfName.dateOfEffect).blur();
+    cy.wait('@patchData').then(() => {
+      expect(c).to.be.eq(2);
+    });
+
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.dateOfEffect)).should(
+      'contain.text',
+      'Ugyldig datoformat',
+    );
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.dateOfEffect)).should(
+      'not.contain.text',
+      'Feil format',
+    );
+  });
+
+  it('should not show required validation when data is invalid and not saveable', () => {
+    cy.interceptLayout('changename', (component) => {
+      if (component.type === 'Input' && component.id === 'int32AsNumber') {
+        component.showValidations = ['All'];
+        component.required = true;
+      }
+    });
+
+    // Prevent patch response from setting the value to zero when empty
+    cy.intercept('PATCH', '**/data/**', (req) => {
+      req.on('response', (res) => {
+        const body = res.body as IDataModelPatchResponse;
+        if (body.newDataModel['Numeric']?.Int32 === 0) {
+          delete body.newDataModel['Numeric'].Int32;
         }
       });
-      cy.goto('message');
-
-      cy.findByRole('radio', { name: 'False' }).click();
-      cy.findByRole('button', { name: 'Send inn' }).click();
-
-      // content from next page
-      cy.findByText('Nåværende navn').should('exist');
     });
 
-    it('should validate number fields as set in the data model when a falsy value is input', () => {
-      cy.interceptLayout('message', (component) => {
-        if (component.id === 'falsyInput') {
-          component.hidden = false;
-        }
-      });
-      cy.goto('message');
+    cy.gotoHiddenPage('numeric-fields');
 
-      cy.findByRole('textbox', { name: 'Input with falsy value*' }).type('0');
-      cy.findByRole('button', { name: 'Send inn' }).click();
+    cy.get(appFrontend.fieldValidation('int32AsNumber')).should('contain.text', 'Du må fylle ut int32');
 
-      // Content from next page
-      cy.findByText('Nåværende navn').should('exist');
-    });
-
-    it('Should navigate and focus correct row in Likert component when clicking on error report', () => {
-      cy.goto('likert');
-      cy.findByRole('button', { name: /Send inn/ }).click();
-
-      cy.findByRole('row', {
-        name: /Hører skolen på elevenes forslag\?\*/i,
-      }).within(() => {
-        cy.findByRole('radio', { name: /Alltid/ }).should('not.be.focused');
-      });
-
-      cy.findByRole('button', { name: /Du må fylle ut hører skolen på elevenes forslag/ }).click();
-
-      cy.findByRole('row', {
-        name: /Hører skolen på elevenes forslag\?\*/i,
-      }).within(() => {
-        cy.findByRole('radio', { name: /Alltid/ }).should('be.focused');
-      });
-    });
-
-    it('Existing validations should not disappear when a backend validator is not executed', () => {
-      cy.goto('changename');
-      cy.findByRole('textbox', { name: newFirstName }).type('test');
-      cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
-        'have.text',
-        texts.testIsNotValidValue,
-      );
-
-      cy.intercept('PATCH', '**/data/**', (req) =>
-        req.reply((res) => res.send(JSON.stringify({ ...res.body, validationIssues: {} }))),
-      ).as('patchData');
-
-      cy.get(appFrontend.changeOfName.newMiddleName).type('hei');
-      cy.wait('@patchData');
-
-      cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
-        'have.text',
-        texts.testIsNotValidValue,
-      );
-    });
-
-    it('Datepicker should show component validation instead of format error from schema', () => {
-      cy.interceptLayout('changename', (component) => {
-        if (component.type === 'Datepicker' && component.id === 'dateOfEffect') {
-          component.showValidations = ['AllExceptRequired'];
-        }
-      });
-
-      cy.goto('changename');
-      cy.waitForLoad();
-
-      let c = 0;
-      cy.intercept('PATCH', '**/data/**', () => {
-        c++;
-      }).as('patchData');
-
-      cy.get(appFrontend.changeOfName.dateOfEffect).type('01/01/2020');
-      cy.get(appFrontend.changeOfName.dateOfEffect).blur();
-      cy.wait('@patchData').then(() => {
-        expect(c).to.be.eq(1);
-      });
-
-      cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.dateOfEffect)).should('not.exist');
-
-      cy.get(appFrontend.changeOfName.dateOfEffect).clear();
-      cy.get(appFrontend.changeOfName.dateOfEffect).type('45/45/1234');
-      cy.get(appFrontend.changeOfName.dateOfEffect).blur();
-      cy.wait('@patchData').then(() => {
-        expect(c).to.be.eq(2);
-      });
-
-      cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.dateOfEffect)).should(
-        'contain.text',
-        'Ugyldig datoformat',
-      );
-      cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.dateOfEffect)).should(
-        'not.contain.text',
-        'Feil format',
-      );
-    });
-
-    it('should not show required validation when data is invalid and not saveable', () => {
-      cy.interceptLayout('changename', (component) => {
-        if (component.type === 'Input' && component.id === 'int32AsNumber') {
-          component.showValidations = ['All'];
-          component.required = true;
-        }
-      });
-
-      // Prevent patch response from setting the value to zero when empty
-      cy.intercept('PATCH', '**/data/**', (req) => {
-        req.on('response', (res) => {
-          const body = res.body as IDataModelPatchResponse;
-          if (body.newDataModel['Numeric']?.Int32 === 0) {
-            delete body.newDataModel['Numeric'].Int32;
-          }
-        });
-      });
-
-      cy.gotoHiddenPage('numeric-fields');
-
-      cy.get(appFrontend.fieldValidation('int32AsNumber')).should('contain.text', 'Du må fylle ut int32');
-
-      cy.findByRole('textbox', { name: /int32.*/i }).type('999999999999999');
-      cy.get(appFrontend.fieldValidation('int32AsNumber')).should('contain.text', 'Feil format eller verdi');
-      cy.get(appFrontend.fieldValidation('int32AsNumber')).should('not.contain.text', 'Du må fylle ut int32');
-    });
+    cy.findByRole('textbox', { name: /int32.*/i }).type('999999999999999');
+    cy.get(appFrontend.fieldValidation('int32AsNumber')).should('contain.text', 'Feil format eller verdi');
+    cy.get(appFrontend.fieldValidation('int32AsNumber')).should('not.contain.text', 'Du må fylle ut int32');
   });
 });
