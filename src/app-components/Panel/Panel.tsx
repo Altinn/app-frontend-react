@@ -16,7 +16,7 @@ import { useIsMobile } from 'src/hooks/useDeviceWidths';
 
 export type PanelVariant = (typeof PANEL_VARIANT)[keyof typeof PANEL_VARIANT];
 
-type PanelProps = PropsWithChildren<{
+export type PanelProps = PropsWithChildren<{
   variant: PanelVariant;
   showIcon?: boolean;
   forceMobileLayout?: boolean;

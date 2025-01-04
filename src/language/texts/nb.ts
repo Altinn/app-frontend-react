@@ -345,9 +345,11 @@ export function nb(): FixedLanguageList {
       validation_invalid_response_from_server: 'Det oppstod en feil. Vennligst prøv igjen senere.',
       unknown_error: 'Ukjent feil. Vennligst prøv igjen senere.',
     },
+    signing: {
+      wrong_task_error: '{0}-komponenten er kun tilgjengelig i et signeringssteg.',
+    },
     signee_list: {
       parse_error: 'Feil ved lasting av signatarliste.',
-      wrong_task_error: 'SigneeList-komponenten er kun tilgjengelig i et signeringssteg.',
       unknown_api_error: 'En feil oppstod under henting av signatarer.',
       api_error_display: 'En feil oppstod under henting av signatarer. Se devtool-loggene for mer informasjon.',
       signee_status_signed: 'Signert',
@@ -360,7 +362,6 @@ export function nb(): FixedLanguageList {
     },
     signing_document_list: {
       parse_error: 'Feil ved lasting av dokumenter.',
-      wrong_task_error: 'SigningDocumentList-komponenten er kun tilgjengelig i et signeringssteg.',
       unknown_api_error: 'En feil oppstod under henting av doumenter.',
       api_error_display: 'En feil oppstod under henting av dokumenter. Se devtool-loggene for mer informasjon.',
       header_filename: 'Navn',

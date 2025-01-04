@@ -14,7 +14,7 @@ import { fetchProcessState } from 'src/queries/queries';
 import { isProcessTaskType, ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
-import type { IProcess } from 'src/types/shared';
+import type { IActionType, IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 // Also used for prefetching @see appPrefetcher.ts
@@ -70,6 +70,15 @@ export function ProcessProvider({ children, instanceId }: PropsWithChildren<{ in
 export const useHasProcessProvider = () => useContext(ProcessContext) !== undefined;
 export const useLaxProcessData = () => useContext(ProcessContext)?.data;
 export const useReFetchProcessData = () => useContext(ProcessContext)?.refetch;
+
+export const useIsAuthorised = () => {
+  const processData = useLaxProcessData();
+
+  return (action: IActionType): boolean => {
+    const userAction = processData?.currentTask?.userActions?.find((a) => a.id === action);
+    return !!userAction?.authorized;
+  };
+};
 
 /**
  * This returns the task type of the current process task, as we got it from the backend

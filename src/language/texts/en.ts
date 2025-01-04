@@ -344,9 +344,11 @@ export function en() {
       validation_invalid_response_from_server: 'An error occurred. Please try again later.',
       unknown_error: 'An unknown error occurred. Please try again later.',
     },
+    signing: {
+      wrong_task_error: 'The {0} component is only available in a signing task.',
+    },
     signee_list: {
       parse_error: 'Error loading signee list.',
-      wrong_task_error: 'The SigneeList component is only available in a signing task.',
       unknown_api_error: 'An error occurred when fetching signees.',
       api_error_display: 'An error occurred when fetching signees. See devtool logs for more information.',
       signee_status_signed: 'Signed',
@@ -359,7 +361,6 @@ export function en() {
     },
     signing_document_list: {
       parse_error: 'Error loading signee document list.',
-      wrong_task_error: 'The SigningDocumentList component is only available in a signing task.',
       unknown_api_error: 'An error occurred when fetching documents.',
       api_error_display: 'An error occurred when fetching documents. See devtool logs for more information.',
       header_filename: 'Name',

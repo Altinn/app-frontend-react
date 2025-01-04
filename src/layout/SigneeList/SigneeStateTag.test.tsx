@@ -10,25 +10,41 @@ jest.mock('src/features/language/Lang', () => ({ Lang: ({ id }: { id: string }) 
 
 describe('SigneeStateTag', () => {
   it('should display a tag with name "signed" when status is "signed"', () => {
-    render(<SigneeStateTag state={{ hasSigned: true, delegationSuccessful: true, notificationSuccessful: true }} />);
+    render(
+      <SigneeStateTag
+        state={{ hasSigned: true, delegationSuccessful: true, notificationSuccessful: true, partyId: 123 }}
+      />,
+    );
 
     screen.getByText(SIGNEE_STATUS.signed);
   });
 
   it('should display a tag with name "delegationFailed" when status is "delegationFailed"', () => {
-    render(<SigneeStateTag state={{ hasSigned: false, delegationSuccessful: false, notificationSuccessful: true }} />);
+    render(
+      <SigneeStateTag
+        state={{ hasSigned: false, delegationSuccessful: false, notificationSuccessful: true, partyId: 123 }}
+      />,
+    );
 
     screen.getByText(SIGNEE_STATUS.delegationFailed);
   });
 
   it('should display a tag with name "notificationFailed" when status is "notificationFailed"', () => {
-    render(<SigneeStateTag state={{ hasSigned: false, delegationSuccessful: true, notificationSuccessful: false }} />);
+    render(
+      <SigneeStateTag
+        state={{ hasSigned: false, delegationSuccessful: true, notificationSuccessful: false, partyId: 123 }}
+      />,
+    );
 
     screen.getByText(SIGNEE_STATUS.notificationFailed);
   });
 
   it('should display a tag with name "waiting" when status is "waiting"', () => {
-    render(<SigneeStateTag state={{ hasSigned: false, delegationSuccessful: true, notificationSuccessful: true }} />);
+    render(
+      <SigneeStateTag
+        state={{ hasSigned: false, delegationSuccessful: true, notificationSuccessful: true, partyId: 123 }}
+      />,
+    );
 
     screen.getByText(SIGNEE_STATUS.waiting);
   });

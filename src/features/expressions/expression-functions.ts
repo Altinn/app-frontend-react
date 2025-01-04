@@ -244,6 +244,7 @@ export const ExprFunctions = {
         confirm: true,
         sign: true,
         reject: true,
+        complete: true,
       };
 
       if (key === null || authContextKeys[key] !== true) {

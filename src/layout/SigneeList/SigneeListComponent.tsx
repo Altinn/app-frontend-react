@@ -30,7 +30,12 @@ export function SigneeListComponent({ node }: PropsFromGenericComponent<'SigneeL
   });
 
   if (taskType !== ProcessTaskType.Signing) {
-    return <Lang id='signee_list.wrong_task_error' />;
+    return (
+      <Lang
+        id='signing.wrong_task_error'
+        params={['SigneeList']}
+      />
+    );
   }
 
   if (error) {

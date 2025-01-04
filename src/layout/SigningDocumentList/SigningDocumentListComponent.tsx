@@ -34,7 +34,12 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
   });
 
   if (taskType !== ProcessTaskType.Signing) {
-    return <Lang id='signing_document_list.wrong_task_error' />;
+    return (
+      <Lang
+        id='signing.wrong_task_error'
+        params={['SigningDocumentList']}
+      />
+    );
   }
 
   if (error) {
