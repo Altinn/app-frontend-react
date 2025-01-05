@@ -3,7 +3,6 @@ import React from 'react';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { PANEL_VARIANT } from 'src/app-components/Panel/constants';
 import { Panel } from 'src/app-components/Panel/Panel';
-import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
@@ -33,50 +32,49 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
 
   return (
     <div data-testid='ErrorReport'>
-      <FullWidthWrapper isOnBottom={true}>
-        <Panel
-          title={<Lang id='form_filler.error_report_header' />}
-          variant={PANEL_VARIANT.Error}
+      <Panel
+        title={<Lang id='form_filler.error_report_header' />}
+        variant={PANEL_VARIANT.Error}
+        isOnBottom
+      >
+        <Flex
+          container
+          item
+          spacing={6}
+          alignItems='flex-start'
         >
           <Flex
-            container
             item
-            spacing={6}
-            alignItems='flex-start'
+            size={{ xs: 12 }}
           >
-            <Flex
-              item
-              size={{ xs: 12 }}
-            >
-              <ul className={classes.errorList}>
-                {taskErrors.map((error) => (
-                  <li
-                    key={getUniqueKeyFromObject(error)}
-                    style={{ listStyleImage: listStyleImg }}
-                  >
-                    <Lang
-                      id={error.message.key}
-                      params={error.message.params}
-                    />
-                  </li>
-                ))}
-                {formErrors.map((error) => (
-                  <Error
-                    key={getUniqueKeyFromObject(error)}
-                    error={error}
+            <ul className={classes.errorList}>
+              {taskErrors.map((error) => (
+                <li
+                  key={getUniqueKeyFromObject(error)}
+                  style={{ listStyleImage: listStyleImg }}
+                >
+                  <Lang
+                    id={error.message.key}
+                    params={error.message.params}
                   />
-                ))}
-              </ul>
-            </Flex>
-            {renderIds.map((id) => (
-              <GenericComponentById
-                key={id}
-                id={id}
-              />
-            ))}
+                </li>
+              ))}
+              {formErrors.map((error) => (
+                <Error
+                  key={getUniqueKeyFromObject(error)}
+                  error={error}
+                />
+              ))}
+            </ul>
           </Flex>
-        </Panel>
-      </FullWidthWrapper>
+          {renderIds.map((id) => (
+            <GenericComponentById
+              key={id}
+              id={id}
+            />
+          ))}
+        </Flex>
+      </Panel>
     </div>
   );
 };

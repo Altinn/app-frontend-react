@@ -10,6 +10,8 @@ import {
 } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
+import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
+import { FullWidthWrapper } from 'src/app-components/FullWidthWrapper/FullWidthWrapper';
 import { PANEL_VARIANT } from 'src/app-components/Panel/constants';
 import classes from 'src/app-components/Panel/Panel.module.css';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
@@ -22,6 +24,9 @@ export type PanelProps = PropsWithChildren<{
   forceMobileLayout?: boolean;
   title?: JSX.Element;
   style?: React.CSSProperties;
+  fullWidth?: boolean;
+  isOnBottom?: boolean;
+  isOnTop?: boolean;
 }>;
 
 type PanelIconProps = {
@@ -68,6 +73,9 @@ export const Panel: React.FC<PanelProps> = ({
   variant,
   showIcon = false,
   forceMobileLayout = false,
+  fullWidth = true,
+  isOnBottom,
+  isOnTop,
   title,
   style,
   children,
@@ -76,34 +84,46 @@ export const Panel: React.FC<PanelProps> = ({
   const isMobileLayout = forceMobileLayout || isMobile;
 
   return (
-    <div
-      className={cn(classes.panel, {
-        [classes.panelMobileLayout]: isMobileLayout,
-      })}
-      style={style}
+    <ConditionalWrapper
+      condition={fullWidth}
+      wrapper={(child) => (
+        <FullWidthWrapper
+          isOnBottom={isOnBottom}
+          isOnTop={isOnTop}
+        >
+          {child}
+        </FullWidthWrapper>
+      )}
     >
-      <div className={cn(classes.panelContentWrapper, classes[`panelContentWrapper_${variant}`])}>
-        {showIcon && (
-          <div className={cn(classes.panelIconWrapper, classes[`panelIconWrapper_${variant}`])}>
-            <PanelIcon
-              isMobileLayout={isMobileLayout}
-              variant={variant}
-            />
-          </div>
-        )}
-        <div className={classes.panelContent}>
-          {title && (
-            <Heading
-              level={2}
-              size={isMobileLayout ? 'xs' : 'sm'}
-              className={classes.panelHeader}
-            >
-              {title}
-            </Heading>
+      <div
+        className={cn(classes.panel, {
+          [classes.panelMobileLayout]: isMobileLayout,
+        })}
+        style={style}
+      >
+        <div className={cn(classes.panelContentWrapper, classes[`panelContentWrapper_${variant}`])}>
+          {showIcon && (
+            <div className={cn(classes.panelIconWrapper, classes[`panelIconWrapper_${variant}`])}>
+              <PanelIcon
+                isMobileLayout={isMobileLayout}
+                variant={variant}
+              />
+            </div>
           )}
-          <div>{children}</div>
+          <div className={classes.panelContent}>
+            {title && (
+              <Heading
+                level={2}
+                size={isMobileLayout ? 'xs' : 'sm'}
+                className={classes.panelHeader}
+              >
+                {title}
+              </Heading>
+            )}
+            <div>{children}</div>
+          </div>
         </div>
       </div>
-    </div>
+    </ConditionalWrapper>
   );
 };
