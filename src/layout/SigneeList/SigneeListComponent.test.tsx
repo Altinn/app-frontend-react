@@ -132,7 +132,7 @@ describe('SigneeListComponent', () => {
       />,
     );
 
-    screen.getByText('signee_list.wrong_task_error');
+    screen.getByText('signing.wrong_task_error');
   });
 
   it('should render error message when API call fails', () => {
