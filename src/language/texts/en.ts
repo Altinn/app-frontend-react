@@ -148,8 +148,10 @@ export function en() {
       create_new: 'Create new',
       create: 'Create',
       customer_service_phone_number: '+47 75 00 60 00',
-      customer_service_slack: 'https://altinn.slack.com/',
+      customer_service_slack: 'https://altinn.slack.com',
       customer_service_email: 'servicedesk@altinn.no',
+      customer_service_error_message:
+        'If you need help resolving this issue, reach out to Altinn via our support lines<br/><br/><ul><li>Phone: <a href="tel:{0}">{0}</a></li><li>Email: {1}</li><li>Slack: {2}</li></ul>',
       delete: 'Delete',
       download: 'Download {0}',
       disabled: 'Disabled',
@@ -343,6 +345,19 @@ export function en() {
       validation_invalid_response_from_server: 'An error occurred. Please try again later.',
       unknown_error: 'An unknown error occurred. Please try again later.',
     },
+    signee_list: {
+      parse_error: 'Error loading signee list.',
+      wrong_task_error: 'This component is only available in a signing task.',
+      unknown_api_error: 'An error occurred when fetching signees.',
+      api_error_display: 'An error occurred when fetching signees. See devtool logs for more information.',
+      signee_status_signed: 'Signed',
+      signee_status_waiting: 'Waiting for signing',
+      signee_status_delegation_failed: 'Delegation failed',
+      signee_status_notification_failed: 'Notification failed',
+      header_name: 'Name',
+      header_on_behalf_of: 'On behalf of',
+      header_status: 'Status',
+    },
     helptext: {
       button_title: 'Help',
       button_title_prefix: 'Helptext for',
@@ -412,8 +427,6 @@ export function en() {
       navigateLastPage: 'Navigate to the last page in the table',
     },
     config_error: {
-      layoutset_subform_config_error_customer_support:
-        'If you need help resolving this issue, reach out to Altinn via our support lines<br/><br/><ul><li>Phone: <a href="tel:{0}">{0}</a></li><li>Email: {1}</li><li>Slack: {2}</li></ul>',
       layoutset_subform_config_error:
         'Layout set with id <strong>{0}</strong> is configured incorrectly.<br /><br />The layout set cannot have both <strong>type</strong> <em>and</em> <strong>tasks</strong> defined.',
       layoutset_error: 'Layout set error',
