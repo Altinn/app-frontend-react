@@ -147,7 +147,7 @@ function TaskGroup({ group, active }: { group: NavigationTask | NavigationReceip
         <div className={cn(classes.groupSymbol, active ? classes.taskSymbolActive : classes.taskSymbolLocked)}>
           <Icon aria-hidden />
         </div>
-        <span className={cn({ [classes.groupNameActive]: active })}>
+        <span className={cn(classes.groupName, { [classes.groupNameActive]: active })}>
           <Lang id={getTaskName(group)} />
         </span>
       </button>
@@ -178,7 +178,7 @@ function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNaviga
         aria-current={containsCurrentPage ? 'step' : undefined}
         aria-expanded={isOpen}
         aria-owns={listId}
-        className={cn(classes.groupButton, 'fds-focus')}
+        className={cn(classes.groupButton, { [classes.groupButtonOpen]: isOpen }, 'fds-focus')}
         onClick={() => setIsOpen((o) => !o)}
       >
         <PageGroupSymbol
@@ -187,7 +187,7 @@ function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNaviga
           error={validations !== ContextNotProvided && validations.hasErrors.group}
           complete={validations !== ContextNotProvided && validations.isCompleted.group}
         />
-        <span className={cn({ [classes.pageNameActive]: containsCurrentPage && !isOpen })}>
+        <span className={cn(classes.groupName, { [classes.groupNameActive]: containsCurrentPage && !isOpen })}>
           <Lang id={group.name} />
         </span>
         <ChevronDownIcon className={cn(classes.groupChevron, { [classes.groupChevronOpen]: isOpen })} />
@@ -264,7 +264,7 @@ function Page({
   const { navigateToPage } = useNavigatePage();
 
   return (
-    <li>
+    <li className={classes.pageListItem}>
       <button
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.pageButton, 'fds-focus')}
@@ -281,7 +281,7 @@ function Page({
           active={isCurrentPage}
         />
 
-        <span className={cn({ [classes.pageNameActive]: isCurrentPage })}>
+        <span className={cn(classes.pageName, { [classes.pageNameActive]: isCurrentPage })}>
           <Lang id={page} />
         </span>
       </button>

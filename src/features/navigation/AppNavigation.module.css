@@ -27,12 +27,19 @@
   width: 100%;
   grid-template-columns: auto 1fr auto;
   column-gap: 8px;
-  align-items: center;
+  align-items: start;
   text-align: left;
 
   border-radius: var(--fds-border_radius-interactive);
   padding: 2px;
   margin: -2px;
+}
+
+.group-name {
+  min-height: 28px;
+  display: inline-block;
+  align-content: center;
+  line-height: 1.2;
 }
 
 .group-name-active {
@@ -67,12 +74,14 @@
   width: 100%;
   grid-template-columns: auto 1fr auto;
   column-gap: 8px;
-  align-items: center;
+  align-items: start;
   text-align: left;
 
   border-radius: var(--fds-border_radius-interactive);
   padding: 2px;
   margin: -2px;
+
+  position: relative;
 }
 
 .group-button:hover {
@@ -83,6 +92,7 @@
 }
 
 .group-chevron {
+  margin-top: 6px;
   margin-right: -4px; /* The icon has some internal padding, this makes the edge line up better */
   color: var(--fds-colors-grey-700);
   font-size: 16px;
@@ -135,12 +145,38 @@
   margin: 0;
 }
 
-.page-list > li:first-child {
+.page-list-item {
+  position: relative;
+}
+
+.page-list-item:first-child {
   margin-top: 15px;
 }
 
-.page-list > li:not(:last-child) {
+.page-list-item:not(:last-child) {
   margin-bottom: 20px;
+}
+
+.group-button-open::before {
+  content: '';
+  position: absolute;
+  box-sizing: border-box;
+  width: 0;
+  border-left: 2px solid var(--fds-colors-grey-700);
+  height: calc(100% - 21px);
+  top: 33px;
+  left: 15px;
+}
+
+.page-list-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  box-sizing: border-box;
+  width: 0;
+  border-left: 2px solid var(--fds-colors-grey-700);
+  height: calc(100% - 8px);
+  top: 25px;
+  left: 13px;
 }
 
 .page-button {
@@ -150,13 +186,12 @@
   color: var(--fds-colors-blue-700);
   background-color: transparent;
   border: none;
-  padding: 0;
   cursor: pointer;
   display: grid;
   width: 100%;
   grid-template-columns: auto 1fr;
   column-gap: 8px;
-  align-items: center;
+  align-items: start;
   text-align: left;
 
   border-radius: var(--fds-border_radius-interactive);
@@ -172,7 +207,6 @@
 }
 
 .page-symbol {
-  position: relative;
   width: 20px;
   height: 20px;
   margin: 0 4px;
@@ -183,25 +217,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.page-list > li:first-child .page-symbol::before {
-  content: '';
-  position: absolute;
-  box-sizing: border-box;
-  height: 11px;
-  width: 0;
-  border-left: 2px solid var(--fds-colors-grey-700);
-  bottom: 20px;
-}
-.page-list > li:not(:last-child) .page-symbol::after {
-  content: '';
-  position: absolute;
-  box-sizing: border-box;
-  height: 16px;
-  width: 0;
-  border-left: 2px solid var(--fds-colors-grey-700);
-  top: 20px;
 }
 
 .page-symbol-error {
@@ -231,6 +246,10 @@
   outline-offset: -4px;
 }
 
+.page-name {
+  margin-top: 2px;
+  line-height: 1.2;
+}
 .page-name-active {
   text-decoration-line: underline;
   text-decoration-skip-ink: none;
