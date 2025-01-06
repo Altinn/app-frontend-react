@@ -23,15 +23,10 @@ export function SigningDocumentListError({ error }: { error: Error }) {
         <Lang
           id='general.customer_service_error_message'
           params={[
-            'general.customer_service_phone_number',
-            'general.customer_service_email',
-            'general.customer_service_slack',
-          ].map((it, idx) => (
-            <Lang
-              key={idx}
-              id={it?.toString()}
-            />
-          ))}
+            { key: 'general.customer_service_phone_number' },
+            { key: 'general.customer_service_email' },
+            { key: 'general.customer_service_slack' },
+          ]}
         />
       </div>
     );

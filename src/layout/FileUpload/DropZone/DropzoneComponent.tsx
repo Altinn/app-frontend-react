@@ -70,7 +70,10 @@ export function DropzoneComponent({
         className={classes.fileUploadTextBoldSmall}
         id={maxSizeLabelId}
       >
-        {`${langAsString('form_filler.file_uploader_max_size')} ${maxFileSizeInMB} MB`}
+        <Lang
+          id='form_filler.file_uploader_max_size_mb'
+          params={[maxFileSizeInMB]}
+        />
       </div>
       <DropZone
         onDrop={onDrop}

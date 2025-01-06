@@ -85,7 +85,7 @@ export function nb(): FixedLanguageList {
       file_uploader_list_header_status: 'Status',
       file_uploader_list_status_done: 'Ferdig lastet',
       file_uploader_list_header_delete_sr: 'Slett',
-      file_uploader_max_size: 'Maks filstørrelse',
+      file_uploader_max_size_mb: 'Maks filstørrelse {0} MB',
       file_uploader_upload: 'Last opp fil',
       file_uploader_number_of_files: 'Antall filer {0}.',
       file_uploader_show_more_errors: 'Vis {0} flere',

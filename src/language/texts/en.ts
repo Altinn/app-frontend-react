@@ -85,7 +85,7 @@ export function en() {
       file_uploader_list_header_status: 'Status',
       file_uploader_list_header_delete_sr: 'Delete',
       file_uploader_list_status_done: 'Uploaded',
-      file_uploader_max_size: 'Maximum file size',
+      file_uploader_max_size_mb: 'Maximum file size {0} MB',
       file_uploader_upload: 'Upload file',
       file_uploader_number_of_files: 'Number of files {0}.',
       file_uploader_show_more_errors: 'Show {0} more',
