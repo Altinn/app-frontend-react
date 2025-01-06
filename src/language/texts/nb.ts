@@ -148,7 +148,7 @@ export function nb(): FixedLanguageList {
       create_new: 'Opprett ny',
       create: 'Opprett',
       customer_service_phone_number: '+47 75 00 60 00',
-      customer_service_slack: 'https://altinn.slack.com/',
+      customer_service_slack: 'https://altinn.slack.com',
       customer_service_email: 'servicedesk@altinn.no',
       customer_service_error_message:
         'Hvis du har behov for assistanse kan du nå Altinn på<br/><br/><li>Telefon: <a href="tel:{0}">{0}</a></li><li>E-post: {1}</li><li>Slack: {2}</li></ul>',
@@ -353,7 +353,7 @@ export function nb(): FixedLanguageList {
       api_error_display: 'En feil oppstod under henting av signatarer. Se devtool-loggene for mer informasjon.',
       signee_status_signed: 'Signert',
       signee_status_waiting: 'Venter på signering',
-      signee_status_delegation_failed: 'Delegasjon mislyktes',
+      signee_status_delegation_failed: 'Delegering mislyktes',
       signee_status_notification_failed: 'Varsling mislyktes',
       header_name: 'Navn',
       header_on_behalf_of: 'På vegne av',

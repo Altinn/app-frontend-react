@@ -12,7 +12,6 @@
     "noEmit": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "strict": true,
     "strictNullChecks": true,
     "noUnusedLocals": false,
     "esModuleInterop": true,

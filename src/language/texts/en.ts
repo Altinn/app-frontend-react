@@ -148,7 +148,7 @@ export function en() {
       create_new: 'Create new',
       create: 'Create',
       customer_service_phone_number: '+47 75 00 60 00',
-      customer_service_slack: 'https://altinn.slack.com/',
+      customer_service_slack: 'https://altinn.slack.com',
       customer_service_email: 'servicedesk@altinn.no',
       customer_service_error_message:
         'If you need help resolving this issue, reach out to Altinn via our support lines<br/><br/><ul><li>Phone: <a href="tel:{0}">{0}</a></li><li>Email: {1}</li><li>Slack: {2}</li></ul>',
