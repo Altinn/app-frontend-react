@@ -17,7 +17,7 @@ export function useCurrentPartyRolesQueryDef(
   const enabled = !!(supportsRolesAPI && partyID && instanceGUID);
 
   return {
-    queryKey: [`fetchCurrentPartyRoles/${partyID}/${instanceGUID}`],
+    queryKey: ['fetchCurrentPartyRoles', partyID, instanceGUID],
     queryFn: fetchRoles,
     staleTime: 1000 * 60 * 10,
     enabled,
