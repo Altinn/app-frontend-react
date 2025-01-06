@@ -42,12 +42,13 @@ export function checkValidSsn(ssn: string): boolean {
   return k1 === calculated_k1 && k2 === calculated_k2;
 }
 
-const nameSchema: JSONSchemaType<Pick<Person, 'lastName'>> = {
+const nameSchema: JSONSchemaType<Pick<Person, 'lastName' | 'firstName'>> = {
   type: 'object',
   properties: {
     lastName: { type: 'string', minLength: 2, errorMessage: 'person_lookup.validation_error_name_too_short' },
+    firstName: { type: 'string', minLength: 2, errorMessage: 'person_lookup.validation_error_name_too_short' },
   },
-  required: ['lastName'],
+  required: ['lastName', 'firstName'],
 };
 
 export const validateSsn = ajv.compile(ssnSchema);
