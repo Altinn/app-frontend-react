@@ -8,6 +8,7 @@ import { addError } from 'src/features/expressions/validation';
 import { SearchParams } from 'src/features/routing/AppRoutingContext';
 import { implementsDisplayData } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
+import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -306,6 +307,14 @@ export const ExprFunctions = {
       }
 
       const reference: IDataModelReference = { dataType, field: propertyPath };
+      if (this.dataSources.currentDataModelPath && this.dataSources.currentDataModelPath.dataType === dataType) {
+        const newReference = transposeDataBinding({
+          subject: reference,
+          currentLocation: this.dataSources.currentDataModelPath,
+        });
+        return pickSimpleValue(newReference, this);
+      }
+
       const node = ensureNode(this.node);
       if (node instanceof BaseLayoutNode) {
         const newReference = this.dataSources.transposeSelector(node as LayoutNode, reference);
@@ -319,6 +328,19 @@ export const ExprFunctions = {
     args: [ExprVal.String, ExprVal.String] as const,
     minArguments: 1,
     returns: ExprVal.Any,
+  }),
+  hasRole: defineFunc({
+    impl(roleName): boolean | null {
+      if (typeof roleName !== 'string') {
+        throw new ExprRuntimeError(this.expr, this.path, `Expected string argument.`);
+      }
+      if (!this.dataSources.roles) {
+        return false;
+      }
+      return this.dataSources.roles.data?.map((role) => role.value).includes(roleName) ?? null;
+    },
+    args: [ExprVal.String] as const,
+    returns: ExprVal.Boolean,
   }),
   externalApi: defineFunc({
     impl(externalApiId, path): string | null {
