@@ -27,11 +27,12 @@ jobs:
     name: Install
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: yarn --immutable
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      - run: yarn install --immutable
 
       - name: Cypress install
         uses: cypress-io/github-action@v6
@@ -81,6 +82,7 @@ jobs:
           fi
 
       - name: Cypress run
+        uses: cypress-io/github-action@v6
         env:
           CYPRESS_PROJECT_ID: y2jhp6
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -89,7 +91,6 @@ jobs:
           PERCY_PARALLEL_TOTAL: 6
           PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
           IS_PR_DRAFT: ${{ github.event.pull_request.draft }}
-        uses: cypress-io/github-action@v6
         with:
           # quote the url to be safe against YML parsing surprises
           start: 'npx http-server dist --cors="*" -p 8080'
