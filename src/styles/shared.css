@@ -25,7 +25,7 @@ input.form-control:focus:not(.a-hasButton) {
 }
 
 @media print {
-  // setting explicit base font-size for print
+  /* setting explicit base font-size for print */
   html {
     font-size: 16px;
   }
