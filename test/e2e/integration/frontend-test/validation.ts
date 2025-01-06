@@ -389,9 +389,10 @@ describe('Validation', () => {
     cy.get(appFrontend.group.saveSubGroup).click();
     cy.get(appFrontend.group.addNewItemSubGroup).click();
     cy.get(appFrontend.group.saveSubGroup).click();
-    cy.findByRole('button', { name: 'Rediger comment' }).click();
-    cy.get(appFrontend.group.editContainer).find(appFrontend.group.back).click();
-    cy.findByRole('button', { name: 'Lukk NOK 1' }).click();
+    cy.get(appFrontend.errorReport).should('contain.text', texts.requiredComment);
+    cy.gotoNavPage('prefill');
+    cy.get(appFrontend.group.prefill.liten).should('be.visible');
+    cy.gotoNavPage('repeating');
     cy.findByRole('button', { name: 'Se innhold NOK 1 233' }).click();
     cy.get(appFrontend.errorReport).findByText(texts.requiredComment).click();
     cy.get(appFrontend.group.row(0).nestedGroup.row(1).comments).should('be.focused');
