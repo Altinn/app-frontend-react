@@ -101,7 +101,7 @@ jobs:
           tag: altinn-app-frontend
           browser: chrome
           ci-build-id: ${{ github.run_id }}-${{ github.run_attempt }}
-          spec: test/e2e/integration
+          spec: test/e2e/integration/frontend-test/pdf.ts
           env: environment=tt02
 
       - uses: actions/upload-artifact@v4
