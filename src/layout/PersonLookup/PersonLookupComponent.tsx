@@ -220,7 +220,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
           required={required}
           readOnly={hasSuccessfullyFetched}
           error={
-            (nameError?.length && <Lang id={nameError} />) ||
+            (nameError && <Lang id={nameError} />) ||
             (hasValidationErrors(bindingValidations?.person_lookup_name) && (
               <ComponentValidations validations={bindingValidations?.person_lookup_name} />
             ))
