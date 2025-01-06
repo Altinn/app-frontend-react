@@ -37,7 +37,9 @@ const personLookupQueries = {
 };
 
 export type Person = {
-  name: string;
+  firstName: string;
+  lastName: string;
+  middleName: string;
   ssn: string;
 };
 export type PersonLookupResponse = { success: false; personDetails: null } | { success: true; personDetails: Person };
@@ -130,19 +132,20 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
       return;
     }
 
-    setValue('person_lookup_surname', tempName);
-
     const { data } = await performLookup();
     if (data?.person) {
-      setValue('person_lookup_name', data.person.name);
+      setValue('person_lookup_name', getFullName(data.person));
       setValue('person_lookup_ssn', data.person.ssn);
     }
+  }
+
+  function getFullName({ firstName, middleName, lastName }) {
+    return middleName ? `${firstName} ${middleName} ${lastName}` : `${firstName} ${lastName}`;
   }
 
   function handleClear() {
     setValue('person_lookup_name', '');
     setValue('person_lookup_ssn', '');
-    setValue('person_lookup_surname', '');
     setTempName('');
     setTempSsn('');
   }
