@@ -130,6 +130,8 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
       return;
     }
 
+    setValue('person_lookup_surname', tempName);
+
     const { data } = await performLookup();
     if (data?.person) {
       setValue('person_lookup_name', data.person.name);
@@ -140,6 +142,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
   function handleClear() {
     setValue('person_lookup_name', '');
     setValue('person_lookup_ssn', '');
+    setValue('person_lookup_surname', '');
     setTempName('');
     setTempSsn('');
   }

@@ -29,9 +29,17 @@ export const Config = new CG.component({
       new CG.prop(
         'person_lookup_name',
         new CG.dataModelBinding()
-          .setTitle('Data model binding for zip code')
+          .setTitle('Data model binding for the full name of a person')
           .setDescription(
             'Describes the location in the data model where the component should store the name of the person to look up.',
+          ),
+      ),
+      new CG.prop(
+        'person_lookup_surname',
+        new CG.dataModelBinding()
+          .setTitle('Data model binding for the surname of a person')
+          .setDescription(
+            'Describes the location in the data model where the component should store the surname of the person to look up.',
           ),
       ),
     ).exportAs('IDataModelBindingsForPersonLookup'),
