@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Table } from '@digdir/designsystemet-react';
 
-import { Caption } from 'src/components/form/caption/Caption';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
@@ -44,14 +43,18 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
           gap: 'var(--fds-spacing-6)',
         }}
       >
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+          <span style={{ fontSize: '1.125rem' }}>
+            <Lang id={title} />
+          </span>
+          <EditButton
+            style={{ marginLeft: 'auto', minWidth: 'unset' }}
+            componentNode={componentNode}
+            summaryComponentId={''}
+          />
+        </div>
         <Table>
-          <Caption title={<Lang id={title} />} />
           <Table.Head>
-            <EditButton
-              style={{ marginLeft: 'auto', minWidth: 'unset' }}
-              componentNode={componentNode}
-              summaryComponentId={''}
-            />
             <Table.Row>
               {Object.entries(tableHeaders).map(([key, value]) => (
                 <Table.HeaderCell key={key}>

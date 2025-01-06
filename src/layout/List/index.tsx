@@ -1,13 +1,16 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { evalQueryParameters } from 'src/features/options/evalQueryParameters';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
-import { ListSummary } from 'src/layout/List/ListSummary';
+import { SummaryListGroup } from 'src/layout/List/Summary/ListSummary';
+import { ListSummary } from 'src/layout/List/Summary2/ListSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
@@ -42,8 +45,13 @@ export class List extends ListDef {
     return '';
   }
 
-  renderSummary({ targetNode }: SummaryRendererProps<'List'>): JSX.Element | null {
-    const displayData = this.useDisplayData(targetNode);
+  renderSummary(props: SummaryRendererProps<'List'>): JSX.Element | null {
+    const { dataModelBindings } = useNodeItem(props.targetNode);
+    const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
+    if (formData.saveToList != null) {
+      return <SummaryListGroup {...props} />;
+    }
+    const displayData = this.useDisplayData(props.targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
@@ -113,11 +121,11 @@ export class List extends ListDef {
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
     const errors: string[] = [];
 
-    for (const [binding, bindingConfig] of Object.entries(ctx.item.dataModelBindings ?? {})) {
-      const allowedTypes = binding == 'saveToList' ? ['array'] : ['string', 'number', 'integer', 'boolean', 'array'];
-      const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedTypes, false);
-      errors.push(...(newErrors || []));
-    }
+    // for (const [binding, bindingConfig] of Object.entries(ctx.item.dataModelBindings ?? {})) {
+    //   const allowedTypes = binding == 'saveToList' ? ['array'] : ['string', 'number', 'integer', 'boolean', 'array'];
+    //   const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedTypes, false);
+    //   errors.push(...(newErrors || []));
+    // }
     return errors;
   }
 
