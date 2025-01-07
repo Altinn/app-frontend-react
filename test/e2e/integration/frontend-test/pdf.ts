@@ -46,6 +46,11 @@ describe('PDF', () => {
               intercept.request.headers['cookie'].includes('altinn-telemetry-traceparent='),
           );
           expect(intercepts.length).to.be.greaterThan(10);
+          console.log(
+            'Intercepts:',
+            intercepts.map(({ request }) => request),
+          );
+
           for (const { request } of intercepts) {
             cy.log('Request intercepted:', request.url.split(domain)[1]);
             console.log('Request intercepted:', request);
