@@ -9,7 +9,7 @@ interface TextProps {
   labelId?: string;
 }
 
-export const Text = ({ value, iconUrl, iconAltText, labelId }: TextProps) => (
+export const DisplayText = ({ value, iconUrl, iconAltText, labelId }: TextProps) => (
   <>
     {iconUrl && (
       <img
@@ -18,6 +18,11 @@ export const Text = ({ value, iconUrl, iconAltText, labelId }: TextProps) => (
         alt={iconAltText}
       />
     )}
-    <span aria-labelledby={labelId}>{value}</span>
+    <span
+      className='text'
+      aria-labelledby={labelId}
+    >
+      {value}
+    </span>
   </>
 );

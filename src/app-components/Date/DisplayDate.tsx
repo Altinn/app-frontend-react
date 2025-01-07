@@ -30,7 +30,12 @@ export const DisplayDate = ({ value, format, iconUrl, iconAltText, labelId }: Da
           alt={iconAltText}
         />
       )}
-      <span aria-labelledby={labelId}>{displayData}</span>
+      <span
+        className='date'
+        aria-labelledby={labelId}
+      >
+        {displayData}
+      </span>
     </>
   );
 };

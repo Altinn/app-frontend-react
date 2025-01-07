@@ -37,7 +37,12 @@ export const DisplayNumber = ({
           alt={iconAltText}
         />
       )}
-      <span aria-labelledby={labelId}>{displayData}</span>
+      <span
+        className='number'
+        aria-labelledby={labelId}
+      >
+        {displayData}
+      </span>
     </>
   );
 };
