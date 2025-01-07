@@ -50,9 +50,10 @@ export class List extends ListDef {
     const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
     if (formData.saveToList != null) {
       return <SummaryListGroup {...props} />;
+    } else {
+      const displayData = this.useDisplayData(props.targetNode);
+      return <SummaryItemSimple formDataAsString={displayData} />;
     }
-    const displayData = this.useDisplayData(props.targetNode);
-    return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
   renderSummary2(props: Summary2Props<'List'>): JSX.Element | null {

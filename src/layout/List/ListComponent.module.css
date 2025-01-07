@@ -81,3 +81,26 @@
   flex-direction: column;
   gap: var(--fds-spacing-2);
 }
+
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.label {
+  font-weight: 500;
+  font-size: 1.125rem;
+}
+
+.border {
+  border: 2px solid #efefef;
+  margin: 12px 0;
+  padding: 12px;
+}
+@media print {
+  .border {
+    break-inside: avoid;
+  }
+}
