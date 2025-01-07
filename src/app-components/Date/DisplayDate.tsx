@@ -12,7 +12,7 @@ interface DateProps {
   labelId?: string;
 }
 
-export const Date = ({ value, format, iconUrl, iconAltText, labelId }: DateProps) => {
+export const DisplayDate = ({ value, format, iconUrl, iconAltText, labelId }: DateProps) => {
   const parsedValue = parseISO(value);
   let displayData = parsedValue.toDateString();
   if (!isValid(parsedValue)) {

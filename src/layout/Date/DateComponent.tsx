@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Date } from 'src/app-components/Date/Date';
+import { DisplayDate } from 'src/app-components/Date/DisplayDate';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { getLabelId, Label } from 'src/components/label/Label';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -12,7 +12,7 @@ export const DateComponent = ({ node }: PropsFromGenericComponent<'Date'>) => {
 
   if (!textResourceBindings?.title) {
     return (
-      <Date
+      <DisplayDate
         value={value}
         format={format}
       />
@@ -30,7 +30,7 @@ export const DateComponent = ({ node }: PropsFromGenericComponent<'Date'>) => {
           node={node}
           renderLabelAs='span'
         />
-        <Date
+        <DisplayDate
           value={value}
           iconUrl={icon}
           iconAltText={textResourceBindings.title}

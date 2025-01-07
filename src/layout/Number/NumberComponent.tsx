@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
-import { Number } from 'src/app-components/Number/Number';
+import { DisplayNumber } from 'src/app-components/Number/DisplayNumber';
 import { getLabelId, Label } from 'src/components/label/Label';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -17,7 +17,7 @@ export const NumberComponent = ({ node }: PropsFromGenericComponent<'Number'>) =
 
   if (!textResourceBindings?.title) {
     return (
-      <Number
+      <DisplayNumber
         value={value}
         currentLanguage={currentLanguage}
         formatting={formatting}
@@ -36,7 +36,7 @@ export const NumberComponent = ({ node }: PropsFromGenericComponent<'Number'>) =
           node={node}
           renderLabelAs='span'
         />
-        <Number
+        <DisplayNumber
           value={value}
           currentLanguage={currentLanguage}
           iconUrl={icon}

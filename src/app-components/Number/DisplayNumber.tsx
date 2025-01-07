@@ -17,7 +17,14 @@ interface NumberProps {
   labelId?: string;
 }
 
-export const Number = ({ value, formatting, iconUrl, iconAltText, labelId, currentLanguage = 'nb' }: NumberProps) => {
+export const DisplayNumber = ({
+  value,
+  formatting,
+  iconUrl,
+  iconAltText,
+  labelId,
+  currentLanguage = 'nb',
+}: NumberProps) => {
   const numberFormatting = getMapToReactNumberConfig(formatting, value.toString(), currentLanguage);
   const displayData = numberFormatting?.number ? formatNumericText(value.toString(), numberFormatting.number) : value;
 
