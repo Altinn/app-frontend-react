@@ -1,18 +1,13 @@
 import React from 'react';
 
 import { isAxiosError } from 'axios';
-import { z, ZodError } from 'zod';
+import { ZodError } from 'zod';
 
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { problemDetailsSchema } from 'src/layout/SigneeList/SigneeListError';
 
-export const problemDetailsSchema = z.object({
-  detail: z.string(),
-  status: z.number(),
-  title: z.string(),
-});
-
-export function SigneeListError({ error }: { error: Error }) {
+export function SigningDocumentListError({ error }: { error: Error }) {
   const { langAsString } = useLanguage();
 
   if (error instanceof ZodError) {
@@ -23,23 +18,15 @@ export function SigneeListError({ error }: { error: Error }) {
 
     return (
       <div>
-        <Lang id='signee_list.parse_error' />
+        <Lang id='signing_document_list.parse_error' />
         <br />
         <Lang
           id='general.customer_service_error_message'
-          params={
-            [
-              { key: 'general.customer_service_phone_number' },
-              { key: 'general.customer_service_email' },
-              { key: 'general.customer_service_slack' },
-            ]
-            // .map((it, idx) => (
-            //   <Lang
-            //     key={idx}
-            //     id={it?.toString()}
-            //   />
-            // ))
-          }
+          params={[
+            { key: 'general.customer_service_phone_number' },
+            { key: 'general.customer_service_email' },
+            { key: 'general.customer_service_slack' },
+          ]}
         />
       </div>
     );
@@ -50,9 +37,10 @@ export function SigneeListError({ error }: { error: Error }) {
 
     if (parsed.success) {
       window.logErrorOnce(langAsString(error.message));
-      return <Lang id='signee_list.api_error_display' />;
+      window.logErrorOnce(parsed);
+      return <Lang id='signing_document_list.api_error_display' />;
     }
   }
 
-  return <Lang id='signee_list.unknown_api_error' />;
+  return <Lang id='signing_document_list.unknown_api_error' />;
 }
