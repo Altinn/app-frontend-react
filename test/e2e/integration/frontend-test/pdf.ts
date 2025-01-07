@@ -47,8 +47,9 @@ describe('PDF', () => {
           );
           expect(intercepts.length).to.be.greaterThan(10);
           for (const { request } of intercepts) {
-            cy.log('Request intercepted:', request.url.split(domain)[1]);
-            expect(request.headers, 'request headers').to.include({
+            const reqInfo = `${request.method} ${request.url.split(domain)[1]}`;
+            cy.log('Request intercepted:', reqInfo);
+            expect(request.headers, `request headers ${reqInfo}`).to.include({
               'x-altinn-ispdf': 'true',
               traceparent: traceparentValue,
               tracestate: tracestateValue,
