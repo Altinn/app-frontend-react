@@ -281,6 +281,8 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
   extraHooks(store: NodesStoreFull): AttachmentsStorePluginConfig['extraHooks'] {
     return {
       useAttachmentsUpload() {
+        console.log('useAttachmentsUpload');
+
         const appendDataElements = useLaxAppendDataElements();
         const upload = store.useSelector((state) => state.attachmentUpload);
         const uploadFinished = store.useSelector((state) => state.attachmentUploadFinished);
@@ -289,7 +291,10 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         const { mutateAsync: uploadAttachment } = useAttachmentsUploadMutation();
 
         const applicationMetadata = useApplicationMetadata();
+        console.log('applicationMetadata', applicationMetadata);
+
         const supportsNewAttachmentAPI = appSupportsNewAttachmentAPI(applicationMetadata);
+        console.log('supportsNewAttachmentAPI', supportsNewAttachmentAPI);
 
         const setAttachmentsInDataModel = useSetAttachmentInDataModel();
         const { lock, unlock } = FD.useLocking('__attachment__upload__');
@@ -739,5 +744,7 @@ function useAttachmentsRemoveMutation() {
 }
 
 export function appSupportsNewAttachmentAPI({ altinnNugetVersion }: ApplicationMetadata) {
+  console.log('altinnNugetVersion', altinnNugetVersion);
+
   return !altinnNugetVersion || isAtLeastVersion({ actualVersion: altinnNugetVersion, minimumVersion: '8.5.0.153' });
 }

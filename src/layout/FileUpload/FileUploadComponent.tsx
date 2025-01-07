@@ -79,6 +79,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
       return;
     }
     // we should upload all files, if any rejected files we should display an error
+    console.log('acceptedFiles', acceptedFiles);
     uploadAttachments({ files: acceptedFiles, node, dataModelBindings });
 
     if (acceptedFiles.length > 0) {
