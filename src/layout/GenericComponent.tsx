@@ -228,10 +228,11 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         data-componentid={node.id}
         data-componenttype={node.type}
         ref={containerDivRef}
+        item
+        container
         size={grid}
         key={`grid-${id}`}
         className={classNames(classes.container, gridToClasses(grid?.labelGrid, classes), pageBreakStyles(pageBreak))}
-        item
       >
         <RenderComponent {...componentProps} />
       </Flex>
