@@ -46,15 +46,18 @@ describe('PDF', () => {
               intercept.request.headers['cookie'].includes('altinn-telemetry-traceparent='),
           );
           expect(intercepts.length).to.be.greaterThan(10);
-          console.log(
-            'Intercepts:',
-            intercepts.map(({ request }) => request),
+          cy.log(
+            'requests:',
+            JSON.stringify(
+              intercepts.map(({ request }) => request),
+              null,
+              2,
+            ),
           );
 
           for (const { request } of intercepts) {
             cy.log('Request intercepted:', request.url.split(domain)[1]);
-            console.log('Request intercepted:', request);
-            cy.log('Request: ', request);
+            cy.log('Request: ', JSON.stringify(request, null, 2));
             expect(request.headers, 'request headers').to.include({
               'x-altinn-ispdf': 'true',
               traceparent: traceparentValue,
