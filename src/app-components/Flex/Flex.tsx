@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import type { CSSProperties, PropsWithChildren } from 'react';
+import type { CSSProperties, ElementType, PropsWithChildren } from 'react';
 
 import cn from 'classnames';
 
@@ -15,6 +15,7 @@ type Props = PropsWithChildren<{
   direction?: CSSProperties['flexDirection'];
   justifyContent?: CSSProperties['justifyContent'];
   alignItems?: CSSProperties['alignItems'];
+  component?: ElementType;
   container?: boolean;
   item?: boolean;
   flexWrap?: CSSProperties['flexWrap'];
@@ -35,6 +36,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
       style,
       size,
       item,
+      component = 'div',
       container,
       ...rest
     },
@@ -45,6 +47,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
     const mdClass = size?.md ? classes[`col-md-${size.md}`] : '';
     const lgClass = size?.lg ? classes[`col-lg-${size.lg}`] : '';
     const spacingClass = container && spacing ? classes[`spacing-${spacing}`] : '';
+    const Tag = component;
 
     const styles: CSSProperties | undefined = container
       ? {
@@ -61,7 +64,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
         };
 
     return (
-      <div
+      <Tag
         id={id}
         ref={ref}
         className={cn(
@@ -79,7 +82,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
         {...rest}
       >
         {children}
-      </div>
+      </Tag>
     );
   },
 );

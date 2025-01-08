@@ -172,8 +172,12 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   return (
     <ComponentStructureWrapper node={node}>
       <Flex container>
-        <nav
+        <Flex
           data-testid='NavigationBar'
+          item
+          component='nav'
+          size={{ xs: 12 }}
+          role='navigation'
           aria-label={langAsString('general.navigation_form')}
         >
           {isMobile && (
@@ -220,7 +224,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
               ))}
             </ul>
           )}
-        </nav>
+        </Flex>
       </Flex>
     </ComponentStructureWrapper>
   );
