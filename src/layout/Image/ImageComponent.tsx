@@ -52,7 +52,10 @@ export function ImageComponent({ node }: IImageProps) {
         justifyContent={align}
         spacing={2}
       >
-        <Flex item>
+        <Flex
+          item
+          style={{ flexBasis: 'auto' }}
+        >
           <InnerImage
             id={id}
             renderSvg={renderSvg}
@@ -64,7 +67,7 @@ export function ImageComponent({ node }: IImageProps) {
         {textResourceBindings?.help && (
           <Flex
             item
-            //className={classes.spacing}
+            style={{ letterSpacing: '0.3px', flexBasis: 'auto' }}
           >
             <HelpTextContainer
               helpText={<Lang id={textResourceBindings.help} />}

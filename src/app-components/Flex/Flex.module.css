@@ -82,6 +82,10 @@
   padding: 1.25rem;
 }
 
+.item:empty {
+  padding: 0;
+}
+
 /* Extra small (xs breakpoint) */
 @media (min-width: 0) {
   .col-xs-1 {
