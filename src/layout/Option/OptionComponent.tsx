@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { HelpText } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { getLabelId } from 'src/components/label/Label';
@@ -59,8 +60,21 @@ function Text({ node }: TextProps) {
           alt={langAsString(textResourceBindings.title)}
         />
       )}
-      <span aria-labelledby={getLabelId(node.id)}>
+      <span
+        aria-labelledby={getLabelId(node.id)}
+        className={classes.optionLabelContainer}
+      >
         <Lang id={selectedOption?.label} />
+        {selectedOption?.helpText && (
+          <HelpText title={langAsString(selectedOption.helpText)}>
+            <Lang id={selectedOption.helpText} />
+          </HelpText>
+        )}
+        {selectedOption?.description && (
+          <span className={classes.optionDescription}>
+            <Lang id={selectedOption?.description} />
+          </span>
+        )}
       </span>
     </>
   );
