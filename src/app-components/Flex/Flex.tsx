@@ -42,7 +42,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
     },
     ref,
   ) => {
-    const xsClass = classes[`col-xs-${size?.xs ?? 12}`];
+    const xsClass = size?.xs ? classes[`col-xs-${size?.xs ?? 12}`] : '';
     const smClass = size?.sm ? classes[`col-sm-${size.sm}`] : '';
     const mdClass = size?.md ? classes[`col-md-${size.md}`] : '';
     const lgClass = size?.lg ? classes[`col-lg-${size.lg}`] : '';

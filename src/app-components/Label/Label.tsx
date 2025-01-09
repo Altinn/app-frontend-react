@@ -41,7 +41,6 @@ export function Label({
 
   return (
     <Flex
-      id='test'
       container
       size={{ xs: 'auto' }}
       spacing={2}

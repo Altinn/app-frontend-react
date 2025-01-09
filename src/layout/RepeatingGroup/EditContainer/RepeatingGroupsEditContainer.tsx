@@ -150,6 +150,7 @@ function RepeatingGroupsEditContainerInternal({
           alignItems='flex-start'
           item
           spacing={6}
+          style={{ flexBasis: 'auto' }}
           ref={(n) => refSetter && editingRowIndex !== undefined && refSetter(editingRowIndex, 'editContainer', n)}
         >
           {row?.itemIds?.map((nodeId) => (
