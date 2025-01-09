@@ -13,6 +13,7 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
+import repeatingGroupClasses from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import tableClasses from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary.module.css';
 import { RepeatingGroupTableTitle, useTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
@@ -23,6 +24,7 @@ import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/Componen
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
+import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const RepeatingGroupTableSummary = ({
@@ -64,7 +66,7 @@ export const RepeatingGroupTableSummary = ({
       className={cn(classes.summaryWrapper)}
       data-testid='summary-repeating-group-component'
     >
-      <Table className={isSmall ? tableClasses.mobileTable : undefined}>
+      <Table className={cn({ [tableClasses.mobileTable]: isSmall })}>
         <Caption title={<Lang id={title} />} />
         <Table.Head>
           <Table.Row>
@@ -76,7 +78,7 @@ export const RepeatingGroupTableSummary = ({
               />
             ))}
             {!pdfModeActive && !isSmall && (
-              <Table.HeaderCell>
+              <Table.HeaderCell className={tableClasses.narrowLastColumn}>
                 <span className={tableClasses.visuallyHidden}>
                   <Lang id='general.edit' />
                 </span>
@@ -92,6 +94,7 @@ export const RepeatingGroupTableSummary = ({
               node={componentNode}
               index={index}
               pdfModeActive={pdfModeActive}
+              columnSettings={columnSettings}
             />
           ))}
         </Table.Body>
@@ -125,7 +128,15 @@ function HeaderCell({ node, columnSettings }: { node: LayoutNode; columnSettings
   );
 }
 
-function DataRow({ row, node, index, pdfModeActive }) {
+type DataRowProps = {
+  row: RepGroupRow | undefined;
+  node: BaseLayoutNode<'RepeatingGroup'>;
+  index: number;
+  pdfModeActive: boolean;
+  columnSettings: ITableColumnFormatting;
+};
+
+function DataRow({ row, node, index, pdfModeActive, columnSettings }: DataRowProps) {
   const cellNodes = useTableNodes(node, index);
   const displayDataProps = useDisplayDataProps();
 
@@ -143,6 +154,7 @@ function DataRow({ row, node, index, pdfModeActive }) {
             displayData={
               ('getDisplayData' in node.def && node.def.getDisplayData(node as never, displayDataProps)) ?? ''
             }
+            columnSettings={columnSettings}
           />
         ),
       )}
@@ -158,15 +170,28 @@ function DataRow({ row, node, index, pdfModeActive }) {
   );
 }
 
-function DataCell({ node, displayData }) {
+type DataCellProps = {
+  node: LayoutNode;
+  displayData: string | false;
+  columnSettings: ITableColumnFormatting;
+};
+
+function DataCell({ node, displayData, columnSettings }: DataCellProps) {
   const { langAsString } = useLanguage();
   const headerTitle = langAsString(useTableTitle(node));
+  const style = useColumnStylesRepeatingGroups(node, columnSettings);
+
   return (
     <Table.Cell
       key={node.id}
       data-header-title={headerTitle}
     >
-      {displayData}
+      <span
+        className={repeatingGroupClasses.contentFormatting}
+        style={style}
+      >
+        {displayData}
+      </span>
     </Table.Cell>
   );
 }

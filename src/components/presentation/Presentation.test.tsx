@@ -14,15 +14,15 @@ import { HttpStatusCodes } from 'src/utils/network/networking';
 import { returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
 import type { IPresentationProvidedProps } from 'src/components/presentation/Presentation';
 
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+const assignMock = jest.fn();
+
 describe('Presentation', () => {
   const user = userEvent.setup();
-  jest.mock('axios');
-  const mockedAxios = axios as jest.Mocked<typeof axios>;
-  let assignMock = jest.fn();
   let realLocation: Location = window.location;
 
   beforeEach(() => {
-    assignMock = jest.fn();
     realLocation = window.location;
   });
 
@@ -36,7 +36,7 @@ describe('Presentation', () => {
     const mockedLocation = { ...realLocation, search: `?returnUrl=${returnUrl}`, assign: assignMock };
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
 
-    mockedAxios.get.mockResolvedValueOnce({
+    mockedAxios.get.mockResolvedValue({
       data: returnUrl,
       status: HttpStatusCodes.Ok,
     });
@@ -48,6 +48,7 @@ describe('Presentation', () => {
     const closeButton = screen.getByRole('button', {
       name: /Lukk skjema/i,
     });
+    screen.debug();
     await user.click(closeButton);
 
     expect(assignMock).toHaveBeenCalledWith(returnUrl);
@@ -60,7 +61,7 @@ describe('Presentation', () => {
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
     const messageBoxUrl = returnUrlToMessagebox(origin, getPartyMock().partyId);
 
-    mockedAxios.get.mockRejectedValueOnce({
+    mockedAxios.get.mockRejectedValue({
       data: 'Error',
       status: HttpStatusCodes.BadRequest,
     });
