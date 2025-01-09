@@ -1,5 +1,7 @@
 import React from 'react';
 
+import cn from 'classnames';
+
 import { DisplayNumber } from 'src/app-components/Number/DisplayNumber';
 import classes from 'src/app-components/Number/Number.module.css';
 import { getLabelId } from 'src/components/label/Label';
@@ -31,7 +33,7 @@ export const NumberComponent = ({ node }: PropsFromGenericComponent<'Number'>) =
       label={{
         node,
         renderLabelAs: 'span',
-        className: direction === 'vertical' ? classes.vertical : classes.horizontal,
+        className: cn(classes.numberComponent, direction === 'vertical' ? classes.vertical : classes.horizontal),
       }}
     >
       <DisplayNumber

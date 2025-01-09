@@ -138,7 +138,6 @@ export function EditWindowComponent({
       <Flex
         container
         direction='column'
-        alignItems='center'
         className={classes.gap}
       >
         {textResourceBindings?.tagTitle && (

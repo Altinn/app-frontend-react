@@ -1,5 +1,7 @@
 import React from 'react';
 
+import cn from 'classnames';
+
 import { DisplayText } from 'src/app-components/Text/DisplayText';
 import classes from 'src/app-components/Text/Text.module.css';
 import { getLabelId } from 'src/components/label/Label';
@@ -20,7 +22,7 @@ export const TextComponent = ({ node }: PropsFromGenericComponent<'Text'>) => {
       label={{
         node,
         renderLabelAs: 'span',
-        className: direction === 'vertical' ? classes.vertical : classes.horizontal,
+        className: cn(classes.textComponent, direction === 'vertical' ? classes.vertical : classes.horizontal),
       }}
     >
       <DisplayText

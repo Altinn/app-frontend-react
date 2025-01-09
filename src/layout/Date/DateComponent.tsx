@@ -1,5 +1,7 @@
 import React from 'react';
 
+import cn from 'classnames';
+
 import classes from 'src/app-components/Date/Date.module.css';
 import { DisplayDate } from 'src/app-components/Date/DisplayDate';
 import { getLabelId } from 'src/components/label/Label';
@@ -25,7 +27,7 @@ export const DateComponent = ({ node }: PropsFromGenericComponent<'Date'>) => {
       label={{
         node,
         renderLabelAs: 'span',
-        className: direction === 'vertical' ? classes.vertical : classes.horizontal,
+        className: cn(classes.dateComponent, direction === 'vertical' ? classes.vertical : classes.horizontal),
       }}
     >
       <DisplayDate
