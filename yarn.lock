@@ -4300,10 +4300,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:4.36.1":
-  version: 4.36.1
-  resolution: "@tanstack/query-core@npm:4.36.1"
-  checksum: 47672094da20d89402d9fe03bb7b0462be73a76ff9ca715169738bc600a719d064d106d083a8eedae22a2c22de22f87d5eb5d31ef447aba771d9190f2117ed10
+"@tanstack/query-core@npm:5.62.16":
+  version: 5.62.16
+  resolution: "@tanstack/query-core@npm:5.62.16"
+  checksum: 96e712dba70b9234884108ecac2fa05ae588f7a1758377d80aa30d4e830f00cbef95309d2806828ca224d1db51e3c8364857a6f3581edb989f2f16cb98ad0f26
   languageName: node
   linkType: hard
 
@@ -4322,22 +4322,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^4.29.3":
-  version: 4.36.1
-  resolution: "@tanstack/react-query@npm:4.36.1"
+"@tanstack/react-query@npm:^5.0.0":
+  version: 5.63.0
+  resolution: "@tanstack/react-query@npm:5.63.0"
   dependencies:
-    "@tanstack/query-core": 4.36.1
-    use-sync-external-store: ^1.2.0
+    "@tanstack/query-core": 5.62.16
   peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-native: "*"
-  peerDependenciesMeta:
-    react-dom:
-      optional: true
-    react-native:
-      optional: true
-  checksum: 1aff0a476859386f8d32253fa0d0bde7b81769a6d4d4d9cbd78778f0f955459a3bdb7ee27a0d2ee7373090f12998b45df80db0b5b313bd0a7a39d36c6e8e51c5
+    react: ^18 || ^19
+  checksum: 672009de2380708609603df9838666cdaf8fe8ece4f09f267c1738959adcfc8b8b27eac34ac29ab569f1220eeed851e0f59f3ddc19c1af9de565b22f0725ccbf
   languageName: node
   linkType: hard
 
@@ -5823,7 +5815,7 @@ __metadata:
     "@percy/cypress": ^3.1.2
     "@pmmmwh/react-refresh-webpack-plugin": 0.5.11
     "@reduxjs/toolkit": 1.9.7
-    "@tanstack/react-query": ^4.29.3
+    "@tanstack/react-query": ^5.0.0
     "@tanstack/react-query-devtools": ^4.29.3
     "@testing-library/cypress": 10.0.1
     "@testing-library/jest-dom": 6.1.4
