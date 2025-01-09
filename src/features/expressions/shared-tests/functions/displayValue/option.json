@@ -21,11 +21,15 @@
             "options": [
               {
                 "value": "1",
-                "label": "Per"
+                "label": "Per",
+                "description": "Hello world",
+                "helpText": "This is a help text"
               },
               {
                 "value": "2",
-                "label": "Pål"
+                "label": "Pål",
+                "description": "Hello world",
+                "helpText": "This is a help text"
               }
             ]
           }
