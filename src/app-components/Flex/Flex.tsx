@@ -31,7 +31,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
       spacing,
       direction = 'row',
       justifyContent = 'start',
-      alignItems = 'start',
+      alignItems,
       flexWrap = 'wrap',
       style,
       size,
