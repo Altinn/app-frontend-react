@@ -35,20 +35,23 @@ describe('PDF', () => {
       beforeReload: () => {
         cy.setCookie('altinn-telemetry-traceparent', traceparentValue, cookieOptions);
         cy.setCookie('altinn-telemetry-tracestate', tracestateValue, cookieOptions);
-        cy.intercept(`**`).as('allRequests');
+        cy.intercept({
+          url: new RegExp(domain),
+          headers: {
+            cookie: new RegExp('altinn-telemetry-traceparent='),
+          },
+          resourceType: 'xhr',
+        }).as('allRequests');
       },
       callback: () => {
         cy.get('@allRequests.all').then((_intercepts) => {
-          const intercepts = (_intercepts as unknown as Interception[]).filter(
-            (intercept) =>
-              intercept.request.resourceType === 'xhr' &&
-              intercept.request.url.includes(domain) &&
-              intercept.request.headers['cookie'].includes('altinn-telemetry-traceparent='),
-          );
+          const intercepts = _intercepts as unknown as Interception[];
           expect(intercepts.length).to.be.greaterThan(10);
-          for (const { request } of intercepts) {
-            cy.log('Request intercepted:', request.url.split(domain)[1]);
-            expect(request.headers, 'request headers').to.include({
+          for (const intercept of intercepts) {
+            const { request } = intercept;
+            const reqInfo = `${intercept.browserRequestId} ${intercept.routeId} ${request.method} ${request.url.split(domain)[1]}`;
+            cy.log('Request intercepted:', reqInfo);
+            expect(request.headers, `request headers ${reqInfo}`).to.include({
               'x-altinn-ispdf': 'true',
               traceparent: traceparentValue,
               tracestate: tracestateValue,
