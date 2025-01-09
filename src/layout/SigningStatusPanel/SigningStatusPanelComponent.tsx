@@ -49,7 +49,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
 
   const allHaveSigned = signeeList?.every((signee) => signee.hasSigned) ?? false;
 
-  if (currentUserStatus === 'waiting') {
+  if (currentUserStatus === 'awaitingSignature') {
     return <AwaitingCurrentUserSignaturePanel />;
   }
 
@@ -66,7 +66,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   return <GoToInboxPanel currentUserStatus={currentUserStatus} />;
 }
 
-export type CurrentUserStatus = 'waiting' | 'signed' | 'notSigning';
+export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';
 function getCurrentUserStatus(signeeList: SigneeState[] | undefined, partyId: string | undefined): CurrentUserStatus {
   const currentUserSignee = signeeList?.find((signee) => signee.partyId.toString() === partyId);
   if (!currentUserSignee) {
@@ -75,5 +75,5 @@ function getCurrentUserStatus(signeeList: SigneeState[] | undefined, partyId: st
   if (currentUserSignee.hasSigned) {
     return 'signed';
   }
-  return 'waiting';
+  return 'awaitingSignature';
 }

@@ -8,7 +8,11 @@ import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
 import { returnUrlToMessageBox } from 'src/utils/urls/urlHelper';
 import type { CurrentUserStatus } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
 
-export function GoToInboxPanel({ currentUserStatus }: { currentUserStatus: Exclude<CurrentUserStatus, 'waiting'> }) {
+export function GoToInboxPanel({
+  currentUserStatus,
+}: {
+  currentUserStatus: Extract<CurrentUserStatus, 'signed' | 'notSigning'>;
+}) {
   const partyId = Number(useParams().partyId);
 
   const hasSigned = currentUserStatus === 'signed';
