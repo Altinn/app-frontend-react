@@ -32,6 +32,7 @@ export class Custom extends CustomDef {
     const formData = useNodeFormData(props.target);
     return (
       <CustomWebComponent
+        summaryMode={true}
         formData={formData}
         node={props.target}
         containerDivRef={React.createRef()}
