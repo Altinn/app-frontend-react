@@ -18,7 +18,12 @@ export const OptionComponent = ({ node }: PropsFromGenericComponent<'Option'>) =
   const direction = useNodeItem(node, (i) => i.direction);
 
   if (!textResourceBindings?.title) {
-    return <Text node={node} />;
+    return (
+      <Text
+        node={node}
+        usingLabel={false}
+      />
+    );
   }
 
   return (
@@ -30,23 +35,26 @@ export const OptionComponent = ({ node }: PropsFromGenericComponent<'Option'>) =
         className: cn(classes.optionComponent, direction === 'vertical' ? classes.vertical : classes.horizontal),
       }}
     >
-      <Text node={node} />
+      <Text
+        node={node}
+        usingLabel={true}
+      />
     </ComponentStructureWrapper>
   );
 };
 
 interface TextProps {
   node: LayoutNode<'Option'>;
+  usingLabel: boolean;
 }
 
-function Text({ node }: TextProps) {
+function Text({ node, usingLabel }: TextProps) {
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
   const icon = useNodeItem(node, (i) => i.icon);
   const value = useNodeItem(node, (i) => i.value);
   const { options, isFetching } = useGetOptions(node, 'single');
   const { langAsString } = useLanguage(node);
   const selectedOption = options.find((option) => option.value === value);
-
   if (isFetching) {
     return null;
   }
@@ -61,7 +69,7 @@ function Text({ node }: TextProps) {
         />
       )}
       <span
-        aria-labelledby={getLabelId(node.id)}
+        {...(usingLabel ? { 'aria-labelledby': getLabelId(node.id) } : {})}
         className={classes.optionLabelContainer}
       >
         <Lang id={selectedOption?.label} />
