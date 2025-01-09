@@ -33,18 +33,6 @@ function getHeadingLevel(hierarchyLevel: number): HeadingLevel {
   }
 }
 
-const ChildComponents = ({ componentNode, hierarchyLevel, summaryOverride }: GroupComponentSummaryProps) => {
-  const childComponents = useNodeItem(componentNode, (i) => i.childComponents);
-  return childComponents.map((childId) => (
-    <ChildComponent
-      key={childId}
-      id={childId}
-      hierarchyLevel={hierarchyLevel}
-      summaryOverride={summaryOverride}
-    />
-  ));
-};
-
 function ChildComponent({
   id,
   hierarchyLevel,
@@ -84,32 +72,40 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrid
   const isNestedGroup = hierarchyLevel > 0;
 
   const dataTestId = hierarchyLevel > 0 ? `summary-group-component-${hierarchyLevel}` : 'summary-group-component';
+  const childComponents = useNodeItem(componentNode, (i) => i.childComponents);
 
   return (
     <section
       className={cn(classes.groupContainer, { [classes.nested]: isNestedGroup })}
       data-testid={dataTestId}
     >
-      <Heading
-        size={isNestedGroup ? 'xsmall' : 'small'}
-        level={headingLevel}
-      >
-        <Lang
-          id={summaryTitle ?? title}
-          node={componentNode}
-        />
-      </Heading>
-      <Grid
-        container
-        spacing={6}
-        alignItems='flex-start'
-      >
-        <ChildComponents
-          componentNode={componentNode}
-          hierarchyLevel={hierarchyLevel}
-          summaryOverride={summaryOverride}
-        />
-      </Grid>
+      {summaryTitle || title ? (
+        <Heading
+          size={isNestedGroup ? 'xsmall' : 'small'}
+          level={headingLevel}
+        >
+          <Lang
+            id={summaryTitle ?? title}
+            node={componentNode}
+          />
+        </Heading>
+      ) : null}
+      {childComponents.length ? (
+        <Grid
+          container
+          spacing={6}
+          alignItems='flex-start'
+        >
+          {childComponents.map((childId) => (
+            <ChildComponent
+              key={childId}
+              id={childId}
+              hierarchyLevel={hierarchyLevel}
+              summaryOverride={summaryOverride}
+            />
+          ))}
+        </Grid>
+      ) : null}
     </section>
   );
 };
