@@ -56,7 +56,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
             {...props}
             className={cn(classes.popoverButton, { [classes.popoverButtonActive]: isDialogOpen }, props.className)}
           >
-            <PopoverNavigationButtonContent />
+            <PopoverNavigationButtonContent isOpen={isDialogOpen} />
           </Popover.Trigger>
           <Popover.Content
             className={classes.popoverContainer}
@@ -86,7 +86,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
         {...props}
         className={cn(classes.popoverButton, { [classes.popoverButtonActive]: isDialogOpen }, props.className)}
       >
-        <PopoverNavigationButtonContent />
+        <PopoverNavigationButtonContent isOpen={isDialogOpen} />
       </Button>
       <Modal
         role='dialog'
@@ -108,7 +108,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
   );
 }
 
-function PopoverNavigationButtonContent() {
+function PopoverNavigationButtonContent({ isOpen }: { isOpen: boolean }) {
   const pageGroupProgress = usePageGroupProgress();
   const taskProgress = useTaskProgress();
 
@@ -117,7 +117,10 @@ function PopoverNavigationButtonContent() {
   return (
     <>
       <ChevronDownCircleIcon
-        className={cn({ [classes.popoverButtonIcon]: !!pageGroupProgress })}
+        className={cn(classes.popoverButtonIcon, {
+          [classes.popoverButtonIconMargin]: !!pageGroupProgress,
+          [classes.popoverButtonIconOpen]: isOpen,
+        })}
         aria-hidden
       />
       {progress && (
