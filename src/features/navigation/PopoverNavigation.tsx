@@ -54,7 +54,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
             color='first'
             size='sm'
             {...props}
-            className={cn(classes.popoverButton, props.className)}
+            className={cn(classes.popoverButton, { [classes.popoverButtonActive]: isDialogOpen }, props.className)}
           >
             <PopoverNavigationButtonContent />
           </Popover.Trigger>
@@ -84,7 +84,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
         color='first'
         size='sm'
         {...props}
-        className={cn(classes.popoverButton, props.className)}
+        className={cn(classes.popoverButton, { [classes.popoverButtonActive]: isDialogOpen }, props.className)}
       >
         <PopoverNavigationButtonContent />
       </Button>

@@ -24,6 +24,12 @@
   display: none;
 }
 
+.popover-button-active {
+  background-color: var(--fds-semantic-surface-action-first-no_fill-active);
+  border-color: var(--fds-semantic-border-action-first-active);
+  color: var(--fds-semantic-text-action-first-active);
+}
+
 .popover-button {
   max-width: 235px;
 }
