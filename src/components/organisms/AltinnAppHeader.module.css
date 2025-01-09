@@ -3,11 +3,6 @@
   z-index: 800;
 }
 
-.appBarText {
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
 .container {
   width: 100%;
   display: flex;
@@ -33,4 +28,15 @@
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
+}
+
+.partyName {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .partyName {
+    display: none;
+  }
 }

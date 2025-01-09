@@ -12,6 +12,7 @@
 }
 
 .wrapper {
+  min-width: 0;
   display: flex;
   flex-direction: row;
   align-items: flex-end;
@@ -21,21 +22,4 @@
 
 .button-margin {
   margin-top: calc(2 * var(--fds-focus-border-width));
-}
-
-.inbox-button {
-  color: var(--fds-colors-blue-700);
-}
-
-.inbox-button svg {
-  margin-right: 4px;
-}
-
-.expand-width-button {
-  display: none;
-}
-@media only screen and (min-width: 1200px) {
-  .expand-width-button {
-    display: flex;
-  }
 }

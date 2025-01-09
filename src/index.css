@@ -149,6 +149,14 @@ dl {
   margin-top: 0;
 }
 
+/* Workaround: The above style affects DropdownMenu from the design system */
+ul.fds-dropdownmenu {
+  padding: 8px;
+}
+ul.fds-dropdownmenu__section {
+  padding: 0;
+}
+
 /* Align text in table when right to left languages*/
 [dir='rtl'] td {
   text-align: right;

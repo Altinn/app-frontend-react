@@ -131,7 +131,6 @@ export function nn(): FixedLanguageList {
       form_pages: 'Skjemasider',
       back_to_inbox: 'Tilbake til innboks',
       inbox: 'Innboks',
-      popover_button_progress: '{0} {1}/{2}',
     },
     general: {
       action: 'Handling',
@@ -163,7 +162,8 @@ export function nn(): FixedLanguageList {
       empty_summary: 'Du har ikkje lagt inn informasjon her',
       enabled: 'Aktivert',
       error_message_with_colon: 'Feilmelding:',
-      expand_form: 'Utvid skjema',
+      full_width: 'Utvid breidden',
+      standard_width: 'Reduser breidden',
       for: 'for',
       header_profile_icon_label: 'Profil ikon knapp',
       label: 'Namn',
@@ -245,6 +245,7 @@ export function nn(): FixedLanguageList {
       starting: 'Vent litt, vi hentar det du treng',
     },
     language: {
+      language_selection: 'Språkval',
       full_name: {
         nb: 'Norsk bokmål',
         en: 'Engelsk',

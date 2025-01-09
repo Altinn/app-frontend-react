@@ -1,0 +1,7 @@
+.inbox-button {
+  color: var(--fds-colors-blue-700);
+}
+
+.inbox-button svg {
+  margin-right: 4px;
+}

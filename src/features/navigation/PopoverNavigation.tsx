@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { JSX, PropsWithChildren, ReactNode } from 'react';
 
 import { Button, Modal, Popover } from '@digdir/designsystemet-react';
-import { MenuHamburgerIcon } from '@navikt/aksel-icons';
+import { ChevronDownCircleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
@@ -16,26 +15,20 @@ import { useIsReceiptPage, useNavigationParam } from 'src/features/routing/AppRo
 import { useBrowserWidth, useIsMobile } from 'src/hooks/useDeviceWidths';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 
-export function PopoverNavigation({
-  children,
-  wrapper,
-}: PropsWithChildren<{ wrapper: (children: ReactNode) => JSX.Element }>) {
+export function PopoverNavigation(props: Parameters<typeof Button>[0]) {
   const hasGroupedNavigation = useHasGroupedNavigation();
   const { expandedWidth } = useUiConfigContext();
   const isScreenSmall = !useBrowserWidth((width) => width >= SIDEBAR_BREAKPOINT) || expandedWidth;
   const isReceiptPage = useIsReceiptPage();
 
   if (!hasGroupedNavigation || !isScreenSmall || isReceiptPage) {
-    return wrapper(children);
+    return null;
   }
 
-  return <InnerPopoverNavigation wrapper={wrapper}>{children}</InnerPopoverNavigation>;
+  return <InnerPopoverNavigation {...props} />;
 }
 
-function InnerPopoverNavigation({
-  children,
-  wrapper,
-}: PropsWithChildren<{ wrapper: (children: React.ReactNode) => JSX.Element }>) {
+function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const modalRef = useRef<HTMLDialogElement>(null);
   const isMobile = useIsMobile();
@@ -49,37 +42,52 @@ function InnerPopoverNavigation({
   const toggleDialog = () => setIsDialogOpen((o) => !o);
 
   if (!isMobile) {
-    return wrapper(
-      <>
-        {children}
-        <div className={classes.popoverWrapper}>
-          <Popover
-            open={isDialogOpen}
-            onClose={closeDialog}
+    return (
+      <div className={classes.popoverWrapper}>
+        <Popover
+          open={isDialogOpen}
+          onClose={closeDialog}
+        >
+          <Popover.Trigger
+            onClick={toggleDialog}
+            variant='secondary'
+            color='first'
+            size='sm'
+            {...props}
+            className={cn(classes.popoverButton, props.className)}
           >
-            <Popover.Trigger asChild={true}>
-              <PopoverNavigationButton onClick={toggleDialog} />
-            </Popover.Trigger>
-            <Popover.Content
-              className={classes.popoverContainer}
-              aria-modal
-              autoFocus={true}
-            >
-              <AppNavigationHeading
-                showClose={true}
-                onClose={closeDialog}
-              />
+            <PopoverNavigationButtonContent />
+          </Popover.Trigger>
+          <Popover.Content
+            className={classes.popoverContainer}
+            aria-modal
+            autoFocus={true}
+          >
+            <AppNavigationHeading
+              showClose={true}
+              onClose={closeDialog}
+            />
+            <div style={{ paddingRight: 12 }}>
               <AppNavigation onNavigate={closeDialog} />
-            </Popover.Content>
-          </Popover>
-        </div>
-      </>,
+            </div>
+          </Popover.Content>
+        </Popover>
+      </div>
     );
   }
 
   return (
     <>
-      <PopoverNavigationButton onClick={toggleDialog} />
+      <Button
+        onClick={toggleDialog}
+        variant='secondary'
+        color='first'
+        size='sm'
+        {...props}
+        className={cn(classes.popoverButton, props.className)}
+      >
+        <PopoverNavigationButtonContent />
+      </Button>
       <Modal
         role='dialog'
         ref={modalRef}
@@ -91,8 +99,7 @@ function InnerPopoverNavigation({
             showClose={true}
             onClose={closeDialog}
           />
-          <div className={classes.modalWrapper}>
-            {wrapper(children)}
+          <div style={{ paddingRight: 12 }}>
             <AppNavigation onNavigate={closeDialog} />
           </div>
         </Modal.Content>
@@ -101,30 +108,29 @@ function InnerPopoverNavigation({
   );
 }
 
-function PopoverNavigationButton(props: Parameters<typeof Button>[0]) {
+function PopoverNavigationButtonContent() {
   const pageGroupProgress = usePageGroupProgress();
   const taskProgress = useTaskProgress();
 
   const progress = pageGroupProgress ?? taskProgress;
 
   return (
-    <Button
-      variant='secondary'
-      color='first'
-      size='sm'
-      {...props}
-    >
-      {progress && (
-        <Lang
-          id='navigation.popover_button_progress'
-          params={[{ key: progress.name }, progress.pageNumber, progress.pageCount]}
-        />
-      )}
-      <MenuHamburgerIcon
-        className={cn({ [classes.burgerMenuIcon]: !!pageGroupProgress })}
+    <>
+      <ChevronDownCircleIcon
+        className={cn({ [classes.popoverButtonIcon]: !!pageGroupProgress })}
         aria-hidden
       />
-    </Button>
+      {progress && (
+        <>
+          <span className={classes.popoverButtonName}>
+            <Lang id={progress.name} />
+          </span>
+          <span>
+            {progress.pageNumber}/{progress.pageCount}
+          </span>
+        </>
+      )}
+    </>
   );
 }
 

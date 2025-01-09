@@ -131,7 +131,6 @@ export function en() {
       form_pages: 'Form pages',
       back_to_inbox: 'Back to inbox',
       inbox: 'Inbox',
-      popover_button_progress: '{0} {1}/{2}',
     },
     general: {
       action: 'Action',
@@ -163,7 +162,8 @@ export function en() {
       empty_summary: 'You have not entered any information here',
       enabled: 'Enabled',
       error_message_with_colon: 'Error message:',
-      expand_form: 'Expand form',
+      full_width: 'Expand width',
+      standard_width: 'Reduce width',
       for: 'for',
       header_profile_icon_label: 'Profile icon button',
       label: 'Label',
@@ -245,6 +245,7 @@ export function en() {
       starting: 'Just a minute, we’ll get the information you need',
     },
     language: {
+      language_selection: 'Language',
       full_name: {
         nb: 'Norwegian bokmål',
         en: 'English',

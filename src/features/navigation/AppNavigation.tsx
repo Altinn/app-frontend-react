@@ -94,7 +94,7 @@ export function AppNavigationHeading({
     <div className={classes.navigationHeading}>
       <Heading
         level={3}
-        size='sm'
+        size='xs'
       >
         <Lang id='navigation.form_pages' />
       </Heading>

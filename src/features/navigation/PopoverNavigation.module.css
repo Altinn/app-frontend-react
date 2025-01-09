@@ -24,6 +24,27 @@
   display: none;
 }
 
+.popover-button {
+  max-width: 235px;
+}
+
+@media only screen and (min-width: 768px) {
+  .popover-button {
+    max-width: 315px;
+  }
+}
+
+.popover-button-icon {
+  font-size: 1.2rem;
+  margin-right: 4px;
+}
+
+.popover-button-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .modal {
   max-width: 320px;
   min-width: unset;
@@ -35,14 +56,4 @@
   padding: 16px;
   max-height: unset;
   height: 100%;
-}
-
-.modal-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.burger-menu-icon {
-  margin-left: 4px;
 }
