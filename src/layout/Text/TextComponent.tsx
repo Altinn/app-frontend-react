@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { Flex } from 'src/app-components/Flex/Flex';
 import { DisplayText } from 'src/app-components/Text/DisplayText';
-import { getLabelId, Label } from 'src/components/label/Label';
+import classes from 'src/app-components/Text/Text.module.css';
+import { getLabelId } from 'src/components/label/Label';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -15,23 +15,20 @@ export const TextComponent = ({ node }: PropsFromGenericComponent<'Text'>) => {
   }
 
   return (
-    <ComponentStructureWrapper node={node}>
-      <Flex
-        container
-        direction={direction === 'vertical' ? 'column' : 'row'}
-        justifyContent='space-between'
-      >
-        <Label
-          node={node}
-          renderLabelAs='span'
-        />
-        <DisplayText
-          value={value}
-          iconUrl={icon}
-          iconAltText={textResourceBindings.title}
-          labelId={getLabelId(node.id)}
-        />
-      </Flex>
+    <ComponentStructureWrapper
+      node={node}
+      label={{
+        node,
+        renderLabelAs: 'span',
+        className: direction === 'vertical' ? classes.vertical : classes.horizontal,
+      }}
+    >
+      <DisplayText
+        value={value}
+        iconUrl={icon}
+        iconAltText={textResourceBindings.title}
+        labelId={getLabelId(node.id)}
+      />
     </ComponentStructureWrapper>
   );
 };

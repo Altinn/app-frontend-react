@@ -1,8 +1,8 @@
 import React from 'react';
 
+import classes from 'src/app-components/Date/Date.module.css';
 import { DisplayDate } from 'src/app-components/Date/DisplayDate';
-import { Flex } from 'src/app-components/Flex/Flex';
-import { getLabelId, Label } from 'src/components/label/Label';
+import { getLabelId } from 'src/components/label/Label';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -20,24 +20,21 @@ export const DateComponent = ({ node }: PropsFromGenericComponent<'Date'>) => {
   }
 
   return (
-    <ComponentStructureWrapper node={node}>
-      <Flex
-        container
-        direction={direction === 'vertical' ? 'column' : 'row'}
-        justifyContent='space-between'
-      >
-        <Label
-          node={node}
-          renderLabelAs='span'
-        />
-        <DisplayDate
-          value={value}
-          iconUrl={icon}
-          iconAltText={textResourceBindings.title}
-          labelId={getLabelId(node.id)}
-          format={format}
-        />
-      </Flex>
+    <ComponentStructureWrapper
+      node={node}
+      label={{
+        node,
+        renderLabelAs: 'span',
+        className: direction === 'vertical' ? classes.vertical : classes.horizontal,
+      }}
+    >
+      <DisplayDate
+        value={value}
+        iconUrl={icon}
+        iconAltText={textResourceBindings.title}
+        labelId={getLabelId(node.id)}
+        format={format}
+      />
     </ComponentStructureWrapper>
   );
 };

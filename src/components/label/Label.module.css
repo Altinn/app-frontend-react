@@ -1,6 +1,9 @@
 .fieldWrapper {
-  display: grid;
+  display: flex;
   gap: var(--fds-spacing-2);
+  flex-grow: 0;
+  max-width: 100%;
+  flex-basis: 100%;
 }
 
 .fullWidth {

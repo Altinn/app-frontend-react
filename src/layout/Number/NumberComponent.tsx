@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { Flex } from 'src/app-components/Flex/Flex';
 import { DisplayNumber } from 'src/app-components/Number/DisplayNumber';
-import { getLabelId, Label } from 'src/components/label/Label';
+import classes from 'src/app-components/Number/Number.module.css';
+import { getLabelId } from 'src/components/label/Label';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -26,25 +26,22 @@ export const NumberComponent = ({ node }: PropsFromGenericComponent<'Number'>) =
   }
 
   return (
-    <ComponentStructureWrapper node={node}>
-      <Flex
-        container
-        direction={direction === 'vertical' ? 'column' : 'row'}
-        justifyContent='space-between'
-      >
-        <Label
-          node={node}
-          renderLabelAs='span'
-        />
-        <DisplayNumber
-          value={value}
-          currentLanguage={currentLanguage}
-          iconUrl={icon}
-          iconAltText={textResourceBindings.title}
-          labelId={getLabelId(node.id)}
-          formatting={formatting}
-        />
-      </Flex>
+    <ComponentStructureWrapper
+      node={node}
+      label={{
+        node,
+        renderLabelAs: 'span',
+        className: direction === 'vertical' ? classes.vertical : classes.horizontal,
+      }}
+    >
+      <DisplayNumber
+        value={value}
+        currentLanguage={currentLanguage}
+        iconUrl={icon}
+        iconAltText={textResourceBindings.title}
+        labelId={getLabelId(node.id)}
+        formatting={formatting}
+      />
     </ComponentStructureWrapper>
   );
 };
