@@ -103,7 +103,13 @@ export const SummaryComponent = React.forwardRef(function SummaryComponent(
     <Flex
       ref={ref}
       item
-      size={displayGrid}
+      size={{
+        xs: displayGrid?.xs ?? 12,
+        sm: displayGrid?.sm,
+        md: displayGrid?.md,
+        lg: displayGrid?.lg,
+        xl: displayGrid?.xl,
+      }}
       data-testid={`summary-${summaryTestId}`}
       data-componentid={summaryNode?.id ?? `summary-${targetNode?.id}`}
       data-componentbaseid={summaryNode?.baseId ?? `summary-${targetNode.id}`}
