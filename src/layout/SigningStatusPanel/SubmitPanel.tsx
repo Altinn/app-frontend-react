@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { Button } from 'src/app-components/Button/Button';
-import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
 import type { CurrentUserStatus } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
@@ -16,11 +15,6 @@ export function SubmitPanel({
   currentUserStatus: Exclude<CurrentUserStatus, 'waiting'>;
 }) {
   const { next, busy } = useProcessNavigation() ?? {};
-  const canReject = useIsAuthorised()('reject');
-
-  function handleRejectSigning() {
-    next?.({ action: 'reject', nodeId });
-  }
 
   function handleSubmit() {
     next?.({ nodeId });
@@ -51,19 +45,6 @@ export function SubmitPanel({
         >
           Send inn skjemaet
         </Button>
-      }
-      secondaryButton={
-        canReject ? (
-          <Button
-            disabled={busy}
-            size='md'
-            onClick={handleRejectSigning}
-            variant='secondary'
-            color='danger'
-          >
-            Avbryt signering
-          </Button>
-        ) : undefined
       }
     />
   );

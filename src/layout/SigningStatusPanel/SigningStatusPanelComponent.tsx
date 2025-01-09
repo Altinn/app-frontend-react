@@ -50,7 +50,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   const allHaveSigned = signeeList?.every((signee) => signee.hasSigned) ?? false;
 
   if (currentUserStatus === 'waiting') {
-    return <AwaitingCurrentUserSignaturePanel nodeId={node.id} />;
+    return <AwaitingCurrentUserSignaturePanel />;
   }
 
   if (canWrite) {

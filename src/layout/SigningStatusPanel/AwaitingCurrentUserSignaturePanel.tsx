@@ -6,21 +6,17 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
-import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
 import { doPerformAction } from 'src/queries/queries';
 
-export function AwaitingCurrentUserSignaturePanel({ nodeId }: { nodeId: string }) {
+export function AwaitingCurrentUserSignaturePanel() {
   const { partyId, instanceGuid } = useParams();
   const isAuthorised = useIsAuthorised();
   const canSign = isAuthorised('sign');
-  const canReject = isAuthorised('reject');
   const selectedLanguage = useCurrentLanguage();
   const queryClient = useQueryClient();
-
-  const { next, busy } = useProcessNavigation() ?? {};
 
   const { mutate: handleSign, error } = useMutation({
     mutationFn: async () => {
@@ -46,25 +42,12 @@ export function AwaitingCurrentUserSignaturePanel({ nodeId }: { nodeId: string }
       actionButton={
         <Button
           onClick={() => handleSign()}
-          disabled={!confirmReadDocuments || busy}
+          disabled={!confirmReadDocuments}
           size='md'
           color='success'
         >
           Signer skjemaet
         </Button>
-      }
-      secondaryButton={
-        canReject ? (
-          <Button
-            disabled={busy}
-            size='md'
-            onClick={() => next?.({ action: 'reject', nodeId })}
-            variant='secondary'
-            color='danger'
-          >
-            Avbryt signering
-          </Button>
-        ) : undefined
       }
       errorMessage={error ? 'Noe gikk galt under signeringen. Vennligst prøv igjen.' : undefined} // TODO: get this text from config? API?
     >
