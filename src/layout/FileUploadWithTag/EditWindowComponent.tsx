@@ -93,7 +93,7 @@ export function EditWindowComponent({
         direction='row'
         style={{ flexWrap: 'nowrap' }}
       >
-        <div
+        <Flex
           className={classes.textContainer}
           style={{ flexShrink: 1 }}
         >
@@ -101,8 +101,8 @@ export function EditWindowComponent({
             attachment={attachment}
             mobileView={mobileView}
           />
-        </div>
-        <div
+        </Flex>
+        <Flex
           className={classes.textContainer}
           style={{ flexShrink: 0 }}
         >
@@ -133,7 +133,7 @@ export function EditWindowComponent({
               />
             </div>
           </div>
-        </div>
+        </Flex>
       </Flex>
       <Flex
         container
@@ -160,9 +160,13 @@ export function EditWindowComponent({
         ) : (
           <Flex
             container
+            direction='row'
             className={classes.gap}
           >
-            <div style={{ minWidth: '150px', flexGrow: 1 }}>
+            <Flex
+              item
+              style={{ minWidth: '150px', flexGrow: 1, maxWidth: '100%', flexBasis: 0 }}
+            >
               <Combobox
                 id={`attachment-tag-dropdown-${uniqueId}`}
                 size='sm'
@@ -193,8 +197,11 @@ export function EditWindowComponent({
                   </Combobox.Option>
                 ))}
               </Combobox>
-            </div>
-            <div>
+            </Flex>
+            <Flex
+              item
+              size={{ xs: 'auto' }}
+            >
               {attachment.updating ? (
                 <AltinnLoader
                   id={`attachment-loader-update-${uniqueId}`}
@@ -212,7 +219,7 @@ export function EditWindowComponent({
                   <Lang id='general.save' />
                 </Button>
               )}
-            </div>
+            </Flex>
           </Flex>
         )}
       </Flex>
