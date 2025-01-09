@@ -1,7 +1,7 @@
 import React from 'react';
 import type { PropsWithChildren, ReactElement } from 'react';
 
-import { Heading } from '@digdir/designsystemet-react';
+import { ErrorMessage, Heading, Paragraph } from '@digdir/designsystemet-react';
 
 import { Panel } from 'src/app-components/Panel/Panel';
 import type { Button } from 'src/app-components/Button/Button';
@@ -13,6 +13,7 @@ type SigningPanelProps = {
   variant?: PanelProps['variant'];
   actionButton: ReactElement<typeof Button>;
   secondaryButton?: ReactElement<typeof Button>;
+  errorMessage?: string;
 };
 
 export function SigningPanel({
@@ -21,6 +22,7 @@ export function SigningPanel({
   variant = 'info',
   secondaryButton,
   actionButton,
+  errorMessage,
   children,
 }: PropsWithChildren<SigningPanelProps>) {
   return (
@@ -29,17 +31,23 @@ export function SigningPanel({
       isOnBottom
       style={{ paddingTop: '2rem' }}
     >
-      <Heading
-        level={4}
-        size='xs'
-      >
-        {heading}
-      </Heading>
-      {description && <p>{description}</p>}
-      {children}
-      <div style={{ paddingTop: '2rem', display: 'flex', gap: '1rem' }}>
-        {secondaryButton}
-        {actionButton}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <Heading
+          level={4}
+          size='xs'
+        >
+          {heading}
+        </Heading>
+        {description && <Paragraph>{description}</Paragraph>}
+
+        {children}
+        <div>
+          <div style={{ padding: '1rem 0', display: 'flex', gap: '1rem' }}>
+            {secondaryButton}
+            {actionButton}
+          </div>
+          {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+        </div>
       </div>
     </Panel>
   );
