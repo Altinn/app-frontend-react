@@ -110,7 +110,6 @@ export function Label(props: LabelProps) {
 function LabelGridItemWrapper({ children, labelGrid }: PropsWithChildren<{ labelGrid?: IGridStyling }>) {
   return (
     <Flex
-      id='label-flex'
       item
       size={labelGrid ?? { xs: 12 }}
     >
