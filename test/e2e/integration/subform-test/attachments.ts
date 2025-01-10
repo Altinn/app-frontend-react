@@ -25,11 +25,11 @@ describe('Attachments', () => {
     cy.intercept('POST', '**/instances/**/data/attachments*').as('upload');
 
     function assertAttachments(...names: string[]) {
-      cy.get('#form-content-debug-attachmentNames-backend .text').should('have.text', names.join(', '));
+      cy.get('#form-content-debug-attachmentNames-backend').should('have.text', names.join(', '));
       if (names.length === 0) {
-        cy.get('#form-content-debug-attachmentIds-frontend .text').should('have.text', '');
+        cy.get('#form-content-debug-attachmentIds-frontend').should('have.text', '');
       } else {
-        cy.get('#form-content-debug-attachmentIds-frontend .text')
+        cy.get('#form-content-debug-attachmentIds-frontend')
           .invoke('text')
           .should(
             'match',

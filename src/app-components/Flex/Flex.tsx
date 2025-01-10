@@ -67,7 +67,7 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
       <Tag
         id={id}
         ref={ref}
-        data-testid={`altinn-flex-${id}`}
+        data-testid='altinn-flex'
         className={cn(
           xsClass,
           smClass,

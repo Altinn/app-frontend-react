@@ -175,7 +175,8 @@ describe('Summary', () => {
     cy.fillOut('group');
 
     cy.get(appFrontend.group.mainGroupSummaryContent).should('have.length', 1);
-    const groupElements = () => cy.get(appFrontend.group.mainGroupSummaryContent).first().children(common.altinnFlex);
+    const groupElements = () =>
+      cy.get(appFrontend.group.mainGroupSummaryContent).first().children('[data-testid*=summary-]');
 
     groupElements().should('have.length', 6);
     groupElements().find('button').should('have.length', 8);
