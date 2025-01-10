@@ -51,8 +51,7 @@ export function ComponentValidations({ validations, node: _node }: Props) {
   const success = validationsOfSeverity(filteredValidations, 'success');
 
   if (!node || !validations?.length) {
-    // eslint-disable-next-line react/jsx-no-useless-fragment
-    return <></>;
+    return null;
   }
 
   return (
