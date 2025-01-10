@@ -3,6 +3,7 @@ import React from 'react';
 import { AppBar, Toolbar } from '@material-ui/core';
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 
+import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/AltinnAppHeader.module.css';
 import { CircleIcon } from 'src/components/CircleIcon';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
@@ -37,7 +38,12 @@ export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
         className={classes.default}
       >
         <Toolbar className={classes.toolbarContainer}>
-          <AltinnLogo color={LogoColor.blueDark} />
+          <Flex
+            item
+            className={classes.logo}
+          >
+            <AltinnLogo color={LogoColor.blueDark} />
+          </Flex>
           {party && (
             <ul className={classes.headerLinkList}>
               <li className={classes.headerLink}>
