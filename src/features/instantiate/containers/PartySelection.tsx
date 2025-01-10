@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '8px 12px 0 12px',
     width: '100%',
     '@media screen and (min-width: 768px)': {
-      width: '50%',
+      width: '50% !important',
     },
   },
   partySelectionSubTitle: {
