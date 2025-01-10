@@ -68,13 +68,13 @@ export const Flex = forwardRef<HTMLDivElement, Props>(
         id={id}
         ref={ref}
         className={cn(
-          className,
           'altinn-flex',
           xsClass,
           smClass,
           mdClass,
           lgClass,
           spacingClass,
+          className,
           { [classes.item]: item },
           { [classes.container]: container },
         )}
