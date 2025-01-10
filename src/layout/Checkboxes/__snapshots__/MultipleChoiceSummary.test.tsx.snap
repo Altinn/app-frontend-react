@@ -6,7 +6,7 @@ exports[`MultipleChoiceSummary MultipleChoiceSummary 1`] = `
     style="display: none;"
   />
   <div
-    class="altinn-flex col-xs-12 item"
+    class="col-xs-12 item"
     data-testid="multiple-choice-summary"
     style="display: block;"
   >
