@@ -18,11 +18,6 @@ export const DisplayText = ({ value, iconUrl, iconAltText, labelId }: TextProps)
         alt={iconAltText}
       />
     )}
-    <span
-      className='text'
-      aria-labelledby={labelId}
-    >
-      {value}
-    </span>
+    <span aria-labelledby={labelId}>{value}</span>
   </>
 );
