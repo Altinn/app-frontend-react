@@ -86,10 +86,11 @@ const {
 function useFormDataSaveMutation() {
   const { doPatchFormData, doPostStatelessFormData } = useAppMutations();
   const getDataModelUrl = useGetDataModelUrl();
+  const updateQueryCache = useUpdateQueryCache();
   const instanceId = useLaxInstanceId();
   const multiPatchUrl = instanceId ? getMultiPatchUrl(instanceId) : undefined;
   const currentLanguage = useAsRef(useCurrentLanguage());
-  const dataModelsRef = useAsRef(useSelector((state) => state.dataModels));
+  const dataModelsRef = useSelectorAsRef((state) => state.dataModels);
   const saveFinished = useSelector((s) => s.saveFinished);
   const cancelSave = useSelector((s) => s.cancelSave);
   const isStateless = useApplicationMetadata().isStatelessApp;
@@ -99,21 +100,6 @@ function useFormDataSaveMutation() {
     FormDataContext
   >(useStore());
   const useIsSavingRef = useAsRef(useIsSaving());
-  const queryClient = useQueryClient();
-
-  // This updates the query cache with the new data models every time a save has finished. This means we won't have to
-  // refetch the data from the backend if the providers suddenly change (i.e. when navigating back and forth between
-  // the main form and a subform).
-  function updateQueryCache(result: FDSaveFinished) {
-    for (const { dataType, data, dataElementId } of result.newDataModels) {
-      const url = getDataModelUrl({ dataType, dataElementId, includeRowIds: true });
-      if (!url) {
-        continue;
-      }
-      const queryKey = getFormDataQueryKey(url);
-      queryClient.setQueryData(queryKey, data);
-    }
-  }
 
   const mutation = useMutation({
     mutationKey: ['saveFormData'],
@@ -261,7 +247,7 @@ function useFormDataSaveMutation() {
       cancelSave();
     },
     onSuccess: (result) => {
-      result && updateQueryCache(result);
+      result && updateQueryCache(result.newDataModels);
       result && saveFinished(result);
       !result && cancelSave();
     },
@@ -285,6 +271,28 @@ export function useIsSaving() {
     useIsMutating({
       mutationKey: ['saveFormData'],
     }) > 0
+  );
+}
+
+// This updates the query cache with the new data models every time a save has finished. This means we won't have to
+// refetch the data from the backend if the providers suddenly change (i.e. when navigating back and forth between
+// the main form and a subform).
+function useUpdateQueryCache() {
+  const getDataModelUrl = useGetDataModelUrl();
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    (newDataModels: { dataType?: string; dataElementId?: string; data: unknown }[]) => {
+      for (const { dataType, data, dataElementId } of newDataModels) {
+        const url = getDataModelUrl({ dataType, dataElementId, includeRowIds: true });
+        if (!url) {
+          continue;
+        }
+        const queryKey = getFormDataQueryKey(url);
+        queryClient.setQueryData(queryKey, data);
+      }
+    },
+    [getDataModelUrl, queryClient],
   );
 }
 
@@ -792,6 +800,8 @@ export const FD = {
    * in a certain state. Locking will effectively ignore all saving until you unlock it again.
    */
   useLocking(lockId: string) {
+    const updateQueryCache = useUpdateQueryCache();
+
     const rawLock = useSelector((s) => s.lock);
     const rawUnlock = useSelector((s) => s.unlock);
 
@@ -835,10 +845,15 @@ export const FD = {
           return false;
         }
 
+        const updatedDataModels =
+          actionResult?.updatedDataModels &&
+          Object.entries(actionResult.updatedDataModels).map(([dataElementId, data]) => ({ dataElementId, data }));
+
+        updatedDataModels && updateQueryCache(updatedDataModels);
         rawUnlock(actionResult);
         return true;
       },
-      [isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawUnlock],
+      [isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawUnlock, updateQueryCache],
     );
 
     return useMemo(
