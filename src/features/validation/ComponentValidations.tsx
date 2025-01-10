@@ -50,7 +50,7 @@ export function ComponentValidations({ validations, node: _node }: Props) {
   const info = validationsOfSeverity(filteredValidations, 'info');
   const success = validationsOfSeverity(filteredValidations, 'success');
 
-  if (!node || !validations?.length) {
+  if (!node || !filteredValidations?.length) {
     return null;
   }
 
