@@ -148,8 +148,11 @@ function nodeDataIsRequired(n: NodeData) {
   const item = n.item;
   return !!(
     item &&
+    // Component is required somehow
     (('required' in item && item.required) ||
       ('minCount' in item && item.minCount) ||
-      ('minNumberOfAttachments' in item && item.minNumberOfAttachments))
+      ('minNumberOfAttachments' in item && item.minNumberOfAttachments)) &&
+    // Component is not read only
+    !('readOnly' in item && item.readOnly)
   );
 }
