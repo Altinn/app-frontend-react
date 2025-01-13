@@ -15,17 +15,17 @@
   cursor: pointer;
 }
 
-.partyWrapperDisabled {
+.partyWrapperDisabled:hover {
+  cursor: not-allowed;
+}
+
+.partyPaperDisabled {
   margin-bottom: 0.75rem;
   border-radius: 0;
   background-color: #e3f7ff;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
   color: #6a6a6a;
   width: 100%;
-}
-
-.partyWrapperDisabled:hover {
-  cursor: not-allowed;
 }
 
 .partyIcon {
