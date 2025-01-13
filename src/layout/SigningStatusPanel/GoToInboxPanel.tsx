@@ -5,6 +5,7 @@ import { Link } from '@digdir/designsystemet-react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
+import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { returnUrlToMessageBox } from 'src/utils/urls/urlHelper';
 import type { CurrentUserStatus } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
 
@@ -34,7 +35,7 @@ export function GoToInboxPanel({
         >
           <Link
             href={returnUrlToMessageBox(window.location.origin, partyId) ?? '#'}
-            style={{ color: 'white', textDecoration: 'none' }}
+            className={classes.buttonLink}
           >
             Gå til innboksen
           </Link>

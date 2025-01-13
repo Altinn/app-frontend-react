@@ -10,6 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/AwaitingCurrentUserSignaturePanel';
 import { GoToInboxPanel } from 'src/layout/SigningStatusPanel/GoToInboxPanel';
+import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { SubmitPanel } from 'src/layout/SigningStatusPanel/SubmitPanel';
 import { ProcessTaskType } from 'src/types';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -37,11 +38,8 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
         variant='info'
         isOnBottom
       >
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <Spinner
-            style={{ margin: 'auto', justifySelf: 'center' }}
-            title='Loading signing state...'
-          />
+        <div className={classes.loadingContainer}>
+          <Spinner title='Loading signing state...' />
         </div>
       </Panel>
     );
@@ -67,6 +65,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
 }
 
 export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';
+
 function getCurrentUserStatus(signeeList: SigneeState[] | undefined, partyId: string | undefined): CurrentUserStatus {
   const currentUserSignee = signeeList?.find((signee) => signee.partyId.toString() === partyId);
   if (!currentUserSignee) {

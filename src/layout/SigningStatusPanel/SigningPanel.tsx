@@ -4,6 +4,7 @@ import type { PropsWithChildren, ReactElement } from 'react';
 import { ErrorMessage, Heading, Paragraph } from '@digdir/designsystemet-react';
 
 import { Panel } from 'src/app-components/Panel/Panel';
+import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import type { Button } from 'src/app-components/Button/Button';
 import type { PanelProps } from 'src/app-components/Panel/Panel';
 
@@ -29,9 +30,9 @@ export function SigningPanel({
     <Panel
       variant={variant}
       isOnBottom
-      style={{ paddingTop: '2rem' }}
+      className={classes.signingPanel}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.5rem' }}>
+      <div className={classes.contentContainer}>
         <Heading
           level={4}
           size='xs'
@@ -42,7 +43,7 @@ export function SigningPanel({
 
         {children}
         <div>
-          <div style={{ padding: '1rem 0', display: 'flex', gap: '1rem' }}>
+          <div className={classes.buttonContainer}>
             {secondaryButton}
             {actionButton}
           </div>

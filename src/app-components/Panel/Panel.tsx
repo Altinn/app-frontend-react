@@ -24,6 +24,7 @@ export type PanelProps = PropsWithChildren<{
   forceMobileLayout?: boolean;
   title?: JSX.Element;
   style?: React.CSSProperties;
+  className?: string;
   fullWidth?: boolean;
   isOnBottom?: boolean;
   isOnTop?: boolean;
@@ -78,6 +79,7 @@ export const Panel: React.FC<PanelProps> = ({
   isOnTop,
   title,
   style,
+  className,
   children,
 }) => {
   const isMobile = useIsMobile();
@@ -96,9 +98,13 @@ export const Panel: React.FC<PanelProps> = ({
       )}
     >
       <div
-        className={cn(classes.panel, {
-          [classes.panelMobileLayout]: isMobileLayout,
-        })}
+        className={cn(
+          classes.panel,
+          {
+            [classes.panelMobileLayout]: isMobileLayout,
+          },
+          className,
+        )}
         style={style}
       >
         <div className={cn(classes.panelContentWrapper, classes[`panelContentWrapper_${variant}`])}>
