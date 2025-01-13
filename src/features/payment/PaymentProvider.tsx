@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
+import type { AxiosError } from 'axios';
+
 import { Loader } from 'src/core/loading/Loader';
 import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
@@ -8,7 +10,8 @@ import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 type PaymentContextProps = {
   showLoader: () => void;
   hideLoader: () => void;
-  usePerformPayment: () => void;
+  performPayment: () => void;
+  paymentError: AxiosError | null;
 };
 
 type PaymentContextProvider = {
@@ -21,6 +24,7 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
   const [loading, setLoading] = useState<boolean>(false);
   const partyId = useNavigationParam('partyId');
   const instanceGuid = useNavigationParam('instanceGuid');
+  const { mutate, error } = usePerformPayActionMutation(partyId, instanceGuid);
 
   const contextValue: PaymentContextProps = {
     showLoader: () => {
@@ -29,15 +33,16 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
     hideLoader: () => {
       setLoading(false);
     },
-    usePerformPayment: () => {
-      usePerformPayActionMutation(partyId, instanceGuid);
+    performPayment: () => {
+      setLoading(true);
+      mutate();
     },
+    paymentError: error,
   };
 
   return (
     <PaymentContext.Provider value={contextValue}>
-      {loading && <Loader reason='Navigating to external payment solution' />}
-      {!loading && children}
+      {loading ? <Loader reason='Navigating to external payment solution' /> : children}
     </PaymentContext.Provider>
   );
 };
