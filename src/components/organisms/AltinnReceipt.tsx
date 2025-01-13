@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { JSX } from 'react';
 
-import { makeStyles, Typography } from '@material-ui/core';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { Heading, Paragraph } from '@digdir/designsystemet-react';
+import { makeStyles } from '@material-ui/core';
 
 import { AltinnAttachment } from 'src/components/atoms/AltinnAttachment';
 import { AltinnCollapsibleAttachments } from 'src/components/molecules/AltinnCollapsibleAttachments';
@@ -48,8 +48,26 @@ interface ICollapsibleAttacments {
   hideCollapsibleCount?: boolean;
 }
 
+/**
+ * Watches the print media query and returns true if the page is being printed
+ */
+function useIsPrint() {
+  const [isPrint, setIsPrint] = useState(() => window.matchMedia('print').matches);
+
+  useEffect(() => {
+    const mediaQueryList = window.matchMedia('print');
+    const handleChange = (event: MediaQueryListEvent) => setIsPrint(event.matches);
+    mediaQueryList.addEventListener('change', handleChange);
+    return () => {
+      mediaQueryList.removeEventListener('change', handleChange);
+    };
+  }, []);
+
+  return isPrint;
+}
+
 const CollapsibleAttachments = ({ attachments, title, hideCollapsibleCount }: ICollapsibleAttacments) => {
-  const isPrint = useMediaQuery('print') ? false : Boolean(attachments.length > 4);
+  const isPrint = useIsPrint() ? false : Boolean(attachments.length > 4);
 
   return (
     <AltinnCollapsibleAttachments
@@ -131,41 +149,43 @@ export function ReceiptComponent({
       data-testid='altinn-receipt'
       className={classes.wordBreak}
     >
-      <Typography variant='h2'>{title}</Typography>
+      <Heading
+        level={2}
+        size='medium'
+      >
+        {title}
+      </Heading>
       <AltinnSummaryTable summaryDataObject={instanceMetaDataObject} />
       {subtitle && (
-        <Typography
-          variant='body1'
-          className={classes.paddingTop24}
-        >
+        <Paragraph className={classes.paddingTop24}>
           <a
             className='altinnLink'
             href={subtitleurl}
           >
             {subtitle}
           </a>
-        </Typography>
+        </Paragraph>
       )}
 
-      <Typography
+      <Paragraph
         id='body-text'
-        variant='body1'
         className={classes.paddingTop24}
       >
         {body}
-      </Typography>
+      </Paragraph>
       {pdf && pdf.length > 0 && (
         <>
           {titleSubmitted && (
-            <Typography
-              variant='h3'
+            <Heading
+              level={3}
+              size='small'
               style={{
                 paddingTop: '2.562rem',
                 paddingBottom: '0.3125rem',
               }}
             >
               {titleSubmitted}
-            </Typography>
+            </Heading>
           )}
           <AltinnAttachment
             attachments={pdf}
