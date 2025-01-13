@@ -2,7 +2,7 @@
   display: flex;
   gap: var(--fds-spacing-2);
   align-items: center;
-  min-width: 28px;
+  min-width: var(--fds-spacing-7);
 }
 
 .labelAndDescWrapper {
