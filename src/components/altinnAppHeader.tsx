@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { AppBar, Toolbar } from '@material-ui/core';
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 
 import { Flex } from 'src/app-components/Flex/Flex';
@@ -33,66 +32,61 @@ export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
           },
         ]}
       />
-      <AppBar
-        position='static'
-        className={classes.default}
-      >
-        <Toolbar className={classes.toolbarContainer}>
-          <Flex
-            item
-            className={classes.logo}
+      <header className={classes.appBar}>
+        <Flex
+          item
+          className={classes.logo}
+        >
+          <AltinnLogo color={LogoColor.blueDark} />
+        </Flex>
+        {party && (
+          <ul className={classes.headerLinkList}>
+            <li className={classes.headerLink}>
+              <a
+                className='altinnLink'
+                href={returnUrlToMessagebox(window.location.origin, party?.partyId) || '#'}
+              >
+                <Lang id='instantiate.inbox' />
+              </a>
+            </li>
+            <li className={classes.headerLink}>
+              <a
+                className='altinnLink'
+                href={returnUrlToAllSchemas(window.location.origin) || '#'}
+              >
+                <Lang id='instantiate.all_forms' />
+              </a>
+            </li>
+            <li className={classes.headerLink}>
+              <a
+                className='altinnLink'
+                href={returnUrlToProfile(window.location.origin, party?.partyId) || '#'}
+              >
+                <Lang id='instantiate.profile' />
+              </a>
+            </li>
+          </ul>
+        )}
+        {party && (
+          <CircleIcon
+            size='1.5rem'
+            className={classes.partyIcon}
+            title={renderParty(profile) || ''}
           >
-            <AltinnLogo color={LogoColor.blueDark} />
-          </Flex>
-          {party && (
-            <ul className={classes.headerLinkList}>
-              <li className={classes.headerLink}>
-                <a
-                  className='altinnLink'
-                  href={returnUrlToMessagebox(window.location.origin, party?.partyId) || '#'}
-                >
-                  <Lang id='instantiate.inbox' />
-                </a>
-              </li>
-              <li className={classes.headerLink}>
-                <a
-                  className='altinnLink'
-                  href={returnUrlToAllSchemas(window.location.origin) || '#'}
-                >
-                  <Lang id='instantiate.all_forms' />
-                </a>
-              </li>
-              <li className={classes.headerLink}>
-                <a
-                  className='altinnLink'
-                  href={returnUrlToProfile(window.location.origin, party?.partyId) || '#'}
-                >
-                  <Lang id='instantiate.profile' />
-                </a>
-              </li>
-            </ul>
-          )}
-          {party && (
-            <CircleIcon
-              size='1.5rem'
-              className={classes.partyIcon}
-              title={renderParty(profile) || ''}
-            >
-              {party.orgNumber ? (
-                <Buildings3Icon
-                  color='white'
-                  aria-hidden='true'
-                />
-              ) : (
-                <PersonIcon
-                  color='white'
-                  aria-hidden='true'
-                />
-              )}
-            </CircleIcon>
-          )}
-        </Toolbar>
-      </AppBar>
+            {party.orgNumber ? (
+              <Buildings3Icon
+                color='white'
+                aria-hidden='true'
+              />
+            ) : (
+              <PersonIcon
+                color='white'
+                aria-hidden='true'
+              />
+            )}
+          </CircleIcon>
+        )}
+      </header>
     </div>
   );
 };

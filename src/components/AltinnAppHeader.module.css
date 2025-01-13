@@ -1,16 +1,22 @@
-.appBarWrapper {
+.app-bar-wrapper {
   flex-grow: 1;
 }
 
-.appBarWrapper header {
-  box-shadow: none;
-}
-
-.default {
+.app-bar {
   background-color: transparent;
+  padding-top: 1.875rem;
+  margin-bottom: 2.25rem;
+  padding-left: 0;
+  padding-right: 0;
+  box-sizing: border-box;
+  min-height: 64px;
+  display: flex;
+  position: relative;
+  align-items: center;
 }
 
-.headerLink {
+.header-link {
+  display: inline;
   color: var(--fds-semantic-surface-action-default);
   font-size: 1.25rem;
   line-height: 1.5;
@@ -36,7 +42,7 @@
   }
 }
 
-.headerLinkList {
+.header-link-list {
   flex-grow: 1;
   list-style: none;
   margin: 0;
@@ -44,43 +50,10 @@
   float: left;
 }
 
-.headerLinkList li {
-  display: inline;
-}
-
-.headerProfile {
-  float: right;
-}
-
-.languageDropdown {
-  font-size: 0.875rem;
-}
-
 .logo {
   margin-right: 0.75rem;
 }
 
-.partyIcon {
+.party-icon {
   margin-left: 5px;
-}
-
-.toolbarContainer {
-  padding-top: 1.875rem;
-  margin-bottom: 2.25rem;
-  padding-left: 0;
-  padding-right: 0;
-  box-sizing: border-box;
-}
-
-.toolbarContainer .a-personSwitcher {
-  margin-top: 0;
-  margin-left: 1.5rem;
-}
-
-.gridStyle {
-  flex-grow: 1;
-}
-
-.spanStyle {
-  margin-bottom: 10px;
 }

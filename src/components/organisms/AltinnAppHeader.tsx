@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { AppBar } from '@material-ui/core';
-
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo } from 'src/components/logo/AltinnLogo';
 import classes from 'src/components/organisms/AltinnAppHeader.module.css';
@@ -29,10 +27,8 @@ export const AltinnAppHeader = ({ logoColor, headerBackgroundColor, party, userP
   const { showLanguageSelector } = usePageSettings();
 
   return (
-    <AppBar
+    <header
       data-testid='AltinnAppHeader'
-      position='relative'
-      classes={{ root: classes.appBar }}
       style={{ backgroundColor: headerBackgroundColor, color: logoColor }}
     >
       <LandmarkShortcuts
@@ -57,7 +53,7 @@ export const AltinnAppHeader = ({ logoColor, headerBackgroundColor, party, userP
           </div>
         </div>
       </div>
-    </AppBar>
+    </header>
   );
 };
 
