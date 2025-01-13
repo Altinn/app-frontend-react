@@ -30,7 +30,8 @@ export const Number = ({ value, formatting, iconUrl, iconAltText, labelId, curre
           alt={iconAltText}
         />
       )}
-      <span aria-labelledby={labelId}>{displayData}</span>
+      {labelId && <span aria-labelledby={labelId}>{displayData}</span>}
+      {!labelId && <span>{displayData}</span>}
     </>
   );
 };
