@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 import type { HeadingProps } from '@digdir/designsystemet-react';
 
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupSummary.module.css';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
@@ -45,13 +45,13 @@ function ChildComponent({
 
   if (child.isType('Group')) {
     return (
-      <Grid item>
+      <Flex item>
         <GroupSummary
           componentNode={child}
           hierarchyLevel={hierarchyLevel ? hierarchyLevel + 1 : 1}
           summaryOverride={summaryOverride}
         />
-      </Grid>
+      </Flex>
     );
   }
 
@@ -79,7 +79,7 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrid
       className={cn(classes.groupContainer, { [classes.nested]: isNestedGroup })}
       data-testid={dataTestId}
     >
-      {summaryTitle || title ? (
+      {(summaryTitle || title) && (
         <Heading
           size={isNestedGroup ? 'xsmall' : 'small'}
           level={headingLevel}
@@ -89,23 +89,21 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0, summaryOverrid
             node={componentNode}
           />
         </Heading>
-      ) : null}
-      {childComponents.length ? (
-        <Grid
-          container
-          spacing={6}
-          alignItems='flex-start'
-        >
-          {childComponents.map((childId) => (
-            <ChildComponent
-              key={childId}
-              id={childId}
-              hierarchyLevel={hierarchyLevel}
-              summaryOverride={summaryOverride}
-            />
-          ))}
-        </Grid>
-      ) : null}
+      )}
+      <Flex
+        container
+        spacing={6}
+        alignItems='flex-start'
+      >
+        {childComponents.map((childId) => (
+          <ChildComponent
+            key={childId}
+            id={childId}
+            hierarchyLevel={hierarchyLevel}
+            summaryOverride={summaryOverride}
+          />
+        ))}
+      </Flex>
     </section>
   );
 };
