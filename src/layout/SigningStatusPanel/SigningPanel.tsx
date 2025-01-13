@@ -31,7 +31,7 @@ export function SigningPanel({
       isOnBottom
       style={{ paddingTop: '2rem' }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.5rem' }}>
         <Heading
           level={4}
           size='xs'

@@ -21,7 +21,7 @@ export const signeeListQuery = (partyId: string, instanceGuid: string) =>
   queryOptions({
     queryKey: ['signeeList', partyId, instanceGuid],
     queryFn: () => fetchSigneeList(partyId, instanceGuid),
-    staleTime: 1000 * 30, // 30 secondsx
+    refetchInterval: 1000 * 60, // 1 minute
   });
 
 export async function fetchSigneeList(partyId: string, instanceGuid: string): Promise<SigneeState[]> {
