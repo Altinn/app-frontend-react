@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import type { JSX } from 'react';
 
 import { Heading, Paragraph } from '@digdir/designsystemet-react';
-import { makeStyles } from '@material-ui/core';
 
 import { AltinnAttachment } from 'src/components/atoms/AltinnAttachment';
 import { AltinnCollapsibleAttachments } from 'src/components/molecules/AltinnCollapsibleAttachments';
+import classes from 'src/components/organisms/AltinnReceipt.module.css';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IAttachmentGrouping, IDisplayAttachment } from 'src/types/shared';
@@ -22,25 +22,6 @@ export interface IReceiptComponentProps {
   title: React.ReactNode;
   titleSubmitted: React.ReactNode;
 }
-
-const useStyles = makeStyles(() => ({
-  instanceMetaData: {
-    marginTop: 36,
-  },
-  tableCell: {
-    borderBottom: 0,
-    paddingRight: '1.5625rem',
-  },
-  tableRow: {
-    height: 'auto',
-  },
-  paddingTop24: {
-    paddingTop: '1.5rem',
-  },
-  wordBreak: {
-    wordBreak: 'break-word',
-  },
-}));
 
 interface ICollapsibleAttacments {
   attachments: IDisplayAttachment[];
@@ -141,9 +122,6 @@ export function ReceiptComponent({
   collapsibleTitle,
   hideCollapsibleCount,
 }: IReceiptComponentProps) {
-  const classes = useStyles();
-
-  // renders attachment groups. Always shows default group first
   return (
     <div
       data-testid='altinn-receipt'
