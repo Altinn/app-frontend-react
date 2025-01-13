@@ -1,0 +1,24 @@
+.list {
+  padding: 0;
+}
+
+.listItem {
+  padding: 0;
+}
+
+.data {
+  overflow-wrap: break-word;
+  font-weight: 500;
+  font-size: 1.125rem;
+}
+
+.data p {
+  font-weight: 500;
+  font-size: 1.125rem;
+}
+
+.emptyField {
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.6875;
+}
