@@ -346,7 +346,28 @@ export function nb(): FixedLanguageList {
       unknown_error: 'Ukjent feil. Vennligst prøv igjen senere.',
     },
     signing: {
+      loading: 'Laster inn signeringsstatus...',
+      confirm_read_documents: 'Jeg bekrefter at informasjonen og dokumentene er korrekte.',
+      sign: 'Signer skjemaet',
+
+      submit_panel_title_all_signed: 'Du kan nå sende inn skjemaet',
+      submit_panel_title_not_all_signed: 'Venter på signaturer',
+      submit_panel_description_all_signed: 'Alle parter har signert! Velg Send inn for å fullføre.',
+      submit_panel_description_not_signing: 'Du kan sende inn skjemaet når alle parter har signert.',
+      submit_panel_description_signed:
+        'Takk for at du signerte! Du kan sende inn skjemaet når alle parter har signert.',
+      submit: 'Send inn skjemaet',
+
+      go_to_inbox_panel_title_has_signed: 'Du har signert skjemaet',
+      go_to_inbox_panel_title_not_signed: 'Ingenting å signere',
+      go_to_inbox_panel_description_has_signed: 'Alt i orden! Du kan nå gå tilbake til innboksen.',
+      go_to_inbox_panel_description_not_signed: 'Du har ikke tilgang til å signere dette skjemaet.',
+      go_to_inbox: 'Gå til innboksen',
+
       wrong_task_error: '{0}-komponenten er kun tilgjengelig i et signeringssteg.',
+      error_missing_signing_rights:
+        'Noe gikk galt. Nåværende bruker skal signere, men har ikke rettigheter til å gjøre det.',
+      error_signing: 'Noe gikk galt under signeringen. Prøv igjen.',
     },
     signee_list: {
       parse_error: 'Feil ved lasting av signatarliste.',

@@ -6,7 +6,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
+import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
 import { doPerformAction } from 'src/queries/queries';
@@ -17,6 +19,7 @@ export function AwaitingCurrentUserSignaturePanel() {
   const canSign = isAuthorised('sign');
   const selectedLanguage = useCurrentLanguage();
   const queryClient = useQueryClient();
+  const { langAsString } = useLanguage();
 
   const { mutate: handleSign, error } = useMutation({
     mutationFn: async () => {
@@ -32,13 +35,13 @@ export function AwaitingCurrentUserSignaturePanel() {
   const [confirmReadDocuments, setConfirmReadDocuments] = useState(false);
 
   if (!canSign) {
-    return <div>Something went wrong. Current user should sign, but does not have rights...</div>;
+    return langAsString('signing.error_missing_signing_rights');
   }
 
   return (
     <SigningPanel
       variant='info'
-      heading='Signer skjemaet'
+      heading={langAsString('signing.sign')}
       actionButton={
         <Button
           onClick={() => handleSign()}
@@ -46,16 +49,16 @@ export function AwaitingCurrentUserSignaturePanel() {
           size='md'
           color='success'
         >
-          Signer skjemaet
+          <Lang id='signing.sign' />
         </Button>
       }
-      errorMessage={error ? 'Noe gikk galt under signeringen. Vennligst prøv igjen.' : undefined} // TODO: get this text from config? API?
+      errorMessage={error ? langAsString('signing.error_signing') : undefined}
     >
       <Checkbox
         value={String(confirmReadDocuments)}
         onChange={() => setConfirmReadDocuments(!confirmReadDocuments)}
       >
-        Jeg bekrefter at opplysningene og dokumentene er riktige. {/* TODO: get this text from config? API? */}
+        <Lang id='signing.confirm_read_documents' /> {/* TODO: get this text from config? API? */}
       </Checkbox>
     </SigningPanel>
   );

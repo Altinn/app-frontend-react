@@ -2,6 +2,8 @@ import React from 'react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
+import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
 import type { CurrentUserStatus } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
 
@@ -15,20 +17,24 @@ export function SubmitPanel({
   currentUserStatus: Exclude<CurrentUserStatus, 'waiting'>;
 }) {
   const { next, busy } = useProcessNavigation() ?? {};
+  const { langAsString } = useLanguage();
 
   function handleSubmit() {
     next?.({ nodeId });
   }
 
-  const heading = allHaveSigned ? 'Det er klart for å sende inn skjemaet' : 'Venter på signaturer';
+  const heading = langAsString(
+    allHaveSigned ? 'signing.submit_panel_title_all_signed' : 'signing.submit_panel_title_not_all_signed',
+  );
+
   const getDescription = () => {
     if (allHaveSigned) {
-      return 'Alle har signert! Velg send inn skjemaet for å fullføre.';
+      return langAsString('signing.submit_panel_description_all_signed');
     }
 
     return currentUserStatus === 'notSigning'
-      ? 'Når alle har signert kan du sende inn skjemaet.'
-      : 'Takk for at du har signert! Når alle har signert kan du sende inn skjemaet.';
+      ? langAsString('signing.submit_panel_description_not_signing')
+      : langAsString('signing.submit_panel_description_signed');
   };
 
   return (
@@ -43,7 +49,7 @@ export function SubmitPanel({
           color='success'
           disabled={!allHaveSigned || busy}
         >
-          Send inn skjemaet
+          <Lang id='signing.submit' />
         </Button>
       }
     />

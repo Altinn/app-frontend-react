@@ -345,7 +345,26 @@ export function en() {
       unknown_error: 'An unknown error occurred. Please try again later.',
     },
     signing: {
+      loading: 'Loading signing state...',
+      confirm_read_documents: 'I confirm that the information and documents are correct.',
+      sign: 'Sign the form',
+
+      submit_panel_title_all_signed: 'You can now submit the form',
+      submit_panel_title_not_all_signed: 'Waiting for signatures',
+      submit_panel_description_all_signed: 'All parties have signed! Select Submit to complete.',
+      submit_panel_description_not_signing: 'You can submit the form when all parties have signed.',
+      submit_panel_description_signed: 'Thank you for signing! You can submit the form when all parties have signed.',
+      submit: 'Submit form',
+
+      go_to_inbox_panel_title_has_signed: 'You have signed the form',
+      go_to_inbox_panel_title_not_signed: 'Nothing to sign',
+      go_to_inbox_panel_description_has_signed: "You're all set! You can now go back to your inbox.",
+      go_to_inbox_panel_description_not_signed: 'You do not have access to sign this form.',
+      go_to_inbox: 'Go to inbox',
+
       wrong_task_error: 'The {0} component is only available in a signing task.',
+      error_missing_signing_rights: 'Something went wrong.Current user should sign, but does not have rights to do so.',
+      error_signing: 'Something went wrong when signing. Please try again.',
     },
     signee_list: {
       parse_error: 'Error loading signee list.',

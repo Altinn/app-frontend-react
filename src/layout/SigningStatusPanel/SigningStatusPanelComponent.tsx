@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Panel } from 'src/app-components/Panel/Panel';
 import { useIsAuthorised, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/AwaitingCurrentUserSignaturePanel';
 import { GoToInboxPanel } from 'src/layout/SigningStatusPanel/GoToInboxPanel';
@@ -22,6 +23,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   const { data: signeeList, isLoading } = useQuery(signeeListQuery(partyId!, instanceGuid!));
   const currentUserStatus = getCurrentUserStatus(signeeList, partyId);
   const canWrite = useIsAuthorised()('write');
+  const { langAsString } = useLanguage();
 
   if (taskType !== ProcessTaskType.Signing) {
     return (
@@ -39,7 +41,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
         isOnBottom
       >
         <div className={classes.loadingContainer}>
-          <Spinner title='Loading signing state...' />
+          <Spinner title={langAsString('signing.loading')} />
         </div>
       </Panel>
     );
