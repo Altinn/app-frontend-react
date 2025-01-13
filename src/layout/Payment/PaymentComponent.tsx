@@ -18,7 +18,6 @@ export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>)
   const { next, busy } = useProcessNavigation() || {};
   const paymentInfo = usePaymentInformation();
 
-  //const { mutate: performPayment, error: paymentError } = usePerformPayActionMutation(partyId, instanceGuid);
   const { performPayment, paymentError } = usePayment();
 
   const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
