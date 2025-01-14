@@ -112,7 +112,7 @@ export class List extends ListDef {
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
     const errors: string[] = [];
-    const allowedTypes = ['string', 'number', 'integer', 'boolean'];
+    const allowedTypes = ['string', 'boolean', 'number'];
     if (ctx.item.componentType === null || ctx.item.componentType === 'RadioButtons') {
       for (const [binding] of Object.entries(ctx.item.dataModelBindings ?? {})) {
         const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedTypes, false);
@@ -124,24 +124,28 @@ export class List extends ListDef {
       errors.push('If you are using Checkboxes in a List, you must have a saveToList binding');
     }
 
-    const [errorNotArray, result] = this.validateDataModelBindingsAny(ctx, 'saveToList', ['array']);
-    if (errorNotArray) {
-      return errorNotArray;
+    const [newErrors] = this.validateDataModelBindingsAny(ctx, 'saveToList', ['array']);
+    if (newErrors) {
+      errors.push(...(newErrors || []));
     }
 
-    // @ts-expect-error Please replace with typechecking
-    const saveToListBinding = ctx.lookupBinding(ctx.item.dataModelBindings.saveToList);
-    for (const [binding] of Object.entries(ctx.item.dataModelBindings ?? {})) {
-      if (binding !== 'saveToList') {
-        // @ts-expect-error Please replace with typechecking
-        if (saveToListBinding[0]?.items?.properties?.[binding] === null) {
-          //if binding is not the same as a field in saveToList, binding has no connection to saveToList.
-          errors.push(`saveToList must contain a field with the same name as the field ${binding}`);
-        }
-
-        // @ts-expect-error Please replace with typechecking
-        if (allowedTypes.contains(saveToListBinding[0]?.items?.properties?.[binding].type)) {
-          errors.push(`Field ${binding} in saveToList must be of type string, number, integer or boolean`);
+    if (ctx.item.dataModelBindings?.saveToList) {
+      const saveToListBinding = ctx.lookupBinding(ctx.item?.dataModelBindings?.saveToList);
+      for (const [binding] of Object.entries(ctx.item.dataModelBindings ?? {})) {
+        if (
+          binding !== 'saveToList' &&
+          saveToListBinding[0]?.items &&
+          typeof saveToListBinding[0].items === 'object' &&
+          'properties' in saveToListBinding[0].items
+        ) {
+          if (!saveToListBinding[0]?.items?.properties?.[binding]) {
+            //if binding is not the same as a field in saveToList, binding has no connection to saveToList.
+            errors.push(`saveToList must contain a field with the same name as the field ${binding}`);
+          }
+          // @ts-expect-error Please replace with typechecking
+          else if (!allowedTypes.includes(saveToListBinding[0]?.items?.properties?.[binding].type)) {
+            errors.push(`Field ${binding} in saveToList must be of type string, number or boolean`);
+          }
         }
       }
     }

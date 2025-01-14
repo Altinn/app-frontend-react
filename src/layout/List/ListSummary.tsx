@@ -16,6 +16,7 @@ type ListComponentSummaryProps = {
   componentNode: LayoutNode<'List'>;
   emptyFieldText?: string;
 };
+type Row = Record<string, string | number | boolean>;
 
 export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListComponentSummaryProps) => {
   const displayData = componentNode.def.useDisplayData(componentNode);
@@ -26,7 +27,7 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
   const { tableHeaders, dataModelBindings } = useNodeItem(componentNode);
   const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
 
-  const displayRows: unknown[] = [];
+  const displayRows: Row[] = [];
   // @ts-expect-error Please replace with typechecking
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formData?.saveToList?.forEach((row: any) => {
@@ -65,7 +66,7 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
           </Table.Head>
           <Table.Body>
             {displayRows.map((row, rowIndex) => {
-              const rowItem = row as { array: unknown[] };
+              const rowItem = row;
               return (
                 <Table.Row key={rowIndex}>
                   {Object.entries(tableHeaders).map(([key, value]) => (
