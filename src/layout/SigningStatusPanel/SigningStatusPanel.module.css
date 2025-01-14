@@ -16,11 +16,27 @@
 
   .contentContainer {
     padding: var(--fds-spacing-2); /* TODO: remove when MUI Grid is removed?*/
+    display: flex;
+    flex-direction: column;
+    gap: var(--fds-spacing-4);
   }
 
   .buttonContainer {
     padding: var(--fds-spacing-4) 0;
     display: flex;
     gap: var(--fds-spacing-4);
+  }
+}
+
+/* TODO: Remove this when we upgrade Designsystemet to @next */
+.checkbox {
+  > * {
+    align-self: start;
+  }
+
+  label {
+    display: flex;
+    justify-content: start;
+    align-items: start;
   }
 }

@@ -11,6 +11,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
+import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { doPerformAction } from 'src/queries/queries';
 
 export function AwaitingCurrentUserSignaturePanel() {
@@ -57,6 +58,7 @@ export function AwaitingCurrentUserSignaturePanel() {
       <Checkbox
         value={String(confirmReadDocuments)}
         onChange={() => setConfirmReadDocuments(!confirmReadDocuments)}
+        className={classes.checkbox}
       >
         <Lang id='signing.confirm_read_documents' /> {/* TODO: get this text from config? API? */}
       </Checkbox>
