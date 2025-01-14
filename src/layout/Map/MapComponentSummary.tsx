@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { Paragraph } from '@digdir/designsystemet-react';
-
 import { Lang } from 'src/features/language/Lang';
 import { Map } from 'src/layout/Map/Map';
 import classes from 'src/layout/Map/MapComponent.module.css';
@@ -23,9 +21,9 @@ export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
 
   if (markerBinding && !markerLocationIsValid) {
     return (
-      <Paragraph className={classes.emptyField}>
+      <span className={classes.emptyField}>
         <Lang id='general.empty_summary' />
-      </Paragraph>
+      </span>
     );
   }
 
@@ -38,12 +36,12 @@ export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
         isSummary={true}
       />
       {markerLocation && (
-        <Paragraph className={classes.footer}>
+        <span className={classes.footer}>
           <Lang
             id='map_component.selectedLocation'
             params={[markerLocation.latitude, markerLocation.longitude]}
           />
-        </Paragraph>
+        </span>
       )}
     </>
   );
