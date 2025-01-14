@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 
 import cn from 'classnames';
 
@@ -21,7 +21,10 @@ export const AltinnSummaryTable = ({ summaryDataObject }: IAltinnSummaryTablePro
     className={classes.table}
   >
     {Object.entries(summaryDataObject).map(([key, value]) => (
-      <Fragment key={key}>
+      <div
+        role='row'
+        key={key}
+      >
         <div
           role='cell'
           className={classes.key}
@@ -34,7 +37,7 @@ export const AltinnSummaryTable = ({ summaryDataObject }: IAltinnSummaryTablePro
         >
           {value.value}
         </div>
-      </Fragment>
+      </div>
     ))}
   </div>
 );
