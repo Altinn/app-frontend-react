@@ -4,7 +4,6 @@ import type { AriaAttributes } from 'react';
 import { Pagination as AltinnPagination } from '@altinn/altinn-design-system';
 import { Checkbox, Heading, Radio, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
-import deepEqual from 'fast-deep-equal';
 import { v4 as uuidv4 } from 'uuid';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
@@ -90,7 +89,7 @@ export const ListComponent = ({ node }: IListProps) => {
     // @ts-expect-error Please replace with typechecking
     return formData?.saveToList.some((selectedRow) => {
       const { altinnRowId, ...rest } = selectedRow;
-      return deepEqual(rest, row);
+      return Object.keys(rest).every((key) => Object.hasOwn(row, key) && row[key] === rest[key]);
     });
   }
 
@@ -114,7 +113,7 @@ export const ListComponent = ({ node }: IListProps) => {
       // @ts-expect-error Please replace with typechecking
       const index = formData?.saveToList.findIndex((selectedRow) => {
         const { altinnRowId, ...rest } = selectedRow;
-        return deepEqual(rest, row);
+        return Object.keys(rest).every((key) => Object.hasOwn(row, key) && row[key] === rest[key]);
       });
       if (index >= 0) {
         removeFromList({
