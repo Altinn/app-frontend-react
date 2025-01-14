@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { List, ListItem, ListItemText } from '@material-ui/core';
-
 import { Flex } from 'src/app-components/Flex/Flex';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
@@ -27,20 +25,16 @@ export function MultipleChoiceSummary({ getFormData }: IMultipleChoiceSummaryPro
           <Lang id='general.empty_summary' />
         </span>
       ) : (
-        <List classes={{ root: classes.list }}>
+        <ul className={classes.list}>
           {Object.keys(formData).map((key) => (
-            <ListItem
+            <li
               key={key}
-              classes={{ root: classes.listItem }}
+              className={classes.listItem}
             >
-              <ListItemText
-                id={key}
-                primaryTypographyProps={{ classes: { root: classes.data } }}
-                primary={formData[key]}
-              />
-            </ListItem>
+              <div className={classes.data}>{formData[key]}</div>
+            </li>
           ))}
-        </List>
+        </ul>
       )}
     </Flex>
   );
