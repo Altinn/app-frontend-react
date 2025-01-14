@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { JSX } from 'react';
 
-import { Heading, Paragraph } from '@digdir/designsystemet-react';
+import { Heading } from '@digdir/designsystemet-react';
 
 import { AltinnAttachment } from 'src/components/atoms/AltinnAttachment';
 import { AltinnCollapsibleAttachments } from 'src/components/molecules/AltinnCollapsibleAttachments';
@@ -135,22 +135,22 @@ export function ReceiptComponent({
       </Heading>
       <AltinnSummaryTable summaryDataObject={instanceMetaDataObject} />
       {subtitle && (
-        <Paragraph className={classes.paddingTop24}>
+        <div className={classes.paddingTop24}>
           <a
             className='altinnLink'
             href={subtitleurl}
           >
             {subtitle}
           </a>
-        </Paragraph>
+        </div>
       )}
 
-      <Paragraph
+      <div
         id='body-text'
         className={classes.paddingTop24}
       >
         {body}
-      </Paragraph>
+      </div>
       {pdf && pdf.length > 0 && (
         <>
           {titleSubmitted && (
