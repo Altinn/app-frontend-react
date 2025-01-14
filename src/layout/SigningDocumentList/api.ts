@@ -19,7 +19,7 @@ const signingDocumentSchema = z
   })
   .transform((it) => ({
     dataType: it.dataType,
-    filename: it.filename ?? '',
+    filename: it.filename ?? it.dataType,
     attachmentTypes:
       it.dataType === DataTypeReference.RefDataAsPdf ? ['signing_document_list.attachment_type_form'] : it.tags,
     url: makeUrlRelativeIfSameDomain(it.selfLinks.apps),
