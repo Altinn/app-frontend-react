@@ -14,11 +14,13 @@ import { GoToInboxPanel } from 'src/layout/SigningStatusPanel/GoToInboxPanel';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { SubmitPanel } from 'src/layout/SigningStatusPanel/SubmitPanel';
 import { ProcessTaskType } from 'src/types';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SigneeState } from 'src/layout/SigneeList/api';
 
 export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<'SigningStatusPanel'>) {
   const taskType = useTaskTypeFromBackend();
+  const { textResourceBindings } = useNodeItem(node);
   const { partyId, instanceGuid } = useParams();
   const { data: signeeList, isLoading } = useQuery(signeeListQuery(partyId!, instanceGuid!));
   const currentUserStatus = getCurrentUserStatus(signeeList, partyId);
@@ -50,7 +52,12 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   const allHaveSigned = signeeList?.every((signee) => signee.hasSigned) ?? false;
 
   if (currentUserStatus === 'awaitingSignature') {
-    return <AwaitingCurrentUserSignaturePanel />;
+    return (
+      <AwaitingCurrentUserSignaturePanel
+        checkboxLabel={textResourceBindings?.checkbox_label}
+        checkboxDescription={textResourceBindings?.checkbox_description}
+      />
+    );
   }
 
   if (canWrite) {

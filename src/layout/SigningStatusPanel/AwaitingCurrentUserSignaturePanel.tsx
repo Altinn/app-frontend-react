@@ -14,7 +14,15 @@ import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { doPerformAction } from 'src/queries/queries';
 
-export function AwaitingCurrentUserSignaturePanel() {
+type AwaitingCurrentUserSignaturePanelProps = {
+  checkboxLabel?: string;
+  checkboxDescription?: string;
+};
+
+export function AwaitingCurrentUserSignaturePanel({
+  checkboxLabel = 'signing.confirm_read_documents',
+  checkboxDescription,
+}: AwaitingCurrentUserSignaturePanelProps) {
   const { partyId, instanceGuid } = useParams();
   const isAuthorised = useIsAuthorised();
   const canSign = isAuthorised('sign');
@@ -53,6 +61,7 @@ export function AwaitingCurrentUserSignaturePanel() {
           <Lang id='signing.sign' />
         </Button>
       }
+      description={checkboxDescription}
       errorMessage={error ? langAsString('signing.error_signing') : undefined}
     >
       <Checkbox
@@ -60,7 +69,7 @@ export function AwaitingCurrentUserSignaturePanel() {
         onChange={() => setConfirmReadDocuments(!confirmReadDocuments)}
         className={classes.checkbox}
       >
-        <Lang id='signing.confirm_read_documents' /> {/* TODO: get this text from config? API? */}
+        <Lang id={checkboxLabel} />
       </Checkbox>
     </SigningPanel>
   );

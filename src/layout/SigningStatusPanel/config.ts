@@ -15,4 +15,18 @@ export const Config = new CG.component({
   functionality: {
     customExpressions: false,
   },
-});
+})
+  .addTextResource(
+    new CG.trb({
+      name: 'checkbox_label',
+      title: 'Checkbox label',
+      description: 'The text to display when a user is asked to confirm what they are signing',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'checkbox_description',
+      title: 'Checkbox description',
+      description: 'A text that describes the checkbox label in more detail if needed',
+    }),
+  );
