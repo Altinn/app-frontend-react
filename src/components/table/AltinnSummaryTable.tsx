@@ -16,11 +16,24 @@ export interface IAltinnSummaryTableProps {
 }
 
 export const AltinnSummaryTable = ({ summaryDataObject }: IAltinnSummaryTableProps) => (
-  <div className={classes.table}>
+  <div
+    role='table'
+    className={classes.table}
+  >
     {Object.entries(summaryDataObject).map(([key, value]) => (
       <Fragment key={key}>
-        <div className={classes.key}>{key}:</div>
-        <div className={cn({ ['no-visual-testing']: value.hideFromVisualTesting })}>{value.value}</div>
+        <div
+          role='cell'
+          className={classes.key}
+        >
+          {key}:
+        </div>
+        <div
+          role='cell'
+          className={cn({ ['no-visual-testing']: value.hideFromVisualTesting })}
+        >
+          {value.value}
+        </div>
       </Fragment>
     ))}
   </div>
