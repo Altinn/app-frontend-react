@@ -86,8 +86,7 @@ export const ListComponent = ({ node }: IListProps) => {
   }
 
   function isRowChecked(row: Row): boolean {
-    // @ts-expect-error Please replace with typechecking
-    return formData?.saveToList.some((selectedRow) => {
+    return (formData?.saveToList as Row[]).some((selectedRow) => {
       const { altinnRowId, ...rest } = selectedRow;
       return Object.keys(rest).every((key) => Object.hasOwn(row, key) && row[key] === rest[key]);
     });
@@ -110,8 +109,7 @@ export const ListComponent = ({ node }: IListProps) => {
       return;
     }
     if (isRowChecked(row)) {
-      // @ts-expect-error Please replace with typechecking
-      const index = formData?.saveToList.findIndex((selectedRow) => {
+      const index = (formData?.saveToList as Row[]).findIndex((selectedRow) => {
         const { altinnRowId, ...rest } = selectedRow;
         return Object.keys(rest).every((key) => Object.hasOwn(row, key) && row[key] === rest[key]);
       });
@@ -272,7 +270,7 @@ export const ListComponent = ({ node }: IListProps) => {
                   <Checkbox
                     className={classes.toggleControl}
                     aria-label={JSON.stringify(row)}
-                    onChange={(event) => {}}
+                    onChange={() => {}}
                     value={JSON.stringify(row)}
                     checked={isRowChecked(row)}
                     name={node.id}

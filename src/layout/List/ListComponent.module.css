@@ -82,25 +82,25 @@
   gap: var(--fds-spacing-2);
 }
 
-.container {
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fds-spacing-2);
+}
+
+.headerContainer {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
 }
 
-.label {
-  font-weight: 500;
+.header {
   font-size: 1.125rem;
+  align-content: center;
 }
 
-.border {
-  border: 2px solid #efefef;
-  margin: 12px 0;
-  padding: 12px;
-}
-@media print {
-  .border {
-    break-inside: avoid;
-  }
+.editButton {
+  margin-left: auto;
+  min-width: unset;
 }

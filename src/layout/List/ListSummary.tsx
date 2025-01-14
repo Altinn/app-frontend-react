@@ -6,6 +6,7 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
+import classes from 'src/layout/List/ListComponent.module.css';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -22,34 +23,29 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
   const displayData = componentNode.def.useDisplayData(componentNode);
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
+  const title = useNodeItem(
+    componentNode,
+    (i) => i.textResourceBindings?.summaryTitle || i.textResourceBindings?.title,
+  );
 
   const { tableHeaders, dataModelBindings } = useNodeItem(componentNode);
   const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
 
   const displayRows: Row[] = [];
-  // @ts-expect-error Please replace with typechecking
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  formData?.saveToList?.forEach((row: any) => {
+  (formData?.saveToList as Row[]).forEach((row: Row) => {
     const { altinnRowId, ...rest } = row;
     displayRows.push(rest);
   });
 
   if (displayRows.length > 0) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--fds-spacing-6)',
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-          <span style={{ fontSize: '1.125rem' }}>
+      <div className={classes.listContainer}>
+        <div className={classes.headerContainer}>
+          <span className={classes.header}>
             <Lang id={title} />
           </span>
           <EditButton
-            style={{ marginLeft: 'auto', minWidth: 'unset' }}
+            className={classes.editButton}
             componentNode={componentNode}
             summaryComponentId={''}
           />
@@ -69,7 +65,7 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
               const rowItem = row;
               return (
                 <Table.Row key={rowIndex}>
-                  {Object.entries(tableHeaders).map(([key, value]) => (
+                  {Object.entries(tableHeaders).map(([key]) => (
                     <Table.Cell
                       key={key}
                       align='left'

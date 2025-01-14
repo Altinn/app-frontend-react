@@ -131,19 +131,20 @@ export class List extends ListDef {
 
     if (ctx.item.dataModelBindings?.saveToList) {
       const saveToListBinding = ctx.lookupBinding(ctx.item?.dataModelBindings?.saveToList);
+      const items = saveToListBinding[0]?.items;
+      const properties =
+        items && !Array.isArray(items) && typeof items === 'object' && 'properties' in items
+          ? items.properties
+          : undefined;
+
       for (const [binding] of Object.entries(ctx.item.dataModelBindings ?? {})) {
-        if (
-          binding !== 'saveToList' &&
-          saveToListBinding[0]?.items &&
-          typeof saveToListBinding[0].items === 'object' &&
-          'properties' in saveToListBinding[0].items
-        ) {
-          if (!saveToListBinding[0]?.items?.properties?.[binding]) {
+        if (binding !== 'saveToList' && items && typeof items === 'object' && 'properties' in items) {
+          if (!properties?.[binding]) {
             //if binding is not the same as a field in saveToList, binding has no connection to saveToList.
             errors.push(`saveToList must contain a field with the same name as the field ${binding}`);
           }
           // @ts-expect-error Please replace with typechecking
-          else if (!allowedTypes.includes(saveToListBinding[0]?.items?.properties?.[binding].type)) {
+          else if (!allowedTypes.includes(properties[binding].type)) {
             errors.push(`Field ${binding} in saveToList must be of type string, number or boolean`);
           }
         }
