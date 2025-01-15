@@ -1,3 +1,4 @@
+/** @see src/index.css */
 export const AltinnPalette = {
   blueDarker: '#022F51',
   blueDark: '#0062BA',

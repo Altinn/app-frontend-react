@@ -1,5 +1,5 @@
 .spinner {
-  color: #0062ba;
+  color: var(--colors-primary-blueDark);
   margin-right: auto;
   margin-left: auto;
   display: inline-block;

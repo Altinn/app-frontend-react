@@ -23,7 +23,7 @@
 }
 
 .containerBase:active {
-  background-color: #0062ba;
+  background-color: var(--colors-primary-blueDark);
 }
 
 .buttonBase {
@@ -31,7 +31,7 @@
   background: none;
   font-family: inherit;
   border: none;
-  outline: 2px solid #008fd6;
+  outline: 2px solid var(--colors-primary-blueMedium);
   width: 100%;
   height: 100%;
   display: block;
@@ -42,7 +42,7 @@
 }
 
 .buttonBase:hover {
-  outline: 3px solid #008fd6;
+  outline: 3px solid var(--colors-primary-blueMedium);
 }
 
 .buttonBase:focus-within {
@@ -52,8 +52,8 @@
 }
 
 .buttonSelected {
-  color: #fff;
-  background-color: #022f51;
+  color: var(--colors-primary-white);
+  background-color: var(--colors-primary-blueDarker);
 }
 
 .hidden {

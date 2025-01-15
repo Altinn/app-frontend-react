@@ -7,7 +7,7 @@
 .error {
   font-size: 1.093rem;
   font-weight: 300;
-  background-color: #f9cad3; /* altinnPalette.primary.redLight */
+  background-color: var(--colors-primary-redLight);
   padding: 12px;
   margin: 12px;
 }
