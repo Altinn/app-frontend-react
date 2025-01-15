@@ -126,4 +126,33 @@ export const Config = new CG.component({
       description:
         'The text to display in the button that the user clicks in order to go to the inbox and no further action is required',
     }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'reject_modal_title',
+      title: 'Reject modal title',
+      description: 'The title of the modal that is displayed when the use clicked on the reject button',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'reject_modal_description',
+      title: 'Reject modal description',
+      description: 'The description of the modal that is displayed when the use clicked on the reject button',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'reject_modal_button',
+      title: 'Reject modal button',
+      description:
+        'The text to display in the button that the user clicks in the modal in order to confirm reject of the signing task',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'reject_modal_trigger_button',
+      title: 'Reject modal trigger button',
+      description: 'The text to display in the button that triggers the reject modal',
+    }),
   );

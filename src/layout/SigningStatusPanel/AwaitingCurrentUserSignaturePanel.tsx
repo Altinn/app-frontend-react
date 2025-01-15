@@ -13,30 +13,26 @@ import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { doPerformAction } from 'src/queries/queries';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 type AwaitingCurrentUserSignaturePanelProps = {
-  texts: {
-    title?: string;
-    checkboxLabel?: string;
-    checkboxDescription?: string;
-    signingButtonText?: string;
-  };
+  node: BaseLayoutNode<'SigningStatusPanel'>;
 };
 
-export function AwaitingCurrentUserSignaturePanel({
-  texts: {
-    title = 'signing.awaiting_signature_panel_title',
-    checkboxLabel = 'signing.checkbox_label',
-    checkboxDescription,
-    signingButtonText = 'signing.sign_button',
-  },
-}: AwaitingCurrentUserSignaturePanelProps) {
+export function AwaitingCurrentUserSignaturePanel({ node }: AwaitingCurrentUserSignaturePanelProps) {
   const { partyId, instanceGuid } = useParams();
   const isAuthorised = useIsAuthorised();
   const canSign = isAuthorised('sign');
   const selectedLanguage = useCurrentLanguage();
   const queryClient = useQueryClient();
   const { langAsString } = useLanguage();
+  const { textResourceBindings } = useNodeItem(node);
+
+  const title = textResourceBindings?.awaiting_signature_panel_title ?? 'signing.awaiting_signature_panel_title';
+  const checkboxLabel = textResourceBindings?.checkbox_label ?? 'signing.checkbox_label';
+  const checkboxDescription = textResourceBindings?.checkbox_description;
+  const signingButtonText = textResourceBindings?.sign_button ?? 'signing.sign_button';
 
   const { mutate: handleSign, error } = useMutation({
     mutationFn: async () => {
@@ -57,6 +53,7 @@ export function AwaitingCurrentUserSignaturePanel({
 
   return (
     <SigningPanel
+      node={node}
       variant='info'
       heading={langAsString(title)}
       actionButton={

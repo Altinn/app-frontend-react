@@ -5,39 +5,36 @@ import { useProcessNavigation } from 'src/features/instance/ProcessNavigationCon
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CurrentUserStatus } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 type SubmitPanelProps = {
-  nodeId: string;
+  node: BaseLayoutNode<'SigningStatusPanel'>;
   allHaveSigned: boolean;
   currentUserStatus: Exclude<CurrentUserStatus, 'waiting'>;
-  texts: {
-    titleReadyForSubmit?: string;
-    titleNotReadyForSubmit?: string;
-    descriptionReadyForSubmit?: string;
-    descriptionNotSigning?: string;
-    descriptionSigned?: string;
-  };
 };
 
-export function SubmitPanel({
-  nodeId,
-  allHaveSigned,
-  currentUserStatus,
-  texts: {
-    titleReadyForSubmit = 'signing.submit_panel_title_ready_for_submit',
-    titleNotReadyForSubmit = 'signing.submit_panel_title_not_ready_for_submit',
-    descriptionReadyForSubmit = 'signing.submit_panel_description_ready_for_submit',
-    descriptionNotSigning = 'signing.submit_panel_description_not_signing',
-    descriptionSigned = 'signing.submit_panel_description_signed',
-  },
-}: SubmitPanelProps) {
+export function SubmitPanel({ node, allHaveSigned, currentUserStatus }: SubmitPanelProps) {
   const { next, busy } = useProcessNavigation() ?? {};
   const { langAsString } = useLanguage();
+  const { id: nodeId, textResourceBindings } = useNodeItem(node);
 
   function handleSubmit() {
     next?.({ nodeId });
   }
+
+  const titleReadyForSubmit =
+    textResourceBindings?.submit_panel_title_ready_for_submit ?? 'signing.submit_panel_title_ready_for_submit';
+  const titleNotReadyForSubmit =
+    textResourceBindings?.submit_panel_title_not_ready_for_submit ?? 'signing.submit_panel_title_not_ready_for_submit';
+  const descriptionReadyForSubmit =
+    textResourceBindings?.submit_panel_description_ready_for_submit ??
+    'signing.submit_panel_description_ready_for_submit';
+  const descriptionNotSigning =
+    textResourceBindings?.submit_panel_description_not_signing ?? 'signing.submit_panel_description_not_signing';
+  const descriptionSigned =
+    textResourceBindings?.submit_panel_description_signed ?? 'signing.submit_panel_description_signed';
 
   const heading = langAsString(allHaveSigned ? titleReadyForSubmit : titleNotReadyForSubmit);
 
@@ -51,6 +48,7 @@ export function SubmitPanel({
 
   return (
     <SigningPanel
+      node={node}
       variant={currentUserStatus === 'signed' ? 'success' : 'info'}
       heading={heading}
       description={getDescription()}

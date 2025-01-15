@@ -363,6 +363,12 @@ export function en() {
       no_action_required_panel_description_not_signed: 'You do not have access to sign this form.',
       no_action_required_button: 'Go to inbox',
 
+      reject_modal_title: 'Cancel the signing process',
+      reject_modal_description:
+        'By canceling the signing process, all signatures will be deleted, and all delegated access will be revoked.',
+      reject_modal_button: 'Cancel the signing process',
+      reject_modal_trigger_button: 'Cancel signing',
+
       wrong_task_error: 'The {0} component is only available in a signing task.',
       error_missing_signing_rights: 'Something went wrong.Current user should sign, but does not have rights to do so.',
       error_signing: 'Something went wrong when signing. Please try again.',

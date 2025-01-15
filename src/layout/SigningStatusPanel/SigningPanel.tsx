@@ -7,10 +7,14 @@ import { Button } from 'src/app-components/Button/Button';
 import { Panel } from 'src/app-components/Panel/Panel';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
+import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PanelProps } from 'src/app-components/Panel/Panel';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 type SigningPanelProps = {
+  node: BaseLayoutNode<'SigningStatusPanel'>;
   heading: string;
   description?: string;
   variant?: PanelProps['variant'];
@@ -19,6 +23,7 @@ type SigningPanelProps = {
 };
 
 export function SigningPanel({
+  node,
   heading,
   description,
   variant = 'info',
@@ -46,7 +51,7 @@ export function SigningPanel({
         {children}
         <div>
           <div className={classes.buttonContainer}>
-            {canReject && <Reject />}
+            {canReject && <Reject node={node} />}
             {actionButton}
           </div>
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
@@ -56,9 +61,19 @@ export function SigningPanel({
   );
 }
 
-function Reject() {
+type RejectTextProps = {
+  node: BaseLayoutNode<'SigningStatusPanel'>;
+};
+
+function Reject({ node }: RejectTextProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const { next, busy } = useProcessNavigation() ?? {};
+  const { textResourceBindings } = useNodeItem(node);
+
+  const modalTitle = textResourceBindings?.reject_modal_title ?? 'signing.reject_modal_title';
+  const modalDescription = textResourceBindings?.reject_modal_description ?? 'signing.reject_modal_description';
+  const modalButton = textResourceBindings?.reject_modal_button ?? 'signing.reject_modal_button';
+  const modalTriggerButton = textResourceBindings?.reject_modal_trigger_button ?? 'signing.reject_modal_trigger_button';
 
   function handleReject() {
     next?.({ action: 'reject', nodeId: 'reject-button' });
@@ -72,17 +87,18 @@ function Reject() {
           variant='secondary'
           size='md'
         >
-          Avbryt signering
+          <Lang id={modalTriggerButton} />
         </Button>
       </Modal.Trigger>
       <Modal.Dialog ref={modalRef}>
         <Modal.Header>
-          <Heading size='xs'>Avbryt signeringsprosessen</Heading>
+          <Heading size='xs'>
+            <Lang id={modalTitle} />
+          </Heading>
         </Modal.Header>
         <Modal.Content>
           <Paragraph>
-            Ved å avbryte signeringsprosessen vil alle signaturer bli slettet og alle delegerte tilganger trukket
-            tilbake.
+            <Lang id={modalDescription} />
           </Paragraph>
         </Modal.Content>
         <Modal.Footer>
@@ -92,14 +108,14 @@ function Reject() {
             size='md'
             onClick={handleReject}
           >
-            Avbryt signeringsprosessen
+            <Lang id={modalButton} />
           </Button>
           <Button
             variant='secondary'
             size='md'
             onClick={() => modalRef.current?.close()}
           >
-            Lukk
+            <Lang id='general.close' />
           </Button>
         </Modal.Footer>
       </Modal.Dialog>

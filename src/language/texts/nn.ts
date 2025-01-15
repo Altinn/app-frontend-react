@@ -365,6 +365,12 @@ export function nn(): FixedLanguageList {
       no_action_required_panel_description_not_signed: 'Du har ikkje tilgang til å signere dette skjemaet.',
       no_action_required_button: 'Gå til innboksen',
 
+      reject_modal_title: 'Avbryt signeringsprosessen',
+      reject_modal_description:
+        'Ved å avbryte signeringsprosessen blir alle signaturar sletta, og alle delegert tilgang trekt tilbake.',
+      reject_modal_button: 'Avbryt signeringsprosessen',
+      reject_modal_trigger_button: 'Avbryt signering',
+
       wrong_task_error: '{0}-komponenten er berre tilgjengeleg i eit signeringssteg.',
       error_missing_signing_rights:
         'Noko gjekk gale. Den noverande brukaren skal signere, men har ikkje rettar til å gjere det.',
