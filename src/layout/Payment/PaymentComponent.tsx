@@ -9,7 +9,6 @@ import { usePayment } from 'src/features/payment/PaymentProvider';
 import { PaymentStatus } from 'src/features/payment/types';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
-import { SkeletonLoader } from 'src/layout/Payment/SkeletonLoader';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -18,20 +17,10 @@ export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>)
   const { next, busy } = useProcessNavigation() || {};
   const paymentInfo = usePaymentInformation();
 
-  const { performPayment, paymentError } = usePayment();
+  const { performPayment, paymentError, setLoading } = usePayment();
 
-  const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
   const { title, description } = useNodeItem(node, (i) => i.textResourceBindings) ?? {};
-  const actionCalled = useRef(false);
   const nextCalled = useRef(false);
-
-  useEffect(() => {
-    // if no paymentDetails exists, the payment has not been initiated, initiate it by calling the pay action
-    if (paymentDoesNotExist && !actionCalled.current) {
-      actionCalled.current = true;
-      performPayment();
-    }
-  }, [paymentDoesNotExist, performPayment]);
 
   useEffect(() => {
     if (
@@ -44,8 +33,8 @@ export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>)
     }
   }, [paymentInfo, next]);
 
-  if ((busy || paymentDoesNotExist) && !paymentError) {
-    return <SkeletonLoader />;
+  if (busy && !paymentError) {
+    setLoading(true);
   }
 
   return (
