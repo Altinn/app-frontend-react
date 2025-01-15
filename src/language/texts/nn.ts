@@ -347,22 +347,23 @@ export function nn(): FixedLanguageList {
     },
     signing: {
       loading: 'Lastar inn signeringsstatus...',
-      confirm_read_documents: 'Eg stadfestar at informasjonen og dokumenta er riktige.',
-      sign: 'Signer skjemaet',
+      checkbox_label: 'Eg stadfestar at informasjonen og dokumenta er riktige.',
+      awaiting_signature_panel_title: 'Signer skjemaet',
+      sign_button: 'Signer skjemaet',
 
-      submit_panel_title_all_signed: 'Du kan no sende inn skjemaet',
-      submit_panel_title_not_all_signed: 'Vent på signaturar',
-      submit_panel_description_all_signed: 'Alle partar har signert! Vel Send inn for å fullføre.',
+      submit_panel_title_ready_for_submit: 'Du kan no sende inn skjemaet',
+      submit_panel_title_not_ready_for_submit: 'Vent på signaturar',
+      submit_panel_description_ready_for_submit: 'Alle partar har signert! Vel Send inn for å fullføre.',
       submit_panel_description_not_signing: 'Du kan sende inn skjemaet når alle partar har signert.',
       submit_panel_description_signed:
         'Takk for at du signerte! Du kan sende inn skjemaet når alle partar har signert.',
-      submit: 'Send inn skjemaet',
+      submit_button: 'Send inn skjemaet',
 
       go_to_inbox_panel_title_has_signed: 'Du har signert skjemaet',
       go_to_inbox_panel_title_not_signed: 'Ingenting å signere',
       go_to_inbox_panel_description_has_signed: 'Alt i orden! Du kan no gå tilbake til innboksen din.',
       go_to_inbox_panel_description_not_signed: 'Du har ikkje tilgang til å signere dette skjemaet.',
-      go_to_inbox: 'Gå til innboksen',
+      go_to_inbox_button: 'Gå til innboksen',
 
       wrong_task_error: '{0}-komponenten er berre tilgjengeleg i eit signeringssteg.',
       error_missing_signing_rights:

@@ -7,15 +7,31 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
 import type { CurrentUserStatus } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
 
+type SubmitPanelProps = {
+  nodeId: string;
+  allHaveSigned: boolean;
+  currentUserStatus: Exclude<CurrentUserStatus, 'waiting'>;
+  texts: {
+    titleReadyForSubmit?: string;
+    titleNotReadyForSubmit?: string;
+    descriptionReadyForSubmit?: string;
+    descriptionNotSigning?: string;
+    descriptionSigned?: string;
+  };
+};
+
 export function SubmitPanel({
   nodeId,
   allHaveSigned,
   currentUserStatus,
-}: {
-  nodeId: string;
-  allHaveSigned: boolean;
-  currentUserStatus: Exclude<CurrentUserStatus, 'waiting'>;
-}) {
+  texts: {
+    titleReadyForSubmit = 'signing.submit_panel_title_ready_for_submit',
+    titleNotReadyForSubmit = 'signing.submit_panel_title_not_ready_for_submit',
+    descriptionReadyForSubmit = 'signing.submit_panel_description_ready_for_submit',
+    descriptionNotSigning = 'signing.submit_panel_description_not_signing',
+    descriptionSigned = 'signing.submit_panel_description_signed',
+  },
+}: SubmitPanelProps) {
   const { next, busy } = useProcessNavigation() ?? {};
   const { langAsString } = useLanguage();
 
@@ -23,19 +39,15 @@ export function SubmitPanel({
     next?.({ nodeId });
   }
 
-  const heading = langAsString(
-    allHaveSigned ? 'signing.submit_panel_title_all_signed' : 'signing.submit_panel_title_not_all_signed',
-  );
+  const heading = langAsString(allHaveSigned ? titleReadyForSubmit : titleNotReadyForSubmit);
 
-  const getDescription = () => {
+  function getDescription() {
     if (allHaveSigned) {
-      return langAsString('signing.submit_panel_description_all_signed');
+      return langAsString(descriptionReadyForSubmit);
     }
 
-    return currentUserStatus === 'notSigning'
-      ? langAsString('signing.submit_panel_description_not_signing')
-      : langAsString('signing.submit_panel_description_signed');
-  };
+    return langAsString(currentUserStatus === 'notSigning' ? descriptionNotSigning : descriptionSigned);
+  }
 
   return (
     <SigningPanel
@@ -49,7 +61,7 @@ export function SubmitPanel({
           color='success'
           disabled={!allHaveSigned || busy}
         >
-          <Lang id='signing.submit' />
+          <Lang id='signing.submit_button' />
         </Button>
       }
     />

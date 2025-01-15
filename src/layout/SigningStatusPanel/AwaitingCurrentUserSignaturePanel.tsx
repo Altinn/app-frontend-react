@@ -15,13 +15,21 @@ import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css
 import { doPerformAction } from 'src/queries/queries';
 
 type AwaitingCurrentUserSignaturePanelProps = {
-  checkboxLabel?: string;
-  checkboxDescription?: string;
+  texts: {
+    title?: string;
+    checkboxLabel?: string;
+    checkboxDescription?: string;
+    signingButtonText?: string;
+  };
 };
 
 export function AwaitingCurrentUserSignaturePanel({
-  checkboxLabel = 'signing.confirm_read_documents',
-  checkboxDescription,
+  texts: {
+    title = 'signing.awaiting_signature_panel_title',
+    checkboxLabel = 'signing.checkbox_label',
+    checkboxDescription,
+    signingButtonText = 'signing.sign_button',
+  },
 }: AwaitingCurrentUserSignaturePanelProps) {
   const { partyId, instanceGuid } = useParams();
   const isAuthorised = useIsAuthorised();
@@ -50,7 +58,7 @@ export function AwaitingCurrentUserSignaturePanel({
   return (
     <SigningPanel
       variant='info'
-      heading={langAsString('signing.sign')}
+      heading={langAsString(title)}
       actionButton={
         <Button
           onClick={() => handleSign()}
@@ -58,7 +66,7 @@ export function AwaitingCurrentUserSignaturePanel({
           size='md'
           color='success'
         >
-          <Lang id='signing.sign' />
+          <Lang id={signingButtonText} />
         </Button>
       }
       description={checkboxDescription}

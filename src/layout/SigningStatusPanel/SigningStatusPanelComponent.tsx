@@ -54,8 +54,12 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   if (currentUserStatus === 'awaitingSignature') {
     return (
       <AwaitingCurrentUserSignaturePanel
-        checkboxLabel={textResourceBindings?.checkbox_label}
-        checkboxDescription={textResourceBindings?.checkbox_description}
+        texts={{
+          checkboxLabel: textResourceBindings?.checkbox_label,
+          checkboxDescription: textResourceBindings?.checkbox_description,
+          title: textResourceBindings?.awaiting_signature_panel_title,
+          signingButtonText: textResourceBindings?.sign_button,
+        }}
       />
     );
   }
@@ -66,11 +70,29 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
         nodeId={node.id}
         allHaveSigned={allHaveSigned}
         currentUserStatus={currentUserStatus}
+        texts={{
+          titleReadyForSubmit: textResourceBindings?.submit_panel_title_ready_for_submit,
+          titleNotReadyForSubmit: textResourceBindings?.submit_panel_title_not_ready_for_submit,
+          descriptionReadyForSubmit: textResourceBindings?.submit_panel_description_ready_for_submit,
+          descriptionNotSigning: textResourceBindings?.submit_panel_description_not_signing,
+          descriptionSigned: textResourceBindings?.submit_panel_description_signed,
+        }}
       />
     );
   }
 
-  return <GoToInboxPanel currentUserStatus={currentUserStatus} />;
+  return (
+    <GoToInboxPanel
+      currentUserStatus={currentUserStatus}
+      texts={{
+        titleHasSigned: textResourceBindings?.submit_panel_title_ready_for_submit,
+        titleNotSigned: textResourceBindings?.submit_panel_title_not_ready_for_submit,
+        descriptionHasSigned: textResourceBindings?.submit_panel_description_ready_for_submit,
+        descriptionNotSigned: textResourceBindings?.submit_panel_description_not_signing,
+        goToInboxButton: textResourceBindings?.submit_panel_description_signed,
+      }}
+    />
+  );
 }
 
 export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';
