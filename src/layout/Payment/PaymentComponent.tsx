@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 
 import { Alert, Button } from '@digdir/designsystemet-react';
 
@@ -16,22 +16,8 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>) => {
   const { next, busy } = useProcessNavigation() || {};
   const paymentInfo = usePaymentInformation();
-
   const { performPayment, paymentError, setLoading } = usePayment();
-
   const { title, description } = useNodeItem(node, (i) => i.textResourceBindings) ?? {};
-  const nextCalled = useRef(false);
-
-  useEffect(() => {
-    if (
-      (paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped) &&
-      next &&
-      !nextCalled.current
-    ) {
-      nextCalled.current = true;
-      next({ action: 'confirm', nodeId: 'next-button' });
-    }
-  }, [paymentInfo, next]);
 
   if (busy && !paymentError) {
     setLoading(true);
