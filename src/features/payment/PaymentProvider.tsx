@@ -4,7 +4,6 @@ import type { ReactNode } from 'react';
 import type { AxiosError } from 'axios';
 
 import { Loader } from 'src/core/loading/Loader';
-import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { PaymentStatus } from 'src/features/payment/types';
 import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
@@ -28,7 +27,6 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
   const partyId = useNavigationParam('partyId');
   const instanceGuid = useNavigationParam('instanceGuid');
   const paymentInfo = usePaymentInformation();
-  const { next, busy } = useProcessNavigation() || {};
   const { mutate, error } = usePerformPayActionMutation(partyId, instanceGuid);
 
   const contextValue: PaymentContextProps = {
@@ -44,31 +42,11 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
   const isPaymentProcess = useIsPayment();
   const actionCalled = useRef(false);
 
-  // if PaymentStatus is Ininitialized, initiate it by calling the pay action and go to payment provider
   if (isPaymentProcess && paymentDoesNotExist && !actionCalled.current) {
     actionCalled.current = true;
     setLoading(true);
     mutate();
   }
-
-  const paymentCompleted = paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped;
-  const nextCalled = useRef(false);
-
-  if (paymentCompleted && next && !busy && !nextCalled.current) {
-    nextCalled.current = true;
-    setLoading(true);
-    setTimeout(() => {
-      next({ action: 'confirm', nodeId: 'next-button' });
-    }, 1);
-  }
-
-  // const nextCalled = useRef(false);
-
-  // if ((paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped) && next) {
-  //   nextCalled.current = true;
-  //   setLoading(true);
-  //   next({ action: 'confirm', nodeId: 'next-button' });
-  // }
 
   if (loading) {
     return <Loader reason='Navigating to external payment solution' />;

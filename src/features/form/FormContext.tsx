@@ -56,19 +56,19 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                     <ValidationProvider>
                       <NodesProvider>
                         <NavigateToNodeProvider>
-                          <OrderDetailsProvider>
-                            {hasProcess ? (
-                              <ProcessNavigationProvider>
-                                <PaymentInformationProvider>
-                                  <PaymentProvider>
+                          <PaymentInformationProvider>
+                            <PaymentProvider>
+                              <OrderDetailsProvider>
+                                {hasProcess ? (
+                                  <ProcessNavigationProvider>
                                     <Provider value={undefined}>{children}</Provider>
-                                  </PaymentProvider>
-                                </PaymentInformationProvider>
-                              </ProcessNavigationProvider>
-                            ) : (
-                              <Provider value={undefined}>{children}</Provider>
-                            )}
-                          </OrderDetailsProvider>
+                                  </ProcessNavigationProvider>
+                                ) : (
+                                  <Provider value={undefined}>{children}</Provider>
+                                )}
+                              </OrderDetailsProvider>
+                            </PaymentProvider>
+                          </PaymentInformationProvider>
                         </NavigateToNodeProvider>
                       </NodesProvider>
                     </ValidationProvider>
