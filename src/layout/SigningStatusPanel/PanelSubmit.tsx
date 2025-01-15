@@ -4,7 +4,7 @@ import { Button } from 'src/app-components/Button/Button';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
+import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CurrentUserStatus } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
 import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';

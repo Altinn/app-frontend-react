@@ -10,7 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
-import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
+import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { doPerformAction } from 'src/queries/queries';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';

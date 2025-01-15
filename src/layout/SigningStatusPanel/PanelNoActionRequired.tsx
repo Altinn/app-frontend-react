@@ -6,7 +6,7 @@ import { Link } from '@digdir/designsystemet-react';
 import { Button } from 'src/app-components/Button/Button';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { SigningPanel } from 'src/layout/SigningStatusPanel/SigningPanel';
+import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { returnUrlToMessageBox } from 'src/utils/urls/urlHelper';

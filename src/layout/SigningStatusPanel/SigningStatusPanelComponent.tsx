@@ -9,10 +9,10 @@ import { useIsAuthorised, useTaskTypeFromBackend } from 'src/features/instance/P
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
-import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/AwaitingCurrentUserSignaturePanel';
-import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/NoActionRequiredPanel';
+import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
+import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/PanelNoActionRequired';
+import { SubmitPanel } from 'src/layout/SigningStatusPanel/PanelSubmit';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
-import { SubmitPanel } from 'src/layout/SigningStatusPanel/SubmitPanel';
 import { ProcessTaskType } from 'src/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SigneeState } from 'src/layout/SigneeList/api';
