@@ -44,48 +44,6 @@ export const Config = new CG.component({
       description: 'The text to display in the button that the user clicks in order to sign',
     }),
   )
-  .addTextResource(
-    new CG.trb({
-      name: 'submit_panel_title_ready_for_submit',
-      title: 'Ready for submit title',
-      description: 'The title for the panel when the signing task is ready for submit',
-    }),
-  )
-  .addTextResource(
-    new CG.trb({
-      name: 'submit_panel_title_not_ready_for_submit',
-      title: 'Not ready for submit title',
-      description: 'The title for the panel when the signing task is not ready for submit',
-    }),
-  )
-  .addTextResource(
-    new CG.trb({
-      name: 'submit_panel_description_ready_for_submit',
-      title: 'Ready for submit description',
-      description: 'The description for the panel when the signing task is ready for submit',
-    }),
-  )
-  .addTextResource(
-    new CG.trb({
-      name: 'submit_panel_description_not_signing',
-      title: 'Not signing description',
-      description: 'The description for the panel when the user does not have signing rights',
-    }),
-  )
-  .addTextResource(
-    new CG.trb({
-      name: 'submit_panel_description_signed',
-      title: 'Signed description',
-      description: 'The description for the panel when the user has signed',
-    }),
-  )
-  .addTextResource(
-    new CG.trb({
-      name: 'submit_button',
-      title: 'Submit button',
-      description: 'The text to display in the button that the user clicks in order to submit the signing task',
-    }),
-  )
 
   .addTextResource(
     new CG.trb({
@@ -127,6 +85,51 @@ export const Config = new CG.component({
         'The text to display in the button that the user clicks in order to go to the inbox and no further action is required',
     }),
   )
+
+  .addTextResource(
+    new CG.trb({
+      name: 'awaiting_other_signatures_panel_title',
+      title: 'Not ready for submit title',
+      description: 'The title for the panel when the signing task is not ready for submit',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'awaiting_other_signatures_panel_description_not_signing',
+      title: 'Awaiting other signatures description not signing',
+      description: 'The description for the panel when the current user is not signing',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'awaiting_other_signatures_panel_description_signed',
+      title: 'Signed description',
+      description: 'The description for the panel when the current user has signed',
+    }),
+  )
+
+  .addTextResource(
+    new CG.trb({
+      name: 'submit_panel_title',
+      title: 'Ready for submit title',
+      description: 'The title for the panel when the signing task is ready for submit',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'submit_panel_description',
+      title: 'Ready for submit description',
+      description: 'The description for the panel when the signing task is ready for submit',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'submit_button',
+      title: 'Submit button',
+      description: 'The text to display in the button that the user clicks in order to submit the signing task',
+    }),
+  )
+
   .addTextResource(
     new CG.trb({
       name: 'reject_modal_title',

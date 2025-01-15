@@ -351,11 +351,11 @@ export function nn(): FixedLanguageList {
       awaiting_signature_panel_title: 'Signer skjemaet',
       sign_button: 'Signer skjemaet',
 
-      submit_panel_title_ready_for_submit: 'Du kan no sende inn skjemaet',
-      submit_panel_title_not_ready_for_submit: 'Vent på signaturar',
-      submit_panel_description_ready_for_submit: 'Alle partar har signert! Vel Send inn for å fullføre.',
-      submit_panel_description_not_signing: 'Du kan sende inn skjemaet når alle partar har signert.',
-      submit_panel_description_signed:
+      submit_panel_title: 'Du kan no sende inn skjemaet',
+      awaiting_other_signatures_panel_title: 'Vent på signaturar',
+      submit_panel_description: 'Alle partar har signert! Vel Send inn for å fullføre.',
+      awaiting_other_signatures_panel_description_not_signing: 'Du kan sende inn skjemaet når alle partar har signert.',
+      awaiting_other_signatures_panel_description_signed:
         'Takk for at du signerte! Du kan sende inn skjemaet når alle partar har signert.',
       submit_button: 'Send inn skjemaet',
 

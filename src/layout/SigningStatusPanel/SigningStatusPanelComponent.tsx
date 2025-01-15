@@ -10,6 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
+import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningStatusPanel/PanelAwaitingOtherSignatures';
 import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/PanelNoActionRequired';
 import { SubmitPanel } from 'src/layout/SigningStatusPanel/PanelSubmit';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
@@ -47,28 +48,28 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     );
   }
 
-  const allHaveSigned = signeeList?.every((signee) => signee.hasSigned) ?? false;
-
   if (currentUserStatus === 'awaitingSignature') {
     return <AwaitingCurrentUserSignaturePanel node={node} />;
   }
 
-  if (canWrite) {
+  if (!canWrite) {
+    <NoActionRequiredPanel
+      node={node}
+      currentUserStatus={currentUserStatus}
+    />;
+  }
+
+  const allHaveSigned = signeeList?.every((signee) => signee.hasSigned) ?? false;
+  if (allHaveSigned) {
     return (
-      <SubmitPanel
+      <AwaitingOtherSignaturesPanel
         node={node}
-        allHaveSigned={allHaveSigned}
         currentUserStatus={currentUserStatus}
       />
     );
   }
 
-  return (
-    <NoActionRequiredPanel
-      node={node}
-      currentUserStatus={currentUserStatus}
-    />
-  );
+  return <SubmitPanel node={node} />;
 }
 
 export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';

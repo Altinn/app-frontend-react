@@ -350,12 +350,14 @@ export function en() {
       awaiting_signature_panel_title: 'Sign the form',
       sign_button: 'Sign the form',
 
-      submit_panel_title_ready_for_submit: 'You can now submit the form',
-      submit_panel_title_not_ready_for_submit: 'Waiting for signatures',
-      submit_panel_description_ready_for_submit: 'All parties have signed! Select Submit to complete.',
-      submit_panel_description_not_signing: 'You can submit the form when all parties have signed.',
-      submit_panel_description_signed: 'Thank you for signing! You can submit the form when all parties have signed.',
+      submit_panel_title: 'You can now submit the form',
+      submit_panel_description: 'All parties have signed! Select Submit to complete.',
       submit_button: 'Submit form',
+
+      awaiting_other_signatures_panel_title: 'Waiting for signatures',
+      awaiting_other_signatures_panel_description_not_signing: 'You can submit the form when all parties have signed.',
+      awaiting_other_signatures_panel_description_signed:
+        'Thank you for signing! You can submit the form when all parties have signed.',
 
       no_action_required_panel_title_has_signed: 'You have signed the form',
       no_action_required_panel_title_not_signed: 'Nothing to sign',

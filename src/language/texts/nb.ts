@@ -350,11 +350,12 @@ export function nb(): FixedLanguageList {
       checkbox_label: 'Jeg bekrefter at informasjonen og dokumentene er korrekte.',
       sign_button: 'Signer skjemaet',
 
-      submit_panel_title_ready_for_submit: 'Du kan nå sende inn skjemaet',
-      submit_panel_title_not_ready_for_submit: 'Venter på signaturer',
-      submit_panel_description_ready_for_submit: 'Alle parter har signert! Velg Send inn for å fullføre.',
-      submit_panel_description_not_signing: 'Du kan sende inn skjemaet når alle parter har signert.',
-      submit_panel_description_signed:
+      submit_panel_title: 'Du kan nå sende inn skjemaet',
+      submit_panel_description: 'Alle parter har signert! Velg Send inn for å fullføre.',
+
+      awaiting_other_signatures_panel_title: 'Venter på signaturer',
+      awaiting_other_signatures_panel_description_not_signing: 'Du kan sende inn skjemaet når alle parter har signert.',
+      awaiting_other_signatures_panel_description_signed:
         'Takk for at du signerte! Du kan sende inn skjemaet når alle parter har signert.',
       submit_button: 'Send inn skjemaet',
 
