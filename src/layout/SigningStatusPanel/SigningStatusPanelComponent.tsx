@@ -53,10 +53,12 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   }
 
   if (!canWrite) {
-    <NoActionRequiredPanel
-      node={node}
-      currentUserStatus={currentUserStatus}
-    />;
+    return (
+      <NoActionRequiredPanel
+        node={node}
+        currentUserStatus={currentUserStatus}
+      />
+    );
   }
 
   const allHaveSigned = signeeList?.every((signee) => signee.hasSigned) ?? false;
