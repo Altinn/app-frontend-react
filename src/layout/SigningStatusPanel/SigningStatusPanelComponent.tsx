@@ -10,7 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/AwaitingCurrentUserSignaturePanel';
-import { GoToInboxPanel } from 'src/layout/SigningStatusPanel/GoToInboxPanel';
+import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/NoActionRequiredPanel';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { SubmitPanel } from 'src/layout/SigningStatusPanel/SubmitPanel';
 import { ProcessTaskType } from 'src/types';
@@ -82,7 +82,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   }
 
   return (
-    <GoToInboxPanel
+    <NoActionRequiredPanel
       currentUserStatus={currentUserStatus}
       texts={{
         titleHasSigned: textResourceBindings?.submit_panel_title_ready_for_submit,

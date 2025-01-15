@@ -358,11 +358,11 @@ export function nb(): FixedLanguageList {
         'Takk for at du signerte! Du kan sende inn skjemaet når alle parter har signert.',
       submit_button: 'Send inn skjemaet',
 
-      go_to_inbox_panel_title_has_signed: 'Du har signert skjemaet',
-      go_to_inbox_panel_title_not_signed: 'Ingenting å signere',
-      go_to_inbox_panel_description_has_signed: 'Alt i orden! Du kan nå gå tilbake til innboksen.',
-      go_to_inbox_panel_description_not_signed: 'Du har ikke tilgang til å signere dette skjemaet.',
-      go_to_inbox_button: 'Gå til innboksen',
+      no_action_required_panel_title_has_signed: 'Du har signert skjemaet',
+      no_action_required_panel_title_not_signed: 'Ingenting å signere',
+      no_action_required_panel_description_has_signed: 'Alt i orden! Du kan nå gå tilbake til innboksen.',
+      no_action_required_panel_description_not_signed: 'Du har ikke tilgang til å signere dette skjemaet.',
+      no_action_required_button: 'Gå til innboksen',
 
       loading: 'Laster inn signeringsstatus...',
       wrong_task_error: '{0}-komponenten er kun tilgjengelig i et signeringssteg.',

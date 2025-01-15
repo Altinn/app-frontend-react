@@ -89,7 +89,7 @@ export const Config = new CG.component({
 
   .addTextResource(
     new CG.trb({
-      name: 'go_to_inbox_panel_title_has_signed',
+      name: 'no_action_required_panel_title_has_signed',
       title: 'Go to inbox panel title signed',
       description:
         'The title of the panel that is displayed when the user has signed and no further action is required',
@@ -97,7 +97,7 @@ export const Config = new CG.component({
   )
   .addTextResource(
     new CG.trb({
-      name: 'go_to_inbox_panel_title_not_signed',
+      name: 'no_action_required_panel_title_not_signed',
       title: 'Go to inbox panel title not signed',
       description:
         'The title of the panel that is displayed when the user has not signed and no further action is required',
@@ -105,7 +105,7 @@ export const Config = new CG.component({
   )
   .addTextResource(
     new CG.trb({
-      name: 'go_to_inbox_panel_description_has_signed',
+      name: 'no_action_required_panel_description_has_signed',
       title: 'Go to inbox panel description signed',
       description:
         'The description of the panel that is displayed when the user has signed and no further action is required',
@@ -113,7 +113,7 @@ export const Config = new CG.component({
   )
   .addTextResource(
     new CG.trb({
-      name: 'go_to_inbox_panel_description_not_signed',
+      name: 'no_action_required_panel_description_not_signed',
       title: 'Go to inbox panel description not signed',
       description:
         'The description of the panel that is displayed when the user has not signed and no further action is required',
@@ -121,7 +121,7 @@ export const Config = new CG.component({
   )
   .addTextResource(
     new CG.trb({
-      name: 'go_to_inbox_button',
+      name: 'no_action_required_button',
       title: 'Go to inbox button',
       description:
         'The text to display in the button that the user clicks in order to go to the inbox and no further action is required',

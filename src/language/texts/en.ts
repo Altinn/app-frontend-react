@@ -357,11 +357,11 @@ export function en() {
       submit_panel_description_signed: 'Thank you for signing! You can submit the form when all parties have signed.',
       submit_button: 'Submit form',
 
-      go_to_inbox_panel_title_has_signed: 'You have signed the form',
-      go_to_inbox_panel_title_not_signed: 'Nothing to sign',
-      go_to_inbox_panel_description_has_signed: "You're all set! You can now go back to your inbox.",
-      go_to_inbox_panel_description_not_signed: 'You do not have access to sign this form.',
-      go_to_inbox_button: 'Go to inbox',
+      no_action_required_panel_title_has_signed: 'You have signed the form',
+      no_action_required_panel_title_not_signed: 'Nothing to sign',
+      no_action_required_panel_description_has_signed: "You're all set! You can now go back to your inbox.",
+      no_action_required_panel_description_not_signed: 'You do not have access to sign this form.',
+      no_action_required_button: 'Go to inbox',
 
       wrong_task_error: 'The {0} component is only available in a signing task.',
       error_missing_signing_rights: 'Something went wrong.Current user should sign, but does not have rights to do so.',

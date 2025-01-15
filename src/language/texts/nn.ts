@@ -359,11 +359,11 @@ export function nn(): FixedLanguageList {
         'Takk for at du signerte! Du kan sende inn skjemaet når alle partar har signert.',
       submit_button: 'Send inn skjemaet',
 
-      go_to_inbox_panel_title_has_signed: 'Du har signert skjemaet',
-      go_to_inbox_panel_title_not_signed: 'Ingenting å signere',
-      go_to_inbox_panel_description_has_signed: 'Alt i orden! Du kan no gå tilbake til innboksen din.',
-      go_to_inbox_panel_description_not_signed: 'Du har ikkje tilgang til å signere dette skjemaet.',
-      go_to_inbox_button: 'Gå til innboksen',
+      no_action_required_panel_title_has_signed: 'Du har signert skjemaet',
+      no_action_required_panel_title_not_signed: 'Ingenting å signere',
+      no_action_required_panel_description_has_signed: 'Alt i orden! Du kan no gå tilbake til innboksen din.',
+      no_action_required_panel_description_not_signed: 'Du har ikkje tilgang til å signere dette skjemaet.',
+      no_action_required_button: 'Gå til innboksen',
 
       wrong_task_error: '{0}-komponenten er berre tilgjengeleg i eit signeringssteg.',
       error_missing_signing_rights:
