@@ -60,9 +60,7 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
     if (paymentCompleted && next && !busy && !nextCalled.current) {
       nextCalled.current = true;
       setLoading(true);
-      setTimeout(() => {
-        next({ action: 'confirm', nodeId: 'next-button' });
-      }, 1);
+      next({ action: 'confirm', nodeId: 'next-button' });
     }
   }, [paymentCompleted, next, busy]);
 

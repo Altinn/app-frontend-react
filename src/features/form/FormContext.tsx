@@ -13,7 +13,6 @@ import { useHasProcessProvider } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { OrderDetailsProvider } from 'src/features/payment/OrderDetailsProvider';
 import { PaymentInformationProvider } from 'src/features/payment/PaymentInformationProvider';
-import { PaymentProvider } from 'src/features/payment/PaymentProvider';
 import { ValidationProvider } from 'src/features/validation/validationContext';
 import { FormPrefetcher } from 'src/queries/formPrefetcher';
 import { StaticOptionPrefetcher } from 'src/queries/staticOptionsPrefetcher';
@@ -56,19 +55,17 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                     <ValidationProvider>
                       <NodesProvider>
                         <NavigateToNodeProvider>
-                          <OrderDetailsProvider>
-                            {hasProcess ? (
-                              <ProcessNavigationProvider>
-                                <PaymentInformationProvider>
-                                  <PaymentProvider>
-                                    <Provider value={undefined}>{children}</Provider>
-                                  </PaymentProvider>
-                                </PaymentInformationProvider>
-                              </ProcessNavigationProvider>
-                            ) : (
-                              <Provider value={undefined}>{children}</Provider>
-                            )}
-                          </OrderDetailsProvider>
+                          <PaymentInformationProvider>
+                            <OrderDetailsProvider>
+                              {hasProcess ? (
+                                <ProcessNavigationProvider>
+                                  <Provider value={undefined}>{children}</Provider>
+                                </ProcessNavigationProvider>
+                              ) : (
+                                <Provider value={undefined}>{children}</Provider>
+                              )}
+                            </OrderDetailsProvider>
+                          </PaymentInformationProvider>
                         </NavigateToNodeProvider>
                       </NodesProvider>
                     </ValidationProvider>
