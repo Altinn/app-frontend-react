@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 
-import { DropdownMenu } from '@digdir/designsystemet-react';
+import { DropdownMenu, Spinner } from '@digdir/designsystemet-react';
 import { CheckmarkIcon, ChevronDownIcon, GlobeIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
-import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import classes from 'src/components/presentation/LanguageSelector.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage, useSetCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useGetAppLanguageQuery } from 'src/features/language/textResources/useGetAppLanguagesQuery';
+import { useLanguage } from 'src/features/language/useLanguage';
 
 export const LanguageSelector = () => {
   const currentLanguage = useCurrentLanguage();
   const { setWithLanguageSelector } = useSetCurrentLanguage();
+  const { langAsString } = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -77,5 +78,11 @@ export const LanguageSelector = () => {
     );
   }
 
-  return <AltinnSpinner />;
+  return (
+    <Spinner
+      style={{ marginRight: 8 }}
+      size='sm'
+      title={langAsString('general.loading')}
+    />
+  );
 };

@@ -25,7 +25,7 @@ export function AltinnAppHeaderMenu({ party, userParty, logoColor }: IAltinnAppH
   const [isOpen, setIsOpen] = useState(false);
 
   if (!party) {
-    return null;
+    return <div style={{ height: 40 }} />;
   }
 
   return (

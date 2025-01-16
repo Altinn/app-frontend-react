@@ -64,7 +64,10 @@ export const PresentationComponent = ({
           />
           {showNavAndSidebar && <NavBar />}
           {showNavAndSidebar && <SideBarNavigation />}
-          <main className={classes.page}>
+          <main
+            className={classes.page}
+            style={!showNavAndSidebar ? { marginTop: 54 } : undefined}
+          >
             {isProcessStepsArchived && instanceStatus?.substatus && (
               <AltinnSubstatusPaper
                 label={<Lang id={instanceStatus.substatus.label} />}
