@@ -9,7 +9,7 @@ import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
 import { Lang } from 'src/features/language/Lang';
 import { renderParty } from 'src/utils/party';
-import { returnUrlToAllSchemas, returnUrlToMessagebox, returnUrlToProfile } from 'src/utils/urls/urlHelper';
+import { returnUrlToAllForms, returnUrlToMessagebox, returnUrlToProfile } from 'src/utils/urls/urlHelper';
 import type { IProfile } from 'src/types/shared';
 
 export interface IHeaderProps {
@@ -44,7 +44,7 @@ export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
             <li className={classes.headerLink}>
               <a
                 className='altinnLink'
-                href={returnUrlToMessagebox(window.location.origin, party?.partyId) || '#'}
+                href={returnUrlToMessagebox(window.location.host, party?.partyId)}
               >
                 <Lang id='instantiate.inbox' />
               </a>
@@ -52,7 +52,7 @@ export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
             <li className={classes.headerLink}>
               <a
                 className='altinnLink'
-                href={returnUrlToAllSchemas(window.location.origin) || '#'}
+                href={returnUrlToAllForms(window.location.host)}
               >
                 <Lang id='instantiate.all_forms' />
               </a>
@@ -60,7 +60,7 @@ export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
             <li className={classes.headerLink}>
               <a
                 className='altinnLink'
-                href={returnUrlToProfile(window.location.origin, party?.partyId) || '#'}
+                href={returnUrlToProfile(window.location.host, party?.partyId)}
               >
                 <Lang id='instantiate.profile' />
               </a>

@@ -52,28 +52,26 @@ export const LanguageSelector = () => {
           />
         </DropdownMenu.Trigger>
         <DropdownMenu.Content role='menu'>
-          <DropdownMenu.Group heading={<Lang id='language.language_selection' />}>
-            {appLanguages?.map((lang) => {
-              const selected = currentLanguage === lang;
+          {appLanguages?.map((lang) => {
+            const selected = currentLanguage === lang;
 
-              return (
-                <DropdownMenu.Item
-                  role='menuitemradio'
-                  aria-checked={selected}
-                  key={lang}
-                  className={cn({ [classes.listButtonActive]: selected })}
-                  onClick={() => updateLanguage(lang)}
-                >
-                  <CheckmarkIcon
-                    style={{ opacity: selected ? 1 : 0 }}
-                    className={classes.checkmarkIcon}
-                    aria-hidden
-                  />
-                  <Lang id={`language.full_name.${lang}`} />
-                </DropdownMenu.Item>
-              );
-            })}
-          </DropdownMenu.Group>
+            return (
+              <DropdownMenu.Item
+                role='menuitemradio'
+                aria-checked={selected}
+                key={lang}
+                className={classes.listButton}
+                onClick={() => updateLanguage(lang)}
+              >
+                <CheckmarkIcon
+                  style={{ opacity: selected ? 1 : 0 }}
+                  className={classes.checkmarkIcon}
+                  aria-hidden
+                />
+                <Lang id={`language.full_name.${lang}`} />
+              </DropdownMenu.Item>
+            );
+          })}
         </DropdownMenu.Content>
       </DropdownMenu>
     );

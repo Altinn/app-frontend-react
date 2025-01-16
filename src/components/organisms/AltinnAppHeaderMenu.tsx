@@ -62,7 +62,7 @@ export function AltinnAppHeaderMenu({ party, userParty, logoColor }: IAltinnAppH
       <DropdownMenu.Content>
         <DropdownMenu.Group heading={isMobile ? renderPartyName(party, userParty) : undefined}>
           <DropdownMenu.Item asChild>
-            <a href={logoutUrlAltinn(window.location.origin)}>
+            <a href={logoutUrlAltinn(window.location.host)}>
               <Lang id='general.log_out' />
             </a>
           </DropdownMenu.Item>

@@ -131,6 +131,9 @@ export function nb(): FixedLanguageList {
       form_pages: 'Skjemasider',
       back_to_inbox: 'Tilbake til innboks',
       inbox: 'Innboks',
+      back_to_main_form: 'Tilbake til hovedskjema',
+      main_form: 'Hovedskjema',
+      back: 'Tilbake',
     },
     general: {
       action: 'Handling',

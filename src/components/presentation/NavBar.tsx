@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { BackToInboxButton } from 'src/components/presentation/BackToInboxButton';
+import { BackNavigationButton } from 'src/components/presentation/BackNavigationButton';
 import { ExpandWidthButton } from 'src/components/presentation/ExpandWidthButton';
 import classes from 'src/components/presentation/NavBar.module.css';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
@@ -16,7 +16,7 @@ export const NavBar = () => {
       className={classes.nav}
       aria-label={langAsString('navigation.main')}
     >
-      <div>{!hideCloseButton && <BackToInboxButton className={classes.buttonMargin} />}</div>
+      <div>{!hideCloseButton && <BackNavigationButton className={classes.buttonMargin} />}</div>
       <div className={classes.wrapper}>
         {showExpandWidthButton && <ExpandWidthButton className={classes.buttonMargin} />}
         <PopoverNavigation className={classes.buttonMargin} />

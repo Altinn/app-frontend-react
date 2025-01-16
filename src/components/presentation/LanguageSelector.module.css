@@ -8,8 +8,7 @@
   color: var(--fds-semantic-text-action-first-active);
 }
 
-.list-button-active > button {
-  background-color: var(--fds-semantic-surface-action-first-no_fill-active);
+.list-button > button {
   color: var(--fds-semantic-text-action-first-active);
 }
 

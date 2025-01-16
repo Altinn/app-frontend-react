@@ -142,6 +142,7 @@ const defaultQueryMocks: AppQueries = {
   fetchLayoutSets: async () => getLayoutSetsMock(),
   fetchOrgs: async () => ({ orgs: getOrgsMock() }),
   fetchUserProfile: async () => getProfileMock(),
+  fetchReturnUrl: async () => Promise.reject(),
   fetchDataModelSchema: async () => ({}),
   fetchParties: async () => [getPartyMock()],
   fetchRefreshJwtToken: async () => ({}),
