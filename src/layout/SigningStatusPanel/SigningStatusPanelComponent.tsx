@@ -63,15 +63,15 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
 
   const allHaveSigned = signeeList?.every((signee) => signee.hasSigned) ?? false;
   if (allHaveSigned) {
-    return (
-      <AwaitingOtherSignaturesPanel
-        node={node}
-        currentUserStatus={currentUserStatus}
-      />
-    );
+    return <SubmitPanel node={node} />;
   }
 
-  return <SubmitPanel node={node} />;
+  return (
+    <AwaitingOtherSignaturesPanel
+      node={node}
+      currentUserStatus={currentUserStatus}
+    />
+  );
 }
 
 export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';
