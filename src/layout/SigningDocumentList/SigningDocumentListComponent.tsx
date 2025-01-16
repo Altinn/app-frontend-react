@@ -7,7 +7,6 @@ import { useQuery } from '@tanstack/react-query';
 
 import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -22,7 +21,6 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export function SigningDocumentListComponent({ node }: PropsFromGenericComponent<'SigningDocumentList'>) {
   const { partyId, instanceGuid } = useParams();
   const { textResourceBindings } = useNodeItem(node);
-  const isDataModelDataElement = useIsDataModelDataElement();
   const taskType = useTaskTypeFromBackend();
   const { langAsString } = useLanguage();
 
@@ -30,7 +28,6 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
     queryKey: ['signingDocumentList', partyId, instanceGuid],
     queryFn: () => fetchDocumentList(partyId!, instanceGuid!),
     staleTime: 1000 * 60 * 30, // 30 minutes
-    select: (data) => data.filter((it) => !isDataModelDataElement(it.dataType)),
   });
 
   if (taskType !== ProcessTaskType.Signing) {
@@ -98,12 +95,4 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
       ]}
     />
   );
-}
-
-function useIsDataModelDataElement() {
-  const { dataTypes } = useApplicationMetadata();
-
-  const dataModelsFromMetadata = dataTypes.filter((it) => it.appLogic?.classRef);
-
-  return (dataElementId: string) => dataModelsFromMetadata.some((it) => it.id === dataElementId);
 }
