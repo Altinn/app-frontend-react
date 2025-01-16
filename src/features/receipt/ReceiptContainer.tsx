@@ -233,7 +233,7 @@ export const ReceiptContainer = () => {
           collapsibleTitle={<Lang id='receipt.attachments' />}
           instanceMetaDataObject={instanceMetaObject}
           subtitle={<Lang id='receipt.subtitle' />}
-          subtitleurl={returnUrlToArchive(window.location.host) ?? undefined}
+          subtitleurl={returnUrlToArchive(window.location.host)}
           title={<Lang id='receipt.title' />}
           titleSubmitted={<Lang id='receipt.title_submitted' />}
           pdf={pdf}
