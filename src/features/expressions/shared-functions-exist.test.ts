@@ -9,7 +9,7 @@ describe('Shared function tests should exist', () => {
   describe('DisplayValue tests', () => {
     for (const [type, config] of Object.entries(getComponentConfigs())) {
       if (implementsDisplayData(config.def)) {
-        it(`Component '${type}' should hava e matching test in functions/displayValue/type-${type}.json`, () => {
+        it(`Component '${type}' should hava a matching test in functions/displayValue/type-${type}.json`, () => {
           expect(
             sharedTests?.content
               .find(({ folderName }) => folderName === 'displayValue')
