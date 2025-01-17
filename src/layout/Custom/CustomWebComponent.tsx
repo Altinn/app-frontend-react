@@ -15,7 +15,10 @@ export type ICustomComponentProps = PropsFromGenericComponent<'Custom'> & {
   summaryMode?: boolean;
 };
 
-export type IPassedOnProps = Omit<PropsFromGenericComponent<'Custom'>, 'node' | 'componentValidations'> &
+export type IPassedOnProps = Omit<
+  PropsFromGenericComponent<'Custom'>,
+  'node' | 'componentValidations' | 'containerDivRef'
+> &
   Omit<CompInternal<'Custom'>, 'tagName' | 'textResourceBindings'> & {
     [key: string]: string | number | boolean | object | null | undefined;
     text: string | undefined;
@@ -31,8 +34,11 @@ export function CustomWebComponent({
   const langTools = useLanguage();
   const { language, langAsString } = langTools;
   const { tagName, textResourceBindings, dataModelBindings, ...passThroughPropsFromNode } = useNodeItem(node);
+
+  const { containerDivRef: _unused, ...restFromGeneric } = passThroughPropsFromGenericComponent;
+
   const passThroughProps: IPassedOnProps = {
-    ...passThroughPropsFromGenericComponent,
+    ...restFromGeneric,
     ...passThroughPropsFromNode,
     text: langAsString(textResourceBindings?.title),
     getTextResourceAsString: (textResource: string) => langAsString(textResource),
@@ -56,6 +62,7 @@ export function CustomWebComponent({
         }
         if (field) {
           setValue(field, value);
+          return;
         }
         setValue('simpleBinding', value);
       };
