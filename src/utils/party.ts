@@ -1,10 +1,13 @@
 import type { IInstance, IInstanceOwner, IParty, IProfile } from 'src/types/shared';
 
-export function renderPartyName(party: IParty) {
-  if (!party) {
-    return null;
+export function renderPartyName(party?: IParty, userParty?: IParty) {
+  if (party && userParty && party.partyId === userParty.partyId) {
+    return userParty.name;
   }
-  return party.name;
+  if (party && userParty && party.partyId !== userParty.partyId) {
+    return `${userParty.name} for ${party.name}`;
+  }
+  return null;
 }
 
 export function renderParty(profile: IProfile) {

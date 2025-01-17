@@ -3,19 +3,17 @@ import React from 'react';
 import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import axios from 'axios';
 
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
-import { HttpStatusCodes } from 'src/utils/network/networking';
 import { returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
 import type { IPresentationProvidedProps } from 'src/components/presentation/Presentation';
+import type { AppQueries } from 'src/queries/types';
 
 jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
 const assignMock = jest.fn();
 
 describe('Presentation', () => {
@@ -36,17 +34,12 @@ describe('Presentation', () => {
     const mockedLocation = { ...realLocation, search: `?returnUrl=${returnUrl}`, assign: assignMock };
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
 
-    mockedAxios.get.mockResolvedValue({
-      data: returnUrl,
-      status: HttpStatusCodes.Ok,
-    });
-
-    await render({ type: ProcessTaskType.Data });
+    await render({ type: ProcessTaskType.Data }, { fetchReturnUrl: async () => returnUrl });
 
     expect(window.location.href).not.toEqual(returnUrl);
 
     const closeButton = screen.getByRole('button', {
-      name: /Lukk skjema/i,
+      name: /tilbake/i,
     });
     screen.debug();
     await user.click(closeButton);
@@ -55,16 +48,11 @@ describe('Presentation', () => {
   });
 
   it('should change window.location.href to default messagebox url if query parameter returnUrl is not valid', async () => {
-    const origin = 'https://local.altinn.cloud';
+    const host = 'ttd.apps.tt02.altinn.no';
     const returnUrl = 'https://altinn.cloud.no';
-    const mockedLocation = { ...realLocation, search: `?returnUrl=${returnUrl}`, assign: assignMock, origin };
+    const mockedLocation = { ...realLocation, search: `?returnUrl=${returnUrl}`, assign: assignMock, host };
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
-    const messageBoxUrl = returnUrlToMessagebox(origin, getPartyMock().partyId);
-
-    mockedAxios.get.mockRejectedValue({
-      data: 'Error',
-      status: HttpStatusCodes.BadRequest,
-    });
+    const messageBoxUrl = returnUrlToMessagebox(host, getPartyMock().partyId);
 
     // TODO: Replicate stateWithErrorsAndWarnings?
     await render({ type: ProcessTaskType.Data });
@@ -72,7 +60,7 @@ describe('Presentation', () => {
     expect(window.location.href).not.toEqual(messageBoxUrl);
 
     const closeButton = screen.getByRole('button', {
-      name: /lukk skjema/i,
+      name: /tilbake til innboks/i,
     });
 
     await user.click(closeButton);
@@ -81,10 +69,10 @@ describe('Presentation', () => {
   });
 
   it('should change window.location.href to default messagebox url if query parameter returnUrl is not found', async () => {
-    const origin = 'https://local.altinn.cloud';
+    const host = 'ttd.apps.tt02.altinn.no';
     const partyId = getPartyMock().partyId;
-    const messageBoxUrl = returnUrlToMessagebox(origin, partyId);
-    const mockedLocation = { ...realLocation, assign: assignMock, origin, search: '' };
+    const messageBoxUrl = returnUrlToMessagebox(host, partyId);
+    const mockedLocation = { ...realLocation, assign: assignMock, host, search: '' };
 
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
 
@@ -94,7 +82,7 @@ describe('Presentation', () => {
     expect(window.location.href).not.toEqual(messageBoxUrl);
 
     const closeButton = screen.getByRole('button', {
-      name: /lukk skjema/i,
+      name: /tilbake til innboks/i,
     });
     await user.click(closeButton);
 
@@ -127,7 +115,7 @@ describe('Presentation', () => {
   });
 });
 
-const render = async (props: Partial<IPresentationProvidedProps> = {}) => {
+const render = async (props: Partial<IPresentationProvidedProps> = {}, queries: Partial<AppQueries> = {}) => {
   const allProps = {
     header: 'Header text',
     type: ProcessTaskType.Unknown,
@@ -137,5 +125,8 @@ const render = async (props: Partial<IPresentationProvidedProps> = {}) => {
   await renderWithInstanceAndLayout({
     renderer: () => <PresentationComponent {...allProps} />,
     taskId: 'Task_1',
+    queries: {
+      ...queries,
+    },
   });
 };

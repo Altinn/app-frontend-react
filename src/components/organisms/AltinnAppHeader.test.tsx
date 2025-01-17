@@ -12,7 +12,8 @@ import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { PartyType } from 'src/types/shared';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
-import type { IParty } from 'src/types/shared';
+import type { IRawTextResource } from 'src/features/language/textResources';
+import type { IAppLanguage, IParty } from 'src/types/shared';
 
 describe('organisms/AltinnAppHeader', () => {
   const partyPerson = {
@@ -35,8 +36,18 @@ describe('organisms/AltinnAppHeader', () => {
     party: IParty;
     user?: IParty;
     logo?: ApplicationMetadata['logoOptions'];
+    showLanguageSelector?: boolean;
+    languageResponse?: IAppLanguage[];
+    textResources?: IRawTextResource[];
   }
-  const render = async ({ party, user = partyPerson, logo }: IRenderComponentProps) => {
+  const render = async ({
+    party,
+    user = partyPerson,
+    logo,
+    showLanguageSelector = false,
+    languageResponse,
+    textResources = [],
+  }: IRenderComponentProps) => {
     jest.mocked(fetchApplicationMetadata).mockImplementation(async () => getIncomingApplicationMetadataMock({ logo }));
 
     return await renderWithInstanceAndLayout({
@@ -48,13 +59,20 @@ describe('organisms/AltinnAppHeader', () => {
           headerBackgroundColor={headerBackgroundColor}
         />
       ),
+
+      queries: {
+        fetchAppLanguages: () =>
+          languageResponse ? Promise.resolve(languageResponse) : Promise.reject(new Error('No languages mocked')),
+        fetchTextResources: () => Promise.resolve({ language: 'nb', resources: textResources }),
+        fetchLayoutSettings: () => Promise.resolve({ pages: { showLanguageSelector, order: ['1', '2', '3'] } }),
+      },
     });
   };
 
   it('should render menu with logout option when clicking profile icon', async () => {
     await render({ party: partyOrg });
     expect(
-      screen.queryByRole('link', {
+      screen.queryByRole('menuitem', {
         name: /logg ut/i,
         hidden: true,
       }),
@@ -68,7 +86,7 @@ describe('organisms/AltinnAppHeader', () => {
       ),
     );
     expect(
-      screen.getByRole('link', {
+      screen.getByRole('menuitem', {
         name: /logg ut/i,
         hidden: true,
       }),
@@ -87,5 +105,39 @@ describe('organisms/AltinnAppHeader', () => {
       logo: { source: 'org', displayAppOwnerNameInHeader: false },
     });
     expect(screen.getByRole('img')).toHaveAttribute('src', 'https://altinncdn.no/orgs/mockOrg/mockOrg.png');
+  });
+
+  it('should render and change app language', async () => {
+    await render({
+      party: partyPerson,
+      showLanguageSelector: true,
+      languageResponse: [{ language: 'en' }, { language: 'nb' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: /Språkvalg/i }));
+    const en = screen.getByRole('menuitemradio', { name: /engelsk/i });
+    await userEvent.click(en);
+
+    // Language now changed, so the value should be the language name in the selected language
+    await userEvent.click(screen.getByRole('button', { name: /Language/i }));
+    expect(screen.getByRole('menuitemradio', { name: /english/i })).toHaveAttribute('aria-checked', 'true');
+  });
+
+  it('should render app language with custom labels', async () => {
+    await render({
+      party: partyPerson,
+      showLanguageSelector: true,
+      textResources: [
+        { id: 'language.language_selection', value: 'Språkvalg test' },
+        { id: 'language.full_name.nb', value: 'Norsk test' },
+        { id: 'language.full_name.en', value: 'Engelsk test' },
+      ],
+      languageResponse: [{ language: 'en' }, { language: 'nb' }],
+    });
+
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /Språkvalg test/i }));
+    screen.getByRole('menuitemradio', { name: /norsk test/i });
+    screen.getByRole('menuitemradio', { name: /engelsk test/i });
   });
 });

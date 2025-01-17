@@ -1,0 +1,13 @@
+.expand-width-button {
+  display: none;
+}
+@media only screen and (min-width: 1200px) {
+  .expand-width-button {
+    display: flex;
+  }
+}
+
+.expand-width-icon {
+  margin-right: 6px;
+  transform: rotate(45deg);
+}

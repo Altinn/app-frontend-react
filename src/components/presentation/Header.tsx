@@ -32,6 +32,7 @@ const InnerHeader = ({ header, aboveHeader, children }: IInnerHeaderProps) => (
         )}
         <Flex item>
           <Heading
+            style={!aboveHeader ? { marginTop: 24 } : undefined}
             level={1}
             size='medium'
             data-testid='presentation-heading'
