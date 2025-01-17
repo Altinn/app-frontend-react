@@ -147,13 +147,19 @@ export const doAttachmentAddTag = async (instanceId: string, dataGuid: string, t
   return response.data;
 };
 
+type UserActionRequest = {
+  action?: string;
+  buttonId?: string;
+  metadata?: Record<string, string>;
+  ignoredValidators?: string[];
+};
 export const doPerformAction = async (
   partyId: string,
-  dataGuid: string,
-  data: unknown,
+  instanceGuid: string,
+  actionRequest: UserActionRequest,
   language: string,
 ): Promise<ActionResult> => {
-  const response = await httpPost(getActionsUrl(partyId, dataGuid, language), undefined, data);
+  const response = await httpPost(getActionsUrl(partyId, instanceGuid, language), undefined, actionRequest);
   if (response.status !== 200) {
     throw new Error('Failed to perform action');
   }

@@ -6,11 +6,11 @@ export const Config = new CG.component({
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
-    renderInAccordion: false,
+    renderInAccordion: true,
     renderInAccordionGroup: false,
-    renderInCards: false,
+    renderInCards: true,
     renderInCardsMedia: false,
-    renderInTabs: false,
+    renderInTabs: true,
   },
   functionality: {
     customExpressions: false,

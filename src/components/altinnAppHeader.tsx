@@ -10,7 +10,7 @@ import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
 import { Lang } from 'src/features/language/Lang';
 import { renderParty } from 'src/utils/party';
-import { returnUrlToAllSchemas, returnUrlToMessagebox, returnUrlToProfile } from 'src/utils/urls/urlHelper';
+import { returnUrlToAllSchemas, returnUrlToMessageBox, returnUrlToProfile } from 'src/utils/urls/urlHelper';
 import type { IProfile } from 'src/types/shared';
 
 export interface IHeaderProps {
@@ -49,7 +49,7 @@ export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
               <li className={classes.headerLink}>
                 <a
                   className='altinnLink'
-                  href={returnUrlToMessagebox(window.location.origin, party?.partyId) || '#'}
+                  href={returnUrlToMessageBox(window.location.origin, party?.partyId) || '#'}
                 >
                   <Lang id='instantiate.inbox' />
                 </a>

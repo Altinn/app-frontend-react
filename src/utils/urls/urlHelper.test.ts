@@ -5,29 +5,29 @@ import {
   makeUrlRelativeIfSameDomain,
   returnBaseUrlToAltinn,
   returnUrlToAllSchemas,
-  returnUrlToMessagebox,
+  returnUrlToMessageBox,
   returnUrlToProfile,
 } from 'src/utils/urls/urlHelper';
 
 describe('Shared urlHelper.ts', () => {
   test('returnUrlToMessagebox() returning production messagebox', () => {
     const origin = 'https://tdd.apps.altinn.no/tdd/myappname';
-    expect(returnUrlToMessagebox(origin)).toContain('altinn.no');
+    expect(returnUrlToMessageBox(origin)).toContain('altinn.no');
   });
 
   test('returnUrlToMessagebox() returning at21 messagebox', () => {
     const origin = 'https://tdd.apps.at21.altinn.cloud/tdd/myappname';
-    expect(returnUrlToMessagebox(origin)).toContain('at21.altinn.cloud');
+    expect(returnUrlToMessageBox(origin)).toContain('at21.altinn.cloud');
   });
 
   test('returnUrlToMessagebox() returning tt02 messagebox', () => {
     const origin = 'https://tdd.apps.tt02.altinn.no/tdd/myappname';
-    expect(returnUrlToMessagebox(origin)).toContain('tt02.altinn.no');
+    expect(returnUrlToMessageBox(origin)).toContain('tt02.altinn.no');
   });
 
   test('returnUrlToMessagebox() returning null when unknown origin', () => {
     const origin = 'https://www.vg.no';
-    expect(returnUrlToMessagebox(origin)).toBe(null);
+    expect(returnUrlToMessageBox(origin)).toBe(null);
   });
 
   test('returnBaseUrlToAltinn() returning correct environemnts', () => {

@@ -223,10 +223,8 @@ export interface ISelfLinks {
   platform: string;
 }
 
-type ProcessActionIds = 'read' | 'write' | 'complete';
-
 export interface IUserAction {
-  id: ProcessActionIds | string;
+  id: IActionType | string;
   authorized: boolean;
   type: 'ProcessAction' | 'ServerAction';
 }
@@ -288,7 +286,7 @@ export interface IInstanceDataSources {
   instanceOwnerPartyType: InstanceOwnerPartyType;
 }
 
-export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject';
+export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject' | 'read' | 'write' | 'complete';
 
 export type IAuthContext = {
   read: boolean;

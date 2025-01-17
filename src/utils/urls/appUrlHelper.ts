@@ -86,6 +86,9 @@ export const getValidationUrl = (instanceId: string, language: string, onlyIncre
   return `${appPath}/instances/${instanceId}/validate${queryString}`;
 };
 
+/**
+ * @deprecated use getValidationUrl instead
+ */
 export const getDataValidationUrl = (instanceId: string, dataGuid: string, language: string) => {
   const queryString = getQueryStringFromObject({ language });
   return `${appPath}/instances/${instanceId}/data/${dataGuid}/validate${queryString}`;

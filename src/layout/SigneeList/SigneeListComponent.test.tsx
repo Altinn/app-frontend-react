@@ -20,6 +20,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     hasSigned: true,
     delegationSuccessful: true,
     notificationSuccessful: true,
+    partyId: 123,
   },
   {
     name: 'name2',
@@ -27,6 +28,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     hasSigned: false,
     delegationSuccessful: false,
     notificationSuccessful: false,
+    partyId: 123,
   },
   {
     name: 'name3',
@@ -34,6 +36,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     hasSigned: false,
     delegationSuccessful: true,
     notificationSuccessful: false,
+    partyId: 123,
   },
   {
     name: 'name4',
@@ -41,6 +44,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     hasSigned: false,
     delegationSuccessful: true,
     notificationSuccessful: true,
+    partyId: 123,
   },
 ];
 
@@ -128,7 +132,7 @@ describe('SigneeListComponent', () => {
       />,
     );
 
-    screen.getByText('signee_list.wrong_task_error');
+    screen.getByText('signing.wrong_task_error');
   });
 
   it('should render error message when API call fails', () => {

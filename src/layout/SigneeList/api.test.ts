@@ -21,6 +21,7 @@ describe('fetchSigneeList', () => {
           hasSigned: true,
           delegationSuccessful: true,
           notificationSuccessful: false,
+          partyId: 123,
         },
         {
           name: 'Jane Doe',
@@ -28,6 +29,7 @@ describe('fetchSigneeList', () => {
           hasSigned: false,
           delegationSuccessful: false,
           notificationSuccessful: false,
+          partyId: 123,
         },
       ],
     });
@@ -41,6 +43,7 @@ describe('fetchSigneeList', () => {
         hasSigned: true,
         delegationSuccessful: true,
         notificationSuccessful: false,
+        partyId: 123,
       },
       {
         name: 'Jane Doe',
@@ -48,6 +51,7 @@ describe('fetchSigneeList', () => {
         hasSigned: false,
         delegationSuccessful: false,
         notificationSuccessful: false,
+        partyId: 123,
       },
     ]);
   });
@@ -99,6 +103,7 @@ describe('fetchSigneeList', () => {
           hasSigned: true,
           delegationSuccessful: true,
           notificationSuccessful: false,
+          partyId: 123,
         },
         {
           name: 'Mary Jane',
@@ -106,6 +111,7 @@ describe('fetchSigneeList', () => {
           hasSigned: false,
           delegationSuccessful: false,
           notificationSuccessful: false,
+          partyId: 123,
         },
       ],
     });
@@ -118,6 +124,7 @@ describe('fetchSigneeList', () => {
         hasSigned: false,
         delegationSuccessful: false,
         notificationSuccessful: false,
+        partyId: 123,
       },
       {
         name: 'Sylvester Stallone',
@@ -125,6 +132,7 @@ describe('fetchSigneeList', () => {
         hasSigned: true,
         delegationSuccessful: true,
         notificationSuccessful: false,
+        partyId: 123,
       },
     ]);
   });

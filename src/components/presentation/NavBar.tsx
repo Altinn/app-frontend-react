@@ -15,7 +15,7 @@ import { useNavigatePage, usePreviousPageKey } from 'src/hooks/useNavigatePage';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { httpGet } from 'src/utils/network/networking';
 import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
-import { returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
+import { returnUrlToMessageBox } from 'src/utils/urls/urlHelper';
 
 export interface INavBarProps {
   type: PresentationType | ProcessTaskType;
@@ -43,7 +43,7 @@ export const NavBar = ({ type }: INavBarProps) => {
   const handleModalCloseButton = async () => {
     const queryParameterReturnUrl = new URLSearchParams(window.location.search).get('returnUrl');
 
-    const messageBoxUrl = returnUrlToMessagebox(window.location.origin, party?.partyId);
+    const messageBoxUrl = returnUrlToMessageBox(window.location.origin, party?.partyId);
 
     if (queryParameterReturnUrl) {
       const returnUrl =
