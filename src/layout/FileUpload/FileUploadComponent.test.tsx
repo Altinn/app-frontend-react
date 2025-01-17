@@ -1,10 +1,9 @@
 import React from 'react';
 
-import { expect } from '@jest/globals';
+import { expect, jest } from '@jest/globals';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { v4 as uuidv4 } from 'uuid';
-import type { jest } from '@jest/globals';
 import type { AxiosResponse } from 'axios';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
@@ -61,12 +60,12 @@ describe('FileUploadComponent', () => {
     it('should show loading when file uploaded=false', async () => {
       const { mutations, id } = await render({ attachments: () => [] });
       const attachment = getDataElements({ count: 1, dataType: id })[0];
-      expect(mutations.doAttachmentUpload.mock).not.toHaveBeenCalled();
+      expect(mutations.doAttachmentUploadOld.mock).not.toHaveBeenCalled();
 
       const file = new File(['(⌐□_□)'], attachment?.filename || '', { type: attachment.contentType });
 
       const fileInput = screen
-        .getByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i })
+        .getByRole('presentation', { name: /attachment-title/i })
         .querySelector('input') as HTMLInputElement;
       await userEvent.upload(fileInput, file);
 
@@ -74,13 +73,13 @@ describe('FileUploadComponent', () => {
         expect(screen.getByText('Laster innhold')).toBeInTheDocument();
       });
 
-      mutations.doAttachmentUpload.resolve(attachment);
+      mutations.doAttachmentUploadOld.resolve(attachment);
 
       await waitFor(() => {
         expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
       });
 
-      expect(mutations.doAttachmentUpload.mock).toHaveBeenCalledTimes(1);
+      expect(mutations.doAttachmentUploadOld.mock).toHaveBeenCalledTimes(1);
     });
 
     it('should not show loading when file uploaded=true', async () => {
@@ -122,9 +121,7 @@ describe('FileUploadComponent', () => {
         attachments: (dataType) => getDataElements({ count: 3, dataType }),
       });
 
-      expect(
-        screen.queryByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('presentation', { name: /attachment-title/i })).not.toBeInTheDocument();
     });
 
     it('should display drop area when displayMode is not simple', async () => {
@@ -133,9 +130,7 @@ describe('FileUploadComponent', () => {
         attachments: (dataType) => getDataElements({ count: 3, dataType }),
       });
 
-      expect(
-        screen.getByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('presentation', { name: /attachment-title/i })).toBeInTheDocument();
     });
 
     it('should not display drop area when displayMode is not simple and max attachments is reached', async () => {
@@ -144,9 +139,7 @@ describe('FileUploadComponent', () => {
         attachments: (dataType) => getDataElements({ count: 3, dataType }),
       });
 
-      expect(
-        screen.queryByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('presentation', { name: /attachment-title/i })).not.toBeInTheDocument();
     });
   });
 });
@@ -177,7 +170,7 @@ describe('FileUploadWithTagComponent', () => {
       const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
 
       const dropZone = screen
-        .getByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i })
+        .getByRole('presentation', { name: /attachment-title/i })
         .querySelector('input') as HTMLInputElement;
       await userEvent.upload(dropZone, file);
 
@@ -257,11 +250,11 @@ describe('FileUploadWithTagComponent', () => {
       const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
 
       const dropZone = screen
-        .getByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i })
+        .getByRole('presentation', { name: /attachment-title/i })
         .querySelector('input') as HTMLInputElement;
       await userEvent.upload(dropZone, file);
 
-      await waitFor(() => expect(mutations.doAttachmentUpload.mock).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(mutations.doAttachmentUploadOld.mock).toHaveBeenCalledTimes(1));
       expect(screen.getByText('Laster innhold')).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Lagre' })).not.toBeInTheDocument();
     });
@@ -317,10 +310,9 @@ describe('FileUploadWithTagComponent', () => {
         attachments: (dataType) => getDataElements({ count: 2, dataType }),
       });
 
-      expect(
-        screen.getByRole('presentation', { name: /Dra og slipp eller let etter fil Tillatte filformater er: alle/i })
-          .textContent,
-      ).toMatch('Dra og slipp eller let etter filTillatte filformater er: alle');
+      expect(screen.getByRole('presentation', { name: /attachment-title/i }).textContent).toMatch(
+        'Dra og slipp eller let etter filTillatte filformater er: alle',
+      );
     });
 
     it('should not display drop area when max attachments is reached', async () => {
@@ -331,7 +323,7 @@ describe('FileUploadWithTagComponent', () => {
 
       expect(
         screen.queryByRole('presentation', {
-          name: 'Dra og slipp eller let etter fil Tillatte filformater er: alle',
+          name: /attachment-title/i,
         }),
       ).not.toBeInTheDocument();
     });
@@ -349,20 +341,23 @@ async function renderAbstract<T extends Types>({
   component,
   attachments: attachmentsGenerator = (dataType) => getDataElements({ dataType }),
 }: Props<T>) {
-  (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementationOnce(() =>
-    Promise.resolve(
-      getIncomingApplicationMetadataMock((a) => {
-        a.dataTypes.push({
-          id,
-          allowedContentTypes: ['image/png'],
-          maxCount: 4,
-          minCount: 1,
-        });
-      }),
-    ),
+  jest.mocked(fetchApplicationMetadata).mockImplementationOnce(async () =>
+    getIncomingApplicationMetadataMock((a) => {
+      a.dataTypes.push({
+        id,
+        allowedContentTypes: ['image/png'],
+        maxCount: 4,
+        minCount: 1,
+      });
+    }),
   );
   const id = uuidv4();
   const attachments = attachmentsGenerator(id);
+
+  const textResourceBindings = {
+    title: 'attachment-title',
+    description: 'attachment-description',
+  };
 
   const utils = await renderGenericComponentTest<T>({
     type,
@@ -374,9 +369,11 @@ async function renderAbstract<T extends Types>({
       maxNumberOfAttachments: type === 'FileUpload' ? 3 : 7,
       minNumberOfAttachments: 1,
       readOnly: false,
+      textResourceBindings,
       ...(type === 'FileUploadWithTag' && {
         optionsId: 'test-options-id',
         textResourceBindings: {
+          ...textResourceBindings,
           tagTitle: 'attachment-tag-title',
         },
       }),

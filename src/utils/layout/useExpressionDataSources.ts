@@ -1,8 +1,5 @@
-import { useMemo } from 'react';
-
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
-import { useAttachmentsSelector } from 'src/features/attachments/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { useCurrentLayoutSet } from 'src/features/form/layoutSets/useCurrentLayoutSet';
@@ -10,18 +7,21 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
-import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
-import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
-import { useNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
-import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
+import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
+import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
+import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
+import { useShallowObjectMemo } from 'src/hooks/useShallowObjectMemo';
+import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
+import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
+import { useInnerNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
+import { useInnerNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { AttachmentsSelector } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
+import type { RoleResult } from 'src/features/useCurrentPartyRoles';
 import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
-import type { ILayoutSet } from 'src/layout/common.generated';
+import type { IDataModelReference, ILayoutSet } from 'src/layout/common.generated';
 import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
@@ -47,67 +47,67 @@ export interface ExpressionDataSources {
   nodeTraversal: NodeTraversalSelector;
   transposeSelector: DataModelTransposeSelector;
   externalApis: ExternalApisResult;
+  roles: RoleResult;
+  currentDataModelPath?: IDataModelReference;
 }
 
 export function useExpressionDataSources(): ExpressionDataSources {
-  const instanceDataSources = useLaxInstanceDataSources();
-  const formDataSelector = FD.useDebouncedSelector();
-  const formDataRowsSelector = FD.useDebouncedRowsSelector();
-  const attachmentsSelector = useAttachmentsSelector();
-  const optionsSelector = useNodeOptionsSelector();
+  const [
+    formDataSelector,
+    formDataRowsSelector,
+    attachmentsSelector,
+    optionsSelector,
+    nodeDataSelector,
+    dataSelectorForTraversal,
+    isHiddenSelector,
+  ] = useMultipleDelayedSelectors(
+    FD.useDebouncedSelectorProps(),
+    FD.useDebouncedRowsSelectorProps(),
+    NodesInternal.useAttachmentsSelectorProps(),
+    NodesInternal.useNodeOptionsSelectorProps(),
+    NodesInternal.useNodeDataSelectorProps(),
+    NodesInternal.useDataSelectorForTraversalProps(),
+    Hidden.useIsHiddenSelectorProps(),
+  );
+
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
-  const langToolsSelector = useLanguageWithForcedNodeSelector();
   const currentLanguage = useCurrentLanguage();
-  const isHiddenSelector = Hidden.useIsHiddenSelector();
-  const nodeFormDataSelector = useNodeFormDataSelector();
-  const nodeDataSelector = NodesInternal.useNodeDataSelector();
-  const nodeTraversal = useNodeTraversalSelector();
-  const transposeSelector = useDataModelBindingTranspose();
+
+  const instanceDataSources = useLaxInstanceDataSources();
   const currentLayoutSet = useCurrentLayoutSet() ?? null;
-  const readableDataModels = DataModels.useReadableDataTypes();
-
-  const externalApiIds = useApplicationMetadata().externalApiIds ?? [];
-  const externalApis = useExternalApis(externalApiIds);
-
-  return useMemo(
-    () => ({
-      formDataSelector,
-      formDataRowsSelector,
-      attachmentsSelector,
-      process,
-      optionsSelector,
-      applicationSettings,
-      instanceDataSources,
-      langToolsSelector,
-      currentLanguage,
-      isHiddenSelector,
-      nodeFormDataSelector,
-      nodeDataSelector,
-      nodeTraversal,
-      transposeSelector,
-      currentLayoutSet,
-      externalApis,
-      dataModelNames: readableDataModels,
-    }),
-    [
-      formDataSelector,
-      formDataRowsSelector,
-      attachmentsSelector,
-      process,
-      optionsSelector,
-      applicationSettings,
-      instanceDataSources,
-      langToolsSelector,
-      currentLanguage,
-      isHiddenSelector,
-      nodeFormDataSelector,
-      nodeDataSelector,
-      nodeTraversal,
-      transposeSelector,
-      currentLayoutSet,
-      externalApis,
-      readableDataModels,
-    ],
+  const dataModelNames = DataModels.useReadableDataTypes();
+  const externalApis = useExternalApis(useApplicationMetadata().externalApiIds ?? []);
+  const nodeTraversal = useInnerNodeTraversalSelector(useNodes(), dataSelectorForTraversal);
+  const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
+  const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
+  const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
+    DataModels.useDefaultDataType(),
+    dataModelNames,
+    formDataSelector,
+    nodeDataSelector,
   );
+
+  const roles = useCurrentPartyRoles();
+
+  return useShallowObjectMemo({
+    roles,
+    formDataSelector,
+    formDataRowsSelector,
+    attachmentsSelector,
+    optionsSelector,
+    nodeDataSelector,
+    process,
+    applicationSettings,
+    instanceDataSources,
+    langToolsSelector,
+    currentLanguage,
+    isHiddenSelector,
+    nodeFormDataSelector,
+    nodeTraversal,
+    transposeSelector,
+    currentLayoutSet,
+    externalApis,
+    dataModelNames,
+  });
 }

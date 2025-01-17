@@ -13,15 +13,18 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
+import repeatingGroupClasses from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import tableClasses from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary.module.css';
 import { RepeatingGroupTableTitle, useTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
+import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
+import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const RepeatingGroupTableSummary = ({
@@ -61,9 +64,9 @@ export const RepeatingGroupTableSummary = ({
   return (
     <div
       className={cn(classes.summaryWrapper)}
-      data-testid={'summary-repeating-group-component'}
+      data-testid='summary-repeating-group-component'
     >
-      <Table className={isSmall ? tableClasses.mobileTable : undefined}>
+      <Table className={cn({ [tableClasses.mobileTable]: isSmall })}>
         <Caption title={<Lang id={title} />} />
         <Table.Head>
           <Table.Row>
@@ -75,32 +78,24 @@ export const RepeatingGroupTableSummary = ({
               />
             ))}
             {!pdfModeActive && !isSmall && (
-              <Table.HeaderCell>
+              <Table.HeaderCell className={tableClasses.narrowLastColumn}>
                 <span className={tableClasses.visuallyHidden}>
-                  <Lang id={'general.edit'} />
+                  <Lang id='general.edit' />
                 </span>
               </Table.HeaderCell>
             )}
           </Table.Row>
         </Table.Head>
         <Table.Body>
-          {rows.map((row) => (
-            <Table.Row key={row?.uuid}>
-              {childNodes.map((node) => (
-                <DataCell
-                  node={node}
-                  key={node.id}
-                />
-              ))}
-              {!pdfModeActive && (
-                <Table.Cell
-                  align='right'
-                  className={tableClasses.buttonCell}
-                >
-                  {row?.itemIds && row?.itemIds?.length > 0 && <EditButton componentNode={childNodes[0]} />}
-                </Table.Cell>
-              )}
-            </Table.Row>
+          {rows.map((row, index) => (
+            <DataRow
+              key={row?.uuid}
+              row={row}
+              node={componentNode}
+              index={index}
+              pdfModeActive={pdfModeActive}
+              columnSettings={columnSettings}
+            />
           ))}
         </Table.Body>
       </Table>
@@ -114,7 +109,7 @@ export const RepeatingGroupTableSummary = ({
             id={message.key}
             params={message.params}
             node={componentNode}
-          ></Lang>
+          />
         </ErrorMessage>
       ))}
     </div>
@@ -133,16 +128,70 @@ function HeaderCell({ node, columnSettings }: { node: LayoutNode; columnSettings
   );
 }
 
-function DataCell({ node }) {
-  const { langAsString } = useLanguage();
+type DataRowProps = {
+  row: RepGroupRow | undefined;
+  node: BaseLayoutNode<'RepeatingGroup'>;
+  index: number;
+  pdfModeActive: boolean;
+  columnSettings: ITableColumnFormatting;
+};
+
+function DataRow({ row, node, index, pdfModeActive, columnSettings }: DataRowProps) {
+  const cellNodes = useTableNodes(node, index);
   const displayDataProps = useDisplayDataProps();
+
+  return (
+    <Table.Row>
+      {cellNodes.map((node) =>
+        node.type === 'Custom' ? (
+          <Table.Cell key={node.id}>
+            <ComponentSummary componentNode={node} />
+          </Table.Cell>
+        ) : (
+          <DataCell
+            key={node.id}
+            node={node}
+            displayData={
+              ('getDisplayData' in node.def && node.def.getDisplayData(node as never, displayDataProps)) ?? ''
+            }
+            columnSettings={columnSettings}
+          />
+        ),
+      )}
+      {!pdfModeActive && (
+        <Table.Cell
+          align='right'
+          className={tableClasses.buttonCell}
+        >
+          {row?.itemIds && row?.itemIds?.length > 0 && <EditButton componentNode={cellNodes[0]} />}
+        </Table.Cell>
+      )}
+    </Table.Row>
+  );
+}
+
+type DataCellProps = {
+  node: LayoutNode;
+  displayData: string | false;
+  columnSettings: ITableColumnFormatting;
+};
+
+function DataCell({ node, displayData, columnSettings }: DataCellProps) {
+  const { langAsString } = useLanguage();
   const headerTitle = langAsString(useTableTitle(node));
+  const style = useColumnStylesRepeatingGroups(node, columnSettings);
+
   return (
     <Table.Cell
       key={node.id}
       data-header-title={headerTitle}
     >
-      {'getDisplayData' in node.def && node.def.getDisplayData(node as never, displayDataProps)}
+      <span
+        className={repeatingGroupClasses.contentFormatting}
+        style={style}
+      >
+        {displayData}
+      </span>
     </Table.Cell>
   );
 }

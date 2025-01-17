@@ -5,7 +5,7 @@ import { Combobox, Fieldset } from '@digdir/designsystemet-react';
 import { DownloadIcon, UploadIcon } from '@navikt/aksel-icons';
 import axios from 'axios';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useIsInFormContext } from 'src/features/form/FormContext';
@@ -94,12 +94,10 @@ const InnerDownloadXMLButton = () => {
           onClick={downloadXML}
           disabled={disabled}
         >
-          {
-            <DownloadIcon
-              fontSize='1rem'
-              aria-hidden={true}
-            />
-          }
+          <DownloadIcon
+            fontSize='1rem'
+            aria-hidden={true}
+          />
           Last ned XML
         </Button>
         <Dropzone
@@ -115,12 +113,10 @@ const InnerDownloadXMLButton = () => {
               variant='secondary'
               disabled={disabled}
             >
-              {
-                <UploadIcon
-                  fontSize='1rem'
-                  aria-hidden={true}
-                />
-              }
+              <UploadIcon
+                fontSize='1rem'
+                aria-hidden={true}
+              />
               <input {...getInputProps()} />
               Last opp XML
             </Button>

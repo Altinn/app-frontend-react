@@ -5,13 +5,12 @@ import type { FileRejection } from 'react-dropzone';
 import { CloudUpIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
-import { getDescriptionId, getLabelId } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/FileUpload/DropZone/DropzoneComponent.module.css';
 import { mapExtensionToAcceptMime } from 'src/layout/FileUpload/DropZone/mapExtensionToAcceptMime';
-import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import type { CompInternal, ITextResourceBindings } from 'src/layout/layout';
+import { AltinnPalette } from 'src/theme/altinnAppTheme';
+import type { CompInternal } from 'src/layout/layout';
 
 export interface IDropzoneComponentProps {
   id: string;
@@ -23,7 +22,8 @@ export interface IDropzoneComponentProps {
   hasValidationMessages: boolean;
   hasCustomFileEndings?: boolean;
   validFileEndings?: CompInternal<'FileUpload'>['validFileEndings'];
-  textResourceBindings?: ITextResourceBindings<'FileUpload' | 'FileUploadWithTag'>;
+  labelId?: string;
+  descriptionId?: string;
 }
 
 export const bytesInOneMB = 1048576;
@@ -37,20 +37,16 @@ export const baseStyle = {
   width: 'auto',
   height: '9.75rem',
   borderWidth: '2px',
-  borderColor: AltinnAppTheme.altinnPalette.primary.blueMedium,
+  borderColor: AltinnPalette.blueMedium,
   borderStyle: 'dotted',
   cursor: 'pointer',
 };
 export const activeStyle = {
   borderStyle: 'solid',
 };
-export const rejectStyle = {
-  borderStyle: 'solid',
-  borderColor: AltinnAppTheme.altinnPalette.primary.red,
-};
 export const validationErrorStyle = {
   borderStyle: 'dotted',
-  borderColor: AltinnAppTheme.altinnPalette.primary.red,
+  borderColor: AltinnPalette.red,
 };
 
 export function DropzoneComponent({
@@ -63,7 +59,8 @@ export function DropzoneComponent({
   hasValidationMessages,
   hasCustomFileEndings,
   validFileEndings,
-  textResourceBindings,
+  labelId,
+  descriptionId,
 }: IDropzoneComponentProps): React.JSX.Element {
   const maxSizeLabelId = `file-upload-max-size-${id}`;
   const { langAsString } = useLanguage();
@@ -87,14 +84,11 @@ export function DropzoneComponent({
             : undefined
         }
       >
-        {({ getRootProps, getInputProps, isDragActive, isDragReject }) => {
+        {({ getRootProps, getInputProps, isDragActive }) => {
           let styles = { ...baseStyle, ...fileUploadButtonStyle };
           styles = isDragActive ? { ...styles, ...activeStyle } : styles;
-          styles = isDragReject ? { ...styles, ...rejectStyle } : styles;
           styles = hasValidationMessages ? { ...styles, ...validationErrorStyle } : styles;
 
-          const labelId = getLabelId(id);
-          const descriptionId = textResourceBindings?.description ? getDescriptionId(id) : undefined;
           const dragLabelId = `file-upload-drag-${id}`;
           const formatLabelId = `file-upload-format-${id}`;
           const ariaDescribedBy = descriptionId
@@ -102,7 +96,7 @@ export function DropzoneComponent({
             : `${maxSizeLabelId} ${dragLabelId} ${formatLabelId}`;
 
           return (
-            <button
+            <div
               {...getRootProps({
                 onClick,
               })}
@@ -121,33 +115,27 @@ export function DropzoneComponent({
                   className={classes.uploadIcon}
                   aria-hidden
                 />
-                <span
-                  id={dragLabelId}
-                  className={classes.fileUploadTextBold}
-                >
+                <b id={dragLabelId}>
                   {isMobile ? (
                     <Lang id='form_filler.file_uploader_upload' />
                   ) : (
                     <>
-                      <Lang id={'form_filler.file_uploader_drag'} />
-                      <span className={cn(classes.fileUploadTextBold, classes.blueUnderLine)}>
+                      <Lang id='form_filler.file_uploader_drag' />
+                      <span className={cn(classes.blueUnderLine)}>
                         {' '}
                         <Lang id='form_filler.file_uploader_find' />
                       </span>
                     </>
                   )}
-                </span>
-                <span
-                  id={formatLabelId}
-                  className={classes.fileUploadText}
-                >
+                </b>
+                <span id={formatLabelId}>
                   <Lang id='form_filler.file_uploader_valid_file_format' />
                   {hasCustomFileEndings
                     ? ` ${validFileEndings}`
                     : ` ${langAsString('form_filler.file_upload_valid_file_format_all')}`}
                 </span>
               </div>
-            </button>
+            </div>
           );
         }}
       </DropZone>

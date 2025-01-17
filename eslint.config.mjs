@@ -118,6 +118,14 @@ export default tseslint.config(
 
       'react-hooks/exhaustive-deps': ['error', { additionalHooks: '^(useMemoDeepEqual)$' }],
       'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
+      'react/jsx-curly-brace-presence': ['error', { props: 'never', children: 'never' }],
+      'react/jsx-fragments': ['error'],
+      'react/jsx-no-useless-fragment': ['error'],
+      'react/self-closing-comp': ['warn'],
+      'react/jsx-key': [
+        'error',
+        { checkFragmentShorthand: true, checkKeyMustBeforeSpread: true, warnOnDuplicates: true },
+      ],
       'react/prop-types': ['off'],
 
       'sonarjs/no-duplicate-string': ['off'],
@@ -165,6 +173,7 @@ export default tseslint.config(
     },
     rules: {
       'testing-library/await-async-queries': ['warn'],
+      'jsx-a11y/label-has-associated-control': ['off'],
     },
   },
   {

@@ -53,7 +53,8 @@ interface DataModelsMethods {
     defaultDataType: string | undefined,
     layoutSetId: string | undefined,
   ) => void;
-  setInitialData: (dataType: string, initialData: object, dataElementId: string | null) => void;
+  setInitialData: (dataType: string, initialData: object) => void;
+  setDataElementId: (dataType: string, dataElementId: string | null) => void;
   setDataModelSchema: (dataType: string, schema: JSONSchema7, lookupTool: SchemaLookupTool) => void;
   setExpressionValidationConfig: (dataType: string, config: IExpressionValidations | null) => void;
   setError: (error: Error) => void;
@@ -67,21 +68,29 @@ function initialCreateStore() {
     writableDataTypes: null,
     initialData: {},
     dataElementIds: {},
-    initialValidations: null,
     schemas: {},
     schemaLookup: {},
     expressionValidationConfigs: {},
     error: null,
 
     setDataTypes: (allDataTypes, writableDataTypes, defaultDataType, layoutSetId) => {
-      set(() => ({ allDataTypes, writableDataTypes, defaultDataType, layoutSetId }));
+      set(() => ({
+        allDataTypes,
+        writableDataTypes,
+        defaultDataType,
+        layoutSetId,
+      }));
     },
-    setInitialData: (dataType, initialData, dataElementId) => {
+    setInitialData: (dataType, initialData) => {
       set((state) => ({
         initialData: {
           ...state.initialData,
           [dataType]: initialData,
         },
+      }));
+    },
+    setDataElementId: (dataType, dataElementId) => {
+      set((state) => ({
         dataElementIds: {
           ...state.dataElementIds,
           [dataType]: dataElementId,
@@ -120,7 +129,7 @@ function initialCreateStore() {
   }));
 }
 
-const { Provider, useSelector, useMemoSelector, useLaxMemoSelector, useSelectorAsRef } = createZustandContext({
+const { Provider, useSelector, useLaxSelector, useSelectorAsRef, useStaticSelector } = createZustandContext({
   name: 'DataModels',
   required: true,
   initialCreateStore,
@@ -171,7 +180,11 @@ function DataModelsLoader() {
         window.logErrorOnce(error.message);
         continue;
       }
-      if (!isStateless && !dataElements.find((data) => data.dataType === dataType)) {
+
+      // We don't check this if the data model is overridden, because dataElements (from the instance) may not
+      // even be up to date yet when (for example) a subform has just been added.
+      const isOverridden = overriddenDataType === dataType && !!overriddenDataElement;
+      if (!isStateless && !isOverridden && !dataElements.find((data) => data.dataType === dataType)) {
         const error = new MissingDataElementException(dataType);
         window.logErrorOnce(error.message);
         continue;
@@ -185,25 +198,40 @@ function DataModelsLoader() {
     }
 
     setDataTypes(allValidDataTypes, writableDataTypes, defaultDataType, layoutSetId);
-  }, [applicationMetadata, defaultDataType, isStateless, layouts, setDataTypes, dataElements, layoutSetId]);
+  }, [
+    applicationMetadata,
+    defaultDataType,
+    isStateless,
+    layouts,
+    setDataTypes,
+    dataElements,
+    layoutSetId,
+    overriddenDataType,
+    overriddenDataElement,
+  ]);
 
   // We should load form data and schema for all referenced data models, schema is used for dataModelBinding validation which we want to do even if it is readonly
   // We only need to load expression validation config for data types that are not readonly. Additionally, backend will error if we try to validate a model we are not supposed to
   return (
     <>
       {allDataTypes?.map((dataType) => (
-        <React.Fragment key={dataType}>
-          <LoadInitialData
-            dataType={dataType}
-            overrideDataElement={dataType === overriddenDataType ? overriddenDataElement : undefined}
-          />
-          <LoadSchema dataType={dataType} />
-        </React.Fragment>
+        <LoadInitialData
+          key={dataType}
+          dataType={dataType}
+          overrideDataElement={dataType === overriddenDataType ? overriddenDataElement : undefined}
+        />
+      ))}
+      {allDataTypes?.map((dataType) => (
+        <LoadSchema
+          key={dataType}
+          dataType={dataType}
+        />
       ))}
       {writableDataTypes?.map((dataType) => (
-        <React.Fragment key={dataType}>
-          <LoadExpressionValidationConfig dataType={dataType} />
-        </React.Fragment>
+        <LoadExpressionValidationConfig
+          key={dataType}
+          dataType={dataType}
+        />
       ))}
     </>
   );
@@ -253,7 +281,7 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
     }
   }
 
-  return <>{children}</>;
+  return children;
 }
 
 interface LoaderProps {
@@ -262,6 +290,7 @@ interface LoaderProps {
 
 function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { overrideDataElement?: string }) {
   const setInitialData = useSelector((state) => state.setInitialData);
+  const setDataElementId = useSelector((state) => state.setDataElementId);
   const setError = useSelector((state) => state.setError);
   const dataElements = useLaxInstanceDataElements(dataType);
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
@@ -269,9 +298,13 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const { data, error } = useFormDataQuery(url);
   useEffect(() => {
     if (data && url) {
-      setInitialData(dataType, data, dataElementId ?? null);
+      setInitialData(dataType, data);
     }
-  }, [data, dataElementId, dataType, setInitialData, url]);
+  }, [data, dataType, setInitialData, url]);
+
+  useEffect(() => {
+    setDataElementId(dataType, dataElementId ?? null);
+  }, [dataElementId, dataType, setDataElementId]);
 
   useEffect(() => {
     error && setError(error);
@@ -325,17 +358,20 @@ const emptyArray = [];
 export const DataModels = {
   useFullStateRef: () => useSelectorAsRef((state) => state),
 
-  useLaxDefaultDataType: () => useLaxMemoSelector((state) => state.defaultDataType),
+  useDefaultDataType: () => useSelector((state) => state.defaultDataType),
+  useLaxDefaultDataType: () => useLaxSelector((state) => state.defaultDataType),
 
   // The following hooks use emptyArray if the value is null, so cannot be used to determine whether or not the datamodels are finished loading
-  useReadableDataTypes: () => useMemoSelector((state) => state.allDataTypes ?? emptyArray),
-  useLaxReadableDataTypes: () => useLaxMemoSelector((state) => state.allDataTypes ?? emptyArray),
-  useWritableDataTypes: () => useMemoSelector((state) => state.writableDataTypes ?? emptyArray),
+  useReadableDataTypes: () => useSelector((state) => state.allDataTypes ?? emptyArray),
+  useLaxReadableDataTypes: () => useLaxSelector((state) => state.allDataTypes ?? emptyArray),
+  useWritableDataTypes: () => useSelector((state) => state.writableDataTypes ?? emptyArray),
 
   useDataModelSchema: (dataType: string) => useSelector((state) => state.schemas[dataType]),
 
   useLookupBinding: () => {
-    const { schemaLookup, allDataTypes } = useSelector((state) => state);
+    // Using a static selector to avoid re-rendering. While the state can update later, we don't need
+    // to re-run data model validations, etc.
+    const { schemaLookup, allDataTypes } = useStaticSelector((state) => state);
     return useMemo(() => {
       if (allDataTypes?.every((dt) => schemaLookup[dt])) {
         return (reference: IDataModelReference) => schemaLookup[reference.dataType].getSchemaForPath(reference.field);
@@ -348,12 +384,12 @@ export const DataModels = {
     useSelector((state) => state.expressionValidationConfigs[dataType]),
 
   useDefaultDataElementId: () =>
-    useMemoSelector((state) => (state.defaultDataType ? state.dataElementIds[state.defaultDataType] : null)),
+    useSelector((state) => (state.defaultDataType ? state.dataElementIds[state.defaultDataType] : null)),
 
-  useDataElementIdForDataType: (dataType: string) => useMemoSelector((state) => state.dataElementIds[dataType]),
+  useDataElementIdForDataType: (dataType: string) => useSelector((state) => state.dataElementIds[dataType]),
 
   useGetDataElementIdForDataType: () => {
-    const dataElementIds = useMemoSelector((state) => state.dataElementIds);
+    const dataElementIds = useSelector((state) => state.dataElementIds);
     return useCallback((dataType: string) => dataElementIds[dataType], [dataElementIds]);
   },
 

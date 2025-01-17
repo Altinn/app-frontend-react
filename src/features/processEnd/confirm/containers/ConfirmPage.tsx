@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppOwner } from 'src/core/texts/appTexts';
@@ -63,19 +63,19 @@ export const ConfirmPage = ({ instance, instanceOwnerParty, appName, application
         body={
           appName && (
             <Lang
-              id={'confirm.body'}
+              id='confirm.body'
               params={[appName]}
             />
           )
         }
-        collapsibleTitle={<Lang id={'confirm.attachments'} />}
+        collapsibleTitle={<Lang id='confirm.attachments' />}
         hideCollapsibleCount={true}
         instanceMetaDataObject={getInstanceMetaObject()}
-        title={<Lang id={'confirm.title'} />}
-        titleSubmitted={<Lang id={'confirm.answers'} />}
+        title={<Lang id='confirm.title' />}
+        titleSubmitted={<Lang id='confirm.answers' />}
         pdf={filterDisplayPdfAttachments(instance?.data ?? [])}
       />
-      <ConfirmButton nodeId={'confirm-button'} />
+      <ConfirmButton nodeId='confirm-button' />
       <ReadyForPrint type='load' />
     </>
   );
@@ -102,7 +102,7 @@ const ConfirmButton = (props: { nodeId: string }) => {
         disabled={disabled}
         color='success'
       >
-        <Lang id={'confirm.button_text'} />
+        <Lang id='confirm.button_text' />
       </Button>
     </div>
   );

@@ -6,7 +6,7 @@ import type { PageValidation } from 'src/layout/common.generated';
 import type { ILayout } from 'src/layout/layout';
 
 const appFrontend = new AppFrontend();
-const mui = new Common();
+const common = new Common();
 
 describe('Summary', () => {
   it('Summary of change name form', () => {
@@ -42,20 +42,15 @@ describe('Summary', () => {
     // navigate back to form and clear date
     cy.get(appFrontend.changeOfName.summaryNameChanges)
       .children()
-      .contains(mui.gridContainer, 'Til:')
+      .contains(common.altinnFlex, 'Til:')
       .children()
       .then((items) => {
         cy.wrap(items).should('contain.text', 'a a');
         cy.wrap(items).find('button').should('not.exist');
       });
 
-    cy.get(appFrontend.changeOfName.summaryNameChanges)
-      .parent()
-      .siblings()
-      .contains(mui.gridContainer, texts.dateOfEffect)
-      .then((summaryDate) => {
-        cy.wrap(summaryDate).children().find('button').click();
-      });
+    cy.findByRole('group', { name: 'Endringer til navn' });
+    cy.findByRole('button', { name: 'Endre: Når vil du at navnendringen skal skje?' }).click();
 
     cy.get(appFrontend.changeOfName.dateOfEffect).clear();
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
@@ -79,29 +74,33 @@ describe('Summary', () => {
     cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldDateFrom);
     cy.gotoNavPage('summary');
 
-    cy.get(appFrontend.changeOfName.summaryNameChanges)
+    cy.findByRole('group', { name: 'Endringer til navn' })
+      .parent()
+      .parent()
       .parent()
       .siblings()
       .then((summary) => {
         cy.wrap(summary)
-          .contains(mui.gridContainer, texts.uplodDocs)
-          .contains(mui.gridContainer, 'test.pdf')
+          .contains(common.altinnFlex, texts.uplodDocs)
+          .contains(common.altinnFlex, 'test.pdf')
           .should('be.visible');
         cy.wrap(summary)
-          .contains(mui.gridContainer, texts.uploadWithTag)
-          .contains(mui.gridContainer, 'test.pdf')
+          .contains(common.altinnFlex, texts.uploadWithTag)
+          .contains(common.altinnFlex, 'test.pdf')
           .should('contain.text', 'Adresse');
       });
 
     // Summary displays error when required field is not filled
     // Navigate to form and fill the required field
-    cy.get(appFrontend.changeOfName.summaryNameChanges)
+    cy.findByRole('group', { name: 'Endringer til navn' })
+      .parent()
+      .parent()
       .parent()
       .siblings()
-      .contains(mui.gridContainer, texts.dateOfEffect)
+      .contains(common.altinnFlex, texts.dateOfEffect)
       .then((summaryDate) => {
         cy.wrap(summaryDate).contains(texts.dateOfEffect).should('have.css', 'color', 'rgb(213, 32, 59)');
-        cy.wrap(summaryDate).contains(mui.gridContainer, texts.requiredFieldDateFrom).should('be.visible');
+        cy.wrap(summaryDate).contains(common.altinnFlex, texts.requiredFieldDateFrom).should('be.visible');
         cy.wrap(summaryDate).contains('button', texts.goToRightPage).click();
         cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
         cy.get('button[aria-label*="Today"]').click();
@@ -109,13 +108,15 @@ describe('Summary', () => {
       });
 
     // Error in summary field is removed when the required field is filled
-    cy.get(appFrontend.changeOfName.summaryNameChanges)
+    cy.findByRole('group', { name: 'Endringer til navn' })
+      .parent()
+      .parent()
       .parent()
       .siblings()
-      .contains(mui.gridContainer, texts.dateOfEffect)
+      .contains(common.altinnFlex, texts.dateOfEffect)
       .then((summaryDate) => {
         cy.wrap(summaryDate).contains(texts.dateOfEffect).should('not.have.css', 'color', 'rgb(213, 32, 59)');
-        cy.wrap(summaryDate).contains(mui.gridContainer, texts.requiredFieldDateFrom).should('not.exist');
+        cy.wrap(summaryDate).contains(common.altinnFlex, texts.requiredFieldDateFrom).should('not.exist');
       });
 
     // Hide the component the Summary refers to, which should hide the summary component as well
@@ -174,7 +175,8 @@ describe('Summary', () => {
     cy.fillOut('group');
 
     cy.get(appFrontend.group.mainGroupSummaryContent).should('have.length', 1);
-    const groupElements = () => cy.get(appFrontend.group.mainGroupSummaryContent).first().children(mui.gridItem);
+    const groupElements = () =>
+      cy.get(appFrontend.group.mainGroupSummaryContent).first().children('[data-testid*=summary-]');
 
     groupElements().should('have.length', 6);
     groupElements().find('button').should('have.length', 8);

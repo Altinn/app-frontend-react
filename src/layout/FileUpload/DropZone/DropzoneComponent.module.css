@@ -5,13 +5,8 @@
   gap: 8px;
 }
 
-.fileUploadTextBold {
-  font-weight: 500;
-  font-size: 1rem;
-  margin-bottom: 0.375rem;
-}
 .blueUnderLine {
-  border-bottom: 2px solid #1eadf7 !important;
+  border-bottom: 2px solid var(--colors-primary-blue) !important;
 }
 
 .fileUploadTextBoldSmall {
@@ -20,9 +15,10 @@
   margin-bottom: 0;
 }
 
-.fileUploadText {
-  font-weight: 300;
-  font-size: 1rem;
+.fileUpload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .fileUploadInvalid:focus {
@@ -36,9 +32,9 @@
 }
 
 .fileUpload:focus {
-  border-color: #0062ba !important;
+  border-color: var(--colors-primary-blueDark) !important;
   border-style: solid !important;
-  outline: 2px solid #0062ba;
+  outline: 2px solid var(--colors-primary-blueDark);
   outline-offset: 0px;
 }
 

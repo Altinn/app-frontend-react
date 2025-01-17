@@ -42,13 +42,11 @@ function TestComponent({ ids }: TestProps) {
 }
 
 async function render(props: TestProps) {
-  (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementationOnce(() =>
-    Promise.resolve(
-      getIncomingApplicationMetadataMock((a) => {
-        a.dataTypes = a.dataTypes.filter((dt) => !dt.appLogic?.classRef);
-        a.dataTypes.push(...generateDataTypes());
-      }),
-    ),
+  jest.mocked(fetchApplicationMetadata).mockImplementationOnce(async () =>
+    getIncomingApplicationMetadataMock((a) => {
+      a.dataTypes = a.dataTypes.filter((dt) => !dt.appLogic?.classRef);
+      a.dataTypes.push(...generateDataTypes());
+    }),
   );
   const dataModelNames = Object.keys(props.dataModels);
   const idToNameMap: { [id: string]: string } = {};
@@ -160,37 +158,40 @@ describe('FormDataReaders', () => {
       .mockName('window.logErrorOnce');
   });
 
-  it('simple, should render a resource with a variable lookup', async () => {
-    const { queries, urlFor } = await render({
-      ids: ['test'],
-      textResources: [
-        {
-          id: 'test',
-          value: 'Hello {0}',
-          variables: [
-            {
-              dataSource: 'dataModel.someModel',
-              key: 'name',
-            },
-          ],
+  it.each<string>(['someModel', 'someModel1.0'])(
+    'simple, should render a resource with a variable lookup - %s',
+    async (modelName: string) => {
+      const { queries, urlFor } = await render({
+        ids: ['test'],
+        textResources: [
+          {
+            id: 'test',
+            value: 'Hello {0}',
+            variables: [
+              {
+                dataSource: `dataModel.${modelName}`,
+                key: 'name',
+              },
+            ],
+          },
+        ],
+        dataModels: {
+          [modelName]: {
+            name: 'World',
+          },
         },
-      ],
-      dataModels: {
-        someModel: {
-          name: 'World',
-        },
-      },
-      defaultDataModel: 'someModel',
-    });
+        defaultDataModel: modelName,
+      });
 
-    await waitFor(() => expect(screen.getByTestId('test')).toHaveTextContent('Hello World'));
+      await waitFor(() => expect(screen.getByTestId('test')).toHaveTextContent('Hello World'));
 
-    expect(queries.fetchFormData).toHaveBeenCalledTimes(1);
-    expect(queries.fetchFormData).toHaveBeenCalledWith(urlFor('someModel'), {});
+      expect(queries.fetchFormData).toHaveBeenCalledTimes(1);
+      expect(queries.fetchFormData).toHaveBeenCalledWith(urlFor(modelName), {});
 
-    expect(window.logError).not.toHaveBeenCalled();
-    expect(window.logErrorOnce).not.toHaveBeenCalled();
-  });
+      expect(window.logError).not.toHaveBeenCalled();
+      expect(window.logErrorOnce).not.toHaveBeenCalled();
+    },
+  );
 
   it('advanced, should fetch data from multiple models, handle failures', async () => {
     jest.useFakeTimers();

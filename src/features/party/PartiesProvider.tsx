@@ -13,7 +13,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { reduceToValidParties } from 'src/features/party/partyProviderUtils';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
-import { type IParty } from 'src/types/shared';
+import type { IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
@@ -116,7 +116,7 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
   const [userHasSelectedParty, setUserHasSelectedParty] = useState(false);
 
   if (isLoading) {
-    return <Loader reason={'current-party'} />;
+    return <Loader reason='current-party' />;
   }
 
   const error = errorFromMutation || errorFromQuery;
@@ -163,7 +163,7 @@ export function PartyProvider({ children }: PropsWithChildren) {
   const shouldFetchProfile = useShouldFetchProfile();
 
   if (!shouldFetchProfile) {
-    return <>{children}</>;
+    return children;
   }
 
   return (

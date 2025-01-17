@@ -311,7 +311,7 @@ describe('Group', () => {
 
     cy.get(appFrontend.fieldValidation('currentValue-0')).should('have.text', texts.requiredFieldFromValue);
 
-    cy.findByText('Endre fra').type('123');
+    cy.findByRole('textbox', { name: '1. Endre fra*' }).type('123');
     cy.get(appFrontend.group.saveMainGroup).click();
 
     cy.get(appFrontend.fieldValidation('newValue-0')).should('have.text', texts.requiredFieldToValue);
@@ -477,6 +477,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.prefill.enorm).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).blur();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
     cy.snapshot('group:edit-in-table');
 

@@ -53,7 +53,9 @@ export type Registry = {
   toCommit: RegistryCommitQueues;
   toCommitCount: number;
   commitTimeout: ReturnType<typeof setTimeout> | null;
-  validations: ValidationsProcessedLast;
+  validationsProcessed: {
+    [nodeId: string]: ValidationsProcessedLast;
+  };
 };
 
 /**
@@ -233,15 +235,13 @@ export function useRegistry() {
     toCommit: {
       addNodes: [],
       removeNodes: [],
+      removeRows: [],
       setNodeProps: [],
       setRowExtras: [],
       setPageProps: [],
     },
     commitTimeout: null,
-    validations: {
-      initial: undefined,
-      incremental: undefined,
-    },
+    validationsProcessed: {},
   });
 }
 
@@ -377,7 +377,7 @@ function WhenTickIsSet({ children }: PropsWithChildren) {
     return null;
   }
 
-  return <>{children}</>;
+  return children;
 }
 
 /**
@@ -396,16 +396,14 @@ export const GeneratorStages = {
  * finished).
  */
 function useInitialRunNum() {
-  const runNumberRef = NodesStore.useSelectorAsRef((state) => state.stages.runNum);
-
-  const ref = useRef(runNumberRef.current);
+  const ref = useRef(NodesStore.useStaticSelector((state) => state.stages.runNum));
   return ref.current;
 }
 
 function useShouldRenderOrRun(stage: Stage, isNew: boolean, restartReason: 'hook' | 'component') {
   const initialRun = useInitialRunNum();
 
-  const [shouldRenderOrRun, shouldRestart] = NodesStore.useMemoSelector((state) => {
+  const [shouldRenderOrRun, shouldRestart] = NodesStore.useShallowSelector((state) => {
     if (isNew && state.stages.currentStage === StageFinished) {
       return [false, true];
     }
@@ -418,12 +416,19 @@ function useShouldRenderOrRun(stage: Stage, isNew: boolean, restartReason: 'hook
 
   // When new hooks and components are registered and the stages have finished (typically when a new
   // row in a repeating group is added, and thus new nodes are being generated), restart the stages.
-  const restart = NodesStore.useSelector((state) => state.stages.restart);
+  const store = NodesStore.useStore();
   useEffect(() => {
-    if (shouldRestart) {
-      restart(restartReason);
+    const state = store.getState();
+
+    // It seems that calling restart() here, even when it just falls back to setting an empty object, will
+    // cause a deep comparison and trash performance when you have many components in a form. Checking
+    // the stage beforehand will prevent this.
+    const isOnLastStage = state.stages.currentStage === List[List.length - 1];
+
+    if (shouldRestart && isOnLastStage) {
+      state.stages.restart(restartReason);
     }
-  }, [restart, restartReason, shouldRestart]);
+  }, [restartReason, shouldRestart, store]);
 
   return shouldRenderOrRun;
 }
@@ -506,7 +511,7 @@ function WhenParentAdded({ id, stage, registryRef, children }: WhenProps) {
   registryRef.current.conditions =
     parent instanceof BaseLayoutNode ? `node ${parent.id} must be added` : `page ${parent?.pageKey} must be added`;
 
-  return ready ? <>{children}</> : null;
+  return ready ? children : null;
 }
 
 function WhenAllAdded({ id, stage, registryRef, children }: WhenProps) {
@@ -520,12 +525,12 @@ function WhenAllAdded({ id, stage, registryRef, children }: WhenProps) {
       ? `node ${parent.id} and all others are added`
       : `page ${parent?.pageKey} and all others are added`;
 
-  return ready ? <>{children}</> : null;
+  return ready ? children : null;
 }
 
 function Now({ id, stage, children }: WhenProps) {
   useMarkFinished(id, stage, true);
-  return <>{children}</>;
+  return children;
 }
 
 function useMarkFinished(id: string, stage: Stage, ready: boolean) {

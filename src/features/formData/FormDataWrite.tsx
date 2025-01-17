@@ -10,7 +10,7 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
-import { useCurrentDataModelName, useGetDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { useGetDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
@@ -59,11 +59,13 @@ interface FormDataContextInitialProps {
 const {
   Provider,
   useSelector,
+  useShallowSelector,
   useMemoSelector,
   useSelectorAsRef,
   useLaxMemoSelector,
   useLaxDelayedSelector,
   useDelayedSelector,
+  useDelayedSelectorProps,
   useLaxSelector,
   useLaxStore,
   useStore,
@@ -330,7 +332,12 @@ export function FormDataWriteProvider({ children }: PropsWithChildren) {
 }
 
 function FormDataEffects() {
-  const { autoSaving, lockedBy, debounceTimeout, manualSaveRequested } = useSelector((s) => s);
+  const [autoSaving, lockedBy, debounceTimeout, manualSaveRequested] = useShallowSelector((s) => [
+    s.autoSaving,
+    s.lockedBy,
+    s.debounceTimeout,
+    s.manualSaveRequested,
+  ]);
   const hasUnsavedChanges = useHasUnsavedChanges();
   const setUnsavedAttrTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -370,14 +377,14 @@ function FormDataEffects() {
   // saving the data model to the backend. Freezing can also be triggered manually, when a manual save is requested.
   const shouldDebounce = useSelector(hasUnDebouncedChanges);
   useEffect(() => {
-    const timer = shouldDebounce.hasChanges
+    const timer = shouldDebounce
       ? setTimeout(() => {
           debounce();
         }, debounceTimeout)
       : undefined;
 
     return () => clearTimeout(timer);
-  }, [debounce, debounceTimeout, shouldDebounce]);
+  });
 
   // Save the data model when the data has been frozen/debounced, and we're ready
   const needsToSave = useSelector(hasDebouncedUnsavedChanges);
@@ -442,18 +449,11 @@ function hasDebouncedUnsavedChanges(state: FormDataContext) {
   );
 }
 
-/**
- * Checks if we need to debounce. This returns a new object so that the useEffect where it is used gets rerun whenever FormDataEffects renders.
- * If it returned the boolean directly, it would not extend the timeout beyond the first time which causes the debounce timeout not to work as intendend.
- * This may not be an optimal solution, it would ideally cause a rerender whenever any of the items it checks changes with some sort of selector.
- */
 function hasUnDebouncedChanges(state: FormDataContext) {
-  return {
-    hasChanges: Object.values(state.dataModels).some(
-      ({ currentData, debouncedCurrentData, invalidCurrentData, invalidDebouncedCurrentData }) =>
-        currentData !== debouncedCurrentData || invalidCurrentData !== invalidDebouncedCurrentData,
-    ),
-  };
+  return Object.values(state.dataModels).some(
+    ({ currentData, debouncedCurrentData, invalidCurrentData, invalidDebouncedCurrentData }) =>
+      currentData !== debouncedCurrentData || invalidCurrentData !== invalidDebouncedCurrentData,
+  );
 }
 
 function hasUnDebouncedCurrentChanges(state: FormDataContext) {
@@ -565,6 +565,15 @@ const debouncedSelector = (reference: IDataModelReference) => (state: FormDataCo
 const invalidDebouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
   dot.pick(reference.field, state.dataModels[reference.dataType].invalidDebouncedCurrentData);
 
+const debouncedRowSelector = (reference: IDataModelReference) => (state: FormDataContext) => {
+  const rawRows = dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
+  if (!Array.isArray(rawRows) || !rawRows.length) {
+    return emptyArray;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
+};
+
 export const FD = {
   /**
    * Gives you a selector function that can be used to look up paths in the data model. This is similar to
@@ -579,6 +588,13 @@ export const FD = {
     });
   },
 
+  useDebouncedSelectorProps() {
+    return useDelayedSelectorProps({
+      mode: 'simple',
+      selector: debouncedSelector,
+    });
+  },
+
   /**
    * The same as useDebouncedSelector(), but will return BaseRow[] instead of the raw data. This is useful if you
    * just want to fetch the number of rows, and the indexes/uuids of those rows, without fetching the actual data
@@ -587,15 +603,14 @@ export const FD = {
   useDebouncedRowsSelector(): FormDataRowsSelector {
     return useDelayedSelector({
       mode: 'simple',
-      selector: (reference: IDataModelReference) => (state) => {
-        const rawRows = dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
-        if (!Array.isArray(rawRows) || !rawRows.length) {
-          return emptyArray;
-        }
+      selector: debouncedRowSelector,
+    });
+  },
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
-      },
+  useDebouncedRowsSelectorProps() {
+    return useDelayedSelectorProps({
+      mode: 'simple',
+      selector: debouncedRowSelector,
     });
   },
 
@@ -604,6 +619,13 @@ export const FD = {
    */
   useInvalidDebouncedSelector(): FormDataSelector {
     return useDelayedSelector({
+      mode: 'simple',
+      selector: invalidDebouncedSelector,
+    });
+  },
+
+  useInvalidDebouncedSelectorProps() {
+    return useDelayedSelectorProps({
       mode: 'simple',
       selector: invalidDebouncedSelector,
     });
@@ -722,17 +744,17 @@ export const FD = {
    */
   useMapping: <D extends 'string' | 'raw' = 'string'>(
     mapping: IMapping | undefined,
+    defaultDataType: string | undefined,
     dataAs?: D,
-  ): D extends 'raw' ? { [key: string]: FDValue } : { [key: string]: string } => {
-    const currentDataType = useCurrentDataModelName();
-    return useMemoSelector((s) => {
+  ): D extends 'raw' ? { [key: string]: FDValue } : { [key: string]: string } =>
+    useMemoSelector((s) => {
       const realDataAs = dataAs || 'string';
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const out: any = {};
-      if (mapping && currentDataType) {
+      if (mapping && defaultDataType) {
         for (const key of Object.keys(mapping)) {
           const outputKey = mapping[key];
-          const value = dot.pick(key, s.dataModels[currentDataType].debouncedCurrentData);
+          const value = dot.pick(key, s.dataModels[defaultDataType].debouncedCurrentData);
 
           if (realDataAs === 'raw') {
             out[outputKey] = value;
@@ -746,8 +768,7 @@ export const FD = {
         }
       }
       return out;
-    });
-  },
+    }),
 
   /**
    * This returns the raw method for setting a value in the form data. This is useful if you want to
@@ -950,11 +971,4 @@ export const FD = {
 
     return useCallback((dataElementId: string) => map[dataElementId], [map]);
   },
-
-  /**
-   * This lets you set to a function that will be called as soon as the saving operation finishes.
-   * Beware that this is not a subscription service, so you can easily overwrite an existing callback here. This
-   * is only meant to be used in NodesContext.
-   */
-  useSetOnSaveFinished: () => useSelector((s) => s.setOnSaveFinished),
 };

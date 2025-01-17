@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Edit } from '@navikt/ds-icons';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
@@ -76,7 +76,7 @@ export function EditButton({
       variant='tertiary'
       className={className}
     >
-      {!isMobile && <Lang id={'general.edit'} />}
+      {!isMobile && <Lang id='general.edit' />}
       <Edit
         fontSize='1rem'
         aria-hidden={true}

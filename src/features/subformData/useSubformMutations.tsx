@@ -5,7 +5,7 @@ import { isAxiosError } from 'axios';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import {
-  useStrictAppendDataElement,
+  useStrictAppendDataElements,
   useStrictInstanceId,
   useStrictRemoveDataElement,
 } from 'src/features/instance/InstanceContext';
@@ -13,16 +13,16 @@ import { useLanguage } from 'src/features/language/useLanguage';
 
 export const useAddEntryMutation = (dataType: string) => {
   const instanceId = useStrictInstanceId();
-  const appendDataElement = useStrictAppendDataElement();
+  const appendDataElements = useStrictAppendDataElements();
   const { langAsString } = useLanguage();
   const { doSubformEntryAdd } = useAppMutations();
 
   return useMutation({
     mutationKey: ['addSubform', dataType],
     mutationFn: async (data: unknown) => await doSubformEntryAdd(instanceId, dataType, data),
-    onSuccess: (reply) => appendDataElement(reply),
+    onSuccess: (reply) => appendDataElements([reply]),
     onError: (error) => {
-      console.error('Failed to add subform entry:', error);
+      window.logErrorOnce('Failed to add subform entry:', error);
 
       if (isAxiosError(error) && error.response?.status === 409) {
         toast(langAsString('form_filler.error_max_count_reached_subform_server', [dataType]), { type: 'error' });

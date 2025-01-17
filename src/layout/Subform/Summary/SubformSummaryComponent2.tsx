@@ -1,8 +1,8 @@
 import React, { type PropsWithChildren } from 'react';
 
 import { Heading, Paragraph } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Label } from 'src/components/label/Label';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { FormProvider } from 'src/features/form/FormContext';
@@ -38,7 +38,7 @@ export const SummarySubformWrapper = ({ node }: PropsWithChildren<{ node: Layout
           />
           <Paragraph asChild>
             <span className={classes.emptyField}>
-              <Lang id={'general.empty_summary'} />
+              <Lang id='general.empty_summary' />
             </span>
           </Paragraph>
         </>
@@ -81,12 +81,12 @@ const DoSummaryWrapper = ({
   return (
     <div className={classes.summaryWrapperMargin}>
       <FormProvider>
-        <Grid
-          container={true}
+        <Flex
+          container
           spacing={6}
           alignItems='flex-start'
         >
-          <Grid item={true}>
+          <Flex item>
             <div className={classes_singlevaluesummary.labelValueWrapper}>
               <Label
                 node={node}
@@ -98,15 +98,15 @@ const DoSummaryWrapper = ({
               <Heading
                 className='no-visual-testing'
                 spacing={false}
-                size={'sm'}
+                size='sm'
                 level={2}
               >
                 {dataElementId}
               </Heading>
             </div>
-          </Grid>
+          </Flex>
           <LayoutSetSummary />
-        </Grid>
+        </Flex>
       </FormProvider>
     </div>
   );

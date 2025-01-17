@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React from 'react';
 
 import { jest } from '@jest/globals';
@@ -7,12 +6,14 @@ import dotenv from 'dotenv';
 import layoutSchema from 'schemas/json/layout/layout.schema.v1.json';
 import type { JSONSchema7 } from 'json-schema';
 
+import { ignoredConsoleMessages } from 'test/e2e/support/fail-on-console-log';
+
 import { quirks } from 'src/features/form/layout/quirks';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { fetchApplicationMetadata } from 'src/queries/queries';
 import { ensureAppsDirIsSet, getAllApps } from 'src/test/allApps';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 import type { ExternalAppLayoutSet } from 'src/test/allApps';
 
@@ -21,21 +22,18 @@ const ENV: 'prod' | 'all' = env.parsed?.ALTINN_ALL_APPS_ENV === 'prod' ? 'prod' 
 const MODE: 'critical' | 'all' = env.parsed?.ALTINN_ALL_APPS_MODE === 'critical' ? 'critical' : 'all';
 
 const ignoreLogAndErrors = [
-  'Warning: findDOMNode is deprecated and will be removed in the next major release',
+  ...ignoredConsoleMessages,
   'The above error occurred in the',
   'Layout quirk(s) applied',
   ...(MODE === 'critical'
     ? [
+        'Warning: validateDOMNesting', // A more generic variant from the one in ignoredConsoleMessages
         'er ikke tillatt i `textResourceBindings`',
         'Egenskapen `pageRef` er ikke tillatt',
         'samsvarer ikke med mønsteret `^[0-9a-zA-Z][',
         /Målet for oppsummeringen \([^)]*\) ble ikke funnet/,
       ]
     : []),
-
-  // Deprecated react stuff (mostly when rendering components via RenderAllComponents)
-  'defaultProps will be removed from function components',
-  'React does not recognize the `%s` prop on a DOM element',
 ];
 
 function TestApp() {
@@ -57,7 +55,7 @@ function TestApp() {
 
 function RenderAllComponents() {
   const state = NodesInternal.useStore().getState();
-  const nodes = state.nodes;
+  const nodes = useNodes();
   if (!nodes) {
     throw new Error('No nodes found');
   }
@@ -123,15 +121,16 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     .filter((set) => set.isValid())
     .map((set) => ({ appName: set.app.getName(), setName: set.getName(), set }));
 
+  // Randomize the order of the tests so we don't have to wait for the same first ones every time
+  allSets.sort(() => Math.random() - 0.5);
+
   async function testSet(set: ExternalAppLayoutSet) {
     window.location.hash = set.simulateValidUrlHash();
     const [org, app] = set.app.getOrgApp();
     window.org = org;
     window.app = app;
 
-    (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementation(() =>
-      Promise.resolve(set.app.getAppMetadata()),
-    );
+    jest.mocked(fetchApplicationMetadata).mockImplementation(async () => set.app.getAppMetadata());
 
     await renderWithInstanceAndLayout({
       renderer: () =>
@@ -164,6 +163,7 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
 
     // Inject errors from console/window.logError into the full error list for this layout-set
     const devToolsLoggers = windowLoggers.map((func) => window[func] as jest.Mock);
+    // eslint-disable-next-line no-console
     const browserLoggers = consoleLoggers.map((func) => console[func] as jest.Mock);
     for (const _mock of [...devToolsLoggers, ...browserLoggers]) {
       const mock = _mock as jest.Mock;

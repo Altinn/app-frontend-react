@@ -12,8 +12,6 @@ import { ConfirmPage, type IConfirmPageProps } from 'src/features/processEnd/con
 import { fetchProcessState } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 
-jest.mock('react-helmet-async');
-
 describe('ConfirmPage', () => {
   const personParty = getPartyMock();
   const props: IConfirmPageProps = {
@@ -71,14 +69,12 @@ describe('ConfirmPage', () => {
   });
 
   it('should show loading when clicking submit', async () => {
-    (fetchProcessState as jest.Mock<typeof fetchProcessState>).mockImplementation(() =>
-      Promise.resolve(
-        getProcessDataMock((p) => {
-          p.currentTask!.actions = {
-            confirm: true,
-          };
-        }),
-      ),
+    jest.mocked(fetchProcessState).mockImplementation(async () =>
+      getProcessDataMock((p) => {
+        p.currentTask!.actions = {
+          confirm: true,
+        };
+      }),
     );
 
     const { mutations } = await renderWithInstanceAndLayout({

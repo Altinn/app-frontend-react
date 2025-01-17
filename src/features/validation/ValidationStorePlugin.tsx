@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation/index';
 import { getInitialMaskFromNodeItem, selectValidations } from 'src/features/validation/utils';
-import { isHidden, nodesProduce } from 'src/utils/layout/NodesContext';
+import { isHidden, nodesProduce, useNodesLax } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 import type {
@@ -42,7 +42,7 @@ export interface ValidationStorePluginConfig {
     useVisibleValidationsDeep: (
       node: LayoutNode | undefined,
       mask: NodeVisibility,
-      stopAtDepth?: number,
+      includeSelf: boolean,
       restriction?: TraversalRestriction,
       severity?: ValidationSeverity,
     ) => NodeRefValidation[];
@@ -118,7 +118,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           return 'validationVisibility' in nodeData ? nodeData.validationVisibility : 0;
         }),
       useRawValidations: (node) =>
-        store.useSelector((state) => {
+        store.useShallowSelector((state) => {
           if (!node) {
             return emptyArray;
           }
@@ -130,18 +130,18 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           return out && out.length > 0 ? out : emptyArray;
         }),
       useVisibleValidations: (node, showAll) =>
-        store.useSelector((state) => {
+        store.useShallowSelector((state) => {
           if (!node) {
             return emptyArray;
           }
           return getValidations({ state, node, mask: showAll ? 'showAll' : 'visible' });
         }),
-      useVisibleValidationsDeep: (node, mask, stopAtDepth, restriction, severity) =>
+      useVisibleValidationsDeep: (node, mask, includeSelf, restriction, severity) =>
         store.useMemoSelector((state) => {
           if (!node) {
             return emptyArray;
           }
-          return getRecursiveValidations({ state, node, mask, severity, stopAtDepth, restriction });
+          return getRecursiveValidations({ state, node, mask, severity, includeSelf, restriction });
         }),
       useValidationsSelector: () =>
         store.useDelayedSelector({
@@ -151,10 +151,11 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             (state: NodesContext) =>
               getValidations({ state, node, mask, severity, includeHidden }),
         }) satisfies ValidationsSelector,
-      useAllValidations: (mask, severity, includeHidden) =>
-        store.useLaxMemoSelector((state) => {
+      useAllValidations: (mask, severity, includeHidden) => {
+        const nodes = useNodesLax();
+        return store.useLaxMemoSelector((state) => {
           const out: NodeRefValidation[] = [];
-          for (const node of state.nodes?.allNodes() ?? []) {
+          for (const node of nodes?.allNodes() ?? []) {
             const validations = getValidations({ state, node, mask, severity, includeHidden });
             for (const validation of validations) {
               out.push({ ...validation, nodeId: node.id });
@@ -162,9 +163,11 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           }
 
           return out;
-        }),
+        });
+      },
       useGetNodesWithErrors: () => {
         const zustand = store.useLaxStore();
+        const nodes = useNodesLax();
         return useCallback(
           (mask, severity, includeHidden = false) => {
             if (zustand === ContextNotProvided) {
@@ -177,7 +180,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
 
             const outNodes: string[] = [];
             const outValidations: AnyValidation[] = [];
-            for (const node of state.nodes?.allNodes() ?? []) {
+            for (const node of nodes?.allNodes() ?? []) {
               const validations = getValidations({ state, node, mask, severity, includeHidden });
               if (validations.length > 0) {
                 outNodes.push(node.id);
@@ -186,16 +189,17 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             }
             return [outNodes, outValidations];
           },
-          [zustand],
+          [nodes, zustand],
         );
       },
-      usePageHasVisibleRequiredValidations: (pageKey) =>
-        store.useSelector((state) => {
+      usePageHasVisibleRequiredValidations: (pageKey) => {
+        const nodes = useNodesLax();
+        return store.useSelector((state) => {
           if (!pageKey) {
             return false;
           }
 
-          for (const node of state.nodes?.allNodes() ?? []) {
+          for (const node of nodes?.allNodes() ?? []) {
             const nodeData = state.nodeData[node.id];
             if (!nodeData || nodeData.pageKey !== pageKey) {
               continue;
@@ -210,7 +214,8 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           }
 
           return false;
-        }),
+        });
+      },
     };
   }
 }
@@ -229,7 +234,8 @@ function getValidations({ state, node, mask, severity, includeHidden = false }: 
     return emptyArray;
   }
 
-  if (!includeHidden && (!node || isHidden(state, node, hiddenOptions))) {
+  const nodes = node.page.layoutSet;
+  if (!includeHidden && (!node || isHidden(state, node, nodes, hiddenOptions))) {
     return emptyArray;
   }
 
@@ -246,29 +252,34 @@ function getValidations({ state, node, mask, severity, includeHidden = false }: 
 }
 
 interface GetDeepValidationsProps extends GetValidationsProps {
-  depth?: number;
-  stopAtDepth?: number;
+  includeSelf: boolean;
   restriction?: TraversalRestriction;
 }
 
 function getRecursiveValidations(props: GetDeepValidationsProps): NodeRefValidation[] {
   const out: NodeRefValidation[] = [];
-  const depth = props.depth ?? 0;
 
-  const nodeValidations = getValidations(props);
-  for (const validation of nodeValidations) {
-    out.push({ ...validation, nodeId: props.node.id });
+  if (props.includeSelf) {
+    const nodeValidations = getValidations(props);
+    for (const validation of nodeValidations) {
+      out.push({ ...validation, nodeId: props.node.id });
+    }
   }
 
-  if (props.stopAtDepth !== undefined && depth >= props.stopAtDepth) {
-    return out;
-  }
+  const nodes = props.node.page.layoutSet;
+  if (nodes) {
+    const children = props.node.children(new TraversalTask(props.state, nodes, undefined, props.restriction));
+    for (const child of children) {
+      out.push(
+        ...getRecursiveValidations({
+          ...props,
+          node: child,
 
-  if (props.state.nodes) {
-    for (const child of props.node.children(
-      new TraversalTask(props.state, props.state.nodes, undefined, props.restriction),
-    )) {
-      out.push(...getRecursiveValidations({ ...props, node: child, depth: depth + 1 }));
+          // Restriction and includeSelf should only be applied to the first level (not recursively)
+          restriction: undefined,
+          includeSelf: true,
+        }),
+      );
     }
   }
 

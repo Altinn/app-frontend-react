@@ -194,6 +194,11 @@ export interface IProcess {
   processTasks?: ITask[];
 }
 
+export interface Role {
+  type: string;
+  value: string;
+}
+
 export interface IProfile {
   userId: number;
   userName: string;
@@ -289,3 +294,9 @@ export type IAuthContext = {
   read: boolean;
   write: boolean;
 } & { [action in IActionType]: boolean };
+
+export type ProblemDetails = {
+  title: string;
+  detail: string;
+  status: number;
+};

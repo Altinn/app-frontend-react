@@ -16,8 +16,6 @@ import { PartyType } from 'src/types/shared';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IParty } from 'src/types/shared';
 
-jest.mock('react-helmet-async');
-
 interface IRender {
   autoDeleteOnProcessEnd?: boolean;
   hasPdf?: boolean;
@@ -79,20 +77,16 @@ const buildInstance = (hasPdf = true) =>
   });
 
 const render = async ({ autoDeleteOnProcessEnd = false, hasPdf = true }: IRender = {}) => {
-  (fetchApplicationMetadata as jest.Mock<typeof fetchApplicationMetadata>).mockImplementationOnce(() =>
-    Promise.resolve(
-      getIncomingApplicationMetadataMock((a) => {
-        a.autoDeleteOnProcessEnd = autoDeleteOnProcessEnd;
-      }),
-    ),
+  jest.mocked(fetchApplicationMetadata).mockImplementationOnce(async () =>
+    getIncomingApplicationMetadataMock((a) => {
+      a.autoDeleteOnProcessEnd = autoDeleteOnProcessEnd;
+    }),
   );
-  (fetchProcessState as jest.Mock<typeof fetchProcessState>).mockImplementation(() =>
-    Promise.resolve(
-      getProcessDataMock((p) => {
-        p.currentTask = undefined;
-        p.ended = '2022-02-05T09:19:32.8858042Z';
-      }),
-    ),
+  jest.mocked(fetchProcessState).mockImplementation(async () =>
+    getProcessDataMock((p) => {
+      p.currentTask = undefined;
+      p.ended = '2022-02-05T09:19:32.8858042Z';
+    }),
   );
 
   return await renderWithoutInstanceAndLayout({
@@ -138,7 +132,7 @@ describe('ReceiptContainer', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Skjema er sendt inn',
+        name: 'Skjemaet er sendt inn',
       }),
     ).toBeInTheDocument();
 

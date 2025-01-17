@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo } from 'react';
+import React, { Fragment, useMemo } from 'react';
 
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
@@ -95,7 +95,6 @@ const GenerateRow = React.memo(function GenerateRow({
   plugin,
 }: GenerateRowProps) {
   const node = GeneratorInternal.useParent() as LayoutNode;
-  const removeRow = NodesInternal.useRemoveRow();
   const depth = GeneratorInternal.useDepth();
   const directMutators = useMemo(() => [mutateMultiPageIndex(multiPageMapping)], [multiPageMapping]);
 
@@ -108,12 +107,7 @@ const GenerateRow = React.memo(function GenerateRow({
     [rowIndex, depth, groupBinding],
   );
 
-  useEffect(
-    () => () => {
-      removeRow(node, plugin);
-    },
-    [node, plugin, removeRow],
-  );
+  NodesStateQueue.useRemoveRow({ node, plugin });
 
   return (
     <GeneratorRowProvider
@@ -150,8 +144,7 @@ interface ResolveRowProps {
 function ResolveRowExpressions({ plugin }: ResolveRowProps) {
   const node = GeneratorInternal.useParent() as LayoutNode;
   const rowIndex = GeneratorInternal.useRowIndex()!;
-  const nodeChildren = useNodeDirectChildren(node, rowIndex);
-  const firstChild = nodeChildren ? nodeChildren[0] : undefined;
+  const firstChild = useNodeDirectChildren(node, rowIndex).at(0);
 
   const internal = NodesInternal.useNodeData(
     node,

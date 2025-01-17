@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { flushSync } from 'react-dom';
 
 import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
@@ -11,20 +10,18 @@ import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { Form } from 'src/components/form/Form';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { AllowedValidationMasks } from 'src/layout/common.generated';
-
-jest.mock('react-helmet-async');
 
 function FormDataValue() {
   const formDataValue = FD.useDebouncedPick({ dataType: defaultDataTypeMock, field: 'TextField' });
   const [delayedValue, setDelayedValue] = useState(formDataValue);
+  const waitUntilReady = NodesInternal.useWaitUntilReady();
 
   // This will ensure that the validation state gets updated in the error report by the time this value gets written to the DOM
   useEffect(() => {
-    flushSync(() => {
-      setDelayedValue(formDataValue);
-    });
-  }, [formDataValue]);
+    waitUntilReady().then(() => setDelayedValue(formDataValue));
+  }, [formDataValue, waitUntilReady]);
 
   return <div data-testid='formDataValue'>{delayedValue ? delayedValue.toString() : '<empty>'}</div>;
 }
@@ -170,7 +167,7 @@ describe('ValidationPlugin', () => {
     it('validation on navigating to next page should not be blocked by unrelated validations', async () => {
       await render({ text: 'this is too long', showValidations: ['Schema'], validateOnNext: ['Required'] });
 
-      let ErrorReport = screen.getByTestId('ErrorReport');
+      const ErrorReport = screen.getByTestId('ErrorReport');
       expect(within(ErrorReport).getByText(/bruk 10 eller færre tegn/i)).toBeInTheDocument();
       expect(within(ErrorReport).queryByText(/du må fylle ut text/i)).not.toBeInTheDocument();
 
@@ -178,9 +175,12 @@ describe('ValidationPlugin', () => {
 
       await screen.findByText(/this is the second page!/i);
 
-      ErrorReport = screen.getByTestId('ErrorReport');
-      expect(within(ErrorReport).getByText(/bruk 10 eller færre tegn/i)).toBeInTheDocument();
-      expect(within(ErrorReport).queryByText(/du må fylle ut text/i)).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(within(screen.getByTestId('ErrorReport')).getByText(/bruk 10 eller færre tegn/i)).toBeInTheDocument(),
+      );
+      await waitFor(() =>
+        expect(within(screen.getByTestId('ErrorReport')).queryByText(/du må fylle ut text/i)).not.toBeInTheDocument(),
+      );
     });
 
     it('validation on navigating to next page should not remove visibility existing in showValidations, but add to them', async () => {

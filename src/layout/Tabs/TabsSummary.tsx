@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import classes from 'src/layout/Tabs/TabsSummary.module.css';
@@ -24,10 +24,10 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
   return (
     <div
       className={classes.summaryContent}
-      data-testid={'summary-tabs-component'}
+      data-testid='summary-tabs-component'
     >
       {tabs.map((tab, index) => (
-        <>
+        <div key={index}>
           {index != 0 && (
             <hr
               key={`${tab.title}-${index}-divider`}
@@ -47,7 +47,7 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
                 node={componentNode}
               />
             </Heading>
-            <Grid
+            <Flex
               container
               spacing={6}
               alignItems='flex-start'
@@ -58,9 +58,9 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
                   componentId={nodeId}
                 />
               ))}
-            </Grid>
+            </Flex>
           </div>
-        </>
+        </div>
       ))}
     </div>
   );

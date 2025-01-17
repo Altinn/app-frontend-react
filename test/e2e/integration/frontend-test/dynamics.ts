@@ -30,22 +30,18 @@ describe('Dynamics', () => {
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
   });
 
-  it('Should save the labels of multiple chosen options', () => {
+  it('Should save the labels of multiple chosen options and radio buttons', () => {
     cy.gotoHiddenPage('label-data-bindings');
 
     cy.findByRole('checkbox', { name: 'Blå' }).click();
     cy.findByRole('checkbox', { name: 'Grønn' }).click();
     cy.get('#ColorsLabelsVerify').should('have.value', 'Blå,Grønn');
-    changeToLang('en');
-    cy.get('#ColorsLabelsVerify').should('have.value', 'Blue,Green');
-  });
-
-  it('Should save the label of a chosen option', () => {
-    cy.gotoHiddenPage('label-data-bindings');
 
     cy.findByRole('radio', { name: 'Gulrot' }).click();
     cy.get('#colorLabel').should('have.value', 'Gulrot');
+
     changeToLang('en');
+    cy.get('#ColorsLabelsVerify').should('have.value', 'Blue,Green');
     cy.get('#colorLabel').should('have.value', 'Carrot');
   });
 
@@ -174,5 +170,34 @@ describe('Dynamics', () => {
     cy.dsSelect(appFrontend.changeOfName.sources, 'Value A');
     cy.get(appFrontend.changeOfName.reference).should('be.visible');
     cy.get(appFrontend.changeOfName.reference2).should('be.visible');
+  });
+
+  it('Deeply linked hidden with component lookups', () => {
+    cy.gotoHiddenPage('linked-hidden');
+
+    function fillOut(componentId: string, correctValue = 'Ja', incorrectValue = 'Nei') {
+      if (incorrectValue) {
+        cy.get('[data-componentid="TrapAlert"]').should('not.exist');
+        cy.get('[data-componentid="NoShowAlert"]').should('not.exist');
+        cy.get(`[data-componentid="${componentId}"]`).findByRole('radio', { name: incorrectValue }).click();
+        componentId === 'LinkedHidden6' && cy.get('[data-componentid="TrapAlert"]').should('be.visible');
+        cy.get('[data-componentid="NoShowAlert"]').should('be.visible');
+      }
+      cy.get(`[data-componentid="${componentId}"]`).findByRole('radio', { name: correctValue }).click();
+      cy.get('[data-componentid="NoShowAlert"]').should('not.exist');
+      cy.get('[data-componentid="TrapAlert"]').should('not.exist');
+    }
+
+    fillOut('LinkedHidden1');
+    fillOut('LinkedHidden2');
+    fillOut('LinkedHidden3');
+    fillOut('LinkedHidden4');
+    fillOut('LinkedHidden5');
+    fillOut('LinkedHidden6', 'Nei', 'Ja');
+    fillOut('LinkedHidden7', 'Neida, jeg gikk ikke på den, jeg lover', '');
+    fillOut('LinkedHidden8', 'Ja!');
+    fillOut('LinkedHidden9', 'Jeg lover', 'Nei, nå er jeg sur');
+
+    cy.get('[data-componentid="TheTextField"]').find('input').type('Jeg bestod testen, hurra!');
   });
 });

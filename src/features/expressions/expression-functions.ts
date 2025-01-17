@@ -1,13 +1,14 @@
 import dot from 'dot-object';
 import type { Mutable } from 'utility-types';
 
+import { isDate } from 'src/app-components/Datepicker/utils/dateHelpers';
 import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
 import { SearchParams } from 'src/features/routing/AppRoutingContext';
 import { implementsDisplayData } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
-import { isDate } from 'src/utils/dateHelpers';
+import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -68,6 +69,37 @@ export const ExprFunctions = {
       return this.positionalArguments[idx];
     },
     args: [ExprVal.Number] as const,
+    returns: ExprVal.Any,
+  }),
+  value: defineFunc({
+    impl(key) {
+      const config = this.valueArguments;
+      if (!config) {
+        throw new ExprRuntimeError(this.expr, this.path, 'No value arguments available');
+      }
+
+      const realKey = key ?? config.defaultKey;
+      if (!realKey || typeof realKey !== 'string') {
+        throw new ExprRuntimeError(
+          this.expr,
+          this.path,
+          `Invalid key (expected string, got ${realKey ? typeof realKey : 'null'})`,
+        );
+      }
+
+      if (!Object.prototype.hasOwnProperty.call(config.data, realKey)) {
+        throw new ExprRuntimeError(
+          this.expr,
+          this.path,
+          `Unknown key ${realKey}, Valid keys are: ${Object.keys(config.data).join(', ')}`,
+        );
+      }
+
+      const value = config.data[realKey];
+      return value ?? null;
+    },
+    minArguments: 0,
+    args: [ExprVal.String] as const,
     returns: ExprVal.Any,
   }),
   equals: defineFunc({
@@ -275,6 +307,14 @@ export const ExprFunctions = {
       }
 
       const reference: IDataModelReference = { dataType, field: propertyPath };
+      if (this.dataSources.currentDataModelPath && this.dataSources.currentDataModelPath.dataType === dataType) {
+        const newReference = transposeDataBinding({
+          subject: reference,
+          currentLocation: this.dataSources.currentDataModelPath,
+        });
+        return pickSimpleValue(newReference, this);
+      }
+
       const node = ensureNode(this.node);
       if (node instanceof BaseLayoutNode) {
         const newReference = this.dataSources.transposeSelector(node as LayoutNode, reference);
@@ -288,6 +328,19 @@ export const ExprFunctions = {
     args: [ExprVal.String, ExprVal.String] as const,
     minArguments: 1,
     returns: ExprVal.Any,
+  }),
+  hasRole: defineFunc({
+    impl(roleName): boolean | null {
+      if (typeof roleName !== 'string') {
+        throw new ExprRuntimeError(this.expr, this.path, `Expected string argument.`);
+      }
+      if (!this.dataSources.roles) {
+        return false;
+      }
+      return this.dataSources.roles.data?.map((role) => role.value).includes(roleName) ?? null;
+    },
+    args: [ExprVal.String] as const,
+    returns: ExprVal.Boolean,
   }),
   externalApi: defineFunc({
     impl(externalApiId, path): string | null {

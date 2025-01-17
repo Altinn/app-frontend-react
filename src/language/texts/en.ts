@@ -88,8 +88,11 @@ export function en() {
       file_uploader_max_size: 'Maximum file size',
       file_uploader_mb: 'MB',
       file_uploader_upload: 'Upload file',
-      file_uploader_number_of_files: 'Number of files',
+      file_uploader_number_of_files: 'Number of files {0}.',
+      file_uploader_show_more_errors: 'Show {0} more',
+      file_uploader_show_fewer_errors: 'Show fewer',
       file_uploader_valid_file_format: 'Valid file types are:',
+      file_uploader_failed_to_upload_file: 'The file <u title="{1}">{0}</u> could not be uploaded',
       file_uploader_validation_error_delete: 'Something went wrong trying to delete the file, please try again.',
       file_uploader_validation_error_exceeds_max_files:
         'You can not upload more than {0} files. No files were uploaded.',
@@ -115,6 +118,10 @@ export function en() {
       zipCode: 'Zip Code',
       no_options_found: 'No matches found',
       clear_selection: 'Clear selection',
+      person_lookup_ssn: 'national ID number/D-number',
+      person_lookup_name: 'name',
+      organisation_lookup_orgnr: 'organisation number',
+      organisation_lookup_name: 'organisation name',
     },
     navigation: {
       main: 'App navigation',
@@ -312,6 +319,30 @@ export function en() {
         vat: 'VAT',
       },
     },
+    organisation_lookup: {
+      orgnr_label: 'Organisation number',
+      org_name: 'Organisation name',
+      from_registry_description: 'From the CCR',
+      validation_error_not_found: 'Organisation number not found in the registry',
+      validation_invalid_response_from_server: 'Invalid response from the server',
+      unknown_error: 'An unknown error occurred. Please try again later',
+      validation_error_orgnr: 'The organisation number is invalid',
+    },
+    person_lookup: {
+      ssn_label: 'National ID number/D-number',
+      surname_label: 'Surname',
+      name_label: 'Name',
+      from_registry_description: 'From the National Population Register',
+      validation_error_name_too_short: "The name can't be shorter than 2 characters",
+      validation_error_ssn: 'The national ID number/D-number is invalid.',
+      validation_error_not_found:
+        'No person is registered with this combination of national ID number/D-number and name. Please check the fields and try again. \n\nNote: After 5 failed attempts, the search functionality will be temporarily locked.',
+      validation_error_too_many_requests: 'Too many requests. Please try again later.',
+      validation_error_forbidden:
+        'You do not have permission to perform this action. A security level of minimum 2 is required.',
+      validation_invalid_response_from_server: 'An error occurred. Please try again later.',
+      unknown_error: 'An unknown error occurred. Please try again later.',
+    },
     helptext: {
       button_title: 'Help',
       button_title_prefix: 'Helptext for',
@@ -327,7 +358,7 @@ export function en() {
       ref_num: 'Reference number',
       sender: 'Sender',
       subtitle: 'A copy of your receipt has been sent to your archive',
-      title: 'Form is submitted',
+      title: 'The form is submitted',
       title_submitted: 'The following is submitted:',
     },
     receipt_platform: {
@@ -363,6 +394,8 @@ export function en() {
       enum: 'Only the values {0} are permitted',
       minItems: 'A minimum of {0} rows are required',
       maxItems: 'A maximum of {0} rows are permitted',
+      formatMinimum: 'Minimum valid value is {0}',
+      formatMaximum: 'Maximum valid value is {0}',
     },
     map_component: {
       selectedLocation: 'Selected location: {0}° north, {1}° east',
