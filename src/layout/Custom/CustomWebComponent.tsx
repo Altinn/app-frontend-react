@@ -38,6 +38,7 @@ export function CustomWebComponent({
     getTextResourceAsString: (textResource: string) => langAsString(textResource),
     summaryMode,
   };
+
   const HtmlTag = tagName;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const wcRef = React.useRef<any>(null);
@@ -48,7 +49,15 @@ export function CustomWebComponent({
     if (current) {
       const handleChange = (customEvent: CustomEvent) => {
         const { value, field } = customEvent.detail;
-        setValue(field, value);
+        if (!dataModelBindings?.simpleBinding && !field) {
+          throw new Error(
+            'If you are not using simpleBinding, you need to include a field in your change event to indicate what datamodel binding you want to save to. See docs: https://github.com/Altinn/altinn-studio/issues/8681',
+          );
+        }
+        if (field) {
+          setValue(field, value);
+        }
+        setValue('simpleBinding', value);
       };
 
       current.addEventListener('dataChanged', handleChange);
@@ -56,7 +65,7 @@ export function CustomWebComponent({
         current.removeEventListener('dataChanged', handleChange);
       };
     }
-  }, [setValue, wcRef]);
+  }, [dataModelBindings?.simpleBinding, setValue, wcRef]);
 
   React.useLayoutEffect(() => {
     const { current } = wcRef;
@@ -88,11 +97,12 @@ export function CustomWebComponent({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       prop = ReactDOMServer.renderToStaticMarkup(prop as any);
     } else if (['object', 'array'].includes(typeof prop)) {
-      prop = JSON.stringify(passThroughProps[key]);
+      if (key !== 'containerDivRef') {
+        prop = JSON.stringify(passThroughProps[key]);
+      }
     }
     propsAsAttributes[key] = prop;
   });
-
   return (
     <ComponentStructureWrapper node={node}>
       <HtmlTag
