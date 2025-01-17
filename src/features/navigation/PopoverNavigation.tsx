@@ -160,11 +160,13 @@ function usePageGroupProgress(): NavigationButtonData | null {
   const pageCount = currentGroup.order.length;
   const pageIndex = currentGroup.order.indexOf(currentPageId);
 
+  const name = 'name' in currentGroup ? currentGroup.name : currentGroup.order[0];
+
   if (pageIndex > -1) {
-    return { name: currentGroup.name, pageNumber: pageIndex + 1, pageCount };
+    return { name, pageNumber: pageIndex + 1, pageCount };
   }
 
-  return { name: currentGroup.name, pageNumber: 1, pageCount: 1 };
+  return { name, pageNumber: 1, pageCount: 1 };
 }
 
 function useTaskProgress(): NavigationButtonData | null {

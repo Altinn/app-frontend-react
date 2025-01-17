@@ -131,8 +131,8 @@ export function nn(): FixedLanguageList {
       form_pages: 'Skjemasider',
       back_to_inbox: 'Tilbake til innboks',
       inbox: 'Innboks',
-      back_to_main_form: 'Tilbake til hovudskjema',
-      main_form: 'Hovudskjema',
+      back_to_main_form: 'Tilbake til {0}',
+      main_form: '{0}',
       back: 'Tilbake',
     },
     general: {

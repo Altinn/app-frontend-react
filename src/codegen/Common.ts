@@ -734,17 +734,34 @@ const common = {
           ),
       ),
     ),
+  INavigationBasePageGroup: () =>
+    new CG.obj(
+      // TODO: Add tests checking that this gets added
+      new CG.prop('id', new CG.str()).omitInSchema(),
+      new CG.prop('type', new CG.enum('default', 'info').optional({ default: 'default' })),
+    ),
   IPagesSettingsWithGroups: () =>
     new CG.obj(
       new CG.prop(
         'groups',
         new CG.arr(
-          new CG.obj(
-            // TODO: Add tests checking that this gets added
-            new CG.prop('id', new CG.str()).omitInSchema(),
-            new CG.prop('name', new CG.str()),
-            new CG.prop('order', new CG.arr(new CG.str())),
-          ).exportAs('NavigationPageGroup'),
+          new CG.union(
+            new CG.obj(
+              new CG.prop('name', new CG.str()),
+              new CG.prop('single', new CG.const(false).optional({ default: false })),
+              new CG.prop('order', new CG.arr(new CG.str()).setMinItems(1)),
+            )
+              .extends(CG.common('INavigationBasePageGroup'))
+              .exportAs('NavigationPageGroupMultiple'),
+            new CG.obj(
+              new CG.prop('single', new CG.const(true)),
+              new CG.prop('order', new CG.arr(new CG.str()).setMinItems(1).setMaxItems(1)),
+            )
+              .extends(CG.common('INavigationBasePageGroup'))
+              .exportAs('NavigationPageGroupSingle'),
+          )
+            .setUnionType('discriminated')
+            .exportAs('NavigationPageGroup'),
         )
           .setTitle('Page groups')
           .setDescription('List of page groups in the order they should appear in the application'),

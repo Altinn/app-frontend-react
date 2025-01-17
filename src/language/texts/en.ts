@@ -131,8 +131,8 @@ export function en() {
       form_pages: 'Form pages',
       back_to_inbox: 'Back to inbox',
       inbox: 'Inbox',
-      back_to_main_form: 'Back to main form',
-      main_form: 'Main form',
+      back_to_main_form: 'Back to {0}',
+      main_form: '{0}',
       back: 'Back',
     },
     general: {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useInsertionEffect, useState } from 'react';
 
 import { Button, Heading } from '@digdir/designsystemet-react';
 import {
@@ -7,6 +7,7 @@ import {
   ChevronDownIcon,
   ExclamationmarkIcon,
   FolderIcon,
+  InformationIcon,
   PencilLineIcon,
   ReceiptIcon,
   SealCheckmarkIcon,
@@ -30,7 +31,13 @@ import {
 } from 'src/features/navigation/utils';
 import { useIsReceiptPage, useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import type { NavigationPageGroup, NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
+import type {
+  NavigationPageGroup,
+  NavigationPageGroupMultiple,
+  NavigationPageGroupSingle,
+  NavigationReceipt,
+  NavigationTask,
+} from 'src/layout/common.generated';
 
 export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
   const pageGroups = usePageGroups();
@@ -114,8 +121,12 @@ export function AppNavigationHeading({
   );
 }
 
-function getTaskIcon(type: string | undefined) {
-  switch (type) {
+function getTaskIcon(taskType: string | undefined, type?: NavigationPageGroup['type']) {
+  if (type === 'info') {
+    return InformationIcon;
+  }
+
+  switch (taskType) {
     case 'data':
       return TasklistIcon;
     case 'confirmation':
@@ -156,20 +167,94 @@ function TaskGroup({ group, active }: { group: NavigationTask | NavigationReceip
 }
 
 function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNavigate?: () => void }) {
-  const order = useVisiblePages(group.order);
+  const visiblePages = useVisiblePages(group.order);
   const currentPageId = useNavigationParam('pageKey');
-  const containsCurrentPage = order.some((page) => page === currentPageId);
-  const validations = useValidationsForPages(order);
+  const containsCurrentPage = visiblePages.some((page) => page === currentPageId);
+  const validations = useValidationsForPages(visiblePages);
 
+  if (visiblePages.length === 0) {
+    return null;
+  }
+
+  if (group.single) {
+    return (
+      <PageGroupSingle
+        group={group}
+        visiblePages={visiblePages}
+        containsCurrentPage={containsCurrentPage}
+        validations={validations}
+        onNavigate={onNavigate}
+      />
+    );
+  }
+
+  return (
+    <PageGroupMultiple
+      group={group}
+      visiblePages={visiblePages}
+      containsCurrentPage={containsCurrentPage}
+      validations={validations}
+      onNavigate={onNavigate}
+    />
+  );
+}
+
+type PageGroupProps<T extends NavigationPageGroup> = {
+  group: T;
+  visiblePages: string[];
+  containsCurrentPage: boolean;
+  validations: ReturnType<typeof useValidationsForPages>;
+  onNavigate?: () => void;
+};
+
+function PageGroupSingle({
+  group,
+  containsCurrentPage: isCurrentPage,
+  validations,
+  onNavigate,
+}: PageGroupProps<NavigationPageGroupSingle>) {
+  const { navigateToPage } = useNavigatePage();
+  const page = group.order[0];
+
+  return (
+    <li>
+      <button
+        aria-current={isCurrentPage ? 'step' : undefined}
+        className={cn(classes.groupButton, 'fds-focus')}
+        onClick={() => {
+          if (!isCurrentPage) {
+            navigateToPage(page);
+            onNavigate?.();
+          }
+        }}
+      >
+        <PageGroupSymbol
+          open={false}
+          type={group.type}
+          active={isCurrentPage}
+          error={validations !== ContextNotProvided && validations.hasErrors.group}
+          complete={validations !== ContextNotProvided && validations.isCompleted.group}
+        />
+        <span className={cn(classes.groupName, { [classes.groupNameActive]: isCurrentPage })}>
+          <Lang id={page} />
+        </span>
+      </button>
+    </li>
+  );
+}
+
+function PageGroupMultiple({
+  group,
+  visiblePages,
+  containsCurrentPage,
+  validations,
+  onNavigate,
+}: PageGroupProps<NavigationPageGroupMultiple>) {
   const buttonId = `navigation-button-${group.id}`;
   const listId = `navigation-page-list-${group.id}`;
 
   const [isOpen, setIsOpen] = useState(containsCurrentPage);
-  useEffect(() => setIsOpen(containsCurrentPage), [containsCurrentPage]);
-
-  if (order.length === 0) {
-    return null;
-  }
+  useInsertionEffect(() => setIsOpen(containsCurrentPage), [containsCurrentPage]);
 
   return (
     <li>
@@ -183,6 +268,7 @@ function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNaviga
       >
         <PageGroupSymbol
           open={isOpen}
+          type={group.type}
           active={containsCurrentPage}
           error={validations !== ContextNotProvided && validations.hasErrors.group}
           complete={validations !== ContextNotProvided && validations.isCompleted.group}
@@ -198,7 +284,7 @@ function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNaviga
           aria-labelledby={buttonId}
           className={classes.pageList}
         >
-          {order.map((page) => (
+          {visiblePages.map((page) => (
             <Page
               key={page}
               page={page}
@@ -214,11 +300,13 @@ function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNaviga
 }
 
 function PageGroupSymbol({
+  type,
   error,
   complete,
   open,
   active,
 }: {
+  type: NavigationPageGroup['type'];
   error: boolean;
   complete: boolean;
   open: boolean;
@@ -231,7 +319,11 @@ function PageGroupSymbol({
   const showError = error && !active && !open;
   const showComplete = complete && !error && !active && !open;
 
-  const Icon = showError ? ExclamationmarkIcon : showComplete ? CheckmarkIcon : getTaskIcon(getTaskType(currentTaskId));
+  const Icon = showError
+    ? ExclamationmarkIcon
+    : showComplete
+      ? CheckmarkIcon
+      : getTaskIcon(getTaskType(currentTaskId), type);
 
   return (
     <div
