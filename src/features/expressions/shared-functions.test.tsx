@@ -102,7 +102,7 @@ describe('Expressions shared function tests', () => {
         expects,
         expectsFailure,
         context,
-        layouts,
+        layouts: _layouts,
         dataModel,
         dataModels,
         instanceDataElements,
@@ -181,6 +181,27 @@ describe('Expressions shared function tests', () => {
           id: 'default',
           appLogic: { classRef: 'some-class', taskId: 'Task_1' },
         } as unknown as IDataType);
+      }
+
+      let layouts: ILayoutCollection | undefined;
+      if (_layouts) {
+        // Frontend will look inside the layout for data model bindings and expressions in order to figure out which
+        // data models to load. Since the expression we're testing is not part of the layout, we need to add it here
+        // so that everything is loaded correctly.
+        layouts = structuredClone(_layouts);
+        const firstPage = Object.values(layouts)[0];
+        firstPage?.data.layout.push({
+          id: 'theCurrentExpression',
+          type: 'NavigationButtons',
+          ...({
+            // This makes sure that the expression is never evaluated, as it is not a valid property. All properties
+            // that can handle expressions will be evaluated in the hierarchy generation, but errors from there will
+            // not effect the actual test here. Still, DataModelsProvider will find the reference to any data models
+            // inside this expression, because it will simply traverse the entire layout looking for expressions.
+            notAnActualExpression: expression,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } as any),
+        });
       }
 
       const profile = getProfileMock();
