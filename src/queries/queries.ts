@@ -157,7 +157,7 @@ export const doPerformAction = async (
   partyId: string,
   instanceGuid: string,
   actionRequest: UserActionRequest,
-  language?: string,
+  language: string,
 ): Promise<ActionResult> => {
   const response = await httpPost(getActionsUrl(partyId, instanceGuid, language), undefined, actionRequest);
   if (response.status !== 200) {

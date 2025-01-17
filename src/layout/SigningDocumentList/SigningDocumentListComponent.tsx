@@ -7,7 +7,6 @@ import { useQuery } from '@tanstack/react-query';
 
 import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
@@ -20,14 +19,12 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export function SigningDocumentListComponent({ node }: PropsFromGenericComponent<'SigningDocumentList'>) {
   const { partyId, instanceGuid } = useParams();
   const { textResourceBindings } = useNodeItem(node);
-  const isDataModelDataElement = useIsDataModelDataElement();
   const { langAsString } = useLanguage();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['signingDocumentList', partyId, instanceGuid],
     queryFn: () => fetchDocumentList(partyId!, instanceGuid!),
     staleTime: 1000 * 60 * 30, // 30 minutes
-    select: (data) => data.filter((it) => !isDataModelDataElement(it.dataType)),
   });
 
   if (error) {
@@ -91,12 +88,4 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
       ]}
     />
   );
-}
-
-function useIsDataModelDataElement() {
-  const { dataTypes } = useApplicationMetadata();
-
-  const dataModelsFromMetadata = dataTypes.filter((it) => it.appLogic?.classRef);
-
-  return (dataElementId: string) => dataModelsFromMetadata.some((it) => it.id === dataElementId);
 }
