@@ -351,7 +351,7 @@ export function en() {
       sign_button: 'Sign the form',
 
       submit_panel_title: 'You can now submit the form',
-      submit_panel_description: 'All parties have signed! Select Submit to complete.',
+      submit_panel_description: 'All parties have signed! Select "{0}" to complete.',
       submit_button: 'Submit form',
 
       awaiting_other_signatures_panel_title: 'Waiting for signatures',
@@ -372,7 +372,8 @@ export function en() {
       reject_modal_trigger_button: 'Cancel signing',
 
       wrong_task_error: 'The {0} component is only available in a signing task.',
-      error_missing_signing_rights: 'Something went wrong.Current user should sign, but does not have rights to do so.',
+      error_missing_signing_rights:
+        'Something went wrong. Current user should sign, but does not have rights to do so.',
       error_signing: 'Something went wrong when signing. Please try again.',
     },
     signee_list: {

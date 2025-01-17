@@ -11,15 +11,15 @@ import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PanelProps } from 'src/app-components/Panel/Panel';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type SigningPanelProps = {
-  node: BaseLayoutNode<'SigningStatusPanel'>;
-  heading: string;
-  description?: string;
+  node: LayoutNode<'SigningStatusPanel'>;
+  heading: React.ReactElement;
+  description?: React.ReactElement;
   variant?: PanelProps['variant'];
   actionButton: ReactElement<typeof Button>;
-  errorMessage?: string;
+  errorMessage?: React.ReactElement;
 };
 
 export function SigningPanel({
@@ -62,18 +62,18 @@ export function SigningPanel({
 }
 
 type RejectTextProps = {
-  node: BaseLayoutNode<'SigningStatusPanel'>;
+  node: LayoutNode<'SigningStatusPanel'>;
 };
 
 function Reject({ node }: RejectTextProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const { next, busy } = useProcessNavigation() ?? {};
-  const { textResourceBindings } = useNodeItem(node);
+  const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
 
-  const modalTitle = textResourceBindings?.reject_modal_title ?? 'signing.reject_modal_title';
-  const modalDescription = textResourceBindings?.reject_modal_description ?? 'signing.reject_modal_description';
-  const modalButton = textResourceBindings?.reject_modal_button ?? 'signing.reject_modal_button';
-  const modalTriggerButton = textResourceBindings?.reject_modal_trigger_button ?? 'signing.reject_modal_trigger_button';
+  const modalTitle = textResourceBindings?.rejectModalTitle ?? 'signing.reject_modal_title';
+  const modalDescription = textResourceBindings?.rejectModalDescription ?? 'signing.reject_modal_description';
+  const modalButton = textResourceBindings?.rejectModalButton ?? 'signing.reject_modal_button';
+  const modalTriggerButton = textResourceBindings?.rejectModalTriggerButton ?? 'signing.reject_modal_trigger_button';
 
   function handleReject() {
     next?.({ action: 'reject', nodeId: 'reject-button' });

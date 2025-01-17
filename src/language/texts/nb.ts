@@ -351,13 +351,13 @@ export function nb(): FixedLanguageList {
       sign_button: 'Signer skjemaet',
 
       submit_panel_title: 'Du kan nå sende inn skjemaet',
-      submit_panel_description: 'Alle parter har signert! Velg Send inn for å fullføre.',
+      submit_panel_description: 'Alle parter har signert! Velg "{0}" for å fullføre.',
+      submit_button: 'Send inn skjemaet',
 
       awaiting_other_signatures_panel_title: 'Venter på signaturer',
       awaiting_other_signatures_panel_description_not_signing: 'Du kan sende inn skjemaet når alle parter har signert.',
       awaiting_other_signatures_panel_description_signed:
         'Takk for at du signerte! Du kan sende inn skjemaet når alle parter har signert.',
-      submit_button: 'Send inn skjemaet',
 
       no_action_required_panel_title_has_signed: 'Du har signert skjemaet',
       no_action_required_panel_title_not_signed: 'Ingenting å signere',

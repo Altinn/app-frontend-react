@@ -5,8 +5,7 @@ import { Spinner } from '@digdir/designsystemet-react';
 import { useQuery } from '@tanstack/react-query';
 
 import { Panel } from 'src/app-components/Panel/Panel';
-import { useIsAuthorised, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
-import { Lang } from 'src/features/language/Lang';
+import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
@@ -14,26 +13,15 @@ import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningStatusPanel/Pane
 import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/PanelNoActionRequired';
 import { SubmitPanel } from 'src/layout/SigningStatusPanel/PanelSubmit';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
-import { ProcessTaskType } from 'src/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SigneeState } from 'src/layout/SigneeList/api';
 
 export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<'SigningStatusPanel'>) {
-  const taskType = useTaskTypeFromBackend();
   const { partyId, instanceGuid } = useParams();
   const { data: signeeList, isLoading } = useQuery(signeeListQuery(partyId!, instanceGuid!));
   const currentUserStatus = getCurrentUserStatus(signeeList, partyId);
   const canWrite = useIsAuthorised()('write');
   const { langAsString } = useLanguage();
-
-  if (taskType !== ProcessTaskType.Signing) {
-    return (
-      <Lang
-        id='signing.wrong_task_error'
-        params={['SigningStatusPanel']}
-      />
-    );
-  }
 
   if (isLoading) {
     return (

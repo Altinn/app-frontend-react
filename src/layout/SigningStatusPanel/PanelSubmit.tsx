@@ -3,34 +3,45 @@ import React from 'react';
 import { Button } from 'src/app-components/Button/Button';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
-import { useLanguage } from 'src/features/language/useLanguage';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type SubmitPanelProps = {
-  node: BaseLayoutNode<'SigningStatusPanel'>;
+  node: LayoutNode<'SigningStatusPanel'>;
 };
 
 export function SubmitPanel({ node }: SubmitPanelProps) {
   const { next, busy } = useProcessNavigation() ?? {};
-  const { langAsString } = useLanguage();
-  const { id: nodeId, textResourceBindings } = useNodeItem(node);
+  const { nodeId, textResourceBindings } = useNodeItem(node, (i) => ({
+    nodeId: i.id,
+    textResourceBindings: i.textResourceBindings,
+  }));
 
   function handleSubmit() {
     next?.({ nodeId });
   }
 
-  const titleReadyForSubmit = textResourceBindings?.submit_panel_title ?? 'signing.submit_panel_title';
-  const descriptionReadyForSubmit =
-    textResourceBindings?.submit_panel_description ?? 'signing.submit_panel_description';
+  const titleReadyForSubmit = textResourceBindings?.submitPanelTitle ?? 'signing.submit_panel_title';
+  const descriptionReadyForSubmit = textResourceBindings?.submitPanelDescription ?? 'signing.submit_panel_description';
+  const submitButtonText = textResourceBindings?.submitButton ?? 'signing.submit_button';
 
   return (
     <SigningPanel
       node={node}
       variant='success'
-      heading={langAsString(titleReadyForSubmit)}
-      description={langAsString(descriptionReadyForSubmit)}
+      heading={<Lang id={titleReadyForSubmit} />}
+      description={
+        <Lang
+          id={descriptionReadyForSubmit}
+          params={[
+            <Lang
+              key='submitButtonText'
+              id={submitButtonText}
+            />,
+          ]}
+        />
+      }
       actionButton={
         <Button
           onClick={handleSubmit}
@@ -38,7 +49,7 @@ export function SubmitPanel({ node }: SubmitPanelProps) {
           color='success'
           disabled={busy}
         >
-          <Lang id='signing.submit_button' />
+          <Lang id={submitButtonText} />
         </Button>
       }
     />

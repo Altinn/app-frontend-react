@@ -5,14 +5,12 @@ import { useQuery } from '@tanstack/react-query';
 
 import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
-import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { SigneeListError } from 'src/layout/SigneeList/SigneeListError';
 import { SigneeStateTag } from 'src/layout/SigneeList/SigneeStateTag';
-import { ProcessTaskType } from 'src/types';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -20,23 +18,10 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export function SigneeListComponent({ node }: PropsFromGenericComponent<'SigneeList'>) {
   const { partyId, instanceGuid } = useParams();
-  const taskType = useTaskTypeFromBackend();
   const { langAsString } = useLanguage();
   const { textResourceBindings } = useNodeItem(node);
 
-  const { data, isLoading, error } = useQuery({
-    ...signeeListQuery(partyId!, instanceGuid!),
-    enabled: taskType === ProcessTaskType.Signing,
-  });
-
-  if (taskType !== ProcessTaskType.Signing) {
-    return (
-      <Lang
-        id='signing.wrong_task_error'
-        params={['SigneeList']}
-      />
-    );
-  }
+  const { data, isLoading, error } = useQuery(signeeListQuery(partyId!, instanceGuid!));
 
   if (error) {
     return <SigneeListError error={error} />;

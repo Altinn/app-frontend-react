@@ -6,18 +6,18 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useLanguage } from 'src/features/language/useLanguage';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { doPerformAction } from 'src/queries/queries';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type AwaitingCurrentUserSignaturePanelProps = {
-  node: BaseLayoutNode<'SigningStatusPanel'>;
+  node: LayoutNode<'SigningStatusPanel'>;
 };
 
 export function AwaitingCurrentUserSignaturePanel({ node }: AwaitingCurrentUserSignaturePanelProps) {
@@ -26,13 +26,12 @@ export function AwaitingCurrentUserSignaturePanel({ node }: AwaitingCurrentUserS
   const canSign = isAuthorised('sign');
   const selectedLanguage = useCurrentLanguage();
   const queryClient = useQueryClient();
-  const { langAsString } = useLanguage();
-  const { textResourceBindings } = useNodeItem(node);
+  const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
 
-  const title = textResourceBindings?.awaiting_signature_panel_title ?? 'signing.awaiting_signature_panel_title';
-  const checkboxLabel = textResourceBindings?.checkbox_label ?? 'signing.checkbox_label';
-  const checkboxDescription = textResourceBindings?.checkbox_description;
-  const signingButtonText = textResourceBindings?.sign_button ?? 'signing.sign_button';
+  const title = textResourceBindings?.awaitingSignaturePanelTitle ?? 'signing.awaiting_signature_panel_title';
+  const checkboxLabel = textResourceBindings?.checkboxLabel ?? 'signing.checkbox_label';
+  const checkboxDescription = textResourceBindings?.checkboxDescription;
+  const signingButtonText = textResourceBindings?.signingButton ?? 'signing.sign_button';
 
   const { mutate: handleSign, error } = useMutation({
     mutationFn: async () => {
@@ -47,15 +46,16 @@ export function AwaitingCurrentUserSignaturePanel({ node }: AwaitingCurrentUserS
 
   const [confirmReadDocuments, setConfirmReadDocuments] = useState(false);
 
+  // This shouldn't really happen, but if it does it indicates that our backend is out of sync with Autorisasjon somehow
   if (!canSign) {
-    return langAsString('signing.error_missing_signing_rights');
+    return <UnknownError />;
   }
 
   return (
     <SigningPanel
       node={node}
       variant='info'
-      heading={langAsString(title)}
+      heading={<Lang id={title} />}
       actionButton={
         <Button
           onClick={() => handleSign()}
@@ -66,8 +66,8 @@ export function AwaitingCurrentUserSignaturePanel({ node }: AwaitingCurrentUserS
           <Lang id={signingButtonText} />
         </Button>
       }
-      description={checkboxDescription}
-      errorMessage={error ? langAsString('signing.error_signing') : undefined}
+      description={<Lang id={checkboxDescription} />}
+      errorMessage={error ? <Lang id='signing.error_signing' /> : undefined}
     >
       <Checkbox
         value={String(confirmReadDocuments)}
