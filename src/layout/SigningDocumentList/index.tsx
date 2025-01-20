@@ -40,6 +40,7 @@ export class SigningDocumentList extends SigningDocumentListDef {
         textResourceBindings={{
           ...textResourceBindings,
           title: textResourceBindings?.summary_title ?? 'signing_document_list_summary.header',
+          description: undefined,
         }}
       />
     );
