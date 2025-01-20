@@ -11,3 +11,13 @@
 .table tr td:last-child {
   width: 1%;
 }
+
+.summaryHeader {
+  font-weight: 400;
+  border-bottom-color: var(--fds-semantic-border-action-hover);
+  margin-bottom: 0;
+}
+
+.summaryDivider {
+  margin-top: 0;
+}

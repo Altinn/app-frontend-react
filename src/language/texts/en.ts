@@ -357,6 +357,14 @@ export function en() {
       header_on_behalf_of: 'On behalf of',
       header_status: 'Status',
     },
+    signee_list_summary: {
+      header: 'Signed by',
+      name_placeholder: 'Unknown name',
+      on_behalf_of: 'On behalf of',
+      loading: 'Loading signature data...',
+      error: 'Failed to load signature data.',
+      no_data: 'No signature data found.',
+    },
     signing_document_list: {
       parse_error: 'Error loading signee document list.',
       wrong_task_error: 'The SigningDocumentList component is only available in a signing task.',

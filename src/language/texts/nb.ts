@@ -358,6 +358,14 @@ export function nb(): FixedLanguageList {
       header_on_behalf_of: 'På vegne av',
       header_status: 'Status',
     },
+    signee_list_summary: {
+      header: 'Signert av',
+      name_placeholder: 'Ukjent navn',
+      on_behalf_of: 'På vegne av',
+      loading: 'Laster signaturdata...',
+      error: 'Feil ved lasting av signaturdata.',
+      no_data: 'Ingen signaturdata.',
+    },
     signing_document_list: {
       parse_error: 'Feil ved lasting av dokumenter.',
       wrong_task_error: 'SigningDocumentList-komponenten er kun tilgjengelig i et signeringssteg.',
