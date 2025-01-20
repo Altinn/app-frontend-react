@@ -376,6 +376,9 @@ export function nb(): FixedLanguageList {
       header_size: 'Størrelse',
       attachment_type_form: 'Skjema',
     },
+    signing_document_list_summary: {
+      header: 'Signerte dokumenter',
+    },
     helptext: {
       button_title: 'Hjelp',
       button_title_prefix: 'Hjelpetekst for',

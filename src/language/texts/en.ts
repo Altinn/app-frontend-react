@@ -375,6 +375,9 @@ export function en() {
       header_size: 'Size',
       attachment_type_form: 'Form',
     },
+    signing_document_list_summary: {
+      header: 'Signed documents',
+    },
     helptext: {
       button_title: 'Help',
       button_title_prefix: 'Helptext for',

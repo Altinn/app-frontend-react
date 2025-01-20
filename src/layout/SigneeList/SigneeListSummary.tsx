@@ -19,32 +19,24 @@ export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
   const { data, isLoading, error } = useQuery(signeeListQuery(partyId!, instanceGuid!));
   const summaryTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.summary_title);
 
-  if (isLoading) {
-    return <p>{langAsString('signee_list_summary.loading')}</p>;
-  }
-
-  if (error) {
-    return <p>{langAsString('signee_list_summary.error')}</p>;
-  }
-
-  if (!data || data.length === 0) {
-    return <p>{langAsString('signee_list_summary.no_data')}</p>;
-  }
-
   return (
     <div>
       <h2 className={classes.summaryHeader}>
         {summaryTitle ?? langAsString('signee_list_summary.header').toLocaleUpperCase()}
       </h2>
       <hr className={classes.summaryDivider} />
-      {data.map((item, index) => (
-        <p key={index}>
-          {item.name?.toLocaleUpperCase() ?? langAsString('signee_list_summary.name_placeholder').toLocaleUpperCase()}
-          {item.organisation
-            ? `${langAsString('signee_list_summary.on_behalf_of')}${item.organisation.toLocaleUpperCase()}`
-            : ''}
-        </p>
-      ))}
+      {isLoading && <p>{langAsString('signee_list_summary.loading')}</p>}
+      {error && <p>{langAsString('signee_list_summary.error')}</p>}
+      {!data || data.length === 0 ? <p>{langAsString('signee_list_summary.no_data')}</p> : null}
+      {data &&
+        data.map((item, index) => (
+          <p key={index}>
+            {item.name?.toLocaleUpperCase() ?? langAsString('signee_list_summary.name_placeholder').toLocaleUpperCase()}
+            {item.organisation
+              ? `${langAsString('signee_list_summary.on_behalf_of')}${item.organisation.toLocaleUpperCase()}`
+              : ''}
+          </p>
+        ))}
     </div>
   );
 }

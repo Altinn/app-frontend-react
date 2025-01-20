@@ -36,4 +36,11 @@ export const Config = new CG.component({
       title: 'Help',
       description: 'Help text of the list',
     }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'summary_title',
+      title: 'Summary title',
+      description: 'Header/title of the summary',
+    }),
   );
