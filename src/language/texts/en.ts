@@ -388,6 +388,15 @@ export function en() {
       header_on_behalf_of: 'On behalf of',
       header_status: 'Status',
     },
+    signee_list_summary: {
+      header: 'Signed by',
+      name_placeholder: 'Unknown name',
+      on_behalf_of: 'On behalf of',
+      loading: 'Loading signature data...',
+      error: 'Failed to load signature data.',
+      no_data: 'No signature data found.',
+      no_signatures: 'No signatures found.',
+    },
     signing_document_list: {
       parse_error: 'Error loading signee document list.',
       unknown_api_error: 'An error occurred when fetching documents.',
@@ -396,6 +405,10 @@ export function en() {
       header_attachment_type: 'Attachment type',
       header_size: 'Size',
       attachment_type_form: 'Form',
+      download: 'Download',
+    },
+    signing_document_list_summary: {
+      header: 'Signed documents',
     },
     helptext: {
       button_title: 'Help',

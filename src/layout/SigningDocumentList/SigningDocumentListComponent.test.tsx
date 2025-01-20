@@ -9,8 +9,9 @@ import type { UseQueryResult } from '@tanstack/react-query';
 
 import { SigningDocumentListComponent } from 'src/layout/SigningDocumentList/SigningDocumentListComponent';
 import { ProcessTaskType } from 'src/types';
-import type { PropsFromGenericComponent } from 'src/layout';
 import type { fetchDocumentList } from 'src/layout/SigningDocumentList/api';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeItemFromNode } from 'src/utils/layout/types';
 
 const mockDocumentList: Awaited<ReturnType<typeof fetchDocumentList>> = [
   {
@@ -95,8 +96,7 @@ describe('SigningDocumentList', () => {
   it('should render correctly', () => {
     render(
       <SigningDocumentListComponent
-        node={{} as PropsFromGenericComponent<'SigningDocumentList'>['node']}
-        containerDivRef={React.createRef()}
+        textResourceBindings={{} as NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings']}
       />,
     );
 
@@ -122,8 +122,7 @@ describe('SigningDocumentList', () => {
 
     render(
       <SigningDocumentListComponent
-        node={{} as PropsFromGenericComponent<'SigningDocumentList'>['node']}
-        containerDivRef={React.createRef()}
+        textResourceBindings={{} as NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings']}
       />,
     );
 
@@ -139,8 +138,7 @@ describe('SigningDocumentList', () => {
 
     render(
       <SigningDocumentListComponent
-        node={{} as PropsFromGenericComponent<'SigningDocumentList'>['node']}
-        containerDivRef={React.createRef()}
+        textResourceBindings={{} as NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings']}
       />,
     );
 

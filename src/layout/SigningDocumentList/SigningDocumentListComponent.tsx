@@ -13,12 +13,15 @@ import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { fetchDocumentList } from 'src/layout/SigningDocumentList/api';
 import { SigningDocumentListError } from 'src/layout/SigningDocumentList/SigningDocumentListError';
 import { getSizeWithUnit } from 'src/utils/attachmentsUtils';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { PropsFromGenericComponent } from 'src/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeItemFromNode } from 'src/utils/layout/types';
 
-export function SigningDocumentListComponent({ node }: PropsFromGenericComponent<'SigningDocumentList'>) {
+export function SigningDocumentListComponent({
+  textResourceBindings,
+}: {
+  textResourceBindings: NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings'];
+}) {
   const { partyId, instanceGuid } = useParams();
-  const { textResourceBindings } = useNodeItem(node);
   const { langAsString } = useLanguage();
 
   const { data, isLoading, error } = useQuery({
@@ -80,7 +83,7 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
               style={{ display: 'flex', gap: '0.5rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
               download
             >
-              Last ned
+              {langAsString('signing_document_list.download')}
               <DownloadIcon fontSize='1.5rem' />
             </Link>
           ),

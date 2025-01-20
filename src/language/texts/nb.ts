@@ -389,6 +389,15 @@ export function nb(): FixedLanguageList {
       header_on_behalf_of: 'På vegne av',
       header_status: 'Status',
     },
+    signee_list_summary: {
+      header: 'Signert av',
+      name_placeholder: 'Ukjent navn',
+      on_behalf_of: 'På vegne av',
+      loading: 'Laster signaturdata...',
+      error: 'Feil ved lasting av signaturdata.',
+      no_data: 'Ingen signaturdata.',
+      no_signatures: 'Ingen signaturer funnet.',
+    },
     signing_document_list: {
       parse_error: 'Feil ved lasting av dokumenter.',
       unknown_api_error: 'En feil oppstod under henting av doumenter.',
@@ -397,6 +406,10 @@ export function nb(): FixedLanguageList {
       header_attachment_type: 'Vedleggstype',
       header_size: 'Størrelse',
       attachment_type_form: 'Skjema',
+      download: 'Last ned',
+    },
+    signing_document_list_summary: {
+      header: 'Signerte dokumenter',
     },
     helptext: {
       button_title: 'Hjelp',

@@ -5,10 +5,12 @@ import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { SigneeListDef } from 'src/layout/SigneeList/config.def.generated';
 import { SigneeListComponent } from 'src/layout/SigneeList/SigneeListComponent';
+import { SigneeListSummary } from 'src/layout/SigneeList/SigneeListSummary';
 import { ProcessTaskType } from 'src/types';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class SigneeList extends SigneeListDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'SigneeList'>>(
@@ -29,5 +31,9 @@ export class SigneeList extends SigneeListDef {
     }
 
     return null;
+  }
+
+  renderSummary2(props: Summary2Props<'SigneeList'>): JSX.Element | null {
+    return <SigneeListSummary componentNode={props.target} />;
   }
 }
