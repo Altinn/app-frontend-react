@@ -28,15 +28,32 @@ export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
       {isLoading && <p>{langAsString('signee_list_summary.loading')}</p>}
       {error && <p>{langAsString('signee_list_summary.error')}</p>}
       {!data || data.length === 0 ? <p>{langAsString('signee_list_summary.no_data')}</p> : null}
+      {!anySignatures(data) && <p>{langAsString('signee_list_summary.no_signatures')}</p>}
       {data &&
         data.map((item, index) => (
           <p key={index}>
-            {item.name?.toLocaleUpperCase() ?? langAsString('signee_list_summary.name_placeholder').toLocaleUpperCase()}
+            {item.hasSigned &&
+              (item.name?.toLocaleUpperCase() ??
+                langAsString('signee_list_summary.name_placeholder').toLocaleUpperCase())}
             {item.organisation
-              ? `${langAsString('signee_list_summary.on_behalf_of')}${item.organisation.toLocaleUpperCase()}`
+              ? `${langAsString('signee_list_summary.on_behalf_of')} ${item.organisation.toLocaleUpperCase()}`
               : ''}
           </p>
         ))}
     </div>
   );
+
+  function anySignatures(
+    data:
+      | {
+          hasSigned: boolean;
+          delegationSuccessful: boolean;
+          notificationSuccessful: boolean;
+          name?: string | null | undefined;
+          organisation?: string | null | undefined;
+        }[]
+      | undefined,
+  ) {
+    return data?.some((item) => item.hasSigned);
+  }
 }

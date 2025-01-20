@@ -365,6 +365,7 @@ export function nn(): FixedLanguageList {
       loading: 'Lastar signaturdata...',
       error: 'Feil ved lasting av signaturdata',
       no_data: 'Ingen signaturdata.',
+      no_signatures: 'Ingen signaturar.',
     },
     signing_document_list: {
       parse_error: 'Feil ved lasting av dokumenter.',

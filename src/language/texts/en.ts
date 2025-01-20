@@ -364,6 +364,7 @@ export function en() {
       loading: 'Loading signature data...',
       error: 'Failed to load signature data.',
       no_data: 'No signature data found.',
+      no_signatures: 'No signatures found.',
     },
     signing_document_list: {
       parse_error: 'Error loading signee document list.',
