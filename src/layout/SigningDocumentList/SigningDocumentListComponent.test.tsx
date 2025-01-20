@@ -7,7 +7,6 @@ import { render } from '@testing-library/react';
 import { randomUUID } from 'crypto';
 import type { UseQueryResult } from '@tanstack/react-query';
 
-import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { SigningDocumentListComponent } from 'src/layout/SigningDocumentList/SigningDocumentListComponent';
 import { ProcessTaskType } from 'src/types';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -87,7 +86,6 @@ jest.mock('src/layout/SigningDocumentList/SigningDocumentListError', () => ({
 }));
 
 const mockedUseQuery = jest.mocked(useQuery);
-const mockedUseTaskTypeFromBackend = jest.mocked(useTaskTypeFromBackend);
 
 describe('SigningDocumentList', () => {
   afterEach(() => {
@@ -113,19 +111,6 @@ describe('SigningDocumentList', () => {
 
     screen.getByRole('row', { name: /filename1 attachmentType1 977 KB Last ned/i });
     screen.getByRole('row', { name: /filename2 attachmenttype2 2 mb last ned/i });
-  });
-
-  it('should render error message when task type is not signing', () => {
-    mockedUseTaskTypeFromBackend.mockReturnValueOnce(ProcessTaskType.Unknown);
-
-    render(
-      <SigningDocumentListComponent
-        node={{} as PropsFromGenericComponent<'SigningDocumentList'>['node']}
-        containerDivRef={React.createRef()}
-      />,
-    );
-
-    screen.getByText('signing.wrong_task_error');
   });
 
   it('should render error message when API call fails', () => {
