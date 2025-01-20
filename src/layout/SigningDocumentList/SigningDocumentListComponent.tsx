@@ -87,7 +87,7 @@ export function SigningDocumentListComponent({ node }: PropsFromGenericComponent
               style={{ display: 'flex', gap: '0.5rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
               download
             >
-              Last ned
+              {langAsString('signing_document_list.download')}
               <DownloadIcon fontSize='1.5rem' />
             </Link>
           ),

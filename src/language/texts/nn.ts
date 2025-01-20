@@ -376,6 +376,7 @@ export function nn(): FixedLanguageList {
       header_attachment_type: 'Vedleggstype',
       header_size: 'Storleik',
       attachment_type_form: 'Skjema',
+      download: 'Last ned',
     },
     signing_document_list_summary: {
       header: 'Signerte dokument',

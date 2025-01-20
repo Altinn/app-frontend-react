@@ -375,6 +375,7 @@ export function en() {
       header_attachment_type: 'Attachment type',
       header_size: 'Size',
       attachment_type_form: 'Form',
+      download: 'Download',
     },
     signing_document_list_summary: {
       header: 'Signed documents',
