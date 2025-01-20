@@ -344,9 +344,40 @@ export function en() {
       validation_invalid_response_from_server: 'An error occurred. Please try again later.',
       unknown_error: 'An unknown error occurred. Please try again later.',
     },
+    signing: {
+      loading: 'Loading signing state...',
+      checkbox_label: 'I confirm that the information and documents are correct.',
+      awaiting_signature_panel_title: 'Sign the form',
+      sign_button: 'Sign the form',
+
+      submit_panel_title: 'You can now submit the form',
+      submit_panel_description: 'All parties have signed! Select "{0}" to complete.',
+      submit_button: 'Submit form',
+
+      awaiting_other_signatures_panel_title: 'Waiting for signatures',
+      awaiting_other_signatures_panel_description_not_signing: 'You can submit the form when all parties have signed.',
+      awaiting_other_signatures_panel_description_signed:
+        'Thank you for signing! You can submit the form when all parties have signed.',
+
+      no_action_required_panel_title_has_signed: 'You have signed the form',
+      no_action_required_panel_title_not_signed: 'Nothing to sign',
+      no_action_required_panel_description_has_signed: "You're all set! You can now go back to your inbox.",
+      no_action_required_panel_description_not_signed: 'You do not have access to sign this form.',
+      no_action_required_button: 'Go to inbox',
+
+      reject_modal_title: 'Cancel the signing process',
+      reject_modal_description:
+        'By canceling the signing process, all signatures will be deleted, and all delegated access will be revoked.',
+      reject_modal_button: 'Cancel the signing process',
+      reject_modal_trigger_button: 'Cancel signing',
+
+      wrong_task_error: 'The {0} component is only available in a signing task.',
+      error_missing_signing_rights:
+        'Something went wrong. Current user should sign, but does not have rights to do so.',
+      error_signing: 'Something went wrong when signing. Please try again.',
+    },
     signee_list: {
       parse_error: 'Error loading signee list.',
-      wrong_task_error: 'The SigneeList component is only available in a signing task.',
       unknown_api_error: 'An error occurred when fetching signees.',
       api_error_display: 'An error occurred when fetching signees. See devtool logs for more information.',
       signee_status_signed: 'Signed',
@@ -368,7 +399,6 @@ export function en() {
     },
     signing_document_list: {
       parse_error: 'Error loading signee document list.',
-      wrong_task_error: 'The SigningDocumentList component is only available in a signing task.',
       unknown_api_error: 'An error occurred when fetching documents.',
       api_error_display: 'An error occurred when fetching documents. See devtool logs for more information.',
       header_filename: 'Name',

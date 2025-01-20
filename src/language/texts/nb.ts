@@ -345,9 +345,40 @@ export function nb(): FixedLanguageList {
       validation_invalid_response_from_server: 'Det oppstod en feil. Vennligst prøv igjen senere.',
       unknown_error: 'Ukjent feil. Vennligst prøv igjen senere.',
     },
+    signing: {
+      awaiting_signature_panel_title: 'Signer skjemaet',
+      checkbox_label: 'Jeg bekrefter at informasjonen og dokumentene er korrekte.',
+      sign_button: 'Signer skjemaet',
+
+      submit_panel_title: 'Du kan nå sende inn skjemaet',
+      submit_panel_description: 'Alle parter har signert! Velg "{0}" for å fullføre.',
+      submit_button: 'Send inn skjemaet',
+
+      awaiting_other_signatures_panel_title: 'Venter på signaturer',
+      awaiting_other_signatures_panel_description_not_signing: 'Du kan sende inn skjemaet når alle parter har signert.',
+      awaiting_other_signatures_panel_description_signed:
+        'Takk for at du signerte! Du kan sende inn skjemaet når alle parter har signert.',
+
+      no_action_required_panel_title_has_signed: 'Du har signert skjemaet',
+      no_action_required_panel_title_not_signed: 'Ingenting å signere',
+      no_action_required_panel_description_has_signed: 'Alt i orden! Du kan nå gå tilbake til innboksen.',
+      no_action_required_panel_description_not_signed: 'Du har ikke tilgang til å signere dette skjemaet.',
+      no_action_required_button: 'Gå til innboksen',
+
+      reject_modal_title: 'Avbryt signeringsprosessen',
+      reject_modal_description:
+        'Ved å avbryte signeringsprosessen vil alle signaturer bli slettet og alle delegerte tilganger trukket tilbake.',
+      reject_modal_button: 'Avbryt signeringsprosessen',
+      reject_modal_trigger_button: 'Avbryt signering',
+
+      loading: 'Laster inn signeringsstatus...',
+      wrong_task_error: '{0}-komponenten er kun tilgjengelig i et signeringssteg.',
+      error_missing_signing_rights:
+        'Noe gikk galt. Nåværende bruker skal signere, men har ikke rettigheter til å gjøre det.',
+      error_signing: 'Noe gikk galt under signeringen. Prøv igjen.',
+    },
     signee_list: {
       parse_error: 'Feil ved lasting av signatarliste.',
-      wrong_task_error: 'SigneeList-komponenten er kun tilgjengelig i et signeringssteg.',
       unknown_api_error: 'En feil oppstod under henting av signatarer.',
       api_error_display: 'En feil oppstod under henting av signatarer. Se devtool-loggene for mer informasjon.',
       signee_status_signed: 'Signert',
@@ -369,7 +400,6 @@ export function nb(): FixedLanguageList {
     },
     signing_document_list: {
       parse_error: 'Feil ved lasting av dokumenter.',
-      wrong_task_error: 'SigningDocumentList-komponenten er kun tilgjengelig i et signeringssteg.',
       unknown_api_error: 'En feil oppstod under henting av doumenter.',
       api_error_display: 'En feil oppstod under henting av dokumenter. Se devtool-loggene for mer informasjon.',
       header_filename: 'Navn',

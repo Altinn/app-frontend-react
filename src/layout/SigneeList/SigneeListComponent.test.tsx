@@ -7,7 +7,6 @@ import { render } from '@testing-library/react';
 import { randomUUID } from 'crypto';
 import type { UseQueryResult } from '@tanstack/react-query';
 
-import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { SigneeListComponent } from 'src/layout/SigneeList/SigneeListComponent';
 import { ProcessTaskType } from 'src/types';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -20,6 +19,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     hasSigned: true,
     delegationSuccessful: true,
     notificationSuccessful: true,
+    partyId: 123,
   },
   {
     name: 'name2',
@@ -27,6 +27,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     hasSigned: false,
     delegationSuccessful: false,
     notificationSuccessful: false,
+    partyId: 123,
   },
   {
     name: 'name3',
@@ -34,6 +35,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     hasSigned: false,
     delegationSuccessful: true,
     notificationSuccessful: false,
+    partyId: 123,
   },
   {
     name: 'name4',
@@ -41,6 +43,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     hasSigned: false,
     delegationSuccessful: true,
     notificationSuccessful: true,
+    partyId: 123,
   },
 ];
 
@@ -90,7 +93,6 @@ jest.mock('src/layout/SigneeList/SigneeListError', () => ({
 }));
 
 const mockedUseQuery = jest.mocked(useQuery);
-const mockedUseTaskTypeFromBackend = jest.mocked(useTaskTypeFromBackend);
 
 describe('SigneeListComponent', () => {
   afterEach(() => {
@@ -116,19 +118,6 @@ describe('SigneeListComponent', () => {
     screen.getByRole('row', { name: 'name2 organisation2 signee_list.signee_status_delegation_failed' });
     screen.getByRole('row', { name: 'name3 organisation3 signee_list.signee_status_notification_failed' });
     screen.getByRole('row', { name: 'name4 organisation4 signee_list.signee_status_waiting' });
-  });
-
-  it('should render error message when task type is not signing', () => {
-    mockedUseTaskTypeFromBackend.mockReturnValueOnce(ProcessTaskType.Unknown);
-
-    render(
-      <SigneeListComponent
-        node={{} as PropsFromGenericComponent<'SigneeList'>['node']}
-        containerDivRef={React.createRef()}
-      />,
-    );
-
-    screen.getByText('signee_list.wrong_task_error');
   });
 
   it('should render error message when API call fails', () => {

@@ -3,7 +3,7 @@ import React from 'react';
 import { Checkbox, HelpText } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { Lang } from 'src/features/language/Lang';

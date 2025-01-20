@@ -7,13 +7,11 @@ import { useQuery } from '@tanstack/react-query';
 
 import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
-import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { fetchDocumentList } from 'src/layout/SigningDocumentList/api';
 import { SigningDocumentListError } from 'src/layout/SigningDocumentList/SigningDocumentListError';
-import { ProcessTaskType } from 'src/types';
 import { getSizeWithUnit } from 'src/utils/attachmentsUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeItemFromNode } from 'src/utils/layout/types';
@@ -24,7 +22,6 @@ export function SigningDocumentListComponent({
   textResourceBindings: NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings'];
 }) {
   const { partyId, instanceGuid } = useParams();
-  const taskType = useTaskTypeFromBackend();
   const { langAsString } = useLanguage();
 
   const { data, isLoading, error } = useQuery({
@@ -32,10 +29,6 @@ export function SigningDocumentListComponent({
     queryFn: () => fetchDocumentList(partyId!, instanceGuid!),
     staleTime: 1000 * 60 * 30, // 30 minutes
   });
-
-  if (taskType !== ProcessTaskType.Signing) {
-    return <Lang id='signing_document_list.wrong_task_error' />;
-  }
 
   if (error) {
     return <SigningDocumentListError error={error} />;

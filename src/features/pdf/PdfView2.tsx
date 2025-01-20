@@ -3,8 +3,8 @@ import type { PropsWithChildren } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
 
+import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import { Flex } from 'src/app-components/Flex/Flex';
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { DummyPresentation } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';

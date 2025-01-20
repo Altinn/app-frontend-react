@@ -11,6 +11,7 @@ const signeeStateSchema = z
     hasSigned: z.boolean(),
     delegationSuccessful: z.boolean(),
     notificationSuccessful: z.boolean(),
+    partyId: z.number(),
   })
   .refine(({ name, organisation }) => name || organisation, 'Either name or organisation must be present.');
 
@@ -20,6 +21,7 @@ export const signeeListQuery = (partyId: string, instanceGuid: string) =>
   queryOptions({
     queryKey: ['signeeList', partyId, instanceGuid],
     queryFn: () => fetchSigneeList(partyId, instanceGuid),
+    refetchInterval: 1000 * 60, // 1 minute
   });
 
 export async function fetchSigneeList(partyId: string, instanceGuid: string): Promise<SigneeState[]> {

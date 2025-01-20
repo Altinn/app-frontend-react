@@ -11,7 +11,7 @@ import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
 import { HttpStatusCodes } from 'src/utils/network/networking';
-import { returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
+import { returnUrlToMessageBox } from 'src/utils/urls/urlHelper';
 import type { IPresentationProvidedProps } from 'src/components/presentation/Presentation';
 
 jest.mock('axios');
@@ -59,7 +59,7 @@ describe('Presentation', () => {
     const returnUrl = 'https://altinn.cloud.no';
     const mockedLocation = { ...realLocation, search: `?returnUrl=${returnUrl}`, assign: assignMock, origin };
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
-    const messageBoxUrl = returnUrlToMessagebox(origin, getPartyMock().partyId);
+    const messageBoxUrl = returnUrlToMessageBox(origin, getPartyMock().partyId);
 
     mockedAxios.get.mockRejectedValue({
       data: 'Error',
@@ -83,7 +83,7 @@ describe('Presentation', () => {
   it('should change window.location.href to default messagebox url if query parameter returnUrl is not found', async () => {
     const origin = 'https://local.altinn.cloud';
     const partyId = getPartyMock().partyId;
-    const messageBoxUrl = returnUrlToMessagebox(origin, partyId);
+    const messageBoxUrl = returnUrlToMessageBox(origin, partyId);
     const mockedLocation = { ...realLocation, assign: assignMock, origin, search: '' };
 
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);

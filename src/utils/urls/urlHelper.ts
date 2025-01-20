@@ -12,7 +12,7 @@ const prodRegex = new RegExp(baseHostnameAltinnProd);
 const testRegex = new RegExp(baseHostnameAltinnTest);
 const localRegex = new RegExp(baseHostnameAltinnLocal);
 
-export const returnUrlToMessagebox = (url: string, partyId?: number | undefined): string | null => {
+export const returnUrlToMessageBox = (url: string, partyId?: number | undefined): string | null => {
   const baseUrl = returnBaseUrlToAltinn(url);
   if (!baseUrl) {
     return null;

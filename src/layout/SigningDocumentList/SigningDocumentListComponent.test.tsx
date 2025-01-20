@@ -7,7 +7,6 @@ import { render } from '@testing-library/react';
 import { randomUUID } from 'crypto';
 import type { UseQueryResult } from '@tanstack/react-query';
 
-import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { SigningDocumentListComponent } from 'src/layout/SigningDocumentList/SigningDocumentListComponent';
 import { ProcessTaskType } from 'src/types';
 import type { fetchDocumentList } from 'src/layout/SigningDocumentList/api';
@@ -31,15 +30,7 @@ const mockDocumentList: Awaited<ReturnType<typeof fetchDocumentList>> = [
   },
 ];
 
-jest.mock('src/utils/layout/useNodeItem', () => ({
-  useNodeItem: jest.fn(() => ({
-    textResourceBindings: {
-      title: 'Signing Document List',
-      description: 'description',
-      help: 'help',
-    },
-  })),
-}));
+jest.mock('src/utils/layout/useNodeItem', () => ({}));
 
 jest.mock('react-router-dom', () => ({
   useParams: jest.fn(() => ({
@@ -87,20 +78,20 @@ jest.mock('src/layout/SigningDocumentList/SigningDocumentListError', () => ({
   SigningDocumentListError: jest.fn(({ error }: { error: Error }) => error.message),
 }));
 
-const mockedUseQuery = jest.mocked(useQuery);
-const mockedUseTaskTypeFromBackend = jest.mocked(useTaskTypeFromBackend);
-
 describe('SigningDocumentList', () => {
+  const mockedUseQuery = jest.mocked(useQuery);
+  const textResourceBindings: NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings'] = {
+    title: 'Signing Document List',
+    description: 'description',
+    help: 'help',
+  };
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('should render correctly', () => {
-    render(
-      <SigningDocumentListComponent
-        textResourceBindings={{} as NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings']}
-      />,
-    );
+    render(<SigningDocumentListComponent textResourceBindings={textResourceBindings} />);
 
     screen.getByRole('table', { name: /Signing Document List/ });
     screen.getByRole('columnheader', { name: 'signing_document_list.header_filename' });
@@ -111,20 +102,8 @@ describe('SigningDocumentList', () => {
 
     expect(screen.getAllByRole('row')).toHaveLength(3);
 
-    screen.getByRole('row', { name: /filename1 attachmentType1 977 KB Last ned/i });
-    screen.getByRole('row', { name: /filename2 attachmenttype2 2 mb last ned/i });
-  });
-
-  it('should render error message when task type is not signing', () => {
-    mockedUseTaskTypeFromBackend.mockReturnValueOnce(ProcessTaskType.Unknown);
-
-    render(
-      <SigningDocumentListComponent
-        textResourceBindings={{} as NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings']}
-      />,
-    );
-
-    screen.getByText('signing_document_list.wrong_task_error');
+    screen.getByRole('row', { name: /filename1 attachmentType1 977 KB signing_document_list.download/i });
+    screen.getByRole('row', { name: /filename2 attachmenttype2 2 mb signing_document_list.download/i });
   });
 
   it('should render error message when API call fails', () => {
@@ -134,11 +113,7 @@ describe('SigningDocumentList', () => {
       error: new Error('API error'),
     } as UseQueryResult);
 
-    render(
-      <SigningDocumentListComponent
-        textResourceBindings={{} as NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings']}
-      />,
-    );
+    render(<SigningDocumentListComponent textResourceBindings={textResourceBindings} />);
 
     screen.getByText('API error');
   });
@@ -150,11 +125,7 @@ describe('SigningDocumentList', () => {
       error: null,
     } as UseQueryResult);
 
-    render(
-      <SigningDocumentListComponent
-        textResourceBindings={{} as NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings']}
-      />,
-    );
+    render(<SigningDocumentListComponent textResourceBindings={textResourceBindings} />);
 
     screen.getByRole('table', { name: /Signing Document List/ });
     screen.getByRole('columnheader', { name: 'signing_document_list.header_filename' });
