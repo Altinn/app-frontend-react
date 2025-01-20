@@ -15,12 +15,15 @@ import { fetchDocumentList } from 'src/layout/SigningDocumentList/api';
 import { SigningDocumentListError } from 'src/layout/SigningDocumentList/SigningDocumentListError';
 import { ProcessTaskType } from 'src/types';
 import { getSizeWithUnit } from 'src/utils/attachmentsUtils';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { PropsFromGenericComponent } from 'src/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeItemFromNode } from 'src/utils/layout/types';
 
-export function SigningDocumentListComponent({ node }: PropsFromGenericComponent<'SigningDocumentList'>) {
+export function SigningDocumentListComponent({
+  textResourceBindings,
+}: {
+  textResourceBindings: NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings'];
+}) {
   const { partyId, instanceGuid } = useParams();
-  const { textResourceBindings } = useNodeItem(node);
   const taskType = useTaskTypeFromBackend();
   const { langAsString } = useLanguage();
 

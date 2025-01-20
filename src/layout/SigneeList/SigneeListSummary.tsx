@@ -1,9 +1,10 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
+import { Heading, Paragraph } from '@digdir/designsystemet-react';
 import { useQuery } from '@tanstack/react-query';
 
-import { useLanguage } from 'src/features/language/useLanguage';
+import { Lang } from 'src/features/language/Lang';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -15,30 +16,52 @@ interface SigneeListSummaryProps {
 
 export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
   const { partyId, instanceGuid } = useParams();
-  const { langAsString } = useLanguage();
   const { data, isLoading, error } = useQuery(signeeListQuery(partyId!, instanceGuid!));
   const summaryTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.summary_title);
 
   return (
     <div>
-      <h2 className={classes.summaryHeader}>
-        {summaryTitle ?? langAsString('signee_list_summary.header').toLocaleUpperCase()}
-      </h2>
+      <Heading
+        level={2}
+        size='sm'
+        className={classes.summaryHeader}
+      >
+        {summaryTitle ?? <Lang id='signee_list_summary.header' />}
+      </Heading>
       <hr className={classes.summaryDivider} />
-      {isLoading && <p>{langAsString('signee_list_summary.loading')}</p>}
-      {error && <p>{langAsString('signee_list_summary.error')}</p>}
-      {!data || data.length === 0 ? <p>{langAsString('signee_list_summary.no_data')}</p> : null}
-      {!anySignatures(data) && <p>{langAsString('signee_list_summary.no_signatures')}</p>}
+      {isLoading && (
+        <Paragraph>
+          <Lang id='signee_list_summary.loading' />
+        </Paragraph>
+      )}
+      {isLoading && (
+        <Paragraph>
+          <Lang id='signee_list_summary.loading' />
+        </Paragraph>
+      )}
+      {error && (
+        <Paragraph>
+          <Lang id='signee_list_summary.error' />
+        </Paragraph>
+      )}
+      {!data || data.length === 0 ? (
+        <Paragraph>
+          <Lang id='signee_list_summary.no_data' />
+        </Paragraph>
+      ) : null}
+      {!anySignatures(data) && (
+        <Paragraph>
+          <Lang id='signee_list_summary.no_signatures' />
+        </Paragraph>
+      )}
       {data &&
         data.map((item, index) => (
-          <p key={index}>
-            {item.hasSigned &&
-              (item.name?.toLocaleUpperCase() ??
-                langAsString('signee_list_summary.name_placeholder').toLocaleUpperCase())}
+          <Paragraph key={index}>
+            {item.hasSigned && (item.name?.toLocaleUpperCase() ?? <Lang id='signee_list_summary.name_placeholder' />)}
             {item.organisation
-              ? `${langAsString('signee_list_summary.on_behalf_of')} ${item.organisation.toLocaleUpperCase()}`
+              ? `${(<Lang id='signee_list_summary.on_behalf_of' />)}${item.organisation.toLocaleUpperCase()}`
               : ''}
-          </p>
+          </Paragraph>
         ))}
     </div>
   );
