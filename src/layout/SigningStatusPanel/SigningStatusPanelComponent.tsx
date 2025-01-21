@@ -7,7 +7,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Panel } from 'src/app-components/Panel/Panel';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useProfile } from 'src/features/profile/ProfileProvider';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
 import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningStatusPanel/PanelAwaitingOtherSignatures';
@@ -20,9 +19,7 @@ import type { SigneeState } from 'src/layout/SigneeList/api';
 export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<'SigningStatusPanel'>) {
   const { partyId, instanceGuid } = useParams();
   const { data: signeeList, isLoading } = useQuery(signeeListQuery(partyId!, instanceGuid!));
-  const profile = useProfile();
-  const currentUserpartyId = profile?.partyId;
-  const currentUserStatus = getCurrentUserStatus(signeeList, currentUserpartyId);
+  const currentUserStatus = getCurrentUserStatus(signeeList, partyId);
   const canWrite = useIsAuthorised()('write');
   const { langAsString } = useLanguage();
 
@@ -67,8 +64,8 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
 
 export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';
 
-function getCurrentUserStatus(signeeList: SigneeState[] | undefined, partyId: number | undefined): CurrentUserStatus {
-  const currentUserSignee = signeeList?.find((signee) => signee.partyId === partyId);
+function getCurrentUserStatus(signeeList: SigneeState[] | undefined, partyId: string | undefined): CurrentUserStatus {
+  const currentUserSignee = signeeList?.find((signee) => signee.partyId.toString() === partyId);
   if (!currentUserSignee) {
     return 'notSigning';
   }
