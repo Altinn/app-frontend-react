@@ -170,7 +170,7 @@ function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNaviga
   const visiblePages = useVisiblePages(group.order);
   const currentPageId = useNavigationParam('pageKey');
   const containsCurrentPage = visiblePages.some((page) => page === currentPageId);
-  const validations = useValidationsForPages(visiblePages);
+  const validations = useValidationsForPages(visiblePages, group.markAsCompleted);
 
   if (visiblePages.length === 0) {
     return null;

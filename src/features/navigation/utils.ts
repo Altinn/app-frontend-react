@@ -8,7 +8,6 @@ import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useLaxNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeData } from 'src/utils/layout/types';
 
 export function useHasGroupedNavigation() {
   const pageGroups = usePageGroups();
@@ -56,70 +55,58 @@ export function useGetTaskName() {
  * Explanation on the current logic:
  * 1. A page is marked with error if any of its nodes have visible errors.
  * 2. A group is marked with error if any of its pages have nodes with visible errors.
- * 3. A page is marked as completed if it has at least one node with "required": true and no nodes with any validations errors (visible or not).
+ * 3. A page is marked as completed if there are no nodes with any validations errors (visible or not), and the user has clicked 'next'.
  *    Immediately marking a page as completed because it has no required nodes can be confusing, so these will never get marked.
- * 4. A group is marked as completed if any of its pages have nodes with "required": true, and no nodes with any validations errors (visible or not).
- *    Same logic goes here, if none of the nodes in any of its pages are required, it will never be marked as completed.
- *    It would be confusing since it would have to get marked as completed immediately in that case, so it stays neutral instead.
- *
+ * 4. A group is marked as completed if any of its pages have no nodes with any validations errors (visible or not), and all of the pages are marked as 'visited'.
  */
-export function useValidationsForPages(order: string[]) {
+export function useValidationsForPages(order: string[], shouldMarkAsCompleted = false) {
   const traversalSelector = useLaxNodeTraversalSelector();
   const validationsSelector = NodesInternal.useLaxValidationsSelector();
 
-  const pages = traversalSelector(
-    (traverser) => {
-      const allNodes: Record<string, LayoutNode[]> = {};
-      const pageHasRequiredNodes: Record<string, boolean> = {};
-
-      order.forEach((pageId) => {
-        const page = traverser.findPage(pageId);
-
-        allNodes[pageId] = page?.flat() ?? [];
-        pageHasRequiredNodes[pageId] = page
-          ? traverser.with(page).flat((n) => n.type === 'node' && nodeDataIsRequired(n)).length > 0
-          : false;
-      });
-
-      return { allNodes, hasRequiredNodes: pageHasRequiredNodes };
-    },
+  const allNodes = traversalSelector(
+    (traverser) =>
+      order.reduce<Record<string, LayoutNode[]>>((allNodes, pageId) => {
+        allNodes[pageId] = traverser.findPage(pageId)?.flat() ?? [];
+        return allNodes;
+      }, {}),
     [order],
   );
 
   const isCompleted = useMemo(() => {
-    if (pages === ContextNotProvided) {
+    if (allNodes === ContextNotProvided) {
       return ContextNotProvided;
+    }
+
+    if (!shouldMarkAsCompleted) {
+      return { group: false, pages: Object.fromEntries(order.map((page) => [page, false])) };
     }
 
     const pageHasNoErrors = Object.fromEntries(
       order.map((page) => [
         page,
-        pages.allNodes[page].every((node) => {
+        allNodes[page].every((node) => {
           const allValidations = validationsSelector(node, ValidationMask.All, 'error');
           return allValidations !== ContextNotProvided && allValidations.length === 0;
         }),
       ]),
     );
 
-    const completedPages = Object.fromEntries(
-      order.map((page) => [page, pages.hasRequiredNodes[page] && pageHasNoErrors[page]]),
-    );
+    const completedPages = Object.fromEntries(order.map((page) => [page, pageHasNoErrors[page]])); // && page is visited
 
-    const groupIsComplete =
-      order.some((page) => pages.hasRequiredNodes[page]) && order.every((page) => pageHasNoErrors[page]);
+    const groupIsComplete = order.every((page) => pageHasNoErrors[page]); // && page is visited
 
     return { pages: completedPages, group: groupIsComplete };
-  }, [order, pages, validationsSelector]);
+  }, [order, allNodes, validationsSelector, shouldMarkAsCompleted]);
 
   const hasErrors = useMemo(() => {
-    if (pages === ContextNotProvided) {
+    if (allNodes === ContextNotProvided) {
       return ContextNotProvided;
     }
 
     const pageHasErrors = Object.fromEntries(
       order.map((page) => [
         page,
-        pages.allNodes[page].some((node) => {
+        allNodes[page].some((node) => {
           const visibleValidations = validationsSelector(node, 'visible', 'error');
           return visibleValidations !== ContextNotProvided && visibleValidations.length > 0;
         }),
@@ -129,30 +116,11 @@ export function useValidationsForPages(order: string[]) {
     const groupHasErrors = Object.values(pageHasErrors).some((p) => p);
 
     return { pages: pageHasErrors, group: groupHasErrors };
-  }, [order, pages, validationsSelector]);
+  }, [order, allNodes, validationsSelector]);
 
   if (isCompleted === ContextNotProvided || hasErrors === ContextNotProvided) {
     return ContextNotProvided;
   }
 
   return { isCompleted, hasErrors };
-}
-
-/*
- * Returns whether or not a node is required to fill out.
- * This does not have to be the "required"-prop directly, some other props have the same effect
- * and produces validation messages with the same visibility, e.g. minCount, minNumberOfAttachments,
- * are the same as required in practice.
- */
-function nodeDataIsRequired(n: NodeData) {
-  const item = n.item;
-  return !!(
-    item &&
-    // Component is required somehow
-    (('required' in item && item.required) ||
-      ('minCount' in item && item.minCount) ||
-      ('minNumberOfAttachments' in item && item.minNumberOfAttachments)) &&
-    // Component is not read only
-    !('readOnly' in item && item.readOnly)
-  );
 }
