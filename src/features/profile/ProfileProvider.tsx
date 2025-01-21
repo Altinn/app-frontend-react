@@ -28,18 +28,20 @@ const canHandleProfileQueryError = (error: UseQueryResult<IProfile | undefined>[
 
 const useProfileQuery = () => {
   const enabled = useShouldFetchProfile();
-  const { updateProfile, noProfileFound } = useSetCurrentLanguage();
+  const { updateProfile } = useSetCurrentLanguage();
 
   const utils = useQuery(useProfileQueryDef(enabled));
 
   useEffect(() => {
-    if (canHandleProfileQueryError(utils.error)) {
-      noProfileFound();
-      return;
-    }
+    if (utils.error) {
+      if (canHandleProfileQueryError(utils.error)) {
+        updateProfile(null);
+        return;
+      }
 
-    utils.error && window.logError('Fetching user profile failed:\n', utils.error);
-  }, [noProfileFound, utils.error]);
+      window.logError('Fetching user profile failed:\n', utils.error);
+    }
+  }, [updateProfile, utils.error]);
 
   useEffect(() => {
     if (utils.data) {

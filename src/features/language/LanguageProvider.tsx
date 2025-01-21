@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
+import { useLocalStorageState } from 'src/hooks/useLocalStorage';
 import type { IProfile } from 'src/types/shared';
 
 interface LanguageCtx {
   current: string;
   profileLoaded: boolean;
-  updateProfile: (profile: IProfile) => void;
-  noProfileFound: () => void;
+  updateProfile: (profile: IProfile | null) => void;
   setWithLanguageSelector: (language: string) => void;
 }
 
@@ -21,47 +21,40 @@ const { Provider, useCtx } = createContext<LanguageCtx>({
     updateProfile: () => {
       throw new Error('LanguageProvider not initialized');
     },
-    noProfileFound: () => {
-      throw new Error('LanguageProvider not initialized');
-    },
     setWithLanguageSelector: () => {
       throw new Error('LanguageProvider not initialized');
     },
   },
 });
 
+type LanguageProfileData = {
+  loaded: boolean;
+  userId?: number;
+  language?: string;
+};
+
 export const LanguageProvider = ({ children }: PropsWithChildren) => {
-  const [current, setCurrent] = useState('nb');
-  const [profileLoaded, setProfileLoaded] = useState(false);
-  const [userId, setUserId] = useState<number | undefined>(undefined);
+  const [profileData, setProfileData] = useState<LanguageProfileData>({ loaded: false });
+  const languageFromUrl = getLanguageQueryParam();
+  const [languageFromSelector, setWithLanguageSelector] = useLocalStorageState(
+    ['selectedLanguage', String(profileData.userId)],
+    null,
+  );
 
-  const updateProfile = (profile: IProfile) => {
-    setUserId(profile.userId);
-    setProfileLoaded(true);
-    const localStorageKey = `selectedAppLanguage${window.app}${profile.userId ?? ''}`;
-    let localStorageValue = localStorage.getItem(localStorageKey);
-    if (localStorageValue === 'null' || localStorageValue === 'undefined') {
-      localStorageValue = null;
-    }
-    const urlValue = getLanguageQueryParam();
+  const updateProfile = useCallback((profile: IProfile | null) => {
+    profile
+      ? setProfileData({
+          loaded: true,
+          userId: profile.userId,
+          language: profile.profileSettingPreference.language ?? undefined,
+        })
+      : setProfileData({ loaded: true });
+  }, []);
 
-    const newLanguage = urlValue ?? localStorageValue ?? profile.profileSettingPreference.language ?? 'nb';
-    setCurrent(newLanguage);
-    localStorage.setItem(localStorageKey, newLanguage);
-  };
-
-  const noProfileFound = () => {
-    // Just mark it as loaded, so we can continue loading language resources
-    setProfileLoaded(true);
-  };
-
-  const setWithLanguageSelector = (language: string) => {
-    setCurrent(language);
-    localStorage.setItem(`selectedAppLanguage${window.app}${userId}`, language);
-  };
+  const current = languageFromSelector ?? languageFromUrl ?? profileData.language ?? 'nb';
 
   return (
-    <Provider value={{ current, profileLoaded, updateProfile, setWithLanguageSelector, noProfileFound }}>
+    <Provider value={{ current, profileLoaded: profileData.loaded, updateProfile, setWithLanguageSelector }}>
       {children}
     </Provider>
   );
@@ -70,8 +63,8 @@ export const LanguageProvider = ({ children }: PropsWithChildren) => {
 export const useCurrentLanguage = () => useCtx().current;
 export const useIsProfileLanguageLoaded = () => useCtx().profileLoaded;
 export const useSetCurrentLanguage = () => {
-  const { setWithLanguageSelector, updateProfile, noProfileFound } = useCtx();
-  return { setWithLanguageSelector, updateProfile, noProfileFound };
+  const { setWithLanguageSelector, updateProfile } = useCtx();
+  return { setWithLanguageSelector, updateProfile };
 };
 
 function getLanguageQueryParam() {
