@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Spinner } from '@digdir/designsystemet-react';
@@ -8,6 +8,7 @@ import { Panel } from 'src/app-components/Panel/Panel';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useProfile } from 'src/features/profile/ProfileProvider';
+import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
 import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningStatusPanel/PanelAwaitingOtherSignatures';
@@ -17,12 +18,25 @@ import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SigneeState } from 'src/layout/SigneeList/api';
 
+const MissingSignaturesErrorCode = 'MissingSignatures' as const;
+
 export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<'SigningStatusPanel'>) {
   const { partyId, instanceGuid } = useParams();
   const { data: signeeList, isLoading } = useQuery(signeeListQuery(partyId!, instanceGuid!));
   const profile = useProfile();
-  const currentUserpartyId = profile?.partyId;
-  const currentUserStatus = getCurrentUserStatus(signeeList, currentUserpartyId);
+  const currentUserPartyId = profile?.partyId;
+  const currentUserStatus = getCurrentUserStatus(signeeList, currentUserPartyId);
+
+  const { refetch: refetchBackendValidations, data: hasMissingSignatures } = useBackendValidationQuery(
+    {
+      select: (data) => data?.some((validation) => validation.code === MissingSignaturesErrorCode),
+    },
+    false,
+  );
+
+  useEffect(() => {
+    refetchBackendValidations();
+  }, [refetchBackendValidations, signeeList]);
   const canWrite = useIsAuthorised()('write');
   const { langAsString } = useLanguage();
 
@@ -52,17 +66,16 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     );
   }
 
-  const allHaveSigned = signeeList?.every((signee) => signee.hasSigned) ?? false;
-  if (allHaveSigned) {
-    return <SubmitPanel node={node} />;
+  if (hasMissingSignatures) {
+    return (
+      <AwaitingOtherSignaturesPanel
+        node={node}
+        currentUserStatus={currentUserStatus}
+      />
+    );
   }
 
-  return (
-    <AwaitingOtherSignaturesPanel
-      node={node}
-      currentUserStatus={currentUserStatus}
-    />
-  );
+  return <SubmitPanel node={node} />;
 }
 
 export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';
