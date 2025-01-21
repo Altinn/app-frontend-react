@@ -43,9 +43,12 @@ jobs:
         run: |
           sha=$(gh pr view ${{ github.event.issue.number }} --repo ${{ github.repository }} --json headRefOid | jq -r '.headRefOid' | cut -c1-8)
           branch=$(gh pr view ${{ github.event.issue.number }} --repo ${{ github.repository }} --json headRefName | jq -r '.headRefName' | sed 's/.*\///')
-          version=$(git describe --abbrev=0 --tags 2>/dev/null).$branch.$sha
+          version=$(git describe --abbrev=0 --tags 2>/dev/null)
+          version=$(echo $version | cut -d '-' -f 1)
+          version="$version-pr.${{ github.run_number }}.$branch.$sha"
           git tag -a $version -m "PR release $version"
           echo "FRONTEND_PACKAGE_VERSION=$version" >> $GITHUB_ENV
+          echo $version
 
       - name: Checkout Altinn-CDN repository
         uses: actions/checkout@v4
