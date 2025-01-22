@@ -372,6 +372,10 @@ export function nn(): FixedLanguageList {
       reject_modal_button: 'Avbryt signeringsprosessen',
       reject_modal_trigger_button: 'Avbryt signering',
 
+      error_panel_title: 'Feil i skjema',
+      error_panel_description:
+        'Ein av signatarane er ugyldig og har difor ikkje fått tilgang til skjemaet. Ver venleg og gå tilbake for å rette feilen.',
+
       wrong_task_error: '{0}-komponenten er berre tilgjengeleg i eit signeringssteg.',
       error_missing_signing_rights:
         'Noko gjekk gale. Den noverande brukaren skal signere, men har ikkje rettar til å gjere det.',

@@ -18,7 +18,7 @@ type SigningPanelProps = {
   heading: React.ReactElement;
   description?: React.ReactElement;
   variant?: PanelProps['variant'];
-  actionButton: ReactElement<typeof Button>;
+  actionButton?: ReactElement<typeof Button>;
   errorMessage?: React.ReactElement;
 };
 

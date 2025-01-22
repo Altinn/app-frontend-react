@@ -366,6 +366,10 @@ export function en() {
       no_action_required_panel_description_not_signed: 'You do not have access to sign this form.',
       no_action_required_button: 'Go to inbox',
 
+      error_panel_title: 'Form error',
+      error_panel_description:
+        'One of the signees is invalid and therefore has not been granted access to the form. Please go back to correct the error.',
+
       reject_modal_title: 'Cancel the signing process',
       reject_modal_description:
         'By canceling the signing process, all signatures will be deleted, and all delegated access will be revoked.',

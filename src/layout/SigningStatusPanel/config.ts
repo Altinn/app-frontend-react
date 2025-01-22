@@ -132,6 +132,23 @@ export const Config = new CG.component({
 
   .addTextResource(
     new CG.trb({
+      name: 'errorPanelTitle',
+      title: 'Error panel title',
+      description:
+        'The title of the panel that is displayed when at least one of the signees is invalid and thus has not received access to the form',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'errorPanelDescription',
+      title: 'Error panel description',
+      description:
+        'The description of the panel that is displayed when at least one of the signees is invalid and thus has not received access to the form',
+    }),
+  )
+
+  .addTextResource(
+    new CG.trb({
       name: 'rejectModalTitle',
       title: 'Reject modal title',
       description: 'The title of the modal that is displayed when the use clicked on the reject button',

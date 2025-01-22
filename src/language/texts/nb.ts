@@ -366,6 +366,10 @@ export function nb(): FixedLanguageList {
       no_action_required_panel_description_not_signed: 'Du har ikke tilgang til å signere dette skjemaet.',
       no_action_required_button: 'Gå til innboksen',
 
+      error_panel_title: 'Feil i skjema',
+      error_panel_description:
+        'En av signatarene er ugyldige og har dermed ikke fått tilgang til skjemaet. Vennligst gå tilbake for å rette opp feilen.',
+
       reject_modal_title: 'Avbryt signeringsprosessen',
       reject_modal_description:
         'Ved å avbryte signeringsprosessen vil alle signaturer bli slettet og alle delegerte tilganger trukket tilbake.',
