@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import type { AxiosError } from 'axios';
@@ -31,14 +31,17 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
   const { next, busy } = useProcessNavigation() || {};
   const { mutate, error } = usePerformPayActionMutation(partyId, instanceGuid);
 
-  const contextValue: PaymentContextProps = {
-    setLoading,
-    performPayment: () => {
-      setLoading(true);
-      mutate();
-    },
-    paymentError: error,
-  };
+  const contextValue: PaymentContextProps = useMemo(
+    () => ({
+      setLoading,
+      performPayment: () => {
+        setLoading(true);
+        mutate();
+      },
+      paymentError: error,
+    }),
+    [setLoading, mutate, error],
+  );
 
   const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
   const isPaymentProcess = useIsPayment();
@@ -63,6 +66,12 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
       next({ action: 'confirm', nodeId: 'next-button' });
     }
   }, [paymentCompleted, next, busy]);
+
+  useEffect(() => {
+    if (error) {
+      setLoading(false);
+    }
+  }, [error]);
 
   if (loading) {
     return <Loader reason='Navigating to external payment solution' />;
