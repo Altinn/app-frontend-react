@@ -295,12 +295,19 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const dataElements = useLaxInstanceDataElements(dataType);
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
   const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
+  const storedParams = sessionStorage.getItem('queryParams');
+
   const { data, error } = useFormDataQuery(url);
   useEffect(() => {
     if (data && url) {
-      setInitialData(dataType, data);
+      if (storedParams) {
+        const queryParams = JSON.parse(storedParams);
+        setInitialData(dataType, { ...data, ...queryParams });
+      } else {
+        setInitialData(dataType, data);
+      }
     }
-  }, [data, dataType, setInitialData, url]);
+  }, [data, dataType, setInitialData, storedParams, url]);
 
   useEffect(() => {
     setDataElementId(dataType, dataElementId ?? null);
