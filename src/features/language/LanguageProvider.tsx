@@ -2,13 +2,14 @@ import React, { useCallback, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
+import { useGetAppLanguageQuery } from 'src/features/language/textResources/useGetAppLanguagesQuery';
 import { useLocalStorageState } from 'src/hooks/useLocalStorage';
 import type { IProfile } from 'src/types/shared';
 
 interface LanguageCtx {
   current: string;
   profileLoaded: boolean;
-  updateProfile: (profile: IProfile | null) => void;
+  setProfileForLanguage: (profile: IProfile | null) => void;
   setWithLanguageSelector: (language: string) => void;
 }
 
@@ -18,7 +19,7 @@ const { Provider, useCtx } = createContext<LanguageCtx>({
   default: {
     current: 'nb',
     profileLoaded: false,
-    updateProfile: () => {
+    setProfileForLanguage: () => {
       throw new Error('LanguageProvider not initialized');
     },
     setWithLanguageSelector: () => {
@@ -34,6 +35,8 @@ type LanguageProfileData = {
 };
 
 export const LanguageProvider = ({ children }: PropsWithChildren) => {
+  const validateLanguage = useValidateLanguage();
+
   const [profileData, setProfileData] = useState<LanguageProfileData>({ loaded: false });
   const languageFromUrl = getLanguageQueryParam();
   const [languageFromSelector, setWithLanguageSelector] = useLocalStorageState(
@@ -41,7 +44,7 @@ export const LanguageProvider = ({ children }: PropsWithChildren) => {
     null,
   );
 
-  const updateProfile = useCallback((profile: IProfile | null) => {
+  const setProfileForLanguage = useCallback((profile: IProfile | null) => {
     profile
       ? setProfileData({
           loaded: true,
@@ -51,10 +54,19 @@ export const LanguageProvider = ({ children }: PropsWithChildren) => {
       : setProfileData({ loaded: true });
   }, []);
 
-  const current = languageFromSelector ?? languageFromUrl ?? profileData.language ?? 'nb';
+  const current =
+    validateLanguage(languageFromSelector) ??
+    validateLanguage(languageFromUrl) ??
+    validateLanguage(profileData.language) ??
+    // If none of the users prefered languages are available, try using a standard language
+    validateLanguage('nb') ??
+    validateLanguage('nn') ??
+    validateLanguage('en') ??
+    // If none of the standard languages are available, something is very wrong with the app
+    'nb';
 
   return (
-    <Provider value={{ current, profileLoaded: profileData.loaded, updateProfile, setWithLanguageSelector }}>
+    <Provider value={{ current, profileLoaded: profileData.loaded, setProfileForLanguage, setWithLanguageSelector }}>
       {children}
     </Provider>
   );
@@ -63,11 +75,19 @@ export const LanguageProvider = ({ children }: PropsWithChildren) => {
 export const useCurrentLanguage = () => useCtx().current;
 export const useIsProfileLanguageLoaded = () => useCtx().profileLoaded;
 export const useSetCurrentLanguage = () => {
-  const { setWithLanguageSelector, updateProfile } = useCtx();
-  return { setWithLanguageSelector, updateProfile };
+  const { setWithLanguageSelector, setProfileForLanguage } = useCtx();
+  return { setWithLanguageSelector, setProfileForLanguage };
 };
 
 function getLanguageQueryParam() {
   const params = new URLSearchParams((window.location.hash || '').split('?')[1]);
   return params.get('lang');
+}
+
+function useValidateLanguage() {
+  const { data: appLanguages } = useGetAppLanguageQuery();
+  return useCallback(
+    (lang: string | null | undefined) => (!!lang && (!appLanguages || appLanguages.includes(lang)) ? lang : null),
+    [appLanguages],
+  );
 }
