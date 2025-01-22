@@ -393,6 +393,7 @@ export function nb(): FixedLanguageList {
       header: 'Signert av',
       name_placeholder: 'Ukjent navn',
       on_behalf_of: 'På vegne av',
+      loading: 'Laster signaturdata...',
       error: 'Feil ved lasting av signaturdata.',
       no_data: 'Ingen signaturdata.',
       no_signatures: 'Ingen signaturer funnet.',

@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Heading, Paragraph } from '@digdir/designsystemet-react';
+import { useQuery } from '@tanstack/react-query';
 
 import { Lang } from 'src/features/language/Lang';
-import { fetchSigneeList } from 'src/layout/SigneeList/api';
+import { signeeListQuery } from 'src/layout/SigneeList/api';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { SigneeState } from 'src/layout/SigneeList/api';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface SigneeListSummaryProps {
@@ -16,23 +16,9 @@ interface SigneeListSummaryProps {
 
 export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
   const { partyId, instanceGuid } = useParams();
+  const { data, isLoading, error } = useQuery(signeeListQuery(partyId!, instanceGuid!));
+
   const summaryTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.summary_title);
-  const [error, setError] = useState(null);
-  const [data, setData] = useState<SigneeState[]>([]);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetchSigneeList(partyId!, instanceGuid!);
-        const result = response;
-        setData(result);
-      } catch (err) {
-        setError(err);
-      }
-    }
-
-    fetchData();
-  }, [instanceGuid, partyId]);
 
   return (
     <div>
@@ -45,7 +31,11 @@ export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
       </Heading>
       <hr className={classes.summaryDivider} />
 
-      {error ? (
+      {isLoading ? (
+        <Paragraph>
+          <Lang id='signee_list_summary.loading' />
+        </Paragraph>
+      ) : error ? (
         <Paragraph>
           <Lang id='signee_list_summary.error' />
         </Paragraph>

@@ -392,6 +392,7 @@ export function en() {
       header: 'Signed by',
       name_placeholder: 'Unknown name',
       on_behalf_of: 'On behalf of',
+      loading: 'Loading signature data...',
       error: 'Failed to load signature data.',
       no_data: 'No signature data found.',
       no_signatures: 'No signatures found.',
