@@ -6,8 +6,9 @@ import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useReturnToView, useSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { useIsSaving } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
-import { useNavigatePage, useNextPageKey, usePreviousPageKey } from 'src/hooks/useNavigatePage';
+import { useNavigatePage, useNextPageKey, usePreviousPageKey, useVisitedPages } from 'src/hooks/useNavigatePage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -24,6 +25,8 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const summaryItem = useNodeItem(useSummaryNodeOfOrigin());
   const isSaving = useIsSaving();
   const parentIsPage = node.parent instanceof LayoutPage;
+  const [_, setVisitedPages] = useVisitedPages();
+  const currentPage = useNavigationParam('pageKey');
 
   const refPrev = React.useRef<HTMLButtonElement>(null);
   const refNext = React.useRef<HTMLButtonElement>(null);
@@ -90,6 +93,13 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       }
     }
 
+    setVisitedPages((prev) => {
+      if (currentPage && !prev.includes(currentPage)) {
+        return [...prev, currentPage];
+      }
+      return prev;
+    });
+
     await navigateToPage(next, { skipAutoSave: true });
   };
 
@@ -99,6 +109,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     }
 
     maybeSaveOnPageChange();
+
     await navigateToPage(returnToView, { skipAutoSave: true });
   };
 

@@ -4,6 +4,7 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useGetAltinnTaskType } from 'src/features/instance/ProcessContext';
 import { ValidationMask } from 'src/features/validation';
+import { useVisitedPages } from 'src/hooks/useNavigatePage';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useLaxNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
@@ -62,6 +63,7 @@ export function useGetTaskName() {
 export function useValidationsForPages(order: string[], shouldMarkAsCompleted = false) {
   const traversalSelector = useLaxNodeTraversalSelector();
   const validationsSelector = NodesInternal.useLaxValidationsSelector();
+  const [visitedPages] = useVisitedPages();
 
   const allNodes = traversalSelector(
     (traverser) =>
@@ -91,12 +93,14 @@ export function useValidationsForPages(order: string[], shouldMarkAsCompleted = 
       ]),
     );
 
-    const completedPages = Object.fromEntries(order.map((page) => [page, pageHasNoErrors[page]])); // && page is visited
+    const completedPages = Object.fromEntries(
+      order.map((page) => [page, pageHasNoErrors[page] && visitedPages.includes(page)]),
+    );
 
-    const groupIsComplete = order.every((page) => pageHasNoErrors[page]); // && page is visited
+    const groupIsComplete = order.every((page) => pageHasNoErrors[page] && visitedPages.includes(page));
 
     return { pages: completedPages, group: groupIsComplete };
-  }, [order, allNodes, validationsSelector, shouldMarkAsCompleted]);
+  }, [order, allNodes, validationsSelector, shouldMarkAsCompleted, visitedPages]);
 
   const hasErrors = useMemo(() => {
     if (allNodes === ContextNotProvided) {

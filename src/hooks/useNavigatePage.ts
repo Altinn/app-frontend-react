@@ -17,6 +17,7 @@ import {
   useSetNavigationEffect,
 } from 'src/features/routing/AppRoutingContext';
 import { useRefetchInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
+import { useLocalStorageState } from 'src/hooks/useLocalStorageState';
 import { ProcessTaskType } from 'src/types';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
@@ -322,6 +323,7 @@ export function useNavigatePage() {
       window.logWarn('Tried to navigate to next page when standing on the last page.');
       return;
     }
+
     await navigateToPage(nextPage);
   }, [getNextPage, navigateToPage]);
 
@@ -371,3 +373,14 @@ export function focusMainContent(options?: NavigateToPageOptions) {
     document.getElementById('main-content')?.focus({ preventScroll: true });
   }
 }
+
+export function useVisitedPages() {
+  const partyId = useNavigationParam('partyId');
+  const instanceGuid = useNavigationParam('instanceGuid');
+  const taskId = useNavigationParam('taskId');
+  const componentId = useNavigationParam('componentId');
+  const dataElementId = useNavigationParam('dataElementId');
+
+  return useLocalStorageState(['visitedPages', partyId, instanceGuid, taskId, componentId, dataElementId], emptyArray);
+}
+const emptyArray = [];
