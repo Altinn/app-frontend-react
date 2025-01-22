@@ -4,8 +4,8 @@ import { Radio } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import type { RadioProps } from '@digdir/designsystemet-react';
 
+import { HelpText } from 'src/app-components/HelpText/HelpText';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import classes from 'src/components/form/RadioButton.module.css';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
@@ -52,12 +52,7 @@ export const RadioButton = ({
       {label && (
         <div className={`${hideLabel ? 'sr-only' : ''} ${classes.radioLabelContainer}`}>
           {label}
-          {helpText ? (
-            <HelpTextContainer
-              helpText={helpText}
-              title={elementAsString(helpText)}
-            />
-          ) : null}
+          {helpText ? <HelpText title={elementAsString(helpText)}>{helpText}</HelpText> : null}
         </div>
       )}
     </Radio>
