@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 import { useGetAppLanguageQuery } from 'src/features/language/textResources/useGetAppLanguagesQuery';
-import { useLocalStorageState } from 'src/hooks/useLocalStorage';
+import { useLocalStorageState } from 'src/hooks/useLocalStorageState';
 import type { IProfile } from 'src/types/shared';
 
 interface LanguageCtx {
@@ -40,7 +40,7 @@ export const LanguageProvider = ({ children }: PropsWithChildren) => {
   const [profileData, setProfileData] = useState<LanguageProfileData>({ loaded: false });
   const languageFromUrl = getLanguageQueryParam();
   const [languageFromSelector, setWithLanguageSelector] = useLocalStorageState(
-    ['selectedLanguage', String(profileData.userId)],
+    ['selectedLanguage', profileData.userId],
     null,
   );
 

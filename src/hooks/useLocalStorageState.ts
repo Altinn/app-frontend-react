@@ -72,11 +72,13 @@ class LocalStorageController<T> {
   }
 }
 
+type ScopeKey = string | number | boolean | null | undefined;
+
 /**
  * Use state synced with localstorage at a specific key. The scope keys determines whether it should be unique per instance, per task, per subform, etc.
  */
 export function useLocalStorageState<K extends keyof LocalStorageEntries, D extends T, T = LocalStorageEntries[K]>(
-  [entryKey, ...scopeKeys]: [K, ...string[]],
+  [entryKey, ...scopeKeys]: [K, ...ScopeKey[]],
   defaultValue: D,
 ): [T, (valueOrSetter: T | ((prev: T) => T)) => void] {
   const key = getFullKey(entryKey, scopeKeys);
@@ -93,9 +95,14 @@ export function useLocalStorageState<K extends keyof LocalStorageEntries, D exte
   return [value, state.current.setValue];
 }
 
-function getFullKey(entryKey: string, scopeKeys: string[]) {
+function isNotNullUndefinedOrEmpty(key: ScopeKey) {
+  return key != null && (typeof key !== 'string' || !!key.length);
+}
+
+function getFullKey(entryKey: string, scopeKeys: ScopeKey[]) {
   let fullKey = `${window.org}/${window.app}`;
-  scopeKeys.length && (fullKey += `/${scopeKeys.join('/')}`);
+
+  scopeKeys.length && (fullKey += `/${scopeKeys.filter(isNotNullUndefinedOrEmpty).join('/')}`);
   fullKey += `/${entryKey}`;
   return fullKey;
 }
