@@ -75,7 +75,7 @@ class LocalStorageController<T> {
 export function useLocalStorageState<K extends keyof LocalStorageEntries, D extends T, T = LocalStorageEntries[K]>(
   [entryKey, ...scopeKeys]: [K, ...string[]],
   defaultValue: D,
-): [T, (newValue: T) => void] {
+): [T, (valueOrSetter: T | ((prev: T) => T)) => void] {
   const key = getFullKey(entryKey, scopeKeys);
 
   const state = useRef<LocalStorageController<T>>();
