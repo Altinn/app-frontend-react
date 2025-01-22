@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRef, useSyncExternalStore } from 'react';
 
 /**
  * This type contains what we store in localstorage at different keys.
@@ -13,62 +13,86 @@ type LocalStorageEntries = {
 };
 
 /**
- * Use state synced with localstorage at a specific key. The scope determines whether it should be unique per instance, per task, per subform, etc.
  * TODO: Handle potential exceptions from JSON.parse
  */
-export function useLocalStorageState<K extends keyof LocalStorageEntries, D extends T, T = LocalStorageEntries[K]>(
-  [key, ...scope]: [K, ...string[]],
-  defaultValue: D,
-): [T, (newValue: T) => void] {
-  const fullKey = getFullKey(key, scope);
+class LocalStorageController<T> {
+  private key: string;
+  private defaultValue: T;
 
-  const lastRawValue = useRef<string | null>(null);
-  const [_value, _setValue] = useState<T | null>(null);
+  private currentValue: T | null = null;
+  private currentRawValue: string | null = null;
+  private triggerRender: (() => void) | null = null;
 
-  /**
-   * If the key prop changes we want the updated value to be returned immediately, not the next render
-   */
-  let value = _value;
-  const rawValue = window.localStorage.getItem(fullKey);
-  if (rawValue !== lastRawValue.current) {
-    lastRawValue.current = rawValue;
-    const newValue = rawValue != null ? (JSON.parse(rawValue) as T) : null;
-    _setValue(newValue);
-    value = newValue;
+  public setDeps(key: string, defaultValue: T) {
+    this.key = key;
+    this.defaultValue = defaultValue;
   }
 
-  useEffect(() => {
+  public getSnapshot = () => {
+    this.updateCurrentValue(window.localStorage.getItem(this.key));
+    return this.currentRawValue != null ? (this.currentValue as T) : this.defaultValue;
+  };
+
+  public subscribe = (triggerRerender: () => void) => {
+    this.triggerRender = triggerRerender;
+
     const callback = ({ key, newValue }: StorageEvent) => {
-      if (key === fullKey && newValue !== lastRawValue.current) {
-        lastRawValue.current = newValue;
-        _setValue(newValue != null ? (JSON.parse(newValue) as T) : null);
+      if (key === this.key && this.updateCurrentValue(newValue)) {
+        this.triggerRender?.();
       }
     };
 
+    // 'storage' event only gets called when localstorage is modified from a different browser context
     window.addEventListener('storage', callback);
-    return () => window.removeEventListener('storage', callback);
-  }, [fullKey]);
+    window.addEventListener('internal-storage', callback);
+    return () => {
+      window.removeEventListener('storage', callback);
+      window.removeEventListener('internal-storage', callback);
+    };
+  };
 
-  const setValue = useCallback(
-    (newValue: T) => {
-      const rawValue = JSON.stringify(newValue);
-      if (rawValue !== lastRawValue.current) {
-        window.localStorage.setItem(fullKey, rawValue);
-        // storage event only fires when modified in a different browsing context (another tab for example),
-        // so it needs to be set to the state directly as well.
-        lastRawValue.current = rawValue;
-        _setValue(newValue);
-      }
-    },
-    [fullKey],
-  );
+  public setValue = (valueOrSetter: T | ((prev: T) => T)) => {
+    const prev = this.currentRawValue !== null ? (this.currentValue as T) : this.defaultValue;
+    const newValue = typeof valueOrSetter === 'function' ? (valueOrSetter as (prev: T) => T)(prev) : valueOrSetter;
+    const newRawValue = JSON.stringify(newValue);
+    window.localStorage.setItem(this.key, newRawValue);
+    window.dispatchEvent(new StorageEvent('internal-storage', { newValue: newRawValue, key: this.key }));
+  };
 
-  return [value ?? defaultValue, setValue];
+  private updateCurrentValue(newRawValue: string | null): boolean {
+    if (newRawValue !== this.currentRawValue) {
+      this.currentRawValue = newRawValue;
+      this.currentValue = newRawValue != null ? (JSON.parse(newRawValue) as T) : null;
+      return true;
+    }
+    return false;
+  }
 }
 
-function getFullKey(key: string, scope: string[]) {
+/**
+ * Use state synced with localstorage at a specific key. The scope keys determines whether it should be unique per instance, per task, per subform, etc.
+ */
+export function useLocalStorageState<K extends keyof LocalStorageEntries, D extends T, T = LocalStorageEntries[K]>(
+  [entryKey, ...scopeKeys]: [K, ...string[]],
+  defaultValue: D,
+): [T, (newValue: T) => void] {
+  const key = getFullKey(entryKey, scopeKeys);
+
+  const state = useRef<LocalStorageController<T>>();
+  if (!state.current) {
+    state.current = new LocalStorageController<T>();
+  }
+
+  state.current.setDeps(key, defaultValue);
+
+  const value = useSyncExternalStore(state.current.subscribe, state.current.getSnapshot);
+
+  return [value, state.current.setValue];
+}
+
+function getFullKey(entryKey: string, scopeKeys: string[]) {
   let fullKey = `${window.org}/${window.app}`;
-  scope.length && (fullKey += `/${scope.join('/')}`);
-  fullKey += `/${key}`;
+  scopeKeys.length && (fullKey += `/${scopeKeys.join('/')}`);
+  fullKey += `/${entryKey}`;
   return fullKey;
 }
