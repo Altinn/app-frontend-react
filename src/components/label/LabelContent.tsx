@@ -52,6 +52,7 @@ export function LabelContent({
         </span>
         {help && (
           <HelpTextContainer
+            id={componentId}
             helpText={<Lang id={help} />}
             title={label}
           />
