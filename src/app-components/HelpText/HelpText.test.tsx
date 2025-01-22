@@ -12,7 +12,7 @@ const render = (props: Partial<HelpTextProps> = {}) => {
   };
   renderRtl(
     <HelpText
-      aria-label='Helptext for test'
+      title='Helptext for test'
       {...allProps}
     >
       Help

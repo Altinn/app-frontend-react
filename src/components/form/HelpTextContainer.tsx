@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { HelpText } from '@digdir/designsystemet-react';
-
+import { HelpText } from 'src/app-components/HelpText/HelpText';
 import classes from 'src/components/form/HelpTextContainer.module.css';
 import { useLanguage } from 'src/features/language/useLanguage';
 

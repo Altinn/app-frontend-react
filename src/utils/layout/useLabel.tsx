@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { HelpText } from '@digdir/designsystemet-react';
-
+import { HelpText } from 'src/app-components/HelpText/HelpText';
 import { Description } from 'src/components/form/Description';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';

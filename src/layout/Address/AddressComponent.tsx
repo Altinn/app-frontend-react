@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 
-import { HelpText } from '@digdir/designsystemet-react';
-
 import { Flex } from 'src/app-components/Flex/Flex';
+import { HelpText } from 'src/app-components/HelpText/HelpText';
 import { Input } from 'src/app-components/Input/Input';
 import { Label } from 'src/app-components/Label/Label';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';

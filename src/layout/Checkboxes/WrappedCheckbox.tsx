@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { Checkbox, HelpText } from '@digdir/designsystemet-react';
+import { Checkbox } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
+import { HelpText } from 'src/app-components/HelpText/HelpText';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
