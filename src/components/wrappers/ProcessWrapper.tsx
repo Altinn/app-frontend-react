@@ -15,7 +15,6 @@ import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/Pro
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { PaymentProvider } from 'src/features/payment/PaymentProvider';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
@@ -149,11 +148,9 @@ export const ProcessWrapper = () => {
             path='*'
             element={
               <PDFWrapper>
-                <PaymentProvider>
-                  <PresentationComponent type={ProcessTaskType.Data}>
-                    <Form />
-                  </PresentationComponent>
-                </PaymentProvider>
+                <PresentationComponent type={ProcessTaskType.Data}>
+                  <Form />
+                </PresentationComponent>
               </PDFWrapper>
             }
           />

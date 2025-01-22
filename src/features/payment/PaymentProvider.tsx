@@ -10,6 +10,7 @@ import { PaymentStatus } from 'src/features/payment/types';
 import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
 import { useIsPayment } from 'src/features/payment/utils';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 
 type PaymentContextProps = {
   setLoading: (bool) => void;
@@ -28,6 +29,7 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
   const partyId = useNavigationParam('partyId');
   const instanceGuid = useNavigationParam('instanceGuid');
   const paymentInfo = usePaymentInformation();
+  const isPdf = useIsPdf();
   const { next, busy } = useProcessNavigation() || {};
   const { mutate, error } = usePerformPayActionMutation(partyId, instanceGuid);
 
@@ -49,23 +51,23 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
 
   // if PaymentStatus is Uninitialized, initiate it by calling the pay action and go to payment provider
   useEffect(() => {
-    if (isPaymentProcess && paymentDoesNotExist && !actionCalled.current) {
+    if (isPaymentProcess && paymentDoesNotExist && !actionCalled.current && !isPdf) {
       actionCalled.current = true;
       setLoading(true);
       mutate();
     }
-  }, [isPaymentProcess, paymentDoesNotExist, mutate]);
+  }, [isPaymentProcess, paymentDoesNotExist, mutate, isPdf]);
 
   const paymentCompleted = paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped;
   const nextCalled = useRef(false);
 
   useEffect(() => {
-    if (paymentCompleted && next && !busy && !nextCalled.current) {
+    if (paymentCompleted && next && !busy && !nextCalled.current && !isPdf) {
       nextCalled.current = true;
       setLoading(true);
       next({ action: 'confirm', nodeId: 'next-button' });
     }
-  }, [paymentCompleted, next, busy]);
+  }, [paymentCompleted, next, busy, isPdf]);
 
   useEffect(() => {
     if (error) {
