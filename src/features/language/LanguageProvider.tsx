@@ -8,7 +8,7 @@ import type { IProfile } from 'src/types/shared';
 
 interface LanguageCtx {
   current: string;
-  profileLoaded: boolean;
+  languageResolved: boolean;
   setProfileForLanguage: (profile: IProfile | null) => void;
   setWithLanguageSelector: (language: string) => void;
 }
@@ -18,7 +18,7 @@ const { Provider, useCtx } = createContext<LanguageCtx>({
   required: false,
   default: {
     current: 'nb',
-    profileLoaded: false,
+    languageResolved: false,
     setProfileForLanguage: () => {
       throw new Error('LanguageProvider not initialized');
     },
@@ -35,7 +35,7 @@ type LanguageProfileData = {
 };
 
 export const LanguageProvider = ({ children }: PropsWithChildren) => {
-  const validateLanguage = useValidateLanguage();
+  const [validateLanguage, languagesLoaded] = useValidateLanguage();
 
   const [profileData, setProfileData] = useState<LanguageProfileData>({ loaded: false });
   const languageFromUrl = getLanguageQueryParam();
@@ -66,14 +66,21 @@ export const LanguageProvider = ({ children }: PropsWithChildren) => {
     'nb';
 
   return (
-    <Provider value={{ current, profileLoaded: profileData.loaded, setProfileForLanguage, setWithLanguageSelector }}>
+    <Provider
+      value={{
+        current,
+        languageResolved: profileData.loaded && languagesLoaded,
+        setProfileForLanguage,
+        setWithLanguageSelector,
+      }}
+    >
       {children}
     </Provider>
   );
 };
 
 export const useCurrentLanguage = () => useCtx().current;
-export const useIsProfileLanguageLoaded = () => useCtx().profileLoaded;
+export const useIsCurrentLanguageResolved = () => useCtx().languageResolved;
 export const useSetCurrentLanguage = () => {
   const { setWithLanguageSelector, setProfileForLanguage } = useCtx();
   return { setWithLanguageSelector, setProfileForLanguage };
@@ -85,9 +92,12 @@ function getLanguageQueryParam() {
 }
 
 function useValidateLanguage() {
-  const { data: appLanguages } = useGetAppLanguageQuery();
-  return useCallback(
+  const { data: appLanguages, isPending } = useGetAppLanguageQuery();
+
+  const validateLanguage = useCallback(
     (lang: string | null | undefined) => (!!lang && (!appLanguages || appLanguages.includes(lang)) ? lang : null),
     [appLanguages],
   );
+
+  return [validateLanguage, !isPending] as const;
 }

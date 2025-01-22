@@ -22,26 +22,26 @@ export function useLocalStorageState<K extends keyof LocalStorageEntries, D exte
 ): [T, (newValue: T) => void] {
   const fullKey = getFullKey(key, scope);
 
-  // Used to prevent unecessary state updates.
-  const lastRawValue = useRef<string | null>();
+  const lastRawValue = useRef<string | null>(null);
+  const [_value, _setValue] = useState<T | null>(null);
 
-  const [value, _setValue] = useState<T | null>(() => {
-    const rawValue = window.localStorage.getItem(fullKey);
+  /**
+   * If the key prop changes we want the updated value to be returned immediately, not the next render
+   */
+  let value = _value;
+  const rawValue = window.localStorage.getItem(fullKey);
+  if (rawValue !== lastRawValue.current) {
     lastRawValue.current = rawValue;
-    return rawValue != null ? (JSON.parse(rawValue) as T) : null;
-  });
+    const newValue = rawValue != null ? (JSON.parse(rawValue) as T) : null;
+    _setValue(newValue);
+    value = newValue;
+  }
 
   useEffect(() => {
-    const rawValue = window.localStorage.getItem(fullKey);
-    if (rawValue !== lastRawValue.current) {
-      lastRawValue.current = rawValue;
-      rawValue != null ? _setValue(JSON.parse(rawValue) as T) : _setValue(null);
-    }
-
     const callback = ({ key, newValue }: StorageEvent) => {
       if (key === fullKey && newValue !== lastRawValue.current) {
         lastRawValue.current = newValue;
-        newValue != null ? _setValue(JSON.parse(newValue) as T) : _setValue(null);
+        _setValue(newValue != null ? (JSON.parse(newValue) as T) : null);
       }
     };
 
@@ -52,10 +52,13 @@ export function useLocalStorageState<K extends keyof LocalStorageEntries, D exte
   const setValue = useCallback(
     (newValue: T) => {
       const rawValue = JSON.stringify(newValue);
-      window.localStorage.setItem(fullKey, rawValue);
-      // storage event only fires when modified in a different browsing context (another tab for example),
-      // so it needs to be set to the state directly as well.
-      _setValue(newValue);
+      if (rawValue !== lastRawValue.current) {
+        window.localStorage.setItem(fullKey, rawValue);
+        // storage event only fires when modified in a different browsing context (another tab for example),
+        // so it needs to be set to the state directly as well.
+        lastRawValue.current = rawValue;
+        _setValue(newValue);
+      }
     },
     [fullKey],
   );

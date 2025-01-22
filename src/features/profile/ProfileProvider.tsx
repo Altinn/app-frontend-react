@@ -49,6 +49,12 @@ const useProfileQuery = () => {
     }
   }, [setProfileForLanguage, utils.data]);
 
+  useEffect(() => {
+    if (!enabled) {
+      setProfileForLanguage(null);
+    }
+  }, [setProfileForLanguage, enabled]);
+
   return {
     ...utils,
     enabled,
