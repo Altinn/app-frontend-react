@@ -2,14 +2,13 @@ import React from 'react';
 
 import cn from 'classnames';
 
-import { HelpText } from 'src/app-components/HelpText/HelpText';
 import { Description } from 'src/components/form/Description';
+import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getDescriptionId } from 'src/components/label/Label';
 import classes from 'src/components/label/LabelContent.module.css';
 import { Lang } from 'src/features/language/Lang';
-import { useLanguage } from 'src/features/language/useLanguage';
 import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
@@ -34,7 +33,6 @@ export function LabelContent({
   className,
 }: LabelContentProps) {
   const { overrideDisplay } = useFormComponentCtx() ?? {};
-  const { langAsString } = useLanguage();
 
   if (overrideDisplay?.renderLabel === false) {
     return null;
@@ -53,14 +51,10 @@ export function LabelContent({
           />
         </span>
         {help && (
-          <HelpText
-            id={`${componentId}-helptext`}
-            title={
-              label ? `${langAsString('helptext.button_title_prefix')} ${label}` : langAsString('helptext.button_title')
-            }
-          >
-            <Lang id={help} />
-          </HelpText>
+          <HelpTextContainer
+            helpText={<Lang id={help} />}
+            title={label}
+          />
         )}
       </span>
       {description && (
