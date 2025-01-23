@@ -70,6 +70,7 @@ export function ImageComponent({ node }: IImageProps) {
             style={{ letterSpacing: '0.3px', flexBasis: 'auto' }}
           >
             <HelpTextContainer
+              id={id}
               helpText={<Lang id={textResourceBindings.help} />}
               title={altText}
             />

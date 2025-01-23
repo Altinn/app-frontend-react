@@ -3,6 +3,7 @@ import type { ButtonHTMLAttributes } from 'react';
 
 import { Popover } from '@digdir/designsystemet-react';
 import cl from 'clsx';
+import { v4 as uuidv4 } from 'uuid';
 import type { PopoverProps } from '@digdir/designsystemet-react';
 
 import classes from 'src/app-components/HelpText/Helptext.module.css';
@@ -18,6 +19,7 @@ export type PortalProps = {
 };
 
 export type HelpTextProps = {
+  id?: string;
   title: string;
   size?: PopoverProps['size'];
   placement?: 'right' | 'bottom' | 'left' | 'top';
@@ -52,12 +54,13 @@ export function getSize(size: string) {
 }
 
 export const HelpText = forwardRef<HTMLButtonElement, HelpTextProps>(function HelpText(
-  { title, placement = 'right', portal, className, children, ...rest },
+  { id, title, placement = 'right', portal, className, children, ...rest },
   ref,
 ) {
-  const size = getSize(rest.size || 'md') as PopoverProps['size'];
-
+  const uuid = uuidv4();
   const [open, setOpen] = useState(false);
+
+  const size = getSize(rest.size || 'md') as PopoverProps['size'];
 
   const helpTextSize = size ? classes[`helpText-${size}`] : '';
   return (
@@ -73,16 +76,13 @@ export const HelpText = forwardRef<HTMLButtonElement, HelpTextProps>(function He
         asChild
         variant='tertiary'
         ref={ref}
-      />
-      <Popover.Trigger
-        asChild
-        variant='tertiary'
+        aria-label={title}
+        id={id ?? uuid}
       >
         <button
           className={cl(helpTextSize, classes.helpTextButton, classes.helpTextFocus, className)}
           aria-expanded={open}
           onClick={() => setOpen(!open)}
-          {...rest}
         >
           <HelpTextIcon
             filled
@@ -93,7 +93,7 @@ export const HelpText = forwardRef<HTMLButtonElement, HelpTextProps>(function He
             className={cl(classes['helpText-icon'], className)}
             openState={open}
           />
-          <span className='fds-sr-only'>{title}</span>
+          <span className={classes.screenReaderOnly}>{title}</span>
         </button>
       </Popover.Trigger>
       <Popover.Content className={classes.helpTextContent}>{children}</Popover.Content>

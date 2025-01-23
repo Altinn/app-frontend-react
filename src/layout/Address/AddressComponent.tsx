@@ -230,6 +230,7 @@ export function AddressComponent({ node }: IAddressProps) {
             }
             help={
               <HelpTextContainer
+                id={id}
                 title={langAsString(textResourceBindings?.houseNumberTitle ?? 'address_component.house_number')}
                 helpText={<Lang id='address_component.house_number_help_text_title' />}
               />
