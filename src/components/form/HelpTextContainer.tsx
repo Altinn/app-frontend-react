@@ -13,15 +13,12 @@ export interface IHelpTextContainerProps {
 export function HelpTextContainer({ id, helpText, title }: IHelpTextContainerProps) {
   const { langAsString } = useLanguage();
   return (
-    <div className={classes.helpTextContainer}>
-      <HelpText
-        id={id ? `${id}-helptext` : undefined}
-        title={
-          title ? `${langAsString('helptext.button_title_prefix')} ${title}` : langAsString('helptext.button_title')
-        }
-      >
-        {helpText}
-      </HelpText>
-    </div>
+    <HelpText
+      id={id ? `${id}-helptext` : undefined}
+      title={title ? `${langAsString('helptext.button_title_prefix')} ${title}` : langAsString('helptext.button_title')}
+      className={classes.helpTextContainer}
+    >
+      {helpText}
+    </HelpText>
   );
 }

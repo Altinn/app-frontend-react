@@ -86,11 +86,11 @@ export const HelpText = forwardRef<HTMLButtonElement, HelpTextProps>(function He
         >
           <HelpTextIcon
             filled
-            className={cl(classes['helpText-icon'], classes['helpText-iconFilled'], className)}
+            className={cl(classes['helpText-icon'], classes['helpText-iconFilled'])}
             openState={open}
           />
           <HelpTextIcon
-            className={cl(classes['helpText-icon'], className)}
+            className={cl(classes['helpText-icon'])}
             openState={open}
           />
           <span className={classes.screenReaderOnly}>{title}</span>
