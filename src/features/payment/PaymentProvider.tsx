@@ -9,7 +9,7 @@ import { usePaymentInformation } from 'src/features/payment/PaymentInformationPr
 import { PaymentStatus } from 'src/features/payment/types';
 import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
 import { useIsPayment } from 'src/features/payment/utils';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 
 type PaymentContextProps = {
@@ -24,7 +24,16 @@ type PaymentContextProvider = {
 
 export const PaymentContext = createContext<PaymentContextProps | undefined>(undefined);
 
-export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) => {
+const EmptyPaymentProvider: React.FC<PaymentContextProvider> = ({ children }) => {
+  const contextValue = {
+    setLoading: () => {},
+    performPayment: () => {},
+    paymentError: null,
+  };
+  return <PaymentContext.Provider value={contextValue}>{children}</PaymentContext.Provider>;
+};
+
+const FunctionalPaymentProvider: React.FC<PaymentContextProvider> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const partyId = useNavigationParam('partyId');
   const instanceGuid = useNavigationParam('instanceGuid');
@@ -82,6 +91,15 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
   }
 
   return <PaymentContext.Provider value={contextValue}>{children}</PaymentContext.Provider>;
+};
+
+export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) => {
+  const isSubformPage = useIsSubformPage();
+  if (isSubformPage) {
+    return <EmptyPaymentProvider>{children}</EmptyPaymentProvider>;
+  }
+
+  return <FunctionalPaymentProvider>{children}</FunctionalPaymentProvider>;
 };
 
 export const usePayment = () => {
