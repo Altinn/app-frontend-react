@@ -24,23 +24,12 @@ type PaymentContextProvider = {
 
 export const PaymentContext = createContext<PaymentContextProps | undefined>(undefined);
 
-const EmptyPaymentProvider: React.FC<PaymentContextProvider> = ({ children }) => {
-  const contextValue = {
-    setLoading: () => {},
-    performPayment: () => {},
-    paymentError: null,
-  };
-  return <PaymentContext.Provider value={contextValue}>{children}</PaymentContext.Provider>;
-};
-
-const FunctionalPaymentProvider: React.FC<PaymentContextProvider> = ({ children }) => {
+export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const partyId = useNavigationParam('partyId');
   const instanceGuid = useNavigationParam('instanceGuid');
-  const paymentInfo = usePaymentInformation();
-  const isPdf = useIsPdf();
-  const { next, busy } = useProcessNavigation() || {};
   const { mutate, error } = usePerformPayActionMutation(partyId, instanceGuid);
+  const isSubformPage = useIsSubformPage();
 
   const contextValue: PaymentContextProps = useMemo(
     () => ({
@@ -54,6 +43,31 @@ const FunctionalPaymentProvider: React.FC<PaymentContextProvider> = ({ children 
     [setLoading, mutate, error],
   );
 
+  // If payment failed, stop loading
+  React.useEffect(() => {
+    if (error) {
+      setLoading(false);
+    }
+  }, [error]);
+
+  if (loading) {
+    return <Loader reason='Navigating to external payment solution' />;
+  }
+
+  return (
+    <PaymentContext.Provider value={contextValue}>
+      {children}
+      {!isSubformPage && !error && <PaymentNavigation />}
+    </PaymentContext.Provider>
+  );
+};
+
+function PaymentNavigation() {
+  const { next, busy } = useProcessNavigation() || {};
+  const paymentInfo = usePaymentInformation();
+  const isPdf = useIsPdf();
+  const { setLoading, performPayment } = usePayment();
+
   const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
   const isPaymentProcess = useIsPayment();
   const actionCalled = useRef(false);
@@ -64,9 +78,9 @@ const FunctionalPaymentProvider: React.FC<PaymentContextProvider> = ({ children 
     if (isPaymentProcess && paymentDoesNotExist && !actionCalled.current && !isPdf) {
       actionCalled.current = true;
       setLoading(true);
-      mutate();
+      performPayment();
     }
-  }, [isPaymentProcess, paymentDoesNotExist, mutate, isPdf]);
+  }, [isPaymentProcess, paymentDoesNotExist, performPayment, setLoading, isPdf]);
 
   const paymentCompleted = paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped;
   const nextCalled = useRef(false);
@@ -78,29 +92,10 @@ const FunctionalPaymentProvider: React.FC<PaymentContextProvider> = ({ children 
       setLoading(true);
       next({ action: 'confirm', nodeId: 'next-button' });
     }
-  }, [paymentCompleted, next, busy, isPdf]);
+  }, [paymentCompleted, setLoading, next, busy, isPdf]);
 
-  useEffect(() => {
-    if (error) {
-      setLoading(false);
-    }
-  }, [error]);
-
-  if (loading) {
-    return <Loader reason='Navigating to external payment solution' />;
-  }
-
-  return <PaymentContext.Provider value={contextValue}>{children}</PaymentContext.Provider>;
-};
-
-export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) => {
-  const isSubformPage = useIsSubformPage();
-  if (isSubformPage) {
-    return <EmptyPaymentProvider>{children}</EmptyPaymentProvider>;
-  }
-
-  return <FunctionalPaymentProvider>{children}</FunctionalPaymentProvider>;
-};
+  return null;
+}
 
 export const usePayment = () => {
   const context = useContext(PaymentContext);
