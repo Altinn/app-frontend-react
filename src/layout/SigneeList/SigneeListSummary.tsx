@@ -50,11 +50,12 @@ export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
       ) : (
         data.map((item, index) => (
           <Paragraph key={index}>
-            {item.hasSigned && (item.name?.toLocaleUpperCase() ?? <Lang id='signee_list_summary.name_placeholder' />)}
+            {item.hasSigned &&
+              `${item.name?.toLocaleUpperCase() ?? <Lang id='signee_list_summary.name_placeholder' />} `}
             {item.organisation ? (
               <>
                 <Lang id='signee_list_summary.on_behalf_of' />
-                {item.organisation.toLocaleUpperCase()}
+                {` ${item.organisation.toLocaleUpperCase()}`}
               </>
             ) : null}
           </Paragraph>
