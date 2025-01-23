@@ -18,10 +18,8 @@ type LocalStorageEntries = {
 class LocalStorageController<T> {
   private key: string;
   private defaultValue: T;
-
   private currentValue: T | null = null;
   private currentRawValue: string | null = null;
-  private triggerRender: (() => void) | null = null;
 
   public setDeps(key: string, defaultValue: T) {
     this.key = key;
@@ -34,22 +32,18 @@ class LocalStorageController<T> {
   };
 
   public subscribe = (triggerRerender: () => void) => {
-    this.triggerRender = triggerRerender;
-
     const callback = ({ key, newValue }: StorageEvent) => {
       if (key === this.key && this.updateCurrentValue(newValue)) {
-        this.triggerRender?.();
+        triggerRerender();
       }
     };
 
     /**
-     * 'storage' event only gets called when localstorage is modified from a different browser context (e.g. a different tab),
+     * The native 'storage' event only gets called when localstorage is modified from a different browser context (e.g. a different tab),
      * so using a custom 'internal-storage' event to keep hooks in sync internally
      */
-    window.addEventListener('storage', callback);
     window.addEventListener('internal-storage', callback);
     return () => {
-      window.removeEventListener('storage', callback);
       window.removeEventListener('internal-storage', callback);
     };
   };

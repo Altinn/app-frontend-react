@@ -81,24 +81,24 @@ export const useIsCurrentTask = () => {
   }, [currentTaskId, taskId]);
 };
 
-export const usePreviousPageKey = () => {
+export const usePreviousPageKey = (): string | undefined => {
   const order = usePageOrder();
 
   const currentPageId = useNavigationParam('pageKey') ?? '';
-  const currentPageIndex = order?.indexOf(currentPageId) ?? -1;
+  const currentPageIndex = order.indexOf(currentPageId) ?? -1;
   const previousPageIndex = currentPageIndex !== -1 ? currentPageIndex - 1 : -1;
 
-  return order?.[previousPageIndex];
+  return order[previousPageIndex];
 };
 
-export const useNextPageKey = () => {
+export const useNextPageKey = (): string | undefined => {
   const order = usePageOrder();
 
   const currentPageId = useNavigationParam('pageKey') ?? '';
-  const currentPageIndex = order?.indexOf(currentPageId) ?? -1;
+  const currentPageIndex = order.indexOf(currentPageId) ?? -1;
   const nextPageIndex = currentPageIndex !== -1 ? currentPageIndex + 1 : -1;
 
-  return order?.[nextPageIndex];
+  return order[nextPageIndex];
 };
 
 export const useStartUrl = (forcedTaskId?: string) => {

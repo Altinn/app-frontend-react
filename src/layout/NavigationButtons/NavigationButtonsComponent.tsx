@@ -94,10 +94,14 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     }
 
     setVisitedPages((prev) => {
+      const visitedPages = [...prev];
       if (currentPage && !prev.includes(currentPage)) {
-        return [...prev, currentPage];
+        visitedPages.push(currentPage);
       }
-      return prev;
+      if (!prev.includes(next)) {
+        visitedPages.push(next);
+      }
+      return visitedPages;
     });
 
     await navigateToPage(next, { skipAutoSave: true });
