@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
-import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
+import { HelpText } from 'src/app-components/HelpText/HelpText';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -69,11 +69,12 @@ export function ImageComponent({ node }: IImageProps) {
             item
             style={{ letterSpacing: '0.3px', flexBasis: 'auto' }}
           >
-            <HelpTextContainer
+            <HelpText
               id={id}
-              helpText={<Lang id={textResourceBindings.help} />}
               title={altText}
-            />
+            >
+              <Lang id={textResourceBindings.help} />
+            </HelpText>
           </Flex>
         )}
       </Flex>

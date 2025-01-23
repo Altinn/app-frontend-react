@@ -20,7 +20,7 @@ export type PortalProps = {
 
 export type HelpTextProps = {
   id?: string;
-  title: string;
+  title?: string;
   size?: PopoverProps['size'];
   placement?: 'right' | 'bottom' | 'left' | 'top';
 } & PortalProps &
