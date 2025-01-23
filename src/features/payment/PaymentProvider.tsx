@@ -49,7 +49,8 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
   const isPaymentProcess = useIsPayment();
   const actionCalled = useRef(false);
 
-  // if PaymentStatus is Uninitialized, initiate it by calling the pay action and go to payment provider
+  // If when landing on payment task, PaymentStatus is Uninitialized, initiate it by calling the pay action and
+  // go to payment provider
   useEffect(() => {
     if (isPaymentProcess && paymentDoesNotExist && !actionCalled.current && !isPdf) {
       actionCalled.current = true;
@@ -61,6 +62,7 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
   const paymentCompleted = paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped;
   const nextCalled = useRef(false);
 
+  // If when landing on payment task, PaymentStatus is Paid or Skipped, go to next task
   useEffect(() => {
     if (paymentCompleted && next && !busy && !nextCalled.current && !isPdf) {
       nextCalled.current = true;
