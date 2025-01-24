@@ -23,6 +23,8 @@
   color: var(--fds-semantic-text-action-default);
   width: var(--fds-sizing-7);
   height: var(--fds-sizing-7);
+  min-width: var(--fds-sizing-7);
+  min-height: var(--fds-sizing-7);
 }
 
 .helpTextButton:where(:hover, :focus, [data-state^='open']) > .helpText-icon {
