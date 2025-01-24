@@ -409,7 +409,6 @@ const knownDataModels: { [key: string]: unknown } = {
     ShiftingOptions: null,
     FilteredOptions: null,
     LinkedHidden: null,
-    PetsUseOptionComponent: null,
   },
   'nested-group': {
     skjemanummer: 1603,
