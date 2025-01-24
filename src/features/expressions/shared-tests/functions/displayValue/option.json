@@ -1,9 +1,6 @@
 {
-  "name": "Display value of Text component",
-  "expression": [
-    "displayValue",
-    "valg"
-  ],
+  "name": "Display value of Option component",
+  "expression": ["displayValue", "valg"],
   "context": {
     "component": "valg",
     "currentLayout": "Page"
