@@ -2,6 +2,7 @@ import path from 'path';
 
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend, component } from 'test/e2e/pageobjects/app-frontend';
+import { changeToLang } from 'test/e2e/support/lang';
 
 import { isNumberFormat } from 'src/layout/Input/number-format-helpers';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
@@ -623,17 +624,12 @@ describe('UI Components', () => {
   it('should be possible to change language back and forth and reflect the change in the UI', () => {
     cy.goto('changename');
 
-    const changeLang = (lang: string, elName: string) => {
-      cy.findByRole('combobox', { name: elName }).click();
-      cy.findByRole('option', { name: lang }).click();
-    };
-
     cy.findByRole('textbox', { name: newFirstNameNb }).should('exist');
     cy.findByRole('textbox', { name: /new first name/i }).should('not.exist');
-    changeLang('Engelsk', 'Språk');
+    changeToLang('en');
     cy.findByRole('textbox', { name: newFirstNameNb }).should('not.exist');
     cy.findByRole('textbox', { name: /new first name/i }).should('exist');
-    changeLang('Norwegian bokmål', 'Language');
+    changeToLang('nb');
     cy.findByRole('textbox', { name: newFirstNameNb }).should('exist');
     cy.findByRole('textbox', { name: /new first name/i }).should('not.exist');
   });

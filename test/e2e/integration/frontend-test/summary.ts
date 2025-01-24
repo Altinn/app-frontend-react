@@ -36,7 +36,7 @@ describe('Summary', () => {
     cy.fillOut('changename');
     cy.gotoNavPage('summary');
     cy.waitUntilSaved();
-    cy.findByRole('button', { name: 'Tilbake' }).should('be.visible');
+    cy.findByRole('button', { name: 'Forrige' }).should('be.visible');
 
     // Summary displays change button for editable fields and does not for readonly fields
     // navigate back to form and clear date
@@ -469,7 +469,7 @@ describe('Summary', () => {
       cy.gotoNavPage('summary');
       cy.get(exampleSummary).should('exist');
       assertErrorReport();
-      cy.findByRole('button', { name: 'Tilbake' }).click();
+      cy.findByRole('button', { name: 'Forrige' }).click();
       assertErrorReport();
       cy.gotoNavPage('summary');
       cy.get(exampleSummary).should('exist');

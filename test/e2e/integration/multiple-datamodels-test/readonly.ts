@@ -122,7 +122,7 @@ describe('readonly data models', () => {
     cy.then(() => expect(formDataRequests.length).to.be.eq(1));
     cy.findByText(errorReportTitle).should('not.exist');
 
-    cy.findByRole('button', { name: 'Tilbake' }).click();
+    cy.findByRole('button', { name: 'Forrige' }).click();
     cy.findByRole('button', { name: 'Send inn' }).click();
 
     cy.findByRole('heading', { name: /kvittering/i }).should('be.visible');
