@@ -121,3 +121,77 @@ function Root() {
     </InstantiationProvider>
   );
 }
+//
+// const params = {
+//   productOwner: 'Ronny',
+//   designer: 'Edvin',
+// };
+//
+// const modelPrefill = {
+//   dataModel1: {
+//     $schema: 'https://altinncdn.no/schemas/json/prefill/prefill.schema.v1.json',
+//     allowOverwrite: false,
+//     ER: {},
+//     DSF: {
+//       FirstName: 'opplysningerOmArbeidstakerengrp8819.opplysningerOmArbeidstakerengrp8855.ansattNavndatadef1223.value',
+//     },
+//     UserProfile: {},
+//     QueryParams: {
+//       // Mapping fra queryParam til stateless datamodell
+//       productOwner: 'datamodel.PO',
+//       programmer: 'datamodel.designer',
+//     },
+//   },
+//   dataModel2: {
+//     $schema: 'https://altinncdn.no/schemas/json/prefill/prefill.schema.v1.json',
+//     allowOverwrite: false,
+//     ER: {},
+//     DSF: {
+//       FirstName: 'opplysningerOmArbeidstakerengrp8819.opplysningerOmArbeidstakerengrp8855.ansattNavndatadef1223.value',
+//     },
+//     UserProfile: {},
+//     QueryParams: {
+//       // Mapping fra queryParam til stateless datamodell
+//       productOwner: 'queryParams1',
+//       programmer: 'queryParams2',
+//     },
+//   },
+// };
+//
+// interface QueryParamPrefil {
+//   dataModelName: string;
+//   prefillFields: Record<string, string>[]; //[key: string]: string[]
+// }
+//
+// const result: Array<QueryParamPrefil> = Object.entries(modelPrefill).map((entry) => ({
+//   dataModelName: entry[0],
+//   prefillFields: Object.entries(entry[1].QueryParams)
+//     .filter(([key]) => params[key] !== undefined) // Only include keys that exist in params
+//     .map((queryParam) => ({
+//       [queryParam[1]]: params[queryParam[0]],
+//     })),
+// }));
+//
+// // const result: Array<QueryParamPrefil> = Object.entries(modelPrefill).map((entry) => ({
+// //   dataModelName: entry[0],
+// //   prefillFields: Object.entries(entry[1].QueryParams).map((queryParam) => {
+// //     console.log('quer', queryParam);
+// //     return {
+// //       [queryParam[1]]: params[queryParam[0]],
+// //     };
+// //   }),
+// // }));
+//
+// console.log(JSON.stringify(result, null, 2));
+//
+// // const result: Array<QueryParamPrefil> = [
+// //   {
+// //     dataModelName: 'dataModel1',
+// //     prefillFields: [
+// //       {
+// //         'datamodel.designer': 'Edvin',
+// //         'datamodel.PO': 'Ronny',
+// //       },
+// //     ],
+// //   },
+// // ];
