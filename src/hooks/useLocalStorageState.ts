@@ -40,7 +40,7 @@ class LocalStorageController<T> {
 
     /**
      * The native 'storage' event only gets called when localstorage is modified from a different browser context (e.g. a different tab),
-     * so using a custom 'internal-storage' event to keep hooks in sync internally
+     * so using a custom 'internal-storage' event to keep hooks in sync internally.
      */
     window.addEventListener('internal-storage', callback);
     return () => {
