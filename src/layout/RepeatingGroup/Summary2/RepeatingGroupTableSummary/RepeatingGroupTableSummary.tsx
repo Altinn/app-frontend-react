@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ErrorMessage, Table } from '@digdir/designsystemet-react';
+import { Table, ValidationMessage } from '@digdir/designsystemet-react';
 import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
@@ -100,7 +100,7 @@ export const RepeatingGroupTableSummary = ({
         </Table.Body>
       </Table>
       {errors?.map(({ message }) => (
-        <ErrorMessage
+        <ValidationMessage
           key={message.key}
           className={classes.errorMessage}
         >
@@ -110,7 +110,7 @@ export const RepeatingGroupTableSummary = ({
             params={message.params}
             node={componentNode}
           />
-        </ErrorMessage>
+        </ValidationMessage>
       ))}
     </div>
   );

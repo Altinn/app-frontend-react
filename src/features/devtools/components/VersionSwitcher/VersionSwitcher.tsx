@@ -47,7 +47,7 @@ export const VersionSwitcher = () => {
   };
 
   if (isVersionsLoading || isHtmlLoading || !versions) {
-    return <Spinner title='Laster...' />;
+    return <Spinner aria-label='Laster...' />;
   }
 
   if (isVersionsError || isHtmlError) {

@@ -97,8 +97,7 @@ const DoSummaryWrapper = ({
               />
               <Heading
                 className='no-visual-testing'
-                spacing={false}
-                size='sm'
+                data-size='sm'
                 level={2}
               >
                 {dataElementId}

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Radio } from '@digdir/designsystemet-react';
+import { Fieldset } from '@digdir/designsystemet-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { RadioButton } from 'src/components/form/RadioButton';
@@ -69,8 +69,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   return (
     <ComponentStructureWrapper node={node}>
       <div id={id}>
-        <Radio.Group
-          legend={labelText}
+        <Fieldset
           hideLegend={overrideDisplay?.renderLegend === false}
           description={<Lang id={textResourceBindings?.description} />}
           error={!isValid}
@@ -78,6 +77,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
           inline={shouldDisplayHorizontally}
           role='radiogroup'
         >
+          <Fieldset.Legend>{labelText}</Fieldset.Legend>
           {calculatedOptions.map((option) => (
             <RadioButton
               value={option.value}
@@ -91,13 +91,13 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
               readOnly={readOnly}
               onChange={handleChange}
               hideLabel={hideLabel}
-              size='small'
+              data-size='small'
               alertOnChange={alertOnChange}
               alertText={alertText}
               confirmChangeText={confirmChangeText}
             />
           ))}
-        </Radio.Group>
+        </Fieldset>
       </div>
     </ComponentStructureWrapper>
   );

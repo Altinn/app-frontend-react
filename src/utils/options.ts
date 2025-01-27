@@ -1,6 +1,11 @@
-import type { Option } from '@digdir/designsystemet-react/dist/types/components/form/Combobox/useCombobox';
-
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
+
+type Option = {
+  value: string;
+  label: string;
+  displayValue?: string;
+  description?: string;
+};
 
 const emptyArray: IOptionInternal[] = [];
 export function verifyAndDeduplicateOptions(options: IOptionInternal[] | undefined, multi: boolean): IOptionInternal[] {

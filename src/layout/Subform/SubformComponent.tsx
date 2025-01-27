@@ -204,7 +204,7 @@ function SubformTableRow({
     return (
       <Table.Row>
         <Table.Cell colSpan={actualColumns}>
-          <Spinner title={langAsString('general.loading')} />
+          <Spinner aria-label={langAsString('general.loading')} />
         </Table.Cell>
       </Table.Row>
     );

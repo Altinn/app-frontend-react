@@ -13,6 +13,7 @@ import 'src/features/toggles';
 import 'src/features/logging';
 import 'src/features/styleInjection';
 import '@digdir/designsystemet-css';
+import '@digdir/designsystemet-theme';
 
 import { AppWrapper } from '@altinn/altinn-design-system';
 
@@ -42,7 +43,6 @@ import * as queries from 'src/queries/queries';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
-import '@digdir/designsystemet-theme/brand/altinn/tokens.css';
 
 const router = createHashRouter([
   {
