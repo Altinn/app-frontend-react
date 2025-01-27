@@ -129,7 +129,7 @@ export function AppTable<T>({
           <Table.Row>
             <Table.Cell
               colSpan={columns.length + (actionButtons ? 1 : 0)}
-              style={{ textAlign: 'center' }}
+              className={classes.emptyCell}
             >
               <em>{emptyText ?? <Lang id='general.empty_table' />}</em>
             </Table.Cell>
