@@ -427,12 +427,10 @@ export const ExprFunctionImplementations: { [K in Names]: Implementation<K> } = 
     const externalApiData: unknown = this.dataSources.externalApis.data[externalApiId];
 
     const res =
-      path && externalApiData && typeof externalApiData === 'object'
-        ? dot.pick(path, externalApiData)
-        : externalApiData;
+      externalApiData && typeof externalApiData === 'object' ? dot.pick(path, externalApiData) : externalApiData;
 
     if (!res || typeof res === 'object') {
-      return null; // Print error?
+      return null; // Return objects when the expression language supports them
     }
 
     return String(res);
