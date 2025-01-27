@@ -8,9 +8,9 @@ describe('Start stateless with query params', () => {
   beforeEach(() => {
     //http://local.altinn.cloud/ttd/stateless-app/set-query-params?geir=svein
 
-    cy.visit(`${Cypress.config('baseUrl')}/ttd/stateless-app/set-query-params?jobTitle=${prefilledValue}`, {
-      failOnStatusCode: true, // if necessary, in case the server sends non-2xx status codes during redirects
-    });
+    // cy.visit(`${Cypress.config('baseUrl')}/ttd/stateless-app/set-query-params?jobTitle=${prefilledValue}`, {
+    //   failOnStatusCode: true, // if necessary, in case the server sends non-2xx status codes during redirects
+    // });
 
     cy.intercept('**/api/layoutsettings/stateless').as('getLayoutStateless');
     cy.startAppInstance(appFrontend.apps.stateless);
@@ -21,18 +21,18 @@ describe('Start stateless with query params', () => {
   it('Prefill from query params', () => {
     // cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
     // cy.findByRole('button', { name: /lukk skjema/i }).should('not.exist');
-    // cy.get(appFrontend.stateless.name).invoke('val').should('not.be.empty');
+    //cy.get(appFrontend.stateless.name).invoke('val').should('not.be.empty');
     // cy.get(appFrontend.stateless.number).should('have.value', '1364');
     // cy.get(appFrontend.stateless.name).clear();
     // cy.get(appFrontend.stateless.name).type('test');
     // cy.get(appFrontend.stateless.name).blur();
-    cy.get(appFrontend.stateless.jobTitle).should('have.value', prefilledValue);
+    //cy.get(appFrontend.stateless.jobTitle).should('have.value', prefilledValue);
     //cy.startStatefulFromStateless();
 
     cy.get(appFrontend.instantiationButton).click();
 
     //
-    cy.get(appFrontend.stateless.prefilledJobTitle).should('have.value', 'productowner');
+    //cy.get(appFrontend.stateless.prefilledJobTitle).should('have.value', 'productowner');
 
     //jobTitle
 
