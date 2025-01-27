@@ -5,7 +5,6 @@
   cursor: pointer;
   display: flex;
   border: none;
-  min-width: 0;
   min-height: 0;
 }
 

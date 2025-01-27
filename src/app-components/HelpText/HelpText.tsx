@@ -9,22 +9,13 @@ import type { PopoverProps } from '@digdir/designsystemet-react';
 import classes from 'src/app-components/HelpText/Helptext.module.css';
 import { HelpTextIcon } from 'src/app-components/HelpText/HelpTextIcon';
 
-export type PortalProps = {
-  /**
-   * Portals the floating element outside of the app root and into the body.
-   * @see https://floating-ui.com/docs/floatingportal
-   * @default undefined
-   */
-  portal?: boolean;
-};
-
 export type HelpTextProps = {
   id?: string;
   title?: string;
   size?: PopoverProps['size'];
   placement?: 'right' | 'bottom' | 'left' | 'top';
-} & PortalProps &
-  Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'color'>;
+  portal?: boolean;
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'color'>;
 
 export function getSize(size: string) {
   switch (size) {
@@ -93,7 +84,7 @@ export const HelpText = forwardRef<HTMLButtonElement, HelpTextProps>(function He
             className={cl(classes['helpText-icon'])}
             openState={open}
           />
-          <span className={classes.screenReaderOnly}>{title}</span>
+          {/* <span className={classes.screenReaderOnly}>{title}</span>*/}
         </button>
       </Popover.Trigger>
       <Popover.Content className={classes.helpTextContent}>{children}</Popover.Content>
