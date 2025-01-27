@@ -1,4 +1,5 @@
 import React from 'react';
+import type { ReactElement } from 'react';
 
 import { Button, Spinner, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
@@ -7,6 +8,7 @@ import { pick } from 'dot-object';
 import type { JSONSchema7 } from 'json-schema';
 
 import classes from 'src/app-components/Table/Table.module.css';
+import { Lang } from 'src/features/language/Lang';
 import type { FormDataValue } from 'src/app-components/DynamicForm/DynamicForm';
 
 interface Column<T> {
@@ -36,6 +38,7 @@ interface DataTableProps<T> {
   zebra?: boolean;
   stickyHeader?: boolean;
   isLoading?: boolean;
+  emptyText?: ReactElement;
   tableClassName?: string;
   headerClassName?: string;
 }
@@ -79,6 +82,7 @@ export function AppTable<T>({
   tableClassName,
   headerClassName,
   isLoading = false,
+  emptyText,
 }: DataTableProps<T>) {
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
@@ -119,6 +123,15 @@ export function AppTable<T>({
                 variant='default'
                 size='md'
               />
+            </Table.Cell>
+          </Table.Row>
+        ) : data.length === 0 ? (
+          <Table.Row>
+            <Table.Cell
+              colSpan={columns.length + (actionButtons ? 1 : 0)}
+              style={{ textAlign: 'center' }}
+            >
+              <em>{emptyText ?? <Lang id='general.empty_table' />}</em>
             </Table.Cell>
           </Table.Row>
         ) : (
