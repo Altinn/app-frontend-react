@@ -121,34 +121,30 @@ export function isDataTypeWritable(dataType: string | undefined, isStateless: bo
   return !!dataElement && dataElement.locked === false;
 }
 
-export interface QueryParamPrefil {
+export interface QueryParamPrefill {
   DataModelName: string;
-  PrefillFields: Record<string, string>[]; // [key: string]: string[]
+  PrefillFields: Record<string, string>[];
 }
 
-function isQueryParamPrefil(obj: unknown): obj is QueryParamPrefil {
+function isQueryParamPrefil(obj: unknown): obj is QueryParamPrefill {
   if (typeof obj !== 'object' || obj === null) {
     return false;
   }
-  const typedObj = obj as Partial<QueryParamPrefil>;
+  const typedObj = obj as Partial<QueryParamPrefill>;
 
-  // Check if dataModelName is a string
   if (typeof typedObj.DataModelName !== 'string') {
     return false;
   }
 
-  // Check if prefillFields is an array
   if (!Array.isArray(typedObj.PrefillFields)) {
     return false;
   }
 
-  // Validate each element in prefillFields
   for (const item of typedObj.PrefillFields) {
     if (typeof item !== 'object' || item === null) {
       return false;
     }
 
-    // Ensure all keys are strings and their values are strings
     for (const [key, value] of Object.entries(item)) {
       if (typeof key !== 'string' || typeof value !== 'string') {
         return false;
@@ -159,7 +155,7 @@ function isQueryParamPrefil(obj: unknown): obj is QueryParamPrefil {
   return true;
 }
 
-export function isQueryParamPrefilArray(obj: unknown): obj is QueryParamPrefil[] {
+export function isQueryParamPrefilArray(obj: unknown): obj is QueryParamPrefill[] {
   if (!Array.isArray(obj)) {
     return false;
   }
