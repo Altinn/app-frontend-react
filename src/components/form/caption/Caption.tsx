@@ -59,6 +59,7 @@ export const Caption = ({
       </DesignsystemetLabel>
       {helpText && (
         <HelpTextContainer
+          id={id}
           helpText={helpText.text}
           title={helpText.accessibleTitle}
         />
