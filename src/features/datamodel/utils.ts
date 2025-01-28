@@ -120,3 +120,55 @@ export function isDataTypeWritable(dataType: string | undefined, isStateless: bo
   const dataElement = dataElements.find((data) => data.dataType === dataType);
   return !!dataElement && dataElement.locked === false;
 }
+
+export interface QueryParamPrefil {
+  DataModelName: string;
+  PrefillFields: Record<string, string>[]; // [key: string]: string[]
+}
+
+function isQueryParamPrefil(obj: unknown): obj is QueryParamPrefil {
+  if (typeof obj !== 'object' || obj === null) {
+    return false;
+  }
+  const typedObj = obj as Partial<QueryParamPrefil>;
+
+  // Check if dataModelName is a string
+  if (typeof typedObj.DataModelName !== 'string') {
+    return false;
+  }
+
+  // Check if prefillFields is an array
+  if (!Array.isArray(typedObj.PrefillFields)) {
+    return false;
+  }
+
+  // Validate each element in prefillFields
+  for (const item of typedObj.PrefillFields) {
+    if (typeof item !== 'object' || item === null) {
+      return false;
+    }
+
+    // Ensure all keys are strings and their values are strings
+    for (const [key, value] of Object.entries(item)) {
+      if (typeof key !== 'string' || typeof value !== 'string') {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+export function isQueryParamPrefilArray(obj: unknown): obj is QueryParamPrefil[] {
+  if (!Array.isArray(obj)) {
+    return false;
+  }
+
+  for (const item of obj) {
+    if (!isQueryParamPrefil(item)) {
+      return false;
+    }
+  }
+
+  return true;
+}

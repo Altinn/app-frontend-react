@@ -17,6 +17,7 @@ import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSche
 import {
   getAllReferencedDataTypes,
   isDataTypeWritable,
+  isQueryParamPrefilArray,
   MissingClassRefException,
   MissingDataElementException,
   MissingDataTypeException,
@@ -44,58 +45,6 @@ interface DataModelsState {
   schemaLookup: { [dataType: string]: SchemaLookupTool };
   expressionValidationConfigs: { [dataType: string]: IExpressionValidations | null };
   error: Error | null;
-}
-
-interface QueryParamPrefil {
-  DataModelName: string;
-  PrefillFields: Record<string, string>[]; // [key: string]: string[]
-}
-
-function isQueryParamPrefil(obj: unknown): obj is QueryParamPrefil {
-  if (typeof obj !== 'object' || obj === null) {
-    return false;
-  }
-  const typedObj = obj as Partial<QueryParamPrefil>;
-
-  // Check if dataModelName is a string
-  if (typeof typedObj.DataModelName !== 'string') {
-    return false;
-  }
-
-  // Check if prefillFields is an array
-  if (!Array.isArray(typedObj.PrefillFields)) {
-    return false;
-  }
-
-  // Validate each element in prefillFields
-  for (const item of typedObj.PrefillFields) {
-    if (typeof item !== 'object' || item === null) {
-      return false;
-    }
-
-    // Ensure all keys are strings and their values are strings
-    for (const [key, value] of Object.entries(item)) {
-      if (typeof key !== 'string' || typeof value !== 'string') {
-        return false;
-      }
-    }
-  }
-
-  return true;
-}
-
-function isQueryParamPrefilArray(obj: unknown): obj is QueryParamPrefil[] {
-  if (!Array.isArray(obj)) {
-    return false;
-  }
-
-  for (const item of obj) {
-    if (!isQueryParamPrefil(item)) {
-      return false;
-    }
-  }
-
-  return true;
 }
 
 interface DataModelsMethods {
@@ -353,33 +302,18 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   useEffect(() => {
     if (data && url) {
       if (storedParams) {
-        console.log('storedParams:');
-
         const queryParams = JSON.parse(storedParams);
-
-        console.log(JSON.stringify(queryParams, null, 2));
-
-        console.log('dataType', dataType);
-
         if (!isQueryParamPrefilArray(queryParams)) {
           throw new Error(`Prefill data from query params was in the wrong format.
                 ${JSON.stringify(queryParams, null, 2)}
           `);
         }
-
         const prefillDataForDataType = queryParams.find((param) => param.DataModelName === dataType);
-
-        console.log('prefillDataForDataType');
-        console.log(JSON.stringify(prefillDataForDataType, null, 2));
-
         prefillDataForDataType?.PrefillFields.forEach((field) => {
           Object.entries(field).forEach(([key, value]) => {
-            // Merge each key-value pair into the target object
             data[key] = value;
           });
         });
-        console.log('after');
-        console.log(JSON.stringify(data, null, 2));
         setInitialData(dataType, data);
       } else {
         setInitialData(dataType, data);

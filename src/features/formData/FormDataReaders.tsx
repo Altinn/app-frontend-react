@@ -199,9 +199,6 @@ function SpecificDataModelFetcher({ reader, isAvailable }: { reader: DataModelRe
   const dataElements = useLaxInstanceDataElements(dataType);
   const dataElementId = getFirstDataElementId(dataElements, dataType);
   const url = useDataModelUrl({ includeRowIds: false, dataType, dataElementId, language: useCurrentLanguage() });
-
-  console.log('SpecificDataModelFetcher', url);
-
   const enabled = isAvailable && reader.isLoading();
   const { data, error } = useFormDataQuery(enabled ? url : undefined);
   const { updateModel } = useCtx();
