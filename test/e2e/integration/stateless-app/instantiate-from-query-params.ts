@@ -15,7 +15,7 @@ describe('Start stateless with query params', () => {
   });
 
   it('Prefill from query params', () => {
-    cy.get('instantiation-button-query-param').click();
+    cy.get('#instantiation-button-query-param').should('exist').click();
     cy.get(appFrontend.stateless.prefilledJobTitle).should('have.value', prefilledValue);
   });
 });
