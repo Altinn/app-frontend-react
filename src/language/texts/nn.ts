@@ -159,7 +159,7 @@ export function nn(): FixedLanguageList {
       edit_alt: 'Rediger',
       edit: 'Endre',
       empty_summary: 'Du har ikkje lagt inn informasjon her',
-      empty_table: 'Ingen data funnet.',
+      empty_table: 'Ingen data funne.',
       enabled: 'Aktivert',
       error_message_with_colon: 'Feilmelding:',
       expand_form: 'Utvid skjema',
