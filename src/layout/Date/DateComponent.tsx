@@ -27,7 +27,7 @@ export const DateComponent = ({ node }: PropsFromGenericComponent<'Date'>) => {
   try {
     displayData = isValid(parsedValue) ? formatDateLocale(language, parsedValue, format) : null;
   } catch (err) {
-    if (value?.trim()) {
+    if (value?.trim() !== '') {
       window.logErrorOnce(`Date component "${node.id}" failed to parse date "${value}":`, err);
     }
   }
