@@ -391,7 +391,7 @@ export function nn(): FixedLanguageList {
     signee_list_summary: {
       header: 'Signert av',
       name_placeholder: 'Ukjent namn',
-      on_behalf_of: 'På vegne av',
+      on_behalf_of: 'på vegne av',
       loading: 'Lastar signaturdata...',
       error: 'Feil ved lasting av signaturdata',
       no_data: 'Ingen signaturdata.',

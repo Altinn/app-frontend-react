@@ -17,6 +17,7 @@ interface SigneeListSummaryProps {
 export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
   const { partyId, instanceGuid } = useParams();
   const { data, isLoading, error } = useQuery(signeeListQuery(partyId!, instanceGuid!));
+
   const summaryTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.summary_title);
 
   return (
@@ -29,40 +30,37 @@ export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
         {summaryTitle ?? <Lang id='signee_list_summary.header' />}
       </Heading>
       <hr className={classes.summaryDivider} />
-      {isLoading && (
+
+      {isLoading ? (
         <Paragraph>
           <Lang id='signee_list_summary.loading' />
         </Paragraph>
-      )}
-      {isLoading && (
-        <Paragraph>
-          <Lang id='signee_list_summary.loading' />
-        </Paragraph>
-      )}
-      {error && (
+      ) : error ? (
         <Paragraph>
           <Lang id='signee_list_summary.error' />
         </Paragraph>
-      )}
-      {!data || data.length === 0 ? (
+      ) : !data || data.length === 0 ? (
         <Paragraph>
           <Lang id='signee_list_summary.no_data' />
         </Paragraph>
-      ) : null}
-      {!anySignatures(data) && (
+      ) : !anySignatures(data) ? (
         <Paragraph>
           <Lang id='signee_list_summary.no_signatures' />
         </Paragraph>
-      )}
-      {data &&
+      ) : (
         data.map((item, index) => (
           <Paragraph key={index}>
-            {item.hasSigned && (item.name?.toLocaleUpperCase() ?? <Lang id='signee_list_summary.name_placeholder' />)}
-            {item.organisation
-              ? `${(<Lang id='signee_list_summary.on_behalf_of' />)}${item.organisation.toLocaleUpperCase()}`
-              : ''}
+            {item.hasSigned &&
+              `${item.name?.toLocaleUpperCase() ?? <Lang id='signee_list_summary.name_placeholder' />} `}
+            {item.organisation ? (
+              <>
+                <Lang id='signee_list_summary.on_behalf_of' />
+                {` ${item.organisation.toLocaleUpperCase()}`}
+              </>
+            ) : null}
           </Paragraph>
-        ))}
+        ))
+      )}
     </div>
   );
 

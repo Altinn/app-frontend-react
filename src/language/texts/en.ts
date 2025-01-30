@@ -391,7 +391,7 @@ export function en() {
     signee_list_summary: {
       header: 'Signed by',
       name_placeholder: 'Unknown name',
-      on_behalf_of: 'On behalf of',
+      on_behalf_of: 'on behalf of',
       loading: 'Loading signature data...',
       error: 'Failed to load signature data.',
       no_data: 'No signature data found.',
