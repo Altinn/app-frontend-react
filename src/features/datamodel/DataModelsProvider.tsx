@@ -297,29 +297,41 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
   const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
   const storedParams = sessionStorage.getItem('queryParams');
+  const metaData = useApplicationMetadata();
 
   const { data, error } = useFormDataQuery(url);
+
   useEffect(() => {
-    if (data && url) {
-      if (storedParams) {
-        const queryParams = JSON.parse(storedParams);
-        if (!isQueryParamPrefilArray(queryParams)) {
-          throw new Error(`Prefill data from query params was in the wrong format.
-                ${JSON.stringify(queryParams, null, 2)}
-          `);
-        }
-        const prefillDataForDataType = queryParams.find((param) => param.DataModelName === dataType);
-        prefillDataForDataType?.PrefillFields.forEach((field) => {
-          Object.entries(field).forEach(([key, value]) => {
-            data[key] = value;
-          });
-        });
-        setInitialData(dataType, data);
-      } else {
-        setInitialData(dataType, data);
-      }
+    if (!data || !url) {
+      return;
     }
-  }, [data, dataType, setInitialData, storedParams, url]);
+
+    if (!storedParams) {
+      setInitialData(dataType, data);
+      return;
+    }
+
+    const queryParams = JSON.parse(storedParams);
+    if (!isQueryParamPrefilArray(queryParams)) {
+      throw new Error(`Prefill data from query params was in the wrong format.
+          ${JSON.stringify(queryParams, null, 2)}
+    `);
+    }
+
+    const prefillDataForDataType = queryParams.find(
+      (param) => param.dataModelName === dataType && param.appId === metaData.id,
+    );
+
+    if (prefillDataForDataType) {
+      prefillDataForDataType.prefillFields.forEach((field) => {
+        Object.entries(field).forEach(([key, value]) => {
+          data[key] = value;
+        });
+      });
+    }
+
+    setInitialData(dataType, data);
+  }, [data, dataType, metaData.id, setInitialData, storedParams, url]);
 
   useEffect(() => {
     setDataElementId(dataType, dataElementId ?? null);

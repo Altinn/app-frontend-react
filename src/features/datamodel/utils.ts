@@ -122,8 +122,9 @@ export function isDataTypeWritable(dataType: string | undefined, isStateless: bo
 }
 
 export interface QueryParamPrefill {
-  DataModelName: string;
-  PrefillFields: Record<string, string>[];
+  appId: string;
+  dataModelName: string;
+  prefillFields: Record<string, string>[];
 }
 
 function isQueryParamPrefil(obj: unknown): obj is QueryParamPrefill {
@@ -132,15 +133,15 @@ function isQueryParamPrefil(obj: unknown): obj is QueryParamPrefill {
   }
   const typedObj = obj as Partial<QueryParamPrefill>;
 
-  if (typeof typedObj.DataModelName !== 'string') {
+  if (typeof typedObj.dataModelName !== 'string') {
     return false;
   }
 
-  if (!Array.isArray(typedObj.PrefillFields)) {
+  if (!Array.isArray(typedObj.prefillFields)) {
     return false;
   }
 
-  for (const item of typedObj.PrefillFields) {
+  for (const item of typedObj.prefillFields) {
     if (typeof item !== 'object' || item === null) {
       return false;
     }
