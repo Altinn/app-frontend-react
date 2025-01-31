@@ -6,7 +6,7 @@ import {
 import { prettyErrors } from 'src/features/expressions/prettyErrors';
 import { ExprVal } from 'src/features/expressions/types';
 import type { AnyFuncDef, FuncValidationDef } from 'src/features/expressions/expression-functions';
-import type { AnyExprArg, Expression, ExprFunction, ExprValToActualOrExpr } from 'src/features/expressions/types';
+import type { AnyExprArg, Expression, ExprFunctionName, ExprValToActualOrExpr } from 'src/features/expressions/types';
 
 enum ValidationErrorMessage {
   InvalidType = 'Invalid type "%s"',
@@ -50,7 +50,7 @@ export function addError(
 }
 
 function validateFunctionArg(
-  func: ExprFunction,
+  func: ExprFunctionName,
   idx: number,
   actual: (ExprVal | undefined)[],
   ctx: ValidationContext,
@@ -75,7 +75,7 @@ function validateFunctionArg(
 }
 
 function validateFunctionArgs(
-  func: ExprFunction,
+  func: ExprFunctionName,
   actual: (ExprVal | undefined)[],
   ctx: ValidationContext,
   path: string[],
@@ -88,7 +88,7 @@ function validateFunctionArgs(
 }
 
 function validateFunctionArgLength(
-  func: ExprFunction,
+  func: ExprFunctionName,
   actual: (ExprVal | undefined)[],
   ctx: ValidationContext,
   path: string[],
@@ -138,13 +138,13 @@ function validateFunction(
   const pathArgs = [...path.slice(0, path.length - 1)];
 
   if (funcName in ExprFunctionDefinitions) {
-    validateFunctionArgs(funcName as ExprFunction, argTypes, ctx, pathArgs);
+    validateFunctionArgs(funcName as ExprFunctionName, argTypes, ctx, pathArgs);
 
-    const def = ExprFunctionDefinitions[funcName as ExprFunction] as AnyFuncDef;
+    const def = ExprFunctionDefinitions[funcName as ExprFunctionName] as AnyFuncDef;
     const validatorExt = ExprFunctionValidationExtensions[funcName] as FuncValidationDef | undefined;
     const numErrorsBefore = Object.keys(ctx.errors).length;
     if (validatorExt?.runNumArgsValidator !== false) {
-      validateFunctionArgLength(funcName as ExprFunction, argTypes, ctx, pathArgs);
+      validateFunctionArgLength(funcName as ExprFunctionName, argTypes, ctx, pathArgs);
     }
     if (validatorExt?.validator && Object.keys(ctx.errors).length === numErrorsBefore) {
       // Skip the custom validator if the argument length is wrong

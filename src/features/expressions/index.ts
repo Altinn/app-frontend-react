@@ -15,7 +15,7 @@ import type { NodeNotFoundWithoutContext } from 'src/features/expressions/errors
 import type {
   ExprConfig,
   Expression,
-  ExprFunction,
+  ExprFunctionName,
   ExprPositionalArgs,
   ExprValToActual,
   ExprValToActualOrExpr,
@@ -25,8 +25,8 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
-type BeforeFuncCallback = (path: string[], func: ExprFunction, args: unknown[]) => void;
-type AfterFuncCallback = (path: string[], func: ExprFunction, args: unknown[], result: unknown) => void;
+type BeforeFuncCallback = (path: string[], func: ExprFunctionName, args: unknown[]) => void;
+type AfterFuncCallback = (path: string[], func: ExprFunctionName, args: unknown[], result: unknown) => void;
 
 export interface EvalExprOptions {
   config?: ExprConfig;
@@ -132,7 +132,7 @@ export function evalExpr<V extends ExprVal = ExprVal>(
   }
 }
 
-export function argTypeAt(func: ExprFunction, argIndex: number): ExprVal | undefined {
+export function argTypeAt(func: ExprFunctionName, argIndex: number): ExprVal | undefined {
   const funcDef = ExprFunctionDefinitions[func];
   const possibleArgs = funcDef.args;
   const maybeReturn = possibleArgs[argIndex]?.type;

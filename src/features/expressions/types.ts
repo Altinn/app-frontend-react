@@ -7,7 +7,7 @@ type Functions = typeof ExprFunctionDefinitions;
 /**
  * This union type includes all possible functions usable in expressions
  */
-export type ExprFunction = keyof Functions;
+export type ExprFunctionName = keyof Functions;
 
 export enum ExprVal {
   Boolean = '__boolean__',
@@ -36,7 +36,7 @@ export type ExprValToActualOrExpr<T extends ExprVal> =
   | ExprValToActual<T>
   | NonRecursiveExpression<FunctionsReturning<T>>;
 
-type ArgsFor<F extends ExprFunction> = F extends ExprFunction ? Functions[F]['args'] : never;
+type ArgsFor<F extends ExprFunctionName> = F extends ExprFunctionName ? Functions[F]['args'] : never;
 
 type FunctionsReturning<T extends ExprVal> =
   | keyof PickByValue<Functions, { returns: T }>
@@ -50,10 +50,10 @@ type FunctionsReturning<T extends ExprVal> =
  *
  * @see https://github.com/microsoft/TypeScript/issues/29919
  */
-type IndexHack<F extends ExprFunction> = ['Here goes the function name', ...ArgsFor<F>];
+type IndexHack<F extends ExprFunctionName> = ['Here goes the function name', ...ArgsFor<F>];
 
 type MaybeRecursive<
-  F extends ExprFunction,
+  F extends ExprFunctionName,
   Iterations extends Prev[number],
   Args extends ('Here goes the function name' | AnyExprArg)[] = IndexHack<F>,
 > = [Iterations] extends [never]
@@ -68,13 +68,13 @@ type MaybeRecursive<
  * The base type that represents any valid expression function call. When used as a type
  * inside a layout definition, you probably want something like ExpressionOr<'boolean'>
  */
-export type Expression<F extends ExprFunction = ExprFunction> = MaybeRecursive<F, 2>;
+export type Expression<F extends ExprFunctionName = ExprFunctionName> = MaybeRecursive<F, 2>;
 
 /**
  * A much simpler variant of the type above, as it only type-checks the very outer function name
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type NonRecursiveExpression<F extends ExprFunction = ExprFunction> = [F, ...any];
+export type NonRecursiveExpression<F extends ExprFunctionName = ExprFunctionName> = [F, ...any];
 
 /**
  * This type removes all expressions from the input type (replacing them with the type
