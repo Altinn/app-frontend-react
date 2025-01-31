@@ -279,8 +279,8 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, 'No value arguments available');
     }
 
-    const realKey = (key ?? config.defaultKey) as string | null;
-    if (!realKey) {
+    const realKey = key ?? config.defaultKey;
+    if (!realKey || typeof realKey === 'symbol') {
       throw new ExprRuntimeError(
         this.expr,
         this.path,
