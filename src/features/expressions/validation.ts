@@ -5,7 +5,6 @@ import {
 } from 'src/features/expressions/expression-functions';
 import { prettyErrors } from 'src/features/expressions/prettyErrors';
 import { ExprVal } from 'src/features/expressions/types';
-import type { AnyFuncDef, FuncValidationDef } from 'src/features/expressions/expression-functions';
 import type { AnyExprArg, Expression, ExprFunctionName, ExprValToActualOrExpr } from 'src/features/expressions/types';
 
 enum ValidationErrorMessage {
@@ -93,7 +92,7 @@ function validateFunctionArgLength(
   ctx: ValidationContext,
   path: string[],
 ) {
-  const expected = ExprFunctionDefinitions[func].args as AnyExprArg[];
+  const expected: AnyExprArg[] = ExprFunctionDefinitions[func].args;
   if (expected.length === 0) {
     if (actual.length !== 0) {
       addError(ctx, path, ValidationErrorMessage.ArgsWrongNum, '0', `${actual.length}`);
@@ -123,6 +122,10 @@ function validateFunctionArgLength(
   }
 }
 
+function isValidFunctionName(funcName: unknown): funcName is ExprFunctionName {
+  return typeof funcName === 'string' && funcName in ExprFunctionDefinitions;
+}
+
 function validateFunction(
   funcName: unknown,
   rawArgs: unknown[],
@@ -137,14 +140,14 @@ function validateFunction(
 
   const pathArgs = [...path.slice(0, path.length - 1)];
 
-  if (funcName in ExprFunctionDefinitions) {
-    validateFunctionArgs(funcName as ExprFunctionName, argTypes, ctx, pathArgs);
+  if (isValidFunctionName(funcName)) {
+    validateFunctionArgs(funcName, argTypes, ctx, pathArgs);
 
-    const def = ExprFunctionDefinitions[funcName as ExprFunctionName] as AnyFuncDef;
-    const validatorExt = ExprFunctionValidationExtensions[funcName] as FuncValidationDef | undefined;
+    const def = ExprFunctionDefinitions[funcName];
+    const validatorExt = ExprFunctionValidationExtensions[funcName];
     const numErrorsBefore = Object.keys(ctx.errors).length;
     if (validatorExt?.runNumArgsValidator !== false) {
-      validateFunctionArgLength(funcName as ExprFunctionName, argTypes, ctx, pathArgs);
+      validateFunctionArgLength(funcName, argTypes, ctx, pathArgs);
     }
     if (validatorExt?.validator && Object.keys(ctx.errors).length === numErrorsBefore) {
       // Skip the custom validator if the argument length is wrong
@@ -205,7 +208,7 @@ function validateRecursively(expr: any, ctx: ValidationContext, path: string[]):
 export function canBeExpression(expr: any, checkIfValidFunction = false): expr is [] {
   const firstPass = Array.isArray(expr) && expr.length >= 1 && typeof expr[0] === 'string';
   if (checkIfValidFunction && firstPass) {
-    return expr[0] in ExprFunctionDefinitions;
+    return isValidFunctionName(expr[0]);
   }
 
   return firstPass;
