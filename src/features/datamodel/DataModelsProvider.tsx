@@ -297,7 +297,6 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
   const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
   const storedParams = sessionStorage.getItem('queryParams');
-  sessionStorage.removeItem('queryParams');
   const metaData = useApplicationMetadata();
 
   const { data, error } = useFormDataQuery(url);
@@ -333,15 +332,14 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
       return;
     }
 
-    if (prefillDataForDataType.expires) {
-      prefillDataForDataType.prefillFields.forEach((field) => {
-        Object.entries(field).forEach(([key, value]) => {
-          data[key] = value;
-        });
+    prefillDataForDataType.prefillFields.forEach((field) => {
+      Object.entries(field).forEach(([key, value]) => {
+        data[key] = value;
       });
-    }
+    });
 
     setInitialData(dataType, data);
+    sessionStorage.removeItem('queryParams');
   }, [data, dataType, metaData.id, setInitialData, storedParams, url]);
 
   useEffect(() => {
