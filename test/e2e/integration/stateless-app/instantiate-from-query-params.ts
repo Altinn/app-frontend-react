@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+import { getTargetUrl } from 'test/e2e/support/start-app-instance';
 
 const appFrontend = new AppFrontend();
 
@@ -9,9 +10,8 @@ const prefilledValue = 'designer';
 describe('Start stateless with query params', () => {
   beforeEach(() => {
     const env = dotenv.config().parsed || {};
-    const targetHost = Cypress.env('host') || env.CYPRESS_HOST || 'localhost:8080';
 
-    cy.visit(`${targetHost}/ttd/stateless-app/set-query-params?jobTitle=${prefilledValue}`);
+    cy.visit(`${getTargetUrl('stateless-app')}/set-query-params?jobTitle=${prefilledValue}`);
 
     cy.intercept('**/api/layoutsettings/stateless').as('getLayoutStateless');
     cy.startAppInstance(appFrontend.apps.stateless);
