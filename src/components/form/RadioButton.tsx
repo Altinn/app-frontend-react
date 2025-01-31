@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
 
-import { HelpText, Radio } from '@digdir/designsystemet-react';
+import { Radio } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import type { RadioProps } from '@digdir/designsystemet-react';
 
 import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
+import { HelpText } from 'src/app-components/HelpText/HelpText';
 import classes from 'src/components/form/RadioButton.module.css';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
