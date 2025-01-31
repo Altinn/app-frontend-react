@@ -17,7 +17,7 @@ import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSche
 import {
   getAllReferencedDataTypes,
   isDataTypeWritable,
-  isQueryParamPrefilArray,
+  isQueryParamPrefillArray,
   MissingClassRefException,
   MissingDataElementException,
   MissingDataTypeException,
@@ -312,17 +312,28 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
     }
 
     const queryParams = JSON.parse(storedParams);
-    if (!isQueryParamPrefilArray(queryParams)) {
-      throw new Error(`Prefill data from query params was in the wrong format.
-          ${JSON.stringify(queryParams, null, 2)}
-    `);
+    if (!isQueryParamPrefillArray(queryParams)) {
+      setInitialData(dataType, data);
+      return;
     }
 
     const prefillDataForDataType = queryParams.find(
       (param) => param.dataModelName === dataType && param.appId === metaData.id,
     );
 
-    if (prefillDataForDataType) {
+    if (!prefillDataForDataType) {
+      setInitialData(dataType, data);
+      return;
+    }
+
+    if (Date.now() > Date.parse(prefillDataForDataType.expires)) {
+      setInitialData(dataType, data);
+      sessionStorage.removeItem('queryParams');
+      console.log('Query params expired!');
+      return;
+    }
+
+    if (prefillDataForDataType.expires) {
       prefillDataForDataType.prefillFields.forEach((field) => {
         Object.entries(field).forEach(([key, value]) => {
           data[key] = value;

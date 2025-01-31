@@ -125,15 +125,20 @@ export interface QueryParamPrefill {
   appId: string;
   dataModelName: string;
   prefillFields: Record<string, string>[];
+  expires: string;
 }
 
-function isQueryParamPrefil(obj: unknown): obj is QueryParamPrefill {
+function isQueryParamPrefill(obj: unknown): obj is QueryParamPrefill {
   if (typeof obj !== 'object' || obj === null) {
     return false;
   }
   const typedObj = obj as Partial<QueryParamPrefill>;
 
   if (typeof typedObj.dataModelName !== 'string') {
+    return false;
+  }
+
+  if (typeof typedObj.expires !== 'string') {
     return false;
   }
 
@@ -156,13 +161,13 @@ function isQueryParamPrefil(obj: unknown): obj is QueryParamPrefill {
   return true;
 }
 
-export function isQueryParamPrefilArray(obj: unknown): obj is QueryParamPrefill[] {
+export function isQueryParamPrefillArray(obj: unknown): obj is QueryParamPrefill[] {
   if (!Array.isArray(obj)) {
     return false;
   }
 
   for (const item of obj) {
-    if (!isQueryParamPrefil(item)) {
+    if (!isQueryParamPrefill(item)) {
       return false;
     }
   }
