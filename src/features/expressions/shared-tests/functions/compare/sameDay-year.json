@@ -1,0 +1,5 @@
+{
+  "name": "isSameDay with years only",
+  "expression": ["compare", 2020, "isSameDay", "2020"],
+  "expects": true
+}

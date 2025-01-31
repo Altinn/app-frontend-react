@@ -1,0 +1,5 @@
+{
+  "name": "not isSameDay with different years",
+  "expression": ["compare", 2020, "not", "isSameDay", "2022"],
+  "expects": true
+}

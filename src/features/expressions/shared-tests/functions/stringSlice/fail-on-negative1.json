@@ -1,0 +1,5 @@
+{
+  "name": "Should fail when given a negative end index",
+  "expression": ["stringSlice", "hello", 0, -1],
+  "expectsFailure": "Length cannot be negative"
+}
