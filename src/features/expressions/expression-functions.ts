@@ -1,5 +1,8 @@
 import dot from 'dot-object';
+import escapeStringRegexp from 'escape-string-regexp';
 
+import { ContextNotProvided } from 'src/core/contexts/context';
+import { exprCastValue } from 'src/features/expressions';
 import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
@@ -139,6 +142,10 @@ export const ExprFunctionDefinitions = {
     args: args(required(ExprVal.String), optional(ExprVal.String)),
     returns: ExprVal.Any,
   },
+  countDataElements: {
+    args: args(required(ExprVal.String)),
+    returns: ExprVal.Number,
+  },
   hasRole: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.Boolean,
@@ -154,6 +161,10 @@ export const ExprFunctionDefinitions = {
   formatDate: {
     args: args(required(ExprVal.Date), optional(ExprVal.String)),
     returns: ExprVal.String,
+  },
+  compare: {
+    args: args(required(ExprVal.Any), required(ExprVal.Any), required(ExprVal.Any), optional(ExprVal.Any)),
+    returns: ExprVal.Boolean,
   },
   round: {
     args: args(required(ExprVal.Number), optional(ExprVal.Number)),
@@ -191,8 +202,20 @@ export const ExprFunctionDefinitions = {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.Boolean,
   },
+  stringReplace: {
+    args: args(required(ExprVal.String), required(ExprVal.String), required(ExprVal.String)),
+    returns: ExprVal.String,
+  },
   stringLength: {
     args: args(required(ExprVal.String)),
+    returns: ExprVal.Number,
+  },
+  stringSlice: {
+    args: args(required(ExprVal.String), required(ExprVal.Number), optional(ExprVal.Number)),
+    returns: ExprVal.String,
+  },
+  stringIndexOf: {
+    args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.Number,
   },
   commaContains: {
@@ -204,6 +227,14 @@ export const ExprFunctionDefinitions = {
     returns: ExprVal.String,
   },
   upperCase: {
+    args: args(required(ExprVal.String)),
+    returns: ExprVal.String,
+  },
+  upperCaseFirst: {
+    args: args(required(ExprVal.String)),
+    returns: ExprVal.String,
+  },
+  lowerCaseFirst: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.String,
   },
@@ -265,39 +296,23 @@ export const ExprFunctionImplementations: { [K in Names]: Implementation<K> } = 
     return value ?? null;
   },
   equals(arg1, arg2) {
-    return arg1 === arg2;
+    return compare(this, 'equals', arg1, arg2);
   },
   notEquals(arg1, arg2) {
-    return arg1 !== arg2;
+    return !compare(this, 'equals', arg1, arg2);
   },
   not: (arg) => !arg,
   greaterThan(arg1, arg2) {
-    if (arg1 === null || arg2 === null) {
-      return false;
-    }
-
-    return arg1 > arg2;
+    return compare(this, 'greaterThan', arg1, arg2);
   },
   greaterThanEq(arg1, arg2) {
-    if (arg1 === null || arg2 === null) {
-      return false;
-    }
-
-    return arg1 >= arg2;
+    return compare(this, 'greaterThanEq', arg1, arg2);
   },
   lessThan(arg1, arg2) {
-    if (arg1 === null || arg2 === null) {
-      return false;
-    }
-
-    return arg1 < arg2;
+    return compare(this, 'lessThan', arg1, arg2);
   },
   lessThanEq(arg1, arg2) {
-    if (arg1 === null || arg2 === null) {
-      return false;
-    }
-
-    return arg1 <= arg2;
+    return compare(this, 'lessThanEq', arg1, arg2);
   },
   concat: (...args) => args.join(''),
   and: (...args) => args.reduce((prev, cur) => prev && !!cur, true),
@@ -409,6 +424,22 @@ export const ExprFunctionImplementations: { [K in Names]: Implementation<K> } = 
     // a LayoutPage (i.e., when we're resolving an expression directly on the layout definition).
     return pickSimpleValue(reference, this);
   },
+  countDataElements(dataType) {
+    if (dataType === null) {
+      throw new ExprRuntimeError(this.expr, this.path, `Expected dataType argument to be a string`);
+    }
+
+    const length = this.dataSources.dataElementSelector(
+      (elements) => elements.filter((e) => e.dataType === dataType).length,
+      [dataType],
+    );
+
+    if (length === ContextNotProvided) {
+      return 0; // Stateless never has any data elements
+    }
+
+    return length;
+  },
   hasRole(roleName) {
     if (!this.dataSources.roles || !roleName) {
       return false;
@@ -476,6 +507,11 @@ export const ExprFunctionImplementations: { [K in Names]: Implementation<K> } = 
     }
 
     return result;
+  },
+  compare(arg1, arg2, arg3, arg4) {
+    return arg2 === 'not'
+      ? !compare(this, arg3 as CompareOperator, arg1, arg4, 0, 3)
+      : compare(this, arg2 as CompareOperator, arg1, arg3, 0, 2);
   },
   round(number, decimalPoints) {
     const realNumber = number === null ? 0 : number;
@@ -570,7 +606,45 @@ export const ExprFunctionImplementations: { [K in Names]: Implementation<K> } = 
     }
     return string.startsWith(stringToMatch);
   },
+  stringReplace(string, search, replace) {
+    if (!string || !search || replace === null) {
+      return null;
+    }
+    return string.replace(new RegExp(escapeStringRegexp(search), 'g'), replace);
+  },
   stringLength: (string) => (string === null ? 0 : string.length),
+  stringSlice(string, start, length) {
+    if (start === null) {
+      throw new ExprRuntimeError(
+        this.expr,
+        this.path,
+        `Start index cannot be null (if you used an expression like stringIndexOf here, make sure to guard against null)`,
+      );
+    }
+    if (string === null) {
+      return null;
+    }
+    if (start < 0) {
+      throw new ExprRuntimeError(this.expr, this.path, `Start index cannot be negative`);
+    }
+    if (length !== null && length !== undefined && length < 0) {
+      throw new ExprRuntimeError(this.expr, this.path, `Length cannot be negative`);
+    }
+
+    if (length === null || length === undefined) {
+      return string.substring(start);
+    }
+
+    return string.substring(start, start + length);
+  },
+  stringIndexOf(string, search) {
+    if (!string || !search) {
+      return null;
+    }
+
+    const idx = string.indexOf(search);
+    return idx === -1 ? null : idx;
+  },
   commaContains(commaSeparatedString, stringToMatch) {
     if (commaSeparatedString === null || stringToMatch === null) {
       return false;
@@ -591,6 +665,18 @@ export const ExprFunctionImplementations: { [K in Names]: Implementation<K> } = 
       return null;
     }
     return string.toUpperCase();
+  },
+  upperCaseFirst(string) {
+    if (string === null) {
+      return null;
+    }
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  },
+  lowerCaseFirst(string) {
+    if (string === null) {
+      return null;
+    }
+    return string.charAt(0).toLowerCase() + string.slice(1);
   },
   _experimentalSelectAndMap(path, propertyToSelect, prepend, append, appendToLastElement = true) {
     if (path === null || propertyToSelect == null) {
@@ -641,6 +727,26 @@ export const ExprFunctionValidationExtensions: { [K in Names]?: FuncValidationDe
       }
     },
   },
+  compare: {
+    validator({ rawArgs, ctx, path }) {
+      if (rawArgs.length === 4 && rawArgs[1] !== 'not') {
+        addError(ctx, [...path, '[1]'], 'Second argument must be "not" when providing 4 arguments in total');
+        return;
+      }
+
+      const opIdx = rawArgs.length === 4 ? 2 : 1;
+      const op = rawArgs[opIdx];
+      if (!(typeof op === 'string')) {
+        addError(ctx, [...path, `[${opIdx + 1}]`], 'Invalid operator (it cannot be an expression or null)');
+        return;
+      }
+      const validOperators = Object.keys(CompareOperators);
+      if (!validOperators.includes(op)) {
+        const validList = validOperators.map((o) => `"${o}"`).join(', ');
+        addError(ctx, [...path, `[${opIdx + 1}]`], 'Invalid operator "%s", valid operators are %s', op, validList);
+      }
+    },
+  },
 };
 
 function pickSimpleValue(path: IDataModelReference, params: EvaluateExpressionParams) {
@@ -663,4 +769,119 @@ export function ensureNode(
     throw new NodeNotFound(node.getId());
   }
   return node;
+}
+
+/**
+ * Allows you to cast an argument to a stricter type late during execution of an expression function, as opposed to
+ * before the function runs (as arguments are processed on the way in). This is useful in functions such as
+ * 'compare', where the operator will determine the type of the arguments, and cast them accordingly.
+ */
+function lateCastArg<T extends ExprVal>(
+  context: EvaluateExpressionParams,
+  arg: unknown,
+  argIndex: number,
+  type: T,
+): ExprValToActual<T> | null {
+  const actualIndex = argIndex + 1; // Adding 1 because the function name is at index 0
+  const newContext = { ...context, path: [...context.path, `[${actualIndex}]`] };
+  return exprCastValue(arg, type, newContext);
+}
+
+type CompareOpArg<T extends ExprVal, BothReq extends boolean> = BothReq extends true
+  ? ExprValToActual<T>
+  : ExprValToActual<T> | null;
+type CompareOpImplementation<T extends ExprVal, BothReq extends boolean> = (
+  this: EvaluateExpressionParams,
+  a: CompareOpArg<T, BothReq>,
+  b: CompareOpArg<T, BothReq>,
+) => boolean;
+
+export interface CompareOperatorDef<T extends ExprVal, BothReq extends boolean> {
+  bothArgsMustBeValid: BothReq;
+  argType: T;
+  impl: CompareOpImplementation<T, BothReq>;
+}
+
+function defineCompareOp<T extends ExprVal, BothReq extends boolean>(
+  def: CompareOperatorDef<T, BothReq>,
+): CompareOperatorDef<T, BothReq> {
+  return def;
+}
+
+/**
+ * All the comparison operators available to execute inside the 'compare' function. This list of operators
+ * have the following behaviors:
+ */
+export const CompareOperators = {
+  equals: defineCompareOp({
+    bothArgsMustBeValid: false,
+    argType: ExprVal.String,
+    impl: (a, b) => a === b,
+  }),
+  greaterThan: defineCompareOp({
+    bothArgsMustBeValid: true,
+    argType: ExprVal.Number,
+    impl: (a, b) => a > b,
+  }),
+  greaterThanEq: defineCompareOp({
+    bothArgsMustBeValid: true,
+    argType: ExprVal.Number,
+    impl: (a: number, b: number) => a >= b,
+  }),
+  lessThan: defineCompareOp({
+    bothArgsMustBeValid: true,
+    argType: ExprVal.Number,
+    impl: (a: number, b: number) => a < b,
+  }),
+  lessThanEq: defineCompareOp({
+    bothArgsMustBeValid: true,
+    argType: ExprVal.Number,
+    impl: (a: number, b: number) => a <= b,
+  }),
+  isBefore: defineCompareOp({
+    bothArgsMustBeValid: true,
+    argType: ExprVal.Date,
+    impl: (a, b) => a < b,
+  }),
+  isBeforeEq: defineCompareOp({
+    bothArgsMustBeValid: true,
+    argType: ExprVal.Date,
+    impl: (a, b) => a <= b,
+  }),
+  isAfter: defineCompareOp({
+    bothArgsMustBeValid: true,
+    argType: ExprVal.Date,
+    impl: (a, b) => a > b,
+  }),
+  isAfterEq: defineCompareOp({
+    bothArgsMustBeValid: true,
+    argType: ExprVal.Date,
+    impl: (a, b) => a >= b,
+  }),
+  isSameDay: defineCompareOp({
+    bothArgsMustBeValid: true,
+    argType: ExprVal.Date,
+    impl: (a, b) => a.toDateString() === b.toDateString(),
+  }),
+} as const;
+
+type CompareOperator = keyof typeof CompareOperators;
+
+function compare(
+  ctx: EvaluateExpressionParams,
+  operator: CompareOperator,
+  arg1: unknown,
+  arg2: unknown,
+  idxArg1 = 1,
+  idxArg2 = 2,
+): boolean {
+  const def = CompareOperators[operator];
+  const a = lateCastArg(ctx, arg1, idxArg1, def.argType);
+  const b = lateCastArg(ctx, arg2, idxArg2, def.argType);
+
+  if (def.bothArgsMustBeValid && (a === null || b === null)) {
+    return false;
+  }
+
+  return def.impl.call(ctx, a, b);
 }
