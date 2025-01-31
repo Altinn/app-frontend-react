@@ -2,12 +2,12 @@ import type { PickByValue } from 'utility-types';
 
 import type { ExprFunctionDefinitions } from 'src/features/expressions/expression-functions';
 
-type Functions = typeof ExprFunctionDefinitions;
+export type ExprFunctions = typeof ExprFunctionDefinitions;
 
 /**
  * This union type includes all possible functions usable in expressions
  */
-export type ExprFunctionName = keyof Functions;
+export type ExprFunctionName = keyof ExprFunctions;
 
 export enum ExprVal {
   Boolean = '__boolean__',
@@ -36,11 +36,11 @@ export type ExprValToActualOrExpr<T extends ExprVal> =
   | ExprValToActual<T>
   | NonRecursiveExpression<FunctionsReturning<T>>;
 
-type ArgsFor<F extends ExprFunctionName> = F extends ExprFunctionName ? Functions[F]['args'] : never;
+type ArgsFor<F extends ExprFunctionName> = F extends ExprFunctionName ? ExprFunctions[F]['args'] : never;
 
 type FunctionsReturning<T extends ExprVal> =
-  | keyof PickByValue<Functions, { returns: T }>
-  | keyof PickByValue<Functions, { returns: ExprVal.Any }>;
+  | keyof PickByValue<ExprFunctions, { returns: T }>
+  | keyof PickByValue<ExprFunctions, { returns: ExprVal.Any }>;
 
 /**
  * An expression definition is basically [functionName, ...arguments], but when we map arguments (using their

@@ -15,7 +15,13 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { DisplayData } from 'src/features/displayData';
 import type { EvaluateExpressionParams } from 'src/features/expressions';
-import type { AnyExprArg, ExprArgDef, ExprValToActual } from 'src/features/expressions/types';
+import type {
+  AnyExprArg,
+  ExprArgDef,
+  ExprFunctionName,
+  ExprFunctions,
+  ExprValToActual,
+} from 'src/features/expressions/types';
 import type { ValidationContext } from 'src/features/expressions/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
@@ -250,14 +256,12 @@ export const ExprFunctionDefinitions = {
   },
 } satisfies { [key: string]: AnyFuncDef };
 
-type Defs = typeof ExprFunctionDefinitions;
-type Names = keyof Defs;
-type Implementation<Name extends Names> = (
+type Implementation<Name extends ExprFunctionName> = (
   this: EvaluateExpressionParams,
-  ...params: ArgsToActual<Defs[Name]['args']>
-) => ExprValToActual<Defs[Name]['returns']> | null;
+  ...params: ArgsToActual<ExprFunctions[Name]['args']>
+) => ExprValToActual<ExprFunctions[Name]['returns']> | null;
 
-export const ExprFunctionImplementations: { [K in Names]: Implementation<K> } = {
+export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementation<K> } = {
   argv(idx) {
     if (!this.positionalArguments?.length) {
       throw new ExprRuntimeError(this.expr, this.path, 'No positional arguments available');
@@ -704,7 +708,7 @@ export const ExprFunctionImplementations: { [K in Names]: Implementation<K> } = 
   },
 };
 
-export const ExprFunctionValidationExtensions: { [K in Names]?: FuncValidationDef } = {
+export const ExprFunctionValidationExtensions: { [K in ExprFunctionName]?: FuncValidationDef } = {
   if: {
     validator: ({ rawArgs, ctx, path }) => {
       if (rawArgs.length === 2) {
