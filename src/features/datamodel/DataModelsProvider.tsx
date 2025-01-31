@@ -297,6 +297,7 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
   const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
   const storedParams = sessionStorage.getItem('queryParams');
+  sessionStorage.removeItem('queryParams');
   const metaData = useApplicationMetadata();
 
   const { data, error } = useFormDataQuery(url);
@@ -329,7 +330,6 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
     if (Date.now() > Date.parse(prefillDataForDataType.expires)) {
       setInitialData(dataType, data);
       sessionStorage.removeItem('queryParams');
-      console.log('Query params expired!');
       return;
     }
 
