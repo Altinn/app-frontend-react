@@ -1,5 +1,3 @@
-import dotenv from 'dotenv';
-
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { getTargetUrl } from 'test/e2e/support/start-app-instance';
 
@@ -9,8 +7,6 @@ const prefilledValue = 'designer';
 
 describe('Start stateless with query params', () => {
   beforeEach(() => {
-    const env = dotenv.config().parsed || {};
-
     cy.visit(`${getTargetUrl('stateless-app')}/set-query-params?jobTitle=${prefilledValue}`);
 
     cy.intercept('**/api/layoutsettings/stateless').as('getLayoutStateless');

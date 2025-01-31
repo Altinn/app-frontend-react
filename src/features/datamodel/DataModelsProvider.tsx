@@ -312,6 +312,7 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
     }
 
     const queryParams = JSON.parse(storedParams);
+    sessionStorage.removeItem('queryParams');
     if (!isQueryParamPrefillArray(queryParams)) {
       setInitialData(dataType, data);
       return;
@@ -328,7 +329,6 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
 
     if (Date.now() > Date.parse(prefillDataForDataType.expires)) {
       setInitialData(dataType, data);
-      sessionStorage.removeItem('queryParams');
       return;
     }
 
@@ -339,7 +339,6 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
     });
 
     setInitialData(dataType, data);
-    sessionStorage.removeItem('queryParams');
   }, [data, dataType, metaData.id, setInitialData, storedParams, url]);
 
   useEffect(() => {
