@@ -123,11 +123,15 @@ describe('expression schema tests', () => {
   });
 
   it('no other function definitions should be present', () => {
-    const hardcodedAllowed = new Set(['func-if-without-else', 'func-if-with-else', 'func-compare-inverse']);
     const functionDefs = Object.keys(expressionSchema.definitions).filter((key) => key.startsWith('func-'));
-    const validFunctionDefs = new Set(Object.keys(ExprFunctionDefinitions).map((name) => `func-${name}`));
-    const unknownFunctionDefs = functionDefs.filter((key) => !validFunctionDefs.has(key) && !hardcodedAllowed.has(key));
-    expect(unknownFunctionDefs).toEqual([]);
+    const validFunctionDefs = new Set([
+      'func-if-without-else',
+      'func-if-with-else',
+      'func-compare-inverse',
+      ...Object.keys(ExprFunctionDefinitions).map((name) => `func-${name}`),
+    ]);
+    const invalidFunctionDefs = functionDefs.filter((key) => !validFunctionDefs.has(key));
+    expect(invalidFunctionDefs).toEqual([]);
   });
 
   it('compare operators should be valid', () => {
