@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Panel } from 'src/app-components/Panel/Panel';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useProfile } from 'src/features/profile/ProfileProvider';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
@@ -23,8 +23,7 @@ const MissingSignaturesErrorCode = 'MissingSignatures' as const;
 export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<'SigningStatusPanel'>) {
   const { partyId, instanceGuid } = useParams();
   const { data: signeeList, isLoading } = useQuery(signeeListQuery(partyId!, instanceGuid!));
-  const profile = useProfile();
-  const currentUserPartyId = profile?.partyId;
+  const currentUserPartyId = useCurrentParty()?.partyId;
   const currentUserStatus = getCurrentUserStatus(signeeList, currentUserPartyId);
 
   const { refetch: refetchBackendValidations, data: hasMissingSignatures } = useBackendValidationQuery(
