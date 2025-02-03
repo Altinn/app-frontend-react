@@ -1,8 +1,8 @@
 import type { PickByValue } from 'utility-types';
 
-import type { ExprFunctions } from 'src/features/expressions/expression-functions';
+import type { ExprFunctionDefinitions } from 'src/features/expressions/expression-functions';
 
-type Functions = typeof ExprFunctions;
+type Functions = typeof ExprFunctionDefinitions;
 
 /**
  * This union type includes all possible functions usable in expressions
@@ -13,18 +13,21 @@ export enum ExprVal {
   Boolean = '__boolean__',
   String = '__string__',
   Number = '__number__',
+  Date = '__date__', // Actually just a string, but must be parsable as a date (ane lets us work with Date internally)
   Any = '__any__',
 }
 
-export type ExprValToActual<T extends ExprVal = ExprVal> = T extends ExprVal.String
-  ? string
-  : T extends ExprVal.Number
-    ? number
-    : T extends ExprVal.Boolean
-      ? boolean
-      : T extends ExprVal.Any
-        ? string | number | boolean | null
-        : unknown;
+export type ExprValToActual<T extends ExprVal = ExprVal> = T extends ExprVal.Date
+  ? Date
+  : T extends ExprVal.String
+    ? string
+    : T extends ExprVal.Number
+      ? number
+      : T extends ExprVal.Boolean
+        ? boolean
+        : T extends ExprVal.Any
+          ? string | number | boolean | null
+          : unknown;
 
 /**
  * This type replaces ExprVal with the actual value type, or expression that returns that type.
@@ -52,7 +55,7 @@ type IndexHack<F extends ExprFunction> = ['Here goes the function name', ...Args
 type MaybeRecursive<
   F extends ExprFunction,
   Iterations extends Prev[number],
-  Args extends ('Here goes the function name' | ExprVal)[] = IndexHack<F>,
+  Args extends ('Here goes the function name' | AnyExprArg)[] = IndexHack<F>,
 > = [Iterations] extends [never]
   ? never
   : {
@@ -115,3 +118,10 @@ export type ExprValueArgs<T extends object = any> = {
   data: T;
   defaultKey: keyof T;
 };
+
+export type ExprArgVariant = 'required' | 'optional' | 'rest';
+export type ExprArgDef<T extends ExprVal, Variant extends ExprArgVariant> = {
+  type: T;
+  variant: Variant;
+};
+export type AnyExprArg = ExprArgDef<ExprVal, ExprArgVariant>;

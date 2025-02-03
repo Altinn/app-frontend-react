@@ -471,6 +471,7 @@ const knownDataModels: { [key: string]: unknown } = {
     NumPets: 0,
     HiddenPets: null,
     PetSortOrder: null,
+    PetsUseOptionComponent: null,
   },
   likert: {
     Questions: [
