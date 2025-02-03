@@ -16,8 +16,8 @@ import { useCurrentDataModelName, useDataModelUrl } from 'src/features/datamodel
 import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSchemaQuery';
 import {
   getAllReferencedDataTypes,
+  getValidPrefillDataFromQueryParams,
   isDataTypeWritable,
-  isQueryParamPrefillArray,
   MissingClassRefException,
   MissingDataElementException,
   MissingDataTypeException,
@@ -295,9 +295,19 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const setError = useSelector((state) => state.setError);
   const dataElements = useLaxInstanceDataElements(dataType);
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
-  const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
+
   const storedParams = sessionStorage.getItem('queryParams');
+
   const metaData = useApplicationMetadata();
+
+  const url = useDataModelUrl({
+    dataType,
+    dataElementId,
+    includeRowIds: true,
+    prefillFromQueryParams: getValidPrefillDataFromQueryParams(storedParams, metaData, dataType),
+  });
+
+  sessionStorage.removeItem('queryParams');
 
   const { data, error } = useFormDataQuery(url);
 
@@ -305,38 +315,6 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
     if (!data || !url) {
       return;
     }
-
-    if (!storedParams) {
-      setInitialData(dataType, data);
-      return;
-    }
-
-    const queryParams = JSON.parse(storedParams);
-    sessionStorage.removeItem('queryParams');
-    if (!isQueryParamPrefillArray(queryParams)) {
-      setInitialData(dataType, data);
-      return;
-    }
-
-    const prefillDataForDataType = queryParams.find(
-      (param) => param.dataModelName === dataType && param.appId === metaData.id,
-    );
-
-    if (!prefillDataForDataType) {
-      setInitialData(dataType, data);
-      return;
-    }
-
-    if (Date.now() > Date.parse(prefillDataForDataType.expires)) {
-      setInitialData(dataType, data);
-      return;
-    }
-
-    prefillDataForDataType.prefillFields.forEach((field) => {
-      Object.entries(field).forEach(([key, value]) => {
-        data[key] = value;
-      });
-    });
 
     setInitialData(dataType, data);
   }, [data, dataType, metaData.id, setInitialData, storedParams, url]);

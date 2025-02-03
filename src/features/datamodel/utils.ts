@@ -1,4 +1,5 @@
 import { isDataModelReference } from 'src/utils/databindings';
+import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { ILayouts } from 'src/layout/layout';
 import type { IData } from 'src/types/shared';
 
@@ -125,7 +126,7 @@ export interface QueryParamPrefill {
   appId: string;
   dataModelName: string;
   prefillFields: Record<string, string>[];
-  expires: string;
+  created: string;
 }
 
 function isQueryParamPrefill(obj: unknown): obj is QueryParamPrefill {
@@ -138,7 +139,7 @@ function isQueryParamPrefill(obj: unknown): obj is QueryParamPrefill {
     return false;
   }
 
-  if (typeof typedObj.expires !== 'string') {
+  if (typeof typedObj.created !== 'string') {
     return false;
   }
 
@@ -173,4 +174,53 @@ export function isQueryParamPrefillArray(obj: unknown): obj is QueryParamPrefill
   }
 
   return true;
+}
+
+function prefillQueryParamsIsValid(prefill: QueryParamPrefill): boolean {
+  const createdTime = new Date(prefill.created).getTime();
+  if (Number.isNaN(createdTime)) {
+    return false;
+  }
+
+  const oneHourInMs = 60 * 60 * 1000;
+  const hasExpired = Date.now() - createdTime > oneHourInMs;
+
+  return !hasExpired;
+}
+
+function reducePrefillFieldsToDict({ prefillFields }: QueryParamPrefill): Record<string, string> {
+  return prefillFields.reduce((acc, current) => ({ ...acc, ...current }), {});
+}
+
+export function getValidPrefillDataFromQueryParams(
+  storedParams: string | null,
+  metaData: ApplicationMetadata,
+  dataType: string,
+): string | undefined {
+  if (!storedParams) {
+    return undefined;
+  }
+
+  if (!metaData.isStatelessApp) {
+    throw new Error('You can only use query parameter prefill in a stateless task. Please read documentation.');
+  }
+
+  const queryParams = JSON.parse(storedParams);
+  if (!isQueryParamPrefillArray(queryParams)) {
+    return undefined;
+  }
+
+  const prefillDataForDataType = queryParams.find(
+    (param) => param.dataModelName === dataType && param.appId === metaData.id,
+  );
+
+  if (!prefillDataForDataType) {
+    return undefined;
+  }
+
+  if (!prefillQueryParamsIsValid(prefillDataForDataType)) {
+    return undefined;
+  }
+
+  return JSON.stringify(reducePrefillFieldsToDict(prefillDataForDataType));
 }
