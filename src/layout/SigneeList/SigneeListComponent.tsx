@@ -33,6 +33,7 @@ export function SigneeListComponent({ node }: PropsFromGenericComponent<'SigneeL
       size='md'
       data={data ?? []}
       isLoading={isLoading}
+      emptyText={<Lang id='signee_list.no_signees' />}
       headerClassName={classes.header}
       tableClassName={classes.table}
       caption={
