@@ -22,11 +22,11 @@ export function SubmitPanel({ node }: SubmitPanelProps) {
     textResourceBindings: i.textResourceBindings,
   }));
   const queryClient = useQueryClient();
-  const { partyId, instanceGuid } = useParams();
+  const { partyId, instanceGuid, taskId } = useParams();
 
   async function handleSubmit() {
     await next?.({ nodeId });
-    queryClient.invalidateQueries({ queryKey: signeeListQuery(partyId!, instanceGuid!).queryKey });
+    queryClient.invalidateQueries({ queryKey: signeeListQuery(partyId, instanceGuid, taskId).queryKey });
   }
 
   const titleReadyForSubmit = textResourceBindings?.submitPanelTitle ?? 'signing.submit_panel_title';

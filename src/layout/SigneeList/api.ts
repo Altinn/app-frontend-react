@@ -1,4 +1,4 @@
-import { queryOptions } from '@tanstack/react-query';
+import { queryOptions, skipToken } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -17,10 +17,14 @@ const signeeStateSchema = z
 
 export type SigneeState = z.infer<typeof signeeStateSchema>;
 
-export const signeeListQuery = (partyId: string, instanceGuid: string) =>
+export const signeeListQuery = (
+  partyId: string | undefined,
+  instanceGuid: string | undefined,
+  taskId: string | undefined,
+) =>
   queryOptions({
-    queryKey: ['signeeList', partyId, instanceGuid],
-    queryFn: () => fetchSigneeList(partyId, instanceGuid),
+    queryKey: ['signeeList', partyId, instanceGuid, taskId],
+    queryFn: partyId && instanceGuid && taskId ? () => fetchSigneeList(partyId, instanceGuid) : skipToken,
     refetchInterval: 1000 * 60, // 1 minute
   });
 

@@ -15,8 +15,8 @@ interface SigneeListSummaryProps {
 }
 
 export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
-  const { partyId, instanceGuid } = useParams();
-  const { data, isLoading, error } = useQuery(signeeListQuery(partyId!, instanceGuid!));
+  const { partyId, instanceGuid, taskId } = useParams();
+  const { data, isLoading, error } = useQuery(signeeListQuery(partyId, instanceGuid, taskId));
 
   const summaryTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.summary_title);
 

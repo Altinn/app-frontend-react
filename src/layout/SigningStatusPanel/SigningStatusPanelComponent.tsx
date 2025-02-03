@@ -21,8 +21,8 @@ import type { SigneeState } from 'src/layout/SigneeList/api';
 const MissingSignaturesErrorCode = 'MissingSignatures' as const;
 
 export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<'SigningStatusPanel'>) {
-  const { partyId, instanceGuid } = useParams();
-  const { data: signeeList, isLoading } = useQuery(signeeListQuery(partyId!, instanceGuid!));
+  const { partyId, instanceGuid, taskId } = useParams();
+  const { data: signeeList, isLoading } = useQuery(signeeListQuery(partyId, instanceGuid, taskId));
   const currentUserPartyId = useCurrentParty()?.partyId;
   const currentUserStatus = getCurrentUserStatus(signeeList, currentUserPartyId);
 
