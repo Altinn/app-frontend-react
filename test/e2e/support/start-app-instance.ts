@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import escapeRegex from 'escape-string-regexp';
+import type { RouteHandler } from 'cypress/types/net-stubbing';
 import type { SinonSpy } from 'cypress/types/sinon';
 
 import { cyUserCredentials } from 'test/e2e/support/auth';
@@ -122,7 +123,7 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
 
     const rand = () => Math.floor(Math.random() * (max - min + 1) + min);
 
-    const randomDelays = (req) => {
+    const randomDelays: RouteHandler = (req) => {
       req.on('response', (res) => {
         res.setDelay(rand());
       });
