@@ -193,11 +193,12 @@ function reducePrefillFieldsToDict({ prefillFields }: QueryParamPrefill): Record
 }
 
 export function getValidPrefillDataFromQueryParams(
-  storedParams: string | null,
   metaData: ApplicationMetadata,
   dataType: string,
 ): string | undefined {
-  if (!storedParams) {
+  const rawParams = sessionStorage.getItem('queryParams');
+
+  if (!rawParams) {
     return undefined;
   }
 
@@ -205,7 +206,11 @@ export function getValidPrefillDataFromQueryParams(
     throw new Error('You can only use query parameter prefill in a stateless task. Please read documentation.');
   }
 
-  const queryParams = JSON.parse(storedParams);
+  const queryParams = JSON.parse(rawParams);
+  //
+
+  console.log(JSON.stringify(queryParams, null, 2));
+
   if (!isQueryParamPrefillArray(queryParams)) {
     return undefined;
   }
@@ -213,6 +218,8 @@ export function getValidPrefillDataFromQueryParams(
   const prefillDataForDataType = queryParams.find(
     (param) => param.dataModelName === dataType && param.appId === metaData.id,
   );
+
+  console.log(JSON.stringify(prefillDataForDataType, null, 2));
 
   if (!prefillDataForDataType) {
     return undefined;

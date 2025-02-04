@@ -295,19 +295,14 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const setError = useSelector((state) => state.setError);
   const dataElements = useLaxInstanceDataElements(dataType);
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
-
-  const storedParams = sessionStorage.getItem('queryParams');
-
   const metaData = useApplicationMetadata();
 
   const url = useDataModelUrl({
     dataType,
     dataElementId,
     includeRowIds: true,
-    prefillFromQueryParams: getValidPrefillDataFromQueryParams(storedParams, metaData, dataType),
+    prefillFromQueryParams: getValidPrefillDataFromQueryParams(metaData, dataType),
   });
-
-  sessionStorage.removeItem('queryParams');
 
   const { data, error } = useFormDataQuery(url);
 
@@ -315,9 +310,9 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
     if (!data || !url) {
       return;
     }
-
+    sessionStorage.removeItem('queryParams');
     setInitialData(dataType, data);
-  }, [data, dataType, metaData.id, setInitialData, storedParams, url]);
+  }, [data, dataType, metaData.id, setInitialData, url]);
 
   useEffect(() => {
     setDataElementId(dataType, dataElementId ?? null);
