@@ -89,7 +89,7 @@ Cypress.Commands.add('navPage', (page: string) => {
     if (win.innerWidth < 768) {
       cy.get(appFrontend.navMobileMenu).should('have.attr', 'aria-expanded', 'false').click();
     }
-    cy.get(appFrontend.navMenu).findByText(page).parent();
+    cy.get(appFrontend.navMenu).findByRole('button', { name: new RegExp(`^\\d+\\. ${page}$`) });
   });
 });
 
