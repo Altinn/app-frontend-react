@@ -24,7 +24,9 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   const { partyId, instanceGuid, taskId } = useParams();
   const { data: signeeList, isLoading } = useQuery(signeeListQuery(partyId, instanceGuid, taskId));
   const currentUserPartyId = useCurrentParty()?.partyId;
-  const currentUserStatus = getCurrentUserStatus(signeeList, currentUserPartyId);
+  const canSign = useIsAuthorised()('sign');
+  const currentUserStatus = getCurrentUserStatus(signeeList, currentUserPartyId, canSign);
+  const hasSigned = currentUserStatus === 'signed';
 
   const { refetch: refetchBackendValidations, data: hasMissingSignatures } = useBackendValidationQuery(
     {
@@ -60,7 +62,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     return (
       <NoActionRequiredPanel
         node={node}
-        currentUserStatus={currentUserStatus}
+        hasSigned={hasSigned}
       />
     );
   }
@@ -69,7 +71,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     return (
       <AwaitingOtherSignaturesPanel
         node={node}
-        currentUserStatus={currentUserStatus}
+        hasSigned={hasSigned}
       />
     );
   }
@@ -79,13 +81,19 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
 
 export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';
 
-function getCurrentUserStatus(signeeList: SigneeState[] | undefined, partyId: number | undefined): CurrentUserStatus {
+function getCurrentUserStatus(
+  signeeList: SigneeState[] | undefined,
+  partyId: number | undefined,
+  canSign: boolean,
+): CurrentUserStatus {
   const currentUserSignee = signeeList?.find((signee) => signee.partyId === partyId);
-  if (!currentUserSignee) {
-    return 'notSigning';
-  }
-  if (currentUserSignee.hasSigned) {
+  if (currentUserSignee?.hasSigned) {
     return 'signed';
   }
-  return 'awaitingSignature';
+
+  if (canSign) {
+    return 'awaitingSignature';
+  }
+
+  return 'notSigning';
 }

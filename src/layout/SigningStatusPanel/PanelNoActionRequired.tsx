@@ -9,15 +9,14 @@ import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { returnUrlToMessageBox } from 'src/utils/urls/urlHelper';
-import type { CurrentUserStatus } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type NoActionRequiredPanelProps = {
   node: LayoutNode<'SigningStatusPanel'>;
-  currentUserStatus: Extract<CurrentUserStatus, 'signed' | 'notSigning'>;
+  hasSigned: boolean;
 };
 
-export function NoActionRequiredPanel({ node, currentUserStatus }: NoActionRequiredPanelProps) {
+export function NoActionRequiredPanel({ node, hasSigned }: NoActionRequiredPanelProps) {
   const partyId = Number(useParams().partyId);
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
 
@@ -32,8 +31,6 @@ export function NoActionRequiredPanel({ node, currentUserStatus }: NoActionRequi
     textResourceBindings?.noActionRequiredPanelDescriptionNotSigned ??
     'signing.no_action_required_panel_description_not_signed';
   const goToInboxButton = textResourceBindings?.noActionRequiredButton ?? 'signing.no_action_required_button';
-
-  const hasSigned = currentUserStatus === 'signed';
 
   return (
     <SigningPanel

@@ -4,15 +4,14 @@ import { Button } from 'src/app-components/Button/Button';
 import { Lang } from 'src/features/language/Lang';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { CurrentUserStatus } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type AwaitingOtherSignaturesPanelProps = {
   node: LayoutNode<'SigningStatusPanel'>;
-  currentUserStatus: Exclude<CurrentUserStatus, 'waiting'>;
+  hasSigned: boolean;
 };
 
-export function AwaitingOtherSignaturesPanel({ node, currentUserStatus }: AwaitingOtherSignaturesPanelProps) {
+export function AwaitingOtherSignaturesPanel({ node, hasSigned }: AwaitingOtherSignaturesPanelProps) {
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
 
   const heading =
@@ -23,8 +22,6 @@ export function AwaitingOtherSignaturesPanel({ node, currentUserStatus }: Awaiti
   const descriptionSigned =
     textResourceBindings?.awaitingOtherSignaturesPanelDescriptionSigned ??
     'signing.awaiting_other_signatures_panel_description_signed';
-
-  const hasSigned = currentUserStatus === 'signed';
 
   return (
     <SigningPanel
