@@ -27,14 +27,13 @@ export const reduceToValidParties = (parties: IParty[], partyTypesAllowed: IPart
     [PartyType.Person]: partyTypesAllowed.person,
     [PartyType.SelfIdentified]: partyTypesAllowed.person, // Self-identified is treated as a person
     [PartyType.BankruptcyEstate]: partyTypesAllowed.bankruptcyEstate,
+    // TODO: Add one more setting that allows you to include deleted parties
   };
 
   // Fun fact: If all party types are false then all are true
   if (Object.values(partyTypeFilters).every((value) => !value)) {
-    return allParties.filter((party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess);
+    return allParties.filter((party) => !party.onlyHierarchyElementWithNoAccess);
   }
 
-  return allParties.filter(
-    (party) => !party.isDeleted && !party.onlyHierarchyElementWithNoAccess && partyTypeFilters[party.partyTypeName],
-  );
+  return allParties.filter((party) => !party.onlyHierarchyElementWithNoAccess && partyTypeFilters[party.partyTypeName]);
 };
