@@ -146,15 +146,6 @@ export const Config = new CG.component({
   )
   .addProperty(
     new CG.prop(
-      'componentType',
-      new CG.enum('RadioButtons', 'CheckBoxes')
-        .optional({ default: 'RadioButtons' })
-        .setTitle('Use of checkbox or radio button')
-        .setDescription('Specify if the list should use checkboxes or radio buttons. Default is radioButtons.'),
-    ),
-  )
-  .addProperty(
-    new CG.prop(
       'tableHeadersMobile',
       new CG.arr(new CG.str())
         .optional()

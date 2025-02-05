@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Table } from '@digdir/designsystemet-react';
 
+import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
@@ -29,11 +30,11 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
   );
 
   const { tableHeaders, dataModelBindings } = useNodeItem(componentNode);
-  const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
+  const { formData } = useDataModelBindings(dataModelBindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
 
   const displayRows: Row[] = [];
   (formData?.saveToList as Row[]).forEach((row: Row) => {
-    const { altinnRowId, ...rest } = row;
+    const { altinnRowId: _, ...rest } = row;
     displayRows.push(rest);
   });
 
@@ -47,7 +48,7 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
           <EditButton
             className={classes.editButton}
             componentNode={componentNode}
-            summaryComponentId={''}
+            summaryComponentId=''
           />
         </div>
         <Table>

@@ -113,15 +113,11 @@ export class List extends ListDef {
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
     const errors: string[] = [];
     const allowedTypes = ['string', 'boolean', 'number'];
-    if (ctx.item.componentType === null || ctx.item.componentType === 'RadioButtons') {
+    if (!ctx.item.dataModelBindings?.saveToList) {
       for (const [binding] of Object.entries(ctx.item.dataModelBindings ?? {})) {
         const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedTypes, false);
         errors.push(...(newErrors || []));
       }
-    }
-
-    if (!ctx.item.dataModelBindings?.saveToList) {
-      errors.push('If you are using Checkboxes in a List, you must have a saveToList binding');
     }
 
     const [newErrors] = this.validateDataModelBindingsAny(ctx, 'saveToList', ['array']);

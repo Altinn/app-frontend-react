@@ -13,7 +13,7 @@ import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getLabelId } from 'src/components/label/Label';
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { ALTINN_ROW_ID } from 'src/features/formData/types';
+import { ALTINN_ROW_ID, DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -58,20 +58,19 @@ export const ListComponent = ({ node }: IListProps) => {
   const { data } = useDataListQuery(filter, dataListId, secure, mapping, queryParameters);
   const bindings = item.dataModelBindings ?? ({} as IDataModelBindingsForList);
 
-  const { formData, setValues } = useDataModelBindings(bindings, 1, 'raw');
+  const { formData, setValues } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
+  const saveToList = item.dataModelBindings?.saveToList;
 
   const appendToList = FD.useAppendToList();
-
   const removeFromList = FD.useRemoveIndexFromList();
 
   const tableHeadersToShowInMobile = Object.keys(tableHeaders).filter(
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
   );
 
-  const selectedRow =
-    item.componentType != 'CheckBoxes'
-      ? (data?.listItems.find((row) => Object.keys(formData).every((key) => row[key] === formData[key])) ?? '')
-      : '';
+  const selectedRow = !saveToList
+    ? (data?.listItems.find((row) => Object.keys(formData).every((key) => row[key] === formData[key])) ?? '')
+    : '';
 
   function handleSelectedRadioRow({ selectedValue }: { selectedValue: Row }) {
     const next: Row = {};
@@ -86,18 +85,16 @@ export const ListComponent = ({ node }: IListProps) => {
   }
 
   function isRowChecked(row: Row): boolean {
-    return (formData?.saveToList as Row[]).some((selectedRow) => {
-      const { altinnRowId, ...rest } = selectedRow;
-      return Object.keys(rest).every((key) => Object.hasOwn(row, key) && row[key] === rest[key]);
-    });
+    return (formData?.saveToList as Row[]).some((selectedRow) =>
+      Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
+    );
   }
 
   const title = item.textResourceBindings?.title;
   const description = item.textResourceBindings?.description;
-  const component = item.componentType;
 
   const handleRowClick = (row) => {
-    if (item.componentType === 'CheckBoxes') {
+    if (saveToList) {
       handleSelectedCheckboxRow(row);
     } else {
       handleSelectedRadioRow({ selectedValue: row });
@@ -105,17 +102,17 @@ export const ListComponent = ({ node }: IListProps) => {
   };
 
   const handleSelectedCheckboxRow = (row) => {
-    if (!item.dataModelBindings?.saveToList) {
+    if (!saveToList) {
       return;
     }
     if (isRowChecked(row)) {
       const index = (formData?.saveToList as Row[]).findIndex((selectedRow) => {
-        const { altinnRowId, ...rest } = selectedRow;
+        const { altinnRowId: _, ...rest } = selectedRow;
         return Object.keys(rest).every((key) => Object.hasOwn(row, key) && row[key] === rest[key]);
       });
       if (index >= 0) {
         removeFromList({
-          reference: item.dataModelBindings.saveToList,
+          reference: saveToList,
           index,
         });
       }
@@ -128,7 +125,7 @@ export const ListComponent = ({ node }: IListProps) => {
         }
       }
       appendToList({
-        reference: item.dataModelBindings.saveToList,
+        reference: saveToList,
         newValue: { ...next },
       });
     }
@@ -147,7 +144,7 @@ export const ListComponent = ({ node }: IListProps) => {
   if (isMobile) {
     return (
       <ComponentStructureWrapper node={node}>
-        {component === 'CheckBoxes' ? (
+        {saveToList ? (
           <Checkbox.Group
             role='group'
             legend={
@@ -268,7 +265,7 @@ export const ListComponent = ({ node }: IListProps) => {
                   [classes.selectedRowCell]: isRowSelected(row),
                 })}
               >
-                {component === 'CheckBoxes' ? (
+                {saveToList ? (
                   <Checkbox
                     className={classes.toggleControl}
                     aria-label={JSON.stringify(row)}
