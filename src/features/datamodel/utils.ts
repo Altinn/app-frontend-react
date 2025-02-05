@@ -207,9 +207,6 @@ export function getValidPrefillDataFromQueryParams(
   }
 
   const queryParams = JSON.parse(rawParams);
-  //
-
-  console.log(JSON.stringify(queryParams, null, 2));
 
   if (!isQueryParamPrefillArray(queryParams)) {
     return undefined;
@@ -218,8 +215,6 @@ export function getValidPrefillDataFromQueryParams(
   const prefillDataForDataType = queryParams.find(
     (param) => param.dataModelName === dataType && param.appId === metaData.id,
   );
-
-  console.log(JSON.stringify(prefillDataForDataType, null, 2));
 
   if (!prefillDataForDataType) {
     return undefined;
