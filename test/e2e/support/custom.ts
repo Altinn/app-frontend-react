@@ -645,7 +645,7 @@ Cypress.Commands.add(
 
     // Disable caching, the real PDF generator does not have anything cached as it always runs in a fresh browser context
     cy.setCacheDisabled(true);
-    cy.enableResponseFuzzing(enableResponseFuzzing).as('responseFuzzing');
+    cy.enableResponseFuzzing({ enabled: enableResponseFuzzing }).as('responseFuzzing');
 
     cy.log('Testing PDF');
     cy.reload({ log: false });
@@ -827,15 +827,18 @@ Cypress.Commands.add('setCacheDisabled', function (cacheDisabled) {
   }
 });
 
-Cypress.Commands.add('enableResponseFuzzing', function (enable: boolean) {
-  let responseFuzzingEnabled = true;
+Cypress.Commands.add('enableResponseFuzzing', function (options) {
+  const enabled = options?.enabled ?? true;
+  const min = options?.min ?? 10;
+  const max = options?.max ?? 1000;
+  // Default matches pretty much everything except for the document itself and js
+  const matchingRoutes = options?.matchingRoutes ?? { resourceType: /fetch|xhr|stylesheet|image|font/ };
 
-  if (enable) {
-    const [min, max] = [10, 1000];
+  let responseFuzzingEnabled = true;
+  if (enabled) {
     const rand = () => Math.floor(Math.random() * (max - min + 1) + min);
-    cy.intercept({ resourceType: /fetch|xhr|stylesheet|image|font/ }, (req) => {
-      // Use response fuzzing if enabled, we need to be able to disable it after testing PDF if the test continues,
-      // but unfortunately you cannot remove request interceptors. We therefore need to set a boolean that is checked
+    cy.intercept(matchingRoutes, (req) => {
+      // Unfortunately you cannot remove request interceptors. We therefore need to set a boolean that is checked
       // inside of the interceptor function that effectively disables it.
       if (!responseFuzzingEnabled) {
         return;
