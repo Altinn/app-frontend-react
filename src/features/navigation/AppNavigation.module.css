@@ -71,17 +71,21 @@
   border: none;
   cursor: pointer;
   display: grid;
-  width: 100%;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto auto auto;
   column-gap: 8px;
   align-items: start;
   text-align: left;
 
   border-radius: var(--fds-border_radius-interactive);
-  padding: 2px;
+  padding: 2px 6px 2px 2px;
   margin: -2px;
 
   position: relative;
+}
+
+/* Only use 2 columns if the button is not expandable */
+.group-button:not(:has(> :last-child:nth-child(3))) {
+  grid-template-columns: auto auto;
 }
 
 .group-button:hover {
@@ -188,14 +192,13 @@
   border: none;
   cursor: pointer;
   display: grid;
-  width: 100%;
-  grid-template-columns: auto 1fr;
-  column-gap: 8px;
+  grid-template-columns: auto auto;
+  column-gap: 12px;
   align-items: start;
   text-align: left;
 
   border-radius: var(--fds-border_radius-interactive);
-  padding: 2px;
+  padding: 2px 6px;
   margin: -2px;
 }
 
@@ -209,7 +212,6 @@
 .page-symbol {
   width: 20px;
   height: 20px;
-  margin: 0 4px;
   box-sizing: border-box;
   border-width: 2px;
   border-style: solid;
