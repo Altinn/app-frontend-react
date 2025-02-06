@@ -60,7 +60,7 @@ export function useGetTaskName() {
  *    Immediately marking a page as completed because it has no required nodes can be confusing, so these will never get marked.
  * 4. A group is marked as completed if any of its pages have no nodes with any validations errors (visible or not), and all of the pages are marked as 'visited'.
  */
-export function useValidationsForPages(order: string[], shouldMarkAsCompleted = false) {
+export function useValidationsForPages(order: string[], shouldMarkWhenCompleted = false) {
   const traversalSelector = useLaxNodeTraversalSelector();
   const validationsSelector = NodesInternal.useLaxValidationsSelector();
   const [visitedPages] = useVisitedPages();
@@ -79,7 +79,7 @@ export function useValidationsForPages(order: string[], shouldMarkAsCompleted = 
       return ContextNotProvided;
     }
 
-    if (!shouldMarkAsCompleted) {
+    if (!shouldMarkWhenCompleted) {
       return { group: false, pages: Object.fromEntries(order.map((page) => [page, false])) };
     }
 
@@ -100,7 +100,7 @@ export function useValidationsForPages(order: string[], shouldMarkAsCompleted = 
     const groupIsComplete = order.every((page) => pageHasNoErrors[page] && visitedPages.includes(page));
 
     return { pages: completedPages, group: groupIsComplete };
-  }, [order, allNodes, validationsSelector, shouldMarkAsCompleted, visitedPages]);
+  }, [order, allNodes, validationsSelector, shouldMarkWhenCompleted, visitedPages]);
 
   const hasErrors = useMemo(() => {
     if (allNodes === ContextNotProvided) {

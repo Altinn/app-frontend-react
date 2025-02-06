@@ -740,7 +740,7 @@ const common = {
       new CG.prop('id', new CG.str()).omitInSchema(),
       new CG.prop('type', new CG.enum('default', 'info').optional({ default: 'default' })),
       new CG.prop(
-        'markAsCompleted',
+        'markWhenCompleted',
         new CG.bool()
           .optional({ default: false })
           .setDescription('Whether this group should mark pages as completed when the user finishes'),
