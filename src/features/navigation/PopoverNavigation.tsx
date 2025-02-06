@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Button, Modal, Popover } from '@digdir/designsystemet-react';
-import { ChevronDownCircleIcon } from '@navikt/aksel-icons';
+import { BulletListIcon, ChevronDownCircleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
@@ -56,7 +56,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
             {...props}
             className={cn(classes.popoverButton, { [classes.popoverButtonActive]: isDialogOpen }, props.className)}
           >
-            <PopoverNavigationButtonContent isOpen={isDialogOpen} />
+            <StaticPopoverNavigationButtonContent />
           </Popover.Trigger>
           <Popover.Content
             className={classes.popoverContainer}
@@ -86,7 +86,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
         {...props}
         className={cn(classes.popoverButton, { [classes.popoverButtonActive]: isDialogOpen }, props.className)}
       >
-        <PopoverNavigationButtonContent isOpen={isDialogOpen} />
+        <StaticPopoverNavigationButtonContent />
       </Button>
       <Modal
         role='dialog'
@@ -104,6 +104,18 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
           </div>
         </Modal.Content>
       </Modal>
+    </>
+  );
+}
+
+function StaticPopoverNavigationButtonContent() {
+  return (
+    <>
+      <BulletListIcon
+        className={cn(classes.popoverButtonIcon, classes.popoverButtonIconMargin)}
+        aria-hidden
+      />
+      <Lang id='navigation.form_pages' />
     </>
   );
 }

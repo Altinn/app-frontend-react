@@ -16,11 +16,11 @@ export const NavBar = () => {
       className={classes.nav}
       aria-label={langAsString('navigation.main')}
     >
-      <div>{!hideCloseButton && <BackNavigationButton className={classes.buttonMargin} />}</div>
       <div className={classes.wrapper}>
-        {showExpandWidthButton && <ExpandWidthButton className={classes.buttonMargin} />}
+        {!hideCloseButton && <BackNavigationButton className={classes.buttonMargin} />}
         <PopoverNavigation className={classes.buttonMargin} />
       </div>
+      {showExpandWidthButton && <ExpandWidthButton className={classes.buttonMargin} />}
     </nav>
   );
 };
