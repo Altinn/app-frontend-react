@@ -27,19 +27,11 @@ export function SigneeListError({ error }: { error: Error }) {
         <br />
         <Lang
           id='general.customer_service_error_message'
-          params={
-            [
-              { key: 'general.customer_service_phone_number' },
-              { key: 'general.customer_service_email' },
-              { key: 'general.customer_service_slack' },
-            ]
-            // .map((it, idx) => (
-            //   <Lang
-            //     key={idx}
-            //     id={it?.toString()}
-            //   />
-            // ))
-          }
+          params={[
+            { key: 'general.customer_service_phone_number' },
+            { key: 'general.customer_service_email' },
+            { key: 'general.customer_service_slack' },
+          ]}
         />
       </div>
     );
