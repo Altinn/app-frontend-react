@@ -5,7 +5,6 @@ import {
   CardIcon,
   CheckmarkIcon,
   ChevronDownIcon,
-  ExclamationmarkIcon,
   FolderIcon,
   InformationIcon,
   PencilLineIcon,
@@ -319,11 +318,7 @@ function PageGroupSymbol({
   const showError = error && !active && !open;
   const showComplete = complete && !error && !active && !open;
 
-  const Icon = showError
-    ? ExclamationmarkIcon
-    : showComplete
-      ? CheckmarkIcon
-      : getTaskIcon(getTaskType(currentTaskId), type);
+  const Icon = showError ? XMarkIcon : showComplete ? CheckmarkIcon : getTaskIcon(getTaskType(currentTaskId), type);
 
   return (
     <div
@@ -386,7 +381,7 @@ function PageSymbol({ error, complete, active }: { error: boolean; complete: boo
   const showError = error && !active;
   const showComplete = complete && !error && !active;
 
-  const Icon = showError ? ExclamationmarkIcon : showComplete ? CheckmarkIcon : null;
+  const Icon = showError ? XMarkIcon : showComplete ? CheckmarkIcon : null;
 
   return (
     <div

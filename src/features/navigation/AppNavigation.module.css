@@ -222,7 +222,7 @@
 }
 
 .page-symbol-error {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--fds-colors-red-700);
   border-color: var(--fds-colors-red-500);
   background-color: var(--fds-colors-red-100);
