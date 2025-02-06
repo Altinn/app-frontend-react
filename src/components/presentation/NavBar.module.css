@@ -1,6 +1,6 @@
 .nav {
   max-width: var(--page-max-width);
-  padding: 0 var(--page-padding-x);
+  padding: 0 var(--nav-padding);
   margin: 0 auto;
 
   display: flex;

@@ -16,7 +16,7 @@ export function useHasGroupedNavigation() {
   return pageGroups || taskGroups.length;
 }
 
-export const SIDEBAR_BREAKPOINT = 1450;
+export const SIDEBAR_BREAKPOINT = 1341;
 
 export function useVisiblePages(order: string[]) {
   const hiddenPages = Hidden.useHiddenPages();

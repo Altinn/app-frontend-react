@@ -8,14 +8,8 @@
 
   max-width: var(--page-max-width);
   margin: 0 auto;
-  padding: 12px var(--page-padding-x);
+  padding: var(--header-padding-y) var(--header-padding-x);
   box-sizing: border-box;
-}
-
-@media only screen and (min-width: 576px) {
-  .container {
-    padding: 24px var(--page-padding-x);
-  }
 }
 
 .wrapper {
