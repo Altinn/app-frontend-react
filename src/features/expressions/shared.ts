@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 
 import type { IAttachmentsMap, UploadedAttachment } from 'src/features/attachments';
-import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
+import type { ExprPositionalArgs, ExprVal, ExprValToActualOrExpr, ExprValueArgs } from 'src/features/expressions/types';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { IRawTextResource } from 'src/features/language/textResources';
+import type { RoleResult } from 'src/features/useCurrentPartyRoles';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { IApplicationSettings, IData, IInstance, IProcess, ITask } from 'src/types/shared';
 
@@ -28,6 +29,7 @@ interface SharedTest {
     language?: string;
   };
   externalApis?: ExternalApisResult;
+  roles: RoleResult;
 }
 
 export interface SharedTestContext {
@@ -52,6 +54,8 @@ export interface FunctionTest extends SharedTest {
   expects?: unknown;
   expectsFailure?: string;
   context?: SharedTestFunctionContext;
+  positionalArguments?: ExprPositionalArgs;
+  valueArguments?: ExprValueArgs;
 }
 
 export interface LayoutPreprocessorTest {

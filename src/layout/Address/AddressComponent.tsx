@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
 
-import { HelpText } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
-
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Input } from 'src/app-components/Input/Input';
 import { Label } from 'src/app-components/Label/Label';
+import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -81,10 +80,10 @@ export function AddressComponent({ node }: IAddressProps) {
             />
           }
         >
-          <Grid
+          <Flex
             item
             id={`form-content-${id}-address`}
-            xs={12}
+            size={{ xs: 12 }}
           >
             <Input
               id={`address_address_${id}`}
@@ -97,7 +96,7 @@ export function AddressComponent({ node }: IAddressProps) {
               required={required}
               autoComplete={simplified ? 'street-address' : 'address-line1'}
             />
-          </Grid>
+          </Flex>
         </Label>
         <ComponentValidations validations={bindingValidations?.address} />
       </div>
@@ -117,10 +116,10 @@ export function AddressComponent({ node }: IAddressProps) {
               />
             }
           >
-            <Grid
+            <Flex
               item
               id={`form-content-${id}-care-of`}
-              xs={12}
+              size={{ xs: 12 }}
             >
               <Input
                 id={`address_care_of_${id}`}
@@ -133,16 +132,16 @@ export function AddressComponent({ node }: IAddressProps) {
                 autoComplete='address-line2'
               />
               <ComponentValidations validations={bindingValidations?.careOf} />
-            </Grid>
+            </Flex>
           </Label>
         </div>
       )}
 
-      <Grid
+      <Flex
         container
         spacing={6}
       >
-        <Grid
+        <Flex
           item
           className={`${classes.addressComponentZipCode} ${classes.addressComponentSmallInputs}`}
         >
@@ -159,10 +158,10 @@ export function AddressComponent({ node }: IAddressProps) {
               />
             }
           >
-            <Grid
+            <Flex
               item
               id={`form-content-${id}-zip-code`}
-              xs={12}
+              size={{ xs: 12 }}
             >
               <Input
                 id={`address_zip_code_${id}`}
@@ -177,10 +176,10 @@ export function AddressComponent({ node }: IAddressProps) {
                 autoComplete='postal-code'
               />
               <ComponentValidations validations={bindingValidations?.zipCode} />
-            </Grid>
+            </Flex>
           </Label>
-        </Grid>
-        <Grid
+        </Flex>
+        <Flex
           item
           className={classes.addressComponentPostplace}
         >
@@ -197,10 +196,10 @@ export function AddressComponent({ node }: IAddressProps) {
               />
             }
           >
-            <Grid
+            <Flex
               item
               id={`form-content-${id}-post-place`}
-              xs={12}
+              size={{ xs: 12 }}
             >
               <Input
                 id={`address_post_place_${id}`}
@@ -210,10 +209,10 @@ export function AddressComponent({ node }: IAddressProps) {
                 required={required}
                 autoComplete='address-level1'
               />
-            </Grid>
+            </Flex>
           </Label>
-        </Grid>
-      </Grid>
+        </Flex>
+      </Flex>
 
       {!simplified && (
         <div>
@@ -230,18 +229,17 @@ export function AddressComponent({ node }: IAddressProps) {
               />
             }
             help={
-              <HelpText
-                id={`address_house_number_${id}-helptext`}
-                title={`${langAsString('helptext.button_title_prefix')} ${langAsString(textResourceBindings?.houseNumberTitle ?? 'address_component.house_number')}`}
-              >
-                <Lang id='address_component.house_number_help_text_title' />
-              </HelpText>
+              <HelpTextContainer
+                id={id}
+                title={langAsString(textResourceBindings?.houseNumberTitle ?? 'address_component.house_number')}
+                helpText={<Lang id='address_component.house_number_help_text_title' />}
+              />
             }
           >
-            <Grid
+            <Flex
               item
               id={`form-content-${id}-house-number`}
-              xs={12}
+              size={{ xs: 12 }}
             >
               <div className={classes.addressComponentSmallInputs}>
                 <Input
@@ -255,7 +253,7 @@ export function AddressComponent({ node }: IAddressProps) {
                   autoComplete='address-line3'
                 />
               </div>
-            </Grid>
+            </Flex>
           </Label>
           <ComponentValidations validations={bindingValidations?.houseNumber} />
         </div>

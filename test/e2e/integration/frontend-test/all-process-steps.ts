@@ -407,6 +407,8 @@ const knownDataModels: { [key: string]: unknown } = {
       ],
     },
     ShiftingOptions: null,
+    FilteredOptions: null,
+    LinkedHidden: null,
   },
   'nested-group': {
     skjemanummer: 1603,
@@ -469,6 +471,7 @@ const knownDataModels: { [key: string]: unknown } = {
     NumPets: 0,
     HiddenPets: null,
     PetSortOrder: null,
+    PetsUseOptionComponent: null,
   },
   likert: {
     Questions: [

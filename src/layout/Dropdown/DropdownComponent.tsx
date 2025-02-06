@@ -16,6 +16,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { optionSearchFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
@@ -23,17 +24,11 @@ export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
 export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
   const item = useNodeItem(node);
   const isValid = useIsValid(node);
-  const { id, readOnly, textResourceBindings, alertOnChange, grid, required, labelSettings } = item;
+  const { id, readOnly, textResourceBindings, alertOnChange, grid, required, autocomplete } = item;
   const { langAsString, lang } = useLanguage(node);
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({
-      overrideDisplay,
-      textResourceBindings,
-      readOnly,
-      required,
-      showOptionalMarking: !!labelSettings?.optionalIndicator,
-    });
+    useLabel({ node, overrideDisplay });
 
   const { options, isFetching, selectedValues, setData } = useGetOptions(node, 'single');
   const debounce = FD.useDebounceImmediately();
@@ -90,6 +85,7 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
         <ComponentStructureWrapper node={node}>
           <Combobox
             id={id}
+            filter={optionSearchFilter}
             size='sm'
             hideLabel={true}
             value={selectedValues}
@@ -100,6 +96,8 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
             label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             className={comboboxClasses.container}
+            autoComplete={autocomplete}
+            style={{ width: '100%' }}
           >
             <Combobox.Empty>
               <Lang id='form_filler.no_options_found' />

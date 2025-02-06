@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import type { MonthCaption } from 'react-day-picker';
 
-import { Grid } from '@material-ui/core';
 import { CalendarIcon } from '@navikt/aksel-icons';
 import { isValid as isValidDate } from 'date-fns';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import styles from 'src/app-components/Datepicker/Calendar.module.css';
 import { DatePickerCalendar } from 'src/app-components/Datepicker/DatePickerCalendar';
 import { DatePickerDialog } from 'src/app-components/Datepicker/DatepickerDialog';
 import { DatePickerInput } from 'src/app-components/Datepicker/DatePickerInput';
 import { getSaveFormattedDateString } from 'src/app-components/Datepicker/utils/dateHelpers';
+import { Flex } from 'src/app-components/Flex/Flex';
 
 export type DatePickerControlProps = {
   id: string;
@@ -60,10 +60,10 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
   };
 
   return (
-    <Grid
+    <Flex
       container
       item
-      xs={12}
+      size={{ xs: 12 }}
     >
       <div className={styles.calendarInputWrapper}>
         <DatePickerInput
@@ -112,6 +112,6 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
           />
         </DatePickerDialog>
       </div>
-    </Grid>
+    </Flex>
   );
 };

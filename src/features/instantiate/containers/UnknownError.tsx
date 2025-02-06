@@ -1,14 +1,13 @@
 import React from 'react';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { InstantiationErrorPage } from 'src/features/instantiate/containers/InstantiationErrorPage';
 import { Lang } from 'src/features/language/Lang';
-import { useIsDev } from 'src/hooks/useIsDev';
+import { isDev } from 'src/utils/isDev';
 
 export function UnknownError() {
-  const isDev = useIsDev();
   const open = useDevToolsStore((s) => s.actions.open);
   const setActiveTab = useDevToolsStore((s) => s.actions.setActiveTab);
 
@@ -35,7 +34,7 @@ export function UnknownError() {
               />,
             ]}
           />
-          {isDev && (
+          {isDev() && (
             <>
               <br />
               <br />

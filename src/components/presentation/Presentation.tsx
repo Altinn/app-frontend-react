@@ -1,9 +1,9 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import Grid from '@material-ui/core/Grid';
 import cn from 'classnames';
 
+import { Flex } from 'src/app-components/Flex/Flex';
 import { LogoColor } from 'src/components/logo/AltinnLogo';
 import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPaper';
 import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
@@ -20,7 +20,7 @@ import { useLaxInstanceStatus } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
-import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
+import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
 import type { PresentationType } from 'src/types';
 
@@ -39,9 +39,7 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
   const realHeader = header || (type === ProcessTaskType.Archived ? <Lang id='receipt.receipt' /> : undefined);
 
   const isProcessStepsArchived = Boolean(type === ProcessTaskType.Archived);
-  const backgroundColor = isProcessStepsArchived
-    ? AltinnAppTheme.altinnPalette.primary.greenLight
-    : AltinnAppTheme.altinnPalette.primary.greyLight;
+  const backgroundColor = isProcessStepsArchived ? AltinnPalette.greenLight : AltinnPalette.greyLight;
   document.body.style.background = backgroundColor;
 
   return (
@@ -93,12 +91,12 @@ function ProgressBar({ type }: { type: ProcessTaskType | PresentationType }) {
   }
 
   return (
-    <Grid
+    <Flex
       item
       aria-live='polite'
     >
       <Progress />
-    </Grid>
+    </Flex>
   );
 }
 
@@ -108,3 +106,12 @@ const { Provider: PresentationProvider, useHasProvider } = createContext<undefin
 });
 
 export const useHasPresentation = () => useHasProvider();
+
+/**
+ * The loader component will check if a presentation component already exists,
+ * and if so, will not create one. In cases where we don't want to show any presentation
+ * for loaders, this can be used to prevent the loader from creating a presentation.
+ */
+export function DummyPresentation({ children }: PropsWithChildren) {
+  return <PresentationProvider value={undefined}>{children}</PresentationProvider>;
+}

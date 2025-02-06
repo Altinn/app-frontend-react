@@ -13,6 +13,19 @@ export const getPartyMock = (): IParty => ({
   childParties: undefined,
 });
 
+export const ServiceOwnerPartyId = 414234123;
+export const getServiceOwnerPartyMock = (): IParty => ({
+  partyId: ServiceOwnerPartyId,
+  name: 'Brønnøysundregistrene',
+  ssn: null,
+  partyTypeName: PartyType.Organisation,
+  orgNumber: '974760673',
+  unitType: 'BEDR',
+  isDeleted: false,
+  onlyHierarchyElementWithNoAccess: false,
+  childParties: undefined,
+});
+
 export type PartyWithSubunit = { org: IParty & { childParties: IParty[] }; person: IParty };
 export const getPartyWithSubunitMock = (): PartyWithSubunit => ({
   org: {
@@ -40,7 +53,8 @@ export const getPartyWithSubunitMock = (): PartyWithSubunit => ({
     onlyHierarchyElementWithNoAccess: false,
     childParties: [
       {
-        partyTypeName: PartyType.SubUnit,
+        partyTypeName: PartyType.Organisation,
+        unitType: 'BEDR',
         name: 'Subunit Org',
         partyId: 2,
         orgNumber: '223456789',

@@ -118,6 +118,10 @@ export function nn(): FixedLanguageList {
       zipCode: 'Postnr',
       no_options_found: 'Fann ingen treff',
       clear_selection: 'Fjern alle valde',
+      person_lookup_ssn: 'fødselsnummer',
+      person_lookup_name: 'namn',
+      organisation_lookup_orgnr: 'organisasjonsnummer',
+      organisation_lookup_name: 'organisasjonsnamn',
     },
     navigation: {
       main: 'Appnavigasjon',
@@ -316,6 +320,30 @@ export function nn(): FixedLanguageList {
         vat: 'MVA',
       },
     },
+    organisation_lookup: {
+      orgnr_label: 'Organisasjonsnummer',
+      org_name: 'Organisasjonsnamn',
+      from_registry_description: 'Frå enhetsregisteret',
+      validation_error_not_found: 'Organisasjonsnummeret er ikkje funne i registeret',
+      validation_invalid_response_from_server: 'Ugyldig respons frå server',
+      unknown_error: 'Ukjent feil. Ver venleg og prøv igjen seinare',
+      validation_error_orgnr: 'Organisasjonsnummeret er ugyldig',
+    },
+    person_lookup: {
+      ssn_label: 'Fødselsnummer',
+      surname_label: 'Etternamn',
+      name_label: 'Namn',
+      from_registry_description: 'Frå folkeregisteret',
+      validation_error_name_too_short: 'Etternamn må vere minst 2 teikn lange.',
+      validation_error_ssn: 'Fødselsnummeret/D-nummeret er ugyldig.',
+      validation_error_not_found:
+        'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. \n\nMerk: Etter 5 feilforsøk blir søkemoglegheita mellombels sperra.',
+      validation_error_too_many_requests: 'Du har gjort for mange søk. Ver venleg, prøv igjen seinare.',
+      validation_error_forbidden:
+        'Du har ikkje tilgang til å gjere dette søket. Sikkerheitsnivå 2 eller høgare er påkravd.',
+      validation_invalid_response_from_server: 'Det oppstod ein feil. Ver venleg, prøv igjen seinare.',
+      unknown_error: 'Det oppstod ein feil. Ver venleg, prøv igjen seinare.',
+    },
     helptext: {
       button_title: 'Hjelp',
       button_title_prefix: 'Hjelpetekst for',
@@ -331,7 +359,7 @@ export function nn(): FixedLanguageList {
       ref_num: 'Referansenummer',
       sender: 'Avsendar',
       subtitle: 'Kopi av kvitteringa di er sendt til ditt arkiv',
-      title: 'Skjema er sendt inn',
+      title: 'Skjemaet er sendt inn',
       title_submitted: 'Følgjande er sendt inn:',
     },
     receipt_platform: {
@@ -367,6 +395,8 @@ export function nn(): FixedLanguageList {
       enum: 'Kun verdiane {0} er tillatne',
       minItems: 'Minst {0} radar er påkrevd',
       maxItems: 'Maks {0} radar er tillatne',
+      formatMinimum: 'Minste gyldige verdi er {0}',
+      formatMaximum: 'Største gyldige verdi er {0}',
     },
     map_component: {
       selectedLocation: 'Valt lokasjon: {0}° nord, {1}° øst',

@@ -81,7 +81,8 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
   const inputProps: InputProps = {
     id,
     'aria-label': overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined,
-    'aria-describedby': textResourceBindings?.description ? getDescriptionId(id) : undefined,
+    'aria-describedby':
+      textResourceBindings?.title && textResourceBindings?.description ? getDescriptionId(id) : undefined,
     autoComplete: autocomplete,
     className: formatting?.align ? classes[`text-align-${formatting.align}`] : '',
     readOnly,
@@ -92,11 +93,11 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
     prefix: textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined,
     suffix: textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined,
     characterLimit: !readOnly ? characterLimit : undefined,
+    style: { width: '100%' },
   };
 
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting, formValue);
   const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
-
   switch (variant.type) {
     case 'search':
     case 'text':
@@ -147,6 +148,9 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
              * https://github.com/s-yadav/react-number-format/issues/349
              *  */
             event.preventDefault();
+            if (inputProps.readOnly) {
+              return;
+            }
             const pastedText = event.clipboardData.getData('Text');
             if (pastedText.indexOf(',') !== -1) {
               setValue('simpleBinding', pastedText.replace(',', '.'));
@@ -160,16 +164,10 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
 };
 
 export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, overrideDisplay }) => {
-  const { textResourceBindings, grid, id, required, readOnly, labelSettings } = useNodeItem(node);
+  const { grid, id, required } = useNodeItem(node);
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({
-      overrideDisplay,
-      textResourceBindings,
-      readOnly,
-      required,
-      showOptionalMarking: !!labelSettings?.optionalIndicator,
-    });
+    useLabel({ node, overrideDisplay });
 
   return (
     <Label

@@ -3,12 +3,13 @@ import { toast } from 'react-toastify';
 
 import { useMutation } from '@tanstack/react-query';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -17,7 +18,7 @@ import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { promisify } from 'src/utils/promisify';
-import type { ButtonColor, ButtonVariant } from 'src/app-components/button/Button';
+import type { ButtonColor, ButtonVariant } from 'src/app-components/Button/Button';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type * as CBTypes from 'src/layout/CustomButton/config.generated';
@@ -156,13 +157,14 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
   const instanceGuid = useNavigationParam('instanceGuid');
   const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
   const markNotReady = NodesInternal.useMarkNotReady();
+  const selectedLanguage = useCurrentLanguage();
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async ({ action, buttonId }: PerformActionMutationProps) => {
       if (!instanceGuid || !partyId) {
         throw Error('Cannot perform action without partyId and instanceGuid');
       }
-      return doPerformAction(partyId, instanceGuid, { action: action.id, buttonId });
+      return doPerformAction(partyId, instanceGuid, { action: action.id, buttonId }, selectedLanguage);
     },
   });
 

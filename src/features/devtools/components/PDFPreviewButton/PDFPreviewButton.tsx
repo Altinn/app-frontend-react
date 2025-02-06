@@ -3,20 +3,17 @@ import React from 'react';
 import { Fieldset } from '@digdir/designsystemet-react';
 import { FilePdfIcon } from '@navikt/aksel-icons';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { PDFGeneratorPreview } from 'src/components/PDFGeneratorPreview/PDFGeneratorPreview';
 import classes from 'src/features/devtools/components/PDFPreviewButton/PDFPreview.module.css';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
-import { useIsStudioPreview } from 'src/hooks/useIsDev';
 import { ProcessTaskType } from 'src/types';
+import { isStudioPreview } from 'src/utils/isDev';
 
 export const PDFPreviewButton = () => {
   const taskType = useTaskTypeFromBackend();
   const setPdfPreview = useDevToolsStore((state) => state.actions.setPdfPreview);
-
-  // PDF generator is not available in altinn studio preview
-  const isStudioPreview = useIsStudioPreview();
 
   return (
     <Fieldset
@@ -43,7 +40,8 @@ export const PDFPreviewButton = () => {
         />
         Forhåndsvis PDF
       </Button>
-      {!isStudioPreview && (
+      {/* PDF generator is not available in altinn studio preview */}
+      {!isStudioPreview() && (
         <PDFGeneratorPreview
           showErrorDetails={true}
           buttonTitle='Generer PDF'

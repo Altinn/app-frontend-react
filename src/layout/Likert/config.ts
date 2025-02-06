@@ -16,7 +16,7 @@ export const Config = new CG.component({
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
-    renderInAccordion: false,
+    renderInAccordion: true,
     renderInAccordionGroup: false,
     renderInCards: false,
     renderInCardsMedia: false,
@@ -88,4 +88,5 @@ export const Config = new CG.component({
         .exportAs('ILikertFilter'),
     ),
   )
+  .extends(CG.common('ILikertColumnProperties'))
   .addPlugin(new OptionsPlugin({ supportsPreselection: false, type: 'single' }));

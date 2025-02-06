@@ -1,4 +1,4 @@
-import { PANEL_VARIANT } from 'src/app-components/panel/constants';
+import { PANEL_VARIANT } from 'src/app-components/Panel/constants';
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
@@ -7,7 +7,7 @@ export const Config = new CG.component({
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
-    renderInAccordion: false,
+    renderInAccordion: true,
     renderInAccordionGroup: false,
     renderInCards: false,
     renderInCardsMedia: false,

@@ -1,3 +1,5 @@
+import type { RouteMatcher } from 'cypress/types/net-stubbing';
+
 import type { CyUser } from 'test/e2e/support/auth';
 
 import type { BackendValidationIssue, BackendValidationIssueGroupListItem } from 'src/features/validation';
@@ -22,6 +24,14 @@ export type StartAppInstanceOptions = {
   urlSuffix?: string;
 };
 
+export interface TestPdfOptions {
+  snapshotName?: string;
+  beforeReload?: () => void;
+  callback: () => void;
+  returnToForm?: boolean;
+  enableResponseFuzzing?: boolean;
+}
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
@@ -29,7 +39,7 @@ declare global {
       /**
        * Quickly go to a certain task in the app
        */
-      goto(target: FrontendTestTask): Chainable<Element>;
+      goto(target: FrontendTestTask, options?: StartAppInstanceOptions): Chainable<Element>;
 
       /**
        * In 'ttd/frontend-test' we're using a pattern of initially hidden pages to expand with new test cases.
@@ -231,7 +241,7 @@ declare global {
         options: { width: number; minHeight: number },
         reset?: boolean,
       ): Chainable<null>;
-      testPdf(snapshotName: string | false, callback: () => void, returnToForm?: boolean): Chainable<null>;
+      testPdf(options: TestPdfOptions): Chainable<null>;
       getCurrentPageId(): Chainable<string>;
 
       /**
@@ -268,9 +278,31 @@ declare global {
        * scenarios, and in those cases we don't want to fail the test if the test fails.
        */
       allowFailureOnEnd(): Chainable<null>;
+
+      /**
+       * This command uses the chrome dev tools protocol directly and has to be reset manually. Only works in chromium based browsers
+       */
+      setEmulatedMedia(media?: 'print' | 'screen'): Chainable<null>;
+      /**
+       * This command uses the chrome dev tools protocol directly and has to be reset manually. Only works in chromium based browsers
+       */
+      setCacheDisabled(cacheDisabled: boolean): Chainable<null>;
+
+      /**
+       * Enables response fuzzing for everything except documents and scripts. Returns a method to disable later.
+       * Setting enable = false does nothing, but is more convenient so you can keep the return value in scope.
+       */
+      enableResponseFuzzing(options?: ResponseFuzzingOptions): Chainable<ResponseFuzzing>;
+
+      getCurrentViewportSize(): Chainable<Size>;
     }
   }
 }
+
+export type ResponseFuzzingOptions = { enabled?: boolean; min?: number; max?: number; matchingRoutes?: RouteMatcher };
+export type ResponseFuzzing = { disable: () => void };
+
+export type Size = { width: number; height: number };
 
 export type BackendValidationResult = {
   validations: BackendValidationIssueGroupListItem[] | null;

@@ -3,7 +3,6 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { jest } from '@jest/globals';
-import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { QueryClient } from '@tanstack/react-query';
 import { act, render as rtlRender, waitFor } from '@testing-library/react';
 import dotenv from 'dotenv';
@@ -45,7 +44,6 @@ import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import { PageNavigationRouter } from 'src/test/routerUtils';
-import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { useNode, useNodes } from 'src/utils/layout/NodesContext';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
@@ -75,6 +73,7 @@ interface InstanceRouterProps {
   taskId?: string;
   instanceId?: string;
   alwaysRouteToChildren?: boolean;
+  query?: string;
 }
 
 interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, InstanceRouterProps {}
@@ -246,11 +245,13 @@ export function InstanceRouter({
   taskId = 'Task_1',
   initialPage = 'FormLayout',
   alwaysRouteToChildren = false,
+  query,
 }: PropsWithChildren<InstanceRouterProps>) {
+  const path = `/ttd/test/instance/${instanceId}/${taskId}/${initialPage}`;
   return (
     <MemoryRouter
       basename='/ttd/test'
-      initialEntries={[`/ttd/test/instance/${instanceId}/${taskId}/${initialPage}`]}
+      initialEntries={[query ? `${path}?${query}` : path]}
     >
       <Routes>
         <Route
@@ -277,7 +278,6 @@ interface ProvidersProps extends PropsWithChildren {
 }
 
 function DefaultProviders({ children, queries, queryClient, Router = DefaultRouter }: ProvidersProps) {
-  const theme = createTheme(AltinnAppTheme);
   return (
     <AppQueriesProvider
       {...queries}
@@ -287,33 +287,31 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
         <DataLoadingProvider>
           <TaskStoreProvider>
             <LangToolsStoreProvider>
-              <MuiThemeProvider theme={theme}>
-                <UiConfigProvider>
-                  <PageNavigationProvider>
-                    <Router>
-                      <AppRoutingProvider>
-                        <ApplicationMetadataProvider>
-                          <GlobalFormDataReadersProvider>
-                            <OrgsProvider>
-                              <ApplicationSettingsProvider>
-                                <LayoutSetsProvider>
-                                  <ProfileProvider>
-                                    <PartyProvider>
-                                      <TextResourcesProvider>
-                                        <InstantiationProvider>{children}</InstantiationProvider>
-                                      </TextResourcesProvider>
-                                    </PartyProvider>
-                                  </ProfileProvider>
-                                </LayoutSetsProvider>
-                              </ApplicationSettingsProvider>
-                            </OrgsProvider>
-                          </GlobalFormDataReadersProvider>
-                        </ApplicationMetadataProvider>
-                      </AppRoutingProvider>
-                    </Router>
-                  </PageNavigationProvider>
-                </UiConfigProvider>
-              </MuiThemeProvider>
+              <UiConfigProvider>
+                <PageNavigationProvider>
+                  <Router>
+                    <AppRoutingProvider>
+                      <ApplicationMetadataProvider>
+                        <GlobalFormDataReadersProvider>
+                          <OrgsProvider>
+                            <ApplicationSettingsProvider>
+                              <LayoutSetsProvider>
+                                <ProfileProvider>
+                                  <PartyProvider>
+                                    <TextResourcesProvider>
+                                      <InstantiationProvider>{children}</InstantiationProvider>
+                                    </TextResourcesProvider>
+                                  </PartyProvider>
+                                </ProfileProvider>
+                              </LayoutSetsProvider>
+                            </ApplicationSettingsProvider>
+                          </OrgsProvider>
+                        </GlobalFormDataReadersProvider>
+                      </ApplicationMetadataProvider>
+                    </AppRoutingProvider>
+                  </Router>
+                </PageNavigationProvider>
+              </UiConfigProvider>
             </LangToolsStoreProvider>
           </TaskStoreProvider>
         </DataLoadingProvider>

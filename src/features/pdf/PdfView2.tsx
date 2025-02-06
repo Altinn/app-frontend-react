@@ -2,10 +2,11 @@ import React, { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
-import { Grid } from '@material-ui/core';
 
+import { Flex } from 'src/app-components/Flex/Flex';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
+import { DummyPresentation } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { DataLoadingState, useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
@@ -53,31 +54,33 @@ export const PDFView2 = () => {
   }
 
   return (
-    <DataLoaderStoreInit>
-      <PdfWrapping>
-        <div className={classes.instanceInfo}>
-          <InstanceInformation
-            elements={{
-              dateSent: true,
-              sender: true,
-              receiver: true,
-              referenceNumber: true,
-            }}
-          />
-        </div>
-        {order
-          ?.filter((pageKey) => !isHiddenPage(pageKey))
-          .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
-          .map((pageKey) => (
-            <PdfForPage
-              key={pageKey}
-              pageKey={pageKey}
-              pdfSettings={pdfSettings}
+    <DummyPresentation>
+      <DataLoaderStoreInit>
+        <PdfWrapping>
+          <div className={classes.instanceInfo}>
+            <InstanceInformation
+              elements={{
+                dateSent: true,
+                sender: true,
+                receiver: true,
+                referenceNumber: true,
+              }}
             />
-          ))}
-        <SubformSummaryComponent2 />
-      </PdfWrapping>
-    </DataLoaderStoreInit>
+          </div>
+          {order
+            ?.filter((pageKey) => !isHiddenPage(pageKey))
+            .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
+            .map((pageKey) => (
+              <PdfForPage
+                key={pageKey}
+                pageKey={pageKey}
+                pdfSettings={pdfSettings}
+              />
+            ))}
+          <SubformSummaryComponent2 />
+        </PdfWrapping>
+      </DataLoaderStoreInit>
+    </DummyPresentation>
   );
 };
 
@@ -194,8 +197,8 @@ function PlainPage({ pageKey }: { pageKey: string }) {
 
   return (
     <div className={classes.page}>
-      <Grid
-        container={true}
+      <Flex
+        container
         spacing={6}
         alignItems='flex-start'
       >
@@ -205,7 +208,7 @@ function PlainPage({ pageKey }: { pageKey: string }) {
             node={node}
           />
         ))}
-      </Grid>
+      </Flex>
     </div>
   );
 }
@@ -229,8 +232,8 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
 
   return (
     <div className={classes.page}>
-      <Grid
-        container={true}
+      <Flex
+        container
         spacing={6}
         alignItems='flex-start'
       >
@@ -240,7 +243,7 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
             node={node}
           />
         ))}
-      </Grid>
+      </Flex>
     </div>
   );
 }

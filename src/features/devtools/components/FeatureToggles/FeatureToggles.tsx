@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 
 import { Checkbox, Heading, Label, Paragraph } from '@digdir/designsystemet-react';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import classes from 'src/features/devtools/components/FeatureToggles/FeatureToggles.module.css';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
 import { getAugmentedFeatures } from 'src/features/toggles';
@@ -42,7 +42,7 @@ export function FeatureToggles() {
       <div className={classes.list}>
         {featureToggles?.length ? (
           featureToggles.map(({ title, defaultValue, description, key, value, source, links }) => (
-            <>
+            <React.Fragment key={key}>
               <div
                 key={`${key}-checkbox`}
                 className={classes.itemCheckbox}
@@ -93,7 +93,7 @@ export function FeatureToggles() {
                   )}
                 </Paragraph>
               </label>
-            </>
+            </React.Fragment>
           ))
         ) : (
           <p style={{ gridColumn: 'span 2' }}>Ingen beta-funksjoner er tilgjengelig</p>

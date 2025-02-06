@@ -8,7 +8,7 @@ import {
   XMarkOctagonFillIcon,
 } from '@navikt/aksel-icons';
 
-import { Button } from 'src/app-components/button/Button';
+import { Button } from 'src/app-components/Button/Button';
 import { Input } from 'src/app-components/Input/Input';
 import classes from 'src/features/devtools/components/DevToolsLogs/DevToolsLogs.module.css';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
@@ -121,7 +121,7 @@ export const DevToolsLogs = () => {
                 const urlRegex = /(https?:\/\/[^\s]+)/g;
                 const split = line.split(urlRegex);
                 return (
-                  <>
+                  <React.Fragment key={line}>
                     {split.map((part, index) => {
                       if (part.match(urlRegex)) {
                         return (
@@ -138,7 +138,7 @@ export const DevToolsLogs = () => {
                       return part;
                     })}
                     <br />
-                  </>
+                  </React.Fragment>
                 );
               })}
             </pre>

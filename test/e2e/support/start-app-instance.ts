@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import escapeRegex from 'escape-string-regexp';
+import type { SinonSpy } from 'cypress/types/sinon';
 
 import { cyUserCredentials } from 'test/e2e/support/auth';
 import type { CyUser } from 'test/e2e/support/auth';
@@ -82,9 +83,22 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
   const visitOptions = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onBeforeLoad: (win: any) => {
-      cy.spy(win.console, 'log').as('console.log');
-      cy.spy(win.console, 'warn').as('console.warn');
-      cy.spy(win.console, 'error').as('console.error');
+      const wrap =
+        (name: string, spy: SinonSpy) =>
+        (...args: unknown[]) => {
+          Cypress.log({
+            name,
+            message: args.join(' '),
+          });
+          spy(...args);
+        };
+
+      // These have all been spied on by cypress-fail-on-console-error, so we wrap them and log to Cypress.log()
+      // before the spy is called. This way, we can see the log message in the Cypress test runner output before
+      // they potentially fail the test.
+      win.console.log = wrap('console.log', win.console.log);
+      win.console.warn = wrap('console.warn', win.console.warn);
+      win.console.error = wrap('console.error', win.console.error);
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onLoad: (win: any) => {
@@ -105,16 +119,8 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
   if (Cypress.env('responseFuzzing') === 'on') {
     const [min, max] = [10, 1000];
     cy.log(`Response fuzzing on, will delay responses randomly between ${min}ms and ${max}ms`);
-
-    const rand = () => Math.floor(Math.random() * (max - min + 1) + min);
-
-    const randomDelays = (req) => {
-      req.on('response', (res) => {
-        res.setDelay(rand());
-      });
-    };
-    cy.intercept('**/api/**', randomDelays);
-    cy.intercept('**/instances/**', randomDelays);
+    cy.enableResponseFuzzing({ min, max, matchingRoutes: '**/api/**' });
+    cy.enableResponseFuzzing({ min, max, matchingRoutes: '**/instances/**' });
   } else {
     cy.log(`Response fuzzing off, enable with --env responseFuzzing=on`);
   }
@@ -150,6 +156,7 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
 
   user && login(user, authenticationLevel);
   !user && cy.clearCookies();
+
   cy.visit(targetUrlRaw, visitOptions);
 
   if (evaluateBefore) {
