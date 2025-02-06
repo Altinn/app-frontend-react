@@ -366,9 +366,13 @@ export function nb(): FixedLanguageList {
       no_action_required_panel_description_not_signed: 'Du har ikke tilgang til å signere dette skjemaet.',
       no_action_required_button: 'Gå til innboksen',
 
-      error_panel_title: 'Feil i skjema',
-      error_panel_description:
-        'En av signatarene er ugyldige og har dermed ikke fått tilgang til skjemaet. Vennligst gå tilbake for å rette opp feilen.',
+      api_error_panel_title: 'Feil ved henting av status',
+      api_error_panel_description:
+        'En feil oppstod under henting av status. Prøv igjen senere eller kontakt skjemaeier for å rette opp feilen.',
+
+      delegation_error_panel_title: 'Feil i skjema',
+      delegation_error_panel_description:
+        'En eller flere av signatarene er ugyldige og har ikke fått tilgang til skjemaet. Gå tilbake for å prøve å rette opp feilen eller kontakt skjemaeier.',
 
       reject_modal_title: 'Avbryt signeringsprosessen',
       reject_modal_description:

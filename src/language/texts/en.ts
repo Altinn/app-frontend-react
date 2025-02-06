@@ -366,9 +366,13 @@ export function en() {
       no_action_required_panel_description_not_signed: 'You do not have access to sign this form.',
       no_action_required_button: 'Go to inbox',
 
-      error_panel_title: 'Form error',
-      error_panel_description:
-        'One of the signees is invalid and therefore has not been granted access to the form. Please go back to correct the error.',
+      api_error_panel_title: 'Error fetching status',
+      api_error_panel_description:
+        'An error occurred while fetching the status. Please try again later or contact the form owner to fix the issue.',
+
+      delegation_error_panel_title: 'Form error',
+      delegation_error_panel_description:
+        'One or more of the signees is invalid and has not been granted access to the form. Go back to try to fix the issue or contact the form owner.',
 
       reject_modal_title: 'Cancel the signing process',
       reject_modal_description:

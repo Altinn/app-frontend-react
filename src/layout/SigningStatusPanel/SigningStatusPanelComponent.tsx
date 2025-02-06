@@ -6,14 +6,15 @@ import { useQuery } from '@tanstack/react-query';
 
 import { Panel } from 'src/app-components/Panel/Panel';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
 import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningStatusPanel/PanelAwaitingOtherSignatures';
-import { PanelError } from 'src/layout/SigningStatusPanel/PanelError';
 import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/PanelNoActionRequired';
+import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import { SubmitPanel } from 'src/layout/SigningStatusPanel/PanelSubmit';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -23,7 +24,7 @@ const MissingSignaturesErrorCode = 'MissingSignatures' as const;
 
 export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<'SigningStatusPanel'>) {
   const { partyId, instanceGuid, taskId } = useParams();
-  const { data: signeeList, isLoading } = useQuery(signeeListQuery(partyId, instanceGuid, taskId));
+  const { data: signeeList, isLoading, error } = useQuery(signeeListQuery(partyId, instanceGuid, taskId));
   const currentUserPartyId = useCurrentParty()?.partyId;
   const { langAsString } = useLanguage();
 
@@ -58,9 +59,27 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     );
   }
 
-  const hasDelegationError = signeeList?.some((signee) => !signee.delegationSuccessful);
+  if (error) {
+    return (
+      <SigningPanel
+        node={node}
+        heading={<Lang id='signing.api_error_panel_title' />}
+        description={<Lang id='signing.api_error_panel_description' />}
+        variant='error'
+      />
+    );
+  }
+
+  const hasDelegationError = signeeList?.some((signee) => !signee.delegationSuccessful && !signee.hasSigned);
   if (hasDelegationError) {
-    return <PanelError node={node} />;
+    return (
+      <SigningPanel
+        node={node}
+        heading={<Lang id='signing.delegation_error_panel_title' />}
+        description={<Lang id='signing.delegation_error_panel_description' />}
+        variant='error'
+      />
+    );
   }
 
   if (currentUserStatus === 'awaitingSignature') {
