@@ -42,8 +42,8 @@ export class List extends ListDef {
     return '';
   }
 
-  renderSummary({ targetNode }: SummaryRendererProps<'List'>): JSX.Element | null {
-    const displayData = this.useDisplayData(targetNode);
+  renderSummary(props: SummaryRendererProps<'List'>): JSX.Element | null {
+    const displayData = this.useDisplayData(props.targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
@@ -112,15 +112,40 @@ export class List extends ListDef {
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
     const errors: string[] = [];
+    const allowedTypes = ['string', 'boolean', 'number'];
+    if (!ctx.item.dataModelBindings?.saveToList) {
+      for (const [binding] of Object.entries(ctx.item.dataModelBindings ?? {})) {
+        const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedTypes, false);
+        errors.push(...(newErrors || []));
+      }
+    }
 
-    for (const binding of Object.keys(ctx.item.dataModelBindings ?? {})) {
-      const [newErrors] = this.validateDataModelBindingsAny(
-        ctx,
-        binding,
-        ['string', 'number', 'integer', 'boolean'],
-        false,
-      );
+    const [newErrors] = this.validateDataModelBindingsAny(ctx, 'saveToList', ['array']);
+    if (newErrors) {
       errors.push(...(newErrors || []));
+    }
+
+    if (ctx.item.dataModelBindings?.saveToList) {
+      const saveToListBinding = ctx.lookupBinding(ctx.item?.dataModelBindings?.saveToList);
+      const items = saveToListBinding[0]?.items;
+      const properties =
+        items && !Array.isArray(items) && typeof items === 'object' && 'properties' in items
+          ? items.properties
+          : undefined;
+
+      for (const [binding] of Object.entries(ctx.item.dataModelBindings ?? {})) {
+        let selectedBinding;
+        if (properties) {
+          selectedBinding = properties[binding];
+        }
+        if (binding !== 'saveToList' && items && typeof items === 'object' && 'properties' in items) {
+          if (!selectedBinding) {
+            errors.push(`saveToList must contain a field with the same name as the field ${binding}`);
+          } else if (!allowedTypes.includes(selectedBinding.type)) {
+            errors.push(`Field ${binding} in saveToList must be of type string, number or boolean`);
+          }
+        }
+      }
     }
 
     return errors;
