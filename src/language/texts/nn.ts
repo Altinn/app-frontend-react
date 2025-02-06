@@ -372,13 +372,13 @@ export function nn(): FixedLanguageList {
       reject_modal_button: 'Avbryt signeringsprosessen',
       reject_modal_trigger_button: 'Avbryt signering',
 
-      api_error_panel_title: 'Feil ved henting av status',
+      api_error_panel_title: 'Klarte ikkje hente signeringsstatus',
       api_error_panel_description:
-        'Det oppstod ein feil under henting av status. Prøv igjen seinare eller kontakt skjemaeigaren for å rette feilen.',
+        'Ein feil oppstod under henting av status for signaturar. Prøv igjen seinare eller kontakt skjemaeigar for å rette opp feilen.',
 
-      delegation_error_panel_title: 'Feil i skjema',
+      delegation_error_panel_title: 'Klarte ikkje gi tilgang til skjema',
       delegation_error_panel_description:
-        'Ein eller fleire av signatarane er ugyldig og har ikkje fått tilgang til skjemaet. Gå tilbake for å prøve å rette feilen eller kontakt skjemaeigaren.',
+        'Ein eller fleire av signatarane er ugyldige og har ikkje fått tilgang til skjemaet. Gå tilbake for å prøve å rette opp feilen eller kontakt skjemaeigar.',
 
       wrong_task_error: '{0}-komponenten er berre tilgjengeleg i eit signeringssteg.',
       error_missing_signing_rights:

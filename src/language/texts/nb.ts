@@ -366,11 +366,11 @@ export function nb(): FixedLanguageList {
       no_action_required_panel_description_not_signed: 'Du har ikke tilgang til å signere dette skjemaet.',
       no_action_required_button: 'Gå til innboksen',
 
-      api_error_panel_title: 'Feil ved henting av status',
+      api_error_panel_title: 'Kunne ikke hente signeringsstatus',
       api_error_panel_description:
-        'En feil oppstod under henting av status. Prøv igjen senere eller kontakt skjemaeier for å rette opp feilen.',
+        'En feil oppstod under henting av status for signaturer. Prøv igjen senere eller kontakt skjemaeier for å rette opp feilen.',
 
-      delegation_error_panel_title: 'Feil i skjema',
+      delegation_error_panel_title: 'Kunne ikke gi tilgang til skjema',
       delegation_error_panel_description:
         'En eller flere av signatarene er ugyldige og har ikke fått tilgang til skjemaet. Gå tilbake for å prøve å rette opp feilen eller kontakt skjemaeier.',
 
