@@ -5,13 +5,13 @@
     [
       "stringSlice",
       ["dataModel", "string"],
-      0,
+      ["stringIndexOf", ["dataModel", "string"], "Hello"],
       ["stringIndexOf", ["dataModel", "string"], "world"]
     ],
     "expressions!"
   ],
   "expects": "Hello, expressions!",
   "dataModel": {
-    "string": "Hello, world!"
+    "string": "message: Hello, world!"
   }
 }

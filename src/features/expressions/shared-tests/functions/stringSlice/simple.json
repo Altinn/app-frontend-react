@@ -1,5 +1,5 @@
 {
   "name": "Should slice a simple string",
-  "expression": ["stringSlice", "hello", 1, 3],
+  "expression": ["stringSlice", "hello", 1, 4],
   "expects": "ell"
 }

@@ -520,7 +520,7 @@
     },
     "func-stringSlice": {
       "title": "String slice function",
-      "description": "This function returns a substring of a string",
+      "description": "This function returns a substring of a string (from start index to end index, can be negative)",
       "type": "array",
       "items": [
         { "const":  "stringSlice" },
@@ -532,7 +532,7 @@
     },
     "func-stringIndexOf": {
       "title": "String index of function",
-      "description": "This function returns the index of the first occurrence of a substring in a string",
+      "description": "This function returns the index of the first occurrence of a substring in a string. If none is found, null is returned.",
       "type": "array",
       "items": [
         { "const":  "stringIndexOf" },

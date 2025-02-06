@@ -617,29 +617,19 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     return string.replace(new RegExp(escapeStringRegexp(search), 'g'), replace);
   },
   stringLength: (string) => (string === null ? 0 : string.length),
-  stringSlice(string, start, length) {
-    if (start === null) {
+  stringSlice(string, start, end) {
+    if (start === null || end === null) {
       throw new ExprRuntimeError(
         this.expr,
         this.path,
-        `Start index cannot be null (if you used an expression like stringIndexOf here, make sure to guard against null)`,
+        `Start/end index cannot be null (if you used an expression like stringIndexOf here, make sure to guard against null)`,
       );
     }
     if (string === null) {
       return null;
     }
-    if (start < 0) {
-      throw new ExprRuntimeError(this.expr, this.path, `Start index cannot be negative`);
-    }
-    if (length !== null && length !== undefined && length < 0) {
-      throw new ExprRuntimeError(this.expr, this.path, `Length cannot be negative`);
-    }
 
-    if (length === null || length === undefined) {
-      return string.substring(start);
-    }
-
-    return string.substring(start, start + length);
+    return string.slice(start, end);
   },
   stringIndexOf(string, search) {
     if (!string || !search) {

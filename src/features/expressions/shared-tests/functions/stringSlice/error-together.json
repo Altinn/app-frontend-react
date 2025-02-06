@@ -9,7 +9,7 @@
     ],
     "expressions!"
   ],
-  "expectsFailure": "Start index cannot be null",
+  "expectsFailure": "Start/end index cannot be null",
   "dataModel": {
     "string": "Hello, world!"
   }

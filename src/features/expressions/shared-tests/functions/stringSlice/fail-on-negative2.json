@@ -1,5 +1,0 @@
-{
-  "name": "Should fail when given a negative start index",
-  "expression": ["stringSlice", "hello", -1],
-  "expectsFailure": "Start index cannot be negative"
-}
