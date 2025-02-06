@@ -68,7 +68,8 @@ export const Pagination = ({
     <>
       {showRowsPerPageDropdown && !isMobile && (
         <Combobox
-          id='rowsPerPageDropdown'
+          id='paginationRowsPerPageDropdown'
+          data-testid='paginationRowsPerPageDropdown'
           filter={optionSearchFilter}
           size='sm'
           value={[pageSize.toString()]}
@@ -95,6 +96,7 @@ export const Pagination = ({
         </Combobox>
       )}
       <DesignSystemPagination.Root
+        data-testid='pagination'
         aria-label='Pagination'
         size={size}
         compact={compact || isMini || isTablet}
@@ -103,6 +105,7 @@ export const Pagination = ({
         <DesignSystemPagination.Content>
           <DesignSystemPagination.Item>
             <DesignSystemPagination.Previous
+              data-testid='paginationPreviousButton'
               className={!showPreviousPage ? classes.hidden : undefined}
               onClick={() => {
                 onChange(currentPage - 1);
@@ -137,6 +140,7 @@ export const Pagination = ({
           ))}
           <DesignSystemPagination.Item>
             <DesignSystemPagination.Next
+              data-testid='paginationNextButton'
               aria-label={nextLabelAriaLabel}
               onClick={() => {
                 onChange(currentPage + 1);
