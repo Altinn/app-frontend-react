@@ -61,7 +61,6 @@ describe('List component', () => {
 
     cy.get(dataListPage.listComponent).get(dataListPage.selectComponent).should('have.value', '5');
     cy.get(dataListPage.listComponent).get(dataListPage.tableBody).find('tr').its('length').should('eq', 5);
-    //cy.get(dataListPage.listComponent).get(dataListPage.selectComponent).select('10');
     cy.get(dataListPage.listComponent).get(dataListPage.selectComponent).click();
     cy.findByRole('option', { name: '10' }).click();
     cy.get(dataListPage.listComponent).get(dataListPage.selectComponent).should('have.value', 10);
