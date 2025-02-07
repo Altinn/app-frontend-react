@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { Panel } from 'src/app-components/Panel/Panel';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
@@ -13,6 +14,7 @@ import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
 import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningStatusPanel/PanelAwaitingOtherSignatures';
 import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/PanelNoActionRequired';
+import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import { SubmitPanel } from 'src/layout/SigningStatusPanel/PanelSubmit';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -22,9 +24,14 @@ const MissingSignaturesErrorCode = 'MissingSignatures' as const;
 
 export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<'SigningStatusPanel'>) {
   const { partyId, instanceGuid, taskId } = useParams();
-  const { data: signeeList, isLoading } = useQuery(signeeListQuery(partyId, instanceGuid, taskId));
+  const { data: signeeList, isLoading, error } = useQuery(signeeListQuery(partyId, instanceGuid, taskId));
   const currentUserPartyId = useCurrentParty()?.partyId;
-  const canSign = useIsAuthorised()('sign');
+  const { langAsString } = useLanguage();
+
+  const isAuthorised = useIsAuthorised();
+  const canSign = isAuthorised('sign');
+  const canWrite = isAuthorised('write');
+
   const currentUserStatus = getCurrentUserStatus(signeeList, currentUserPartyId, canSign);
   const hasSigned = currentUserStatus === 'signed';
 
@@ -38,8 +45,6 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   useEffect(() => {
     refetchBackendValidations();
   }, [refetchBackendValidations, signeeList]);
-  const canWrite = useIsAuthorised()('write');
-  const { langAsString } = useLanguage();
 
   if (isLoading) {
     return (
@@ -51,6 +56,29 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
           <Spinner title={langAsString('signing.loading')} />
         </div>
       </Panel>
+    );
+  }
+
+  if (error) {
+    return (
+      <SigningPanel
+        node={node}
+        heading={<Lang id='signing.api_error_panel_title' />}
+        description={<Lang id='signing.api_error_panel_description' />}
+        variant='error'
+      />
+    );
+  }
+
+  const hasDelegationError = signeeList?.some((signee) => !signee.delegationSuccessful && !signee.hasSigned);
+  if (hasDelegationError) {
+    return (
+      <SigningPanel
+        node={node}
+        heading={<Lang id='signing.delegation_error_panel_title' />}
+        description={<Lang id='signing.delegation_error_panel_description' />}
+        variant='error'
+      />
     );
   }
 
