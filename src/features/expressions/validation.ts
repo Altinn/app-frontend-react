@@ -7,7 +7,7 @@ import { prettyErrors } from 'src/features/expressions/prettyErrors';
 import { ExprVal } from 'src/features/expressions/types';
 import type { AnyExprArg, Expression, ExprFunctionName, ExprValToActualOrExpr } from 'src/features/expressions/types';
 
-enum ValidationErrorMessage {
+export enum ValidationErrorMessage {
   InvalidType = 'Invalid type "%s"',
   FuncNotImpl = 'Function "%s" not implemented',
   ArgUnexpected = 'Unexpected argument',
@@ -61,14 +61,22 @@ function validateFunctionArg(
     addError(ctx, [...path, `[${idx + 1}]`], ValidationErrorMessage.ArgUnexpected);
   } else {
     const targetType = ExprTypes[expectedType];
+    const expectedTypeReadable = expectedType.replaceAll('_', '');
 
     if (actualType === undefined) {
       if (targetType.nullable) {
         return;
       }
-      addError(ctx, [...path, `[${idx + 1}]`], ValidationErrorMessage.ArgWrongType, expectedType, 'null');
+      addError(ctx, [...path, `[${idx + 1}]`], ValidationErrorMessage.ArgWrongType, expectedTypeReadable, 'null');
     } else if (!targetType.accepts.includes(actualType)) {
-      addError(ctx, [...path, `[${idx + 1}]`], ValidationErrorMessage.ArgWrongType, expectedType, 'null');
+      const actualTypeReadable = actualType.replaceAll('_', '');
+      addError(
+        ctx,
+        [...path, `[${idx + 1}]`],
+        ValidationErrorMessage.ArgWrongType,
+        expectedTypeReadable,
+        actualTypeReadable,
+      );
     }
   }
 }

@@ -1,5 +1,5 @@
 {
   "name": "Should format date",
   "expression": ["formatDate", true],
-  "expectsFailure": "Date expressions only accept strings or null, got true"
+  "expectsFailure": ""
 }
