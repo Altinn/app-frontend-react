@@ -1,8 +1,5 @@
 import { matchPath } from 'react-router-dom';
 
-import { useQuery } from '@tanstack/react-query';
-import type { UseQueryResult } from '@tanstack/react-query';
-
 import { usePrefetchQuery } from 'src/core/queries/usePrefetchQuery';
 import { getApplicationMetadataQueryDef } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useApplicationSettingsQueryDef } from 'src/features/applicationSettings/ApplicationSettingsProvider';
@@ -12,14 +9,6 @@ import { getProcessQueryDef } from 'src/features/instance/ProcessContext';
 import { useOrgsQueryDef } from 'src/features/orgs/OrgsProvider';
 import { useCurrentPartyQueryDef, usePartiesQueryDef } from 'src/features/party/PartiesProvider';
 import { useProfileQueryDef } from 'src/features/profile/ProfileProvider';
-import { fetchInitialStateUrl } from 'src/next/App';
-import type { InitialState } from 'src/next/types/InitialState';
-
-export const useInitialStateQuery = (): UseQueryResult<InitialState, Error> =>
-  useQuery<InitialState, Error>({
-    queryKey: ['initialState'],
-    queryFn: fetchInitialStateUrl,
-  });
 
 /**
  * Prefetches requests that require no processed data to determine the url
@@ -41,11 +30,6 @@ export function AppPrefetcher() {
 
   usePrefetchQuery(useInstanceDataQueryDef(false, partyId, instanceGuid));
   usePrefetchQuery(getProcessQueryDef(instanceId));
-
-  usePrefetchQuery({
-    queryKey: ['initialState'],
-    queryFn: fetchInitialStateUrl,
-  });
 
   return null;
 }

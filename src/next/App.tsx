@@ -12,7 +12,7 @@ import type { InitialState } from 'src/next/types/InitialState';
 
 export const fetchInitialStateUrl = () => httpGet<InitialState>(initialStateUrl);
 
-export const useApplicationMetadata = (): UseQueryResult<InitialState, Error> =>
+export const useInitialdata = (): UseQueryResult<InitialState, Error> =>
   useQuery<InitialState, Error>({
     queryKey: ['initialState'],
     queryFn: fetchInitialStateUrl,
@@ -29,7 +29,7 @@ export const App = () => (
 );
 
 const AppRoutes = () => {
-  const { data, isLoading, error } = useApplicationMetadata();
+  const { data, isLoading, error } = useInitialdata();
 
   if (isLoading) {
     return <div>Loading metadata...</div>;

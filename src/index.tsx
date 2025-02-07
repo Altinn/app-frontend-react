@@ -36,6 +36,7 @@ import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { propagateTraceWhenPdf } from 'src/features/propagateTraceWhenPdf';
 import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
+import { useInitialdata } from 'src/next/App';
 import { AppPrefetcher } from 'src/queries/appPrefetcher';
 import { PartyPrefetcher } from 'src/queries/partyPrefetcher';
 import * as queries from 'src/queries/queries';
@@ -64,20 +65,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const root = container && createRoot(container);
   root?.render(
     <AppQueriesProvider {...queries}>
-      <AppPrefetcher />
-      <ErrorBoundary>
-        <AppWrapper>
-          <LanguageProvider>
-            <LangToolsStoreProvider>
-              <ViewportWrapper>
-                <UiConfigProvider>
-                  <RouterProvider router={router} />
-                </UiConfigProvider>
-              </ViewportWrapper>
-            </LangToolsStoreProvider>
-          </LanguageProvider>
-        </AppWrapper>
-      </ErrorBoundary>
+      <LoadInitialDate>
+        <AppPrefetcher />
+        <ErrorBoundary>
+          <AppWrapper>
+            <LanguageProvider>
+              <LangToolsStoreProvider>
+                <ViewportWrapper>
+                  <UiConfigProvider>
+                    <RouterProvider router={router} />
+                  </UiConfigProvider>
+                </ViewportWrapper>
+              </LangToolsStoreProvider>
+            </LanguageProvider>
+          </AppWrapper>
+        </ErrorBoundary>
+      </LoadInitialDate>
     </AppQueriesProvider>,
   );
 });
@@ -120,4 +123,18 @@ function Root() {
       </TaskStoreProvider>
     </InstantiationProvider>
   );
+}
+
+function LoadInitialDate({ children }: React.PropsWithChildren) {
+  const { data, isLoading, error } = useInitialdata();
+
+  if (isLoading) {
+    return <div>Loading metadata...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading application metadata.</div>;
+  }
+
+  return children;
 }

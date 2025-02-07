@@ -22,7 +22,7 @@ export interface IncomingApplicationMetadata {
   logo?: ILogoOptions;
 }
 
-export type ApplicationMetadata = Omit<IncomingApplicationMetadata, 'onEntry' | 'logo'> & {
+export type ApplicationMetadata = Omit<IncomingApplicationMetadata, 'onEntry'> & {
   onEntry: IOnEntry;
   isValidVersion: boolean;
   isStatelessApp: boolean;
