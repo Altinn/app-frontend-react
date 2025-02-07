@@ -5,6 +5,9 @@
 .expanded {
   --page-max-width: none;
   --page-padding-x: 24px;
+  --header-padding-x: var(--page-padding-x);
+  --nav-padding: var(--page-padding-x);
+  --footer-padding: var(--page-padding-x);
 }
 
 .page {
