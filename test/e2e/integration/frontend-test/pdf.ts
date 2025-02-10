@@ -14,6 +14,7 @@ describe('PDF', () => {
 
     cy.testPdf({
       snapshotName: 'message',
+      enableResponseFuzzing: true,
       callback: () => {
         cy.findByRole('heading', { level: 1, name: /frontend-test/i }).should('be.visible');
         cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
@@ -84,8 +85,7 @@ describe('PDF', () => {
       {}, // intercept this every time
     );
 
-    // Add a delay to simulate slow loading map tiles
-    cy.intercept('GET', '/map-tile/**', { delay: 50, fixture: 'map-tile.png' });
+    cy.intercept('GET', '/map-tile/**', { fixture: 'map-tile.png' });
 
     cy.goto('changename');
 
@@ -109,6 +109,7 @@ describe('PDF', () => {
     cy.testPdf({
       snapshotName: 'changeName 1',
       returnToForm: true,
+      enableResponseFuzzing: true,
       callback: () => {
         cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
         cy.getSummary('Nytt fornavn').should('contain.text', 'Ola');
@@ -151,6 +152,7 @@ describe('PDF', () => {
 
     cy.testPdf({
       snapshotName: 'changeName 2',
+      enableResponseFuzzing: true,
       callback: () => {
         cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
         cy.getSummary('Nytt fornavn').should('contain.text', 'Ola');
@@ -206,6 +208,7 @@ describe('PDF', () => {
 
     cy.testPdf({
       snapshotName: 'group',
+      enableResponseFuzzing: true,
       callback: () => {
         cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
 
@@ -236,6 +239,7 @@ describe('PDF', () => {
 
     cy.testPdf({
       snapshotName: 'likert',
+      enableResponseFuzzing: true,
       callback: () => {
         cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
 
@@ -261,6 +265,7 @@ describe('PDF', () => {
 
     cy.testPdf({
       snapshotName: 'datalist',
+      enableResponseFuzzing: true,
       callback: () => {
         cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
         cy.getSummary('Hvem gjelder saken?').should('contain.text', 'Caroline');
