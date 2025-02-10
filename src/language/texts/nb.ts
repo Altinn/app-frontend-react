@@ -334,7 +334,7 @@ export function nb(): FixedLanguageList {
       surname_label: 'Etternavn',
       name_label: 'Navn',
       from_registry_description: 'Fra folkeregisteret',
-      validation_error_name_too_short: 'Etternavn må være minst 2 tegn langt',
+      validation_error_name_too_short: 'Etternavn kan ikke være tomt.',
       validation_error_ssn: 'Fødselsnummeret/D-nummeret er ugyldig.',
       validation_error_not_found:
         'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og navn. Vennligst kontroller feltene og prøv igjen. \n\nMerk: Etter 5 feilforsøk blir søkemuligheten midlertidig sperret.',
@@ -408,11 +408,10 @@ export function nb(): FixedLanguageList {
     },
     list_component: {
       rowsPerPage: 'Rader per side',
-      of: 'av',
-      navigateFirstPage: 'Naviger til første side i tabell',
-      previousPage: 'Forrige side i tabell',
-      nextPage: 'Neste side i tabell',
-      navigateLastPage: 'Naviger til siste side i tabell',
+      previousPage: 'Forrige',
+      previousPageAriaLabel: 'Forrige side i tabell',
+      nextPage: 'Neste',
+      nextPageAriaLabel: 'Neste side i tabell',
     },
     config_error: {
       layoutset_subform_config_error_customer_support:
@@ -427,6 +426,8 @@ export function nb(): FixedLanguageList {
       subform_no_datatype_appmetadata: "Datatype '{0}' ble ikke funnet i applicationmetadata.json.",
       subform_misconfigured_add_button:
         "Datatype '{0}' er markert som 'disallowUserCreate=true', men underskjema-komponenten er konfigurert med 'showAddButton=true'. Dette er en motsetning, siden brukeren aldri vil få lov til å utføre handlingene bak legg-til knappen.",
+      file_upload_same_binding:
+        'Det er flere filopplastingskomponenter med samme datamodell-binding. Hver komponent må ha en unik binding. Andre komponenter med samme binding: {0}',
     },
     version_error: {
       version_mismatch: 'Versjonsfeil',
