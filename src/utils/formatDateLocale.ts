@@ -1,3 +1,6 @@
+import { getLanguageFromCode } from 'src/language/languages';
+import type { FixedLanguageList } from 'src/language/languages';
+
 const UNICODE_TOKENS = /[^a-zA-Z0-9]+/g;
 export type Token =
   | 'G'
@@ -38,7 +41,6 @@ export type Token =
   | 'SS'
   | 'SSS';
 type Separator = string | undefined;
-type TokenValueSeparator = [Token, string | undefined, Separator];
 
 const tokenMappings: Record<Token, Intl.DateTimeFormatOptions> = {
   G: { era: 'short' },
@@ -86,6 +88,7 @@ export function formatDateLocale(localeStr: string, date: Date, unicodeFormat?: 
   }
   const tokens = unicodeFormat.split(UNICODE_TOKENS) as Token[];
   const separators: Separator[] = unicodeFormat.match(UNICODE_TOKENS) ?? [];
+  const lang = getLanguageFromCode(localeStr);
 
   let output = '';
   for (let i = 0; i < tokens.length; i++) {
@@ -98,8 +101,9 @@ export function formatDateLocale(localeStr: string, date: Date, unicodeFormat?: 
       continue;
     }
 
-    const value = selectPartToUse(new Intl.DateTimeFormat(localeStr, options).formatToParts(date), token)?.value;
-    output += postProcessValue(token, date, value) + separator;
+    const formatLang = token === 'a' ? 'en' : localeStr;
+    const value = selectPartToUse(new Intl.DateTimeFormat(formatLang, options).formatToParts(date), token)?.value;
+    output += postProcessValue(token, date, lang, value) + separator;
   }
 
   return output;
@@ -127,7 +131,7 @@ export function getDatepickerFormat(unicodeFormat: string): string {
 }
 
 export function getFormatPattern(datePickerFormat: string): string {
-  return datePickerFormat.replaceAll(/d|m|y/gi, '#');
+  return datePickerFormat.replaceAll(/[dmy]/gi, '#');
 }
 
 function selectPartToUse(parts: Intl.DateTimeFormatPart[], token: Token) {
@@ -163,7 +167,7 @@ function selectPartToUse(parts: Intl.DateTimeFormatPart[], token: Token) {
   }
 }
 
-function postProcessValue(token: Token, date: Date, value?: string) {
+function postProcessValue(token: Token, date: Date, lang: FixedLanguageList | undefined, value: string | undefined) {
   if (value === undefined) {
     return value;
   }
@@ -182,6 +186,9 @@ function postProcessValue(token: Token, date: Date, value?: string) {
   }
   if (['E', 'EE', 'EEE'].includes(token)) {
     return value.replace(/\.$/, '');
+  }
+  if (token === 'a' && lang?.dateTime) {
+    return value === 'AM' ? lang.dateTime.am : lang.dateTime.pm;
   }
   return value;
 }

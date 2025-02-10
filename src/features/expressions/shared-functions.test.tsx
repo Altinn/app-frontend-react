@@ -212,6 +212,11 @@ describe('Expressions shared function tests', () => {
       const profile = getProfileMock();
       if (profileSettings?.language) {
         profile.profileSettingPreference.language = profileSettings.language;
+      } else {
+        // Default to 'en' (as opposed to most other tests on frontend). This doesn't really matter, and doesn't test
+        // any functionality in frontend, but as backend have chosen 'en' as default, we should do the same here to
+        // make the shared tests work.
+        profile.profileSettingPreference.language = 'en';
       }
 
       async function fetchFormData(url: string) {
