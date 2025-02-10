@@ -115,19 +115,6 @@ table > tbody > tr.editingRow:hover {
   border-left: 2px dotted var(--repeating-group-edit-border-color);
 }
 
-.visuallyHidden {
-  border: none;
-  padding: 0;
-  margin: 0;
-  position: absolute;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-  clip: rect(1px 1px 1px 1px);
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
 .contentFormatting {
   --cell-max-number-of-lines: 2;
   --cell-text-alignment: left;

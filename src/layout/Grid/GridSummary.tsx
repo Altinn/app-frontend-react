@@ -23,6 +23,7 @@ import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import { typedBoolean } from 'src/utils/typing';
+import utilClasses from 'src/utils/util.module.css';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type {
   GridCellLabelFrom,
@@ -164,7 +165,7 @@ export function GridRowRenderer(props: GridRowProps) {
       ))}
       {!pdfModeActive && row.header && !isSmall && (
         <Table.HeaderCell>
-          <span className={classes.visuallyHidden}>
+          <span className={utilClasses.visuallyHidden}>
             <Lang id='general.edit' />
           </span>
         </Table.HeaderCell>

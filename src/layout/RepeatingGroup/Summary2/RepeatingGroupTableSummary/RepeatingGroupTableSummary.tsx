@@ -23,6 +23,7 @@ import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import utilClasses from 'src/utils/util.module.css';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -79,7 +80,7 @@ export const RepeatingGroupTableSummary = ({
             ))}
             {!pdfModeActive && !isSmall && (
               <Table.HeaderCell className={tableClasses.narrowLastColumn}>
-                <span className={tableClasses.visuallyHidden}>
+                <span className={utilClasses.visuallyHidden}>
                   <Lang id='general.edit' />
                 </span>
               </Table.HeaderCell>

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Fieldset } from '@digdir/designsystemet-react';
+import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { RadioButton } from 'src/components/form/RadioButton';
@@ -13,6 +14,7 @@ import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import utilClasses from 'src/utils/util.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IControlledRadioGroupProps = PropsFromGenericComponent<'RadioButtons' | 'LikertItem'>;
@@ -70,22 +72,24 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
     <ComponentStructureWrapper node={node}>
       <div id={id}>
         <Fieldset
-          hideLegend={overrideDisplay?.renderLegend === false}
-          description={<Lang id={textResourceBindings?.description} />}
-          error={!isValid}
-          readOnly={readOnly}
           inline={shouldDisplayHorizontally}
           role='radiogroup'
         >
-          <Fieldset.Legend>{labelText}</Fieldset.Legend>
+          <Fieldset.Legend className={cn({ [utilClasses.visuallyHidden]: overrideDisplay?.renderLegend === false })}>
+            {labelText}
+          </Fieldset.Legend>
+          <Fieldset.Description>
+            <Lang id={textResourceBindings?.description} />
+          </Fieldset.Description>
           {calculatedOptions.map((option) => (
             <RadioButton
+              key={option.value}
               value={option.value}
               label={langAsString(option.label)}
               description={option.description && <Lang id={option.description} />}
               helpText={option.helpText && <Lang id={option.helpText} />}
               name={id}
-              key={option.value}
+              error={!isValid}
               checked={option.value === selectedValues[0]}
               showAsCard={showAsCard}
               readOnly={readOnly}

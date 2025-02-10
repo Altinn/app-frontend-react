@@ -21,6 +21,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import classes from 'src/layout/Subform/SubformComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
+import utilClasses from 'src/utils/util.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -107,13 +108,13 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
                     </Table.HeaderCell>
                   )}
                   <Table.HeaderCell>
-                    <span className={classes.visuallyHidden}>
+                    <span className={utilClasses.visuallyHidden}>
                       <Lang id='general.edit' />
                     </span>
                   </Table.HeaderCell>
                   {showDeleteButton && (
                     <Table.HeaderCell>
-                      <span className={classes.visuallyHidden}>
+                      <span className={utilClasses.visuallyHidden}>
                         <Lang id='general.delete' />
                       </span>
                     </Table.HeaderCell>

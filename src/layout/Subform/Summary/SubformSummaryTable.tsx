@@ -22,6 +22,7 @@ import classes2 from 'src/layout/Subform/Summary/SubformSummaryComponent2.module
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
+import utilClasses from 'src/utils/util.module.css';
 import type { ISubformSummaryComponent } from 'src/layout/Subform/Summary/SubformSummaryComponent';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -175,7 +176,7 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
               )}
               {!pdfModeActive && (
                 <Table.HeaderCell className={classNames(classes2.editColumnHeader, classes2.noRightPad)}>
-                  <span className={classes1.visuallyHidden}>
+                  <span className={utilClasses.visuallyHidden}>
                     <Lang id='general.edit' />
                   </span>
                 </Table.HeaderCell>

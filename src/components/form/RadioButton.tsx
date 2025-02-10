@@ -13,7 +13,6 @@ import { useLanguage } from 'src/features/language/useLanguage';
 
 export interface IRadioButtonProps extends Omit<RadioProps, 'children'> {
   showAsCard?: boolean;
-  label?: string;
   helpText?: React.ReactNode;
   hideLabel?: boolean;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -24,8 +23,8 @@ export interface IRadioButtonProps extends Omit<RadioProps, 'children'> {
 
 export const RadioButton = ({
   showAsCard = false,
-  label,
   helpText,
+  label,
   hideLabel,
   onChange,
   alertOnChange,
@@ -45,6 +44,7 @@ export const RadioButton = ({
   const radioButton = (
     <Radio
       {...rest}
+      label={label}
       className={cn(classes.radioButton, className)}
       onChange={handleChange}
       ref={showAsCard ? inputRef : undefined}

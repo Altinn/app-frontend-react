@@ -23,6 +23,7 @@ import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import utilClasses from 'src/utils/util.module.css';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { GridCellInternal } from 'src/layout/Grid/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -119,14 +120,14 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
               ))}
               {displayEditColumn && (
                 <Table.HeaderCell style={{ padding: 0, paddingRight: '10px' }}>
-                  <span className={classes.visuallyHidden}>
+                  <span className={utilClasses.visuallyHidden}>
                     <Lang id='general.edit' />
                   </span>
                 </Table.HeaderCell>
               )}
               {displayDeleteColumn && (
                 <Table.HeaderCell style={{ padding: 0 }}>
-                  <span className={classes.visuallyHidden}>
+                  <span className={utilClasses.visuallyHidden}>
                     <Lang id='general.delete' />
                   </span>
                 </Table.HeaderCell>
