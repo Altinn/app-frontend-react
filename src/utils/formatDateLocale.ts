@@ -192,8 +192,5 @@ function postProcessValue(token: Token, date: Date, value?: string) {
   if (['E', 'EE', 'EEE'].includes(token)) {
     return value.replace(/\.$/, '');
   }
-  if (['S', 'SS', 'SSS'].includes(token)) {
-    return parseInt(value, 10).toString().padEnd(token.length, '0');
-  }
   return value;
 }

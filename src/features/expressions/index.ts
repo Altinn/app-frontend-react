@@ -396,7 +396,7 @@ function exprParseDate(ctx: EvaluateExpressionParams, _date: string): ExprDate |
     // the parseISO function will think it's 2022. Saying it's really 01.01.2022 00:00:00.999 (like we're doing here)
     // may look like we're just making things worse, but in most cases high precision fractionals will not roll you
     // over to the next second (let alone the next year).
-    const ms = parseInt(match[1].substring(1, 4), 10);
+    const ms = parseInt(match[1].substring(1, 4).padEnd(3, '0'), 10);
     parsed.setMilliseconds(ms);
   }
 
