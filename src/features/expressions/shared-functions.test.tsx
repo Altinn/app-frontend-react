@@ -307,7 +307,11 @@ describe('Expressions shared function tests', () => {
   });
 });
 
-async function assertExpr({ expression, expects, expectsFailure }: FunctionTestBase) {
+async function assertExpr({ expression, expects, expectsFailure, ...rest }: FunctionTestBase) {
+  // Makes sure we don't end up with any unexpected properties (if there are, these should probably be added as
+  // dependencies for the expression in some way)
+  expect(Object.keys(rest)).toHaveLength(0);
+
   const errorMock = window.logError as jest.Mock;
   const textContent = (await screen.findByTestId('expr-result')).textContent;
   const result = textContent ? JSON.parse(textContent) : null;
@@ -320,4 +324,6 @@ async function assertExpr({ expression, expects, expectsFailure }: FunctionTestB
     ExprValidation.throwIfInvalid(expression);
     expect(result).toEqual(expects);
   }
+
+  jest.clearAllMocks();
 }

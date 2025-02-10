@@ -18,6 +18,7 @@ import type { EvaluateExpressionParams } from 'src/features/expressions';
 import type {
   AnyExprArg,
   ExprArgDef,
+  ExprDate,
   ExprFunctionName,
   ExprFunctions,
   ExprValToActual,
@@ -792,6 +793,7 @@ type CompareOpImplementation<T extends ExprVal, BothReq extends boolean> = (
 
 export interface CompareOperatorDef<T extends ExprVal, BothReq extends boolean> {
   bothArgsMustBeValid: BothReq;
+  extraValidators?: ((this: EvaluateExpressionParams, a: ExprValToActual<T>, b: ExprValToActual<T>) => void)[];
   argType: T;
   impl: CompareOpImplementation<T, BothReq>;
 }
@@ -835,26 +837,31 @@ export const CompareOperators = {
   isBefore: defineCompareOp({
     bothArgsMustBeValid: true,
     argType: ExprVal.Date,
+    extraValidators: [validateDates],
     impl: (a, b) => a < b,
   }),
   isBeforeEq: defineCompareOp({
     bothArgsMustBeValid: true,
     argType: ExprVal.Date,
+    extraValidators: [validateDates],
     impl: (a, b) => a <= b,
   }),
   isAfter: defineCompareOp({
     bothArgsMustBeValid: true,
     argType: ExprVal.Date,
+    extraValidators: [validateDates],
     impl: (a, b) => a > b,
   }),
   isAfterEq: defineCompareOp({
     bothArgsMustBeValid: true,
     argType: ExprVal.Date,
+    extraValidators: [validateDates],
     impl: (a, b) => a >= b,
   }),
   isSameDay: defineCompareOp({
     bothArgsMustBeValid: true,
     argType: ExprVal.Date,
+    extraValidators: [validateDates, validateDatesForSameDay],
     impl: (a, b) => a.toDateString() === b.toDateString(),
   }),
 } as const;
@@ -877,5 +884,27 @@ function compare(
     return false;
   }
 
+  for (const validator of def.extraValidators ?? []) {
+    validator.call(ctx, a, b);
+  }
+
   return def.impl.call(ctx, a, b);
+}
+
+function validateDatesForSameDay(this: EvaluateExpressionParams, a: ExprDate, b: ExprDate) {
+  if (a.exprDateExtensions.timeZone !== b.exprDateExtensions.timeZone) {
+    throw new ExprRuntimeError(
+      this.expr,
+      this.path,
+      `Can not figure out if timestamps in different timezones are in the same day`,
+    );
+  }
+}
+
+function validateDates(this: EvaluateExpressionParams, a: ExprDate, b: ExprDate) {
+  const sameTimezones = a.exprDateExtensions.timeZone === b.exprDateExtensions.timeZone;
+  const eitherIsLocal = a.exprDateExtensions.timeZone === 'local' || b.exprDateExtensions.timeZone === 'local';
+  if (!sameTimezones && eitherIsLocal) {
+    throw new ExprRuntimeError(this.expr, this.path, `Can not compare timestamps where only one specify timezone`);
+  }
 }

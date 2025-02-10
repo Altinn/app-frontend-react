@@ -14,6 +14,8 @@ import { ExprVal } from 'src/features/expressions/types';
 import type { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import type {
   ExprConfig,
+  ExprDate,
+  ExprDateExtensions,
   Expression,
   ExprFunctionName,
   ExprPositionalArgs,
@@ -351,7 +353,7 @@ export const ExprTypes: {
 const datePattern =
   /^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ Tt][0-9]{2}:[0-9]{2}(?::[0-9]{2}(\.[0-9]{1,9})?)?([Zz]|[+-][0-9]{2}:[0-9]{2})?)?$/;
 
-function exprParseDate(ctx: EvaluateExpressionParams, _date: string): Date | null {
+function exprParseDate(ctx: EvaluateExpressionParams, _date: string): ExprDate | null {
   const date = _date.toUpperCase();
   const match = datePattern.exec(date);
   if (!match) {
@@ -398,5 +400,11 @@ function exprParseDate(ctx: EvaluateExpressionParams, _date: string): Date | nul
     parsed.setMilliseconds(ms);
   }
 
-  return parsed;
+  const isUtc = match[2] === 'Z' || match[2] === '+00:00' || match[2] === '-00:00';
+  const extensions: ExprDateExtensions = {
+    raw: date,
+    timeZone: isUtc ? 'utc' : match[2] ? match[2] : 'local',
+  };
+
+  return Object.assign(parsed, { exprDateExtensions: extensions });
 }

@@ -18,7 +18,7 @@ export enum ExprVal {
 }
 
 export type ExprValToActual<T extends ExprVal = ExprVal> = T extends ExprVal.Date
-  ? Date
+  ? ExprDate
   : T extends ExprVal.String
     ? string
     : T extends ExprVal.Number
@@ -125,3 +125,10 @@ export type ExprArgDef<T extends ExprVal, Variant extends ExprArgVariant> = {
   variant: Variant;
 };
 export type AnyExprArg = ExprArgDef<ExprVal, ExprArgVariant>;
+
+export interface ExprDateExtensions {
+  timeZone: 'local' | 'utc' | string;
+  raw: string;
+}
+
+export type ExprDate = Date & { exprDateExtensions: ExprDateExtensions };
