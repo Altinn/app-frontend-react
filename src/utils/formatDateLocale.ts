@@ -87,31 +87,22 @@ export function formatDateLocale(localeStr: string, date: Date, unicodeFormat?: 
   const tokens = unicodeFormat.split(UNICODE_TOKENS) as Token[];
   const separators: Separator[] = unicodeFormat.match(UNICODE_TOKENS) ?? [];
 
-  const options: Partial<Record<Token, Intl.DateTimeFormatOptions>> = tokens.reduce(
-    (acc, token) => ({ ...acc, [token]: tokenMappings[token] }),
-    {},
-  );
+  let output = '';
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    const options = tokenMappings[token];
+    const separator = separators[i] ?? '';
+    if (!options) {
+      // TODO: Throw an error instead?
+      output += `Unsupported: ${token}${separator}`;
+      continue;
+    }
 
-  const parts: Partial<Record<Token, Intl.DateTimeFormatPart>> = Object.keys(options)
-    .filter((token: Token) => options[token] !== undefined)
-    .reduce(
-      (acc, token: Token) => ({
-        ...acc,
-        [token]: selectPartToUse(new Intl.DateTimeFormat(localeStr, options[token]).formatToParts(date), token),
-      }),
-      {},
-    );
+    const value = selectPartToUse(new Intl.DateTimeFormat(localeStr, options).formatToParts(date), token)?.value;
+    output += postProcessValue(token, date, value) + separator;
+  }
 
-  const tokenValueSeparators = tokens.map<TokenValueSeparator>((token: Token, index) => [
-    token,
-    postProcessValue(token, date, parts[token]?.value),
-    separators?.[index],
-  ]);
-
-  return tokenValueSeparators.reduce((acc, [token, value, separator]) => {
-    const valueWithFallback = value ?? `Unsupported: ${token}`;
-    return `${acc}${valueWithFallback}${separator ?? ''}`;
-  }, '');
+  return output;
 }
 
 /**
