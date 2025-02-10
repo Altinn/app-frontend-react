@@ -19,6 +19,7 @@ import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettings
 import { useLaxInstanceStatus } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { SideBarNavigation } from 'src/features/navigation/SidebarNavigation';
+import { useHasGroupedNavigation } from 'src/features/navigation/utils';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
@@ -41,6 +42,7 @@ export const PresentationComponent = ({
   const instanceStatus = useLaxInstanceStatus();
   const userParty = useProfile()?.party;
   const { expandedWidth } = useUiConfigContext();
+  const hasGroupedNavigation = useHasGroupedNavigation();
 
   const realHeader = header || (type === ProcessTaskType.Archived ? <Lang id='receipt.receipt' /> : undefined);
 
@@ -54,7 +56,10 @@ export const PresentationComponent = ({
         <div
           data-testid='presentation'
           data-expanded={JSON.stringify(expandedWidth)}
-          className={cn(classes.container, { [classes.expanded]: expandedWidth })}
+          className={cn(classes.container, {
+            [classes.withNavigation]: hasGroupedNavigation,
+            [classes.expanded]: expandedWidth,
+          })}
         >
           <AltinnAppHeader
             party={party}
