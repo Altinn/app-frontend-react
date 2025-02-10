@@ -14,7 +14,6 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   const { instantiateWithPrefill, error, isLoading } = useInstantiation();
   const prefill = FD.useMapping(props.mapping, DataModels.useDefaultDataType());
   const party = useCurrentParty();
-
   const onClick = () => {
     instantiateWithPrefill(props.node, {
       prefill,

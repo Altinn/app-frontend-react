@@ -303,6 +303,8 @@ export class AppFrontend {
     idnumber: '#idnummer',
     idnummer2: '#idnummer2',
     dropdown: '#options',
+    jobTitle: '#jobTitle',
+    prefilledJobTitle: '#prefilledJobTitle',
   };
 
   public reporteeSelection = {
