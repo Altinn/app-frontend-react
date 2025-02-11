@@ -4,6 +4,7 @@ import type { PropsWithChildren } from 'react';
 import { useIsMutating, useMutation, useQueryClient } from '@tanstack/react-query';
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
+import type { AxiosRequestConfig } from 'axios';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -20,6 +21,7 @@ import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { getFormDataQueryKey } from 'src/features/formData/useFormDataQuery';
 import { useLaxChangeInstance, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/features/validation';
 import { useIsUpdatingInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useAsRef } from 'src/hooks/useAsRef';
@@ -94,11 +96,12 @@ function useFormDataSaveMutation() {
   const cancelSave = useSelector((s) => s.cancelSave);
   const isStateless = useApplicationMetadata().isStatelessApp;
   const debounce = useSelector((s) => s.debounce);
+  const currentPartyId = useCurrentParty()?.partyId;
   const waitFor = useWaitForState<
     { prev: { [dataType: string]: object }; next: { [dataType: string]: object } },
     FormDataContext
   >(useStore());
-  const useIsSavingRef = useAsRef(useIsSaving());
+  const isSavingNow = useIsSavingNow();
   const queryClient = useQueryClient();
 
   // This updates the query cache with the new data models every time a save has finished. This means we won't have to
@@ -144,6 +147,13 @@ function useFormDataSaveMutation() {
       }
 
       if (isStateless) {
+        const options: AxiosRequestConfig = {};
+        if (currentPartyId !== undefined) {
+          options.headers = {
+            party: `partyid:${currentPartyId}`,
+          };
+        }
+
         // Stateless does not support multi patch, so we need to save each model independently
         const newDataModels: Promise<UpdatedDataModel>[] = [];
 
@@ -156,7 +166,7 @@ function useFormDataSaveMutation() {
             throw new Error(`Cannot post data, url for dataType '${dataType}' could not be determined`);
           }
           newDataModels.push(
-            doPostStatelessFormData(url, next[dataType]).then((newDataModel) => ({
+            doPostStatelessFormData(url, next[dataType], options).then((newDataModel) => ({
               dataType,
               data: newDataModel,
               dataElementId: undefined,
@@ -270,8 +280,8 @@ function useFormDataSaveMutation() {
   // Check if save has already started before calling mutate
   const _mutate = mutation.mutate;
   const mutate: typeof mutation.mutate = useCallback(
-    (...args) => !useIsSavingRef.current && _mutate(...args),
-    [useIsSavingRef, _mutate],
+    (...args) => !isSavingNow() && _mutate(...args),
+    [_mutate, isSavingNow],
   );
 
   return {
@@ -345,6 +355,7 @@ function FormDataEffects() {
   const isSaving = useIsSaving();
   const isUpdatingInitialValidations = useIsUpdatingInitialValidations();
   const debounce = useDebounceImmediately();
+  const requestManualSave = useRequestManualSave();
   const hasUnsavedChangesNow = useHasUnsavedChangesNow();
 
   // If errors occur, we want to throw them so that the user can see them, and they
@@ -389,11 +400,17 @@ function FormDataEffects() {
   // Save the data model when the data has been frozen/debounced, and we're ready
   const needsToSave = useSelector(hasDebouncedUnsavedChanges);
   const canSaveNow = !isSaving && !lockedBy && !isUpdatingInitialValidations;
-  const shouldSave = (needsToSave && canSaveNow && autoSaving) || manualSaveRequested;
+  const shouldSave = needsToSave && (autoSaving || manualSaveRequested);
 
   useEffect(() => {
-    shouldSave && performSave();
-  }, [performSave, shouldSave]);
+    if (manualSaveRequested && !needsToSave) {
+      requestManualSave(false);
+    }
+  }, [manualSaveRequested, needsToSave, requestManualSave]);
+
+  useEffect(() => {
+    canSaveNow && shouldSave && performSave();
+  }, [performSave, canSaveNow, shouldSave]);
 
   // Always save unsaved changes when the user navigates away from the page and this component is unmounted.
   // We cannot put the current and last saved data in the dependency array, because that would cause the effect
@@ -518,14 +535,15 @@ const useWaitForSave = () => {
         return Promise.resolve(undefined);
       }
 
-      if (requestManualSave) {
-        requestSave();
-      }
-
       return await waitFor((state, setReturnValue) => {
         if (state === ContextNotProvided) {
           setReturnValue(undefined);
           return true;
+        }
+
+        if (requestManualSave && !state.manualSaveRequested && hasDebouncedUnsavedChanges(state)) {
+          requestSave();
+          return false;
         }
 
         if (hasUnsavedChanges(state)) {
