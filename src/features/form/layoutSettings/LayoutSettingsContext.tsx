@@ -9,7 +9,7 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
 import { useLaxGlobalUISettings } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useShallowObjectMemo } from 'src/hooks/useShallowObjectMemo';
+import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { GlobalPageSettings, ILayoutSettings, NavigationPageGroup } from 'src/layout/common.generated';
 
@@ -129,7 +129,7 @@ export const usePageSettings = (): Required<GlobalPageSettings> => {
   const globalUISettings = useLaxGlobalUISettings();
   const layoutSettings = useLaxCtx();
 
-  return useShallowObjectMemo({
+  return useShallowMemo({
     ...defaults,
     ...(globalUISettings === ContextNotProvided ? {} : globalUISettings),
     ...(layoutSettings === ContextNotProvided ? {} : layoutSettings.pageSettings),
