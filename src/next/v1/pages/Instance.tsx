@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
-import { useInstanceQuery } from 'src/next/queries/instanceQuery';
+import { useInstanceQuery } from 'src/next/v1/queries/instanceQuery';
 
 type InstanceParams = {
   partyId: string;

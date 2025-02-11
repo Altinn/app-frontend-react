@@ -10,7 +10,6 @@ import { onEntryValuesThatHaveState } from 'src/features/applicationMetadata/app
 import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
 import { VersionErrorOrChildren } from 'src/features/applicationMetadata/VersionErrorOrChildren';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
-import { useInitialdata } from 'src/next/App';
 import { fetchApplicationMetadata } from 'src/queries/queries';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata, IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
@@ -71,32 +70,6 @@ export function ApplicationMetadataProvider({ children }: PropsWithChildren) {
   );
 }
 
-//export const useApplicationMetadata = () => useCtx();
-export const useApplicationMetadata = () => {
-  const initialStateData = useInitialdata(); //queryClient.getQueryData(['initialState']);
-
-  const instanceGuid = useNavigationParam('instanceGuid');
-  if (!initialStateData.data?.applicationMetadata) {
-    throw new Error('Initial state not loaded, this is an error it should have been loaded by this point');
-  }
-
-  const data = initialStateData.data.applicationMetadata;
-  const onEntry = data.onEntry ?? { show: 'new-instance' };
-  return {
-    ...data,
-    isValidVersion:
-      !!data.altinnNugetVersion &&
-      isAtLeastVersion({
-        actualVersion: data.altinnNugetVersion,
-        minimumVersion: MINIMUM_APPLICATION_VERSION.build,
-      }),
-    onEntry,
-    isStatelessApp: isStatelessApp(!!instanceGuid, onEntry.show),
-    logoOptions: data.logo,
-  };
-
-  //return initialStateData.data.applicationMetadata;
-};
-
+export const useApplicationMetadata = () => useCtx();
 export const useLaxApplicationMetadata = () => useLaxCtx();
 export const useHasApplicationMetadata = () => useHasProvider();
