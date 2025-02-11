@@ -5,10 +5,9 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useReturnToView, useSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useIsProcessing } from 'src/hooks/useIsProcessing';
-import { useNavigatePage, useNextPageKey, usePreviousPageKey, useVisitedPages } from 'src/hooks/useNavigatePage';
+import { useNavigatePage, useNextPageKey, usePreviousPageKey } from 'src/hooks/useNavigatePage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -25,8 +24,6 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const summaryItem = useNodeItem(useSummaryNodeOfOrigin());
   const [isProcessing, processing] = useIsProcessing<'next' | 'previous' | 'backToSummary'>();
   const parentIsPage = node.parent instanceof LayoutPage;
-  const [_, setVisitedPages] = useVisitedPages();
-  const currentPage = useNavigationParam('pageKey');
 
   const nextTextKey = textResourceBindings?.next || 'next';
   const backTextKey = textResourceBindings?.back || 'back';
