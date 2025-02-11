@@ -6,7 +6,7 @@
     [
       "stringSlice",
       ["dataModel", "string"],
-      ["stringIndexOf", ["dataModel", "string"], "\uD83C\uDF0D"]
+      ["stringIndexOf", ["dataModel", "string"], "🌍"]
     ]
   ],
   "expects": "Good day, 🌍!",

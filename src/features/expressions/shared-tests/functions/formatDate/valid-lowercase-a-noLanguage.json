@@ -5,7 +5,7 @@
     "2023-03-04T05:06:07.120Z",
     "a"
   ],
-  "expects": "AM",
+  "expects": "a.m.",
   "testCases":[
     {
       "expression": [
@@ -13,7 +13,7 @@
         "2023-03-04T15:06:07.120Z",
         "a"
       ],
-      "expects": "PM"
+      "expects": "p.m."
     }
   ]
 }
