@@ -15,11 +15,13 @@ import type { ISelectionComponent } from 'src/layout/common.generated';
 import type { ILayouts } from 'src/layout/layout';
 import type { ParamValue } from 'src/utils/urls/appUrlHelper';
 
+export const CodeListPending = Symbol('PENDING');
+
 interface CodeListsStore {
   codeLists: {
-    [id: string]: IOptionInternal[] | undefined;
+    [id: string]: IOptionInternal[] | undefined | typeof CodeListPending;
   };
-  updateCodeList(id: string, options: IOptionInternal[]): void;
+  updateCodeList(id: string, options: IOptionInternal[] | typeof CodeListPending): void;
 }
 
 function initialCreateStore() {
@@ -54,7 +56,7 @@ const delayedSelectorProps = {
   selector: (optionsId: string) => (state: CodeListsStore) => state.codeLists[optionsId],
 };
 
-export type CodeListSelector = (optionsId: string) => IOptionInternal[] | undefined;
+export type CodeListSelector = (optionsId: string) => IOptionInternal[] | undefined | typeof CodeListPending;
 export const useCodeListSelector = (): CodeListSelector => useDelayedSelector(delayedSelectorProps);
 export const useCodeListSelectorProps = () => useDelayedSelectorProps(delayedSelectorProps);
 
@@ -98,6 +100,8 @@ function CodeListFetcher({ url, optionsId, storeInZustand }: { url: string } & T
         `Failed to fetch options for optionLabel expression (tried to fetch '${optionsId}')\n`,
         error,
       );
+    } else {
+      updateCodeList(optionsId, CodeListPending);
     }
   }, [data, error, optionsId, storeInZustand, updateCodeList]);
 

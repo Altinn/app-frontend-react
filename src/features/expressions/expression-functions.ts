@@ -3,6 +3,7 @@ import dot from 'dot-object';
 import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
+import { CodeListPending } from 'src/features/options/CodeListsProvider';
 import { SearchParams } from 'src/features/routing/AppRoutingContext';
 import { implementsDisplayData } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
@@ -478,6 +479,11 @@ export const ExprFunctionImplementations: { [K in Names]: Implementation<K> } = 
     const options = this.dataSources.codeListSelector(optionsId);
     if (!options) {
       throw new ExprRuntimeError(this.expr, this.path, `Could not find options with id "${optionsId}"`);
+    }
+
+    if (options === CodeListPending) {
+      // We don't have the options yet, but it's not an error to ask for them.
+      return null;
     }
 
     // Lax comparison by design. Numbers in raw option lists will be cast to strings by useGetOptions(), so we cannot
