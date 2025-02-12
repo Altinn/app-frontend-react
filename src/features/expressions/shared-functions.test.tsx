@@ -2,6 +2,7 @@ import React from 'react';
 
 import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
+import type { AxiosResponse } from 'axios';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
@@ -20,6 +21,7 @@ import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSour
 import type { ExprPositionalArgs, ExprValToActualOrExpr, ExprValueArgs } from 'src/features/expressions/types';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { RoleResult } from 'src/features/useCurrentPartyRoles';
+import type { IRawOption } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { IData, IDataType } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -116,6 +118,7 @@ describe('Expressions shared function tests', () => {
         valueArguments,
         roles,
         testCases,
+        codeLists,
       } = test;
 
       if (disabledFrontend) {
@@ -185,10 +188,16 @@ describe('Expressions shared function tests', () => {
 
       let layouts: ILayoutCollection | undefined;
       if (_layouts) {
-        // Frontend will look inside the layout for data model bindings and expressions in order to figure out which
-        // data models to load. Since the expression we're testing is not part of the layout, we need to add it here
-        // so that everything is loaded correctly.
+        // Frontend will look inside the layout for data model bindings, expressions with dataModel and expressions with
+        // optionLabel in order to figure out which data models and code lists to load.
+        // Since the expression we're testing is not part of the layout, we need to add it here so that everything is
+        // loaded correctly.
         layouts = structuredClone(_layouts);
+      } else if (dataModels || codeLists) {
+        layouts = { samplePage: { data: { layout: [{ id: 'default', type: 'Paragraph' }] } } };
+      }
+
+      if (layouts) {
         const firstPage = Object.values(layouts)[0];
         firstPage?.data.layout.push({
           id: 'theCurrentExpression',
@@ -271,7 +280,7 @@ describe('Expressions shared function tests', () => {
             />
           );
         },
-        inInstance: !!instance || !!dataModels,
+        inInstance: !!layouts,
         queries: {
           fetchLayoutSets: async () => ({
             sets: [{ id: 'layout-set', dataType: 'default', tasks: ['Task_1'] }, getSubFormLayoutSetMock()],
@@ -285,6 +294,14 @@ describe('Expressions shared function tests', () => {
             language: 'nb',
             resources: textResources || [],
           }),
+          fetchOptions: async (url: string) => {
+            const codeListId = url.match(/api\/options\/(\w+)\?/)?.[1];
+            if (!codeLists || !codeListId || !codeLists[codeListId]) {
+              throw new Error(`No code lists found for ${url}`);
+            }
+            const data = codeLists[codeListId];
+            return { data } as AxiosResponse<IRawOption[], unknown>;
+          },
         },
       });
 

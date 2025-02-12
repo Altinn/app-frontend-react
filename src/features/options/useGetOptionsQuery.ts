@@ -22,11 +22,11 @@ export const useGetOptionsQuery = (
   return useQuery({
     queryKey: ['fetchOptions', url],
     queryFn: url
-      ? () =>
-          fetchOptions(url).then((result) => ({
-            ...result,
-            data: castOptionsToStrings(result?.data),
-          }))
+      ? async () => {
+          const result = await fetchOptions(url);
+          const converted = castOptionsToStrings(result?.data);
+          return { ...result, data: converted };
+        }
       : skipToken,
     enabled: !!url,
   });

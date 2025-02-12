@@ -21,7 +21,7 @@ interface CodeListsStore {
   codeLists: {
     [id: string]: IOptionInternal[] | undefined | typeof CodeListPending;
   };
-  updateCodeList(id: string, options: IOptionInternal[] | typeof CodeListPending): void;
+  updateCodeList(id: string, options: IOptionInternal[] | undefined | typeof CodeListPending): void;
 }
 
 function initialCreateStore() {
@@ -96,6 +96,7 @@ function CodeListFetcher({ url, optionsId, storeInZustand }: { url: string } & T
     if (data) {
       updateCodeList(optionsId, data.data);
     } else if (error) {
+      updateCodeList(optionsId, undefined);
       window.logErrorOnce(
         `Failed to fetch options for optionLabel expression (tried to fetch '${optionsId}')\n`,
         error,
