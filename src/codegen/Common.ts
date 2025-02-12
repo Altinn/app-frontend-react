@@ -697,13 +697,11 @@ const common = {
         new CG.arr(
           new CG.union(
             new CG.obj(
-              // TODO: Add tests checking that this gets added
               new CG.prop('id', new CG.str()).omitInSchema(),
               new CG.prop('name', new CG.str().optional()),
               new CG.prop('taskId', new CG.str()),
             ).exportAs('NavigationTask'),
             new CG.obj(
-              // TODO: Add tests checking that this gets added
               new CG.prop('id', new CG.str()).omitInSchema(),
               new CG.prop('name', new CG.str().optional()),
               new CG.prop('type', new CG.const('receipt')),
@@ -736,7 +734,6 @@ const common = {
     ),
   INavigationBasePageGroup: () =>
     new CG.obj(
-      // TODO: Add tests checking that this gets added
       new CG.prop('id', new CG.str()).omitInSchema(),
       new CG.prop('type', new CG.enum('default', 'info').optional({ default: 'default' })),
       new CG.prop(
