@@ -4,12 +4,14 @@ import { Fieldset } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { RadioButton } from 'src/components/form/RadioButton';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -71,36 +73,38 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   return (
     <ComponentStructureWrapper node={node}>
       <div id={id}>
-        <Fieldset
-          inline={shouldDisplayHorizontally}
-          role='radiogroup'
-        >
+        <Fieldset role='radiogroup'>
           <Fieldset.Legend className={cn({ [utilClasses.visuallyHidden]: overrideDisplay?.renderLegend === false })}>
             {labelText}
           </Fieldset.Legend>
           <Fieldset.Description>
             <Lang id={textResourceBindings?.description} />
           </Fieldset.Description>
-          {calculatedOptions.map((option) => (
-            <RadioButton
-              key={option.value}
-              value={option.value}
-              label={langAsString(option.label)}
-              description={option.description && <Lang id={option.description} />}
-              helpText={option.helpText && <Lang id={option.helpText} />}
-              name={id}
-              error={!isValid}
-              checked={option.value === selectedValues[0]}
-              showAsCard={showAsCard}
-              readOnly={readOnly}
-              onChange={handleChange}
-              hideLabel={hideLabel}
-              data-size='small'
-              alertOnChange={alertOnChange}
-              alertText={alertText}
-              confirmChangeText={confirmChangeText}
-            />
-          ))}
+          <ConditionalWrapper
+            condition={shouldDisplayHorizontally}
+            wrapper={(children) => <div className={classes.inlineRadioGroup}>{children}</div>}
+          >
+            {calculatedOptions.map((option) => (
+              <RadioButton
+                key={option.value}
+                value={option.value}
+                label={langAsString(option.label)}
+                description={option.description && <Lang id={option.description} />}
+                helpText={option.helpText && <Lang id={option.helpText} />}
+                name={id}
+                error={!isValid}
+                checked={option.value === selectedValues[0]}
+                showAsCard={showAsCard}
+                readOnly={readOnly}
+                onChange={handleChange}
+                hideLabel={hideLabel}
+                data-size='small'
+                alertOnChange={alertOnChange}
+                alertText={alertText}
+                confirmChangeText={confirmChangeText}
+              />
+            ))}
+          </ConditionalWrapper>
         </Fieldset>
       </div>
     </ComponentStructureWrapper>

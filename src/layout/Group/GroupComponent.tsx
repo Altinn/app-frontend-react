@@ -27,7 +27,7 @@ export interface IGroupComponent {
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
 
-const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size'] } = {
+const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['data-size'] } = {
   [2]: 'sm',
   [3]: 'xs',
   [4]: '2xs',
@@ -77,7 +77,7 @@ export function GroupComponent({
               <Heading
                 className={classes.legend}
                 level={headingLevel}
-                size={headingSize}
+                data-size={headingSize}
               >
                 <Lang id={legend} />
               </Heading>

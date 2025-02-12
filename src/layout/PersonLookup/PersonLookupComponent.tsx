@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { ErrorMessage } from '@digdir/designsystemet-react';
+import { ValidationMessage } from '@digdir/designsystemet-react';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
@@ -248,12 +248,12 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
             )}
           </div>
           {data?.error && (
-            <ErrorMessage
-              size='sm'
+            <ValidationMessage
+              data-size='sm'
               className={classes.apiError}
             >
               <Lang id={data.error} />
-            </ErrorMessage>
+            </ValidationMessage>
           )}
         </div>
       </ComponentStructureWrapper>

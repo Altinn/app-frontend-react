@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ErrorMessage, Heading } from '@digdir/designsystemet-react';
+import { Heading, ValidationMessage } from '@digdir/designsystemet-react';
 
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
@@ -49,7 +49,7 @@ export function LikertSummary({ componentNode, emptyFieldText, isCompact }: Like
     <div className={classes.summaryItemWrapper}>
       <div className={classes.summaryItem}>
         <Heading
-          size='xs'
+          data-size='xs'
           level={4}
         >
           <Lang
@@ -68,13 +68,13 @@ export function LikertSummary({ componentNode, emptyFieldText, isCompact }: Like
         />
       ))}
       {errors?.map(({ message }) => (
-        <ErrorMessage key={message.key}>
+        <ValidationMessage key={message.key}>
           <Lang
             id={message.key}
             params={message.params}
             node={componentNode}
           />
-        </ErrorMessage>
+        </ValidationMessage>
       ))}
     </div>
   );

@@ -13,7 +13,7 @@ export type IHeaderProps = PropsFromGenericComponent<'Header'>;
 
 type HeadingProps = {
   level: Parameters<typeof Heading>[0]['level'];
-  size: Parameters<typeof Heading>[0]['size'];
+  size: Parameters<typeof Heading>[0]['data-size'];
 };
 
 function getHeaderProps(size?: string): HeadingProps {

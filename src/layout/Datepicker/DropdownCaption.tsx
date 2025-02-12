@@ -54,7 +54,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
         <Combobox
           style={{ width: '150px' }}
           id={id}
-          size='small'
+          data-size='small'
           value={[calendarMonth.date.getMonth().toString()]}
           onValueChange={(months) => months.length && handleMonthChange(months[0])}
           aria-label={langAsString('date_picker.aria_label_month_dropdown')}
@@ -78,7 +78,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
         <Combobox
           style={{ width: '100px' }}
           id={id}
-          size='small'
+          data-size='small'
           value={[calendarMonth.date.getFullYear().toString()]}
           onValueChange={(years) => years.length && handleYearChange(years[0])}
           aria-label={langAsString('date_picker.aria_label_year_dropdown')}

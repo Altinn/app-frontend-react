@@ -1,7 +1,7 @@
 import React from 'react';
 import type { JSX, PropsWithChildren } from 'react';
 
-import { ErrorMessage, Heading, Table } from '@digdir/designsystemet-react';
+import { Heading, Table, ValidationMessage } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { LabelContent } from 'src/components/label/LabelContent';
@@ -115,7 +115,7 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
       {title && (
         <caption className={classes.tableCaption}>
           <Heading
-            size='xs'
+            data-size='xs'
             level={4}
           >
             <Lang
@@ -362,13 +362,13 @@ function CellWithComponent({
       <div className={cn({ [classes.errorMessage]: errors.length > 0 })} />
       {errors.length > 0 &&
         errors.map(({ message }) => (
-          <ErrorMessage key={message.key}>
+          <ValidationMessage key={message.key}>
             <Lang
               id={message.key}
               params={message.params}
               node={node}
             />
-          </ErrorMessage>
+          </ValidationMessage>
         ))}
     </CellComponent>
   );

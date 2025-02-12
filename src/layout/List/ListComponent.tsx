@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { AriaAttributes } from 'react';
 
-import { Heading, Radio, Table } from '@digdir/designsystemet-react';
+import { Fieldset, Heading, Radio, Table, useRadioGroup } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Pagination as CustomPagination } from 'src/app-components/Pagination/Pagination';
@@ -40,13 +40,13 @@ export const ListComponent = ({ node }: IListProps) => {
   } = item;
 
   const [pageSize, setPageSize] = useState<number>(pagination?.default ?? 0);
-  const [pageNumber, setPageNumber] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const [sortColumn, setSortColumn] = useState<string | undefined>();
   const [sortDirection, setSortDirection] = useState<AriaAttributes['aria-sort']>('none');
 
   const filter: Filter = {
     pageSize,
-    pageNumber,
+    pageNumber: currentPage,
     sortColumn,
     sortDirection,
   };
@@ -76,33 +76,37 @@ export const ListComponent = ({ node }: IListProps) => {
 
   const title = item.textResourceBindings?.title;
   const description = item.textResourceBindings?.description;
+  const { getRadioProps } = useRadioGroup({
+    name: node.id,
+    value: JSON.stringify(selectedRow),
+    required,
+  });
   if (isMobile) {
     return (
       <ComponentStructureWrapper node={node}>
-        <Radio.Group
+        <Fieldset
           role='radiogroup'
-          required={required}
-          legend={
+          className={classes.mobileRadioGroup}
+        >
+          <Fieldset.Legend>
             <Heading
               level={2}
-              size='sm'
+              data-size='sm'
             >
               <Lang id={title} />
               <RequiredIndicator required={required} />
             </Heading>
-          }
-          description={description && <Lang id={description} />}
-          className={classes.mobileRadioGroup}
-          value={JSON.stringify(selectedRow)}
-        >
+          </Fieldset.Legend>
+          {description && (
+            <Fieldset.Description>
+              <Lang id={description} />
+            </Fieldset.Description>
+          )}
+
           {data?.listItems.map((row) => (
             <Radio
               key={JSON.stringify(row)}
-              value={JSON.stringify(row)}
-              className={cn(classes.mobileRadio, { [classes.selectedRow]: isRowSelected(row) })}
-              onClick={() => handleRowSelect({ selectedValue: row })}
-            >
-              {tableHeadersToShowInMobile.map((key) => (
+              label={tableHeadersToShowInMobile.map((key) => (
                 <div key={key}>
                   <strong>
                     <Lang id={tableHeaders[key]} />
@@ -110,14 +114,18 @@ export const ListComponent = ({ node }: IListProps) => {
                   <span>{typeof row[key] === 'string' ? <Lang id={row[key]} /> : row[key]}</span>
                 </div>
               ))}
-            </Radio>
+              {...getRadioProps({ value: JSON.stringify(row) })}
+              value={JSON.stringify(row)}
+              onClick={() => handleRowSelect({ selectedValue: row })}
+              className={cn(classes.mobileRadio, { [classes.selectedRow]: isRowSelected(row) })}
+            />
           ))}
-        </Radio.Group>
+        </Fieldset>
         <Pagination
           pageSize={pageSize}
           setPageSize={setPageSize}
-          pageNumber={pageNumber}
-          setPageNumber={setPageNumber}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
           numberOfRows={data?._metaData.totaltItemsCount}
           rowsPerPageOptions={pagination?.alternatives}
         />
@@ -132,7 +140,7 @@ export const ListComponent = ({ node }: IListProps) => {
           <caption id={getLabelId(node.id)}>
             <Heading
               level={2}
-              size='sm'
+              data-size='sm'
             >
               <Lang id={title} />
               <RequiredIndicator required={required} />
@@ -151,16 +159,7 @@ export const ListComponent = ({ node }: IListProps) => {
             {Object.entries(tableHeaders).map(([key, value]) => (
               <Table.HeaderCell
                 key={key}
-                sortable={sortableColumns?.includes(key)}
-                sort={sortColumn === key ? sortDirection : undefined}
-                onSortClick={() => {
-                  if (sortColumn === key) {
-                    setSortDirection(sortDirection === 'ascending' ? 'descending' : 'ascending');
-                  } else {
-                    setSortDirection('descending');
-                    setSortColumn(key);
-                  }
-                }}
+                sort={sortableColumns?.includes(key) && sortColumn === key ? sortDirection : undefined}
               >
                 <Lang id={value} />
               </Table.HeaderCell>
@@ -209,8 +208,8 @@ export const ListComponent = ({ node }: IListProps) => {
         <Pagination
           pageSize={pageSize}
           setPageSize={setPageSize}
-          pageNumber={pageNumber}
-          setPageNumber={setPageNumber}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
           numberOfRows={data?._metaData.totaltItemsCount}
           rowsPerPageOptions={pagination?.alternatives}
         />
@@ -222,8 +221,8 @@ export const ListComponent = ({ node }: IListProps) => {
 type PaginationProps = {
   pageSize: number;
   setPageSize: (pageSize: number) => void;
-  pageNumber: number;
-  setPageNumber: (pageNumber: number) => void;
+  currentPage: number;
+  setCurrentPage: (pageNumber: number) => void;
   numberOfRows: number | undefined;
   rowsPerPageOptions: number[] | undefined;
 };
@@ -231,8 +230,8 @@ type PaginationProps = {
 function Pagination({
   pageSize,
   setPageSize,
-  pageNumber,
-  setPageNumber,
+  currentPage,
+  setCurrentPage,
   numberOfRows = 0,
   rowsPerPageOptions = [],
 }: PaginationProps) {
@@ -240,7 +239,7 @@ function Pagination({
   const isMobile = useIsMobile();
 
   function handlePageSizeChange(newSize: number) {
-    setPageNumber(0);
+    setCurrentPage(0);
     setPageSize(newSize);
   }
   const textStrings = language?.['list_component'];
@@ -254,10 +253,10 @@ function Pagination({
         previousLabelAriaLabel={textStrings['previousPageAriaLabel']}
         rowsPerPageText={textStrings['rowsPerPage']}
         size='sm'
-        currentPage={pageNumber}
+        currentPage={currentPage}
         numberOfRows={numberOfRows}
         pageSize={pageSize}
-        onChange={setPageNumber}
+        onChange={() => setCurrentPage}
         showRowsPerPageDropdown
         onPageSizeChange={(value) => handlePageSizeChange(+value)}
         rowsPerPageOptions={rowsPerPageOptions}

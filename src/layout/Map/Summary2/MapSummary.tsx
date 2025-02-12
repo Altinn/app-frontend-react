@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ErrorMessage, Paragraph } from '@digdir/designsystemet-react';
+import { Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Label } from 'src/components/label/Label';
@@ -82,13 +82,13 @@ export function MapSummary({ componentNode, emptyFieldText, isCompact }: MapSumm
         </Paragraph>
       )}
       {errors?.map(({ message }) => (
-        <ErrorMessage key={message.key}>
+        <ValidationMessage key={message.key}>
           <Lang
             id={message.key}
             params={message.params}
             node={componentNode}
           />
-        </ErrorMessage>
+        </ValidationMessage>
       ))}
     </div>
   );

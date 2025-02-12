@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { ErrorMessage, Paragraph } from '@digdir/designsystemet-react';
+import { Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import type { PropsFromGenericComponent } from '..';
@@ -187,19 +187,19 @@ export function OrganisationLookupComponent({
             )}
           </div>
           {data?.error && (
-            <ErrorMessage
-              size='sm'
+            <ValidationMessage
+              data-size='sm'
               className={classes.apiError}
             >
               <Lang id={data.error} />
-            </ErrorMessage>
+            </ValidationMessage>
           )}
           {hasSuccessfullyFetched && orgName && (
             <div
               className={classes.orgname}
               aria-label={langAsString('organisation_lookup.org_name')}
             >
-              {hasSuccessfullyFetched && <Paragraph size='sm'>{orgName}</Paragraph>}
+              {hasSuccessfullyFetched && <Paragraph data-size='sm'>{orgName}</Paragraph>}
             </div>
           )}
         </div>

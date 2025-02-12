@@ -60,7 +60,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, PropsFromGenericCompo
       >
         <Label
           asChild
-          size='sm'
+          data-size='sm'
           weight='regular'
         >
           <span>

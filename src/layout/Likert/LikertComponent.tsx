@@ -52,7 +52,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           >
             <Heading
               level={2}
-              size='sm'
+              data-size='sm'
             >
               <Lang id={title} />
             </Heading>
@@ -102,7 +102,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
             >
               <Heading
                 level={2}
-                size='sm'
+                data-size='sm'
               >
                 <Lang id={title} />
               </Heading>

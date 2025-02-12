@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { Combobox, Pagination as DesignSystemPagination, usePagination } from '@digdir/designsystemet-react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/app-components/Pagination/Pagination.module.css';
 import { Lang } from 'src/features/language/Lang';
@@ -14,7 +13,7 @@ type PaginationProps = {
   nextLabelAriaLabel: string;
   previousLabel: string;
   previousLabelAriaLabel: string;
-  size: NonNullable<Parameters<typeof DesignSystemPagination>[0]['size']>;
+  size: NonNullable<Parameters<typeof DesignSystemPagination>[0]['data-size']>;
   compact?: boolean;
   hideLabels?: boolean;
   showRowsPerPageDropdown?: boolean;
@@ -56,11 +55,12 @@ export const Pagination = ({
   const isMini = useIsMini();
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
+  const isCompact = compact || isMini || isTablet;
 
-  const { pages, showNextPage, showPreviousPage } = usePagination({
-    compact: compact || isMini || isTablet,
+  const { pages, prevButtonProps, nextButtonProps, hasNext, hasPrev } = usePagination({
     currentPage: pageNumber,
     totalPages,
+    onChange,
   });
   const { langAsString } = useLanguage();
 
@@ -95,43 +95,30 @@ export const Pagination = ({
           ))}
         </Combobox>
       )}
-      <DesignSystemPagination.Root
+      <DesignSystemPagination
         data-testid='pagination'
         aria-label='Pagination'
-        size={size}
-        compact={compact || isMini || isTablet}
+        data-size={size}
         className={classes.pagination}
       >
-        <DesignSystemPagination.Content>
+        <DesignSystemPagination.List>
           <DesignSystemPagination.Item>
-            <DesignSystemPagination.Previous
+            <DesignSystemPagination.Button
               data-testid='paginationPreviousButton'
-              className={!showPreviousPage ? classes.hidden : undefined}
-              onClick={() => {
-                onChange(currentPage - 1);
-              }}
+              {...prevButtonProps}
               aria-label={previousLabelAriaLabel}
             >
-              <ChevronLeftIcon
-                aria-hidden
-                fontSize={iconSize[size]}
-              />
               {!hideLabels && !isMobile && previousLabel}
-            </DesignSystemPagination.Previous>
+            </DesignSystemPagination.Button>
           </DesignSystemPagination.Item>
-          {pages.map((page, i) => (
+          {pages.map((page, i, buttonProps) => (
             <DesignSystemPagination.Item key={`${page}${i}`}>
-              {page === 'ellipsis' ? (
-                <DesignSystemPagination.Ellipsis />
-              ) : (
+              {typeof page === 'number' && (
                 <DesignSystemPagination.Button
                   color='first'
                   aria-current={pageNumber === page}
-                  isActive={pageNumber === page}
                   aria-label={langAsString('general.page_number', [page])}
-                  onClick={() => {
-                    onChange(page - 1);
-                  }}
+                  {...buttonProps}
                 >
                   {page}
                 </DesignSystemPagination.Button>
@@ -139,23 +126,16 @@ export const Pagination = ({
             </DesignSystemPagination.Item>
           ))}
           <DesignSystemPagination.Item>
-            <DesignSystemPagination.Next
+            <DesignSystemPagination.Button
               data-testid='paginationNextButton'
               aria-label={nextLabelAriaLabel}
-              onClick={() => {
-                onChange(currentPage + 1);
-              }}
-              className={!showNextPage ? classes.hidden : undefined}
+              {...nextButtonProps}
             >
               {!hideLabels && !isMobile && nextLabel}
-              <ChevronRightIcon
-                aria-hidden
-                fontSize={iconSize[size]}
-              />
-            </DesignSystemPagination.Next>
+            </DesignSystemPagination.Button>
           </DesignSystemPagination.Item>
-        </DesignSystemPagination.Content>
-      </DesignSystemPagination.Root>
+        </DesignSystemPagination.List>
+      </DesignSystemPagination>
     </>
   );
 };

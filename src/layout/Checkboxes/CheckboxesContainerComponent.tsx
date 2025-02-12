@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Checkbox } from '@digdir/designsystemet-react';
+import { Fieldset, useCheckboxGroup } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
@@ -44,6 +44,14 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1 && !showLabelsInTable;
   const ariaLabel = overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined;
 
+  const { getCheckboxProps, validationMessageProps } = useCheckboxGroup({
+    name: id,
+    readOnly,
+    value: selectedValues,
+    onChange: setData,
+    error: !isValid,
+  });
+
   return (
     <ComponentStructureWrapper node={node}>
       {isFetching ? (
@@ -53,34 +61,35 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
           id={id}
           key={`checkboxes_group_${id}`}
         >
-          <Checkbox.Group
+          <Fieldset
             className={cn({ [classes.horizontal]: horizontal }, classes.checkboxGroup)}
-            legend={labelTextGroup}
-            description={textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
-            readOnly={readOnly}
-            hideLegend={overrideDisplay?.renderLegend === false}
-            error={!isValid}
             aria-label={ariaLabel}
-            value={selectedValues}
             data-testid='checkboxes-fieldset'
           >
+            {overrideDisplay?.renderLegend !== false && <Fieldset.Legend>{labelTextGroup}</Fieldset.Legend>}
+            {textResourceBindings?.description && (
+              <Fieldset.Description>
+                <Lang id={textResourceBindings?.description} />
+              </Fieldset.Description>
+            )}
             {calculatedOptions.map((option) => (
               <WrappedCheckbox
                 key={option.value}
                 id={id}
+                label={langAsString(option.label)}
                 option={option}
                 hideLabel={hideLabel}
                 alertOnChange={alertOnChange}
-                checked={selectedValues.includes(option.value)}
                 setChecked={(isChecked) => {
                   const newData = isChecked
                     ? [...selectedValues, option.value]
                     : selectedValues.filter((o) => o !== option.value);
                   setData(newData);
                 }}
+                {...getCheckboxProps(option.value)}
               />
             ))}
-          </Checkbox.Group>
+          </Fieldset>
         </div>
       )}
     </ComponentStructureWrapper>
