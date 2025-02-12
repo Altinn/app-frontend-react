@@ -151,6 +151,10 @@ export const ExprFunctionDefinitions = {
     args: args(required(ExprVal.String)),
     returns: ExprVal.String,
   },
+  optionLabel: {
+    args: args(required(ExprVal.String), required(ExprVal.Any)),
+    returns: ExprVal.String,
+  },
   formatDate: {
     args: args(required(ExprVal.Date), optional(ExprVal.String)),
     returns: ExprVal.String,
@@ -466,6 +470,27 @@ export const ExprFunctionImplementations: { [K in Names]: Implementation<K> } = 
       nodeDataSelector: this.dataSources.nodeDataSelector,
     });
   },
+  optionLabel(optionsId, value) {
+    if (optionsId === null) {
+      throw new ExprRuntimeError(this.expr, this.path, `Expected an options id`);
+    }
+
+    const options = this.dataSources.codeListSelector(optionsId);
+    if (!options) {
+      throw new ExprRuntimeError(this.expr, this.path, `Could not find options with id "${optionsId}"`);
+    }
+
+    // Lax comparison by design. Numbers in raw option lists will be cast to strings by useGetOptions(), so we cannot
+    // be strict about the type here.
+    const option = options.find((o) => o.value == value);
+
+    if (option) {
+      const node = this.node instanceof BaseLayoutNode ? this.node : undefined;
+      return this.dataSources.langToolsSelector(node).langAsNonProcessedString(option.label);
+    }
+
+    return null;
+  },
   formatDate(date, format) {
     if (date === null) {
       return null;
@@ -638,6 +663,14 @@ export const ExprFunctionValidationExtensions: { [K in Names]?: FuncValidationDe
     validator({ rawArgs, ctx, path }) {
       if (rawArgs.length > 1 && rawArgs[1] !== null && typeof rawArgs[1] !== 'string') {
         addError(ctx, [...path, '[2]'], 'The data type must be a string (expressions cannot be used here)');
+      }
+    },
+  },
+  optionLabel: {
+    validator({ rawArgs, ctx, path }) {
+      const optionsId = rawArgs[0];
+      if (optionsId === null || typeof optionsId !== 'string') {
+        addError(ctx, [...path, '[1]'], 'The first argument must be a string (expressions cannot be used here)');
       }
     },
   },

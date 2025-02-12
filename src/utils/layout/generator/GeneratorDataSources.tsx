@@ -11,6 +11,7 @@ import { useLaxDataElementsSelectorProps, useLaxInstanceDataSources } from 'src/
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
+import { useCodeListSelectorProps } from 'src/features/options/CodeListsProvider';
 import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
 import { Validation } from 'src/features/validation/validationContext';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
@@ -54,6 +55,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     nodeDataSelector,
     dataSelectorForTraversal,
     isHiddenSelector,
+    codeListSelector,
   ] = useMultipleDelayedSelectors(
     FD.useDebouncedSelectorProps(),
     FD.useDebouncedRowsSelectorProps(),
@@ -62,6 +64,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     NodesInternal.useNodeDataSelectorProps(),
     NodesInternal.useDataSelectorForTraversalProps(),
     Hidden.useIsHiddenSelectorProps(),
+    useCodeListSelectorProps(),
   );
 
   const process = useLaxProcessData();
@@ -102,6 +105,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     currentLayoutSet,
     externalApis,
     dataModelNames,
+    codeListSelector,
   });
 }
 

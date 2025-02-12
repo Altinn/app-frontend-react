@@ -10,16 +10,16 @@ import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings'
 import { resolveQueryParameters } from 'src/features/options/evalQueryParameters';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
-import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IMapping, IQueryParameters } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
-// Also used for prefetching @see staticOptionsPrefetcher.tsx
-export function useGetOptionsQueryDef(url?: string): QueryDefinition<{ data: IOptionInternal[] | undefined }> {
+export const useGetOptionsQuery = (
+  url: string | undefined,
+): UseQueryResult<AxiosResponse<IOptionInternal[], AxiosError>> => {
   const { fetchOptions } = useAppQueries();
-  return {
+  return useQuery({
     queryKey: ['fetchOptions', url],
     queryFn: url
       ? () =>
@@ -29,12 +29,8 @@ export function useGetOptionsQueryDef(url?: string): QueryDefinition<{ data: IOp
           }))
       : skipToken,
     enabled: !!url,
-  };
-}
-
-export const useGetOptionsQuery = (
-  url: string | undefined,
-): UseQueryResult<AxiosResponse<IOptionInternal[], AxiosError>> => useQuery(useGetOptionsQueryDef(url));
+  });
+};
 
 export const useGetOptionsUrl = (
   node: LayoutNode,
