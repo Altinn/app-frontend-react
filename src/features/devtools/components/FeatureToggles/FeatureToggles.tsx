@@ -53,27 +53,27 @@ export function FeatureToggles() {
                   id={`${key}-checkbox`}
                   onChange={(ev) => setFeature(key, ev.target.checked)}
                   value='nothing'
+                  aria-labelledby={`${key}-content`}
                 />
               </div>
               <label
-                key={`${key}-content`}
-                htmlFor={`${key}-checkbox`}
+                id={`${key}-content`}
                 className={classes.itemContent}
               >
                 <Heading
-                  spacing={true}
-                  size='small'
+                  data-spacing={true}
+                  data-size='small'
                   level={4}
                 >
                   {parseAndCleanText(title)}
                 </Heading>
-                <Label size='xsmall'>Nøkkel: {key}</Label>
+                <Label data-size='xsmall'>Nøkkel: {key}</Label>
                 <br />
-                <Label size='xsmall'>
+                <Label data-size='xsmall'>
                   Verdi: {JSON.stringify(value)} / Standardverdi: {JSON.stringify(defaultValue)}
                 </Label>
                 <br />
-                <Label size='xsmall'>Kilde: {sourceMap[source]}</Label>
+                <Label data-size='xsmall'>Kilde: {sourceMap[source]}</Label>
                 <Paragraph>
                   {parseAndCleanText(description)}
                   {links && links.length && (

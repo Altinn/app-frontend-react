@@ -93,7 +93,7 @@ function InstanceSelection() {
   const renderMobileTable = () => (
     <>
       <Heading
-        size='xsmall'
+        data-size='xsmall'
         level={3}
         className={classes.leftOffHeading}
       >
@@ -159,7 +159,7 @@ function InstanceSelection() {
                     showRowsPerPageDropdown={true}
                     rowsPerPageOptions={rowsPerPageOptions}
                     onPageSizeChange={(value) => handleRowsPerPageChanged(+value)}
-                    onChange={setCurrentPage}
+                    setCurrentPage={setCurrentPage}
                   />
                 </div>
               </Table.Cell>
@@ -232,7 +232,7 @@ function InstanceSelection() {
                     pageSize={rowsPerPage}
                     rowsPerPageOptions={rowsPerPageOptions}
                     onPageSizeChange={(value) => handleRowsPerPageChanged(+value)}
-                    onChange={setCurrentPage}
+                    setCurrentPage={setCurrentPage}
                   />
                 </div>
               </Table.Cell>
@@ -253,7 +253,7 @@ function InstanceSelection() {
         <div>
           <Heading
             level={2}
-            size='medium'
+            data-size='medium'
             id='instance-selection-header'
           >
             <Lang id='instance_selection.header' />

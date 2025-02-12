@@ -55,10 +55,8 @@ export const VersionSwitcher = () => {
   }
 
   return (
-    <Fieldset
-      legend='Frontend versjon'
-      style={{ width: 250 }}
-    >
+    <Fieldset style={{ width: 250 }}>
+      <Fieldset.Legend>Frontend versjon</Fieldset.Legend>
       <Combobox
         size='sm'
         value={selectedVersion ? [selectedVersion] : []}

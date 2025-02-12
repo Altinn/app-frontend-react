@@ -33,7 +33,7 @@ const InnerHeader = ({ header, aboveHeader, children }: IInnerHeaderProps) => (
         <Flex item>
           <Heading
             level={1}
-            size='medium'
+            data-size='medium'
             data-testid='presentation-heading'
           >
             {header}

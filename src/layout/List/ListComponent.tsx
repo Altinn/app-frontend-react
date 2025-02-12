@@ -102,7 +102,6 @@ export const ListComponent = ({ node }: IListProps) => {
               <Lang id={description} />
             </Fieldset.Description>
           )}
-
           {data?.listItems.map((row) => (
             <Radio
               key={JSON.stringify(row)}
@@ -256,7 +255,7 @@ function Pagination({
         currentPage={currentPage}
         numberOfRows={numberOfRows}
         pageSize={pageSize}
-        onChange={() => setCurrentPage}
+        setCurrentPage={setCurrentPage}
         showRowsPerPageDropdown
         onPageSizeChange={(value) => handlePageSizeChange(+value)}
         rowsPerPageOptions={rowsPerPageOptions}

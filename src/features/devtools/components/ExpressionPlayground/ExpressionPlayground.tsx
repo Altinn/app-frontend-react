@@ -186,7 +186,7 @@ export const ExpressionPlayground = () => {
           {outputs.length > 1 && (
             <div className={classes.outputs}>
               <Tabs
-                size='small'
+                data-size='small'
                 value={activeOutputTab}
                 onChange={(outputName) => {
                   setActiveOutputTab(outputName);
@@ -208,7 +208,7 @@ export const ExpressionPlayground = () => {
                 {outputs.map((output, i) => {
                   const { key, value } = getTabKeyAndValue(i, output);
                   return (
-                    <Tabs.Content
+                    <Tabs.Panel
                       value={value}
                       key={key}
                     >
@@ -219,7 +219,7 @@ export const ExpressionPlayground = () => {
                         value={output.value}
                         placeholder='Resultatet av uttrykket vises her'
                       />
-                    </Tabs.Content>
+                    </Tabs.Panel>
                   );
                 })}
               </Tabs>
@@ -227,7 +227,8 @@ export const ExpressionPlayground = () => {
           )}
         </SplitView>
         <div className={classes.rightColumn}>
-          <Fieldset legend='Kjør uttrykk i kontekst av komponent'>
+          <Fieldset>
+            <Fieldset.Legend>Kjør uttrykk i kontekst av komponent</Fieldset.Legend>
             <Combobox
               size='sm'
               value={selectedContext}
@@ -276,14 +277,14 @@ export const ExpressionPlayground = () => {
                   setShowAllSteps(ev.target.checked);
                 }}
                 value='nothing'
-              >
-                Vis alle steg i evalueringen
-              </Checkbox>
+                label='Vis alle steg i evalueringen'
+              />
             </div>
           </Fieldset>
           <br />
           <br />
-          <Fieldset legend='Dokumentasjon'>
+          <Fieldset>
+            <Fieldset.Legend>Dokumentasjon</Fieldset.Legend>
             Les mer om uttrykk{' '}
             <a
               href='https://docs.altinn.studio/nb/app/development/logic/expressions/'

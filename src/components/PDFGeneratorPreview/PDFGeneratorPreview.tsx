@@ -1,13 +1,12 @@
 import React from 'react';
 
-import { Modal, Spinner } from '@digdir/designsystemet-react';
+import { Heading, Modal, Spinner } from '@digdir/designsystemet-react';
 import { FilePdfIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/Button/Button';
 import classes from 'src/features/devtools/components/PDFPreviewButton/PDFPreview.module.css';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
-import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ProcessTaskType } from 'src/types';
@@ -81,7 +80,7 @@ export function PDFGeneratorPreview({
       <Modal
         ref={modalRef}
         onClose={() => abortRef.current?.abort()}
-        onInteractOutside={() => modalRef.current?.close()}
+        backdropClose={true}
         className={classes.modal}
       >
         {blobUrl ? (
@@ -92,24 +91,20 @@ export function PDFGeneratorPreview({
           />
         ) : errorText ? (
           <div style={{ textAlign: 'center' }}>
-            <Modal.Header>
-              <Lang id='pdfPreview.error' />
-            </Modal.Header>
-            <Modal.Content>
-              {showErrorDetails &&
-                errorText.split('\n').map((line) => (
-                  <React.Fragment key={line}>
-                    {line}
-                    <br />
-                  </React.Fragment>
-                ))}
-            </Modal.Content>
+            <Heading id='pdfPreview.error' />
+            {showErrorDetails &&
+              errorText.split('\n').map((line) => (
+                <React.Fragment key={line}>
+                  {line}
+                  <br />
+                </React.Fragment>
+              ))}
           </div>
         ) : (
           <div className={classes.loading}>
             <Spinner
-              title={langAsString('general.loading')}
-              size='xlarge'
+              aria-label={langAsString('general.loading')}
+              data-size='xlarge'
             />
           </div>
         )}

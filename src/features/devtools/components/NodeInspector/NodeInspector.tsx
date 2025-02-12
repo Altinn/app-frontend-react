@@ -61,7 +61,7 @@ export const NodeInspector = () => {
             }}
           >
             <Tabs
-              size='small'
+              data-size='small'
               defaultValue='properties'
               className={reusedClasses.tabs}
             >
@@ -69,7 +69,7 @@ export const NodeInspector = () => {
                 <Tabs.Tab value='properties'>Egenskaper</Tabs.Tab>
                 {implementsAnyValidation(selectedNode.def) && <Tabs.Tab value='validation'>Validering</Tabs.Tab>}
               </Tabs.List>
-              <Tabs.Content value='properties'>
+              <Tabs.Panel value='properties'>
                 <div className={reusedClasses.properties}>
                   <div className={reusedClasses.headerLink}>
                     <a
@@ -85,12 +85,12 @@ export const NodeInspector = () => {
                   {/*  eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {selectedNode.def.renderDevToolsInspector(selectedNode as any)}
                 </div>
-              </Tabs.Content>
-              <Tabs.Content value='validation'>
+              </Tabs.Panel>
+              <Tabs.Panel value='validation'>
                 <div className={reusedClasses.scrollable}>
                   <ValidationInspector node={selectedNode} />
                 </div>
-              </Tabs.Content>
+              </Tabs.Panel>
             </Tabs>
           </NodeInspectorContextProvider>
         </>

@@ -5,10 +5,8 @@ import { Fieldset } from '@digdir/designsystemet-react';
 import { LanguageSelector } from 'src/components/presentation/LanguageSelector';
 
 export const DevLanguageSelector = () => (
-  <Fieldset
-    legend='Språk'
-    style={{ width: 250 }}
-  >
+  <Fieldset style={{ width: 250 }}>
+    <Fieldset.Legend>Språk</Fieldset.Legend>
     <LanguageSelector hideLabel={true} />
   </Fieldset>
 );

@@ -44,18 +44,18 @@ export const RadioButton = ({
   const radioButton = (
     <Radio
       {...rest}
-      label={label}
+      label={
+        label && (
+          <div className={`${hideLabel ? 'sr-only' : ''} ${classes.radioLabelContainer}`}>
+            {label}
+            {helpText ? <HelpText title={elementAsString(helpText)}>{helpText}</HelpText> : null}
+          </div>
+        )
+      }
       className={cn(classes.radioButton, className)}
       onChange={handleChange}
       ref={showAsCard ? inputRef : undefined}
-    >
-      {label && (
-        <div className={`${hideLabel ? 'sr-only' : ''} ${classes.radioLabelContainer}`}>
-          {label}
-          {helpText ? <HelpText title={elementAsString(helpText)}>{helpText}</HelpText> : null}
-        </div>
-      )}
-    </Radio>
+    />
   );
   const cardElement = (
     /** This element is only clickable for visual

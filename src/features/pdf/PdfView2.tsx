@@ -178,7 +178,7 @@ function PdfWrapping({ children }: PropsWithChildren) {
       >
         <Heading
           level={1}
-          size='lg'
+          data-size='lg'
         >
           {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
         </Heading>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Alert as AlertDesignSystem, ErrorMessage } from '@digdir/designsystemet-react';
+import { Alert as AlertDesignSystem, ValidationMessage } from '@digdir/designsystemet-react';
 
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
@@ -99,13 +99,13 @@ function ErrorValidations({ validations, node }: { validations: BaseValidation<'
     <ul style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
       {validations.map((validation) => (
         <li key={getUniqueKeyFromObject(validation)}>
-          <ErrorMessage size='small'>
+          <ValidationMessage data-size='small'>
             <Lang
               id={validation.message.key}
               params={validation.message.params}
               node={node}
             />
-          </ErrorMessage>
+          </ValidationMessage>
         </li>
       ))}
     </ul>
@@ -127,7 +127,7 @@ function SoftValidations({
     <div style={{ paddingTop: 'var(--fds-spacing-2)' }}>
       <AlertDesignSystem
         style={{ breakInside: 'avoid' }}
-        severity={severity}
+        data-color={severity}
       >
         <ul style={{ paddingLeft: 0, listStyleType: 'none' }}>
           {validations.map((validation) => (

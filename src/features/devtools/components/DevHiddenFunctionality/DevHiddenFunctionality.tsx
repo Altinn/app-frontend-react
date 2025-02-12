@@ -26,11 +26,12 @@ function InnerDevHiddenFunctionality() {
   const setShowHiddenComponents = useDevToolsStore((state) => state.actions.setShowHiddenComponents);
 
   return (
-    <Fieldset legend='Skjulte komponenter'>
+    <Fieldset>
+      <Fieldset.Legend>Skjulte komponenter</Fieldset.Legend>
       <MarkHiddenComponents />
       <div>
         <ToggleGroup
-          size='small'
+          data-size='small'
           onChange={(selectedValue) => setShowHiddenComponents(selectedValue as IDevToolsState['hiddenComponents'])}
           value={state}
         >

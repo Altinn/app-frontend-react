@@ -129,7 +129,7 @@ export function ReceiptComponent({
     >
       <Heading
         level={2}
-        size='medium'
+        data-size='medium'
       >
         {title}
       </Heading>
@@ -156,7 +156,7 @@ export function ReceiptComponent({
           {titleSubmitted && (
             <Heading
               level={3}
-              size='small'
+              data-size='small'
               style={{
                 paddingTop: '2.562rem',
                 paddingBottom: '0.3125rem',
