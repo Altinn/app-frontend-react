@@ -55,7 +55,7 @@ describe('LayoutSettingsContext', () => {
     });
   }
 
-  describe('useRawPageOrder', () => {
+  describe('useRawPageOrder()', () => {
     const UseRawPageOrder = () =>
       useRawPageOrder().map((page) => (
         <p
@@ -92,7 +92,7 @@ describe('LayoutSettingsContext', () => {
     });
   });
 
-  describe('usePageGroups', () => {
+  describe('usePageGroups()', () => {
     const UsePageGroups = () => {
       const groups = usePageGroups();
       return (
@@ -145,7 +145,7 @@ describe('LayoutSettingsContext', () => {
     });
   });
 
-  describe('usePageSettings', () => {
+  describe('usePageSettings().taskNavigation', () => {
     const UseTaskNavigation = () => {
       const taskNavigation = usePageSettings().taskNavigation;
       return (
