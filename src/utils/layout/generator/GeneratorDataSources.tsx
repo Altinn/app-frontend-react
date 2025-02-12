@@ -55,6 +55,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     nodeDataSelector,
     dataSelectorForTraversal,
     isHiddenSelector,
+    dataElementSelector,
     codeListSelector,
   ] = useMultipleDelayedSelectors(
     FD.useDebouncedSelectorProps(),
@@ -64,6 +65,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     NodesInternal.useNodeDataSelectorProps(),
     NodesInternal.useDataSelectorForTraversalProps(),
     Hidden.useIsHiddenSelectorProps(),
+    useLaxDataElementsSelectorProps(),
     useCodeListSelectorProps(),
   );
 
@@ -105,6 +107,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     currentLayoutSet,
     externalApis,
     dataModelNames,
+    dataElementSelector,
     codeListSelector,
   });
 }
