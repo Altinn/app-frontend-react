@@ -218,7 +218,7 @@ function PageGroupSingle({
   return (
     <li>
       <button
-        aria-current={isCurrentPage ? 'step' : undefined}
+        aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.groupButton, 'fds-focus')}
         onClick={() => {
           if (!isCurrentPage) {
@@ -228,7 +228,6 @@ function PageGroupSingle({
         }}
       >
         <PageGroupSymbol
-          open={false}
           type={group.type}
           active={isCurrentPage}
           error={validations !== ContextNotProvided && validations.hasErrors.group}
@@ -253,6 +252,7 @@ function PageGroupMultiple({
   const listId = `navigation-page-list-${group.id}`;
 
   const [isOpen, setIsOpen] = useState(containsCurrentPage);
+  // TODO: Fix warning
   useInsertionEffect(() => setIsOpen(containsCurrentPage), [containsCurrentPage]);
 
   return (
@@ -275,7 +275,10 @@ function PageGroupMultiple({
         <span className={cn(classes.groupName, { [classes.groupNameActive]: containsCurrentPage && !isOpen })}>
           <Lang id={group.name} />
         </span>
-        <ChevronDownIcon className={cn(classes.groupChevron, { [classes.groupChevronOpen]: isOpen })} />
+        <ChevronDownIcon
+          data-testid='chevron'
+          className={cn(classes.groupChevron, { [classes.groupChevronOpen]: isOpen })}
+        />
       </button>
       {isOpen && (
         <ul
@@ -302,14 +305,14 @@ function PageGroupSymbol({
   type,
   error,
   complete,
-  open,
   active,
+  open = false,
 }: {
   type: NavigationPageGroup['type'];
   error: boolean;
   complete: boolean;
-  open: boolean;
   active: boolean;
+  open?: boolean;
 }) {
   const getTaskType = useGetAltinnTaskType();
   const currentTaskId = useProcessTaskId();
@@ -319,6 +322,7 @@ function PageGroupSymbol({
   const showComplete = complete && !error && !active && !open;
 
   const Icon = showError ? XMarkIcon : showComplete ? CheckmarkIcon : getTaskIcon(getTaskType(currentTaskId), type);
+  const testid = showError ? 'state-error' : showComplete ? 'state-complete' : undefined;
 
   return (
     <div
@@ -329,7 +333,10 @@ function PageGroupSymbol({
         [classes.groupSymbolDefault]: !showError && !showComplete && !showActive,
       })}
     >
-      <Icon aria-hidden />
+      <Icon
+        aria-hidden
+        data-testid={testid}
+      />
     </div>
   );
 }
@@ -382,6 +389,7 @@ function PageSymbol({ error, complete, active }: { error: boolean; complete: boo
   const showComplete = complete && !error && !active;
 
   const Icon = showError ? XMarkIcon : showComplete ? CheckmarkIcon : null;
+  const testid = showError ? 'state-error' : showComplete ? 'state-complete' : undefined;
 
   return (
     <div
@@ -392,7 +400,12 @@ function PageSymbol({ error, complete, active }: { error: boolean; complete: boo
         [classes.pageSymbolDefault]: !showError && !showComplete,
       })}
     >
-      {Icon && <Icon aria-hidden />}
+      {Icon && (
+        <Icon
+          aria-hidden
+          data-testid={testid}
+        />
+      )}
     </div>
   );
 }
