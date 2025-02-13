@@ -20,7 +20,7 @@ import classes from 'src/features/pdf/PDFView.module.css';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { getFeature } from 'src/features/toggles';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
-import { GenericComponent } from 'src/layout/GenericComponent';
+import { GenericComponentById } from 'src/layout/GenericComponent';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -195,10 +195,11 @@ function PdfWrapping({ children }: PropsWithChildren) {
 }
 
 function PlainPage({ pageKey }: { pageKey: string }) {
-  const children = useNodeTraversal((t) => {
-    const page = t.findPage(pageKey);
-    return page ? t.with(page).children() : [];
-  });
+  const children = NodesInternal.useShallowSelector((state) =>
+    Object.values(state.nodeData || {})
+      .filter((data) => data.pageKey === pageKey && data.parentId === undefined) // Find top-level nodes
+      .map((data) => data.layout.id),
+  );
 
   return (
     <div className={classes.page}>
@@ -207,10 +208,10 @@ function PlainPage({ pageKey }: { pageKey: string }) {
         spacing={6}
         alignItems='flex-start'
       >
-        {children.map((node) => (
-          <GenericComponent
-            key={node.id}
-            node={node}
+        {children.map((nodeId) => (
+          <GenericComponentById
+            key={nodeId}
+            id={nodeId}
           />
         ))}
       </Flex>
