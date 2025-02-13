@@ -1,6 +1,8 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import type { JSONSchema7Definition } from 'json-schema';
+
 import { evalQueryParameters } from 'src/features/options/evalQueryParameters';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { ListDef } from 'src/layout/List/config.def.generated';
@@ -112,7 +114,7 @@ export class List extends ListDef {
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
     const errors: string[] = [];
-    const allowedTypes = ['string', 'boolean', 'number'];
+    const allowedTypes = ['string', 'boolean', 'number', 'integer'];
     if (!ctx.item.dataModelBindings?.saveToList) {
       for (const [binding] of Object.entries(ctx.item.dataModelBindings ?? {})) {
         const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedTypes, false);
@@ -129,15 +131,17 @@ export class List extends ListDef {
           : undefined;
 
       for (const [binding] of Object.entries(ctx.item.dataModelBindings ?? {})) {
-        let selectedBinding;
+        let selectedBinding: JSONSchema7Definition | undefined;
         if (properties) {
           selectedBinding = properties[binding];
         }
         if (binding !== 'saveToList' && items && typeof items === 'object' && 'properties' in items) {
           if (!selectedBinding) {
             errors.push(`saveToList must contain a field with the same name as the field ${binding}`);
+          } else if (typeof selectedBinding !== 'object' || typeof selectedBinding.type !== 'string') {
+            errors.push(`Field ${binding} in saveToList must be one of types ${allowedTypes.join(', ')}`);
           } else if (!allowedTypes.includes(selectedBinding.type)) {
-            errors.push(`Field ${binding} in saveToList must be of type string, number or boolean`);
+            errors.push(`Field ${binding} in saveToList must be one of types ${allowedTypes.join(', ')}`);
           }
         }
       }
