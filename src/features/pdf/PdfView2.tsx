@@ -26,7 +26,7 @@ import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSumm
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { IPdfFormat } from 'src/features/pdf/types';
@@ -85,12 +85,16 @@ export const PDFView2 = () => {
 };
 
 export function DataLoaderStoreInit({ children }: PropsWithChildren) {
-  const subforms = useNodeTraversal((t) => t.allNodes().filter((node) => node.isType('Subform')));
+  const subformIds = NodesInternal.useShallowSelector((state) =>
+    Object.values(state.nodeData || {})
+      .filter((node) => node.layout.type === 'Subform')
+      .map((node) => node.layout.id),
+  );
 
   const [loadingState, setLoadingState] = React.useState(() => {
     const initialLoadingState: Record<string, DataLoadingState> = {};
-    for (const subform of subforms) {
-      initialLoadingState[subform.id] = DataLoadingState.Loading;
+    for (const subformId of subformIds) {
+      initialLoadingState[subformId] = DataLoadingState.Loading;
     }
 
     return initialLoadingState;
@@ -107,10 +111,10 @@ export function DataLoaderStoreInit({ children }: PropsWithChildren) {
 
   return (
     <>
-      {subforms.map((subform, idx) => (
+      {subformIds.map((subformId, idx) => (
         <DataLoaderStoreInitWorker
           key={idx}
-          node={subform}
+          nodeId={subformId}
           initComplete={handleWorkerCompletion}
         />
       ))}
@@ -120,12 +124,13 @@ export function DataLoaderStoreInit({ children }: PropsWithChildren) {
 }
 
 function DataLoaderStoreInitWorker({
-  node,
+  nodeId,
   initComplete,
 }: PropsWithChildren<{
-  node: LayoutNode<'Subform'>;
+  nodeId: string;
   initComplete: (subformId: string) => void;
 }>): React.JSX.Element | null {
+  const node = useNode(nodeId) as LayoutNode<'Subform'>;
   const { layoutSet } = useNodeItem(node);
   const setDataLoaderElements = useDataLoadingStore((state) => state.setDataElements);
   const dataLoaderElements = useDataLoadingStore((state) => state.dataElements);

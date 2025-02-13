@@ -52,6 +52,7 @@ import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStore
 import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { DSProps, DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
+import type { ObjectOrArray } from 'src/hooks/useShallowMemo';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
@@ -1249,6 +1250,12 @@ export const NodesInternal = {
       return s.nodeData[node.id] !== undefined;
     }),
   useHasErrors: () => Store.useSelector((s) => s.hasErrors),
+
+  // Raw selectors, used when there are no other hooks that match your needs
+  useSelector: <T,>(selector: (state: NodesContext) => T) => Store.useSelector(selector),
+  useShallowSelector: <T extends ObjectOrArray>(selector: (state: NodesContext) => T) =>
+    Store.useShallowSelector(selector),
+  useMemoSelector: <T,>(selector: (state: NodesContext) => T) => Store.useMemoSelector(selector),
 
   useStore: () => Store.useStore(),
   useSetNodeProps: () => Store.useStaticSelector((s) => s.setNodeProps),

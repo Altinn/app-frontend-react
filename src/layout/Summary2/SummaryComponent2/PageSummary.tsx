@@ -1,18 +1,17 @@
 import React from 'react';
 
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { Hidden, useGetPage } from 'src/utils/layout/NodesContext';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import { typedBoolean } from 'src/utils/typing';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface PageSummaryProps {
   pageId: string;
 }
 
 export function PageSummary({ pageId }: PageSummaryProps) {
-  const page = useNodeTraversal((dings) => dings.findPage(pageId));
-  const children = useNodeTraversal((t) => t.children(), page) as (LayoutNode | undefined)[];
+  const page = useGetPage(pageId);
+  const children = useNodeTraversal((t) => (page ? t.with(page).children() : []));
   const isHiddenPage = Hidden.useIsHiddenPage(page);
 
   if (!page || !children) {
