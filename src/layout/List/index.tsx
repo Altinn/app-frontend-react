@@ -121,6 +121,10 @@ export class List extends ListDef {
         errors.push(...(newErrors || []));
       }
     }
+    const [newErrors] = this.validateDataModelBindingsAny(ctx, 'saveToList', ['array'], false);
+    if (newErrors) {
+      errors.push(...(newErrors || []));
+    }
 
     if (ctx.item.dataModelBindings?.saveToList) {
       const saveToListBinding = ctx.lookupBinding(ctx.item?.dataModelBindings?.saveToList);
