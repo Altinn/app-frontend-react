@@ -33,7 +33,7 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
   const { formData } = useDataModelBindings(dataModelBindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
 
   const displayRows: Row[] = [];
-  (formData?.saveToList as Row[]).forEach((row: Row) => {
+  (formData?.saveToList as Row[])?.forEach((row: Row) => {
     const { altinnRowId: _, ...rest } = row;
     displayRows.push(rest);
   });

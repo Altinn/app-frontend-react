@@ -120,11 +120,6 @@ export class List extends ListDef {
       }
     }
 
-    const [newErrors] = this.validateDataModelBindingsAny(ctx, 'saveToList', ['array']);
-    if (newErrors) {
-      errors.push(...(newErrors || []));
-    }
-
     if (ctx.item.dataModelBindings?.saveToList) {
       const saveToListBinding = ctx.lookupBinding(ctx.item?.dataModelBindings?.saveToList);
       const items = saveToListBinding[0]?.items;
