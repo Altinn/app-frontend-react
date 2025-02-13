@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import { useInstanceQuery } from 'src/next/v1/queries/instanceQuery';
 
@@ -19,6 +19,8 @@ export const Instance = () => {
 
   return (
     <div>
+      <Link to={`${data?.process.currentTask.elementId}`}>{data?.process.currentTask.elementId}</Link>
+
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );

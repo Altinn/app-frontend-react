@@ -26,10 +26,10 @@ export function useInstantiateMutation() {
     onError: (error: HttpClientError) => {
       window.logError('Instantiation failed:\n', error);
     },
-    onSuccess: (data) => {
-      //onSuccess(data);
-      //navigate(`/instance/${data.id}`);
-      //queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
-    },
+    //onSuccess: (data) => {
+    //onSuccess(data);
+    //navigate(`/instance/${data.id}`);
+    //queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
+    //},
   });
 }
