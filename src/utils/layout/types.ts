@@ -27,6 +27,8 @@ export interface StateFactoryProps<Type extends CompTypes> {
   item: CompIntermediateExact<Type>;
   pageKey: string;
   parent: LayoutNode | LayoutPage;
+  parentId: string | undefined;
+  depth: number;
   rowIndex: number | undefined;
   idMutators: ChildIdMutator[];
   layoutMap: Record<string, CompExternal>;
@@ -41,6 +43,8 @@ export interface GeneratorErrors {
 export interface BaseNodeData<T extends CompTypes> {
   type: 'node';
   pageKey: string;
+  parentId: string | undefined; // String if parent is a node, undefined if parent is a page (on the top level)
+  depth: number;
   layout: CompIntermediate<T>;
   item: CompInternal<T> | undefined;
   hidden: boolean | undefined;

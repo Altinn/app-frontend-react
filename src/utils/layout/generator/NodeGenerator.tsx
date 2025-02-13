@@ -22,6 +22,7 @@ import {
 } from 'src/utils/layout/generator/GeneratorStages';
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -110,6 +111,7 @@ function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T
 
 function AddRemoveNode<T extends CompTypes>({ node, intermediateItem }: CommonProps<T>) {
   const parent = GeneratorInternal.useParent()!;
+  const depth = GeneratorInternal.useDepth();
   const rowIndex = GeneratorInternal.useRowIndex();
   const pageKey = GeneratorInternal.usePage()?.pageKey ?? '';
   const idMutators = GeneratorInternal.useIdMutators() ?? [];
@@ -118,6 +120,8 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem }: CommonPr
   const stateFactoryProps = {
     item: intermediateItem,
     parent,
+    parentId: parent instanceof BaseLayoutNode ? parent.id : undefined,
+    depth,
     rowIndex,
     pageKey,
     idMutators,
