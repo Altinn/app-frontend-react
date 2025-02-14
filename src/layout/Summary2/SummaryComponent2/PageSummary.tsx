@@ -1,9 +1,7 @@
 import React from 'react';
 
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
-import { Hidden, useGetPage } from 'src/utils/layout/NodesContext';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
-import { typedBoolean } from 'src/utils/typing';
+import { Hidden, NodesInternal, useGetPage, useNode } from 'src/utils/layout/NodesContext';
 
 interface PageSummaryProps {
   pageId: string;
@@ -11,7 +9,11 @@ interface PageSummaryProps {
 
 export function PageSummary({ pageId }: PageSummaryProps) {
   const page = useGetPage(pageId);
-  const children = useNodeTraversal((t) => (page ? t.with(page).children() : []));
+  const children = NodesInternal.useShallowSelector((state) =>
+    Object.values(state.nodeData)
+      .filter((nodeData) => nodeData.pageKey === pageId && nodeData.parentId === undefined) // Find top-level nodes
+      .map((nodeData) => nodeData.layout.id),
+  );
   const isHiddenPage = Hidden.useIsHiddenPage(page);
 
   if (!page || !children) {
@@ -22,10 +24,19 @@ export function PageSummary({ pageId }: PageSummaryProps) {
     return null;
   }
 
-  return children?.filter(typedBoolean).map((child, idx) => (
-    <ComponentSummary
-      componentNode={child}
-      key={`${child.id}-${idx}`}
+  return children?.map((nodeId) => (
+    <NodeSummary
+      nodeId={nodeId}
+      key={nodeId}
     />
   ));
+}
+
+function NodeSummary({ nodeId }: { nodeId: string }) {
+  const node = useNode(nodeId);
+  if (!node) {
+    return null;
+  }
+
+  return <ComponentSummary componentNode={node} />;
 }
