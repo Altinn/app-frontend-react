@@ -16,7 +16,7 @@ export function ExpandWidthButton(props: Parameters<typeof Button>[0]) {
       data-testid='form-expand-button'
       onClick={toggleExpandedWidth}
       variant='tertiary'
-      color='second'
+      color='first'
       size='sm'
       {...props}
       className={cn(classes.expandWidthButton, props.className)}

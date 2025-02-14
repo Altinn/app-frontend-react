@@ -30,16 +30,6 @@
   color: var(--fds-semantic-text-action-first-active);
 }
 
-.popover-button {
-  max-width: 235px;
-}
-
-@media only screen and (min-width: 768px) {
-  .popover-button {
-    max-width: 315px;
-  }
-}
-
 .popover-button-icon {
   font-size: 1.2rem;
 }
