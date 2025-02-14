@@ -16,7 +16,7 @@ import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStor
 import { UpdateAttachmentsForCypress } from 'src/features/attachments/UpdateAttachmentsForCypress';
 import { HiddenComponentsProvider } from 'src/features/form/dynamics/HiddenComponentsProvider';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
-import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
 import { useIsCurrentView } from 'src/features/routing/AppRoutingContext';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
@@ -963,9 +963,8 @@ export const Hidden = {
    */
   useIsPageInOrder(pageKey: string) {
     const isCurrentView = useIsCurrentView(pageKey);
-    const maybeLayoutSettings = useLaxLayoutSettings();
-    const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? [] : maybeLayoutSettings.pages.order;
     const layoutSettings = useLayoutSettings();
+    const orderWithHidden = layoutSettings.pages.order;
 
     if (isCurrentView) {
       // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
