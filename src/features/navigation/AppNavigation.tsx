@@ -1,4 +1,4 @@
-import React, { useInsertionEffect, useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 
 import { Button, Heading, Spinner } from '@digdir/designsystemet-react';
 import {
@@ -263,8 +263,7 @@ function PageGroupMultiple({
   const listId = `navigation-page-list-${group.id}`;
 
   const [isOpen, setIsOpen] = useState(containsCurrentPage);
-  // TODO: Fix warning
-  useInsertionEffect(() => setIsOpen(containsCurrentPage), [containsCurrentPage]);
+  useLayoutEffect(() => setIsOpen(containsCurrentPage), [containsCurrentPage]);
 
   return (
     <li>
