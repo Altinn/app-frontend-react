@@ -39,25 +39,29 @@ export const Task = () => {
   }
 
   return (
-    <div>
-      <Outlet />
-      <h2>Pages</h2>
-      <ul>
-        {pageOrder.pages.order?.map((page) => (
-          <li key={page}>
-            <Link to={page}>{page}</Link>
-          </li>
-        ))}
-      </ul>
+    <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '1rem', height: '100%' }}>
+      <aside style={{ border: '1px solid gray' }}>
+        <ul>
+          {pageOrder.pages.order?.map((page) => (
+            <li key={page}>
+              <Link to={page}>{page}</Link>
+            </li>
+          ))}
+        </ul>
+      </aside>
+      <main style={{ border: '1px solid black' }}>
+        <Outlet />
+      </main>
+      {/*<h2>Pages</h2>*/}
 
-      <h2>Current layoutset</h2>
+      {/*<h2>Current layoutset</h2>*/}
 
-      <pre>{JSON.stringify(currentLayoutSet, null, 2)}</pre>
+      {/*<pre>{JSON.stringify(currentLayoutSet, null, 2)}</pre>*/}
 
-      <h1>Task we at</h1>
-      <h2>{taskId}</h2>
+      {/*<h1>Task we at</h1>*/}
+      {/*<h2>{taskId}</h2>*/}
 
-      <pre>{JSON.stringify(layoutSetsConfig, null, 2)}</pre>
+      {/*<pre>{JSON.stringify(layoutSetsConfig, null, 2)}</pre>*/}
     </div>
   );
 };

@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { Link, Outlet, useParams } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router-dom';
 
 import { useStore } from 'zustand';
 
 import { useApiClient } from 'src/next/app/ApiClientContext';
 import { APP, ORG } from 'src/next/app/App';
+import { dataStore } from 'src/next/stores/dataStore';
 import { instanceStore } from 'src/next/stores/instanceStore';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { useInstanceQuery } from 'src/next/v1/queries/instanceQuery';
@@ -32,6 +33,8 @@ export const Instance = () => {
 
   const { setLayoutSets } = useStore(layoutStore);
 
+  const { setDataObject } = useStore(dataStore);
+
   useEffect(() => {
     const fetchTest = async () => {
       const res = await apiClient.org.layoutsetsDetail(ORG, APP);
@@ -44,11 +47,18 @@ export const Instance = () => {
 
   useEffect(() => {
     const fetchData = async (instance: InstanceDTO) => {
-      console.log(JSON.stringify(instance, null, 2));
-
-      console.log('instane');
-
-      // const res = apiClient.org.dataDetail(ORG, APP, instane.);
+      if (!instance.instanceOwner.partyId) {
+        throw new Error('no party id');
+      }
+      const res = await apiClient.org.dataDetail(
+        ORG,
+        APP,
+        Number.parseInt(instance.instanceOwner.partyId),
+        instance.data[0].instanceGuid,
+        instance.data[0].id,
+      );
+      const data = await res.json();
+      setDataObject(data);
     };
 
     if (instance) {
@@ -63,14 +73,14 @@ export const Instance = () => {
   return (
     <div>
       <Outlet />
-      <h1>Instance</h1>
-      <div>{partyId}</div>
-      <div> {instanceGuid}</div>
-      <Link to={`${data?.process.currentTask.elementId}`}>{data?.process.currentTask.elementId}</Link>
+      {/*<h1>Instance</h1>*/}
+      {/*<div>{partyId}</div>*/}
+      {/*<div> {instanceGuid}</div>*/}
+      {/*<Link to={`${data?.process.currentTask.elementId}`}>{data?.process.currentTask.elementId}</Link>*/}
 
-      <h2>Instance</h2>
+      {/*<h2>Instance</h2>*/}
 
-      <pre>{JSON.stringify(instance, null, 2)}</pre>
+      {/*<pre>{JSON.stringify(instance, null, 2)}</pre>*/}
     </div>
   );
 };
