@@ -56,9 +56,8 @@ export function useGetTaskName() {
  * Explanation on the current logic:
  * 1. A page is marked with error if any of its nodes have visible errors.
  * 2. A group is marked with error if any of its pages have nodes with visible errors.
- * 3. A page is marked as completed if there are no nodes with any validations errors (visible or not), and the user has clicked 'next'.
- *    Immediately marking a page as completed because it has no required nodes can be confusing, so these will never get marked.
- * 4. A group is marked as completed if any of its pages have no nodes with any validations errors (visible or not), and all of the pages are marked as 'visited'.
+ * 3. A page is marked as completed if there are no nodes with any validations errors (visible or not), and the page is marked as 'visited'.
+ * 4. A group is marked as completed if all of its pages have no nodes with any validations errors (visible or not), and all of the pages are marked as 'visited'.
  */
 export function useValidationsForPages(order: string[], shouldMarkWhenCompleted = false) {
   const traversalSelector = useLaxNodeTraversalSelector();
