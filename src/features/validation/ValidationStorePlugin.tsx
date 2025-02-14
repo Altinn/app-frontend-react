@@ -273,7 +273,8 @@ function getRecursiveValidations(props: GetDeepValidationsProps): NodeRefValidat
 
   const children = Object.values(props.state.nodeData)
     .filter(
-      (nodeData) => nodeData.parentId === props.id && (!props.restriction || props.restriction === nodeData.rowIndex),
+      (nodeData) =>
+        nodeData.parentId === props.id && (props.restriction === undefined || props.restriction === nodeData.rowIndex),
     )
     .map((nodeData) => nodeData.layout.id);
 
