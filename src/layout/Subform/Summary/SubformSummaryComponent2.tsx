@@ -123,7 +123,7 @@ export function SubformSummaryComponent2({
   componentNode?: LayoutNode<'Subform'>;
 }) {
   const allOrOneSubformId = NodesInternal.useShallowSelector((state) =>
-    Object.values(state.nodeData ?? {})
+    Object.values(state.nodeData)
       .filter((data) => data.layout.type === 'Subform')
       .filter((data) => {
         if (!subformId) {

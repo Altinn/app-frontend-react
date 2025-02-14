@@ -20,7 +20,7 @@ export const NodeInspector = () => {
   const selectedId = useDevToolsStore((state) => state.nodeInspector.selectedNodeId);
   const selectedNode = useNode(selectedId);
   const children = NodesInternal.useShallowSelector((state) =>
-    Object.values(state.nodeData || {})
+    Object.values(state.nodeData)
       .filter((data) => data.pageKey === pageKey && data.parentId === undefined) // Find top-level nodes
       .map((data) => data.layout.id),
   );

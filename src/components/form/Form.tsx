@@ -207,7 +207,7 @@ function useFormState(): FormState {
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
 
   const [mainIds, errorReportIds] = NodesInternal.useMemoSelector((state) => {
-    const topLevelNodeData = Object.values(state.nodeData || {}).filter(
+    const topLevelNodeData = Object.values(state.nodeData).filter(
       (node) => node.pageKey === currentPageId && node.parentId === undefined,
     );
 
@@ -233,7 +233,7 @@ function useFormState(): FormState {
   });
 
   const hasRequired = NodesInternal.useSelector((state) =>
-    Object.values(state.nodeData || {}).some((node) => node.pageKey === currentPageId && nodeDataIsRequired(node)),
+    Object.values(state.nodeData).some((node) => node.pageKey === currentPageId && nodeDataIsRequired(node)),
   );
 
   return {

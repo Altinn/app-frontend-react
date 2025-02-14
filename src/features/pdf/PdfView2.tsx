@@ -86,7 +86,7 @@ export const PDFView2 = () => {
 
 export function DataLoaderStoreInit({ children }: PropsWithChildren) {
   const subformIds = NodesInternal.useShallowSelector((state) =>
-    Object.values(state.nodeData || {})
+    Object.values(state.nodeData)
       .filter((node) => node.layout.type === 'Subform')
       .map((node) => node.layout.id),
   );
@@ -196,7 +196,7 @@ function PdfWrapping({ children }: PropsWithChildren) {
 
 function PlainPage({ pageKey }: { pageKey: string }) {
   const children = NodesInternal.useShallowSelector((state) =>
-    Object.values(state.nodeData || {})
+    Object.values(state.nodeData)
       .filter((data) => data.pageKey === pageKey && data.parentId === undefined) // Find top-level nodes
       .map((data) => data.layout.id),
   );

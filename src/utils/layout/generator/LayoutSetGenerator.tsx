@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
+import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
@@ -43,6 +44,7 @@ interface ChildrenState {
 
 export function LayoutSetGenerator() {
   const layouts = GeneratorInternal.useLayouts();
+  const pageOrder = useLayoutSettings().pages.order;
   const pages = useNodes();
 
   const children = (
@@ -53,7 +55,7 @@ export function LayoutSetGenerator() {
         Object.keys(layouts).map((key) => {
           const layout = layouts[key];
 
-          if (!layout) {
+          if (!layout || !pageOrder.includes(key)) {
             return null;
           }
 

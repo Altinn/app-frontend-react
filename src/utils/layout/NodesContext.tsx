@@ -840,7 +840,6 @@ function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined
 export function isHidden(
   state: NodesContext,
   nodeOrId: LayoutNode | LayoutPage | undefined | string,
-  nodes: LayoutPages,
   _options?: IsHiddenOptions,
 ): boolean | undefined {
   if (!nodeOrId) {
@@ -857,7 +856,6 @@ export function isHidden(
   }
 
   const id = typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id;
-  const node = nodes.findById(id);
   const hidden = state.nodeData[id]?.hidden;
   if (hidden === undefined) {
     return undefined;
@@ -871,16 +869,18 @@ export function isHidden(
     return true;
   }
 
-  const parent = node?.parent;
-  if (parent && parent instanceof BaseLayoutNode && 'isChildHidden' in parent.def && state.nodeData[parent.id]) {
+  const parentId = state.nodeData[id]?.parentId;
+  const parent = parentId ? state.nodeData[parentId] : undefined;
+  const parentDef = parent ? getComponentDef(parent.layout.type) : undefined;
+  if (parent && parentDef && 'isChildHidden' in parentDef) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const childHidden = parent.def.isChildHidden(state.nodeData[parent.id] as any, node);
+    const childHidden = parentDef.isChildHidden(parent as any, id);
     if (childHidden) {
       return true;
     }
   }
 
-  return isHidden(state, parent, nodes, options);
+  return isHidden(state, parent?.layout.id, options);
 }
 
 function makeOptions(forcedVisibleByDevTools: boolean, options?: AccessibleIsHiddenOptions): IsHiddenOptions {
@@ -894,8 +894,7 @@ export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
   useIsHidden(node: LayoutNode | LayoutPage | undefined, options?: AccessibleIsHiddenOptions) {
     const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
-    const nodes = useNodes();
-    return WhenReady.useSelector((s) => isHidden(s, node, nodes, makeOptions(forcedVisibleByDevTools, options)));
+    return WhenReady.useSelector((s) => isHidden(s, node, makeOptions(forcedVisibleByDevTools, options)));
   },
   useIsHiddenPage(page: LayoutPage | string | undefined, options?: AccessibleIsHiddenOptions) {
     const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
@@ -921,26 +920,24 @@ export const Hidden = {
   },
   useIsHiddenSelector() {
     const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
-    const nodes = useNodes();
     return Store.useDelayedSelector(
       {
         mode: 'simple',
         selector: (node: LayoutNode | LayoutPage | string, options?: IsHiddenOptions) => (state) =>
-          isHidden(state, node, nodes, makeOptions(forcedVisibleByDevTools, options)),
+          isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
       },
-      [forcedVisibleByDevTools, nodes],
+      [forcedVisibleByDevTools],
     );
   },
   useIsHiddenSelectorProps() {
     const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
-    const nodes = useNodes();
     return Store.useDelayedSelectorProps(
       {
         mode: 'simple',
         selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
-          isHidden(state, node, nodes, makeOptions(forcedVisibleByDevTools, options)),
+          isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
       },
-      [forcedVisibleByDevTools, nodes],
+      [forcedVisibleByDevTools],
     );
   },
 
