@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
@@ -6,7 +6,7 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useSetOptions } from 'src/features/options/useGetOptions';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal, NodesReadiness } from 'src/utils/layout/NodesContext';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
@@ -24,6 +24,8 @@ interface Props {
 export function EffectStoreLabel({ valueType, options }: Props) {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
+  const nodeStore = NodesInternal.useStore();
+  const [_, setForceUpdate] = useState(0);
   const isNodeHidden = Hidden.useIsHidden(node);
   const { langAsString } = useLanguage();
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
@@ -42,8 +44,13 @@ export function EffectStoreLabel({ valueType, options }: Props) {
   const labelsHaveChanged = !deepEqual(translatedLabels, 'label' in formData ? formData.label : undefined);
   const shouldSetData = labelsHaveChanged && !isNodeHidden && dataModelBindings && 'label' in dataModelBindings;
 
-  NodesInternal.useEffectWhenReady(() => {
+  useEffect(() => {
     if (!shouldSetData) {
+      return;
+    }
+
+    if (nodeStore.getState().readiness !== NodesReadiness.Ready) {
+      requestAnimationFrame(() => setForceUpdate((prev) => prev + 1));
       return;
     }
 
@@ -55,7 +62,7 @@ export function EffectStoreLabel({ valueType, options }: Props) {
     } else {
       setValue('label', translatedLabels);
     }
-  }, [setValue, shouldSetData, translatedLabels, valueType]);
+  }, [nodeStore, setValue, shouldSetData, translatedLabels, valueType]);
 
   return null;
 }
