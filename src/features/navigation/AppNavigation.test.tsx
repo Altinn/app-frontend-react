@@ -387,4 +387,52 @@ describe('AppNavigation', () => {
     expect(within(screen.getByRole('button', { name: /form/ })).getByTestId('state-error')).toBeInTheDocument();
     expect(within(screen.getByRole('button', { name: 'third' })).queryByTestId('state-error')).not.toBeInTheDocument(); // active
   });
+
+  it('should show tasknavigation', async () => {
+    await render({
+      order: ['first', 'second', 'third'],
+      taskNavigation: [{ taskId: 'Task_1' }, { type: 'receipt' }],
+    });
+
+    expect(screen.getByRole('button', { name: 'Utfylling' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Utfylling' })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('button', { name: 'Kvittering' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Kvittering' })).not.toHaveAttribute('aria-current');
+  });
+
+  it('should show navigation groups for current task', async () => {
+    await render({
+      groups: [
+        { name: 'part1', order: ['first', 'second'], markWhenCompleted: true },
+        { name: 'part2', order: ['third', 'fourth'], markWhenCompleted: true },
+      ],
+      taskNavigation: [{ taskId: 'Task_1' }, { type: 'receipt' }],
+    });
+
+    expect(screen.getByRole('button', { name: /part1/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /part1/ })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('button', { name: /part2/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Utfylling' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Kvittering' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Kvittering' })).not.toHaveAttribute('aria-current');
+  });
+
+  it('should override task groups', async () => {
+    await render({
+      groups: [
+        { name: 'part1', order: ['first', 'second'], markWhenCompleted: true },
+        { name: 'part2', order: ['third', 'fourth'], markWhenCompleted: true },
+      ],
+      taskNavigation: [{ taskId: 'Task_1' }, { type: 'receipt' }],
+      overrideTaskNavigation: [{ taskId: 'Task_1' }, { type: 'receipt', name: 'Betalings-kvittering' }],
+    });
+
+    expect(screen.getByRole('button', { name: /part1/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /part1/ })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('button', { name: /part2/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Utfylling' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Kvittering' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Betalings-kvittering' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Betalings-kvittering' })).not.toHaveAttribute('aria-current');
+  });
 });

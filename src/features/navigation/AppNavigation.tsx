@@ -222,6 +222,7 @@ function PageGroupSingle({
         className={cn(classes.groupButton, 'fds-focus')}
         onClick={() => {
           if (!isCurrentPage) {
+            // TODO: Maybe save on page change
             navigateToPage(page);
             onNavigate?.();
           }
@@ -364,6 +365,7 @@ function Page({
         className={cn(classes.pageButton, 'fds-focus')}
         onClick={() => {
           if (!isCurrentPage) {
+            // TODO: Maybe save on page change
             navigateToPage(page);
             onNavigate?.();
           }
