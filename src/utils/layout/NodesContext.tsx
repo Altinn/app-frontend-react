@@ -817,9 +817,9 @@ function withDefaults(options?: IsHiddenOptions): Required<IsHiddenOptions> {
   return { respectDevTools, respectTracks, forcedVisibleByDevTools };
 }
 
-function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined, _options?: IsHiddenOptions) {
+function isHiddenPage(state: NodesContext, pageKey: string | undefined, _options?: IsHiddenOptions) {
   const options = withDefaults(_options);
-  if (!page) {
+  if (!pageKey) {
     return true;
   }
 
@@ -827,7 +827,6 @@ function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined
     return false;
   }
 
-  const pageKey = typeof page === 'string' ? page : page.pageKey;
   const pageState = state.pagesData.pages[pageKey];
   const hidden = pageState?.hidden;
   if (hidden) {
@@ -839,15 +838,21 @@ function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined
 
 export function isHidden(
   state: NodesContext,
-  nodeOrId: LayoutNode | LayoutPage | undefined | string,
+  type: 'page' | 'node',
+  id: string | undefined,
   _options?: IsHiddenOptions,
 ): boolean | undefined {
-  if (!nodeOrId) {
+  if (!id) {
     return undefined;
   }
 
-  if (nodeOrId instanceof LayoutPage) {
-    return isHiddenPage(state, nodeOrId, _options);
+  if (type === 'page') {
+    return isHiddenPage(state, id, _options);
+  }
+
+  const pageKey = state.nodeData[id]?.pageKey;
+  if (pageKey && isHiddenPage(state, pageKey, _options)) {
+    return true;
   }
 
   const options = withDefaults(_options);
@@ -855,14 +860,9 @@ export function isHidden(
     return false;
   }
 
-  const id = typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id;
   const hidden = state.nodeData[id]?.hidden;
-  if (hidden === undefined) {
-    return undefined;
-  }
-
-  if (hidden) {
-    return true;
+  if (hidden === undefined || hidden === true) {
+    return hidden;
   }
 
   if (state.hiddenViaRules[id]) {
@@ -880,7 +880,11 @@ export function isHidden(
     }
   }
 
-  return isHidden(state, parent?.layout.id, options);
+  if (parent) {
+    return isHidden(state, 'node', parent?.layout.id, options);
+  }
+
+  return false;
 }
 
 function makeOptions(forcedVisibleByDevTools: boolean, options?: AccessibleIsHiddenOptions): IsHiddenOptions {
@@ -894,19 +898,26 @@ export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
   useIsHidden(node: LayoutNode | LayoutPage | undefined, options?: AccessibleIsHiddenOptions) {
     const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
-    return WhenReady.useSelector((s) => isHidden(s, node, makeOptions(forcedVisibleByDevTools, options)));
+    const type = node instanceof LayoutPage ? ('page' as const) : ('node' as const);
+    const id = node instanceof LayoutPage ? node.pageKey : node?.id;
+    return WhenReady.useSelector((s) => isHidden(s, type, id, makeOptions(forcedVisibleByDevTools, options)));
   },
   useIsHiddenPage(page: LayoutPage | string | undefined, options?: AccessibleIsHiddenOptions) {
     const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
-    return WhenReady.useSelector((s) => isHiddenPage(s, page, makeOptions(forcedVisibleByDevTools, options)));
+    return WhenReady.useSelector((s) => {
+      const pageKey = page instanceof LayoutPage ? page.pageKey : page;
+      return isHiddenPage(s, pageKey, makeOptions(forcedVisibleByDevTools, options));
+    });
   },
   useIsHiddenPageSelector() {
     const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
     return Store.useDelayedSelector(
       {
         mode: 'simple',
-        selector: (page: LayoutPage | string) => (state) =>
-          isHiddenPage(state, page, makeOptions(forcedVisibleByDevTools)),
+        selector: (page: LayoutPage | string) => (state) => {
+          const pageKey = page instanceof LayoutPage ? page.pageKey : page;
+          return isHiddenPage(state, pageKey, makeOptions(forcedVisibleByDevTools));
+        },
       },
       [forcedVisibleByDevTools],
     );
@@ -923,8 +934,11 @@ export const Hidden = {
     return Store.useDelayedSelector(
       {
         mode: 'simple',
-        selector: (node: LayoutNode | LayoutPage | string, options?: IsHiddenOptions) => (state) =>
-          isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
+        selector: (node: LayoutNode | LayoutPage | string, options?: IsHiddenOptions) => (state) => {
+          const type = node instanceof LayoutPage ? ('page' as const) : ('node' as const);
+          const id = node instanceof LayoutPage ? node.pageKey : typeof node === 'string' ? node : node?.id;
+          return isHidden(state, type, id, makeOptions(forcedVisibleByDevTools, options));
+        },
       },
       [forcedVisibleByDevTools],
     );
@@ -934,8 +948,11 @@ export const Hidden = {
     return Store.useDelayedSelectorProps(
       {
         mode: 'simple',
-        selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
-          isHidden(state, node, makeOptions(forcedVisibleByDevTools, options)),
+        selector: (node: LayoutNode | LayoutPage | string, options?: IsHiddenOptions) => (state) => {
+          const type = node instanceof LayoutPage ? ('page' as const) : ('node' as const);
+          const id = node instanceof LayoutPage ? node.pageKey : typeof node === 'string' ? node : node?.id;
+          return isHidden(state, type, id, makeOptions(forcedVisibleByDevTools, options));
+        },
       },
       [forcedVisibleByDevTools],
     );

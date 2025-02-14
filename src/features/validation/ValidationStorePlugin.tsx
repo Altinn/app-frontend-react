@@ -240,7 +240,7 @@ function getValidations({ state, id, mask, severity, includeHidden = false }: Ge
     return emptyArray;
   }
 
-  if (!includeHidden && isHidden(state, id, hiddenOptions)) {
+  if (!includeHidden && isHidden(state, 'node', id, hiddenOptions)) {
     return emptyArray;
   }
 
