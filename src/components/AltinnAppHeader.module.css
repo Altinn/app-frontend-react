@@ -4,13 +4,14 @@
 
 .app-bar {
   background-color: transparent;
-  padding-top: 1.875rem;
-  margin-bottom: 2.25rem;
+  padding-top: 20px;
+  margin-bottom: 30px;
   padding-left: 0;
   padding-right: 0;
   box-sizing: border-box;
   min-height: 64px;
   display: flex;
+  column-gap: 1rem;
   position: relative;
   align-items: center;
 }
@@ -20,15 +21,9 @@
   color: var(--fds-semantic-surface-action-default);
   font-size: 1.25rem;
   line-height: 1.5;
-  margin-left: 2.25rem;
-  padding-bottom: 3px;
 
   @media screen and (max-width: 1024.95px) {
     font-size: 1.125rem;
-  }
-
-  &:hover {
-    padding: 0;
   }
 
   & a {
@@ -37,17 +32,26 @@
   }
 
   & a:hover {
-    color: var(--fds-semantic-surface-action-default);
     border-bottom: 3px solid var(--fds-semantic-surface-action-default);
   }
 }
 
 .header-link-list {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1rem;
   flex-grow: 1;
   list-style: none;
   margin: 0;
   padding: 0;
-  float: left;
+  margin-bottom: -6px;
+}
+
+@media only screen and (min-width: 768px) {
+  .header-link-list,
+  .app-bar {
+    column-gap: 2rem;
+  }
 }
 
 .logo {
@@ -55,5 +59,6 @@
 }
 
 .party-icon {
+  flex-shrink: 0;
   margin-left: 5px;
 }

@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 
-import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/AltinnAppHeader.module.css';
 import { CircleIcon } from 'src/components/CircleIcon';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
@@ -33,12 +32,10 @@ export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
         ]}
       />
       <header className={classes.appBar}>
-        <Flex
-          item
+        <AltinnLogo
+          color={LogoColor.blueDark}
           className={classes.logo}
-        >
-          <AltinnLogo color={LogoColor.blueDark} />
-        </Flex>
+        />
         {party && (
           <ul className={classes.headerLinkList}>
             <li className={classes.headerLink}>
