@@ -1,14 +1,9 @@
 .left-icon {
   font-size: 1.25rem;
-  margin-right: 4px;
 }
 
 .button-active {
   background-color: var(--fds-semantic-surface-action-first-no_fill-active);
-  color: var(--fds-semantic-text-action-first-active);
-}
-
-.list-button > button {
   color: var(--fds-semantic-text-action-first-active);
 }
 

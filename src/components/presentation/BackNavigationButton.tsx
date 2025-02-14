@@ -41,8 +41,8 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
   if (fetchingReturnUrl) {
     return (
       <Spinner
-        style={{ marginLeft: 8 }}
         size='sm'
+        className={classes.spinner}
         title={langAsString('general.loading')}
       />
     );
@@ -54,7 +54,6 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
       disabled={!!isProcessing}
       isLoading={!!isProcessing}
       variant='tertiary'
-      color='second'
       size='sm'
       {...props}
       className={cn(classes.inboxButton, props.className)}
