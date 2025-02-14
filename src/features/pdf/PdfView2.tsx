@@ -20,17 +20,19 @@ import classes from 'src/features/pdf/PDFView.module.css';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { getFeature } from 'src/features/toggles';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
+import { getComponentDef } from 'src/layout';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
-import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { Hidden, isHidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { IPdfFormat } from 'src/features/pdf/types';
+import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeData } from 'src/utils/layout/types';
 
 export const PDFView2 = () => {
   const order = usePageOrder();
@@ -220,21 +222,23 @@ function PlainPage({ pageKey }: { pageKey: string }) {
 }
 
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
-  const isHiddenSelector = Hidden.useIsHiddenSelector();
-  const nodeDataSelector = NodesInternal.useNodeDataSelector();
-  const children = useNodeTraversal((t) => {
-    const page = t.findPage(pageKey);
-    return page
-      ? t
-          .with(page)
-          .children()
-          .filter((node) => !node.isType('Subform'))
-          .filter((node) => !isHiddenSelector(node))
-          .filter((node) => !pdfSettings?.excludedComponents.includes(node.id))
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .filter((node) => node.def.shouldRenderInAutomaticPDF(node as any, nodeDataSelector))
-      : [];
-  });
+  const children = NodesInternal.useShallowSelector((state) =>
+    Object.values(state.nodeData)
+      .filter(
+        (data) =>
+          data.pageKey === pageKey &&
+          data.parentId === undefined &&
+          data.layout.type !== 'Subform' &&
+          !isHidden(state, 'node', data.layout.id) &&
+          !pdfSettings?.excludedComponents.includes(data.layout.id),
+      )
+      .filter(<T extends CompTypes>(data: NodeData<T>) => {
+        const def = getComponentDef(data.layout.type);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return def.shouldRenderInAutomaticPDF(data as any);
+      })
+      .map((data) => data.layout.id),
+  );
 
   return (
     <div className={classes.page}>
@@ -243,10 +247,10 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
         spacing={6}
         alignItems='flex-start'
       >
-        {children.map((node) => (
+        {children.map((nodeId) => (
           <PdfForNode
-            key={node.id}
-            node={node}
+            key={nodeId}
+            nodeId={nodeId}
           />
         ))}
       </Flex>
@@ -254,8 +258,14 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
   );
 }
 
-function PdfForNode({ node }: { node: LayoutNode }) {
+function PdfForNode({ nodeId }: { nodeId: string }) {
+  const node = useNode(nodeId);
   const target = useNodeItem(node, (i) => (i.type === 'Summary2' ? i.target : undefined));
+
+  if (!node) {
+    return null;
+  }
+
   if (node.isType('Summary2') && target?.taskId) {
     return (
       <SummaryComponent2
