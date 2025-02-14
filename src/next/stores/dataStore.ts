@@ -9,7 +9,7 @@ import type { LayoutSetsSchema } from 'src/next/types/LayoutSetsDTO';
 import type { PageOrderDTO } from 'src/next/types/PageOrderDTO';
 import type { ProcessSchema } from 'src/next/types/ProcessDTO';
 
-interface Layouts {
+interface DataStore {
   layoutSetsConfig: LayoutSetsSchema;
   process: ProcessSchema;
   pageOrder: PageOrderDTO;
@@ -20,7 +20,7 @@ interface Layouts {
   setLayouts: (layouts: ILayoutCollection) => void;
 }
 
-export const layoutStore = createStore<Layouts>((set) => ({
+export const dataStore = createStore<DataStore>((set) => ({
   layoutSetsConfig: layoutSetsSchemaExample,
   process: exampleProcess,
   layouts: exampleLayoutCollection,

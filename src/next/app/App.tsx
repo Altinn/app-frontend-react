@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useStore } from 'zustand';
 
 import { Api } from 'src/next/app/api';
+import { ApiClientProvider } from 'src/next/app/ApiClientContext';
 import { Instance } from 'src/next/pages/Instance';
 import { Instances } from 'src/next/pages/Instances';
 import { Page } from 'src/next/pages/Page';
@@ -18,13 +19,12 @@ const queryClient = new QueryClient();
 const { org, app } = window;
 const origin = window.location.origin;
 
+export const ORG = org;
+export const APP = app;
+
 export const appPath = `${origin}/${org}/${app}`;
 
 export const App = () => {
-  const store = useStore(initialStateStore);
-
-  const layouts = useStore(layoutStore);
-
   const api = new Api({
     baseUrl: origin, //appPath,
     // You can pass axios overrides or custom fetch here if desired
@@ -33,7 +33,6 @@ export const App = () => {
   useEffect(() => {
     const fetchTest = async () => {
       const { data } = await api.org.v1ApplicationmetadataDetail(org, app);
-
       // console.log(res);
     };
 
@@ -41,40 +40,53 @@ export const App = () => {
   }, [api.org]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <HashRouter>
-        {/*<div>*/}
-        {/*<h1>welcome</h1>*/}
-        {/*<h2>user</h2>*/}
-        {/*<pre>{JSON.stringify(store.user, null, 2)}</pre>*/}
-        {/*<h2>applicationMetadata</h2>*/}
-        {/*<pre>{JSON.stringify(store.applicationMetadata, null, 2)}</pre>*/}
-        {/*<h2>frontEndSettings</h2>*/}
-        {/*<pre>{JSON.stringify(store.frontEndSettings, null, 2)}</pre>*/}
-        {/*<h2>validParties</h2>*/}
-        {/*<pre>{JSON.stringify(store.validParties, null, 2)}</pre>*/}
-        <Routes>
-          <Route
-            path='/'
-            element={<Instances />}
-          />
-          <Route
-            path='/instance/:partyId/:instanceGuid/*'
-            element={<Instance />}
-          />
+    <ApiClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <HashRouter>
+          <Routes>
+            <Route
+              path='/'
+              element={<Instances />}
+            />
 
-          <Route
-            path='/instance/:partyId/:instanceGuid/:taskId'
-            element={<Task />}
-          />
+            <Route
+              path='instance'
+              element={<Instance />}
+            >
+              <Route
+                path=':partyId/:instanceGuid'
+                element={<Instance />}
+              >
+                <Route
+                  path=':taskId'
+                  element={<Task />}
+                >
+                  <Route
+                    path=':pageId'
+                    element={<Page />}
+                  />
+                </Route>
+              </Route>
+            </Route>
 
-          <Route
-            path='/instance/:partyId/:instanceGuid/:taskId/:pageId'
-            element={<Page />}
-          />
-        </Routes>
-      </HashRouter>
-    </QueryClientProvider>
+            {/*<Route*/}
+            {/*  path='/instance/:partyId/:instanceGuid/*'*/}
+            {/*  element={<Instance />}*/}
+            {/*>*/}
+            {/*  <Route*/}
+            {/*    path=':taskId'*/}
+            {/*    element={<Task />}*/}
+            {/*  >*/}
+            {/*    <Route*/}
+            {/*      path=':pageId'*/}
+            {/*      element={<Page />}*/}
+            {/*    />*/}
+            {/*  </Route>*/}
+            {/*</Route>*/}
+          </Routes>
+        </HashRouter>
+      </QueryClientProvider>
+    </ApiClientProvider>
   );
 };
 

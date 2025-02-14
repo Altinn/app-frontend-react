@@ -12,30 +12,23 @@ type PageParams = {
 export const Page = () => {
   const { pageId } = useParams<PageParams>() as Required<PageParams>;
 
-  const layouts = useStore(layoutStore);
+  const { layouts } = useStore(layoutStore);
 
-  const currentLayout = layouts.layouts['RadioButtonsPage'];
+  const currentPage = layouts[pageId];
 
-  console.log(JSON.stringify(layouts.layouts, null, 2));
-
-  console.log('pageId', pageId);
-
-  if (!currentLayout) {
-    throw new Error(`could not find layout: ${pageId}`);
+  if (!currentPage) {
+    throw new Error(`could not find layout: ${currentPage}`);
   }
 
   return (
     <div>
-      <h1>Page</h1>
-      <h2>{pageId}</h2>
-
-      {/*<pre>{JSON.stringify(layouts.layouts, null, 2)}</pre>*/}
-
-      {currentLayout.data.layout.map((component) => (
-        <div key={component.id}>{component.id}</div>
+      {currentPage.data.layout.map((component) => (
+        <div key={component.id}>
+          <p>{component.type}</p>
+          <p>{component.id}</p>
+          <pre>{JSON.stringify(component, null, 2)}</pre>
+        </div>
       ))}
-
-      {/*<pre>{JSON.stringify(currentLayout, null, 2)}</pre>*/}
     </div>
   );
 };

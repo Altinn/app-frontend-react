@@ -1,9 +1,10 @@
-import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, Outlet, useParams } from 'react-router-dom';
 
 import { useStore } from 'zustand';
 
-import { Api } from 'src/next/app/api';
+import { useApiClient } from 'src/next/app/ApiClientContext';
+import { APP, ORG } from 'src/next/app/App';
 import { layoutStore } from 'src/next/stores/layoutStore';
 
 type TaskParams = {
@@ -12,40 +13,51 @@ type TaskParams = {
 
 export const Task = () => {
   const { taskId } = useParams<TaskParams>() as Required<TaskParams>;
-  //
-  // const { data, error, isLoading } = useInstanceQuery(partyId, instanceGuid);
-  //
-  // if (isLoading) {
-  //   return <h2>Loading instance, please wait</h2>;
-  // }
 
-  const api = new Api({
-    baseUrl: 'https://example.com',
-    // You can pass axios overrides or custom fetch here if desired
-  });
+  const { layoutSetsConfig, pageOrder, setPageOrder, setLayouts } = useStore(layoutStore);
 
-  // api.org.layoutsDetail()
+  const currentLayoutSet = layoutSetsConfig.sets.find((layoutSet) => layoutSet.tasks.includes(taskId));
+  const apiClient = useApiClient();
 
-  // const { data } = useLayoutSettingsQueryDef();
+  useEffect(() => {
+    async function getLatoutDetails(layoutSetId: string) {
+      const res = await apiClient.org.layoutsAllSettingsDetail(layoutSetId, ORG, APP);
+      const data = await res.json();
+      const settings = JSON.parse(data.settings);
+      const layouts = JSON.parse(data.layouts);
+      setPageOrder(settings);
+      setLayouts(layouts);
+    }
 
-  const layouts = useStore(layoutStore);
+    if (currentLayoutSet?.id) {
+      getLatoutDetails(currentLayoutSet?.id);
+    }
+  }, [apiClient.org, currentLayoutSet?.id, setLayouts, setPageOrder]);
+
+  if (!currentLayoutSet) {
+    throw new Error('Layoutset for task not found');
+  }
 
   return (
     <div>
-      <h1>Task</h1>
-      <h2>{taskId}</h2>
-
+      <Outlet />
+      <h2>Pages</h2>
       <ul>
-        {layouts.pageOrder.pages.order.map((page) => (
+        {pageOrder.pages.order?.map((page) => (
           <li key={page}>
             <Link to={page}>{page}</Link>
           </li>
         ))}
       </ul>
 
-      {/*<Link to={`/${data?.process.currentTask.elementId}`}>{data?.process.currentTask.elementId}</Link>*/}
+      <h2>Current layoutset</h2>
 
-      {/*<pre>{JSON.stringify(data, null, 2)}</pre>*/}
+      <pre>{JSON.stringify(currentLayoutSet, null, 2)}</pre>
+
+      <h1>Task we at</h1>
+      <h2>{taskId}</h2>
+
+      <pre>{JSON.stringify(layoutSetsConfig, null, 2)}</pre>
     </div>
   );
 };
