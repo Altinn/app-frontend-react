@@ -44,7 +44,9 @@ interface ChildrenState {
 
 export function LayoutSetGenerator() {
   const layouts = GeneratorInternal.useLayouts();
-  const pageOrder = useLayoutSettings().pages.order;
+  const layoutSettings = useLayoutSettings();
+  const pageOrder = layoutSettings.pages.order;
+  const pdfPage = layoutSettings.pages.pdfLayoutName;
   const pages = useNodes();
 
   const children = (
@@ -55,7 +57,12 @@ export function LayoutSetGenerator() {
         Object.keys(layouts).map((key) => {
           const layout = layouts[key];
 
-          if (!layout || !pageOrder.includes(key)) {
+          if (!layout) {
+            return null;
+          }
+
+          if (!pageOrder.includes(key) && key !== pdfPage) {
+            window.logErrorOnce(`Page '${key}' is not in the page order, and will be ignored`);
             return null;
           }
 
