@@ -5,7 +5,6 @@ import { useStore } from 'zustand';
 
 import { useApiClient } from 'src/next/app/ApiClientContext';
 import { APP, ORG } from 'src/next/app/App';
-import { dataStore } from 'src/next/stores/dataStore';
 import { instanceStore } from 'src/next/stores/instanceStore';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { useInstanceQuery } from 'src/next/v1/queries/instanceQuery';
@@ -31,9 +30,7 @@ export const Instance = () => {
 
   const apiClient = useApiClient();
 
-  const { setLayoutSets } = useStore(layoutStore);
-
-  const { setDataObject } = useStore(dataStore);
+  const { setLayoutSets, setDataObject } = useStore(layoutStore);
 
   useEffect(() => {
     const fetchTest = async () => {
