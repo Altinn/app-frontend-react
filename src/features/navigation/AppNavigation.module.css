@@ -83,12 +83,17 @@
   position: relative;
 }
 
+.group-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 /* Only use 2 columns if the button is not expandable */
 .group-button:not(:has(> :last-child:nth-child(3))) {
   grid-template-columns: auto auto;
 }
 
-.group-button:hover {
+.group-button:hover:not(:disabled) {
   text-decoration: underline;
   text-decoration-skip-ink: none;
   text-underline-offset: 2px;
@@ -202,7 +207,12 @@
   margin: -2px;
 }
 
-.page-button:hover {
+.page-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.page-button:hover:not(:disabled) {
   text-decoration-line: underline;
   text-decoration-skip-ink: none;
   text-underline-offset: 2px;

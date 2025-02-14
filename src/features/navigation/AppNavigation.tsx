@@ -1,6 +1,6 @@
 import React, { useInsertionEffect, useState } from 'react';
 
-import { Button, Heading } from '@digdir/designsystemet-react';
+import { Button, Heading, Spinner } from '@digdir/designsystemet-react';
 import {
   CardIcon,
   CheckmarkIcon,
@@ -16,6 +16,7 @@ import {
 import cn from 'classnames';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
+import { ProcessingProvider, useProcessingContext } from 'src/core/contexts/processingContext';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useGetAltinnTaskType } from 'src/features/instance/ProcessContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
@@ -48,43 +49,47 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
 
   if (!isSubform && taskGroups.length) {
     return (
-      <ul className={classes.groupList}>
-        {taskGroups.map((taskGroup) => {
-          if ('taskId' in taskGroup && taskGroup.taskId === currentTaskId && pageGroups) {
-            return pageGroups.map((group) => (
-              <PageGroup
-                key={group.id}
-                group={group}
-                onNavigate={onNavigate}
-              />
-            ));
-          }
+      <ProcessingProvider>
+        <ul className={classes.groupList}>
+          {taskGroups.map((taskGroup) => {
+            if ('taskId' in taskGroup && taskGroup.taskId === currentTaskId && pageGroups) {
+              return pageGroups.map((group) => (
+                <PageGroup
+                  key={group.id}
+                  group={group}
+                  onNavigate={onNavigate}
+                />
+              ));
+            }
 
-          const receiptActive = 'type' in taskGroup && taskGroup.type === 'receipt' && isReceipt;
-          const taskActive = 'taskId' in taskGroup && taskGroup.taskId === currentTaskId;
-          return (
-            <TaskGroup
-              key={taskGroup.id}
-              group={taskGroup}
-              active={receiptActive || taskActive}
-            />
-          );
-        })}
-      </ul>
+            const receiptActive = 'type' in taskGroup && taskGroup.type === 'receipt' && isReceipt;
+            const taskActive = 'taskId' in taskGroup && taskGroup.taskId === currentTaskId;
+            return (
+              <TaskGroup
+                key={taskGroup.id}
+                group={taskGroup}
+                active={receiptActive || taskActive}
+              />
+            );
+          })}
+        </ul>
+      </ProcessingProvider>
     );
   }
 
   if (pageGroups) {
     return (
-      <ul className={classes.groupList}>
-        {pageGroups.map((group) => (
-          <PageGroup
-            key={group.id}
-            group={group}
-            onNavigate={onNavigate}
-          />
-        ))}
-      </ul>
+      <ProcessingProvider>
+        <ul className={classes.groupList}>
+          {pageGroups.map((group) => (
+            <PageGroup
+              key={group.id}
+              group={group}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </ul>
+      </ProcessingProvider>
     );
   }
 
@@ -212,27 +217,32 @@ function PageGroupSingle({
   validations,
   onNavigate,
 }: PageGroupProps<NavigationPageGroupSingle>) {
-  const { navigateToPage } = useNavigatePage();
+  const { navigateToPage, maybeSaveOnPageChange } = useNavigatePage();
+  const [isProcessing, processing] = useProcessingContext();
   const page = group.order[0];
 
   return (
     <li>
       <button
+        disabled={!!isProcessing}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.groupButton, 'fds-focus')}
-        onClick={() => {
-          if (!isCurrentPage) {
-            // TODO: Maybe save on page change
-            navigateToPage(page);
-            onNavigate?.();
-          }
-        }}
+        onClick={() =>
+          processing(page, async () => {
+            if (!isCurrentPage) {
+              await maybeSaveOnPageChange();
+              navigateToPage(page);
+              onNavigate?.();
+            }
+          })
+        }
       >
         <PageGroupSymbol
           type={group.type}
           active={isCurrentPage}
           error={validations !== ContextNotProvided && validations.hasErrors.group}
           complete={validations !== ContextNotProvided && validations.isCompleted.group}
+          isLoading={isProcessing === page}
         />
         <span className={cn(classes.groupName, { [classes.groupNameActive]: isCurrentPage })}>
           <Lang id={page} />
@@ -308,13 +318,16 @@ function PageGroupSymbol({
   complete,
   active,
   open = false,
+  isLoading = false,
 }: {
   type: NavigationPageGroup['type'];
   error: boolean;
   complete: boolean;
   active: boolean;
   open?: boolean;
+  isLoading?: boolean;
 }) {
+  const { langAsString } = useLanguage();
   const getTaskType = useGetAltinnTaskType();
   const currentTaskId = useProcessTaskId();
 
@@ -324,6 +337,15 @@ function PageGroupSymbol({
 
   const Icon = showError ? XMarkIcon : showComplete ? CheckmarkIcon : getTaskIcon(getTaskType(currentTaskId), type);
   const testid = showError ? 'state-error' : showComplete ? 'state-complete' : undefined;
+
+  if (isLoading) {
+    return (
+      <Spinner
+        style={{ width: 28, height: 28 }}
+        title={langAsString('general.loading')}
+      />
+    );
+  }
 
   return (
     <div
@@ -356,25 +378,30 @@ function Page({
   const currentPageId = useNavigationParam('pageKey');
   const isCurrentPage = page === currentPageId;
 
-  const { navigateToPage } = useNavigatePage();
+  const { navigateToPage, maybeSaveOnPageChange } = useNavigatePage();
+  const [isProcessing, processing] = useProcessingContext();
 
   return (
     <li className={classes.pageListItem}>
       <button
+        disabled={!!isProcessing}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.pageButton, 'fds-focus')}
-        onClick={() => {
-          if (!isCurrentPage) {
-            // TODO: Maybe save on page change
-            navigateToPage(page);
-            onNavigate?.();
-          }
-        }}
+        onClick={() =>
+          processing(page, async () => {
+            if (!isCurrentPage) {
+              await maybeSaveOnPageChange();
+              navigateToPage(page);
+              onNavigate?.();
+            }
+          })
+        }
       >
         <PageSymbol
           error={hasErrors}
           complete={isComplete}
           active={isCurrentPage}
+          isLoading={isProcessing === page}
         />
 
         <span className={cn(classes.pageName, { [classes.pageNameActive]: isCurrentPage })}>
@@ -385,13 +412,33 @@ function Page({
   );
 }
 
-function PageSymbol({ error, complete, active }: { error: boolean; complete: boolean; active: boolean }) {
+function PageSymbol({
+  error,
+  complete,
+  active,
+  isLoading,
+}: {
+  error: boolean;
+  complete: boolean;
+  active: boolean;
+  isLoading: boolean;
+}) {
+  const { langAsString } = useLanguage();
   const showActive = active;
   const showError = error && !active;
   const showComplete = complete && !error && !active;
 
   const Icon = showError ? XMarkIcon : showComplete ? CheckmarkIcon : null;
   const testid = showError ? 'state-error' : showComplete ? 'state-complete' : undefined;
+
+  if (isLoading) {
+    return (
+      <Spinner
+        style={{ width: 20, height: 20 }}
+        title={langAsString('general.loading')}
+      />
+    );
+  }
 
   return (
     <div
