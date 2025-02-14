@@ -12,9 +12,6 @@ type LocalStorageEntries = {
   selectedLanguage: string | null;
 };
 
-/**
- * TODO: Handle potential exceptions from JSON.parse
- */
 class LocalStorageController<T> {
   private key: string;
   private defaultValue: T;
@@ -51,15 +48,19 @@ class LocalStorageController<T> {
   public setValue = (valueOrSetter: T | ((prev: T) => T)) => {
     const prev = this.currentRawValue !== null ? (this.currentValue as T) : this.defaultValue;
     const newValue = typeof valueOrSetter === 'function' ? (valueOrSetter as (prev: T) => T)(prev) : valueOrSetter;
-    const newRawValue = JSON.stringify(newValue);
-    window.localStorage.setItem(this.key, newRawValue);
+    const newRawValue = stringify(newValue);
+    if (typeof newRawValue === 'string') {
+      window.localStorage.setItem(this.key, newRawValue);
+    } else {
+      window.localStorage.removeItem(this.key);
+    }
     window.dispatchEvent(new StorageEvent('internal-storage', { newValue: newRawValue, key: this.key }));
   };
 
   private updateCurrentValue(newRawValue: string | null): boolean {
     if (newRawValue !== this.currentRawValue) {
       this.currentRawValue = newRawValue;
-      this.currentValue = newRawValue != null ? (JSON.parse(newRawValue) as T) : null;
+      this.currentValue = newRawValue != null ? parse(newRawValue) : null;
       return true;
     }
     return false;
@@ -99,4 +100,23 @@ function getFullKey(entryKey: string, scopeKeys: ScopeKey[]) {
   scopeKeys.length && (fullKey += `/${scopeKeys.filter(isNotNullUndefinedOrEmpty).join('/')}`);
   fullKey += `/${entryKey}`;
   return fullKey;
+}
+
+function stringify(data: unknown): string | null {
+  try {
+    return JSON.stringify(data);
+  } catch (e) {
+    // logError will try to stringify args of type 'object', so if this fails here we should not pass the object to logError.
+    window.logError('useLocalStorageState failed to stringify with error:\n', e);
+    return null;
+  }
+}
+
+function parse<T>(data: string): T | null {
+  try {
+    return JSON.parse(data) as T;
+  } catch (e) {
+    window.logError(`useLocalStorageState failed to parse string '${data}' with error:\n`, e);
+    return null;
+  }
 }
