@@ -53,7 +53,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   const appName = useAppName();
   const appOwner = useAppOwner();
   const { langAsString } = useLanguage();
-  const { hasRequired, mainIds, errorReportIds, formErrors, taskErrors } = useFormState();
+  const { hasRequired, mainIds, errorReportIds, formErrors, taskErrors } = useFormState(currentPageId);
   const requiredFieldsMissing = NodesInternal.usePageHasVisibleRequiredValidations(currentPageId);
 
   useRedirectToStoredPage();
@@ -201,8 +201,7 @@ function nodeDataIsRequired(n: NodeData) {
   return !!(item && 'required' in item && item.required === true);
 }
 
-function useFormState(): FormState {
-  const currentPageId = useCurrentView();
+function useFormState(currentPageId: string | undefined): FormState {
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
 
