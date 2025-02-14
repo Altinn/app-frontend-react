@@ -36,15 +36,6 @@
 .popover-button-icon-margin {
   margin-right: 4px;
 }
-.popover-button-icon-open {
-  transform: scaleY(-1);
-}
-
-.popover-button-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 .modal {
   max-width: 320px;
