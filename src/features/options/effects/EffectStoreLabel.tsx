@@ -25,7 +25,7 @@ export function EffectStoreLabel({ valueType, options }: Props) {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const nodeStore = NodesInternal.useStore();
-  const [_, setForceUpdate] = useState(0);
+  const [force, setForceUpdate] = useState(0);
   const isNodeHidden = Hidden.useIsHidden(node);
   const { langAsString } = useLanguage();
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
@@ -62,7 +62,7 @@ export function EffectStoreLabel({ valueType, options }: Props) {
     } else {
       setValue('label', translatedLabels);
     }
-  }, [nodeStore, setValue, shouldSetData, translatedLabels, valueType]);
+  }, [nodeStore, setValue, shouldSetData, translatedLabels, valueType, force]);
 
   return null;
 }

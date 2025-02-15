@@ -22,7 +22,7 @@ interface Props {
 export function EffectPreselectedOptionIndex({ preselectedOption, valueType, options }: Props) {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const nodeStore = NodesInternal.useStore();
-  const [_, setForceUpdate] = useState(0);
+  const [force, setForceUpdate] = useState(0);
   const isNodeHidden = Hidden.useIsHidden(node);
   const hasSelectedInitial = useRef(false);
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
@@ -42,7 +42,7 @@ export function EffectPreselectedOptionIndex({ preselectedOption, valueType, opt
       setData([preselectedOption.value]);
       hasSelectedInitial.current = true;
     }
-  }, [preselectedOption, shouldSelectOptionAutomatically, setData, nodeStore]);
+  }, [preselectedOption, shouldSelectOptionAutomatically, setData, nodeStore, node.id, force]);
 
   return null;
 }

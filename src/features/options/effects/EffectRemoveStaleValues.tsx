@@ -27,7 +27,7 @@ export function EffectRemoveStaleValues({ valueType, options }: Props) {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const isNodeHidden = Hidden.useIsHidden(node);
   const nodeStore = NodesInternal.useStore();
-  const [_, setForceUpdate] = useState(0);
+  const [force, setForceUpdate] = useState(0);
 
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
@@ -52,7 +52,7 @@ export function EffectRemoveStaleValues({ valueType, options }: Props) {
 
       setData(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
     }
-  }, [isNodeHidden, itemsToRemove, nodeStore, optionsAsRef, setResultAsRef]);
+  }, [isNodeHidden, itemsToRemove, nodeStore, optionsAsRef, setResultAsRef, force]);
 
   return null;
 }
