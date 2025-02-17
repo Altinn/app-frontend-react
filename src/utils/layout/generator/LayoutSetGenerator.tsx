@@ -44,9 +44,6 @@ interface ChildrenState {
 
 export function LayoutSetGenerator() {
   const layouts = GeneratorInternal.useLayouts();
-  const layoutSettings = useLayoutSettings();
-  const pageOrder = layoutSettings.pages.order;
-  const pdfPage = layoutSettings.pages.pdfLayoutName;
   const pages = useNodes();
 
   const children = (
@@ -58,11 +55,6 @@ export function LayoutSetGenerator() {
           const layout = layouts[key];
 
           if (!layout) {
-            return null;
-          }
-
-          if (!pageOrder.includes(key) && key !== pdfPage) {
-            window.logErrorOnce(`Page '${key}' is not in the page order, and will be ignored`);
             return null;
           }
 
@@ -162,6 +154,11 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
   const page = useMemo(() => new LayoutPage(), []);
   useGeneratorErrorBoundaryNodeRef().current = page;
 
+  const layoutSettings = useLayoutSettings();
+  const pageOrder = layoutSettings.pages.order;
+  const pdfPage = layoutSettings.pages.pdfLayoutName;
+  const isValid = pageOrder.includes(name) || name === pdfPage;
+
   const getProto = useMemo(() => {
     const proto: { [id: string]: ComponentProto } = {};
 
@@ -227,6 +224,7 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
         <GeneratorPageProvider
           parent={page}
           childrenMap={map}
+          isValid={isValid}
         >
           <GenerateNodeChildren
             claims={topLevelIdsAsClaims}

@@ -116,6 +116,7 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem }: CommonPr
   const pageKey = GeneratorInternal.usePage()?.pageKey ?? '';
   const idMutators = GeneratorInternal.useIdMutators() ?? [];
   const layoutMap = GeneratorInternal.useLayoutMap();
+  const isValid = GeneratorInternal.useIsValid();
   const getCapabilities = (type: CompTypes) => getComponentCapabilities(type);
   const stateFactoryProps = {
     item: intermediateItem,
@@ -127,6 +128,7 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem }: CommonPr
     idMutators,
     layoutMap,
     getCapabilities,
+    isValid,
   } satisfies StateFactoryProps<T>;
   const isAdded = NodesInternal.useIsAdded(node);
 

@@ -236,7 +236,7 @@ interface GetValidationsProps {
 
 function getValidations({ state, id, mask, severity, includeHidden = false }: GetValidationsProps): AnyValidation[] {
   const nodeData = state.nodeData[id];
-  if (!nodeData || !('validations' in nodeData) || !('validationVisibility' in nodeData)) {
+  if (!nodeData || !('validations' in nodeData) || !('validationVisibility' in nodeData) || !nodeData.isValid) {
     return emptyArray;
   }
 

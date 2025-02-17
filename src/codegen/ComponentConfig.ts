@@ -464,6 +464,7 @@ export class ComponentConfig {
           pageKey: props.pageKey,
           parentId: props.parentId,
           depth: props.depth,
+          isValid: props.isValid,
           item: undefined,
           layout: props.item,
           hidden: undefined,

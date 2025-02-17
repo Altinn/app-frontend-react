@@ -33,6 +33,7 @@ export interface StateFactoryProps<Type extends CompTypes> {
   idMutators: ChildIdMutator[];
   layoutMap: Record<string, CompExternal>;
   getCapabilities: (type: CompTypes) => CompCapabilities;
+  isValid: boolean;
 }
 
 export interface GeneratorErrors {
@@ -44,6 +45,7 @@ export interface BaseNodeData<T extends CompTypes> {
   type: 'node';
   pageKey: string;
   parentId: string | undefined; // String if parent is a node, undefined if parent is a page (on the top level)
+  isValid: boolean; // False when page is not in the page order, and not a pdf page
   depth: number;
   layout: CompIntermediate<T>;
   item: CompInternal<T> | undefined;
