@@ -90,7 +90,7 @@ export function AddToListModal({
   return (
     <Modal
       ref={addToListModalRef}
-      style={{ padding: 'var(--fds-spacing-3)' }}
+      style={{ padding: 'var(--ds-size-3)' }}
       backdropClose={backdropClose}
       onClose={onClose}
     >

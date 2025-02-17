@@ -1,6 +1,6 @@
 .radioLabelContainer {
   display: flex;
-  gap: var(--fds-spacing-1);
+  gap: var(--ds-size-1);
   align-items: center;
 }
 
@@ -10,10 +10,10 @@
 
 .card {
   border-radius: 6px;
-  background-color: var(--fds-semantic-background-subtle);
+  background-color: var(--ds-color-neutral-background-subtle);
   width: 100%;
-  padding: var(--fds-spacing-2);
-  margin-bottom: var(--fds-spacing-3);
+  padding: var(--ds-size-2);
+  margin-bottom: var(--ds-size-3);
   cursor: pointer;
 }
 
@@ -22,23 +22,22 @@
 }
 
 .card:hover {
-  background: var(--fds-semantic-surface-neutral-subtle-hover);
+  background: var(--ds-color-neutral-surface-default);
 }
 
 .card:active {
-  background: var(--fds-semantic-border-neutral-subtle);
+  background: var(--ds-color-neutral-border-subtle);
 }
 
 .card:is(:checked, :has(:checked)) {
-  background: var(--fds-semantic-surface-neutral-selected);
-  box-shadow: 0 0 0 var(--fds-focus-border-width) var(--fds-semantic-border-first-active);
+  background: var(--ds-color-neutral-surface-tinted);
+  box-shadow: 0 0 0 var(--ds-border-width-focus) var(--ds-color-brand1-base-active);
 }
 
 .card:has(:focus-visible) {
-  --fds-focus-border-width: 3px;
-  background: var(--fds-semantic-surface-neutral-selected);
+  background: var(--ds-color-neutral-surface-tinted);
 
-  box-shadow: 0 0 0 var(--fds-focus-border-width) var(--fds-inner-focus-border-color);
-  outline: var(--fds-focus-border-width) solid var(--fds-outer-focus-border-color);
-  outline-offset: var(--fds-focus-border-width);
+  box-shadow: 0 0 0 var(--ds-border-width-focus) var(--ds-color-focus-inner);
+  outline: var(--ds-border-width-focus) solid var(--ds-color-focus-outer);
+  outline-offset: var(--ds-border-width-focus);
 }

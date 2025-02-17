@@ -20,16 +20,16 @@ describe('Accordion', () => {
 
   it('should open accordion by default if openByDefault is set to true', async () => {
     const { container } = await render({ openByDefault: true });
-    const element = container.querySelector('.fds-animate-height') as HTMLElement;
-    expect(element).toHaveClass('fds-animate-height--open');
-    expect(element).not.toHaveClass('fds-animate-height--closed');
+    const element = container.querySelector('.ds-animate-height') as HTMLElement;
+    expect(element).toHaveClass('ds-animate-height--open');
+    expect(element).not.toHaveClass('ds-animate-height--closed');
   });
 
   it('accordion should be closed by default if openByDefault is set to false', async () => {
     const { container } = await render({ openByDefault: false });
-    const element = container.querySelector('.fds-animate-height') as HTMLElement;
-    expect(element).toHaveClass('fds-animate-height--closed');
-    expect(element).not.toHaveClass('fds-animate-height--open');
+    const element = container.querySelector('.ds-animate-height') as HTMLElement;
+    expect(element).toHaveClass('ds-animate-height--closed');
+    expect(element).not.toHaveClass('ds-animate-height--open');
   });
 });
 

@@ -16,7 +16,7 @@ describe('Multiple select component', () => {
     cy.get('div[role="listbox"]').contains('span', checkboxText).click();
     cy.get('div[data-componentbaseid="MultipleSelectPage-Header-Summary2-Display-String"]')
       .next()
-      .find('span.fds-paragraph') // Targets the span with the summary text
+      .find('span.ds-paragraph') // Targets the span with the summary text
       .should('have.text', checkboxText);
   });
 });

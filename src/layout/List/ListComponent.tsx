@@ -244,7 +244,7 @@ function Pagination({
   const textStrings = language?.['list_component'];
 
   return (
-    <div className={cn({ [classes.paginationMobile]: isMobile }, classes.pagination, 'fds-table__header__cell')}>
+    <div className={cn({ [classes.paginationMobile]: isMobile }, classes.pagination, 'ds-table__header__cell')}>
       <CustomPagination
         nextLabel={textStrings['nextPage']}
         nextLabelAriaLabel={textStrings['nextPageAriaLabel']}

@@ -17,8 +17,8 @@ describe('Subform test', () => {
     cy.get('#Input-Name').should('be.visible').type(name);
 
     // Test process next when required subform is missing
-    cy.get('[data-testid="NavigationButtons"] button.fds-btn--primary').contains('Neste').scrollIntoView();
-    cy.get('[data-testid="NavigationButtons"] button.fds-btn--primary').should('be.visible').click();
+    cy.get('[data-testid="NavigationButtons"] button.ds-btn--primary').contains('Neste').scrollIntoView();
+    cy.get('[data-testid="NavigationButtons"] button.ds-btn--primary').should('be.visible').click();
     cy.get('[data-testid="ErrorReport"]').should('be.visible');
 
     // Navigate to the subform page

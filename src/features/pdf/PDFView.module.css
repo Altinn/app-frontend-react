@@ -15,20 +15,20 @@
 .pdf-wrapper .page {
   display: flex;
   flex-direction: column;
-  gap: var(--fds-spacing-4);
-  margin-bottom: var(--fds-spacing-2);
+  gap: var(--ds-size-4);
+  margin-bottom: var(--ds-size-2);
 }
 
 .pdf-wrapper .instanceInfo {
-  margin-bottom: var(--fds-spacing-4);
+  margin-bottom: var(--ds-size-4);
 }
 
 .paymentTitleContainer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--fds-spacing-6);
-  margin-bottom: var(--fds-spacing-3);
+  gap: var(--ds-size-6);
+  margin-bottom: var(--ds-size-3);
   h1 {
     margin-bottom: 0;
   }

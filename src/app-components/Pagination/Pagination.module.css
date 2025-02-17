@@ -2,7 +2,7 @@
   visibility: hidden;
 }
 .pagination {
-  ul[class*='fds-pagination'] {
+  ul[class*='ds-pagination'] {
     padding: 0;
   }
 }
@@ -10,11 +10,11 @@
   display: flex;
   flex-direction: row-reverse;
 
-  div[class*='fds-combobox__input__wrapper'] {
+  div[class*='ds-combobox__input__wrapper'] {
     width: 80px;
   }
 
-  div[class*='fds-combobox__chip-and-input'] {
+  div[class*='ds-combobox__chip-and-input'] {
     width: 34px;
   }
 }

@@ -50,7 +50,7 @@ export class AppFrontend {
   public notExpandedWidth = '[data-expanded="false"]';
 
   public helpText = {
-    button: 'button[class^="fds-helptext"]',
+    button: 'button[class^="ds-helptext"]',
     alert: 'div[role="dialog"]',
   };
 

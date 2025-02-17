@@ -75,7 +75,7 @@ Cypress.Commands.add('dsSelect', (selector, value, debounce = true) => {
   // It is tempting to just use findByRole('option', { name: value }) here, but that's flakier than using findByText()
   // as it never retries if the element re-renders. More information here:
   // https://github.com/testing-library/cypress-testing-library/issues/205#issuecomment-974688283
-  cy.get('[class*="fds-combobox__option"]').findByText(value).click();
+  cy.get('[class*="ds-combobox__option"]').findByText(value).click();
   if (debounce) {
     cy.get('body').click();
   }

@@ -124,7 +124,7 @@ function SoftValidations({
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
 
   return (
-    <div style={{ paddingTop: 'var(--fds-spacing-2)' }}>
+    <div style={{ paddingTop: 'var(--ds-size-2)' }}>
       <AlertDesignSystem
         style={{ breakInside: 'avoid' }}
         data-color={severity}

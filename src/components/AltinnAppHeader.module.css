@@ -11,7 +11,7 @@
 }
 
 .headerLink {
-  color: var(--fds-semantic-surface-action-default);
+  color: var(--ds-color-accent-base-default);
   font-size: 1.25rem;
   line-height: 1.5;
   margin-left: 2.25rem;
@@ -26,13 +26,13 @@
   }
 
   & a {
-    color: var(--fds-semantic-surface-action-default);
+    color: var(--ds-color-accent-base-default);
     border-bottom: 0;
   }
 
   & a:hover {
-    color: var(--fds-semantic-surface-action-default);
-    border-bottom: 3px solid var(--fds-semantic-surface-action-default);
+    color: var(--ds-color-accent-base-default);
+    border-bottom: 3px solid var(--ds-color-accent-base-default);
   }
 }
 
