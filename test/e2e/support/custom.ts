@@ -860,3 +860,106 @@ Cypress.Commands.add('getCurrentViewportSize', function () {
     height: win.innerHeight,
   }));
 });
+
+Cypress.Commands.add('showNavGroups', (open) => {
+  cy.get('body').then((body) => {
+    const isVisible = !!body.find('[data-testid=page-navigation]').length;
+    const usesPopup = !!body.find('[data-testid=page-navigation-trigger]').length;
+    const popupOpen = !!body.find('[data-testid=page-navigation-popup]').length;
+    const usesModal = !!body.find('[data-testid=page-navigation-modal]').length;
+
+    if (open && isVisible) {
+      return;
+    }
+    if (open && usesPopup) {
+      cy.findByTestId('page-navigation-trigger').click();
+      cy.findByTestId('page-navigation-popup').should('be.visible');
+      if (usesModal) {
+        cy.findByTestId('page-navigation-modal').should('have.css', 'opacity', '1');
+      }
+    }
+    if (!open && popupOpen) {
+      cy.findByTestId('page-navigation-popup').within(() => cy.findByRole('button', { name: 'Lukk' }).click());
+      cy.findByTestId('page-navigation-popup').should('not.exist');
+    }
+  });
+});
+
+Cypress.Commands.add('navGroup', (groupName, pageName) => {
+  if (pageName) {
+    cy.get('[data-testid=page-navigation]').then((container) =>
+      cy
+        .findByRole('button', { name: groupName, container })
+        .parent()
+        .then((container) => cy.findByRole('button', { name: pageName, container })),
+    );
+  } else {
+    cy.get('[data-testid=page-navigation]').then((container) =>
+      cy.findByRole('button', { name: groupName, container }),
+    );
+  }
+});
+
+Cypress.Commands.add('gotoNavGroup', (groupName, pageName) => {
+  cy.get('body').then((body) => {
+    const usesPopup = !!body.find('[data-testid=page-navigation-trigger]').length;
+    const popupOpen = !!body.find('[data-testid=page-navigation-popup]').length;
+    const usesModal = !!body.find('[data-testid=page-navigation-modal]').length;
+
+    if (usesPopup && !popupOpen) {
+      cy.findByTestId('page-navigation-trigger').click();
+      cy.findByTestId('page-navigation-popup').should('be.visible');
+    }
+
+    if (usesModal) {
+      cy.findByTestId('page-navigation-modal').should('have.css', 'opacity', '1');
+    }
+
+    if (pageName) {
+      cy.navGroup(groupName).then((group) => {
+        if (group[0].getAttribute('aria-expanded') === 'false') {
+          cy.navGroup(groupName).click();
+        }
+      });
+      cy.navGroup(groupName).should('have.attr', 'aria-expanded', 'true');
+      cy.navGroup(groupName, pageName).click();
+      if (usesPopup) {
+        cy.findByTestId('page-navigation-popup').should('not.exist');
+      } else {
+        cy.navGroup(groupName, pageName).should('have.attr', 'aria-current', 'page');
+      }
+    } else {
+      cy.navGroup(groupName).should('not.have.attr', 'aria-expanded');
+      cy.navGroup(groupName).click();
+      if (usesPopup) {
+        cy.findByTestId('page-navigation-popup').should('not.exist');
+      } else {
+        cy.navGroup(groupName).should('have.attr', 'aria-current', 'page');
+      }
+    }
+  });
+});
+
+Cypress.Commands.add('openNavGroup', (groupName) => {
+  cy.get('body').then((body) => {
+    const usesPopup = !!body.find('[data-testid=page-navigation-trigger]').length;
+    const popupOpen = !!body.find('[data-testid=page-navigation-popup]').length;
+    const usesModal = !!body.find('[data-testid=page-navigation-modal]').length;
+
+    if (usesPopup && !popupOpen) {
+      cy.findByTestId('page-navigation-trigger').click();
+      cy.findByTestId('page-navigation-popup').should('be.visible');
+    }
+
+    if (usesModal) {
+      cy.findByTestId('page-navigation-modal').should('have.css', 'opacity', '1');
+    }
+
+    cy.navGroup(groupName).then((group) => {
+      if (group[0].getAttribute('aria-expanded') === 'false') {
+        cy.navGroup(groupName).click();
+      }
+    });
+    cy.navGroup(groupName).should('have.attr', 'aria-expanded', 'true');
+  });
+});

@@ -28,6 +28,9 @@ export class AppFrontend {
 
     /** @see https://dev.altinn.studio/repos/ttd/subform-test */
     subformTest: 'subform-test',
+
+    /** @see https://dev.altinn.studio/repos/ttd/navigation-test */
+    navigationTest: 'navigation-test',
   };
 
   //Start app instance page

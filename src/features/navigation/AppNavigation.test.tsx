@@ -158,7 +158,7 @@ describe('AppNavigation', () => {
       ],
     });
 
-    expect(screen.getByRole('button', { name: /form/ })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('button', { name: 'form' })).toHaveAttribute('aria-current', 'step');
     expect(screen.getByRole('button', { name: 'first' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('button', { name: 'second' })).not.toHaveAttribute('aria-current');
     expect(screen.getByRole('button', { name: 'third' })).not.toHaveAttribute('aria-current');
@@ -175,7 +175,7 @@ describe('AppNavigation', () => {
       ],
     });
 
-    expect(screen.getByRole('button', { name: /form/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'form' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'first' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'second' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'third' })).toBeInTheDocument();
@@ -192,7 +192,7 @@ describe('AppNavigation', () => {
       ],
     });
 
-    expect(screen.getByRole('button', { name: /form/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'form' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'first' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'second' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'third' })).not.toBeInTheDocument();
@@ -209,7 +209,7 @@ describe('AppNavigation', () => {
       ],
     });
 
-    expect(screen.queryByRole('button', { name: /form/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'form' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'first' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'second' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'third' })).toBeInTheDocument();
@@ -242,20 +242,20 @@ describe('AppNavigation', () => {
       ],
     });
 
-    expect(screen.getByRole('button', { name: /part1/ })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('button', { name: 'part1' })).toHaveAttribute('aria-current', 'step');
     expect(screen.getByRole('button', { name: 'first' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('button', { name: 'second' })).not.toHaveAttribute('aria-current');
-    expect(screen.getByRole('button', { name: /part2/ })).not.toHaveAttribute('aria-current');
+    expect(screen.getByRole('button', { name: 'part2' })).not.toHaveAttribute('aria-current');
     expect(screen.queryByRole('button', { name: 'third' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'fourth' })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /part2/ }));
+    await user.click(screen.getByRole('button', { name: 'part2' }));
     await user.click(screen.getByRole('button', { name: 'third' }));
 
-    expect(screen.getByRole('button', { name: /part1/ })).not.toHaveAttribute('aria-current');
+    expect(screen.getByRole('button', { name: 'part1' })).not.toHaveAttribute('aria-current');
     expect(screen.queryByRole('button', { name: 'first' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'second' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /part2/ })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('button', { name: 'part2' })).toHaveAttribute('aria-current', 'step');
     expect(screen.getByRole('button', { name: 'third' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('button', { name: 'fourth' })).not.toHaveAttribute('aria-current');
   });
@@ -268,14 +268,14 @@ describe('AppNavigation', () => {
       ],
     });
 
-    expect(screen.getByRole('button', { name: /form/ })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('button', { name: 'form' })).toHaveAttribute('aria-current', 'step');
     expect(screen.getByRole('button', { name: 'first' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('button', { name: 'second' })).not.toHaveAttribute('aria-current');
     expect(screen.getByRole('button', { name: 'third' })).not.toHaveAttribute('aria-current');
 
     await user.click(screen.getByRole('button', { name: 'third' }));
 
-    expect(screen.getByRole('button', { name: /form/ })).not.toHaveAttribute('aria-current');
+    expect(screen.getByRole('button', { name: 'form' })).not.toHaveAttribute('aria-current');
     expect(screen.queryByRole('button', { name: 'first' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'second' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'third' })).toHaveAttribute('aria-current', 'page');
@@ -292,14 +292,14 @@ describe('AppNavigation', () => {
     });
 
     expect(screen.getByRole('button', { name: 'third' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: /form/ })).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByRole('button', { name: 'form' })).toHaveAttribute('aria-expanded', 'false');
 
-    await user.click(screen.getByRole('button', { name: /form/ }));
-    expect(screen.getByRole('button', { name: /form/ })).toHaveAttribute('aria-expanded', 'true');
+    await user.click(screen.getByRole('button', { name: 'form' }));
+    expect(screen.getByRole('button', { name: 'form' })).toHaveAttribute('aria-expanded', 'true');
 
     await user.click(screen.getByRole('button', { name: 'fourth' }));
     expect(screen.getByRole('button', { name: 'fourth' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: /form/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('button', { name: 'form' })).toHaveAttribute('aria-expanded', 'true');
   });
 
   it('should show page as completed (if not active)', async () => {
@@ -318,7 +318,7 @@ describe('AppNavigation', () => {
       within(screen.getByRole('button', { name: 'second' })).queryByTestId('state-complete'),
     ).not.toBeInTheDocument(); // active
     expect(
-      within(screen.getByRole('button', { name: /form/ })).queryByTestId('state-complete'),
+      within(screen.getByRole('button', { name: 'form' })).queryByTestId('state-complete'),
     ).not.toBeInTheDocument(); // active
   });
 
@@ -336,7 +336,7 @@ describe('AppNavigation', () => {
 
     expect(within(screen.getByRole('button', { name: 'first' })).getByTestId('state-error')).toBeInTheDocument();
     expect(within(screen.getByRole('button', { name: 'second' })).queryByTestId('state-error')).not.toBeInTheDocument(); // active
-    expect(within(screen.getByRole('button', { name: /form/ })).queryByTestId('state-error')).not.toBeInTheDocument(); // active
+    expect(within(screen.getByRole('button', { name: 'form' })).queryByTestId('state-error')).not.toBeInTheDocument(); // active
   });
 
   it('should show group as completed if all pages are completed (if not active)', async () => {
@@ -350,7 +350,7 @@ describe('AppNavigation', () => {
       ],
     });
 
-    expect(within(screen.getByRole('button', { name: /form/ })).getByTestId('state-complete')).toBeInTheDocument();
+    expect(within(screen.getByRole('button', { name: 'form' })).getByTestId('state-complete')).toBeInTheDocument();
     expect(
       within(screen.getByRole('button', { name: 'third' })).queryByTestId('state-complete'),
     ).not.toBeInTheDocument(); // active
@@ -368,7 +368,7 @@ describe('AppNavigation', () => {
     });
 
     expect(
-      within(screen.getByRole('button', { name: /form/ })).queryByTestId('state-complete'),
+      within(screen.getByRole('button', { name: 'form' })).queryByTestId('state-complete'),
     ).not.toBeInTheDocument();
   });
 
@@ -384,7 +384,7 @@ describe('AppNavigation', () => {
       ],
     });
 
-    expect(within(screen.getByRole('button', { name: /form/ })).getByTestId('state-error')).toBeInTheDocument();
+    expect(within(screen.getByRole('button', { name: 'form' })).getByTestId('state-error')).toBeInTheDocument();
     expect(within(screen.getByRole('button', { name: 'third' })).queryByTestId('state-error')).not.toBeInTheDocument(); // active
   });
 
@@ -409,9 +409,9 @@ describe('AppNavigation', () => {
       taskNavigation: [{ taskId: 'Task_1' }, { type: 'receipt' }],
     });
 
-    expect(screen.getByRole('button', { name: /part1/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /part1/ })).toHaveAttribute('aria-current', 'step');
-    expect(screen.getByRole('button', { name: /part2/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'part1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'part1' })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('button', { name: 'part2' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Utfylling' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Kvittering' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Kvittering' })).not.toHaveAttribute('aria-current');
@@ -427,9 +427,9 @@ describe('AppNavigation', () => {
       overrideTaskNavigation: [{ taskId: 'Task_1' }, { type: 'receipt', name: 'Betalings-kvittering' }],
     });
 
-    expect(screen.getByRole('button', { name: /part1/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /part1/ })).toHaveAttribute('aria-current', 'step');
-    expect(screen.getByRole('button', { name: /part2/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'part1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'part1' })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('button', { name: 'part2' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Utfylling' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Kvittering' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Betalings-kvittering' })).toBeInTheDocument();

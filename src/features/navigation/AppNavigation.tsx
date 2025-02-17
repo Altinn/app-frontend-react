@@ -50,7 +50,10 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
   if (!isSubform && taskGroups.length) {
     return (
       <ProcessingProvider>
-        <ul className={classes.groupList}>
+        <ul
+          data-testid='page-navigation'
+          className={classes.groupList}
+        >
           {taskGroups.map((taskGroup) => {
             if ('taskId' in taskGroup && taskGroup.taskId === currentTaskId && pageGroups) {
               return pageGroups.map((group) => (
@@ -80,7 +83,10 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
   if (pageGroups) {
     return (
       <ProcessingProvider>
-        <ul className={classes.groupList}>
+        <ul
+          data-testid='page-navigation'
+          className={classes.groupList}
+        >
           {pageGroups.map((group) => (
             <PageGroup
               key={group.id}
@@ -104,6 +110,7 @@ export function AppNavigationHeading({
   return (
     <div className={classes.navigationHeading}>
       <Heading
+        id='app-navigation-heading'
         level={3}
         size='xs'
       >
@@ -259,6 +266,7 @@ function PageGroupMultiple({
   validations,
   onNavigate,
 }: PageGroupProps<NavigationPageGroupMultiple>) {
+  const { langAsString } = useLanguage();
   const buttonId = `navigation-button-${group.id}`;
   const listId = `navigation-page-list-${group.id}`;
 
@@ -272,6 +280,7 @@ function PageGroupMultiple({
         aria-current={containsCurrentPage ? 'step' : undefined}
         aria-expanded={isOpen}
         aria-owns={listId}
+        aria-label={langAsString(group.name)}
         className={cn(classes.groupButton, { [classes.groupButtonOpen]: isOpen }, 'fds-focus')}
         onClick={() => setIsOpen((o) => !o)}
       >
@@ -286,6 +295,7 @@ function PageGroupMultiple({
           <Lang id={group.name} />
         </span>
         <ChevronDownIcon
+          aria-hidden
           data-testid='chevron'
           className={cn(classes.groupChevron, { [classes.groupChevronOpen]: isOpen })}
         />

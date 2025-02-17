@@ -46,6 +46,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
           onClose={closeDialog}
         >
           <Popover.Trigger
+            data-testid='page-navigation-trigger'
             onClick={toggleDialog}
             variant='secondary'
             color='first'
@@ -56,6 +57,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
             <PopoverNavigationButtonContent />
           </Popover.Trigger>
           <Popover.Content
+            data-testid='page-navigation-popup'
             className={classes.popoverContainer}
             aria-modal
             autoFocus={true}
@@ -76,6 +78,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
   return (
     <>
       <Button
+        data-testid='page-navigation-trigger'
         onClick={toggleDialog}
         variant='secondary'
         color='first'
@@ -87,11 +90,16 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
       </Button>
       <Modal
         role='dialog'
+        data-testid='page-navigation-modal'
+        aria-labelledby='app-navigation-heading'
         ref={modalRef}
         onInteractOutside={closeDialog}
         className={classes.modal}
       >
-        <Modal.Content className={classes.modalContainer}>
+        <Modal.Content
+          data-testid='page-navigation-popup'
+          className={classes.modalContainer}
+        >
           <AppNavigationHeading
             showClose={true}
             onClose={closeDialog}

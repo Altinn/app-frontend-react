@@ -378,12 +378,15 @@ export function focusMainContent(options?: NavigateToPageOptions) {
 }
 
 export function useVisitedPages() {
-  const partyId = useNavigationParam('partyId');
+  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
   const taskId = useNavigationParam('taskId');
   const componentId = useNavigationParam('componentId');
   const dataElementId = useNavigationParam('dataElementId');
 
-  return useLocalStorageState(['visitedPages', partyId, instanceGuid, taskId, componentId, dataElementId], emptyArray);
+  return useLocalStorageState(
+    ['visitedPages', instanceOwnerPartyId, instanceGuid, taskId, componentId, dataElementId],
+    emptyArray,
+  );
 }
 const emptyArray = [];
