@@ -224,7 +224,7 @@ function PageGroupSingle({
   validations,
   onNavigate,
 }: PageGroupProps<NavigationPageGroupSingle>) {
-  const { navigateToPage, maybeSaveOnPageChange } = useNavigatePage();
+  const { navigateToPage } = useNavigatePage();
   const [isProcessing, processing] = useProcessingContext();
   const page = group.order[0];
 
@@ -237,8 +237,7 @@ function PageGroupSingle({
         onClick={() =>
           processing(page, async () => {
             if (!isCurrentPage) {
-              await maybeSaveOnPageChange();
-              navigateToPage(page);
+              await navigateToPage(page);
               onNavigate?.();
             }
           })
@@ -387,7 +386,7 @@ function Page({
   const currentPageId = useNavigationParam('pageKey');
   const isCurrentPage = page === currentPageId;
 
-  const { navigateToPage, maybeSaveOnPageChange } = useNavigatePage();
+  const { navigateToPage } = useNavigatePage();
   const [isProcessing, processing] = useProcessingContext();
 
   return (
@@ -399,8 +398,7 @@ function Page({
         onClick={() =>
           processing(page, async () => {
             if (!isCurrentPage) {
-              await maybeSaveOnPageChange();
-              navigateToPage(page);
+              await navigateToPage(page);
               onNavigate?.();
             }
           })
