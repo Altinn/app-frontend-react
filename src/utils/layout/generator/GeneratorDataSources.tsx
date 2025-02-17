@@ -11,10 +11,11 @@ import { useLaxDataElementsSelectorProps, useLaxInstanceDataSources } from 'src/
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
+import { useCodeListSelectorProps } from 'src/features/options/CodeListsProvider';
 import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
 import { Validation } from 'src/features/validation/validationContext';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
-import { useShallowObjectMemo } from 'src/hooks/useShallowObjectMemo';
+import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { useCommitWhenFinished } from 'src/utils/layout/generator/CommitQueue';
 import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
@@ -54,6 +55,8 @@ function useExpressionDataSources(): ExpressionDataSources {
     nodeDataSelector,
     dataSelectorForTraversal,
     isHiddenSelector,
+    dataElementSelector,
+    codeListSelector,
   ] = useMultipleDelayedSelectors(
     FD.useDebouncedSelectorProps(),
     FD.useDebouncedRowsSelectorProps(),
@@ -62,6 +65,8 @@ function useExpressionDataSources(): ExpressionDataSources {
     NodesInternal.useNodeDataSelectorProps(),
     NodesInternal.useDataSelectorForTraversalProps(),
     Hidden.useIsHiddenSelectorProps(),
+    useLaxDataElementsSelectorProps(),
+    useCodeListSelectorProps(),
   );
 
   const process = useLaxProcessData();
@@ -83,7 +88,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     nodeDataSelector,
   );
 
-  return useShallowObjectMemo({
+  return useShallowMemo({
     roles,
     formDataSelector,
     formDataRowsSelector,
@@ -102,6 +107,8 @@ function useExpressionDataSources(): ExpressionDataSources {
     currentLayoutSet,
     externalApis,
     dataModelNames,
+    dataElementSelector,
+    codeListSelector,
   });
 }
 
@@ -126,7 +133,7 @@ function useValidationDataSources(): ValidationDataSources {
   const applicationMetadata = useApplicationMetadata();
   const layoutSets = useLayoutSets();
 
-  return useShallowObjectMemo({
+  return useShallowMemo({
     formDataSelector,
     invalidDataSelector,
     attachmentsSelector,
