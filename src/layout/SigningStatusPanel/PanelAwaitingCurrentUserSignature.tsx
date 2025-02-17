@@ -21,7 +21,7 @@ type AwaitingCurrentUserSignaturePanelProps = {
 };
 
 export function AwaitingCurrentUserSignaturePanel({ node }: AwaitingCurrentUserSignaturePanelProps) {
-  const { partyId, instanceGuid, taskId } = useParams();
+  const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
   const isAuthorised = useIsAuthorised();
   const canSign = isAuthorised('sign');
   const selectedLanguage = useCurrentLanguage();
@@ -35,12 +35,12 @@ export function AwaitingCurrentUserSignaturePanel({ node }: AwaitingCurrentUserS
 
   const { mutate: handleSign, error } = useMutation({
     mutationFn: async () => {
-      if (partyId && instanceGuid) {
-        return doPerformAction(partyId, instanceGuid, { action: 'sign' }, selectedLanguage);
+      if (instanceOwnerPartyId && instanceGuid) {
+        return doPerformAction(instanceOwnerPartyId, instanceGuid, { action: 'sign' }, selectedLanguage);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(signeeListQuery(partyId, instanceGuid, taskId));
+      queryClient.invalidateQueries(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
     },
   });
 

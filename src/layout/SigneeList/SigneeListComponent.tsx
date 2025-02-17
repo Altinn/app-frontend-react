@@ -17,12 +17,12 @@ import type { PropsFromGenericComponent } from 'src/layout';
 // TODO: Cypress tests: Needs finished APIs.
 
 export function SigneeListComponent({ node }: PropsFromGenericComponent<'SigneeList'>) {
-  const { partyId, instanceGuid, taskId } = useParams();
+  const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
   const { langAsString } = useLanguage();
 
   const { textResourceBindings } = useNodeItem(node);
 
-  const { data, isLoading, error } = useQuery(signeeListQuery(partyId, instanceGuid, taskId));
+  const { data, isLoading, error } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
 
   if (error) {
     return <SigneeListError error={error} />;

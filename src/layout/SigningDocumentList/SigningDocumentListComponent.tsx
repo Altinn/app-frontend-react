@@ -21,12 +21,12 @@ export function SigningDocumentListComponent({
 }: {
   textResourceBindings: NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings'];
 }) {
-  const { partyId, instanceGuid } = useParams();
+  const { instanceOwnerPartyId, instanceGuid } = useParams();
   const { langAsString } = useLanguage();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['signingDocumentList', partyId, instanceGuid],
-    queryFn: () => fetchDocumentList(partyId!, instanceGuid!),
+    queryKey: ['signingDocumentList', instanceOwnerPartyId, instanceGuid],
+    queryFn: () => fetchDocumentList(instanceOwnerPartyId!, instanceGuid!),
     staleTime: 1000 * 60 * 30, // 30 minutes
   });
 
