@@ -158,6 +158,12 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
   const error = instantiation.error ?? queryError;
   const data = instantiation.lastResult ?? queryData;
 
+  if (data && !data.id.endsWith(instanceGuid)) {
+    throw new Error(
+      `Mismatch between instanceGuid in URL and fetched instance data (URL: '${instanceGuid}', data: '${data.id}')`,
+    );
+  }
+
   useEffect(() => {
     data && changeData(() => data);
   }, [changeData, data]);
