@@ -18,12 +18,12 @@ import classes from 'src/layout/Grid/GridSummary.module.css';
 import { isGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import utilClasses from 'src/styles/utils.module.css';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import { typedBoolean } from 'src/utils/typing';
-import utilClasses from 'src/utils/util.module.css';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type {
   GridCellLabelFrom,

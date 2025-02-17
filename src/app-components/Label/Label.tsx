@@ -53,7 +53,7 @@ export function Label({
           <span className={classes.labelAndHelpWrapper}>
             <DesignsystemetLabel
               weight='medium'
-              size='md'
+              data-size='md'
               htmlFor={htmlFor}
               className={cn(className, {
                 [classes.labelPadding]: !children,

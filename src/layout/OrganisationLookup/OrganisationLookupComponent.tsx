@@ -151,6 +151,7 @@ export function OrganisationLookupComponent({
           <NumericInput
             id={`${id}_orgnr`}
             aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_orgnr`) : undefined}
+            aria-label={langAsString('organisation_lookup.orgnr_label')}
             value={hasSuccessfullyFetched ? organisation_lookup_orgnr : tempOrgNr}
             className={classes.orgnr}
             required={required}

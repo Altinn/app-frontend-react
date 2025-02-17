@@ -202,9 +202,8 @@ export function en() {
         'Your browser does not support iframes that use srcdoc. This may result in not being able to see all the content intended to be displayed here. We recommend trying a different browser.',
     },
     input_components: {
-      character_limit_sr_label: 'Textfield has a maximum length of {0} characters',
-      remaining_characters: 'You have {0} of {1} characters left',
-      exceeded_max_limit: 'You have exceeded the maximum limit with {0} characters',
+      remaining_characters: 'You have %d characters left',
+      exceeded_max_limit: 'You have exceeded the maximum limit with %d characters',
     },
     instance_selection: {
       changed_by: 'Changed by',

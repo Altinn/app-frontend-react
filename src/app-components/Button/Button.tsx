@@ -95,7 +95,7 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
           aria-hidden='true'
           color={color}
           data-size={size === 'lg' ? 'sm' : 'xs'}
-          title={langAsString('general.loading')}
+          aria-label={langAsString('general.loading')}
         />
       )}
       {children}

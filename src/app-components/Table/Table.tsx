@@ -7,7 +7,7 @@ import { pick } from 'dot-object';
 import type { JSONSchema7 } from 'json-schema';
 
 import classes from 'src/app-components/Table/Table.module.css';
-import utilClasses from 'src/styles/util.module.css';
+import utilClasses from 'src/styles/utils.module.css';
 import type { FormDataObject, FormDataValue } from 'src/app-components/DynamicForm/DynamicForm';
 
 interface Column {
@@ -78,7 +78,7 @@ export function AppTable({
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
     <Table
-      size={size || 'sm'}
+      data-size={size || 'sm'}
       className={cn(classes.table, { [classes.mobileTable]: mobile })}
       zebra={zebra}
       stickyHeader={stickyHeader}
@@ -162,7 +162,7 @@ export function AppTable({
                     <Button
                       key={idx}
                       onClick={() => button.onClick(rowIndex, rowData)}
-                      size='sm'
+                      data-size='sm'
                       variant={button.variant ? button.variant : defaultButtonVariant}
                       color={button.color ? button.color : 'second'}
                     >

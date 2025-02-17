@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Field, Textarea } from '@digdir/designsystemet-react';
+import type { FieldCounterProps } from '@digdir/designsystemet-react';
 
 export interface TextAreaWithLabelProps {
   id: string;
@@ -8,7 +9,7 @@ export interface TextAreaWithLabelProps {
   onChange: (value: string) => void;
   onBlur?: () => void;
   readOnly?: boolean;
-  characterLimit?: number;
+  characterLimit?: FieldCounterProps | undefined;
   error?: boolean;
   dataTestId?: string;
   ariaDescribedBy?: string;
@@ -24,7 +25,6 @@ export const TextArea: React.FC<TextAreaWithLabelProps> = ({
   onBlur,
   readOnly = false,
   characterLimit,
-  error = false,
   dataTestId,
   ariaDescribedBy,
   ariaLabel,
@@ -37,7 +37,6 @@ export const TextArea: React.FC<TextAreaWithLabelProps> = ({
       onChange={(e) => onChange(e.target.value)}
       onBlur={onBlur}
       readOnly={readOnly}
-      error={error}
       value={value}
       data-testid={dataTestId}
       aria-describedby={ariaDescribedBy}
@@ -45,6 +44,6 @@ export const TextArea: React.FC<TextAreaWithLabelProps> = ({
       autoComplete={autoComplete}
       style={style}
     />
-    {characterLimit && <Field.Counter limit={characterLimit} />}
+    {characterLimit && <Field.Counter {...characterLimit} />}
   </Field>
 );

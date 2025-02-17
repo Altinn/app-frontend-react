@@ -80,7 +80,7 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
 
   const inputProps: InputProps = {
     id,
-    'aria-label': overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined,
+    'aria-label': langAsString(textResourceBindings?.title),
     'aria-describedby':
       textResourceBindings?.title && textResourceBindings?.description ? getDescriptionId(id) : undefined,
     autoComplete: autocomplete,

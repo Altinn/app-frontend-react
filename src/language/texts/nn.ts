@@ -202,9 +202,8 @@ export function nn(): FixedLanguageList {
         'Nettlesaren di støttar ikkje iframes som brukar srcdoc. Dette kan føre til at du ikkje ser all innhaldet som er meint å visast her. Vi anbefalar deg å prøve ein annan nettlesar.',
     },
     input_components: {
-      character_limit_sr_label: 'Tekstfeltet kan innehalde maks {0} teikn.',
-      remaining_characters: 'Du har {0} av {1} teikn igjen',
-      exceeded_max_limit: 'Du har overskride maks teikn med {0}',
+      remaining_characters: 'Du har %d teikn igjen',
+      exceeded_max_limit: 'Du har overskride maks teikn med %d',
     },
     instance_selection: {
       changed_by: 'Endra av',

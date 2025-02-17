@@ -99,7 +99,6 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
             id={id}
             locale={locale}
             selectedDate={dayPickerDate}
-            isOpen={isDialogOpen}
             onSelect={(date) => {
               handleDayPickerSelect(date);
               setIsDialogOpen(false);

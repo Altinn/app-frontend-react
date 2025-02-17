@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Fieldset } from '@digdir/designsystemet-react';
+import { Fieldset, useRadioGroup } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
@@ -13,10 +13,10 @@ import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
+import utilClasses from 'src/styles/utils.module.css';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import utilClasses from 'src/utils/util.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IControlledRadioGroupProps = PropsFromGenericComponent<'RadioButtons' | 'LikertItem'>;
@@ -38,6 +38,12 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
     ? lang('form_filler.radiobutton_alert_label', [`<strong>${selectedLabelTranslated}</strong>`])
     : null;
   const confirmChangeText = langAsString('form_filler.alert_confirm');
+  const { getRadioProps } = useRadioGroup({
+    name: id,
+    value: selectedValues[0],
+    onChange: () => handleChange,
+    error: !isValid,
+  });
 
   const getLabelPrefixForLikert = () => {
     if (parentItem?.type === 'Likert' && parentItem.textResourceBindings?.leftColumnHeader) {
@@ -87,12 +93,10 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
             {calculatedOptions.map((option) => (
               <RadioButton
                 key={option.value}
-                value={option.value}
                 label={langAsString(option.label)}
                 description={option.description && <Lang id={option.description} />}
                 helpText={option.helpText && <Lang id={option.helpText} />}
-                name={id}
-                error={!isValid}
+                {...getRadioProps({ value: option.value })}
                 checked={option.value === selectedValues[0]}
                 showAsCard={showAsCard}
                 readOnly={readOnly}

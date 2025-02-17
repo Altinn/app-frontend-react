@@ -88,6 +88,7 @@ export function AddressComponent({ node }: IAddressProps) {
             <Input
               id={`address_address_${id}`}
               data-bindingkey={bindingKeys.address}
+              aria-label={langAsString(textResourceBindings?.title ?? 'address_component.address')}
               error={hasValidationErrors(bindingValidations?.address)}
               value={address}
               onChange={(ev) => setValue('address', ev.target.value)}
@@ -124,6 +125,7 @@ export function AddressComponent({ node }: IAddressProps) {
               <Input
                 id={`address_care_of_${id}`}
                 data-bindingkey={bindingKeys.careOf}
+                aria-label={langAsString(textResourceBindings?.careOfTitle ?? 'address_component.care_of')}
                 error={hasValidationErrors(bindingValidations?.careOf)}
                 value={careOf}
                 onChange={(ev) => setValue('careOf', ev.target.value)}
@@ -166,6 +168,7 @@ export function AddressComponent({ node }: IAddressProps) {
               <Input
                 id={`address_zip_code_${id}`}
                 data-bindingkey={bindingKeys.zipCode}
+                aria-label={langAsString(textResourceBindings?.zipCodeTitle ?? 'address_component.zip_code')}
                 error={hasValidationErrors(bindingValidations?.zipCode)}
                 value={zipCode}
                 onChange={(ev) => setValue('zipCode', ev.target.value)}
@@ -204,6 +207,7 @@ export function AddressComponent({ node }: IAddressProps) {
               <Input
                 id={`address_post_place_${id}`}
                 data-bindingkey={bindingKeys.postPlace}
+                aria-label={langAsString(textResourceBindings?.postPlaceTitle ?? 'address_component.post_place')}
                 value={postPlace}
                 readOnly={true}
                 required={required}
@@ -245,6 +249,7 @@ export function AddressComponent({ node }: IAddressProps) {
                 <Input
                   id={`address_house_number_${id}`}
                   data-bindingkey={bindingKeys.houseNumber}
+                  aria-label={langAsString(textResourceBindings?.houseNumberTitle ?? 'address_component.house_number')}
                   error={hasValidationErrors(bindingValidations?.houseNumber)}
                   value={houseNumber}
                   onChange={(ev) => setValue('houseNumber', ev.target.value)}

@@ -11,7 +11,7 @@ import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPo
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { useLanguage } from 'src/features/language/useLanguage';
 
-export interface IRadioButtonProps extends Omit<RadioProps, 'children'> {
+export interface IRadioButtonProps extends Omit<RadioProps, 'children' | 'aria-label' | 'aria-labelledby'> {
   showAsCard?: boolean;
   helpText?: React.ReactNode;
   hideLabel?: boolean;
@@ -45,12 +45,10 @@ export const RadioButton = ({
     <Radio
       {...rest}
       label={
-        label && (
-          <div className={`${hideLabel ? 'sr-only' : ''} ${classes.radioLabelContainer}`}>
-            {label}
-            {helpText ? <HelpText title={elementAsString(helpText)}>{helpText}</HelpText> : null}
-          </div>
-        )
+        <div className={`${hideLabel ? 'sr-only' : ''} ${classes.radioLabelContainer}`}>
+          {label}
+          {helpText ? <HelpText title={elementAsString(helpText)}>{helpText}</HelpText> : null}
+        </div>
       }
       className={cn(classes.radioButton, className)}
       onChange={handleChange}

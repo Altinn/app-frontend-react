@@ -176,6 +176,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
           <NumericInput
             id={`${id}_ssn`}
             aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_ssn`) : undefined}
+            aria-label={langAsString('person_lookup.ssn_label')}
             value={hasSuccessfullyFetched ? person_lookup_ssn : tempSsn}
             className={classes.ssn}
             required={required}
@@ -211,6 +212,9 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
           <Input
             id={`${id}_name`}
             aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_name`) : undefined}
+            aria-label={langAsString(
+              hasSuccessfullyFetched ? 'person_lookup.name_label' : 'person_lookup.surname_label',
+            )}
             value={hasSuccessfullyFetched ? person_lookup_name : tempName}
             className={classes.name}
             type='text'

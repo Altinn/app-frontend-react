@@ -202,9 +202,8 @@ export function nb(): FixedLanguageList {
         'Nettleseren du bruker støtter ikke iframes som benytter seg av srcdoc. Dette kan føre til at du ikke ser all innholdet som er ment å vises her. Vi anbefaler deg å prøve en annen nettleser.',
     },
     input_components: {
-      character_limit_sr_label: 'Tekstfeltet kan inneholde maks {0} tegn',
-      remaining_characters: 'Du har {0} av {1} tegn igjen',
-      exceeded_max_limit: 'Du har overskredet maks antall tegn med {0}',
+      remaining_characters: 'Du har %d tegn igjen',
+      exceeded_max_limit: 'Du har overskredet maks antall tegn med %d',
     },
     instance_selection: {
       changed_by: 'Endret av',
