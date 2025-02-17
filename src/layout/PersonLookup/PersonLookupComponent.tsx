@@ -97,7 +97,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
   const { data, refetch: performLookup, isFetching } = useQuery(personLookupQueries.lookup(tempSsn, tempName));
 
   function handleValidateName(name: string) {
-    if (name.length < 2) {
+    if (name.length < 1) {
       setNameError('person_lookup.validation_error_name_too_short');
       return false;
     }

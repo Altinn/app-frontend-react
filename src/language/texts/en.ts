@@ -2,6 +2,10 @@ import type { NestedTexts } from 'src/language/languages';
 
 export function en() {
   return {
+    dateTime: {
+      am: 'AM',
+      pm: 'PM',
+    },
     altinn: {
       standard_validation: {
         file_content_type_not_allowed:
@@ -335,7 +339,7 @@ export function en() {
       surname_label: 'Surname',
       name_label: 'Name',
       from_registry_description: 'From the National Population Register',
-      validation_error_name_too_short: "The name can't be shorter than 2 characters",
+      validation_error_name_too_short: "The name can't be empty.",
       validation_error_ssn: 'The national ID number/D-number is invalid.',
       validation_error_not_found:
         'No person is registered with this combination of national ID number/D-number and name. Please check the fields and try again. \n\nNote: After 5 failed attempts, the search functionality will be temporarily locked.',
@@ -484,11 +488,10 @@ export function en() {
     },
     list_component: {
       rowsPerPage: 'Rows per page',
-      of: 'of',
-      navigateFirstPage: 'Navigate to the first page in the table',
-      previousPage: 'Previous page in the table',
-      nextPage: 'Next page in the table',
-      navigateLastPage: 'Navigate to the last page in the table',
+      previousPage: 'Previous',
+      previousPageAriaLabel: 'Previous page in the table',
+      nextPage: 'Next',
+      nextPageAriaLabel: 'Next page in the table',
     },
     config_error: {
       layoutset_subform_config_error:
@@ -501,6 +504,8 @@ export function en() {
       subform_no_datatype_appmetadata: "Data type '{0}' was not found in applicationmetadata.json",
       subform_misconfigured_add_button:
         "Data type '{0}' is marked as 'disallowUserCreate=true', but the subform component is configured with 'showAddButton=true'. This is a contradiction, as the user will never be permitted to perform the add-button operation.",
+      file_upload_same_binding:
+        'There are multiple FileUpload components with the same data model binding. Each component must have a unique binding. Other components with the same binding: {0}',
     },
     version_error: {
       version_mismatch: 'Version mismatch',

@@ -14,7 +14,7 @@ import { fetchProcessState } from 'src/queries/queries';
 import { isProcessTaskType, ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
-import type { IActionType, IProcess } from 'src/types/shared';
+import type { IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 // Also used for prefetching @see appPrefetcher.ts
@@ -30,7 +30,10 @@ const ProcessContext = createContext<Pick<UseQueryResult<IProcess, HttpClientErr
   undefined,
 );
 
-export function ProcessProvider({ children, instanceId }: PropsWithChildren<{ instanceId: string }>) {
+export function ProcessProvider({ children }: PropsWithChildren) {
+  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
+  const instanceGuid = useNavigationParam('instanceGuid');
+  const instanceId = `${instanceOwnerPartyId}/${instanceGuid}`;
   const taskId = useNavigationParam('taskId');
   const layoutSets = useLayoutSets();
   const navigateToTask = useNavigateToTask();
@@ -74,7 +77,7 @@ export const useReFetchProcessData = () => useContext(ProcessContext)?.refetch;
 export const useIsAuthorised = () => {
   const processData = useLaxProcessData();
 
-  return (action: IActionType): boolean => {
+  return (action: string): boolean => {
     const userAction = processData?.currentTask?.userActions?.find((a) => a.id === action);
     return !!userAction?.authorized;
   };

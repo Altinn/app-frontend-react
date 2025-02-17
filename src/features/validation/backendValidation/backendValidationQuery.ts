@@ -170,5 +170,5 @@ export function useBackendValidationQuery<TResult = BackendValidationIssue[]>(
 }
 
 export function useRefetchInitialValidations(onlyIncrementalValidators = true) {
-  return useBackendValidationQuery({ throwOnError: false }, onlyIncrementalValidators).refetch;
+  return useBackendValidationQuery({ throwOnError: false, enabled: false }, onlyIncrementalValidators).refetch;
 }
