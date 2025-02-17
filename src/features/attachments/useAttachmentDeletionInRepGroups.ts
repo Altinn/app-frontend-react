@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 
 import { AttachmentsPlugin } from 'src/features/attachments/AttachmentsPlugin';
-import { attachmentSelector } from 'src/features/attachments/AttachmentsStorePlugin';
 import { useAttachmentsAwaiter, useAttachmentsRemover } from 'src/features/attachments/hooks';
 import { isAttachmentUploaded } from 'src/features/attachments/index';
+import { attachmentSelector } from 'src/features/attachments/tools';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getComponentDef } from 'src/layout';
 import { NodesInternal } from 'src/utils/layout/NodesContext';

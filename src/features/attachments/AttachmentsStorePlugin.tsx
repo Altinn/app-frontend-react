@@ -11,6 +11,7 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { isAttachmentUploaded, isDataPostError } from 'src/features/attachments/index';
 import { sortAttachmentsByName } from 'src/features/attachments/sortAttachments';
+import { appSupportsNewAttachmentAPI, attachmentSelector } from 'src/features/attachments/tools';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { dataModelPairsToObject } from 'src/features/formData/types';
 import {
@@ -26,8 +27,6 @@ import { useWaitForState } from 'src/hooks/useWaitForState';
 import { nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
-import { isAtLeastVersion } from 'src/utils/versionCompare';
-import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type {
   DataPostResponse,
   IAttachment,
@@ -36,6 +35,7 @@ import type {
   TemporaryAttachment,
   UploadedAttachment,
 } from 'src/features/attachments/index';
+import type { AttachmentsSelector } from 'src/features/attachments/tools';
 import type { FDActionResult } from 'src/features/formData/FormDataWriteStateMachine';
 import type { DSPropsForSimpleSelector } from 'src/hooks/delayedSelectors';
 import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
@@ -664,18 +664,6 @@ export function useAttachmentsUploadMutation() {
   return useMutation(options);
 }
 
-export type AttachmentsSelector = (nodeId: string) => IAttachment[];
-export const attachmentSelector = (nodeId: string) => (state: NodesContext) => {
-  const nodeData = state.nodeData[nodeId];
-  if (!nodeData) {
-    return emptyArray;
-  }
-  if (nodeData && 'attachments' in nodeData) {
-    return Object.values(nodeData.attachments).sort(sortAttachmentsByName);
-  }
-  return emptyArray;
-};
-
 function useAttachmentsAddTagMutation() {
   const { doAttachmentAddTag } = useAppMutations();
   const instanceId = useLaxInstanceId();
@@ -729,8 +717,4 @@ function useAttachmentsRemoveMutation() {
       window.logError('Failed to delete attachment:\n', error);
     },
   });
-}
-
-export function appSupportsNewAttachmentAPI({ altinnNugetVersion }: ApplicationMetadata) {
-  return !altinnNugetVersion || isAtLeastVersion({ actualVersion: altinnNugetVersion, minimumVersion: '8.5.0.153' });
 }
