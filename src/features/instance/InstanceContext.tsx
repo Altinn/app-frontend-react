@@ -137,17 +137,17 @@ function useGetInstanceDataQuery(hasResultFromInstantiation: boolean, partyId: s
 }
 
 export const InstanceProvider = ({ children }: { children: React.ReactNode }) => {
-  const partyId = useNavigationParam('partyId');
+  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
 
-  if (!partyId || !instanceGuid) {
+  if (!instanceOwnerPartyId || !instanceGuid) {
     return null;
   }
 
   return (
     <DataLoadingProvider>
       <InnerInstanceProvider
-        partyId={partyId}
+        partyId={instanceOwnerPartyId}
         instanceGuid={instanceGuid}
       >
         {children}
