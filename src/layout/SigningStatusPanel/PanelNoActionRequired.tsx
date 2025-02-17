@@ -1,10 +1,10 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
 
 import { Link } from '@digdir/designsystemet-react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Lang } from 'src/features/language/Lang';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -17,7 +17,7 @@ type NoActionRequiredPanelProps = {
 };
 
 export function NoActionRequiredPanel({ node, hasSigned }: NoActionRequiredPanelProps) {
-  const partyId = Number(useParams().partyId);
+  const currentUserPartyId = useCurrentParty()?.partyId;
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
 
   const titleHasSigned =
@@ -45,7 +45,7 @@ export function NoActionRequiredPanel({ node, hasSigned }: NoActionRequiredPanel
           asChild
         >
           <Link
-            href={returnUrlToMessageBox(window.location.origin, partyId) ?? '#'}
+            href={returnUrlToMessageBox(window.location.origin, currentUserPartyId) ?? '#'}
             className={classes.buttonLink}
           >
             <Lang id={goToInboxButton} />
