@@ -15,21 +15,18 @@ export const Page = () => {
 
   const { resolvedLayouts, layouts, data, setDataValue } = useStore(layoutStore);
 
-  //const { data, setDataValue } = useStore(dataStore);
-
-  // const resolvedLayout = resolvedLayouts[pageId];
-  //
-  // console.log(JSON.stringify(resolvedLayout, null, 2));
+  if (resolvedLayouts && resolvedLayouts[pageId]) {
+    console.log(
+      'resolvedLayouts',
+      resolvedLayouts[pageId].data.layout.find((layout) => layout.id === 'InputPage-Input'),
+    );
+  }
 
   const currentPage = layouts[pageId];
 
   if (!currentPage) {
     throw new Error(`could not find layout: ${currentPage}`);
   }
-
-  // if (!data) {
-  //   throw new Error('no data');
-  // }
 
   const filteredEntries = data
     ? Object.entries(data).filter(([, value]) => typeof value === 'string' && value.length > 0)
@@ -47,10 +44,32 @@ export const Page = () => {
         ))}
       </div>
 
+      <h1>resolvedLayouts</h1>
+
+      {resolvedLayouts && (
+        <div>
+          {resolvedLayouts && resolvedLayouts?.data && resolvedLayouts?.data[pageId] && (
+            <pre>{JSON.stringify(resolvedLayouts.data[pageId], null, 2)}</pre>
+          )}
+        </div>
+      )}
+
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         {currentPage.data.layout
           // eslint-disable-next-line no-prototype-builtins
           .filter((component) => component.dataModelBindings?.hasOwnProperty('simpleBinding'))
+
+          .filter((component) => {
+            if (!resolvedLayouts || !resolvedLayouts[pageId]) {
+              return true;
+            }
+
+            const resolved = resolvedLayouts[pageId].data.layout.find(
+              (resolvedComponent) => resolvedComponent.id === component.id,
+            );
+            return !resolved?.hidden;
+          })
+
           .map((component) => {
             // @ts-ignore
             const datamodelBinding = component.dataModelBindings.simpleBinding;

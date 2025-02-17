@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Outlet, useParams } from 'react-router-dom';
+import { Link, Outlet, useParams } from 'react-router-dom';
 
 import { useStore } from 'zustand';
 
@@ -73,7 +73,7 @@ export const Instance = () => {
       {/*<h1>Instance</h1>*/}
       {/*<div>{partyId}</div>*/}
       {/*<div> {instanceGuid}</div>*/}
-      {/*<Link to={`${data?.process.currentTask.elementId}`}>{data?.process.currentTask.elementId}</Link>*/}
+      <Link to={`${data?.process.currentTask.elementId}`}>{data?.process.currentTask.elementId}</Link>
 
       {/*<h2>Instance</h2>*/}
 
