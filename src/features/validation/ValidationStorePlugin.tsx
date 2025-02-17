@@ -261,7 +261,7 @@ interface GetDeepValidationsProps extends GetValidationsProps {
   restriction?: TraversalRestriction;
 }
 
-function getRecursiveValidations(props: GetDeepValidationsProps): NodeRefValidation[] {
+export function getRecursiveValidations(props: GetDeepValidationsProps): NodeRefValidation[] {
   const out: NodeRefValidation[] = [];
 
   if (props.includeSelf) {
