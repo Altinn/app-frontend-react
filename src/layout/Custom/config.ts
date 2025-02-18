@@ -28,4 +28,12 @@ export const Config = new CG.component({
   )
   .addProperty(
     new CG.prop('tagName', new CG.str().setTitle('Tag name').setDescription('Web component tag name to use')),
+  )
+  .addProperty(
+    new CG.prop(
+      'useTextResources',
+      new CG.bool()
+        .setTitle('Use text resources')
+        .setDescription('All text resources will be passed on as "textResources" property to the component'),
+    ),
   );
