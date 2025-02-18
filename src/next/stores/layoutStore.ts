@@ -2,10 +2,7 @@ import { createStore } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
 import { evaluateExpression } from 'src/next/app/expressions/evaluateExpression';
-import { exampleLayoutCollection } from 'src/next/types/LayoutsDto';
-import { layoutSetsSchemaExample } from 'src/next/types/LayoutSetsDTO';
-import { exampleLayoutSettings } from 'src/next/types/PageOrderDTO';
-import { exampleProcess } from 'src/next/types/ProcessDTO';
+import { transformLayout } from 'src/next/app/utils/moveChildren';
 import type { ILayoutFile } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { LayoutSetsSchema } from 'src/next/types/LayoutSetsDTO';
@@ -52,56 +49,6 @@ interface Layouts {
   // Internal method to rebuild resolvedLayouts whenever data/layouts changes
   updateResolvedLayouts: () => void;
 }
-
-/**
- * Basic helper to evaluate an expression, e.g. ["equals", ["dataModel", "myInput"], "hide"].
- * Extend with more operators as needed.
- */
-// function evaluateExpression(expr: any, data: DataObject | undefined): any {
-//   if (!Array.isArray(expr)) {
-//     // If it’s not an array, treat it as a literal (boolean, string, etc.)
-//     return Boolean(expr);
-//   }
-//
-//   const [operator, ...args] = expr;
-//
-//   console.log('operator', operator);
-//
-//   console.log('args', args);
-//
-//   switch (operator) {
-//     case 'equals': {
-//       const right = evaluateExpression(args[1], data);
-//       const left = evaluateExpression(args[0], data);
-//
-//       console.log('left', left);
-//       console.log('right', right);
-//
-//       // if (left === args[args.length - 1]) {
-//       //   console.log('ding');
-//       //   debugger;
-//       // }
-//
-//       return left === args[args.length - 1]; //right;
-//     }
-//     case 'dataModel': {
-//       // example: ["dataModel", "myKey"]
-//       if (!data) {
-//         return undefined;
-//       }
-//       const [dataKey] = args;
-//
-//       const dataToReturn = data[dataKey];
-//
-//       console.log('dataToReturn', dataToReturn);
-//       // debugger;
-//       return dataToReturn;
-//     }
-//     // ... more operators (notEquals, and, or, etc.) ...
-//     default:
-//       return false;
-//   }
-// }
 
 /**
  * Transform the raw layout components into resolved ones by evaluating e.g. hidden expressions.
@@ -156,12 +103,8 @@ export const layoutStore = createStore<Layouts>()(
   devtools(
     (set, get) => ({
       // Initial data
-      layoutSetsConfig: layoutSetsSchemaExample,
-      process: exampleProcess,
-      pageOrder: exampleLayoutSettings,
 
       // The raw layouts
-      layouts: exampleLayoutCollection,
 
       // Resolved layouts
       //resolvedLayouts: exampleLayoutCollection, // start out same as raw or empty if you prefer
@@ -171,10 +114,14 @@ export const layoutStore = createStore<Layouts>()(
       // Recompute resolvedLayouts
       updateResolvedLayouts: () => {
         const { layouts, data } = get();
+        if (!layouts) {
+          return;
+        }
+
         const newResolved = rebuildResolvedLayouts(layouts, data);
 
-        console.log('newResolved');
-        console.log(JSON.stringify(newResolved['InputPage'], null, 2));
+        // console.log('newResolved');
+        // console.log(JSON.stringify(newResolved['InputPage'], null, 2));
 
         set({ resolvedLayouts: newResolved });
       },
@@ -186,6 +133,15 @@ export const layoutStore = createStore<Layouts>()(
 
       // Setting layouts => also update resolved
       setLayouts: (newLayouts) => {
+        if (!newLayouts) {
+          throw new Error('no layouts');
+        }
+
+        const transformedLayouts = Object.values(newLayouts).map((currentLayout) => ({
+          ...currentLayout,
+          data: transformLayout(currentLayout),
+        }));
+
         set({ layouts: newLayouts });
         get().updateResolvedLayouts();
       },

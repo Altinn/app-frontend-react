@@ -11,17 +11,42 @@ import { useActiveInstancesQuery } from 'src/next/v1/queries/instanceQuery';
 export const Instances = () => {
   const settings = useStore(initialStateStore);
 
-  const { data, error, isLoading } = useActiveInstancesQuery(`${settings.user.partyId}`);
+  const { user, validParties } = useStore(initialStateStore);
+
+  const currentParty = validParties[0];
+
+  const { data, error, isLoading } = useActiveInstancesQuery(`${currentParty.partyId}`);
 
   const apiClient = useApiClient();
 
-  const { user } = useStore(initialStateStore);
   const createIntance = async () => {
-    const res = await apiClient.org.instancesCreate(ORG, APP, {
-      instanceOwnerPartyId: user.partyId,
-      language: user.profileSettingPreference.language || '',
-    });
+    if (!user?.party?.partyId || !user?.profileSettingPreference?.language) {
+      return;
+    }
+
+    if (validParties.length < 1) {
+      return;
+    }
+
+    // @ts-ignore
+    const xsrfCookie = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('XSRF-TOKEN='))
+      .split('=')[1];
+    const headers = { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': xsrfCookie };
+
+    const res = await apiClient.org.instancesCreate(
+      ORG,
+      APP,
+      {
+        instanceOwnerPartyId: currentParty.partyId, ///user.party.partyId, //user.partyId,
+      },
+      {
+        headers,
+      },
+    );
     const data = await res.json();
+
     console.log(JSON.stringify(data, null, 2));
   };
 

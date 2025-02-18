@@ -1,19 +1,47 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
+import dot from 'dot-object';
 import { useStore } from 'zustand';
 
-//import { dataStore } from 'src/next/stores/dataStore';
 import { layoutStore } from 'src/next/stores/layoutStore';
+import { textResourceStore } from 'src/next/stores/textResourceStore';
+import type { CompExternal } from 'src/layout/layout';
+import type { TextResource } from 'src/next/app/api';
 
 type PageParams = {
   pageId: string;
 };
 
+function resolveText(component: CompExternal, textResource?: TextResource) {
+  // if (component.type !== 'Paragraph') {
+  //   return null;
+  // }
+  if (!textResource?.resources) {
+    return null;
+  }
+  // @ts-ignore
+  if (!component.textResourceBindings?.title) {
+    return null;
+  }
+
+  // @ts-ignore
+  const foundText = textResource.resources.find((r) => r.id === component.textResourceBindings!.title);
+  if (!foundText) {
+    return null;
+  }
+
+  return <p key={component.id}>{foundText.value}</p>;
+}
+
 export const Page = () => {
   const { pageId } = useParams<PageParams>() as Required<PageParams>;
 
   const { resolvedLayouts, layouts, data, setDataValue } = useStore(layoutStore);
+
+  const { textResource, setTextResource } = useStore(textResourceStore);
+
+  console.log(JSON.stringify(textResource, null, 2));
 
   if (resolvedLayouts && resolvedLayouts[pageId]) {
     console.log(
@@ -22,27 +50,66 @@ export const Page = () => {
     );
   }
 
-  const currentPage = layouts[pageId];
+  if (!layouts) {
+    return;
+  }
+
+  const currentPage = resolvedLayouts[pageId];
 
   if (!currentPage) {
     throw new Error(`could not find layout: ${currentPage}`);
   }
 
-  const filteredEntries = data
-    ? Object.entries(data).filter(([, value]) => typeof value === 'string' && value.length > 0)
-    : [];
-
   return (
     <div>
-      <div style={{ backgroundColor: 'lightgray' }}>
-        <h3>Datamodel fields</h3>
+      {resolvedLayouts && (
+        <div>
+          {resolvedLayouts &&
+            resolvedLayouts[pageId] &&
+            resolvedLayouts[pageId].data &&
+            resolvedLayouts[pageId].data.layout &&
+            resolvedLayouts[pageId].data.layout.map((currentComponent) => {
+              if (currentComponent.type === 'Paragraph') {
+                const paragraphText = resolveText(currentComponent, textResource);
+                return <p key={currentComponent.id}>{paragraphText}</p>;
+              }
 
-        {filteredEntries.map(([key, value]) => (
-          <div key={key}>
-            {key}: {JSON.stringify(value, null, 2)}
-          </div>
-        ))}
-      </div>
+              if (currentComponent.type === 'Header') {
+                const paragraphText = resolveText(currentComponent, textResource);
+                return <h1 key={currentComponent.id}>{paragraphText}</h1>;
+              }
+
+              if (currentComponent.type === 'Input') {
+                return <input key={currentComponent.id} />;
+              }
+
+              if (currentComponent.type === 'RepeatingGroup') {
+                const binding = currentComponent.dataModelBindings.group;
+
+                console.log('binding', binding);
+
+                // @ts-ignore
+                const dataToDisplay = dot.pick(binding, data);
+                if (!dataToDisplay) {
+                  return;
+                }
+
+                return (
+                  <div key={currentComponent.id}>
+                    <h2>Rep group:</h2>
+                    <pre>{JSON.stringify(currentComponent, null, 2)}</pre>
+                  </div>
+                );
+              }
+
+              return (
+                <div key={currentComponent.id}>
+                  {currentComponent.id} type: {currentComponent.type}
+                </div>
+              );
+            })}
+        </div>
+      )}
 
       <h1>resolvedLayouts</h1>
 
@@ -55,6 +122,8 @@ export const Page = () => {
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <pre>{JSON.stringify(currentPage.data.layout, null, 2)}</pre>
+
         {currentPage.data.layout
           // eslint-disable-next-line no-prototype-builtins
           .filter((component) => component.dataModelBindings?.hasOwnProperty('simpleBinding'))
@@ -83,6 +152,11 @@ export const Page = () => {
                 <div>
                   <strong>DatamodelBinding: </strong>
                   {datamodelBinding}
+                </div>
+
+                <div>
+                  <strong>Type: </strong>
+                  {component.type}
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column' }}>

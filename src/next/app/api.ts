@@ -1622,6 +1622,32 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         ...params,
       }),
 
+    // instancesCreate: (
+    //   org: string,
+    //   app: string,
+    //   query?: {
+    //     /** @format int32 */
+    //     instanceOwnerPartyId?: number;
+    //     language?: string;
+    //   },
+    //   params: RequestParams = {},
+    // ) =>
+    //   this.request<Instance, ProblemDetails>({
+    //     path: `/${org}/${app}/instances`,
+    //     method: "POST",
+    //     query: query,
+    //     headers: {
+    //       // from the second request
+    //       Accept: 'application/json, text/plain, */*',
+    //       'Accept-Language': 'en,nb;q=0.9,no;q=0.8,sv;q=0.7',
+    //       Referer: 'http://local.altinn.cloud/krt/krt-3010a-1/',
+    //       // you can add Content-Length: '0' if your request library doesn't set it automatically
+    //       // "Content-Length": "0"
+    //     },
+    //     format: "json",
+    //     ...params,
+    //   }),
+
     /**
      * No description
      *

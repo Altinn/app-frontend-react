@@ -14,7 +14,7 @@ type TaskParams = {
 export const Task = () => {
   const { taskId } = useParams<TaskParams>() as Required<TaskParams>;
 
-  const { layoutSetsConfig, pageOrder, setPageOrder, setLayouts } = useStore(layoutStore);
+  const { layouts, resolvedLayouts, layoutSetsConfig, pageOrder, setPageOrder, setLayouts } = useStore(layoutStore);
 
   const currentLayoutSet = layoutSetsConfig.sets.find((layoutSet) => layoutSet.tasks.includes(taskId));
   const apiClient = useApiClient();
@@ -41,17 +41,17 @@ export const Task = () => {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '1rem', height: '100%' }}>
       <aside style={{ border: '1px solid gray' }}>
-        <ul>
-          {pageOrder.pages.order?.map((page) => (
-            <li key={page}>
-              <Link to={page}>{page}</Link>
-            </li>
-          ))}
-        </ul>
+        {pageOrder && (
+          <ul>
+            {pageOrder.pages.order?.map((page) => (
+              <li key={page}>
+                <Link to={page}>{page}</Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </aside>
-      <main style={{ border: '1px solid black' }}>
-        <Outlet />
-      </main>
+      <main style={{ border: '1px solid black' }}>{pageOrder && <Outlet />}</main>
       {/*<h2>Pages</h2>*/}
 
       {/*<h2>Current layoutset</h2>*/}

@@ -57,6 +57,13 @@ export function evaluateExpression(expr: Expression, formData: FormData): any {
       return left === right;
     }
 
+    case 'notEquals': {
+      // Usage: ["equals", left, right]
+      const left = evalParam(params[0]);
+      const right = evalParam(params[1]);
+      return left !== right;
+    }
+
     case 'not': {
       // Usage: ["not", expression]
       const value = evalParam(params[0]);

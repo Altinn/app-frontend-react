@@ -7,6 +7,8 @@ import { useApiClient } from 'src/next/app/ApiClientContext';
 import { APP, ORG } from 'src/next/app/App';
 import { instanceStore } from 'src/next/stores/instanceStore';
 import { layoutStore } from 'src/next/stores/layoutStore';
+import { initialStateStore } from 'src/next/stores/settingsStore';
+import { textResourceStore } from 'src/next/stores/textResourceStore';
 import { useInstanceQuery } from 'src/next/v1/queries/instanceQuery';
 import type { InstanceDTO } from 'src/next/types/InstanceDTO';
 
@@ -18,19 +20,23 @@ type InstanceParams = {
 export const Instance = () => {
   const { partyId, instanceGuid } = useParams<InstanceParams>() as Required<InstanceParams>;
 
-  const { data, error, isLoading } = useInstanceQuery(partyId, instanceGuid);
+  const { data: loadedInstance, error, isLoading } = useInstanceQuery(partyId, instanceGuid);
+
+  const { user } = useStore(initialStateStore);
 
   const { instance, setInstance } = useStore(instanceStore);
 
-  useEffect(() => {
-    if (data && !instance) {
-      setInstance(data);
-    }
-  }, [data, instance, setInstance]);
+  const { layouts, setLayoutSets, setDataObject, data } = useStore(layoutStore);
+
+  const { textResource, setTextResource } = useStore(textResourceStore);
 
   const apiClient = useApiClient();
 
-  const { setLayoutSets, setDataObject } = useStore(layoutStore);
+  useEffect(() => {
+    if (loadedInstance && !instance) {
+      setInstance(loadedInstance);
+    }
+  }, [loadedInstance, instance, setInstance]);
 
   useEffect(() => {
     const fetchTest = async () => {
@@ -61,7 +67,18 @@ export const Instance = () => {
     if (instance) {
       fetchData(instance);
     }
-  }, [instance]);
+  }, [apiClient.org, instance, setDataObject]);
+
+  useEffect(() => {
+    const getTexts = async () => {
+      if (user.profileSettingPreference.language) {
+        const res = await apiClient.org.v1TextsDetail(ORG, APP, user.profileSettingPreference.language);
+        const data = await res.json();
+        setTextResource(data);
+      }
+    };
+    getTexts();
+  }, [apiClient.org, setTextResource, user.profileSettingPreference.language]);
 
   if (isLoading) {
     return <h2>Loading instance, please wait</h2>;
@@ -69,15 +86,20 @@ export const Instance = () => {
 
   return (
     <div>
-      <Outlet />
+      {!data && 'Loading data..'}
+
+      {/*{!layouts && 'Loading layouts...'}*/}
+
+      {data && instance && <Outlet />}
+
       {/*<h1>Instance</h1>*/}
       {/*<div>{partyId}</div>*/}
       {/*<div> {instanceGuid}</div>*/}
-      <Link to={`${data?.process.currentTask.elementId}`}>{data?.process.currentTask.elementId}</Link>
+      <Link to={`${instance?.process.currentTask.elementId}`}>{instance?.process.currentTask.elementId}</Link>
 
       {/*<h2>Instance</h2>*/}
 
-      {/*<pre>{JSON.stringify(instance, null, 2)}</pre>*/}
+      <pre>{JSON.stringify(instance, null, 2)}</pre>
     </div>
   );
 };
