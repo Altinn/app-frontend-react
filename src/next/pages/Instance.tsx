@@ -99,7 +99,7 @@ export const Instance = () => {
 
       {/*<h2>Instance</h2>*/}
 
-      <pre>{JSON.stringify(instance, null, 2)}</pre>
+      {/*<pre>{JSON.stringify(instance, null, 2)}</pre>*/}
     </div>
   );
 };
