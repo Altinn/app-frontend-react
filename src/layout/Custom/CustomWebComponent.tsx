@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { useLangToolsDataSources } from 'src/features/language/LangToolsStore';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { Hidden } from 'src/utils/layout/NodesContext';
@@ -19,7 +20,7 @@ export type IPassedOnProps = Omit<
   PropsFromGenericComponent<'Custom'>,
   'node' | 'componentValidations' | 'containerDivRef'
 > &
-  Omit<CompInternal<'Custom'>, 'tagName' | 'textResourceBindings'> & {
+  Omit<CompInternal<'Custom'>, 'tagName' | 'textResourceBindings' | 'useTextResources'> & {
     [key: string]: string | number | boolean | object | null | undefined;
     text: string | undefined;
     getTextResourceAsString: (textResource: string | undefined) => string;
@@ -33,14 +34,19 @@ export function CustomWebComponent({
 }: ICustomComponentProps) {
   const langTools = useLanguage();
   const { language, langAsString } = langTools;
-  const { tagName, textResourceBindings, dataModelBindings, ...passThroughPropsFromNode } = useNodeItem(node);
+  const { tagName, textResourceBindings, dataModelBindings, useTextResources, ...passThroughPropsFromNode } =
+    useNodeItem(node);
 
   const { containerDivRef: _unused, ...restFromGeneric } = passThroughPropsFromGenericComponent;
+
+  const sources = useLangToolsDataSources();
+  const { textResources } = sources || {};
 
   const passThroughProps: IPassedOnProps = {
     ...restFromGeneric,
     ...passThroughPropsFromNode,
     text: langAsString(textResourceBindings?.title),
+    textResources: useTextResources && textResources,
     getTextResourceAsString: (textResource: string) => langAsString(textResource),
     summaryMode,
   };
@@ -78,10 +84,11 @@ export function CustomWebComponent({
     const { current } = wcRef;
     if (current) {
       current.texts = getTextsForComponent(textResourceBindings, langTools);
+      current.textResources = useTextResources && textResources;
       current.dataModelBindings = dataModelBindings;
       current.language = language;
     }
-  }, [wcRef, textResourceBindings, dataModelBindings, langTools, language]);
+  }, [wcRef, textResourceBindings, useTextResources, textResources, dataModelBindings, langTools, language]);
 
   React.useLayoutEffect(() => {
     const { current } = wcRef;
