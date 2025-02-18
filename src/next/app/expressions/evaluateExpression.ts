@@ -2,6 +2,7 @@
  * evaluateExpression.ts
  * A simple evaluator for the array-based expression format in Altinn.
  */
+import type { DataObject } from 'src/next/stores/layoutStore';
 
 type Expression = any; // Adjust with a more precise type if desired
 type FormData = Record<string, string>; // Adjust if your form data differs
@@ -12,7 +13,7 @@ type FormData = Record<string, string>; // Adjust if your form data differs
  *  - An array describing an operation (e.g. ["equals", left, right])
  *  - A reference to a form component (["component", "fieldName"])
  */
-export function evaluateExpression(expr: Expression, formData: FormData): any {
+export function evaluateExpression(expr: Expression, formData?: DataObject): any {
   // If not an array, treat as literal and return directly
   if (!Array.isArray(expr)) {
     return expr;
@@ -41,12 +42,20 @@ export function evaluateExpression(expr: Expression, formData: FormData): any {
     case 'dataModel': {
       // Usage: ["component", "fieldName"]
       const fieldName = params[0];
+      if (!formData) {
+        throw new Error('cannot use dataModel expression without data');
+      }
       return formData[fieldName];
     }
 
     case 'component': {
       // Usage: ["component", "fieldName"]
       const fieldName = params[0];
+
+      if (!formData) {
+        throw new Error('cannot use component expression without data');
+      }
+
       return formData[fieldName];
     }
 

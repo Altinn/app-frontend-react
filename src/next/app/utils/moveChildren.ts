@@ -1,78 +1,67 @@
 import type { ILayoutFile } from 'src/layout/common.generated';
-
-interface LayoutItem {
-  id: string;
-  type: string;
-  children?: string[];
-  // @ts-ignore
-  [key: string]: any; // for all other properties
-}
-
-interface RootSchema {
-  data: {
-    layout: LayoutItem[];
-    // @ts-ignore
-    [key: string]: any;
-  };
-  // @ts-ignore
-  [key: string]: any;
-}
+import type { ResolvedCompExternal, ResolvedLayoutFile } from 'src/next/stores/layoutStore';
 
 /**
  * Recursively transforms the layout so that if an item has a "children" array of IDs,
  * it replaces those IDs with the actual child objects (and removes them from the top-level).
  */
-export function transformLayout(root: ILayoutFile): RootSchema {
-  const layout = root.data.layout;
+export function moveChildren(input: ILayoutFile): ResolvedLayoutFile {
+  const allItems = input.data?.layout ?? [];
+  const itemMap = new Map<string, any>(allItems.map((item) => [item.id, item]));
 
-  // Build a map for quick lookup: { [id]: item }
-  const itemMap: Record<string, LayoutItem> = {};
-  for (const item of layout) {
-    itemMap[item.id] = item;
+  function getIsHidden(hiddenVal: unknown): boolean {
+    // Adjust to your own logic for evaluating 'hidden'
+    if (typeof hiddenVal === 'boolean') {
+      return hiddenVal;
+    }
+    return false;
   }
 
-  // Determine which IDs are used as children
-  const allChildIds = new Set<string>();
-  for (const item of layout) {
-    // @ts-ignore
-    if (item.children) {
-      // @ts-ignore
-      for (const cId of item.children) {
-        allChildIds.add(cId);
+  function resolveItem(id: string, visited = new Set<string>()): ResolvedCompExternal {
+    const item = itemMap.get(id);
+    if (!item) {
+      throw new Error(`No item found with id: ${id}`);
+    }
+    if (visited.has(id)) {
+      throw new Error(`Circular reference detected for id: ${id}`);
+    }
+    visited.add(id);
+
+    const { children, hidden, ...rest } = item;
+    const resolved: ResolvedCompExternal = {
+      ...rest,
+      isHidden: getIsHidden(hidden),
+      renderedValue: '', // or any other computed string
+    };
+
+    if (Array.isArray(children)) {
+      resolved.children = children.map((childId: string) => resolveItem(childId, visited));
+    }
+
+    return resolved;
+  }
+
+  // Identify all child IDs
+  const childIds = new Set<string>();
+  for (const item of allItems) {
+    if (item.type === 'RepeatingGroup' && Array.isArray(item.children)) {
+      for (const c of item.children) {
+        childIds.add(c);
       }
     }
   }
 
-  // Top-level items are those *not* in allChildIds
-  const topLevelItems = layout.filter((item) => !allChildIds.has(item.id));
+  // Root items are those not listed as someone else's child
+  const rootItems = allItems.filter((item) => !childIds.has(item.id));
+  const visited = new Set<string>();
+  const resolvedLayout = rootItems.map((root) => resolveItem(root.id, visited));
 
-  /**
-   * Recursively attach child objects to the parent's "children" array,
-   * removing them from the top-level in the process.
-   */
-  function buildNode(node: LayoutItem): LayoutItem {
-    if (!node.children) {
-      return node;
-    }
-    const childObjects: LayoutItem[] = [];
-    for (const childId of node.children) {
-      const child = itemMap[childId];
-      if (!child) {
-        throw new Error(`No item found for child ID: ${childId}`);
-      }
-      childObjects.push(buildNode(child)); // recurse if child also has children
-    }
-    // Replace the array of IDs with the actual objects
-    // @ts-ignore
-    node.children = childObjects;
-    return node;
-  }
-
-  // Build the new hierarchy from top-level items
-  const transformedTopLevel = topLevelItems.map((item) => buildNode(item));
-
-  // Replace the layout array with our new hierarchy
-  // @ts-ignore
-  root.data.layout = transformedTopLevel;
-  return root;
+  return {
+    $schema: input.$schema,
+    data: {
+      layout: resolvedLayout,
+      hidden: input.data.hidden,
+      expandedWidth: input.data.expandedWidth,
+    },
+  };
 }
