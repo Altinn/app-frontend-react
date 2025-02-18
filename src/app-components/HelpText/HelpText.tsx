@@ -82,6 +82,7 @@ export const HelpText = forwardRef<HTMLButtonElement, HelpTextProps>(function He
       <Popover
         className={classes.helpTextContent}
         data-color='info'
+        role='dialog'
         placement={placement}
         data-size={size}
         open={open}
