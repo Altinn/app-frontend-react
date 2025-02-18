@@ -36,7 +36,6 @@ export const PDFView2 = () => {
   const order = usePageOrder();
   const { data: pdfSettings, isFetching: pdfFormatIsLoading } = usePdfFormatQuery(true);
   const pdfLayoutName = usePdfLayoutName();
-  const isHiddenPage = Hidden.useIsHiddenPageSelector();
 
   if (pdfFormatIsLoading) {
     return null;
@@ -68,7 +67,6 @@ export const PDFView2 = () => {
             />
           </div>
           {order
-            ?.filter((pageKey) => !isHiddenPage(pageKey))
             .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
             .map((pageKey) => (
               <PdfForPage
