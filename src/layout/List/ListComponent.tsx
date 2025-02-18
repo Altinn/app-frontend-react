@@ -106,8 +106,8 @@ export const ListComponent = ({ node }: IListProps) => {
     }
     if (isRowChecked(row)) {
       const index = (formData?.saveToList as Row[]).findIndex((selectedRow) => {
-        const { altinnRowId: _, ...rest } = selectedRow;
-        return Object.keys(rest).every((key) => Object.hasOwn(row, key) && row[key] === rest[key]);
+        const { altinnRowId: _ } = selectedRow;
+        return Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]);
       });
       if (index >= 0) {
         removeFromList({
