@@ -67,6 +67,7 @@ type RejectTextProps = {
 
 function Reject({ node }: RejectTextProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
+  const rejectButtonRef = useRef<HTMLButtonElement>(null);
   const { next, busy } = useProcessNavigation() ?? {};
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
 
@@ -75,8 +76,15 @@ function Reject({ node }: RejectTextProps) {
   const modalButton = textResourceBindings?.rejectModalButton ?? 'signing.reject_modal_button';
   const modalTriggerButton = textResourceBindings?.rejectModalTriggerButton ?? 'signing.reject_modal_trigger_button';
 
-  function handleReject() {
-    next?.({ action: 'reject', nodeId: 'reject-button' });
+  async function handleReject() {
+    if (rejectButtonRef.current) {
+      rejectButtonRef.current.disabled = true;
+    }
+    next?.({ action: 'reject', nodeId: 'reject-button' }).catch(() => {
+      if (rejectButtonRef.current) {
+        rejectButtonRef.current.disabled = false;
+      }
+    });
   }
 
   return (
@@ -106,6 +114,7 @@ function Reject({ node }: RejectTextProps) {
             color='danger'
             disabled={busy}
             size='md'
+            ref={rejectButtonRef}
             onClick={handleReject}
           >
             <Lang id={modalButton} />

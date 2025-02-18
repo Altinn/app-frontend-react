@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useQueryClient } from '@tanstack/react-query';
@@ -17,6 +17,7 @@ type SubmitPanelProps = {
 
 export function SubmitPanel({ node }: SubmitPanelProps) {
   const { next, busy } = useProcessNavigation() ?? {};
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
   const { nodeId, textResourceBindings } = useNodeItem(node, (i) => ({
     nodeId: i.id,
     textResourceBindings: i.textResourceBindings,
@@ -25,8 +26,15 @@ export function SubmitPanel({ node }: SubmitPanelProps) {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
 
   async function handleSubmit() {
+    if (submitButtonRef.current) {
+      submitButtonRef.current.disabled = true;
+    }
     await next?.({ nodeId });
     queryClient.invalidateQueries({ queryKey: signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId).queryKey });
+
+    if (submitButtonRef.current) {
+      submitButtonRef.current.disabled = false;
+    }
   }
 
   const titleReadyForSubmit = textResourceBindings?.submitPanelTitle ?? 'signing.submit_panel_title';
@@ -56,6 +64,7 @@ export function SubmitPanel({ node }: SubmitPanelProps) {
           color='success'
           disabled={busy}
           isLoading={busy}
+          ref={submitButtonRef}
         >
           <Lang id={submitButtonText} />
         </Button>
