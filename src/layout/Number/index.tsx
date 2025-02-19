@@ -3,7 +3,6 @@ import type { JSX } from 'react';
 
 import { formatNumericText } from '@digdir/design-system-react';
 
-import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { evalFormatting } from 'src/layout/Input/formatting';
 import { NumberDef } from 'src/layout/Number/config.def.generated';
@@ -31,11 +30,6 @@ export class Number extends NumberDef {
     }
 
     return text;
-  }
-
-  useDisplayData(node: LayoutNode<'Number'>): string {
-    const displayDataProps = useDisplayDataProps();
-    return this.getDisplayData(node, displayDataProps);
   }
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Number'>>(

@@ -1,7 +1,6 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
 import { OptionDef } from 'src/layout/Option/config.def.generated';
 import { OptionComponent } from 'src/layout/Option/OptionComponent';
@@ -20,11 +19,6 @@ export class Option extends OptionDef {
     const value = nodeDataSelector((picker) => picker(node)?.item?.value, [node]) ?? '';
     const { options } = optionsSelector(node);
     return getSelectedValueToText(value, langTools, options) || '';
-  }
-
-  useDisplayData(node: LayoutNode<'Option'>): string {
-    const displayDataProps = useDisplayDataProps();
-    return this.getDisplayData(node, displayDataProps);
   }
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Option'>>(function LayoutComponentOptionRender(props, _) {

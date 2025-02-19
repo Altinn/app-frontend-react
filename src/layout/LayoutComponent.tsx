@@ -94,6 +94,15 @@ export abstract class AnyComponent<Type extends CompTypes> {
     return null;
   }
 
+  getDisplayData(_node: LayoutNode<Type>, _displayDataProps: DisplayDataProps): string {
+    return '';
+  }
+
+  useDisplayData(node: LayoutNode<Type>): string {
+    const displayDataProps = useDisplayDataProps();
+    return this.getDisplayData(node, displayDataProps);
+  }
+
   /**
    * Check if this component has a specific plugin
    */
@@ -223,11 +232,6 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
    * @see renderCompactSummary
    */
   abstract getDisplayData(node: LayoutNode<Type>, displayDataProps: DisplayDataProps): string;
-
-  useDisplayData(node: LayoutNode<Type>): string {
-    const displayDataProps = useDisplayDataProps();
-    return this.getDisplayData(node, displayDataProps);
-  }
 
   /**
    * Render a summary for this component. For most components, this will return a:

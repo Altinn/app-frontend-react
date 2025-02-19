@@ -3,7 +3,6 @@ import type { JSX } from 'react';
 
 import { formatDate, isValid, parseISO } from 'date-fns';
 
-import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { DateDef } from 'src/layout/Date/config.def.generated';
 import { DateComponent } from 'src/layout/Date/DateComponent';
 import { DateSummary } from 'src/layout/Date/DateSummary';
@@ -31,11 +30,6 @@ export class Date extends DateDef {
     }
 
     return displayData;
-  }
-
-  useDisplayData(node: LayoutNode<'Date'>): string {
-    const displayDataProps = useDisplayDataProps();
-    return this.getDisplayData(node, displayDataProps);
   }
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Date'>>(
