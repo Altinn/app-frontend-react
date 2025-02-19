@@ -502,7 +502,6 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       optionsSelector: this.dataSources.optionsSelector,
       langTools: this.dataSources.langToolsSelector(node as LayoutNode),
       currentLanguage: this.dataSources.currentLanguage,
-      formDataSelector: this.dataSources.formDataSelector,
       nodeFormDataSelector: this.dataSources.nodeFormDataSelector,
       nodeDataSelector: this.dataSources.nodeDataSelector,
     });
