@@ -4,10 +4,10 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import { NodesInternal, NodesReadiness, useNodesLax } from 'src/utils/layout/NodesContext';
+import { NodesReadiness } from 'src/utils/layout/NodesContext';
 import type { ParentNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesContext, PageData, PagesData } from 'src/utils/layout/NodesContext';
+import type { NodesContext, NodesInternal, PageData, PagesData, useNodesLax } from 'src/utils/layout/NodesContext';
 import type { NodeData } from 'src/utils/layout/types';
 
 type AnyData = PagesData | PageData | NodeData;
@@ -252,16 +252,6 @@ function throwOrReturn<R>(value: R, strictness: Strictness) {
   return value;
 }
 
-/**
- * Hook that returns a selector that lets you traverse the hierarchy at a later time. Will re-render your
- * component when any of the traversals you did would return a different result.
- */
-function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: Strict) {
-  const nodes = useNodesLax();
-  const nodeDataSelectorForTraversal = NodesInternal.useDataSelectorForTraversal();
-  return useInnerNodeTraversalSelectorProto(strictness, nodes, nodeDataSelectorForTraversal);
-}
-
 function useInnerNodeTraversalSelectorProto<Strict extends Strictness>(
   strictness: Strict,
   nodes: ReturnType<typeof useNodesLax>,
@@ -287,10 +277,6 @@ function useInnerNodeTraversalSelectorProto<Strict extends Strictness>(
   );
 }
 
-export function useNodeTraversalSelector() {
-  return useNodeTraversalSelectorProto(Strictness.throwError);
-}
-
 export function useInnerNodeTraversalSelector(
   nodes: ReturnType<typeof useNodesLax>,
   nodeDataSelectorForTraversal: ReturnType<typeof NodesInternal.useDataSelectorForTraversal>,
@@ -298,4 +284,4 @@ export function useInnerNodeTraversalSelector(
   return useInnerNodeTraversalSelectorProto(Strictness.throwError, nodes, nodeDataSelectorForTraversal);
 }
 
-export type NodeTraversalSelector = ReturnType<typeof useNodeTraversalSelector>;
+export type NodeTraversalSelector = <U>(selector: (t: NodeTraversalFromRoot) => U, deps?: unknown[]) => U;
