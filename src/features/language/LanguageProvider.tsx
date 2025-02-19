@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import { isAxiosError } from 'axios';
+
 import { createContext } from 'src/core/contexts/context';
 import { useGetAppLanguageQuery } from 'src/features/language/textResources/useGetAppLanguagesQuery';
 import { useLocalStorageState } from 'src/hooks/useLocalStorageState';
@@ -106,7 +108,14 @@ function useResolveCurrentLanguage({
   const { data: appLanguages, error, isPending } = useGetAppLanguageQuery();
 
   useEffect(() => {
-    error && window.logError('Fetching app languages failed:\n', error);
+    /**
+     * Ignore 401 unauthorized, this request currently requires authentication
+     * which is unfortunate because anonymous stateless apps cannot use a language selector
+     * @see https://github.com/Altinn/app-lib-dotnet/issues/1114
+     */
+    if (error && !(isAxiosError(error) && error.response?.status === 401)) {
+      window.logError('Fetching app languages failed:\n', error);
+    }
   }, [error]);
 
   // We don't know what languages the app has available yet, so we just use whatever the user wants for now

@@ -36,7 +36,7 @@ export const LanguageSelector = () => {
     );
   }
 
-  if (!appLanguages) {
+  if (!appLanguages?.length) {
     // LanguageProvider logs error if this query fails
     return null;
   }

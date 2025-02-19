@@ -45,7 +45,6 @@ describe('organisms/AltinnAppHeader', () => {
     user = partyPerson,
     logo,
     showLanguageSelector = false,
-    languageResponse,
     textResources = [],
   }: IRenderComponentProps) => {
     jest.mocked(fetchApplicationMetadata).mockImplementation(async () => getIncomingApplicationMetadataMock({ logo }));
@@ -61,8 +60,6 @@ describe('organisms/AltinnAppHeader', () => {
       ),
 
       queries: {
-        fetchAppLanguages: () =>
-          languageResponse ? Promise.resolve(languageResponse) : Promise.reject(new Error('No languages mocked')),
         fetchTextResources: () => Promise.resolve({ language: 'nb', resources: textResources }),
         fetchLayoutSettings: () => Promise.resolve({ pages: { showLanguageSelector, order: ['1', '2', '3'] } }),
       },
@@ -111,7 +108,6 @@ describe('organisms/AltinnAppHeader', () => {
     await render({
       party: partyPerson,
       showLanguageSelector: true,
-      languageResponse: [{ language: 'en' }, { language: 'nb' }],
     });
 
     await userEvent.click(screen.getByRole('button', { name: /Språkvalg/i }));
@@ -132,7 +128,6 @@ describe('organisms/AltinnAppHeader', () => {
         { id: 'language.full_name.nb', value: 'Norsk test' },
         { id: 'language.full_name.en', value: 'Engelsk test' },
       ],
-      languageResponse: [{ language: 'en' }, { language: 'nb' }],
     });
 
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
