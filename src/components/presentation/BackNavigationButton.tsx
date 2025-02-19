@@ -24,7 +24,7 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
   const isSubform = useIsSubformPage();
   const { langAsString } = useLanguage();
   const { exitSubform } = useNavigatePage();
-  const { returnUrl, fetchingReturnUrl } = useReturnUrl();
+  const { returnUrl, isFetchingReturnUrl } = useReturnUrl();
   const [isProcessing, processing] = useIsProcessing<'exitSubform'>();
 
   const handleBackToInbox = () => {
@@ -38,7 +38,7 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
 
   const handleExitSubform = () => processing('exitSubform', exitSubform);
 
-  if (fetchingReturnUrl) {
+  if (isFetchingReturnUrl) {
     return (
       <Spinner
         size='sm'
@@ -87,5 +87,5 @@ function useReturnUrl() {
     queryFn: queryParameterReturnUrl ? () => fetchReturnUrl(queryParameterReturnUrl) : skipToken,
   });
 
-  return { returnUrl: data, fetchingReturnUrl: isFetching };
+  return { returnUrl: data, isFetchingReturnUrl: isFetching };
 }
