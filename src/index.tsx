@@ -64,8 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const root = container && createRoot(container);
   root?.render(
     <AppQueriesProvider {...queries}>
-      <AppPrefetcher />
       <ErrorBoundary>
+        <AppPrefetcher />
         <AppWrapper>
           <LanguageProvider>
             <LangToolsStoreProvider>
