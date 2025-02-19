@@ -14,7 +14,6 @@ import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
-import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { ExprConfig, Expression, ExprFunctionName, LayoutReference } from 'src/features/expressions/types';
 
 interface ExpressionResult {
@@ -71,8 +70,6 @@ export const ExpressionPlayground = () => {
   // This is OK if this function is called from places that immediately evaluates the expression again, thus
   // populating the output history with a fresh value.
   const resetOutputHistory = () => setOutputs([]);
-
-  const traversalSelector = useNodeTraversalSelector();
 
   const componentOptions = NodesInternal.useMemoSelector((state) =>
     Object.values(state.nodeData).map((nodeData) => ({
@@ -131,18 +128,7 @@ export const ExpressionPlayground = () => {
         setOutputs([{ value: e.message, isError: true }]);
       }
     }
-  }, [
-    input,
-    forPage,
-    forComponentId,
-    dataSources,
-    nodes,
-    showAllSteps,
-    outputs,
-    setOutputWithHistory,
-    currentPageId,
-    traversalSelector,
-  ]);
+  }, [input, forPage, forComponentId, dataSources, nodes, showAllSteps, outputs, setOutputWithHistory, currentPageId]);
 
   return (
     <div className={classes.container}>
