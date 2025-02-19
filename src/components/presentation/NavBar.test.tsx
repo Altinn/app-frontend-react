@@ -96,7 +96,7 @@ describe('NavBar', () => {
 
     // Language now changed, so the value should be the language name in the selected language
     await waitFor(() => {
-      expect(screen.getByRole('combobox', { name: /Language/i })).toHaveValue('English');
+      expect(screen.getByLabelText(/Language/i)).toHaveValue('English');
     });
   });
   it('should render app language with custom labels', async () => {
@@ -112,7 +112,7 @@ describe('NavBar', () => {
     });
 
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    await userEvent.click(screen.getByRole('combobox', { name: /Velg språk test/i }));
+    await userEvent.click(screen.getByLabelText(/Velg språk test/i));
     screen.getByRole('option', { name: /norsk test/i });
     screen.getByRole('option', { name: /engelsk test/i });
   });
