@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
@@ -35,35 +35,32 @@ type LanguageProfileData = {
 };
 
 export const LanguageProvider = ({ children }: PropsWithChildren) => {
-  const [validateLanguage, languagesLoaded] = useValidateLanguage();
-
   const [profileData, setProfileData] = useState<LanguageProfileData>({ loaded: false });
-  const languageFromUrl = getLanguageQueryParam();
+  const languageFromUrl = getLanguageFromUrl();
   const [languageFromSelector, setWithLanguageSelector] = useLocalStorageState(
     ['selectedLanguage', profileData.userId],
     null,
   );
 
-  const setProfileForLanguage = useCallback((profile: IProfile | null) => {
-    profile
-      ? setProfileData({
-          loaded: true,
-          userId: profile.userId,
-          language: profile.profileSettingPreference.language ?? undefined,
-        })
-      : setProfileData({ loaded: true });
-  }, []);
+  const setProfileForLanguage = useCallback(
+    (profile: IProfile | null) =>
+      setProfileData(
+        profile
+          ? {
+              loaded: true,
+              userId: profile.userId,
+              language: profile.profileSettingPreference.language ?? undefined,
+            }
+          : { loaded: true },
+      ),
+    [],
+  );
 
-  const current =
-    validateLanguage(languageFromSelector) ??
-    validateLanguage(languageFromUrl) ??
-    validateLanguage(profileData.language) ??
-    // If none of the users prefered languages are available, try using a standard language
-    validateLanguage('nb') ??
-    validateLanguage('nn') ??
-    validateLanguage('en') ??
-    // If none of the standard languages are available, something is very wrong with the app
-    'nb';
+  const [current, languagesLoaded] = useResolveCurrentLanguage({
+    languageFromSelector,
+    languageFromUrl,
+    languageFromProfile: profileData.language,
+  });
 
   return (
     <Provider
@@ -86,18 +83,87 @@ export const useSetCurrentLanguage = () => {
   return { setWithLanguageSelector, setProfileForLanguage };
 };
 
-function getLanguageQueryParam() {
-  const params = new URLSearchParams((window.location.hash || '').split('?')[1]);
+/**
+ * AppRoutingContext is not provided yet, so we have to get this manually
+ */
+function getLanguageFromUrl() {
+  const params = new URLSearchParams(window.location.hash.split('?')[1]);
   return params.get('lang');
 }
 
-function useValidateLanguage() {
-  const { data: appLanguages, isPending } = useGetAppLanguageQuery();
+/**
+ * Determines the current language based on the user's preferences and what the app has available
+ */
+function useResolveCurrentLanguage({
+  languageFromSelector,
+  languageFromUrl,
+  languageFromProfile,
+}: {
+  languageFromSelector?: string | null;
+  languageFromUrl?: string | null;
+  languageFromProfile?: string | null;
+}): [string, boolean] {
+  const { data: appLanguages, error, isPending } = useGetAppLanguageQuery();
 
-  const validateLanguage = useCallback(
-    (lang: string | null | undefined) => (!!lang && (!appLanguages || appLanguages.includes(lang)) ? lang : null),
-    [appLanguages],
-  );
+  useEffect(() => {
+    error && window.logError('Fetching app languages failed:\n', error);
+  }, [error]);
 
-  return [validateLanguage, !isPending] as const;
+  // We don't know what languages the app has available yet, so we just use whatever the user wants for now
+  if (!appLanguages) {
+    return [languageFromSelector ?? languageFromUrl ?? languageFromProfile ?? 'nb', !isPending];
+  }
+
+  // Try to fulfill the user's preferences in order of priority
+
+  if (languageFromSelector) {
+    if (appLanguages.includes(languageFromSelector)) {
+      return [languageFromSelector, true];
+    }
+    window.logWarnOnce(
+      `User's preferred language (${languageFromSelector}) from language selector / localstorage is not supported by the app, supported languages: [${appLanguages.join(', ')}]`,
+    );
+  }
+
+  if (languageFromUrl) {
+    if (appLanguages.includes(languageFromUrl)) {
+      return [languageFromUrl, true];
+    }
+    window.logWarnOnce(
+      `User's preferred language from query parameter (lang=${languageFromUrl}) is not supported by the app, supported languages: [${appLanguages.join(', ')}]`,
+    );
+  }
+
+  if (languageFromProfile) {
+    if (appLanguages.includes(languageFromProfile)) {
+      return [languageFromProfile, true];
+    }
+    window.logInfoOnce(
+      `User's preferred language (${languageFromProfile}) from Altinn profile is not supported by the app, supported languages: [${appLanguages.join(', ')}]`,
+    );
+  }
+
+  // The user has no valid preference, try to fall back to one of the standard languages that the app supports
+
+  if (appLanguages.includes('nb')) {
+    return ['nb', true];
+  }
+  if (appLanguages.includes('nn')) {
+    return ['nn', true];
+  }
+  if (appLanguages.includes('en')) {
+    return ['en', true];
+  }
+
+  // None of the standard languages are supported, try the first supported language
+
+  if (appLanguages.length) {
+    return [appLanguages[0], true];
+  }
+
+  // The app has not defined any languages, something is probably wrong
+
+  window.logErrorOnce('When fetching app languages the app returned 0 languages');
+
+  return ['nb', true];
 }
