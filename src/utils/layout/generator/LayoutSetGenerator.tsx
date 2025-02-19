@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
+import { usePdfLayoutName, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
@@ -153,6 +154,10 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
   const page = useMemo(() => new LayoutPage(), []);
   useGeneratorErrorBoundaryNodeRef().current = page;
 
+  const pageOrder = useRawPageOrder();
+  const pdfPage = usePdfLayoutName();
+  const isValid = pageOrder.includes(name) || name === pdfPage;
+
   const getProto = useMemo(() => {
     const proto: { [id: string]: ComponentProto } = {};
 
@@ -218,6 +223,7 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
         <GeneratorPageProvider
           parent={page}
           childrenMap={map}
+          isValid={isValid}
         >
           <GenerateNodeChildren
             claims={topLevelIdsAsClaims}
