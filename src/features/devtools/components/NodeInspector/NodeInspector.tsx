@@ -61,7 +61,7 @@ export const NodeInspector = () => {
             }}
           >
             <Tabs
-              data-size='small'
+              data-size='sm'
               defaultValue='properties'
               className={reusedClasses.tabs}
             >

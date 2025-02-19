@@ -24,7 +24,7 @@ export interface IDisplayRepAsLargeGroup {
 
 const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['data-size'] } = {
   [2]: 'md',
-  [3]: 's',
+  [3]: 'sm',
   [4]: 'xs',
   [5]: 'xs',
   [6]: 'xs',

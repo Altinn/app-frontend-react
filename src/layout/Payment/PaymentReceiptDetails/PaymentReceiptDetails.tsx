@@ -23,7 +23,7 @@ const PaymentInfoTableRow = ({ labelId, value }: PaymentInfoTableRowProps) => (
   <tr>
     <th>
       <Paragraph
-        data-size='small'
+        data-size='sm'
         data-spacing={false}
       >
         <Lang id={labelId} />
@@ -31,7 +31,7 @@ const PaymentInfoTableRow = ({ labelId, value }: PaymentInfoTableRowProps) => (
     </th>
     <td>
       <Label
-        data-size='small'
+        data-size='sm'
         data-spacing={false}
         asChild
       >
@@ -138,7 +138,7 @@ export const PaymentReceiptDetails = ({ title, description }: PaymentReceiptDeta
       <div className={classes.infoDetailsContainer}>
         {paymentInfo?.paymentDetails?.paymentId && (
           <Paragraph
-            data-size='small'
+            data-size='sm'
             data-spacing={false}
           >
             <Lang id='payment.receipt.payment_id' />: <b>{paymentInfo.paymentDetails.paymentId}</b>
@@ -146,7 +146,7 @@ export const PaymentReceiptDetails = ({ title, description }: PaymentReceiptDeta
         )}
         {instanceId && (
           <Paragraph
-            data-size='small'
+            data-size='sm'
             data-spacing={false}
           >
             <Lang id='payment.receipt.altinn_ref' />: <b>{getInstanceReferenceNumber(instanceId)}</b>
@@ -154,7 +154,7 @@ export const PaymentReceiptDetails = ({ title, description }: PaymentReceiptDeta
         )}
         {paymentInfo?.paymentDetails?.chargedDate && (
           <Paragraph
-            data-size='small'
+            data-size='sm'
             data-spacing={false}
           >
             <Lang id='payment.receipt.payment_date' />:{' '}
@@ -162,7 +162,7 @@ export const PaymentReceiptDetails = ({ title, description }: PaymentReceiptDeta
           </Paragraph>
         )}
         <Paragraph
-          data-size='small'
+          data-size='sm'
           data-spacing={false}
         >
           <Lang id='payment.receipt.total_amount' />:{' '}

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Heading, Modal, Spinner } from '@digdir/designsystemet-react';
+import { Dialog, Heading, Spinner } from '@digdir/designsystemet-react';
 import { FilePdfIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/Button/Button';
@@ -77,7 +77,7 @@ export function PDFGeneratorPreview({
         />
         {buttonTitle ? langAsString(buttonTitle) : langAsString('pdfPreview.defaultButtonText')}
       </Button>
-      <Modal
+      <Dialog
         ref={modalRef}
         onClose={() => abortRef.current?.abort()}
         backdropClose={true}
@@ -104,11 +104,11 @@ export function PDFGeneratorPreview({
           <div className={classes.loading}>
             <Spinner
               aria-label={langAsString('general.loading')}
-              data-size='xlarge'
+              data-size='xl'
             />
           </div>
         )}
-      </Modal>
+      </Dialog>
     </>
   );
 }

@@ -271,7 +271,7 @@ export const PartySelection = () => {
           <Flex style={{ padding: 12 }}>
             <Heading
               level={2}
-              data-size='medium'
+              data-size='md'
               style={{ fontSize: '1.5rem', fontWeight: '500', marginBottom: 12 }}
             >
               <Lang id='party_selection.why_seeing_this' />

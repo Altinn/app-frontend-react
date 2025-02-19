@@ -99,7 +99,7 @@ function ErrorValidations({ validations, node }: { validations: BaseValidation<'
     <ul style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
       {validations.map((validation) => (
         <li key={getUniqueKeyFromObject(validation)}>
-          <ValidationMessage data-size='small'>
+          <ValidationMessage data-size='sm'>
             <Lang
               id={validation.message.key}
               params={validation.message.params}

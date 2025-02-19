@@ -31,7 +31,7 @@ function InnerDevHiddenFunctionality() {
       <MarkHiddenComponents />
       <div>
         <ToggleGroup
-          data-size='small'
+          data-size='sm'
           onChange={(selectedValue) => setShowHiddenComponents(selectedValue as IDevToolsState['hiddenComponents'])}
           value={state}
         >

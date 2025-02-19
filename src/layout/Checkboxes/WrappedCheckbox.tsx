@@ -76,7 +76,7 @@ export function WrappedCheckbox({
           </span>
         }
         checked={checked}
-        data-size='small'
+        data-size='sm'
         onChange={(e) => handleChange(e.target.checked)}
       />
     </ConditionalWrapper>

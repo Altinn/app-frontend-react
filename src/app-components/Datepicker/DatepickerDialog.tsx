@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import type { PropsWithChildren, ReactNode } from 'react';
 
-import { Modal, Popover } from '@digdir/designsystemet-react';
+import { Dialog, Popover } from '@digdir/designsystemet-react';
 
 import styles from 'src/app-components/Datepicker/Calendar.module.css';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
@@ -22,17 +22,19 @@ export function DatePickerDialog({
 
   if (isMobile) {
     return (
-      <Modal.TriggerContext>
-        <Modal.Trigger asChild={true}>{trigger}</Modal.Trigger>
-        <Modal
+      <Dialog.TriggerContext>
+        <Dialog.Trigger asChild={true}>{trigger}</Dialog.Trigger>
+        <Dialog
           ref={modalRef}
+          role='dialog'
+          aria-hidden={!isDialogOpen}
           backdropClose={true}
           style={{ width: 'fit-content', minWidth: 'fit-content' }}
           onClose={() => setIsDialogOpen(false)}
         >
           {children}
-        </Modal>
-      </Modal.TriggerContext>
+        </Dialog>
+      </Dialog.TriggerContext>
     );
   }
   return (
@@ -41,6 +43,8 @@ export function DatePickerDialog({
       <Popover
         className={styles.calendarWrapper}
         aria-modal
+        aria-hidden={!isDialogOpen}
+        role='dialog'
         open={isDialogOpen}
         data-size='lg'
         placement='top'

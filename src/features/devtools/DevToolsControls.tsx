@@ -30,7 +30,7 @@ export const DevToolsControls = () => {
   return (
     <Tabs
       className={classes.tabs}
-      data-size='small'
+      data-size='sm'
       value={activeTab}
       onChange={setActiveTab}
     >

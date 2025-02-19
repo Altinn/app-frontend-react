@@ -93,7 +93,7 @@ function InstanceSelection() {
   const renderMobileTable = () => (
     <>
       <Heading
-        data-size='xsmall'
+        data-size='xs'
         level={3}
         className={classes.leftOffHeading}
       >
@@ -253,7 +253,7 @@ function InstanceSelection() {
         <div>
           <Heading
             level={2}
-            data-size='medium'
+            data-size='md'
             id='instance-selection-header'
           >
             <Lang id='instance_selection.header' />

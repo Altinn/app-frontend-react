@@ -28,7 +28,7 @@ export const PermissionsEditor = () => {
     <Fieldset className={classes.checkboxWrapper}>
       <Fieldset.Legend>Policy</Fieldset.Legend>
       <Checkbox
-        data-size='small'
+        data-size='sm'
         checked={Boolean(write)}
         onChange={(e) =>
           handleChange((obj) => {
@@ -40,7 +40,7 @@ export const PermissionsEditor = () => {
         label='Write'
       />
       <Checkbox
-        data-size='small'
+        data-size='sm'
         checked={Boolean(actions?.confirm)}
         onChange={(e) =>
           handleChange((obj) => {
@@ -52,7 +52,7 @@ export const PermissionsEditor = () => {
         label='Confirm'
       />
       <Checkbox
-        data-size='small'
+        data-size='sm'
         checked={Boolean(actions?.sign)}
         onChange={(e) =>
           handleChange((obj) => {
@@ -64,7 +64,7 @@ export const PermissionsEditor = () => {
         label='Sign'
       />
       <Checkbox
-        data-size='small'
+        data-size='sm'
         checked={Boolean(actions?.reject)}
         onChange={(e) =>
           handleChange((obj) => {

@@ -73,7 +73,7 @@ const InnerDevNavigationButtons = () => {
 
   return (
     <Fieldset
-      data-size='small'
+      data-size='sm'
       className={classes.chipGroup}
     >
       <Fieldset.Legend>Navigasjon</Fieldset.Legend>

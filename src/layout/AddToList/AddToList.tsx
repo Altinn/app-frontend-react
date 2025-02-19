@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { MonthCaption } from 'react-day-picker';
 
-import { Button, Modal } from '@digdir/designsystemet-react';
+import { Button, Dialog } from '@digdir/designsystemet-react';
 import { v4 as uuidv4 } from 'uuid';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -88,13 +88,13 @@ export function AddToListModal({
     return null;
   }
   return (
-    <Modal
+    <Dialog
       ref={addToListModalRef}
       style={{ padding: 'var(--ds-size-3)' }}
       backdropClose={backdropClose}
       onClose={onClose}
     >
-      <Modal.Block>
+      <Dialog.Block>
         <DynamicForm
           schema={schema?.items}
           onChange={onFormDataUpdate}
@@ -103,8 +103,8 @@ export function AddToListModal({
           buttonAriaLabel={langAsString('date_picker.aria_label_icon')}
           calendarIconTitle={langAsString('date_picker.aria_label_icon')}
         />
-      </Modal.Block>
-      <Modal.Block>
+      </Dialog.Block>
+      <Dialog.Block>
         <Button
           data-size='md'
           variant='primary'
@@ -116,8 +116,8 @@ export function AddToListModal({
         >
           Lagre
         </Button>
-      </Modal.Block>
-    </Modal>
+      </Dialog.Block>
+    </Dialog>
   );
 }
 

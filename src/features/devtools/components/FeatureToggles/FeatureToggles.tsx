@@ -62,18 +62,18 @@ export function FeatureToggles() {
               >
                 <Heading
                   data-spacing={true}
-                  data-size='small'
+                  data-size='sm'
                   level={4}
                 >
                   {parseAndCleanText(title)}
                 </Heading>
-                <Label data-size='xsmall'>Nøkkel: {key}</Label>
+                <Label data-size='sm'>Nøkkel: {key}</Label>
                 <br />
-                <Label data-size='xsmall'>
+                <Label data-size='sm'>
                   Verdi: {JSON.stringify(value)} / Standardverdi: {JSON.stringify(defaultValue)}
                 </Label>
                 <br />
-                <Label data-size='xsmall'>Kilde: {sourceMap[source]}</Label>
+                <Label data-size='sm'>Kilde: {sourceMap[source]}</Label>
                 <Paragraph>
                   {parseAndCleanText(description)}
                   {links && links.length && (

@@ -186,7 +186,7 @@ export const ExpressionPlayground = () => {
           {outputs.length > 1 && (
             <div className={classes.outputs}>
               <Tabs
-                data-size='small'
+                data-size='sm'
                 value={activeOutputTab}
                 onChange={(outputName) => {
                   setActiveOutputTab(outputName);
