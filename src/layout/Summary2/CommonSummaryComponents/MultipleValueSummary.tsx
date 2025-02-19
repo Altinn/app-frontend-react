@@ -4,7 +4,7 @@ import { ErrorMessage, Label, List, Paragraph } from '@digdir/designsystemet-rea
 import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
-import { type IUseLanguage, useLanguage } from 'src/features/language/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
@@ -12,8 +12,6 @@ import { validationsOfSeverity } from 'src/features/validation/utils';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import classes from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary.module.css';
 import { useNodeFormData } from 'src/utils/layout/useNodeItem';
-import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ValidTypes = 'MultipleSelect' | 'Checkboxes';
@@ -25,15 +23,6 @@ interface MultipleValueSummaryProps {
   showAsList?: boolean;
   isCompact?: boolean;
   emptyFieldText?: string;
-}
-
-function getSummaryData(
-  formData: IComponentFormData<ValidTypes>,
-  langTools: IUseLanguage,
-  options: IOptionInternal[],
-): { [key: string]: string } {
-  const value = String(formData?.simpleBinding ?? '');
-  return getCommaSeparatedOptionsToText(value, options, langTools);
 }
 
 function getDisplayType(
@@ -57,11 +46,10 @@ export const MultipleValueSummary = ({
   isCompact,
   emptyFieldText,
 }: MultipleValueSummaryProps) => {
-  const nodeFormData = useNodeFormData(componentNode);
-
-  const langTools = useLanguage();
   const options = useNodeOptions(componentNode).options;
-  const displayValues = Object.values(getSummaryData(nodeFormData, langTools, options));
+  const rawFormData = useNodeFormData(componentNode);
+  const { langAsString } = useLanguage();
+  const displayValues = Object.values(getCommaSeparatedOptionsToText(rawFormData.simpleBinding, options, langAsString));
 
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');

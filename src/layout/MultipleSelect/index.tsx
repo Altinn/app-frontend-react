@@ -22,26 +22,17 @@ export class MultipleSelect extends MultipleSelectDef {
     },
   );
 
-  private getSummaryData(
-    node: LayoutNode<'MultipleSelect'>,
-    { nodeFormDataSelector, optionsSelector, langTools }: DisplayDataProps,
-  ): { [key: string]: string } {
-    const data = nodeFormDataSelector(node);
-    if (!data.simpleBinding) {
-      return {};
-    }
-
-    const value = String(data.simpleBinding ?? '');
-    const { options } = optionsSelector(node);
-    return getCommaSeparatedOptionsToText(value, options, langTools);
-  }
-
   getDisplayData(node: LayoutNode<'MultipleSelect'>, props: DisplayDataProps): string {
-    return Object.values(this.getSummaryData(node, props)).join(', ');
+    const data = getCommaSeparatedOptionsToText(
+      props.nodeFormDataSelector(node).simpleBinding,
+      props.optionsSelector(node).options,
+      props.langTools.langAsString,
+    );
+    return Object.values(data).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
-    return <MultipleChoiceSummary getFormData={(props) => this.getSummaryData(targetNode, props)} />;
+    return <MultipleChoiceSummary targetNode={targetNode} />;
   }
 
   renderSummary2(props: Summary2Props<'MultipleSelect'>): JSX.Element | null {
