@@ -1,0 +1,42 @@
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.buttonLink {
+  color: white;
+  text-decoration: none;
+}
+
+.signingPanel {
+  padding-top: var(--fds-spacing-8);
+  display: flex;
+  flex-direction: column;
+
+  .contentContainer {
+    padding: var(--fds-spacing-2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--fds-spacing-4);
+  }
+
+  .buttonContainer {
+    padding: var(--fds-spacing-4) 0;
+    display: flex;
+    gap: var(--fds-spacing-4);
+  }
+}
+
+/* TODO: Remove this when we upgrade Designsystemet to @next */
+.checkbox {
+  > * {
+    align-self: start;
+  }
+
+  label {
+    display: flex;
+    justify-content: start;
+    align-items: start;
+  }
+}

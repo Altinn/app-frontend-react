@@ -3,10 +3,10 @@ import React from 'react';
 import type { PropsFromGenericComponent } from '..';
 
 import { Button, type ButtonColor, type ButtonVariant } from 'src/app-components/Button/Button';
+import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { useActionAuthorization } from 'src/layout/CustomButton/CustomButtonComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ActionButtonStyle } from 'src/layout/ActionButton/config.generated';
 
@@ -19,7 +19,7 @@ export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
 
 export function ActionButtonComponent({ node }: IActionButton) {
   const { busyWithId, busy, next } = useProcessNavigation() || {};
-  const { isAuthorized } = useActionAuthorization();
+  const isAuthorized = useIsAuthorised();
 
   const { action, buttonStyle, id, textResourceBindings } = useNodeItem(node);
   const disabled = !isAuthorized(action);
