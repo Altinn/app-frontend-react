@@ -63,7 +63,8 @@ export const LanguageProvider = ({ children }: PropsWithChildren) => {
     languageFromProfile,
   });
 
-  const languageResolved = profile !== IsLoading && shouldFetchAppLanguages !== IsLoading && !isPending;
+  const languageResolved =
+    profile !== IsLoading && shouldFetchAppLanguages !== IsLoading && (!shouldFetchAppLanguages || !isPending);
 
   return (
     <Provider

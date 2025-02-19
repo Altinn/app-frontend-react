@@ -38,6 +38,7 @@ export class AppFrontend {
   public startButton = '.btn';
 
   //Common
+  public appHeader = '[data-testid="AppHeader"]';
   public loadingAnimation = 'rect[role="presentation"]';
   public header = '#main-content > header';
   public attachmentIcon = '.reg-attachment';
