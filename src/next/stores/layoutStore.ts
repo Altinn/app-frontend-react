@@ -1,3 +1,4 @@
+import dot from 'dot-object';
 import { createStore } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
@@ -8,7 +9,6 @@ import type { AllComponents, ILayoutCollection } from 'src/layout/layout';
 import type { LayoutSetsSchema } from 'src/next/types/LayoutSetsDTO';
 import type { PageOrderDTO } from 'src/next/types/PageOrderDTO';
 import type { ProcessSchema } from 'src/next/types/ProcessDTO';
-
 export interface DataObject {
   [key: string]: string | null | object | DataObject | undefined;
 }
@@ -62,20 +62,64 @@ function resolvePageLayoutComponents(
       resolvedHidden = component.hidden;
     }
 
-    let resolvedChildren: ResolvedCompExternal[] | undefined;
-    if (component.children && Array.isArray(component.children) && component.children.length > 0) {
-      resolvedChildren = resolvePageLayoutComponents(component.children, data);
-      return {
-        ...component,
-        type: component.type,
-        hidden: component.hidden,
-        isHidden: resolvedHidden,
-        renderedValue: '',
-        children: resolvedChildren,
-      };
+    let renderedValue: string | object | null | undefined = '';
+
+    const before = dot.pick('rapport.innsender.foretak.organisasjonsnummer', data);
+
+    // console.log('after', before);
+    //
+    // console.log('rapport.innsender.foretak.organisasjonsnummer');
+
+    if (component.dataModelBindings && data && component.dataModelBindings['simpleBinding']) {
+      // console.log('has binding');
+      // console.log('binding');
+      // console.log(component.dataModelBindings['simpleBinding']);
+      //
+      // console.log('component.id', component.id);
+
+      if (component.id === '1-1-idtest') {
+        console.log('this is our compoment');
+        // console.log(component.dataModelBindings['simpleBinding']);
+        const val = dot.pick(component.dataModelBindings['simpleBinding'], data);
+        console.log('val', val);
+        renderedValue = val;
+      }
+
+      // console.log(component.dataModelBindings['simpleBinding']);
+      // console.log(JSON.stringify(val, null, 2));
+      // console.log(JSON.stringify(data, null, 2));
+      // renderedValue =
+      //   component.dataModelBindings['simpleBinding'] && data[component.dataModelBindings['simpleBinding']]
+      //     ? dot.pick(component.dataModelBindings['simpleBinding'], data)
+      //     : '';
+      //
+      // console.log(component.dataModelBindings['simpleBinding'], component.dataModelBindings['simpleBinding']);
+      //
+      // component.dataModelBindings['simpleBinding'] &&
+      //   data[component.dataModelBindings['simpleBinding']] &&
+      //   console.log(dot.pick(component.dataModelBindings['simpleBinding'], data));
+      // const dataToDisplay = console.log('renderedValue', renderedValue);
     }
 
-    return { ...component, isHidden: resolvedHidden, renderedValue: '' };
+    // let resolvedChildren: ResolvedCompExternal[] | undefined;
+    // if (component.children && Array.isArray(component.children) && component.children.length > 0) {
+    //   resolvedChildren = resolvePageLayoutComponents(component.children, data);
+    //   return {
+    //     ...component,
+    //     type: component.type,
+    //     hidden: component.hidden,
+    //     isHidden: resolvedHidden,
+    //     renderedValue,
+    //     children: resolvedChildren,
+    //   };
+    // }
+
+    return {
+      ...component,
+      isHidden: resolvedHidden,
+      renderedValue,
+      children: component.children ? resolvePageLayoutComponents(component.children, data) : [],
+    };
   });
 }
 
@@ -114,6 +158,9 @@ export const layoutStore = createStore<Layouts>()(
           return;
         }
 
+        const before = dot.pick('rapport.innsender.foretak.organisasjonsnummer', data);
+
+        console.log('before', before);
         const newResolved = rebuildResolvedLayouts(layouts, data);
 
         set({ resolvedLayouts: newResolved });
@@ -148,14 +195,20 @@ export const layoutStore = createStore<Layouts>()(
         get().updateResolvedLayouts();
       },
 
-      // Setting a single data key => also update resolved
       setDataValue: (dataKeyToUpdate: string, newValue: string) => {
-        set((state) => ({
-          data: {
-            ...state.data,
-            [dataKeyToUpdate]: newValue,
-          },
-        }));
+        set((state) => {
+          const dataCopy = structuredClone(state.data);
+
+          if (!dataCopy) {
+            throw new Error('no data copy');
+          }
+
+          dot.set(dataKeyToUpdate, newValue, dataCopy);
+
+          return {
+            data: dataCopy,
+          };
+        });
         get().updateResolvedLayouts();
       },
     }),

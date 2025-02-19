@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 
 import { useStore } from 'zustand/index';
 
@@ -15,7 +15,7 @@ export const Instances = () => {
 
   const currentParty = validParties[0];
 
-  const { data, error, isLoading } = useActiveInstancesQuery(`${currentParty.partyId}`);
+  const { data, isLoading } = useActiveInstancesQuery(`${currentParty.partyId}`);
 
   const apiClient = useApiClient();
 
@@ -46,8 +46,6 @@ export const Instances = () => {
       },
     );
     const data = await res.json();
-
-    console.log(JSON.stringify(data, null, 2));
   };
 
   if (isLoading) {
@@ -56,6 +54,7 @@ export const Instances = () => {
 
   return (
     <div>
+      <Outlet />
       <h1>Active instances</h1>
 
       <button onClick={createIntance}>New instance</button>
