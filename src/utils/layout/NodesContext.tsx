@@ -881,7 +881,7 @@ export function isHidden(
   }
 
   if (parent) {
-    return isHidden(state, 'node', parent?.layout.id, options);
+    return isHidden(state, 'node', parent.layout.id, options);
   }
 
   return false;

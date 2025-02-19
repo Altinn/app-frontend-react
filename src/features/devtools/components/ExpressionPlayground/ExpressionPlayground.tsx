@@ -76,7 +76,7 @@ export const ExpressionPlayground = () => {
 
   const traversalSelector = useNodeTraversalSelector();
 
-  const componentOptions = NodesInternal.useShallowSelector((state) =>
+  const componentOptions = NodesInternal.useMemoSelector((state) =>
     Object.values(state.nodeData).map((nodeData) => ({
       label: nodeData.layout.id,
       value: `${nodeData.pageKey}|${nodeData.layout.id}`,
