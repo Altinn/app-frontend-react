@@ -24,7 +24,6 @@ import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
-import { LoadingRegistryProvider } from 'src/core/loading/LoadingRegistry';
 import { RenderStart } from 'src/core/ui/RenderStart';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
@@ -256,11 +255,11 @@ export function InstanceRouter({
     >
       <Routes>
         <Route
-          path='instance/:partyId/:instanceGuid/:taskId/:pageId'
+          path='instance/:instanceOwnerPartyId/:instanceGuid/:taskId/:pageId'
           element={children}
         />
         <Route
-          path='instance/:partyId/:instanceGuid/:taskId'
+          path='instance/:instanceOwnerPartyId/:instanceGuid/:taskId'
           element={children}
         />
         <Route
@@ -284,41 +283,39 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
       {...queries}
       queryClient={queryClient}
     >
-      <LoadingRegistryProvider>
-        <LanguageProvider>
-          <DataLoadingProvider>
-            <TaskStoreProvider>
-              <LangToolsStoreProvider>
-                <UiConfigProvider>
-                  <PageNavigationProvider>
-                    <Router>
-                      <AppRoutingProvider>
-                        <ApplicationMetadataProvider>
-                          <GlobalFormDataReadersProvider>
-                            <OrgsProvider>
-                              <ApplicationSettingsProvider>
-                                <LayoutSetsProvider>
-                                  <ProfileProvider>
-                                    <PartyProvider>
-                                      <TextResourcesProvider>
-                                        <InstantiationProvider>{children}</InstantiationProvider>
-                                      </TextResourcesProvider>
-                                    </PartyProvider>
-                                  </ProfileProvider>
-                                </LayoutSetsProvider>
-                              </ApplicationSettingsProvider>
-                            </OrgsProvider>
-                          </GlobalFormDataReadersProvider>
-                        </ApplicationMetadataProvider>
-                      </AppRoutingProvider>
-                    </Router>
-                  </PageNavigationProvider>
-                </UiConfigProvider>
-              </LangToolsStoreProvider>
-            </TaskStoreProvider>
-          </DataLoadingProvider>
-        </LanguageProvider>
-      </LoadingRegistryProvider>
+      <LanguageProvider>
+        <DataLoadingProvider>
+          <TaskStoreProvider>
+            <LangToolsStoreProvider>
+              <UiConfigProvider>
+                <PageNavigationProvider>
+                  <Router>
+                    <AppRoutingProvider>
+                      <ApplicationMetadataProvider>
+                        <GlobalFormDataReadersProvider>
+                          <OrgsProvider>
+                            <ApplicationSettingsProvider>
+                              <LayoutSetsProvider>
+                                <ProfileProvider>
+                                  <PartyProvider>
+                                    <TextResourcesProvider>
+                                      <InstantiationProvider>{children}</InstantiationProvider>
+                                    </TextResourcesProvider>
+                                  </PartyProvider>
+                                </ProfileProvider>
+                              </LayoutSetsProvider>
+                            </ApplicationSettingsProvider>
+                          </OrgsProvider>
+                        </GlobalFormDataReadersProvider>
+                      </ApplicationMetadataProvider>
+                    </AppRoutingProvider>
+                  </Router>
+                </PageNavigationProvider>
+              </UiConfigProvider>
+            </LangToolsStoreProvider>
+          </TaskStoreProvider>
+        </DataLoadingProvider>
+      </LanguageProvider>
     </AppQueriesProvider>
   );
 }
