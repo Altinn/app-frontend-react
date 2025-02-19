@@ -1,18 +1,21 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { isAxiosError } from 'axios';
-
 import { createContext } from 'src/core/contexts/context';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useGetAppLanguageQuery } from 'src/features/language/textResources/useGetAppLanguagesQuery';
+import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { useLocalStorageState } from 'src/hooks/useLocalStorageState';
+import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { IProfile } from 'src/types/shared';
 
 interface LanguageCtx {
   current: string;
   languageResolved: boolean;
+  appLanguages: string[] | undefined;
   setProfileForLanguage: (profile: IProfile | null) => void;
   setWithLanguageSelector: (language: string) => void;
+  setShouldFetchAppLanguages: (shouldFetch: boolean) => void;
 }
 
 const { Provider, useCtx } = createContext<LanguageCtx>({
@@ -21,54 +24,54 @@ const { Provider, useCtx } = createContext<LanguageCtx>({
   default: {
     current: 'nb',
     languageResolved: false,
+    appLanguages: undefined,
     setProfileForLanguage: () => {
       throw new Error('LanguageProvider not initialized');
     },
     setWithLanguageSelector: () => {
       throw new Error('LanguageProvider not initialized');
     },
+    setShouldFetchAppLanguages: () => {
+      throw new Error('LanguageProvider not initialized');
+    },
   },
 });
 
-type LanguageProfileData = {
-  loaded: boolean;
-  userId?: number;
-  language?: string;
-};
+const IsLoading = Symbol('IsLoading');
+type Loading<T> = T | typeof IsLoading;
 
 export const LanguageProvider = ({ children }: PropsWithChildren) => {
-  const [profileData, setProfileData] = useState<LanguageProfileData>({ loaded: false });
+  // LanguageProvider is provided so early that we cannot access much state directly, so we need to get them set externally.
+  const [shouldFetchAppLanguages, setShouldFetchAppLanguages] = useState<Loading<boolean>>(IsLoading);
+  const [profile, setProfileForLanguage] = useState<Loading<IProfile | null>>(IsLoading);
+
+  const userId = profile !== IsLoading ? profile?.userId : undefined;
+  const languageFromProfile = profile !== IsLoading ? profile?.profileSettingPreference.language : undefined;
+
   const languageFromUrl = getLanguageFromUrl();
-  const [languageFromSelector, setWithLanguageSelector] = useLocalStorageState(
-    ['selectedLanguage', profileData.userId],
-    null,
-  );
+  const [languageFromSelector, setWithLanguageSelector] = useLocalStorageState(['selectedLanguage', userId], null);
 
-  const setProfileForLanguage = useCallback(
-    (profile: IProfile | null) =>
-      setProfileData(
-        profile
-          ? {
-              loaded: true,
-              userId: profile.userId,
-              language: profile.profileSettingPreference.language ?? undefined,
-            }
-          : { loaded: true },
-      ),
-    [],
-  );
+  const { data: appLanguages, error, isPending } = useGetAppLanguageQuery(shouldFetchAppLanguages === true);
 
-  const [current, languagesLoaded] = useResolveCurrentLanguage({
+  useEffect(() => {
+    error && window.logError('Fetching app languages failed:\n', error);
+  }, [error]);
+
+  const current = useResolveCurrentLanguage(appLanguages, {
     languageFromSelector,
     languageFromUrl,
-    languageFromProfile: profileData.language,
+    languageFromProfile,
   });
+
+  const languageResolved = profile !== IsLoading && shouldFetchAppLanguages !== IsLoading && !isPending;
 
   return (
     <Provider
       value={{
         current,
-        languageResolved: profileData.loaded && languagesLoaded,
+        appLanguages,
+        languageResolved,
+        setShouldFetchAppLanguages,
         setProfileForLanguage,
         setWithLanguageSelector,
       }}
@@ -80,9 +83,34 @@ export const LanguageProvider = ({ children }: PropsWithChildren) => {
 
 export const useCurrentLanguage = () => useCtx().current;
 export const useIsCurrentLanguageResolved = () => useCtx().languageResolved;
-export const useSetCurrentLanguage = () => {
-  const { setWithLanguageSelector, setProfileForLanguage } = useCtx();
-  return { setWithLanguageSelector, setProfileForLanguage };
+export const useAppLanguages = () => useCtx().appLanguages;
+export const useSetLanguageWithSelector = () => useCtx().setWithLanguageSelector;
+export const useSetProfileForLanguage = () => useCtx().setProfileForLanguage;
+
+/**
+ * This is only to prevent a lot of 401 requests for apps where we know the request will fail.
+ * Since https://github.com/Altinn/app-lib-dotnet/pull/1115 fetching app languages no longer requires auth,
+ * so in the next major release where we require at least v9 all of this checking can be removed
+ * and the useGetAppLanguageQuery can be always enabled instead.
+ */
+export const SetShouldFetchAppLanguages = () => {
+  // We make the same assumption as in ProfileProvider that the user is logged in when the app does not allow anonymous.
+  const userIsAuthenticated = useAllowAnonymousIs(false);
+  const { altinnNugetVersion } = useApplicationMetadata();
+  const appSupportsFetchAppLanguagesInAnonymous =
+    altinnNugetVersion &&
+    isAtLeastVersion({
+      actualVersion: altinnNugetVersion,
+      minimumVersion: '8.6.0.177',
+    });
+
+  const setShouldFetchAppLanguages = useCtx().setShouldFetchAppLanguages;
+  const shouldFetchAppLanguages = appSupportsFetchAppLanguagesInAnonymous || userIsAuthenticated;
+  useEffect(() => {
+    setShouldFetchAppLanguages(shouldFetchAppLanguages);
+  }, [shouldFetchAppLanguages, setShouldFetchAppLanguages]);
+
+  return null;
 };
 
 /**
@@ -96,38 +124,28 @@ function getLanguageFromUrl() {
 /**
  * Determines the current language based on the user's preferences and what the app has available
  */
-function useResolveCurrentLanguage({
-  languageFromSelector,
-  languageFromUrl,
-  languageFromProfile,
-}: {
-  languageFromSelector?: string | null;
-  languageFromUrl?: string | null;
-  languageFromProfile?: string | null;
-}): [string, boolean] {
-  const { data: appLanguages, error, isPending } = useGetAppLanguageQuery();
-
-  useEffect(() => {
-    /**
-     * Ignore 401 unauthorized, this request currently requires authentication
-     * which is unfortunate because anonymous stateless apps cannot use a language selector
-     * @see https://github.com/Altinn/app-lib-dotnet/issues/1114
-     */
-    if (error && !(isAxiosError(error) && error.response?.status === 401)) {
-      window.logError('Fetching app languages failed:\n', error);
-    }
-  }, [error]);
-
+function useResolveCurrentLanguage(
+  appLanguages: string[] | undefined,
+  {
+    languageFromSelector,
+    languageFromUrl,
+    languageFromProfile,
+  }: {
+    languageFromSelector?: string | null;
+    languageFromUrl?: string | null;
+    languageFromProfile?: string | null;
+  },
+): string {
   // We don't know what languages the app has available yet, so we just use whatever the user wants for now
   if (!appLanguages) {
-    return [languageFromSelector ?? languageFromUrl ?? languageFromProfile ?? 'nb', !isPending];
+    return languageFromSelector ?? languageFromUrl ?? languageFromProfile ?? 'nb';
   }
 
   // Try to fulfill the user's preferences in order of priority
 
   if (languageFromSelector) {
     if (appLanguages.includes(languageFromSelector)) {
-      return [languageFromSelector, true];
+      return languageFromSelector;
     }
     window.logWarnOnce(
       `User's preferred language (${languageFromSelector}) from language selector / localstorage is not supported by the app, supported languages: [${appLanguages.join(', ')}]`,
@@ -136,7 +154,7 @@ function useResolveCurrentLanguage({
 
   if (languageFromUrl) {
     if (appLanguages.includes(languageFromUrl)) {
-      return [languageFromUrl, true];
+      return languageFromUrl;
     }
     window.logWarnOnce(
       `User's preferred language from query parameter (lang=${languageFromUrl}) is not supported by the app, supported languages: [${appLanguages.join(', ')}]`,
@@ -145,7 +163,7 @@ function useResolveCurrentLanguage({
 
   if (languageFromProfile) {
     if (appLanguages.includes(languageFromProfile)) {
-      return [languageFromProfile, true];
+      return languageFromProfile;
     }
     window.logInfoOnce(
       `User's preferred language (${languageFromProfile}) from Altinn profile is not supported by the app, supported languages: [${appLanguages.join(', ')}]`,
@@ -155,24 +173,24 @@ function useResolveCurrentLanguage({
   // The user has no valid preference, try to fall back to one of the standard languages that the app supports
 
   if (appLanguages.includes('nb')) {
-    return ['nb', true];
+    return 'nb';
   }
   if (appLanguages.includes('nn')) {
-    return ['nn', true];
+    return 'nn';
   }
   if (appLanguages.includes('en')) {
-    return ['en', true];
+    return 'en';
   }
 
   // None of the standard languages are supported, try the first supported language
 
   if (appLanguages.length) {
-    return [appLanguages[0], true];
+    return appLanguages[0];
   }
 
   // The app has not defined any languages, something is probably wrong
 
   window.logErrorOnce('When fetching app languages the app returned 0 languages');
 
-  return ['nb', true];
+  return 'nb';
 }

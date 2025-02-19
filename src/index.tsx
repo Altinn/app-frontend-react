@@ -29,7 +29,7 @@ import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvi
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
-import { LanguageProvider } from 'src/features/language/LanguageProvider';
+import { LanguageProvider, SetShouldFetchAppLanguages } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
@@ -89,6 +89,7 @@ function Root() {
         <ApplicationMetadataProvider>
           <GlobalFormDataReadersProvider>
             <LayoutSetsProvider>
+              <SetShouldFetchAppLanguages />
               <ProfileProvider>
                 <TextResourcesProvider>
                   <OrgsProvider>

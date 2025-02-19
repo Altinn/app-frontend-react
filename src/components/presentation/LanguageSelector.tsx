@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
 
-import { DropdownMenu, Spinner } from '@digdir/designsystemet-react';
+import { DropdownMenu } from '@digdir/designsystemet-react';
 import { CheckmarkIcon, ChevronDownIcon, GlobeIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import classes from 'src/components/presentation/LanguageSelector.module.css';
 import { Lang } from 'src/features/language/Lang';
-import { useCurrentLanguage, useSetCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useGetAppLanguageQuery } from 'src/features/language/textResources/useGetAppLanguagesQuery';
+import {
+  useAppLanguages,
+  useCurrentLanguage,
+  useSetLanguageWithSelector,
+} from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 
 export const LanguageSelector = () => {
   const isMobile = useIsMobile();
   const currentLanguage = useCurrentLanguage();
-  const { setWithLanguageSelector } = useSetCurrentLanguage();
+  const appLanguages = useAppLanguages();
+  const setWithLanguageSelector = useSetLanguageWithSelector();
   const { langAsString } = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -24,20 +28,7 @@ export const LanguageSelector = () => {
     setWithLanguageSelector(lang);
   }
 
-  const { data: appLanguages, isPending } = useGetAppLanguageQuery();
-
-  if (isPending) {
-    return (
-      <Spinner
-        style={{ marginRight: 8 }}
-        size='sm'
-        title={langAsString('general.loading')}
-      />
-    );
-  }
-
   if (!appLanguages?.length) {
-    // LanguageProvider logs error if this query fails
     return null;
   }
 
