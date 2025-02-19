@@ -7,7 +7,7 @@ import { userEvent } from '@testing-library/user-event';
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getLogoMock } from 'src/__mocks__/getLogoMock';
 import { LogoColor } from 'src/components/logo/AltinnLogo';
-import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
+import { AppHeader } from 'src/components/presentation/AppHeader/AppHeader';
 import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { PartyType } from 'src/types/shared';
@@ -15,7 +15,7 @@ import type { ApplicationMetadata } from 'src/features/applicationMetadata/types
 import type { IRawTextResource } from 'src/features/language/textResources';
 import type { IAppLanguage, IParty } from 'src/types/shared';
 
-describe('organisms/AltinnAppHeader', () => {
+describe('presentation/AppHeader', () => {
   const partyPerson = {
     name: 'Test Testesen',
     ssn: '01010000000',
@@ -51,7 +51,7 @@ describe('organisms/AltinnAppHeader', () => {
 
     return await renderWithInstanceAndLayout({
       renderer: () => (
-        <AltinnAppHeader
+        <AppHeader
           party={party}
           userParty={user}
           logoColor={LogoColor.blueDarker}

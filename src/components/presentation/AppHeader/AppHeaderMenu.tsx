@@ -5,7 +5,7 @@ import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { CircleIcon } from 'src/components/CircleIcon';
-import classes from 'src/components/organisms/AltinnAppHeaderMenu.module.css';
+import classes from 'src/components/presentation/AppHeader/AppHeaderMenu.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
@@ -13,13 +13,13 @@ import { renderPartyName } from 'src/utils/party';
 import { logoutUrlAltinn } from 'src/utils/urls/urlHelper';
 import type { IParty } from 'src/types/shared';
 
-export interface IAltinnAppHeaderMenuProps {
+export interface AppHeaderMenuProps {
   party: IParty | undefined;
   userParty: IParty | undefined;
   logoColor: string;
 }
 
-export function AltinnAppHeaderMenu({ party, userParty, logoColor }: IAltinnAppHeaderMenuProps) {
+export function AppHeaderMenu({ party, userParty, logoColor }: AppHeaderMenuProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);

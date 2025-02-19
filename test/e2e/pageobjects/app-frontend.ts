@@ -309,7 +309,7 @@ export class AppFrontend {
   };
 
   public reporteeSelection = {
-    appHeader: '[data-testid="AltinnAppHeader"]',
+    appHeader: '[data-testid="InstantiateHeader"]',
     searchReportee: 'input[placeholder="Søk etter aktør"]',
     reportee: '[data-testid="AltinnParty-PartyWrapper"][id^=party-]',
     subUnits: '[data-testid="AltinnParty-SubUnitWrapper"]',

@@ -2,26 +2,26 @@ import React from 'react';
 
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 
-import classes from 'src/components/AltinnAppHeader.module.css';
 import { CircleIcon } from 'src/components/CircleIcon';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
+import classes from 'src/features/instantiate/instantiateHeader/InstantiateHeader.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { renderParty } from 'src/utils/party';
 import { returnUrlToAllForms, returnUrlToMessagebox, returnUrlToProfile } from 'src/utils/urls/urlHelper';
 import type { IProfile } from 'src/types/shared';
 
-export interface IHeaderProps {
+export interface InstantiateHeaderProps {
   profile: IProfile | undefined;
 }
 
-export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
+export const InstantiateHeader = ({ profile }: InstantiateHeaderProps) => {
   const party = profile?.party;
 
   return (
     <div
       className={classes.appBarWrapper}
-      data-testid='AltinnAppHeader'
+      data-testid='InstantiateHeader'
     >
       <LandmarkShortcuts
         shortcuts={[

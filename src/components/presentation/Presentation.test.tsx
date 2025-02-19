@@ -101,7 +101,7 @@ describe('Presentation', () => {
   it('the background color should be greyLight if type is "ProcessTaskType.Data"', async () => {
     await render({ type: ProcessTaskType.Data });
 
-    const appHeader = screen.getByTestId('AltinnAppHeader');
+    const appHeader = screen.getByTestId('AppHeader');
 
     expect(appHeader).toHaveStyle(`background-color: ${AltinnPalette.greyLight}`);
   });
@@ -109,7 +109,7 @@ describe('Presentation', () => {
   it('the background color should be lightGreen if type is "ProcessTaskType.Archived"', async () => {
     await render({ type: ProcessTaskType.Archived });
 
-    const appHeader = screen.getByTestId('AltinnAppHeader');
+    const appHeader = screen.getByTestId('AppHeader');
 
     expect(appHeader).toHaveStyle(`background-color: ${AltinnPalette.greenLight}`);
   });

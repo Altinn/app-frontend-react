@@ -2,8 +2,8 @@ import React from 'react';
 
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo } from 'src/components/logo/AltinnLogo';
-import classes from 'src/components/organisms/AltinnAppHeader.module.css';
-import { AltinnAppHeaderMenu } from 'src/components/organisms/AltinnAppHeaderMenu';
+import classes from 'src/components/presentation/AppHeader/AppHeader.module.css';
+import { AppHeaderMenu } from 'src/components/presentation/AppHeader/AppHeaderMenu';
 import { LanguageSelector } from 'src/components/presentation/LanguageSelector';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { useHasAppTextsYet } from 'src/core/texts/appTexts';
@@ -14,7 +14,7 @@ import { renderPartyName } from 'src/utils/party';
 import type { LogoColor } from 'src/components/logo/AltinnLogo';
 import type { IParty } from 'src/types/shared';
 
-export interface IAltinnAppHeaderProps {
+export interface AppHeaderProps {
   /** The party of the instance owner */
   party: IParty | undefined;
   /** The party of the currently logged in user */
@@ -23,12 +23,12 @@ export interface IAltinnAppHeaderProps {
   headerBackgroundColor: string;
 }
 
-export const AltinnAppHeader = ({ logoColor, headerBackgroundColor, party, userParty }: IAltinnAppHeaderProps) => {
+export const AppHeader = ({ logoColor, headerBackgroundColor, party, userParty }: AppHeaderProps) => {
   const { showLanguageSelector } = usePageSettings();
 
   return (
     <header
-      data-testid='AltinnAppHeader'
+      data-testid='AppHeader'
       style={{ backgroundColor: headerBackgroundColor, color: logoColor }}
     >
       <LandmarkShortcuts
@@ -45,7 +45,7 @@ export const AltinnAppHeader = ({ logoColor, headerBackgroundColor, party, userP
           {showLanguageSelector && <LanguageSelector />}
           <div className={classes.wrapper}>
             <span className={classes.partyName}>{renderPartyName(party, userParty)}</span>
-            <AltinnAppHeaderMenu
+            <AppHeaderMenu
               party={party}
               userParty={userParty}
               logoColor={logoColor}

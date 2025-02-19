@@ -6,7 +6,7 @@ import cn from 'classnames';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { LogoColor } from 'src/components/logo/AltinnLogo';
 import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPaper';
-import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
+import { AppHeader } from 'src/components/presentation/AppHeader/AppHeader';
 import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
 import classes from 'src/components/presentation/Presentation.module.css';
@@ -61,7 +61,7 @@ export const PresentationComponent = ({
             [classes.expanded]: expandedWidth,
           })}
         >
-          <AltinnAppHeader
+          <AppHeader
             party={party}
             userParty={userParty}
             logoColor={LogoColor.blueDarker}
