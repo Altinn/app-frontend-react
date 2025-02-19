@@ -64,61 +64,32 @@ function resolvePageLayoutComponents(
 
     let renderedValue: string | object | null | undefined = '';
 
-    const before = dot.pick('rapport.innsender.foretak.organisasjonsnummer', data);
-
-    // console.log('after', before);
-    //
-    // console.log('rapport.innsender.foretak.organisasjonsnummer');
-
     if (component.dataModelBindings && data && component.dataModelBindings['simpleBinding']) {
-      // console.log('has binding');
-      // console.log('binding');
-      // console.log(component.dataModelBindings['simpleBinding']);
-      //
-      // console.log('component.id', component.id);
-
-      if (component.id === '1-1-idtest') {
-        console.log('this is our compoment');
-        // console.log(component.dataModelBindings['simpleBinding']);
-        const val = dot.pick(component.dataModelBindings['simpleBinding'], data);
-        console.log('val', val);
-        renderedValue = val;
-      }
-
-      // console.log(component.dataModelBindings['simpleBinding']);
-      // console.log(JSON.stringify(val, null, 2));
-      // console.log(JSON.stringify(data, null, 2));
-      // renderedValue =
-      //   component.dataModelBindings['simpleBinding'] && data[component.dataModelBindings['simpleBinding']]
-      //     ? dot.pick(component.dataModelBindings['simpleBinding'], data)
-      //     : '';
-      //
-      // console.log(component.dataModelBindings['simpleBinding'], component.dataModelBindings['simpleBinding']);
-      //
-      // component.dataModelBindings['simpleBinding'] &&
-      //   data[component.dataModelBindings['simpleBinding']] &&
-      //   console.log(dot.pick(component.dataModelBindings['simpleBinding'], data));
-      // const dataToDisplay = console.log('renderedValue', renderedValue);
+      const val = dot.pick(component.dataModelBindings['simpleBinding'], data);
+      renderedValue = val;
     }
+    // 1. Get the data for the children
+    // 2. For each entry in the data array, send that data along with the children layot to resolvePageLayoutComponents
 
-    // let resolvedChildren: ResolvedCompExternal[] | undefined;
-    // if (component.children && Array.isArray(component.children) && component.children.length > 0) {
-    //   resolvedChildren = resolvePageLayoutComponents(component.children, data);
-    //   return {
-    //     ...component,
-    //     type: component.type,
-    //     hidden: component.hidden,
-    //     isHidden: resolvedHidden,
-    //     renderedValue,
-    //     children: resolvedChildren,
-    //   };
-    // }
+    let resolvedChildren: ResolvedCompExternal[] = [];
+
+    if (component.children) {
+      //debugger;
+      // @ts-ignore
+      const dataModelBinding = component.dataModelBindings['group'];
+      const dataForKids = dot.pick(dataModelBinding, data);
+      const mappedKids = dataForKids.map((currentData) =>
+        resolvePageLayoutComponents(component.children as ResolvedCompExternal[], currentData),
+      );
+
+      resolvedChildren = mappedKids;
+    }
 
     return {
       ...component,
       isHidden: resolvedHidden,
       renderedValue,
-      children: component.children ? resolvePageLayoutComponents(component.children, data) : [],
+      children: resolvedChildren, //component.children ? resolvePageLayoutComponents(component.children, data) : [],
     };
   });
 }

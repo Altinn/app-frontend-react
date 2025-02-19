@@ -1,15 +1,14 @@
 import React from 'react';
 
-import dot from 'dot-object';
 import { useStore } from 'zustand/index';
 
 import { resolveText } from 'src/next/components/resolveText';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
-import type { CompExternal } from 'src/layout/layout';
+import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
 
 interface RenderLayoutType {
-  components: CompExternal[];
+  components: ResolvedCompExternal[];
 }
 
 export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ components }) => {
@@ -47,23 +46,24 @@ export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ compon
           );
         }
 
-        if (currentComponent.type === 'RepeatingGroup') {
-          const binding = currentComponent.dataModelBindings.group;
-          // @ts-ignore
-          const dataToDisplay = dot.pick(binding, data);
-          if (!dataToDisplay) {
-            return;
-          }
-
+        if (
+          currentComponent.type === 'RepeatingGroup' &&
+          currentComponent.children &&
+          currentComponent.children.length > 0
+        ) {
+          const rows = currentComponent.children.map((currentChild, idx) => (
+            <RenderLayout
+              key={idx}
+              // @ts-ignore
+              components={currentChild}
+            />
+          ));
           return (
             <div
               key={currentComponent.id}
               style={{ border: '1px solid green' }}
             >
-              <h3>Here comes repeating group:</h3>
-              {/*<RenderLayout components={children} />*/}
-              {/*<h2>Rep group:</h2>*/}
-              <pre>{JSON.stringify(currentComponent, null, 2)}</pre>
+              {rows}
             </div>
           );
         }
