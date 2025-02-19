@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 
 import { useSetOptions } from 'src/features/options/useGetOptions';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { Hidden, NodesInternal, NodesReadiness } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
@@ -21,8 +21,6 @@ interface Props {
  */
 export function EffectPreselectedOptionIndex({ preselectedOption, valueType, options }: Props) {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
-  const nodeStore = NodesInternal.useStore();
-  const [force, setForceUpdate] = useState(0);
   const isNodeHidden = Hidden.useIsHidden(node);
   const hasSelectedInitial = useRef(false);
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
@@ -32,17 +30,12 @@ export function EffectPreselectedOptionIndex({ preselectedOption, valueType, opt
   const shouldSelectOptionAutomatically =
     !hasValue && !hasSelectedInitial.current && preselectedOption !== undefined && isNodeHidden !== true;
 
-  useEffect(() => {
+  NodesInternal.useEffectWhenReady(() => {
     if (shouldSelectOptionAutomatically) {
-      if (nodeStore.getState().readiness !== NodesReadiness.Ready) {
-        requestAnimationFrame(() => setForceUpdate((prev) => prev + 1));
-        return;
-      }
-
       setData([preselectedOption.value]);
       hasSelectedInitial.current = true;
     }
-  }, [preselectedOption, shouldSelectOptionAutomatically, setData, nodeStore, node.id, force]);
+  }, [preselectedOption, shouldSelectOptionAutomatically, setData]);
 
   return null;
 }

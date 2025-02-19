@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react';
-
 import deepEqual from 'fast-deep-equal';
 
 import { useSetOptions } from 'src/features/options/useGetOptions';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { Hidden, NodesInternal, NodesReadiness } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
@@ -26,8 +24,6 @@ interface Props {
 export function EffectRemoveStaleValues({ valueType, options }: Props) {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const isNodeHidden = Hidden.useIsHidden(node);
-  const nodeStore = NodesInternal.useStore();
-  const [force, setForceUpdate] = useState(0);
 
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
@@ -36,7 +32,7 @@ export function EffectRemoveStaleValues({ valueType, options }: Props) {
   const optionsAsRef = useAsRef(options);
   const itemsToRemove = getItemsToRemove(options, setResult.unsafeSelectedValues);
 
-  useEffect(() => {
+  NodesInternal.useEffectWhenReady(() => {
     const { unsafeSelectedValues, setData } = setResultAsRef.current;
     const options = optionsAsRef.current;
     if (itemsToRemove.length === 0 || isNodeHidden || !options) {
@@ -45,14 +41,9 @@ export function EffectRemoveStaleValues({ valueType, options }: Props) {
 
     const freshItemsToRemove = getItemsToRemove(optionsAsRef.current, unsafeSelectedValues);
     if (freshItemsToRemove.length > 0 && deepEqual(freshItemsToRemove, itemsToRemove)) {
-      if (nodeStore.getState().readiness !== NodesReadiness.Ready) {
-        requestAnimationFrame(() => setForceUpdate((prev) => prev + 1));
-        return;
-      }
-
       setData(unsafeSelectedValues.filter((v) => !itemsToRemove.includes(v)));
     }
-  }, [isNodeHidden, itemsToRemove, nodeStore, optionsAsRef, setResultAsRef, force]);
+  }, [isNodeHidden, itemsToRemove, optionsAsRef, setResultAsRef]);
 
   return null;
 }
