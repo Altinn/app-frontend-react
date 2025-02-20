@@ -39,8 +39,8 @@ export const PresentationComponent = ({
   showNavAndSidebar = true,
 }: IPresentationProvidedProps) => {
   const party = useCurrentParty();
+  const user = useProfile();
   const instanceStatus = useLaxInstanceStatus();
-  const userParty = useProfile()?.party;
   const { expandedWidth } = useUiConfigContext();
   const hasGroupedNavigation = useHasGroupedNavigation();
 
@@ -63,7 +63,7 @@ export const PresentationComponent = ({
         >
           <AppHeader
             party={party}
-            userParty={userParty}
+            user={user}
             logoColor={LogoColor.blueDarker}
             headerBackgroundColor={backgroundColor}
           />

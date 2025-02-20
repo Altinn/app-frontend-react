@@ -9,17 +9,17 @@ import classes from 'src/components/presentation/AppHeader/AppHeaderMenu.module.
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import { renderPartyName } from 'src/utils/party';
+import { getPartyDisplayName } from 'src/utils/party';
 import { logoutUrlAltinn } from 'src/utils/urls/urlHelper';
-import type { IParty } from 'src/types/shared';
+import type { IParty, IProfile } from 'src/types/shared';
 
 export interface AppHeaderMenuProps {
   party: IParty | undefined;
-  userParty: IParty | undefined;
+  user: IProfile | undefined;
   logoColor: string;
 }
 
-export function AppHeaderMenu({ party, userParty, logoColor }: AppHeaderMenuProps) {
+export function AppHeaderMenu({ party, user, logoColor }: AppHeaderMenuProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
@@ -60,7 +60,7 @@ export function AppHeaderMenu({ party, userParty, logoColor }: AppHeaderMenuProp
         </CircleIcon>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
-        <DropdownMenu.Group heading={isMobile ? renderPartyName(party, userParty) : undefined}>
+        <DropdownMenu.Group heading={isMobile ? getPartyDisplayName(party, user) : undefined}>
           <DropdownMenu.Item asChild>
             <a href={logoutUrlAltinn(window.location.host)}>
               <Lang id='general.log_out' />

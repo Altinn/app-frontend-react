@@ -7,7 +7,6 @@ import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
 import classes from 'src/features/instantiate/instantiateHeader/InstantiateHeader.module.css';
 import { Lang } from 'src/features/language/Lang';
-import { renderParty } from 'src/utils/party';
 import { returnUrlToAllForms, returnUrlToMessagebox, returnUrlToProfile } from 'src/utils/urls/urlHelper';
 import type { IProfile } from 'src/types/shared';
 
@@ -68,7 +67,7 @@ export const InstantiateHeader = ({ profile }: InstantiateHeaderProps) => {
           <CircleIcon
             size='1.5rem'
             className={classes.partyIcon}
-            title={renderParty(profile) || ''}
+            title={profile.party?.person?.name}
           >
             {party.orgNumber ? (
               <Buildings3Icon

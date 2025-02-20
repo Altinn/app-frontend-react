@@ -10,20 +10,20 @@ import { useHasAppTextsYet } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { Lang } from 'src/features/language/Lang';
-import { renderPartyName } from 'src/utils/party';
+import { getPartyDisplayName } from 'src/utils/party';
 import type { LogoColor } from 'src/components/logo/AltinnLogo';
-import type { IParty } from 'src/types/shared';
+import type { IParty, IProfile } from 'src/types/shared';
 
 export interface AppHeaderProps {
   /** The party of the instance owner */
   party: IParty | undefined;
   /** The party of the currently logged in user */
-  userParty: IParty | undefined;
+  user: IProfile | undefined;
   logoColor: LogoColor;
   headerBackgroundColor: string;
 }
 
-export const AppHeader = ({ logoColor, headerBackgroundColor, party, userParty }: AppHeaderProps) => {
+export const AppHeader = ({ logoColor, headerBackgroundColor, party, user }: AppHeaderProps) => {
   const { showLanguageSelector } = usePageSettings();
 
   return (
@@ -44,10 +44,10 @@ export const AppHeader = ({ logoColor, headerBackgroundColor, party, userParty }
         <div className={classes.wrapper}>
           {showLanguageSelector && <LanguageSelector />}
           <div className={classes.wrapper}>
-            <span className={classes.partyName}>{renderPartyName(party, userParty)}</span>
+            <span className={classes.partyName}>{getPartyDisplayName(party, user)}</span>
             <AppHeaderMenu
               party={party}
-              userParty={userParty}
+              user={user}
               logoColor={logoColor}
             />
           </div>
