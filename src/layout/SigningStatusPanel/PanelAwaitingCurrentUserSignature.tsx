@@ -12,18 +12,25 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
+import { SubmitSigningButton } from 'src/layout/SigningStatusPanel/SubmitSigningButton';
 import { doPerformAction } from 'src/queries/queries';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type AwaitingCurrentUserSignaturePanelProps = {
   node: LayoutNode<'SigningStatusPanel'>;
+  hasMissingSignatures: boolean;
 };
 
-export function AwaitingCurrentUserSignaturePanel({ node }: AwaitingCurrentUserSignaturePanelProps) {
+export function AwaitingCurrentUserSignaturePanel({
+  node,
+  hasMissingSignatures,
+}: AwaitingCurrentUserSignaturePanelProps) {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
   const isAuthorised = useIsAuthorised();
   const canSign = isAuthorised('sign');
+  const canWrite = isAuthorised('write');
+
   const submitButtonRef = useRef<HTMLButtonElement>(null);
   const selectedLanguage = useCurrentLanguage();
   const queryClient = useQueryClient();
@@ -66,22 +73,31 @@ export function AwaitingCurrentUserSignaturePanel({ node }: AwaitingCurrentUserS
       variant='info'
       heading={<Lang id={title} />}
       actionButton={
-        <Button
-          onClick={() => handleSign()}
-          disabled={!confirmReadDocuments}
-          ref={submitButtonRef}
-          size='md'
-          color='success'
-        >
-          <Lang id={signingButtonText} />
-        </Button>
+        <>
+          <Button
+            onClick={() => handleSign()}
+            disabled={!confirmReadDocuments}
+            ref={submitButtonRef}
+            size='md'
+            color='success'
+          >
+            <Lang id={signingButtonText} />
+          </Button>
+          {!hasMissingSignatures && canWrite && <SubmitSigningButton node={node} />}
+        </>
       }
       description={<Lang id={checkboxDescription} />}
       errorMessage={error ? <Lang id='signing.error_signing' /> : undefined}
     >
       <Checkbox
         value={String(confirmReadDocuments)}
+        checked={confirmReadDocuments}
         onChange={() => setConfirmReadDocuments(!confirmReadDocuments)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            setConfirmReadDocuments(!confirmReadDocuments);
+          }
+        }}
         className={classes.checkbox}
       >
         <Lang id={checkboxLabel} />
