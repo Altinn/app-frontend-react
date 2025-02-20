@@ -10,7 +10,6 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Custom extends CustomDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Custom'>>(
@@ -19,9 +18,8 @@ export class Custom extends CustomDef {
     },
   );
 
-  getDisplayData(node: LayoutNode<'Custom'>, { nodeFormDataSelector }: DisplayDataProps): string {
-    const data = nodeFormDataSelector(node);
-    return Object.values(data).join(', ');
+  getDisplayData({ formData }: DisplayDataProps<'Custom'>): string {
+    return Object.values(formData ?? {}).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Custom'>): JSX.Element | null {

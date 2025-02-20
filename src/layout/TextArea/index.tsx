@@ -11,7 +11,6 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class TextArea extends TextAreaDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'TextArea'>>(
@@ -20,8 +19,8 @@ export class TextArea extends TextAreaDef {
     },
   );
 
-  getDisplayData(node: LayoutNode<'TextArea'>, { nodeFormDataSelector }: DisplayDataProps): string {
-    return nodeFormDataSelector(node).simpleBinding ?? '';
+  getDisplayData({ formData }: DisplayDataProps<'TextArea'>): string {
+    return formData?.simpleBinding ?? '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'TextArea'>): JSX.Element | null {

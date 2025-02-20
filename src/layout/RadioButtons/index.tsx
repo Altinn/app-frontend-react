@@ -14,7 +14,7 @@ import type { ComponentValidation, ValidationDataSources } from 'src/features/va
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RadioButtons extends RadioButtonsDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'RadioButtons'>>(
@@ -23,12 +23,9 @@ export class RadioButtons extends RadioButtonsDef {
     },
   );
 
-  getDisplayData(
-    node: LayoutNode<'RadioButtons'>,
-    { langTools, optionsSelector, nodeFormDataSelector }: DisplayDataProps,
-  ): string {
-    const value = String(nodeFormDataSelector(node).simpleBinding ?? '');
-    const { options } = optionsSelector(node);
+  getDisplayData({ langTools, optionsSelector, formData, nodeId }: DisplayDataProps<'RadioButtons'>): string {
+    const value = String(formData?.simpleBinding ?? '');
+    const { options } = optionsSelector(nodeId);
     return getSelectedValueToText(value, langTools, options) || '';
   }
 

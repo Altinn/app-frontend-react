@@ -64,7 +64,7 @@ export interface ExprResolver<Type extends CompTypes> {
   };
 }
 
-export abstract class AnyComponent<Type extends CompTypes> {
+export abstract class AnyComponent<Type extends CompTypes> implements DisplayData<Type> {
   protected readonly type: Type;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected plugins: { [key: string]: NodeDefPlugin<any> } = {};
@@ -94,7 +94,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
     return null;
   }
 
-  getDisplayData(_node: LayoutNode<Type>, _displayDataProps: DisplayDataProps): string {
+  getDisplayData(_displayDataProps: DisplayDataProps<Type>): string {
     return '';
   }
 
@@ -226,7 +226,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
    * @see renderSummary
    * @see renderCompactSummary
    */
-  abstract getDisplayData(node: LayoutNode<Type>, displayDataProps: DisplayDataProps): string;
+  abstract getDisplayData(displayDataProps: DisplayDataProps<Type>): string;
 
   /**
    * Render a summary for this component. For most components, this will return a:

@@ -12,17 +12,16 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Number extends NumberDef {
-  getDisplayData(node: LayoutNode<'Number'>, { currentLanguage, nodeDataSelector }: DisplayDataProps): string {
-    const number = nodeDataSelector((picker) => picker(node)?.item?.value, [node]);
+  getDisplayData({ currentLanguage, nodeIdDataSelector, nodeId }: DisplayDataProps<'Number'>): string {
+    const number = nodeIdDataSelector((picker) => picker(nodeId, 'Number')?.item?.value, [nodeId]);
     if (number === undefined || isNaN(number)) {
       return '';
     }
 
     const text = number.toString();
-    const formatting = nodeDataSelector((picker) => picker(node)?.item?.formatting, [node]);
+    const formatting = nodeIdDataSelector((picker) => picker(nodeId, 'Number')?.item?.formatting, [nodeId]);
     const numberFormatting = getMapToReactNumberConfig(formatting, text, currentLanguage);
 
     if (numberFormatting?.number) {

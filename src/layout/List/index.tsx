@@ -24,18 +24,20 @@ export class List extends ListDef {
     },
   );
 
-  getDisplayData(node: LayoutNode<'List'>, { nodeFormDataSelector, nodeDataSelector }: DisplayDataProps): string {
-    const formData = nodeFormDataSelector(node);
-    const dmBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
-    const summaryBinding = nodeDataSelector((picker) => picker(node)?.item?.summaryBinding, [node]);
-    const legacySummaryBinding = nodeDataSelector((picker) => picker(node)?.item?.bindingToShowInSummary, [node]);
+  getDisplayData({ formData, nodeId, nodeIdDataSelector }: DisplayDataProps<'List'>): string {
+    const dmBindings = nodeIdDataSelector((picker) => picker(nodeId, 'List')?.layout.dataModelBindings, [nodeId]);
+    const summaryBinding = nodeIdDataSelector((picker) => picker(nodeId, 'List')?.item?.summaryBinding, [nodeId]);
+    const legacySummaryBinding = nodeIdDataSelector(
+      (picker) => picker(nodeId, 'List')?.item?.bindingToShowInSummary,
+      [nodeId],
+    );
 
     if (summaryBinding && dmBindings) {
-      return formData[summaryBinding] ?? '';
+      return formData?.[summaryBinding] ?? '';
     } else if (legacySummaryBinding && dmBindings) {
       for (const [key, binding] of Object.entries(dmBindings)) {
         if (binding.field === legacySummaryBinding) {
-          return formData[key] ?? '';
+          return formData?.[key] ?? '';
         }
       }
     }

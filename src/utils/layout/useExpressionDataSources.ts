@@ -27,7 +27,7 @@ import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { IDataModelReference, ILayoutSet } from 'src/layout/common.generated';
 import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
+import type { NodeDataSelector, NodeIdDataSelector } from 'src/utils/layout/NodesContext';
 import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
 import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import type { NodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
@@ -48,6 +48,7 @@ export interface ExpressionDataSources {
   isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
   nodeFormDataSelector: NodeFormDataSelector;
   nodeDataSelector: NodeDataSelector;
+  nodeIdDataSelector: NodeIdDataSelector;
   nodeTraversal: NodeTraversalSelector;
   transposeSelector: DataModelTransposeSelector;
   externalApis: ExternalApisResult;
@@ -63,6 +64,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
     attachmentsSelector,
     optionsSelector,
     nodeDataSelector,
+    nodeIdDataSelector,
     dataSelectorForTraversal,
     isHiddenSelector,
     dataElementSelector,
@@ -73,6 +75,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
     NodesInternal.useAttachmentsSelectorProps(),
     NodesInternal.useNodeOptionsSelectorProps(),
     NodesInternal.useNodeDataSelectorProps(),
+    NodesInternal.useNodeIdDataSelectorProps(),
     NodesInternal.useDataSelectorForTraversalProps(),
     Hidden.useIsHiddenSelectorProps(),
     useLaxDataElementsSelectorProps(),
@@ -88,13 +91,13 @@ export function useExpressionDataSources(): ExpressionDataSources {
   const dataModelNames = DataModels.useReadableDataTypes();
   const externalApis = useExternalApis(useApplicationMetadata().externalApiIds ?? []);
   const nodeTraversal = useInnerNodeTraversalSelector(useNodes(), dataSelectorForTraversal);
-  const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
+  const transposeSelector = useInnerDataModelBindingTranspose(nodeIdDataSelector);
   const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
     DataModels.useDefaultDataType(),
     dataModelNames,
     formDataSelector,
-    nodeDataSelector,
+    nodeIdDataSelector,
   );
 
   const roles = useCurrentPartyRoles();
@@ -106,6 +109,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
     attachmentsSelector,
     optionsSelector,
     nodeDataSelector,
+    nodeIdDataSelector,
     process,
     applicationSettings,
     instanceDataSources,

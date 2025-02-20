@@ -37,16 +37,13 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     },
   );
 
-  getDisplayData(
-    node: LayoutNode<'Datepicker'>,
-    { currentLanguage, nodeFormDataSelector, nodeDataSelector }: DisplayDataProps,
-  ): string {
-    const data = nodeFormDataSelector(node).simpleBinding ?? '';
+  getDisplayData({ currentLanguage, formData, nodeId, nodeIdDataSelector }: DisplayDataProps<'Datepicker'>): string {
+    const data = formData?.simpleBinding ?? '';
     if (!data) {
       return '';
     }
 
-    const format = nodeDataSelector((picker) => picker(node)?.item?.format, [node]);
+    const format = nodeIdDataSelector((picker) => picker(nodeId, 'Datepicker')?.item?.format, [nodeId]);
     const dateFormat = getDateFormat(format, currentLanguage);
     return formatISOString(data, dateFormat) ?? data;
   }

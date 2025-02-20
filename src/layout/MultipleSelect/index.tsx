@@ -13,7 +13,7 @@ import type { ComponentValidation, ValidationDataSources } from 'src/features/va
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class MultipleSelect extends MultipleSelectDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'MultipleSelect'>>(
@@ -22,10 +22,10 @@ export class MultipleSelect extends MultipleSelectDef {
     },
   );
 
-  getDisplayData(node: LayoutNode<'MultipleSelect'>, props: DisplayDataProps): string {
+  getDisplayData(props: DisplayDataProps<'MultipleSelect'>): string {
     const data = getCommaSeparatedOptionsToText(
-      props.nodeFormDataSelector(node).simpleBinding,
-      props.optionsSelector(node).options,
+      props.formData?.simpleBinding,
+      props.optionsSelector(props.nodeId).options,
       props.langTools.langAsString,
     );
     return Object.values(data).join(', ');

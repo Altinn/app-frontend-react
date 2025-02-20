@@ -9,7 +9,6 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class AddToList extends AddToListDef {
   validateDataModelBindings(_: LayoutValidationCtx<'AddToList'>): string[] {
@@ -20,7 +19,7 @@ export class AddToList extends AddToListDef {
     return <AddToListFeatureFlagLayoutValidator {...props} />;
   }
 
-  getDisplayData(_: BaseLayoutNode<'AddToList'>, __: DisplayDataProps): string {
+  getDisplayData(_: DisplayDataProps<'AddToList'>): string {
     return '';
   }
   renderSummary(_: SummaryRendererProps<'AddToList'>): JSX.Element | null {

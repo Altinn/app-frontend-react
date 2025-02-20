@@ -9,15 +9,11 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Option extends OptionDef {
-  getDisplayData(
-    node: LayoutNode<'Option'>,
-    { nodeDataSelector, optionsSelector, langTools }: DisplayDataProps,
-  ): string {
-    const value = nodeDataSelector((picker) => picker(node)?.item?.value, [node]) ?? '';
-    const { options } = optionsSelector(node);
+  getDisplayData({ nodeIdDataSelector, nodeId, optionsSelector, langTools }: DisplayDataProps<'Option'>): string {
+    const value = nodeIdDataSelector((picker) => picker(nodeId, 'Option')?.item?.value, [nodeId]) ?? '';
+    const { options } = optionsSelector(nodeId);
     return getSelectedValueToText(value, langTools, options) || '';
   }
 

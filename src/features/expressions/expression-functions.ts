@@ -492,13 +492,14 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     }
 
     const def = targetNode.def as DisplayData<CompTypes>;
-    return def.getDisplayData(targetNode, {
+    return def.getDisplayData({
       attachmentsSelector: this.dataSources.attachmentsSelector,
       optionsSelector: this.dataSources.optionsSelector,
-      langTools: this.dataSources.langToolsSelector(node as LayoutNode),
+      langTools: this.dataSources.langToolsSelector(targetNode),
       currentLanguage: this.dataSources.currentLanguage,
-      nodeFormDataSelector: this.dataSources.nodeFormDataSelector,
-      nodeDataSelector: this.dataSources.nodeDataSelector,
+      nodeIdDataSelector: this.dataSources.nodeIdDataSelector,
+      formData: this.dataSources.nodeFormDataSelector(targetNode),
+      nodeId: targetNode.id,
     });
   },
   optionLabel(optionsId, value) {

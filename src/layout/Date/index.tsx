@@ -10,12 +10,11 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Date extends DateDef {
-  getDisplayData(node: LayoutNode<'Date'>, { nodeDataSelector }: DisplayDataProps): string {
-    const dateString = nodeDataSelector((picker) => picker(node)?.item?.value, [node]);
-    const format = nodeDataSelector((picker) => picker(node)?.item?.format, [node]);
+  getDisplayData({ nodeIdDataSelector, nodeId }: DisplayDataProps<'Date'>): string {
+    const dateString = nodeIdDataSelector((picker) => picker(nodeId, 'Date')?.item?.value, [nodeId]);
+    const format = nodeIdDataSelector((picker) => picker(nodeId, 'Date')?.item?.format, [nodeId]);
 
     if (dateString === undefined) {
       return '';

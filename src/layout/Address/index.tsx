@@ -22,9 +22,8 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     },
   );
 
-  getDisplayData(node: LayoutNode<'Address'>, { nodeFormDataSelector }: DisplayDataProps): string {
-    const data = nodeFormDataSelector(node);
-    return Object.values(data).join(' ');
+  getDisplayData({ formData }: DisplayDataProps<'Address'>): string {
+    return Object.values(formData ?? {}).join(' ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Address'>): JSX.Element | null {

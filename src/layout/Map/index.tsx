@@ -11,7 +11,6 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Map extends MapDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Map'>>(
@@ -20,8 +19,8 @@ export class Map extends MapDef {
     },
   );
 
-  getDisplayData(node: LayoutNode<'Map'>, { nodeFormDataSelector }: DisplayDataProps): string {
-    const location = parseLocation(nodeFormDataSelector(node).simpleBinding);
+  getDisplayData({ formData }: DisplayDataProps<'Map'>): string {
+    const location = parseLocation(formData?.simpleBinding);
     return location ? `${location.latitude}, ${location.longitude}` : '';
   }
 

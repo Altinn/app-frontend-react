@@ -8,11 +8,10 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Text extends TextDef {
-  getDisplayData(node: LayoutNode<'Text'>, { nodeDataSelector }: DisplayDataProps): string {
-    const text = nodeDataSelector((picker) => picker(node)?.item?.value, [node]);
+  getDisplayData({ nodeIdDataSelector, nodeId }: DisplayDataProps<'Text'>): string {
+    const text = nodeIdDataSelector((picker) => picker(nodeId, 'Text')?.item?.value, [nodeId]);
     if (!text) {
       return '';
     }

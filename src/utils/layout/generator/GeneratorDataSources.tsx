@@ -53,6 +53,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     attachmentsSelector,
     optionsSelector,
     nodeDataSelector,
+    nodeIdDataSelector,
     dataSelectorForTraversal,
     isHiddenSelector,
     dataElementSelector,
@@ -63,6 +64,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     NodesInternal.useAttachmentsSelectorProps(),
     NodesInternal.useNodeOptionsSelectorProps(),
     NodesInternal.useNodeDataSelectorProps(),
+    NodesInternal.useNodeIdDataSelectorProps(),
     NodesInternal.useDataSelectorForTraversalProps(),
     Hidden.useIsHiddenSelectorProps(),
     useLaxDataElementsSelectorProps(),
@@ -79,13 +81,13 @@ function useExpressionDataSources(): ExpressionDataSources {
   const externalApis = hooks.useExternalApis();
   const roles = hooks.useCurrentPartyRoles();
   const nodeTraversal = useInnerNodeTraversalSelector(useNodes(), dataSelectorForTraversal);
-  const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
+  const transposeSelector = useInnerDataModelBindingTranspose(nodeIdDataSelector);
   const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
     hooks.useDefaultDataType(),
     dataModelNames,
     formDataSelector,
-    nodeDataSelector,
+    nodeIdDataSelector,
   );
 
   return useShallowMemo({
@@ -95,6 +97,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     attachmentsSelector,
     optionsSelector,
     nodeDataSelector,
+    nodeIdDataSelector,
     process,
     applicationSettings,
     instanceDataSources,

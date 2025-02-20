@@ -26,16 +26,13 @@ export class LikertItem extends LikertItemDef {
     },
   );
 
-  getDisplayData(
-    node: LayoutNode<'LikertItem'>,
-    { langTools, optionsSelector, nodeFormDataSelector }: DisplayDataProps,
-  ): string {
-    const value = String(nodeFormDataSelector(node).simpleBinding ?? '');
+  getDisplayData({ langTools, optionsSelector, formData, nodeId }: DisplayDataProps<'LikertItem'>): string {
+    const value = String(formData?.simpleBinding ?? '');
     if (!value) {
       return '';
     }
 
-    const { options } = optionsSelector(node);
+    const { options } = optionsSelector(nodeId);
     return getSelectedValueToText(value, langTools, options) || '';
   }
 
