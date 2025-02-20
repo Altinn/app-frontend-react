@@ -13,15 +13,17 @@ import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { PartyType } from 'src/types/shared';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IRawTextResource } from 'src/features/language/textResources';
-import type { IAppLanguage, IParty } from 'src/types/shared';
+import type { IAppLanguage, IParty, IProfile } from 'src/types/shared';
 
 describe('presentation/AppHeader', () => {
-  const partyPerson = {
-    name: 'Test Testesen',
-    ssn: '01010000000',
-    partyId: 12345,
-    partyTypeName: PartyType.Person,
-  } as IParty;
+  const userPerson = {
+    party: {
+      name: 'Test Testesen',
+      ssn: '01010000000',
+      partyId: 12345,
+      partyTypeName: PartyType.Person,
+    },
+  } as IProfile & { party: IParty };
 
   const partyOrg = {
     orgNumber: '12345678',
@@ -34,7 +36,7 @@ describe('presentation/AppHeader', () => {
 
   interface IRenderComponentProps {
     party: IParty;
-    user?: IParty;
+    user?: IProfile;
     logo?: ApplicationMetadata['logoOptions'];
     showLanguageSelector?: boolean;
     languageResponse?: IAppLanguage[];
@@ -42,7 +44,7 @@ describe('presentation/AppHeader', () => {
   }
   const render = async ({
     party,
-    user = partyPerson,
+    user = userPerson,
     logo,
     showLanguageSelector = false,
     textResources = [],
@@ -53,7 +55,7 @@ describe('presentation/AppHeader', () => {
       renderer: () => (
         <AppHeader
           party={party}
-          userParty={user}
+          user={user}
           logoColor={LogoColor.blueDarker}
           headerBackgroundColor={headerBackgroundColor}
         />
@@ -91,14 +93,14 @@ describe('presentation/AppHeader', () => {
   });
 
   it('Should render Altinn logo if logo options are not set', async () => {
-    await render({ party: partyPerson });
+    await render({ party: userPerson.party });
     const mockLogo = getLogoMock().replace('black', LogoColor.blueDarker);
     expect(screen.getByRole('img')).toHaveAttribute('src', `data:image/svg+xml;utf8,${encodeURIComponent(mockLogo)}`);
   });
 
   it('Should render Organisation logo if logo options are set', async () => {
     await render({
-      party: partyPerson,
+      party: userPerson.party,
       logo: { source: 'org', displayAppOwnerNameInHeader: false },
     });
     expect(screen.getByRole('img')).toHaveAttribute('src', 'https://altinncdn.no/orgs/mockOrg/mockOrg.png');
@@ -106,7 +108,7 @@ describe('presentation/AppHeader', () => {
 
   it('should render and change app language', async () => {
     await render({
-      party: partyPerson,
+      party: userPerson.party,
       showLanguageSelector: true,
     });
 
@@ -121,7 +123,7 @@ describe('presentation/AppHeader', () => {
 
   it('should render app language with custom labels', async () => {
     await render({
-      party: partyPerson,
+      party: userPerson.party,
       showLanguageSelector: true,
       textResources: [
         { id: 'language.language_selection', value: 'Språkvalg test' },
