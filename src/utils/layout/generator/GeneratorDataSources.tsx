@@ -52,7 +52,6 @@ function useExpressionDataSources(): ExpressionDataSources {
     formDataRowsSelector,
     attachmentsSelector,
     optionsSelector,
-    nodeDataSelector,
     nodeIdDataSelector,
     dataSelectorForTraversal,
     isHiddenSelector,
@@ -63,7 +62,6 @@ function useExpressionDataSources(): ExpressionDataSources {
     FD.useDebouncedRowsSelectorProps(),
     NodesInternal.useAttachmentsSelectorProps(),
     NodesInternal.useNodeOptionsSelectorProps(),
-    NodesInternal.useNodeDataSelectorProps(),
     NodesInternal.useNodeIdDataSelectorProps(),
     NodesInternal.useDataSelectorForTraversalProps(),
     Hidden.useIsHiddenSelectorProps(),
@@ -82,7 +80,7 @@ function useExpressionDataSources(): ExpressionDataSources {
   const roles = hooks.useCurrentPartyRoles();
   const nodeTraversal = useInnerNodeTraversalSelector(useNodes(), dataSelectorForTraversal);
   const transposeSelector = useInnerDataModelBindingTranspose(nodeIdDataSelector);
-  const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
+  const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeIdDataSelector, formDataSelector);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
     hooks.useDefaultDataType(),
     dataModelNames,
@@ -96,7 +94,6 @@ function useExpressionDataSources(): ExpressionDataSources {
     formDataRowsSelector,
     attachmentsSelector,
     optionsSelector,
-    nodeDataSelector,
     nodeIdDataSelector,
     process,
     applicationSettings,

@@ -9,7 +9,7 @@ import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
+import type { NodeIdDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeData, NodeItemFromNode } from 'src/utils/layout/types';
 import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
@@ -98,15 +98,18 @@ export function useNodeFormData<N extends LayoutNode | undefined>(node: N): Node
 
 export type NodeFormDataSelector = ReturnType<typeof useNodeFormDataSelector>;
 export function useNodeFormDataSelector() {
-  const nodeSelector = NodesInternal.useNodeDataSelector();
+  const nodeIdSelector = NodesInternal.useNodeIdDataSelector();
   const formDataSelector = FD.useDebouncedSelector();
 
-  return useInnerNodeFormDataSelector(nodeSelector, formDataSelector);
+  return useInnerNodeFormDataSelector(nodeIdSelector, formDataSelector);
 }
-export function useInnerNodeFormDataSelector(nodeSelector: NodeDataSelector, formDataSelector: FormDataSelector) {
+export function useInnerNodeFormDataSelector(nodeSelector: NodeIdDataSelector, formDataSelector: FormDataSelector) {
   return useCallback(
     <N extends LayoutNode | undefined>(node: N): NodeFormData<N> => {
-      const dataModelBindings = nodeSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
+      const dataModelBindings = nodeSelector(
+        (picker) => picker(node?.id, node?.type)?.layout.dataModelBindings,
+        [node],
+      );
       return dataModelBindings
         ? (getNodeFormData(dataModelBindings, formDataSelector) as NodeFormData<N>)
         : (emptyObject as NodeFormData<N>);
