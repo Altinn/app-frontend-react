@@ -5,7 +5,7 @@ import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { Caption } from 'src/components/form/caption/Caption';
-import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
@@ -138,7 +138,7 @@ type DataRowProps = {
 
 function DataRow({ row, node, index, pdfModeActive, columnSettings }: DataRowProps) {
   const cellNodes = useTableNodes(node, index);
-  const displayDataProps = useDisplayDataProps();
+  const displayData = useDisplayData(node);
 
   return (
     <Table.Row>
@@ -151,9 +151,7 @@ function DataRow({ row, node, index, pdfModeActive, columnSettings }: DataRowPro
           <DataCell
             key={node.id}
             node={node}
-            displayData={
-              ('getDisplayData' in node.def && node.def.getDisplayData(node as never, displayDataProps)) ?? ''
-            }
+            displayData={displayData}
             columnSettings={columnSettings}
           />
         ),

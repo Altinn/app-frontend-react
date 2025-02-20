@@ -27,8 +27,12 @@ export function useDisplayDataProps(): DisplayDataProps {
   });
 }
 
-export function useDisplayData<Type extends CompTypes>(node: LayoutNode<Type>): string {
+export function useDisplayData<Type extends CompTypes>(node: LayoutNode<Type> | undefined): string {
   const props = useDisplayDataProps();
+  if (!node) {
+    return '';
+  }
+
   const def = node.def as DisplayData<Type>;
   return def.getDisplayData(node, props);
 }
