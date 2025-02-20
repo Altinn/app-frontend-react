@@ -981,15 +981,15 @@ export const Hidden = {
   },
 };
 
-export type NodeIdDataSelector = ReturnType<typeof NodesInternal.useNodeIdDataSelector>;
-export type LaxNodeIdDataSelector = ReturnType<typeof NodesInternal.useLaxNodeIdDataSelector>;
+export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
+export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
 
 export type NodeIdPicker = <T extends CompTypes = CompTypes>(
   id: string | undefined,
   type: T | undefined,
 ) => NodeData<T> | undefined;
 
-function selectNodeIdData<T extends CompTypes = CompTypes>(
+function selectNodeData<T extends CompTypes = CompTypes>(
   id: string | undefined,
   type: T | undefined,
   state: NodesContext,
@@ -1021,9 +1021,7 @@ function getNodeData<N extends LayoutNode | undefined, Out>(
   selector: (nodeData: NodeDataFromNode<N>) => Out,
   preferFreshData = false,
 ) {
-  return node
-    ? selector(selectNodeIdData(node.id, node.type, state, preferFreshData) as NodeDataFromNode<N>)
-    : undefined;
+  return node ? selector(selectNodeData(node.id, node.type, state, preferFreshData) as NodeDataFromNode<N>) : undefined;
 }
 
 /**
@@ -1236,30 +1234,30 @@ export const NodesInternal = {
       [waitForState, node, selector],
     );
   },
-  useNodeIdDataSelector: () => {
+  useNodeDataSelector: () => {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return Store.useDelayedSelector({
       mode: 'innerSelector',
       makeArgs: (state) => [
-        ((id, type = undefined) => selectNodeIdData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
+        ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
       ],
     });
   },
-  useLaxNodeIdDataSelector: () => {
+  useLaxNodeDataSelector: () => {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return Store.useLaxDelayedSelector({
       mode: 'innerSelector',
       makeArgs: (state) => [
-        ((id, type = undefined) => selectNodeIdData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
+        ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
       ],
     });
   },
-  useNodeIdDataSelectorProps: () => {
+  useNodeDataSelectorProps: () => {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return Store.useDelayedSelectorProps({
       mode: 'innerSelector',
       makeArgs: (state) => [
-        ((id, type = undefined) => selectNodeIdData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
+        ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
       ],
     });
   },

@@ -52,7 +52,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     formDataRowsSelector,
     attachmentsSelector,
     optionsSelector,
-    nodeIdDataSelector,
+    nodeDataSelector,
     dataSelectorForTraversal,
     isHiddenSelector,
     dataElementSelector,
@@ -62,7 +62,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     FD.useDebouncedRowsSelectorProps(),
     NodesInternal.useAttachmentsSelectorProps(),
     NodesInternal.useNodeOptionsSelectorProps(),
-    NodesInternal.useNodeIdDataSelectorProps(),
+    NodesInternal.useNodeDataSelectorProps(),
     NodesInternal.useDataSelectorForTraversalProps(),
     Hidden.useIsHiddenSelectorProps(),
     useLaxDataElementsSelectorProps(),
@@ -79,13 +79,13 @@ function useExpressionDataSources(): ExpressionDataSources {
   const externalApis = hooks.useExternalApis();
   const roles = hooks.useCurrentPartyRoles();
   const nodeTraversal = useInnerNodeTraversalSelector(useNodes(), dataSelectorForTraversal);
-  const transposeSelector = useInnerDataModelBindingTranspose(nodeIdDataSelector);
-  const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeIdDataSelector, formDataSelector);
+  const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
+  const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
     hooks.useDefaultDataType(),
     dataModelNames,
     formDataSelector,
-    nodeIdDataSelector,
+    nodeDataSelector,
   );
 
   return useShallowMemo({
@@ -94,7 +94,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     formDataRowsSelector,
     attachmentsSelector,
     optionsSelector,
-    nodeIdDataSelector,
+    nodeDataSelector,
     process,
     applicationSettings,
     instanceDataSources,
@@ -124,7 +124,7 @@ function useValidationDataSources(): ValidationDataSources {
     FD.useDebouncedSelectorProps(),
     FD.useInvalidDebouncedSelectorProps(),
     NodesInternal.useAttachmentsSelectorProps(),
-    NodesInternal.useNodeIdDataSelectorProps(),
+    NodesInternal.useNodeDataSelectorProps(),
     useLaxDataElementsSelectorProps(),
     Validation.useDataElementHasErrorsSelectorProps(),
   );

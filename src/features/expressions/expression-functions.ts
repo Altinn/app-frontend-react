@@ -381,7 +381,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     const closest = this.dataSources.nodeTraversal((t) => t.with(node).closestId(id), [node, id]);
 
     const dataModelBindings = closest
-      ? this.dataSources.nodeIdDataSelector(
+      ? this.dataSources.nodeDataSelector(
           (picker) => picker(closest?.id, closest?.type)?.layout.dataModelBindings,
           [closest],
         )
@@ -500,7 +500,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       optionsSelector: this.dataSources.optionsSelector,
       langTools: this.dataSources.langToolsSelector(targetNode),
       currentLanguage: this.dataSources.currentLanguage,
-      nodeIdDataSelector: this.dataSources.nodeIdDataSelector,
+      nodeDataSelector: this.dataSources.nodeDataSelector,
       formData: this.dataSources.nodeFormDataSelector(targetNode),
       nodeId: targetNode.id,
     });

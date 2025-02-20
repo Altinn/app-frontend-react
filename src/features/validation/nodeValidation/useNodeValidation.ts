@@ -6,7 +6,7 @@ import type { AnyValidation, BaseValidation } from 'src/features/validation';
 import type { CompDef, ValidationFilter } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeIdDataSelector } from 'src/utils/layout/NodesContext';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 const emptyArray: AnyValidation[] = [];
 
@@ -62,7 +62,7 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
 function filter<Validation extends BaseValidation>(
   validations: Validation[],
   node: LayoutNode,
-  selector: NodeIdDataSelector,
+  selector: NodeDataSelector,
 ): Validation[] {
   if (!implementsValidationFilter(node.def)) {
     return validations;

@@ -29,7 +29,7 @@ import type { FormDataSelector } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LaxNodeIdDataSelector } from 'src/utils/layout/NodesContext';
+import type { LaxNodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
 
 type SimpleLangParam = string | number | undefined;
@@ -135,19 +135,19 @@ export function useLanguageWithForcedNodeSelector() {
   const defaultDataType = DataModels.useLaxDefaultDataType();
   const formDataTypes = DataModels.useLaxReadableDataTypes();
   const formDataSelector = FD.useLaxDebouncedSelector();
-  const nodeIdDataSelector = NodesInternal.useLaxNodeIdDataSelector();
+  const nodeDataSelector = NodesInternal.useLaxNodeDataSelector();
 
-  return useInnerLanguageWithForcedNodeSelector(defaultDataType, formDataTypes, formDataSelector, nodeIdDataSelector);
+  return useInnerLanguageWithForcedNodeSelector(defaultDataType, formDataTypes, formDataSelector, nodeDataSelector);
 }
 
 export function useInnerLanguageWithForcedNodeSelector(
   defaultDataType: string | typeof ContextNotProvided | undefined,
   formDataTypes: string[] | typeof ContextNotProvided,
   formDataSelector: FormDataSelector | typeof ContextNotProvided,
-  nodeIdDataSelector: LaxNodeIdDataSelector,
+  nodeDataSelector: LaxNodeDataSelector,
 ) {
   const sources = useLangToolsDataSources();
-  const transposeSelector = useInnerDataModelBindingTranspose(nodeIdDataSelector);
+  const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
 
   return useCallback(
     (node: LayoutNode | string | undefined) => {

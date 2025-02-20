@@ -101,7 +101,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
 
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
-  const nodeDataSelector = NodesInternal.useNodeIdDataSelector();
+  const nodeDataSelector = NodesInternal.useNodeDataSelector();
   const tableNodes = useTableNodes(node, index);
   const displayDataProps = useDisplayDataProps();
   const nodeFormDataSelector = useNodeFormDataSelector();

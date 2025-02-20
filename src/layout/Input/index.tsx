@@ -23,13 +23,13 @@ export class Input extends InputDef {
     },
   );
 
-  getDisplayData({ currentLanguage, formData, nodeId, nodeIdDataSelector }: DisplayDataProps<'Input'>): string {
+  getDisplayData({ currentLanguage, formData, nodeId, nodeDataSelector }: DisplayDataProps<'Input'>): string {
     const text = formData?.simpleBinding || '';
     if (!text) {
       return '';
     }
 
-    const formatting = nodeIdDataSelector((picker) => picker(nodeId, 'Input')?.item?.formatting, [nodeId]);
+    const formatting = nodeDataSelector((picker) => picker(nodeId, 'Input')?.item?.formatting, [nodeId]);
     const numberFormatting = getMapToReactNumberConfig(formatting, text, currentLanguage);
 
     if (numberFormatting?.number) {

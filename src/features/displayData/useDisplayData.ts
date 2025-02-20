@@ -14,14 +14,14 @@ export function useDisplayDataProps(): Omit<DisplayDataProps, 'formData' | 'node
   const optionsSelector = useNodeOptionsSelector();
   const attachmentsSelector = useAttachmentsSelector();
   const currentLanguage = useCurrentLanguage();
-  const nodeIdDataSelector = NodesInternal.useNodeIdDataSelector();
+  const nodeDataSelector = NodesInternal.useNodeDataSelector();
 
   return useShallowMemo({
     optionsSelector,
     attachmentsSelector,
     langTools,
     currentLanguage,
-    nodeIdDataSelector,
+    nodeDataSelector,
   });
 }
 

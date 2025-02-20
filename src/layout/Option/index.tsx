@@ -11,8 +11,8 @@ import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Option extends OptionDef {
-  getDisplayData({ nodeIdDataSelector, nodeId, optionsSelector, langTools }: DisplayDataProps<'Option'>): string {
-    const value = nodeIdDataSelector((picker) => picker(nodeId, 'Option')?.item?.value, [nodeId]) ?? '';
+  getDisplayData({ nodeDataSelector, nodeId, optionsSelector, langTools }: DisplayDataProps<'Option'>): string {
+    const value = nodeDataSelector((picker) => picker(nodeId, 'Option')?.item?.value, [nodeId]) ?? '';
     const { options } = optionsSelector(nodeId);
     return getSelectedValueToText(value, langTools, options) || '';
   }

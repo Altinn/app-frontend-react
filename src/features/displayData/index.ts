@@ -3,7 +3,7 @@ import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
 import type { CompTypes } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
-import type { NodeIdDataSelector } from 'src/utils/layout/NodesContext';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 /** @see useDisplayDataProps */
 export interface DisplayDataProps<Type extends CompTypes = CompTypes> {
@@ -11,7 +11,7 @@ export interface DisplayDataProps<Type extends CompTypes = CompTypes> {
   optionsSelector: NodeOptionsSelector;
   langTools: IUseLanguage;
   currentLanguage: string;
-  nodeIdDataSelector: NodeIdDataSelector;
+  nodeDataSelector: NodeDataSelector;
   formData: IComponentFormData<Type> | undefined;
   nodeId: string;
 }

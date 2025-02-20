@@ -6,7 +6,7 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LaxNodeIdDataSelector } from 'src/utils/layout/NodesContext';
+import type { LaxNodeDataSelector } from 'src/utils/layout/NodesContext';
 
 export type DataModelTransposeSelector = ReturnType<typeof useDataModelBindingTranspose>;
 
@@ -26,22 +26,22 @@ export type DataModelTransposeSelector = ReturnType<typeof useDataModelBindingTr
  * the current row indexes: 'MyModel.Group[1].NestedGroup[2].Age' unless you pass overwriteOtherIndices = false.
  */
 export function useDataModelBindingTranspose() {
-  const selector = NodesInternal.useLaxNodeIdDataSelector();
+  const selector = NodesInternal.useLaxNodeDataSelector();
   return useInnerDataModelBindingTranspose(selector);
 }
-export function useInnerDataModelBindingTranspose(nodeIdDataSelector: LaxNodeIdDataSelector) {
+export function useInnerDataModelBindingTranspose(nodeDataSelector: LaxNodeDataSelector) {
   return useCallback(
     (node: LayoutNode | string, subject: IDataModelReference, _rowIndex?: number) => {
       const { currentLocation, currentLocationIsRepGroup, foundRowIndex } = firstDataModelBinding(
         node,
-        nodeIdDataSelector,
+        nodeDataSelector,
       );
       const rowIndex = _rowIndex ?? foundRowIndex;
       return currentLocation
         ? transposeDataBinding({ subject, currentLocation, rowIndex, currentLocationIsRepGroup })
         : subject;
     },
-    [nodeIdDataSelector],
+    [nodeDataSelector],
   );
 }
 
@@ -51,14 +51,14 @@ export function useInnerDataModelBindingTranspose(nodeIdDataSelector: LaxNodeIdD
  */
 function firstDataModelBinding(
   node: LayoutNode | string,
-  nodeIdDataSelector: LaxNodeIdDataSelector,
+  nodeDataSelector: LaxNodeDataSelector,
   rowIndex?: number,
 ): {
   currentLocation: IDataModelReference | undefined;
   currentLocationIsRepGroup: boolean;
   foundRowIndex: number | undefined;
 } {
-  const data = nodeIdDataSelector(
+  const data = nodeDataSelector(
     (picker) => {
       const nodeData = picker(node instanceof BaseLayoutNode ? node.id : node);
       if (!nodeData) {
@@ -100,5 +100,5 @@ function firstDataModelBinding(
     };
   }
 
-  return firstDataModelBinding(parentId, nodeIdDataSelector, nodeRowIndex);
+  return firstDataModelBinding(parentId, nodeDataSelector, nodeRowIndex);
 }

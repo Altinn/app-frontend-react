@@ -18,7 +18,7 @@ import type { GroupExpressions, RepGroupInternal, RepGroupRowExtras } from 'src/
 import type { RepeatingGroupSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeIdDataSelector } from 'src/utils/layout/NodesContext';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeData } from 'src/utils/layout/types';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
@@ -144,7 +144,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     );
   }
 
-  getValidationFilters(node: LayoutNode<'RepeatingGroup'>, selector: NodeIdDataSelector): ValidationFilterFunction[] {
+  getValidationFilters(node: LayoutNode<'RepeatingGroup'>, selector: NodeDataSelector): ValidationFilterFunction[] {
     if (selector((picker) => picker(node.id, 'RepeatingGroup')?.item?.minCount ?? 0, [node.id]) > 0) {
       return [this.schemaMinItemsFilter];
     }

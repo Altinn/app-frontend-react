@@ -14,14 +14,14 @@ import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Number extends NumberDef {
-  getDisplayData({ currentLanguage, nodeIdDataSelector, nodeId }: DisplayDataProps<'Number'>): string {
-    const number = nodeIdDataSelector((picker) => picker(nodeId, 'Number')?.item?.value, [nodeId]);
+  getDisplayData({ currentLanguage, nodeDataSelector, nodeId }: DisplayDataProps<'Number'>): string {
+    const number = nodeDataSelector((picker) => picker(nodeId, 'Number')?.item?.value, [nodeId]);
     if (number === undefined || isNaN(number)) {
       return '';
     }
 
     const text = number.toString();
-    const formatting = nodeIdDataSelector((picker) => picker(nodeId, 'Number')?.item?.formatting, [nodeId]);
+    const formatting = nodeDataSelector((picker) => picker(nodeId, 'Number')?.item?.formatting, [nodeId]);
     const numberFormatting = getMapToReactNumberConfig(formatting, text, currentLanguage);
 
     if (numberFormatting?.number) {

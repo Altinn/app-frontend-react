@@ -28,7 +28,7 @@ import type {
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeIdDataSelector } from 'src/utils/layout/NodesContext';
+import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 export class Datepicker extends DatepickerDef implements ValidateComponent<'Datepicker'>, ValidationFilter {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Datepicker'>>(
@@ -37,13 +37,13 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     },
   );
 
-  getDisplayData({ currentLanguage, formData, nodeId, nodeIdDataSelector }: DisplayDataProps<'Datepicker'>): string {
+  getDisplayData({ currentLanguage, formData, nodeId, nodeDataSelector }: DisplayDataProps<'Datepicker'>): string {
     const data = formData?.simpleBinding ?? '';
     if (!data) {
       return '';
     }
 
-    const format = nodeIdDataSelector((picker) => picker(nodeId, 'Datepicker')?.item?.format, [nodeId]);
+    const format = nodeDataSelector((picker) => picker(nodeId, 'Datepicker')?.item?.format, [nodeId]);
     const dateFormat = getDateFormat(format, currentLanguage);
     return formatISOString(data, dateFormat) ?? data;
   }
@@ -156,7 +156,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     );
   }
 
-  getValidationFilters(node: LayoutNode<'Datepicker'>, selector: NodeIdDataSelector): ValidationFilterFunction[] {
+  getValidationFilters(node: LayoutNode<'Datepicker'>, selector: NodeDataSelector): ValidationFilterFunction[] {
     const filters = [Datepicker.schemaFormatFilter];
 
     if (selector((picker) => picker(node.id, 'Datepicker')?.item?.minDate, [node.id])) {

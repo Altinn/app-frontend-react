@@ -24,10 +24,10 @@ export class List extends ListDef {
     },
   );
 
-  getDisplayData({ formData, nodeId, nodeIdDataSelector }: DisplayDataProps<'List'>): string {
-    const dmBindings = nodeIdDataSelector((picker) => picker(nodeId, 'List')?.layout.dataModelBindings, [nodeId]);
-    const summaryBinding = nodeIdDataSelector((picker) => picker(nodeId, 'List')?.item?.summaryBinding, [nodeId]);
-    const legacySummaryBinding = nodeIdDataSelector(
+  getDisplayData({ formData, nodeId, nodeDataSelector }: DisplayDataProps<'List'>): string {
+    const dmBindings = nodeDataSelector((picker) => picker(nodeId, 'List')?.layout.dataModelBindings, [nodeId]);
+    const summaryBinding = nodeDataSelector((picker) => picker(nodeId, 'List')?.item?.summaryBinding, [nodeId]);
+    const legacySummaryBinding = nodeDataSelector(
       (picker) => picker(nodeId, 'List')?.item?.bindingToShowInSummary,
       [nodeId],
     );
