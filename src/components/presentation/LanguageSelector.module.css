@@ -1,22 +1,20 @@
-.left-icon {
+.icon {
   font-size: 1.25rem;
-}
-
-.button-active {
-  background-color: var(--fds-semantic-surface-action-first-no_fill-active);
-  color: var(--fds-semantic-text-action-first-active);
 }
 
 .flip-vertical {
   transform: rotate(180deg);
 }
 
-.right-icon {
-  font-size: 1.25rem;
-  margin-left: 4px;
+.checkmark {
+  margin-left: -4px;
 }
 
-.checkmark-icon {
-  font-size: 1.25rem;
-  margin-left: -4px;
+.button {
+  column-gap: 8px;
+}
+
+.button-active {
+  background-color: var(--fds-semantic-surface-action-first-no_fill-active);
+  color: var(--fds-semantic-text-action-first-active);
 }

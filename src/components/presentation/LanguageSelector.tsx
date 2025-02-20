@@ -43,16 +43,15 @@ export const LanguageSelector = () => {
         variant='tertiary'
         onClick={() => setIsOpen((o) => !o)}
         aria-label={langAsString('language.language_selection')}
-        className={cn({ [classes.buttonActive]: isOpen })}
+        className={cn(classes.button, { [classes.buttonActive]: isOpen })}
       >
         <GlobeIcon
-          className={classes.leftIcon}
-          style={{ marginRight: !isMobile ? 4 : 0 }}
+          className={classes.icon}
           aria-hidden
         />
         {!isMobile && <Lang id='language.language_selection' />}
         <ChevronDownIcon
-          className={cn(classes.rightIcon, { [classes.flipVertical]: isOpen })}
+          className={cn(classes.icon, { [classes.flipVertical]: isOpen })}
           aria-hidden
         />
       </DropdownMenu.Trigger>
@@ -70,7 +69,7 @@ export const LanguageSelector = () => {
               >
                 <CheckmarkIcon
                   style={{ opacity: selected ? 1 : 0 }}
-                  className={classes.checkmarkIcon}
+                  className={cn(classes.icon, classes.checkmark)}
                   aria-hidden
                 />
                 <Lang id={`language.full_name.${lang}`} />
