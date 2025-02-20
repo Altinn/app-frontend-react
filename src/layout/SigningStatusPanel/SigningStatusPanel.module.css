@@ -25,6 +25,7 @@
     padding: var(--fds-spacing-4) 0;
     display: flex;
     gap: var(--fds-spacing-4);
+    flex-wrap: wrap;
   }
 }
 
