@@ -9,6 +9,7 @@ import {
   getDateFormat,
   strictParseISO,
 } from 'src/app-components/Datepicker/utils/dateHelpers';
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { DatepickerDef } from 'src/layout/Datepicker/config.def.generated';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
@@ -51,7 +52,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Datepicker'>): JSX.Element | null {
-    const displayData = this.useDisplayData(targetNode);
+    const displayData = useDisplayData(targetNode);
     return (
       <SummaryItemSimple
         formDataAsString={displayData}

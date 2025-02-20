@@ -17,5 +17,4 @@ export interface DisplayDataProps {
 
 export interface DisplayData<Type extends CompTypes> {
   getDisplayData(node: LayoutNode<Type>, displayDataProps: DisplayDataProps): string;
-  useDisplayData(node: LayoutNode<Type>): string;
 }

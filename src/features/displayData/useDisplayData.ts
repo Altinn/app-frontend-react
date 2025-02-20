@@ -5,7 +5,9 @@ import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
-import type { DisplayDataProps } from 'src/features/displayData/index';
+import type { DisplayData, DisplayDataProps } from 'src/features/displayData/index';
+import type { CompTypes } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function useDisplayDataProps(): DisplayDataProps {
   const langTools = useLanguage();
@@ -23,4 +25,10 @@ export function useDisplayDataProps(): DisplayDataProps {
     nodeFormDataSelector,
     nodeDataSelector,
   });
+}
+
+export function useDisplayData<Type extends CompTypes>(node: LayoutNode<Type>): string {
+  const props = useDisplayDataProps();
+  const def = node.def as DisplayData<Type>;
+  return def.getDisplayData(node, props);
 }

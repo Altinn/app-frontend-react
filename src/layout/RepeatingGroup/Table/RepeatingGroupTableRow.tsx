@@ -16,7 +16,6 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import { implementsDisplayData } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
@@ -29,7 +28,7 @@ import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange'
 import type { DisplayData } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
-import type { CompInternal, ITextResourceBindings } from 'src/layout/layout';
+import type { CompInternal, CompTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { GroupExpressions } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -105,14 +104,9 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
   const tableNodes = useTableNodes(node, index);
   const displayDataProps = useDisplayDataProps();
-  const displayData = tableNodes.map((node) => {
-    const def = node.def;
-    if (!implementsDisplayData(def)) {
-      return '';
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (def as DisplayData<any>).getDisplayData(node, displayDataProps);
+  const displayData = tableNodes.map(<T extends CompTypes>(node: LayoutNode<T>) => {
+    const def = node.def as DisplayData<T>;
+    return def.getDisplayData(node, displayDataProps);
   });
   const firstCellData = displayData.find((c) => !!c);
   const isEditingRow = isEditing(uuid);

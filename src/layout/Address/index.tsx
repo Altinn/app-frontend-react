@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { AddressSummary } from 'src/layout/Address/AddressSummary/AddressSummary';
@@ -27,7 +28,7 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Address'>): JSX.Element | null {
-    const data = this.useDisplayData(targetNode);
+    const data = useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={data} />;
   }
 

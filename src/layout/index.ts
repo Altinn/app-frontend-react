@@ -2,7 +2,6 @@ import type { MutableRefObject, ReactNode } from 'react';
 
 import { getComponentConfigs } from 'src/layout/components.generated';
 import type { CompBehaviors } from 'src/codegen/Config';
-import type { DisplayData } from 'src/features/displayData';
 import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
@@ -120,7 +119,3 @@ export interface ValidationFilter {
 
 export type FormDataSelector = (reference: IDataModelReference) => unknown;
 export type FormDataRowsSelector = (reference: IDataModelReference) => BaseRow[];
-
-export function implementsDisplayData<Def extends CompDef>(def: Def): def is Def & DisplayData<TypeFromDef<Def>> {
-  return 'getDisplayData' in def && 'useDisplayData' in def;
-}

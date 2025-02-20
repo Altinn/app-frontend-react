@@ -3,6 +3,7 @@ import type { JSX } from 'react';
 
 import { formatNumericText } from '@digdir/design-system-react';
 
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { InputDef } from 'src/layout/Input/config.def.generated';
 import { evalFormatting } from 'src/layout/Input/formatting';
@@ -43,7 +44,7 @@ export class Input extends InputDef {
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Input'>): JSX.Element | null {
-    const displayData = this.useDisplayData(targetNode);
+    const displayData = useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 

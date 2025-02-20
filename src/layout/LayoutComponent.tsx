@@ -6,7 +6,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
-import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { runEmptyFieldValidationAllBindings } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { CompCategory } from 'src/layout/common';
 import { getComponentCapabilities } from 'src/layout/index';
@@ -96,11 +96,6 @@ export abstract class AnyComponent<Type extends CompTypes> {
 
   getDisplayData(_node: LayoutNode<Type>, _displayDataProps: DisplayDataProps): string {
     return '';
-  }
-
-  useDisplayData(node: LayoutNode<Type>): string {
-    const displayDataProps = useDisplayDataProps();
-    return this.getDisplayData(node, displayDataProps);
   }
 
   /**
@@ -252,7 +247,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
    * rendered in a compact way. The default
    */
   public renderCompactSummary({ targetNode }: SummaryRendererProps<Type>): JSX.Element | null {
-    const displayData = this.useDisplayData(targetNode);
+    const displayData = useDisplayData(targetNode);
     return (
       <SummaryItemCompact
         targetNode={targetNode}
