@@ -13,6 +13,7 @@ import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { getNodeFormData } from 'src/utils/layout/useNodeItem';
 import type { DisplayData } from 'src/features/displayData';
 import type { EvaluateExpressionParams } from 'src/features/expressions';
 import type {
@@ -494,14 +495,13 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       return null;
     }
 
-    const def = targetNode.def as DisplayData<CompTypes>;
-    return def.getDisplayData({
+    return (targetNode.def as DisplayData<CompTypes>).getDisplayData({
       attachmentsSelector: this.dataSources.attachmentsSelector,
       optionsSelector: this.dataSources.optionsSelector,
       langTools: this.dataSources.langToolsSelector(targetNode),
       currentLanguage: this.dataSources.currentLanguage,
       nodeDataSelector: this.dataSources.nodeDataSelector,
-      formData: this.dataSources.nodeFormDataSelector(targetNode),
+      formData: getNodeFormData(targetNode.id, this.dataSources.nodeDataSelector, this.dataSources.formDataSelector),
       nodeId: targetNode.id,
     });
   },

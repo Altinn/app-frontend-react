@@ -23,7 +23,7 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeFormDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { getNodeFormData, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import type { DisplayData } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -104,13 +104,13 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
   const tableNodes = useTableNodes(node, index);
   const displayDataProps = useDisplayDataProps();
-  const nodeFormDataSelector = useNodeFormDataSelector();
+  const formDataSelector = FD.useDebouncedSelector();
   const displayData = tableNodes.map(<T extends CompTypes>(node: LayoutNode<T>) => {
     const def = node.def as DisplayData<T>;
     return def.getDisplayData({
       ...displayDataProps,
       nodeId: node.id,
-      formData: nodeFormDataSelector(node),
+      formData: getNodeFormData(node.id, nodeDataSelector, formDataSelector),
     });
   });
   const firstCellData = displayData.find((c) => !!c);
