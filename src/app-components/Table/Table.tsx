@@ -13,6 +13,7 @@ import type { FormDataValue } from 'src/app-components/DynamicForm/DynamicForm';
 
 interface Column<T> {
   header: React.ReactNode;
+  ariaLabel?: string;
   accessors: string[];
   renderCell?: (values: FormDataValue[], rowData: T, rowIndex: number) => React.ReactNode;
   enableInlineEditing?: boolean;
@@ -100,6 +101,7 @@ export function AppTable<T>({
               style={stickyHeader ? { zIndex: 2 } : {}}
               className={headerClassName}
               key={index}
+              aria-label={col.ariaLabel}
             >
               {col.header}
             </Table.HeaderCell>

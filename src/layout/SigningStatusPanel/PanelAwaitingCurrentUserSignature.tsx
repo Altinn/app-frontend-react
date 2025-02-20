@@ -91,7 +91,13 @@ export function AwaitingCurrentUserSignaturePanel({
     >
       <Checkbox
         value={String(confirmReadDocuments)}
+        checked={confirmReadDocuments}
         onChange={() => setConfirmReadDocuments(!confirmReadDocuments)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            setConfirmReadDocuments(!confirmReadDocuments);
+          }
+        }}
         className={classes.checkbox}
       >
         <Lang id={checkboxLabel} />
