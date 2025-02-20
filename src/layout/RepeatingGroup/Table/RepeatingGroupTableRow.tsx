@@ -101,7 +101,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
 
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
-  const nodeDataSelector = NodesInternal.useNodeDataSelector();
+  const nodeDataSelector = NodesInternal.useNodeIdDataSelector();
   const tableNodes = useTableNodes(node, index);
   const displayDataProps = useDisplayDataProps();
   const nodeFormDataSelector = useNodeFormDataSelector();
@@ -212,7 +212,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                     <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>
                       <Lang
                         id={getTableTitle(
-                          nodeDataSelector((picker) => picker(n)?.item?.textResourceBindings ?? {}, [n]),
+                          nodeDataSelector((picker) => picker(n.id, n.type)?.item?.textResourceBindings ?? {}, [n]),
                         )}
                       />
                       :

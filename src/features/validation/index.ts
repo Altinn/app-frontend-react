@@ -7,7 +7,7 @@ import type { DataElementHasErrorsSelector } from 'src/features/validation/valid
 import type { FormDataSelector } from 'src/layout';
 import type { ILayoutSets } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
+import type { NodeIdDataSelector } from 'src/utils/layout/NodesContext';
 
 export enum FrontendValidationSource {
   EmptyField = '__empty_field__',
@@ -230,7 +230,7 @@ export type ValidationDataSources = {
   formDataSelector: FormDataSelector;
   invalidDataSelector: FormDataSelector;
   attachmentsSelector: AttachmentsSelector;
-  nodeDataSelector: NodeDataSelector;
+  nodeDataSelector: NodeIdDataSelector;
   applicationMetadata: ApplicationMetadata;
   dataElementsSelector: DataElementSelector;
   layoutSets: ILayoutSets;

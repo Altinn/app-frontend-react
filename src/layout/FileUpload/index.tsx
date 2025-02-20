@@ -60,7 +60,10 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
     { attachmentsSelector, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
-    const minNumberOfAttachments = nodeDataSelector((picker) => picker(node)?.item?.minNumberOfAttachments, [node]);
+    const minNumberOfAttachments = nodeDataSelector(
+      (picker) => picker(node.id, 'FileUpload')?.item?.minNumberOfAttachments,
+      [node.id],
+    );
 
     // Validate minNumberOfAttachments
     const attachments = attachmentsSelector(node.id);

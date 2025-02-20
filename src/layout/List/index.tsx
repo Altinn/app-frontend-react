@@ -66,19 +66,25 @@ export class List extends ListDef {
   ): ComponentValidation[] {
     const required = nodeDataSelector(
       (picker) => {
-        const item = picker(node)?.item;
+        const item = picker(node.id, 'List')?.item;
         return item && 'required' in item ? item.required : false;
       },
-      [node],
+      [node.id],
     );
-    const dataModelBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
+    const dataModelBindings = nodeDataSelector(
+      (picker) => picker(node.id, 'List')?.layout.dataModelBindings,
+      [node.id],
+    );
     if (!required || !dataModelBindings) {
       return [];
     }
 
     const references = Object.values(dataModelBindings);
     const validations: ComponentValidation[] = [];
-    const textResourceBindings = nodeDataSelector((picker) => picker(node)?.item?.textResourceBindings, [node]);
+    const textResourceBindings = nodeDataSelector(
+      (picker) => picker(node.id, 'List')?.item?.textResourceBindings,
+      [node.id],
+    );
 
     let listHasErrors = false;
     for (const reference of references) {

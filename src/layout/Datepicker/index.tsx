@@ -28,7 +28,7 @@ import type {
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
+import type { NodeIdDataSelector } from 'src/utils/layout/NodesContext';
 
 export class Datepicker extends DatepickerDef implements ValidateComponent<'Datepicker'>, ValidationFilter {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Datepicker'>>(
@@ -72,7 +72,10 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     node: LayoutNode<'Datepicker'>,
     { formDataSelector, currentLanguage, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    const field = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings?.simpleBinding, [node]);
+    const field = nodeDataSelector(
+      (picker) => picker(node.id, 'Datepicker')?.layout.dataModelBindings?.simpleBinding,
+      [node.id],
+    );
     const data = field ? formDataSelector(field) : undefined;
     const dataAsString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
     if (!dataAsString) {
@@ -80,15 +83,15 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     }
 
     const minDate = getDateConstraint(
-      nodeDataSelector((picker) => picker(node)?.item?.minDate, [node]),
+      nodeDataSelector((picker) => picker(node.id, 'Datepicker')?.item?.minDate, [node.id]),
       'min',
     );
     const maxDate = getDateConstraint(
-      nodeDataSelector((picker) => picker(node)?.item?.maxDate, [node]),
+      nodeDataSelector((picker) => picker(node.id, 'Datepicker')?.item?.maxDate, [node.id]),
       'max',
     );
     const format = getDateFormat(
-      nodeDataSelector((picker) => picker(node)?.item?.format, [node]),
+      nodeDataSelector((picker) => picker(node.id, 'Datepicker')?.item?.format, [node.id]),
       currentLanguage,
     );
     const datePickerFormat = getDatepickerFormat(format).toUpperCase();
@@ -153,14 +156,14 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     );
   }
 
-  getValidationFilters(node: LayoutNode<'Datepicker'>, selector: NodeDataSelector): ValidationFilterFunction[] {
+  getValidationFilters(node: LayoutNode<'Datepicker'>, selector: NodeIdDataSelector): ValidationFilterFunction[] {
     const filters = [Datepicker.schemaFormatFilter];
 
-    if (selector((picker) => picker(node)?.item?.minDate, [node])) {
+    if (selector((picker) => picker(node.id, 'Datepicker')?.item?.minDate, [node.id])) {
       filters.push(Datepicker.schemaFormatMinimumFilter);
     }
 
-    if (selector((picker) => picker(node)?.item?.maxDate, [node])) {
+    if (selector((picker) => picker(node.id, 'Datepicker')?.item?.maxDate, [node.id])) {
       filters.push(Datepicker.schemaFormatMaximumFilter);
     }
 

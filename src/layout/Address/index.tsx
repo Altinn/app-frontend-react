@@ -43,7 +43,10 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     node: LayoutNode<'Address'>,
     { formDataSelector, nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    const dataModelBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
+    const dataModelBindings = nodeDataSelector(
+      (picker) => picker(node.id, 'Address')?.layout.dataModelBindings,
+      [node.id],
+    );
     if (!dataModelBindings) {
       return [];
     }

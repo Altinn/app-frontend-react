@@ -981,16 +981,6 @@ export const Hidden = {
   },
 };
 
-/** @deprecated Use NodeIdDataSelector instead */
-export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
-
-/** @deprecated Use LaxNodeIdDataSelector instead */
-export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
-
-/** @deprecated Use NodeIdDataSelector instead */
-export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefined>(node: N) => NodePickerReturns<N>;
-type NodePickerReturns<N extends LayoutNode | undefined> = NodeDataFromNode<N> | undefined;
-
 export type NodeIdDataSelector = ReturnType<typeof NodesInternal.useNodeIdDataSelector>;
 export type LaxNodeIdDataSelector = ReturnType<typeof NodesInternal.useLaxNodeIdDataSelector>;
 
@@ -1025,19 +1015,15 @@ function selectNodeIdData<T extends CompTypes = CompTypes>(
   return data as NodeData<T>;
 }
 
-function selectNodeData<N extends LayoutNode | undefined>(node: N, state: NodesContext, preferFreshData?: boolean) {
-  // It doesn't matter that this defaults to Group, because it will only happen if node is
-  // undefined (and when it has no data, we cannot check the type of that data either)
-  return selectNodeIdData(node?.id, node?.type ?? 'Group', state, preferFreshData) as NodePickerReturns<N>;
-}
-
 function getNodeData<N extends LayoutNode | undefined, Out>(
   node: N,
   state: NodesContext,
   selector: (nodeData: NodeDataFromNode<N>) => Out,
   preferFreshData = false,
 ) {
-  return node ? selector(selectNodeData(node, state, preferFreshData) as NodeDataFromNode<N>) : undefined;
+  return node
+    ? selector(selectNodeIdData(node.id, node.type, state, preferFreshData) as NodeDataFromNode<N>)
+    : undefined;
 }
 
 /**
@@ -1249,27 +1235,6 @@ export const NodesInternal = {
         }),
       [waitForState, node, selector],
     );
-  },
-  useNodeDataSelector: () => {
-    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
-    return Store.useDelayedSelector({
-      mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
-    });
-  },
-  useLaxNodeDataSelector: () => {
-    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
-    return Store.useLaxDelayedSelector({
-      mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
-    });
-  },
-  useNodeDataSelectorProps: () => {
-    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
-    return Store.useDelayedSelectorProps({
-      mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
-    });
   },
   useNodeIdDataSelector: () => {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();

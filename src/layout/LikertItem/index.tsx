@@ -7,12 +7,12 @@ import { runEmptyFieldValidationOnlySimpleBinding } from 'src/features/validatio
 import { LikertItemDef } from 'src/layout/LikertItem/config.def.generated';
 import { LikertItemComponent } from 'src/layout/LikertItem/LikertItemComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class LikertItem extends LikertItemDef {
   render = forwardRef<HTMLTableRowElement, PropsFromGenericComponent<'LikertItem'>>(
@@ -52,9 +52,13 @@ export class LikertItem extends LikertItemDef {
     const [answerErr] = this.validateDataModelBindingsAny(ctx, 'simpleBinding', ['string', 'number', 'boolean']);
     const errors: string[] = [...(answerErr ?? [])];
 
+    if (!(ctx.node.parent instanceof BaseLayoutNode) || !ctx.node.parent.isType('Likert')) {
+      throw new Error('LikertItem must have a parent of type "Likert"');
+    }
+    const parentId = ctx.node.parent.id;
     const parentBindings = ctx.nodeDataSelector(
-      (picker) => picker(ctx.node.parent as LayoutNode<'Likert'>)?.layout?.dataModelBindings,
-      [ctx.node.parent],
+      (picker) => picker(parentId, 'Likert')?.layout?.dataModelBindings,
+      [parentId],
     );
     const bindings = ctx.item.dataModelBindings;
 

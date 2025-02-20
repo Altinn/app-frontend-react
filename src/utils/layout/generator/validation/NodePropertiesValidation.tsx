@@ -30,7 +30,7 @@ export function NodePropertiesValidation<T extends CompTypes>(props: NodeValidat
 function DataModelValidation<T extends CompTypes>({ node, intermediateItem }: NodeValidationProps<T>) {
   const addError = NodesInternal.useAddError();
   const lookupBinding = DataModels.useLookupBinding();
-  const nodeDataSelector = NodesInternal.useNodeDataSelector();
+  const nodeDataSelector = NodesInternal.useNodeIdDataSelector();
 
   const errors = useMemo(() => {
     if (!lookupBinding || window.forceNodePropertiesValidation === 'off') {

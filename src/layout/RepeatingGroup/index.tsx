@@ -18,7 +18,7 @@ import type { GroupExpressions, RepGroupInternal, RepGroupRowExtras } from 'src/
 import type { RepeatingGroupSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
+import type { NodeIdDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeData } from 'src/utils/layout/types';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
@@ -104,17 +104,21 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     node: LayoutNode<'RepeatingGroup'>,
     { nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    const dataModelBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
+    const dataModelBindings = nodeDataSelector(
+      (picker) => picker(node.id, 'RepeatingGroup')?.layout.dataModelBindings,
+      [node.id],
+    );
     if (!dataModelBindings) {
       return [];
     }
 
     const validations: ComponentValidation[] = [];
     // check if minCount is less than visible rows
-    const minCount = nodeDataSelector((picker) => picker(node)?.item?.minCount, [node]) ?? 0;
+    const minCount = nodeDataSelector((picker) => picker(node.id, 'RepeatingGroup')?.item?.minCount, [node.id]) ?? 0;
     const visibleRows = nodeDataSelector(
-      (picker) => picker(node)?.item?.rows?.filter((row) => row && !row.groupExpressions?.hiddenRow).length,
-      [node],
+      (picker) =>
+        picker(node.id, 'RepeatingGroup')?.item?.rows?.filter((row) => row && !row.groupExpressions?.hiddenRow).length,
+      [node.id],
     );
 
     // Validate minCount
@@ -140,8 +144,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     );
   }
 
-  getValidationFilters(node: LayoutNode<'RepeatingGroup'>, selector: NodeDataSelector): ValidationFilterFunction[] {
-    if (selector((picker) => picker(node)?.item?.minCount ?? 0, [node]) > 0) {
+  getValidationFilters(node: LayoutNode<'RepeatingGroup'>, selector: NodeIdDataSelector): ValidationFilterFunction[] {
+    if (selector((picker) => picker(node.id, 'RepeatingGroup')?.item?.minCount ?? 0, [node.id]) > 0) {
       return [this.schemaMinItemsFilter];
     }
     return [];

@@ -124,7 +124,7 @@ function useValidationDataSources(): ValidationDataSources {
     FD.useDebouncedSelectorProps(),
     FD.useInvalidDebouncedSelectorProps(),
     NodesInternal.useAttachmentsSelectorProps(),
-    NodesInternal.useNodeDataSelectorProps(),
+    NodesInternal.useNodeIdDataSelectorProps(),
     useLaxDataElementsSelectorProps(),
     Validation.useDataElementHasErrorsSelectorProps(),
   );
