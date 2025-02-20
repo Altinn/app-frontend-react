@@ -76,6 +76,7 @@ export function SigningDocumentListComponent({
         },
         {
           header: null,
+          ariaLabel: langAsString('signing_document_list.download'),
           accessors: [],
           renderCell: (_, rowData) => (
             <Link
