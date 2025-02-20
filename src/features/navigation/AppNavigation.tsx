@@ -13,6 +13,7 @@ import {
   TasklistIcon,
   XMarkIcon,
 } from '@navikt/aksel-icons';
+import { useMutation } from '@tanstack/react-query';
 import cn from 'classnames';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -224,7 +225,9 @@ function PageGroupSingle({
   validations,
   onNavigate,
 }: PageGroupProps<NavigationPageGroupSingle>) {
-  const { navigateToPage } = useNavigatePage();
+  const { mutateAsync: navigateToPage, isPending: isNavigating } = useMutation({
+    mutationFn: useNavigatePage().navigateToPage,
+  });
   const [isProcessing, processing] = useProcessingContext();
   const page = group.order[0];
 

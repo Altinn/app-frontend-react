@@ -262,6 +262,9 @@ export function useNavigatePage() {
       if (options?.skipAutoSave !== true) {
         await maybeSaveOnPageChange();
       }
+      if (options?.exitSubform) {
+        await refetchInitialValidations();
+      }
 
       if (isStatelessApp) {
         return navigate(`/${page}${queryKeysRef.current}`, options, { replace }, () => focusMainContent(options));
@@ -293,7 +296,7 @@ export function useNavigatePage() {
       url = `${url}?${searchParams.toString()}`;
       navigate(url, options, { replace }, () => focusMainContent(options));
     },
-    [isStatelessApp, maybeSaveOnPageChange, navParams, navigate, orderRef, queryKeysRef],
+    [isStatelessApp, maybeSaveOnPageChange, navParams, navigate, orderRef, queryKeysRef, refetchInitialValidations],
   );
 
   const [_, setVisitedPages] = useVisitedPages();
@@ -351,7 +354,6 @@ export function useNavigatePage() {
       window.logWarn('Tried to close subform page while not in a subform.');
       return;
     }
-    await refetchInitialValidations();
 
     await navigateToPage(navParams.current.mainPageKey, {
       exitSubform: true,

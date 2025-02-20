@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
 import { Left } from '@navikt/ds-icons';
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
 import cn from 'classnames';
 
 import { Button } from 'src/app-components/Button/Button';
@@ -13,30 +13,21 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import { useIsProcessing } from 'src/hooks/useIsProcessing';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
 
 export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
-  const party = useCurrentParty();
+  const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
+  const party = useCurrentParty();
   const mainPageKey = useNavigationParam('mainPageKey');
   const isSubform = useIsSubformPage();
-  const { langAsString } = useLanguage();
-  const { exitSubform } = useNavigatePage();
   const { returnUrl, isFetchingReturnUrl } = useReturnUrl();
-  const [isProcessing, processing] = useIsProcessing<'exitSubform'>();
+  const { mutate: exitSubform, isPending: isExitingSubform } = useMutation({
+    mutationFn: useNavigatePage().exitSubform,
+  });
 
-  const handleBackToInbox = () => {
-    const messageBoxUrl = returnUrlToMessagebox(window.location.host, party?.partyId);
-    messageBoxUrl && window.location.assign(messageBoxUrl);
-  };
-
-  const handleReturn = () => {
-    returnUrl && window.location.assign(returnUrl);
-  };
-
-  const handleExitSubform = () => processing('exitSubform', exitSubform);
+  const messageBoxUrl = returnUrlToMessagebox(window.location.host, party?.partyId);
 
   if (isFetchingReturnUrl) {
     return (
@@ -48,34 +39,70 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
     );
   }
 
-  return (
+  if (isSubform) {
+    return (
+      <Button
+        onClick={() => exitSubform()}
+        disabled={isExitingSubform}
+        isLoading={isExitingSubform}
+        variant='tertiary'
+        size='sm'
+        {...props}
+        className={cn(classes.inboxButton, props.className)}
+      >
+        {!isExitingSubform && (
+          <Left
+            fontSize='1rem'
+            aria-hidden
+          />
+        )}
+        <Lang
+          id={isMobile ? 'navigation.main_form' : 'navigation.back_to_main_form'}
+          params={[{ key: mainPageKey }]}
+        />
+      </Button>
+    );
+  }
+
+  if (returnUrl) {
     <Button
-      onClick={isSubform ? handleExitSubform : returnUrl ? handleReturn : handleBackToInbox}
-      disabled={!!isProcessing}
-      isLoading={!!isProcessing}
+      asChild
       variant='tertiary'
       size='sm'
       {...props}
       className={cn(classes.inboxButton, props.className)}
     >
-      {!isProcessing && (
+      <a href={returnUrl}>
         <Left
           fontSize='1rem'
           aria-hidden
         />
-      )}
-      {isSubform ? (
-        <Lang
-          id={isMobile ? 'navigation.main_form' : 'navigation.back_to_main_form'}
-          params={[{ key: mainPageKey }]}
-        />
-      ) : returnUrl ? (
         <Lang id='navigation.back' />
-      ) : (
-        <Lang id={isMobile ? 'navigation.inbox' : 'navigation.back_to_inbox'} />
-      )}
-    </Button>
-  );
+      </a>
+    </Button>;
+  }
+
+  if (messageBoxUrl) {
+    return (
+      <Button
+        asChild
+        variant='tertiary'
+        size='sm'
+        {...props}
+        className={cn(classes.inboxButton, props.className)}
+      >
+        <a href={messageBoxUrl}>
+          <Left
+            fontSize='1rem'
+            aria-hidden
+          />
+          <Lang id={isMobile ? 'navigation.inbox' : 'navigation.back_to_inbox'} />
+        </a>
+      </Button>
+    );
+  }
+
+  return null;
 }
 
 function useReturnUrl() {
