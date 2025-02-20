@@ -1,16 +1,38 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useMutation, useQuery, UseQueryResult } from '@tanstack/react-query';
 import { screen } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 import { randomUUID } from 'crypto';
 
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
+import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
+import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { SigneeState } from 'src/layout/SigneeList/api';
 import { SigningStatusPanelComponent } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
 import { IActionType } from 'src/types/shared';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
+
+jest.mock('src/utils/layout/useNodeItem');
+jest.mock('react-router-dom');
+jest.mock('src/layout/SigneeList/api');
+jest.mock('src/features/instance/ProcessNavigationContext');
+jest.mock('src/core/contexts/AppQueriesProvider');
+jest.mock('src/features/party/PartiesProvider');
+jest.mock('src/features/language/useLanguage');
+jest.mock('src/features/language/Lang');
+jest.mock('src/features/instance/ProcessContext');
+jest.mock('src/features/validation/backendValidation/backendValidationQuery');
+jest.mock('@tanstack/react-query');
+
+const mockedUseQuery = jest.mocked(useQuery);
+const mockedUseIsAuthorised = jest.mocked(useIsAuthorised);
+const mockedBackendValidationQuery = jest.mocked(useBackendValidationQuery);
 
 const failedDelegationSignee: SigneeState = {
   name: 'name2',
@@ -48,76 +70,55 @@ const notSignedSignee: SigneeState = {
   partyId: 123,
 };
 
-jest.mock('src/utils/layout/useNodeItem', () => ({
-  useNodeItem: jest.fn(() => ({
-    textResourceBindings: {
-      title: 'Signee List',
-      description: 'description',
-      help: 'help',
-    },
-  })),
-}));
-
-jest.mock('react-router-dom', () => ({
-  useParams: jest.fn(() => ({
-    partyId: '123',
-    instanceGuid: randomUUID(),
-    taskId: 'task_1',
-  })),
-}));
-
-jest.mock('src/layout/SigneeList/api');
-jest.mock('src/features/instance/ProcessNavigationContext', () => ({
-  useProcessNavigation: jest.fn(() => ({
-    navigateToTask: jest.fn(),
-  })),
-}));
-
-jest.mock('src/core/contexts/AppQueriesProvider', () => ({
-  useAppQueries: jest.fn(() => ({
-    fetchLogo: jest.fn(),
-  })),
-}));
-
-jest.mock('src/features/party/PartiesProvider', () => ({
-  useCurrentParty: jest.fn(() => ({ partyId: 123 })),
-}));
-
-jest.mock('src/features/language/useLanguage', () => ({
-  useLanguage: jest.fn(() => ({
-    langAsString: (inputString: string) => inputString,
-  })),
-}));
-
-jest.mock('src/features/language/Lang', () => ({
-  Lang: ({ id }: { id: string }) => id,
-}));
-
-jest.mock('src/features/instance/ProcessContext', () => ({
-  useIsAuthorised: jest.fn(() => () => true),
-}));
-
-jest.mock('src/features/validation/backendValidation/backendValidationQuery', () => ({
-  useBackendValidationQuery: jest.fn(() => ({
-    data: true,
-    refetch: jest.fn(),
-  })),
-}));
-
-jest.mock('@tanstack/react-query', () => ({
-  useQuery: jest.fn(),
-  useMutation: jest.fn(() => ({
-    mutate: jest.fn(),
-    error: null,
-  })),
-  useQueryClient: jest.fn(),
-}));
-
-const mockedUseQuery = jest.mocked(useQuery);
-const mockedUseIsAuthorised = jest.mocked(useIsAuthorised);
-const mockedBackendValidationQuery = jest.mocked(useBackendValidationQuery);
-
 describe('SigningStatusPanelComponent', () => {
+  beforeEach(() => {
+    // resets all mocked functions to jest.fn()
+    jest.resetAllMocks();
+
+    jest.mocked(useNodeItem).mockReturnValue({
+      textResourceBindings: {
+        title: 'Signee List',
+        description: 'description',
+        help: 'help',
+      },
+    } as unknown as ReturnType<typeof useNodeItem>);
+
+    jest.mocked(useQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    } as unknown as UseQueryResult);
+
+    jest.mocked(useMutation).mockReturnValue({
+      mutate: jest.fn(),
+      error: null,
+    } as unknown as ReturnType<typeof useMutation>);
+
+    jest.mocked(useParams).mockReturnValue({
+      partyId: '123',
+      instanceGuid: randomUUID(),
+      taskId: 'task_1',
+    });
+    jest.mocked(useIsAuthorised).mockReturnValue(() => true);
+
+    jest.mocked(useLanguage).mockReturnValue({
+      langAsString: (inputString: string) => inputString,
+    } as unknown as ReturnType<typeof useLanguage>);
+
+    jest.mocked(useBackendValidationQuery).mockReturnValue({
+      data: true,
+      refetch: jest.fn(),
+    } as unknown as ReturnType<typeof useBackendValidationQuery>);
+
+    jest.mocked(Lang).mockImplementation(({ id }: { id: string }) => id);
+
+    jest.mocked(useCurrentParty).mockReturnValue({ partyId: 123 } as unknown as ReturnType<typeof useCurrentParty>);
+
+    jest.mocked(useProcessNavigation).mockReturnValue({
+      navigateToTask: jest.fn(),
+    } as unknown as ReturnType<typeof useProcessNavigation>);
+  });
+
   it('should render loading spinner when loading is true', () => {
     mockedUseQuery.mockReturnValue({
       data: undefined,
@@ -206,6 +207,27 @@ describe('SigningStatusPanelComponent', () => {
     );
 
     expect(screen.getByText('signing.awaiting_signature_panel_title')).toBeInTheDocument();
+  });
+
+  it('should render awaiting signature panel with submit button when user is awaiting signature, there are no missing signatures and the user has write access', () => {
+    mockedUseIsAuthorised.mockReturnValue(() => true);
+    mockedBackendValidationQuery.mockReturnValue({ data: false, refetch: jest.fn() } as unknown as UseQueryResult);
+    mockedUseQuery.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: undefined,
+    } as unknown as UseQueryResult);
+
+    render(
+      <SigningStatusPanelComponent
+        node={{} as LayoutNode<'SigningStatusPanel'>}
+        containerDivRef={React.createRef()}
+      />,
+    );
+
+    expect(screen.getByText('signing.awaiting_signature_panel_title')).toBeInTheDocument();
+    expect(screen.getByText('signing.sign_button')).toBeInTheDocument();
+    expect(screen.getByText('signing.submit_button')).toBeInTheDocument();
   });
 
   it('should render no action required panel with correct text when user has signed and does not have write access', () => {
