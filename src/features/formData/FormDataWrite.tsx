@@ -823,23 +823,41 @@ export const FD = {
     const hasUnsavedChangesNow = useHasUnsavedChangesNow();
     const waitForSave = useWaitForSave();
 
-    const lock = useCallback(async () => {
-      if (isLockedRef.current && !isLockedByMeRef.current) {
-        window.logWarn(
-          `Form data is already locked by ${lockedByRef.current}, cannot lock it again (requested by ${lockId})`,
-        );
-      }
-      if (isLockedRef.current) {
-        return false;
-      }
+    const lock = useCallback(
+      async (retryAutomatically = true) => {
+        const timeUntilError = 60 * 1000;
+        const start = Date.now();
+        let reachedError = false;
 
-      if (hasUnsavedChangesNow()) {
-        await waitForSave(true);
-      }
+        while (retryAutomatically && isLockedRef.current) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          if (!reachedError && Date.now() - start > timeUntilError) {
+            window.logError(
+              `Form data is still locked by ${lockedByRef.current} after ${timeUntilError}ms, ` +
+                `still waiting for lock requested by ${lockId}`,
+            );
+            reachedError = true;
+          }
+        }
 
-      rawLock(lockId);
-      return true;
-    }, [hasUnsavedChangesNow, isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawLock, waitForSave]);
+        if (isLockedRef.current && !isLockedByMeRef.current) {
+          window.logWarn(
+            `Form data is already locked by ${lockedByRef.current}, cannot lock it again (requested by ${lockId})`,
+          );
+        }
+        if (isLockedRef.current) {
+          return false;
+        }
+
+        if (hasUnsavedChangesNow()) {
+          await waitForSave(true);
+        }
+
+        rawLock(lockId);
+        return true;
+      },
+      [hasUnsavedChangesNow, isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawLock, waitForSave],
+    );
 
     const unlock = useCallback(
       (actionResult?: FDActionResult) => {
