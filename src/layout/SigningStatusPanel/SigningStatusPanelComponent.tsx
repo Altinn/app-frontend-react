@@ -83,7 +83,12 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   }
 
   if (currentUserStatus === 'awaitingSignature') {
-    return <AwaitingCurrentUserSignaturePanel node={node} />;
+    return (
+      <AwaitingCurrentUserSignaturePanel
+        node={node}
+        hasMissingSignatures={!!hasMissingSignatures}
+      />
+    );
   }
 
   if (!canWrite) {

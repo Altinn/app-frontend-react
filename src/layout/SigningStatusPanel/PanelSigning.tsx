@@ -51,8 +51,8 @@ export function SigningPanel({
         {children}
         <div>
           <div className={classes.buttonContainer}>
-            {canReject && <Reject node={node} />}
             {actionButton}
+            {canReject && <RejectButton node={node} />}
           </div>
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
         </div>
@@ -65,7 +65,7 @@ type RejectTextProps = {
   node: LayoutNode<'SigningStatusPanel'>;
 };
 
-function Reject({ node }: RejectTextProps) {
+function RejectButton({ node }: RejectTextProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const rejectButtonRef = useRef<HTMLButtonElement>(null);
   const { next, busy } = useProcessNavigation() ?? {};
