@@ -9,7 +9,6 @@ import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { SubmitSigningButton } from 'src/layout/SigningStatusPanel/SubmitSigningButton';
@@ -51,12 +50,11 @@ export function AwaitingCurrentUserSignaturePanel({
     mutationFn: async () => {
       setSubmitButtonDisabled(true);
       if (instanceOwnerPartyId && instanceGuid) {
-        return doPerformAction(instanceOwnerPartyId, instanceGuid, { action: 'sign' }, selectedLanguage);
+        return doPerformAction(instanceOwnerPartyId, instanceGuid, { action: 'sign' }, selectedLanguage, queryClient);
       }
     },
     onSuccess: () => {
       setSubmitButtonDisabled(false);
-      queryClient.invalidateQueries(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
     },
   });
 
