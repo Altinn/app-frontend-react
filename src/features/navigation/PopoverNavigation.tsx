@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { Button, Modal, Popover } from '@digdir/designsystemet-react';
+import { Modal, Popover } from '@digdir/designsystemet-react';
 import { BulletListIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
+import type { Button } from '@digdir/designsystemet-react';
 
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { Lang } from 'src/features/language/Lang';
@@ -76,8 +77,8 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
   }
 
   return (
-    <>
-      <Button
+    <Modal.Root>
+      <Modal.Trigger
         data-testid='page-navigation-trigger'
         onClick={toggleDialog}
         variant='secondary'
@@ -87,9 +88,8 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
         className={cn({ [classes.popoverButtonActive]: isDialogOpen }, props.className)}
       >
         <PopoverNavigationButtonContent />
-      </Button>
-      <Modal
-        role='dialog'
+      </Modal.Trigger>
+      <Modal.Dialog
         aria-labelledby='app-navigation-heading'
         ref={modalRef}
         onInteractOutside={closeDialog}
@@ -107,8 +107,8 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
             <AppNavigation onNavigate={closeDialog} />
           </div>
         </Modal.Content>
-      </Modal>
-    </>
+      </Modal.Dialog>
+    </Modal.Root>
   );
 }
 
