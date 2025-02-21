@@ -16,7 +16,7 @@ import {
 import cn from 'classnames';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { ProcessingProvider, useProcessingContext } from 'src/core/contexts/processingContext';
+import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useGetAltinnTaskType } from 'src/features/instance/ProcessContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
@@ -49,53 +49,49 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
 
   if (!isSubform && taskGroups.length) {
     return (
-      <ProcessingProvider>
-        <ul
-          data-testid='page-navigation'
-          className={classes.groupList}
-        >
-          {taskGroups.map((taskGroup) => {
-            if ('taskId' in taskGroup && taskGroup.taskId === currentTaskId && pageGroups) {
-              return pageGroups.map((group) => (
-                <PageGroup
-                  key={group.id}
-                  group={group}
-                  onNavigate={onNavigate}
-                />
-              ));
-            }
-
-            const receiptActive = 'type' in taskGroup && taskGroup.type === 'receipt' && isReceipt;
-            const taskActive = 'taskId' in taskGroup && taskGroup.taskId === currentTaskId;
-            return (
-              <TaskGroup
-                key={taskGroup.id}
-                group={taskGroup}
-                active={receiptActive || taskActive}
+      <ul
+        data-testid='page-navigation'
+        className={classes.groupList}
+      >
+        {taskGroups.map((taskGroup) => {
+          if ('taskId' in taskGroup && taskGroup.taskId === currentTaskId && pageGroups) {
+            return pageGroups.map((group) => (
+              <PageGroup
+                key={group.id}
+                group={group}
+                onNavigate={onNavigate}
               />
-            );
-          })}
-        </ul>
-      </ProcessingProvider>
+            ));
+          }
+
+          const receiptActive = 'type' in taskGroup && taskGroup.type === 'receipt' && isReceipt;
+          const taskActive = 'taskId' in taskGroup && taskGroup.taskId === currentTaskId;
+          return (
+            <TaskGroup
+              key={taskGroup.id}
+              group={taskGroup}
+              active={receiptActive || taskActive}
+            />
+          );
+        })}
+      </ul>
     );
   }
 
   if (pageGroups) {
     return (
-      <ProcessingProvider>
-        <ul
-          data-testid='page-navigation'
-          className={classes.groupList}
-        >
-          {pageGroups.map((group) => (
-            <PageGroup
-              key={group.id}
-              group={group}
-              onNavigate={onNavigate}
-            />
-          ))}
-        </ul>
-      </ProcessingProvider>
+      <ul
+        data-testid='page-navigation'
+        className={classes.groupList}
+      >
+        {pageGroups.map((group) => (
+          <PageGroup
+            key={group.id}
+            group={group}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </ul>
     );
   }
 
@@ -225,17 +221,17 @@ function PageGroupSingle({
   onNavigate,
 }: PageGroupProps<NavigationPageGroupSingle>) {
   const { navigateToPage } = useNavigatePage();
-  const [isProcessing, processing] = useProcessingContext();
+  const { performProcess, isAnyProcessing, isThisProcessing: isNavigating } = useIsProcessing();
   const page = group.order[0];
 
   return (
     <li>
       <button
-        disabled={!!isProcessing}
+        disabled={isAnyProcessing}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.groupButton, 'fds-focus')}
         onClick={() =>
-          processing(page, async () => {
+          performProcess(async () => {
             if (!isCurrentPage) {
               await navigateToPage(page);
               onNavigate?.();
@@ -248,7 +244,7 @@ function PageGroupSingle({
           active={isCurrentPage}
           error={validations !== ContextNotProvided && validations.hasErrors.group}
           complete={validations !== ContextNotProvided && validations.isCompleted.group}
-          isLoading={isProcessing === page}
+          isLoading={isNavigating}
         />
         <span className={cn(classes.groupName, { [classes.groupNameActive]: isCurrentPage })}>
           <Lang id={page} />
@@ -387,16 +383,16 @@ function Page({
   const isCurrentPage = page === currentPageId;
 
   const { navigateToPage } = useNavigatePage();
-  const [isProcessing, processing] = useProcessingContext();
+  const { performProcess, isAnyProcessing, isThisProcessing: isNavigating } = useIsProcessing();
 
   return (
     <li className={classes.pageListItem}>
       <button
-        disabled={!!isProcessing}
+        disabled={isAnyProcessing}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.pageButton, 'fds-focus')}
         onClick={() =>
-          processing(page, async () => {
+          performProcess(async () => {
             if (!isCurrentPage) {
               await navigateToPage(page);
               onNavigate?.();
@@ -408,7 +404,7 @@ function Page({
           error={hasErrors}
           complete={isComplete}
           active={isCurrentPage}
-          isLoading={isProcessing === page}
+          isLoading={isNavigating}
         />
 
         <span className={cn(classes.pageName, { [classes.pageNameActive]: isCurrentPage })}>
