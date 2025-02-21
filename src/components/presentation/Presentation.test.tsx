@@ -2,7 +2,6 @@ import React from 'react';
 
 import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
 
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
@@ -14,10 +13,8 @@ import type { IPresentationProvidedProps } from 'src/components/presentation/Pre
 import type { AppQueries } from 'src/queries/types';
 
 jest.mock('axios');
-const assignMock = jest.fn();
 
 describe('Presentation', () => {
-  const user = userEvent.setup();
   let realLocation: Location = window.location;
 
   beforeEach(() => {
@@ -28,65 +25,52 @@ describe('Presentation', () => {
     jest.clearAllMocks();
   });
 
-  it('should change window.location.href to query parameter returnUrl if valid URL', async () => {
+  it('should link to query parameter returnUrl if valid URL', async () => {
     const returnUrl = 'foo';
 
-    const mockedLocation = { ...realLocation, search: `?returnUrl=${returnUrl}`, assign: assignMock };
+    const mockedLocation = { ...realLocation, search: `?returnUrl=${returnUrl}` };
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
 
     await render({ type: ProcessTaskType.Data }, { fetchReturnUrl: async () => returnUrl });
 
-    expect(window.location.href).not.toEqual(returnUrl);
-
-    const closeButton = screen.getByRole('button', {
-      name: /tilbake/i,
+    const closeButton = screen.getByRole('link', {
+      name: 'Tilbake',
     });
-    screen.debug();
-    await user.click(closeButton);
 
-    expect(assignMock).toHaveBeenCalledWith(returnUrl);
+    expect(closeButton).toHaveAttribute('href', returnUrl);
   });
 
-  it('should change window.location.href to default messagebox url if query parameter returnUrl is not valid', async () => {
+  it('should link to default messagebox url if query parameter returnUrl is not valid', async () => {
     const host = 'ttd.apps.tt02.altinn.no';
     const returnUrl = 'https://altinn.cloud.no';
-    const mockedLocation = { ...realLocation, search: `?returnUrl=${returnUrl}`, assign: assignMock, host };
+    const mockedLocation = { ...realLocation, search: `?returnUrl=${returnUrl}`, host };
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
     const messageBoxUrl = returnUrlToMessagebox(host, getPartyMock().partyId);
 
-    // TODO: Replicate stateWithErrorsAndWarnings?
     await render({ type: ProcessTaskType.Data });
 
-    expect(window.location.href).not.toEqual(messageBoxUrl);
-
-    const closeButton = screen.getByRole('button', {
-      name: /tilbake til innboks/i,
+    const closeButton = screen.getByRole('link', {
+      name: 'Tilbake til innboks',
     });
 
-    await user.click(closeButton);
-
-    expect(assignMock).toHaveBeenCalledWith(messageBoxUrl);
+    expect(closeButton).toHaveAttribute('href', messageBoxUrl);
   });
 
-  it('should change window.location.href to default messagebox url if query parameter returnUrl is not found', async () => {
+  it('should link to default messagebox url if query parameter returnUrl is not found', async () => {
     const host = 'ttd.apps.tt02.altinn.no';
     const partyId = getPartyMock().partyId;
     const messageBoxUrl = returnUrlToMessagebox(host, partyId);
-    const mockedLocation = { ...realLocation, assign: assignMock, host, search: '' };
+    const mockedLocation = { ...realLocation, host, search: '' };
 
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
 
-    // TODO: Replicate stateWithErrorsAndWarnings?
     await render({ type: ProcessTaskType.Data });
 
-    expect(window.location.href).not.toEqual(messageBoxUrl);
-
-    const closeButton = screen.getByRole('button', {
-      name: /tilbake til innboks/i,
+    const closeButton = screen.getByRole('link', {
+      name: 'Tilbake til innboks',
     });
-    await user.click(closeButton);
 
-    expect(assignMock).toHaveBeenCalledWith(messageBoxUrl);
+    expect(closeButton).toHaveAttribute('href', messageBoxUrl);
   });
 
   it('should render children', async () => {

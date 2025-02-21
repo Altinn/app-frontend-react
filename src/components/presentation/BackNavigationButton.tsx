@@ -48,7 +48,7 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
         variant='tertiary'
         size='sm'
         {...props}
-        className={cn(classes.inboxButton, props.className)}
+        className={cn(classes.button, props.className)}
       >
         {!isExitingSubform && (
           <Left
@@ -65,21 +65,23 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
   }
 
   if (returnUrl) {
-    <Button
-      asChild
-      variant='tertiary'
-      size='sm'
-      {...props}
-      className={cn(classes.inboxButton, props.className)}
-    >
-      <a href={returnUrl}>
-        <Left
-          fontSize='1rem'
-          aria-hidden
-        />
-        <Lang id='navigation.back' />
-      </a>
-    </Button>;
+    return (
+      <Button
+        asChild
+        variant='tertiary'
+        size='sm'
+        {...props}
+        className={cn(classes.button, props.className)}
+      >
+        <a href={returnUrl}>
+          <Left
+            fontSize='1rem'
+            aria-hidden
+          />
+          <Lang id='navigation.back' />
+        </a>
+      </Button>
+    );
   }
 
   if (messageBoxUrl) {
@@ -89,7 +91,7 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
         variant='tertiary'
         size='sm'
         {...props}
-        className={cn(classes.inboxButton, props.className)}
+        className={cn(classes.button, props.className)}
       >
         <a href={messageBoxUrl}>
           <Left

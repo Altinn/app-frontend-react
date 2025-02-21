@@ -19,7 +19,7 @@ describe('UI Components', () => {
   it('Image component with help text', () => {
     cy.goto('message');
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
-    cy.findByRole('button', { name: /tilbake til innboks/i }).should('be.visible');
+    cy.findByRole('link', { name: /tilbake til innboks/i }).should('be.visible');
     cy.get(appFrontend.header).should('contain.text', appFrontend.apps.frontendTest).and('contain.text', texts.ttd);
     cy.get(appFrontend.message.logo).then((image) => {
       cy.wrap(image).find('img').should('have.attr', 'alt', 'Altinn logo').should('exist');

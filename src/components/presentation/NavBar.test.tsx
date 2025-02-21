@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { screen } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 
 import { NavBar } from 'src/components/presentation/NavBar';
@@ -36,21 +35,18 @@ describe('NavBar', () => {
   });
 
   it('should render close button', async () => {
-    const assignMock = jest.fn();
-    jest.spyOn(window, 'location', 'get').mockReturnValue({ ...window.location, assign: assignMock });
+    jest.spyOn(window, 'location', 'get').mockReturnValue({ ...window.location });
 
     await render({
       hideCloseButton: false,
     });
-    const closeButton = screen.getByRole('button', { name: /tilbake til innboks/i });
-    await userEvent.click(closeButton);
-    expect(assignMock).toHaveBeenCalled();
+    expect(screen.getByRole('link', { name: 'Tilbake til innboks' })).toBeInTheDocument();
   });
 
   it('should hide close button', async () => {
     await render({
       hideCloseButton: true,
     });
-    expect(screen.queryByRole('button', { name: /tilbake til innboks/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Tilbake til innboks' })).not.toBeInTheDocument();
   });
 });

@@ -1,8 +1,8 @@
-.inbox-button {
+.button {
   margin-left: -12px;
 }
 
-.inbox-button svg {
+.button svg {
   margin-right: 4px;
 }
 
@@ -15,7 +15,7 @@
   .spinner {
     margin-left: 8px;
   }
-  .inbox-button {
+  .button {
     margin-left: 0;
   }
 }

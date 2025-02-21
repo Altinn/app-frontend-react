@@ -13,7 +13,7 @@ describe('Stateless', () => {
 
   it('Prefill from Register and data processing', () => {
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
-    cy.findByRole('button', { name: /tilbake til innboks/i }).should('not.exist');
+    cy.findByRole('link', { name: /tilbake til innboks/i }).should('not.exist');
     cy.get(appFrontend.stateless.name).invoke('val').should('not.be.empty');
     cy.get(appFrontend.stateless.number).should('have.value', '1364');
     cy.get(appFrontend.stateless.name).clear();
