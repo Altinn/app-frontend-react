@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
 import { waitForAnimationFrames } from 'src/utils/waitForAnimationFrames';
@@ -20,6 +22,23 @@ export function ReadyForPrint({ type }: { type: ReadyType }) {
   const [assetsLoaded, setAssetsLoaded] = React.useState(false);
   const dataLoadingIsDone = useDataLoadingStore((state) => state.isDone);
 
+  const queryClient = useQueryClient();
+  const queryCache = queryClient.getQueryCache();
+  const [fetchingQueries, setFetchingQueries] = React.useState(queryCache.findAll({ fetchStatus: 'fetching' }));
+
+  useEffect(() => {
+    // Subscribe to changes in fetching queries, if not subscribed, React will not recompute with new values
+    // see https://tanstack.com/query/v5/docs/reference/QueryCache/#querycachesubscribe for more info
+    const unsubscribe = queryCache.subscribe(() => {
+      const pendingQueries = queryCache.findAll({ fetchStatus: 'fetching' });
+      setFetchingQueries(pendingQueries);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [queryCache]);
+
   React.useLayoutEffect(() => {
     if (assetsLoaded) {
       return;
@@ -34,7 +53,7 @@ export function ReadyForPrint({ type }: { type: ReadyType }) {
     });
   }, [assetsLoaded, dataLoadingIsDone]);
 
-  if (!assetsLoaded) {
+  if (!assetsLoaded || fetchingQueries.length > 0) {
     return null;
   }
 
