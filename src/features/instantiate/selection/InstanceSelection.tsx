@@ -75,17 +75,17 @@ function InstanceSelection() {
     selectedIndex !== undefined && rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0;
 
   const defaultSelectedOption = doesIndexExist(selectedIndex) ? selectedIndex : 0;
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[defaultSelectedOption]);
 
   const instances = instanceSelectionOptions?.sortDirection === 'desc' ? [..._instances].reverse() : _instances;
-  const paginatedInstances = instances.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage);
+  const paginatedInstances = instances.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   const textStrings = language?.['list_component'];
 
   function handleRowsPerPageChanged(newRowsPerPage: number) {
     setRowsPerPage(newRowsPerPage);
-    if (instances.length < currentPage * newRowsPerPage) {
+    if (instances.length < (currentPage - 1) * newRowsPerPage) {
       setCurrentPage(Math.floor(instances.length / newRowsPerPage));
     }
   }
@@ -154,12 +154,12 @@ function InstanceSelection() {
                     rowsPerPageText={textStrings['rowsPerPage']}
                     size='sm'
                     currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
                     numberOfRows={instances.length}
                     pageSize={rowsPerPage}
                     showRowsPerPageDropdown={true}
                     rowsPerPageOptions={rowsPerPageOptions}
                     onPageSizeChange={(value) => handleRowsPerPageChanged(+value)}
-                    setCurrentPage={setCurrentPage}
                   />
                 </div>
               </Table.Cell>

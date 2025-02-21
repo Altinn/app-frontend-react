@@ -29,9 +29,7 @@ type PaginationProps = {
 
 export const Pagination = ({
   nextLabel,
-  nextLabelAriaLabel,
   previousLabel,
-  previousLabelAriaLabel,
   size,
   compact,
   hideLabels,
@@ -45,19 +43,24 @@ export const Pagination = ({
   showRowsPerPageDropdown = false,
   pageSize,
 }: PaginationProps) => {
-  const totalPages = Math.ceil(numberOfRows / pageSize);
-  const pageNumber = currentPage + 1;
-
   const isMini = useIsMini();
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
   const isCompact = compact || isMini || isTablet;
 
-  const { pages, prevButtonProps, nextButtonProps, hasNext, hasPrev } = usePagination({
-    currentPage: pageNumber,
+  const totalPages = Math.ceil(numberOfRows / pageSize);
+  let showPages = isCompact ? 3 : 5;
+
+  if (showPages > totalPages) {
+    showPages = totalPages;
+  }
+
+  const { pages, prevButtonProps, nextButtonProps } = usePagination({
+    currentPage,
     setCurrentPage,
     totalPages,
     onChange,
+    showPages,
   });
   const { langAsString } = useLanguage();
 
@@ -99,23 +102,16 @@ export const Pagination = ({
         className={classes.pagination}
       >
         <DesignSystemPagination.List>
-          {hasPrev && (
-            <DesignSystemPagination.Item>
-              <DesignSystemPagination.Button
-                data-testid='paginationPreviousButton'
-                {...prevButtonProps}
-                aria-label={previousLabelAriaLabel}
-              >
-                {!hideLabels && !isMobile && previousLabel}
-              </DesignSystemPagination.Button>
-            </DesignSystemPagination.Item>
-          )}
-          {pages.map((page, i, buttonProps) => (
-            <DesignSystemPagination.Item key={`${page}${i}`}>
+          <DesignSystemPagination.Item>
+            <DesignSystemPagination.Button {...prevButtonProps}>
+              {!hideLabels && !isMobile && previousLabel}
+            </DesignSystemPagination.Button>
+          </DesignSystemPagination.Item>
+          {pages.map(({ page, itemKey, buttonProps }) => (
+            <DesignSystemPagination.Item key={itemKey}>
               {typeof page === 'number' && (
                 <DesignSystemPagination.Button
-                  color='first'
-                  aria-current={pageNumber === page}
+                  aria-current={currentPage === page}
                   aria-label={langAsString('general.page_number', [page])}
                   {...buttonProps}
                 >
@@ -124,17 +120,11 @@ export const Pagination = ({
               )}
             </DesignSystemPagination.Item>
           ))}
-          {hasNext && (
-            <DesignSystemPagination.Item>
-              <DesignSystemPagination.Button
-                data-testid='paginationNextButton'
-                aria-label={nextLabelAriaLabel}
-                {...nextButtonProps}
-              >
-                {!hideLabels && !isMobile && nextLabel}
-              </DesignSystemPagination.Button>
-            </DesignSystemPagination.Item>
-          )}
+          <DesignSystemPagination.Item>
+            <DesignSystemPagination.Button {...nextButtonProps}>
+              {!hideLabels && !isMobile && nextLabel}
+            </DesignSystemPagination.Button>
+          </DesignSystemPagination.Item>
         </DesignSystemPagination.List>
       </DesignSystemPagination>
     </>
