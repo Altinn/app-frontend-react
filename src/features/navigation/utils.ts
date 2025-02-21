@@ -6,9 +6,7 @@ import { useGetAltinnTaskType } from 'src/features/instance/ProcessContext';
 import { ValidationMask } from 'src/features/validation';
 import { useVisitedPages } from 'src/hooks/useNavigatePage';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
-import { useLaxNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function useHasGroupedNavigation() {
   const pageGroups = usePageGroups();
@@ -60,21 +58,17 @@ export function useGetTaskName() {
  * 4. A group is marked as completed if all of its pages have no nodes with any validations errors (visible or not), and all of the pages are marked as 'visited'.
  */
 export function useValidationsForPages(order: string[], shouldMarkWhenCompleted = false) {
-  const traversalSelector = useLaxNodeTraversalSelector();
   const validationsSelector = NodesInternal.useLaxValidationsSelector();
   const [visitedPages] = useVisitedPages();
 
-  const allNodes = traversalSelector(
-    (traverser) =>
-      order.reduce<Record<string, LayoutNode[]>>((allNodes, pageId) => {
-        allNodes[pageId] = traverser.findPage(pageId)?.flat() ?? [];
-        return allNodes;
-      }, {}),
-    [order],
-  );
+  const allNodeIds = NodesInternal.useLaxMemoSelector((state) => {
+    const allNodeIds = Object.fromEntries<string[]>(order.map((page) => [page, []]));
+    Object.values(state.nodeData).forEach((node) => allNodeIds[node.pageKey]?.push(node.layout.id));
+    return allNodeIds;
+  });
 
   const isCompleted = useMemo(() => {
-    if (allNodes === ContextNotProvided) {
+    if (allNodeIds === ContextNotProvided) {
       return ContextNotProvided;
     }
 
@@ -85,8 +79,8 @@ export function useValidationsForPages(order: string[], shouldMarkWhenCompleted 
     const pageHasNoErrors = Object.fromEntries(
       order.map((page) => [
         page,
-        allNodes[page].every((node) => {
-          const allValidations = validationsSelector(node, ValidationMask.All, 'error');
+        allNodeIds[page].every((nodeId) => {
+          const allValidations = validationsSelector(nodeId, ValidationMask.All, 'error');
           return allValidations !== ContextNotProvided && allValidations.length === 0;
         }),
       ]),
@@ -99,18 +93,18 @@ export function useValidationsForPages(order: string[], shouldMarkWhenCompleted 
     const groupIsComplete = order.every((page) => pageHasNoErrors[page] && visitedPages.includes(page));
 
     return { pages: completedPages, group: groupIsComplete };
-  }, [order, allNodes, validationsSelector, shouldMarkWhenCompleted, visitedPages]);
+  }, [order, allNodeIds, validationsSelector, shouldMarkWhenCompleted, visitedPages]);
 
   const hasErrors = useMemo(() => {
-    if (allNodes === ContextNotProvided) {
+    if (allNodeIds === ContextNotProvided) {
       return ContextNotProvided;
     }
 
     const pageHasErrors = Object.fromEntries(
       order.map((page) => [
         page,
-        allNodes[page].some((node) => {
-          const visibleValidations = validationsSelector(node, 'visible', 'error');
+        allNodeIds[page].some((nodeId) => {
+          const visibleValidations = validationsSelector(nodeId, 'visible', 'error');
           return visibleValidations !== ContextNotProvided && visibleValidations.length > 0;
         }),
       ]),
@@ -119,7 +113,7 @@ export function useValidationsForPages(order: string[], shouldMarkWhenCompleted 
     const groupHasErrors = Object.values(pageHasErrors).some((p) => p);
 
     return { pages: pageHasErrors, group: groupHasErrors };
-  }, [order, allNodes, validationsSelector]);
+  }, [order, allNodeIds, validationsSelector]);
 
   if (isCompleted === ContextNotProvided || hasErrors === ContextNotProvided) {
     return ContextNotProvided;

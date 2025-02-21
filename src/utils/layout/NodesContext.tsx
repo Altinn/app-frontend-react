@@ -1269,6 +1269,7 @@ export const NodesInternal = {
   useShallowSelector: <T extends ObjectOrArray>(selector: (state: NodesContext) => T) =>
     Store.useShallowSelector(selector),
   useMemoSelector: <T,>(selector: (state: NodesContext) => T) => Store.useMemoSelector(selector),
+  useLaxMemoSelector: <T,>(selector: (state: NodesContext) => T) => Store.useLaxMemoSelector(selector),
 
   useStore: () => Store.useStore(),
   useSetNodeProps: () => Store.useStaticSelector((s) => s.setNodeProps),

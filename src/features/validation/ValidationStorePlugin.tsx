@@ -25,7 +25,7 @@ export type ValidationsSelector = (
 ) => AnyValidation[];
 
 export type LaxValidationsSelector = (
-  node: LayoutNode,
+  nodeOrId: LayoutNode | string,
   mask: NodeVisibility,
   severity?: ValidationSeverity,
   includeHidden?: boolean, // Defaults to false
