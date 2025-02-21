@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
@@ -158,13 +158,21 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
   const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
   const markNotReady = NodesInternal.useMarkNotReady();
   const selectedLanguage = useCurrentLanguage();
+  const queryClient = useQueryClient();
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async ({ action, buttonId }: PerformActionMutationProps) => {
       if (!instanceGuid || !instanceOwnerPartyId) {
         throw Error('Cannot perform action without partyId and instanceGuid');
       }
-      return doPerformAction(instanceOwnerPartyId, instanceGuid, { action: action.id, buttonId }, selectedLanguage);
+
+      return doPerformAction(
+        instanceOwnerPartyId,
+        instanceGuid,
+        { action: action.id, buttonId },
+        selectedLanguage,
+        queryClient,
+      );
     },
   });
 

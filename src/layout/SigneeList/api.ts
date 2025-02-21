@@ -17,17 +17,18 @@ const signeeStateSchema = z
 
 export type SigneeState = z.infer<typeof signeeStateSchema>;
 
-export const signeeListQuery = (
-  partyId: string | undefined,
-  instanceGuid: string | undefined,
-  taskId: string | undefined,
-) =>
-  queryOptions({
-    queryKey: ['signeeList', partyId, instanceGuid, taskId],
-    queryFn: partyId && instanceGuid && taskId ? () => fetchSigneeList(partyId, instanceGuid) : skipToken,
-    refetchInterval: 1000 * 60, // 1 minute
-    refetchOnMount: 'always',
-  });
+export const signingQueries = {
+  all: ['signing'],
+  signeeList: (partyId: string | undefined, instanceGuid: string | undefined, taskId: string | undefined) =>
+    queryOptions({
+      queryKey: [...signingQueries.all, 'signeeList', partyId, instanceGuid, taskId],
+      queryFn: partyId && instanceGuid && taskId ? () => fetchSigneeList(partyId, instanceGuid) : skipToken,
+      refetchInterval: 1000 * 60, // 1 minute
+      refetchOnMount: 'always',
+    }),
+};
+
+export const signeeListQuery = signingQueries.signeeList;
 
 export async function fetchSigneeList(partyId: string, instanceGuid: string): Promise<SigneeState[]> {
   const url = `${appPath}/instances/${partyId}/${instanceGuid}/signing`;
