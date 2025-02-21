@@ -57,7 +57,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
             <PopoverNavigationButtonContent />
           </Popover.Trigger>
           <Popover.Content
-            data-testid='page-navigation-popup'
+            data-testid='page-navigation-dialog'
             className={classes.popoverContainer}
             aria-modal
             autoFocus={true}
@@ -90,14 +90,13 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
       </Button>
       <Modal
         role='dialog'
-        data-testid='page-navigation-modal'
         aria-labelledby='app-navigation-heading'
         ref={modalRef}
         onInteractOutside={closeDialog}
         className={classes.modal}
       >
         <Modal.Content
-          data-testid='page-navigation-popup'
+          data-testid='page-navigation-dialog'
           className={classes.modalContainer}
         >
           <AppNavigationHeading

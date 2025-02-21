@@ -865,23 +865,19 @@ Cypress.Commands.add('getCurrentViewportSize', function () {
 Cypress.Commands.add('showNavGroups', (open) => {
   cy.get('body').then((body) => {
     const isVisible = !!body.find('[data-testid=page-navigation]').length;
-    const usesPopup = !!body.find('[data-testid=page-navigation-trigger]').length;
-    const popupOpen = !!body.find('[data-testid=page-navigation-popup]').length;
-    const usesModal = !!body.find('[data-testid=page-navigation-modal]').length;
+    const isDialogOpen = !!body.find('[data-testid=page-navigation-dialog]').length;
 
     if (open && isVisible) {
       return;
     }
-    if (open && usesPopup) {
-      cy.findByTestId('page-navigation-trigger').click();
-      cy.findByTestId('page-navigation-popup').should('be.visible');
-      if (usesModal) {
-        cy.findByTestId('page-navigation-modal').should('have.css', 'opacity', '1');
-      }
+    if (open && !isVisible) {
+      cy.findByRole('button', { name: 'Skjemasider' }).click();
+      cy.findByRole('dialog', { name: 'Skjemasider' }).should('be.visible');
+      cy.findByRole('dialog', { name: 'Skjemasider' }).should('have.css', 'opacity', '1');
     }
-    if (!open && popupOpen) {
-      cy.findByTestId('page-navigation-popup').within(() => cy.findByRole('button', { name: 'Lukk' }).click());
-      cy.findByTestId('page-navigation-popup').should('not.exist');
+    if (!open && isDialogOpen) {
+      cy.findByRole('dialog', { name: 'Skjemasider' }).within(() => cy.findByRole('button', { name: 'Lukk' }).click());
+      cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
     }
   });
 });
@@ -902,19 +898,10 @@ Cypress.Commands.add('navGroup', (groupName, pageName) => {
 });
 
 Cypress.Commands.add('gotoNavGroup', (groupName, pageName) => {
+  cy.showNavGroups(true);
+
   cy.get('body').then((body) => {
-    const usesPopup = !!body.find('[data-testid=page-navigation-trigger]').length;
-    const popupOpen = !!body.find('[data-testid=page-navigation-popup]').length;
-    const usesModal = !!body.find('[data-testid=page-navigation-modal]').length;
-
-    if (usesPopup && !popupOpen) {
-      cy.findByTestId('page-navigation-trigger').click();
-      cy.findByTestId('page-navigation-popup').should('be.visible');
-    }
-
-    if (usesModal) {
-      cy.findByTestId('page-navigation-modal').should('have.css', 'opacity', '1');
-    }
+    const isUsingDialog = !!body.find('[data-testid=page-navigation-trigger]').length;
 
     if (pageName) {
       cy.navGroup(groupName).then((group) => {
@@ -924,16 +911,16 @@ Cypress.Commands.add('gotoNavGroup', (groupName, pageName) => {
       });
       cy.navGroup(groupName).should('have.attr', 'aria-expanded', 'true');
       cy.navGroup(groupName, pageName).click();
-      if (usesPopup) {
-        cy.findByTestId('page-navigation-popup').should('not.exist');
+      if (isUsingDialog) {
+        cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
       } else {
         cy.navGroup(groupName, pageName).should('have.attr', 'aria-current', 'page');
       }
     } else {
       cy.navGroup(groupName).should('not.have.attr', 'aria-expanded');
       cy.navGroup(groupName).click();
-      if (usesPopup) {
-        cy.findByTestId('page-navigation-popup').should('not.exist');
+      if (isUsingDialog) {
+        cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
       } else {
         cy.navGroup(groupName).should('have.attr', 'aria-current', 'page');
       }
@@ -942,25 +929,12 @@ Cypress.Commands.add('gotoNavGroup', (groupName, pageName) => {
 });
 
 Cypress.Commands.add('openNavGroup', (groupName) => {
-  cy.get('body').then((body) => {
-    const usesPopup = !!body.find('[data-testid=page-navigation-trigger]').length;
-    const popupOpen = !!body.find('[data-testid=page-navigation-popup]').length;
-    const usesModal = !!body.find('[data-testid=page-navigation-modal]').length;
+  cy.showNavGroups(true);
 
-    if (usesPopup && !popupOpen) {
-      cy.findByTestId('page-navigation-trigger').click();
-      cy.findByTestId('page-navigation-popup').should('be.visible');
+  cy.navGroup(groupName).then((group) => {
+    if (group[0].getAttribute('aria-expanded') === 'false') {
+      cy.navGroup(groupName).click();
     }
-
-    if (usesModal) {
-      cy.findByTestId('page-navigation-modal').should('have.css', 'opacity', '1');
-    }
-
-    cy.navGroup(groupName).then((group) => {
-      if (group[0].getAttribute('aria-expanded') === 'false') {
-        cy.navGroup(groupName).click();
-      }
-    });
-    cy.navGroup(groupName).should('have.attr', 'aria-expanded', 'true');
   });
+  cy.navGroup(groupName).should('have.attr', 'aria-expanded', 'true');
 });
