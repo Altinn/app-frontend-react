@@ -35,6 +35,36 @@ const browserTimezones = [tzNewYork, tzOslo] as const;
 type ValidTimezones = typeof tzNewYork | typeof tzOslo | typeof tzUtc;
 type TZ = { browser: ValidTimezones; backend: ValidTimezones };
 
+type Test = {
+  [key in keyof typeof Rows]: {
+    [key in keyof typeof Cols]: string;
+  };
+};
+
+function testAll(test: Test) {
+  cy.get(`#form-content-${id(Rows.Raw, Cols.String)}`).should('have.text', test.Raw.String);
+  cy.get(`#form-content-${id(Rows.Raw, Cols.DateTime)}`).should('have.text', test.Raw.DateTime);
+  cy.get(`#form-content-${id(Rows.Raw, Cols.DateOnly)}`).should('have.text', test.Raw.DateOnly);
+  cy.get(`#form-content-${id(Rows.Date, Cols.String)}`).should('have.text', test.Date.String);
+  cy.get(`#form-content-${id(Rows.Date, Cols.DateTime)}`).should('have.text', test.Date.DateTime);
+  cy.get(`#form-content-${id(Rows.Date, Cols.DateOnly)}`).should('have.text', test.Date.DateOnly);
+  cy.get(`#form-content-${id(Rows.FormatDate, Cols.String)}`).should('have.text', test.FormatDate.String);
+  cy.get(`#form-content-${id(Rows.FormatDate, Cols.DateTime)}`).should('have.text', test.FormatDate.DateTime);
+  cy.get(`#form-content-${id(Rows.FormatDate, Cols.DateOnly)}`).should('have.text', test.FormatDate.DateOnly);
+  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.String)}`).should('have.text', test.FormatDateBackend.String);
+  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.DateTime)}`).should(
+    'have.text',
+    test.FormatDateBackend.DateTime,
+  );
+  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.DateOnly)}`).should(
+    'have.text',
+    test.FormatDateBackend.DateOnly,
+  );
+  cy.get(`#${id(Rows.DatePicker, Cols.String)}`).should('have.value', test.DatePicker.String);
+  cy.get(`#${id(Rows.DatePicker, Cols.DateTime)}`).should('have.value', test.DatePicker.DateTime);
+  cy.get(`#${id(Rows.DatePicker, Cols.DateOnly)}`).should('have.value', test.DatePicker.DateOnly);
+}
+
 describe('Date component and formatDate expression', () => {
   Cypress.on('test:before:run', (test) => {
     const timezoneId = test.title.replace('Should work in ', '');
@@ -73,16 +103,13 @@ describe('Date component and formatDate expression', () => {
  * When we load the page, the date/time will be null, and form-content should be empty
  */
 function testEmpty() {
-  for (const row of Object.values(Rows)) {
-    if (row.type !== 'DatePicker') {
-      for (const col of Object.values(Cols)) {
-        cy.get(`#form-content-${id(row, col)}`).should('have.text', '');
-      }
-    }
-  }
-  for (const col of Object.values(Cols)) {
-    cy.get(`#${id(Rows.DatePicker, col)}`).should('have.value', '');
-  }
+  testAll({
+    Raw: { String: '', DateTime: '', DateOnly: '' },
+    Date: { String: '', DateTime: '', DateOnly: '' },
+    FormatDate: { String: '', DateTime: '', DateOnly: '' },
+    FormatDateBackend: { String: '', DateTime: '', DateOnly: '' },
+    DatePicker: { String: '', DateTime: '', DateOnly: '' },
+  });
 }
 
 /**
@@ -94,27 +121,19 @@ function testLeapYearDay() {
 
   const rawString = '2020-02-29 12:00:00';
   const rawDateTime = '2020-02-29T12:00:00';
-  const rawDateOnly = '2020-02-29T00:00:00';
+  const rawDateOnly = '2020-02-29';
 
   const local = '29.02.2020 12:00:00';
   const zeroed = '29.02.2020 00:00:00';
   const inDatepicker = '29.02.2020';
 
-  cy.get(`#form-content-${id(Rows.Raw, Cols.String)}`).should('have.text', rawString);
-  cy.get(`#form-content-${id(Rows.Raw, Cols.DateTime)}`).should('have.text', rawDateTime);
-  cy.get(`#form-content-${id(Rows.Raw, Cols.DateOnly)}`).should('have.text', rawDateOnly);
-  cy.get(`#form-content-${id(Rows.Date, Cols.String)}`).should('have.text', local);
-  cy.get(`#form-content-${id(Rows.Date, Cols.DateTime)}`).should('have.text', local);
-  cy.get(`#form-content-${id(Rows.Date, Cols.DateOnly)}`).should('have.text', zeroed);
-  cy.get(`#form-content-${id(Rows.FormatDate, Cols.String)}`).should('have.text', local);
-  cy.get(`#form-content-${id(Rows.FormatDate, Cols.DateTime)}`).should('have.text', local);
-  cy.get(`#form-content-${id(Rows.FormatDate, Cols.DateOnly)}`).should('have.text', zeroed);
-  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.String)}`).should('have.text', local);
-  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.DateTime)}`).should('have.text', local);
-  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.DateOnly)}`).should('have.text', zeroed);
-  cy.get(`#${id(Rows.DatePicker, Cols.String)}`).should('have.value', inDatepicker);
-  cy.get(`#${id(Rows.DatePicker, Cols.DateTime)}`).should('have.value', inDatepicker);
-  cy.get(`#${id(Rows.DatePicker, Cols.DateOnly)}`).should('have.value', inDatepicker);
+  testAll({
+    Raw: { String: rawString, DateTime: rawDateTime, DateOnly: rawDateOnly },
+    Date: { String: local, DateTime: local, DateOnly: zeroed },
+    FormatDate: { String: local, DateTime: local, DateOnly: zeroed },
+    FormatDateBackend: { String: local, DateTime: local, DateOnly: zeroed },
+    DatePicker: { String: inDatepicker, DateTime: inDatepicker, DateOnly: inDatepicker },
+  });
 }
 
 /**
@@ -125,7 +144,7 @@ function testCloseTo2022() {
 
   const rawString = '2021-12-31 23:59:59.9999999';
   const rawDateTime = '2021-12-31T23:59:59.9999999';
-  const rawDateOnly = '2021-12-31T00:00:00';
+  const rawDateOnly = '2021-12-31';
 
   const local = '31.12.2021 23:59:59';
   const zeroed = '31.12.2021 00:00:00';
@@ -134,21 +153,13 @@ function testCloseTo2022() {
   const buggy = '01.01.2022 00:00:00'; /** @see exprParseDate */
   const buggyDatepicker = '01.01.2022';
 
-  cy.get(`#form-content-${id(Rows.Raw, Cols.String)}`).should('have.text', rawString);
-  cy.get(`#form-content-${id(Rows.Raw, Cols.DateTime)}`).should('have.text', rawDateTime);
-  cy.get(`#form-content-${id(Rows.Raw, Cols.DateOnly)}`).should('have.text', rawDateOnly);
-  cy.get(`#form-content-${id(Rows.Date, Cols.String)}`).should('have.text', buggy);
-  cy.get(`#form-content-${id(Rows.Date, Cols.DateTime)}`).should('have.text', buggy);
-  cy.get(`#form-content-${id(Rows.Date, Cols.DateOnly)}`).should('have.text', zeroed);
-  cy.get(`#form-content-${id(Rows.FormatDate, Cols.String)}`).should('have.text', buggy);
-  cy.get(`#form-content-${id(Rows.FormatDate, Cols.DateTime)}`).should('have.text', buggy);
-  cy.get(`#form-content-${id(Rows.FormatDate, Cols.DateOnly)}`).should('have.text', zeroed);
-  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.String)}`).should('have.text', local);
-  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.DateTime)}`).should('have.text', local);
-  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.DateOnly)}`).should('have.text', zeroed);
-  cy.get(`#${id(Rows.DatePicker, Cols.String)}`).should('have.value', buggyDatepicker);
-  cy.get(`#${id(Rows.DatePicker, Cols.DateTime)}`).should('have.value', buggyDatepicker);
-  cy.get(`#${id(Rows.DatePicker, Cols.DateOnly)}`).should('have.value', inDatepicker);
+  testAll({
+    Raw: { String: rawString, DateTime: rawDateTime, DateOnly: rawDateOnly },
+    Date: { String: buggy, DateTime: buggy, DateOnly: zeroed },
+    FormatDate: { String: buggy, DateTime: buggy, DateOnly: zeroed },
+    FormatDateBackend: { String: local, DateTime: local, DateOnly: zeroed },
+    DatePicker: { String: buggyDatepicker, DateTime: buggyDatepicker, DateOnly: inDatepicker },
+  });
 }
 
 /**
@@ -160,43 +171,25 @@ function midnightOtherTz(tz: TZ) {
 
   const rawString = '2020-05-17 00:00:00-08:00';
   const rawDateTime = tz.backend === tzOslo ? '2020-05-17T10:00:00+02:00' : '2020-05-17T08:00:00+00:00';
-  const rawDateOnly = tz.backend === tzOslo ? '2020-05-17T00:00:00+02:00' : '2020-05-17T00:00:00+00:00';
+  const rawDateOnly = '2020-05-17';
+
+  const zeroed = '17.05.2020 00:00:00';
 
   // Backend local time is Europe/Oslo, so the date will be converted to that timezone
   const inOslo = '17.05.2020 10:00:00';
-  const inOsloZeroed = '17.05.2020 00:00:00';
   const inUtc = '17.05.2020 08:00:00';
-  const inUtcZeroed = '17.05.2020 00:00:00';
   const beLocal = tz.backend === tzOslo ? inOslo : inUtc;
-  const beLocalZeroed = tz.backend === tzOslo ? inOsloZeroed : inUtcZeroed;
 
   const date = '17.05.2020';
-  const dateZeroed = tz.browser === tzNewYork ? '16.05.2020' : '17.05.2020';
   const dependsOnTimezone = tz.browser === tzNewYork ? '17.05.2020 04:00:00' : inOslo;
-  const dependsOnTimezoneZeroed =
-    tz.browser === tzNewYork
-      ? tz.backend === tzOslo
-        ? '16.05.2020 18:00:00'
-        : '16.05.2020 20:00:00'
-      : tz.backend === tzOslo
-        ? inOsloZeroed
-        : '17.05.2020 02:00:00';
 
-  cy.get(`#form-content-${id(Rows.Raw, Cols.String)}`).should('have.text', rawString);
-  cy.get(`#form-content-${id(Rows.Raw, Cols.DateTime)}`).should('have.text', rawDateTime);
-  cy.get(`#form-content-${id(Rows.Raw, Cols.DateOnly)}`).should('have.text', rawDateOnly);
-  cy.get(`#form-content-${id(Rows.Date, Cols.String)}`).should('have.text', dependsOnTimezone);
-  cy.get(`#form-content-${id(Rows.Date, Cols.DateTime)}`).should('have.text', dependsOnTimezone);
-  cy.get(`#form-content-${id(Rows.Date, Cols.DateOnly)}`).should('have.text', dependsOnTimezoneZeroed);
-  cy.get(`#form-content-${id(Rows.FormatDate, Cols.String)}`).should('have.text', dependsOnTimezone);
-  cy.get(`#form-content-${id(Rows.FormatDate, Cols.DateTime)}`).should('have.text', dependsOnTimezone);
-  cy.get(`#form-content-${id(Rows.FormatDate, Cols.DateOnly)}`).should('have.text', dependsOnTimezoneZeroed);
-  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.String)}`).should('have.text', beLocal); // Backend local time
-  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.DateTime)}`).should('have.text', beLocal);
-  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.DateOnly)}`).should('have.text', beLocalZeroed);
-  cy.get(`#${id(Rows.DatePicker, Cols.String)}`).should('have.value', date);
-  cy.get(`#${id(Rows.DatePicker, Cols.DateTime)}`).should('have.value', date);
-  cy.get(`#${id(Rows.DatePicker, Cols.DateOnly)}`).should('have.value', dateZeroed);
+  testAll({
+    Raw: { String: rawString, DateTime: rawDateTime, DateOnly: rawDateOnly },
+    Date: { String: dependsOnTimezone, DateTime: dependsOnTimezone, DateOnly: zeroed },
+    FormatDate: { String: dependsOnTimezone, DateTime: dependsOnTimezone, DateOnly: zeroed },
+    FormatDateBackend: { String: beLocal, DateTime: beLocal, DateOnly: zeroed },
+    DatePicker: { String: date, DateTime: date, DateOnly: date },
+  });
 }
 
 function midnightUtc(tz: TZ) {
@@ -204,39 +197,22 @@ function midnightUtc(tz: TZ) {
 
   const rawString = '2020-05-17T00:00:00Z';
   const rawDateTime = tz.backend === tzOslo ? '2020-05-17T02:00:00+02:00' : '2020-05-17T00:00:00+00:00';
-  const rawDateOnly = tz.backend === tzOslo ? '2020-05-17T00:00:00+02:00' : '2020-05-17T00:00:00+00:00';
+  const rawDateOnly = '2020-05-17';
+
+  const date = '17.05.2020';
+  const zeroed = '17.05.2020 00:00:00';
 
   const utcInOslo = '17.05.2020 02:00:00';
-  const utcInOsloZeroed = '17.05.2020 00:00:00';
-  const inUtc = '17.05.2020 00:00:00';
-  const inUtcZeroed = '17.05.2020 00:00:00';
-  const beLocal = tz.backend === tzOslo ? utcInOslo : inUtc;
-  const beLocalZeroed = tz.backend === tzOslo ? utcInOsloZeroed : inUtcZeroed;
+  const beLocal = tz.backend === tzOslo ? utcInOslo : zeroed;
 
   const utcInBrowser = tz.browser === tzNewYork ? '16.05.2020 20:00:00' : utcInOslo;
-  const utcInBrowserZeroed =
-    tz.browser === tzNewYork
-      ? tz.backend === tzOslo
-        ? '16.05.2020 18:00:00'
-        : '16.05.2020 20:00:00'
-      : tz.backend === tzOslo
-        ? utcInOsloZeroed
-        : '17.05.2020 02:00:00';
-  const dateInUtc = tz.browser === tzNewYork ? '16.05.2020' : '17.05.2020';
+  const dateInUtc = tz.browser === tzNewYork ? '16.05.2020' : date;
 
-  cy.get(`#form-content-${id(Rows.Raw, Cols.String)}`).should('have.text', rawString);
-  cy.get(`#form-content-${id(Rows.Raw, Cols.DateTime)}`).should('have.text', rawDateTime);
-  cy.get(`#form-content-${id(Rows.Raw, Cols.DateOnly)}`).should('have.text', rawDateOnly);
-  cy.get(`#form-content-${id(Rows.Date, Cols.String)}`).should('have.text', utcInBrowser);
-  cy.get(`#form-content-${id(Rows.Date, Cols.DateTime)}`).should('have.text', utcInBrowser);
-  cy.get(`#form-content-${id(Rows.Date, Cols.DateOnly)}`).should('have.text', utcInBrowserZeroed);
-  cy.get(`#form-content-${id(Rows.FormatDate, Cols.String)}`).should('have.text', utcInBrowser);
-  cy.get(`#form-content-${id(Rows.FormatDate, Cols.DateTime)}`).should('have.text', utcInBrowser);
-  cy.get(`#form-content-${id(Rows.FormatDate, Cols.DateOnly)}`).should('have.text', utcInBrowserZeroed);
-  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.String)}`).should('have.text', beLocal);
-  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.DateTime)}`).should('have.text', beLocal);
-  cy.get(`#form-content-${id(Rows.FormatDateBackend, Cols.DateOnly)}`).should('have.text', beLocalZeroed);
-  cy.get(`#${id(Rows.DatePicker, Cols.String)}`).should('have.value', dateInUtc);
-  cy.get(`#${id(Rows.DatePicker, Cols.DateTime)}`).should('have.value', dateInUtc);
-  cy.get(`#${id(Rows.DatePicker, Cols.DateOnly)}`).should('have.value', dateInUtc);
+  testAll({
+    Raw: { String: rawString, DateTime: rawDateTime, DateOnly: rawDateOnly },
+    Date: { String: utcInBrowser, DateTime: utcInBrowser, DateOnly: zeroed },
+    FormatDate: { String: utcInBrowser, DateTime: utcInBrowser, DateOnly: zeroed },
+    FormatDateBackend: { String: beLocal, DateTime: beLocal, DateOnly: zeroed },
+    DatePicker: { String: dateInUtc, DateTime: dateInUtc, DateOnly: date },
+  });
 }
