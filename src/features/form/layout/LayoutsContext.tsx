@@ -93,8 +93,9 @@ export function useDataTypeFromLayoutSet(layoutSetName: string) {
   return layoutSets.find((set) => set.id === layoutSetName)?.dataType;
 }
 
+const emptyLayouts: ILayouts = {};
 export const LayoutsProvider = Provider;
-export const useLayouts = (): ILayouts => useCtx()?.layouts ?? {};
+export const useLayouts = (): ILayouts => useCtx()?.layouts ?? emptyLayouts;
 
 export const useHiddenLayoutsExpressions = () => useCtx().hiddenLayoutsExpressions;
 
