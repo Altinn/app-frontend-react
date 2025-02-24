@@ -84,7 +84,6 @@ function InstanceSelection() {
   const textStrings = language?.['list_component'];
 
   function handleRowsPerPageChanged(newRowsPerPage: number) {
-    console.log('newRowsPerPage', newRowsPerPage);
     setRowsPerPage(newRowsPerPage);
     if (instances.length < (currentPage - 1) * newRowsPerPage) {
       setCurrentPage(Math.floor(instances.length / newRowsPerPage));
