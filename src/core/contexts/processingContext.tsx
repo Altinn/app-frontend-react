@@ -24,8 +24,8 @@ export function ProcessingProvider({ children }: PropsWithChildren) {
 }
 
 type ProcessFunction<T extends string> = {
-  (key: T, callback: () => Promise<void>): Promise<void>;
-  (callback: () => Promise<void>): Promise<void>;
+  (key: T, callback: () => Promise<unknown>): Promise<void>;
+  (callback: () => Promise<unknown>): Promise<void>;
 };
 
 type ProcessingResult<T extends string> = {
@@ -46,7 +46,7 @@ export function useIsProcessing<T extends string = string>(): ProcessingResult<T
   const [process, setProcess] = useState<T | null>(null);
 
   const performProcess = useCallback(
-    async (keyOrCallback: T | (() => Promise<void>), _callback?: () => Promise<void>) => {
+    async (keyOrCallback: T | (() => Promise<unknown>), _callback?: () => Promise<unknown>) => {
       if (isAnyProcessingRef.current) {
         return;
       }

@@ -1,18 +1,15 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { toast } from 'react-toastify';
 
 import { useMutation } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
-import { ContextNotProvided, createContext } from 'src/core/contexts/context';
-import { DisplayError } from 'src/core/errorHandling/DisplayError';
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { useLaxInstanceId, useStrictInstanceRefetch } from 'src/features/instance/InstanceContext';
 import { useReFetchProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
 import { useUpdateInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { appSupportsIncrementalValidationFeatures } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
@@ -28,10 +25,7 @@ interface ProcessNextProps {
   action?: IActionType;
 }
 
-const AbortedDueToFormErrors = Symbol('AbortedDueToErrors');
-const AbortedDueToFailure = Symbol('AbortedDueToFailure');
-
-function useProcessNext() {
+export function useProcessNext() {
   const { doProcessNext } = useAppMutations();
   const reFetchInstanceData = useStrictInstanceRefetch();
   const language = useCurrentLanguage();
@@ -87,97 +81,20 @@ function useProcessNext() {
   });
 
   const mutateAsync = utils.mutateAsync;
-  const nativeMutate = useCallback(
-    async (props: ProcessNextProps = {}) => {
-      try {
-        const [result] = await mutateAsync(props);
-        return result ? result : AbortedDueToFormErrors;
-      } catch (_err) {
-        // The error is handled above
-        return AbortedDueToFailure;
-      }
-    },
-    [mutateAsync],
-  );
-
-  const perform = useCallback(
-    async (props: ProcessNextProps) => {
+  const processNext = useCallback(
+    async (props?: ProcessNextProps) => {
       const hasErrors = await onFormSubmitValidation();
       if (hasErrors) {
-        return AbortedDueToFormErrors;
+        return;
       }
-
-      return await nativeMutate(props || {});
+      await mutateAsync(props ?? {});
     },
-    [nativeMutate, onFormSubmitValidation],
+    [mutateAsync, onFormSubmitValidation],
   );
 
-  return { perform, error: utils.error };
+  return processNext;
 }
 
 function appUnlocksOnPDFFailure({ altinnNugetVersion }: ApplicationMetadata) {
   return !altinnNugetVersion || isAtLeastVersion({ actualVersion: altinnNugetVersion, minimumVersion: '8.1.0.115' });
 }
-
-interface ContextData {
-  busy: boolean;
-  busyWithId: string;
-  canSubmit: boolean;
-  attachmentsPending: boolean;
-  next: (props: ProcessNextProps & { nodeId: string }) => Promise<void>;
-}
-
-const { Provider, useCtx } = createContext<ContextData | undefined>({
-  name: 'ProcessNavigation',
-  required: false,
-  default: undefined,
-});
-
-export function ProcessNavigationProvider({ children }: React.PropsWithChildren) {
-  const { perform, error } = useProcessNext();
-  const [busyWithId, setBusyWithId] = useState<string>('');
-  const attachmentsPending = useHasPendingAttachments();
-
-  const next = useCallback(
-    async ({ nodeId, ...rest }: ProcessNextProps & { nodeId: string }) => {
-      if (busyWithId) {
-        return;
-      }
-
-      setBusyWithId(nodeId);
-      const result = await perform(rest);
-      if (result === AbortedDueToFormErrors) {
-        setBusyWithId('');
-      }
-    },
-    [busyWithId, perform],
-  );
-
-  if (error) {
-    return <DisplayError error={error} />;
-  }
-
-  return (
-    <Provider
-      value={{
-        busy: !!busyWithId,
-        busyWithId,
-        canSubmit: !attachmentsPending && !busyWithId,
-        attachmentsPending,
-        next,
-      }}
-    >
-      {children}
-    </Provider>
-  );
-}
-
-export const useProcessNavigation = () => {
-  // const { isSubformPage } = useNavigationParams();
-  const isSubformPage = useIsSubformPage();
-  if (isSubformPage) {
-    throw new Error('Cannot use process navigation in a subform');
-  }
-
-  return useCtx();
-};

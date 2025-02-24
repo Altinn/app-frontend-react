@@ -52,8 +52,8 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
 
       const prevScrollPosition = getScrollPosition();
       if (validateOnPrevious) {
-        const hasError = await onPageNavigationValidation(node.page, validateOnPrevious);
-        if (hasError) {
+        const hasErrors = await onPageNavigationValidation(node.page, validateOnPrevious);
+        if (hasErrors) {
           // Block navigation if validation fails
           resetScrollPosition(prevScrollPosition);
           return;

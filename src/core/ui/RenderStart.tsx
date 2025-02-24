@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { ProcessingProvider } from 'src/core/contexts/processingContext';
 import { useIsLoading } from 'src/core/loading/LoadingContext';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { DataModelFetcher } from 'src/features/formData/FormDataReaders';
@@ -21,12 +20,10 @@ interface Props extends PropsWithChildren {
 export function RenderStart({ children, devTools = true, dataModelFetcher = true }: Props) {
   return (
     <LangDataSourcesProvider>
-      <ProcessingProvider>
-        <RunNavigationEffect />
-        {children}
-        {devTools && <DevTools />}
-        {dataModelFetcher && <DataModelFetcher />}
-      </ProcessingProvider>
+      <RunNavigationEffect />
+      {children}
+      {devTools && <DevTools />}
+      {dataModelFetcher && <DataModelFetcher />}
     </LangDataSourcesProvider>
   );
 }
