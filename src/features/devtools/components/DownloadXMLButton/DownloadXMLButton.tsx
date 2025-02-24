@@ -51,8 +51,8 @@ const InnerDownloadXMLButton = () => {
     const dataElementId = selectedDataType ? getDataElementIdForDataType(selectedDataType) : undefined;
     const dataUrl = dataElementId && instanceId ? getStatefulDataModelUrl(instanceId, dataElementId, true) : undefined;
     if (dataUrl && acceptedFiles.length) {
+      const uuid = await lock();
       try {
-        lock();
         const dataToUpload = await acceptedFiles[0].text();
         await axios.put(dataUrl, dataToUpload, { headers: { 'Content-Type': 'application/xml' } }).catch((error) => {
           // 303 is expected when using ProcessDataWrite and can be ignored
@@ -63,9 +63,9 @@ const InnerDownloadXMLButton = () => {
         const { data: updatedDataModel } = await axios.get(dataUrl, {
           headers: { Accept: 'application/json' },
         });
-        unlock({ updatedDataModels: { [dataElementId!]: updatedDataModel }, updatedValidationIssues: {} });
+        unlock(uuid, { updatedDataModels: { [dataElementId!]: updatedDataModel }, updatedValidationIssues: {} });
       } catch {
-        unlock();
+        unlock(uuid);
       }
     }
   };

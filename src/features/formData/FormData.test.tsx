@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
@@ -349,28 +349,34 @@ describe('FormData', () => {
     });
 
     function LockActionButton({ lockId, renderInfo }: { lockId: string; renderInfo: boolean }) {
-      const { lock, unlock, isLocked, lockedBy } = FD.useLocking(lockId);
+      const [lockUuid, setLockUuid] = useState<string | undefined>(undefined);
+      const { lock, unlock, isLocked, isLockedByMe, lockedBy } = FD.useLocking(lockId);
 
       return (
         <>
           {renderInfo && (
             <>
+              <div data-testid='uuid'>{lockUuid ?? 'undefined'}</div>
               <div data-testid='isLocked'>{isLocked ? 'true' : 'false'}</div>
+              <div data-testid='isLockedByMe'>{isLockedByMe ? 'true' : 'false'}</div>
               <div data-testid='lockedBy'>{lockedBy === undefined ? 'undefined' : lockedBy}</div>
             </>
           )}
-          <button onClick={() => lock()}>Lock {lockId}</button>
-          <button
-            onClick={() => {
-              // Unlock with some pretend updated form data
-              unlock({
-                updatedDataModels: { [defaultMockDataElementId]: { obj1: { prop1: 'new value' } } },
-                updatedValidationIssues: { obj1: [] },
-              });
-            }}
-          >
-            Unlock {lockId}
-          </button>
+          <button onClick={async () => setLockUuid(await lock())}>Lock {lockId}</button>
+          {lockUuid && (
+            <button
+              onClick={() => {
+                // Unlock with some pretend updated form data
+                unlock(lockUuid!, {
+                  updatedDataModels: { [defaultMockDataElementId]: { obj1: { prop1: 'new value' } } },
+                  updatedValidationIssues: { obj1: [] },
+                });
+                setLockUuid(undefined);
+              }}
+            >
+              Unlock {lockId}
+            </button>
+          )}
         </>
       );
     }
@@ -466,11 +472,13 @@ describe('FormData', () => {
 
       await user.click(screen.getByRole('button', { name: 'Lock myLockId' }));
       await waitFor(() => expect(screen.getByTestId('isLocked')).toHaveTextContent('true'));
+      await waitFor(() => expect(screen.getByTestId('uuid')).not.toHaveTextContent('undefined'));
 
       expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(0);
       act(() => jest.advanceTimersByTime(5000));
       expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(0);
 
+      expect(screen.getByTestId('uuid')).not.toHaveTextContent('undefined');
       await user.click(screen.getByRole('button', { name: 'Unlock myLockId' }));
       await waitFor(() => expect(screen.getByTestId('isLocked')).toHaveTextContent('false'));
       await waitFor(() => expect(screen.getByTestId('obj1.prop1')).toHaveValue('new value'));
@@ -513,13 +521,14 @@ describe('FormData', () => {
       expect(window.logWarn).toHaveBeenCalledTimes(0);
     });
 
-    it('Locking should automatically retry until successful', async () => {
+    it('Locking should queue up when requested multiple times', async () => {
       const user = userEvent.setup({ delay: null });
       const { mutations } = await render();
 
       expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(0);
       await user.click(screen.getByRole('button', { name: 'Lock myLockId' }));
       await waitFor(() => expect(screen.getByTestId('isLocked')).toHaveTextContent('true'));
+      await waitFor(() => expect(screen.getByTestId('uuid')).not.toHaveTextContent('undefined'));
       expect(screen.getByTestId('lockedBy')).toHaveTextContent('myLockId');
       expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(0);
       expect(window.logError).toHaveBeenCalledTimes(0);
@@ -527,24 +536,18 @@ describe('FormData', () => {
 
       // Try to lock another lock id (will wait for the first lock to finish)
       await user.click(screen.getByRole('button', { name: 'Lock myOtherLockId' }));
+      await waitFor(() => expect(screen.getByTestId('isLocked')).toHaveTextContent('true'));
+      expect(screen.getByTestId('lockedBy')).toHaveTextContent('myLockId');
 
-      // Wait for the lock to complain after 60 seconds
-      jest.advanceTimersByTime(60000);
-
-      await waitFor(() => expect(window.logError).toHaveBeenCalledTimes(1));
-      expect(window.logError).toHaveBeenCalledWith(
-        'Form data is still locked by myLockId after 60000ms, still waiting for lock requested by myOtherLockId',
-      );
+      // The other lock id will be locked after the first one is unlocked, so it is still not acquired
+      act(() => jest.advanceTimersByTime(5000));
+      expect(screen.queryByRole('button', { name: 'Unlock myOtherLockId' })).not.toBeInTheDocument();
 
       await user.click(screen.getByRole('button', { name: 'Unlock myLockId' }));
       await waitFor(() => expect(screen.getByTestId('lockedBy')).toHaveTextContent('myOtherLockId'));
+      await waitFor(() => expect(screen.getByTestId('uuid')).toHaveTextContent('undefined'));
 
-      await user.click(screen.getByRole('button', { name: 'Unlock myLockId' }));
-      await waitFor(() => expect(window.logWarn).toHaveBeenCalledTimes(1));
-      expect(window.logWarn).toHaveBeenCalledWith(
-        'Form data is locked by myOtherLockId, cannot unlock it (requested by myLockId)',
-      );
-
+      await screen.findByRole('button', { name: 'Unlock myOtherLockId' });
       await user.click(screen.getByRole('button', { name: 'Unlock myOtherLockId' }));
       await waitFor(() => expect(screen.getByTestId('lockedBy')).toHaveTextContent('undefined'));
       expect(screen.getByTestId('isLocked')).toHaveTextContent('false');

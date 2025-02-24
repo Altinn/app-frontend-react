@@ -53,7 +53,7 @@ export type ActionResult = {
 
 type UseHandleClientActions = {
   handleClientActions: (actions: CBTypes.ClientAction[]) => Promise<void>;
-  handleDataModelUpdate: (lockTools: FormDataLockTools, result: ActionResult) => Promise<void>;
+  handleDataModelUpdate: (lockUuid: string, lockTools: FormDataLockTools, result: ActionResult) => Promise<void>;
 };
 
 /**
@@ -111,7 +111,7 @@ function useHandleClientActions(): UseHandleClientActions {
   );
 
   const handleDataModelUpdate: UseHandleClientActions['handleDataModelUpdate'] = useCallback(
-    async (lockTools, result) => {
+    async (lockUuid, lockTools, result) => {
       const instance = result.instance;
       const updatedDataModels = result.updatedDataModels;
       const _updatedValidationIssues = result.updatedValidationIssues;
@@ -129,7 +129,7 @@ function useHandleClientActions(): UseHandleClientActions {
           }, {})
         : undefined;
 
-      lockTools.unlock({
+      lockTools.unlock(lockUuid, {
         instance,
         updatedDataModels,
         updatedValidationIssues,
@@ -170,7 +170,7 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
 
   const handleServerAction = useCallback(
     async ({ action, buttonId }: PerformActionMutationProps) => {
-      await lockTools.lock();
+      const uuid = await lockTools.lock();
       try {
         const result = await mutateAsync({ action, buttonId });
 
@@ -178,12 +178,14 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
         // it as not ready now will prevent some re-renders with stale data while the result is handled later.
         markNotReady();
 
-        await handleDataModelUpdate(lockTools, result);
+        await handleDataModelUpdate(uuid, lockTools, result);
         if (result.clientActions) {
           await handleClientActions(result.clientActions);
         }
       } catch (error) {
-        lockTools.unlock();
+        if (lockTools.isLockedNow(uuid)) {
+          lockTools.unlock(uuid);
+        }
         if (error?.response?.data?.error?.message !== undefined) {
           toast(<Lang id={error?.response?.data?.error?.message} />, { type: 'error' });
         } else {

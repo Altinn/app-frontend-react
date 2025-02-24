@@ -60,15 +60,15 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
   const subformIdsWithError = useComponentValidationsForNode(node).find(isSubformValidation)?.subformDataElementIds;
 
   const addEntry = async () => {
+    setIsAdding(true);
+    const uuid = await lock();
     try {
-      setIsAdding(true);
-      await lock();
       const result = await addEntryMutation.mutateAsync({});
       navigate(`${node.id}/${result.id}`);
     } catch {
       // NOTE: Handled by useAddEntryMutation
     } finally {
-      unlock();
+      unlock(uuid);
       setIsAdding(false);
     }
   };

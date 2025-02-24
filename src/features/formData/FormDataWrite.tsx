@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useIsMutating, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -25,6 +25,7 @@ import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/features/validation';
 import { useIsUpdatingInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useAsRef } from 'src/hooks/useAsRef';
+import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { doPatchMultipleFormData } from 'src/queries/queries';
 import { getMultiPatchUrl } from 'src/utils/urls/appUrlHelper';
@@ -61,9 +62,9 @@ interface FormDataContextInitialProps {
 const {
   Provider,
   useSelector,
+  useStaticSelector,
   useShallowSelector,
   useMemoSelector,
-  useSelectorAsRef,
   useLaxMemoSelector,
   useLaxDelayedSelector,
   useDelayedSelector,
@@ -794,7 +795,7 @@ export const FD = {
    * consider using something like useDataModelBindings() instead.
    * @see useDataModelBindings
    */
-  useSetLeafValue: () => useSelector((s) => s.setLeafValue),
+  useSetLeafValue: () => useStaticSelector((s) => s.setLeafValue),
 
   /**
    * This returns the raw method for setting multiple leaf values in the form data at once. This is
@@ -802,7 +803,7 @@ export const FD = {
    * for what you really want to do, so consider using something like useDataModelBindings() instead.
    * @see useDataModelBindings
    */
-  useSetMultiLeafValues: () => useSelector((s) => s.setMultiLeafValues),
+  useSetMultiLeafValues: () => useStaticSelector((s) => s.setMultiLeafValues),
 
   /**
    * The locking functionality allows you to prevent form data from saving, even if the user stops typing (or navigates
@@ -810,77 +811,46 @@ export const FD = {
    * in a certain state. Locking will effectively ignore all saving until you unlock it again.
    */
   useLocking(lockId: string) {
-    const rawLock = useSelector((s) => s.lock);
-    const rawUnlock = useSelector((s) => s.unlock);
+    const rawLock = useStaticSelector((s) => s.lock);
+    const rawUnlock = useStaticSelector((s) => s.unlock);
+    const store = useStore();
 
     const lockedBy = useSelector((s) => s.lockedBy);
-    const lockedByRef = useSelectorAsRef((s) => s.lockedBy);
     const isLocked = lockedBy !== undefined;
-    const isLockedRef = useAsRef(isLocked);
     const isLockedByMe = lockedBy === lockId;
-    const isLockedByMeRef = useAsRef(isLockedByMe);
 
     const hasUnsavedChangesNow = useHasUnsavedChangesNow();
     const waitForSave = useWaitForSave();
 
-    const lock = useCallback(
-      async (retryAutomatically = true) => {
-        const timeUntilError = 60 * 1000;
-        const start = Date.now();
-        let reachedError = false;
+    const lock = useCallback(async () => {
+      if (hasUnsavedChangesNow()) {
+        await waitForSave(true);
+      }
 
-        while (retryAutomatically && isLockedRef.current) {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-          if (!reachedError && Date.now() - start > timeUntilError) {
-            window.logError(
-              `Form data is still locked by ${lockedByRef.current} after ${timeUntilError}ms, ` +
-                `still waiting for lock requested by ${lockId}`,
-            );
-            reachedError = true;
-          }
-        }
-
-        if (isLockedRef.current && !isLockedByMeRef.current) {
-          window.logWarn(
-            `Form data is already locked by ${lockedByRef.current}, cannot lock it again (requested by ${lockId})`,
-          );
-        }
-        if (isLockedRef.current) {
-          return false;
-        }
-
-        if (hasUnsavedChangesNow()) {
-          await waitForSave(true);
-        }
-
-        rawLock(lockId);
-        return true;
-      },
-      [hasUnsavedChangesNow, isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawLock, waitForSave],
-    );
+      return await new Promise<string>((r) => rawLock(lockId, r));
+    }, [hasUnsavedChangesNow, lockId, rawLock, waitForSave]);
 
     const unlock = useCallback(
-      (actionResult?: FDActionResult) => {
-        if (!isLockedRef.current) {
-          window.logWarn(`Form data is not locked, cannot unlock it (requested by ${lockId})`);
-        }
-        if (!isLockedByMeRef.current) {
-          window.logWarn(`Form data is locked by ${lockedByRef.current}, cannot unlock it (requested by ${lockId})`);
-        }
-        if (!isLockedRef.current || !isLockedByMeRef.current) {
-          return false;
-        }
-
-        rawUnlock(actionResult);
+      (uuid: string, actionResult?: FDActionResult) => {
+        rawUnlock(lockId, uuid, actionResult);
         return true;
       },
-      [isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawUnlock],
+      [rawUnlock, lockId],
     );
 
-    return useMemo(
-      () => ({ lock, unlock, isLocked, lockedBy, isLockedByMe }),
-      [isLocked, isLockedByMe, lock, lockedBy, unlock],
+    const isLockedNow = useCallback(
+      (uuid: string | undefined) => {
+        const state = store.getState();
+        if (!uuid && state.lockedBy) {
+          return true;
+        }
+        const me = `${lockId} (${uuid})`;
+        return state.lockedBy === me;
+      },
+      [lockId, store],
     );
+
+    return useShallowMemo({ lock, unlock, isLocked, lockedBy, isLockedByMe, isLockedNow });
   },
 
   /**
@@ -970,31 +940,31 @@ export const FD = {
    * Returns a function to append a value to a list. It checks if the value is already in the list, and if not,
    * it will append it. If the value is already in the list, it will not be appended.
    */
-  useAppendToListUnique: () => useSelector((s) => s.appendToListUnique),
+  useAppendToListUnique: () => useStaticSelector((s) => s.appendToListUnique),
 
   /**
    * Returns a function to append a value to a list. It will always append the value, even if it is already in the list.
    */
-  useAppendToList: () => useSelector((s) => s.appendToList),
+  useAppendToList: () => useStaticSelector((s) => s.appendToList),
 
   /**
    * Returns a function to remove a value from a list, by use of a callback that lets you find the correct row to
    * remove. When the callback returns true, that row will be removed.
    */
-  useRemoveFromListCallback: () => useSelector((s) => s.removeFromListCallback),
+  useRemoveFromListCallback: () => useStaticSelector((s) => s.removeFromListCallback),
 
   /**
    * Returns a function to remove a value from a list, by value. If your list contains unique values, this is the
    * safer alternative to useRemoveIndexFromList().
    */
-  useRemoveValueFromList: () => useSelector((s) => s.removeValueFromList),
+  useRemoveValueFromList: () => useStaticSelector((s) => s.removeValueFromList),
 
   /**
    * Returns the latest validation issues from the backend, from the last time the form data was saved.
    */
   useLastSaveValidationIssues: () => useSelector((s) => s.validationIssues),
 
-  useRemoveIndexFromList: () => useSelector((s) => s.removeIndexFromList),
+  useRemoveIndexFromList: () => useStaticSelector((s) => s.removeIndexFromList),
 
   useGetDataTypeForElementId: () => {
     const map: Record<string, string | undefined> = useMemoSelector((s) =>

@@ -300,7 +300,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             upload(fullAction);
 
             if (supportsNewAttachmentAPI) {
-              await lock();
+              const uuid = await lock();
               const results: AttachmentUploadResult[] = [];
 
               const updatedData: FDActionResult = { updatedDataModels: {}, updatedValidationIssues: {} };
@@ -333,7 +333,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                 action.dataModelBindings,
               );
               uploadFinished(fullAction, results);
-              unlock(updatedData);
+              unlock(uuid, updatedData);
             } else {
               const { baseComponentId } = splitDashedKey(action.nodeId);
               const results: ((AttachmentUploadSuccess & { newInstanceData: IData }) | AttachmentUploadFailure)[] =
