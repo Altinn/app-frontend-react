@@ -129,11 +129,7 @@ export function AppNavigationHeading({
   );
 }
 
-function getTaskIcon(taskType: string | undefined, type?: NavigationPageGroup['type']) {
-  if (type === 'info') {
-    return InformationIcon;
-  }
-
+function getTaskIcon(taskType: string | undefined) {
   switch (taskType) {
     case 'data':
       return TasklistIcon;
@@ -230,7 +226,7 @@ function PageGroupSingle({
       <button
         disabled={isAnyProcessing}
         aria-current={isCurrentPage ? 'page' : undefined}
-        className={cn(classes.groupButton, 'fds-focus')}
+        className={cn(classes.groupButton, classes.groupButtonSingle, 'fds-focus')}
         onClick={() =>
           performProcess(async () => {
             if (!isCurrentPage) {
@@ -241,6 +237,7 @@ function PageGroupSingle({
         }
       >
         <PageGroupSymbol
+          single
           type={group.type}
           active={isCurrentPage}
           error={validations !== ContextNotProvided && validations.hasErrors.group}
@@ -322,6 +319,7 @@ function PageGroupSymbol({
   error,
   complete,
   active,
+  single = false,
   open = false,
   isLoading = false,
 }: {
@@ -329,6 +327,7 @@ function PageGroupSymbol({
   error: boolean;
   complete: boolean;
   active: boolean;
+  single?: boolean;
   open?: boolean;
   isLoading?: boolean;
 }) {
@@ -340,7 +339,16 @@ function PageGroupSymbol({
   const showError = error && !active && !open;
   const showComplete = complete && !error && !active && !open;
 
-  const Icon = showError ? XMarkIcon : showComplete ? CheckmarkIcon : getTaskIcon(getTaskType(currentTaskId), type);
+  const Icon = showError
+    ? XMarkIcon
+    : showComplete
+      ? CheckmarkIcon
+      : type === 'info'
+        ? InformationIcon
+        : !single
+          ? getTaskIcon(getTaskType(currentTaskId))
+          : null;
+
   const testid = showError ? 'state-error' : showComplete ? 'state-complete' : undefined;
 
   if (isLoading) {
@@ -355,16 +363,20 @@ function PageGroupSymbol({
   return (
     <div
       className={cn(classes.groupSymbol, {
+        [classes.groupSymbolInfo]: type === 'info',
+        [classes.groupSymbolSingle]: single,
         [classes.groupSymbolError]: showError,
         [classes.groupSymbolComplete]: showComplete,
         [classes.groupSymbolActive]: showActive,
         [classes.groupSymbolDefault]: !showError && !showComplete && !showActive,
       })}
     >
-      <Icon
-        aria-hidden
-        data-testid={testid}
-      />
+      {Icon && (
+        <Icon
+          aria-hidden
+          data-testid={testid}
+        />
+      )}
     </div>
   );
 }
