@@ -26,7 +26,6 @@ import {
   Validation,
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
-import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
@@ -51,7 +50,6 @@ import type { AttachmentsStorePluginConfig } from 'src/features/attachments/Atta
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
-import type { DSProps, DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
 import type { ObjectOrArray } from 'src/hooks/useShallowMemo';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
@@ -1028,62 +1026,6 @@ function getNodeData<N extends LayoutNode | undefined, Out>(
  * A set of tools, selectors and functions to use internally in node generator components.
  */
 export const NodesInternal = {
-  /**
-   * This is a special selector that will only re-render when the number of nodes that have been added/removed
-   * increases AND the selector would return a different result.
-   *
-   * This is useful for node traversal, which only needs to re-run when a node is added or removed, but don't care about
-   * expressions that are solved within. Also, the selectors will always return ContextNotProvided when the nodes
-   * are not ready yet.
-   */
-  useDataSelectorForTraversal(): DSReturn<{
-    store: StoreApi<NodesContext>;
-    strictness: SelectorStrictness.returnWhenNotProvided;
-    mode: InnerSelectorMode<NodesContext, [NodesContext]>;
-  }> {
-    return useDelayedSelector({
-      store: Store.useLaxStore(),
-      strictness: SelectorStrictness.returnWhenNotProvided,
-      onlyReRenderWhen: ((state, lastValue, setNewValue) => {
-        if (state.readiness !== NodesReadiness.Ready) {
-          return false;
-        }
-        if (lastValue !== state.addRemoveCounter) {
-          setNewValue(state.addRemoveCounter);
-          return true;
-        }
-        return false;
-      }) satisfies OnlyReRenderWhen<NodesContext, number>,
-      mode: {
-        mode: 'innerSelector',
-        makeArgs: (state) => [state],
-      } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
-    });
-  },
-  useDataSelectorForTraversalProps(): DSProps<{
-    store: StoreApi<NodesContext> | typeof ContextNotProvided;
-    strictness: SelectorStrictness.returnWhenNotProvided;
-    mode: InnerSelectorMode<NodesContext, [NodesContext]>;
-  }> {
-    return {
-      store: Store.useLaxStore(),
-      strictness: SelectorStrictness.returnWhenNotProvided,
-      onlyReRenderWhen: ((state, lastValue, setNewValue) => {
-        if (state.readiness !== NodesReadiness.Ready) {
-          return false;
-        }
-        if (lastValue !== state.addRemoveCounter) {
-          setNewValue(state.addRemoveCounter);
-          return true;
-        }
-        return false;
-      }) satisfies OnlyReRenderWhen<NodesContext, number>,
-      mode: {
-        mode: 'innerSelector',
-        makeArgs: (state) => [state],
-      } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
-    };
-  },
   useIsReady() {
     const isReady = Store.useLaxSelector((s) => s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan);
     if (isReady === ContextNotProvided) {

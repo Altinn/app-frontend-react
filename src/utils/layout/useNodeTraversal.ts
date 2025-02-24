@@ -1,13 +1,10 @@
-import { useCallback } from 'react';
-
-import { ContextNotProvided } from 'src/core/contexts/context';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { NodesReadiness } from 'src/utils/layout/NodesContext';
 import type { ParentNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesContext, NodesInternal, PageData, PagesData, useNodesLax } from 'src/utils/layout/NodesContext';
+import type { NodesContext, PageData, PagesData } from 'src/utils/layout/NodesContext';
 import type { NodeData } from 'src/utils/layout/types';
 
 type AnyData = PagesData | PageData | NodeData;
@@ -225,63 +222,3 @@ export type NodeTraversalFrom<N extends Node> = N extends LayoutPages
 export type NodeTraversalFromRoot = Omit<NodeTraversal, 'parents'>;
 export type NodeTraversalFromPage = Omit<NodeTraversal<LayoutPage>, 'allNodes' | 'findPage'>;
 export type NodeTraversalFromNode<N extends LayoutNode> = Omit<NodeTraversal<N>, 'allNodes' | 'findPage' | 'findById'>;
-
-enum Strictness {
-  // If the context or nodes are not provided, throw an error upon traversal
-  throwError,
-
-  // If the context or nodes are not provided, return ContextNotProvided upon traversal
-  returnContextNotProvided,
-}
-
-type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictness.returnContextNotProvided
-  ? U | typeof ContextNotProvided
-  : U;
-
-function throwOrReturn<R>(value: R, strictness: Strictness) {
-  if (value === ContextNotProvided) {
-    if (strictness === Strictness.throwError) {
-      throw new Error('useNodeTraversalSelector() must be used inside a NodesProvider');
-    }
-    if (strictness === Strictness.returnContextNotProvided) {
-      return ContextNotProvided;
-    }
-    return undefined;
-  }
-
-  return value;
-}
-
-function useInnerNodeTraversalSelectorProto<Strict extends Strictness>(
-  strictness: Strict,
-  nodes: ReturnType<typeof useNodesLax>,
-  nodeDataSelectorForTraversal: ReturnType<typeof NodesInternal.useDataSelectorForTraversal>,
-) {
-  return useCallback(
-    <U>(
-      innerSelector: (traverser: NodeTraversalFromRoot) => InnerSelectorReturns<Strict, U>,
-      deps: unknown[],
-    ): InnerSelectorReturns<Strict, U> => {
-      if (!nodes) {
-        return throwOrReturn(ContextNotProvided, strictness) as InnerSelectorReturns<Strict, U>;
-      }
-
-      const value = nodeDataSelectorForTraversal(
-        (state) => innerSelector(new NodeTraversal(state, nodes, nodes)) as InnerSelectorReturns<Strict, U>,
-        [innerSelector.toString(), ...deps],
-      );
-
-      return throwOrReturn(value, strictness) as InnerSelectorReturns<Strict, U>;
-    },
-    [nodeDataSelectorForTraversal, nodes, strictness],
-  );
-}
-
-export function useInnerNodeTraversalSelector(
-  nodes: ReturnType<typeof useNodesLax>,
-  nodeDataSelectorForTraversal: ReturnType<typeof NodesInternal.useDataSelectorForTraversal>,
-) {
-  return useInnerNodeTraversalSelectorProto(Strictness.throwError, nodes, nodeDataSelectorForTraversal);
-}
-
-export type NodeTraversalSelector = <U>(selector: (t: NodeTraversalFromRoot) => U, deps?: unknown[]) => U;
