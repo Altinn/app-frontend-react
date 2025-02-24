@@ -4,6 +4,7 @@ import { useApplicationSettings } from 'src/features/applicationSettings/Applica
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
+import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSet } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -16,6 +17,7 @@ import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
 import { Validation } from 'src/features/validation/validationContext';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
+import { useCurrentDataModelLocation } from 'src/utils/layout/DataModelLocation';
 import { useCommitWhenFinished } from 'src/utils/layout/generator/CommitQueue';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
@@ -68,6 +70,8 @@ function useExpressionDataSources(): ExpressionDataSources {
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
   const currentLanguage = useCurrentLanguage();
+  const currentDataModelPath = useCurrentDataModelLocation();
+  const layouts = useLayouts();
 
   const instanceDataSources = hooks.useLaxInstanceDataSources();
   const currentLayoutSet = hooks.useCurrentLayoutSet() ?? null;
@@ -101,6 +105,8 @@ function useExpressionDataSources(): ExpressionDataSources {
     dataModelNames,
     dataElementSelector,
     codeListSelector,
+    currentDataModelPath,
+    layouts,
   });
 }
 
