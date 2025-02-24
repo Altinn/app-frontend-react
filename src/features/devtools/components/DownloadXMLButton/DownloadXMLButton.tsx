@@ -30,7 +30,7 @@ const InnerDownloadXMLButton = () => {
   const [selectedDataType, setSelectedDataType] = useState(writableDataTypes?.at(0));
   const disabled = !selectedDataType;
 
-  const { lock, unlock } = FD.useLocking('__dev_tools__');
+  const lock = FD.useLocking('__dev_tools__');
 
   const downloadXML = async () => {
     const dataElementId = selectedDataType ? getDataElementIdForDataType(selectedDataType) : undefined;
@@ -51,7 +51,7 @@ const InnerDownloadXMLButton = () => {
     const dataElementId = selectedDataType ? getDataElementIdForDataType(selectedDataType) : undefined;
     const dataUrl = dataElementId && instanceId ? getStatefulDataModelUrl(instanceId, dataElementId, true) : undefined;
     if (dataUrl && acceptedFiles.length) {
-      const uuid = await lock();
+      const currentLock = await lock();
       try {
         const dataToUpload = await acceptedFiles[0].text();
         await axios.put(dataUrl, dataToUpload, { headers: { 'Content-Type': 'application/xml' } }).catch((error) => {
@@ -63,9 +63,9 @@ const InnerDownloadXMLButton = () => {
         const { data: updatedDataModel } = await axios.get(dataUrl, {
           headers: { Accept: 'application/json' },
         });
-        unlock(uuid, { updatedDataModels: { [dataElementId!]: updatedDataModel }, updatedValidationIssues: {} });
+        currentLock.unlock({ updatedDataModels: { [dataElementId!]: updatedDataModel }, updatedValidationIssues: {} });
       } catch {
-        unlock(uuid);
+        currentLock.unlock();
       }
     }
   };

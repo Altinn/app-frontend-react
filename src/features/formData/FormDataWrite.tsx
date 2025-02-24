@@ -25,7 +25,6 @@ import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/features/validation';
 import { useIsUpdatingInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useAsRef } from 'src/hooks/useAsRef';
-import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { doPatchMultipleFormData } from 'src/queries/queries';
 import { getMultiPatchUrl } from 'src/utils/urls/appUrlHelper';
@@ -811,46 +810,31 @@ export const FD = {
    * in a certain state. Locking will effectively ignore all saving until you unlock it again.
    */
   useLocking(lockId: string) {
-    const rawLock = useStaticSelector((s) => s.lock);
-    const rawUnlock = useStaticSelector((s) => s.unlock);
     const store = useStore();
-
-    const lockedBy = useSelector((s) => s.lockedBy);
-    const isLocked = lockedBy !== undefined;
-    const isLockedByMe = lockedBy === lockId;
 
     const hasUnsavedChangesNow = useHasUnsavedChangesNow();
     const waitForSave = useWaitForSave();
 
-    const lock = useCallback(async () => {
+    return useCallback(async () => {
+      const { lock: rawLock, unlock: rawUnlock } = store.getState();
       if (hasUnsavedChangesNow()) {
         await waitForSave(true);
       }
 
-      return await new Promise<string>((r) => rawLock(lockId, r));
-    }, [hasUnsavedChangesNow, lockId, rawLock, waitForSave]);
+      const uuid = await new Promise<string>((r) => rawLock(lockId, r));
+      const isLockedByMe = () => store.getState().lockedBy === `${lockId} (${uuid})`;
+      const isLocked = () => store.getState().lockedBy !== undefined;
+      const unlock = (actionResult?: FDActionResult) => rawUnlock(lockId, uuid, actionResult);
 
-    const unlock = useCallback(
-      (uuid: string, actionResult?: FDActionResult) => {
-        rawUnlock(lockId, uuid, actionResult);
-        return true;
-      },
-      [rawUnlock, lockId],
-    );
+      return { unlock, isLocked, isLockedByMe };
+    }, [hasUnsavedChangesNow, lockId, waitForSave, store]);
+  },
 
-    const isLockedNow = useCallback(
-      (uuid: string | undefined) => {
-        const state = store.getState();
-        if (!uuid && state.lockedBy) {
-          return true;
-        }
-        const me = `${lockId} (${uuid})`;
-        return state.lockedBy === me;
-      },
-      [lockId, store],
-    );
+  useLockStatus() {
+    const lockedBy = useSelector((s) => s.lockedBy);
+    const isLocked = lockedBy !== undefined;
 
-    return useShallowMemo({ lock, unlock, isLocked, lockedBy, isLockedByMe, isLockedNow });
+    return { lockedBy, isLocked };
   },
 
   /**

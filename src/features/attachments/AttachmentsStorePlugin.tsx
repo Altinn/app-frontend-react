@@ -289,7 +289,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         const supportsNewAttachmentAPI = appSupportsNewAttachmentAPI(applicationMetadata);
 
         const setAttachmentsInDataModel = useSetAttachmentInDataModel();
-        const { lock, unlock } = FD.useLocking('__attachment__upload__');
+        const lock = FD.useLocking('__attachment__upload__');
 
         return useCallback(
           async (action) => {
@@ -300,7 +300,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             upload(fullAction);
 
             if (supportsNewAttachmentAPI) {
-              const uuid = await lock();
+              const { unlock } = await lock();
               const results: AttachmentUploadResult[] = [];
 
               const updatedData: FDActionResult = { updatedDataModels: {}, updatedValidationIssues: {} };
@@ -332,7 +332,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                 action.dataModelBindings,
               );
               uploadFinished(fullAction, results);
-              unlock(uuid, updatedData);
+              unlock(updatedData);
             } else {
               const { baseComponentId } = splitDashedKey(action.nodeId);
               const results: ((AttachmentUploadSuccess & { newInstanceData: IData }) | AttachmentUploadFailure)[] =
@@ -364,7 +364,6 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             lock,
             setAttachmentsInDataModel,
             uploadFinished,
-            unlock,
             uploadAttachment,
             appendDataElements,
             uploadAttachmentOld,
