@@ -185,7 +185,8 @@ export interface FormDataMethods {
   cancelSave: () => void;
   saveFinished: (props: FDSaveFinished) => void;
   requestManualSave: (setTo?: boolean) => void;
-  lock: (key: string, whenAcquired: (uuid: string) => void) => void;
+  lock: (request: LockRequest) => void;
+  nextLock: () => void;
   unlock: (key: string, uuid: string, saveResult?: FDActionResult) => void;
 }
 
@@ -488,15 +489,24 @@ function makeActions(
       set((state) => {
         state.manualSaveRequested = setTo;
       }),
-    lock: (key, whenAcquired) =>
+    lock: (request) =>
       set((state) => {
         if (state.lockedBy) {
-          state.lockQueue.push({ key, whenAcquired });
+          state.lockQueue.push(request);
           return;
         }
         const uuid = uuidv4();
-        state.lockedBy = `${key} (${uuid})`;
-        whenAcquired(uuid);
+        state.lockedBy = `${request.key} (${uuid})`;
+        request.whenAcquired(uuid);
+      }),
+    nextLock: () =>
+      set((state) => {
+        const next = state.lockQueue.shift();
+        if (next) {
+          const uuid = uuidv4();
+          state.lockedBy = `${next.key} (${uuid})`;
+          next.whenAcquired(uuid);
+        }
       }),
     unlock: (key, uuid, actionResult) =>
       set((state) => {
@@ -531,14 +541,9 @@ function makeActions(
           });
         }
 
-        const next = state.lockQueue.shift();
-        if (next) {
-          const nextUuid = uuidv4();
-          next.whenAcquired(nextUuid);
-          state.lockedBy = `${next.key} (${nextUuid})`;
-          return;
-        }
-
+        /** Unlock. If there are more locks in the queue, the next one will be processed by
+         * @see FormDataEffects
+         */
         state.lockedBy = undefined;
       }),
   };

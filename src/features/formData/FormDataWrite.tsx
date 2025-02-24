@@ -336,6 +336,7 @@ export function FormDataWriteProvider({ children }: PropsWithChildren) {
       changeInstance={changeInstance}
     >
       <FormDataEffects />
+      <LockingEffects />
       {children}
     </Provider>
   );
@@ -435,6 +436,28 @@ function FormDataEffects() {
       window.CypressState = { ...window.CypressState, formData };
     }
   });
+
+  return null;
+}
+
+function LockingEffects() {
+  const store = useStore();
+  const hasNext = useSelector((s) => (s.lockedBy ? false : s.lockQueue.length > 0));
+
+  const hasUnsavedChangesNow = useHasUnsavedChangesNow();
+  const waitForSave = useWaitForSave();
+
+  useEffect(() => {
+    (async () => {
+      const state = store.getState();
+      if (!state.lockedBy && state.lockQueue.length > 0) {
+        if (hasUnsavedChangesNow()) {
+          await waitForSave(true);
+        }
+        state.nextLock();
+      }
+    })().then();
+  }, [hasNext, hasUnsavedChangesNow, store, waitForSave]);
 
   return null;
 }
@@ -808,6 +831,7 @@ export const FD = {
    * The locking functionality allows you to prevent form data from saving, even if the user stops typing (or navigates
    * to the next page). This is useful if you want to perform a server-side action that requires the form data to be
    * in a certain state. Locking will effectively ignore all saving until you unlock it again.
+   * @see LockingEffects
    */
   useLocking(lockId: string) {
     const store = useStore();
@@ -816,12 +840,20 @@ export const FD = {
     const waitForSave = useWaitForSave();
 
     return useCallback(async () => {
-      const { lock: rawLock, unlock: rawUnlock } = store.getState();
-      if (hasUnsavedChangesNow()) {
+      const { lock: rawLock, unlock: rawUnlock, lockedBy } = store.getState();
+
+      if (!lockedBy && hasUnsavedChangesNow()) {
+        // Always save before locking. If the lock is not acquired immediately, LockingEffects will do that for us.
         await waitForSave(true);
       }
 
-      const uuid = await new Promise<string>((r) => rawLock(lockId, r));
+      const uuid = await new Promise<string>((resolve) =>
+        rawLock({
+          key: lockId,
+          whenAcquired: resolve,
+        }),
+      );
+
       const isLockedByMe = () => store.getState().lockedBy === `${lockId} (${uuid})`;
       const isLocked = () => store.getState().lockedBy !== undefined;
       const unlock = (actionResult?: FDActionResult) => rawUnlock(lockId, uuid, actionResult);
