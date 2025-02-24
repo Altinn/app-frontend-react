@@ -17,9 +17,8 @@ import { Validation } from 'src/features/validation/validationContext';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { useCommitWhenFinished } from 'src/utils/layout/generator/CommitQueue';
-import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
-import { useInnerNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { ValidationDataSources } from 'src/features/validation';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
@@ -52,7 +51,6 @@ function useExpressionDataSources(): ExpressionDataSources {
     attachmentsSelector,
     optionsSelector,
     nodeDataSelector,
-    dataSelectorForTraversal,
     isHiddenSelector,
     dataElementSelector,
     codeListSelector,
@@ -62,7 +60,6 @@ function useExpressionDataSources(): ExpressionDataSources {
     NodesInternal.useAttachmentsSelectorProps(),
     NodesInternal.useNodeOptionsSelectorProps(),
     NodesInternal.useNodeDataSelectorProps(),
-    NodesInternal.useDataSelectorForTraversalProps(),
     Hidden.useIsHiddenSelectorProps(),
     useLaxDataElementsSelectorProps(),
     useCodeListSelectorProps(),
@@ -77,7 +74,6 @@ function useExpressionDataSources(): ExpressionDataSources {
   const dataModelNames = hooks.useReadableDataTypes();
   const externalApis = hooks.useExternalApis();
   const roles = hooks.useCurrentPartyRoles();
-  const nodeTraversal = useInnerNodeTraversalSelector(useNodes(), dataSelectorForTraversal);
   const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
     hooks.useDefaultDataType(),
@@ -99,7 +95,6 @@ function useExpressionDataSources(): ExpressionDataSources {
     langToolsSelector,
     currentLanguage,
     isHiddenSelector,
-    nodeTraversal,
     transposeSelector,
     currentLayoutSet,
     externalApis,
