@@ -143,9 +143,8 @@ describe('navigation', () => {
       cy.findByRole('textbox', { name: /Registreringsnummer/ }).should('be.visible');
 
       cy.showNavGroups(true);
-      cy.navGroup('Registrering').should('have.attr', 'aria-expanded', 'true');
-      cy.navGroup('Registrering').should('have.attr', 'aria-current', 'step');
-      cy.navGroup('Registrering', 'Registreringsnummer').should('have.attr', 'aria-current', 'page');
+      cy.navGroup('Registreringsnummer').should('have.attr', 'aria-current', 'page');
+      cy.navGroup('Registreringsnummer').should('not.have.attr', 'aria-expanded');
       cy.navGroup('Informasjon').should('have.attr', 'aria-expanded', 'false');
       cy.navGroup('Informasjon').should('not.have.attr', 'aria-current');
       cy.openNavGroup('Informasjon');
