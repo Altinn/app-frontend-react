@@ -116,9 +116,9 @@ describe('AppNavigation', () => {
   it('single groups should not be expandable', async () => {
     await render({
       groups: [
-        { order: ['first'], single: true, type: 'info' },
+        { order: ['first'], type: 'info' },
         { name: 'form', order: ['second', 'third'], markWhenCompleted: true },
-        { order: ['fourth'], single: true },
+        { order: ['fourth'] },
       ],
     });
 
@@ -138,9 +138,9 @@ describe('AppNavigation', () => {
   it('current single group should be active', async () => {
     await render({
       groups: [
-        { order: ['first'], single: true, type: 'info' },
+        { order: ['first'], type: 'info' },
         { name: 'form', order: ['second', 'third'], markWhenCompleted: true },
-        { order: ['fourth'], single: true },
+        { order: ['fourth'] },
       ],
     });
 
@@ -153,8 +153,8 @@ describe('AppNavigation', () => {
     await render({
       groups: [
         { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
-        { order: ['third'], single: true, type: 'info' },
-        { order: ['fourth'], single: true },
+        { order: ['third'], type: 'info' },
+        { order: ['fourth'] },
       ],
     });
 
@@ -170,8 +170,8 @@ describe('AppNavigation', () => {
       hiddenPages: ['second'],
       groups: [
         { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
-        { order: ['third'], single: true, type: 'info' },
-        { order: ['fourth'], single: true },
+        { order: ['third'], type: 'info' },
+        { order: ['fourth'] },
       ],
     });
 
@@ -187,8 +187,8 @@ describe('AppNavigation', () => {
       hiddenPages: ['third'],
       groups: [
         { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
-        { order: ['third'], single: true, type: 'info' },
-        { order: ['fourth'], single: true },
+        { order: ['third'], type: 'info' },
+        { order: ['fourth'] },
       ],
     });
 
@@ -204,8 +204,8 @@ describe('AppNavigation', () => {
       hiddenPages: ['first', 'second'],
       groups: [
         { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
-        { order: ['third'], single: true, type: 'info' },
-        { order: ['fourth'], single: true },
+        { order: ['third'], type: 'info' },
+        { order: ['fourth'] },
       ],
     });
 
@@ -220,8 +220,8 @@ describe('AppNavigation', () => {
     await render({
       groups: [
         { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
-        { order: ['third'], single: true, type: 'info' },
-        { order: ['fourth'], single: true },
+        { order: ['third'], type: 'info' },
+        { order: ['fourth'] },
       ],
     });
 
@@ -264,7 +264,7 @@ describe('AppNavigation', () => {
     await render({
       groups: [
         { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
-        { order: ['third'], single: true, type: 'info' },
+        { order: ['third'], type: 'info' },
       ],
     });
 
@@ -286,8 +286,8 @@ describe('AppNavigation', () => {
       initialPage: 'third',
       groups: [
         { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
-        { order: ['third'], single: true, type: 'info' },
-        { order: ['fourth'], single: true },
+        { order: ['third'], type: 'info' },
+        { order: ['fourth'] },
       ],
     });
 
@@ -309,7 +309,7 @@ describe('AppNavigation', () => {
       initialPage: 'second',
       groups: [
         { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
-        { order: ['third'], single: true, type: 'info' },
+        { order: ['third'], type: 'info' },
       ],
     });
 
@@ -330,7 +330,7 @@ describe('AppNavigation', () => {
       initialPage: 'second',
       groups: [
         { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
-        { order: ['third'], single: true, type: 'info' },
+        { order: ['third'], type: 'info' },
       ],
     });
 
@@ -346,7 +346,7 @@ describe('AppNavigation', () => {
       initialPage: 'third',
       groups: [
         { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
-        { order: ['third'], single: true, markWhenCompleted: true },
+        { order: ['third'], markWhenCompleted: true },
       ],
     });
 
@@ -363,7 +363,7 @@ describe('AppNavigation', () => {
       initialPage: 'third',
       groups: [
         { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
-        { order: ['third'], single: true, markWhenCompleted: true },
+        { order: ['third'], markWhenCompleted: true },
       ],
     });
 
@@ -380,7 +380,7 @@ describe('AppNavigation', () => {
       initialPage: 'third',
       groups: [
         { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
-        { order: ['third'], single: true, type: 'info' },
+        { order: ['third'], type: 'info' },
       ],
     });
 

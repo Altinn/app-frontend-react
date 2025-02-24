@@ -79,9 +79,9 @@ describe('LayoutSettingsContext', () => {
       await render({
         renderer: () => <UseRawPageOrder />,
         groups: [
-          { order: ['first'], single: true, type: 'info' },
+          { order: ['first'], type: 'info' },
           { order: ['second', 'third'], markWhenCompleted: true },
-          { order: ['fourth'], single: true },
+          { order: ['fourth'] },
         ],
       });
       expect(screen.getAllByTestId('page')).toHaveLength(4);
@@ -128,9 +128,9 @@ describe('LayoutSettingsContext', () => {
       await render({
         renderer: () => <UsePageGroups />,
         groups: [
-          { order: ['first'], single: true, type: 'info' },
+          { order: ['first'], type: 'info' },
           { order: ['second', 'third'], markWhenCompleted: true },
-          { order: ['fourth'], single: true },
+          { order: ['fourth'] },
         ],
       });
       expect(screen.getByTestId('hasGroups')).toHaveTextContent('true');

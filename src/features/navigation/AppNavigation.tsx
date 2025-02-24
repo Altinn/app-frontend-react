@@ -24,6 +24,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/AppNavigation.module.css';
 import {
+  isSingleGroup,
   useGetTaskGroupType,
   useGetTaskName,
   useValidationsForPages,
@@ -183,7 +184,7 @@ function PageGroup({ group, onNavigate }: { group: NavigationPageGroup; onNaviga
     return null;
   }
 
-  if (group.single) {
+  if (isSingleGroup(group)) {
     return (
       <PageGroupSingle
         group={group}

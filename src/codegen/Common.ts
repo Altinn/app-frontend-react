@@ -749,17 +749,10 @@ const common = {
         'groups',
         new CG.arr(
           new CG.union(
-            new CG.obj(
-              new CG.prop('name', new CG.str()),
-              new CG.prop('single', new CG.const(false).optional({ default: false })),
-              new CG.prop('order', new CG.arr(new CG.str()).setMinItems(1)),
-            )
+            new CG.obj(new CG.prop('name', new CG.str()), new CG.prop('order', new CG.arr(new CG.str()).setMinItems(2)))
               .extends(CG.common('INavigationBasePageGroup'))
               .exportAs('NavigationPageGroupMultiple'),
-            new CG.obj(
-              new CG.prop('single', new CG.const(true)),
-              new CG.prop('order', new CG.arr(new CG.str()).setMinItems(1).setMaxItems(1)),
-            )
+            new CG.obj(new CG.prop('order', new CG.arr(new CG.str()).setMinItems(1).setMaxItems(1)))
               .extends(CG.common('INavigationBasePageGroup'))
               .exportAs('NavigationPageGroupSingle'),
           )
