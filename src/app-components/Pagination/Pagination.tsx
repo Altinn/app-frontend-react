@@ -1,12 +1,16 @@
 import React from 'react';
 
-import { Combobox, Pagination as DesignSystemPagination, usePagination } from '@digdir/designsystemet-react';
+import {
+  Field,
+  Label,
+  Pagination as DesignSystemPagination,
+  Select,
+  usePagination,
+} from '@digdir/designsystemet-react';
 
 import classes from 'src/app-components/Pagination/Pagination.module.css';
-import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMini, useIsMobile, useIsTablet } from 'src/hooks/useDeviceWidths';
-import { optionSearchFilter } from 'src/utils/options';
 
 type PaginationProps = {
   nextLabel: string;
@@ -22,7 +26,7 @@ type PaginationProps = {
   pageSize: number;
   rowsPerPageText: string;
   rowsPerPageOptions?: number[];
-  onPageSizeChange?: (value: string[]) => void;
+  onPageSizeChange: (value: number) => void;
   setCurrentPage: (pageNumber: number) => void;
   onChange?: Parameters<typeof DesignSystemPagination>[0]['onChange'];
 } & Omit<React.HTMLAttributes<HTMLElement>, 'onChange'>;
@@ -67,33 +71,25 @@ export const Pagination = ({
   return (
     <>
       {showRowsPerPageDropdown && !isMobile && (
-        <Combobox
-          id='paginationRowsPerPageDropdown'
-          data-testid='paginationRowsPerPageDropdown'
-          filter={optionSearchFilter}
-          size='sm'
-          value={[pageSize.toString()]}
-          onValueChange={onPageSizeChange}
-          label={rowsPerPageText}
-          aria-label={rowsPerPageText}
-          className={classes.rowsPerPageDropdown}
-        >
-          <Combobox.Empty>
-            <Lang id='form_filler.no_options_found' />
-          </Combobox.Empty>
-          {rowsPerPageOptions?.map((option, i) => (
-            <Combobox.Option
-              key={`${option}${i}`}
-              value={option.toString()}
-              displayValue={option.toString()}
-            >
-              <span>
-                <wbr />
+        <Field className={classes.rowsPerPageField}>
+          <Select
+            id='paginationRowsPerPageDropdown'
+            data-size='sm'
+            value={pageSize}
+            onChange={(e) => onPageSizeChange(parseInt(e.target.value))}
+            className={classes.rowsPerPageDropdown}
+          >
+            {rowsPerPageOptions?.map((option, i) => (
+              <Select.Option
+                key={`${option}${i}`}
+                value={option}
+              >
                 {option}
-              </span>
-            </Combobox.Option>
-          ))}
-        </Combobox>
+              </Select.Option>
+            ))}
+          </Select>
+          <Label htmlFor='paginationRowsPerPageDropdown'>{rowsPerPageText}</Label>
+        </Field>
       )}
       <DesignSystemPagination
         data-testid='pagination'

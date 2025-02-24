@@ -84,6 +84,7 @@ function InstanceSelection() {
   const textStrings = language?.['list_component'];
 
   function handleRowsPerPageChanged(newRowsPerPage: number) {
+    console.log('newRowsPerPage', newRowsPerPage);
     setRowsPerPage(newRowsPerPage);
     if (instances.length < (currentPage - 1) * newRowsPerPage) {
       setCurrentPage(Math.floor(instances.length / newRowsPerPage));
@@ -153,13 +154,13 @@ function InstanceSelection() {
                     previousLabelAriaLabel={textStrings['previousPageAriaLabel']}
                     rowsPerPageText={textStrings['rowsPerPage']}
                     size='sm'
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
                     numberOfRows={instances.length}
-                    pageSize={rowsPerPage}
                     showRowsPerPageDropdown={true}
                     rowsPerPageOptions={rowsPerPageOptions}
-                    onPageSizeChange={(value) => handleRowsPerPageChanged(+value)}
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                    pageSize={rowsPerPage}
+                    onPageSizeChange={(value) => handleRowsPerPageChanged(value)}
                   />
                 </div>
               </Table.Cell>
