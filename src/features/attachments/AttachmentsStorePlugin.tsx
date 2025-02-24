@@ -307,26 +307,25 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
 
               for (const { file, temporaryId } of fullAction.files) {
                 const { baseComponentId } = splitDashedKey(action.nodeId);
-                await uploadAttachment({
-                  dataTypeId: baseComponentId,
-                  file,
-                })
-                  .then((reply) => {
-                    results.push({ temporaryId, newDataElementId: reply.newDataElementId });
-
-                    updatedData.instance = reply.instance;
-                    updatedData.updatedDataModels = {
-                      ...updatedData.updatedDataModels,
-                      ...dataModelPairsToObject(reply.newDataModels),
-                    };
-                    updatedData.updatedValidationIssues = {
-                      ...updatedData.updatedValidationIssues,
-                      ...backendValidationIssueGroupListToObject(reply.validationIssues),
-                    };
-                  })
-                  .catch((error) => {
-                    results.push({ temporaryId, error });
+                try {
+                  const reply = await uploadAttachment({
+                    dataTypeId: baseComponentId,
+                    file,
                   });
+                  results.push({ temporaryId, newDataElementId: reply.newDataElementId });
+
+                  updatedData.instance = reply.instance;
+                  updatedData.updatedDataModels = {
+                    ...updatedData.updatedDataModels,
+                    ...dataModelPairsToObject(reply.newDataModels),
+                  };
+                  updatedData.updatedValidationIssues = {
+                    ...updatedData.updatedValidationIssues,
+                    ...backendValidationIssueGroupListToObject(reply.validationIssues),
+                  };
+                } catch (error) {
+                  results.push({ temporaryId, error });
+                }
               }
               setAttachmentsInDataModel(
                 results.filter(isAttachmentUploadSuccess).map(({ newDataElementId }) => newDataElementId),

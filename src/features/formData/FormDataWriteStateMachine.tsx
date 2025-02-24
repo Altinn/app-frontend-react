@@ -529,17 +529,17 @@ function makeActions(
             }, {}),
             validationIssues: actionResult.updatedValidationIssues,
           });
-
-          const next = state.lockQueue.shift();
-          if (next) {
-            const nextUuid = uuidv4();
-            next.whenAcquired(nextUuid);
-            state.lockedBy = `${next.key} (${nextUuid})`;
-            return;
-          }
-
-          state.lockedBy = undefined;
         }
+
+        const next = state.lockQueue.shift();
+        if (next) {
+          const nextUuid = uuidv4();
+          next.whenAcquired(nextUuid);
+          state.lockedBy = `${next.key} (${nextUuid})`;
+          return;
+        }
+
+        state.lockedBy = undefined;
       }),
   };
 }
