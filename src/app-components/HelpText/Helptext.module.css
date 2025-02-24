@@ -20,10 +20,10 @@
 
 .helpText-icon {
   color: var(--ds-color-accent-base-default);
-  width: var(--ds-size-7);
-  height: var(--ds-size-7);
-  min-width: var(--ds-size-7);
-  min-height: var(--ds-size-7);
+  width: var(--ds-size-9);
+  height: var(--ds-size-9);
+  min-width: var(--ds-size-9);
+  min-height: var(--ds-size-9);
 }
 
 .helpTextButton:where(:hover, :focus, [data-state^='open']) > .helpText-icon {
@@ -37,7 +37,7 @@
 .helpTextContent {
   font: var(--ds-typography-paragraph-md);
   font-family: inherit;
-  width: fit-content;
+  width: moz-fit-content;
   max-width: 700px;
 }
 

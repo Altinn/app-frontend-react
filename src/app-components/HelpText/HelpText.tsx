@@ -57,7 +57,6 @@ export const HelpText = forwardRef<HTMLButtonElement, HelpTextProps>(function He
     <Popover.TriggerContext>
       <Popover.Trigger
         asChild
-        variant='tertiary'
         ref={ref}
         aria-label={title}
         id={id ?? uuid}
