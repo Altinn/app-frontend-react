@@ -45,7 +45,6 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
-import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationsProcessedLast } from 'src/features/validation';
@@ -773,7 +772,7 @@ export function useNode<T extends string | undefined | LayoutNode>(id: T): Layou
 
 export const useGetPage = (pageId: string | undefined) => {
   const nodes = useNodes();
-  return Store.useSelector((state) => {
+  return Store.useSelector(() => {
     if (!pageId) {
       return undefined;
     }
@@ -781,7 +780,7 @@ export const useGetPage = (pageId: string | undefined) => {
     if (!nodes) {
       return undefined;
     }
-    return nodes.findLayout(new TraversalTask(state, nodes, undefined, undefined), pageId);
+    return nodes.findLayout(pageId);
   });
 };
 
