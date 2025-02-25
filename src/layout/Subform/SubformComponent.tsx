@@ -54,7 +54,7 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
   const addEntryMutation = useAddEntryMutation(dataType);
   const dataElements = useStrictDataElements(dataType);
   const navigate = useNavigate();
-  const { lock, unlock } = FD.useLocking(id);
+  const lock = FD.useLocking(id);
   const { performProcess, isAnyProcessing: isAddingDisabled, isThisProcessing: isAdding } = useIsProcessing();
   const [subformEntries, updateSubformEntries] = useState(dataElements);
 
@@ -62,14 +62,14 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
 
   const addEntry = () =>
     performProcess(async () => {
+      const currentLock = await lock();
       try {
-        await lock();
         const result = await addEntryMutation.mutateAsync({});
         navigate(`${node.id}/${result.id}`);
       } catch {
         // NOTE: Handled by useAddEntryMutation
       } finally {
-        unlock();
+        currentLock.unlock();
       }
     });
 
