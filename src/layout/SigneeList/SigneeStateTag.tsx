@@ -19,12 +19,15 @@ function getSigneeStatus(state: SigneeState): SigneeStatus {
   if (state.hasSigned) {
     return 'signed';
   }
-  if (!state.delegationSuccessful) {
+
+  if (state.delegationSuccessful === false) {
     return 'delegationFailed';
   }
-  if (!state.notificationSuccessful) {
+
+  if (state.notificationSuccessful === 'Failed') {
     return 'notificationFailed';
   }
+
   return 'waiting';
 }
 

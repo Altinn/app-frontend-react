@@ -12,7 +12,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { SigneeState } from 'src/layout/SigneeList/api';
+import { NotificationStatus, SigneeState } from 'src/layout/SigneeList/api';
 import { SigningStatusPanelComponent } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
 import { IActionType } from 'src/types/shared';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -39,7 +39,7 @@ const failedDelegationSignee: SigneeState = {
   organisation: 'organisation2',
   hasSigned: false,
   delegationSuccessful: false,
-  notificationSuccessful: false,
+  notificationSuccessful: NotificationStatus.NotSent,
   partyId: 123,
 };
 
@@ -48,7 +48,7 @@ const failedNotificationSignee: SigneeState = {
   organisation: 'organisation3',
   hasSigned: false,
   delegationSuccessful: true,
-  notificationSuccessful: false,
+  notificationSuccessful: NotificationStatus.Failed,
   partyId: 123,
 };
 
@@ -57,7 +57,7 @@ const signedSignee: SigneeState = {
   organisation: 'organisation',
   hasSigned: true,
   delegationSuccessful: true,
-  notificationSuccessful: true,
+  notificationSuccessful: NotificationStatus.Sent,
   partyId: 123,
 };
 
@@ -66,7 +66,7 @@ const notSignedSignee: SigneeState = {
   organisation: 'organisation4',
   hasSigned: false,
   delegationSuccessful: true,
-  notificationSuccessful: true,
+  notificationSuccessful: NotificationStatus.Sent,
   partyId: 123,
 };
 
@@ -134,7 +134,6 @@ describe('SigningStatusPanelComponent', () => {
     );
 
     expect(screen.getByText('signing.loading')).toBeInTheDocument();
-    screen.debug();
   });
 
   it('should render error panel when any signee has delegation failed', () => {

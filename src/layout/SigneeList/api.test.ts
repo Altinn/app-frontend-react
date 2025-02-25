@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import { ZodError } from 'zod';
 
-import { fetchSigneeList } from 'src/layout/SigneeList/api';
+import { fetchSigneeList, NotificationStatus } from 'src/layout/SigneeList/api';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 
 jest.mock('src/utils/network/sharedNetworking');
@@ -20,7 +20,7 @@ describe('fetchSigneeList', () => {
           organisation: 'ACME',
           hasSigned: true,
           delegationSuccessful: true,
-          notificationSuccessful: false,
+          notificationSuccessful: NotificationStatus.Failed,
           partyId: 123,
         },
         {
@@ -28,7 +28,7 @@ describe('fetchSigneeList', () => {
           organisation: 'ACME',
           hasSigned: false,
           delegationSuccessful: false,
-          notificationSuccessful: false,
+          notificationSuccessful: NotificationStatus.Failed,
           partyId: 123,
         },
       ],
@@ -42,7 +42,7 @@ describe('fetchSigneeList', () => {
         organisation: 'ACME',
         hasSigned: true,
         delegationSuccessful: true,
-        notificationSuccessful: false,
+        notificationSuccessful: NotificationStatus.Failed,
         partyId: 123,
       },
       {
@@ -50,7 +50,7 @@ describe('fetchSigneeList', () => {
         organisation: 'ACME',
         hasSigned: false,
         delegationSuccessful: false,
-        notificationSuccessful: false,
+        notificationSuccessful: NotificationStatus.Failed,
         partyId: 123,
       },
     ]);
@@ -78,7 +78,7 @@ describe('fetchSigneeList', () => {
           organisation: '',
           hasSigned: true,
           delegationSuccessful: true,
-          notificationSuccessful: false,
+          notificationSuccessful: NotificationStatus.Failed,
         },
       ],
     });
@@ -102,7 +102,7 @@ describe('fetchSigneeList', () => {
           organisation: 'ACME',
           hasSigned: true,
           delegationSuccessful: true,
-          notificationSuccessful: false,
+          notificationSuccessful: NotificationStatus.Sent,
           partyId: 123,
         },
         {
@@ -110,7 +110,7 @@ describe('fetchSigneeList', () => {
           organisation: 'ACME',
           hasSigned: false,
           delegationSuccessful: false,
-          notificationSuccessful: false,
+          notificationSuccessful: NotificationStatus.NotSent,
           partyId: 123,
         },
       ],
@@ -123,7 +123,7 @@ describe('fetchSigneeList', () => {
         organisation: 'ACME',
         hasSigned: false,
         delegationSuccessful: false,
-        notificationSuccessful: false,
+        notificationSuccessful: NotificationStatus.NotSent,
         partyId: 123,
       },
       {
@@ -131,7 +131,7 @@ describe('fetchSigneeList', () => {
         organisation: 'ACME',
         hasSigned: true,
         delegationSuccessful: true,
-        notificationSuccessful: false,
+        notificationSuccessful: NotificationStatus.Sent,
         partyId: 123,
       },
     ]);
