@@ -96,10 +96,6 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return false;
   }
 
-  getDisplayData(): string {
-    return '';
-  }
-
   runComponentValidation(
     node: LayoutNode<'RepeatingGroup'>,
     { nodeDataSelector }: ValidationDataSources,

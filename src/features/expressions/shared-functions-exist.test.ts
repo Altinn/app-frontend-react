@@ -29,6 +29,13 @@ describe('Shared function tests should exist', () => {
         it(`Component '${type}' should have a matching test in functions/displayValue/type-${type}.json`, () => {
           expect(hasTest).toBeTruthy();
         });
+
+        const func = config.def.getDisplayData.toString().replace(/\s/g, '');
+        const emptyImplementation = /^\w+\(.*?\)\{return'';?}$/;
+        it(`Component '${type}' should not have an empty implementation of getDisplayData`, () => {
+          // If this test fails, you may want to set `displayData: false` in the component config.ts file instead
+          expect(func).not.toMatch(emptyImplementation);
+        });
       } else {
         it(`Component '${type}' should not have a matching test in functions/displayValue/type-${type}.json`, () => {
           expect(hasTest).toBeFalsy();
