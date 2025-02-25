@@ -1,7 +1,6 @@
 import { ExprFunctionDefinitions } from 'src/features/expressions/expression-functions';
 import { getSharedTests } from 'src/features/expressions/shared';
 import { getComponentConfigs } from 'src/layout/components.generated';
-import type { CompDef } from 'src/layout';
 
 describe('Shared function tests should exist', () => {
   const sharedTests = getSharedTests('functions');
@@ -25,12 +24,18 @@ describe('Shared function tests should exist', () => {
         return isCorrectFunction && !!targetComponent && isCorrectFileName;
       });
 
-      if (implementsDisplayData(config.def)) {
+      const func = config.def.getDisplayData.toString().replace(/\s/g, '');
+      const emptyImplementation = /^\w+\(.*?\)\{return'';?}$/;
+      const implementsDisplayData = !func.match(emptyImplementation);
+
+      if (implementsDisplayData) {
         it(`Component '${type}' should have a matching test in functions/displayValue/type-${type}.json`, () => {
+          expect(func).not.toMatch(emptyImplementation);
           expect(hasTest).toBeTruthy();
         });
       } else {
         it(`Component '${type}' should not have a matching test in functions/displayValue/type-${type}.json`, () => {
+          expect(func).toMatch(emptyImplementation);
           expect(hasTest).toBeFalsy();
         });
       }
@@ -49,9 +54,3 @@ describe('Shared function tests should exist', () => {
     }
   });
 });
-
-export function implementsDisplayData<Def extends CompDef>(def: Def): boolean {
-  const func = def.getDisplayData.toString().replace(/\s/g, '');
-  const emptyImplementation = /^getDisplayData\(.*?\)\{return'';}$/;
-  return !func.match(emptyImplementation);
-}
