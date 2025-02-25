@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { toast } from 'react-toastify';
 
 import { useMutation } from '@tanstack/react-query';
@@ -14,6 +14,7 @@ import { useUpdateInitialValidations } from 'src/features/validation/backendVali
 import { appSupportsIncrementalValidationFeatures } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { Validation } from 'src/features/validation/validationContext';
+import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
@@ -38,7 +39,7 @@ export function useProcessNext() {
   const onSubmitFormValidation = useOnFormSubmitValidation();
   const applicationMetadata = useApplicationMetadata();
 
-  const utils = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
       if (!instanceId) {
         throw new Error('Missing instance ID, cannot perform process/next');
@@ -80,19 +81,13 @@ export function useProcessNext() {
     },
   });
 
-  const mutateAsync = utils.mutateAsync;
-  const processNext = useCallback(
-    async (props?: ProcessNextProps) => {
-      const hasErrors = await onFormSubmitValidation();
-      if (hasErrors) {
-        return;
-      }
-      await mutateAsync(props ?? {});
-    },
-    [mutateAsync, onFormSubmitValidation],
-  );
-
-  return processNext;
+  return useEffectEvent(async (props?: ProcessNextProps) => {
+    const hasErrors = await onFormSubmitValidation();
+    if (hasErrors) {
+      return;
+    }
+    await mutateAsync(props ?? {});
+  });
 }
 
 function appUnlocksOnPDFFailure({ altinnNugetVersion }: ApplicationMetadata) {

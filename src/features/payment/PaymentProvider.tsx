@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 import type { AxiosError } from 'axios';
@@ -11,6 +11,7 @@ import { PaymentStatus } from 'src/features/payment/types';
 import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
 import { useIsPayment } from 'src/features/payment/utils';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 
@@ -33,22 +34,14 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
   const { mutateAsync, error: paymentError } = usePerformPayActionMutation(instanceOwnerPartyId, instanceGuid);
   const processNext = useProcessNext();
 
-  const performPayment = useCallback(() => performProcess(() => mutateAsync()), [mutateAsync, performProcess]);
-
-  const skipPayment = useCallback(
-    () => performProcess(() => processNext({ action: 'confirm' })),
-    [processNext, performProcess],
-  );
+  const performPayment = useEffectEvent(() => performProcess(() => mutateAsync()));
+  const skipPayment = useEffectEvent(() => performProcess(() => processNext({ action: 'confirm' })));
 
   const contextValue = useShallowMemo({ performPayment, skipPayment, paymentError });
 
-  if (isLoading) {
-    return <Loader reason='Navigating to external payment solution' />;
-  }
-
   return (
     <PaymentContext.Provider value={contextValue}>
-      {children}
+      {isLoading ? <Loader reason='Navigating to external payment solution' /> : children}
       {!paymentError && <PaymentNavigation />}
     </PaymentContext.Provider>
   );
@@ -57,7 +50,6 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
 function PaymentNavigation() {
   const paymentInfo = usePaymentInformation();
   const isPdf = useIsPdf();
-  const { isAnyProcessing } = useIsProcessing();
   const { performPayment, skipPayment } = usePayment();
 
   const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
@@ -66,19 +58,19 @@ function PaymentNavigation() {
   // If when landing on payment task, PaymentStatus is Uninitialized, initiate it by calling the pay action and
   // go to payment provider
   useEffect(() => {
-    if (isPaymentProcess && paymentDoesNotExist && !isAnyProcessing && !isPdf) {
+    if (isPaymentProcess && paymentDoesNotExist && !isPdf) {
       performPayment();
     }
-  }, [isPaymentProcess, paymentDoesNotExist, performPayment, isPdf, isAnyProcessing]);
+  }, [isPaymentProcess, paymentDoesNotExist, performPayment, isPdf]);
 
   const paymentCompleted = paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped;
 
   // If when landing on payment task, PaymentStatus is Paid or Skipped, go to next task
   useEffect(() => {
-    if (isPaymentProcess && paymentCompleted && !isAnyProcessing && !isPdf) {
+    if (isPaymentProcess && paymentCompleted && !isPdf) {
       skipPayment();
     }
-  }, [paymentCompleted, isPdf, skipPayment, isAnyProcessing, isPaymentProcess]);
+  }, [isPaymentProcess, paymentCompleted, skipPayment, isPdf]);
 
   return null;
 }

@@ -15,18 +15,20 @@ export const usePerformPayActionMutation = (partyId?: string, instanceGuid?: str
         return await doPerformAction(partyId, instanceGuid, { action: 'pay' }, selectedLanguage);
       }
     },
-    onError: (error: AxiosError) => {
-      console.error('Error performing pay action', error);
+    onError: async (error: AxiosError) => {
+      window.logError('Error performing pay action', error);
       if (error.response?.status === 409) {
         // The payment has already been paid, reload the page to get the updated status and go to receipt
         window.location.reload();
+        await new Promise((r) => setTimeout(r, 5000)); // Stay pending while browser is navigating
       }
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data?.redirectUrl) {
         window.location.href = data.redirectUrl;
+        await new Promise((r) => setTimeout(r, 5000)); // Stay pending while browser is navigating
       } else {
-        queryClient.invalidateQueries({ queryKey: ['fetchPaymentInfo'] });
+        await queryClient.invalidateQueries({ queryKey: ['fetchPaymentInfo'] });
       }
     },
   });
