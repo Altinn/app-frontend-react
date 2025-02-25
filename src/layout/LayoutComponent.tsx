@@ -64,7 +64,7 @@ export interface ExprResolver<Type extends CompTypes> {
   };
 }
 
-export abstract class AnyComponent<Type extends CompTypes> implements DisplayData<Type> {
+export abstract class AnyComponent<Type extends CompTypes> {
   protected readonly type: Type;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected plugins: { [key: string]: NodeDefPlugin<any> } = {};
@@ -92,10 +92,6 @@ export abstract class AnyComponent<Type extends CompTypes> implements DisplayDat
    */
   renderLayoutValidators(_props: NodeValidationProps<Type>): JSX.Element | null {
     return null;
-  }
-
-  getDisplayData(_displayDataProps: DisplayDataProps<Type>): string {
-    return '';
   }
 
   /**

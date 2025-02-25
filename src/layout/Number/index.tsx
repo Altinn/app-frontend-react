@@ -8,12 +8,12 @@ import { evalFormatting } from 'src/layout/Input/formatting';
 import { NumberDef } from 'src/layout/Number/config.def.generated';
 import { NumberComponent } from 'src/layout/Number/NumberComponent';
 import { NumberSummary } from 'src/layout/Number/NumberSummary';
-import type { DisplayDataProps } from 'src/features/displayData';
+import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export class Number extends NumberDef {
+export class Number extends NumberDef implements DisplayData<'Number'> {
   getDisplayData({ currentLanguage, nodeDataSelector, nodeId }: DisplayDataProps<'Number'>): string {
     const number = nodeDataSelector((picker) => picker(nodeId, 'Number')?.item?.value, [nodeId]);
     if (number === undefined || isNaN(number)) {

@@ -8,13 +8,13 @@ import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
 import { CodeListPending } from 'src/features/options/CodeListsProvider';
 import { SearchParams } from 'src/features/routing/AppRoutingContext';
+import { implementsDisplayData } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { getNodeFormData } from 'src/utils/layout/useNodeItem';
-import type { DisplayData } from 'src/features/displayData';
 import type { EvaluateExpressionParams } from 'src/features/expressions';
 import type {
   AnyExprArg,
@@ -26,7 +26,6 @@ import type {
 } from 'src/features/expressions/types';
 import type { ValidationContext } from 'src/features/expressions/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
-import type { CompTypes } from 'src/layout/layout';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -491,11 +490,16 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
     }
 
+    const def = targetNode.def;
+    if (!implementsDisplayData(def)) {
+      throw new ExprRuntimeError(this.expr, this.path, `Component with identifier ${id} does not have a displayValue`);
+    }
+
     if (this.dataSources.isHiddenSelector(targetNode)) {
       return null;
     }
 
-    return (targetNode.def as DisplayData<CompTypes>).getDisplayData({
+    return def.getDisplayData({
       attachmentsSelector: this.dataSources.attachmentsSelector,
       optionsSelector: this.dataSources.optionsSelector,
       langTools: this.dataSources.langToolsSelector(targetNode),

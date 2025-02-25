@@ -5,12 +5,12 @@ import { getSelectedValueToText } from 'src/features/options/getSelectedValueToT
 import { OptionDef } from 'src/layout/Option/config.def.generated';
 import { OptionComponent } from 'src/layout/Option/OptionComponent';
 import { OptionSummary } from 'src/layout/Option/OptionSummary';
-import type { DisplayDataProps } from 'src/features/displayData';
+import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export class Option extends OptionDef {
+export class Option extends OptionDef implements DisplayData<'Option'> {
   getDisplayData({ nodeDataSelector, nodeId, optionsSelector, langTools }: DisplayDataProps<'Option'>): string {
     const value = nodeDataSelector((picker) => picker(nodeId, 'Option')?.item?.value, [nodeId]) ?? '';
     const { options } = optionsSelector(nodeId);

@@ -16,6 +16,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
+import { implementsDisplayData } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
@@ -25,7 +26,6 @@ import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { getNodeFormData, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
-import type { DisplayData } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { CompInternal, CompTypes, ITextResourceBindings } from 'src/layout/layout';
@@ -106,7 +106,11 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
   const displayDataProps = useDisplayDataProps();
   const formDataSelector = FD.useDebouncedSelector();
   const displayData = tableNodes.map(<T extends CompTypes>(node: LayoutNode<T>) => {
-    const def = node.def as DisplayData<T>;
+    const def = node.def;
+    if (!implementsDisplayData(def)) {
+      return '';
+    }
+
     return def.getDisplayData({
       ...displayDataProps,
       nodeId: node.id,

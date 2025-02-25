@@ -3,9 +3,10 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
+import { implementsDisplayData } from 'src/layout';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeFormData } from 'src/utils/layout/useNodeItem';
-import type { DisplayData, DisplayDataProps } from 'src/features/displayData/index';
+import type { DisplayDataProps } from 'src/features/displayData/index';
 import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -32,6 +33,10 @@ export function useDisplayData<Type extends CompTypes>(node: LayoutNode<Type> | 
     return '';
   }
 
-  const def = node.def as DisplayData<Type>;
+  const def = node.def;
+  if (!implementsDisplayData(def)) {
+    return '';
+  }
+
   return def.getDisplayData({ ...props, formData, nodeId: node.id });
 }
