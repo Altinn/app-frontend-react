@@ -138,20 +138,18 @@ type DataRowProps = {
 
 function DataRow({ row, node, index, pdfModeActive, columnSettings }: DataRowProps) {
   const cellNodes = useTableNodes(node, index);
-  const displayData = useDisplayData(node);
 
   return (
     <Table.Row>
-      {cellNodes.map((node) =>
-        node.type === 'Custom' ? (
-          <Table.Cell key={node.id}>
-            <ComponentSummary componentNode={node} />
+      {cellNodes.map((cellNode) =>
+        cellNode.type === 'Custom' ? (
+          <Table.Cell key={cellNode.id}>
+            <ComponentSummary componentNode={cellNode} />
           </Table.Cell>
         ) : (
           <DataCell
-            key={node.id}
-            node={node}
-            displayData={displayData}
+            key={cellNode.id}
+            node={cellNode}
             columnSettings={columnSettings}
           />
         ),
@@ -170,14 +168,14 @@ function DataRow({ row, node, index, pdfModeActive, columnSettings }: DataRowPro
 
 type DataCellProps = {
   node: LayoutNode;
-  displayData: string | false;
   columnSettings: ITableColumnFormatting;
 };
 
-function DataCell({ node, displayData, columnSettings }: DataCellProps) {
+function DataCell({ node, columnSettings }: DataCellProps) {
   const { langAsString } = useLanguage();
   const headerTitle = langAsString(useTableTitle(node));
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
+  const displayData = useDisplayData(node);
 
   return (
     <Table.Cell
