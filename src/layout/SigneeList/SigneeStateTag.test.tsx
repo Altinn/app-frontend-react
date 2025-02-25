@@ -14,10 +14,13 @@ describe('SigneeStateTag', () => {
     render(
       <SigneeStateTag
         state={{
+          name: null,
+          organisation: null,
           hasSigned: true,
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Sent,
           partyId: 123,
+          signedTime: new Date().toISOString(),
         }}
       />,
     );
@@ -29,10 +32,13 @@ describe('SigneeStateTag', () => {
     render(
       <SigneeStateTag
         state={{
+          name: null,
+          organisation: null,
           hasSigned: false,
           delegationSuccessful: false,
           notificationStatus: NotificationStatus.NotSent,
           partyId: 123,
+          signedTime: null,
         }}
       />,
     );
@@ -44,10 +50,13 @@ describe('SigneeStateTag', () => {
     render(
       <SigneeStateTag
         state={{
+          name: null,
+          organisation: null,
           hasSigned: false,
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Failed,
           partyId: 123,
+          signedTime: null,
         }}
       />,
     );
@@ -59,10 +68,13 @@ describe('SigneeStateTag', () => {
     render(
       <SigneeStateTag
         state={{
+          name: null,
+          organisation: null,
           hasSigned: false,
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Sent,
           partyId: 123,
+          signedTime: null,
         }}
       />,
     );

@@ -26,6 +26,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     delegationSuccessful: true,
     notificationStatus: NotificationStatus.Sent,
     partyId: 123,
+    signedTime: new Date().toISOString(),
   },
   {
     name: 'name2',
@@ -34,6 +35,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     delegationSuccessful: false,
     notificationStatus: NotificationStatus.Failed,
     partyId: 123,
+    signedTime: null,
   },
   {
     name: 'name3',
@@ -42,6 +44,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     delegationSuccessful: true,
     notificationStatus: NotificationStatus.Failed,
     partyId: 123,
+    signedTime: null,
   },
   {
     name: 'name4',
@@ -50,6 +53,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     delegationSuccessful: true,
     notificationStatus: NotificationStatus.NotSent,
     partyId: 123,
+    signedTime: null,
   },
 ];
 

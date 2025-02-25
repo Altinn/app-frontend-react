@@ -404,13 +404,14 @@ export function nb(): FixedLanguageList {
       header_status: 'Status',
     },
     signee_list_summary: {
-      header: 'Signert av',
+      header: 'Disse har signert',
       name_placeholder: 'Ukjent navn',
       on_behalf_of: 'på vegne av',
       loading: 'Laster signaturdata...',
       error: 'Feil ved lasting av signaturdata.',
       no_data: 'Ingen signaturdata.',
       no_signatures: 'Ingen signaturer funnet.',
+      signed_time: 'Digitalt signert gjennom Altinn {0}',
     },
     signing_document_list: {
       parse_error: 'Feil ved lasting av dokumenter.',

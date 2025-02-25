@@ -37,6 +37,7 @@ const mockedBackendValidationQuery = jest.mocked(useBackendValidationQuery);
 const failedDelegationSignee: SigneeState = {
   name: 'name2',
   organisation: 'organisation2',
+  signedTime: null,
   hasSigned: false,
   delegationSuccessful: false,
   notificationStatus: NotificationStatus.NotSent,
@@ -46,6 +47,7 @@ const failedDelegationSignee: SigneeState = {
 const failedNotificationSignee: SigneeState = {
   name: 'name3',
   organisation: 'organisation3',
+  signedTime: null,
   hasSigned: false,
   delegationSuccessful: true,
   notificationStatus: NotificationStatus.Failed,
@@ -55,6 +57,7 @@ const failedNotificationSignee: SigneeState = {
 const signedSignee: SigneeState = {
   name: 'name',
   organisation: 'organisation',
+  signedTime: new Date().toISOString(),
   hasSigned: true,
   delegationSuccessful: true,
   notificationStatus: NotificationStatus.Sent,
@@ -64,6 +67,7 @@ const signedSignee: SigneeState = {
 const notSignedSignee: SigneeState = {
   name: 'name4',
   organisation: 'organisation4',
+  signedTime: null,
   hasSigned: false,
   delegationSuccessful: true,
   notificationStatus: NotificationStatus.Sent,

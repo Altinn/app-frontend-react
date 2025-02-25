@@ -1,12 +1,14 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import type { PropsWithChildren, ReactElement } from 'react';
 
-import { Heading, Paragraph } from '@digdir/designsystemet-react';
+import { Divider, Heading, Paragraph } from '@digdir/designsystemet-react';
 import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 
 import { Lang } from 'src/features/language/Lang';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
-import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
+import classes from 'src/layout/SigneeList/SigneeListSummary.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SigneeState } from 'src/layout/SigneeList/api';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -15,57 +17,92 @@ interface SigneeListSummaryProps {
   componentNode: LayoutNode<'SigneeList'>;
 }
 
+type SignedSignee = SigneeState & { signedTime: string };
+
+function isSignedSignee(signee: SigneeState): signee is SignedSignee {
+  return signee.signedTime !== null;
+}
+
 export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
   const { data, isLoading, error } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
 
   const summaryTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.summary_title);
 
-  return (
-    <div>
-      <Heading
-        level={2}
-        size='sm'
-        className={classes.summaryHeader}
-      >
-        {summaryTitle ?? <Lang id='signee_list_summary.header' />}
-      </Heading>
-      <hr className={classes.summaryDivider} />
+  const signatures = data?.filter((signee) => isSignedSignee(signee)) ?? [];
+  const heading = <Lang id={summaryTitle ?? 'signee_list_summary.header'} />;
 
-      {isLoading ? (
+  if (isLoading) {
+    return (
+      <SigneeListSummaryContainer heading={heading}>
         <Paragraph>
           <Lang id='signee_list_summary.loading' />
         </Paragraph>
-      ) : error ? (
+      </SigneeListSummaryContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <SigneeListSummaryContainer heading={heading}>
         <Paragraph>
           <Lang id='signee_list_summary.error' />
         </Paragraph>
-      ) : !data || data.length === 0 ? (
-        <Paragraph>
-          <Lang id='signee_list_summary.no_data' />
-        </Paragraph>
-      ) : !anySignatures(data) ? (
+      </SigneeListSummaryContainer>
+    );
+  }
+
+  if (signatures.length === 0) {
+    return (
+      <SigneeListSummaryContainer heading={heading}>
         <Paragraph>
           <Lang id='signee_list_summary.no_signatures' />
         </Paragraph>
-      ) : (
-        data.map((item, index) => (
-          <Paragraph key={index}>
-            {item.hasSigned &&
-              `${item.name?.toLocaleUpperCase() ?? <Lang id='signee_list_summary.name_placeholder' />} `}
-            {item.organisation ? (
-              <>
-                <Lang id='signee_list_summary.on_behalf_of' />
-                {` ${item.organisation.toLocaleUpperCase()}`}
-              </>
-            ) : null}
-          </Paragraph>
-        ))
-      )}
+      </SigneeListSummaryContainer>
+    );
+  }
+
+  return (
+    <SigneeListSummaryContainer heading={heading}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {signatures.map((item, index) => (
+          <div
+            key={`${item.name}-${item.organisation}-${item.signedTime}`}
+            className={classes.signeeContainer}
+          >
+            <Paragraph key={index}>
+              {item.name ?? <Lang id='signee_list_summary.name_placeholder' />}
+              {item.organisation && (
+                <>
+                  , <Lang id='signee_list_summary.on_behalf_of' />
+                  {` ${item.organisation}`}
+                </>
+              )}
+            </Paragraph>
+            <Divider className={classes.divider} />
+            <Paragraph className={classes.signeeDescription}>
+              <Lang
+                id='signee_list_summary.signed_time'
+                params={[format(new Date(item.signedTime), "dd.MM.yyyy 'kl.' HH:mm")]}
+              />
+            </Paragraph>
+          </div>
+        ))}
+      </div>
+    </SigneeListSummaryContainer>
+  );
+}
+
+function SigneeListSummaryContainer({ heading, children }: PropsWithChildren<{ heading: ReactElement }>) {
+  return (
+    <div className={classes.summaryContainer}>
+      <Heading
+        level={2}
+        className={classes.summaryHeader}
+      >
+        {heading}
+      </Heading>
+      {children}
     </div>
   );
-
-  function anySignatures(data: SigneeState[] | undefined) {
-    return data?.some((item) => item.hasSigned);
-  }
 }

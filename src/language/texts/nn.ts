@@ -403,13 +403,14 @@ export function nn(): FixedLanguageList {
       header_status: 'Status',
     },
     signee_list_summary: {
-      header: 'Signert av',
+      header: 'Desse har signert',
       name_placeholder: 'Ukjent namn',
       on_behalf_of: 'på vegne av',
       loading: 'Lastar signaturdata...',
       error: 'Feil ved lasting av signaturdata',
       no_data: 'Ingen signaturdata.',
       no_signatures: 'Ingen signaturar.',
+      signed_time: 'Digitalt signert gjennom Altinn {0}',
     },
     signing_document_list: {
       parse_error: 'Feil ved lasting av dokumenter.',
