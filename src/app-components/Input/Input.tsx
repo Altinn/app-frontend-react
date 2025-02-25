@@ -75,7 +75,12 @@ export function Input(props: InputProps) {
         readOnly={readOnly}
         {...rest}
       />
-      {characterLimit && <Field.Counter {...characterLimit} />}
+      {characterLimit && (
+        <Field.Counter
+          {...characterLimit}
+          data-size='sm'
+        />
+      )}
     </Field>
   );
 }
