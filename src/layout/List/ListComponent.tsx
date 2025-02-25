@@ -92,7 +92,7 @@ export const ListComponent = ({ node }: IListProps) => {
   const title = item.textResourceBindings?.title;
   const description = item.textResourceBindings?.description;
 
-  const handleRowClick = (row) => {
+  const handleRowClick = (row: Row) => {
     if (saveToList) {
       handleSelectedCheckboxRow(row);
     } else {
@@ -100,7 +100,7 @@ export const ListComponent = ({ node }: IListProps) => {
     }
   };
 
-  const handleSelectedCheckboxRow = (row) => {
+  const handleSelectedCheckboxRow = (row: Row) => {
     if (!saveToList) {
       return;
     }
@@ -119,7 +119,7 @@ export const ListComponent = ({ node }: IListProps) => {
       const uuid = uuidv4();
       const next: Row = { [ALTINN_ROW_ID]: uuid };
       for (const binding of Object.keys(bindings)) {
-        if (binding != 'saveToList') {
+        if (binding !== 'saveToList') {
           next[binding] = row[binding];
         }
       }
@@ -130,7 +130,7 @@ export const ListComponent = ({ node }: IListProps) => {
     }
   };
 
-  const renderListItems = (row, tableHeaders) =>
+  const renderListItems = (row: Row, tableHeaders) =>
     tableHeadersToShowInMobile.map((key) => (
       <div key={key}>
         <strong>
@@ -145,7 +145,6 @@ export const ListComponent = ({ node }: IListProps) => {
       <ComponentStructureWrapper node={node}>
         {saveToList ? (
           <Checkbox.Group
-            role='group'
             legend={
               <Heading
                 level={2}
