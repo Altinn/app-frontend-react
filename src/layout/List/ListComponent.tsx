@@ -156,7 +156,6 @@ export const ListComponent = ({ node }: IListProps) => {
               </Heading>
             }
             description={description && <Lang id={description} />}
-            //className={classes.mobileCheckboxGroup}
           >
             {data?.listItems.map((row) => (
               <Checkbox

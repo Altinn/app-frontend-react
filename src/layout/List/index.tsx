@@ -115,26 +115,30 @@ export class List extends ListDef {
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
     const errors: string[] = [];
     const allowedTypes = ['string', 'boolean', 'number', 'integer'];
-    if (!ctx.item.dataModelBindings?.saveToList) {
-      for (const [binding] of Object.entries(ctx.item.dataModelBindings ?? {})) {
+
+    const dataModelBindings = ctx.item.dataModelBindings ?? {};
+
+    if (!dataModelBindings?.saveToList) {
+      for (const [binding] of Object.entries(dataModelBindings ?? {})) {
         const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedTypes, false);
         errors.push(...(newErrors || []));
       }
     }
+
     const [newErrors] = this.validateDataModelBindingsAny(ctx, 'saveToList', ['array'], false);
     if (newErrors) {
       errors.push(...(newErrors || []));
     }
 
-    if (ctx.item.dataModelBindings?.saveToList) {
-      const saveToListBinding = ctx.lookupBinding(ctx.item?.dataModelBindings?.saveToList);
+    if (dataModelBindings?.saveToList) {
+      const saveToListBinding = ctx.lookupBinding(dataModelBindings?.saveToList);
       const items = saveToListBinding[0]?.items;
       const properties =
         items && !Array.isArray(items) && typeof items === 'object' && 'properties' in items
           ? items.properties
           : undefined;
 
-      for (const [binding] of Object.entries(ctx.item.dataModelBindings ?? {})) {
+      for (const [binding] of Object.entries(dataModelBindings ?? {})) {
         let selectedBinding: JSONSchema7Definition | undefined;
         if (properties) {
           selectedBinding = properties[binding];
