@@ -11,20 +11,6 @@
   color: var(--semantic-text-neutral-default);
 }
 
-/* Workaround for the design-system aggressively setting the font to 'Inter' */
-[class^='ds-'] {
-  font-family: var(--font-family);
-}
-
-/* Override design system variables */
-* {
-  --component-panel-font_size-header-breakpoint_sm: 1.4rem;
-  --component-panel-font_size-header-breakpoint_md: 1.6rem;
-  --component-panel-font_size-header-breakpoint_lg: 1.75rem;
-  --component-panel-font_size-body-breakpoint_md: 1rem;
-  --component-panel-font_weight-heading: 500;
-}
-
 /* Global variables */
 :root {
   /* @see altinnAppTheme.tsx */

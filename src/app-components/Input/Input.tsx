@@ -40,7 +40,7 @@ export type InputProps = {
   LabelRequired;
 
 export function Input(props: InputProps) {
-  const { size = 'sm', readOnly, characterLimit, ...rest } = props;
+  const { size = 'sm', readOnly, error, characterLimit, ...rest } = props;
 
   const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
     if (readOnly) {
@@ -69,6 +69,7 @@ export function Input(props: InputProps) {
   return (
     <Field>
       <Textfield
+        aria-invalid={!!error}
         onPaste={handlePaste}
         data-size={size}
         readOnly={readOnly}
