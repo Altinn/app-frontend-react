@@ -94,9 +94,8 @@
   width: 100%;
 }
 
-.header {
-  font-size: 1.125rem;
-  align-content: center;
+.tableCaption {
+  text-align: left;
 }
 
 .editButton {

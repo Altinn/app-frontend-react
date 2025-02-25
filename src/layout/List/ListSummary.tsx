@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Table } from '@digdir/designsystemet-react';
+import { Heading, Table } from '@digdir/designsystemet-react';
 
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
@@ -42,9 +42,6 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
     return (
       <div className={classes.listContainer}>
         <div className={classes.headerContainer}>
-          <span className={classes.header}>
-            <Lang id={title} />
-          </span>
           <EditButton
             className={classes.editButton}
             componentNode={componentNode}
@@ -52,6 +49,19 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
           />
         </div>
         <Table>
+          {title && (
+            <caption className={classes.tableCaption}>
+              <Heading
+                size='xs'
+                level={4}
+              >
+                <Lang
+                  id={title}
+                  node={componentNode}
+                />
+              </Heading>
+            </caption>
+          )}
           <Table.Head>
             <Table.Row>
               {Object.entries(tableHeaders).map(([key, value]) => (
