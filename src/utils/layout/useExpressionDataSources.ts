@@ -16,7 +16,7 @@ import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import { useInnerNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import { useInnerNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
-import type { AttachmentsSelector } from 'src/features/attachments/AttachmentsStorePlugin';
+import type { AttachmentsSelector } from 'src/features/attachments/tools';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { DataElementSelector } from 'src/features/instance/InstanceContext';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -42,7 +42,7 @@ export interface ExpressionDataSources {
   formDataRowsSelector: FormDataRowsSelector;
   attachmentsSelector: AttachmentsSelector;
   optionsSelector: NodeOptionsSelector;
-  langToolsSelector: (node: LayoutNode | undefined) => IUseLanguage;
+  langToolsSelector: (node: LayoutNode | string | undefined) => IUseLanguage;
   currentLanguage: string;
   currentLayoutSet: ILayoutSet | null;
   isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
