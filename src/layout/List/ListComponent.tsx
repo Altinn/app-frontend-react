@@ -170,7 +170,6 @@ export const ListComponent = ({ node }: IListProps) => {
           </Checkbox.Group>
         ) : (
           <Radio.Group
-            role='radiogroup'
             required={required}
             legend={
               <Heading
