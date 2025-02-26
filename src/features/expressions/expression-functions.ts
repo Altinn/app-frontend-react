@@ -6,6 +6,7 @@ import { exprCastValue } from 'src/features/expressions';
 import { ExprRuntimeError } from 'src/features/expressions/errors';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
+import { makeIndexedId } from 'src/features/form/layout/utils/makeIndexedId';
 import { CodeListPending } from 'src/features/options/CodeListsProvider';
 import { SearchParams } from 'src/features/routing/AppRoutingContext';
 import { getComponentDef, implementsDisplayData } from 'src/layout';
@@ -389,7 +390,11 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     }
 
     if (this.dataSources.currentDataModelPath) {
-      // TODO: Check if transposed id is hidden
+      const targetId = makeIndexedId(target.id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
+      if (!targetId || this.dataSources.isHiddenSelector(targetId)) {
+        // Not related to the current path, or currently hidden
+        return null;
+      }
 
       const transposed = transposeDataBinding({
         subject: rawBinding,
