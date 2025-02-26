@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { Fieldset, useCheckboxGroup } from '@digdir/designsystemet-react';
-import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -48,7 +48,6 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
     name: id,
     readOnly,
     value: selectedValues,
-    onChange: setData,
     error: !isValid,
   });
 
@@ -62,7 +61,7 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
           key={`checkboxes_group_${id}`}
         >
           <Fieldset
-            className={cn({ [classes.horizontal]: horizontal }, classes.checkboxGroup)}
+            className={classes.checkboxGroup}
             aria-label={ariaLabel}
             data-testid='checkboxes-fieldset'
           >
@@ -72,23 +71,28 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
                 <Lang id={textResourceBindings?.description} />
               </Fieldset.Description>
             )}
-            {calculatedOptions.map((option) => (
-              <WrappedCheckbox
-                key={option.value}
-                id={id}
-                label={langAsString(option.label)}
-                option={option}
-                hideLabel={hideLabel}
-                alertOnChange={alertOnChange}
-                setChecked={(isChecked) => {
-                  const newData = isChecked
-                    ? [...selectedValues, option.value]
-                    : selectedValues.filter((o) => o !== option.value);
-                  setData(newData);
-                }}
-                {...getCheckboxProps(option.value)}
-              />
-            ))}
+            <ConditionalWrapper
+              condition={horizontal}
+              wrapper={(children) => <div className={classes.horizontal}>{children}</div>}
+            >
+              {calculatedOptions.map((option) => (
+                <WrappedCheckbox
+                  key={option.value}
+                  id={id}
+                  option={option}
+                  hideLabel={hideLabel}
+                  alertOnChange={alertOnChange}
+                  {...getCheckboxProps(option.value)}
+                  checked={selectedValues.includes(option.value)}
+                  setChecked={(isChecked) => {
+                    const newData = isChecked
+                      ? [...selectedValues, option.value]
+                      : selectedValues.filter((o) => o !== option.value);
+                    setData(newData);
+                  }}
+                />
+              ))}
+            </ConditionalWrapper>
           </Fieldset>
         </div>
       )}

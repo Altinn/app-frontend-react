@@ -19,7 +19,7 @@ type IWrappedCheckboxProps = {
   hideLabel?: boolean;
   alertOnChange?: boolean;
   setChecked: (checked: boolean) => void;
-} & CheckboxProps;
+} & Omit<CheckboxProps, 'label' | 'aria-label' | 'aria-labelledby'>;
 
 export function WrappedCheckbox({
   id,
@@ -29,6 +29,7 @@ export function WrappedCheckbox({
   checked,
   setChecked,
   readOnly,
+  ...rest
 }: IWrappedCheckboxProps) {
   const { langAsString, elementAsString } = useLanguage();
 
@@ -58,7 +59,6 @@ export function WrappedCheckbox({
     >
       <Checkbox
         id={`${id}-${option.label.replace(/\s/g, '-')}`}
-        name={option.value}
         description={option.description && <Lang id={option.description} />}
         value={option.value}
         readOnly={readOnly}
@@ -75,6 +75,7 @@ export function WrappedCheckbox({
             )}
           </span>
         }
+        {...rest}
         checked={checked}
         data-size='sm'
         onChange={(e) => handleChange(e.target.checked)}

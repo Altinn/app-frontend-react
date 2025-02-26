@@ -2,16 +2,11 @@
   No longer supported with horizontal layout in design system.
   Possible breaking change if we remove this option of styling.
   */
-.horizontal > div {
+.horizontal {
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
   gap: var(--ds-size-2);
-}
-
-.checkboxGroup div label {
-  display: inline-flex;
-  padding-left: 3px;
 }
 
 .checkboxLabelContainer {
