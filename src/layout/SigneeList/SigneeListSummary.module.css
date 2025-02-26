@@ -8,11 +8,18 @@
   font: var(--fds-typography-paragraph-large);
 }
 
-.signeeContainer {
+.signeeList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0;
+  width: 90%;
+}
+
+.signeeListItem {
   display: flex;
   flex-direction: column;
   gap: 0;
-  width: 90$;
 }
 
 .divider {

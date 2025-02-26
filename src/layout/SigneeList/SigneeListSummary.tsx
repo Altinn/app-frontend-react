@@ -17,12 +17,6 @@ interface SigneeListSummaryProps {
   componentNode: LayoutNode<'SigneeList'>;
 }
 
-type SignedSignee = SigneeState & { signedTime: string };
-
-function isSignedSignee(signee: SigneeState): signee is SignedSignee {
-  return signee.signedTime !== null;
-}
-
 export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
   const { data, isLoading, error } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
@@ -64,11 +58,11 @@ export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
 
   return (
     <SigneeListSummaryContainer heading={heading}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <ul className={classes.signeeList}>
         {signatures.map((item, index) => (
-          <div
+          <li
             key={`${item.name}-${item.organisation}-${item.signedTime}`}
-            className={classes.signeeContainer}
+            className={classes.signeeListItem}
           >
             <Paragraph key={index}>
               {item.name ?? <Lang id='signee_list_summary.name_placeholder' />}
@@ -86,9 +80,9 @@ export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
                 params={[format(new Date(item.signedTime), "dd.MM.yyyy 'kl.' HH:mm")]}
               />
             </Paragraph>
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </SigneeListSummaryContainer>
   );
 }
@@ -105,4 +99,10 @@ function SigneeListSummaryContainer({ heading, children }: PropsWithChildren<{ h
       {children}
     </div>
   );
+}
+
+type SignedSignee = SigneeState & { signedTime: string };
+
+function isSignedSignee(signee: SigneeState): signee is SignedSignee {
+  return signee.signedTime !== null;
 }
