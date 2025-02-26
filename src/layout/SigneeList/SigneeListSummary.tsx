@@ -8,6 +8,7 @@ import { Lang } from 'src/features/language/Lang';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { SigneeState } from 'src/layout/SigneeList/api';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface SigneeListSummaryProps {
@@ -64,17 +65,7 @@ export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
     </div>
   );
 
-  function anySignatures(
-    data:
-      | {
-          hasSigned: boolean;
-          delegationSuccessful: boolean;
-          notificationSuccessful: boolean;
-          name?: string | null | undefined;
-          organisation?: string | null | undefined;
-        }[]
-      | undefined,
-  ) {
+  function anySignatures(data: SigneeState[] | undefined) {
     return data?.some((item) => item.hasSigned);
   }
 }

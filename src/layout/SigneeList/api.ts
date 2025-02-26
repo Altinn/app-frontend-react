@@ -4,13 +4,19 @@ import { z } from 'zod';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 
+export enum NotificationStatus {
+  NotSent = 'NotSent',
+  Sent = 'Sent',
+  Failed = 'Failed',
+}
+
 const signeeStateSchema = z
   .object({
     name: z.string().nullish(),
     organisation: z.string().nullish(),
     hasSigned: z.boolean(),
     delegationSuccessful: z.boolean(),
-    notificationSuccessful: z.boolean(),
+    notificationStatus: z.nativeEnum(NotificationStatus),
     partyId: z.number(),
   })
   .refine(({ name, organisation }) => name || organisation, 'Either name or organisation must be present.');

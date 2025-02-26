@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 import { jest } from '@jest/globals';
 import { useQuery } from '@tanstack/react-query';
@@ -7,10 +8,15 @@ import { render } from '@testing-library/react';
 import { randomUUID } from 'crypto';
 import type { UseQueryResult } from '@tanstack/react-query';
 
+import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
+import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
+import { type fetchSigneeList, NotificationStatus } from 'src/layout/SigneeList/api';
 import { SigneeListComponent } from 'src/layout/SigneeList/SigneeListComponent';
+import { SigneeListError } from 'src/layout/SigneeList/SigneeListError';
 import { ProcessTaskType } from 'src/types';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { fetchSigneeList } from 'src/layout/SigneeList/api';
 
 const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
   {
@@ -18,7 +24,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     organisation: 'organisation',
     hasSigned: true,
     delegationSuccessful: true,
-    notificationSuccessful: true,
+    notificationStatus: NotificationStatus.Sent,
     partyId: 123,
   },
   {
@@ -26,7 +32,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     organisation: 'organisation2',
     hasSigned: false,
     delegationSuccessful: false,
-    notificationSuccessful: false,
+    notificationStatus: NotificationStatus.Failed,
     partyId: 123,
   },
   {
@@ -34,7 +40,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     organisation: 'organisation3',
     hasSigned: false,
     delegationSuccessful: true,
-    notificationSuccessful: false,
+    notificationStatus: NotificationStatus.Failed,
     partyId: 123,
   },
   {
@@ -42,64 +48,55 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     organisation: 'organisation4',
     hasSigned: false,
     delegationSuccessful: true,
-    notificationSuccessful: true,
+    notificationStatus: NotificationStatus.NotSent,
     partyId: 123,
   },
 ];
 
-jest.mock('src/utils/layout/useNodeItem', () => ({
-  useNodeItem: jest.fn(() => ({
-    textResourceBindings: {
-      title: 'Signee List',
-      description: 'description',
-      help: 'help',
-    },
-  })),
-}));
-
-jest.mock('react-router-dom', () => ({
-  useParams: jest.fn(() => ({
-    partyId: 'partyId',
-    instanceGuid: randomUUID(),
-  })),
-}));
-
-jest.mock('src/features/language/useLanguage', () => ({
-  useLanguage: jest.fn(() => ({
-    langAsString: (inputString: string) => inputString,
-  })),
-}));
-
-jest.mock('src/features/language/Lang', () => ({
-  Lang: ({ id }: { id: string }) => id,
-}));
-
-jest.mock('src/features/instance/ProcessContext', () => ({
-  useTaskTypeFromBackend: jest.fn(() => ProcessTaskType.Signing),
-}));
-
+jest.mock('src/utils/layout/useNodeItem');
+jest.mock('react-router-dom');
+jest.mock('src/features/language/useLanguage');
+jest.mock('src/features/language/Lang');
+jest.mock('src/features/instance/ProcessContext');
 jest.mock('src/layout/SigneeList/api');
-
-jest.mock('@tanstack/react-query', () => ({
-  useQuery: jest.fn(() => ({
-    data: mockSigneeStates,
-    isLoading: false,
-    error: undefined,
-  })),
-}));
-
-jest.mock('src/layout/SigneeList/SigneeListError', () => ({
-  SigneeListError: jest.fn(({ error }: { error: Error }) => error.message),
-}));
+jest.mock('@tanstack/react-query');
+jest.mock('src/layout/SigneeList/SigneeListError');
 
 const mockedUseQuery = jest.mocked(useQuery);
 
 describe('SigneeListComponent', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
+    // resets all mocked functions to jest.fn()
+    jest.resetAllMocks();
+
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    jest.mocked(SigneeListError).mockImplementation(({ error }: { error: Error }) => <>{error.message}</>);
+
+    jest.mocked(useTaskTypeFromBackend).mockReturnValue(ProcessTaskType.Signing);
+    jest.mocked(Lang).mockImplementation(({ id }: { id: string }) => id);
+    jest.mocked(useLanguage).mockReturnValue({
+      langAsString: (inputString: string) => inputString,
+    } as unknown as ReturnType<typeof useLanguage>);
+    jest.mocked(useParams).mockReturnValue({
+      partyId: 'partyId',
+      instanceGuid: randomUUID(),
+    });
+    jest.mocked(useNodeItem).mockReturnValue({
+      textResourceBindings: {
+        title: 'Signee List',
+        description: 'description',
+        help: 'help',
+      },
+    } as ReturnType<typeof useNodeItem>);
   });
 
   it('should render correctly', () => {
+    mockedUseQuery.mockReturnValue({
+      data: mockSigneeStates,
+      isLoading: false,
+      error: undefined,
+    } as unknown as UseQueryResult);
+
     render(
       <SigneeListComponent
         node={{} as PropsFromGenericComponent<'SigneeList'>['node']}

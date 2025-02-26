@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import { ZodError } from 'zod';
 
-import { fetchSigneeList } from 'src/layout/SigneeList/api';
+import { fetchSigneeList, NotificationStatus, SigneeState } from 'src/layout/SigneeList/api';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 
 jest.mock('src/utils/network/sharedNetworking');
@@ -20,7 +20,7 @@ describe('fetchSigneeList', () => {
           organisation: 'ACME',
           hasSigned: true,
           delegationSuccessful: true,
-          notificationSuccessful: false,
+          notificationStatus: NotificationStatus.Failed,
           partyId: 123,
         },
         {
@@ -28,10 +28,10 @@ describe('fetchSigneeList', () => {
           organisation: 'ACME',
           hasSigned: false,
           delegationSuccessful: false,
-          notificationSuccessful: false,
+          notificationStatus: NotificationStatus.Failed,
           partyId: 123,
         },
-      ],
+      ] satisfies SigneeState[],
     });
 
     const result = await fetchSigneeList(partyId, instanceGuid);
@@ -42,7 +42,7 @@ describe('fetchSigneeList', () => {
         organisation: 'ACME',
         hasSigned: true,
         delegationSuccessful: true,
-        notificationSuccessful: false,
+        notificationStatus: NotificationStatus.Failed,
         partyId: 123,
       },
       {
@@ -50,10 +50,10 @@ describe('fetchSigneeList', () => {
         organisation: 'ACME',
         hasSigned: false,
         delegationSuccessful: false,
-        notificationSuccessful: false,
+        notificationStatus: NotificationStatus.Failed,
         partyId: 123,
       },
-    ]);
+    ] satisfies SigneeState[]);
   });
 
   it('should throw error if response is invalid', async () => {
@@ -78,9 +78,10 @@ describe('fetchSigneeList', () => {
           organisation: '',
           hasSigned: true,
           delegationSuccessful: true,
-          notificationSuccessful: false,
+          notificationStatus: NotificationStatus.Failed,
+          partyId: 123,
         },
-      ],
+      ] satisfies SigneeState[],
     });
 
     expect.assertions(1);
@@ -102,7 +103,7 @@ describe('fetchSigneeList', () => {
           organisation: 'ACME',
           hasSigned: true,
           delegationSuccessful: true,
-          notificationSuccessful: false,
+          notificationStatus: NotificationStatus.Sent,
           partyId: 123,
         },
         {
@@ -110,7 +111,7 @@ describe('fetchSigneeList', () => {
           organisation: 'ACME',
           hasSigned: false,
           delegationSuccessful: false,
-          notificationSuccessful: false,
+          notificationStatus: NotificationStatus.NotSent,
           partyId: 123,
         },
       ],
@@ -123,7 +124,7 @@ describe('fetchSigneeList', () => {
         organisation: 'ACME',
         hasSigned: false,
         delegationSuccessful: false,
-        notificationSuccessful: false,
+        notificationStatus: NotificationStatus.NotSent,
         partyId: 123,
       },
       {
@@ -131,9 +132,9 @@ describe('fetchSigneeList', () => {
         organisation: 'ACME',
         hasSigned: true,
         delegationSuccessful: true,
-        notificationSuccessful: false,
+        notificationStatus: NotificationStatus.Sent,
         partyId: 123,
       },
-    ]);
+    ] satisfies SigneeState[]);
   });
 });
