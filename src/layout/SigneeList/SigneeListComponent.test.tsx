@@ -18,6 +18,15 @@ import { ProcessTaskType } from 'src/types';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
+jest.mock('src/utils/layout/useNodeItem');
+jest.mock('react-router-dom');
+jest.mock('src/features/language/useLanguage');
+jest.mock('src/features/language/Lang');
+jest.mock('src/features/instance/ProcessContext');
+jest.mock('src/layout/SigneeList/api');
+jest.mock('@tanstack/react-query');
+jest.mock('src/layout/SigneeList/SigneeListError');
+
 const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
   {
     name: 'name',
@@ -56,15 +65,6 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     signedTime: null,
   },
 ];
-
-jest.mock('src/utils/layout/useNodeItem');
-jest.mock('react-router-dom');
-jest.mock('src/features/language/useLanguage');
-jest.mock('src/features/language/Lang');
-jest.mock('src/features/instance/ProcessContext');
-jest.mock('src/layout/SigneeList/api');
-jest.mock('@tanstack/react-query');
-jest.mock('src/layout/SigneeList/SigneeListError');
 
 const mockedUseQuery = jest.mocked(useQuery);
 
