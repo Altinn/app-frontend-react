@@ -44,7 +44,7 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1 && !showLabelsInTable;
   const ariaLabel = overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined;
 
-  const { getCheckboxProps, validationMessageProps } = useCheckboxGroup({
+  const { getCheckboxProps } = useCheckboxGroup({
     name: id,
     readOnly,
     value: selectedValues,
