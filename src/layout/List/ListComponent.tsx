@@ -170,6 +170,7 @@ export const ListComponent = ({ node }: IListProps) => {
   } else {
     options = (
       <Radio.Group
+        role='radiogroup'
         required={required}
         legend={
           <Heading
