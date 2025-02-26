@@ -481,18 +481,27 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
     }
 
-    if (this.dataSources.isHiddenSelector(targetNode)) {
+    const def = getComponentDef(target.type);
+    if (!implementsDisplayData(def)) {
+      throw new ExprRuntimeError(this.expr, this.path, `Component with identifier ${id} does not have a displayValue`);
+    }
+
+    const realId =
+      (this.dataSources.currentDataModelPath &&
+        makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups)) ??
+      target.id;
+    if (this.dataSources.isHiddenSelector(realId)) {
       return null;
     }
 
     return getComponentDef(target.type).getDisplayData({
       attachmentsSelector: this.dataSources.attachmentsSelector,
       optionsSelector: this.dataSources.optionsSelector,
-      langTools: this.dataSources.langToolsSelector(),
+      langTools: this.dataSources.langToolsSelector(realId),
       currentLanguage: this.dataSources.currentLanguage,
       nodeDataSelector: this.dataSources.nodeDataSelector,
-      formData: getNodeFormData(targetNode.id, this.dataSources.nodeDataSelector, this.dataSources.formDataSelector),
-      nodeId: targetNode.id,
+      formData: getNodeFormData(realId, this.dataSources.nodeDataSelector, this.dataSources.formDataSelector),
+      nodeId: realId,
     });
   },
   optionLabel(optionsId, value) {
@@ -576,8 +585,13 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       url = `/${pageKey}`;
     }
 
+    const realId =
+      (this.dataSources.currentDataModelPath &&
+        makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups)) ??
+      id;
+
     const searchParams = new URLSearchParams();
-    searchParams.set(SearchParams.FocusComponentId, closest.id);
+    searchParams.set(SearchParams.FocusComponentId, realId);
     const newUrl = `${url}?${searchParams.toString()}`;
     return `<a href="${newUrl}" data-link-type="LinkToPotentialNode">${linkText}</a>`;
   },
