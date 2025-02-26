@@ -85,6 +85,7 @@ describe('fetchSigneeList', () => {
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Failed,
           partyId: 123,
+          signedTime: new Date().toISOString(),
         },
       ] satisfies SigneeState[],
     });
