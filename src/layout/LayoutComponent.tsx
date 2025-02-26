@@ -25,8 +25,8 @@ import type {
 } from 'src/layout/common.generated';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
+  CompExternal,
   CompExternalExact,
-  CompIntermediate,
   CompIntermediateExact,
   CompTypes,
   ITextResourceBindingsExternal,
@@ -361,7 +361,7 @@ export interface ComponentProto {
 }
 
 export interface ChildClaimerProps<Type extends CompTypes> {
-  item: CompIntermediate<Type>;
+  item: CompExternal<Type>;
   claimChild: (pluginKey: string, id: string) => void;
   getProto: (id: string) => ComponentProto | undefined;
 }
