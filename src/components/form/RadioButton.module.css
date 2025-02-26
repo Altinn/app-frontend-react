@@ -9,10 +9,10 @@
 }
 
 .card {
-  border-radius: 6px;
-  background-color: var(--ds-color-neutral-background-subtle);
+  border-radius: var(--ds-border-radius-md);
+  background-color: var(--ds-color-neutral-background-tinted);
   width: 100%;
-  padding: var(--ds-size-2);
+  padding: var(--ds-size-3);
   margin-bottom: var(--ds-size-3);
   cursor: pointer;
 }
@@ -22,7 +22,7 @@
 }
 
 .card:hover {
-  background: var(--ds-color-neutral-surface-default);
+  background: var(--ds-color-accent-surface-hover);
 }
 
 .card:active {
@@ -30,14 +30,17 @@
 }
 
 .card:is(:checked, :has(:checked)) {
-  background: var(--ds-color-neutral-surface-tinted);
-  box-shadow: 0 0 0 var(--ds-border-width-focus) var(--ds-color-brand1-base-active);
+  background: var(--ds-color-accent-surface-tinted);
+  box-shadow: 0 0 0 var(--ds-border-width-focus) var(--ds-color-accent-border-strong);
 }
 
 .card:has(:focus-visible) {
-  background: var(--ds-color-neutral-surface-tinted);
-
   box-shadow: 0 0 0 var(--ds-border-width-focus) var(--ds-color-focus-inner);
   outline: var(--ds-border-width-focus) solid var(--ds-color-focus-outer);
   outline-offset: var(--ds-border-width-focus);
+}
+
+.card > div:has(:focus-visible) {
+  outline: none;
+  box-shadow: none;
 }
