@@ -31,4 +31,5 @@
 
 .signeeDescription {
   color: var(--fds-colors-grey-600);
+  font-style: italic;
 }
