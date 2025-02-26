@@ -13,11 +13,13 @@ describe('fetchSigneeList', () => {
   const instanceGuid = randomUUID();
 
   it('should successfully fetch signee list', async () => {
+    const signedTime = new Date().toISOString();
     mockedGet.mockResolvedValue({
       signeeStates: [
         {
           name: '',
           organisation: 'ACME',
+          signedTime,
           hasSigned: true,
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Failed,
@@ -26,6 +28,7 @@ describe('fetchSigneeList', () => {
         {
           name: 'Jane Doe',
           organisation: 'ACME',
+          signedTime: null,
           hasSigned: false,
           delegationSuccessful: false,
           notificationStatus: NotificationStatus.Failed,
@@ -38,8 +41,9 @@ describe('fetchSigneeList', () => {
 
     expect(result).toEqual([
       {
-        name: '',
+        name: null,
         organisation: 'ACME',
+        signedTime,
         hasSigned: true,
         delegationSuccessful: true,
         notificationStatus: NotificationStatus.Failed,
@@ -48,6 +52,7 @@ describe('fetchSigneeList', () => {
       {
         name: 'Jane Doe',
         organisation: 'ACME',
+        signedTime: null,
         hasSigned: false,
         delegationSuccessful: false,
         notificationStatus: NotificationStatus.Failed,
@@ -80,6 +85,7 @@ describe('fetchSigneeList', () => {
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Failed,
           partyId: 123,
+          signedTime: new Date().toISOString(),
         },
       ] satisfies SigneeState[],
     });
@@ -96,11 +102,14 @@ describe('fetchSigneeList', () => {
   });
 
   it('should sort signee list by name', async () => {
+    const signedTime = new Date().toISOString();
+
     mockedGet.mockResolvedValue({
       signeeStates: [
         {
           name: 'Sylvester Stallone',
           organisation: 'ACME',
+          signedTime,
           hasSigned: true,
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Sent,
@@ -109,12 +118,13 @@ describe('fetchSigneeList', () => {
         {
           name: 'Mary Jane',
           organisation: 'ACME',
+          signedTime: null,
           hasSigned: false,
           delegationSuccessful: false,
           notificationStatus: NotificationStatus.NotSent,
           partyId: 123,
         },
-      ],
+      ] satisfies SigneeState[],
     });
 
     const result = await fetchSigneeList(partyId, instanceGuid);
@@ -122,6 +132,7 @@ describe('fetchSigneeList', () => {
       {
         name: 'Mary Jane',
         organisation: 'ACME',
+        signedTime: null,
         hasSigned: false,
         delegationSuccessful: false,
         notificationStatus: NotificationStatus.NotSent,
@@ -130,6 +141,7 @@ describe('fetchSigneeList', () => {
       {
         name: 'Sylvester Stallone',
         organisation: 'ACME',
+        signedTime,
         hasSigned: true,
         delegationSuccessful: true,
         notificationStatus: NotificationStatus.Sent,

@@ -10,16 +10,30 @@ export enum NotificationStatus {
   Failed = 'Failed',
 }
 
+function makePascalCase(input: string) {
+  return input
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 const signeeStateSchema = z
   .object({
-    name: z.string().nullish(),
-    organisation: z.string().nullish(),
-    hasSigned: z.boolean(),
+    name: z
+      .string()
+      .nullish()
+      .transform((name) => (name ? makePascalCase(name) : null)),
+    organisation: z
+      .string()
+      .nullish()
+      .transform((organisation) => (organisation ? makePascalCase(organisation) : null)),
+    signedTime: z.string().datetime().nullable(),
     delegationSuccessful: z.boolean(),
     notificationStatus: z.nativeEnum(NotificationStatus),
     partyId: z.number(),
   })
-  .refine(({ name, organisation }) => name || organisation, 'Either name or organisation must be present.');
+  .refine(({ name, organisation }) => name || organisation, 'Either name or organisation must be present.')
+  .transform((it) => ({ ...it, hasSigned: !!it.signedTime }));
 
 export type SigneeState = z.infer<typeof signeeStateSchema>;
 

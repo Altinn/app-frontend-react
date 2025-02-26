@@ -18,41 +18,6 @@ import { ProcessTaskType } from 'src/types';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
-  {
-    name: 'name',
-    organisation: 'organisation',
-    hasSigned: true,
-    delegationSuccessful: true,
-    notificationStatus: NotificationStatus.Sent,
-    partyId: 123,
-  },
-  {
-    name: 'name2',
-    organisation: 'organisation2',
-    hasSigned: false,
-    delegationSuccessful: false,
-    notificationStatus: NotificationStatus.Failed,
-    partyId: 123,
-  },
-  {
-    name: 'name3',
-    organisation: 'organisation3',
-    hasSigned: false,
-    delegationSuccessful: true,
-    notificationStatus: NotificationStatus.Failed,
-    partyId: 123,
-  },
-  {
-    name: 'name4',
-    organisation: 'organisation4',
-    hasSigned: false,
-    delegationSuccessful: true,
-    notificationStatus: NotificationStatus.NotSent,
-    partyId: 123,
-  },
-];
-
 jest.mock('src/utils/layout/useNodeItem');
 jest.mock('react-router-dom');
 jest.mock('src/features/language/useLanguage');
@@ -61,6 +26,45 @@ jest.mock('src/features/instance/ProcessContext');
 jest.mock('src/layout/SigneeList/api');
 jest.mock('@tanstack/react-query');
 jest.mock('src/layout/SigneeList/SigneeListError');
+
+const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
+  {
+    name: 'name',
+    organisation: 'organisation',
+    hasSigned: true,
+    delegationSuccessful: true,
+    notificationStatus: NotificationStatus.Sent,
+    partyId: 123,
+    signedTime: new Date().toISOString(),
+  },
+  {
+    name: 'name2',
+    organisation: 'organisation2',
+    hasSigned: false,
+    delegationSuccessful: false,
+    notificationStatus: NotificationStatus.Failed,
+    partyId: 123,
+    signedTime: null,
+  },
+  {
+    name: 'name3',
+    organisation: 'organisation3',
+    hasSigned: false,
+    delegationSuccessful: true,
+    notificationStatus: NotificationStatus.Failed,
+    partyId: 123,
+    signedTime: null,
+  },
+  {
+    name: 'name4',
+    organisation: 'organisation4',
+    hasSigned: false,
+    delegationSuccessful: true,
+    notificationStatus: NotificationStatus.NotSent,
+    partyId: 123,
+    signedTime: null,
+  },
+];
 
 const mockedUseQuery = jest.mocked(useQuery);
 
