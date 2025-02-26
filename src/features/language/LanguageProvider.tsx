@@ -101,7 +101,7 @@ export const SetShouldFetchAppLanguages = () => {
     altinnNugetVersion &&
     isAtLeastVersion({
       actualVersion: altinnNugetVersion,
-      minimumVersion: '8.6.0.177',
+      minimumVersion: '8.5.6.180',
     });
 
   const setShouldFetchAppLanguages = useCtx().setShouldFetchAppLanguages;
