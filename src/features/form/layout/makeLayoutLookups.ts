@@ -1,6 +1,7 @@
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import type { NodeReference, PageReference } from 'src/features/expressions/types';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
 import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
 
@@ -18,6 +19,13 @@ interface PlainLayoutLookups {
   // Map of all component ids to the page key they are on
   componentToPage: {
     [componentId: string]: string;
+  };
+
+  // Map of all data model paths to the component ids that bind to them
+  dataModelToComponents: {
+    [dataType: string]: {
+      [field: string]: string[];
+    };
   };
 }
 
@@ -46,9 +54,10 @@ export type LayoutLookups = PlainLayoutLookups & RelationshipLookups;
  * which components are on which pages.
  */
 function makePlainLookup(layouts: ILayouts): PlainLayoutLookups {
-  const allComponents: { [componentId: string]: CompExternal } = {};
-  const allPerPage: { [pageKey: string]: string[] } = {};
-  const componentToPage: { [componentId: string]: string } = {};
+  const allComponents: PlainLayoutLookups['allComponents'] = {};
+  const allPerPage: PlainLayoutLookups['allPerPage'] = {};
+  const componentToPage: PlainLayoutLookups['componentToPage'] = {};
+  const dataModelToComponents: PlainLayoutLookups['dataModelToComponents'] = {};
 
   for (const pageKey of Object.keys(layouts)) {
     const page = layouts[pageKey];
@@ -61,10 +70,25 @@ function makePlainLookup(layouts: ILayouts): PlainLayoutLookups {
       allComponents[component.id] = component;
       allPerPage[pageKey].push(component.id);
       componentToPage[component.id] = pageKey;
+
+      if ('dataModelBindings' in component && component.dataModelBindings) {
+        for (const bindingKey of Object.keys(component.dataModelBindings)) {
+          const binding = component.dataModelBindings[bindingKey] as IDataModelReference | undefined;
+          if (binding) {
+            if (!dataModelToComponents[binding.dataType]) {
+              dataModelToComponents[binding.dataType] = {};
+            }
+            if (!dataModelToComponents[binding.dataType][binding.field]) {
+              dataModelToComponents[binding.dataType][binding.field] = [];
+            }
+            dataModelToComponents[binding.dataType][binding.field].push(component.id);
+          }
+        }
+      }
     }
   }
 
-  return { allComponents, allPerPage, componentToPage };
+  return { allComponents, allPerPage, componentToPage, dataModelToComponents };
 }
 
 /**
