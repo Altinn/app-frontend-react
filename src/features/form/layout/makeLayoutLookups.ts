@@ -8,36 +8,38 @@ import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
 interface PlainLayoutLookups {
   // Map of all component ids (without row indexes) to component definitions
   allComponents: {
-    [componentId: string]: CompExternal;
+    [componentId: string]: CompExternal | undefined;
   };
 
   // Map of all page keys, with all the component ids on that page
   allPerPage: {
-    [pageKey: string]: string[];
+    [pageKey: string]: string[] | undefined;
   };
 
   // Map of all component ids to the page key they are on
   componentToPage: {
-    [componentId: string]: string;
+    [componentId: string]: string | undefined;
   };
 
   // Map of all data model paths to the component ids that bind to them
   dataModelToComponents: {
-    [dataType: string]: {
-      [field: string]: string[];
-    };
+    [dataType: string]:
+      | {
+          [field: string]: string[] | undefined;
+        }
+      | undefined;
   };
 }
 
 interface RelationshipLookups {
   // Map of all component ids to their parent component id
   componentToParent: {
-    [componentId: string]: PageReference | NodeReference;
+    [componentId: string]: PageReference | NodeReference | undefined;
   };
 
   // Map of all page keys to the top-level component ids on that page
   topLevelComponents: {
-    [pageKey: string]: string[];
+    [pageKey: string]: string[] | undefined;
   };
 }
 
@@ -78,10 +80,10 @@ function makePlainLookup(layouts: ILayouts): PlainLayoutLookups {
             if (!dataModelToComponents[binding.dataType]) {
               dataModelToComponents[binding.dataType] = {};
             }
-            if (!dataModelToComponents[binding.dataType][binding.field]) {
-              dataModelToComponents[binding.dataType][binding.field] = [];
+            if (!dataModelToComponents[binding.dataType]![binding.field]) {
+              dataModelToComponents[binding.dataType]![binding.field] = [];
             }
-            dataModelToComponents[binding.dataType][binding.field].push(component.id);
+            dataModelToComponents[binding.dataType]![binding.field]!.push(component.id);
           }
         }
       }
@@ -97,11 +99,11 @@ function makePlainLookup(layouts: ILayouts): PlainLayoutLookups {
  * parent/child relationships.
  */
 export function makeLayoutLookups(layouts: ILayouts): LayoutLookups {
-  const lookup = makePlainLookup(layouts);
+  const plainLookups = makePlainLookup(layouts);
   const componentToParent: { [componentId: string]: PageReference | NodeReference } = {};
   const topLevelComponents: { [pageKey: string]: string[] } = {};
 
-  for (const pageKey of Object.keys(lookup.allPerPage)) {
+  for (const pageKey of Object.keys(plainLookups.allPerPage)) {
     const childClaims: ChildClaims = {};
     const claimedIds = new Set<string>();
 
@@ -109,21 +111,21 @@ export function makeLayoutLookups(layouts: ILayouts): LayoutLookups {
       topLevelComponents[pageKey] = [];
     }
 
-    for (const componentId of lookup.allPerPage[pageKey]) {
-      const component = lookup.allComponents[componentId];
+    for (const componentId of plainLookups.allPerPage[pageKey]!) {
+      const component = plainLookups.allComponents[componentId]!;
       const def = getComponentDef(component.type);
       if (def instanceof ContainerComponent) {
         const parentId = component.id;
         const props: ChildClaimerProps<CompTypes> = {
           item: component,
           claimChild: (_, childId) => {
-            if (canClaimChild(childId, parentId, lookup, childClaims)) {
+            if (canClaimChild(childId, parentId, plainLookups, childClaims)) {
               childClaims[parentId] = { ...childClaims[parentId], [childId]: true };
               claimedIds.add(childId);
               componentToParent[childId] = { type: 'node', id: parentId };
             }
           },
-          getProto: (id) => getTypeAndCapabilities(id, component.id, lookup),
+          getProto: (id) => getTypeAndCapabilities(id, component.id, plainLookups),
         };
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -132,7 +134,7 @@ export function makeLayoutLookups(layouts: ILayouts): LayoutLookups {
     }
 
     // All non-claimed components on a page are top-level components, and their parent is the page
-    for (const componentId of lookup.allPerPage[pageKey]) {
+    for (const componentId of plainLookups.allPerPage[pageKey]!) {
       if (!claimedIds.has(componentId)) {
         componentToParent[componentId] = { type: 'page', id: pageKey };
         topLevelComponents[pageKey].push(componentId);
@@ -140,7 +142,7 @@ export function makeLayoutLookups(layouts: ILayouts): LayoutLookups {
     }
   }
 
-  return { ...lookup, componentToParent, topLevelComponents };
+  return { ...plainLookups, componentToParent, topLevelComponents };
 }
 
 function canClaimChild(childId: string, parentId: string, lookup: PlainLayoutLookups, claims: ChildClaims) {
@@ -182,6 +184,7 @@ function getTypeAndCapabilities(id: string, requestedBy: string, lookup: PlainLa
   const type = lookup.allComponents[id]?.type;
   if (type === undefined) {
     window.logError(`Component '${id}' (as referenced by '${requestedBy}') does not exist`);
+    return undefined;
   }
   return { type, capabilities: getComponentCapabilities(type) };
 }

@@ -24,7 +24,6 @@ import type {
 } from 'src/features/expressions/types';
 import type { ValidationContext } from 'src/features/expressions/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
-import type { ILayouts } from 'src/layout/layout';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
 
 type ArgsToActual<T extends readonly AnyExprArg[]> = {
@@ -375,7 +374,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup component null`);
     }
 
-    const target = findComponent(this.dataSources.layouts, id)?.component;
+    const target = this.dataSources.layoutLookups.allComponents[id];
     if (!target) {
       throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
     }
@@ -472,7 +471,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup component null`);
     }
 
-    const target = findComponent(this.dataSources.layouts, id)?.component;
+    const target = this.dataSources.layoutLookups.allComponents[id];
     if (!target) {
       throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
     }
@@ -556,8 +555,9 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       return null;
     }
 
-    const target = findComponent(this.dataSources.layouts, id);
-    if (!target) {
+    const target = this.dataSources.layoutLookups.allComponents[id];
+    const pageKey = this.dataSources.layoutLookups.componentToPage[id];
+    if (!target || !pageKey) {
       throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
     }
 
@@ -566,9 +566,9 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
 
     let url = '';
     if (taskId && instanceId) {
-      url = `/instance/${instanceId}/${taskId}/${target.pageKey}`;
+      url = `/instance/${instanceId}/${taskId}/${pageKey}`;
     } else {
-      url = `/${target.pageKey}`;
+      url = `/${pageKey}`;
     }
 
     const searchParams = new URLSearchParams();
@@ -919,18 +919,4 @@ function validateDates(this: EvaluateExpressionParams, a: ExprDate, b: ExprDate)
   if (!sameTimezones && eitherIsLocal) {
     throw new ExprRuntimeError(this.expr, this.path, `Can not compare timestamps where only one specify timezone`);
   }
-}
-
-function findComponent(layouts: ILayouts, componentId: string) {
-  for (const pageKey of Object.keys(layouts)) {
-    const layout = layouts[pageKey];
-    if (!layout) {
-      continue;
-    }
-    const component = layout.find((c) => c.id === componentId);
-    if (component) {
-      return { component, pageKey };
-    }
-  }
-  return undefined;
 }

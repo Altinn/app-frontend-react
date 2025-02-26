@@ -2,7 +2,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
-import { useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentLayoutSet } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxDataElementsSelectorProps, useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
@@ -18,6 +18,7 @@ import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import type { AttachmentsSelector } from 'src/features/attachments/tools';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
+import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { DataElementSelector } from 'src/features/instance/InstanceContext';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CodeListSelector } from 'src/features/options/CodeListsProvider';
@@ -25,7 +26,6 @@ import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugi
 import type { RoleResult } from 'src/features/useCurrentPartyRoles';
 import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { IDataModelReference, ILayoutSet } from 'src/layout/common.generated';
-import type { ILayouts } from 'src/layout/layout';
 import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
@@ -51,7 +51,7 @@ export interface ExpressionDataSources {
   roles: RoleResult;
   currentDataModelPath: IDataModelReference | undefined;
   codeListSelector: CodeListSelector;
-  layouts: ILayouts;
+  layoutLookups: LayoutLookups;
 }
 
 export function useExpressionDataSources(): ExpressionDataSources {
@@ -93,7 +93,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
   );
 
   const roles = useCurrentPartyRoles();
-  const layouts = useLayouts();
+  const layoutLookups = useLayoutLookups();
 
   return useShallowMemo({
     roles,
@@ -115,6 +115,6 @@ export function useExpressionDataSources(): ExpressionDataSources {
     dataElementSelector,
     codeListSelector,
     currentDataModelPath,
-    layouts,
+    layoutLookups,
   });
 }
