@@ -32,12 +32,12 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
   const { tableHeaders, dataModelBindings } = useNodeItem(componentNode);
   const { formData } = useDataModelBindings(dataModelBindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
 
-  const displayRows = (formData?.saveToList as Row[]).map((row: Row) => {
+  const displayRows = (formData?.saveToList as Row[])?.map((row: Row) => {
     const { altinnRowId: _, ...rest } = row;
     return rest;
   });
 
-  if (displayRows.length > 0) {
+  if (displayRows?.length > 0) {
     return (
       <div className={classes.listContainer}>
         <div className={classes.headerContainer}>
