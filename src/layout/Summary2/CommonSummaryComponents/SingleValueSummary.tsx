@@ -70,7 +70,10 @@ export const SingleValueSummary = ({
     {errors &&
       errors?.length > 0 &&
       errors?.map(({ message }) => (
-        <ValidationMessage key={message.key}>
+        <ValidationMessage
+          key={message.key}
+          data-size='sm'
+        >
           <Lang
             id={message.key}
             params={message.params}

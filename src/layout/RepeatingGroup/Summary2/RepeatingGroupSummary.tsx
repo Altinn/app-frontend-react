@@ -88,6 +88,7 @@ export const RepeatingGroupSummary = ({
       {errors?.map(({ message }) => (
         <ValidationMessage
           key={message.key}
+          data-size='sm'
           className={classes.errorMessage}
         >
           <ExclamationmarkTriangleIcon fontSize='1.5rem' />

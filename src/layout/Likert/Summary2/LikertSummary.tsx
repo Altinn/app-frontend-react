@@ -68,7 +68,10 @@ export function LikertSummary({ componentNode, emptyFieldText, isCompact }: Like
         />
       ))}
       {errors?.map(({ message }) => (
-        <ValidationMessage key={message.key}>
+        <ValidationMessage
+          key={message.key}
+          data-size='sm'
+        >
           <Lang
             id={message.key}
             params={message.params}
