@@ -71,7 +71,7 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
             </Table.Row>
           </Table.Head>
           <Table.Body>
-            {displayRows.map((row, rowIndex) => {
+            {displayRows?.map((row, rowIndex) => {
               const rowItem = row;
               return (
                 <Table.Row key={rowIndex}>
