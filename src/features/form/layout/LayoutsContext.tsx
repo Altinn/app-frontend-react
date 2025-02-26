@@ -8,6 +8,7 @@ import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
+import { makeRelationships } from 'src/features/form/layout/makeRelationships';
 import { applyLayoutQuirks } from 'src/features/form/layout/quirks';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSet';
@@ -15,10 +16,12 @@ import { useHasInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
+import type { LayoutRelationships } from 'src/features/form/layout/makeRelationships';
 import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IExpandedWidthLayouts, IHiddenLayoutsExternal } from 'src/types';
 
 export interface LayoutContextValue {
+  relationships: LayoutRelationships;
   layouts: ILayouts;
   hiddenLayoutsExpressions: IHiddenLayoutsExternal;
   expandedWidthLayouts: IExpandedWidthLayouts;
@@ -115,7 +118,10 @@ function processLayouts(input: ILayoutCollection, layoutSetId: string, dataModel
   const withQuirksFixed = applyLayoutQuirks(layouts, layoutSetId);
   removeDuplicateComponentIds(withQuirksFixed, layoutSetId);
 
+  const relationships = makeRelationships(withQuirksFixed);
+
   return {
+    relationships,
     layouts: withQuirksFixed,
     hiddenLayoutsExpressions,
     expandedWidthLayouts,
