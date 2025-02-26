@@ -4,7 +4,7 @@ import { useApplicationSettings } from 'src/features/applicationSettings/Applica
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
-import { useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSet } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -71,7 +71,7 @@ function useExpressionDataSources(): ExpressionDataSources {
   const applicationSettings = useApplicationSettings();
   const currentLanguage = useCurrentLanguage();
   const currentDataModelPath = useCurrentDataModelLocation();
-  const layouts = useLayouts();
+  const layoutLookups = useLayoutLookups();
 
   const instanceDataSources = hooks.useLaxInstanceDataSources();
   const currentLayoutSet = hooks.useCurrentLayoutSet() ?? null;
@@ -106,7 +106,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     dataElementSelector,
     codeListSelector,
     currentDataModelPath,
-    layouts,
+    layoutLookups,
   });
 }
 
