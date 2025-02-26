@@ -39,7 +39,7 @@ const failedDelegationSignee: SigneeState = {
   organisation: 'organisation2',
   hasSigned: false,
   delegationSuccessful: false,
-  notificationSuccessful: NotificationStatus.NotSent,
+  notificationStatus: NotificationStatus.NotSent,
   partyId: 123,
 };
 
@@ -48,7 +48,7 @@ const failedNotificationSignee: SigneeState = {
   organisation: 'organisation3',
   hasSigned: false,
   delegationSuccessful: true,
-  notificationSuccessful: NotificationStatus.Failed,
+  notificationStatus: NotificationStatus.Failed,
   partyId: 123,
 };
 
@@ -57,7 +57,7 @@ const signedSignee: SigneeState = {
   organisation: 'organisation',
   hasSigned: true,
   delegationSuccessful: true,
-  notificationSuccessful: NotificationStatus.Sent,
+  notificationStatus: NotificationStatus.Sent,
   partyId: 123,
 };
 
@@ -66,7 +66,7 @@ const notSignedSignee: SigneeState = {
   organisation: 'organisation4',
   hasSigned: false,
   delegationSuccessful: true,
-  notificationSuccessful: NotificationStatus.Sent,
+  notificationStatus: NotificationStatus.Sent,
   partyId: 123,
 };
 

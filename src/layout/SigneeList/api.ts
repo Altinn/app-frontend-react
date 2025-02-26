@@ -16,7 +16,7 @@ const signeeStateSchema = z
     organisation: z.string().nullish(),
     hasSigned: z.boolean(),
     delegationSuccessful: z.boolean(),
-    notificationSuccessful: z.nativeEnum(NotificationStatus),
+    notificationStatus: z.nativeEnum(NotificationStatus),
     partyId: z.number(),
   })
   .refine(({ name, organisation }) => name || organisation, 'Either name or organisation must be present.');

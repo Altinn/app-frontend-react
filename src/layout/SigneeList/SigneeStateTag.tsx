@@ -24,7 +24,7 @@ function getSigneeStatus(state: SigneeState): SigneeStatus {
     return 'delegationFailed';
   }
 
-  if (state.notificationSuccessful === 'Failed') {
+  if (state.notificationStatus === 'Failed') {
     return 'notificationFailed';
   }
 

@@ -16,7 +16,7 @@ describe('SigneeStateTag', () => {
         state={{
           hasSigned: true,
           delegationSuccessful: true,
-          notificationSuccessful: NotificationStatus.Sent,
+          notificationStatus: NotificationStatus.Sent,
           partyId: 123,
         }}
       />,
@@ -31,7 +31,7 @@ describe('SigneeStateTag', () => {
         state={{
           hasSigned: false,
           delegationSuccessful: false,
-          notificationSuccessful: NotificationStatus.NotSent,
+          notificationStatus: NotificationStatus.NotSent,
           partyId: 123,
         }}
       />,
@@ -46,7 +46,7 @@ describe('SigneeStateTag', () => {
         state={{
           hasSigned: false,
           delegationSuccessful: true,
-          notificationSuccessful: NotificationStatus.Failed,
+          notificationStatus: NotificationStatus.Failed,
           partyId: 123,
         }}
       />,
@@ -61,7 +61,7 @@ describe('SigneeStateTag', () => {
         state={{
           hasSigned: false,
           delegationSuccessful: true,
-          notificationSuccessful: NotificationStatus.Sent,
+          notificationStatus: NotificationStatus.Sent,
           partyId: 123,
         }}
       />,

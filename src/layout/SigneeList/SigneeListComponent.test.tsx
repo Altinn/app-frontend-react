@@ -24,7 +24,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     organisation: 'organisation',
     hasSigned: true,
     delegationSuccessful: true,
-    notificationSuccessful: NotificationStatus.Sent,
+    notificationStatus: NotificationStatus.Sent,
     partyId: 123,
   },
   {
@@ -32,7 +32,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     organisation: 'organisation2',
     hasSigned: false,
     delegationSuccessful: false,
-    notificationSuccessful: NotificationStatus.Failed,
+    notificationStatus: NotificationStatus.Failed,
     partyId: 123,
   },
   {
@@ -40,7 +40,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     organisation: 'organisation3',
     hasSigned: false,
     delegationSuccessful: true,
-    notificationSuccessful: NotificationStatus.Failed,
+    notificationStatus: NotificationStatus.Failed,
     partyId: 123,
   },
   {
@@ -48,7 +48,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
     organisation: 'organisation4',
     hasSigned: false,
     delegationSuccessful: true,
-    notificationSuccessful: NotificationStatus.NotSent,
+    notificationStatus: NotificationStatus.NotSent,
     partyId: 123,
   },
 ];
