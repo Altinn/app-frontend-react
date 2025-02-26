@@ -14,7 +14,7 @@ import { type FunctionTestBase, getSharedTests, type SharedTestFunctionContext }
 import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
-import { getRepeatingBinding, isRepeatingComponentType } from 'src/features/form/layout/repeating';
+import { getRepeatingBinding, isRepeatingComponentType } from 'src/features/form/layout/utils/repeating';
 import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
 import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
 import { renderWithNode } from 'src/test/renderWithProviders';
@@ -30,7 +30,7 @@ import type {
   NodeReference,
 } from 'src/features/expressions/types';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
-import type { RepeatingComponents } from 'src/features/form/layout/repeating';
+import type { RepeatingComponents } from 'src/features/form/layout/utils/repeating';
 import type { RoleResult } from 'src/features/useCurrentPartyRoles';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
