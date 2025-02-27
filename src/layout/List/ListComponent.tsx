@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { AriaAttributes, ReactNode } from 'react';
+import type { AriaAttributes } from 'react';
 
 import { Checkbox, Heading, Radio, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
@@ -139,65 +139,61 @@ export const ListComponent = ({ node }: IListProps) => {
         <span>{typeof row[key] === 'string' ? <Lang id={row[key]} /> : row[key]}</span>
       </div>
     ));
-  let options: ReactNode;
-  if (saveToList) {
-    options = (
-      <Checkbox.Group
-        legend={
-          <Heading
-            level={2}
-            size='sm'
-          >
-            <Lang id={title} />
-            <RequiredIndicator required={required} />
-          </Heading>
-        }
-        description={description && <Lang id={description} />}
-      >
-        {data?.listItems.map((row) => (
-          <Checkbox
-            key={JSON.stringify(row)}
-            onClick={() => handleRowClick(row)}
-            value={JSON.stringify(row)}
-            className={cn(classes.mobile)}
-            checked={isRowChecked(row)}
-          >
-            {renderListItems(row, tableHeaders)}
-          </Checkbox>
-        ))}
-      </Checkbox.Group>
-    );
-  } else {
-    options = (
-      <Radio.Group
-        role='radiogroup'
-        required={required}
-        legend={
-          <Heading
-            level={2}
-            size='sm'
-          >
-            <Lang id={title} />
-            <RequiredIndicator required={required} />
-          </Heading>
-        }
-        description={description && <Lang id={description} />}
-        className={classes.mobileGroup}
-        value={JSON.stringify(selectedRow)}
-      >
-        {data?.listItems.map((row) => (
-          <Radio
-            key={JSON.stringify(row)}
-            value={JSON.stringify(row)}
-            className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
-            onClick={() => handleSelectedRadioRow({ selectedValue: row })}
-          >
-            {renderListItems(row, tableHeaders)}
-          </Radio>
-        ))}
-      </Radio.Group>
-    );
-  }
+
+  const options = saveToList ? (
+    <Checkbox.Group
+      legend={
+        <Heading
+          level={2}
+          size='sm'
+        >
+          <Lang id={title} />
+          <RequiredIndicator required={required} />
+        </Heading>
+      }
+      description={description && <Lang id={description} />}
+    >
+      {data?.listItems.map((row) => (
+        <Checkbox
+          key={JSON.stringify(row)}
+          onClick={() => handleRowClick(row)}
+          value={JSON.stringify(row)}
+          className={cn(classes.mobile)}
+          checked={isRowChecked(row)}
+        >
+          {renderListItems(row, tableHeaders)}
+        </Checkbox>
+      ))}
+    </Checkbox.Group>
+  ) : (
+    <Radio.Group
+      role='radiogroup'
+      required={required}
+      legend={
+        <Heading
+          level={2}
+          size='sm'
+        >
+          <Lang id={title} />
+          <RequiredIndicator required={required} />
+        </Heading>
+      }
+      description={description && <Lang id={description} />}
+      className={classes.mobileGroup}
+      value={JSON.stringify(selectedRow)}
+    >
+      {data?.listItems.map((row) => (
+        <Radio
+          key={JSON.stringify(row)}
+          value={JSON.stringify(row)}
+          className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
+          onClick={() => handleSelectedRadioRow({ selectedValue: row })}
+        >
+          {renderListItems(row, tableHeaders)}
+        </Radio>
+      ))}
+    </Radio.Group>
+  );
 
   if (isMobile) {
     return (
