@@ -131,6 +131,12 @@ export function nb(): FixedLanguageList {
       form: 'Skjemanavigasjon',
       to_main_content: 'Hopp til hovedinnholdet',
       go_to_task: 'Gå til {0}',
+      form_pages: 'Skjemasider',
+      back_to_inbox: 'Tilbake til innboks',
+      inbox: 'Innboks',
+      back_to_main_form: 'Tilbake til {0}',
+      main_form: '{0}',
+      back: 'Tilbake',
     },
     general: {
       action: 'Handling',
@@ -144,7 +150,6 @@ export function nb(): FixedLanguageList {
       choose_label: 'Velg navn',
       choose_method: 'Velg metode',
       choose: 'Velg',
-      close_schema: 'Lukk skjema',
       close: 'Lukk',
       contains: 'Inneholder',
       control_submit: 'Kontroller og send inn',
@@ -166,7 +171,8 @@ export function nb(): FixedLanguageList {
       empty_table: 'Ingen data funnet.',
       enabled: 'Aktivert',
       error_message_with_colon: 'Feilmelding:',
-      expand_form: 'Utvid skjema',
+      full_width: 'Utvid bredden',
+      standard_width: 'Reduser bredden',
       for: 'for',
       header_profile_icon_label: 'Profil ikon knapp',
       label: 'Navn',
@@ -248,6 +254,7 @@ export function nb(): FixedLanguageList {
       starting: 'Vent litt, vi henter det du trenger',
     },
     language: {
+      language_selection: 'Språkvalg',
       full_name: {
         nb: 'Norsk bokmål',
         en: 'Engelsk',
@@ -531,6 +538,13 @@ export function nb(): FixedLanguageList {
     pdfPreview: {
       error: 'Kunne ikke forhåndsvise PDF',
       defaultButtonText: 'Forhåndsvis PDF',
+    },
+    taskTypes: {
+      data: 'Utfylling',
+      signing: 'Signering',
+      confirmation: 'Bekreftelse',
+      payment: 'Betaling',
+      receipt: 'Kvittering',
     },
   } satisfies NestedTexts;
 }

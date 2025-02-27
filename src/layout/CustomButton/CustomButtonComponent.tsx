@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
@@ -12,7 +13,6 @@ import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
-import { useIsProcessing } from 'src/hooks/useIsProcessing';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
@@ -41,7 +41,8 @@ type UpdatedValidationIssues = {
   [dataModelGuid: string]: BackendValidationIssueGroups;
 };
 
-type FormDataLockTools = ReturnType<typeof FD.useLocking>;
+type FormDataLocking = ReturnType<typeof FD.useLocking>;
+type FormDataLock = Awaited<ReturnType<FormDataLocking>>;
 
 export type ActionResult = {
   instance: IInstance | undefined;
@@ -53,7 +54,7 @@ export type ActionResult = {
 
 type UseHandleClientActions = {
   handleClientActions: (actions: CBTypes.ClientAction[]) => Promise<void>;
-  handleDataModelUpdate: (lockTools: FormDataLockTools, result: ActionResult) => Promise<void>;
+  handleDataModelUpdate: (currentLock: FormDataLock, result: ActionResult) => Promise<void>;
 };
 
 /**
@@ -111,7 +112,7 @@ function useHandleClientActions(): UseHandleClientActions {
   );
 
   const handleDataModelUpdate: UseHandleClientActions['handleDataModelUpdate'] = useCallback(
-    async (lockTools, result) => {
+    async (currentLock, result) => {
       const instance = result.instance;
       const updatedDataModels = result.updatedDataModels;
       const _updatedValidationIssues = result.updatedValidationIssues;
@@ -129,7 +130,7 @@ function useHandleClientActions(): UseHandleClientActions {
           }, {})
         : undefined;
 
-      lockTools.unlock({
+      currentLock.unlock({
         instance,
         updatedDataModels,
         updatedValidationIssues,
@@ -151,7 +152,7 @@ type UsePerformActionMutation = {
   handleServerAction: (props: PerformActionMutationProps) => Promise<void>;
 };
 
-function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerformActionMutation {
+function useHandleServerActionMutation(acquireLock: FormDataLocking): UsePerformActionMutation {
   const { doPerformAction } = useAppMutations();
   const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
@@ -178,7 +179,7 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
 
   const handleServerAction = useCallback(
     async ({ action, buttonId }: PerformActionMutationProps) => {
-      await lockTools.lock();
+      const lock = await acquireLock();
       try {
         const result = await mutateAsync({ action, buttonId });
 
@@ -186,12 +187,14 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
         // it as not ready now will prevent some re-renders with stale data while the result is handled later.
         markNotReady();
 
-        await handleDataModelUpdate(lockTools, result);
+        await handleDataModelUpdate(lock, result);
         if (result.clientActions) {
           await handleClientActions(result.clientActions);
         }
       } catch (error) {
-        lockTools.unlock();
+        if (lock.isLocked()) {
+          lock.unlock();
+        }
         if (error?.response?.data?.error?.message !== undefined) {
           toast(<Lang id={error?.response?.data?.error?.message} />, { type: 'error' });
         } else {
@@ -199,7 +202,7 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
         }
       }
     },
-    [handleClientActions, handleDataModelUpdate, lockTools, mutateAsync, markNotReady],
+    [handleClientActions, handleDataModelUpdate, acquireLock, mutateAsync, markNotReady],
   );
 
   return { handleServerAction, isPending };
@@ -229,12 +232,12 @@ function toShorthandSize(size?: CBTypes.ButtonSize): 'sm' | 'md' | 'lg' {
 export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, actions, id, buttonColor, buttonSize, buttonStyle } = useNodeItem(node);
 
-  const lockTools = FD.useLocking(id);
+  const acquireLock = FD.useLocking(id);
   const isAuthorized = useIsAuthorised();
   const { handleClientActions } = useHandleClientActions();
-  const { handleServerAction } = useHandleServerActionMutation(lockTools);
+  const { handleServerAction } = useHandleServerActionMutation(acquireLock);
   const onPageNavigationValidation = useOnPageNavigationValidation();
-  const [isProcessing, processing] = useIsProcessing<'action'>();
+  const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
 
   const getScrollPosition = React.useCallback(
     () => document.querySelector(`[data-componentid="${id}"]`)?.getClientRects().item(0)?.y,
@@ -245,7 +248,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const isPermittedToPerformActions = actions
     .filter((action) => action.type === 'ServerAction')
     .reduce((acc, action) => acc && isAuthorized(action.id), true);
-  const disabled = !isPermittedToPerformActions || !!isProcessing;
+  const disabled = !isPermittedToPerformActions || isAnyProcessing;
 
   const isSubformCloseButton = actions.filter((action) => action.id === 'closeSubform').length > 0;
   let interceptedButtonStyle = buttonStyle ?? 'secondary';
@@ -260,7 +263,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   }
 
   const onClick = () =>
-    processing('action', async () => {
+    performProcess(async () => {
       for (const action of actions) {
         if (action.validation) {
           const prevScrollPosition = getScrollPosition();
@@ -290,7 +293,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
         size={toShorthandSize(buttonSize)}
         color={buttonColor ?? style.color}
         variant={style.variant}
-        isLoading={!!isProcessing}
+        isLoading={isThisProcessing}
       >
         <Lang id={buttonText} />
       </Button>

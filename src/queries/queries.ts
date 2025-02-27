@@ -38,6 +38,7 @@ import {
   getPdfFormatUrl,
   getProcessNextUrl,
   getProcessStateUrl,
+  getRedirectUrl,
   getRolesUrl,
   getRulehandlerUrl,
   getSetCurrentPartyUrl,
@@ -255,6 +256,9 @@ export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
 export const fetchParties = (): Promise<IParty[]> => httpGet(validPartiesUrl);
 
 export const fetchAppLanguages = (): Promise<IAppLanguage[]> => httpGet(applicationLanguagesUrl);
+
+export const fetchReturnUrl = (queryParameterReturnUrl: string): Promise<string> =>
+  httpGet(getRedirectUrl(queryParameterReturnUrl));
 
 export const fetchRefreshJwtToken = (): Promise<unknown> => httpGet(refreshJwtTokenUrl);
 

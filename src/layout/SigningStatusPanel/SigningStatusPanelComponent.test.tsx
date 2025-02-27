@@ -7,7 +7,7 @@ import { render } from '@testing-library/react';
 import { randomUUID } from 'crypto';
 
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
-import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
+import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
@@ -21,7 +21,7 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 jest.mock('src/utils/layout/useNodeItem');
 jest.mock('react-router-dom');
 jest.mock('src/layout/SigneeList/api');
-jest.mock('src/features/instance/ProcessNavigationContext');
+jest.mock('src/features/instance/useProcessNext.tsx');
 jest.mock('src/core/contexts/AppQueriesProvider');
 jest.mock('src/features/party/PartiesProvider');
 jest.mock('src/features/language/useLanguage');
@@ -118,9 +118,7 @@ describe('SigningStatusPanelComponent', () => {
 
     jest.mocked(useCurrentParty).mockReturnValue({ partyId: 123 } as unknown as ReturnType<typeof useCurrentParty>);
 
-    jest.mocked(useProcessNavigation).mockReturnValue({
-      navigateToTask: jest.fn(),
-    } as unknown as ReturnType<typeof useProcessNavigation>);
+    jest.mocked(useProcessNext).mockReturnValue(jest.fn());
   });
 
   it('should render loading spinner when loading is true', () => {

@@ -2,11 +2,12 @@ import React, { useRef } from 'react';
 import type { PropsWithChildren, ReactElement } from 'react';
 
 import { ErrorMessage, Heading, Modal, Paragraph } from '@digdir/designsystemet-react';
+import { useIsMutating, useMutation } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Panel } from 'src/app-components/Panel/Panel';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
-import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
+import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -68,7 +69,7 @@ type RejectTextProps = {
 function RejectButton({ node }: RejectTextProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const rejectButtonRef = useRef<HTMLButtonElement>(null);
-  const { next, busy } = useProcessNavigation() ?? {};
+  const processNext = useProcessNext();
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
 
   const modalTitle = textResourceBindings?.rejectModalTitle ?? 'signing.reject_modal_title';
@@ -76,16 +77,21 @@ function RejectButton({ node }: RejectTextProps) {
   const modalButton = textResourceBindings?.rejectModalButton ?? 'signing.reject_modal_button';
   const modalTriggerButton = textResourceBindings?.rejectModalTriggerButton ?? 'signing.reject_modal_trigger_button';
 
-  async function handleReject() {
-    if (rejectButtonRef.current) {
-      rejectButtonRef.current.disabled = true;
-    }
-    next?.({ action: 'reject', nodeId: 'reject-button' }).catch(() => {
+  const isAnyProcessing = useIsMutating() > 0;
+
+  const { mutate: handleReject } = useMutation({
+    mutationFn: async () => {
+      if (rejectButtonRef.current) {
+        rejectButtonRef.current.disabled = true;
+      }
+      await processNext({ action: 'reject' });
+    },
+    onSettled: () => {
       if (rejectButtonRef.current) {
         rejectButtonRef.current.disabled = false;
       }
-    });
-  }
+    },
+  });
 
   return (
     <Modal.Root>
@@ -112,10 +118,10 @@ function RejectButton({ node }: RejectTextProps) {
         <Modal.Footer>
           <Button
             color='danger'
-            disabled={busy}
+            disabled={isAnyProcessing}
             size='md'
             ref={rejectButtonRef}
-            onClick={handleReject}
+            onClick={() => handleReject()}
           >
             <Lang id={modalButton} />
           </Button>

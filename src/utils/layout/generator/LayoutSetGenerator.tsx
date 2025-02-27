@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
-import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePdfLayoutName, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
@@ -16,6 +16,7 @@ import { GeneratorCondition, StageAddNodes, StageMarkHidden } from 'src/utils/la
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { Hidden, NodesInternal, NodesStore, useNodes } from 'src/utils/layout/NodesContext';
+import type { LayoutReference } from 'src/features/expressions/types';
 import type { CompExternal, CompExternalExact, CompTypes, ILayout } from 'src/layout/layout';
 import type { ChildClaimerProps, ComponentProto, NodeGeneratorProps } from 'src/layout/LayoutComponent';
 import type { ChildClaim, ChildClaims, ChildClaimsMap } from 'src/utils/layout/generator/GeneratorContext';
@@ -154,9 +155,8 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
   const page = useMemo(() => new LayoutPage(), []);
   useGeneratorErrorBoundaryNodeRef().current = page;
 
-  const layoutSettings = useLayoutSettings();
-  const pageOrder = layoutSettings.pages.order;
-  const pdfPage = layoutSettings.pages.pdfLayoutName;
+  const pageOrder = useRawPageOrder();
+  const pdfPage = usePdfLayoutName();
   const isValid = pageOrder.includes(name) || name === pdfPage;
 
   const getProto = useMemo(() => {
@@ -357,7 +357,8 @@ function GenerateNodeChildrenInternal({ claims, layoutMap }: NodeChildrenInterna
 
 function useIsHiddenPage(page: LayoutPage): boolean {
   const hiddenExpr = useHiddenLayoutsExpressions();
-  return useEvalExpressionInGenerator(ExprVal.Boolean, page, hiddenExpr[page.pageKey], false) ?? false;
+  const reference: LayoutReference = useMemo(() => ({ type: 'page', id: page.pageKey }), [page.pageKey]);
+  return useEvalExpressionInGenerator(ExprVal.Boolean, reference, hiddenExpr[page.pageKey], false) ?? false;
 }
 
 interface ComponentClaimChildrenProps {

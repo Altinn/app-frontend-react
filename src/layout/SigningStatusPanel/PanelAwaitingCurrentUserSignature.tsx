@@ -25,7 +25,7 @@ export function AwaitingCurrentUserSignaturePanel({
   node,
   hasMissingSignatures,
 }: AwaitingCurrentUserSignaturePanelProps) {
-  const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
+  const { instanceOwnerPartyId, instanceGuid } = useParams();
   const isAuthorised = useIsAuthorised();
   const canSign = isAuthorised('sign');
   const canWrite = isAuthorised('write');
