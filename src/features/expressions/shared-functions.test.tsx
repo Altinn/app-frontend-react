@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { jest } from '@jest/globals';
@@ -75,19 +75,18 @@ function DataModelLocationFromNode({ nodeId, children }: PropsWithChildren<{ nod
   const dataModelBindings = NodesInternal.useNodeData(closestRepeating, (d) => d.layout.dataModelBindings);
   const repeatingBinding = closestRepeating && getRepeatingBinding(closestRepeating.type, dataModelBindings);
 
-  const bindingWithIndex = useMemo(
-    () =>
-      repeatingBinding && rowIndex !== undefined
-        ? { ...repeatingBinding, field: `${repeatingBinding.field}[${rowIndex}]` }
-        : repeatingBinding,
-    [repeatingBinding, rowIndex],
-  );
-
-  if (closestRepeating === undefined && rowIndex === undefined) {
+  if (closestRepeating === undefined || rowIndex === undefined || !repeatingBinding) {
     return children;
   }
 
-  return <DataModelLocationProvider value={bindingWithIndex}>{children}</DataModelLocationProvider>;
+  return (
+    <DataModelLocationProvider
+      binding={repeatingBinding}
+      rowIndex={rowIndex}
+    >
+      {children}
+    </DataModelLocationProvider>
+  );
 }
 
 function getClosestRepeating(node: LayoutNode): [LayoutNode<RepeatingComponents>, number] | [undefined, undefined] {
