@@ -15,7 +15,7 @@ import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { returnUrlToMessageBox } from 'src/utils/urls/urlHelper';
+import { getMessageBoxUrl } from 'src/utils/urls/urlHelper';
 
 export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
   const { langAsString } = useLanguage();
@@ -27,7 +27,7 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
   const { exitSubform } = useNavigatePage();
   const { performProcess, isAnyProcessing, isThisProcessing: isExitingSubform } = useIsProcessing();
 
-  const messageBoxUrl = returnUrlToMessageBox(window.location.host, party?.partyId);
+  const messageBoxUrl = getMessageBoxUrl(party?.partyId);
 
   if (isFetchingReturnUrl) {
     return (

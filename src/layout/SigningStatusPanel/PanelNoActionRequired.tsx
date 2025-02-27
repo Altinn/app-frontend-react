@@ -8,7 +8,7 @@ import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { returnUrlToMessageBox } from 'src/utils/urls/urlHelper';
+import { getMessageBoxUrl } from 'src/utils/urls/urlHelper';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type NoActionRequiredPanelProps = {
@@ -45,7 +45,7 @@ export function NoActionRequiredPanel({ node, hasSigned }: NoActionRequiredPanel
           asChild
         >
           <Link
-            href={returnUrlToMessageBox(window.location.origin, currentUserPartyId) ?? '#'}
+            href={getMessageBoxUrl(currentUserPartyId) ?? '#'}
             className={classes.buttonLink}
           >
             <Lang id={goToInboxButton} />
