@@ -11,11 +11,3 @@
 .table tr td:last-child {
   width: 1%;
 }
-
-.summaryHeader {
-  font: var(--fds-typography-paragraph-large);
-}
-
-.summaryDivider {
-  margin-top: 0;
-}

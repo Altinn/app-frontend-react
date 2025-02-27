@@ -403,13 +403,14 @@ export function en() {
       header_status: 'Status',
     },
     signee_list_summary: {
-      header: 'Signed by',
+      header: 'The following have signed',
       name_placeholder: 'Unknown name',
       on_behalf_of: 'on behalf of',
       loading: 'Loading signature data...',
       error: 'Failed to load signature data.',
       no_data: 'No signature data found.',
       no_signatures: 'No signatures found.',
+      signed_time: 'Digitally signed through Altinn {0}',
     },
     signing_document_list: {
       parse_error: 'Error loading signee document list.',
