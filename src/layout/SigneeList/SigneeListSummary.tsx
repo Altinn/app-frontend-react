@@ -2,10 +2,12 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import type { PropsWithChildren, ReactElement } from 'react';
 
-import { Divider, Heading, Paragraph } from '@digdir/designsystemet-react';
+import { Divider, Paragraph } from '@digdir/designsystemet-react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { nb } from 'date-fns/locale/nb';
 
+import { Label } from 'src/app-components/Label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import classes from 'src/layout/SigneeList/SigneeListSummary.module.css';
@@ -77,7 +79,7 @@ export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
             <Paragraph className={classes.signeeDescription}>
               <Lang
                 id='signee_list_summary.signed_time'
-                params={[format(new Date(item.signedTime), "dd.MM.yyyy 'kl.' HH:mm")]}
+                params={[format(new Date(item.signedTime), "dd.MM.yyyy 'kl.' HH:mm", { locale: nb })]}
               />
             </Paragraph>
           </li>
@@ -89,13 +91,11 @@ export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
 
 function SigneeListSummaryContainer({ heading, children }: PropsWithChildren<{ heading: ReactElement }>) {
   return (
-    <div className={classes.summaryContainer}>
-      <Heading
-        level={2}
-        className={classes.summaryHeader}
-      >
-        {heading}
-      </Heading>
+    <div>
+      <Label
+        label={heading}
+        size='lg'
+      />
       {children}
     </div>
   );
