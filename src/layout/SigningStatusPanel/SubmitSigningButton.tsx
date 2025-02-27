@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useIsMutating, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -12,7 +12,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function SubmitSigningButton({ node }: { node: LayoutNode<'SigningStatusPanel'> }) {
   const processNext = useProcessNext();
-  const submitButtonRef = useRef<HTMLButtonElement>(null);
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
 
   const { textResourceBindings } = useNodeItem(node, (i) => ({
@@ -21,20 +20,16 @@ export function SubmitSigningButton({ node }: { node: LayoutNode<'SigningStatusP
   const queryClient = useQueryClient();
   const isAnyProcessing = useIsMutating() > 0;
 
-  const { mutate: handleSubmit, isPending: isSubmitting } = useMutation({
+  const {
+    mutate: handleSubmit,
+    isPending: isSubmitting,
+    isSuccess,
+  } = useMutation({
     mutationFn: async () => {
-      if (submitButtonRef.current) {
-        submitButtonRef.current.disabled = true;
-      }
       await processNext();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId).queryKey });
-    },
-    onSettled: () => {
-      if (submitButtonRef.current) {
-        submitButtonRef.current.disabled = false;
-      }
     },
   });
 
@@ -45,9 +40,8 @@ export function SubmitSigningButton({ node }: { node: LayoutNode<'SigningStatusP
       onClick={() => handleSubmit()}
       size='md'
       color='success'
-      disabled={isAnyProcessing}
+      disabled={isAnyProcessing || isSuccess}
       isLoading={isSubmitting}
-      ref={submitButtonRef}
     >
       <Lang id={submitButtonText} />
     </Button>

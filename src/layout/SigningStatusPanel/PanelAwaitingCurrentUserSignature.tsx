@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Checkbox } from '@digdir/designsystemet-react';
@@ -30,7 +30,6 @@ export function AwaitingCurrentUserSignaturePanel({
   const canSign = isAuthorised('sign');
   const canWrite = isAuthorised('write');
 
-  const submitButtonRef = useRef<HTMLButtonElement>(null);
   const selectedLanguage = useCurrentLanguage();
   const queryClient = useQueryClient();
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
@@ -40,21 +39,16 @@ export function AwaitingCurrentUserSignaturePanel({
   const checkboxDescription = textResourceBindings?.checkboxDescription;
   const signingButtonText = textResourceBindings?.signingButton ?? 'signing.sign_button';
 
-  function setSubmitButtonDisabled(disabled: boolean) {
-    if (submitButtonRef.current) {
-      submitButtonRef.current.disabled = disabled;
-    }
-  }
-
-  const { mutate: handleSign, error } = useMutation({
+  const {
+    mutate: handleSign,
+    error,
+    isSuccess,
+    isPending,
+  } = useMutation({
     mutationFn: async () => {
-      setSubmitButtonDisabled(true);
       if (instanceOwnerPartyId && instanceGuid) {
         return doPerformAction(instanceOwnerPartyId, instanceGuid, { action: 'sign' }, selectedLanguage, queryClient);
       }
-    },
-    onSuccess: () => {
-      setSubmitButtonDisabled(false);
     },
   });
 
@@ -74,8 +68,7 @@ export function AwaitingCurrentUserSignaturePanel({
         <>
           <Button
             onClick={() => handleSign()}
-            disabled={!confirmReadDocuments}
-            ref={submitButtonRef}
+            disabled={!confirmReadDocuments || isPending || isSuccess}
             size='md'
             color='success'
           >
