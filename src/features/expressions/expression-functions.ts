@@ -3,7 +3,7 @@ import escapeStringRegexp from 'escape-string-regexp';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { exprCastValue } from 'src/features/expressions';
-import { ExprRuntimeError } from 'src/features/expressions/errors';
+import { ExprRuntimeError, NodeRelationNotFound } from 'src/features/expressions/errors';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
 import { makeIndexedId } from 'src/features/form/layout/utils/makeIndexedId';
@@ -389,22 +389,22 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Component ${id} does not have a simpleBinding`);
     }
 
-    if (this.dataSources.currentDataModelPath) {
-      const targetId = makeIndexedId(target.id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
-      if (!targetId || this.dataSources.isHiddenSelector(targetId)) {
-        // Not related to the current path, or currently hidden
-        return null;
-      }
+    const targetId = makeIndexedId(target.id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
+    if (!targetId) {
+      throw new NodeRelationNotFound(this, id);
+    }
 
+    if (this.dataSources.isHiddenSelector(targetId)) {
+      // Not related to the current path, or currently hidden
+      return null;
+    }
+
+    if (this.dataSources.currentDataModelPath) {
       const transposed = transposeDataBinding({
         subject: rawBinding,
         currentLocation: this.dataSources.currentDataModelPath,
       });
       return pickSimpleValue(transposed, this);
-    }
-
-    if (this.dataSources.isHiddenSelector(id)) {
-      return null;
     }
 
     return pickSimpleValue(rawBinding, this);
@@ -486,22 +486,23 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Component with identifier ${id} does not have a displayValue`);
     }
 
-    const realId =
-      (this.dataSources.currentDataModelPath &&
-        makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups)) ??
-      target.id;
-    if (this.dataSources.isHiddenSelector(realId)) {
+    const relativeId = makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
+    if (!relativeId) {
+      throw new NodeRelationNotFound(this, id);
+    }
+
+    if (this.dataSources.isHiddenSelector(relativeId)) {
       return null;
     }
 
     return getComponentDef(target.type).getDisplayData({
       attachmentsSelector: this.dataSources.attachmentsSelector,
       optionsSelector: this.dataSources.optionsSelector,
-      langTools: this.dataSources.langToolsSelector(realId),
+      langTools: this.dataSources.langToolsSelector(relativeId),
       currentLanguage: this.dataSources.currentLanguage,
       nodeDataSelector: this.dataSources.nodeDataSelector,
-      formData: getNodeFormData(realId, this.dataSources.nodeDataSelector, this.dataSources.formDataSelector),
-      nodeId: realId,
+      formData: getNodeFormData(relativeId, this.dataSources.nodeDataSelector, this.dataSources.formDataSelector),
+      nodeId: relativeId,
     });
   },
   optionLabel(optionsId, value) {
@@ -585,13 +586,13 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       url = `/${pageKey}`;
     }
 
-    const realId =
-      (this.dataSources.currentDataModelPath &&
-        makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups)) ??
-      id;
+    const relativeId = makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
+    if (!relativeId) {
+      throw new NodeRelationNotFound(this, id);
+    }
 
     const searchParams = new URLSearchParams();
-    searchParams.set(SearchParams.FocusComponentId, realId);
+    searchParams.set(SearchParams.FocusComponentId, relativeId);
     const newUrl = `${url}?${searchParams.toString()}`;
     return `<a href="${newUrl}" data-link-type="LinkToPotentialNode">${linkText}</a>`;
   },
