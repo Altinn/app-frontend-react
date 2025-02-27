@@ -190,7 +190,7 @@ export function useFilteredAndSortedOptions({
         const keep = evalExpr(
           optionFilter,
           reference,
-          { ...dataSources, currentDataModelPath: dataModelLocation },
+          { ...dataSources, currentDataModelPath: dataModelLocation ?? dataSources.currentDataModelPath },
           { valueArguments },
         );
         if (!keep && selectedValues.includes(option.value)) {
