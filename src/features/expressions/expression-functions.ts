@@ -363,6 +363,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       confirm: true,
       sign: true,
       reject: true,
+      complete: true,
     };
 
     if (key === null || authContextKeys[key] !== true) {
