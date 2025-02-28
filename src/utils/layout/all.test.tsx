@@ -10,7 +10,7 @@ import { ignoredConsoleMessages } from 'test/e2e/support/fail-on-console-log';
 
 import { quirks } from 'src/features/form/layout/quirks';
 import { GenericComponentById } from 'src/layout/GenericComponent';
-import { fetchApplicationMetadata } from 'src/queries/queries';
+import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
 import { ensureAppsDirIsSet, getAllApps } from 'src/test/allApps';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
@@ -126,26 +126,29 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
   allSets.sort(() => Math.random() - 0.5);
 
   async function testSet(set: ExternalAppLayoutSet) {
-    window.location.hash = set.simulateValidUrlHash();
+    const { hash, mainSet } = set.simulateUrlHash();
+    window.location.hash = hash;
     const [org, app] = set.app.getOrgApp();
     window.org = org;
     window.app = app;
 
     jest.mocked(fetchApplicationMetadata).mockImplementation(async () => set.app.getAppMetadata());
+    jest.mocked(fetchProcessState).mockImplementation(async () => mainSet.simulateProcessData());
 
     await renderWithInstanceAndLayout({
+      taskId: mainSet.getTaskId(),
       renderer: () =>
         env.parsed?.ALTINN_ALL_APPS_RENDER_COMPONENTS === 'true' ? <RenderAllComponents /> : <TestApp />,
       queries: {
-        fetchLayoutSets: async () => set.getLayoutSetsAsOnlySet(),
-        fetchLayouts: async () => set.getLayouts(),
-        fetchLayoutSettings: async () => set.getSettings(),
-        fetchFormData: async () => set.getModel().simulateDataModel(),
-        fetchDataModelSchema: async () => set.getModel().getSchema(),
+        fetchLayoutSets: async () => set.app.getRawLayoutSets(),
+        fetchLayouts: async (setId) => set.app.getLayoutSet(setId).getLayouts(),
+        fetchLayoutSettings: async (setId) => set.app.getLayoutSet(setId).getSettings(),
+        fetchFormData: async (url) => set.getModel({ url }).simulateDataModel(),
+        fetchDataModelSchema: async (name) => set.getModel({ name }).getSchema(),
         fetchInstanceData: async () => set.simulateInstance(),
         fetchLayoutSchema: async () => layoutSchema as unknown as JSONSchema7,
-        fetchRuleHandler: async () => set.getRuleHandler(),
-        fetchDynamics: async () => set.getRuleConfiguration(),
+        fetchRuleHandler: async (setId) => set.app.getLayoutSet(setId).getRuleHandler(),
+        fetchDynamics: async (setId) => set.app.getLayoutSet(setId).getRuleConfiguration(),
       },
       alwaysRouteToChildren: true,
     });

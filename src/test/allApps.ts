@@ -5,17 +5,17 @@ import path from 'node:path';
 import { v4 as uuidv4 } from 'uuid';
 import type { JSONSchema7 } from 'json-schema';
 
-import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
+import { defaultMockDataElementId, getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
+import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
-import { layoutSetIsDefault } from 'src/features/form/layoutSets/TypeGuards';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IFormDynamics } from 'src/features/form/dynamics';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { ILayoutFile, ILayoutSet, ILayoutSets, ILayoutSettings } from 'src/layout/common.generated';
-import type { ILayoutCollection } from 'src/layout/layout';
-import type { IInstance } from 'src/types/shared';
+import type { CompExternal, ILayoutCollection } from 'src/layout/layout';
+import type { IInstance, IProcess } from 'src/types/shared';
 
 export class ExternalApp {
   private compat = false;
@@ -184,10 +184,8 @@ export class ExternalApp {
   /**
    * Enabling this will overwrite some of the application config in order to allow tests to run this app without
    * having to deal with intricacies like:
-   *  1. No stateless support, all layout-sets assume you have an instance. Unless the layout-set
-   *     specifies something else, the process data will be at Task_1.
-   *  2. All party types are allowed, no party selection
-   *  3. No instance selection on entry
+   *  1. All party types are allowed, no party selection
+   *  2. No instance selection on entry
    */
   enableCompatibilityMode() {
     this.compat = true;
@@ -248,17 +246,7 @@ export class ExternalApp {
   }
 
   getRawLayoutSets(): ILayoutSets {
-    const layoutSets = this.readJson<ILayoutSets>('/App/ui/layout-sets.json');
-
-    if (this.compat) {
-      for (const set of Object.values(layoutSets.sets)) {
-        if (layoutSetIsDefault(set)) {
-          set.tasks = ['Task_1'];
-        }
-      }
-    }
-
-    return layoutSets;
+    return this.readJson<ILayoutSets>('/App/ui/layout-sets.json');
   }
 
   getLayoutSets(): ExternalAppLayoutSet[] {
@@ -266,7 +254,15 @@ export class ExternalApp {
     return raw.sets.map((set) => new ExternalAppLayoutSet(this, set.id, set));
   }
 
-  getLayoutSet(setId: string): ILayoutCollection {
+  getLayoutSet(setId: string): ExternalAppLayoutSet {
+    const set = this.getRawLayoutSets().sets.find((s) => s.id === setId);
+    if (!set) {
+      throw new Error(`Layout set '${setId}' not found`);
+    }
+    return new ExternalAppLayoutSet(this, setId, set);
+  }
+
+  getRawLayoutSet(setId: string): ILayoutCollection {
     const layoutsDir = `/App/ui/${setId}/layouts`;
     if (!this.dirExists(layoutsDir)) {
       throw new Error(`Layout set '${setId}' folder not found`);
@@ -281,9 +277,7 @@ export class ExternalApp {
 
       const pageKey = file.replace('.json', '');
       collection[pageKey] = this.readJson<ILayoutFile>(`${layoutsDir}/${file}`);
-
-      const cleaned = cleanLayout(collection[pageKey].data.layout, set?.dataType ?? 'unknown');
-      collection[pageKey].data.layout = cleaned;
+      collection[pageKey].data.layout = cleanLayout(collection[pageKey].data.layout, set?.dataType ?? 'unknown');
     }
 
     return collection;
@@ -360,25 +354,32 @@ export class ExternalAppLayoutSet {
     }
   }
 
-  /**
-   * Returns the same as getRawLayoutSets() on the app, but pretends this layout-set is the only one
-   */
-  getLayoutSetsAsOnlySet(): ILayoutSets {
-    const full = this.app.getRawLayoutSets();
-    full.sets = [this.config];
-    return full;
-  }
-
   getLayouts() {
-    return this.app.getLayoutSet(this.id);
+    return this.app.getRawLayoutSet(this.id);
   }
 
   getSettings() {
     return this.app.getLayoutSetSettings(this.id);
   }
 
-  getModel() {
-    return new ExternalAppDataModel(this.app, this.config.dataType, this);
+  getModel(identifier?: { url: string } | { name: string }) {
+    let model: ExternalAppDataModel | undefined;
+    if (!identifier) {
+      model = new ExternalAppDataModel(this.app, this.config.dataType, this);
+    } else {
+      const models = this.app.getDataModelsFromFolder();
+      if ('url' in identifier) {
+        const match = identifier.url.match(/fakeUuid:(.*):end/);
+        assert(match);
+        model = models.find((model) => model.getName() === match[1]);
+      } else {
+        model = models.find((model) => model.getName() === identifier.name);
+      }
+      assert(model);
+      model.setLayoutSet(this);
+    }
+
+    return model;
   }
 
   getRuleHandler() {
@@ -391,16 +392,75 @@ export class ExternalAppLayoutSet {
 
   simulateInstance(): IInstance {
     return getInstanceDataMock((i) => {
-      assert(i.data[0].dataType === 'test-data-model');
-      i.data[0].dataType = this.config.dataType;
+      const defaultData = i.data.find((d) => d.id === defaultMockDataElementId);
+      assert(defaultData);
+      i.data = i.data.filter((d) => d.id !== defaultMockDataElementId);
+
+      // Add one data element per data model in this app
+      const models = this.app.getDataModelsFromFolder();
+      for (const model of models) {
+        i.data.push({
+          ...defaultData,
+          id: `fakeUuid:${model.getName()}:end`,
+          dataType: model.getName(),
+        });
+      }
     });
   }
 
-  simulateValidUrlHash(): string {
+  getTaskId(): string {
+    const firstTask = this.config.tasks?.[0];
+    return firstTask ?? 'Task_1'; // Fallback to simulate Task_1 for stateless apps
+  }
+
+  simulateUrlHash(): { hash: string; mainSet: ExternalAppLayoutSet } {
     const instance = getInstanceDataMock();
     const pageSettings = this.getSettings().pages;
     const firstPage = 'order' in pageSettings ? pageSettings.order[0] : pageSettings.groups[0].order[0];
-    return `#/instance/${instance.instanceOwner.partyId}/${instance.id}/Task_1/${firstPage}`;
+
+    let hash = `#/instance/${instance.instanceOwner.partyId}/${instance.id}`;
+    let mainSet: ExternalAppLayoutSet | undefined;
+    let subFormComponent: CompExternal<'Subform'> | undefined = undefined;
+
+    for (const otherSet of this.app.getLayoutSets()) {
+      for (const page of Object.values(otherSet.getLayouts())) {
+        for (const component of page.data.layout) {
+          if (component.type === 'Subform' && component.layoutSet === this.getName()) {
+            mainSet = otherSet;
+            subFormComponent = component;
+            break;
+          }
+        }
+      }
+      if (mainSet && subFormComponent) {
+        break;
+      }
+    }
+
+    if (!mainSet || !subFormComponent) {
+      // No other layout set includes us as a subform, we must be the main form.
+      hash += `/${this.getTaskId()}/${firstPage}`;
+      return { hash, mainSet: this };
+    }
+
+    // From here on out, we're in a subform
+    const mainPages = mainSet.getSettings().pages;
+    const firstMainPage = 'order' in mainPages ? mainPages.order[0] : mainPages.groups[0].order[0];
+    const elementId = `fakeUuid:${this.config.dataType}:end`;
+    hash += `/${mainSet.getTaskId()}/${firstMainPage}/${subFormComponent.id}/${elementId}/${firstPage}`;
+
+    return { hash, mainSet };
+  }
+
+  simulateProcessData(): IProcess {
+    const taskId = this.getTaskId();
+    return getProcessDataMock((process) => {
+      assert(process.currentTask?.elementId === 'Task_1');
+      process.currentTask.elementId = taskId;
+      process.currentTask.name = taskId;
+      assert(process.processTasks?.[0]?.elementId === 'Task_1');
+      process.processTasks[0].elementId = taskId;
+    });
   }
 }
 
@@ -408,11 +468,15 @@ export class ExternalAppDataModel {
   constructor(
     public readonly app: ExternalApp,
     private dataType: string,
-    public readonly layoutSet?: ExternalAppLayoutSet,
+    public layoutSet?: ExternalAppLayoutSet,
   ) {}
 
   getName(): string {
     return this.dataType;
+  }
+
+  setLayoutSet(layoutSet: ExternalAppLayoutSet) {
+    this.layoutSet = layoutSet;
   }
 
   isValid(): boolean {
