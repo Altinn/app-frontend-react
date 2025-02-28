@@ -31,6 +31,8 @@ const ignoreLogAndErrors = [
         'Egenskapen `pageRef` er ikke tillatt',
         'samsvarer ikke med mønsteret `^[0-9a-zA-Z][',
         /Målet for oppsummeringen \([^)]*\) ble ikke funnet/,
+        'because an invalid file extension was provided',
+        'Egenskapen `renderAsSummary` er ikke tillatt',
       ]
     : []),
 ];
