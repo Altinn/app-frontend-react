@@ -424,7 +424,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       return pickSimpleValue(newReference, this);
     }
 
-    const node = ensureNode(this);
+    const node = ensureNode(this, false);
     if (node instanceof BaseLayoutNode) {
       const newReference = this.dataSources.transposeSelector(node as LayoutNode, reference);
       return pickSimpleValue(newReference, this);
@@ -796,13 +796,19 @@ function pickSimpleValue(path: IDataModelReference, params: EvaluateExpressionPa
   return null;
 }
 
-export function ensureNode(ctx: EvaluateExpressionParams): LayoutNode | LayoutPage {
+export function ensureNode(ctx: EvaluateExpressionParams, strict: false): LayoutNode | LayoutPage | null;
+// eslint-disable-next-line no-redeclare
+export function ensureNode(ctx: EvaluateExpressionParams, strict?: true): LayoutNode | LayoutPage;
+// eslint-disable-next-line no-redeclare
+export function ensureNode(ctx: EvaluateExpressionParams, strict = true): LayoutNode | LayoutPage | null {
   const reference = ctx.reference;
   let node: LayoutNode | LayoutPage | undefined = undefined;
   if (reference.type === 'node') {
     node = ctx.dataSources.nodeTraversal((t) => t.findById(reference.id), [reference.id]);
   } else if (reference.type === 'page') {
     node = ctx.dataSources.nodeTraversal((t) => t.findPage(reference.id), [reference.id]);
+  } else if (!strict && reference.type === 'none') {
+    return null;
   }
 
   if (!node) {
