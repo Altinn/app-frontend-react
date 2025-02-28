@@ -15,6 +15,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { IOptionSource } from 'src/layout/common.generated';
 
 export type ICheckboxContainerProps = PropsFromGenericComponent<'Checkboxes'>;
 
@@ -44,6 +45,22 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1 && !showLabelsInTable;
   const ariaLabel = overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined;
 
+  const setChecked = (isChecked: boolean, option: IOptionSource) => {
+    const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
+    setData(newData);
+
+    /*if (item.dataModelBindings.saveToList) {
+      const changes = Object.entries(newData).map((entry) => ({
+        reference: {
+          dataType: item.dataModelBindings.data.dataType,
+          field: `${item.dataModelBindings.data.field}[${(formData.data as []).length - 1}].${entry[0]}`,
+        },
+        newValue: `${entry[1]}`,
+      }));
+      setMultiLeafValues({ changes });
+    }*/
+  };
+
   return (
     <ComponentStructureWrapper node={node}>
       {isFetching ? (
@@ -72,12 +89,7 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
                 hideLabel={hideLabel}
                 alertOnChange={alertOnChange}
                 checked={selectedValues.includes(option.value)}
-                setChecked={(isChecked) => {
-                  const newData = isChecked
-                    ? [...selectedValues, option.value]
-                    : selectedValues.filter((o) => o !== option.value);
-                  setData(newData);
-                }}
+                setChecked={(isChecked) => setChecked(isChecked, option)}
               />
             ))}
           </Checkbox.Group>
