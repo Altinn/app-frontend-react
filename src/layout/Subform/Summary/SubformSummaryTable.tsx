@@ -7,8 +7,7 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { Caption } from 'src/components/form/caption/Caption';
 import { Label } from 'src/components/label/Label';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
-import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
-import { useStrictDataElements, useStrictInstanceId } from 'src/features/instance/InstanceContext';
+import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
@@ -19,9 +18,9 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { DataQueryWithDefaultValue } from 'src/layout/Subform/SubformComponent';
 import classes1 from 'src/layout/Subform/SubformComponent.module.css';
 import classes2 from 'src/layout/Subform/Summary/SubformSummaryComponent2.module.css';
+import { useSubformFormData } from 'src/layout/Subform/utils';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { ISubformSummaryComponent } from 'src/layout/Subform/Summary/SubformSummaryComponent';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -41,14 +40,12 @@ function SubformTableRow({
 }) {
   const id = dataElement.id;
   const { tableColumns = [] } = useNodeItem(targetNode);
-  const instanceId = useStrictInstanceId();
-  const url = getStatefulDataModelUrl(instanceId, id, true);
-  const { isFetching, data, error } = useFormDataQuery(url);
+  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(id);
   const { langAsString } = useLanguage();
   const navigate = useNavigate();
 
   const numColumns = tableColumns.length;
-  if (isFetching) {
+  if (isSubformDataFetching) {
     return (
       <Table.Row>
         <Table.Cell colSpan={numColumns}>
@@ -56,7 +53,7 @@ function SubformTableRow({
         </Table.Cell>
       </Table.Row>
     );
-  } else if (error) {
+  } else if (subformDataError) {
     return (
       <Table.Row>
         <Table.Cell colSpan={numColumns}>
@@ -74,11 +71,13 @@ function SubformTableRow({
       {tableColumns.length ? (
         tableColumns.map((entry, index) => (
           <Table.Cell key={`subform-cell-${id}-${index}`}>
-            <DataQueryWithDefaultValue
-              data={data}
-              query={entry.cellContent.query}
-              defaultValue={entry.cellContent.default}
-            />
+            {'query' in entry.cellContent ? (
+              <DataQueryWithDefaultValue
+                data={subformData}
+                query={entry.cellContent.query}
+                defaultValue={entry.cellContent.default}
+              />
+            ) : null}
           </Table.Cell>
         ))
       ) : (

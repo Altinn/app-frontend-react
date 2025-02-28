@@ -49,7 +49,6 @@ export const GeneratorData = {
 function useExpressionDataSources(): ExpressionDataSources {
   const [
     formDataSelector,
-    formDataRowsSelector,
     attachmentsSelector,
     optionsSelector,
     nodeDataSelector,
@@ -59,7 +58,6 @@ function useExpressionDataSources(): ExpressionDataSources {
     codeListSelector,
   ] = useMultipleDelayedSelectors(
     FD.useDebouncedSelectorProps(),
-    FD.useDebouncedRowsSelectorProps(),
     NodesInternal.useAttachmentsSelectorProps(),
     NodesInternal.useNodeOptionsSelectorProps(),
     NodesInternal.useNodeDataSelectorProps(),
@@ -74,7 +72,7 @@ function useExpressionDataSources(): ExpressionDataSources {
   const currentLanguage = useCurrentLanguage();
 
   const instanceDataSources = hooks.useLaxInstanceDataSources();
-  const currentLayoutSet = hooks.useCurrentLayoutSet() ?? null;
+  const defaultDataType = hooks.useDefaultDataType() ?? null;
   const dataModelNames = hooks.useReadableDataTypes();
   const externalApis = hooks.useExternalApis();
   const roles = hooks.useCurrentPartyRoles();
@@ -91,7 +89,6 @@ function useExpressionDataSources(): ExpressionDataSources {
   return useShallowMemo({
     roles,
     formDataSelector,
-    formDataRowsSelector,
     attachmentsSelector,
     optionsSelector,
     nodeDataSelector,
@@ -104,7 +101,7 @@ function useExpressionDataSources(): ExpressionDataSources {
     nodeFormDataSelector,
     nodeTraversal,
     transposeSelector,
-    currentLayoutSet,
+    defaultDataType,
     externalApis,
     dataModelNames,
     dataElementSelector,

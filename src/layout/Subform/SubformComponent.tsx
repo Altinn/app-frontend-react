@@ -9,10 +9,12 @@ import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Caption } from 'src/components/form/caption/Caption';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
+import { evalExpr } from 'src/features/expressions';
+import { ExprVal } from 'src/features/expressions/types';
+import { ExprValidation } from 'src/features/expressions/validation';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
-import { useStrictDataElements, useStrictInstanceId } from 'src/features/instance/InstanceContext';
+import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsSubformPage, useNavigate } from 'src/features/routing/AppRoutingContext';
@@ -21,11 +23,13 @@ import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Subform/SubformComponent.module.css';
+import { useSubformDataSources } from 'src/layout/Subform/utils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
+import type { ExprConfig, ExprValToActualOrExpr, NodeReference } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>): React.JSX.Element | null {
   const {
@@ -128,6 +132,7 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
                   <SubformTableRow
                     key={dataElement.id}
                     dataElement={dataElement}
+                    dataType={dataType}
                     node={node}
                     hasErrors={Boolean(subformIdsWithError?.includes(dataElement.id))}
                     rowNumber={index}
@@ -177,6 +182,7 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
 
 function SubformTableRow({
   dataElement,
+  dataType,
   node,
   hasErrors,
   rowNumber,
@@ -184,6 +190,7 @@ function SubformTableRow({
   deleteEntryCallback,
 }: {
   dataElement: IData;
+  dataType: string;
   node: LayoutNode<'Subform'>;
   hasErrors: boolean;
   rowNumber: number;
@@ -192,9 +199,10 @@ function SubformTableRow({
 }) {
   const id = dataElement.id;
   const { tableColumns = [] } = useNodeItem(node);
-  const instanceId = useStrictInstanceId();
-  const url = getStatefulDataModelUrl(instanceId, id, true);
-  const { isFetching, data, error, failureCount } = useFormDataQuery(url);
+  const { isSubformDataFetching, subformData, subformDataSources, subformDataError } = useSubformDataSources(
+    id,
+    dataType,
+  );
   const { langAsString } = useLanguage();
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -206,7 +214,7 @@ function SubformTableRow({
   const numColumns = tableColumns.length;
   const actualColumns = showDeleteButton ? numColumns + 1 : numColumns;
 
-  if (isFetching) {
+  if (isSubformDataFetching) {
     return (
       <Table.Row>
         <Table.Cell colSpan={actualColumns}>
@@ -214,8 +222,7 @@ function SubformTableRow({
         </Table.Cell>
       </Table.Row>
     );
-  } else if (error) {
-    console.error(`Error loading data element ${id} from server. Gave up after ${failureCount} attempt(s).`, error);
+  } else if (subformDataError) {
     return (
       <Table.Row>
         <Table.Cell colSpan={actualColumns}>
@@ -245,11 +252,20 @@ function SubformTableRow({
       {tableColumns.length ? (
         tableColumns.map((entry, index) => (
           <Table.Cell key={`subform-cell-${id}-${index}`}>
-            <DataQueryWithDefaultValue
-              data={data}
-              query={entry.cellContent.query}
-              defaultValue={entry.cellContent.default}
-            />
+            {'query' in entry.cellContent ? (
+              <DataQueryWithDefaultValue
+                data={subformData}
+                query={entry.cellContent.query}
+                defaultValue={entry.cellContent.default}
+              />
+            ) : (
+              <DataValueWithDefault
+                dataSources={subformDataSources}
+                reference={{ type: 'node', id: node.id }}
+                value={entry.cellContent.value}
+                defaultValue={entry.cellContent.default}
+              />
+            )}
           </Table.Cell>
         ))
       ) : (
@@ -303,8 +319,7 @@ export interface DataQueryParams {
   defaultValue?: string;
 }
 
-export function DataQueryWithDefaultValue(props: DataQueryParams) {
-  const { data, query, defaultValue } = props;
+export function DataQueryWithDefaultValue({ data, query, defaultValue }: DataQueryParams) {
   const { langAsString } = useLanguage();
   let content = dot.pick(query, data);
 
@@ -317,5 +332,27 @@ export function DataQueryWithDefaultValue(props: DataQueryParams) {
     return null;
   }
 
-  return <>{String(content)}</>;
+  return String(content);
+}
+
+export interface DataValueParams {
+  dataSources: ExpressionDataSources;
+  reference: NodeReference;
+  value: ExprValToActualOrExpr<ExprVal.String>;
+  defaultValue?: string;
+}
+
+export function DataValueWithDefault({ dataSources, reference, value, defaultValue }: DataValueParams) {
+  const errorIntroText = `Invalid expression for component '${reference.id}'`;
+  if (!ExprValidation.isValidOrScalar(value, ExprVal.String, errorIntroText)) {
+    return defaultValue;
+  }
+
+  const config: ExprConfig = {
+    returnType: ExprVal.String,
+    defaultValue: '',
+  };
+
+  const resolvedValue = evalExpr(value, { type: 'none' }, dataSources, { config, errorIntroText });
+  return String(resolvedValue || defaultValue);
 }

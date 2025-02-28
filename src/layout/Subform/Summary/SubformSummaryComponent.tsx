@@ -1,17 +1,16 @@
 import React from 'react';
-import type { JSX } from 'react';
+import type { ReactNode } from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
 
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
-import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
-import { useStrictDataElements, useStrictInstanceId } from 'src/features/instance/InstanceContext';
+import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { DataQueryWithDefaultValue } from 'src/layout/Subform/SubformComponent';
 import classes from 'src/layout/Subform/Summary/SubformSummaryComponent.module.css';
+import { useSubformFormData } from 'src/layout/Subform/utils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -49,31 +48,30 @@ export function SubformSummaryComponent({ targetNode }: ISubformSummaryComponent
 function SubformSummaryRow({ dataElement, node }: { dataElement: IData; node: LayoutNode<'Subform'> }) {
   const id = dataElement.id;
   const { tableColumns = [], summaryDelimiter = ' — ' } = useNodeItem(node);
-  const instanceId = useStrictInstanceId();
-  const url = getStatefulDataModelUrl(instanceId, id, true);
-  const { isFetching, data, error, failureCount } = useFormDataQuery(url);
+  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(id);
   const { langAsString } = useLanguage();
 
-  if (isFetching) {
+  if (isSubformDataFetching) {
     return (
       <Spinner
         title={langAsString('general.loading')}
         size='xs'
       />
     );
-  } else if (error) {
-    console.error(`Error loading data element ${id} from server. Gave up after ${failureCount} attempt(s).`, error);
+  } else if (subformDataError) {
     return <Lang id='form_filler.error_fetch_subform' />;
   }
 
-  const content: (JSX.Element | string)[] = tableColumns.map((entry, i) => (
-    <DataQueryWithDefaultValue
-      key={i}
-      data={data}
-      query={entry.cellContent.query}
-      defaultValue={entry.cellContent.default}
-    />
-  ));
+  const content: (ReactNode | string)[] = tableColumns.map((entry, i) =>
+    'query' in entry.cellContent ? (
+      <DataQueryWithDefaultValue
+        key={i}
+        data={subformData}
+        query={entry.cellContent.query}
+        defaultValue={entry.cellContent.default}
+      />
+    ) : null,
+  );
 
   if (content.length === 0) {
     content.push(id);

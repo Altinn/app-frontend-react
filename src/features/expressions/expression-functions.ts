@@ -410,7 +410,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataModel null`);
     }
 
-    const dataType = maybeDataType ?? this.dataSources.currentLayoutSet?.dataType;
+    const dataType = maybeDataType ?? this.dataSources.defaultDataType;
     if (!dataType) {
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataType undefined`);
     }
@@ -709,7 +709,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataModel null`);
     }
 
-    const dataType = this.dataSources.currentLayoutSet?.dataType;
+    const dataType = this.dataSources.defaultDataType;
     if (!dataType) {
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataType undefined`);
     }

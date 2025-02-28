@@ -1,5 +1,6 @@
 import { evalExpr } from 'src/features/expressions';
 import { ExprValidation } from 'src/features/expressions/validation';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
@@ -21,20 +22,21 @@ export const useSourceOptions = ({
   node,
   dataSources,
   addRowInfo,
-}: IUseSourceOptionsArgs): IOptionInternal[] | undefined =>
-  useMemoDeepEqual(() => {
+}: IUseSourceOptionsArgs): IOptionInternal[] | undefined => {
+  const formDataRowsSelector = FD.useDebouncedRowsSelector();
+  return useMemoDeepEqual(() => {
     if (!source) {
       return undefined;
     }
 
     const nodeReference: NodeReference = { type: 'node', id: node.id };
-    const { formDataRowsSelector, formDataSelector, langToolsSelector, nodeTraversal } = dataSources;
+    const { formDataSelector, langToolsSelector, nodeTraversal } = dataSources;
     const output: IOptionInternal[] = [];
     const langTools = langToolsSelector(node);
     const { group, value, label, helpText, description, dataType } = source;
     const cleanValue = getKeyWithoutIndexIndicators(value);
     const cleanGroup = getKeyWithoutIndexIndicators(group);
-    const groupDataType = dataType ?? dataSources.currentLayoutSet?.dataType;
+    const groupDataType = dataType ?? dataSources.defaultDataType;
     if (!groupDataType) {
       return output;
     }
@@ -113,7 +115,8 @@ export const useSourceOptions = ({
     }
 
     return output;
-  }, [source, node, dataSources, addRowInfo]);
+  }, [source, node, dataSources, formDataRowsSelector, addRowInfo]);
+};
 
 function resolveText(
   text: ExprValToActualOrExpr<ExprVal.String> | undefined,
