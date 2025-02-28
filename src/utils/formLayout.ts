@@ -1,4 +1,3 @@
-import { layoutSetIsDefault } from 'src/features/form/layoutSets/TypeGuards';
 import type { ILayoutSet } from 'src/layout/common.generated';
 import type { ILikertFilter } from 'src/layout/Likert/config.generated';
 
@@ -23,13 +22,7 @@ export const getLikertStartStopIndex = (lastIndex: number, filters: ILikertFilte
 
 /**
  * Some tasks other than data (for instance confirm, or other in the future) can be configured to behave like data steps
- * @param task the task
- * @param layoutSets the layout sets
  */
-export function behavesLikeDataTask(task: string | null | undefined, layoutSets: ILayoutSet[] | null): boolean {
-  if (!task) {
-    return false;
-  }
-
-  return !!layoutSets?.some((set) => layoutSetIsDefault(set) && set.tasks?.includes(task));
+export function behavesLikeDataTask(_task: string | null | undefined, _layoutSets: ILayoutSet[] | null): boolean {
+  return true;
 }
