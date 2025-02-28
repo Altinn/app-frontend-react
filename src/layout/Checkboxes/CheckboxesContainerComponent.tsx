@@ -5,6 +5,7 @@ import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { LabelContent } from 'src/components/label/LabelContent';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
@@ -15,17 +16,27 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IOptionSource } from 'src/layout/common.generated';
 
 export type ICheckboxContainerProps = PropsFromGenericComponent<'Checkboxes'>;
 
 export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxContainerProps) => {
   const item = useNodeItem(node);
-  const { id, layout, readOnly, textResourceBindings, required, labelSettings, alertOnChange, showLabelsInTable } =
-    item;
+  const {
+    id,
+    layout,
+    readOnly,
+    textResourceBindings,
+    required,
+    labelSettings,
+    alertOnChange,
+    showLabelsInTable,
+    dataModelBindings,
+  } = item;
   const { langAsString } = useLanguage();
   const { options: calculatedOptions, isFetching, setData, selectedValues } = useGetOptions(node, 'multi');
   const isValid = useIsValid(node);
+
+  const setMultiLeafValues = FD.useSetMultiLeafValues();
 
   const labelTextGroup = (
     <LabelContent
@@ -45,20 +56,9 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1 && !showLabelsInTable;
   const ariaLabel = overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined;
 
-  const setChecked = (isChecked: boolean, option: IOptionSource) => {
+  const setChecked = (isChecked: boolean, option) => {
     const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
     setData(newData);
-
-    /*if (item.dataModelBindings.saveToList) {
-      const changes = Object.entries(newData).map((entry) => ({
-        reference: {
-          dataType: item.dataModelBindings.data.dataType,
-          field: `${item.dataModelBindings.data.field}[${(formData.data as []).length - 1}].${entry[0]}`,
-        },
-        newValue: `${entry[1]}`,
-      }));
-      setMultiLeafValues({ changes });
-    }*/
   };
 
   return (

@@ -160,6 +160,15 @@ const common = {
           .setDescription('Describes the location in the data model where the component should store its metadata')
           .optional(),
       ),
+      new CG.prop(
+        'saveToList',
+        new CG.dataModelBinding()
+          .setTitle('SaveToList')
+          .setDescription(
+            'Dot notation location for a repeating structure (array of objects), where you want to save the content of checked checkboxes',
+          )
+          .optional(),
+      ),
     ),
   IDataModelBindingsLikert: () =>
     new CG.obj(
