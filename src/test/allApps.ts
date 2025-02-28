@@ -292,13 +292,20 @@ export class ExternalApp {
     return this.readJson<ILayoutSettings>(settingsFile);
   }
 
-  getDataModelsFromFolder(): ExternalAppDataModel[] {
+  getDataModelsFromMetaData(): ExternalAppDataModel[] {
     const out: ExternalAppDataModel[] = [];
+    const folder = '/App/models';
+    const metaData = this.getAppMetadata();
 
-    for (const file of this.readDir('/App/models')) {
-      if (file.match(/\.schema\.json$/)) {
-        const trimmedName = file.replace('.schema.json', '');
-        out.push(new ExternalAppDataModel(this, trimmedName));
+    for (const dataType of metaData.dataTypes) {
+      const schemaPath = `${folder}/${dataType.id}.schema.json`;
+      if (
+        dataType.appLogic?.classRef &&
+        this.fileExists(schemaPath) &&
+        !out.some((model) => model.getName() === dataType.id)
+      ) {
+        const model = new ExternalAppDataModel(this, dataType.id);
+        out.push(model);
       }
     }
 
@@ -362,20 +369,22 @@ export class ExternalAppLayoutSet {
     return this.app.getLayoutSetSettings(this.id);
   }
 
-  getModel(identifier?: { url: string } | { name: string }) {
+  getModel(identifier?: { url: string } | { name: string }): ExternalAppDataModel {
     let model: ExternalAppDataModel | undefined;
     if (!identifier) {
       model = new ExternalAppDataModel(this.app, this.config.dataType, this);
     } else {
-      const models = this.app.getDataModelsFromFolder();
+      const models = this.app.getDataModelsFromMetaData();
       if ('url' in identifier) {
         const match = identifier.url.match(/fakeUuid:(.*):end/);
         assert(match);
-        model = models.find((model) => model.getName() === match[1]);
+        model = models.find((model) => model.getName() === decodeURIComponent(match[1]));
       } else {
         model = models.find((model) => model.getName() === identifier.name);
       }
-      assert(model);
+      if (!model) {
+        throw new Error('Data model not found');
+      }
       model.setLayoutSet(this);
     }
 
@@ -397,7 +406,7 @@ export class ExternalAppLayoutSet {
       i.data = i.data.filter((d) => d.id !== defaultMockDataElementId);
 
       // Add one data element per data model in this app
-      const models = this.app.getDataModelsFromFolder();
+      const models = this.app.getDataModelsFromMetaData();
       for (const model of models) {
         i.data.push({
           ...defaultData,
@@ -492,8 +501,7 @@ export class ExternalAppDataModel {
     return metadata.dataTypes.find((dt) => dt.id === this.dataType)!;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  simulateDataModel(_layouts?: ILayoutCollection): any {
+  simulateDataModel(_layouts?: ILayoutCollection): unknown {
     const dataModel = {};
     const layouts = _layouts ?? this.layoutSet?.getLayouts();
     if (!layouts) {
