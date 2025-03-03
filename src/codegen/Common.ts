@@ -160,6 +160,9 @@ const common = {
           .setDescription('Describes the location in the data model where the component should store its metadata')
           .optional(),
       ),
+    ),
+  IDataModelBindigsMultipleSelect: () =>
+    new CG.obj(
       new CG.prop(
         'saveToList',
         new CG.dataModelBinding()
@@ -169,7 +172,7 @@ const common = {
           )
           .optional(),
       ),
-    ),
+    ).extends(CG.common('IDataModelBindingsOptionsSimple')),
   IDataModelBindingsLikert: () =>
     new CG.obj(
       new CG.prop(

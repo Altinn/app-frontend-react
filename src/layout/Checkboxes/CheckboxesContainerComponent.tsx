@@ -58,7 +58,12 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
 
   const setChecked = (isChecked: boolean, option) => {
     const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
+    /*const newList: object[] = [];
+    if (saveToList) {
+      setList(newList);
+    } else {*/
     setData(newData);
+    /*}*/
   };
 
   return (
