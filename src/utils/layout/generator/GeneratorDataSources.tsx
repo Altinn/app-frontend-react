@@ -22,7 +22,7 @@ import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModel
 import { useInnerNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import { useInnerNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { ValidationDataSources } from 'src/features/validation';
-import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import type { ExpressionDataSourcesWithNodes } from 'src/utils/layout/useExpressionDataSources';
 
 const { Provider, hooks } = createHookContext({
   useLaxInstanceDataSources: () => useLaxInstanceDataSources(),
@@ -46,7 +46,7 @@ export const GeneratorData = {
   useCommitWhenFinished: hooks.useCommitWhenFinished,
 };
 
-function useExpressionDataSources(): ExpressionDataSources {
+function useExpressionDataSources(): ExpressionDataSourcesWithNodes {
   const [
     formDataSelector,
     attachmentsSelector,

@@ -22,14 +22,8 @@ import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
-import type { AttachmentsSelector } from 'src/features/attachments/tools';
-import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
 import type { IDataModelReference } from 'src/layout/common.generated';
-import type { Hidden, NodeDataSelector } from 'src/utils/layout/NodesContext';
-import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
-import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
-import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
-import type { NodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
+import type { ExpressionDataSourcesWithoutNodes } from 'src/utils/layout/useExpressionDataSources';
 
 export function useSubformFormData(dataElementId: string) {
   const instanceId = useStrictInstanceId();
@@ -54,14 +48,6 @@ export function useSubformDataSources(dataElementId: string, dataType: string) {
     [_dataModelNames, dataType],
   );
 
-  const attachmentsSelector = notImplementedSelector as AttachmentsSelector;
-  const optionsSelector = notImplementedSelector as NodeOptionsSelector;
-  const nodeDataSelector = notImplementedSelector as NodeDataSelector;
-  const isHiddenSelector = notImplementedSelector as ReturnType<typeof Hidden.useIsHiddenSelector>;
-  const nodeTraversal = notImplementedSelector as NodeTraversalSelector;
-  const transposeSelector = notImplementedSelector as DataModelTransposeSelector;
-  const nodeFormDataSelector = notImplementedSelector as NodeFormDataSelector;
-
   const [_formDataSelector, dataElementSelector, codeListSelector] = useMultipleDelayedSelectors(
     FD.useDebouncedSelectorProps(),
     useLaxDataElementsSelectorProps(),
@@ -85,29 +71,22 @@ export function useSubformDataSources(dataElementId: string, dataType: string) {
   const instanceDataSources = useLaxInstanceDataSources();
   const externalApis = useExternalApis(useApplicationMetadata().externalApiIds ?? []);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
-    dataType ?? undefined,
+    dataType,
     dataModelNames,
     formDataSelector,
-    notImplementedLaxSelector as NodeDataSelector,
+    selectorContextNotProvided,
   );
 
   const roles = useCurrentPartyRoles();
 
-  const subformDataSources: ExpressionDataSources = useShallowMemo({
+  const subformDataSources: ExpressionDataSourcesWithoutNodes = useShallowMemo({
     roles,
     formDataSelector,
-    attachmentsSelector,
-    optionsSelector,
-    nodeDataSelector,
     process,
     applicationSettings,
     instanceDataSources,
     langToolsSelector,
     currentLanguage,
-    isHiddenSelector,
-    nodeFormDataSelector,
-    nodeTraversal,
-    transposeSelector,
     defaultDataType: dataType,
     externalApis,
     dataModelNames,
@@ -118,9 +97,6 @@ export function useSubformDataSources(dataElementId: string, dataType: string) {
   return { isSubformDataFetching, subformDataSources, subformData, subformDataError };
 }
 
-function notImplementedSelector(..._args: unknown[]): unknown {
-  throw 'Expression function `component` and `displayValue` is not implemented for Subform';
-}
-function notImplementedLaxSelector(..._args: unknown[]): typeof ContextNotProvided {
+function selectorContextNotProvided(..._args: unknown[]): typeof ContextNotProvided {
   return ContextNotProvided;
 }

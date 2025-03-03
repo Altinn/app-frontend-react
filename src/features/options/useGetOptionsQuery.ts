@@ -16,7 +16,7 @@ import type { LayoutReference } from 'src/features/expressions/types';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IMapping, IQueryParameters } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import type { ExpressionDataSourcesWithNodes } from 'src/utils/layout/useExpressionDataSources';
 
 export const useGetOptionsQuery = (
   url: string | undefined,
@@ -37,7 +37,7 @@ export const useGetOptionsQuery = (
 
 export const useGetOptionsUrl = (
   node: LayoutNode,
-  dataSources: ExpressionDataSources,
+  dataSources: ExpressionDataSourcesWithNodes,
   optionsId: string | undefined,
   mapping?: IMapping,
   queryParameters?: IQueryParameters,

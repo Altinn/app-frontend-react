@@ -11,6 +11,11 @@ import {
 } from 'src/features/expressions/errors';
 import { ExprFunctionDefinitions, ExprFunctionImplementations } from 'src/features/expressions/expression-functions';
 import { ExprVal } from 'src/features/expressions/types';
+import {
+  type ExpressionDataSources,
+  type ExpressionDataSourcesWithNodes,
+  isExpressionDataSourcesWithNodes,
+} from 'src/utils/layout/useExpressionDataSources';
 import type {
   ExprConfig,
   ExprDate,
@@ -23,7 +28,6 @@ import type {
   ExprValueArgs,
   LayoutReference,
 } from 'src/features/expressions/types';
-import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 type BeforeFuncCallback = (path: string[], func: ExprFunctionName, args: unknown[]) => void;
 type AfterFuncCallback = (path: string[], func: ExprFunctionName, args: unknown[], result: unknown) => void;
@@ -43,15 +47,21 @@ export type SimpleEval<T extends ExprVal> = (
   dataSources?: Partial<ExpressionDataSources>,
 ) => ExprValToActual<T>;
 
-export type EvaluateExpressionParams = {
+export type EvaluateExpressionParams<D extends ExpressionDataSources = ExpressionDataSources> = {
   expr: Expression;
   path: string[];
   callbacks: { onBeforeFunctionCall?: BeforeFuncCallback; onAfterFunctionCall?: AfterFuncCallback };
   reference: LayoutReference;
-  dataSources: ExpressionDataSources;
+  dataSources: D;
   positionalArguments?: ExprPositionalArgs;
   valueArguments?: ExprValueArgs;
 };
+
+export function expressionParamsHasNodeContext(
+  params: EvaluateExpressionParams,
+): params is EvaluateExpressionParams<ExpressionDataSourcesWithNodes> {
+  return isExpressionDataSourcesWithNodes(params.dataSources);
+}
 
 /**
  * Simple (non-validating) check to make sure an input is an expression.

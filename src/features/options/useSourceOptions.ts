@@ -8,12 +8,12 @@ import type { ExprVal, ExprValToActualOrExpr, NodeReference } from 'src/features
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelReference, IOptionSource } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import type { ExpressionDataSourcesWithNodes } from 'src/utils/layout/useExpressionDataSources';
 
 interface IUseSourceOptionsArgs {
   source: IOptionSource | undefined;
   node: LayoutNode;
-  dataSources: ExpressionDataSources;
+  dataSources: ExpressionDataSourcesWithNodes;
   addRowInfo: boolean;
 }
 
@@ -89,7 +89,7 @@ export const useSourceOptions = ({
        * langAsString function to actually be langAsStringUsingPathInDataModel partially
        * applied with the correct path in the data model.
        */
-      const modifiedDataSources: ExpressionDataSources = {
+      const modifiedDataSources: ExpressionDataSourcesWithNodes = {
         ...dataSources,
         langToolsSelector: () => ({
           ...langTools,
@@ -121,7 +121,7 @@ export const useSourceOptions = ({
 function resolveText(
   text: ExprValToActualOrExpr<ExprVal.String> | undefined,
   nodeReference: NodeReference,
-  dataSources: ExpressionDataSources,
+  dataSources: ExpressionDataSourcesWithNodes,
   reference: IDataModelReference,
 ): string | undefined {
   if (text && ExprValidation.isValid(text)) {

@@ -17,14 +17,14 @@ import type { IOptionInternal } from 'src/features/options/castOptionsToStrings'
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
 import type { CompIntermediateExact, CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import type { ExpressionDataSourcesWithNodes } from 'src/utils/layout/useExpressionDataSources';
 
 export type OptionsValueType = 'single' | 'multi';
 
 interface FetchOptionsProps {
   node: LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
-  dataSources: ExpressionDataSources;
+  dataSources: ExpressionDataSourcesWithNodes;
 }
 
 interface FilteredAndSortedOptionsProps {
@@ -32,7 +32,7 @@ interface FilteredAndSortedOptionsProps {
   valueType: OptionsValueType;
   node: LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
-  dataSources: ExpressionDataSources;
+  dataSources: ExpressionDataSourcesWithNodes;
 }
 
 export interface GetOptionsResult {
@@ -114,7 +114,7 @@ export function useSetOptions(
 function useOptionsUrl(
   node: LayoutNode,
   item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>,
-  dataSources: ExpressionDataSources,
+  dataSources: ExpressionDataSourcesWithNodes,
 ) {
   const { optionsId, secure, mapping, queryParameters } = item;
   return useGetOptionsUrl(node, dataSources, optionsId, mapping, queryParameters, secure);

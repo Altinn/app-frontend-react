@@ -11,7 +11,7 @@ import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { Expression, ExprValueArgs, NodeReference } from 'src/features/expressions/types';
 import type { IDataModelReference } from 'src/layout/common.generated';
-import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import type { ExpressionDataSourcesWithNodes } from 'src/utils/layout/useExpressionDataSources';
 
 export function ExpressionValidation() {
   const writableDataTypes = DataModels.useWritableDataTypes();
@@ -60,7 +60,7 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
 
       for (const { nodeReference, dmb } of allBindings) {
         // Modify the hierarchy data sources to make the current dataModel the default one when running expression validations
-        const modifiedDataSources: ExpressionDataSources = {
+        const modifiedDataSources: ExpressionDataSourcesWithNodes = {
           ...dataSources,
           defaultDataType: dataType,
         };

@@ -31,7 +31,7 @@ import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBi
 import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import type { NodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 
-export interface ExpressionDataSources {
+export interface ExpressionDataSourcesWithNodes {
   process?: IProcess;
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
@@ -54,7 +54,26 @@ export interface ExpressionDataSources {
   codeListSelector: CodeListSelector;
 }
 
-export function useExpressionDataSources(): ExpressionDataSources {
+export type ExpressionDataSourcesWithoutNodes = Omit<
+  ExpressionDataSourcesWithNodes,
+  | 'attachmentsSelector'
+  | 'optionsSelector'
+  | 'isHiddenSelector'
+  | 'nodeFormDataSelector'
+  | 'nodeDataSelector'
+  | 'nodeTraversal'
+  | 'transposeSelector'
+>;
+
+export type ExpressionDataSources = ExpressionDataSourcesWithNodes | ExpressionDataSourcesWithoutNodes;
+
+export function isExpressionDataSourcesWithNodes(
+  dataSources: ExpressionDataSources,
+): dataSources is ExpressionDataSourcesWithNodes {
+  return 'nodeDataSelector' in dataSources;
+}
+
+export function useExpressionDataSources(): ExpressionDataSourcesWithNodes {
   const [
     formDataSelector,
     attachmentsSelector,

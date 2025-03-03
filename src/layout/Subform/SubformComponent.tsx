@@ -29,7 +29,7 @@ import type { ExprConfig, ExprValToActualOrExpr, NodeReference } from 'src/featu
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import type { ExpressionDataSourcesWithoutNodes } from 'src/utils/layout/useExpressionDataSources';
 
 export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>): React.JSX.Element | null {
   const {
@@ -336,7 +336,7 @@ export function DataQueryWithDefaultValue({ data, query, defaultValue }: DataQue
 }
 
 export interface DataValueParams {
-  dataSources: ExpressionDataSources;
+  dataSources: ExpressionDataSourcesWithoutNodes;
   reference: NodeReference;
   value: ExprValToActualOrExpr<ExprVal.String>;
   defaultValue?: string;
@@ -353,6 +353,6 @@ export function DataValueWithDefault({ dataSources, reference, value, defaultVal
     defaultValue: '',
   };
 
-  const resolvedValue = evalExpr(value, { type: 'none' }, dataSources, { config, errorIntroText });
-  return String(resolvedValue || defaultValue);
+  const resolvedValue = evalExpr(value, reference, dataSources, { config, errorIntroText });
+  return String(resolvedValue || defaultValue || '');
 }
