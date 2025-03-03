@@ -1,10 +1,11 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
+import { useIsMutating } from '@tanstack/react-query';
+
 import { Button } from 'src/app-components/Button/Button';
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useAppOwner } from 'src/core/texts/appTexts';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
@@ -84,8 +85,8 @@ export const ConfirmPage = ({ instance, instanceOwnerParty, appName, application
 
 const ConfirmButton = () => {
   const { actions } = useLaxProcessData()?.currentTask || {};
-  const processNext = useProcessNext();
-  const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
+  const { processNext, isPending: isThisProcessing } = useProcessNext();
+  const isAnyProcessing = useIsMutating() > 0;
 
   const disabled = !actions?.confirm || isAnyProcessing;
 
@@ -94,7 +95,7 @@ const ConfirmButton = () => {
       <Button
         id='confirm-button'
         isLoading={isThisProcessing}
-        onClick={() => performProcess(() => processNext({ action: 'confirm' }))}
+        onClick={() => processNext({ action: 'confirm' })}
         disabled={disabled}
         color='success'
       >

@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 
+import { useIsMutating, useMutation } from '@tanstack/react-query';
+
 import { Button } from 'src/app-components/Button/Button';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
@@ -13,9 +14,20 @@ type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedP
 // TODO(Datamodels): This uses mapping and therefore only supports the "default" data model
 export const InstantiationButton = ({ children, ...props }: Props) => {
   const { instantiateWithPrefill, error } = useInstantiation();
-  const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
+  const isAnyProcessing = useIsMutating() > 0;
+
   const prefill = FD.useMapping(props.mapping, DataModels.useDefaultDataType());
   const party = useCurrentParty();
+
+  const { mutate, isPending: isLoading } = useMutation({
+    mutationFn: async () =>
+      await instantiateWithPrefill({
+        prefill,
+        instanceOwner: {
+          partyId: party?.partyId.toString(),
+        },
+      }),
+  });
 
   useEffect(() => {
     if (error) {
@@ -27,16 +39,7 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
     <Button
       {...props}
       id={props.node.id}
-      onClick={() =>
-        performProcess(() =>
-          instantiateWithPrefill({
-            prefill,
-            instanceOwner: {
-              partyId: party?.partyId.toString(),
-            },
-          }),
-        )
-      }
+      onClick={() => mutate()}
       disabled={isAnyProcessing}
       isLoading={isLoading}
       variant='secondary'

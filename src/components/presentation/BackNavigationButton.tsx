@@ -2,13 +2,12 @@ import React from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
 import { Left } from '@navikt/ds-icons';
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { skipToken, useIsMutating, useMutation, useQuery } from '@tanstack/react-query';
 import cn from 'classnames';
 
 import { Button } from 'src/app-components/Button/Button';
 import classes from 'src/components/presentation/BackNavigationButton.module.css';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
@@ -25,7 +24,10 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
   const isSubform = useIsSubformPage();
   const { returnUrl, isFetchingReturnUrl } = useReturnUrl();
   const { exitSubform } = useNavigatePage();
-  const { performProcess, isAnyProcessing, isThisProcessing: isExitingSubform } = useIsProcessing();
+  const { mutate, isPending: isExitingSubform } = useMutation({
+    mutationFn: async () => await exitSubform(),
+  });
+  const isAnyProcessing = useIsMutating() > 0;
 
   const messageBoxUrl = returnUrlToMessagebox(window.location.host, party?.partyId);
 
@@ -42,7 +44,7 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
   if (isSubform) {
     return (
       <Button
-        onClick={() => performProcess(exitSubform)}
+        onClick={() => mutate()}
         disabled={isAnyProcessing}
         isLoading={isExitingSubform}
         variant='tertiary'

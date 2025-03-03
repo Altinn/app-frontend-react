@@ -13,10 +13,10 @@ import {
   TasklistIcon,
   XMarkIcon,
 } from '@navikt/aksel-icons';
+import { useIsMutating, useMutation } from '@tanstack/react-query';
 import cn from 'classnames';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useGetAltinnTaskType } from 'src/features/instance/ProcessContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
@@ -218,8 +218,17 @@ function PageGroupSingle({
   onNavigate,
 }: PageGroupProps<NavigationPageGroupSingle>) {
   const { navigateToPage } = useNavigatePage();
-  const { performProcess, isAnyProcessing, isThisProcessing: isNavigating } = useIsProcessing();
   const page = group.order[0];
+  const isAnyProcessing = useIsMutating() > 0;
+
+  const { mutate: navigate, isPending: isNavigating } = useMutation({
+    mutationFn: async () => {
+      if (!isCurrentPage) {
+        await navigateToPage(page);
+        onNavigate?.();
+      }
+    },
+  });
 
   return (
     <li>
@@ -227,14 +236,7 @@ function PageGroupSingle({
         disabled={isAnyProcessing}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.groupButton, classes.groupButtonSingle, 'fds-focus')}
-        onClick={() =>
-          performProcess(async () => {
-            if (!isCurrentPage) {
-              await navigateToPage(page);
-              onNavigate?.();
-            }
-          })
-        }
+        onClick={() => navigate()}
       >
         <PageGroupSymbol
           single
@@ -396,7 +398,16 @@ function Page({
   const isCurrentPage = page === currentPageId;
 
   const { navigateToPage } = useNavigatePage();
-  const { performProcess, isAnyProcessing, isThisProcessing: isNavigating } = useIsProcessing();
+  const isAnyProcessing = useIsMutating() > 0;
+
+  const { mutate: navigate, isPending: isNavigating } = useMutation({
+    mutationFn: async () => {
+      if (!isCurrentPage) {
+        await navigateToPage(page);
+        onNavigate?.();
+      }
+    },
+  });
 
   return (
     <li className={classes.pageListItem}>
@@ -404,14 +415,7 @@ function Page({
         disabled={isAnyProcessing}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.pageButton, 'fds-focus')}
-        onClick={() =>
-          performProcess(async () => {
-            if (!isCurrentPage) {
-              await navigateToPage(page);
-              onNavigate?.();
-            }
-          })
-        }
+        onClick={() => navigate()}
       >
         <PageSymbol
           error={hasErrors}
