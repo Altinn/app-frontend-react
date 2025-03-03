@@ -62,7 +62,7 @@ export class ExternalApp {
     }
   }
 
-  private readDir(path: string) {
+  readDir(path: string) {
     return fs.readdirSync(this.rootDir + path);
   }
 
@@ -165,16 +165,16 @@ export class ExternalApp {
     return this.fileExists(`/App/ui/${setId}/Settings.json`);
   }
 
-  isValidDataModel(dataType: string): boolean {
-    if (!this.fileExists(`/App/models/${dataType}.schema.json`)) {
+  isValidDataModel(fileBase: string, typeId: string): boolean {
+    if (!this.fileExists(`/App/models/${fileBase}.schema.json`)) {
       return false;
     }
-    if (!this.fileExists(`/App/models/${dataType}.cs`)) {
+    if (!this.fileExists(`/App/models/${fileBase}.cs`)) {
       return false;
     }
 
     const metadata = this.getAppMetadata();
-    const data = metadata.dataTypes.find((dt) => dt.id === dataType);
+    const data = metadata.dataTypes.find((dt) => dt.id === typeId);
     if (!data) {
       return false;
     }
@@ -304,16 +304,14 @@ export class ExternalApp {
   getDataModelsFromMetaData(): ExternalAppDataModel[] {
     const out: ExternalAppDataModel[] = [];
     const folder = '/App/models';
+    const folderContents = this.readDir(folder);
     const metaData = this.getAppMetadata();
 
     for (const dataType of metaData.dataTypes) {
-      const schemaPath = `${folder}/${dataType.id}.schema.json`;
-      if (
-        dataType.appLogic?.classRef &&
-        this.fileExists(schemaPath) &&
-        !out.some((model) => model.getName() === dataType.id)
-      ) {
-        const model = new ExternalAppDataModel(this, dataType.id);
+      const schemaFile = folderContents.find((file) => file.match(new RegExp(`^${dataType.id}\\.schema\\.json$`, 'i')));
+      if (schemaFile && dataType.appLogic?.classRef && !out.some((model) => model.getName() === dataType.id)) {
+        const fileBase = schemaFile.replace(/\.schema\.json$/, '');
+        const model = new ExternalAppDataModel(this, dataType.id, fileBase);
         out.push(model);
       }
     }
@@ -331,10 +329,10 @@ export class ExternalApp {
     return out;
   }
 
-  getModelSchema(dataType: string): JSONSchema7 {
-    const schemaFile = `/App/models/${dataType}.schema.json`;
+  getModelSchema(fileBase: string): JSONSchema7 {
+    const schemaFile = `/App/models/${fileBase}.schema.json`;
     if (!this.fileExists(schemaFile)) {
-      throw new Error(`Model schema '${dataType}' file not found`);
+      throw new Error(`Model schema '${fileBase}' file not found`);
     }
 
     return this.readJson<JSONSchema7>(schemaFile);
@@ -381,7 +379,15 @@ export class ExternalAppLayoutSet {
   getModel(identifier?: { url: string } | { name: string }): ExternalAppDataModel {
     let model: ExternalAppDataModel | undefined;
     if (!identifier) {
-      model = new ExternalAppDataModel(this.app, this.config.dataType, this);
+      const folderContents = this.app.readDir('/App/models');
+      const schemaFile = folderContents.find((file) =>
+        file.match(new RegExp(`^${this.config.dataType}\\.schema\\.json$`, 'i')),
+      );
+      if (!schemaFile) {
+        throw new Error('Data model schema not found');
+      }
+      const fileBase = schemaFile.replace(/\.schema\.json$/, '');
+      model = new ExternalAppDataModel(this.app, this.config.dataType, fileBase, this);
     } else {
       const models = this.app.getDataModelsFromMetaData();
       if ('url' in identifier) {
@@ -486,6 +492,7 @@ export class ExternalAppDataModel {
   constructor(
     public readonly app: ExternalApp,
     private dataType: string,
+    private baseFileName: string,
     public layoutSet?: ExternalAppLayoutSet,
   ) {}
 
@@ -498,11 +505,11 @@ export class ExternalAppDataModel {
   }
 
   isValid(): boolean {
-    return this.app.isValidDataModel(this.dataType);
+    return this.app.isValidDataModel(this.baseFileName, this.dataType);
   }
 
   getSchema() {
-    return this.app.getModelSchema(this.dataType);
+    return this.app.getModelSchema(this.baseFileName);
   }
 
   getDataDef() {
