@@ -12,7 +12,6 @@ type PageParams = {
 };
 
 export const Page = () => {
-  console.log('halla');
   const { pageId } = useParams<PageParams>() as Required<PageParams>;
 
   const resolvedLayouts = useStore(layoutStore, (state) => state.resolvedLayouts);

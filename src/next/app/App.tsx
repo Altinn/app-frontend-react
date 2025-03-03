@@ -1,13 +1,11 @@
 import React from 'react';
-import { createHashRouter, Outlet, RouterProvider } from 'react-router-dom';
-
-import { QueryClient } from '@tanstack/react-query';
+import { createHashRouter, RouterProvider } from 'react-router-dom';
 
 import { Api } from 'src/next/app/api';
-import { Instance } from 'src/next/pages/Instance';
+import { Instance, instanceLoader } from 'src/next/pages/Instance';
 import { initialLoader, InstancesParent } from 'src/next/pages/Instances';
-
-const queryClient = new QueryClient();
+import { Page } from 'src/next/pages/Page';
+import { Task2 } from 'src/next/pages/Task';
 
 const { org, app } = window;
 const origin = window.location.origin;
@@ -16,59 +14,34 @@ export const ORG = org;
 export const APP = app;
 
 export const API_CLIENT = new Api({
-  baseUrl: origin, //appPath,
-  // You can pass axios overrides or custom fetch here if desired
+  baseUrl: origin,
 });
 
 const router = createHashRouter([
   {
     path: '/',
     loader: initialLoader,
-    element: <Outlet />, //<InstancesParent />,
+    element: <InstancesParent />,
     children: [
       {
-        index: true, // <- index route
-        element: <InstancesParent />,
-      },
-      {
-        path: 'instance/:partyId/:instanceGuid', //'instance',
-        element: <Instance />, //<Instances />,
+        loader: instanceLoader,
+        path: 'instance/:partyId/:instanceGuid',
+        element: <Instance />,
+        children: [
+          {
+            path: ':taskId',
+            element: <Task2 />,
+            children: [
+              {
+                path: ':pageId',
+                element: <Page />,
+              },
+            ],
+          },
+        ],
       },
     ],
   },
 ]);
 
-////children: [{ path: ':partyId/:instanceGuid', element: <Instance /> }],
 export const App = () => <RouterProvider router={router} />;
-
-// export const App = () => (
-//   <ApiClientProvider>
-//     <QueryClientProvider client={queryClient}>
-//       <HashRouter>
-//         <Routes>
-//           <Route
-//             path='/'
-//             element={<Instances />}
-//           />
-//
-//           <Route path='instance'>
-//             <Route
-//               path=':partyId/:instanceGuid'
-//               element={<Instance />}
-//             >
-//               <Route
-//                 path=':taskId'
-//                 element={<Task />}
-//               >
-//                 <Route
-//                   path=':pageId'
-//                   element={<Page />}
-//                 />
-//               </Route>
-//             </Route>
-//           </Route>
-//         </Routes>
-//       </HashRouter>
-//     </QueryClientProvider>
-//   </ApiClientProvider>
-// );
