@@ -7,7 +7,6 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { defaultMockDataElementId, getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
-import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
@@ -195,7 +194,7 @@ export class ExternalApp {
   getAppMetadata(): IncomingApplicationMetadata {
     const appMetaData = this.readJson<IncomingApplicationMetadata>('/App/config/applicationmetadata.json');
     if (this.compat) {
-      appMetaData.altinnNugetVersion = MINIMUM_APPLICATION_VERSION.build;
+      appMetaData.altinnNugetVersion = '8.5.0.157';
       appMetaData.partyTypesAllowed = {
         subUnit: true,
         person: true,
