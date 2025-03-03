@@ -1,4 +1,5 @@
 import React from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
@@ -8,12 +9,14 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { ignoredConsoleMessages } from 'test/e2e/support/fail-on-console-log';
 
+import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { quirks } from 'src/features/form/layout/quirks';
 import { GenericComponentById } from 'src/layout/GenericComponent';
+import { SubformWrapper } from 'src/layout/Subform/SubformWrapper';
 import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
 import { ensureAppsDirIsSet, getAllApps } from 'src/test/allApps';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
+import { NodesInternal, useNode, useNodes } from 'src/utils/layout/NodesContext';
 import type { ExternalAppLayoutSet } from 'src/test/allApps';
 
 const env = dotenv.config();
@@ -77,6 +80,22 @@ function RenderAllComponents() {
   );
 }
 
+/**
+ * Makes sure we go one level deeper into the subform context when testing subforms
+ */
+function SubformTestWrapper({ id, children }: PropsWithChildren<{ id: string }>) {
+  const node = useNode(id);
+  if (!node || !node.isType('Subform')) {
+    throw new Error(`Subform node with id ${id} not found`);
+  }
+
+  return (
+    <TaskStoreProvider>
+      <SubformWrapper node={node}>{children}</SubformWrapper>
+    </TaskStoreProvider>
+  );
+}
+
 const windowLoggers = ['logError', 'logErrorOnce', 'logWarn', 'logWarnOnce', 'logInfo', 'logInfoOnce'];
 const consoleLoggers = ['error', 'warn', 'log'];
 
@@ -128,7 +147,7 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
   allSets.sort(() => Math.random() - 0.5);
 
   async function testSet(set: ExternalAppLayoutSet) {
-    const { hash, mainSet } = set.simulateUrlHash();
+    const { hash, mainSet, subformComponent } = set.initialize();
     window.location.hash = hash;
     const [org, app] = set.app.getOrgApp();
     window.org = org;
@@ -137,10 +156,11 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     jest.mocked(fetchApplicationMetadata).mockImplementation(async () => set.app.getAppMetadata());
     jest.mocked(fetchProcessState).mockImplementation(async () => mainSet.simulateProcessData());
 
+    const children = env.parsed?.ALTINN_ALL_APPS_RENDER_COMPONENTS === 'true' ? <RenderAllComponents /> : <TestApp />;
     await renderWithInstanceAndLayout({
       taskId: mainSet.getTaskId(),
       renderer: () =>
-        env.parsed?.ALTINN_ALL_APPS_RENDER_COMPONENTS === 'true' ? <RenderAllComponents /> : <TestApp />,
+        subformComponent ? <SubformTestWrapper id={subformComponent.id}>{children}</SubformTestWrapper> : children,
       queries: {
         fetchLayoutSets: async () => set.app.getRawLayoutSets(),
         fetchLayouts: async (setId) => set.app.getLayoutSet(setId).getLayouts(),

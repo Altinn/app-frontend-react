@@ -246,7 +246,16 @@ export class ExternalApp {
   }
 
   getRawLayoutSets(): ILayoutSets {
-    return this.readJson<ILayoutSets>('/App/ui/layout-sets.json');
+    const out = this.readJson<ILayoutSets>('/App/ui/layout-sets.json');
+
+    for (const set of out.sets) {
+      if (this.compat && !set.tasks) {
+        // Fixing compatibility with stateless apps, so they can run in stateful modes
+        set.tasks = ['Task_1'];
+      }
+    }
+
+    return out;
   }
 
   getLayoutSets(): ExternalAppLayoutSet[] {
@@ -422,31 +431,31 @@ export class ExternalAppLayoutSet {
     return firstTask ?? 'Task_1'; // Fallback to simulate Task_1 for stateless apps
   }
 
-  simulateUrlHash(): { hash: string; mainSet: ExternalAppLayoutSet } {
+  initialize(): { hash: string; mainSet: ExternalAppLayoutSet; subformComponent?: CompExternal<'Subform'> } {
     const instance = getInstanceDataMock();
     const pageSettings = this.getSettings().pages;
     const firstPage = 'order' in pageSettings ? pageSettings.order[0] : pageSettings.groups[0].order[0];
 
     let hash = `#/instance/${instance.instanceOwner.partyId}/${instance.id}`;
     let mainSet: ExternalAppLayoutSet | undefined;
-    let subFormComponent: CompExternal<'Subform'> | undefined = undefined;
+    let subformComponent: CompExternal<'Subform'> | undefined = undefined;
 
     for (const otherSet of this.app.getLayoutSets()) {
       for (const page of Object.values(otherSet.getLayouts())) {
         for (const component of page.data.layout) {
           if (component.type === 'Subform' && component.layoutSet === this.getName()) {
             mainSet = otherSet;
-            subFormComponent = component;
+            subformComponent = component;
             break;
           }
         }
       }
-      if (mainSet && subFormComponent) {
+      if (mainSet && subformComponent) {
         break;
       }
     }
 
-    if (!mainSet || !subFormComponent) {
+    if (!mainSet || !subformComponent) {
       // No other layout set includes us as a subform, we must be the main form.
       hash += `/${this.getTaskId()}/${firstPage}`;
       return { hash, mainSet: this };
@@ -456,9 +465,9 @@ export class ExternalAppLayoutSet {
     const mainPages = mainSet.getSettings().pages;
     const firstMainPage = 'order' in mainPages ? mainPages.order[0] : mainPages.groups[0].order[0];
     const elementId = `fakeUuid:${this.config.dataType}:end`;
-    hash += `/${mainSet.getTaskId()}/${firstMainPage}/${subFormComponent.id}/${elementId}/${firstPage}`;
+    hash += `/${mainSet.getTaskId()}/${firstMainPage}/${subformComponent.id}/${elementId}/${firstPage}`;
 
-    return { hash, mainSet };
+    return { hash, mainSet, subformComponent };
   }
 
   simulateProcessData(): IProcess {
