@@ -34,16 +34,31 @@ export type InputProps = {
 >;
 
 export function Input(props: InputProps) {
-  const { size = 'sm', readOnly, ...rest } = props;
+  const {
+    size = 'sm',
+    prefix,
+    suffix,
+    characterLimit,
+    error,
+    disabled,
+    id,
+    readOnly,
+    type,
+    value,
+    className,
+    'aria-label': ariaLabel,
+    'aria-describedby': ariaDescribedby,
+    onChange,
+    onBlur,
+    autoComplete,
+    required,
+    placeholder,
+    inputMode,
+    style,
+    textonly,
+  } = props;
 
-  const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
-    if (readOnly) {
-      event.preventDefault();
-    }
-  };
-
-  if (props.textonly) {
-    const { value, id, className } = props;
+  if (textonly) {
     if (value === null || (typeof value === 'string' && value.length === 0)) {
       return null;
     }
@@ -62,10 +77,26 @@ export function Input(props: InputProps) {
 
   return (
     <Textfield
-      onPaste={handlePaste}
       size={size}
+      prefix={prefix}
+      suffix={suffix}
+      type={type}
+      characterLimit={characterLimit}
+      error={error}
+      id={id}
       readOnly={readOnly}
-      {...rest}
+      disabled={disabled}
+      value={value}
+      className={className}
+      aria-label={ariaLabel}
+      aria-describedby={ariaDescribedby}
+      onChange={onChange}
+      onBlur={onBlur}
+      autoComplete={autoComplete}
+      required={required}
+      placeholder={placeholder}
+      inputMode={inputMode}
+      style={style}
     />
   );
 }
