@@ -7,9 +7,9 @@ import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContex
 import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { DataQueryWithDefaultValue } from 'src/layout/Subform/SubformComponent';
+import { SubformCellContent } from 'src/layout/Subform/SubformCellContent';
 import classes from 'src/layout/Subform/Summary/SubformSummaryComponent.module.css';
-import { useSubformFormData } from 'src/layout/Subform/utils';
+import { useSubformDataSources } from 'src/layout/Subform/utils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -48,7 +48,8 @@ export function SubformSummaryComponent({ targetNode }: ISubformSummaryComponent
 function SubformSummaryRow({ dataElement, node }: { dataElement: IData; node: LayoutNode<'Subform'> }) {
   const id = dataElement.id;
   const { tableColumns = [], summaryDelimiter = ' — ' } = useNodeItem(node);
-  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(id);
+  const { isSubformDataFetching, subformData, subformDataSources, subformDataError } =
+    useSubformDataSources(dataElement);
   const { langAsString } = useLanguage();
 
   if (isSubformDataFetching) {
@@ -62,16 +63,15 @@ function SubformSummaryRow({ dataElement, node }: { dataElement: IData; node: La
     return <Lang id='form_filler.error_fetch_subform' />;
   }
 
-  const content: (ReactNode | string)[] = tableColumns.map((entry, i) =>
-    'query' in entry.cellContent ? (
-      <DataQueryWithDefaultValue
-        key={i}
-        data={subformData}
-        query={entry.cellContent.query}
-        defaultValue={entry.cellContent.default}
-      />
-    ) : null,
-  );
+  const content: (ReactNode | string)[] = tableColumns.map((entry, i) => (
+    <SubformCellContent
+      key={i}
+      cellContent={entry.cellContent}
+      reference={{ type: 'node', id: node.id }}
+      data={subformData}
+      dataSources={subformDataSources}
+    />
+  ));
 
   if (content.length === 0) {
     content.push(id);

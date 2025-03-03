@@ -15,10 +15,10 @@ import { useIsSubformPage, useNavigate } from 'src/features/routing/AppRoutingCo
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { DataQueryWithDefaultValue } from 'src/layout/Subform/SubformComponent';
+import { SubformCellContent } from 'src/layout/Subform/SubformCellContent';
 import classes1 from 'src/layout/Subform/SubformComponent.module.css';
 import classes2 from 'src/layout/Subform/Summary/SubformSummaryComponent2.module.css';
-import { useSubformFormData } from 'src/layout/Subform/utils';
+import { useSubformDataSources } from 'src/layout/Subform/utils';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ISubformSummaryComponent } from 'src/layout/Subform/Summary/SubformSummaryComponent';
@@ -40,7 +40,8 @@ function SubformTableRow({
 }) {
   const id = dataElement.id;
   const { tableColumns = [] } = useNodeItem(targetNode);
-  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(id);
+  const { isSubformDataFetching, subformData, subformDataSources, subformDataError } =
+    useSubformDataSources(dataElement);
   const { langAsString } = useLanguage();
   const navigate = useNavigate();
 
@@ -71,13 +72,12 @@ function SubformTableRow({
       {tableColumns.length ? (
         tableColumns.map((entry, index) => (
           <Table.Cell key={`subform-cell-${id}-${index}`}>
-            {'query' in entry.cellContent ? (
-              <DataQueryWithDefaultValue
-                data={subformData}
-                query={entry.cellContent.query}
-                defaultValue={entry.cellContent.default}
-              />
-            ) : null}
+            <SubformCellContent
+              cellContent={entry.cellContent}
+              reference={{ type: 'node', id: targetNode.id }}
+              data={subformData}
+              dataSources={subformDataSources}
+            />
           </Table.Cell>
         ))
       ) : (
@@ -89,7 +89,7 @@ function SubformTableRow({
             className={classes2.marginLeftAuto}
             componentNode={targetNode}
             summaryComponentId=''
-            navigationOverride={() => navigate(`${targetNode.id}/${id}`)}
+            navigationOverride={() => navigate(`${targetNode.id}/${id}${hasErrors ? '?validate=true' : ''}`)}
           />
         </Table.Cell>
       )}

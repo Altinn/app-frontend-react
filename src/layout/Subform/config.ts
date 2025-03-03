@@ -88,7 +88,9 @@ export const Config = new CG.component({
                     .setDescription('The cell value to display if `query` or `value` returns no result.'),
                 ),
               ),
-            ).setUnionType('discriminated'),
+            )
+              .setUnionType('discriminated')
+              .exportAs('ISubformCellContent'),
           ),
         ),
       ),

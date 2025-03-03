@@ -6,6 +6,9 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
+import { evalExpr } from 'src/features/expressions';
+import { ExprVal } from 'src/features/expressions/types';
+import { ExprValidation } from 'src/features/expressions/validation';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
@@ -22,10 +25,12 @@ import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
+import type { ExprConfig, ExprValToActualOrExpr, NodeReference } from 'src/features/expressions/types';
 import type { IDataModelReference } from 'src/layout/common.generated';
+import type { IData } from 'src/types/shared';
 import type { ExpressionDataSourcesWithoutNodes } from 'src/utils/layout/useExpressionDataSources';
 
-export function useSubformFormData(dataElementId: string) {
+function useSubformFormData(dataElementId: string) {
   const instanceId = useStrictInstanceId();
   const url = getStatefulDataModelUrl(instanceId, dataElementId, true);
   const { isFetching: isSubformDataFetching, data: subformData, error: subformDataError } = useFormDataQuery(url);
@@ -39,8 +44,8 @@ export function useSubformFormData(dataElementId: string) {
   return { isSubformDataFetching, subformData, subformDataError };
 }
 
-export function useSubformDataSources(dataElementId: string, dataType: string) {
-  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElementId);
+export function useSubformDataSources({ id, dataType }: IData) {
+  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(id);
 
   const _dataModelNames = DataModels.useReadableDataTypes();
   const dataModelNames = useMemo(
@@ -99,4 +104,23 @@ export function useSubformDataSources(dataElementId: string, dataType: string) {
 
 function selectorContextNotProvided(..._args: unknown[]): typeof ContextNotProvided {
   return ContextNotProvided;
+}
+
+export function getSubformEntryName(
+  entryName: ExprValToActualOrExpr<ExprVal.String>,
+  dataSources: ExpressionDataSourcesWithoutNodes,
+  reference: NodeReference,
+): string | null {
+  const errorIntroText = `Invalid expression for component '${reference.id}'`;
+  if (!ExprValidation.isValidOrScalar(entryName, ExprVal.String, errorIntroText)) {
+    return null;
+  }
+
+  const config: ExprConfig = {
+    returnType: ExprVal.String,
+    defaultValue: '',
+  };
+
+  const resolvedValue = evalExpr(entryName, reference, dataSources, { config, errorIntroText });
+  return resolvedValue ? String(resolvedValue) : null;
 }
