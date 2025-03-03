@@ -1,6 +1,13 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
+import 'src/wdyr';
+import 'src/features/baseurlinjection';
+import 'src/features/toggles';
+import 'src/features/logging';
+import 'src/features/styleInjection';
+import '@digdir/designsystemet-css';
+
 import { App } from 'src/next/app/App';
 
 import 'react-toastify/dist/ReactToastify.css';

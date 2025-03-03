@@ -1,6 +1,7 @@
 import dot from 'dot-object';
+import { createSelector } from 'reselect';
 import { createStore } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
 import { evaluateExpression } from 'src/next/app/expressions/evaluateExpression';
 import { moveChildren } from 'src/next/app/utils/moveChildren';
@@ -35,7 +36,6 @@ interface Layouts {
   layouts: ResolvedLayoutCollection;
   resolvedLayouts: ResolvedLayoutCollection;
   data: DataObject | undefined;
-  // setters
   setLayoutSets: (schema: LayoutSetsSchema) => void;
   setProcess: (proc: ProcessSchema) => void;
   setPageOrder: (order: PageOrderDTO) => void;
@@ -68,17 +68,14 @@ function resolvePageLayoutComponents(
       const val = dot.pick(component.dataModelBindings['simpleBinding'], data);
       renderedValue = val;
     }
-    // 1. Get the data for the children
-    // 2. For each entry in the data array, send that data along with the children layot to resolvePageLayoutComponents
 
     let resolvedChildren: ResolvedCompExternal[] = [];
 
     if (component.children) {
-      //debugger;
       // @ts-ignore
       const dataModelBinding = component.dataModelBindings['group'];
       const dataForKids = dot.pick(dataModelBinding, data);
-      const mappedKids = dataForKids.map((currentData) =>
+      const mappedKids = dataForKids?.map((currentData) =>
         resolvePageLayoutComponents(component.children as ResolvedCompExternal[], currentData),
       );
 
@@ -119,70 +116,72 @@ function rebuildResolvedLayouts(
   return newResolved;
 }
 
+const selectResolvedLayouts = createSelector(
+  [(state: Layouts) => state.layouts, (state: Layouts) => state.data],
+  (layouts, data) => {
+    if (!layouts) {
+      return {};
+    }
+    return rebuildResolvedLayouts(layouts, data);
+  },
+);
+
 export const layoutStore = createStore<Layouts>()(
-  devtools(
-    (set, get) => ({
-      data: undefined,
-      updateResolvedLayouts: () => {
-        const { layouts, data } = get();
-        if (!layouts) {
-          return;
-        }
+  subscribeWithSelector(
+    devtools(
+      (set, get) => ({
+        data: undefined,
 
-        const before = dot.pick('rapport.innsender.foretak.organisasjonsnummer', data);
+        updateResolvedLayouts: () => {
+          // Use our memoized selector:
+          const newResolved = selectResolvedLayouts(get());
+          set({ resolvedLayouts: newResolved });
+        },
 
-        console.log('before', before);
-        const newResolved = rebuildResolvedLayouts(layouts, data);
+        setLayoutSets: (schema) => set({ layoutSetsConfig: schema }),
+        setProcess: (proc) => set({ process: proc }),
+        setPageOrder: (order) => set({ pageOrder: order }),
 
-        set({ resolvedLayouts: newResolved });
-      },
-
-      setLayoutSets: (schema) => set({ layoutSetsConfig: schema }),
-      setProcess: (proc) => set({ process: proc }),
-      setPageOrder: (order) => set({ pageOrder: order }),
-      setLayouts: (newLayouts) => {
-        if (!newLayouts) {
-          throw new Error('no layouts');
-        }
-        const resolvedLayoutCollection: ResolvedLayoutCollection = {};
-
-        Object.keys(newLayouts).forEach((key) => {
-          resolvedLayoutCollection[key] = {
-            ...newLayouts[key],
-            data: {
-              ...newLayouts[key].data,
-              layout: moveChildren(newLayouts[key]).data.layout,
-            },
-          };
-        });
-
-        set({ layouts: resolvedLayoutCollection });
-        get().updateResolvedLayouts();
-      },
-
-      // Setting data => also update resolved
-      setDataObject: (newData) => {
-        set({ data: newData });
-        get().updateResolvedLayouts();
-      },
-
-      setDataValue: (dataKeyToUpdate: string, newValue: string) => {
-        set((state) => {
-          const dataCopy = structuredClone(state.data);
-
-          if (!dataCopy) {
-            throw new Error('no data copy');
+        setLayouts: (newLayouts) => {
+          if (!newLayouts) {
+            throw new Error('no layouts');
           }
+          const resolvedLayoutCollection: ResolvedLayoutCollection = {};
 
-          dot.set(dataKeyToUpdate, newValue, dataCopy);
+          Object.keys(newLayouts).forEach((key) => {
+            resolvedLayoutCollection[key] = {
+              ...newLayouts[key],
+              data: {
+                ...newLayouts[key].data,
+                layout: moveChildren(newLayouts[key]).data.layout,
+              },
+            };
+          });
 
-          return {
-            data: dataCopy,
-          };
-        });
-        get().updateResolvedLayouts();
+          set({ layouts: resolvedLayoutCollection });
+          get().updateResolvedLayouts();
+        },
+
+        setDataObject: (newData) => {
+          set({ data: newData });
+          get().updateResolvedLayouts();
+        },
+
+        setDataValue: (dataKeyToUpdate: string, newValue: string) => {
+          set((state) => {
+            const dataCopy = structuredClone(state.data);
+            if (!dataCopy) {
+              throw new Error('no data copy');
+            }
+            dot.set(dataKeyToUpdate, newValue, dataCopy);
+            return { data: dataCopy };
+          });
+          get().updateResolvedLayouts();
+        },
+      }),
+      {
+        name: 'LayoutStore', // Shown in Redux DevTools
       },
-    }),
-    { name: 'LayoutStore' },
+    ),
   ),
 );

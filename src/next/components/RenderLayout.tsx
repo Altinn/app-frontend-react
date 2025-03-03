@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { useStore } from 'zustand/index';
 
+import { Flex } from 'src/app-components/Flex/Flex';
+import { Input } from 'src/app-components/Input/Input';
+import { Label } from 'src/app-components/Label/Label';
+import classes from 'src/layout/GenericComponent.module.css';
 import { resolveText } from 'src/next/components/resolveText';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
@@ -14,12 +18,20 @@ interface RenderLayoutType {
 export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ components }) => {
   const { textResource } = useStore(textResourceStore);
 
-  const { data, setDataValue } = useStore(layoutStore);
+  const { setDataValue } = useStore(layoutStore);
+
+  const debouncedSetDataValue = useMemo(() => {
+    let timer: number;
+    return (binding: string, value: string) => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        setDataValue(binding, value);
+      }, 300);
+    };
+  }, [setDataValue]);
 
   return (
     <div>
-      {/*<pre>{JSON.stringify(data, null, 2)}</pre>*/}
-
       {components.map((currentComponent) => {
         if (currentComponent.type === 'Paragraph') {
           const paragraphText = resolveText(currentComponent, textResource);
@@ -33,16 +45,26 @@ export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ compon
 
         if (currentComponent.type === 'Input') {
           const datamodelBinding = currentComponent.dataModelBindings.simpleBinding;
+          const paragraphText = resolveText(currentComponent, textResource);
           return (
-            <div key={currentComponent.id}>
-              <label htmlFor=''>{currentComponent.id}</label>
-              <input
-                onChange={(event) => {
-                  // @ts-ignore
-                  datamodelBinding && setDataValue(datamodelBinding, event.target.value);
-                }}
-              />
-            </div>
+            <Flex
+              key={currentComponent.id}
+              className={classes.container}
+            >
+              <div
+                className={classes.md}
+                style={{ display: 'flex' }}
+              >
+                <Label label={paragraphText} />
+                <Input
+                  value={currentComponent.renderedValue}
+                  onChange={(event) => {
+                    // @ts-ignore
+                    datamodelBinding && debouncedSetDataValue(datamodelBinding, event.target.value);
+                  }}
+                />
+              </div>
+            </Flex>
           );
         }
 
