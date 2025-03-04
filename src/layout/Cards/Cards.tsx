@@ -117,7 +117,7 @@ function Media({ card, node, minMediaHeight }: MediaProps) {
   }
 
   return (
-    <Card.Media>
+    <Card.Media style={{ height: '100%', display: 'flex', justifyContent: 'end', alignItems: 'end' }}>
       <CardProvider
         node={node}
         renderedInMedia={true}
