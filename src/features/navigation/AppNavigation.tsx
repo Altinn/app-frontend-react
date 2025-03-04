@@ -538,7 +538,7 @@ function SubformGroup({ nodeId }: { nodeId: string }) {
         onClick={() => setIsOpen((o) => !o)}
         className={cn(classes.subformExpandButton, 'fds-focus')}
       >
-        <span>
+        <span className={classes.subformGroupName}>
           <Lang id={textResourceBindings?.title} />
           &nbsp;({dataElements.length})
         </span>
@@ -597,7 +597,7 @@ function SubformLink({
         className={cn(classes.subformLink, 'fds-focus')}
         onClick={() => navigate(`${nodeId}/${dataElement.id}${hasErrors ? '?validate=true' : ''}`)}
       >
-        {subformEntryName}
+        <span className={classes.subformLinkName}>{subformEntryName}</span>
       </button>
     </li>
   );

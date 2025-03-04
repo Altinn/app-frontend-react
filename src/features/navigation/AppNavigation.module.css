@@ -282,7 +282,7 @@
 }
 
 .subform-container {
-  margin-top: 12px;
+  margin-top: 16px;
   margin-left: 32px;
 }
 
@@ -313,7 +313,7 @@
 }
 
 .subform-expand-chevron {
-  margin-top: -2px;
+  margin-top: 1px;
   margin-right: -4px; /* The icon has some internal padding, this makes the edge line up better */
   color: var(--fds-colors-grey-700);
   font-size: 16px;
@@ -323,10 +323,14 @@
   transform: rotate(180deg);
 }
 
+.subform-group-name {
+  line-height: 1.2;
+}
+
 .subform-list {
   list-style-type: none;
   padding: 0;
-  margin: 8px 0 0 0;
+  margin: 12px 0 0 0;
   display: flex;
   flex-direction: column;
   row-gap: 8px;
@@ -358,6 +362,10 @@
   text-decoration-skip-ink: none;
   text-underline-offset: 2px;
   text-decoration-thickness: 1px;
+}
+
+.subform-link-name {
+  line-height: 1.2;
 }
 
 .hidden {
