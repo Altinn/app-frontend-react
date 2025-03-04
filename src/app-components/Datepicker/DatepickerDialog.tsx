@@ -29,6 +29,7 @@ export function DatePickerDialog({
           role='dialog'
           aria-hidden={!isDialogOpen}
           closedby='any'
+          modal
           style={{ width: 'fit-content', minWidth: 'fit-content' }}
           onClose={() => setIsDialogOpen(false)}
         >
