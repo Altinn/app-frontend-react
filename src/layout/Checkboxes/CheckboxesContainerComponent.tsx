@@ -5,10 +5,10 @@ import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { LabelContent } from 'src/components/label/LabelContent';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
+import { useSaveToList } from 'src/features/saveToList/useSaveToList';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import classes from 'src/layout/Checkboxes/CheckboxesContainerComponent.module.css';
 import { WrappedCheckbox } from 'src/layout/Checkboxes/WrappedCheckbox';
@@ -34,9 +34,9 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   } = item;
   const { langAsString } = useLanguage();
   const { options: calculatedOptions, isFetching, setData, selectedValues } = useGetOptions(node, 'multi');
-  const isValid = useIsValid(node);
+  const { setList } = useSaveToList(node);
 
-  const setMultiLeafValues = FD.useSetMultiLeafValues();
+  const isValid = useIsValid(node);
 
   const labelTextGroup = (
     <LabelContent
@@ -58,12 +58,14 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
 
   const setChecked = (isChecked: boolean, option) => {
     const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
-    /*const newList: object[] = [];
-    if (saveToList) {
-      setList(newList);
-    } else {*/
+    //const newList = newData.map((data) => ({ value: data }));
+    //console.log(newList);
+    //const newList: object[] = ;
+    if (dataModelBindings?.saveToList) {
+      setList({ name: option.value });
+    } //else {
     setData(newData);
-    /*}*/
+    // }
   };
 
   return (

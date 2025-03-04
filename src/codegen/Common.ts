@@ -161,18 +161,6 @@ const common = {
           .optional(),
       ),
     ),
-  IDataModelBindigsMultipleSelect: () =>
-    new CG.obj(
-      new CG.prop(
-        'saveToList',
-        new CG.dataModelBinding()
-          .setTitle('SaveToList')
-          .setDescription(
-            'Dot notation location for a repeating structure (array of objects), where you want to save the content of checked checkboxes',
-          )
-          .optional(),
-      ),
-    ).extends(CG.common('IDataModelBindingsOptionsSimple')),
   IDataModelBindingsLikert: () =>
     new CG.obj(
       new CG.prop(

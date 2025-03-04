@@ -79,9 +79,8 @@ export function useSetOptions(
   dataModelBindings: IDataModelBindingsOptionsSimple | undefined,
   options: IOptionInternal[],
 ): SetOptionsResult {
-  const { formData, setValue, setValues } = useDataModelBindings(dataModelBindings);
+  const { formData, setValue } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding ?? '';
-  const saveToList = formData.saveToList;
 
   const currentValues = useMemo(
     () => (value && value.length > 0 ? (valueType === 'multi' ? value.split(',') : [value]) : []),
@@ -99,21 +98,9 @@ export function useSetOptions(
         setValue('simpleBinding', values.at(0));
       } else if (valueType === 'multi') {
         setValue('simpleBinding', values.join(','));
-        if (saveToList) {
-          console.log('Save to list not implemented');
-          setValue('saveToList', values);
-          // const changes = Object.entries(values).map((entry) => ({
-          //   reference: {
-          //     dataType: formData.saveToList
-          //     field: `${dataModelBindings.data.field}[${(formData.data as []).length - 1}].${entry[0]}`,
-          //   },
-          //   newValue: `${entry[1]}`,
-          // }));
-          // setMultiLeafValues({ changes });
-        }
       }
     },
-    [setValue, valueType, saveToList],
+    [setValue, valueType],
   );
 
   return {
