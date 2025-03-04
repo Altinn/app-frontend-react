@@ -19,7 +19,7 @@
 
 .task-button {
   font-family: var(--font-family);
-  font-size: 14px;
+  font-size: 16px;
   background-color: transparent;
   border: none;
   cursor: not-allowed;
@@ -63,7 +63,7 @@
 
 .group-button {
   font-family: var(--font-family);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: normal;
   color: var(--fds-colors-grey-800);
   background-color: transparent;
@@ -202,7 +202,7 @@
 
 .page-button {
   font-family: var(--font-family);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: normal;
   color: var(--fds-colors-blue-700);
   background-color: transparent;
@@ -271,7 +271,7 @@
 }
 
 .page-name {
-  margin-top: 2px;
+  margin-top: 1px;
   line-height: 1.2;
 }
 .page-name-active {
@@ -288,7 +288,7 @@
 
 .subform-expand-button {
   font-family: var(--font-family);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: normal;
   color: var(--fds-colors-grey-700);
   background-color: transparent;
@@ -335,7 +335,7 @@
 .subform-link {
   display: block;
   font-family: var(--font-family);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: normal;
   color: var(--fds-colors-blue-700);
   background-color: transparent;
