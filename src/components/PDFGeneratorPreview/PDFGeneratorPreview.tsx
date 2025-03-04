@@ -80,7 +80,7 @@ export function PDFGeneratorPreview({
       <Dialog
         ref={modalRef}
         onClose={() => abortRef.current?.abort()}
-        backdropClose={true}
+        closedby='any'
         className={classes.modal}
       >
         {blobUrl ? (

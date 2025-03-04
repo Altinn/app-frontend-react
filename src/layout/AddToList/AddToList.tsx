@@ -91,7 +91,8 @@ export function AddToListModal({
     <Dialog
       ref={addToListModalRef}
       style={{ padding: 'var(--ds-size-3)' }}
-      backdropClose={backdropClose}
+      closedby='any'
+      modal={true}
       onClose={onClose}
     >
       <Dialog.Block>

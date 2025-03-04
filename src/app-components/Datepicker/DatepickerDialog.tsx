@@ -28,7 +28,7 @@ export function DatePickerDialog({
           ref={modalRef}
           role='dialog'
           aria-hidden={!isDialogOpen}
-          backdropClose={true}
+          closedby='any'
           style={{ width: 'fit-content', minWidth: 'fit-content' }}
           onClose={() => setIsDialogOpen(false)}
         >
