@@ -19,7 +19,6 @@ import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { useCommitWhenFinished } from 'src/utils/layout/generator/CommitQueue';
 import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
-import { useInnerNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import { useInnerNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { ValidationDataSources } from 'src/features/validation';
 import type { ExpressionDataSourcesWithNodes } from 'src/utils/layout/useExpressionDataSources';
@@ -78,7 +77,6 @@ function useExpressionDataSources(): ExpressionDataSourcesWithNodes {
   const roles = hooks.useCurrentPartyRoles();
   const nodeTraversal = useInnerNodeTraversalSelector(useNodes(), dataSelectorForTraversal);
   const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
-  const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
     hooks.useDefaultDataType(),
     dataModelNames,
@@ -98,7 +96,6 @@ function useExpressionDataSources(): ExpressionDataSourcesWithNodes {
     langToolsSelector,
     currentLanguage,
     isHiddenSelector,
-    nodeFormDataSelector,
     nodeTraversal,
     transposeSelector,
     defaultDataType,

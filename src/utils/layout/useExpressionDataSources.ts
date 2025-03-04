@@ -13,7 +13,6 @@ import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
-import { useInnerNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import { useInnerNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { AttachmentsSelector } from 'src/features/attachments/tools';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
@@ -28,7 +27,6 @@ import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/t
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
-import type { NodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import type { NodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 
 export interface ExpressionDataSourcesWithNodes {
@@ -44,7 +42,6 @@ export interface ExpressionDataSourcesWithNodes {
   currentLanguage: string;
   defaultDataType: string | null;
   isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
-  nodeFormDataSelector: NodeFormDataSelector;
   nodeDataSelector: NodeDataSelector;
   nodeTraversal: NodeTraversalSelector;
   transposeSelector: DataModelTransposeSelector;
@@ -104,7 +101,6 @@ export function useExpressionDataSources(): ExpressionDataSourcesWithNodes {
   const externalApis = useExternalApis(useApplicationMetadata().externalApiIds ?? []);
   const nodeTraversal = useInnerNodeTraversalSelector(useNodes(), dataSelectorForTraversal);
   const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
-  const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
     DataModels.useDefaultDataType(),
     dataModelNames,
@@ -126,7 +122,6 @@ export function useExpressionDataSources(): ExpressionDataSourcesWithNodes {
     langToolsSelector,
     currentLanguage,
     isHiddenSelector,
-    nodeFormDataSelector,
     nodeTraversal,
     transposeSelector,
     defaultDataType,
