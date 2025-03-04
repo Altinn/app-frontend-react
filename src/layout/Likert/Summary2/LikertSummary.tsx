@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Heading, ValidationMessage } from '@digdir/designsystemet-react';
 
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
@@ -114,7 +115,7 @@ function LikertRowSummaryInner({
   node: LayoutNode<'LikertItem'>;
 }) {
   const title = useNodeItem(node, (i) => i.textResourceBindings?.title);
-  const displayData = node.def.useDisplayData(node);
+  const displayData = useDisplayData(node);
   const validations = useUnifiedValidationsForNode(node);
   const errors = validationsOfSeverity(validations, 'error');
 
