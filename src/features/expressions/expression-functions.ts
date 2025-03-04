@@ -495,7 +495,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       return null;
     }
 
-    return getComponentDef(target.type).getDisplayData({
+    return def.getDisplayData({
       attachmentsSelector: this.dataSources.attachmentsSelector,
       optionsSelector: this.dataSources.optionsSelector,
       langTools: this.dataSources.langToolsSelector(relativeId),
