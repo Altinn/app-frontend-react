@@ -128,9 +128,6 @@ export enum NodesReadiness {
 export type NodesContext = {
   readiness: NodesReadiness;
 
-  // Counter to prevent re-rendering of NodeTraversal when expressions/options/validations change
-  addRemoveCounter: number;
-
   hasErrors: boolean;
   pagesData: PagesData;
   nodeData: { [key: string]: NodeData };
@@ -174,7 +171,6 @@ export type NodesContextStore = StoreApi<NodesContext>;
 export function createNodesDataStore({ registry, validationsProcessedLast }: CreateStoreProps) {
   const defaultState = {
     readiness: NodesReadiness.NotReady,
-    addRemoveCounter: 0,
     hasErrors: false,
     pagesData: {
       type: 'pages' as const,
@@ -213,7 +209,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
         return {
           nodeData,
           readiness: NodesReadiness.NotReady,
-          addRemoveCounter: state.addRemoveCounter + 1,
         };
       }),
     removeNodes: (requests) =>
@@ -244,7 +239,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
         return {
           nodeData,
           readiness: NodesReadiness.NotReady,
-          addRemoveCounter: state.addRemoveCounter + 1,
         };
       }),
     setNodeProps: (requests) =>
@@ -314,7 +308,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
             target: NodesReadiness.NotReady,
             reason: `New page added`,
             mutate: true,
-            newNodes: true,
           });
         }),
       ),
@@ -353,20 +346,13 @@ interface SetReadinessProps {
   state: NodesContext;
   target: NodesReadiness;
   reason: string;
-  newNodes?: boolean;
   mutate?: boolean;
 }
 
 /**
  * Helper function to set new readiness state. Never try to set a new readiness without going through this function.
  */
-export function setReadiness({
-  state,
-  target,
-  reason,
-  newNodes = false,
-  mutate = false,
-}: SetReadinessProps): Partial<NodesContext> {
+export function setReadiness({ state, target, reason, mutate = false }: SetReadinessProps): Partial<NodesContext> {
   const toSet: Partial<NodesContext> = {};
   if (state.readiness !== target) {
     generatorLog('logReadiness', `Marking state as ${target}: ${reason}`);
@@ -378,9 +364,6 @@ export function setReadiness({
       toSet.prevNodeData = state.nodeData;
     } else if (target === NodesReadiness.Ready) {
       toSet.prevNodeData = undefined;
-    }
-    if (newNodes) {
-      toSet.addRemoveCounter = state.addRemoveCounter + 1;
     }
   }
 
