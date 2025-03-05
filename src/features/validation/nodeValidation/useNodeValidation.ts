@@ -1,9 +1,13 @@
 import { Validation } from 'src/features/validation/validationContext';
-import { implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
+import {
+  type CompDef,
+  implementsValidateComponent,
+  implementsValidateEmptyField,
+  type ValidationFilter,
+} from 'src/layout';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import type { AnyValidation, BaseValidation } from 'src/features/validation';
-import type { CompDef, ValidationFilter } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
@@ -17,22 +21,26 @@ const emptyArray: AnyValidation[] = [];
 export function useNodeValidation(node: LayoutNode): AnyValidation[] {
   const registry = GeneratorInternal.useRegistry();
   const dataSources = GeneratorData.useValidationDataSources();
-  const getDataElementIdForDataType = GeneratorData.useGetDataElementIdForDataType();
   const dataModelBindings = GeneratorInternal.useIntermediateItem()?.dataModelBindings;
   const bindings = Object.entries((dataModelBindings ?? {}) as Record<string, IDataModelReference>);
 
-  return Validation.useFullState((state) => {
-    const validations: AnyValidation[] = [];
-    if (implementsValidateEmptyField(node.def)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      validations.push(...node.def.runEmptyFieldValidation(node as any, dataSources));
-    }
+  // We intentionally break the rules of hooks here. All nodes have a type, and that type never changes in the lifetime
+  // of the node. Therefore, we can safely ignore the rule of hooks here, as we'll always re-render with the same
+  // validator hooks.
+  const unfiltered: AnyValidation[] = [];
+  if (implementsValidateEmptyField(node.def)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    unfiltered.push(...node.def.useEmptyFieldValidation(node as any));
+  }
 
-    if (implementsValidateComponent(node.def)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      validations.push(...node.def.runComponentValidation(node as any, dataSources));
-    }
+  if (implementsValidateComponent(node.def)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    unfiltered.push(...node.def.useComponentValidation(node as any));
+  }
 
+  const getDataElementIdForDataType = GeneratorData.useGetDataElementIdForDataType();
+  const fieldValidations = Validation.useFullState((state) => {
+    const validations: BaseValidation[] = [];
     for (const [bindingKey, { dataType, field }] of bindings) {
       const dataElementId = getDataElementIdForDataType(dataType) ?? dataType; // stateless does not have dataElementId
       const fieldValidations = state.state.dataModels[dataElementId]?.[field];
@@ -40,16 +48,19 @@ export function useNodeValidation(node: LayoutNode): AnyValidation[] {
         validations.push(...fieldValidations.map((v) => ({ ...v, bindingKey })));
       }
     }
-
-    const result = filter(validations, node, dataSources.nodeDataSelector);
-    registry.current.validationsProcessed[node.id] = state.processedLast;
-
-    if (result.length === 0) {
-      return emptyArray;
-    }
-
-    return result;
+    return validations;
   });
+
+  unfiltered.push(...fieldValidations);
+
+  const filtered = filter(unfiltered, node, dataSources.nodeDataSelector);
+  registry.current.validationsProcessed[node.id] = Validation.useFullState((state) => state.processedLast);
+
+  if (filtered.length === 0) {
+    return emptyArray;
+  }
+
+  return filtered;
 }
 
 /**

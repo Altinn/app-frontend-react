@@ -1,24 +1,17 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { isAfter, isBefore } from 'date-fns';
-
-import {
-  formatISOString,
-  getDateConstraint,
-  getDateFormat,
-  strictParseISO,
-} from 'src/app-components/Datepicker/utils/dateHelpers';
+import { formatISOString, getDateFormat } from 'src/app-components/Datepicker/utils/dateHelpers';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
-import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
+import { FrontendValidationSource } from 'src/features/validation';
 import { DatepickerDef } from 'src/layout/Datepicker/config.def.generated';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { DatepickerSummary } from 'src/layout/Datepicker/DatepickerSummary';
+import { useDatepickerValidation } from 'src/layout/Datepicker/useDatepickerValidation';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { getDatepickerFormat } from 'src/utils/formatDateLocale';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type {
   PropsFromGenericComponent,
   ValidateComponent,
@@ -68,62 +61,8 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     );
   }
 
-  runComponentValidation(
-    node: LayoutNode<'Datepicker'>,
-    { formDataSelector, currentLanguage, nodeDataSelector }: ValidationDataSources,
-  ): ComponentValidation[] {
-    const field = nodeDataSelector(
-      (picker) => picker(node.id, 'Datepicker')?.layout.dataModelBindings?.simpleBinding,
-      [node.id],
-    );
-    const data = field ? formDataSelector(field) : undefined;
-    const dataAsString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
-    if (!dataAsString) {
-      return [];
-    }
-
-    const minDate = getDateConstraint(
-      nodeDataSelector((picker) => picker(node.id, 'Datepicker')?.item?.minDate, [node.id]),
-      'min',
-    );
-    const maxDate = getDateConstraint(
-      nodeDataSelector((picker) => picker(node.id, 'Datepicker')?.item?.maxDate, [node.id]),
-      'max',
-    );
-    const format = getDateFormat(
-      nodeDataSelector((picker) => picker(node.id, 'Datepicker')?.item?.format, [node.id]),
-      currentLanguage,
-    );
-    const datePickerFormat = getDatepickerFormat(format).toUpperCase();
-
-    const validations: ComponentValidation[] = [];
-    const date = strictParseISO(dataAsString);
-    if (!date) {
-      validations.push({
-        message: { key: 'date_picker.invalid_date_message', params: [datePickerFormat] },
-        severity: 'error',
-        source: FrontendValidationSource.Component,
-        category: ValidationMask.Component,
-      });
-    }
-
-    if (date && isBefore(date, minDate)) {
-      validations.push({
-        message: { key: 'date_picker.min_date_exeeded' },
-        severity: 'error',
-        source: FrontendValidationSource.Component,
-        category: ValidationMask.Component,
-      });
-    } else if (date && isAfter(date, maxDate)) {
-      validations.push({
-        message: { key: 'date_picker.max_date_exeeded' },
-        severity: 'error',
-        source: FrontendValidationSource.Component,
-        category: ValidationMask.Component,
-      });
-    }
-
-    return validations;
+  useComponentValidation(node: LayoutNode<'Datepicker'>): ComponentValidation[] {
+    return useDatepickerValidation(node);
   }
 
   /**

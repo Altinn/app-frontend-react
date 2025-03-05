@@ -1,22 +1,18 @@
-import {
-  type ComponentValidation,
-  FrontendValidationSource,
-  type ValidationDataSources,
-  ValidationMask,
-} from 'src/features/validation';
+import { type ComponentValidation, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
+import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompTypes, CompWithBinding } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
- * Default implementation of runEmptyFieldValidation
- * Checks all of the component's dataModelBindings and returns one error for each one missing data
+ * Default implementation of useEmptyFieldValidation
+ * Checks all the component's dataModelBindings and returns one error for each one missing data
  */
-export function runEmptyFieldValidationAllBindings<Type extends CompTypes>(
+export function useEmptyFieldValidationAllBindings<Type extends CompTypes>(
   node: LayoutNode<Type>,
-  { formDataSelector, invalidDataSelector, nodeDataSelector }: ValidationDataSources,
 ): ComponentValidation[] {
+  const { nodeDataSelector, formDataSelector, invalidDataSelector } = GeneratorData.useValidationDataSources();
   const required = nodeDataSelector(
     (picker) => {
       const item = picker(node.id, node.type)?.item;
@@ -57,14 +53,14 @@ export function runEmptyFieldValidationAllBindings<Type extends CompTypes>(
 }
 
 /**
- * Special implementation of runEmptyFieldValidation
+ * Special implementation of useEmptyFieldValidation
  * Only checks simpleBinding, this is useful for components that may save additional data which is not directly controlled by the user,
- * like options-based components that can store the label and metadata about the options along side the actual value
+ * like options-based components that can store the label and metadata about the options alongside the actual value
  */
-export function runEmptyFieldValidationOnlySimpleBinding<Type extends CompWithBinding<'simpleBinding'>>(
+export function useEmptyFieldValidationOnlySimpleBinding<Type extends CompWithBinding<'simpleBinding'>>(
   node: LayoutNode<Type>,
-  { formDataSelector, invalidDataSelector, nodeDataSelector }: ValidationDataSources,
 ): ComponentValidation[] {
+  const { formDataSelector, invalidDataSelector, nodeDataSelector } = GeneratorData.useValidationDataSources();
   const required = nodeDataSelector(
     (picker) => {
       const item = picker(node.id, node.type)?.item;
