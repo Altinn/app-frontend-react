@@ -77,55 +77,28 @@ export class Checkboxes extends CheckboxesDef {
     }
 
     if (dataModelBindings?.saveToList) {
+      const isCompatible = dataModelBindings?.simpleBinding?.field.includes(`${dataModelBindings.saveToList.field}.`);
+      if (!isCompatible) {
+        errors.push(`simpleBinding must reference a field in saveToList`);
+      }
+      const simpleBindingPath = dataModelBindings.simpleBinding?.field.split('.');
       const saveToListBinding = ctx.lookupBinding(dataModelBindings?.saveToList);
-      const simpleBinding = ctx.lookupBinding(dataModelBindings?.simpleBinding);
-      console.log(simpleBinding);
+
+      // const simpleBinding = ctx.lookupBinding({
+      //   dataType: dataModelBindings.simpleBinding.dataType,
+      //   field: simpleBindingPath.join('[0].'),
+      // });
+
       const items = saveToListBinding[0]?.items;
-      const propertyKey = dataModelBindings.simpleBinding.field.split('.')[1];
       const properties =
         items && !Array.isArray(items) && typeof items === 'object' && 'properties' in items
           ? items.properties
           : undefined;
-
-      if (dataModelBindings.saveToList && items && typeof items === 'object' && 'properties' in items) {
-        if (properties?.[propertyKey]) {
-          errors.push(`saveToList must contain a field with the same name as the field simpleBinding`);
-        } else if (
-          typeof properties?.[propertyKey] !== 'object' ||
-          typeof properties?.[propertyKey].type !== 'string'
-        ) {
-          errors.push(
-            `Field ${properties?.[propertyKey]} in saveToList must be one of types ${allowedTypes.join(', ')}`,
-          );
-        } else if (!allowedTypes.includes(properties?.[propertyKey].type)) {
-          errors.push(
-            `Field ${properties?.[propertyKey]} in saveToList must be one of types ${allowedTypes.join(', ')}`,
-          );
-        }
+      if (!(properties && simpleBindingPath[1] in properties)) {
+        errors.push(`The property ${simpleBindingPath[1]} must be present in saveToList`);
       }
-
-      /*for (const [binding] of Object.entries(dataModelBindings ?? {})) {
-        let selectedBinding: JSONSchema7Definition | undefined;
-        const propertyKey = dataModelBindings.simpleBinding.field.split('.')[1];
-        console.log(propertyKey);
-        if (properties) {
-          selectedBinding = properties[propertyKey];
-        }
-        console.log(selectedBinding);
-        if (binding !== 'saveToList' && items && typeof items === 'object' && 'properties' in items) {
-          if (!selectedBinding) {
-            errors.push(`saveToList must contain a field with the same name as the field ${binding}`);
-          } else if (typeof selectedBinding !== 'object' || typeof selectedBinding.type !== 'string') {
-            errors.push(`Field ${binding} in saveToList must be one of types ${allowedTypes.join(', ')}`);
-          } else if (!allowedTypes.includes(selectedBinding.type)) {
-            errors.push(`Field ${binding} in saveToList must be one of types ${allowedTypes.join(', ')}`);
-          }
-        }
-      }*/
     }
 
     return errors;
-
-    //return this.validateDataModelBindingsSimple(ctx);
   }
 }

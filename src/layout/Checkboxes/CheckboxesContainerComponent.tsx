@@ -66,13 +66,14 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
     //const newList = newData.map((data) => ({ value: data }));
     //console.log(newList);
     //const newList: object[] = ;
+    console.log('newData', newData);
     if (dataModelBindings?.saveToList) {
       console.log(option);
-      setList({ name: option.value });
-    } //else {
-    console.log(newData);
-    setData(newData);
-    // }
+      setList({ [dataModelBindings.simpleBinding.field.split('.')[1]]: option.value });
+    } else {
+      setData(newData);
+      console.log(newData);
+    }
   };
 
   return (

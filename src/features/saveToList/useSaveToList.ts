@@ -15,9 +15,15 @@ export const useSaveToList = (node) => {
   const removeFromList = FD.useRemoveIndexFromList();
 
   function isRowChecked(row: Row): boolean {
-    return (formData?.saveToList as Row[]).some((selectedRow) =>
-      Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
-    );
+    console.log('checkboxRow', row);
+    console.log('checkboxSaveToList', formData?.saveToList);
+    return (formData?.saveToList as Row[]).some((selectedRow) => {
+      console.log('selectedRow', selectedRow);
+      return Object.keys(row).every((key) => {
+        console.log('row', row);
+        return Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key];
+      });
+    });
   }
 
   const setList = (row) => {
@@ -38,9 +44,11 @@ export const useSaveToList = (node) => {
     } else {
       const uuid = uuidv4();
       const next: Row = { [ALTINN_ROW_ID]: uuid };
-      console.log('bindings', bindings);
       for (const binding of Object.keys(bindings)) {
-        if (binding !== 'saveToList') {
+        if (binding === 'simpleBinding') {
+          const propertyName = bindings.simpleBinding.field.split('.')[1];
+          next[propertyName] = row[propertyName];
+        } else if (binding !== 'saveToList' && binding !== 'simpleBinding') {
           next[binding] = row[binding];
         }
       }
@@ -48,8 +56,9 @@ export const useSaveToList = (node) => {
 
       appendToList({
         reference: bindings.saveToList,
-        newValue: { ...next },
+        newValue: next,
       });
+      console.log('formData', formData);
     }
   };
 
