@@ -1,6 +1,5 @@
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
-import type { FormDataSelector } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export enum FrontendValidationSource {
@@ -214,14 +213,6 @@ export type NodeRefValidation<Validation extends AnyValidation<any> = AnyValidat
 export type ValidationsProcessedLast = {
   incremental: BackendValidationIssueGroups | undefined;
   initial: BackendValidationIssue[] | undefined;
-};
-
-/**
- * Contains all the necessary elements from the store to run frontend validations.
- */
-export type ValidationDataSources = {
-  formDataSelector: FormDataSelector;
-  invalidDataSelector: FormDataSelector;
 };
 
 /**

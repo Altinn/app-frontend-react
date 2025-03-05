@@ -1,6 +1,6 @@
+import { FD } from 'src/features/formData/FormDataWrite';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
-import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ComponentValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -9,7 +9,8 @@ export function useValidateListIsEmpty(node: LayoutNode<'List'>): ComponentValid
   const required = NodesInternal.useNodeData(node, (d) => (d.item && 'required' in d.item ? d.item.required : false));
   const dataModelBindings = NodesInternal.useNodeData(node, (d) => d.layout.dataModelBindings);
   const textResourceBindings = NodesInternal.useNodeData(node, (d) => d.item?.textResourceBindings);
-  const { formDataSelector, invalidDataSelector } = GeneratorData.useValidationDataSources();
+  const formDataSelector = FD.useDebouncedSelector();
+  const invalidDataSelector = FD.useInvalidDebouncedSelector();
   if (!required || !dataModelBindings) {
     return [];
   }

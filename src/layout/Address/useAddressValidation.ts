@@ -1,19 +1,18 @@
+import { FD } from 'src/features/formData/FormDataWrite';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
-import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ComponentValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function useAddressValidation(node: LayoutNode<'Address'>): ComponentValidation[] {
   const dataModelBindings = NodesInternal.useNodeData(node, (d) => d.layout.dataModelBindings);
-  const { formDataSelector } = GeneratorData.useValidationDataSources();
+  const zipCode = FD.useDebouncedPick(dataModelBindings?.zipCode);
+  const houseNumber = FD.useDebouncedPick(dataModelBindings?.houseNumber);
   if (!dataModelBindings) {
     return [];
   }
   const validations: ComponentValidation[] = [];
 
-  const zipCodeField = dataModelBindings.zipCode;
-  const zipCode = zipCodeField ? formDataSelector(zipCodeField) : undefined;
   const zipCodeAsString = typeof zipCode === 'string' || typeof zipCode === 'number' ? String(zipCode) : undefined;
 
   // TODO(Validation): Add better message for the special case of 0000 or add better validation for zipCodes that the API says are invalid
@@ -27,8 +26,6 @@ export function useAddressValidation(node: LayoutNode<'Address'>): ComponentVali
     });
   }
 
-  const houseNumberField = dataModelBindings.houseNumber;
-  const houseNumber = houseNumberField ? formDataSelector(houseNumberField) : undefined;
   const houseNumberAsString =
     typeof houseNumber === 'string' || typeof houseNumber === 'number' ? String(houseNumber) : undefined;
 

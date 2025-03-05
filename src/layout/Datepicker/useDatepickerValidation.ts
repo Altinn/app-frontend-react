@@ -1,17 +1,17 @@
 import { isAfter, isBefore } from 'date-fns';
 
 import { getDateConstraint, getDateFormat, strictParseISO } from 'src/app-components/Datepicker/utils/dateHelpers';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { type ComponentValidation, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getDatepickerFormat } from 'src/utils/formatDateLocale';
-import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function useDatepickerValidation(node: LayoutNode<'Datepicker'>): ComponentValidation[] {
   const currentLanguage = useCurrentLanguage();
-  const { formDataSelector } = GeneratorData.useValidationDataSources();
   const field = NodesInternal.useNodeData(node, (data) => data.layout.dataModelBindings?.simpleBinding);
+  const data = FD.useDebouncedPick(field);
   const minDate = getDateConstraint(
     NodesInternal.useNodeData(node, (data) => data.layout.minDate),
     'min',
@@ -24,7 +24,6 @@ export function useDatepickerValidation(node: LayoutNode<'Datepicker'>): Compone
     NodesInternal.useNodeData(node, (data) => data.layout.format),
     currentLanguage,
   );
-  const data = field ? formDataSelector(field) : undefined;
   const dataAsString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
   if (!dataAsString) {
     return [];

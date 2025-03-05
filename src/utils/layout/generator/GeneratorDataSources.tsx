@@ -18,7 +18,6 @@ import { useCurrentDataModelLocation } from 'src/utils/layout/DataModelLocation'
 import { useCommitWhenFinished } from 'src/utils/layout/generator/CommitQueue';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
-import type { ValidationDataSources } from 'src/features/validation';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 const { Provider, hooks } = createHookContext({
@@ -35,7 +34,6 @@ const { Provider, hooks } = createHookContext({
 export const GeneratorData = {
   Provider,
   useExpressionDataSources,
-  useValidationDataSources,
   useDefaultDataType: hooks.useDefaultDataType,
   useIsForcedVisibleByDevTools: hooks.useIsForcedVisibleByDevTools,
   useGetDataElementIdForDataType: hooks.useGetDataElementIdForDataType,
@@ -101,17 +99,5 @@ function useExpressionDataSources(): ExpressionDataSources {
     codeListSelector,
     currentDataModelPath,
     layoutLookups,
-  });
-}
-
-function useValidationDataSources(): ValidationDataSources {
-  const [formDataSelector, invalidDataSelector] = useMultipleDelayedSelectors(
-    FD.useDebouncedSelectorProps(),
-    FD.useInvalidDebouncedSelectorProps(),
-  );
-
-  return useShallowMemo({
-    formDataSelector,
-    invalidDataSelector,
   });
 }

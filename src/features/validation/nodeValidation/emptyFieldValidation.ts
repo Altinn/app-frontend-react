@@ -1,6 +1,6 @@
+import { FD } from 'src/features/formData/FormDataWrite';
 import { type ComponentValidation, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
-import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompTypes, CompWithBinding } from 'src/layout/layout';
@@ -18,7 +18,8 @@ export function useEmptyFieldValidationAllBindings<Type extends CompTypes>(
     state.item && 'required' in state.item ? state.item.required : false,
   );
   const trb = NodesInternal.useNodeData(node, (state) => state.item?.textResourceBindings);
-  const { formDataSelector, invalidDataSelector } = GeneratorData.useValidationDataSources();
+  const formDataSelector = FD.useDebouncedSelector();
+  const invalidDataSelector = FD.useInvalidDebouncedSelector();
   if (!required || !dataModelBindings) {
     return [];
   }
@@ -62,14 +63,15 @@ export function useEmptyFieldValidationOnlySimpleBinding<Type extends CompWithBi
   );
   const reference = NodesInternal.useNodeData(node, (state) => state.layout.dataModelBindings.simpleBinding);
   const trb = NodesInternal.useNodeData(node, (state) => state.item?.textResourceBindings);
-  const { formDataSelector, invalidDataSelector } = GeneratorData.useValidationDataSources();
+  const validData = FD.useDebouncedPick(reference);
+  const invalidData = FD.useInvalidDebouncedPick(reference);
+  const data = validData ?? invalidData;
   if (!required || !reference) {
     return [];
   }
 
   const validations: ComponentValidation[] = [];
 
-  const data = formDataSelector(reference) ?? invalidDataSelector(reference);
   const asString =
     typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
 
