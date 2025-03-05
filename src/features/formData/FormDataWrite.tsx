@@ -730,6 +730,16 @@ export const FD = {
   },
 
   /**
+   * Directly select some data from the debounced data model, process and return it. This is useful if you want to
+   * select a value from the data model, and then process it in some way before returning it.
+   */
+  useDebouncedSelect<O>(reference: IDataModelReference | undefined, process: (value: FDValue) => O): O | undefined {
+    return useMemoSelector((v) =>
+      reference ? process(dot.pick(reference.field, v.dataModels[reference.dataType].debouncedCurrentData)) : undefined,
+    );
+  },
+
+  /**
    * This is the same as useDebouncedSelector(), but will return ContextNotProvided immediately if the context
    * provider is not present.
    */

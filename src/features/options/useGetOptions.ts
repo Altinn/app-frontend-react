@@ -115,10 +115,10 @@ function useOptionsUrl(node: LayoutNode, item: CompIntermediateExact<CompWithBeh
 }
 
 export function useFetchOptions({ node, item }: FetchOptionsProps) {
-  const { options, optionsId, source, optionFilter } = item;
+  const { options, optionsId, source } = item;
   const url = useOptionsUrl(node, item);
 
-  const sourceOptions = useSourceOptions({ source, node, addRowInfo: !!optionFilter });
+  const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
   const { data, isFetching, error } = useGetOptionsQuery(url);
   useLogFetchError(error, item);
@@ -207,8 +207,7 @@ export function useFilteredAndSortedOptions({ unsorted, valueType, node, item }:
       options.sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
     }
 
-    // Always remove the rowNode and dataModelLocation at this point. It is only to be used in the filtering
-    // process, and will not ruin the comparison later to make sure the state is set in zustand.
+    // Always remove the dataModelLocation at this point. It is only to be used in the filtering process.
     for (const idx in options) {
       // If we mutate the existing option (possibly coming from useSourceOptions) it will break things.
       const { dataModelLocation: _, ...option } = options[idx];
