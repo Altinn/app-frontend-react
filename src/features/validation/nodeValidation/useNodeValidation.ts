@@ -14,7 +14,7 @@ const emptyArray: AnyValidation[] = [];
  * Runs validations defined in the component classes. This runs from the node generator, and will collect all
  * validations for a node and return them.
  */
-export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): AnyValidation[] {
+export function useNodeValidation(node: LayoutNode): AnyValidation[] {
   const registry = GeneratorInternal.useRegistry();
   const dataSources = GeneratorData.useValidationDataSources();
   const getDataElementIdForDataType = GeneratorData.useGetDataElementIdForDataType();
@@ -22,10 +22,6 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): An
   const bindings = Object.entries((dataModelBindings ?? {}) as Record<string, IDataModelReference>);
 
   return Validation.useFullState((state) => {
-    if (!shouldValidate) {
-      return emptyArray;
-    }
-
     const validations: AnyValidation[] = [];
     if (implementsValidateEmptyField(node.def)) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
