@@ -59,7 +59,7 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
       const validations = {};
 
       for (const { nodeReference, dmb } of allBindings) {
-        // Modify the hierarchy data sources to make the current dataModel the default one when running expression validations
+        // Modify the data sources to make the current dataModel the default one when running expression validations
         const currentLayoutSet = dataSources.currentLayoutSet;
         const modifiedCurrentLayoutSet: ILayoutSet | null = currentLayoutSet
           ? {

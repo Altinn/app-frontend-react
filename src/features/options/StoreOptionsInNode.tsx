@@ -11,7 +11,6 @@ import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorCondition, StageFetchOptions } from 'src/utils/layout/generator/GeneratorStages';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
 import type { CompIntermediate, CompWithBehavior } from 'src/layout/layout';
@@ -38,14 +37,12 @@ function StoreOptionsInNodeWorker({ valueType, allowEffects }: GeneratorOptionPr
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
 
-  const dataSources = useExpressionDataSources();
-  const { unsorted, isFetching, downstreamParameters } = useFetchOptions({ node, item, dataSources });
+  const { unsorted, isFetching, downstreamParameters } = useFetchOptions({ node, item });
   const { options, preselectedOption } = useFilteredAndSortedOptions({
     unsorted,
     valueType,
     node,
     item,
-    dataSources,
   });
 
   const hasBeenSet = NodesInternal.useNodeData(
