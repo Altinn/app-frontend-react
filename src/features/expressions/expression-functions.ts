@@ -26,6 +26,7 @@ import type {
 import type { ValidationContext } from 'src/features/expressions/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
+import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 type ArgsToActual<T extends readonly AnyExprArg[]> = {
   [Index in keyof T]: T[Index]['variant'] extends 'optional'
@@ -37,6 +38,7 @@ export type AnyFuncDef = FuncDef<readonly AnyExprArg[], ExprVal>;
 export interface FuncDef<Args extends readonly AnyExprArg[], Ret extends ExprVal> {
   args: Args;
   returns: Ret;
+  needs: readonly (keyof ExpressionDataSources)[];
 }
 
 export interface FuncValidationDef {
@@ -71,6 +73,11 @@ function args<A extends readonly AnyExprArg[]>(...args: A): A {
   return args;
 }
 
+type Source = keyof ExpressionDataSources;
+function sources<S extends readonly Source[]>(...sources: S): S {
+  return sources;
+}
+
 /**
  * All the function definitions available in expressions. The implementations themselves are located in
  * @see ExprFunctionImplementations
@@ -79,170 +86,222 @@ export const ExprFunctionDefinitions = {
   argv: {
     args: args(required(ExprVal.Number)),
     returns: ExprVal.Any,
+    needs: sources(),
   },
   value: {
     args: args(optional(ExprVal.String)),
     returns: ExprVal.Any,
+    needs: sources(),
   },
   equals: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   notEquals: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   not: {
     args: args(required(ExprVal.Boolean)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   greaterThan: {
     args: args(required(ExprVal.Number), required(ExprVal.Number)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   greaterThanEq: {
     args: args(required(ExprVal.Number), required(ExprVal.Number)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   lessThan: {
     args: args(required(ExprVal.Number), required(ExprVal.Number)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   lessThanEq: {
     args: args(required(ExprVal.Number), required(ExprVal.Number)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   concat: {
     args: args(rest(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources(),
   },
   and: {
     args: args(required(ExprVal.Boolean), rest(ExprVal.Boolean)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   or: {
     args: args(required(ExprVal.Boolean), rest(ExprVal.Boolean)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   if: {
     args: args(required(ExprVal.Boolean), required(ExprVal.Any), optional(ExprVal.String), optional(ExprVal.Any)),
     returns: ExprVal.Any,
+    needs: sources(),
   },
   instanceContext: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources('instanceDataSources'),
   },
   frontendSettings: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.Any,
+    needs: sources('applicationSettings'),
   },
   authContext: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.Boolean,
+    needs: sources('process'),
   },
   component: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.Any,
+    needs: sources('layoutLookups', 'currentDataModelPath', 'isHiddenSelector', 'dataModelNames', 'formDataSelector'),
   },
   dataModel: {
     args: args(required(ExprVal.String), optional(ExprVal.String)),
     returns: ExprVal.Any,
+    needs: sources('currentLayoutSet', 'currentDataModelPath', 'dataModelNames', 'formDataSelector'),
   },
   countDataElements: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.Number,
+    needs: sources('dataElementSelector'),
   },
   externalApi: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources('externalApis'),
   },
   displayValue: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources(
+      'layoutLookups',
+      'currentDataModelPath',
+      'isHiddenSelector',
+      'attachmentsSelector',
+      'optionsSelector',
+      'langToolsSelector',
+      'currentLanguage',
+      'nodeDataSelector',
+      'formDataSelector',
+    ),
   },
   optionLabel: {
     args: args(required(ExprVal.String), required(ExprVal.Any)),
     returns: ExprVal.String,
+    needs: sources('codeListSelector', 'langToolsSelector'),
   },
   formatDate: {
     args: args(required(ExprVal.Date), optional(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources('currentLanguage'),
   },
   compare: {
     args: args(required(ExprVal.Any), required(ExprVal.Any), required(ExprVal.Any), optional(ExprVal.Any)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   round: {
     args: args(required(ExprVal.Number), optional(ExprVal.Number)),
     returns: ExprVal.String,
+    needs: sources(),
   },
   text: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources('langToolsSelector'),
   },
   linkToComponent: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources('layoutLookups', 'process', 'instanceDataSources', 'currentDataModelPath'),
   },
   linkToPage: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources('process', 'instanceDataSources'),
   },
   language: {
     args: args(),
     returns: ExprVal.String,
+    needs: sources('currentLanguage'),
   },
   contains: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   notContains: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   endsWith: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   startsWith: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   stringReplace: {
     args: args(required(ExprVal.String), required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources(),
   },
   stringLength: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.Number,
+    needs: sources(),
   },
   stringSlice: {
     args: args(required(ExprVal.String), required(ExprVal.Number), optional(ExprVal.Number)),
     returns: ExprVal.String,
+    needs: sources(),
   },
   stringIndexOf: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.Number,
+    needs: sources(),
   },
   commaContains: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.Boolean,
+    needs: sources(),
   },
   lowerCase: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources(),
   },
   upperCase: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources(),
   },
   upperCaseFirst: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources(),
   },
   lowerCaseFirst: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.String,
+    needs: sources(),
   },
   _experimentalSelectAndMap: {
     args: args(
@@ -253,11 +312,12 @@ export const ExprFunctionDefinitions = {
       optional(ExprVal.Boolean),
     ),
     returns: ExprVal.String,
+    needs: sources('currentLayoutSet', 'formDataSelector'),
   },
 } satisfies { [key: string]: AnyFuncDef };
 
 type Implementation<Name extends ExprFunctionName> = (
-  this: EvaluateExpressionParams,
+  this: EvaluateExpressionParams<ExprFunctions[Name]['needs']>,
   ...params: ArgsToActual<ExprFunctions[Name]['args']>
 ) => ExprValToActual<ExprFunctions[Name]['returns']> | null;
 
@@ -775,7 +835,10 @@ export const ExprFunctionValidationExtensions: { [K in ExprFunctionName]?: FuncV
   },
 };
 
-function pickSimpleValue(path: IDataModelReference, params: EvaluateExpressionParams) {
+function pickSimpleValue(
+  path: IDataModelReference,
+  params: EvaluateExpressionParams<['dataModelNames', 'formDataSelector']>,
+) {
   const isValidDataType = params.dataSources.dataModelNames.includes(path.dataType);
   if (!isValidDataType) {
     throw new ExprRuntimeError(params.expr, params.path, `Data model with type ${path.dataType} not found`);
@@ -794,7 +857,7 @@ function pickSimpleValue(path: IDataModelReference, params: EvaluateExpressionPa
  * 'compare', where the operator will determine the type of the arguments, and cast them accordingly.
  */
 function lateCastArg<T extends ExprVal>(
-  context: EvaluateExpressionParams,
+  context: EvaluateExpressionParams<[]>,
   arg: unknown,
   argIndex: number,
   type: T,
@@ -891,7 +954,7 @@ export const CompareOperators = {
 type CompareOperator = keyof typeof CompareOperators;
 
 function compare(
-  ctx: EvaluateExpressionParams,
+  ctx: EvaluateExpressionParams<[]>,
   operator: CompareOperator,
   arg1: unknown,
   arg2: unknown,
