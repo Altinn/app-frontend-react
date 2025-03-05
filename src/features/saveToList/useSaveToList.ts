@@ -15,15 +15,9 @@ export const useSaveToList = (node) => {
   const removeFromList = FD.useRemoveIndexFromList();
 
   function isRowChecked(row: Row): boolean {
-    console.log('checkboxRow', row);
-    console.log('checkboxSaveToList', formData?.saveToList);
-    return (formData?.saveToList as Row[]).some((selectedRow) => {
-      console.log('selectedRow', selectedRow);
-      return Object.keys(row).every((key) => {
-        console.log('row', row);
-        return Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key];
-      });
-    });
+    return (formData?.saveToList as Row[]).some((selectedRow) =>
+      Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
+    );
   }
 
   const setList = (row) => {
@@ -48,19 +42,16 @@ export const useSaveToList = (node) => {
         if (binding === 'simpleBinding') {
           const propertyName = bindings.simpleBinding.field.split('.')[1];
           next[propertyName] = row[propertyName];
-        } else if (binding !== 'saveToList' && binding !== 'simpleBinding') {
+        } else if (binding !== 'saveToList' && binding !== 'label' && binding !== 'metadata') {
           next[binding] = row[binding];
         }
       }
-      console.log('next', next);
-
       appendToList({
         reference: bindings.saveToList,
         newValue: next,
       });
-      console.log('formData', formData);
     }
   };
 
-  return { setList, list: formData.saveToList };
+  return { setList, isRowChecked };
 };

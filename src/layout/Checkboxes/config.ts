@@ -49,20 +49,6 @@ export const Config = new CG.component({
       .exportAs('IDataModelBindingsForSaveTolistCheckbox')
       .extends(CG.common('IDataModelBindingsOptionsSimple')),
   )
-
-  /*.addDataModelBinding(
-    new CG.obj(
-      new CG.prop(
-        'saveToList',
-        new CG.dataModelBinding()
-          .setTitle('SaveToList')
-          .setDescription(
-            'Dot notation location for a repeating structure (array of objects), where you want to save the content of checked checkboxes',
-          )
-          .optional(),
-      ),
-    ).extends(CG.common('IDataModelBindingsOptionsSimple')),
-  )*/
   .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()))
   .addProperty(
     new CG.prop(

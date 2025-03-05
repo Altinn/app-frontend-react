@@ -34,12 +34,8 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   } = item;
   const { langAsString } = useLanguage();
   const { options: calculatedOptions, isFetching, setData, selectedValues } = useGetOptions(node, 'multi');
-  const { setList, list } = useSaveToList(node);
-
-  console.log(list);
-  /* const values: string[] = dataModelBindings.saveToList
-    ? list.map((item) => ({ value: item[dataModelBindings.simpleBinding.field.split('.')[1]] }))
-    : selectedValues;*/
+  const { setList, isRowChecked } = useSaveToList(node);
+  const saveToList = dataModelBindings?.saveToList;
 
   const isValid = useIsValid(node);
 
@@ -63,16 +59,11 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
 
   const setChecked = (isChecked: boolean, option) => {
     const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
-    //const newList = newData.map((data) => ({ value: data }));
-    //console.log(newList);
-    //const newList: object[] = ;
-    console.log('newData', newData);
-    if (dataModelBindings?.saveToList) {
-      console.log(option);
+
+    if (saveToList) {
       setList({ [dataModelBindings.simpleBinding.field.split('.')[1]]: option.value });
     } else {
       setData(newData);
-      console.log(newData);
     }
   };
 
@@ -93,7 +84,7 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
             hideLegend={overrideDisplay?.renderLegend === false}
             error={!isValid}
             aria-label={ariaLabel}
-            value={selectedValues}
+            //value={selectedValues}
             data-testid='checkboxes-fieldset'
           >
             {calculatedOptions.map((option) => (
@@ -103,7 +94,11 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
                 option={option}
                 hideLabel={hideLabel}
                 alertOnChange={alertOnChange}
-                checked={selectedValues.includes(option.value)}
+                checked={
+                  saveToList
+                    ? isRowChecked({ [dataModelBindings.simpleBinding.field.split('.')[1]]: option.value })
+                    : selectedValues.includes(option.value)
+                }
                 setChecked={(isChecked) => setChecked(isChecked, option)}
               />
             ))}

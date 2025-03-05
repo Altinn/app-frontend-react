@@ -78,22 +78,19 @@ export class Checkboxes extends CheckboxesDef {
 
     if (dataModelBindings?.saveToList) {
       const isCompatible = dataModelBindings?.simpleBinding?.field.includes(`${dataModelBindings.saveToList.field}.`);
+
       if (!isCompatible) {
         errors.push(`simpleBinding must reference a field in saveToList`);
       }
+
       const simpleBindingPath = dataModelBindings.simpleBinding?.field.split('.');
       const saveToListBinding = ctx.lookupBinding(dataModelBindings?.saveToList);
-
-      // const simpleBinding = ctx.lookupBinding({
-      //   dataType: dataModelBindings.simpleBinding.dataType,
-      //   field: simpleBindingPath.join('[0].'),
-      // });
-
       const items = saveToListBinding[0]?.items;
       const properties =
         items && !Array.isArray(items) && typeof items === 'object' && 'properties' in items
           ? items.properties
           : undefined;
+
       if (!(properties && simpleBindingPath[1] in properties)) {
         errors.push(`The property ${simpleBindingPath[1]} must be present in saveToList`);
       }
