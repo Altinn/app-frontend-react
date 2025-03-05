@@ -12,7 +12,6 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
 import { useCodeListSelectorProps } from 'src/features/options/CodeListsProvider';
-import { Validation } from 'src/features/validation/validationContext';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { useCurrentDataModelLocation } from 'src/utils/layout/DataModelLocation';
@@ -106,25 +105,13 @@ function useExpressionDataSources(): ExpressionDataSources {
 }
 
 function useValidationDataSources(): ValidationDataSources {
-  const [
-    formDataSelector,
-    invalidDataSelector,
-    attachmentsSelector,
-    dataElementsSelector,
-    dataElementHasErrorsSelector,
-  ] = useMultipleDelayedSelectors(
+  const [formDataSelector, invalidDataSelector] = useMultipleDelayedSelectors(
     FD.useDebouncedSelectorProps(),
     FD.useInvalidDebouncedSelectorProps(),
-    NodesInternal.useAttachmentsSelectorProps(),
-    useLaxDataElementsSelectorProps(),
-    Validation.useDataElementHasErrorsSelectorProps(),
   );
 
   return useShallowMemo({
     formDataSelector,
     invalidDataSelector,
-    attachmentsSelector,
-    dataElementsSelector,
-    dataElementHasErrorsSelector,
   });
 }

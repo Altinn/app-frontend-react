@@ -1,8 +1,5 @@
-import type { AttachmentsSelector } from 'src/features/attachments/tools';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
-import type { DataElementSelector } from 'src/features/instance/InstanceContext';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
-import type { DataElementHasErrorsSelector } from 'src/features/validation/validationContext';
 import type { FormDataSelector } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -225,9 +222,6 @@ export type ValidationsProcessedLast = {
 export type ValidationDataSources = {
   formDataSelector: FormDataSelector;
   invalidDataSelector: FormDataSelector;
-  attachmentsSelector: AttachmentsSelector;
-  dataElementsSelector: DataElementSelector;
-  dataElementHasErrorsSelector: DataElementHasErrorsSelector;
 };
 
 /**

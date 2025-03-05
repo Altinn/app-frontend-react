@@ -1,7 +1,8 @@
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
-import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
+import { Validation } from 'src/features/validation/validationContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ComponentValidation, SubformValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -10,7 +11,6 @@ export function useValidateSubform(node: LayoutNode<'Subform'>): ComponentValida
   const applicationMetadata = useApplicationMetadata();
   const layoutSets = useLayoutSets();
   const layoutSetName = NodesInternal.useNodeData(node, (data) => data.layout.layoutSet);
-  const { dataElementsSelector, dataElementHasErrorsSelector } = GeneratorData.useValidationDataSources();
   if (!layoutSetName) {
     throw new Error(`Layoutset not found for node with id ${node.id}.`);
   }
@@ -18,6 +18,8 @@ export function useValidateSubform(node: LayoutNode<'Subform'>): ComponentValida
   if (!targetType) {
     throw new Error(`Data type not found for layout with name ${layoutSetName}`);
   }
+  const elements = useStrictDataElements(targetType);
+  const subformIdsWithError = Validation.useDataElementsWithErrors(elements.map((dE) => dE.id));
   const dataTypeDefinition = applicationMetadata.dataTypes.find((x) => x.id === targetType);
   if (dataTypeDefinition === undefined) {
     return [];
@@ -25,11 +27,9 @@ export function useValidateSubform(node: LayoutNode<'Subform'>): ComponentValida
 
   const validations: ComponentValidation[] = [];
 
-  const elements = dataElementsSelector((d) => d.filter((x) => x.dataType === targetType), [targetType]);
-  const numDataElements = Array.isArray(elements) ? elements.length : 0;
   const { minCount, maxCount } = dataTypeDefinition;
 
-  if (minCount > 0 && numDataElements < minCount) {
+  if (minCount > 0 && elements.length < minCount) {
     validations.push({
       message: { key: 'form_filler.error_min_count_not_reached_subform', params: [minCount, targetType] },
       severity: 'error',
@@ -38,7 +38,7 @@ export function useValidateSubform(node: LayoutNode<'Subform'>): ComponentValida
     });
   }
 
-  if (maxCount > 0 && numDataElements > maxCount) {
+  if (maxCount > 0 && elements.length > maxCount) {
     validations.push({
       message: { key: 'form_filler.error_max_count_reached_subform_local', params: [targetType, maxCount] },
       severity: 'error',
@@ -47,10 +47,7 @@ export function useValidateSubform(node: LayoutNode<'Subform'>): ComponentValida
     });
   }
 
-  const subformIdsWithError = Array.isArray(elements)
-    ? elements?.map((dE) => dE.id).filter((id) => dataElementHasErrorsSelector(id))
-    : [];
-  if (subformIdsWithError?.length) {
+  if (subformIdsWithError.length) {
     const validation: SubformValidation = {
       subformDataElementIds: subformIdsWithError,
       message: { key: 'form_filler.error_validation_inside_subform', params: [targetType] },

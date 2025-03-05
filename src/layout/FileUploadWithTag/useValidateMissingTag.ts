@@ -1,14 +1,12 @@
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
-import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { AttachmentValidation, ComponentValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function useValidateMissingTag(node: LayoutNode<'FileUploadWithTag'>): ComponentValidation[] {
   const tagKey = NodesInternal.useNodeData(node, (d) => d.item?.textResourceBindings?.tagTitle);
-  const { attachmentsSelector } = GeneratorData.useValidationDataSources();
-  const attachments = attachmentsSelector(node.id);
+  const attachments = NodesInternal.useAttachments(node.id);
   const validations: ComponentValidation[] = [];
 
   for (const attachment of attachments) {
