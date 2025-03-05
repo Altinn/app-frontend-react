@@ -310,7 +310,8 @@ function PageGroupMultiple({
       <ul
         id={listId}
         aria-labelledby={buttonId}
-        className={cn(classes.pageList, { [classes.hidden]: !isOpen })}
+        style={!isOpen ? { display: 'none' } : undefined}
+        className={cn(classes.pageList)}
       >
         {visiblePages.map((page) => (
           <Page
@@ -550,7 +551,8 @@ function SubformGroup({ nodeId }: { nodeId: string }) {
       <ul
         id={listId}
         aria-labelledby={buttonId}
-        className={cn(classes.subformList, { [classes.hidden]: !isOpen })}
+        style={!isOpen ? { display: 'none' } : undefined}
+        className={cn(classes.subformList)}
       >
         {dataElements.map((dataElement) => (
           <SubformLink
