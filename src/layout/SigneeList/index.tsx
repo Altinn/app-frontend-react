@@ -10,6 +10,7 @@ import { ProcessTaskType } from 'src/types';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
+import type { SigneeListSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class SigneeList extends SigneeListDef {
@@ -33,7 +34,12 @@ export class SigneeList extends SigneeListDef {
     return null;
   }
 
-  renderSummary2(props: Summary2Props<'SigneeList'>): JSX.Element | null {
-    return <SigneeListSummary componentNode={props.target} />;
+  renderSummary2({ target, override }: Summary2Props<'SigneeList'>): JSX.Element | null {
+    return (
+      <SigneeListSummary
+        componentNode={target}
+        titleOverride={(override as SigneeListSummaryOverrideProps)?.title}
+      />
+    );
   }
 }

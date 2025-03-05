@@ -410,7 +410,6 @@ export function nn(): FixedLanguageList {
       header_status: 'Status',
     },
     signee_list_summary: {
-      header: 'Desse har signert',
       name_placeholder: 'Ukjent namn',
       on_behalf_of: 'på vegne av',
       loading: 'Lastar signaturdata...',

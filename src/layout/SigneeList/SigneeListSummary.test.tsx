@@ -41,7 +41,12 @@ describe('SigneeListSummary', () => {
     } as unknown as UseQueryResult);
 
     // Test case
-    render(<SigneeListSummary componentNode={{} as LayoutNode<'SigneeList'>} />);
+    render(
+      <SigneeListSummary
+        titleOverride={null}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
 
     // Assertion
     expect(mockedUseQuery).toHaveBeenCalledTimes(1);
@@ -56,7 +61,12 @@ describe('SigneeListSummary', () => {
     } as unknown as UseQueryResult);
 
     // Test case
-    render(<SigneeListSummary componentNode={{} as LayoutNode<'SigneeList'>} />);
+    render(
+      <SigneeListSummary
+        titleOverride={null}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
 
     // Assertion
     expect(mockedUseQuery).toHaveBeenCalledTimes(1);
@@ -71,7 +81,12 @@ describe('SigneeListSummary', () => {
     } as unknown as UseQueryResult);
 
     // Test case
-    render(<SigneeListSummary componentNode={{} as LayoutNode<'SigneeList'>} />);
+    render(
+      <SigneeListSummary
+        titleOverride={null}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
 
     // Assertion
     expect(mockedUseQuery).toHaveBeenCalledTimes(1);
@@ -86,7 +101,12 @@ describe('SigneeListSummary', () => {
     } as unknown as UseQueryResult);
 
     // Test case
-    render(<SigneeListSummary componentNode={{} as LayoutNode<'SigneeList'>} />);
+    render(
+      <SigneeListSummary
+        titleOverride={null}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
 
     // Assertion
     expect(mockedUseQuery).toHaveBeenCalledTimes(1);
@@ -132,7 +152,12 @@ describe('SigneeListSummary', () => {
     } as unknown as UseQueryResult);
 
     // Test case
-    render(<SigneeListSummary componentNode={{} as LayoutNode<'SigneeList'>} />);
+    render(
+      <SigneeListSummary
+        titleOverride={null}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
 
     // Assertion
     expect(mockedUseQuery).toHaveBeenCalledTimes(1);

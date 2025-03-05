@@ -17,16 +17,18 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface SigneeListSummaryProps {
   componentNode: LayoutNode<'SigneeList'>;
+  titleOverride: string | null | undefined;
 }
 
-export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
+export function SigneeListSummary({ componentNode, titleOverride }: SigneeListSummaryProps) {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
   const { data, isLoading, error } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
 
-  const summaryTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.summary_title);
+  const originalTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
+  const title = titleOverride === null || typeof titleOverride === 'string' ? titleOverride : originalTitle;
+  const heading = title ? <Lang id={title} /> : undefined;
 
   const signatures = data?.filter((signee) => isSignedSignee(signee)) ?? [];
-  const heading = <Lang id={summaryTitle ?? 'signee_list_summary.header'} />;
 
   if (isLoading) {
     return (
@@ -89,13 +91,15 @@ export function SigneeListSummary({ componentNode }: SigneeListSummaryProps) {
   );
 }
 
-function SigneeListSummaryContainer({ heading, children }: PropsWithChildren<{ heading: ReactElement }>) {
+function SigneeListSummaryContainer({ heading, children }: PropsWithChildren<{ heading: ReactElement | undefined }>) {
   return (
     <div>
-      <Label
-        label={heading}
-        size='lg'
-      />
+      {heading && (
+        <Label
+          label={heading}
+          size='lg'
+        />
+      )}
       {children}
     </div>
   );
