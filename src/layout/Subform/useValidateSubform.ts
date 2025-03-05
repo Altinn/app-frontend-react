@@ -1,12 +1,16 @@
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ComponentValidation, SubformValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function useValidateSubform(node: LayoutNode<'Subform'>): ComponentValidation[] {
-  const { nodeDataSelector, dataElementsSelector, dataElementHasErrorsSelector, applicationMetadata, layoutSets } =
-    GeneratorData.useValidationDataSources();
-  const layoutSetName = nodeDataSelector((picker) => picker(node.id, 'Subform')?.layout.layoutSet, [node]);
+  const applicationMetadata = useApplicationMetadata();
+  const layoutSets = useLayoutSets();
+  const layoutSetName = NodesInternal.useNodeData(node, (data) => data.layout.layoutSet);
+  const { dataElementsSelector, dataElementHasErrorsSelector } = GeneratorData.useValidationDataSources();
   if (!layoutSetName) {
     throw new Error(`Layoutset not found for node with id ${node.id}.`);
   }

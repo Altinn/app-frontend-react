@@ -1,27 +1,22 @@
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
-import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ComponentValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function useValidateRepGroupMinCount(node: LayoutNode<'RepeatingGroup'>): ComponentValidation[] {
-  const { nodeDataSelector } = GeneratorData.useValidationDataSources();
-  const dataModelBindings = nodeDataSelector(
-    (picker) => picker(node.id, 'RepeatingGroup')?.layout.dataModelBindings,
-    [node.id],
+  const dataModelBindings = NodesInternal.useNodeData(node, (d) => d.layout.dataModelBindings);
+  const minCount = NodesInternal.useNodeData(node, (d) => d.layout.minCount) ?? 0;
+  const visibleRows = NodesInternal.useNodeData(
+    node,
+    (d) => d.item?.rows.filter((row) => row && !row.groupExpressions?.hiddenRow).length,
   );
   if (!dataModelBindings) {
     return [];
   }
 
   const validations: ComponentValidation[] = [];
-  // check if minCount is less than visible rows
-  const minCount = nodeDataSelector((picker) => picker(node.id, 'RepeatingGroup')?.item?.minCount, [node.id]) ?? 0;
-  const visibleRows = nodeDataSelector(
-    (picker) =>
-      picker(node.id, 'RepeatingGroup')?.item?.rows?.filter((row) => row && !row.groupExpressions?.hiddenRow).length,
-    [node.id],
-  );
 
+  // check if minCount is less than visible rows
   if (visibleRows !== undefined && visibleRows < minCount) {
     validations.push({
       message: { key: 'validation_errors.minItems', params: [minCount] },

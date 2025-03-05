@@ -1,14 +1,12 @@
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ComponentValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function useAddressValidation(node: LayoutNode<'Address'>): ComponentValidation[] {
-  const { nodeDataSelector, formDataSelector } = GeneratorData.useValidationDataSources();
-  const dataModelBindings = nodeDataSelector(
-    (picker) => picker(node.id, 'Address')?.layout.dataModelBindings,
-    [node.id],
-  );
+  const dataModelBindings = NodesInternal.useNodeData(node, (d) => d.layout.dataModelBindings);
+  const { formDataSelector } = GeneratorData.useValidationDataSources();
   if (!dataModelBindings) {
     return [];
   }

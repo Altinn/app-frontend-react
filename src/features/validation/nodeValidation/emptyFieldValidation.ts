@@ -1,6 +1,7 @@
 import { type ComponentValidation, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompTypes, CompWithBinding } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -12,15 +13,12 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export function useEmptyFieldValidationAllBindings<Type extends CompTypes>(
   node: LayoutNode<Type>,
 ): ComponentValidation[] {
-  const { nodeDataSelector, formDataSelector, invalidDataSelector } = GeneratorData.useValidationDataSources();
-  const required = nodeDataSelector(
-    (picker) => {
-      const item = picker(node.id, node.type)?.item;
-      return item && 'required' in item ? item.required : false;
-    },
-    [node],
+  const dataModelBindings = NodesInternal.useNodeData(node, (state) => state.layout.dataModelBindings);
+  const required = NodesInternal.useNodeData(node, (state) =>
+    state.item && 'required' in state.item ? state.item.required : false,
   );
-  const dataModelBindings = nodeDataSelector((picker) => picker(node.id, node.type)?.layout.dataModelBindings, [node]);
+  const trb = NodesInternal.useNodeData(node, (state) => state.item?.textResourceBindings);
+  const { formDataSelector, invalidDataSelector } = GeneratorData.useValidationDataSources();
   if (!required || !dataModelBindings) {
     return [];
   }
@@ -31,7 +29,6 @@ export function useEmptyFieldValidationAllBindings<Type extends CompTypes>(
     const data = formDataSelector(reference) ?? invalidDataSelector(reference);
     const asString =
       typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
-    const trb = nodeDataSelector((picker) => picker(node.id, node.type)?.item?.textResourceBindings, [node]);
 
     if (asString.length === 0) {
       const key =
@@ -60,18 +57,12 @@ export function useEmptyFieldValidationAllBindings<Type extends CompTypes>(
 export function useEmptyFieldValidationOnlySimpleBinding<Type extends CompWithBinding<'simpleBinding'>>(
   node: LayoutNode<Type>,
 ): ComponentValidation[] {
-  const { formDataSelector, invalidDataSelector, nodeDataSelector } = GeneratorData.useValidationDataSources();
-  const required = nodeDataSelector(
-    (picker) => {
-      const item = picker(node.id, node.type)?.item;
-      return item && 'required' in item ? item.required : false;
-    },
-    [node],
+  const required = NodesInternal.useNodeData(node, (state) =>
+    state.item && 'required' in state.item ? state.item.required : false,
   );
-  const reference = nodeDataSelector(
-    (picker) => picker(node.id, node.type)?.layout.dataModelBindings.simpleBinding,
-    [node],
-  );
+  const reference = NodesInternal.useNodeData(node, (state) => state.layout.dataModelBindings.simpleBinding);
+  const trb = NodesInternal.useNodeData(node, (state) => state.item?.textResourceBindings);
+  const { formDataSelector, invalidDataSelector } = GeneratorData.useValidationDataSources();
   if (!required || !reference) {
     return [];
   }
@@ -81,7 +72,6 @@ export function useEmptyFieldValidationOnlySimpleBinding<Type extends CompWithBi
   const data = formDataSelector(reference) ?? invalidDataSelector(reference);
   const asString =
     typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
-  const trb = nodeDataSelector((picker) => picker(node.id, node.type)?.item?.textResourceBindings, [node]);
 
   if (asString.length === 0) {
     const key =

@@ -1,29 +1,21 @@
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ComponentValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function useValidateListIsEmpty(node: LayoutNode<'List'>): ComponentValidation[] {
-  const { nodeDataSelector, formDataSelector, invalidDataSelector } = GeneratorData.useValidationDataSources();
-  const required = nodeDataSelector(
-    (picker) => {
-      const item = picker(node.id, 'List')?.item;
-      return item && 'required' in item ? item.required : false;
-    },
-    [node.id],
-  );
-  const dataModelBindings = nodeDataSelector((picker) => picker(node.id, 'List')?.layout.dataModelBindings, [node.id]);
+  const required = NodesInternal.useNodeData(node, (d) => (d.item && 'required' in d.item ? d.item.required : false));
+  const dataModelBindings = NodesInternal.useNodeData(node, (d) => d.layout.dataModelBindings);
+  const textResourceBindings = NodesInternal.useNodeData(node, (d) => d.item?.textResourceBindings);
+  const { formDataSelector, invalidDataSelector } = GeneratorData.useValidationDataSources();
   if (!required || !dataModelBindings) {
     return [];
   }
 
   const references = Object.values(dataModelBindings);
   const validations: ComponentValidation[] = [];
-  const textResourceBindings = nodeDataSelector(
-    (picker) => picker(node.id, 'List')?.item?.textResourceBindings,
-    [node.id],
-  );
 
   let listHasErrors = false;
   for (const reference of references) {
