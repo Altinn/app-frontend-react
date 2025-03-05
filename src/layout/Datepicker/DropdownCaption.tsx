@@ -2,7 +2,7 @@ import React from 'react';
 import { formatMonthDropdown, useDayPicker } from 'react-day-picker';
 import type { MonthCaptionProps } from 'react-day-picker';
 
-import { Combobox } from '@digdir/designsystemet-react';
+import { Select } from '@digdir/designsystemet-react';
 import { ArrowLeftIcon, ArrowRightIcon } from '@navikt/aksel-icons';
 import { addYears, max, min, setMonth, setYear, startOfMonth, subYears } from 'date-fns';
 
@@ -51,54 +51,42 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
         <ArrowLeftIcon />
       </Button>
       <div style={{ display: 'flex', gap: '8px' }}>
-        <Combobox
+        <Select
           style={{ width: '150px' }}
           id={id}
-          data-size='small'
-          value={[calendarMonth.date.getMonth().toString()]}
-          onValueChange={(months) => months.length && handleMonthChange(months[0])}
+          data-size='sm'
+          value={calendarMonth.date.getMonth().toString()}
+          onChange={(e) => handleMonthChange(e.target.value)}
           aria-label={langAsString('date_picker.aria_label_month_dropdown')}
           className={comboboxClasses.container}
-          portal={!isMobile}
         >
-          <Combobox.Empty>
-            <Lang id='form_filler.no_options_found' />
-          </Combobox.Empty>
           {months.map((date) => (
-            <Combobox.Option
-              ref={scrollToIfSelected(date.getMonth() === calendarMonth.date.getMonth())}
+            <Select.Option
               key={date.getMonth()}
               value={date.getMonth().toString()}
-              displayValue={formatMonthDropdown(date, dateLib)}
             >
               <Lang id={formatMonthDropdown(date, dateLib)} />
-            </Combobox.Option>
+            </Select.Option>
           ))}
-        </Combobox>
-        <Combobox
+        </Select>
+        <Select
           style={{ width: '100px' }}
           id={id}
-          data-size='small'
-          value={[calendarMonth.date.getFullYear().toString()]}
-          onValueChange={(years) => years.length && handleYearChange(years[0])}
+          data-size='sm'
+          value={calendarMonth.date.getFullYear().toString()}
+          onChange={(e) => handleYearChange(e.target.value)}
           aria-label={langAsString('date_picker.aria_label_year_dropdown')}
           className={comboboxClasses.container}
-          portal={!isMobile}
         >
-          <Combobox.Empty>
-            <Lang id='form_filler.no_options_found' />
-          </Combobox.Empty>
           {years.map((date) => (
-            <Combobox.Option
-              ref={scrollToIfSelected(date.getFullYear() === calendarMonth.date.getFullYear())}
+            <Select.Option
               key={date.getFullYear().toString()}
               value={date.getFullYear().toString()}
-              displayValue={date.getFullYear().toString()}
             >
               <Lang id={date.getFullYear().toString()} />
-            </Combobox.Option>
+            </Select.Option>
           ))}
-        </Combobox>
+        </Select>
       </div>
       <Button
         icon={true}
