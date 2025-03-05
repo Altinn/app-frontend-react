@@ -20,6 +20,7 @@ jest.mock('@tanstack/react-query');
 
 describe('SigneeListSummary', () => {
   const mockedUseQuery = jest.mocked(useQuery);
+  const mockedUseNodeItem = jest.mocked(useNodeItem);
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -29,7 +30,7 @@ describe('SigneeListSummary', () => {
       instanceGuid: 'instanceGuid',
       taskId: 'taskId',
     });
-    jest.mocked(useNodeItem).mockReturnValue('summary_title' as unknown as ReturnType<typeof useNodeItem>);
+    mockedUseNodeItem.mockReturnValue('title' as unknown as ReturnType<typeof useNodeItem>);
     jest.mocked(Lang).mockImplementation(({ id }: { id: string }) => id);
   });
 
@@ -41,7 +42,12 @@ describe('SigneeListSummary', () => {
     } as unknown as UseQueryResult);
 
     // Test case
-    render(<SigneeListSummary componentNode={{} as LayoutNode<'SigneeList'>} />);
+    render(
+      <SigneeListSummary
+        titleOverride={null}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
 
     // Assertion
     expect(mockedUseQuery).toHaveBeenCalledTimes(1);
@@ -56,7 +62,12 @@ describe('SigneeListSummary', () => {
     } as unknown as UseQueryResult);
 
     // Test case
-    render(<SigneeListSummary componentNode={{} as LayoutNode<'SigneeList'>} />);
+    render(
+      <SigneeListSummary
+        titleOverride={null}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
 
     // Assertion
     expect(mockedUseQuery).toHaveBeenCalledTimes(1);
@@ -71,7 +82,12 @@ describe('SigneeListSummary', () => {
     } as unknown as UseQueryResult);
 
     // Test case
-    render(<SigneeListSummary componentNode={{} as LayoutNode<'SigneeList'>} />);
+    render(
+      <SigneeListSummary
+        titleOverride={null}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
 
     // Assertion
     expect(mockedUseQuery).toHaveBeenCalledTimes(1);
@@ -86,7 +102,12 @@ describe('SigneeListSummary', () => {
     } as unknown as UseQueryResult);
 
     // Test case
-    render(<SigneeListSummary componentNode={{} as LayoutNode<'SigneeList'>} />);
+    render(
+      <SigneeListSummary
+        titleOverride={null}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
 
     // Assertion
     expect(mockedUseQuery).toHaveBeenCalledTimes(1);
@@ -132,13 +153,84 @@ describe('SigneeListSummary', () => {
     } as unknown as UseQueryResult);
 
     // Test case
-    render(<SigneeListSummary componentNode={{} as LayoutNode<'SigneeList'>} />);
+    render(
+      <SigneeListSummary
+        titleOverride={undefined}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
 
     // Assertion
     expect(mockedUseQuery).toHaveBeenCalledTimes(1);
-    screen.getByText('summary_title');
+    screen.getByText('title');
     screen.getByText('Signee 1');
     screen.getByText("Signee 2, signee_list_summary.on_behalf_of Signee 2's organisation");
     expect(screen.queryByText(/Signee 3/i)).not.toBeInTheDocument();
+  });
+
+  it('should render original title if summary override title is undefined', () => {
+    mockedUseQuery.mockReturnValue({
+      data: [] satisfies SigneeState[],
+      isLoading: false,
+      error: null,
+    } as unknown as UseQueryResult);
+
+    mockedUseNodeItem.mockReturnValue('originalTitle' as unknown as ReturnType<typeof useNodeItem>);
+
+    // Test case
+    render(
+      <SigneeListSummary
+        titleOverride={undefined}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
+
+    // Assertion
+    expect(mockedUseQuery).toHaveBeenCalledTimes(1);
+    screen.getByText('originalTitle');
+  });
+
+  it('should not render title if originalTitle and overrideTitle are not set', () => {
+    mockedUseQuery.mockReturnValue({
+      data: [] satisfies SigneeState[],
+      isLoading: false,
+      error: null,
+    } as unknown as UseQueryResult);
+
+    mockedUseNodeItem.mockReturnValue(undefined);
+
+    // Test case
+    render(
+      <SigneeListSummary
+        titleOverride={undefined}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
+
+    // Assertion
+    expect(mockedUseQuery).toHaveBeenCalledTimes(1);
+    screen.getByText('signee_list_summary.no_signatures');
+    expect(screen.queryByText('title')).not.toBeInTheDocument();
+  });
+
+  it.each([null, ''])('should not render title if summary title override is null or empty string', (titleOverride) => {
+    mockedUseQuery.mockReturnValue({
+      data: [] satisfies SigneeState[],
+      isLoading: false,
+      error: null,
+    } as unknown as UseQueryResult);
+
+    // Test case
+    render(
+      <SigneeListSummary
+        titleOverride={titleOverride}
+        componentNode={{} as LayoutNode<'SigneeList'>}
+      />,
+    );
+
+    // Assertion
+    expect(mockedUseQuery).toHaveBeenCalledTimes(1);
+    screen.getByText('signee_list_summary.no_signatures');
+    expect(screen.queryByText('title')).not.toBeInTheDocument();
   });
 });

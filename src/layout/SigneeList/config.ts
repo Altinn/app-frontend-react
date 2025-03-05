@@ -1,6 +1,22 @@
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
+export const SIGNEE_LIST_OVERRIDE_PROPS = new CG.obj(
+  new CG.prop(
+    'title',
+    new CG.union(new CG.str(), CG.null)
+      .setUnionType('discriminated')
+      .optional()
+      .setTitle('Summary title')
+      .setDescription('Title of the summary'),
+  ),
+)
+  .extends(CG.common('ISummaryOverridesCommon'))
+  .optional()
+  .setTitle('Summary properties')
+  .setDescription('Properties for how to display the summary of the component')
+  .exportAs('SigneeListSummaryOverrideProps');
+
 export const Config = new CG.component({
   category: CompCategory.Presentation,
   capabilities: {

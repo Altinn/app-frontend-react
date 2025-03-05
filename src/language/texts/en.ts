@@ -410,7 +410,6 @@ export function en() {
       header_status: 'Status',
     },
     signee_list_summary: {
-      header: 'The following have signed',
       name_placeholder: 'Unknown name',
       on_behalf_of: 'on behalf of',
       loading: 'Loading signature data...',
