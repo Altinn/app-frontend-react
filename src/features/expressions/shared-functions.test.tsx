@@ -15,7 +15,6 @@ import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { getRepeatingBinding, isRepeatingComponentType } from 'src/features/form/layout/utils/repeating';
-import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
 import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
@@ -31,7 +30,6 @@ import type {
 } from 'src/features/expressions/types';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { RepeatingComponents } from 'src/features/form/layout/utils/repeating';
-import type { RoleResult } from 'src/features/useCurrentPartyRoles';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { IData, IDataType } from 'src/types/shared';
@@ -39,7 +37,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 jest.mock('src/features/externalApi/useExternalApi');
-jest.mock('src/features/useCurrentPartyRoles');
 
 interface Props {
   reference: NodeReference;
@@ -178,7 +175,6 @@ describe('Expressions shared function tests', () => {
         externalApis,
         positionalArguments,
         valueArguments,
-        roles,
         testCases,
         codeLists,
       } = test;
@@ -324,7 +320,6 @@ describe('Expressions shared function tests', () => {
       jest.mocked(fetchApplicationMetadata).mockResolvedValue(applicationMetadata);
       jest.mocked(useExternalApis).mockReturnValue(externalApis as ExternalApisResult);
       jest.mocked(fetchProcessState).mockImplementation(async () => process ?? getProcessDataMock());
-      jest.mocked(useCurrentPartyRoles).mockReturnValue(roles as RoleResult);
 
       const nodeId = nodeIdFromContext(context);
       const { rerender } = await renderWithNode({

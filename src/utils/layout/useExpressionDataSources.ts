@@ -10,7 +10,6 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
 import { useCodeListSelectorProps } from 'src/features/options/CodeListsProvider';
-import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { useCurrentDataModelLocation } from 'src/utils/layout/DataModelLocation';
@@ -23,7 +22,6 @@ import type { DataElementSelector } from 'src/features/instance/InstanceContext'
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CodeListSelector } from 'src/features/options/CodeListsProvider';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
-import type { RoleResult } from 'src/features/useCurrentPartyRoles';
 import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { IDataModelReference, ILayoutSet } from 'src/layout/common.generated';
 import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/types/shared';
@@ -48,7 +46,6 @@ export interface ExpressionDataSources {
   nodeDataSelector: NodeDataSelector;
   transposeSelector: DataModelTransposeSelector;
   externalApis: ExternalApisResult;
-  roles: RoleResult;
   currentDataModelPath: IDataModelReference | undefined;
   codeListSelector: CodeListSelector;
   layoutLookups: LayoutLookups;
@@ -79,7 +76,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
   const applicationSettings = useApplicationSettings();
   const currentLanguage = useCurrentLanguage();
   const currentDataModelPath = useCurrentDataModelLocation();
-
+  const layoutLookups = useLayoutLookups();
   const instanceDataSources = useLaxInstanceDataSources();
   const currentLayoutSet = useCurrentLayoutSet() ?? null;
   const dataModelNames = DataModels.useReadableDataTypes();
@@ -92,11 +89,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
     nodeDataSelector,
   );
 
-  const roles = useCurrentPartyRoles();
-  const layoutLookups = useLayoutLookups();
-
   return useShallowMemo({
-    roles,
     formDataSelector,
     formDataRowsSelector,
     attachmentsSelector,
