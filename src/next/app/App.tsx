@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { scan } from 'react-scan';
 
 import { Api } from 'src/next/app/api';
 import { Instance, instanceLoader } from 'src/next/pages/Instance';
@@ -44,4 +45,13 @@ const router = createHashRouter([
   },
 ]);
 
-export const App = () => <RouterProvider router={router} />;
+export const App = () => {
+  useEffect(() => {
+    // Make sure to run react-scan only after hydration
+    scan({
+      enabled: true,
+    });
+  }, []);
+
+  return <RouterProvider router={router} />;
+};
