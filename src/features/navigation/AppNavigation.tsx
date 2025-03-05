@@ -262,6 +262,7 @@ function PageGroupSingle({
           <Lang id={page} />
         </span>
       </button>
+      <SubformsForPage pageKey={page} />
     </li>
   );
 }
