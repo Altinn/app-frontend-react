@@ -25,7 +25,7 @@ export function SigneeListSummary({ componentNode, titleOverride }: SigneeListSu
   const { data, isLoading, error } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
 
   const originalTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
-  const title = titleOverride === null || typeof titleOverride === 'string' ? titleOverride : originalTitle;
+  const title = titleOverride === undefined ? originalTitle : titleOverride;
   const heading = title ? <Lang id={title} /> : undefined;
 
   const signatures = data?.filter((signee) => isSignedSignee(signee)) ?? [];
