@@ -4,13 +4,13 @@ import type { MouseEventHandler } from 'react';
 
 import { Heading, Paragraph, Table } from '@digdir/designsystemet-react';
 import { Edit as EditIcon } from '@navikt/ds-icons';
+import { useIsMutating, useMutation } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Pagination } from 'src/app-components/Pagination/Pagination';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -69,7 +69,16 @@ function InstanceSelection() {
   const instantiate = useInstantiation().instantiate;
   const currentParty = useCurrentParty();
   const storeCallback = useSetNavigationEffect();
-  const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
+  const isAnyProcessing = useIsMutating() > 0;
+
+  const { mutate, isPending: isLoading } = useMutation({
+    mutationFn: async () => {
+      if (currentParty) {
+        storeCallback(focusMainContent);
+        await instantiate(currentParty.partyId);
+      }
+    },
+  });
 
   const appName = useAppName();
   const appOwner = useAppOwner();
@@ -275,14 +284,7 @@ function InstanceSelection() {
             disabled={isAnyProcessing}
             isLoading={isLoading}
             size='md'
-            onClick={() =>
-              performProcess(async () => {
-                if (currentParty) {
-                  storeCallback(focusMainContent);
-                  await instantiate(currentParty.partyId);
-                }
-              })
-            }
+            onClick={() => mutate()}
             id='new-instance-button'
           >
             <Lang id='instance_selection.new_instance' />

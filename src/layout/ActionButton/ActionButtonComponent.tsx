@@ -1,9 +1,10 @@
 import React from 'react';
 
+import { useIsMutating } from '@tanstack/react-query';
+
 import type { PropsFromGenericComponent } from '..';
 
 import { Button, type ButtonColor, type ButtonVariant } from 'src/app-components/Button/Button';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { Lang } from 'src/features/language/Lang';
 import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
@@ -20,8 +21,9 @@ export const buttonStyles: { [style in ActionButtonStyle]: { color: ButtonColor;
 export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
 
 export function ActionButtonComponent({ node }: IActionButton) {
-  const processNext = useProcessNext();
-  const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
+  const { processNext, isPending: isThisProcessing } = useProcessNext();
+  const isAnyProcessing = useIsMutating() > 0;
+
   const { isAuthorized } = useActionAuthorization();
 
   const { action, buttonStyle, id, textResourceBindings } = useNodeItem(node);
@@ -42,7 +44,7 @@ export function ActionButtonComponent({ node }: IActionButton) {
         color={color}
         disabled={disabled}
         isLoading={isThisProcessing}
-        onClick={() => performProcess(() => processNext({ action }))}
+        onClick={() => processNext({ action })}
       >
         <Lang id={textResourceBindings?.title ?? `actions.${action}`} />
       </Button>

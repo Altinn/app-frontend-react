@@ -1,7 +1,8 @@
 import React from 'react';
 
+import { useIsMutating } from '@tanstack/react-query';
+
 import { Button } from 'src/app-components/Button/Button';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { useSetReturnToView } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
@@ -31,8 +32,8 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const currentTaskType = useTaskTypeFromBackend();
   const { actions, write } = useLaxProcessData()?.currentTask || {};
   const attachmentsPending = useHasPendingAttachments();
-  const processNext = useProcessNext();
-  const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
+  const { processNext, isPending: isThisProcessing } = useProcessNext();
+  const isAnyProcessing = useIsMutating() > 0;
   const setReturnToView = useSetReturnToView();
 
   if (useIsSubformPage()) {
@@ -62,15 +63,14 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     );
   }
 
-  const submitTask = () =>
-    performProcess(async () => {
-      setReturnToView?.(undefined);
-      if (currentTaskType === ProcessTaskType.Data) {
-        await processNext();
-      } else if (currentTaskType === ProcessTaskType.Confirm) {
-        await processNext({ action: 'confirm' });
-      }
-    });
+  async function submitTask() {
+    setReturnToView?.(undefined);
+    if (currentTaskType === ProcessTaskType.Data) {
+      await processNext();
+    } else if (currentTaskType === ProcessTaskType.Confirm) {
+      await processNext({ action: 'confirm' });
+    }
+  }
 
   return (
     <ComponentStructureWrapper node={node}>

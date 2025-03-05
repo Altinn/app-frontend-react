@@ -1,7 +1,8 @@
 import React from 'react';
 
+import { useIsMutating, useMutation } from '@tanstack/react-query';
+
 import { Button } from 'src/app-components/Button/Button';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useReturnToView, useSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
@@ -21,7 +22,51 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const hasPrevious = !!usePreviousPageKey();
   const returnToView = useReturnToView();
   const summaryItem = useNodeItem(useSummaryNodeOfOrigin());
-  const { performProcess, isAnyProcessing, process } = useIsProcessing<'next' | 'previous' | 'backToSummary'>();
+  const isAnyProcessing = useIsMutating() > 0;
+
+  const { mutate: handleBackToSummaryClick, isPending: isBackToSummaryPending } = useMutation({
+    mutationFn: async () => {
+      await maybeSaveOnPageChange();
+      await navigateToPage(returnToView, { skipAutoSave: true });
+    },
+  });
+
+  const { mutate: handlePreviousClick, isPending: isPreviousPending } = useMutation({
+    mutationFn: async () => {
+      await maybeSaveOnPageChange();
+
+      const prevScrollPosition = getScrollPosition();
+      if (validateOnPrevious) {
+        const hasErrors = await onPageNavigationValidation(node.page, validateOnPrevious);
+        if (hasErrors) {
+          // Block navigation if validation fails
+          resetScrollPosition(prevScrollPosition);
+          return;
+        }
+      }
+
+      await navigateToPreviousPage({ skipAutoSave: true });
+    },
+  });
+
+  const { mutate: handleNextClick, isPending: isNextPending } = useMutation({
+    mutationFn: async () => {
+      await maybeSaveOnPageChange();
+
+      const prevScrollPosition = getScrollPosition();
+      if (validateOnNext && !returnToView) {
+        const hasErrors = await onPageNavigationValidation(node.page, validateOnNext);
+        if (hasErrors) {
+          // Block navigation if validation fails, unless returnToView is set (Back to summary)
+          resetScrollPosition(prevScrollPosition);
+          return;
+        }
+      }
+
+      await navigateToNextPage({ skipAutoSave: true });
+    },
+  });
+
   const parentIsPage = node.parent instanceof LayoutPage;
 
   const nextTextKey = textResourceBindings?.next || 'next';
@@ -46,46 +91,6 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
    */
   const resetScrollPosition = useResetScrollPosition(getScrollPosition, '[data-testid="ErrorReport"]');
 
-  const onClickPrevious = () =>
-    performProcess('previous', async () => {
-      await maybeSaveOnPageChange();
-
-      const prevScrollPosition = getScrollPosition();
-      if (validateOnPrevious) {
-        const hasErrors = await onPageNavigationValidation(node.page, validateOnPrevious);
-        if (hasErrors) {
-          // Block navigation if validation fails
-          resetScrollPosition(prevScrollPosition);
-          return;
-        }
-      }
-
-      await navigateToPreviousPage({ skipAutoSave: true });
-    });
-
-  const onClickNext = () =>
-    performProcess('next', async () => {
-      await maybeSaveOnPageChange();
-
-      const prevScrollPosition = getScrollPosition();
-      if (validateOnNext && !returnToView) {
-        const hasErrors = await onPageNavigationValidation(node.page, validateOnNext);
-        if (hasErrors) {
-          // Block navigation if validation fails, unless returnToView is set (Back to summary)
-          resetScrollPosition(prevScrollPosition);
-          return;
-        }
-      }
-
-      await navigateToNextPage({ skipAutoSave: true });
-    });
-
-  const onClickBackToSummary = () =>
-    performProcess('backToSummary', async () => {
-      await maybeSaveOnPageChange();
-      await navigateToPage(returnToView, { skipAutoSave: true });
-    });
-
   /**
    * The buttons are rendered in order BackToSummary -> Next -> Previous, but shown in the form as Previous -> Next -> BackToSummary.
    * This is done with css and flex-direction: row-reverse. The reason for this is so that screen readers
@@ -101,8 +106,8 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
         {showBackToSummaryButton && (
           <Button
             disabled={isAnyProcessing}
-            isLoading={process === 'backToSummary'}
-            onClick={onClickBackToSummary}
+            isLoading={isBackToSummaryPending}
+            onClick={() => handleBackToSummaryClick()}
           >
             <Lang id={returnToViewText} />
           </Button>
@@ -110,8 +115,8 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
         {showNextButton && (
           <Button
             disabled={isAnyProcessing}
-            isLoading={process === 'next'}
-            onClick={onClickNext}
+            isLoading={isNextPending}
+            onClick={() => handleNextClick()}
             // If we are showing a back to summary button, we want the "next" button to be secondary
             variant={showBackToSummaryButton ? 'secondary' : 'primary'}
           >
@@ -121,9 +126,9 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
         {hasPrevious && showBackButton && (
           <Button
             disabled={isAnyProcessing}
-            isLoading={process === 'previous'}
+            isLoading={isPreviousPending}
             variant={showNextButton || showBackToSummaryButton ? 'secondary' : 'primary'}
-            onClick={onClickPrevious}
+            onClick={() => handlePreviousClick()}
           >
             <Lang id={backTextKey} />
           </Button>

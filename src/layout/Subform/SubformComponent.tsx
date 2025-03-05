@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 
 import { Spinner, Table } from '@digdir/designsystemet-react';
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
+import { useIsMutating, useMutation } from '@tanstack/react-query';
 import cn from 'classnames';
 import dot from 'dot-object';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Caption } from 'src/components/form/caption/Caption';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
@@ -55,13 +55,12 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
   const dataElements = useStrictDataElements(dataType);
   const navigate = useNavigate();
   const lock = FD.useLocking(id);
-  const { performProcess, isAnyProcessing: isAddingDisabled, isThisProcessing: isAdding } = useIsProcessing();
   const [subformEntries, updateSubformEntries] = useState(dataElements);
+  const isAddingDisabled = useIsMutating() > 0;
 
   const subformIdsWithError = useComponentValidationsForNode(node).find(isSubformValidation)?.subformDataElementIds;
-
-  const addEntry = () =>
-    performProcess(async () => {
+  const { mutate: addEntry, isPending: isAdding } = useMutation({
+    mutationFn: async () => {
       const currentLock = await lock();
       try {
         const result = await addEntryMutation.mutateAsync({});
@@ -71,7 +70,8 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
       } finally {
         currentLock.unlock();
       }
-    });
+    },
+  });
 
   return (
     <ComponentStructureWrapper node={node}>
@@ -150,11 +150,11 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
               size='md'
               disabled={isAddingDisabled}
               isLoading={isAdding}
-              onClick={async () => await addEntry()}
+              onClick={() => addEntry()}
               onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
                 const allowedKeys = ['enter', ' ', 'spacebar'];
                 if (allowedKeys.includes(event.key.toLowerCase())) {
-                  await addEntry();
+                  addEntry();
                 }
               }}
               variant='secondary'

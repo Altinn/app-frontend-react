@@ -1,11 +1,10 @@
 import React from 'react';
 
-import { Spinner } from '@digdir/designsystemet-react';
 import { CaretDownFillIcon } from '@navikt/aksel-icons';
+import { useIsMutating, useMutation } from '@tanstack/react-query';
 import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
@@ -57,12 +56,12 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const currentPageId = useNavigationParam('pageKey') ?? '';
   const { navigateToPage, order, maybeSaveOnPageChange } = useNavigatePage();
   const onPageNavigationValidation = useOnPageNavigationValidation();
-  const { performProcess, isAnyProcessing, process } = useIsProcessing<string>();
+  const isAnyProcessing = useIsMutating() > 0;
 
   const firstPageLink = React.useRef<HTMLButtonElement>();
 
-  const handleNavigationClick = (pageId: string) =>
-    performProcess(pageId, async () => {
+  const { mutate: handleNavigationClick } = useMutation({
+    mutationFn: async (pageId: string) => {
       const currentIndex = order.indexOf(currentPageId);
       const newIndex = order.indexOf(pageId);
 
@@ -87,7 +86,8 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
 
       setShowMenu(false);
       navigateToPage(pageId, { skipAutoSave: true });
-    });
+    },
+  });
 
   const shouldShowMenu = !isMobile || showMenu;
 
@@ -157,12 +157,6 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
                     ref={index === 0 ? firstPageLink : null}
                   >
                     <div className={classes.buttonContent}>
-                      {process === pageId && (
-                        <Spinner
-                          className={classes.spinner}
-                          title={langAsString('general.loading')}
-                        />
-                      )}
                       <span>
                         {index + 1}. <Lang id={pageId} />
                       </span>

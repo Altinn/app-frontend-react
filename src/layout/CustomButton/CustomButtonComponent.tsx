@@ -1,11 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
 
-import { useMutation } from '@tanstack/react-query';
+import { useIsMutating, useMutation } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
@@ -243,7 +242,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const { handleClientActions } = useHandleClientActions();
   const { handleServerAction } = useHandleServerActionMutation(acquireLock);
   const onPageNavigationValidation = useOnPageNavigationValidation();
-  const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
+  const isAnyProcessing = useIsMutating() > 0;
 
   const getScrollPosition = React.useCallback(
     () => document.querySelector(`[data-componentid="${id}"]`)?.getClientRects().item(0)?.y,
@@ -268,8 +267,8 @@ export const CustomButtonComponent = ({ node }: Props) => {
     buttonText = 'general.done';
   }
 
-  const onClick = () =>
-    performProcess(async () => {
+  const { mutate: handleClick, isPending: isThisProcessing } = useMutation({
+    mutationFn: async () => {
       for (const action of actions) {
         if (action.validation) {
           const prevScrollPosition = getScrollPosition();
@@ -286,7 +285,8 @@ export const CustomButtonComponent = ({ node }: Props) => {
           await handleServerAction({ action, buttonId: id });
         }
       }
-    });
+    },
+  });
 
   const style = buttonStyles[interceptedButtonStyle];
 
@@ -295,7 +295,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
       <Button
         id={`custom-button-${id}`}
         disabled={disabled}
-        onClick={onClick}
+        onClick={() => handleClick()}
         size={toShorthandSize(buttonSize)}
         color={buttonColor ?? style.color}
         variant={style.variant}

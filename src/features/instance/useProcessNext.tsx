@@ -39,7 +39,7 @@ export function useProcessNext() {
   const onSubmitFormValidation = useOnFormSubmitValidation();
   const applicationMetadata = useApplicationMetadata();
 
-  const { mutateAsync } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
       if (!instanceId) {
         throw new Error('Missing instance ID, cannot perform process/next');
@@ -81,13 +81,16 @@ export function useProcessNext() {
     },
   });
 
-  return useEffectEvent(async (props?: ProcessNextProps) => {
-    const hasErrors = await onFormSubmitValidation();
-    if (hasErrors) {
-      return;
-    }
-    await mutateAsync(props ?? {});
-  });
+  return {
+    processNext: useEffectEvent(async (props?: ProcessNextProps) => {
+      const hasErrors = await onFormSubmitValidation();
+      if (hasErrors) {
+        return;
+      }
+      await mutateAsync(props ?? {});
+    }),
+    isPending,
+  };
 }
 
 function appUnlocksOnPDFFailure({ altinnNugetVersion }: ApplicationMetadata) {
