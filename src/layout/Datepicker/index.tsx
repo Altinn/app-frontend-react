@@ -11,6 +11,7 @@ import { useDatepickerValidation } from 'src/layout/Datepicker/useDatepickerVali
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
+import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type {
   PropsFromGenericComponent,
@@ -21,7 +22,6 @@ import type {
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 export class Datepicker extends DatepickerDef implements ValidateComponent<'Datepicker'>, ValidationFilter {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Datepicker'>>(
@@ -95,14 +95,15 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     );
   }
 
-  getValidationFilters(node: LayoutNode<'Datepicker'>, selector: NodeDataSelector): ValidationFilterFunction[] {
+  getValidationFilters(node: LayoutNode<'Datepicker'>, layoutLookups: LayoutLookups): ValidationFilterFunction[] {
     const filters = [Datepicker.schemaFormatFilter];
+    const component = layoutLookups.getComponent(node.baseId, 'Datepicker');
 
-    if (selector((picker) => picker(node.id, 'Datepicker')?.item?.minDate, [node.id])) {
+    if (component.minDate) {
       filters.push(Datepicker.schemaFormatMinimumFilter);
     }
 
-    if (selector((picker) => picker(node.id, 'Datepicker')?.item?.maxDate, [node.id])) {
+    if (component.maxDate) {
       filters.push(Datepicker.schemaFormatMaximumFilter);
     }
 

@@ -1,3 +1,4 @@
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Validation } from 'src/features/validation/validationContext';
 import {
   type CompDef,
@@ -7,10 +8,10 @@ import {
 } from 'src/layout';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
+import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { AnyValidation, BaseValidation } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 const emptyArray: AnyValidation[] = [];
 
@@ -20,7 +21,7 @@ const emptyArray: AnyValidation[] = [];
  */
 export function useNodeValidation(node: LayoutNode): AnyValidation[] {
   const registry = GeneratorInternal.useRegistry();
-  const dataSources = GeneratorData.useValidationDataSources();
+  const layoutLookups = useLayoutLookups();
   const dataModelBindings = GeneratorInternal.useIntermediateItem()?.dataModelBindings;
   const bindings = Object.entries((dataModelBindings ?? {}) as Record<string, IDataModelReference>);
 
@@ -53,7 +54,7 @@ export function useNodeValidation(node: LayoutNode): AnyValidation[] {
 
   unfiltered.push(...fieldValidations);
 
-  const filtered = filter(unfiltered, node, dataSources.nodeDataSelector);
+  const filtered = filter(unfiltered, node, layoutLookups);
   registry.current.validationsProcessed[node.id] = Validation.useFullState((state) => state.processedLast);
 
   if (filtered.length === 0) {
@@ -69,14 +70,14 @@ export function useNodeValidation(node: LayoutNode): AnyValidation[] {
 function filter<Validation extends BaseValidation>(
   validations: Validation[],
   node: LayoutNode,
-  selector: NodeDataSelector,
+  layoutLookups: LayoutLookups,
 ): Validation[] {
   if (!implementsValidationFilter(node.def)) {
     return validations;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const filters = node.def.getValidationFilters(node as any, selector);
+  const filters = node.def.getValidationFilters(node as any, layoutLookups);
   if (filters.length == 0) {
     return validations;
   }

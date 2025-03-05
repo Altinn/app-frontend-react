@@ -13,13 +13,13 @@ import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/Repeat
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
+import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { GroupExpressions, RepGroupInternal, RepGroupRowExtras } from 'src/layout/RepeatingGroup/types';
 import type { RepeatingGroupSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeData } from 'src/utils/layout/types';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
@@ -110,8 +110,9 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     );
   }
 
-  getValidationFilters(node: LayoutNode<'RepeatingGroup'>, selector: NodeDataSelector): ValidationFilterFunction[] {
-    if (selector((picker) => picker(node.id, 'RepeatingGroup')?.item?.minCount ?? 0, [node.id]) > 0) {
+  getValidationFilters(node: LayoutNode<'RepeatingGroup'>, layoutLookups: LayoutLookups): ValidationFilterFunction[] {
+    const component = layoutLookups.getComponent(node.baseId, 'RepeatingGroup');
+    if (component.minCount && component.minCount > 0) {
       return [this.schemaMinItemsFilter];
     }
     return [];
