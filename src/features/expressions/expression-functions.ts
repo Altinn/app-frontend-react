@@ -14,7 +14,7 @@ import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { DisplayData } from 'src/features/displayData';
+import { getNodeFormData } from 'src/utils/layout/useNodeItem';
 import type { EvaluateExpressionParams } from 'src/features/expressions';
 import type {
   AnyExprArg,
@@ -153,10 +153,6 @@ export const ExprFunctionDefinitions = {
   countDataElements: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.Number,
-  },
-  hasRole: {
-    args: args(required(ExprVal.String)),
-    returns: ExprVal.Boolean,
   },
   externalApi: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
@@ -381,7 +377,10 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     const closest = this.dataSources.nodeTraversal((t) => t.with(node).closestId(id), [node, id]);
 
     const dataModelBindings = closest
-      ? this.dataSources.nodeDataSelector((picker) => picker(closest)?.layout.dataModelBindings, [closest])
+      ? this.dataSources.nodeDataSelector(
+          (picker) => picker(closest?.id, closest?.type)?.layout.dataModelBindings,
+          [closest],
+        )
       : undefined;
 
     const simpleBinding =
@@ -450,12 +449,6 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
 
     return length;
   },
-  hasRole(roleName) {
-    if (!this.dataSources.roles || !roleName) {
-      return false;
-    }
-    return this.dataSources.roles.data?.map((role) => role.value).includes(roleName) ?? null;
-  },
   externalApi(externalApiId, path) {
     if (externalApiId === null) {
       throw new ExprRuntimeError(this.expr, this.path, `Expected an external API id`);
@@ -496,15 +489,14 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       return null;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (def as DisplayData<any>).getDisplayData(targetNode, {
+    return def.getDisplayData({
       attachmentsSelector: this.dataSources.attachmentsSelector,
       optionsSelector: this.dataSources.optionsSelector,
-      langTools: this.dataSources.langToolsSelector(node as LayoutNode),
+      langTools: this.dataSources.langToolsSelector(targetNode),
       currentLanguage: this.dataSources.currentLanguage,
-      formDataSelector: this.dataSources.formDataSelector,
-      nodeFormDataSelector: this.dataSources.nodeFormDataSelector,
       nodeDataSelector: this.dataSources.nodeDataSelector,
+      formData: getNodeFormData(targetNode.id, this.dataSources.nodeDataSelector, this.dataSources.formDataSelector),
+      nodeId: targetNode.id,
     });
   },
   optionLabel(optionsId, value) {

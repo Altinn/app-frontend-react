@@ -12,14 +12,12 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
 import { useCodeListSelectorProps } from 'src/features/options/CodeListsProvider';
-import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
 import { Validation } from 'src/features/validation/validationContext';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { useCommitWhenFinished } from 'src/utils/layout/generator/CommitQueue';
 import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
-import { useInnerNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import { useInnerNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import type { ValidationDataSources } from 'src/features/validation';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
@@ -33,7 +31,6 @@ const { Provider, hooks } = createHookContext({
   useIsForcedVisibleByDevTools: () => useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide'),
   useGetDataElementIdForDataType: () => DataModels.useGetDataElementIdForDataType(),
   useCommitWhenFinished: () => useCommitWhenFinished(),
-  useCurrentPartyRoles: () => useCurrentPartyRoles(),
 });
 
 export const GeneratorData = {
@@ -77,10 +74,8 @@ function useExpressionDataSources(): ExpressionDataSources {
   const currentLayoutSet = hooks.useCurrentLayoutSet() ?? null;
   const dataModelNames = hooks.useReadableDataTypes();
   const externalApis = hooks.useExternalApis();
-  const roles = hooks.useCurrentPartyRoles();
   const nodeTraversal = useInnerNodeTraversalSelector(useNodes(), dataSelectorForTraversal);
   const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
-  const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
     hooks.useDefaultDataType(),
     dataModelNames,
@@ -89,7 +84,6 @@ function useExpressionDataSources(): ExpressionDataSources {
   );
 
   return useShallowMemo({
-    roles,
     formDataSelector,
     formDataRowsSelector,
     attachmentsSelector,
@@ -101,7 +95,6 @@ function useExpressionDataSources(): ExpressionDataSources {
     langToolsSelector,
     currentLanguage,
     isHiddenSelector,
-    nodeFormDataSelector,
     nodeTraversal,
     transposeSelector,
     currentLayoutSet,
