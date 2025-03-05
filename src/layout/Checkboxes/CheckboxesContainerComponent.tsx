@@ -34,7 +34,12 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   } = item;
   const { langAsString } = useLanguage();
   const { options: calculatedOptions, isFetching, setData, selectedValues } = useGetOptions(node, 'multi');
-  const { setList } = useSaveToList(node);
+  const { setList, list } = useSaveToList(node);
+
+  console.log(list);
+  /* const values: string[] = dataModelBindings.saveToList
+    ? list.map((item) => ({ value: item[dataModelBindings.simpleBinding.field.split('.')[1]] }))
+    : selectedValues;*/
 
   const isValid = useIsValid(node);
 
@@ -62,8 +67,10 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
     //console.log(newList);
     //const newList: object[] = ;
     if (dataModelBindings?.saveToList) {
+      console.log(option);
       setList({ name: option.value });
     } //else {
+    console.log(newData);
     setData(newData);
     // }
   };

@@ -45,6 +45,7 @@ export const useSaveToList = (node) => {
         }
       }
       console.log('next', next);
+
       appendToList({
         reference: bindings.saveToList,
         newValue: { ...next },
@@ -52,5 +53,5 @@ export const useSaveToList = (node) => {
     }
   };
 
-  return { setList, saveToList: formData.saveToList };
+  return { setList, list: formData.saveToList };
 };
