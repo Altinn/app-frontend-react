@@ -825,6 +825,13 @@ export const ExprFunctionValidationExtensions: { [K in ExprFunctionName]?: FuncV
       }
     },
   },
+  displayValue: {
+    validator({ rawArgs, ctx, path }) {
+      if (rawArgs.length > 1 && rawArgs[1] !== null && typeof rawArgs[1] !== 'string') {
+        addError(ctx, [...path, '[2]'], 'The second argument must be a component id (expressions cannot be used here)');
+      }
+    },
+  },
   optionLabel: {
     validator({ rawArgs, ctx, path }) {
       const optionsId = rawArgs[0];
