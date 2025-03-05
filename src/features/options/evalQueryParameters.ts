@@ -3,7 +3,7 @@ import { ExprVal, refAsSuffix } from 'src/features/expressions/types';
 import type { ExprResolved, LayoutReference } from 'src/features/expressions/types';
 import type { IQueryParameters } from 'src/layout/common.generated';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
-import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import type { ExpressionDataSourcesWithNodes } from 'src/utils/layout/useExpressionDataSources';
 
 export function evalQueryParameters(props: ExprResolver<'List'>) {
   if (!props.item.queryParameters) {
@@ -21,7 +21,7 @@ export function evalQueryParameters(props: ExprResolver<'List'>) {
 export function resolveQueryParameters(
   queryParameters: IQueryParameters | undefined,
   reference: LayoutReference,
-  dataSources: ExpressionDataSources,
+  dataSources: ExpressionDataSourcesWithNodes,
 ): Record<string, string> | undefined {
   return queryParameters
     ? Object.entries(queryParameters).reduce((obj, [key, expr]) => {

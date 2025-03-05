@@ -2,7 +2,6 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
-import { useCurrentLayoutSet } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxDataElementsSelectorProps, useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
@@ -20,27 +19,26 @@ import type { DataElementSelector } from 'src/features/instance/InstanceContext'
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CodeListSelector } from 'src/features/options/CodeListsProvider';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
-import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
-import type { IDataModelReference, ILayoutSet } from 'src/layout/common.generated';
+import type { FormDataSelector } from 'src/layout';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
 import type { NodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 
-export interface ExpressionDataSources {
+export interface ExpressionDataSourcesWithNodes {
   process?: IProcess;
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
   dataElementSelector: DataElementSelector;
   dataModelNames: string[];
   formDataSelector: FormDataSelector;
-  formDataRowsSelector: FormDataRowsSelector;
   attachmentsSelector: AttachmentsSelector;
   optionsSelector: NodeOptionsSelector;
   langToolsSelector: (node: LayoutNode | string | undefined) => IUseLanguage;
   currentLanguage: string;
-  currentLayoutSet: ILayoutSet | null;
+  defaultDataType: string | null;
   isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
   nodeDataSelector: NodeDataSelector;
   nodeTraversal: NodeTraversalSelector;
@@ -50,10 +48,28 @@ export interface ExpressionDataSources {
   codeListSelector: CodeListSelector;
 }
 
-export function useExpressionDataSources(): ExpressionDataSources {
+export type ExpressionDataSourcesWithoutNodes = Omit<
+  ExpressionDataSourcesWithNodes,
+  | 'attachmentsSelector'
+  | 'optionsSelector'
+  | 'isHiddenSelector'
+  | 'nodeFormDataSelector'
+  | 'nodeDataSelector'
+  | 'nodeTraversal'
+  | 'transposeSelector'
+>;
+
+export type ExpressionDataSources = ExpressionDataSourcesWithNodes | ExpressionDataSourcesWithoutNodes;
+
+export function isExpressionDataSourcesWithNodes(
+  dataSources: ExpressionDataSources,
+): dataSources is ExpressionDataSourcesWithNodes {
+  return 'nodeDataSelector' in dataSources;
+}
+
+export function useExpressionDataSources(): ExpressionDataSourcesWithNodes {
   const [
     formDataSelector,
-    formDataRowsSelector,
     attachmentsSelector,
     optionsSelector,
     nodeDataSelector,
@@ -63,7 +79,6 @@ export function useExpressionDataSources(): ExpressionDataSources {
     codeListSelector,
   ] = useMultipleDelayedSelectors(
     FD.useDebouncedSelectorProps(),
-    FD.useDebouncedRowsSelectorProps(),
     NodesInternal.useAttachmentsSelectorProps(),
     NodesInternal.useNodeOptionsSelectorProps(),
     NodesInternal.useNodeDataSelectorProps(),
@@ -78,7 +93,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
   const currentLanguage = useCurrentLanguage();
 
   const instanceDataSources = useLaxInstanceDataSources();
-  const currentLayoutSet = useCurrentLayoutSet() ?? null;
+  const defaultDataType = DataModels.useDefaultDataType() ?? null;
   const dataModelNames = DataModels.useReadableDataTypes();
   const externalApis = useExternalApis(useApplicationMetadata().externalApiIds ?? []);
   const nodeTraversal = useInnerNodeTraversalSelector(useNodes(), dataSelectorForTraversal);
@@ -92,7 +107,6 @@ export function useExpressionDataSources(): ExpressionDataSources {
 
   return useShallowMemo({
     formDataSelector,
-    formDataRowsSelector,
     attachmentsSelector,
     optionsSelector,
     nodeDataSelector,
@@ -104,7 +118,7 @@ export function useExpressionDataSources(): ExpressionDataSources {
     isHiddenSelector,
     nodeTraversal,
     transposeSelector,
-    currentLayoutSet,
+    defaultDataType,
     externalApis,
     dataModelNames,
     dataElementSelector,

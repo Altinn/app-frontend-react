@@ -1,5 +1,6 @@
 import { evalExpr } from 'src/features/expressions';
 import { ExprValidation } from 'src/features/expressions/validation';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
@@ -7,12 +8,12 @@ import type { ExprVal, ExprValToActualOrExpr, NodeReference } from 'src/features
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelReference, IOptionSource } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import type { ExpressionDataSourcesWithNodes } from 'src/utils/layout/useExpressionDataSources';
 
 interface IUseSourceOptionsArgs {
   source: IOptionSource | undefined;
   node: LayoutNode;
-  dataSources: ExpressionDataSources;
+  dataSources: ExpressionDataSourcesWithNodes;
   addRowInfo: boolean;
 }
 
@@ -21,20 +22,21 @@ export const useSourceOptions = ({
   node,
   dataSources,
   addRowInfo,
-}: IUseSourceOptionsArgs): IOptionInternal[] | undefined =>
-  useMemoDeepEqual(() => {
+}: IUseSourceOptionsArgs): IOptionInternal[] | undefined => {
+  const formDataRowsSelector = FD.useDebouncedRowsSelector();
+  return useMemoDeepEqual(() => {
     if (!source) {
       return undefined;
     }
 
     const nodeReference: NodeReference = { type: 'node', id: node.id };
-    const { formDataRowsSelector, formDataSelector, langToolsSelector, nodeTraversal } = dataSources;
+    const { formDataSelector, langToolsSelector, nodeTraversal } = dataSources;
     const output: IOptionInternal[] = [];
     const langTools = langToolsSelector(node);
     const { group, value, label, helpText, description, dataType } = source;
     const cleanValue = getKeyWithoutIndexIndicators(value);
     const cleanGroup = getKeyWithoutIndexIndicators(group);
-    const groupDataType = dataType ?? dataSources.currentLayoutSet?.dataType;
+    const groupDataType = dataType ?? dataSources.defaultDataType;
     if (!groupDataType) {
       return output;
     }
@@ -87,7 +89,7 @@ export const useSourceOptions = ({
        * langAsString function to actually be langAsStringUsingPathInDataModel partially
        * applied with the correct path in the data model.
        */
-      const modifiedDataSources: ExpressionDataSources = {
+      const modifiedDataSources: ExpressionDataSourcesWithNodes = {
         ...dataSources,
         langToolsSelector: () => ({
           ...langTools,
@@ -113,12 +115,13 @@ export const useSourceOptions = ({
     }
 
     return output;
-  }, [source, node, dataSources, addRowInfo]);
+  }, [source, node, dataSources, formDataRowsSelector, addRowInfo]);
+};
 
 function resolveText(
   text: ExprValToActualOrExpr<ExprVal.String> | undefined,
   nodeReference: NodeReference,
-  dataSources: ExpressionDataSources,
+  dataSources: ExpressionDataSourcesWithNodes,
   reference: IDataModelReference,
 ): string | undefined {
   if (text && ExprValidation.isValid(text)) {

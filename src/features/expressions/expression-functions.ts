@@ -2,7 +2,7 @@ import dot from 'dot-object';
 import escapeStringRegexp from 'escape-string-regexp';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { exprCastValue } from 'src/features/expressions';
+import { exprCastValue, expressionParamsHasNodeContext } from 'src/features/expressions';
 import { ExprRuntimeError, NodeNotFound } from 'src/features/expressions/errors';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
@@ -14,6 +14,7 @@ import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { type ExpressionDataSourcesWithNodes } from 'src/utils/layout/useExpressionDataSources';
 import { getNodeFormData } from 'src/utils/layout/useNodeItem';
 import type { EvaluateExpressionParams } from 'src/features/expressions';
 import type {
@@ -369,6 +370,10 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     return Boolean(authContext?.[key]);
   },
   component(id) {
+    if (!expressionParamsHasNodeContext(this)) {
+      throw new ExprRuntimeError(this.expr, this.path, `Cannot use component expression in this context`);
+    }
+
     if (id === null) {
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup component null`);
     }
@@ -409,7 +414,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataModel null`);
     }
 
-    const dataType = maybeDataType ?? this.dataSources.currentLayoutSet?.dataType;
+    const dataType = maybeDataType ?? this.dataSources.defaultDataType;
     if (!dataType) {
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataType undefined`);
     }
@@ -423,10 +428,12 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       return pickSimpleValue(newReference, this);
     }
 
-    const node = ensureNode(this);
-    if (node instanceof BaseLayoutNode) {
-      const newReference = this.dataSources.transposeSelector(node as LayoutNode, reference);
-      return pickSimpleValue(newReference, this);
+    if (expressionParamsHasNodeContext(this)) {
+      const node = ensureNode(this);
+      if (node instanceof BaseLayoutNode) {
+        const newReference = this.dataSources.transposeSelector(node as LayoutNode, reference);
+        return pickSimpleValue(newReference, this);
+      }
     }
 
     // No need to transpose the data model according to the location inside a repeating group when the context is
@@ -469,6 +476,9 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     return String(res);
   },
   displayValue(id) {
+    if (!expressionParamsHasNodeContext(this)) {
+      throw new ExprRuntimeError(this.expr, this.path, `Cannot use displayValue expression in this context`);
+    }
     if (id === null) {
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup component null`);
     }
@@ -555,6 +565,9 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     return this.dataSources.langToolsSelector(nodeId).langAsNonProcessedString(key);
   },
   linkToComponent(linkText, id) {
+    if (!expressionParamsHasNodeContext(this)) {
+      throw new ExprRuntimeError(this.expr, this.path, `Cannot use linkToComponent expression in this context`);
+    }
     if (id == null) {
       window.logWarn('Component id was empty but must be set for linkToComponent to work');
       return null;
@@ -701,7 +714,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataModel null`);
     }
 
-    const dataType = this.dataSources.currentLayoutSet?.dataType;
+    const dataType = this.dataSources.defaultDataType;
     if (!dataType) {
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup dataType undefined`);
     }
@@ -788,7 +801,7 @@ function pickSimpleValue(path: IDataModelReference, params: EvaluateExpressionPa
   return null;
 }
 
-export function ensureNode(ctx: EvaluateExpressionParams): LayoutNode | LayoutPage {
+export function ensureNode(ctx: EvaluateExpressionParams<ExpressionDataSourcesWithNodes>): LayoutNode | LayoutPage {
   const reference = ctx.reference;
   let node: LayoutNode | LayoutPage | undefined = undefined;
   if (reference.type === 'node') {
