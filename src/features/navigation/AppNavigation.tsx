@@ -62,6 +62,7 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
   const isReceipt = useIsReceiptPage();
   const isSubform = useIsSubformPage();
 
+  // TODO: Should this be disabled if we are in stateless as well?
   if (!isSubform && taskGroups.length) {
     return (
       <ul

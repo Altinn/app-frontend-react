@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useGetAltinnTaskType } from 'src/features/instance/ProcessContext';
+import { useIsReceiptPage } from 'src/features/routing/AppRoutingContext';
 import { ValidationMask } from 'src/features/validation';
 import { useVisitedPages } from 'src/hooks/useNavigatePage';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
@@ -16,7 +17,8 @@ import type {
 export function useHasGroupedNavigation() {
   const pageGroups = usePageGroups();
   const taskGroups = usePageSettings().taskNavigation;
-  return pageGroups || taskGroups.length;
+  const isReceiptPage = useIsReceiptPage();
+  return !isReceiptPage && (pageGroups || taskGroups.length);
 }
 
 export const SIDEBAR_BREAKPOINT = 1341;
