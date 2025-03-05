@@ -4,8 +4,8 @@ import { evalExpr } from 'src/features/expressions';
 import { refAsSuffix } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
-import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { GeneratorStages } from 'src/utils/layout/generator/GeneratorStages';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { EvalExprOptions } from 'src/features/expressions';
 import type {
   ExprConfig,
@@ -22,7 +22,7 @@ export function useEvalExpressionInGenerator<V extends ExprVal>(
   expr: ExprValToActualOrExpr<V> | undefined,
   defaultValue: ExprValToActual<V>,
 ) {
-  const dataSources = GeneratorData.useExpressionDataSources();
+  const dataSources = useExpressionDataSources();
   const enabled = GeneratorStages.useIsDoneAddingNodes();
   return useEvalExpression(type, reference, expr, defaultValue, dataSources, undefined, enabled);
 }
