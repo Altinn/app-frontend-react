@@ -8,7 +8,6 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
 import { useCodeListSelectorProps } from 'src/features/options/CodeListsProvider';
-import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
@@ -20,7 +19,6 @@ import type { DataElementSelector } from 'src/features/instance/InstanceContext'
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CodeListSelector } from 'src/features/options/CodeListsProvider';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
-import type { RoleResult } from 'src/features/useCurrentPartyRoles';
 import type { FormDataSelector } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/types/shared';
@@ -46,7 +44,6 @@ export interface ExpressionDataSourcesWithNodes {
   nodeTraversal: NodeTraversalSelector;
   transposeSelector: DataModelTransposeSelector;
   externalApis: ExternalApisResult;
-  roles: RoleResult;
   currentDataModelPath?: IDataModelReference;
   codeListSelector: CodeListSelector;
 }
@@ -108,10 +105,7 @@ export function useExpressionDataSources(): ExpressionDataSourcesWithNodes {
     nodeDataSelector,
   );
 
-  const roles = useCurrentPartyRoles();
-
   return useShallowMemo({
-    roles,
     formDataSelector,
     attachmentsSelector,
     optionsSelector,

@@ -21,7 +21,6 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
 import { useCodeListSelectorProps } from 'src/features/options/CodeListsProvider';
-import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
@@ -82,10 +81,7 @@ export function useSubformDataSources({ id, dataType }: IData) {
     selectorContextNotProvided,
   );
 
-  const roles = useCurrentPartyRoles();
-
   const subformDataSources: ExpressionDataSourcesWithoutNodes = useShallowMemo({
-    roles,
     formDataSelector,
     process,
     applicationSettings,

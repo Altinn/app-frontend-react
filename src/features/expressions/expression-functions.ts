@@ -155,10 +155,6 @@ export const ExprFunctionDefinitions = {
     args: args(required(ExprVal.String)),
     returns: ExprVal.Number,
   },
-  hasRole: {
-    args: args(required(ExprVal.String)),
-    returns: ExprVal.Boolean,
-  },
   externalApi: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
     returns: ExprVal.String,
@@ -459,12 +455,6 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     }
 
     return length;
-  },
-  hasRole(roleName) {
-    if (!this.dataSources.roles || !roleName) {
-      return false;
-    }
-    return this.dataSources.roles.data?.map((role) => role.value).includes(roleName) ?? null;
   },
   externalApi(externalApiId, path) {
     if (externalApiId === null) {
