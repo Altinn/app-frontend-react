@@ -14,12 +14,12 @@ const longLivedMutationKeys = [
 
 export function useHasLongLivedMutations() {
   const pendingLongLivedMutations = useMutationState({
-    filters: { status: 'pending' },
-    select: (mutation) => longLivedMutationKeys.some((m) => m.at(0) === mutation.options.mutationKey?.at(0)),
+    filters: {
+      status: 'pending',
+      predicate: (mutation) => longLivedMutationKeys.some((m) => m.at(0) === mutation.options.mutationKey?.at(0)),
+    },
+    select: (mutation) => mutation.options.mutationKey,
   });
 
-  const hasLongLivedMutations =
-    pendingLongLivedMutations.length > 0 && pendingLongLivedMutations.every((m) => m === true);
-
-  return hasLongLivedMutations;
+  return pendingLongLivedMutations.filter((m) => m !== undefined).length > 0;
 }
