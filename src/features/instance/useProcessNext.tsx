@@ -10,12 +10,13 @@ import { useLaxInstanceId, useStrictInstanceRefetch } from 'src/features/instanc
 import { useReFetchProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { navigatePageMutationKeys } from 'src/features/navigation/navigationQueryKeys';
+import { useNavigateToTask } from 'src/features/navigation/useNavigatePage';
 import { useUpdateInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { appSupportsIncrementalValidationFeatures } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
-import { useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { BackendValidationIssue } from 'src/features/validation';
@@ -40,6 +41,7 @@ export function useProcessNext() {
   const applicationMetadata = useApplicationMetadata();
 
   const { mutateAsync, isPending } = useMutation({
+    mutationKey: navigatePageMutationKeys.processNext(),
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
       if (!instanceId) {
         throw new Error('Missing instance ID, cannot perform process/next');

@@ -52,14 +52,12 @@ const render = async () => {
 describe('InstantiationButton', () => {
   it('should show button and it should be possible to click and start loading', async () => {
     const { mutations } = await render();
+    const user = userEvent.setup();
 
     expect(screen.getByText('Instantiate')).toBeInTheDocument();
+    expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
-    });
-
-    await userEvent.click(screen.getByRole('button'));
+    await user.click(screen.getByRole('button'));
 
     expect(screen.getByText('Laster innhold')).toBeInTheDocument();
 

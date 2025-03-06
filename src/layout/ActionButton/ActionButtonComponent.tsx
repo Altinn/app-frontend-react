@@ -1,13 +1,12 @@
 import React from 'react';
 
-import { useIsMutating } from '@tanstack/react-query';
-
 import type { PropsFromGenericComponent } from '..';
 
 import { Button, type ButtonColor, type ButtonVariant } from 'src/app-components/Button/Button';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { Lang } from 'src/features/language/Lang';
 import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
+import { useHasLongLivedMutations } from 'src/hooks/useHasLongLivedMutations';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { useActionAuthorization } from 'src/layout/CustomButton/CustomButtonComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -22,12 +21,12 @@ export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
 
 export function ActionButtonComponent({ node }: IActionButton) {
   const { processNext, isPending: isThisProcessing } = useProcessNext();
-  const isAnyProcessing = useIsMutating() > 0;
+  const hasLongLivedMutations = useHasLongLivedMutations();
 
   const { isAuthorized } = useActionAuthorization();
 
   const { action, buttonStyle, id, textResourceBindings } = useNodeItem(node);
-  const disabled = !isAuthorized(action) || isAnyProcessing;
+  const disabled = !isAuthorized(action) || hasLongLivedMutations;
 
   if (useIsSubformPage()) {
     throw new Error('Cannot use process navigation in a subform');

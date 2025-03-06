@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 import { Spinner, Table } from '@digdir/designsystemet-react';
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
-import { useIsMutating, useMutation } from '@tanstack/react-query';
 import cn from 'classnames';
 import dot from 'dot-object';
 
@@ -19,6 +18,7 @@ import { useIsSubformPage, useNavigate } from 'src/features/routing/AppRoutingCo
 import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subformData/useSubformMutations';
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
+import { useHasLongLivedMutations } from 'src/hooks/useHasLongLivedMutations';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Subform/SubformComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -51,27 +51,25 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
   }
 
   const { langAsString } = useLanguage();
-  const addEntryMutation = useAddEntryMutation(dataType);
+  const { mutateAsync: addEntry, isPending: isAdding } = useAddEntryMutation(dataType);
   const dataElements = useStrictDataElements(dataType);
   const navigate = useNavigate();
   const lock = FD.useLocking(id);
   const [subformEntries, updateSubformEntries] = useState(dataElements);
-  const isAddingDisabled = useIsMutating() > 0;
+  const isAddingDisabled = useHasLongLivedMutations();
 
   const subformIdsWithError = useComponentValidationsForNode(node).find(isSubformValidation)?.subformDataElementIds;
-  const { mutate: addEntry, isPending: isAdding } = useMutation({
-    mutationFn: async () => {
-      const currentLock = await lock();
-      try {
-        const result = await addEntryMutation.mutateAsync({});
-        navigate(`${node.id}/${result.id}`);
-      } catch {
-        // NOTE: Handled by useAddEntryMutation
-      } finally {
-        currentLock.unlock();
-      }
-    },
-  });
+  async function handleAddEntry() {
+    const currentLock = await lock();
+    try {
+      const result = await addEntry({});
+      navigate(`${node.id}/${result.id}`);
+    } catch {
+      // NOTE: Handled by useAddEntryMutation
+    } finally {
+      currentLock.unlock();
+    }
+  }
 
   return (
     <ComponentStructureWrapper node={node}>
@@ -150,11 +148,11 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
               size='md'
               disabled={isAddingDisabled}
               isLoading={isAdding}
-              onClick={() => addEntry()}
+              onClick={handleAddEntry}
               onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
                 const allowedKeys = ['enter', ' ', 'spacebar'];
                 if (allowedKeys.includes(event.key.toLowerCase())) {
-                  addEntry();
+                  handleAddEntry();
                 }
               }}
               variant='secondary'

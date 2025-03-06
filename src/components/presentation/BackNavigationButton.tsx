@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
 import { Left } from '@navikt/ds-icons';
-import { skipToken, useIsMutating, useMutation, useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import cn from 'classnames';
 
 import { Button } from 'src/app-components/Button/Button';
@@ -10,10 +10,11 @@ import classes from 'src/components/presentation/BackNavigationButton.module.css
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useNavigatePage } from 'src/features/navigation/useNavigatePage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useHasLongLivedMutations } from 'src/hooks/useHasLongLivedMutations';
 import { returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
 
 export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
@@ -23,11 +24,11 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
   const mainPageKey = useNavigationParam('mainPageKey');
   const isSubform = useIsSubformPage();
   const { returnUrl, isFetchingReturnUrl } = useReturnUrl();
-  const { exitSubform } = useNavigatePage();
-  const { mutate, isPending: isExitingSubform } = useMutation({
-    mutationFn: async () => await exitSubform(),
-  });
-  const isAnyProcessing = useIsMutating() > 0;
+  const {
+    exitSubformMutation: { mutateAsync: exitSubform, isPending: isExitingSubform },
+  } = useNavigatePage();
+
+  const hasLongLivedMutations = useHasLongLivedMutations();
 
   const messageBoxUrl = returnUrlToMessagebox(window.location.host, party?.partyId);
 
@@ -44,8 +45,8 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
   if (isSubform) {
     return (
       <Button
-        onClick={() => mutate()}
-        disabled={isAnyProcessing}
+        onClick={() => exitSubform()}
+        disabled={hasLongLivedMutations}
         isLoading={isExitingSubform}
         variant='tertiary'
         size='sm'

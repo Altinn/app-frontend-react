@@ -14,6 +14,7 @@ import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/feature
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useCurrentView, useNavigatePage, useStartUrl } from 'src/features/navigation/useNavigatePage';
 import {
   SearchParams,
   useNavigate,
@@ -25,7 +26,6 @@ import {
 } from 'src/features/routing/AppRoutingContext';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
-import { useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { getComponentCapabilities } from 'src/layout';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { getPageTitle } from 'src/utils/getPageTitle';
@@ -49,7 +49,10 @@ export function Form() {
 }
 
 export function FormPage({ currentPageId }: { currentPageId: string | undefined }) {
-  const { isValidPageId, navigateToPage } = useNavigatePage();
+  const {
+    isValidPageId,
+    navigateToPageMutation: { mutateAsync: navigateToPage },
+  } = useNavigatePage();
   const appName = useAppName();
   const appOwner = useAppOwner();
   const { langAsString } = useLanguage();
@@ -62,12 +65,15 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   useRegisterNodeNavigationHandler(async (targetNode, options) => {
     const targetView = targetNode?.pageKey;
     if (targetView && targetView !== currentPageId) {
-      await navigateToPage(targetView, {
-        ...options?.pageNavOptions,
-        shouldFocusComponent: options?.shouldFocus ?? options?.pageNavOptions?.shouldFocusComponent ?? true,
-        replace:
-          window.location.href.includes(SearchParams.FocusComponentId) ||
-          window.location.href.includes(SearchParams.ExitSubform),
+      await navigateToPage({
+        page: targetView,
+        options: {
+          ...options?.pageNavOptions,
+          shouldFocusComponent: options?.shouldFocus ?? options?.pageNavOptions?.shouldFocusComponent ?? true,
+          replace:
+            window.location.href.includes(SearchParams.FocusComponentId) ||
+            window.location.href.includes(SearchParams.ExitSubform),
+        },
       });
       return true;
     }
@@ -157,7 +163,10 @@ function useRedirectToStoredPage() {
   const pageKey = useCurrentView();
   const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
-  const { isValidPageId, navigateToPage } = useNavigatePage();
+  const {
+    isValidPageId,
+    navigateToPageMutation: { mutate: navigateToPage },
+  } = useNavigatePage();
   const applicationMetadataId = useApplicationMetadata()?.id;
 
   const instanceId = `${instanceOwnerPartyId}/${instanceGuid}`;
@@ -168,7 +177,7 @@ function useRedirectToStoredPage() {
       const lastVisitedPage = localStorage.getItem(currentViewCacheKey);
       if (lastVisitedPage !== null && isValidPageId(lastVisitedPage)) {
         localStorage.removeItem(currentViewCacheKey);
-        navigateToPage(lastVisitedPage, { replace: true });
+        navigateToPage({ page: lastVisitedPage, options: { replace: true } });
       }
     }
   }, [pageKey, currentViewCacheKey, isValidPageId, navigateToPage]);

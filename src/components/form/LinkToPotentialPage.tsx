@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { LinkProps } from 'react-router-dom';
 
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useNavigatePage } from 'src/features/navigation/useNavigatePage';
 import { Hidden } from 'src/utils/layout/NodesContext';
 
 type Props = LinkProps & { children?: React.ReactNode };

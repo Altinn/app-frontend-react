@@ -13,6 +13,12 @@ import { FormProvider } from 'src/features/form/FormContext';
 import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import {
+  useIsCurrentTask,
+  useIsValidTaskId,
+  useNavigateToTask,
+  useStartUrl,
+} from 'src/features/navigation/useNavigatePage';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
@@ -22,7 +28,6 @@ import {
   useNavigationPath,
   useQueryKeysAsString,
 } from 'src/features/routing/AppRoutingContext';
-import { useIsCurrentTask, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
 import { getPageTitle } from 'src/utils/getPageTitle';

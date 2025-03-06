@@ -11,6 +11,12 @@ import { useNavigate } from 'src/features/routing/AppRoutingContext';
 import type { IInstance } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
+export const instantiationMutationKeys = {
+  all: () => ['instantiate'] as const,
+  simple: () => ['instantiate', 'simple'] as const,
+  withPrefill: () => ['instantiate', 'withPrefill'] as const,
+};
+
 export interface Prefill {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
@@ -32,6 +38,7 @@ interface InstantiationContext {
   error: AxiosError | undefined | null;
   lastResult: IInstance | undefined;
   clear: () => void;
+  isPendingInstantiation: boolean;
 }
 
 const { Provider, useCtx } = createContext<InstantiationContext>({ name: 'InstantiationContext', required: true });
@@ -43,7 +50,7 @@ function useInstantiateMutation() {
   const currentLanguage = useCurrentLanguage();
 
   return useMutation({
-    mutationKey: ['instantiate', 'simple'],
+    mutationKey: instantiationMutationKeys.simple(),
     mutationFn: (instanceOwnerPartyId: number) => doInstantiate(instanceOwnerPartyId, currentLanguage),
     onError: (error: HttpClientError) => {
       window.logError('Instantiation failed:\n', error);
@@ -62,7 +69,7 @@ function useInstantiateWithPrefillMutation() {
   const currentLanguage = useCurrentLanguage();
 
   return useMutation({
-    mutationKey: ['instantiate', 'withPrefill'],
+    mutationKey: instantiationMutationKeys.withPrefill(),
     mutationFn: (instantiation: Instantiation) => doInstantiateWithPrefill(instantiation, currentLanguage),
     onError: (error: HttpClientError) => {
       window.logError('Instantiation with prefill failed:\n', error);
@@ -98,6 +105,7 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
 
         error: instantiate.error || instantiateWithPrefill.error,
         lastResult: instantiate.data ?? instantiateWithPrefill.data,
+        isPendingInstantiation: instantiate.isPending || instantiateWithPrefill.isPending,
       }}
     >
       {children}

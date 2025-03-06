@@ -11,7 +11,7 @@ import { SplitView } from 'src/features/devtools/components/SplitView/SplitView'
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useLayoutValidationForPage } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { useLayouts, useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
-import { useCurrentView } from 'src/hooks/useNavigatePage';
+import { useCurrentView } from 'src/features/navigation/useNavigatePage';
 import { parseAndCleanText } from 'src/language/sharedLanguage';
 import { useNode } from 'src/utils/layout/NodesContext';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';

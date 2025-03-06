@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Alert } from '@digdir/designsystemet-react';
-import { useIsMutating, useMutation } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
@@ -10,6 +10,7 @@ import { usePaymentInformation } from 'src/features/payment/PaymentInformationPr
 import { usePayment } from 'src/features/payment/PaymentProvider';
 import { PaymentStatus } from 'src/features/payment/types';
 import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
+import { useHasLongLivedMutations } from 'src/hooks/useHasLongLivedMutations';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
@@ -18,7 +19,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>) => {
   const { processNext } = useProcessNext();
-  const isAnyProcessing = useIsMutating() > 0;
+  const hasLongLivedMutations = useHasLongLivedMutations();
 
   const paymentInfo = usePaymentInformation();
   const { performPayment, paymentError } = usePayment();
@@ -61,7 +62,7 @@ export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>)
             <>
               <Button
                 variant='secondary'
-                disabled={isAnyProcessing}
+                disabled={hasLongLivedMutations}
                 isLoading={isRejecting}
                 onClick={() => handleReject()}
               >
@@ -78,7 +79,7 @@ export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>)
           {paymentInfo?.status === PaymentStatus.Paid && (
             <Button
               variant='secondary'
-              disabled={isAnyProcessing}
+              disabled={hasLongLivedMutations}
               isLoading={isConfirming}
               onClick={() => handleNext()}
             >

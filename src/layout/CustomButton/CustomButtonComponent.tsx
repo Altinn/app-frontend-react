@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
 
-import { useIsMutating, useMutation } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
@@ -10,9 +10,11 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useNavigatePage } from 'src/features/navigation/useNavigatePage';
+import { performActionMutationKeys } from 'src/features/payment/usePerformPaymentMutation';
 import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useHasLongLivedMutations } from 'src/hooks/useHasLongLivedMutations';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -23,6 +25,11 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type * as CBTypes from 'src/layout/CustomButton/config.generated';
 import type { ClientActionHandlers } from 'src/layout/CustomButton/typeHelpers';
 import type { IInstance, IUserAction } from 'src/types/shared';
+
+const customButtonMutationKeys = {
+  all: () => ['custom-button'] as const,
+  specific: (id: string) => [...customButtonMutationKeys.all(), id] as const,
+};
 
 type Props = PropsFromGenericComponent<'CustomButton'>;
 
@@ -66,7 +73,12 @@ const isClientAction = (action: CBTypes.CustomAction): action is CBTypes.ClientA
 const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerAction => action.type === 'ServerAction';
 
 function useHandleClientActions(): UseHandleClientActions {
-  const { navigateToPage, navigateToNextPage, navigateToPreviousPage, exitSubform } = useNavigatePage();
+  const {
+    navigateToPageMutation: { mutateAsync: navigateToPage },
+    navigateToNextPage,
+    navigateToPreviousPage,
+    exitSubformMutation: { mutateAsync: exitSubform },
+  } = useNavigatePage();
   const mainPageKey = useNavigationParam('mainPageKey');
   const isSubformPage = useIsSubformPage();
 
@@ -74,7 +86,7 @@ function useHandleClientActions(): UseHandleClientActions {
     () => ({
       nextPage: navigateToNextPage,
       previousPage: navigateToPreviousPage,
-      navigateToPage: async ({ page }) => navigateToPage(page),
+      navigateToPage,
       closeSubform: exitSubform,
     }),
     [exitSubform, navigateToNextPage, navigateToPage, navigateToPreviousPage],
@@ -151,50 +163,55 @@ type UsePerformActionMutation = {
   handleServerAction: (props: PerformActionMutationProps) => Promise<void>;
 };
 
-function useHandleServerActionMutation(acquireLock: FormDataLocking): UsePerformActionMutation {
+function usePerformActionMutation() {
   const { doPerformAction } = useAppMutations();
-  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
-  const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
-  const markNotReady = NodesInternal.useMarkNotReady();
+  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const selectedLanguage = useCurrentLanguage();
 
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: async ({ action, buttonId }: PerformActionMutationProps) => {
-      if (!instanceGuid || !instanceOwnerPartyId) {
-        throw Error('Cannot perform action without partyId and instanceGuid');
-      }
-      return doPerformAction(instanceOwnerPartyId, instanceGuid, { action: action.id, buttonId }, selectedLanguage);
-    },
+  const mutationFn = async ({ action, buttonId }: PerformActionMutationProps) => {
+    if (!instanceGuid || !instanceOwnerPartyId) {
+      throw Error('Cannot perform action without partyId and instanceGuid');
+    }
+    return doPerformAction(instanceOwnerPartyId, instanceGuid, { action: action.id, buttonId }, selectedLanguage);
+  };
+
+  return useMutation({
+    mutationKey: performActionMutationKeys.withAction({ partyId: instanceOwnerPartyId, instanceGuid }),
+    mutationFn,
   });
+}
 
-  const handleServerAction = useCallback(
-    async ({ action, buttonId }: PerformActionMutationProps) => {
-      const lock = await acquireLock();
-      try {
-        const result = await mutateAsync({ action, buttonId });
+function useHandleServerActionMutation(acquireLock: FormDataLocking): UsePerformActionMutation {
+  const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
+  const markNotReady = NodesInternal.useMarkNotReady();
 
-        // Server actions can bring back changes to the data model, which could cause the node tree to update. Marking
-        // it as not ready now will prevent some re-renders with stale data while the result is handled later.
-        markNotReady();
+  const { mutateAsync, isPending } = usePerformActionMutation();
 
-        await handleDataModelUpdate(lock, result);
-        if (result.clientActions) {
-          await handleClientActions(result.clientActions);
-        }
-      } catch (error) {
-        if (lock.isLocked()) {
-          lock.unlock();
-        }
-        if (error?.response?.data?.error?.message !== undefined) {
-          toast(<Lang id={error?.response?.data?.error?.message} />, { type: 'error' });
-        } else {
-          toast(<Lang id='custom_actions.general_error' />, { type: 'error' });
-        }
+  const handleServerAction = async ({ action, buttonId }: PerformActionMutationProps) => {
+    const lock = await acquireLock();
+    try {
+      const result = await mutateAsync({ action, buttonId });
+
+      // Server actions can bring back changes to the data model, which could cause the node tree to update. Marking
+      // it as not ready now will prevent some re-renders with stale data while the result is handled later.
+      markNotReady();
+
+      await handleDataModelUpdate(lock, result);
+      if (result.clientActions) {
+        await handleClientActions(result.clientActions);
       }
-    },
-    [handleClientActions, handleDataModelUpdate, acquireLock, mutateAsync, markNotReady],
-  );
+    } catch (error) {
+      if (lock.isLocked()) {
+        lock.unlock();
+      }
+      if (error?.response?.data?.error?.message !== undefined) {
+        toast(<Lang id={error?.response?.data?.error?.message} />, { type: 'error' });
+      } else {
+        toast(<Lang id='custom_actions.general_error' />, { type: 'error' });
+      }
+    }
+  };
 
   return { handleServerAction, isPending };
 }
@@ -242,7 +259,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const { handleClientActions } = useHandleClientActions();
   const { handleServerAction } = useHandleServerActionMutation(acquireLock);
   const onPageNavigationValidation = useOnPageNavigationValidation();
-  const isAnyProcessing = useIsMutating() > 0;
+  const hasLongLivedMutations = useHasLongLivedMutations();
 
   const getScrollPosition = React.useCallback(
     () => document.querySelector(`[data-componentid="${id}"]`)?.getClientRects().item(0)?.y,
@@ -253,7 +270,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const isPermittedToPerformActions = actions
     .filter((action) => action.type === 'ServerAction')
     .reduce((acc, action) => acc && isAuthorized(action.id), true);
-  const disabled = !isPermittedToPerformActions || isAnyProcessing;
+  const disabled = !isPermittedToPerformActions || hasLongLivedMutations;
 
   const isSubformCloseButton = actions.filter((action) => action.id === 'closeSubform').length > 0;
   let interceptedButtonStyle = buttonStyle ?? 'secondary';
@@ -268,6 +285,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   }
 
   const { mutate: handleClick, isPending: isThisProcessing } = useMutation({
+    mutationKey: customButtonMutationKeys.specific(id),
     mutationFn: async () => {
       for (const action of actions) {
         if (action.validation) {

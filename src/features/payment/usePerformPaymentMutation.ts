@@ -1,15 +1,23 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { AxiosError } from 'axios';
+import { type AxiosError } from 'axios';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+
+export const performActionMutationKeys = {
+  all: () => ['performAction'] as const,
+  withAction: (vars: { partyId: string | undefined; instanceGuid: string | undefined }) =>
+    [...performActionMutationKeys.all(), vars] as const,
+  withPayAction: (vars: { partyId: string | undefined; instanceGuid: string | undefined }) =>
+    [...performActionMutationKeys.withAction(vars), 'pay'] as const,
+};
 
 export const usePerformPayActionMutation = (partyId?: string, instanceGuid?: string) => {
   const queryClient = useQueryClient();
   const { doPerformAction } = useAppMutations();
   const selectedLanguage = useCurrentLanguage();
   return useMutation({
-    mutationKey: ['performPayAction', partyId, instanceGuid],
+    mutationKey: performActionMutationKeys.withPayAction({ partyId, instanceGuid }),
     mutationFn: async () => {
       if (partyId && instanceGuid) {
         return await doPerformAction(partyId, instanceGuid, { action: 'pay' }, selectedLanguage);

@@ -3,7 +3,7 @@ import { createStore } from 'zustand';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSet';
-import { useCurrentView } from 'src/hooks/useNavigatePage';
+import { useCurrentView } from 'src/features/navigation/useNavigatePage';
 
 interface Context {
   errors: unknown;

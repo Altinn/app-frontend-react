@@ -5,8 +5,8 @@ import userEvent from '@testing-library/user-event';
 
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { AppNavigation } from 'src/features/navigation/AppNavigation';
+import * as UseNavigatePage from 'src/features/navigation/useNavigatePage';
 import { BackendValidationSeverity } from 'src/features/validation';
-import * as UseNavigatePage from 'src/hooks/useNavigatePage';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type {
   ILayoutFile,

@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import type { NavigateOptions } from 'react-router-dom';
 
+import { useIsMutating, useMutation } from '@tanstack/react-query';
+
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { usePageSettings, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { navigatePageMutationKeys } from 'src/features/navigation/navigationQueryKeys';
 import {
   SearchParams,
   useAllNavigationParamsAsRef,
@@ -242,13 +245,17 @@ export function useNavigatePage() {
 
   const waitForSave = FD.useWaitForSave();
   const waitForNodesReady = NodesInternal.useWaitUntilReady();
-  const maybeSaveOnPageChange = useCallback(async () => {
-    await waitForSave(autoSaveBehavior === 'onChangePage');
-    await waitForNodesReady();
-  }, [autoSaveBehavior, waitForSave, waitForNodesReady]);
+  const { mutateAsync: maybeSaveOnPageChange } = useMutation({
+    mutationKey: ['maybeSaveOnPageChange'],
+    mutationFn: async () => {
+      await waitForSave(autoSaveBehavior === 'onChangePage');
+      await waitForNodesReady();
+    },
+  });
 
-  const navigateToPage = useCallback(
-    async (page?: string, options?: NavigateToPageOptions) => {
+  const navigateToPageMutation = useMutation({
+    mutationKey: navigatePageMutationKeys.all(),
+    mutationFn: async ({ page, options }: { page?: string; options?: NavigateToPageOptions }) => {
       const replace = options?.replace ?? false;
       if (!page) {
         window.logWarn('navigateToPage called without page');
@@ -296,8 +303,9 @@ export function useNavigatePage() {
       url = `${url}?${searchParams.toString()}`;
       navigate(url, options, { replace }, () => focusMainContent(options));
     },
-    [isStatelessApp, maybeSaveOnPageChange, navParams, navigate, orderRef, queryKeysRef, refetchInitialValidations],
-  );
+  });
+
+  const navigateToPage = navigateToPageMutation.mutateAsync;
 
   const [_, setVisitedPages] = useVisitedPages();
   /**
@@ -325,7 +333,7 @@ export function useNavigatePage() {
         return visitedPages;
       });
 
-      await navigateToPage(nextPage, options);
+      await navigateToPage({ page: nextPage, options });
     },
     [navParams, navigateToPage, orderRef, setVisitedPages],
   );
@@ -344,32 +352,38 @@ export function useNavigatePage() {
         window.logWarn('Tried to navigate to previous page when standing on the first page.');
         return;
       }
-      await navigateToPage(previousPage, options);
+      await navigateToPage({ page: previousPage, options });
     },
     [navParams, navigateToPage, orderRef],
   );
 
-  const exitSubform = async () => {
-    if (!navParams.current.mainPageKey) {
-      window.logWarn('Tried to close subform page while not in a subform.');
-      return;
-    }
+  const exitSubformMutation = useMutation({
+    mutationKey: navigatePageMutationKeys.exitSubform(),
+    mutationFn: async () => {
+      if (!navParams.current.mainPageKey) {
+        window.logWarn('Tried to close subform page while not in a subform.');
+        return;
+      }
 
-    await navigateToPage(navParams.current.mainPageKey, {
-      exitSubform: true,
-      resetReturnToView: false,
-      focusComponentId: navParams.current.componentId,
-    });
-  };
+      await navigateToPage({
+        page: navParams.current.mainPageKey,
+        options: {
+          exitSubform: true,
+          resetReturnToView: false,
+          focusComponentId: navParams.current.componentId,
+        },
+      });
+    },
+  });
 
   return {
-    navigateToPage,
+    navigateToPageMutation,
     isValidPageId,
     order,
     navigateToNextPage,
     navigateToPreviousPage,
     maybeSaveOnPageChange,
-    exitSubform,
+    exitSubformMutation,
   };
 }
 
@@ -392,3 +406,7 @@ export function useVisitedPages() {
   );
 }
 const emptyArray = [];
+
+export function useIsNavigatingPage() {
+  return useIsMutating({ mutationKey: navigatePageMutationKeys.all(), status: 'pending' }) > 0;
+}

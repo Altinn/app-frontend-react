@@ -1,13 +1,19 @@
 import React from 'react';
 
-import { useIsMutating, useMutation } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useReturnToView, useSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
+import {
+  useIsNavigatingPage,
+  useNavigatePage,
+  useNextPageKey,
+  usePreviousPageKey,
+} from 'src/features/navigation/useNavigatePage';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
-import { useNavigatePage, useNextPageKey, usePreviousPageKey } from 'src/hooks/useNavigatePage';
+import { useHasLongLivedMutations } from 'src/hooks/useHasLongLivedMutations';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -17,19 +23,24 @@ export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const { id, showBackButton, textResourceBindings, validateOnNext, validateOnPrevious } = useNodeItem(node);
-  const { navigateToNextPage, navigateToPreviousPage, navigateToPage, maybeSaveOnPageChange } = useNavigatePage();
+  const {
+    navigateToNextPage,
+    navigateToPreviousPage,
+    navigateToPageMutation: { mutateAsync: navigateToPage, isPending: isBackToSummaryPending },
+    maybeSaveOnPageChange,
+  } = useNavigatePage();
   const hasNext = !!useNextPageKey();
   const hasPrevious = !!usePreviousPageKey();
   const returnToView = useReturnToView();
   const summaryItem = useNodeItem(useSummaryNodeOfOrigin());
-  const isAnyProcessing = useIsMutating() > 0;
+  const isNavigating = useIsNavigatingPage();
 
-  const { mutate: handleBackToSummaryClick, isPending: isBackToSummaryPending } = useMutation({
-    mutationFn: async () => {
-      await maybeSaveOnPageChange();
-      await navigateToPage(returnToView, { skipAutoSave: true });
-    },
-  });
+  const hasLongLivedMutations = useHasLongLivedMutations();
+
+  async function handleBackToSummaryClick() {
+    await maybeSaveOnPageChange();
+    await navigateToPage({ page: returnToView, options: { skipAutoSave: true } });
+  }
 
   const { mutate: handlePreviousClick, isPending: isPreviousPending } = useMutation({
     mutationFn: async () => {
@@ -49,23 +60,21 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     },
   });
 
-  const { mutate: handleNextClick, isPending: isNextPending } = useMutation({
-    mutationFn: async () => {
-      await maybeSaveOnPageChange();
+  async function handleNextClick() {
+    await maybeSaveOnPageChange();
 
-      const prevScrollPosition = getScrollPosition();
-      if (validateOnNext && !returnToView) {
-        const hasErrors = await onPageNavigationValidation(node.page, validateOnNext);
-        if (hasErrors) {
-          // Block navigation if validation fails, unless returnToView is set (Back to summary)
-          resetScrollPosition(prevScrollPosition);
-          return;
-        }
+    const prevScrollPosition = getScrollPosition();
+    if (validateOnNext && !returnToView) {
+      const hasErrors = await onPageNavigationValidation(node.page, validateOnNext);
+      if (hasErrors) {
+        // Block navigation if validation fails, unless returnToView is set (Back to summary)
+        resetScrollPosition(prevScrollPosition);
+        return;
       }
+    }
 
-      await navigateToNextPage({ skipAutoSave: true });
-    },
-  });
+    await navigateToNextPage({ skipAutoSave: true });
+  }
 
   const parentIsPage = node.parent instanceof LayoutPage;
 
@@ -105,7 +114,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       >
         {showBackToSummaryButton && (
           <Button
-            disabled={isAnyProcessing}
+            disabled={hasLongLivedMutations}
             isLoading={isBackToSummaryPending}
             onClick={() => handleBackToSummaryClick()}
           >
@@ -114,8 +123,8 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
         )}
         {showNextButton && (
           <Button
-            disabled={isAnyProcessing}
-            isLoading={isNextPending}
+            disabled={hasLongLivedMutations}
+            isLoading={isNavigating}
             onClick={() => handleNextClick()}
             // If we are showing a back to summary button, we want the "next" button to be secondary
             variant={showBackToSummaryButton ? 'secondary' : 'primary'}
@@ -125,7 +134,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
         )}
         {hasPrevious && showBackButton && (
           <Button
-            disabled={isAnyProcessing}
+            disabled={hasLongLivedMutations}
             isLoading={isPreviousPending}
             variant={showNextButton || showBackToSummaryButton ? 'secondary' : 'primary'}
             onClick={() => handlePreviousClick()}

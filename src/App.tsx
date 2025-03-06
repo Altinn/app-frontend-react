@@ -8,8 +8,8 @@ import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
+import { TaskKeys } from 'src/features/navigation/useNavigatePage';
 import { CustomReceipt, DefaultReceipt } from 'src/features/receipt/ReceiptContainer';
-import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { PresentationType } from 'src/types';
 
 export const App = () => (

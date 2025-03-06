@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { usePageOrder } from 'src/hooks/useNavigatePage';
+import { usePageOrder } from 'src/features/navigation/useNavigatePage';
 import { LayoutSetSummaryAccordion } from 'src/layout/Summary2/CommonSummaryComponents/LayoutSetSummaryAccordion';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
 import { useSummary2Store } from 'src/layout/Summary2/summaryStoreContext';

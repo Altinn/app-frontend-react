@@ -15,11 +15,11 @@ import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContex
 import { usePdfLayoutName } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { usePageOrder } from 'src/features/navigation/useNavigatePage';
 import { useIsPayment } from 'src/features/payment/utils';
 import classes from 'src/features/pdf/PDFView.module.css';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { getFeature } from 'src/features/toggles';
-import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';

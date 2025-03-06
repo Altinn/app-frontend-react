@@ -13,7 +13,6 @@ import {
   TasklistIcon,
   XMarkIcon,
 } from '@navikt/aksel-icons';
-import { useIsMutating, useMutation } from '@tanstack/react-query';
 import cn from 'classnames';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -23,6 +22,7 @@ import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/AppNavigation.module.css';
+import { useNavigatePage } from 'src/features/navigation/useNavigatePage';
 import {
   isSingleGroup,
   useGetTaskGroupType,
@@ -31,7 +31,7 @@ import {
   useVisiblePages,
 } from 'src/features/navigation/utils';
 import { useIsReceiptPage, useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useHasLongLivedMutations } from 'src/hooks/useHasLongLivedMutations';
 import type {
   NavigationPageGroup,
   NavigationPageGroupMultiple,
@@ -217,26 +217,19 @@ function PageGroupSingle({
   validations,
   onNavigate,
 }: PageGroupProps<NavigationPageGroupSingle>) {
-  const { navigateToPage } = useNavigatePage();
   const page = group.order[0];
-  const isAnyProcessing = useIsMutating() > 0;
 
-  const { mutate: navigate, isPending: isNavigating } = useMutation({
-    mutationFn: async () => {
-      if (!isCurrentPage) {
-        await navigateToPage(page);
-        onNavigate?.();
-      }
-    },
-  });
+  const hasLongLivedMutations = useHasLongLivedMutations();
+
+  const { handleNavigation, isNavigating } = useHandleNavigation(page, onNavigate);
 
   return (
     <li>
       <button
-        disabled={isAnyProcessing}
+        disabled={hasLongLivedMutations}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.groupButton, classes.groupButtonSingle, 'fds-focus')}
-        onClick={() => navigate()}
+        onClick={handleNavigation}
       >
         <PageGroupSymbol
           single
@@ -397,25 +390,17 @@ function Page({
   const currentPageId = useNavigationParam('pageKey');
   const isCurrentPage = page === currentPageId;
 
-  const { navigateToPage } = useNavigatePage();
-  const isAnyProcessing = useIsMutating() > 0;
+  const hasLongLivedMutations = useHasLongLivedMutations();
 
-  const { mutate: navigate, isPending: isNavigating } = useMutation({
-    mutationFn: async () => {
-      if (!isCurrentPage) {
-        await navigateToPage(page);
-        onNavigate?.();
-      }
-    },
-  });
+  const { handleNavigation, isNavigating } = useHandleNavigation(page, onNavigate);
 
   return (
     <li className={classes.pageListItem}>
       <button
-        disabled={isAnyProcessing}
+        disabled={hasLongLivedMutations}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.pageButton, 'fds-focus')}
-        onClick={() => navigate()}
+        onClick={handleNavigation}
       >
         <PageSymbol
           error={hasErrors}
@@ -477,4 +462,22 @@ function PageSymbol({
       )}
     </div>
   );
+}
+
+function useHandleNavigation(page: string, onNavigate?: () => void) {
+  const { mutateAsync: navigateToPage, isPending: isNavigating } = useNavigatePage().navigateToPageMutation;
+  const currentPageId = useNavigationParam('pageKey');
+  const isCurrentPage = page === currentPageId;
+
+  async function handleNavigation() {
+    if (!isCurrentPage) {
+      await navigateToPage({ page });
+      onNavigate?.();
+    }
+  }
+
+  return {
+    handleNavigation,
+    isNavigating,
+  };
 }
