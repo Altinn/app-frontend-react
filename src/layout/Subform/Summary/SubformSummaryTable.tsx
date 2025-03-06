@@ -11,7 +11,7 @@ import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
-import { useIsSubformPage, useNavigate } from 'src/features/routing/AppRoutingContext';
+import { useIsSubformPage, useNavigate, useNavigationParams } from 'src/features/routing/AppRoutingContext';
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -40,6 +40,7 @@ function SubformTableRow({
 }) {
   const id = dataElement.id;
   const { tableColumns = [] } = useNodeItem(targetNode);
+  const { instanceOwnerPartyId, instanceGuid, taskId } = useNavigationParams();
   const { isSubformDataFetching, subformData, subformDataSources, subformDataError } =
     useSubformDataSources(dataElement);
   const { langAsString } = useLanguage();
@@ -63,6 +64,9 @@ function SubformTableRow({
       </Table.Row>
     );
   }
+
+  const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${targetNode.pageKey}/${targetNode.id}/${dataElement.id}${hasErrors ? '?validate=true' : ''}`;
+
   return (
     <Table.Row
       key={`subform-row-${id}`}
@@ -89,7 +93,7 @@ function SubformTableRow({
             className={classes2.marginLeftAuto}
             componentNode={targetNode}
             summaryComponentId=''
-            navigationOverride={() => navigate(`${targetNode.id}/${id}${hasErrors ? '?validate=true' : ''}`)}
+            navigationOverride={() => navigate(url)}
           />
         </Table.Cell>
       )}

@@ -37,6 +37,7 @@ import {
   useIsSubformPage,
   useNavigate,
   useNavigationParam,
+  useNavigationParams,
 } from 'src/features/routing/AppRoutingContext';
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
@@ -559,6 +560,7 @@ function SubformGroup({ nodeId }: { nodeId: string }) {
         {dataElements.map((dataElement) => (
           <SubformLink
             key={dataElement.id}
+            page={node.pageKey}
             entryName={entryName}
             nodeId={nodeId}
             dataElement={dataElement}
@@ -571,17 +573,20 @@ function SubformGroup({ nodeId }: { nodeId: string }) {
 }
 
 function SubformLink({
+  page,
   entryName,
   nodeId,
   dataElement,
   hasErrors,
 }: {
+  page: string;
   entryName: ExprValToActualOrExpr<ExprVal.String>;
   nodeId: string;
   dataElement: IData;
   hasErrors: boolean;
 }) {
   const { isAnyProcessing: disabled } = useIsProcessing();
+  const { instanceOwnerPartyId, instanceGuid, taskId } = useNavigationParams();
   const navigate = useNavigate();
   const { subformDataSources, isSubformDataFetching, subformDataError } = useSubformDataSources(dataElement);
 
@@ -594,12 +599,14 @@ function SubformLink({
     return null;
   }
 
+  const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}/${nodeId}/${dataElement.id}${hasErrors ? '?validate=true' : ''}`;
+
   return (
     <li>
       <button
         disabled={disabled}
         className={cn(classes.subformLink, 'fds-focus')}
-        onClick={() => navigate(`${nodeId}/${dataElement.id}${hasErrors ? '?validate=true' : ''}`)}
+        onClick={() => navigate(url)}
       >
         <span className={classes.subformLinkName}>{subformEntryName}</span>
       </button>
