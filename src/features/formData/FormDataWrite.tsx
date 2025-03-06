@@ -118,6 +118,29 @@ function useFormDataSaveMutation() {
     }
   }
 
+  function checkForRunawaySaving() {
+    const now = Date.now();
+    const lastRequests = queryClient
+      .getMutationCache()
+      .findAll({ status: 'success', mutationKey: ['saveFormData'] })
+      .sort((a, b) => a.state.submittedAt - b.state.submittedAt)
+      .filter((req) => now - req.state.submittedAt < 10000) // Must have happened withing the last 10 seconds
+      .map((request) => request.state.data);
+
+    const allTheSame = lastRequests.every((request) => deepEqual(request, lastRequests[0]));
+    if (allTheSame && lastRequests.length >= 3) {
+      const message =
+        'Runaway saving detected, a bug in the application or the saving logic is causing the ' +
+        'form data to save repeatedly without real changes. Check the saving requests (in the browser devtools) and ' +
+        'verify the app and data model is not configured in a way that causes frontend to attempt to overwrite the ' +
+        'same data as backend is sending back. If the issue persists, contact support.';
+
+      console.error(message);
+      window.logError(message);
+      throw new Error(message);
+    }
+  }
+
   const mutation = useMutation({
     mutationKey: ['saveFormData'],
     mutationFn: async (): Promise<FDSaveFinished | undefined> => {
@@ -274,6 +297,7 @@ function useFormDataSaveMutation() {
       result && updateQueryCache(result);
       result && saveFinished(result);
       !result && cancelSave();
+      checkForRunawaySaving();
     },
   });
 
