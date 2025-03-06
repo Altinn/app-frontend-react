@@ -15,6 +15,8 @@ import { useCodeListSelectorProps } from 'src/features/options/CodeListsProvider
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { useCurrentDataModelLocation } from 'src/utils/layout/DataModelLocation';
+import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import type { AttachmentsSelector } from 'src/features/attachments/tools';
@@ -74,19 +76,23 @@ const directHooks = {
   currentLanguage: () => useCurrentLanguage(),
   currentDataModelPath: () => useCurrentDataModelLocation(),
   layoutLookups: () => useLayoutLookups(),
-  instanceDataSources: () => useLaxInstanceDataSources(),
-  currentLayoutSet: () => useCurrentLayoutSet() ?? null,
-  dataModelNames: () => DataModels.useReadableDataTypes(),
-  externalApis: () => useExternalApis(useApplicationMetadata().externalApiIds ?? []),
+  instanceDataSources: (isInGenerator) =>
+    isInGenerator ? GeneratorData.useLaxInstanceDataSources() : useLaxInstanceDataSources(),
+  currentLayoutSet: (isInGenerator) =>
+    (isInGenerator ? GeneratorData.useCurrentLayoutSet() : useCurrentLayoutSet()) ?? null,
+  dataModelNames: (isInGenerator) =>
+    isInGenerator ? GeneratorData.useReadableDataTypes() : DataModels.useReadableDataTypes(),
+  externalApis: (isInGenerator) =>
+    isInGenerator ? GeneratorData.useExternalApis() : useExternalApis(useApplicationMetadata().externalApiIds ?? []),
   transposeSelector: () => useInnerDataModelBindingTranspose(NodesInternal.useNodeDataSelector()),
-  langToolsSelector: () =>
+  langToolsSelector: (isInGenerator) =>
     useInnerLanguageWithForcedNodeSelector(
-      DataModels.useDefaultDataType(),
-      DataModels.useReadableDataTypes(),
+      isInGenerator ? GeneratorData.useDefaultDataType() : DataModels.useDefaultDataType(),
+      isInGenerator ? GeneratorData.useReadableDataTypes() : DataModels.useReadableDataTypes(),
       FD.useDebouncedSelector(),
       NodesInternal.useNodeDataSelector(),
     ),
-} satisfies { [K in keyof ExpressionDataSources]?: () => ExpressionDataSources[K] };
+} satisfies { [K in keyof ExpressionDataSources]?: (isInGenerator: boolean) => ExpressionDataSources[K] };
 
 /**
  * Figure out which data sources are needed to evaluate an expression and return them. This code breaks the
@@ -118,6 +124,7 @@ export function useExpressionDataSources(toEvaluate: unknown): ExpressionDataSou
 
   const multipleSelectors = useMultipleDelayedSelectors(...toMultipleSelectors);
 
+  const isInGenerator = GeneratorInternal.useIsInsideGenerator();
   const output: Partial<ExpressionDataSources> = {};
   for (const key of neededDataSources) {
     if (multiSelectors[key]) {
@@ -126,7 +133,7 @@ export function useExpressionDataSources(toEvaluate: unknown): ExpressionDataSou
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       output[key] = multipleSelectors.shift() as unknown as any;
     } else if (directHooks[key]) {
-      output[key] = directHooks[key]();
+      output[key] = directHooks[key](isInGenerator);
     } else {
       throw new Error(`No hook found for ${key}`);
     }
