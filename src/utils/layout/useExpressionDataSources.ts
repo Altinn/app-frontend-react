@@ -1,4 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { useMemo } from 'react';
+
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
@@ -100,42 +102,47 @@ const directHooks = {
  * the same between renders, i.e. that layout configuration/expressions does not change between renders.
  */
 export function useExpressionDataSources(toEvaluate: unknown): ExpressionDataSources {
-  const functionCalls = new Set<ExprFunctionName>();
-  const displayValueLookups = new Set<string>(); // TODO: Use hooks directly to get display values early
-  findUsedExpressionFunctions(toEvaluate, functionCalls, displayValueLookups);
+  const { neededDataSources } = useMemo(() => {
+    const functionCalls = new Set<ExprFunctionName>();
+    const displayValueLookups = new Set<string>();
+    findUsedExpressionFunctions(toEvaluate, functionCalls, displayValueLookups);
 
-  const neededDataSources = new Set<keyof ExpressionDataSources>();
-  for (const functionName of functionCalls) {
-    const definition = ExprFunctionDefinitions[functionName];
-    for (const need of definition.needs) {
-      neededDataSources.add(need);
+    const neededDataSources = new Set<keyof ExpressionDataSources>();
+    for (const functionName of functionCalls) {
+      const definition = ExprFunctionDefinitions[functionName];
+      for (const need of definition.needs) {
+        neededDataSources.add(need);
+      }
     }
-  }
+
+    // TODO: Use hooks directly to get display values early
+    return { functionCalls, displayValueLookups, neededDataSources };
+  }, [toEvaluate]);
 
   // Build a multiple delayed selector for each needed data source
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const toMultipleSelectors: DSProps<any>[] = [];
   for (const key of neededDataSources) {
-    const hook = multiSelectors[key];
-    if (hook) {
-      toMultipleSelectors.push(hook());
+    if (key in multiSelectors) {
+      toMultipleSelectors.push(multiSelectors[key]());
     }
   }
 
-  const multipleSelectors = useMultipleDelayedSelectors(...toMultipleSelectors);
-
+  let combinedIndex = 0;
+  const combined = useMultipleDelayedSelectors(...toMultipleSelectors);
   const isInGenerator = GeneratorInternal.useIsInsideGenerator();
   const output: Partial<ExpressionDataSources> = {};
+
   for (const key of neededDataSources) {
-    if (multiSelectors[key]) {
+    if (key in multiSelectors) {
       // Ignoring the typing here because it becomes too complex quickly. We don't really need the typing here, as we
       // have already checked the types in `multiSelectors`, so there's no point in doing it again here.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      output[key] = multipleSelectors.shift() as unknown as any;
-    } else if (directHooks[key]) {
+      output[key] = combined[combinedIndex++] as unknown as any;
+    } else if (key in directHooks) {
       output[key] = directHooks[key](isInGenerator);
     } else {
-      throw new Error(`No hook found for ${key}`);
+      throw new Error(`No hook found for data source ${key}`);
     }
   }
 
