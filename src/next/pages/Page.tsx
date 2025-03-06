@@ -14,7 +14,11 @@ type PageParams = {
 export const Page = () => {
   const { pageId } = useParams<PageParams>() as Required<PageParams>;
 
-  const resolvedLayouts = useStore(layoutStore, (state) => state.resolvedLayouts);
+  const resolvedLayouts = useStore(layoutStore, (state) => state.layouts);
+
+  if (!resolvedLayouts) {
+    throw new Error(`could not find layout`);
+  }
 
   const currentPage = resolvedLayouts[pageId];
 

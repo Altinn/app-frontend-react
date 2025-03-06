@@ -19,7 +19,7 @@ export type ResolvedCompExternal = AllComponents & ExtraProps;
 interface ExtraProps {
   isHidden: boolean;
   renderedValue: string;
-  children?: ResolvedCompExternal[];
+  children: ResolvedCompExternal[] | undefined;
 }
 
 export interface ResolvedLayoutFile {
@@ -132,11 +132,11 @@ export const layoutStore = createStore<Layouts>()(
       (set, get) => ({
         data: undefined,
 
-        updateResolvedLayouts: () => {
-          // Use our memoized selector:
-          const newResolved = selectResolvedLayouts(get());
-          set({ resolvedLayouts: newResolved });
-        },
+        // updateResolvedLayouts: () => {
+        //   // Use our memoized selector:
+        //   const newResolved = selectResolvedLayouts(get());
+        //   set({ resolvedLayouts: newResolved });
+        // },
 
         setLayoutSets: (schema) => set({ layoutSetsConfig: schema }),
         setProcess: (proc) => set({ process: proc }),
@@ -159,28 +159,49 @@ export const layoutStore = createStore<Layouts>()(
           });
 
           set({ layouts: resolvedLayoutCollection });
-          get().updateResolvedLayouts();
+          //get().updateResolvedLayouts();
         },
 
         setDataObject: (newData) => {
           set({ data: newData });
-          get().updateResolvedLayouts();
+          //get().updateResolvedLayouts();
         },
 
         setDataValue: (dataKeyToUpdate: string, newValue: string) => {
           set((state) => {
-            const dataCopy = structuredClone(state.data);
-            if (!dataCopy) {
-              throw new Error('no data copy');
+            if (!state.data) {
+              throw new Error('no data object');
             }
-            dot.set(dataKeyToUpdate, newValue, dataCopy);
-            return { data: dataCopy };
+
+            // Get current value for comparison
+            const currentVal = dot.pick(dataKeyToUpdate, state.data);
+            if (currentVal === newValue) {
+              // No change, so do nothing
+              return {};
+            }
+
+            // Update in place
+            dot.set(dataKeyToUpdate, newValue, state.data);
+
+            // Return a shallow copy so Zustand sees the update
+            return { data: { ...state.data } };
           });
-          get().updateResolvedLayouts();
         },
+
+        // setDataValue: (dataKeyToUpdate: string, newValue: string) => {
+        //   set((state) => {
+        //     const dataCopy = structuredClone(state.data);
+        //     if (!dataCopy) {
+        //       throw new Error('no data copy');
+        //     }
+        //     dot.set(dataKeyToUpdate, newValue, dataCopy);
+        //     return { data: dataCopy };
+        //   });
+        //   //get().updateResolvedLayouts();
+        // },
       }),
       {
-        name: 'LayoutStore', // Shown in Redux DevTools
+        name: 'LayoutStore',
       },
     ),
   ),

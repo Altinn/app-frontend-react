@@ -6,7 +6,7 @@ import { Api } from 'src/next/app/api';
 import { Instance, instanceLoader } from 'src/next/pages/Instance';
 import { initialLoader, InstancesParent } from 'src/next/pages/Instances';
 import { Page } from 'src/next/pages/Page';
-import { Task2 } from 'src/next/pages/Task';
+import { Task } from 'src/next/pages/Task';
 
 const { org, app } = window;
 const origin = window.location.origin;
@@ -31,7 +31,7 @@ const router = createHashRouter([
         children: [
           {
             path: ':taskId',
-            element: <Task2 />,
+            element: <Task />,
             children: [
               {
                 path: ':pageId',

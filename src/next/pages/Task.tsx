@@ -7,33 +7,42 @@ import { useApiClient } from 'src/next/app/ApiClientContext';
 import { APP, ORG } from 'src/next/app/App';
 import { layoutStore } from 'src/next/stores/layoutStore';
 
+// Adjust to match your real shape:
 type TaskParams = {
   taskId: string;
 };
 
-export const Task2 = () => {
+export const Task = () => {
   const { taskId } = useParams<TaskParams>() as Required<TaskParams>;
 
-  const { layouts, resolvedLayouts, layoutSetsConfig, pageOrder, setPageOrder, setLayouts } = useStore(layoutStore);
+  const layoutSetsConfig = useStore(layoutStore, (state) => state.layoutSetsConfig);
 
-  const currentLayoutSet = layoutSetsConfig.sets.find((layoutSet) => layoutSet.tasks.includes(taskId));
+  const pageOrder = useStore(layoutStore, (state) => state.pageOrder);
+
+  const setPageOrder = useStore(layoutStore, (state) => state.setPageOrder);
+  const setLayouts = useStore(layoutStore, (state) => state.setLayouts);
+
+  const layouts = useStore(layoutStore, (state) => state.layouts);
+
   const apiClient = useApiClient();
-
   const [isLoading, setIsLoading] = useState(true);
+
+  const currentLayoutSet = layoutSetsConfig?.sets.find((layoutSet) => layoutSet.tasks.includes(taskId));
 
   useEffect(() => {
     async function getLayoutDetails(layoutSetId: string) {
       const res = await apiClient.org.layoutsAllSettingsDetail(layoutSetId, ORG, APP);
       const data = await res.json();
       const settings = JSON.parse(data.settings);
-      const layouts = JSON.parse(data.layouts);
+      const layoutsJson = JSON.parse(data.layouts);
+
       setPageOrder(settings);
-      setLayouts(layouts);
+      setLayouts(layoutsJson);
       setIsLoading(false);
     }
 
     if (currentLayoutSet?.id) {
-      getLayoutDetails(currentLayoutSet?.id);
+      void getLayoutDetails(currentLayoutSet.id);
     }
   }, [apiClient.org, currentLayoutSet?.id, setLayouts, setPageOrder]);
 
@@ -44,9 +53,18 @@ export const Task2 = () => {
   if (isLoading) {
     return <h1>Loading</h1>;
   }
+
+  if (!pageOrder || !pageOrder.pages?.order?.length) {
+    return <h1>No pages found in pageOrder</h1>;
+  }
+
+  if (!layouts) {
+    return <h1>No layouts loaded</h1>;
+  }
+
   return (
     <div>
-      {pageOrder && layouts && resolvedLayouts && layoutSetsConfig && <Navigate to={`${pageOrder.pages.order[0]}`} />}
+      <Navigate to={`${pageOrder.pages.order[0]}`} />
       <Outlet />
     </div>
   );
