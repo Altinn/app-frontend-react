@@ -1,4 +1,5 @@
 import type { RouteMatcher } from 'cypress/types/net-stubbing';
+import type { ConsoleMessage } from 'cypress-fail-on-console-error';
 
 import type { CyUser } from 'test/e2e/support/auth';
 
@@ -295,6 +296,8 @@ declare global {
       enableResponseFuzzing(options?: ResponseFuzzingOptions): Chainable<ResponseFuzzing>;
 
       getCurrentViewportSize(): Chainable<Size>;
+
+      ignoreConsoleMessages(consoleMessages: ConsoleMessage[]): Chainable<null>;
     }
   }
 }
