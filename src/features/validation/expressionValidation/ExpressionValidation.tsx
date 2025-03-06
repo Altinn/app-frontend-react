@@ -37,7 +37,7 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
   const updateDataModelValidations = Validation.useUpdateDataModelValidations();
   const formData = FD.useDebounced(dataType);
   const expressionValidationConfig = DataModels.useExpressionValidationConfig(dataType);
-  const dataSources = useExpressionDataSources();
+  const dataSources = useExpressionDataSources(expressionValidationConfig);
   const dataElementId = DataModels.useDataElementIdForDataType(dataType) ?? dataType; // stateless does not have dataElementId
   const allBindings = NodesInternal.useMemoSelector((state) => {
     const out: NodeWithBindings[] = [];

@@ -51,7 +51,7 @@ export function useEvalExpression<V extends ExprVal>(
   _options?: Omit<EvalExprOptions, 'config' | 'errorIntroText'>,
   enabled = true,
 ) {
-  const dataSources = useExpressionDataSources();
+  const dataSources = useExpressionDataSources(expr);
   const options = useShallowMemo(_options ?? {});
   return useMemo(() => {
     if (!enabled) {

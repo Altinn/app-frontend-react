@@ -247,7 +247,7 @@ function ExpressionRunner({ outputs, setOutputs, showAllSteps }: RunnerProps) {
     }
   }, [input, outputs, setOutputs]);
 
-  const dataSources = useExpressionDataSources();
+  const dataSources = useExpressionDataSources(expression);
   useEffect(() => {
     if (expression === undefined) {
       return;

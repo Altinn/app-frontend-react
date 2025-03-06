@@ -44,7 +44,7 @@ export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOpti
     return output;
   });
 
-  const dataSources = useExpressionDataSources();
+  const dataSources = useExpressionDataSources(source);
   return useMemoDeepEqual(() => {
     if (!source) {
       // Returning undefined here allows us to fall back to use other options sources if `source` is not configured.

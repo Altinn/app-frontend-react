@@ -158,7 +158,7 @@ export function useFilteredAndSortedOptions({ unsorted, valueType, node, item }:
   const optionFilter = item.optionFilter;
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
   const selectedValues = useSetOptions(valueType, dataModelBindings, unsorted).selectedValues;
-  const dataSources = useExpressionDataSources();
+  const dataSources = useExpressionDataSources(optionFilter);
 
   return useMemo(() => {
     let preselectedOption: IOptionInternal | undefined;

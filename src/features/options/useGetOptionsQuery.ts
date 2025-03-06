@@ -9,9 +9,8 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
-import { resolveQueryParameters } from 'src/features/options/evalQueryParameters';
+import { useResolvedQueryParameters } from 'src/features/options/evalQueryParameters';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
-import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { LayoutReference } from 'src/features/expressions/types';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
@@ -46,8 +45,7 @@ export const useGetOptionsUrl = (
   const language = useCurrentLanguage();
   const instanceId = useLaxInstanceId();
   const reference: LayoutReference = useMemo(() => ({ type: 'node', id: node.id }), [node]);
-  const dataSources = useExpressionDataSources();
-  const resolvedQueryParameters = resolveQueryParameters(queryParameters, reference, dataSources);
+  const resolvedQueryParameters = useResolvedQueryParameters(queryParameters, reference);
 
   return optionsId
     ? getOptionsUrl({

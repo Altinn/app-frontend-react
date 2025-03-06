@@ -195,7 +195,7 @@ export function useExpressionResolverProps<T extends CompTypes>(
     () => (node ? { type: 'node', id: node.id } : undefined),
     [node],
   );
-  const allDataSources = useExpressionDataSources();
+  const allDataSources = useExpressionDataSources(rawItem);
   const allDataSourcesAsRef = useAsRef(allDataSources);
 
   // The hidden property is handled elsewhere, and should never be passed to the item (and resolved as an
