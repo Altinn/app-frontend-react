@@ -12,7 +12,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useDoOverrideSummary } from 'src/layout/Subform/SubformWrapper';
 import classes from 'src/layout/Subform/Summary/SubformSummaryComponent2.module.css';
 import { SubformSummaryTable } from 'src/layout/Subform/Summary/SubformSummaryTable';
-import { getSubformEntryName, useSubformDataSources } from 'src/layout/Subform/utils';
+import { getSubformEntryDisplayName, useSubformDataSources } from 'src/layout/Subform/utils';
 import classes_singlevaluesummary from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary.module.css';
 import { LayoutSetSummary } from 'src/layout/Summary2/SummaryComponent2/LayoutSetSummary';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
@@ -23,7 +23,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const SummarySubformWrapper = ({ nodeId }: PropsWithChildren<{ nodeId: string }>) => {
   const node = useNode(nodeId) as LayoutNode<'Subform'>;
-  const { layoutSet, id, textResourceBindings, entryName } = useNodeItem(node);
+  const { layoutSet, id, textResourceBindings, entryDisplayName } = useNodeItem(node);
   const dataType = useDataTypeFromLayoutSet(layoutSet);
   const dataElements = useStrictDataElements(dataType);
 
@@ -54,7 +54,7 @@ export const SummarySubformWrapper = ({ nodeId }: PropsWithChildren<{ nodeId: st
             dataElement={element}
             layoutSet={layoutSet}
             node={node}
-            entryName={entryName}
+            entryDisplayName={entryDisplayName}
             title={textResourceBindings?.title}
           />
         </TaskStoreProvider>
@@ -66,13 +66,13 @@ export const SummarySubformWrapper = ({ nodeId }: PropsWithChildren<{ nodeId: st
 const DoSummaryWrapper = ({
   dataElement,
   layoutSet,
-  entryName,
+  entryDisplayName,
   title,
   node,
 }: React.PropsWithChildren<{
   dataElement: IData;
   layoutSet: string;
-  entryName?: ExprValToActualOrExpr<ExprVal.String>;
+  entryDisplayName?: ExprValToActualOrExpr<ExprVal.String>;
   title: string | undefined;
   node: LayoutNode<'Subform'>;
 }>) => {
@@ -85,8 +85,8 @@ const DoSummaryWrapper = ({
   }
 
   const subformEntryName =
-    entryName && !subformDataError
-      ? getSubformEntryName(entryName, subformDataSources, { type: 'node', id: node.id })
+    entryDisplayName && !subformDataError
+      ? getSubformEntryDisplayName(entryDisplayName, subformDataSources, { type: 'node', id: node.id })
       : null;
 
   return (

@@ -42,7 +42,7 @@ import {
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { getSubformEntryName, useSubformDataSources } from 'src/layout/Subform/utils';
+import { getSubformEntryDisplayName, useSubformDataSources } from 'src/layout/Subform/utils';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -519,14 +519,14 @@ function SubformGroup({ nodeId }: { nodeId: string }) {
     throw new Error(`Navigation expected component: "${nodeId}" to exist and be of type: "Subform"`);
   }
   const subformIdsWithError = useComponentValidationsForNode(node).find(isSubformValidation)?.subformDataElementIds;
-  const { layoutSet, textResourceBindings, entryName } = useNodeItem(node);
+  const { layoutSet, textResourceBindings, entryDisplayName } = useNodeItem(node);
   const dataType = useDataTypeFromLayoutSet(layoutSet);
   if (!dataType) {
     throw new Error(`Unable to find data type for subform with id ${nodeId}`);
   }
   const dataElements = useStrictDataElements(dataType);
 
-  if (!dataElements.length || !entryName) {
+  if (!dataElements.length || !entryDisplayName) {
     return null;
   }
 
@@ -561,7 +561,7 @@ function SubformGroup({ nodeId }: { nodeId: string }) {
           <SubformLink
             key={dataElement.id}
             page={node.pageKey}
-            entryName={entryName}
+            entryDisplayName={entryDisplayName}
             nodeId={nodeId}
             dataElement={dataElement}
             hasErrors={Boolean(subformIdsWithError?.includes(dataElement.id))}
@@ -574,13 +574,13 @@ function SubformGroup({ nodeId }: { nodeId: string }) {
 
 function SubformLink({
   page,
-  entryName,
+  entryDisplayName,
   nodeId,
   dataElement,
   hasErrors,
 }: {
   page: string;
-  entryName: ExprValToActualOrExpr<ExprVal.String>;
+  entryDisplayName: ExprValToActualOrExpr<ExprVal.String>;
   nodeId: string;
   dataElement: IData;
   hasErrors: boolean;
@@ -592,7 +592,7 @@ function SubformLink({
 
   const subformEntryName =
     !isSubformDataFetching && !subformDataError
-      ? getSubformEntryName(entryName, subformDataSources, { type: 'node', id: nodeId })
+      ? getSubformEntryDisplayName(entryDisplayName, subformDataSources, { type: 'node', id: nodeId })
       : null;
 
   if (!subformEntryName) {

@@ -102,13 +102,13 @@ function selectorContextNotProvided(..._args: unknown[]): typeof ContextNotProvi
   return ContextNotProvided;
 }
 
-export function getSubformEntryName(
-  entryName: ExprValToActualOrExpr<ExprVal.String>,
+export function getSubformEntryDisplayName(
+  entryDisplayName: ExprValToActualOrExpr<ExprVal.String>,
   dataSources: ExpressionDataSourcesWithoutNodes,
   reference: NodeReference,
 ): string | null {
   const errorIntroText = `Invalid expression for component '${reference.id}'`;
-  if (!ExprValidation.isValidOrScalar(entryName, ExprVal.String, errorIntroText)) {
+  if (!ExprValidation.isValidOrScalar(entryDisplayName, ExprVal.String, errorIntroText)) {
     return null;
   }
 
@@ -117,6 +117,6 @@ export function getSubformEntryName(
     defaultValue: '',
   };
 
-  const resolvedValue = evalExpr(entryName, reference, dataSources, { config, errorIntroText });
+  const resolvedValue = evalExpr(entryDisplayName, reference, dataSources, { config, errorIntroText });
   return resolvedValue ? String(resolvedValue) : null;
 }

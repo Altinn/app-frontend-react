@@ -40,7 +40,7 @@ export const Config = new CG.component({
   )
   .addProperty(new CG.prop('showAddButton', new CG.bool().optional({ default: true })))
   .addProperty(new CG.prop('showDeleteButton', new CG.bool().optional({ default: true })))
-  .addProperty(new CG.prop('entryName', new CG.expr(ExprVal.String).optional()))
+  .addProperty(new CG.prop('entryDisplayName', new CG.expr(ExprVal.String).optional()))
   .addProperty(
     new CG.prop(
       'tableColumns',
