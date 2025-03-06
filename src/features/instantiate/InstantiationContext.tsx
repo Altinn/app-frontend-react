@@ -13,8 +13,8 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export const instantiationMutationKeys = {
   all: () => ['instantiate'] as const,
-  simple: () => ['instantiate', 'simple'] as const,
-  withPrefill: () => ['instantiate', 'withPrefill'] as const,
+  simple: () => [...instantiationMutationKeys.all(), 'simple'] as const,
+  withPrefill: () => [...instantiationMutationKeys.all(), 'withPrefill'] as const,
 };
 
 export interface Prefill {
@@ -116,11 +116,11 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
 export const useInstantiation = () => useCtx();
 
 function mutationHasBeenFired(queryClient: QueryClient): boolean {
-  const mutations = queryClient.getMutationCache().findAll({ mutationKey: ['instantiate'] });
+  const mutations = queryClient.getMutationCache().findAll({ mutationKey: instantiationMutationKeys.all() });
   return mutations.length > 0;
 }
 
 function removeMutations(queryClient: QueryClient) {
-  const mutations = queryClient.getMutationCache().findAll({ mutationKey: ['instantiate'] });
+  const mutations = queryClient.getMutationCache().findAll({ mutationKey: instantiationMutationKeys.all() });
   mutations.forEach((mutation) => queryClient.getMutationCache().remove(mutation));
 }
