@@ -106,10 +106,6 @@
 .calendarInput {
   padding: 1px;
 }
-.calendarInput,
-.calendarInput * {
-  height: 36px;
-}
 .calendarInputWrapper button {
   min-height: 38px;
   min-width: 38px;

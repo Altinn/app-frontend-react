@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { Card, Heading, Paragraph } from '@digdir/designsystemet-react';
-import Grid from '@material-ui/core/Grid';
 
 import classes from 'src/app-components/Card/Card.module.css';
+import { Flex } from 'src/app-components/Flex/Flex';
 
 type AppCardProps = {
   title?: React.ReactNode;
@@ -27,12 +27,12 @@ export function AppCard({ title, description, footer, media, color, mediaPositio
       )}
       {children && (
         <Card.Block>
-          <Grid
+          <Flex
             container
             spacing={6}
           >
             {children}
-          </Grid>
+          </Flex>
         </Card.Block>
       )}
       {footer && (

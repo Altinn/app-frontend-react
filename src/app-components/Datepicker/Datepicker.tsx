@@ -81,14 +81,14 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
             <Button
               id={`${id}-button`}
               variant='tertiary'
-              icon={true}
+              icon
               aria-controls='dialog'
               aria-haspopup='dialog'
               onClick={() => setIsDialogOpen(!isDialogOpen)}
               aria-label={buttonAriaLabel}
               aria-expanded={isDialogOpen}
               disabled={readOnly}
-              color='first'
+              data-color='accent'
               size='sm'
             >
               <CalendarIcon title={calendarIconTitle} />
