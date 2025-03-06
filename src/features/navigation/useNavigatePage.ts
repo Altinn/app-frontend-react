@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import type { NavigateOptions } from 'react-router-dom';
 
-import { useIsMutating, useMutation } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
@@ -406,7 +406,3 @@ export function useVisitedPages() {
   );
 }
 const emptyArray = [];
-
-export function useIsNavigatingPage() {
-  return useIsMutating({ mutationKey: navigatePageMutationKeys.all(), status: 'pending' }) > 0;
-}
