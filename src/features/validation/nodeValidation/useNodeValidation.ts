@@ -49,14 +49,18 @@ export function useNodeValidation(node: LayoutNode): AnyValidation[] {
         validations.push(...fieldValidations.map((v) => ({ ...v, bindingKey })));
       }
     }
+
+    // This is set in the selector because the validation system will wait until all nodes (that validate) have set it.
+    // If we set this during render, all components using this hook would have to re-render after saving data, but now
+    // they only have to re-run the selector. The downside here is that empty validations and component validations will
+    // run outside the selector, so they _may_ have new validations that are not yet processed.
+    registry.current.validationsProcessed[node.id] = state.processedLast;
     return validations;
   });
 
   unfiltered.push(...fieldValidations);
 
   const filtered = filter(unfiltered, node, layoutLookups);
-  registry.current.validationsProcessed[node.id] = Validation.useFullState((state) => state.processedLast);
-
   if (filtered.length === 0) {
     return emptyArray;
   }
