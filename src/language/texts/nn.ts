@@ -439,6 +439,10 @@ export function nn(): FixedLanguageList {
         "Datatype '{0}' er markert som 'disallowUserCreate=true', men underskjema-komponenten er konfigurert med 'showAddButton=true'. Dette er ei motseiing, Sidan brukaren aldri vil få lov til å utføre handlingane bak legg-til knappen.",
       file_upload_same_binding:
         'Det er fleire filopplastingskomponentar med same datamodellbinding. Kvar komponent må ha ein unik binding. Andre komponentar med same binding: {0}',
+      deletion_strategy_no_save_to_list: 'Felta deletionStrategy og isDeleted kan berre brukast saman med saveToList.',
+      save_to_list_no_deletion_strategy: 'Når du har sett saveToList, må du også setje deletionStrategy.',
+      soft_delete_no_is_deleted: 'Når du har sett deletionStrategy til soft, må du også setje isDeleted.',
+      hard_delete_with_is_deleted: 'Når du har sett deletionStrategy til hard, kan du ikkje setje isDeleted.',
     },
     version_error: {
       version_mismatch: 'Versjonsfeil',
