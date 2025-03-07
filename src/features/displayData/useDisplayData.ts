@@ -1,5 +1,6 @@
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useMakeIndexedId } from 'src/features/form/layout/utils/makeIndexedId';
+import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { getComponentDef, implementsDisplayData } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -36,5 +37,5 @@ export function useDisplayDataFor(
     output[id] = def.useDisplayData(indexedId);
   }
 
-  return output;
+  return useShallowMemo(output);
 }

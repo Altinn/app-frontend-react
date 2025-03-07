@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
+import { useDisplayDataFor } from 'src/features/displayData/useDisplayData';
 import { ExprFunctionDefinitions } from 'src/features/expressions/expression-functions';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
@@ -57,6 +58,7 @@ export interface ExpressionDataSources {
   currentDataModelPath: IDataModelReference | undefined;
   codeListSelector: CodeListSelector;
   layoutLookups: LayoutLookups;
+  displayValues: Record<string, string>;
 }
 
 const multiSelectors = {
@@ -102,7 +104,7 @@ const directHooks = {
  * the same between renders, i.e. that layout configuration/expressions does not change between renders.
  */
 export function useExpressionDataSources(toEvaluate: unknown): ExpressionDataSources {
-  const { neededDataSources } = useMemo(() => {
+  const { neededDataSources, displayValueLookups } = useMemo(() => {
     const functionCalls = new Set<ExprFunctionName>();
     const displayValueLookups = new Set<string>();
     findUsedExpressionFunctions(toEvaluate, functionCalls, displayValueLookups);
@@ -115,7 +117,6 @@ export function useExpressionDataSources(toEvaluate: unknown): ExpressionDataSou
       }
     }
 
-    // TODO: Use hooks directly to get display values early
     return { functionCalls, displayValueLookups, neededDataSources };
   }, [toEvaluate]);
 
@@ -141,6 +142,8 @@ export function useExpressionDataSources(toEvaluate: unknown): ExpressionDataSou
       output[key] = combined[combinedIndex++] as unknown as any;
     } else if (key in directHooks) {
       output[key] = directHooks[key](isInGenerator);
+    } else if (key === 'displayValues') {
+      output[key] = useDisplayDataFor([...displayValueLookups.values()]);
     } else {
       throw new Error(`No hook found for data source ${key}`);
     }
