@@ -10,11 +10,13 @@ type Row = Record<string, string | number | boolean>;
 
 export const useSaveToList = (node) => {
   const bindings = useNodeItem(node, (i) => i.dataModelBindings) as IDataModelBindingsForSaveTolistCheckbox;
-  const { formData } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
+  const isDeleted = bindings.isDeleted;
+  const { formData, setValue } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
   const appendToList = FD.useAppendToList();
   const removeFromList = FD.useRemoveIndexFromList();
 
   function isRowChecked(row: Row): boolean {
+    console.log('formData?.saveToList', formData?.saveToList);
     return (formData?.saveToList as Row[]).some((selectedRow) =>
       Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
     );
@@ -29,15 +31,27 @@ export const useSaveToList = (node) => {
         const { altinnRowId: _ } = selectedRow;
         return Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]);
       });
-      if (index >= 0) {
-        removeFromList({
-          reference: bindings.saveToList,
-          index,
-        });
+      if (isDeleted) {
+        const newSaveToList = [...(formData?.saveToList as Row[])];
+        newSaveToList[index] = {
+          ...newSaveToList[index],
+          [isDeleted.field.split('.').reverse()[0]]: true,
+        };
+        setValue('saveToList', newSaveToList);
+      } else {
+        if (index >= 0) {
+          removeFromList({
+            reference: bindings.saveToList,
+            index,
+          });
+        }
       }
     } else {
       const uuid = uuidv4();
       const next: Row = { [ALTINN_ROW_ID]: uuid };
+      if (isDeleted) {
+        next[isDeleted.field.split('.').reverse()[0]] = false;
+      }
       for (const binding of Object.keys(bindings)) {
         if (binding === 'simpleBinding') {
           const propertyName = bindings.simpleBinding.field.split('.')[1];
