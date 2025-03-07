@@ -10,7 +10,7 @@ import { useLaxInstanceId, useStrictInstanceRefetch } from 'src/features/instanc
 import { useReFetchProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { navigatePageMutationKeys } from 'src/features/navigation/navigationQueryKeys';
+import { navigatePageMutationKeys, navigationScope } from 'src/features/navigation/navigationQueryKeys';
 import { useNavigateToTask } from 'src/features/navigation/useNavigatePage';
 import { useUpdateInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { appSupportsIncrementalValidationFeatures } from 'src/features/validation/backendValidation/backendValidationUtils';
@@ -41,6 +41,7 @@ export function useProcessNext() {
   const applicationMetadata = useApplicationMetadata();
 
   const { mutateAsync, isPending } = useMutation({
+    scope: { id: navigationScope },
     mutationKey: navigatePageMutationKeys.processNext(),
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
       if (!instanceId) {

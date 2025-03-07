@@ -10,7 +10,12 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useNavigatePage } from 'src/features/navigation/useNavigatePage';
+import {
+  useExitSubform,
+  useNavigateToNextPage,
+  useNavigateToPage,
+  useNavigateToPreviousPage,
+} from 'src/features/navigation/useNavigatePage';
 import { performActionMutationKeys } from 'src/features/payment/usePerformPaymentMutation';
 import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
@@ -73,19 +78,17 @@ const isClientAction = (action: CBTypes.CustomAction): action is CBTypes.ClientA
 const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerAction => action.type === 'ServerAction';
 
 function useHandleClientActions(): UseHandleClientActions {
-  const {
-    navigateToPageMutation: { mutateAsync: navigateToPage },
-    navigateToNextPage,
-    navigateToPreviousPage,
-    exitSubformMutation: { mutateAsync: exitSubform },
-  } = useNavigatePage();
+  const { mutateAsync: exitSubform } = useExitSubform();
+  const { mutateAsync: navigateToNextPage } = useNavigateToNextPage();
+  const { mutateAsync: navigateToPreviousPage } = useNavigateToPreviousPage();
+  const { mutateAsync: navigateToPage } = useNavigateToPage();
   const mainPageKey = useNavigationParam('mainPageKey');
   const isSubformPage = useIsSubformPage();
 
   const frontendActions: ClientActionHandlers = useMemo(
     () => ({
-      nextPage: navigateToNextPage,
-      previousPage: navigateToPreviousPage,
+      nextPage: () => navigateToNextPage({}),
+      previousPage: () => navigateToPreviousPage({}),
       navigateToPage,
       closeSubform: exitSubform,
     }),

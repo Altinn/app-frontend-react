@@ -22,7 +22,7 @@ import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/AppNavigation.module.css';
-import { useNavigatePage } from 'src/features/navigation/useNavigatePage';
+import { useNavigateToPage } from 'src/features/navigation/useNavigatePage';
 import {
   isSingleGroup,
   useGetTaskGroupType,
@@ -465,7 +465,7 @@ function PageSymbol({
 }
 
 function useHandleNavigation(page: string, onNavigate?: () => void) {
-  const { mutateAsync: navigateToPage, isPending: isNavigating } = useNavigatePage().navigateToPageMutation;
+  const { mutateAsync: navigateToPage, isPending: isNavigating } = useNavigateToPage();
   const currentPageId = useNavigationParam('pageKey');
   const isCurrentPage = page === currentPageId;
 

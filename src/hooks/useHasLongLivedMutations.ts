@@ -19,7 +19,7 @@ export function useHasLongLivedMutations() {
       predicate: (mutation) => longLivedMutationKeys.some((m) => m.at(0) === mutation.options.mutationKey?.at(0)),
     },
     select: (mutation) => mutation.options.mutationKey,
-  });
+  }).filter((m) => m !== undefined);
 
-  return pendingLongLivedMutations.filter((m) => m !== undefined).length > 0;
+  return pendingLongLivedMutations.length > 0;
 }

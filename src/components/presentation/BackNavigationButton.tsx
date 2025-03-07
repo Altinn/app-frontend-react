@@ -10,7 +10,7 @@ import classes from 'src/components/presentation/BackNavigationButton.module.css
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useNavigatePage } from 'src/features/navigation/useNavigatePage';
+import { useExitSubform } from 'src/features/navigation/useNavigatePage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
@@ -24,9 +24,7 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
   const mainPageKey = useNavigationParam('mainPageKey');
   const isSubform = useIsSubformPage();
   const { returnUrl, isFetchingReturnUrl } = useReturnUrl();
-  const {
-    exitSubformMutation: { mutateAsync: exitSubform, isPending: isExitingSubform },
-  } = useNavigatePage();
+  const { mutateAsync: exitSubform, isPending: isExitingSubform } = useExitSubform();
 
   const hasLongLivedMutations = useHasLongLivedMutations();
 

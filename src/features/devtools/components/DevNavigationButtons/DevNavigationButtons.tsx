@@ -7,7 +7,7 @@ import classes from 'src/features/devtools/components/DevNavigationButtons/DevNa
 import { useIsInFormContext } from 'src/features/form/FormContext';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { useNavigatePage } from 'src/features/navigation/useNavigatePage';
+import { useNavigateToPage } from 'src/features/navigation/useNavigatePage';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { Hidden } from 'src/utils/layout/NodesContext';
@@ -23,7 +23,7 @@ export function DevNavigationButtons() {
 
 const InnerDevNavigationButtons = () => {
   const pageKey = useNavigationParam('pageKey');
-  const { mutate: navigateToPage } = useNavigatePage().navigateToPageMutation;
+  const { mutate: navigateToPage } = useNavigateToPage();
   const isHiddenPage = Hidden.useIsHiddenPageSelector();
   const rawOrder = useRawPageOrder();
   const allPages = Object.keys(useLayouts() ?? {});

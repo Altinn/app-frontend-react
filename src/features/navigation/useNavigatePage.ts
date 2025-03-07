@@ -2,13 +2,14 @@ import { useCallback, useEffect, useMemo } from 'react';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { useMutation } from '@tanstack/react-query';
+import type { UseMutationOptions } from '@tanstack/react-query';
 
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { usePageSettings, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/ProcessContext';
-import { navigatePageMutationKeys } from 'src/features/navigation/navigationQueryKeys';
+import { navigatePageMutationKeys, navigationScope } from 'src/features/navigation/navigationQueryKeys';
 import {
   SearchParams,
   useAllNavigationParamsAsRef,
@@ -205,30 +206,20 @@ export function useIsValidTaskId() {
     [processTasks],
   );
 }
+type NavigateVars = { page?: string; options?: NavigateToPageOptions };
+type UseNavigateMutationOptions = UseMutationOptions<void, Error, NavigateVars>;
 
-export function useNavigatePage() {
+export function useNavigateToPage(mutationOptions?: UseNavigateMutationOptions) {
   const isStatelessApp = useApplicationMetadata().isStatelessApp;
   const navigate = useNavigate();
   const navParams = useAllNavigationParamsAsRef();
   const queryKeysRef = useQueryKeysAsStringAsRef();
-  const getTaskType = useGetTaskTypeById();
   const refetchInitialValidations = useRefetchInitialValidations();
+  const { mutateAsync: maybeSaveOnPageChange } = useMaybeSaveOnPageChange();
+  const isValidPageId = useIdValidPageId();
 
-  const { autoSaveBehavior } = usePageSettings();
   const order = usePageOrder();
   const orderRef = useAsRef(order);
-
-  const isValidPageId = useCallback(
-    (_pageId: string) => {
-      // The page ID may be URL encoded already, if we got this from react-router.
-      const pageId = decodeURIComponent(_pageId);
-      if (getTaskType(navParams.current.taskId) !== ProcessTaskType.Data) {
-        return false;
-      }
-      return orderRef.current.includes(pageId) ?? false;
-    },
-    [getTaskType, navParams, orderRef],
-  );
 
   /**
    * For stateless apps, this is how we redirect to the
@@ -243,69 +234,102 @@ export function useNavigatePage() {
     }
   }, [isStatelessApp, orderRef, navigate, isValidPageId, navParams, queryKeysRef]);
 
+  async function navigateToPage({ page, options }: NavigateVars) {
+    const replace = options?.replace ?? false;
+    if (!page) {
+      window.logWarn('navigateToPage called without page');
+      return;
+    }
+    if (!orderRef.current.includes(page) && options?.exitSubform !== true) {
+      window.logWarn('navigateToPage called with invalid page:', `"${page}"`);
+      return;
+    }
+
+    if (options?.skipAutoSave !== true) {
+      await maybeSaveOnPageChange();
+    }
+    if (options?.exitSubform) {
+      await refetchInitialValidations();
+    }
+
+    if (isStatelessApp) {
+      return navigate(`/${page}${queryKeysRef.current}`, options, { replace }, () => focusMainContent(options));
+    }
+
+    const { instanceOwnerPartyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = navParams.current;
+
+    // Subform
+    if (mainPageKey && componentId && dataElementId && options?.exitSubform !== true) {
+      const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}${queryKeysRef.current}`;
+      return navigate(url, options, { replace }, () => focusMainContent(options));
+    }
+
+    let url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}`;
+
+    const searchParams = new URLSearchParams(queryKeysRef.current);
+
+    // Special cases for component focus and subform exit
+    if (options?.focusComponentId || options?.exitSubform) {
+      if (options?.focusComponentId) {
+        searchParams.set(SearchParams.FocusComponentId, options.focusComponentId);
+      }
+
+      if (options?.exitSubform) {
+        searchParams.set(SearchParams.ExitSubform, 'true');
+      }
+    }
+
+    url = `${url}?${searchParams.toString()}`;
+    navigate(url, options, { replace }, () => focusMainContent(options));
+  }
+
+  return useMutation({
+    scope: { id: navigationScope },
+    mutationKey: navigatePageMutationKeys.all(),
+    mutationFn: navigateToPage,
+    ...mutationOptions,
+  });
+}
+
+export function useIdValidPageId() {
+  const navParams = useAllNavigationParamsAsRef();
+  const getTaskType = useGetTaskTypeById();
+
+  const order = usePageOrder();
+  const orderRef = useAsRef(order);
+
+  return useCallback(
+    (_pageId: string) => {
+      // The page ID may be URL encoded already, if we got this from react-router.
+      const pageId = decodeURIComponent(_pageId);
+      if (getTaskType(navParams.current.taskId) !== ProcessTaskType.Data) {
+        return false;
+      }
+      return orderRef.current.includes(pageId) ?? false;
+    },
+    [getTaskType, navParams, orderRef],
+  );
+}
+
+export function useMaybeSaveOnPageChange() {
   const waitForSave = FD.useWaitForSave();
   const waitForNodesReady = NodesInternal.useWaitUntilReady();
-  const { mutateAsync: maybeSaveOnPageChange } = useMutation({
+  const { autoSaveBehavior } = usePageSettings();
+
+  return useMutation({
     mutationKey: ['maybeSaveOnPageChange'],
     mutationFn: async () => {
       await waitForSave(autoSaveBehavior === 'onChangePage');
       await waitForNodesReady();
     },
   });
+}
 
-  const navigateToPageMutation = useMutation({
-    mutationKey: navigatePageMutationKeys.all(),
-    mutationFn: async ({ page, options }: { page?: string; options?: NavigateToPageOptions }) => {
-      const replace = options?.replace ?? false;
-      if (!page) {
-        window.logWarn('navigateToPage called without page');
-        return;
-      }
-      if (!orderRef.current.includes(page) && options?.exitSubform !== true) {
-        window.logWarn('navigateToPage called with invalid page:', `"${page}"`);
-        return;
-      }
-
-      if (options?.skipAutoSave !== true) {
-        await maybeSaveOnPageChange();
-      }
-      if (options?.exitSubform) {
-        await refetchInitialValidations();
-      }
-
-      if (isStatelessApp) {
-        return navigate(`/${page}${queryKeysRef.current}`, options, { replace }, () => focusMainContent(options));
-      }
-
-      const { instanceOwnerPartyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = navParams.current;
-
-      // Subform
-      if (mainPageKey && componentId && dataElementId && options?.exitSubform !== true) {
-        const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}${queryKeysRef.current}`;
-        return navigate(url, options, { replace }, () => focusMainContent(options));
-      }
-
-      let url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}`;
-
-      const searchParams = new URLSearchParams(queryKeysRef.current);
-
-      // Special cases for component focus and subform exit
-      if (options?.focusComponentId || options?.exitSubform) {
-        if (options?.focusComponentId) {
-          searchParams.set(SearchParams.FocusComponentId, options.focusComponentId);
-        }
-
-        if (options?.exitSubform) {
-          searchParams.set(SearchParams.ExitSubform, 'true');
-        }
-      }
-
-      url = `${url}?${searchParams.toString()}`;
-      navigate(url, options, { replace }, () => focusMainContent(options));
-    },
-  });
-
-  const navigateToPage = navigateToPageMutation.mutateAsync;
+export function useNavigateToNextPage(mutationOptions?: UseMutationOptions<void, Error, NavigateToPageOptions>) {
+  const { mutateAsync: navigateToPage } = useNavigateToPage({ scope: undefined });
+  const navParams = useAllNavigationParamsAsRef();
+  const order = usePageOrder();
+  const orderRef = useAsRef(order);
 
   const [_, setVisitedPages] = useVisitedPages();
   /**
@@ -338,6 +362,22 @@ export function useNavigatePage() {
     [navParams, navigateToPage, orderRef, setVisitedPages],
   );
 
+  const mutation = useMutation({
+    scope: { id: navigationScope },
+    mutationKey: navigatePageMutationKeys.next(),
+    mutationFn: navigateToNextPage,
+    ...mutationOptions,
+  });
+
+  return mutation;
+}
+
+export function useNavigateToPreviousPage(mutationOptions?: UseMutationOptions<void, Error, NavigateToPageOptions>) {
+  const { mutateAsync: navigateToPage } = useNavigateToPage({ scope: undefined });
+  const navParams = useAllNavigationParamsAsRef();
+  const order = usePageOrder();
+  const orderRef = useAsRef(order);
+
   /**
    * This function fetches the previous page index on
    * function invocation and then navigates to the previous
@@ -357,7 +397,22 @@ export function useNavigatePage() {
     [navParams, navigateToPage, orderRef],
   );
 
+  const mutation = useMutation({
+    scope: { id: navigationScope },
+    mutationKey: navigatePageMutationKeys.previous(),
+    mutationFn: navigateToPreviousPage,
+    ...mutationOptions,
+  });
+
+  return mutation;
+}
+
+export function useExitSubform(mutationOptions?: UseNavigateMutationOptions) {
+  const navParams = useAllNavigationParamsAsRef();
+  const { mutateAsync: navigateToPage } = useNavigateToPage({ scope: undefined, ...mutationOptions });
+
   const exitSubformMutation = useMutation({
+    scope: { id: navigationScope },
     mutationKey: navigatePageMutationKeys.exitSubform(),
     mutationFn: async () => {
       if (!navParams.current.mainPageKey) {
@@ -376,15 +431,7 @@ export function useNavigatePage() {
     },
   });
 
-  return {
-    navigateToPageMutation,
-    isValidPageId,
-    order,
-    navigateToNextPage,
-    navigateToPreviousPage,
-    maybeSaveOnPageChange,
-    exitSubformMutation,
-  };
+  return exitSubformMutation;
 }
 
 export function focusMainContent(options?: NavigateToPageOptions) {

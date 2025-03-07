@@ -6,7 +6,15 @@ import { Button } from 'src/app-components/Button/Button';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useReturnToView, useSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
-import { useNavigatePage, useNextPageKey, usePreviousPageKey } from 'src/features/navigation/useNavigatePage';
+import { navigationScope } from 'src/features/navigation/navigationQueryKeys';
+import {
+  useMaybeSaveOnPageChange,
+  useNavigateToNextPage,
+  useNavigateToPage,
+  useNavigateToPreviousPage,
+  useNextPageKey,
+  usePreviousPageKey,
+} from 'src/features/navigation/useNavigatePage';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useHasLongLivedMutations } from 'src/hooks/useHasLongLivedMutations';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -18,12 +26,10 @@ export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const { id, showBackButton, textResourceBindings, validateOnNext, validateOnPrevious } = useNodeItem(node);
-  const {
-    navigateToNextPage,
-    navigateToPreviousPage,
-    navigateToPageMutation: { mutateAsync: navigateToPage },
-    maybeSaveOnPageChange,
-  } = useNavigatePage();
+  const { mutateAsync: navigateToNextPage } = useNavigateToNextPage({ scope: undefined });
+  const { mutateAsync: navigateToPreviousPage } = useNavigateToPreviousPage({ scope: undefined });
+  const { mutateAsync: maybeSaveOnPageChange } = useMaybeSaveOnPageChange();
+  const { mutateAsync: navigateToPage } = useNavigateToPage();
   const hasNext = !!useNextPageKey();
   const hasPrevious = !!usePreviousPageKey();
   const returnToView = useReturnToView();
@@ -39,6 +45,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   });
 
   const { mutate: handlePreviousClick, isPending: isPreviousPending } = useMutation({
+    scope: { id: navigationScope },
     mutationFn: async () => {
       await maybeSaveOnPageChange();
 
@@ -52,11 +59,12 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
         }
       }
 
-      await navigateToPreviousPage({ skipAutoSave: true });
+      return await navigateToPreviousPage({ skipAutoSave: true });
     },
   });
 
   const { mutate: handleNextClick, isPending: isNextPending } = useMutation({
+    scope: { id: navigationScope },
     mutationFn: async () => {
       await maybeSaveOnPageChange();
 

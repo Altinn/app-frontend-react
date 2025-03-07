@@ -7,7 +7,7 @@ import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { Loader } from 'src/core/loading/Loader';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
-import { useNavigatePage } from 'src/features/navigation/useNavigatePage';
+import { useNavigateToPage } from 'src/features/navigation/useNavigatePage';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { ProcessTaskType } from 'src/types';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -33,9 +33,7 @@ export function SubformForm() {
 
 export const RedirectBackToMainForm = () => {
   const mainPageKey = useNavigationParam('mainPageKey');
-  const {
-    navigateToPageMutation: { mutate: navigateToPage },
-  } = useNavigatePage();
+  const { mutate: navigateToPage } = useNavigateToPage();
 
   useEffect(() => {
     navigateToPage({ page: mainPageKey });

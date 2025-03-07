@@ -6,7 +6,7 @@ import cn from 'classnames';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useNavigatePage } from 'src/features/navigation/useNavigatePage';
+import { useMaybeSaveOnPageChange, useNavigateToPage, usePageOrder } from 'src/features/navigation/useNavigatePage';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
@@ -54,11 +54,9 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const isMobile = useIsMobile() || compact === true;
   const { langAsString } = useLanguage();
   const currentPageId = useNavigationParam('pageKey') ?? '';
-  const {
-    navigateToPageMutation: { mutateAsync: navigateToPage },
-    order,
-    maybeSaveOnPageChange,
-  } = useNavigatePage();
+  const { mutateAsync: maybeSaveOnPageChange } = useMaybeSaveOnPageChange();
+  const order = usePageOrder();
+  const { mutateAsync: navigateToPage } = useNavigateToPage();
   const onPageNavigationValidation = useOnPageNavigationValidation();
   const hasLongLivedMutations = useHasLongLivedMutations();
 

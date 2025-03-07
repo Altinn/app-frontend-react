@@ -14,7 +14,12 @@ import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/feature
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useCurrentView, useNavigatePage, useStartUrl } from 'src/features/navigation/useNavigatePage';
+import {
+  useCurrentView,
+  useIdValidPageId,
+  useNavigateToPage,
+  useStartUrl,
+} from 'src/features/navigation/useNavigatePage';
 import {
   SearchParams,
   useNavigate,
@@ -49,10 +54,8 @@ export function Form() {
 }
 
 export function FormPage({ currentPageId }: { currentPageId: string | undefined }) {
-  const {
-    isValidPageId,
-    navigateToPageMutation: { mutateAsync: navigateToPage },
-  } = useNavigatePage();
+  const isValidPageId = useIdValidPageId();
+  const { mutateAsync: navigateToPage } = useNavigateToPage();
   const appName = useAppName();
   const appOwner = useAppOwner();
   const { langAsString } = useLanguage();
@@ -163,10 +166,8 @@ function useRedirectToStoredPage() {
   const pageKey = useCurrentView();
   const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
-  const {
-    isValidPageId,
-    navigateToPageMutation: { mutate: navigateToPage },
-  } = useNavigatePage();
+  const isValidPageId = useIdValidPageId();
+  const { mutate: navigateToPage } = useNavigateToPage();
   const applicationMetadataId = useApplicationMetadata()?.id;
 
   const instanceId = `${instanceOwnerPartyId}/${instanceGuid}`;

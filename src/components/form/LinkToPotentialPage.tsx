@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { LinkProps } from 'react-router-dom';
 
-import { useNavigatePage } from 'src/features/navigation/useNavigatePage';
+import { useIdValidPageId } from 'src/features/navigation/useNavigatePage';
 import { Hidden } from 'src/utils/layout/NodesContext';
 
 type Props = LinkProps & { children?: React.ReactNode };
@@ -16,7 +16,7 @@ export const LinkToPotentialPage = (props: Props) => {
   const page = parts[parts.length - 1];
 
   const isHiddenPage = Hidden.useIsHiddenPage(page);
-  const { isValidPageId } = useNavigatePage();
+  const isValidPageId = useIdValidPageId();
 
   const shouldShowLink = isValidPageId(page) && !isHiddenPage;
   if (shouldShowLink) {
