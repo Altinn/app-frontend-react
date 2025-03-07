@@ -45,10 +45,20 @@ export const Config = new CG.component({
           )
           .optional(),
       ),
+      new CG.prop(
+        'isDeleted',
+        new CG.dataModelBinding()
+          .setTitle('IsDeleted')
+          .setDescription(
+            'If deletionStrategy=soft and saveToList is set, this value points to where you want to save deleted status.',
+          )
+          .optional(),
+      ),
     )
       .exportAs('IDataModelBindingsForSaveTolistCheckbox')
       .extends(CG.common('IDataModelBindingsOptionsSimple')),
   )
+  .addProperty(new CG.prop('deletionStrategy', new CG.enum('soft', 'hard').optional()))
   .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()))
   .addProperty(
     new CG.prop(
