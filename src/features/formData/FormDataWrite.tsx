@@ -119,16 +119,43 @@ function useFormDataSaveMutation() {
   }
 
   function checkForRunawaySaving() {
-    const now = Date.now();
     const lastRequests = queryClient
       .getMutationCache()
       .findAll({ status: 'success', mutationKey: ['saveFormData'] })
       .sort((a, b) => a.state.submittedAt - b.state.submittedAt)
-      .filter((req) => now - req.state.submittedAt < 10000) // Must have happened withing the last 10 seconds
-      .map((request) => request.state.data);
+      .map((request) => ({
+        data: request.state.data,
+        submittedAt: request.state.submittedAt,
+      }))
+      .slice(-10);
 
-    const allTheSame = lastRequests.every((request) => deepEqual(request, lastRequests[0]));
-    if (allTheSame && lastRequests.length >= 3) {
+    if (lastRequests.length < 3) {
+      return;
+    }
+
+    const allTheSame = lastRequests.every(
+      (request, index) => index === 0 || deepEqual(request.data, lastRequests[0].data),
+    );
+
+    if (!allTheSame) {
+      return;
+    }
+
+    // Calculate time differences between consecutive requests
+    const timeDiffs = lastRequests
+      .slice(1)
+      .map((request, index) => request.submittedAt - lastRequests[index].submittedAt);
+
+    // Calculate standard deviation and mean of time differences
+    const mean = timeDiffs.reduce((sum, diff) => sum + diff, 0) / timeDiffs.length;
+    const variance = timeDiffs.reduce((sum, diff) => sum + Math.pow(diff - mean, 2), 0) / timeDiffs.length;
+    const stdDev = Math.sqrt(variance);
+
+    // Consider timing suspicious if standard deviation is low relative to the mean
+    // This suggests very regular intervals between saves
+    const stdDevLow = stdDev < mean * 0.3 && mean < 2000; // 30% of mean and under 2 seconds
+
+    if (stdDevLow) {
       const message =
         'Runaway saving detected, a bug in the application or the saving logic is causing the ' +
         'form data to save repeatedly without real changes. Check the saving requests (in the browser devtools) and ' +
