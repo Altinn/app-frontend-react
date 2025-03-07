@@ -129,7 +129,7 @@ function useFormDataSaveMutation() {
       }))
       .slice(-10);
 
-    if (lastRequests.length < 3) {
+    if (lastRequests.length < 10) {
       return;
     }
 
@@ -137,7 +137,10 @@ function useFormDataSaveMutation() {
       (request, index) => index === 0 || deepEqual(request.data, lastRequests[0].data),
     );
 
-    if (!allTheSame) {
+    const hasAlternatingPattern =
+      !allTheSame && lastRequests.every((request, index) => deepEqual(request.data, lastRequests[index % 2].data));
+
+    if (!allTheSame && !hasAlternatingPattern) {
       return;
     }
 
@@ -151,9 +154,11 @@ function useFormDataSaveMutation() {
     const variance = timeDiffs.reduce((sum, diff) => sum + Math.pow(diff - mean, 2), 0) / timeDiffs.length;
     const stdDev = Math.sqrt(variance);
 
-    // Consider timing suspicious if standard deviation is low relative to the mean
-    // This suggests very regular intervals between saves
-    const stdDevLow = stdDev < mean * 0.3 && mean < 2000; // 30% of mean and under 2 seconds
+    // Consider timing suspicious if standard deviation is low relative to the mean.
+    // This suggests very regular intervals between saves (i.e. not user initiated). We purposefully don't check the
+    // actual duration of a save, because that can vary a lot between apps, depending on what the backend needs
+    // to do to process a save request.
+    const stdDevLow = stdDev < mean * 0.3;
 
     if (stdDevLow) {
       const message =
