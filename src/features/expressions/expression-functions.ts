@@ -9,11 +9,9 @@ import { addError } from 'src/features/expressions/validation';
 import { makeIndexedId } from 'src/features/form/layout/utils/makeIndexedId';
 import { CodeListPending } from 'src/features/options/CodeListsProvider';
 import { SearchParams } from 'src/features/routing/AppRoutingContext';
-import { getComponentDef, implementsDisplayData } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
-import { getNodeFormData } from 'src/utils/layout/useNodeItem';
 import type { EvaluateExpressionParams } from 'src/features/expressions';
 import type {
   AnyExprArg,
@@ -534,34 +532,35 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup component null`);
     }
 
-    const target = this.dataSources.layoutLookups.allComponents[id];
-    if (!target) {
-      throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
-    }
-
-    const def = getComponentDef(target.type);
-    if (!implementsDisplayData(def)) {
-      throw new ExprRuntimeError(this.expr, this.path, `Component with identifier ${id} does not have a displayValue`);
-    }
-
-    const relativeId = makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
-    if (!relativeId) {
-      throw new NodeRelationNotFound(this, id);
-    }
-
-    if (this.dataSources.isHiddenSelector(relativeId)) {
-      return null;
-    }
-
-    return def.getDisplayData({
-      attachmentsSelector: this.dataSources.attachmentsSelector,
-      optionsSelector: this.dataSources.optionsSelector,
-      langTools: this.dataSources.langToolsSelector(relativeId),
-      currentLanguage: this.dataSources.currentLanguage,
-      nodeDataSelector: this.dataSources.nodeDataSelector,
-      formData: getNodeFormData(relativeId, this.dataSources.nodeDataSelector, this.dataSources.formDataSelector),
-      nodeId: relativeId,
-    });
+    throw new Error('Not implemented');
+    // const target = this.dataSources.layoutLookups.allComponents[id];
+    // if (!target) {
+    //   throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
+    // }
+    //
+    // const def = getComponentDef(target.type);
+    // if (!implementsDisplayData(def)) {
+    //   throw new ExprRuntimeError(this.expr, this.path, `Component with identifier ${id} does not have a displayValue`);
+    // }
+    //
+    // const relativeId = makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
+    // if (!relativeId) {
+    //   throw new NodeRelationNotFound(this, id);
+    // }
+    //
+    // if (this.dataSources.isHiddenSelector(relativeId)) {
+    //   return null;
+    // }
+    //
+    // return def.getDisplayData({
+    //   attachmentsSelector: this.dataSources.attachmentsSelector,
+    //   optionsSelector: this.dataSources.optionsSelector,
+    //   langTools: this.dataSources.langToolsSelector(relativeId),
+    //   currentLanguage: this.dataSources.currentLanguage,
+    //   nodeDataSelector: this.dataSources.nodeDataSelector,
+    //   formData: getNodeFormData(relativeId, this.dataSources.nodeDataSelector, this.dataSources.formDataSelector),
+    //   nodeId: relativeId,
+    // });
   },
   optionLabel(optionsId, value) {
     if (optionsId === null) {

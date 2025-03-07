@@ -24,8 +24,12 @@ export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOpti
   const langTools = useLanguage(node);
   const groupReference = useGroupReference(source, node);
   const valueSubPath = getValueSubPath(source);
-  const rawValues = FD.useDebouncedSelect(groupReference, (groupRows) => {
-    if (!Array.isArray(groupRows) || !groupReference || !valueSubPath) {
+  const rawValues = FD.useDebouncedSelect((pick) => {
+    if (!groupReference || !valueSubPath) {
+      return [];
+    }
+    const groupRows = pick(groupReference);
+    if (!Array.isArray(groupRows)) {
       return [];
     }
 

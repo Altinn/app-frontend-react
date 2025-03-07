@@ -76,7 +76,7 @@ function DataModelLocationFromNode({ nodeId, children }: PropsWithChildren<{ nod
 
   return (
     <DataModelLocationProvider
-      binding={repeatingBinding}
+      groupBinding={repeatingBinding}
       rowIndex={rowIndex}
     >
       {children}
