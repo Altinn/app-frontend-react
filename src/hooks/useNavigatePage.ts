@@ -358,12 +358,7 @@ export function useNavigatePage() {
     await navigateToPage(navParams.current.mainPageKey, {
       exitSubform: true,
       resetReturnToView: false,
-      // TODO(Subform):
-      // Should we really always focus on the subform component?
-      // This causes us to immediately navigate to the page containing the subform
-      // which is not necessarily the same as mainPageKey here.
-      //
-      // focusComponentId: navParams.current.componentId,
+      focusComponentId: navParams.current.componentId,
     });
   };
 
