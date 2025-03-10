@@ -888,29 +888,32 @@ Cypress.Commands.add('navGroup', (groupName, pageName) => {
   }
 });
 
-Cypress.Commands.add('gotoNavGroup', (isUsingDialog, groupName, pageName) => {
-  if (pageName) {
-    cy.navGroup(groupName).then((group) => {
-      if (group[0].getAttribute('aria-expanded') === 'false') {
-        cy.navGroup(groupName).click();
+Cypress.Commands.add('gotoNavGroup', (groupName, pageName) => {
+  cy.get('body').then((body) => {
+    const isUsingDialog = !!body.find('[data-testid=page-navigation-trigger]').length;
+    if (pageName) {
+      cy.navGroup(groupName).then((group) => {
+        if (group[0].getAttribute('aria-expanded') === 'false') {
+          cy.navGroup(groupName).click();
+        }
+      });
+      cy.navGroup(groupName).should('have.attr', 'aria-expanded', 'true');
+      cy.navGroup(groupName, pageName).click();
+      if (isUsingDialog) {
+        cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
+      } else {
+        cy.navGroup(groupName, pageName).should('have.attr', 'aria-current', 'page');
       }
-    });
-    cy.navGroup(groupName).should('have.attr', 'aria-expanded', 'true');
-    cy.navGroup(groupName, pageName).click();
-    if (isUsingDialog) {
-      cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
     } else {
-      cy.navGroup(groupName, pageName).should('have.attr', 'aria-current', 'page');
+      cy.navGroup(groupName).should('not.have.attr', 'aria-expanded');
+      cy.navGroup(groupName).click();
+      if (isUsingDialog) {
+        cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
+      } else {
+        cy.navGroup(groupName).should('have.attr', 'aria-current', 'page');
+      }
     }
-  } else {
-    cy.navGroup(groupName).should('not.have.attr', 'aria-expanded');
-    cy.navGroup(groupName).click();
-    if (isUsingDialog) {
-      cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
-    } else {
-      cy.navGroup(groupName).should('have.attr', 'aria-current', 'page');
-    }
-  }
+  });
 });
 
 Cypress.Commands.add('openNavGroup', (groupName) => {

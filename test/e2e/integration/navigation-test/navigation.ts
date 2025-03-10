@@ -100,7 +100,7 @@ describe('navigation', () => {
         cy.testWcag();
         cy.percySnapshot(`navigation:page-states (${device})`, { percyCSS, widths: [width] });
       });
-      cy.gotoNavGroup(isUsingDialog, /^Informasjon/, 'Generell info');
+      cy.gotoNavGroup(/^Informasjon/, 'Generell info');
 
       isUsingDialog && cy.showNavGroups();
       cy.navGroup(/^Informasjon/).should('have.attr', 'aria-expanded', 'true');
@@ -109,7 +109,7 @@ describe('navigation', () => {
       cy.navGroup('Utfylling').should('have.attr', 'aria-expanded', 'false');
       cy.navGroup('Utfylling').should('not.have.attr', 'aria-current');
       cy.navGroup('Utfylling').find(ICON_ERROR).should('be.visible');
-      cy.gotoNavGroup(isUsingDialog, 'Utfylling', 'Alder');
+      cy.gotoNavGroup('Utfylling', 'Alder');
 
       cy.findByRole('textbox', { name: /Alder/ }).clear();
       cy.findByRole('textbox', { name: /Alder/ }).type('42');
@@ -118,12 +118,12 @@ describe('navigation', () => {
       isUsingDialog && cy.showNavGroups();
       cy.navGroup('Utfylling', 'Biler').find(ICON_COMPLETE).should('not.exist');
       cy.navGroup('Utfylling', 'Biler').find(ICON_ERROR).should('not.exist');
-      cy.gotoNavGroup(isUsingDialog, 'Utfylling', 'Biler');
+      cy.gotoNavGroup('Utfylling', 'Biler');
 
       isUsingDialog && cy.showNavGroups();
       cy.navGroup('Utfylling', 'Alder').find(ICON_COMPLETE).should('be.visible');
       cy.navGroup('Utfylling', 'Alder').find(ICON_ERROR).should('not.exist');
-      cy.gotoNavGroup(isUsingDialog, 'Utfylling', 'Fødselsdag');
+      cy.gotoNavGroup('Utfylling', 'Fødselsdag');
 
       isUsingDialog && cy.showNavGroups();
       cy.navGroup('Utfylling', 'Biler').find(ICON_COMPLETE).should('not.exist');
@@ -169,7 +169,7 @@ describe('navigation', () => {
       cy.openNavGroup('Innsending');
       cy.navGroup('Innsending', 'Tilbakemelding').should('be.visible');
       cy.navGroup('Innsending', 'Oppsummering').should('be.visible');
-      cy.gotoNavGroup(isUsingDialog, 'Utfylling', 'Ekstra');
+      cy.gotoNavGroup('Utfylling', 'Ekstra');
 
       cy.findByRole('checkbox', { name: 'Skjul tilbakemelding' }).dsCheck();
 

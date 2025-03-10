@@ -303,7 +303,7 @@ declare global {
 
       navGroup(groupName: string | RegExp, pageName?: string | RegExp): Chainable<JQuery<Element>>;
 
-      gotoNavGroup(isUsingDialog: boolean, groupName: string | RegExp, pageName?: string | RegExp): Chainable<null>;
+      gotoNavGroup(groupName: string | RegExp, pageName?: string | RegExp): Chainable<null>;
 
       openNavGroup(groupName: string | RegExp): Chainable<null>;
 
