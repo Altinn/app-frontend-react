@@ -875,12 +875,16 @@ Cypress.Commands.add('hideNavGroups', () => {
 
 Cypress.Commands.add('navGroup', (groupName, pageName) => {
   if (pageName) {
-    cy.get('[data-testid=page-navigation]')
-      .findByRole('button', { name: groupName })
-      .parent()
-      .findByRole('button', { name: pageName });
+    cy.get('[data-testid=page-navigation]').then((container) =>
+      cy
+        .findByRole('button', { name: groupName, container })
+        .parent()
+        .then((container) => cy.findByRole('button', { name: pageName, container })),
+    );
   } else {
-    cy.get('[data-testid=page-navigation]').findByRole('button', { name: groupName });
+    cy.get('[data-testid=page-navigation]').then((container) =>
+      cy.findByRole('button', { name: groupName, container }),
+    );
   }
 });
 
