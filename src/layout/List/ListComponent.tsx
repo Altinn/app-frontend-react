@@ -160,68 +160,66 @@ export const ListComponent = ({ node }: IListProps) => {
     required,
   });
 
-  const options = saveToList ? (
-    <Fieldset>
-      <Fieldset.Legend>
-        {description && (
-          <Fieldset.Description>
-            <Lang id={description} />
-          </Fieldset.Description>
-        )}
-        <Heading
-          level={2}
-          data-size='sm'
-        >
-          <Lang id={title} />
-          <RequiredIndicator required={required} />
-        </Heading>
-      </Fieldset.Legend>
-      {data?.listItems.map((row) => (
-        <Checkbox
-          key={JSON.stringify(row)}
-          className={cn(classes.mobile)}
-          {...getCheckboxProps({ value: JSON.stringify(row) })}
-          onClick={() => handleRowClick(row)}
-          value={JSON.stringify(row)}
-          checked={isRowChecked(row)}
-          label={renderListItems(row, tableHeaders)}
-        />
-      ))}
-    </Fieldset>
-  ) : (
-    <Fieldset className={classes.mobileGroup}>
-      <Fieldset.Legend>
-        <Heading
-          level={2}
-          data-size='sm'
-        >
-          <Lang id={title} />
-          <RequiredIndicator required={required} />
-        </Heading>
-      </Fieldset.Legend>
-      {description && (
-        <Fieldset.Description>
-          <Lang id={description} />
-        </Fieldset.Description>
-      )}
-
-      {data?.listItems.map((row) => (
-        <Radio
-          key={JSON.stringify(row)}
-          {...getRadioProps({ value: JSON.stringify(row) })}
-          value={JSON.stringify(row)}
-          className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
-          onClick={() => handleSelectedRadioRow({ selectedValue: row })}
-          label={renderListItems(row, tableHeaders)}
-        />
-      ))}
-    </Fieldset>
-  );
-
   if (isMobile) {
     return (
       <ComponentStructureWrapper node={node}>
-        {options}
+        {saveToList ? (
+          <Fieldset>
+            <Fieldset.Legend>
+              {description && (
+                <Fieldset.Description>
+                  <Lang id={description} />
+                </Fieldset.Description>
+              )}
+              <Heading
+                level={2}
+                data-size='sm'
+              >
+                <Lang id={title} />
+                <RequiredIndicator required={required} />
+              </Heading>
+            </Fieldset.Legend>
+            {data?.listItems.map((row) => (
+              <Checkbox
+                key={JSON.stringify(row)}
+                className={cn(classes.mobile)}
+                {...getCheckboxProps({ value: JSON.stringify(row) })}
+                onClick={() => handleRowClick(row)}
+                value={JSON.stringify(row)}
+                checked={isRowChecked(row)}
+                label={renderListItems(row, tableHeaders)}
+              />
+            ))}
+          </Fieldset>
+        ) : (
+          <Fieldset className={classes.mobileGroup}>
+            <Fieldset.Legend>
+              <Heading
+                level={2}
+                data-size='sm'
+              >
+                <Lang id={title} />
+                <RequiredIndicator required={required} />
+              </Heading>
+            </Fieldset.Legend>
+            {description && (
+              <Fieldset.Description>
+                <Lang id={description} />
+              </Fieldset.Description>
+            )}
+
+            {data?.listItems.map((row) => (
+              <Radio
+                key={JSON.stringify(row)}
+                {...getRadioProps({ value: JSON.stringify(row) })}
+                value={JSON.stringify(row)}
+                className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
+                onClick={() => handleSelectedRadioRow({ selectedValue: row })}
+                label={renderListItems(row, tableHeaders)}
+              />
+            ))}
+          </Fieldset>
+        )}
         <Pagination
           pageSize={pageSize}
           setPageSize={setPageSize}
