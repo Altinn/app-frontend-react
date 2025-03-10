@@ -10,9 +10,9 @@ const emptyArray: never[] = [];
 const extraToShowInTable: CompTypes[] = ['Text', 'Number', 'Date', 'Option'];
 export function useTableComponentIds(node: LayoutNode<'RepeatingGroup'>) {
   const layoutLookups = useLayoutLookups();
-  const tableHeaders = layoutLookups.getComponent(node.id, 'RepeatingGroup').tableHeaders;
+  const tableHeaders = layoutLookups.getComponent(node.baseId, 'RepeatingGroup').tableHeaders;
   const children =
-    layoutLookups.componentToChildren[node.id]?.map((childId) => layoutLookups.getComponent(childId)) ?? emptyArray;
+    layoutLookups.componentToChildren[node.baseId]?.map((childId) => layoutLookups.getComponent(childId)) ?? emptyArray;
 
   return useMemo(() => {
     const ids = children
