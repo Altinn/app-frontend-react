@@ -347,7 +347,7 @@ function Pagination({
   const isMobile = useIsMobile();
 
   function handlePageSizeChange(newSize: number) {
-    setCurrentPage(0);
+    setCurrentPage(1);
     setPageSize(newSize);
   }
   const textStrings = language?.['list_component'];
