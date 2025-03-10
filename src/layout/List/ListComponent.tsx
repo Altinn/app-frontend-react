@@ -51,13 +51,13 @@ export const ListComponent = ({ node }: IListProps) => {
   } = item;
 
   const [pageSize, setPageSize] = useState<number>(pagination?.default ?? 0);
-  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortColumn, setSortColumn] = useState<string | undefined>();
   const [sortDirection, setSortDirection] = useState<AriaAttributes['aria-sort']>('none');
 
   const filter: Filter = {
     pageSize,
-    pageNumber: currentPage,
+    pageNumber: currentPage - 1,
     sortColumn,
     sortDirection,
   };
