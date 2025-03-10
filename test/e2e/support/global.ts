@@ -298,11 +298,12 @@ declare global {
 
       getCurrentViewportSize(): Chainable<Size>;
 
-      showNavGroups(open: boolean): Chainable<null>;
+      showNavGroups(): Chainable<null>;
+      hideNavGroups(): Chainable<null>;
 
       navGroup(groupName: string | RegExp, pageName?: string | RegExp): Chainable<JQuery<Element>>;
 
-      gotoNavGroup(groupName: string | RegExp, pageName?: string | RegExp): Chainable<null>;
+      gotoNavGroup(isUsingDialog: boolean, groupName: string | RegExp, pageName?: string | RegExp): Chainable<null>;
 
       openNavGroup(groupName: string | RegExp): Chainable<null>;
 
