@@ -25,9 +25,9 @@ export function useNodeValidation(node: LayoutNode): AnyValidation[] {
   const dataModelBindings = GeneratorInternal.useIntermediateItem()?.dataModelBindings;
   const bindings = Object.entries((dataModelBindings ?? {}) as Record<string, IDataModelReference>);
 
-  // We intentionally break the rules of hooks here. All nodes have a type, and that type never changes in the lifetime
-  // of the node. Therefore, we can safely ignore the rule of hooks here, as we'll always re-render with the same
-  // validator hooks.
+  // We intentionally break the rules of hooks eslint rule here. All nodes have a type, and that type never changes
+  // in the lifetime of the node. Therefore, we can safely ignore the linting rule, as we'll always re-render with
+  // the same validator hooks (and thus in practice we will never actually break the rule of hooks, only the linter).
   const unfiltered: AnyValidation[] = [];
   if (implementsValidateEmptyField(node.def)) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

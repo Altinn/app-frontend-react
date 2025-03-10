@@ -31,11 +31,10 @@ function StoreValidationsInNodeWorker() {
   const node = GeneratorInternal.useParent() as Node;
   const shouldValidate = shouldValidateNode(item);
 
-  // We intentionally break the rules of hooks here. The shouldValidateNode function depends on the
-  // component configuration (specifically, the renderAsSummary property), which cannot
-  // change over time (it is not an expression). Therefore, we can safely ignore rule of hooks here, as we'll always
-  // re-render with the same number of hooks. If the property changes (from DevTools, for example), the entire form
-  // will re-render anyway.
+  // We intentionally break the rules of hooks eslint rule here. The shouldValidateNode function depends on the
+  // component configuration (specifically, the renderAsSummary property), which cannot change over time (it is not an
+  // expression). Therefore, we can safely ignore lint rule here, as we'll always re-render with the same number of
+  // hooks. If the property changes (from DevTools, for example), the entire form will re-render anyway.
   if (shouldValidate) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useStoreValidations(node, item);
